@@ -26,6 +26,58 @@ Estado: diseño propuesto con decisión funcional aprobada: ambos ámbitos, EXPE
 
 Antes de implementar, materializar en pruebas una tabla de transiciones exhaustiva de los estados anteriores; transiciones no enumeradas se rechazan. Al reintentar una recepción rechazada, el contenido debe corresponder al mismo manifiesto; cambios de nombre/tamaño/configuración requieren nueva preparación, no editar silenciosamente el lote. Un fallo técnico puede reintentar la misma fase con otra identidad de intento si está demostrado que no produjo efecto.
 
+### Tabla cerrada implementada, 2026-10-28
+
+`CoordinadorImportacionCarpetas` contiene la legalidad de transiciones por dimensión, con comparación ordinal y listas devueltas como copias. Lo no enumerado, incluidos cambios a sí mismo, se rechaza con CONFLICTO_REVISION. Crear un registro en su estado inicial o devolver una repetición sin mutación son operaciones distintas de una transición. Una observación adicional puede conservar estado/reclamación y añadir auditoría; no necesita inventar una transición a sí mismo.
+
+| Dimensión | Desde | Destinos enumerados |
+|---|---|---|
+| PLAN | REVISABLE | CONFIRMADO, EXPIRADO |
+| PLAN | BLOQUEADO | EXPIRADO |
+| PLAN | CONFIRMADO / EXPIRADO | Ninguno |
+| RECEPCION | PENDIENTE | RECIBIENDO, RECHAZADO, CANCELADO |
+| RECEPCION | RECIBIENDO | RECIBIDO, RECHAZADO, INCIERTO |
+| RECEPCION | RECIBIDO | INCIERTO |
+| RECEPCION | RECHAZADO | RECIBIENDO, CANCELADO |
+| RECEPCION | INCIERTO | RECIBIDO, RECHAZADO |
+| RECEPCION | CANCELADO | Ninguno |
+| EFECTO | NO_INICIADO | EN_CURSO, RECHAZADO, CANCELADO |
+| EFECTO | EN_CURSO | ALMACENADO, COMPLETADO, RECHAZADO, INCIERTO |
+| EFECTO | ALMACENADO | EN_CURSO, COMPLETADO, INCIERTO |
+| EFECTO | RECHAZADO | EN_CURSO |
+| EFECTO | INCIERTO | ALMACENADO, COMPLETADO, RECHAZADO |
+| EFECTO | COMPLETADO / CANCELADO | Ninguno |
+| RAIZ | PENDIENTE | CREANDO, BLOQUEADO, CANCELADA |
+| RAIZ | CREANDO | EXPEDIENTE_CONFIRMADO, INCIERTO, BLOQUEADO |
+| RAIZ | EXPEDIENTE_CONFIRMADO | COMPLETADA, PARCIAL, INCIERTO |
+| RAIZ | INCIERTO | EXPEDIENTE_CONFIRMADO, BLOQUEADO |
+| RAIZ | BLOQUEADO | CREANDO, CANCELADA |
+| RAIZ | PARCIAL | EXPEDIENTE_CONFIRMADO, COMPLETADA, INCIERTO |
+| RAIZ | COMPLETADA / CANCELADA | Ninguno |
+| INTENTO | RESERVADO | EN_CURSO, RECHAZADO, INCIERTO |
+| INTENTO | EN_CURSO | CONFIRMADO, RECHAZADO, INCIERTO |
+| INTENTO | INCIERTO | CONFIRMADO, RECHAZADO |
+| INTENTO | CONFIRMADO / RECHAZADO | Ninguno |
+| LOTE | RECIBIENDO | LISTO, EN_CURSO, PENDIENTE_VERIFICACION, DETENIDO, PARCIAL, FALLIDO |
+| LOTE | LISTO | RECIBIENDO, EN_CURSO, PENDIENTE_VERIFICACION, DETENIDO, COMPLETADO, PARCIAL, FALLIDO |
+| LOTE | EN_CURSO | RECIBIENDO, LISTO, PENDIENTE_VERIFICACION, DETENIDO, COMPLETADO, PARCIAL, FALLIDO |
+| LOTE | PENDIENTE_VERIFICACION | RECIBIENDO, LISTO, DETENIDO, COMPLETADO, PARCIAL, FALLIDO |
+| LOTE | DETENIDO | RECIBIENDO, LISTO, PENDIENTE_VERIFICACION, COMPLETADO, PARCIAL, FALLIDO |
+| LOTE | PARCIAL | RECIBIENDO, LISTO, EN_CURSO, PENDIENTE_VERIFICACION, DETENIDO, COMPLETADO |
+| LOTE | COMPLETADO / FALLIDO | Ninguno |
+
+Actualización 2026-10-30, 10.8: LISTO → COMPLETADO permite consolidar los últimos efectos comprobados mediante reconciliación explícita. No inicia un efecto: exige todos los checkpoints positivos originales. La confirmación del intento, liberación de su reclamación y consolidación pertenecen a una misma transacción. La marca inmutable de los comandos de verificación impide utilizarlos en las rutas ordinarias de ejecución. Una reclamación antigua aún RESERVADO/EN_CURSO o sin IDs completos conserva su incertidumbre; la antigüedad no la libera. Evidencia local `Validacion/doc111-reconciliacion-local-20261030.md`; HTTP de esta capacidad sigue pendiente de 10.11.
+
+La tabla **no concede autoridad ni prueba de efecto**. Toda transición necesita el recurso/revisión y las condiciones de su operación. En particular:
+
+- INCIERTO solo sale con evidencia positiva o negativa inequívoca; no pasa directamente a una fase ejecutora por timeout, lease o nuevo token. Un intento terminal necesita nueva identidad para otra fase.
+- RECIBIDO → INCIERTO corresponde a nueva verificación autorizada de contenido perdido/alterado, conservando evidencia histórica; no al fallo de respuesta de un commit positivo. El registro de fallos de recepción continúa sin degradar ese commit.
+- ALMACENADO → EN_CURSO solo sirve a una fase pendiente compatible, con IDs conservados; nunca autoriza almacenar otra vez el documento.
+- BLOQUEADO → CREANDO o RECHAZADO → EN_CURSO/RECIBIENDO requieren elegibilidad original y prueba de no efecto; no corrigen silenciosamente elementos ineligibles del plan congelado. Cambiar inventario o reglas requiere otro plan.
+- DETENIDO → LISTO/RECIBIENDO requiere continuación explícita autorizada y señal de detención resuelta; esta tabla no implementa esa acción. Los agregados necesitan verificar sus condiciones/totales, no inferir éxito solo por la etiqueta previa.
+
+La recepción existente aplica esta tabla antes de reservar, confirmar o registrar un cambio de estado de archivo/intento, manteniendo sus guards de recurso/token/evidencia y transacciones. La reclamación documental, ejecución, agregación y reconciliación del coordinador todavía no están implementadas por publicar la tabla.
+
 ## 3. Barrera de integridad
 
 La barrera completa exige todos los contenidos recibidos/verificados, reglas resolubles y comprobaciones posibles antes de creación. Valores dependientes del ID del expediente validan su definición/fuente antes y su valor final después de crear. Si fallan, se conserva el expediente y se bloquea completar la unidad: no se prometió atomicidad.
@@ -39,6 +91,8 @@ La barrera completa exige todos los contenidos recibidos/verificados, reglas res
 Ambos ámbitos están aprobados: implementar y probar ambas ramas en el mismo coordinador. En modo completo no publicar ámbito NULL ni asignar uno silenciosamente; el usuario del perfil elige EXPEDIENTE o LOTE. En parcial persistir NO_APLICA. La política queda fijada al confirmar el lote y no se modifica al reanudar.
 
 ### Agregación del lote
+
+Implementación local del 2026-10-30: `CoordinadorImportacionCarpetas.Consolidacion.vb` y el parcial `.Consolidacion.vb` del repositorio único calculan/aplican estos agregados desde todos los originales y checkpoints terminales coherentes. COMPLETADA/COMPLETADO no se deduce solo de etiquetas; requiere identidad de creación, recepción, IDs/valores efectivos y resultado concordante con un intento final. Incertidumbre (incluidos marcadores/actividad huérfanos o IDs duplicados) precede a actividad, completitud y detención. Progreso confirmado con trabajo automático restante conserva EN_CURSO entre fases; rechazados y pendientes permanecen en los totales. Un INCIERTO no se reconcilia mediante esta agregación. Los cambios de estado/revisión y eventos se aplican en la misma transacción de checkpoint/detención; repetir sin cambios no escribe. Evidencia local `Validacion/doc111-consolidacion-local-20261030.md`; sin SQL/efectos reales. Las referencias históricas de este documento a exigir aislamiento adicional del XML quedan sustituidas por la decisión explícita del usuario del 2026-10-30; las funciones legacy permanecen intactas.
 
 Regla conservadora: COMPLETADO solo si todas las raíces/archivos exigidos tienen efectos completos; PENDIENTE_VERIFICACION si existe incertidumbre; EN_CURSO si hay intento activo; DETENIDO si hay detención solicitada sin efecto activo y quedan pendientes; PARCIAL si hay éxitos y fallos/pendientes terminales; FALLIDO si no hay éxitos y no hay trabajo elegible/recuperable; RECIBIENDO/LISTO si todavía se está preparando trabajo. La precedencia concreta debe conservar indicadores separados `hayIntentosActivos`, `hayIncertidumbre`, `hayRechazados` y totales: una etiqueta sola no autoriza reintentar. Trabajo recuperable pendiente se mantiene visible aun si el resumen es parcial.
 
@@ -87,6 +141,8 @@ Nombre original y extensión deben conservarse por contrato soportado. La funci�
 
 ## 7. Publicación, permisos y reanudación
 
+Precisión autorizada 2026-11-01: una reserva ALMACENAR que nunca pasó de RESERVADO puede cerrarse por acción explícita `CerrarReservaSinInicio`. El repositorio exige raíz confirmada, archivo recibido con valores fijados y reclamación exacta, ausencia de evidencia/fin/eventos de inicio o resultado, revisión vigente y autoridad. Bajo el mismo bloqueo de lote que el inicio, compara la vista, registra intento RECHAZADO con `RESERVA_CERRADA_SIN_INICIO`, libera solo el archivo a NO_INICIADO y aumenta revisiones con evento durable. El CAS y la revisión impiden el inicio del ejecutor anterior. No altera la tabla general para intentos EN_CURSO/INCIERTO ni usa timeout como prueba. Conserva originales, valores, expedientes e historial; repetir el cierre no libera una reserva nueva. El cierre no crea un documento ni autoriza replay del intento anterior.
+
 Decisión aprobada 2026-10-20: publicar otra versión no altera lotes anteriores. Desactivar perfil impide nuevas selecciones y confirmaciones; lotes ya confirmados continúan con snapshot original y permisos vigentes. Detener lote es una acción explícita independiente; pérdida de autorización impide nuevos efectos afectados. Reactivar no reanuda automáticamente lotes detenidos. Contrato y carreras: [coincidencias/disponibilidad](06-coincidencias-disponibilidad.md).
 
 Permisos diferenciados: administrar/publicar perfil, preparar/confirmar importación, recibir, ejecutar, consultar, reconciliar y mantenimiento. Resolverlos con el modelo existente, sin reutilizar indiscriminadamente permiso de gabinete. Pérdida de un permiso de ejecución no habilita consulta a un actor no autorizado; un operador autorizado debe poder investigar incertidumbre.
@@ -98,3 +154,5 @@ La reanudación requiere acceso al lote persistido. El navegador cerrado no mant
 `Registrar_Expediente_Conservacion`: comprobar límites, fechas/código, permisos externos, transacciones y efectos XML/relación; devuelve identidad real, pero no se ha demostrado correlación suficiente ante crash posterior.
 
 `AlmacenamientoDocumentoProduccionDocumental`: recibe lista de campos pero usa sesión, obtiene nombre físico y borra archivos. Es candidato, no adaptador aprobado. No se modifica su implementación ni la de SII. Si no es posible aislar sin cambios prohibidos, la integración de esa fase queda bloqueada; el resto de entregas puede continuar contra contratos probados sin simular éxito productivo.
+
+Corte local 2026-10-30, limpieza controlada (11.7): capacidad interna sin endpoint/job, deshabilitada por defecto y con retencion servidor positiva explicita. Solo lote completo con inventario/checkpoints concordantes y sin actividad/incertidumbre; fecha mas reciente de lote/finalizacion de intentos y SELECT actuales de documento/relaciones/valores. Reutiliza staging privado y registro PREPARAR_LIMPIEZA confirmado antes de retirar un .bin exacto; segunda transaccion revalida y registra conclusion, sin prometer atomicidad disco/MySQL. Respuesta perdida conserva diario para recuperar ausencia autorizada; nunca repite efecto documental ni borra metadatos/partes/historial. Revocacion, politica ampliada/deshabilitada, evidencia cambiante y original alterado/retenido impiden retiro. Evidencia: Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-limpieza-local-20261030.md. Arnes Framework con PDF sintetico y SQL dobles, build Debug separado y coherencia PASS. 119/130; sin habilitar politica operativa ni limpiar datos del sistema, sin MySQL/HTTP/E2E reales. Funciones legacy/SII intactas; exclusion adicional del XML descartada por el usuario.

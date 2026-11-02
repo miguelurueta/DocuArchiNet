@@ -17,6 +17,21 @@ Public Interface IPerfilImportacionRepository
     Function CambiarDisponibilidad(contexto As ContextoPerfilImportacion, perfilId As String, revision As UInteger, activo As Boolean) As PerfilImportacion
 End Interface
 
+'Puerto de solo lectura para el importador. No expone crear, guardar, publicar
+'ni disponibilidad y no requiere un contexto administrativo.
+Public Interface IPerfilImportacionLecturaOperativa
+    Sub VerificarEsquema()
+    Function ObtenerPublicacion(contexto As ContextoImportacionCarpetas, versionId As String) As SnapshotPerfilImportacionOperativa
+    Function ListarPublicaciones(contexto As ContextoImportacionCarpetas, pagina As Integer, tamano As Integer) As List(Of SnapshotPerfilImportacionOperativa)
+End Interface
+
+Public Interface IPerfilImportacionCatalogosOperativos
+    Function ValidarOperativo(contexto As ContextoImportacionCarpetas, configuracion As ConfiguracionPerfilImportacion, reglas As List(Of ReglaPerfilImportacion)) As List(Of IncidenciaPerfilImportacion)
+    Function ValidarValoresOperativos(contexto As ContextoImportacionCarpetas, configuracion As ConfiguracionPerfilImportacion, valores As List(Of ValorReglaPerfilImportacion)) As List(Of IncidenciaPerfilImportacion)
+    Function NivelCompatibleOperativo(contexto As ContextoImportacionCarpetas, configuracion As ConfiguracionPerfilImportacion, nivelRef As String) As Boolean
+    Function ClasificacionOperativa(contexto As ContextoImportacionCarpetas, configuracion As ConfiguracionPerfilImportacion) As Dictionary(Of String, String)
+End Interface
+
 'El adaptador verifica relaciones y permisos en sus orígenes reales; el resolvedor nunca consulta BD.
 Public Interface IPerfilImportacionCatalogos
     Function Validar(contexto As ContextoPerfilImportacion, configuracion As ConfiguracionPerfilImportacion, reglas As List(Of ReglaPerfilImportacion), publicar As Boolean) As List(Of IncidenciaPerfilImportacion)

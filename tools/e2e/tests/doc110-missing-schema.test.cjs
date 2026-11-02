@@ -2,15 +2,15 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {verifyMissingSchema}=require('./support/doc110-missing-schema.cjs');
-function fixture(fault){
+function fixture(fault,expectedMissingTables=3){
   let missing=false,count=3;const operations=[];let uploads=0;
   const bridge={async send(operation){
     operations.push(operation);
     if(operation==='LEGACY_COUNT')return {ok:true,stage:operation,count};
-    if(operation==='HIDE'){missing=true;if(fault==='uncertain-hide')throw new Error('synthetic uncertain result');return {ok:true,stage:'HIDDEN',missingOriginalTables:3};}
+    if(operation==='HIDE'){missing=true;if(fault==='uncertain-hide')throw new Error('synthetic uncertain result');return {ok:true,stage:'HIDDEN',missingOriginalTables:expectedMissingTables};}
     missing=false;return {ok:true,stage:'RESTORED',profileDataAndSchemaUnchanged:fault!=='changed-profile'};
   }};
-  return {options:{bridge,listProfiles:async()=>missing?{status:503,result:{ok:false,codigo:'CAPACIDAD_NO_DISPONIBLE',datos:null}}:{status:200,result:{ok:true,datos:{}}},
+  return {options:{bridge,expectedMissingTables,listProfiles:async()=>missing?{status:503,result:{ok:false,codigo:'CAPACIDAD_NO_DISPONIBLE',datos:null}}:{status:200,result:{ok:true,datos:{}}},
     checkUnavailableUI:async()=>{if(fault==='ui')throw new Error('synthetic UI failure');},
     upload:async()=>{uploads++;if(fault==='upload')throw new Error('synthetic upload failure');count+=fault==='double-document'?2:1;return {count:1,codes:{storage:'CONFIRMED',projection:'CONFIRMED'}};}
   },operations,uploads:()=>uploads,restored:()=>!missing};
@@ -27,4 +27,11 @@ test('restaura ante fallo UI, carga, ocultacion incierta o doble registro sin re
 });
 test('no acredita restauracion si cambia contenido o esquema de perfiles',async()=>{
   const f=fixture('changed-profile');await assert.rejects(verifyMissingSchema(f.options));assert.equal(f.restored(),true);
+});
+test('reutiliza el recorrido para una tabla operativa y restaura ante cada fallo sin repetir carga',async()=>{
+  for(const fault of [null,'ui','upload','uncertain-hide','double-document','changed-profile']){
+    const f=fixture(fault,1);
+    if(fault)await assert.rejects(verifyMissingSchema(f.options));else assert.equal((await verifyMissingSchema(f.options)).documentDelta,1);
+    assert.equal(f.restored(),true);assert.equal(f.operations.at(-1),'RESTORE');assert.ok(f.uploads()<=1);
+  }
 });

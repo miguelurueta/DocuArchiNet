@@ -8,6 +8,7 @@ Imports MySql.Data.MySqlClient
 
 Public Class MySqlPerfilImportacionRepository
     Implements IPerfilImportacionRepository
+    Implements IPerfilImportacionLecturaOperativa
     Private ReadOnly _conexion As String
     Private _esquemaVerificado As Boolean
     Private Const ColumnasPerfil As String = "perfil_id,ambito_ref,codigo,nombre,descripcion,activo,version_publicada_id,revision"
@@ -29,7 +30,7 @@ Public Class MySqlPerfilImportacionRepository
         End Try
     End Function
 
-    Public Sub VerificarEsquema() Implements IPerfilImportacionRepository.VerificarEsquema
+    Public Sub VerificarEsquema() Implements IPerfilImportacionRepository.VerificarEsquema, IPerfilImportacionLecturaOperativa.VerificarEsquema
         If _esquemaVerificado Then Return
         Try
             Using conexion = Abrir()
@@ -270,10 +271,82 @@ Public Class MySqlPerfilImportacionRepository
                                      End Function)
     End Function
 
+    Public Function ObtenerPublicacion(contexto As ContextoImportacionCarpetas, versionId As String) As SnapshotPerfilImportacionOperativa Implements IPerfilImportacionLecturaOperativa.ObtenerPublicacion
+        AutorizarLecturaOperativa(contexto)
+        If Not ValidadorPerfilImportacion.ReferenciaValida(versionId) Then Throw LecturaDenegada()
+        Return Ejecutar(Function(conexion)
+                            Using tx = conexion.BeginTransaction(IsolationLevel.RepeatableRead)
+                                Dim snapshot = CargarPublicacion(conexion, tx, contexto, versionId)
+                                tx.Commit()
+                                Return snapshot
+                            End Using
+                        End Function)
+    End Function
+
+    Public Function ListarPublicaciones(contexto As ContextoImportacionCarpetas, pagina As Integer, tamano As Integer) As List(Of SnapshotPerfilImportacionOperativa) Implements IPerfilImportacionLecturaOperativa.ListarPublicaciones
+        AutorizarLecturaOperativa(contexto)
+        If pagina < 1 OrElse pagina > 1000000 OrElse tamano < 1 OrElse tamano > 50 Then Throw New PerfilImportacionException("SOLICITUD_INVALIDA", "Paginación inválida.")
+        Return Ejecutar(Function(conexion)
+                            Using tx = conexion.BeginTransaction(IsolationLevel.RepeatableRead)
+                                Dim versiones As New List(Of String)()
+                                Using cmd = Comando(conexion, tx, "SELECT v.version_id FROM ra_integracion_perfil p INNER JOIN ra_integracion_perfil_version v ON v.perfil_id=p.perfil_id AND v.version_id=p.version_publicada_id WHERE p.ambito_ref=@ambito AND p.activo=1 AND v.estado='PUBLICADA' ORDER BY p.codigo,p.perfil_id LIMIT @limite OFFSET @offset", "@ambito", contexto.AmbitoRef, "@limite", tamano, "@offset", (pagina - 1) * tamano)
+                                    Using reader = cmd.ExecuteReader()
+                                        While reader.Read()
+                                            versiones.Add(Convert.ToString(reader(0), CultureInfo.InvariantCulture))
+                                        End While
+                                    End Using
+                                End Using
+                                Dim salida As New List(Of SnapshotPerfilImportacionOperativa)()
+                                For Each version In versiones
+                                    salida.Add(CargarPublicacion(conexion, tx, contexto, version))
+                                Next
+                                tx.Commit()
+                                Return salida
+                            End Using
+                        End Function)
+    End Function
+
+    Private Shared Function CargarPublicacion(conexion As MySqlConnection, tx As MySqlTransaction, contexto As ContextoImportacionCarpetas, versionId As String) As SnapshotPerfilImportacionOperativa
+        Dim perfilId As String, huella As Byte()
+        Using cmd = Comando(conexion, tx, "SELECT p.perfil_id,v.config_hash FROM ra_integracion_perfil p INNER JOIN ra_integracion_perfil_version v ON v.perfil_id=p.perfil_id WHERE v.version_id=@version AND p.ambito_ref=@ambito AND p.activo=1 AND v.estado='PUBLICADA' LIMIT 2", "@version", versionId, "@ambito", contexto.AmbitoRef)
+            Using reader = cmd.ExecuteReader()
+                If Not reader.Read() Then Throw LecturaDenegada()
+                perfilId = Convert.ToString(reader(0), CultureInfo.InvariantCulture)
+                If reader.IsDBNull(1) Then Throw NoDisponible()
+                huella = DirectCast(reader(1), Byte())
+                If reader.Read() Then Throw LecturaDenegada()
+            End Using
+        End Using
+        Return SnapshotOperativo(contexto, CargarContenido(conexion, tx, contexto.AmbitoRef, perfilId, versionId, False), versionId, huella)
+    End Function
+
+    Friend Shared Function SnapshotOperativo(contexto As ContextoImportacionCarpetas, perfil As PerfilImportacion, versionId As String, huella As Byte()) As SnapshotPerfilImportacionOperativa
+        AutorizarLecturaOperativa(contexto)
+        If perfil Is Nothing OrElse Not perfil.Activo OrElse perfil.AmbitoRef <> contexto.AmbitoRef OrElse perfil.Version Is Nothing OrElse perfil.Version.Estado <> "PUBLICADA" OrElse perfil.Version.VersionId <> versionId OrElse perfil.Version.PerfilId <> perfil.PerfilId Then Throw LecturaDenegada()
+        If Not ValidadorPerfilImportacion.ReferenciaValida(perfil.PerfilId) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(versionId) OrElse perfil.Version.Numero = 0 OrElse perfil.Version.Configuracion Is Nothing OrElse perfil.Version.Reglas Is Nothing OrElse perfil.Version.Reglas.Any(Function(r) r Is Nothing) Then Throw NoDisponible()
+        Dim actual = PerfilImportacionJson.Huella(perfil.Version)
+        If huella Is Nothing OrElse huella.Length <> actual.Length OrElse Not actual.SequenceEqual(huella) Then Throw NoDisponible()
+        Return PerfilImportacionJson.Leer(Of SnapshotPerfilImportacionOperativa)(PerfilImportacionJson.Escribir(New SnapshotPerfilImportacionOperativa With {
+            .PerfilId = perfil.PerfilId, .VersionId = versionId, .NumeroVersion = perfil.Version.Numero,
+            .Huella = BitConverter.ToString(actual).Replace("-", "").ToLowerInvariant(),
+            .Configuracion = perfil.Version.Configuracion, .Reglas = perfil.Version.Reglas}))
+    End Function
+
+    Private Shared Sub AutorizarLecturaOperativa(contexto As ContextoImportacionCarpetas)
+        If contexto Is Nothing OrElse Not contexto.PuedeImportar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.UsuarioRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.AmbitoRef) Then Throw LecturaDenegada()
+    End Sub
+    Private Shared Function LecturaDenegada() As PerfilImportacionException
+        Return New PerfilImportacionException("ACCESO_DENEGADO", "La publicación no está disponible para este contexto.")
+    End Function
+
     Private Shared Function Cargar(conexion As MySqlConnection, tx As MySqlTransaction, contexto As ContextoPerfilImportacion, perfilId As String, versionId As String, bloquear As Boolean) As PerfilImportacion
+        Return CargarContenido(conexion, tx, contexto.AmbitoRef, perfilId, versionId, bloquear)
+    End Function
+
+    Private Shared Function CargarContenido(conexion As MySqlConnection, tx As MySqlTransaction, ambitoRef As String, perfilId As String, versionId As String, bloquear As Boolean) As PerfilImportacion
         Dim perfil As PerfilImportacion
         Dim bloqueo = If(bloquear, " FOR UPDATE", "")
-        Using cmd = Comando(conexion, tx, "SELECT " & ColumnasPerfil & " FROM ra_integracion_perfil WHERE perfil_id=@perfil AND ambito_ref=@ambito" & bloqueo, "@perfil", perfilId, "@ambito", contexto.AmbitoRef)
+        Using cmd = Comando(conexion, tx, "SELECT " & ColumnasPerfil & " FROM ra_integracion_perfil WHERE perfil_id=@perfil AND ambito_ref=@ambito" & bloqueo, "@perfil", perfilId, "@ambito", ambitoRef)
             Using reader = cmd.ExecuteReader()
                 If Not reader.Read() Then Throw New PerfilImportacionException("ACCESO_DENEGADO", "Recurso no disponible para este contexto.")
                 perfil = LeerPerfil(reader)

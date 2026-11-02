@@ -44,12 +44,13 @@ async function verifyPermissionRevocation({call,bridge,profileId,checkUI=async()
   return {checks:5};
 }
 
-function startDatabaseBridge(script='doc110-permission-db.ps1'){
+function startDatabaseBridge(script='doc110-permission-db.ps1',options={}){
   if(!['doc110-permission-db.ps1','doc110-profile-schema-db.ps1'].includes(script))throw new Error('DOC110_DATABASE_BRIDGE_SCRIPT_INVALID');
+  if(Object.keys(options).some(k=>k!=='operationalSchema')||(options.operationalSchema!==undefined&&typeof options.operationalSchema!=='boolean')||(options.operationalSchema&&script!=='doc110-profile-schema-db.ps1'))throw new Error('DOC110_DATABASE_BRIDGE_SCRIPT_INVALID');
   const {spawn}=require('node:child_process');
   const readline=require('node:readline'),path=require('node:path');
   const child=spawn('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',
-    path.resolve(__dirname,'../../scripts/support',script)],{windowsHide:true,stdio:['pipe','pipe','pipe']});
+    path.resolve(__dirname,'../../scripts/support',script),...options.operationalSchema?['-Operational']:[]],{windowsHide:true,stdio:['pipe','pipe','pipe']});
   // Nunca reenviar stderr ni errores internos del proveedor de BD.
   child.stderr.resume();
   let pending=null,ended=false,exitCode=null;

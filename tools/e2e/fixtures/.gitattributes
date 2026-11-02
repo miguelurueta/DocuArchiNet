@@ -1,2 +1,2 @@
-# Preserve the byte offsets of the synthetic DOC-110 PDFs on Windows checkout.
-doc110-*.pdf binary
+# Preserve the accepted PDF fixture byte-for-byte on Windows checkouts.
+doc111-carga-individual.pdf binary

@@ -1,0 +1,1565 @@
+{
+  "Tablas": [
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "ENGINE": "InnoDB",
+      "TABLE_COLLATION": "ascii_bin"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "ENGINE": "InnoDB",
+      "TABLE_COLLATION": "ascii_bin"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "ENGINE": "InnoDB",
+      "TABLE_COLLATION": "ascii_bin"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "ENGINE": "InnoDB",
+      "TABLE_COLLATION": "ascii_bin"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_perfil_version",
+      "ENGINE": "InnoDB",
+      "TABLE_COLLATION": "ascii_bin"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "ENGINE": "InnoDB",
+      "TABLE_COLLATION": "ascii_bin"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "ENGINE": "InnoDB",
+      "TABLE_COLLATION": "ascii_bin"
+    },
+    {
+      "TABLE_NAME": "remit_dest_interno_perfil_produccion",
+      "ENGINE": "InnoDB",
+      "TABLE_COLLATION": "latin1_swedish_ci"
+    }
+  ],
+  "Columnas": [
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "COLUMN_NAME": "archivo_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "auto_increment",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "COLUMN_NAME": "raiz_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "COLUMN_NAME": "cliente_archivo_id",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(64)",
+      "CHARACTER_MAXIMUM_LENGTH": 64,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "COLUMN_NAME": "origen_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "COLUMN_NAME": "ruta_hash",
+      "DATA_TYPE": "binary",
+      "COLUMN_TYPE": "binary(32)",
+      "CHARACTER_MAXIMUM_LENGTH": 32,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "COLUMN_NAME": "bytes_previstos",
+      "DATA_TYPE": "bigint",
+      "COLUMN_TYPE": "bigint(20) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "COLUMN_NAME": "bytes_recibidos",
+      "DATA_TYPE": "bigint",
+      "COLUMN_TYPE": "bigint(20) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "YES",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "COLUMN_NAME": "contenido_hash",
+      "DATA_TYPE": "binary",
+      "COLUMN_TYPE": "binary(32)",
+      "CHARACTER_MAXIMUM_LENGTH": 32,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "YES",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "COLUMN_NAME": "staging_ref",
+      "DATA_TYPE": "char",
+      "COLUMN_TYPE": "char(32)",
+      "CHARACTER_MAXIMUM_LENGTH": 32,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "YES",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "COLUMN_NAME": "estado_recepcion",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(40)",
+      "CHARACTER_MAXIMUM_LENGTH": 40,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "COLUMN_NAME": "estado_efecto",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(40)",
+      "CHARACTER_MAXIMUM_LENGTH": 40,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "COLUMN_NAME": "plan_valores_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "COLUMN_NAME": "valores_efectivos_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "YES",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "COLUMN_NAME": "resultado_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "YES",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "COLUMN_NAME": "intento_activo_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "YES",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "COLUMN_NAME": "revision",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "COLUMN_NAME": "creado_utc",
+      "DATA_TYPE": "datetime",
+      "COLUMN_TYPE": "datetime",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "COLUMN_NAME": "actualizado_utc",
+      "DATA_TYPE": "datetime",
+      "COLUMN_TYPE": "datetime",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "COLUMN_NAME": "evento_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "auto_increment",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "COLUMN_NAME": "lote_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "COLUMN_NAME": "intento_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "YES",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "COLUMN_NAME": "recurso_tipo",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(40)",
+      "CHARACTER_MAXIMUM_LENGTH": 40,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "COLUMN_NAME": "recurso_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "YES",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "COLUMN_NAME": "accion",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(40)",
+      "CHARACTER_MAXIMUM_LENGTH": 40,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "COLUMN_NAME": "codigo",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(40)",
+      "CHARACTER_MAXIMUM_LENGTH": 40,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "COLUMN_NAME": "actor_ref",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(128)",
+      "CHARACTER_MAXIMUM_LENGTH": 128,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "COLUMN_NAME": "ocurrido_utc",
+      "DATA_TYPE": "datetime",
+      "COLUMN_TYPE": "datetime",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "COLUMN_NAME": "detalle_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "COLUMN_NAME": "intento_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "auto_increment",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "COLUMN_NAME": "lote_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "COLUMN_NAME": "raiz_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "YES",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "COLUMN_NAME": "archivo_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "YES",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "COLUMN_NAME": "fase",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(40)",
+      "CHARACTER_MAXIMUM_LENGTH": 40,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "COLUMN_NAME": "estado",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(40)",
+      "CHARACTER_MAXIMUM_LENGTH": 40,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "COLUMN_NAME": "ejecutor_ref",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(128)",
+      "CHARACTER_MAXIMUM_LENGTH": 128,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "COLUMN_NAME": "token_reclamacion",
+      "DATA_TYPE": "char",
+      "COLUMN_TYPE": "char(32)",
+      "CHARACTER_MAXIMUM_LENGTH": 32,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "COLUMN_NAME": "solicitud_hash",
+      "DATA_TYPE": "binary",
+      "COLUMN_TYPE": "binary(32)",
+      "CHARACTER_MAXIMUM_LENGTH": 32,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "COLUMN_NAME": "inicio_utc",
+      "DATA_TYPE": "datetime",
+      "COLUMN_TYPE": "datetime",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "COLUMN_NAME": "ultimo_contacto_utc",
+      "DATA_TYPE": "datetime",
+      "COLUMN_TYPE": "datetime",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "COLUMN_NAME": "fin_utc",
+      "DATA_TYPE": "datetime",
+      "COLUMN_TYPE": "datetime",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "YES",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "COLUMN_NAME": "evidencia_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "YES",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "lote_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "auto_increment",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "plan_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "ambito_ref",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(128)",
+      "CHARACTER_MAXIMUM_LENGTH": 128,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "solicitante_ref",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(128)",
+      "CHARACTER_MAXIMUM_LENGTH": 128,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "nivel_ref",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(128)",
+      "CHARACTER_MAXIMUM_LENGTH": 128,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "clave_confirmacion",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(64)",
+      "CHARACTER_MAXIMUM_LENGTH": 64,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "solicitud_hash",
+      "DATA_TYPE": "binary",
+      "COLUMN_TYPE": "binary(32)",
+      "CHARACTER_MAXIMUM_LENGTH": 32,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "version_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "modo_integridad",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(40)",
+      "CHARACTER_MAXIMUM_LENGTH": 40,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "ambito_integridad",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(40)",
+      "CHARACTER_MAXIMUM_LENGTH": 40,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "YES",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "contexto_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "config_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "estado",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(40)",
+      "CHARACTER_MAXIMUM_LENGTH": 40,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "detencion_solicitada",
+      "DATA_TYPE": "tinyint",
+      "COLUMN_TYPE": "tinyint(3) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "total_raices",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "total_archivos",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "total_bytes",
+      "DATA_TYPE": "bigint",
+      "COLUMN_TYPE": "bigint(20) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "revision",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "creado_utc",
+      "DATA_TYPE": "datetime",
+      "COLUMN_TYPE": "datetime",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "COLUMN_NAME": "actualizado_utc",
+      "DATA_TYPE": "datetime",
+      "COLUMN_TYPE": "datetime",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_perfil_version",
+      "COLUMN_NAME": "version_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "auto_increment",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "COLUMN_NAME": "plan_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "auto_increment",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "COLUMN_NAME": "ambito_ref",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(128)",
+      "CHARACTER_MAXIMUM_LENGTH": 128,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "COLUMN_NAME": "usuario_ref",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(128)",
+      "CHARACTER_MAXIMUM_LENGTH": 128,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "COLUMN_NAME": "nivel_ref",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(128)",
+      "CHARACTER_MAXIMUM_LENGTH": 128,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "COLUMN_NAME": "version_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "COLUMN_NAME": "estado",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(40)",
+      "CHARACTER_MAXIMUM_LENGTH": 40,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "COLUMN_NAME": "revision",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "COLUMN_NAME": "esquema_doc",
+      "DATA_TYPE": "smallint",
+      "COLUMN_TYPE": "smallint(5) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "COLUMN_NAME": "contexto_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "COLUMN_NAME": "config_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "COLUMN_NAME": "manifiesto_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "COLUMN_NAME": "resultado_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "COLUMN_NAME": "plan_hash",
+      "DATA_TYPE": "binary",
+      "COLUMN_TYPE": "binary(32)",
+      "CHARACTER_MAXIMUM_LENGTH": 32,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "COLUMN_NAME": "creado_utc",
+      "DATA_TYPE": "datetime",
+      "COLUMN_TYPE": "datetime",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "COLUMN_NAME": "expira_utc",
+      "DATA_TYPE": "datetime",
+      "COLUMN_TYPE": "datetime",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "COLUMN_NAME": "raiz_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "auto_increment",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "COLUMN_NAME": "lote_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "COLUMN_NAME": "cliente_raiz_id",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(64)",
+      "CHARACTER_MAXIMUM_LENGTH": 64,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "COLUMN_NAME": "datos_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "COLUMN_NAME": "estado",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar(40)",
+      "CHARACTER_MAXIMUM_LENGTH": 40,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "COLUMN_NAME": "identidad_expediente_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "YES",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "COLUMN_NAME": "valores_efectivos_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "YES",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "COLUMN_NAME": "intento_activo_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "YES",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "COLUMN_NAME": "revision",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int(10) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "COLUMN_NAME": "creado_utc",
+      "DATA_TYPE": "datetime",
+      "COLUMN_TYPE": "datetime",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "COLUMN_NAME": "actualizado_utc",
+      "DATA_TYPE": "datetime",
+      "COLUMN_TYPE": "datetime",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "remit_dest_interno_perfil_produccion",
+      "COLUMN_NAME": "IMPORTAR_CARPETAS",
+      "DATA_TYPE": "tinyint",
+      "COLUMN_TYPE": "tinyint(3) unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": "0"
+    }
+  ],
+  "Indices": [
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "INDEX_NAME": "PRIMARY",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "archivo_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "INDEX_NAME": "uq_integracion_archivo_cliente",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "raiz_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "INDEX_NAME": "uq_integracion_archivo_cliente",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "cliente_archivo_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "INDEX_NAME": "uq_integracion_archivo_ruta",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "raiz_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "INDEX_NAME": "uq_integracion_archivo_ruta",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "ruta_hash",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "INDEX_NAME": "ix_integracion_archivo_estado",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "raiz_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "INDEX_NAME": "ix_integracion_archivo_estado",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "estado_recepcion",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "INDEX_NAME": "ix_integracion_archivo_estado",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 3,
+      "COLUMN_NAME": "estado_efecto",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "INDEX_NAME": "PRIMARY",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "evento_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "INDEX_NAME": "ix_integracion_evento_lote",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "lote_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "INDEX_NAME": "ix_integracion_evento_lote",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "ocurrido_utc",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "INDEX_NAME": "ix_integracion_evento_lote",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 3,
+      "COLUMN_NAME": "evento_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "INDEX_NAME": "ix_integracion_evento_intento",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "intento_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "INDEX_NAME": "PRIMARY",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "intento_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "INDEX_NAME": "ix_integracion_intento_lote",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "lote_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "INDEX_NAME": "ix_integracion_intento_lote",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "estado",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "INDEX_NAME": "ix_integracion_intento_lote",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 3,
+      "COLUMN_NAME": "inicio_utc",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "INDEX_NAME": "ix_integracion_intento_raiz",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "raiz_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "INDEX_NAME": "ix_integracion_intento_raiz",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "fase",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "INDEX_NAME": "ix_integracion_intento_archivo",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "archivo_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "INDEX_NAME": "ix_integracion_intento_archivo",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "fase",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "INDEX_NAME": "PRIMARY",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "lote_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "INDEX_NAME": "uq_integracion_lote_plan",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "plan_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "INDEX_NAME": "uq_integracion_lote_confirmacion",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "ambito_ref",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "INDEX_NAME": "uq_integracion_lote_confirmacion",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "solicitante_ref",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "INDEX_NAME": "uq_integracion_lote_confirmacion",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 3,
+      "COLUMN_NAME": "clave_confirmacion",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "INDEX_NAME": "ix_integracion_lote_contexto",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "ambito_ref",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "INDEX_NAME": "ix_integracion_lote_contexto",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "solicitante_ref",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "INDEX_NAME": "ix_integracion_lote_contexto",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 3,
+      "COLUMN_NAME": "creado_utc",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "INDEX_NAME": "ix_integracion_lote_estado",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "estado",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "INDEX_NAME": "ix_integracion_lote_estado",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "actualizado_utc",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "INDEX_NAME": "ix_integracion_lote_version",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "version_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_perfil_version",
+      "INDEX_NAME": "PRIMARY",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "version_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_perfil_version",
+      "INDEX_NAME": "uq_ra_integracion_perfil_version_numero",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "perfil_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_perfil_version",
+      "INDEX_NAME": "uq_ra_integracion_perfil_version_numero",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "numero",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_perfil_version",
+      "INDEX_NAME": "ix_ra_integracion_perfil_version_estado",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "perfil_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_perfil_version",
+      "INDEX_NAME": "ix_ra_integracion_perfil_version_estado",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "estado",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_perfil_version",
+      "INDEX_NAME": "ix_ra_integracion_perfil_version_estado",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 3,
+      "COLUMN_NAME": "numero",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "INDEX_NAME": "PRIMARY",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "plan_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "INDEX_NAME": "ix_integracion_plan_contexto",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "ambito_ref",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "INDEX_NAME": "ix_integracion_plan_contexto",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "usuario_ref",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "INDEX_NAME": "ix_integracion_plan_contexto",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 3,
+      "COLUMN_NAME": "creado_utc",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "INDEX_NAME": "ix_integracion_plan_version",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "version_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "INDEX_NAME": "PRIMARY",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "raiz_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "INDEX_NAME": "uq_integracion_raiz_cliente",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "lote_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "INDEX_NAME": "uq_integracion_raiz_cliente",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "cliente_raiz_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "INDEX_NAME": "ix_integracion_raiz_estado",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "lote_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "INDEX_NAME": "ix_integracion_raiz_estado",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "estado",
+      "SUB_PART": null
+    }
+  ],
+  "Claves": [
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "CONSTRAINT_NAME": "fk_integracion_archivo_raiz",
+      "COLUMN_NAME": "raiz_id",
+      "ORDINAL_POSITION": 1,
+      "REFERENCED_TABLE_NAME": "ra_integracion_raiz",
+      "REFERENCED_COLUMN_NAME": "raiz_id",
+      "MISMO_ESQUEMA": 1
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "CONSTRAINT_NAME": "fk_integracion_evento_lote",
+      "COLUMN_NAME": "lote_id",
+      "ORDINAL_POSITION": 1,
+      "REFERENCED_TABLE_NAME": "ra_integracion_lote",
+      "REFERENCED_COLUMN_NAME": "lote_id",
+      "MISMO_ESQUEMA": 1
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "CONSTRAINT_NAME": "fk_integracion_evento_intento",
+      "COLUMN_NAME": "intento_id",
+      "ORDINAL_POSITION": 1,
+      "REFERENCED_TABLE_NAME": "ra_integracion_intento",
+      "REFERENCED_COLUMN_NAME": "intento_id",
+      "MISMO_ESQUEMA": 1
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "CONSTRAINT_NAME": "fk_integracion_intento_lote",
+      "COLUMN_NAME": "lote_id",
+      "ORDINAL_POSITION": 1,
+      "REFERENCED_TABLE_NAME": "ra_integracion_lote",
+      "REFERENCED_COLUMN_NAME": "lote_id",
+      "MISMO_ESQUEMA": 1
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "CONSTRAINT_NAME": "fk_integracion_intento_raiz",
+      "COLUMN_NAME": "raiz_id",
+      "ORDINAL_POSITION": 1,
+      "REFERENCED_TABLE_NAME": "ra_integracion_raiz",
+      "REFERENCED_COLUMN_NAME": "raiz_id",
+      "MISMO_ESQUEMA": 1
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "CONSTRAINT_NAME": "fk_integracion_intento_archivo",
+      "COLUMN_NAME": "archivo_id",
+      "ORDINAL_POSITION": 1,
+      "REFERENCED_TABLE_NAME": "ra_integracion_archivo",
+      "REFERENCED_COLUMN_NAME": "archivo_id",
+      "MISMO_ESQUEMA": 1
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "CONSTRAINT_NAME": "fk_integracion_lote_plan",
+      "COLUMN_NAME": "plan_id",
+      "ORDINAL_POSITION": 1,
+      "REFERENCED_TABLE_NAME": "ra_integracion_plan",
+      "REFERENCED_COLUMN_NAME": "plan_id",
+      "MISMO_ESQUEMA": 1
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "CONSTRAINT_NAME": "fk_integracion_lote_version",
+      "COLUMN_NAME": "version_id",
+      "ORDINAL_POSITION": 1,
+      "REFERENCED_TABLE_NAME": "ra_integracion_perfil_version",
+      "REFERENCED_COLUMN_NAME": "version_id",
+      "MISMO_ESQUEMA": 1
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "CONSTRAINT_NAME": "fk_integracion_plan_version",
+      "COLUMN_NAME": "version_id",
+      "ORDINAL_POSITION": 1,
+      "REFERENCED_TABLE_NAME": "ra_integracion_perfil_version",
+      "REFERENCED_COLUMN_NAME": "version_id",
+      "MISMO_ESQUEMA": 1
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "CONSTRAINT_NAME": "fk_integracion_raiz_lote",
+      "COLUMN_NAME": "lote_id",
+      "ORDINAL_POSITION": 1,
+      "REFERENCED_TABLE_NAME": "ra_integracion_lote",
+      "REFERENCED_COLUMN_NAME": "lote_id",
+      "MISMO_ESQUEMA": 1
+    }
+  ],
+  "Reglas": [
+    {
+      "TABLE_NAME": "ra_integracion_archivo",
+      "CONSTRAINT_NAME": "fk_integracion_archivo_raiz",
+      "UPDATE_RULE": "RESTRICT",
+      "DELETE_RULE": "RESTRICT"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "CONSTRAINT_NAME": "fk_integracion_evento_lote",
+      "UPDATE_RULE": "RESTRICT",
+      "DELETE_RULE": "RESTRICT"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_evento",
+      "CONSTRAINT_NAME": "fk_integracion_evento_intento",
+      "UPDATE_RULE": "RESTRICT",
+      "DELETE_RULE": "RESTRICT"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "CONSTRAINT_NAME": "fk_integracion_intento_lote",
+      "UPDATE_RULE": "RESTRICT",
+      "DELETE_RULE": "RESTRICT"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "CONSTRAINT_NAME": "fk_integracion_intento_raiz",
+      "UPDATE_RULE": "RESTRICT",
+      "DELETE_RULE": "RESTRICT"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_intento",
+      "CONSTRAINT_NAME": "fk_integracion_intento_archivo",
+      "UPDATE_RULE": "RESTRICT",
+      "DELETE_RULE": "RESTRICT"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "CONSTRAINT_NAME": "fk_integracion_lote_plan",
+      "UPDATE_RULE": "RESTRICT",
+      "DELETE_RULE": "RESTRICT"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_lote",
+      "CONSTRAINT_NAME": "fk_integracion_lote_version",
+      "UPDATE_RULE": "RESTRICT",
+      "DELETE_RULE": "RESTRICT"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_plan",
+      "CONSTRAINT_NAME": "fk_integracion_plan_version",
+      "UPDATE_RULE": "RESTRICT",
+      "DELETE_RULE": "RESTRICT"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_raiz",
+      "CONSTRAINT_NAME": "fk_integracion_raiz_lote",
+      "UPDATE_RULE": "RESTRICT",
+      "DELETE_RULE": "RESTRICT"
+    }
+  ]
+}

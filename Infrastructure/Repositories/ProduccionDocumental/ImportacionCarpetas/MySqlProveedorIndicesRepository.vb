@@ -7,6 +7,7 @@ Imports MySql.Data.MySqlClient
 'Lectura del catalogo autorizado en RA. Registro tecnico separado del editor de perfiles.
 Public Class MySqlProveedorIndicesRepository
     Implements IProveedorIndicesRepository
+    Implements IProveedorIndicesLecturaOperativa
     Private ReadOnly _ra As String
     Public Sub New(conexionRA As String)
         _ra = conexionRA
@@ -52,6 +53,16 @@ Public Class MySqlProveedorIndicesRepository
             Not ValidadorPerfilImportacion.ReferenciaValida(contexto.AmbitoRef) OrElse
             Not ValidadorPerfilImportacion.ReferenciaValida(proveedorId) OrElse
             Not ValidadorPerfilImportacion.ReferenciaValida(versionId) Then Throw Denegado()
+        Return ObtenerVersion(contexto.AmbitoRef, proveedorId, versionId)
+    End Function
+
+    Public Function ObtenerPublicacion(contexto As ContextoImportacionCarpetas, proveedorId As String, versionId As String) As ProveedorIndicesVersion Implements IProveedorIndicesLecturaOperativa.ObtenerPublicacion
+        If contexto Is Nothing OrElse Not contexto.PuedeImportar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.UsuarioRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.AmbitoRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(proveedorId) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(versionId) Then Throw Denegado()
+        Return ObtenerVersion(contexto.AmbitoRef, proveedorId, versionId)
+    End Function
+
+    Private Function ObtenerVersion(ambitoRef As String, proveedorId As String, versionId As String) As ProveedorIndicesVersion
+        If String.IsNullOrWhiteSpace(_ra) Then Throw New PerfilImportacionException("CAPACIDAD_NO_DISPONIBLE", "El catálogo de proveedores no está disponible.")
         Try
             Using conexion As New MySqlConnection(_ra)
                 conexion.Open()
@@ -59,7 +70,7 @@ Public Class MySqlProveedorIndicesRepository
                     cmd.CommandTimeout = 5
                     cmd.Parameters.AddWithValue("@proveedor", proveedorId)
                     cmd.Parameters.AddWithValue("@version", versionId)
-                    cmd.Parameters.AddWithValue("@ambito", contexto.AmbitoRef)
+                    cmd.Parameters.AddWithValue("@ambito", ambitoRef)
                     Using reader = cmd.ExecuteReader()
                         If Not reader.Read() Then Throw Denegado()
                         If Convert.ToInt32(reader("esquema_config"), CultureInfo.InvariantCulture) <> 1 Then Throw New PerfilImportacionException("CONFIGURACION_INVALIDA", "Esquema del proveedor no compatible.")

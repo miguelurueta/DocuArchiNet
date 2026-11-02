@@ -1,11 +1,16 @@
-param([switch]$Inspect,[switch]$Recover,[switch]$ProbeSandbox)
+param([switch]$Inspect,[switch]$Recover,[switch]$ProbeSandbox,[switch]$Operational)
 $ErrorActionPreference='Stop'
 $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../../..'))
 $connection=$null;$catalog=$null;$restoreRequired=$false
 $names=@('ra_integracion_perfil','ra_integracion_perfil_version','ra_integracion_perfil_regla')
 $temporary=@('doc110_p75_perfil','doc110_p75_version','doc110_p75_regla')
 $keys=@('perfil_id','version_id','regla_id')
-$recordFile=Join-Path $root ('tools/e2e/artifacts/doc110-schema-recovery'+$(if($ProbeSandbox){'-sandbox'}else{''})+'.json')
+if($Operational){
+    if($ProbeSandbox){throw 'OPERATIONAL_SANDBOX_NOT_SUPPORTED'}
+    $names=@('ra_integracion_evento');$temporary=@('doc111_rec_evento_20261102');$keys=@('evento_id')
+}
+$targetNamesSql=($names|ForEach-Object {"'"+$_+"'"}) -join ','
+$recordFile=Join-Path $root ($(if($Operational){'tools/e2e/artifacts/doc111-operational-schema-recovery'}else{'tools/e2e/artifacts/doc110-schema-recovery'})+$(if($ProbeSandbox){'-sandbox'}else{''})+'.json')
 function Hash-Value($Value){
     $sha=[Security.Cryptography.SHA256]::Create()
     try{return ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes((ConvertTo-Json -InputObject $Value -Compress -Depth 12))))).Replace('-','').ToLowerInvariant()}
@@ -28,6 +33,11 @@ function Open-Database {
     }finally{$reader.Dispose();$cmd.Dispose();$script:catalog.Dispose();$script:catalog=$null}
     $script:connection=New-Object MySql.Data.MySqlClient.MySqlConnection($script:builder.ConnectionString);$script:connection.Open()
     $script:environmentHash=Hash-Value ($script:builder.Server+'|'+$script:builder.Database)
+    if($Operational){
+        $sha=[Security.Cryptography.SHA256]::Create()
+        try{$targetHash=([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($script:builder.Server+'|'+$script:builder.Database)))).Replace('-','').ToLowerInvariant()}finally{$sha.Dispose()}
+        if($targetHash -cne '24cce9f4ae03e1b92b7f0cba1e89f395e9b4434f4c108f5ee571ae9515387b91'){throw 'OPERATIONAL_ENVIRONMENT_CHANGED'}
+    }
 }
 function Rows([string]$Sql,[hashtable]$Parameters=@{}){
     if($Sql -notmatch '\ASELECT\b' -or $Sql.Contains(';')){throw 'SELECT_REQUIRED'}
@@ -59,7 +69,7 @@ function Layout {
 }
 function Snapshot {
     $snapshot=[ordered]@{}
-    for($i=0;$i -lt 3;$i++){
+    for($i=0;$i -lt $names.Count;$i++){
         $table=$names[$i];$key=$keys[$i]
         $data=Rows "SELECT * FROM $table ORDER BY $key"
         $columns=Rows "SELECT COLUMN_NAME,COLUMN_TYPE,IS_NULLABLE,COLUMN_DEFAULT,EXTRA,COLLATION_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='$table' ORDER BY ORDINAL_POSITION"
@@ -78,13 +88,13 @@ function Same-Snapshot($Expected,$Actual){
     }
 }
 function Save-Recovery([string]$Stage,[bool]$Restored){
-    $record=[ordered]@{environmentHash=$script:environmentHash;stage=$Stage;restored=$Restored;snapshot=$script:baseline;updatedUtc=[DateTime]::UtcNow.ToString('o')}
+    $record=[ordered]@{environmentHash=$script:environmentHash;tables=$names;stage=$Stage;restored=$Restored;snapshot=$script:baseline;updatedUtc=[DateTime]::UtcNow.ToString('o')}
     [void][IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($recordFile))
     [IO.File]::WriteAllText($recordFile,($record | ConvertTo-Json -Depth 8),[Text.Encoding]::UTF8)
 }
 function Rename-Profiles([bool]$Back){
     $parts=@()
-    for($i=0;$i -lt 3;$i++){
+    for($i=0;$i -lt $names.Count;$i++){
         if($Back){$parts+=('`'+$temporary[$i]+'` TO `'+$names[$i]+'`')}
         else{$parts+=('`'+$names[$i]+'` TO `'+$temporary[$i]+'`')}
     }
@@ -96,8 +106,8 @@ function Restore-Profiles {
     try{$layout=Layout}catch{
         $script:connection.Dispose();$script:connection=New-Object MySql.Data.MySqlClient.MySqlConnection($script:builder.ConnectionString);$script:connection.Open();$layout=Layout
     }
-    if($layout.original -eq 0 -and $layout.temporary -eq 3){Rename-Profiles $true}
-    elseif($layout.original -ne 3 -or $layout.temporary -ne 0){throw 'TABLE_LAYOUT_REQUIRES_MANUAL_RECONCILIATION'}
+    if($layout.original -eq 0 -and $layout.temporary -eq $names.Count){Rename-Profiles $true}
+    elseif($layout.original -ne $names.Count -or $layout.temporary -ne 0){throw 'TABLE_LAYOUT_REQUIRES_MANUAL_RECONCILIATION'}
     Same-Snapshot $script:baseline (Snapshot)
     $script:restoreRequired=$false;Save-Recovery 'RESTORED' $true
 }
@@ -106,27 +116,28 @@ try{
     if($Recover){
         $record=Get-Content -LiteralPath $recordFile -Raw | ConvertFrom-Json
         if($record.environmentHash -cne $script:environmentHash){throw 'RECOVERY_ENVIRONMENT_MISMATCH'}
+        if($Operational -and (@($record.tables).Count -ne 1 -or $record.tables[0] -cne 'ra_integracion_evento')){throw 'RECOVERY_TABLES_MISMATCH'}
         $script:baseline=$record.snapshot;$script:restoreRequired=$true;Restore-Profiles
         [pscustomobject]@{ok=$true;stage='RESTORED';profileDataAndSchemaUnchanged=$true} | ConvertTo-Json -Compress
     }else{
         $layout=Layout
-        if($layout.original -ne 3 -or $layout.temporary -ne 0){throw 'INITIAL_LAYOUT_INVALID'}
+        if($layout.original -ne $names.Count -or $layout.temporary -ne 0){throw 'INITIAL_LAYOUT_INVALID'}
         # MySQL 5.1 necesita filtro explícito del esquema hijo para no abrir de
         # una vez todos los catálogos en una consulta cercana al timeout.
         $schemas=Rows "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME NOT IN ('information_schema','mysql','performance_schema','sys') ORDER BY SCHEMA_NAME"
         if($schemas.Count -gt 64){throw 'SCHEMA_INSPECTION_LIMIT'}
         foreach($schema in $schemas){
-            $external=Rows "SELECT COUNT(*) AS total FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=@childSchema AND UNIQUE_CONSTRAINT_SCHEMA=DATABASE() AND REFERENCED_TABLE_NAME IN ('ra_integracion_perfil','ra_integracion_perfil_version','ra_integracion_perfil_regla') AND (CONSTRAINT_SCHEMA<>DATABASE() OR TABLE_NAME NOT IN ('ra_integracion_perfil','ra_integracion_perfil_version','ra_integracion_perfil_regla'))" @{'@childSchema'=[string]$schema.SCHEMA_NAME}
+            $external=Rows "SELECT COUNT(*) AS total FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=@childSchema AND UNIQUE_CONSTRAINT_SCHEMA=DATABASE() AND REFERENCED_TABLE_NAME IN ($targetNamesSql) AND (CONSTRAINT_SCHEMA<>DATABASE() OR TABLE_NAME NOT IN ($targetNamesSql))" @{'@childSchema'=[string]$schema.SCHEMA_NAME}
             if([long]$external[0].total -ne 0){throw 'EXTERNAL_FOREIGN_KEYS_PRESENT'}
         }
         $script:baseline=Snapshot
         if($Inspect){
-            [pscustomobject]@{ok=$true;stage='INSPECT';originalTables=3;temporaryTables=0;externalForeignKeys=0;profiles=$script:baseline.ra_integracion_perfil.count;versions=$script:baseline.ra_integracion_perfil_version.count;rules=$script:baseline.ra_integracion_perfil_regla.count;slowestQuery=$script:slowestQuery} | ConvertTo-Json -Compress
+            [pscustomobject]@{ok=$true;stage='INSPECT';originalTables=$names.Count;temporaryTables=0;externalForeignKeys=0;operational=[bool]$Operational;targetTables=$names;profiles=$script:baseline.ra_integracion_perfil.count;versions=$script:baseline.ra_integracion_perfil_version.count;rules=$script:baseline.ra_integracion_perfil_regla.count;slowestQuery=$script:slowestQuery} | ConvertTo-Json -Compress
         }else{
             if((Test-Path -LiteralPath $recordFile) -and -not (Get-Content -LiteralPath $recordFile -Raw | ConvertFrom-Json).restored){throw 'PREVIOUS_RECOVERY_REQUIRED'}
             if($ProbeSandbox){
                 Save-Recovery 'HIDE_ATTEMPT' $false;$script:restoreRequired=$true;Rename-Profiles $false
-                $hidden=Layout;if($hidden.original -ne 0 -or $hidden.temporary -ne 3){throw 'HIDE_UNCONFIRMED'}
+                $hidden=Layout;if($hidden.original -ne 0 -or $hidden.temporary -ne $names.Count){throw 'HIDE_UNCONFIRMED'}
                 Restore-Profiles
                 [pscustomobject]@{ok=$true;stage='SANDBOX_RENAME_RESTORE_PASS';profileDataAndSchemaUnchanged=$true} | ConvertTo-Json -Compress
             }else{
@@ -140,9 +151,9 @@ try{
                             if($script:restoreRequired){throw 'ALREADY_HIDDEN'}
                             Same-Snapshot $script:baseline (Snapshot)
                             Save-Recovery 'HIDE_ATTEMPT' $false;$script:restoreRequired=$true;Rename-Profiles $false
-                            $hidden=Layout;if($hidden.original -ne 0 -or $hidden.temporary -ne 3){throw 'HIDE_UNCONFIRMED'}
+                            $hidden=Layout;if($hidden.original -ne 0 -or $hidden.temporary -ne $names.Count){throw 'HIDE_UNCONFIRMED'}
                             Save-Recovery 'HIDDEN' $false
-                            [pscustomobject]@{ok=$true;stage='HIDDEN';missingOriginalTables=3} | ConvertTo-Json -Compress
+                            [pscustomobject]@{ok=$true;stage='HIDDEN';missingOriginalTables=$names.Count} | ConvertTo-Json -Compress
                         }
                         'LEGACY_COUNT' {
                             $legacy=Rows 'SELECT COUNT(*) AS total FROM registro_producion_documental WHERE EXPEDIENTE_ARCHIVO_ID_EXPEDIENTE=467'

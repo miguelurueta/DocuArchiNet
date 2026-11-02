@@ -6,8 +6,158 @@ Imports System.Web.Services
 Imports System.Web.Script.Services
 
 <ScriptService(), WebService(Namespace:="http://tempuri.org/"), WebServiceBinding(ConformsTo:=WsiProfiles.BasicProfile1_1)>
-Public Class WebServiceImportacionCarpetas
+Public Partial Class WebServiceImportacionCarpetas
     Inherits WebService
+
+    Private ReadOnly _autoridadOperativa As ImportacionCarpetasContextAdapter
+    Private ReadOnly _politicaOperativa As Func(Of LimitesImportacionCarpetas)
+    Private ReadOnly _preparacionOperativa As Func(Of HttpContext, ImportacionCarpetasContextAdapter, LimitesImportacionCarpetas, ServicioPreparacionImportacion)
+    Private ReadOnly _recepcionOperativa As Func(Of HttpContext, ImportacionCarpetasContextAdapter, LimitesImportacionCarpetas, ServicioRecepcionImportacion)
+    Private ReadOnly _consultaOperativa As Func(Of HttpContext, ImportacionCarpetasContextAdapter, ServicioConsultaImportacion)
+    Private ReadOnly _coordinacionOperativa As Func(Of HttpContext, ImportacionCarpetasContextAdapter, String, CoordinadorImportacionCarpetas)
+
+    Public Sub New()
+        Me.New(New ImportacionCarpetasContextAdapter(),
+               Function() LimitesImportacionCarpetas.DesdeContexto(HttpContext.Current),
+               AddressOf CrearPreparacionOperativa)
+    End Sub
+
+    Friend Sub New(autoridad As ImportacionCarpetasContextAdapter, politica As Func(Of LimitesImportacionCarpetas), preparacion As Func(Of HttpContext, ImportacionCarpetasContextAdapter, LimitesImportacionCarpetas, ServicioPreparacionImportacion), Optional recepcion As Func(Of HttpContext, ImportacionCarpetasContextAdapter, LimitesImportacionCarpetas, ServicioRecepcionImportacion) = Nothing, Optional consulta As Func(Of HttpContext, ImportacionCarpetasContextAdapter, ServicioConsultaImportacion) = Nothing, Optional coordinacion As Func(Of HttpContext, ImportacionCarpetasContextAdapter, String, CoordinadorImportacionCarpetas) = Nothing)
+        _autoridadOperativa = autoridad : _politicaOperativa = politica : _preparacionOperativa = preparacion
+        _recepcionOperativa = If(recepcion, AddressOf CrearRecepcionOperativa)
+        _consultaOperativa = If(consulta, AddressOf CrearConsultaOperativa)
+        _coordinacionOperativa = If(coordinacion, AddressOf CrearCoordinacionOperativa)
+    End Sub
+
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function AbrirImportacion(solicitud As AbrirImportacionSolicitud) As RespuestaPerfilImportacion
+        Return EjecutarOperativo(solicitud, Function(s, r) s.Abrir(r))
+    End Function
+
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function ListarPerfilesImportacion(solicitud As ListarPerfilesImportacionSolicitud) As RespuestaPerfilImportacion
+        Return EjecutarOperativo(solicitud, Function(s, r) s.ListarPerfiles(r))
+    End Function
+
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function PrepararPlan(solicitud As PrepararPlanImportacionSolicitud) As RespuestaPerfilImportacion
+        Return EjecutarOperativo(solicitud, Function(s, r) s.Preparar(r))
+    End Function
+
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function ConfirmarPlan(solicitud As ConfirmarPlanImportacionSolicitud) As RespuestaPerfilImportacion
+        Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) _recepcionOperativa(http, _autoridadOperativa, limites).Confirmar(r))
+    End Function
+
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function ConsultarLote(solicitud As ConsultarLoteImportacionSolicitud) As RespuestaPerfilImportacion
+        Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) _consultaOperativa(http, _autoridadOperativa).Consultar(r))
+    End Function
+
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function ConsultarConfirmacionLote(solicitud As ConsultarConfirmacionImportacionSolicitud) As RespuestaPerfilImportacion
+        Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) _consultaOperativa(http, _autoridadOperativa).ConsultarConfirmacion(r))
+    End Function
+
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function ConsultarRecursosLote(solicitud As ConsultarRecursosImportacionSolicitud) As RespuestaPerfilImportacion
+        Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) _consultaOperativa(http, _autoridadOperativa).ConsultarPagina(r))
+    End Function
+
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function ExportarPaginaLote(solicitud As ConsultarRecursosImportacionSolicitud) As RespuestaPerfilImportacion
+        Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) _consultaOperativa(http, _autoridadOperativa).ExportarPagina(r))
+    End Function
+
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function AvanzarLote(solicitud As AvanzarLoteImportacionSolicitud) As RespuestaPerfilImportacion
+        Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) CoordinadorImportacionCarpetas.AvanzarLote(r, Function(fase) _coordinacionOperativa(http, _autoridadOperativa, fase)))
+    End Function
+
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function SolicitarDetencion(solicitud As DetenerLoteImportacionSolicitud) As RespuestaPerfilImportacion
+        Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) _coordinacionOperativa(http, _autoridadOperativa, "DETENER_LOTE").SolicitarDetencion(r))
+    End Function
+
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function ReconciliarRecurso(solicitud As ReconciliarRecursoImportacionSolicitud) As RespuestaPerfilImportacion
+        Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) _coordinacionOperativa(http, _autoridadOperativa, "RECONCILIAR").ReconciliarRecurso(r))
+    End Function
+
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function CerrarReservaSinInicio(solicitud As ReconciliarRecursoImportacionSolicitud) As RespuestaPerfilImportacion
+        Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) _coordinacionOperativa(http, _autoridadOperativa, "RECONCILIAR").CerrarReservaSinInicio(r))
+    End Function
+
+    Private Shared Function CrearConsultaOperativa(http As HttpContext, autoridad As ImportacionCarpetasContextAdapter) As ServicioConsultaImportacion
+        Dim maximoPagina = ServicioConsultaImportacion.MaximoPagina
+        Dim repositorio As New MySqlImportacionCarpetasRepository(ModuleSessionConnectionStringResolver.Resolve(http, "RA_"))
+        Return New ServicioConsultaImportacion(Function() autoridad.Resolver(http), repositorio,
+            Function(nivel) autoridad.ResolverDestino(http, nivel, "CONSULTAR"),
+            Sub(contexto, configuracion) autoridad.AutorizarRecursos(http, contexto, configuracion, "CONSULTAR"), maximoPagina)
+    End Function
+
+    Private Shared Function CrearPreparacionOperativa(http As HttpContext, autoridad As ImportacionCarpetasContextAdapter, limites As LimitesImportacionCarpetas) As ServicioPreparacionImportacion
+        Dim catalogos As PerfilImportacionCatalogAdapter = Nothing, coordinador As CoordinadorProveedorIndices = Nothing
+        Dim perfiles = CrearSeleccionOperativa(http, autoridad, catalogos, coordinador)
+        Dim ra = ModuleSessionConnectionStringResolver.Resolve(http, "RA_")
+        Dim repositorio As New MySqlImportacionCarpetasRepository(ra)
+        Return New ServicioPreparacionImportacion(Function(nivel) autoridad.ResolverDestino(http, nivel, "PREPARAR"), perfiles, limites, AddressOf repositorio.VerificarEsquema, catalogos, coordinador, AddressOf repositorio.ComprobarCoincidencias, AddressOf repositorio.GuardarPlan)
+    End Function
+
+    Private Shared Function CrearSeleccionOperativa(http As HttpContext, autoridad As ImportacionCarpetasContextAdapter, ByRef catalogos As PerfilImportacionCatalogAdapter, ByRef coordinador As CoordinadorProveedorIndices) As AdaptadorPerfilImportacionOperativa
+        Return ComposicionPerfilImportacionOperativa.CrearSeleccion(http, autoridad, catalogos, coordinador)
+    End Function
+
+    Private Shared Function CrearRecepcionOperativa(http As HttpContext, autoridad As ImportacionCarpetasContextAdapter, limites As LimitesImportacionCarpetas) As ServicioRecepcionImportacion
+        Dim catalogos As PerfilImportacionCatalogAdapter = Nothing, coordinador As CoordinadorProveedorIndices = Nothing
+        Dim perfiles = CrearSeleccionOperativa(http, autoridad, catalogos, coordinador)
+        Dim repositorio As New MySqlImportacionCarpetasRepository(ModuleSessionConnectionStringResolver.Resolve(http, "RA_"))
+        Return New ServicioRecepcionImportacion(Function() autoridad.Resolver(http), AddressOf repositorio.ObtenerContextoPlan,
+            Function(nivel) autoridad.ResolverDestino(http, nivel, "CONFIRMAR"), AddressOf repositorio.ObtenerPlan,
+            Sub(contexto, configuracion) autoridad.AutorizarRecursos(http, contexto, configuracion, "CONFIRMAR"), perfiles,
+            AddressOf repositorio.ComprobarCoincidencias, AddressOf repositorio.ConfirmarPlan, limites)
+    End Function
+
+    Private Function EjecutarOperativo(Of T As Class)(solicitud As T, accion As Func(Of ServicioPreparacionImportacion, T, Object)) As RespuestaPerfilImportacion
+        Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) accion(_preparacionOperativa(http, _autoridadOperativa, limites), r))
+    End Function
+
+    Private Function EjecutarEntradaOperativa(Of T As Class)(solicitud As T, accion As Func(Of HttpContext, LimitesImportacionCarpetas, T, Object)) As RespuestaPerfilImportacion
+        Dim salida As New RespuestaPerfilImportacion With {.operacionId = Guid.NewGuid().ToString("N")}
+        Dim http = HttpContext.Current
+        Try
+            'No comparte Resolver, guard ni Ejecutar de administracion DOC-110.
+            Dim contexto = _autoridadOperativa.Resolver(http)
+            Dim limites = _politicaOperativa()
+            Dim entrada = ImportacionCarpetasRequestGuard.LeerJson(Of T)(http, contexto, limites)
+            If solicitud Is Nothing Then Throw New PerfilImportacionException("SOLICITUD_INVALIDA", "La solicitud es obligatoria.")
+            salida.datos = accion(http, limites, entrada)
+            Dim fase = TryCast(salida.datos, AvanceLoteImportacionResultado)
+            If fase IsNot Nothing AndAlso fase.estado = "INCIERTO" Then
+                salida.codigo = "RESULTADO_INCIERTO" : salida.mensaje = "Consulte la evidencia del intento antes de continuar."
+            ElseIf fase IsNot Nothing AndAlso fase.estado = "RECHAZADO" Then
+                salida.codigo = "ARCHIVO_RECHAZADO" : salida.mensaje = "El archivo no puede avanzar con los valores disponibles."
+            Else
+                salida.ok = True : salida.codigo = "OK" : salida.mensaje = "Operación completada."
+            End If
+        Catch ex As ConfiguracionPerfilImportacionException
+            salida.codigo = ex.Codigo : salida.mensaje = ex.Message : salida.incidencias = ex.Incidencias
+        Catch ex As PerfilImportacionException
+            salida.codigo = ex.Codigo : salida.mensaje = ex.Message
+        Catch ex As Exception
+            salida.codigo = "ERROR_INTERNO"
+            salida.mensaje = "No se confirmó la operación. Consulte su estado antes de repetir."
+        End Try
+        If http IsNot Nothing Then
+            http.Response.TrySkipIisCustomErrors = True
+            http.Response.SuppressFormsAuthenticationRedirect = True
+            http.Response.Cache.SetCacheability(HttpCacheability.NoCache)
+            http.Response.Cache.SetNoStore()
+            http.Response.StatusCode = EstadoHttp(salida)
+        End If
+        Return salida
+    End Function
 
     <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
     Public Function ListarPerfiles(solicitud As ListarPerfilesSolicitud) As RespuestaPerfilImportacion
@@ -231,12 +381,17 @@ Public Class WebServiceImportacionCarpetas
     Private Shared Function Version(solicitud As GuardarPerfilSolicitud) As VersionPerfilImportacion
         Return New VersionPerfilImportacion With {.PerfilId = solicitud.perfilId, .VersionId = solicitud.versionId, .Revision = solicitud.revisionVersionEsperada, .Configuracion = solicitud.configuracion, .Reglas = solicitud.reglas}
     End Function
-    Private Shared Function EstadoHttp(resultado As RespuestaPerfilImportacion) As Integer
+    Friend Shared Function EstadoHttp(resultado As RespuestaPerfilImportacion) As Integer
         If resultado.ok Then Return 200
         Select Case resultado.codigo
             Case "SESION_REQUERIDA" : Return 401
             Case "ACCESO_DENEGADO", "SOLICITUD_NO_VERIFICADA" : Return 403
             Case "CONFLICTO_REVISION", "CODIGO_PERFIL_EXISTENTE" : Return 409
+            Case "RESULTADO_INCIERTO", "OPERACION_EN_CURSO", "CONTENIDO_DISTINTO" : Return 409
+            Case "LIMITE_EXCEDIDO" : Return 413
+            Case "FORMATO_NO_SOPORTADO" : Return 415
+            Case "ARCHIVO_RECHAZADO" : Return 422
+            Case "RECEPCION_OCUPADA" : Return 429
             Case "CAPACIDAD_NO_DISPONIBLE", "ESQUEMA_FUENTES_INCOMPLETO" : Return 503
             Case "ERROR_INTERNO" : Return 500
             Case Else : Return 400

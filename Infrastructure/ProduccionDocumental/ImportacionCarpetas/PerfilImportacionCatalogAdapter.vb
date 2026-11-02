@@ -9,8 +9,9 @@ Imports System.Text
 Imports MySql.Data.MySqlClient
 
 'Dos orígenes explícitos. Ningún ID de gabinete/índice se consulta en RA.
-Public Class PerfilImportacionCatalogAdapter
+Public Partial Class PerfilImportacionCatalogAdapter
     Implements IPerfilImportacionCatalogos
+    Implements IPerfilImportacionCatalogosOperativos
     Implements IClasificacionEnsayoPerfil
     Private ReadOnly _ra As String
     Private ReadOnly _da As String
@@ -26,7 +27,11 @@ Public Class PerfilImportacionCatalogAdapter
     End Sub
 
     Public Function ClasificacionPropuesta(contexto As ContextoPerfilImportacion, c As ConfiguracionPerfilImportacion) As Dictionary(Of String, String) Implements IClasificacionEnsayoPerfil.ClasificacionPropuesta
-        If contexto Is Nothing OrElse Not contexto.PuedeAdministrar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.AmbitoRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.UsuarioRef) OrElse c Is Nothing Then Throw Invalida()
+        Return ClasificarNucleo(ParaAdministracion(contexto), c)
+    End Function
+
+    Private Function ClasificarNucleo(contexto As AutoridadCatalogo, c As ConfiguracionPerfilImportacion) As Dictionary(Of String, String)
+        If c Is Nothing Then Throw Invalida()
         Dim valores As New Dictionary(Of String, String)(StringComparer.Ordinal)
         For Each tipo In {"SERIE", "SUBSERIE"}
             Dim referencia = If(tipo = "SERIE", c.SerieRef, c.SubserieRef)
@@ -39,11 +44,11 @@ Public Class PerfilImportacionCatalogAdapter
                 End If
                 Continue For
             End If
-            Dim opciones = Consultar(contexto, tipo, c, 1, 2, referencia)
+            Dim opciones = ConsultarNucleo(contexto, tipo, c, 1, 2, referencia)
             If opciones.Count <> 1 Then Throw New PerfilImportacionException("ACCESO_DENEGADO", "Clasificacion no autorizada para el perfil.")
             valores.Add(tipo & "_ID", opciones(0).value)
             valores.Add(tipo & "_NOMBRE", opciones(0).text)
-            Dim codigos = Consultar(contexto, tipo & "_CODIGO", c, 1, 2, referencia)
+            Dim codigos = ConsultarNucleo(contexto, tipo & "_CODIGO", c, 1, 2, referencia)
             If codigos.Count <> 1 Then Throw New PerfilImportacionException("ACCESO_DENEGADO", "Codigo de clasificacion no disponible.")
             valores.Add(tipo & "_CODIGO", codigos(0).text)
         Next
@@ -51,22 +56,26 @@ Public Class PerfilImportacionCatalogAdapter
     End Function
 
     Public Function Validar(contexto As ContextoPerfilImportacion, c As ConfiguracionPerfilImportacion, reglas As List(Of ReglaPerfilImportacion), publicar As Boolean) As List(Of IncidenciaPerfilImportacion) Implements IPerfilImportacionCatalogos.Validar
+        Return ValidarNucleo(ParaAdministracion(contexto), c, reglas, publicar)
+    End Function
+
+    Private Function ValidarNucleo(contexto As AutoridadCatalogo, c As ConfiguracionPerfilImportacion, reglas As List(Of ReglaPerfilImportacion), publicar As Boolean) As List(Of IncidenciaPerfilImportacion)
         Dim errores As New List(Of IncidenciaPerfilImportacion)()
         For Each referencia In New Dictionary(Of String, String) From {
             {"FONDO", c.FondoRef}, {"INSTRUMENTO", c.InstrumentoRef}, {"AREA", c.AreaRef},
             {"SERIE", c.SerieRef}, {"SUBSERIE", c.SubserieRef}, {"TIPO_EXPEDIENTE", c.TipoExpedienteRef}, {"UNIDAD_DOCUMENTAL", c.UnidadDocumentalRef}}
-            If Not String.IsNullOrEmpty(referencia.Value) AndAlso Consultar(contexto, referencia.Key, c, 1, 1, referencia.Value).Count <> 1 Then Agregar(errores, referencia.Key, "REFERENCIA_NO_AUTORIZADA")
+            If Not String.IsNullOrEmpty(referencia.Value) AndAlso ConsultarNucleo(contexto, referencia.Key, c, 1, 1, referencia.Value).Count <> 1 Then Agregar(errores, referencia.Key, "REFERENCIA_NO_AUTORIZADA")
         Next
         If c.OrigenGabinete <> "DA" Then Agregar(errores, "OrigenGabinete", "ORIGEN_INVALIDO")
         If c.GabineteId.HasValue Then
             Dim actual = HuellaOrigen()
             If String.IsNullOrEmpty(c.HuellaOrigenGabinete) AndAlso Not publicar Then c.HuellaOrigenGabinete = actual
             If Not String.Equals(actual, c.HuellaOrigenGabinete, StringComparison.Ordinal) Then Agregar(errores, "GabineteId", "ORIGEN_CAMBIADO")
-            Dim gabinete = Consultar(contexto, "GABINETE", c, 1, 1, c.GabineteId.Value.ToString(CultureInfo.InvariantCulture))
+            Dim gabinete = ConsultarNucleo(contexto, "GABINETE", c, 1, 1, c.GabineteId.Value.ToString(CultureInfo.InvariantCulture))
             If gabinete.Count <> 1 Then
                 Agregar(errores, "GabineteId", "GABINETE_NO_AUTORIZADO")
             Else
-                Dim campos = Me.Campos(contexto, c)
+                Dim campos = CamposNucleo(contexto, c)
                 For Each regla In reglas.Where(Function(r) r.DestinoTipo = "INDICE_GABINETE")
                     Dim campo = campos.SingleOrDefault(Function(f) f.value = regla.DestinoRef)
                     If campo Is Nothing OrElse Not TipoCompatible(campo, regla) Then Agregar(errores, regla.DestinoTipo & ":" & regla.DestinoRef, "INDICE_INCOMPATIBLE")
@@ -81,18 +90,22 @@ Public Class PerfilImportacionCatalogAdapter
             Agregar(errores, "GabineteId", "GABINETE_REQUERIDO")
         End If
         Dim constantes = New ResolvedorReglasPerfilImportacion().Resolver(reglas.Where(Function(r) r.FuenteTipo = "CONSTANTE").ToList(), New EjemploPerfilImportacion())
-        If constantes.Incidencias.Count = 0 Then errores.AddRange(ValidarValores(contexto, c, constantes.Valores))
+        If constantes.Incidencias.Count = 0 Then errores.AddRange(ValidarValoresNucleo(contexto, c, constantes.Valores))
         Return errores
     End Function
 
     Public Function ValidarValores(contexto As ContextoPerfilImportacion, c As ConfiguracionPerfilImportacion, valores As List(Of ValorReglaPerfilImportacion)) As List(Of IncidenciaPerfilImportacion) Implements IPerfilImportacionCatalogos.ValidarValores
+        Return ValidarValoresNucleo(ParaAdministracion(contexto), c, valores)
+    End Function
+
+    Private Function ValidarValoresNucleo(contexto As AutoridadCatalogo, c As ConfiguracionPerfilImportacion, valores As List(Of ValorReglaPerfilImportacion)) As List(Of IncidenciaPerfilImportacion)
         Dim errores As New List(Of IncidenciaPerfilImportacion)()
         Dim indices As List(Of OpcionPerfilImportacion) = Nothing
-        If valores.Any(Function(v) v.DestinoTipo = "INDICE_GABINETE" AndAlso Not v.Diferido) Then indices = Campos(contexto, c)
+        If valores.Any(Function(v) v.DestinoTipo = "INDICE_GABINETE" AndAlso Not v.Diferido) Then indices = CamposNucleo(contexto, c)
         For Each valor In valores.Where(Function(v) Not v.Diferido)
             If valor.DestinoTipo = "TIPOLOGIA" Then
                 'REFERENCIA es ID interno; TEXTO se busca por código_documento, nunca como ID implícito.
-                Dim opciones = Consultar(contexto, If(valor.TipoValor = "REFERENCIA", "TIPOLOGIA", "TIPOLOGIA_CODIGO"), c, 1, 2, valor.Valor)
+                Dim opciones = ConsultarNucleo(contexto, If(valor.TipoValor = "REFERENCIA", "TIPOLOGIA", "TIPOLOGIA_CODIGO"), c, 1, 2, valor.Valor)
                 If opciones.Count <> 1 Then
                     Agregar(errores, "TIPOLOGIA", "TIPOLOGIA_NO_UNIVOCA")
                 Else
@@ -100,7 +113,7 @@ Public Class PerfilImportacionCatalogAdapter
                     valor.TipoValor = "REFERENCIA"
                 End If
             ElseIf valor.DestinoTipo = "CAMPO_EXPEDIENTE" AndAlso valor.DestinoRef = "RESPONSABLE" Then
-                Dim opciones = Consultar(contexto, If(valor.FuenteTipo = "CARPETA", "RESPONSABLE_IDENTIFICACION", "RESPONSABLE"), c, 1, 2, valor.Valor)
+                Dim opciones = ConsultarNucleo(contexto, If(valor.FuenteTipo = "CARPETA", "RESPONSABLE_IDENTIFICACION", "RESPONSABLE"), c, 1, 2, valor.Valor)
                 If opciones.Count <> 1 Then
                     Agregar(errores, "RESPONSABLE", "RESPONSABLE_NO_AUTORIZADO")
                 Else
@@ -116,13 +129,21 @@ Public Class PerfilImportacionCatalogAdapter
     End Function
 
     Public Function NivelCompatible(contexto As ContextoPerfilImportacion, c As ConfiguracionPerfilImportacion, nivelRef As String) As Boolean Implements IPerfilImportacionCatalogos.NivelCompatible
+        Return NivelNucleo(ParaAdministracion(contexto), c, nivelRef)
+    End Function
+
+    Private Function NivelNucleo(contexto As AutoridadCatalogo, c As ConfiguracionPerfilImportacion, nivelRef As String) As Boolean
         'El nivel es de Producción, no de clasificación; se conserva y se autoriza sin sustituirlo.
         Dim tabla = Leer(_ra, "SELECT n.id_nivel FROM ra_pro_niveles n INNER JOIN remit_dest_interno u ON u.id_Remit_Dest_Int=n.remit_dest_interno_id_Remit_Dest_Int WHERE n.id_nivel=@nivel AND n.estado_nivel=1 AND u.Empresa_Gestion_Documental_id_empresa=@empresa AND (u.id_Remit_Dest_Int=@usuario OR EXISTS(SELECT 1 FROM ra_pro_permisos_niveles p WHERE p.ra_pro_niveles_id_nivel=n.id_nivel AND p.remit_dest_interno_id_Remit_Dest_Int=@usuario AND p.estado_permiso=1 AND p.agregar_expediente=1))", "@nivel", nivelRef, "@empresa", contexto.AmbitoRef, "@usuario", contexto.UsuarioRef)
         Return tabla.Rows.Count = 1
     End Function
 
     Public Function Consultar(contexto As ContextoPerfilImportacion, catalogo As String, c As ConfiguracionPerfilImportacion, pagina As Integer, tamano As Integer, Optional referencia As String = Nothing) As List(Of OpcionPerfilImportacion)
-        If contexto Is Nothing OrElse Not contexto.PuedeAdministrar OrElse c Is Nothing OrElse pagina < 1 OrElse pagina > 1000000 OrElse tamano < 1 OrElse tamano > 50 Then Throw Invalida()
+        Return ConsultarNucleo(ParaAdministracion(contexto), catalogo, c, pagina, tamano, referencia)
+    End Function
+
+    Private Function ConsultarNucleo(contexto As AutoridadCatalogo, catalogo As String, c As ConfiguracionPerfilImportacion, pagina As Integer, tamano As Integer, Optional referencia As String = Nothing) As List(Of OpcionPerfilImportacion)
+        If c Is Nothing OrElse pagina < 1 OrElse pagina > 1000000 OrElse tamano < 1 OrElse tamano > 50 Then Throw Invalida()
         If referencia IsNot Nothing AndAlso Not {"TIPOLOGIA_CODIGO", "RESPONSABLE_IDENTIFICACION"}.Contains(catalogo) AndAlso Not ValidadorPerfilImportacion.ReferenciaValida(referencia) Then Throw Invalida()
         For Each filtro In {c.InstrumentoRef, c.AreaRef, c.SerieRef, c.SubserieRef}
             If filtro IsNot Nothing AndAlso Not ValidadorPerfilImportacion.ReferenciaValida(filtro) Then Throw Invalida()
@@ -156,7 +177,7 @@ Public Class PerfilImportacionCatalogAdapter
                 parametros.AddRange({"@usuarioDA", UsuarioDA(contexto)})
                 consulta = "SELECT s.id_gabinete AS id,s.NOMBRE AS nombre FROM system1 s WHERE " & PermisoGabinete
             Case "INDICE"
-                Dim campos = Me.Campos(contexto, c)
+                Dim campos = CamposNucleo(contexto, c)
                 Return campos.Where(Function(f) referencia Is Nothing OrElse f.value = referencia).Skip((pagina - 1) * tamano).Take(tamano).ToList()
             Case Else
                 Throw Invalida()
@@ -169,12 +190,17 @@ Public Class PerfilImportacionCatalogAdapter
     End Function
 
     Public Function Campos(contexto As ContextoPerfilImportacion, c As ConfiguracionPerfilImportacion) As List(Of OpcionPerfilImportacion)
+        Return CamposNucleo(ParaAdministracion(contexto), c)
+    End Function
+
+    Private Function CamposNucleo(contexto As AutoridadCatalogo, c As ConfiguracionPerfilImportacion, Optional fisicos As Dictionary(Of String, String) = Nothing) As List(Of OpcionPerfilImportacion)
         If Not c.GabineteId.HasValue Then Throw Invalida()
         Dim usuario = UsuarioDA(contexto)
         Dim datos = Leer(_da, "SELECT d.id_detalle_gabinete AS id,d.CAMPO,d.ALEAS_CAMPO,d.IS_REQUIRED_BACKEND,ic.DATA_TYPE,ic.COLUMN_TYPE,ic.NUMERIC_PRECISION,ic.NUMERIC_SCALE,ic.CHARACTER_SET_NAME,ic.CHARACTER_MAXIMUM_LENGTH FROM system1 s INNER JOIN detalle_gabienete d ON d.id_gabinete=s.id_gabinete AND d.GABINETE=s.NOMBRE INNER JOIN information_schema.COLUMNS ic ON ic.TABLE_SCHEMA=DATABASE() AND ic.TABLE_NAME=s.NOMBRE AND ic.COLUMN_NAME=d.CAMPO WHERE s.id_gabinete=@gabinete AND d.VISIBLE=1 AND " & PermisoGabinete & " ORDER BY d.IDENTI LIMIT 129", "@gabinete", c.GabineteId.Value, "@usuarioDA", usuario)
         If datos.Rows.Count > 128 Then Throw New PerfilImportacionException("CONFIGURACION_INVALIDA", "El gabinete excede el máximo de campos admitidos por esta entrega.")
         Dim resultado As New List(Of OpcionPerfilImportacion)()
         For Each fila As DataRow In datos.Rows
+            If fisicos IsNot Nothing Then fisicos.Add(Convert.ToString(fila("id"), CultureInfo.InvariantCulture), CStr(fila("CAMPO")))
             Dim tipo = Convert.ToString(fila("DATA_TYPE"), CultureInfo.InvariantCulture)
             Dim contrato = If({"char", "varchar", "text", "tinytext", "mediumtext", "longtext"}.Contains(tipo), "TEXTO", If({"tinyint", "smallint", "mediumint", "int", "bigint"}.Contains(tipo), "ENTERO", If({"decimal", "numeric"}.Contains(tipo), "DECIMAL", If(tipo = "date", "FECHA", "NO_SOPORTADO"))))
             Dim longitud = If(Convert.IsDBNull(fila("CHARACTER_MAXIMUM_LENGTH")), 64, CInt(Math.Min(4096L, Convert.ToInt64(fila("CHARACTER_MAXIMUM_LENGTH"), CultureInfo.InvariantCulture))))
@@ -186,15 +212,33 @@ Public Class PerfilImportacionCatalogAdapter
         Return resultado
     End Function
 
-    Private Function UsuarioDA(contexto As ContextoPerfilImportacion) As UInteger
-        Dim relacion = Leer(_ra, "SELECT RELACION_DA FROM remit_dest_interno WHERE id_Remit_Dest_Int=@usuario AND Empresa_Gestion_Documental_id_empresa=@empresa AND Estado_Usuario=1", "@usuario", contexto.UsuarioRef, "@empresa", contexto.AmbitoRef)
+    Private Function UsuarioDA(contexto As AutoridadCatalogo) As UInteger
+        Return UsuarioDA(contexto.UsuarioRef, contexto.AmbitoRef)
+    End Function
+
+    Private Function UsuarioDA(usuarioGestion As String, empresa As String) As UInteger
+        Dim relacion = Leer(_ra, "SELECT RELACION_DA FROM remit_dest_interno WHERE id_Remit_Dest_Int=@usuario AND Empresa_Gestion_Documental_id_empresa=@empresa AND Estado_Usuario=1", "@usuario", usuarioGestion, "@empresa", empresa)
         If relacion.Rows.Count <> 1 OrElse Convert.IsDBNull(relacion.Rows(0)(0)) Then Throw Denegado()
         Dim id As UInteger
         If Not UInteger.TryParse(Convert.ToString(relacion.Rows(0)(0), CultureInfo.InvariantCulture), id) OrElse id = 0 Then Throw Denegado()
-        Dim usuario = Leer(_da, "SELECT Clave_Usuario FROM usuarios_da WHERE Clave_Usuario=@id AND Relacion_Gestion=@usuario", "@id", id, "@usuario", contexto.UsuarioRef)
+        Dim usuario = Leer(_da, "SELECT Clave_Usuario FROM usuarios_da WHERE Clave_Usuario=@id AND Relacion_Gestion=@usuario", "@id", id, "@usuario", usuarioGestion)
         If usuario.Rows.Count <> 1 Then Throw Denegado()
         Return id
     End Function
+
+    'Entrada operativa estrecha: comparte origen, relacion y permisos reales sin
+    'construir un ContextoPerfilImportacion ni elevar PuedeAdministrar.
+    Public Sub AutorizarGabineteImportacion(contexto As ContextoImportacionCarpetas, c As ConfiguracionPerfilImportacion)
+        If contexto Is Nothing OrElse Not contexto.PuedeImportar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.UsuarioRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.AmbitoRef) Then Throw Denegado()
+        If c Is Nothing OrElse c.OrigenGabinete <> "DA" OrElse Not c.GabineteId.HasValue OrElse c.GabineteId.Value = 0 OrElse String.IsNullOrEmpty(c.HuellaOrigenGabinete) Then Throw Invalida()
+        If Not String.Equals(HuellaOrigen(), c.HuellaOrigenGabinete, StringComparison.Ordinal) Then Throw Denegado()
+        Dim usuario = UsuarioDA(contexto.UsuarioRef, contexto.AmbitoRef)
+        Dim datos = Leer(_da, "SELECT s.id_gabinete,CAST(s.INVENTARIO_DOCUMENTAL AS CHAR) AS INVENTARIO_DOCUMENTAL,CAST(s.APLICA_TRD AS CHAR) AS APLICA_TRD,CAST(s.ASIGNA_UNIDAD AS CHAR) AS ASIGNA_UNIDAD FROM system1 s WHERE s.id_gabinete=@gabinete AND " & PermisoGabinete & " LIMIT 2", "@gabinete", c.GabineteId.Value, "@usuarioDA", usuario)
+        If datos.Rows.Count <> 1 OrElse Convert.ToString(datos.Rows(0)("id_gabinete"), CultureInfo.InvariantCulture) <> c.GabineteId.Value.ToString(CultureInfo.InvariantCulture) Then Throw Denegado()
+        For Each columna In {"INVENTARIO_DOCUMENTAL", "APLICA_TRD", "ASIGNA_UNIDAD"}
+            If Convert.ToString(datos.Rows(0)(columna), CultureInfo.InvariantCulture) <> "1" Then Throw Denegado()
+        Next
+    End Sub
 
     Private Function HuellaOrigen() As String
         Dim origen = Leer(_da, "SELECT @@hostname AS host,@@port AS puerto,@@server_id AS servidor,DATABASE() AS base")
@@ -264,6 +308,37 @@ Public Class PerfilImportacionCatalogAdapter
     End Sub
     Private Shared Function Denegado() As PerfilImportacionException
         Return New PerfilImportacionException("ACCESO_DENEGADO", "No se encontró una relación autorizada con Docuarchi.")
+    End Function
+    Public Function ValidarOperativo(contexto As ContextoImportacionCarpetas, c As ConfiguracionPerfilImportacion, reglas As List(Of ReglaPerfilImportacion)) As List(Of IncidenciaPerfilImportacion) Implements IPerfilImportacionCatalogosOperativos.ValidarOperativo
+        Return ValidarNucleo(ParaOperacion(contexto), c, reglas, True)
+    End Function
+    Public Function ValidarValoresOperativos(contexto As ContextoImportacionCarpetas, c As ConfiguracionPerfilImportacion, valores As List(Of ValorReglaPerfilImportacion)) As List(Of IncidenciaPerfilImportacion) Implements IPerfilImportacionCatalogosOperativos.ValidarValoresOperativos
+        Return ValidarValoresNucleo(ParaOperacion(contexto), c, valores)
+    End Function
+    Public Function NivelCompatibleOperativo(contexto As ContextoImportacionCarpetas, c As ConfiguracionPerfilImportacion, nivelRef As String) As Boolean Implements IPerfilImportacionCatalogosOperativos.NivelCompatibleOperativo
+        If Not ValidadorPerfilImportacion.ReferenciaValida(nivelRef) Then Throw Invalida()
+        Return NivelNucleo(ParaOperacion(contexto), c, nivelRef)
+    End Function
+    Public Function ClasificacionOperativa(contexto As ContextoImportacionCarpetas, c As ConfiguracionPerfilImportacion) As Dictionary(Of String, String) Implements IPerfilImportacionCatalogosOperativos.ClasificacionOperativa
+        Return ClasificarNucleo(ParaOperacion(contexto), c)
+    End Function
+    Public Function ConsultarOperativo(contexto As ContextoImportacionCarpetas, catalogo As String, c As ConfiguracionPerfilImportacion, pagina As Integer, tamano As Integer, Optional referencia As String = Nothing) As List(Of OpcionPerfilImportacion)
+        Return ConsultarNucleo(ParaOperacion(contexto), catalogo, c, pagina, tamano, referencia)
+    End Function
+    Private NotInheritable Class AutoridadCatalogo
+        Public ReadOnly UsuarioRef As String
+        Public ReadOnly AmbitoRef As String
+        Public Sub New(usuario As String, ambito As String)
+            UsuarioRef = usuario : AmbitoRef = ambito
+        End Sub
+    End Class
+    Private Shared Function ParaAdministracion(contexto As ContextoPerfilImportacion) As AutoridadCatalogo
+        If contexto Is Nothing OrElse Not contexto.PuedeAdministrar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.UsuarioRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.AmbitoRef) Then Throw Invalida()
+        Return New AutoridadCatalogo(contexto.UsuarioRef, contexto.AmbitoRef)
+    End Function
+    Private Shared Function ParaOperacion(contexto As ContextoImportacionCarpetas) As AutoridadCatalogo
+        If contexto Is Nothing OrElse Not contexto.PuedeImportar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.UsuarioRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.AmbitoRef) Then Throw Denegado()
+        Return New AutoridadCatalogo(contexto.UsuarioRef, contexto.AmbitoRef)
     End Function
     Private Shared Function Invalida() As PerfilImportacionException
         Return New PerfilImportacionException("SOLICITUD_INVALIDA", "Solicitud de catálogo inválida.")

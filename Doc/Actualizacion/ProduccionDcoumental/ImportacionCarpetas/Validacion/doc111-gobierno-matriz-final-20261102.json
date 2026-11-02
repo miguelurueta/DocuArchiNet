@@ -1,0 +1,488 @@
+{
+  "applicable": true,
+  "status": "FAIL",
+  "manifest": {
+    "version": 3,
+    "issueKey": "DOC-111",
+    "changeName": "doc-111-produccion-importacion-carga-carpeta",
+    "impact": "cross_cutting",
+    "requiredEvidence": [
+      "unit",
+      "manual_qa"
+    ],
+    "documentation": [
+      "Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/01-ResumenTecnico.md",
+      "Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/02-ImpactoUI.md",
+      "Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/03-ServiciosYReglas.md",
+      "Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/04-ContratosIntegracion.md",
+      "Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/05-PruebasEvidencia.md"
+    ],
+    "documentationContract": [
+      {
+        "path": "Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/01-ResumenTecnico.md",
+        "requiredSections": [
+          "## Objetivo",
+          "## Alcance y compatibilidad"
+        ],
+        "minimumContentLength": 180,
+        "identity": {
+          "issueKey": "DOC-111",
+          "changeName": "doc-111-produccion-importacion-carga-carpeta",
+          "impact": "cross_cutting"
+        },
+        "closureRestrictions": [
+          "tbd",
+          "template_comment",
+          "open_checklist",
+          "template_instruction"
+        ]
+      },
+      {
+        "path": "Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/02-ImpactoUI.md",
+        "requiredSections": [
+          "## Superficies UI",
+          "## Validacion visual"
+        ],
+        "minimumContentLength": 180,
+        "identity": {
+          "issueKey": "DOC-111",
+          "changeName": "doc-111-produccion-importacion-carga-carpeta",
+          "impact": "cross_cutting"
+        },
+        "closureRestrictions": [
+          "tbd",
+          "template_comment",
+          "open_checklist",
+          "template_instruction"
+        ]
+      },
+      {
+        "path": "Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/03-ServiciosYReglas.md",
+        "requiredSections": [
+          "## Servicios y reglas"
+        ],
+        "minimumContentLength": 180,
+        "identity": {
+          "issueKey": "DOC-111",
+          "changeName": "doc-111-produccion-importacion-carga-carpeta",
+          "impact": "cross_cutting"
+        },
+        "closureRestrictions": [
+          "tbd",
+          "template_comment",
+          "open_checklist",
+          "template_instruction"
+        ]
+      },
+      {
+        "path": "Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/04-ContratosIntegracion.md",
+        "requiredSections": [
+          "## Contratos e integraciones"
+        ],
+        "minimumContentLength": 180,
+        "identity": {
+          "issueKey": "DOC-111",
+          "changeName": "doc-111-produccion-importacion-carga-carpeta",
+          "impact": "cross_cutting"
+        },
+        "closureRestrictions": [
+          "tbd",
+          "template_comment",
+          "open_checklist",
+          "template_instruction"
+        ]
+      },
+      {
+        "path": "Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/05-PruebasEvidencia.md",
+        "requiredSections": [
+          "## Evidencia requerida",
+          "## QA/E2E WebForms"
+        ],
+        "minimumContentLength": 180,
+        "identity": {
+          "issueKey": "DOC-111",
+          "changeName": "doc-111-produccion-importacion-carga-carpeta",
+          "impact": "cross_cutting"
+        },
+        "closureRestrictions": [
+          "tbd",
+          "template_comment",
+          "open_checklist",
+          "template_instruction"
+        ]
+      }
+    ],
+    "refinement": {
+      "version": 1,
+      "required": true,
+      "path": "openspec/changes/doc-111-produccion-importacion-carga-carpeta/refinement.md",
+      "state": "approved",
+      "taskOriginFormat": "Origen: D-XX, RQ-XX",
+      "enforcement": "Cada decision debe llegar a design, spec y tasks; no se admiten reglas de framework ajeno al perfil tecnologico."
+    }
+  },
+  "checks": [
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/01-ResumenTecnico.md:exists",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/01-ResumenTecnico.md:content",
+      "status": "PASS",
+      "details": {
+        "minimumContentLength": 180,
+        "actualContentLength": 881
+      }
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/01-ResumenTecnico.md:section:## Objetivo",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/01-ResumenTecnico.md:section:## Alcance y compatibilidad",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/01-ResumenTecnico.md:identity:- Ticket: DOC-111",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/01-ResumenTecnico.md:identity:- Cambio OpenSpec: doc-111-produccion-importacion-carga-carpeta",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/01-ResumenTecnico.md:identity:- Clasificacion: cross_cutting",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/01-ResumenTecnico.md:closure:tbd",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/01-ResumenTecnico.md:closure:template_comment",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/01-ResumenTecnico.md:closure:open_checklist",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/01-ResumenTecnico.md:closure:template_instruction",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/02-ImpactoUI.md:exists",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/02-ImpactoUI.md:content",
+      "status": "PASS",
+      "details": {
+        "minimumContentLength": 180,
+        "actualContentLength": 834
+      }
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/02-ImpactoUI.md:section:## Superficies UI",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/02-ImpactoUI.md:section:## Validacion visual",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/02-ImpactoUI.md:identity:- Ticket: DOC-111",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/02-ImpactoUI.md:identity:- Cambio OpenSpec: doc-111-produccion-importacion-carga-carpeta",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/02-ImpactoUI.md:identity:- Clasificacion: cross_cutting",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/02-ImpactoUI.md:closure:tbd",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/02-ImpactoUI.md:closure:template_comment",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/02-ImpactoUI.md:closure:open_checklist",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/02-ImpactoUI.md:closure:template_instruction",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/03-ServiciosYReglas.md:exists",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/03-ServiciosYReglas.md:content",
+      "status": "PASS",
+      "details": {
+        "minimumContentLength": 180,
+        "actualContentLength": 839
+      }
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/03-ServiciosYReglas.md:section:## Servicios y reglas",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/03-ServiciosYReglas.md:identity:- Ticket: DOC-111",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/03-ServiciosYReglas.md:identity:- Cambio OpenSpec: doc-111-produccion-importacion-carga-carpeta",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/03-ServiciosYReglas.md:identity:- Clasificacion: cross_cutting",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/03-ServiciosYReglas.md:closure:tbd",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/03-ServiciosYReglas.md:closure:template_comment",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/03-ServiciosYReglas.md:closure:open_checklist",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/03-ServiciosYReglas.md:closure:template_instruction",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/04-ContratosIntegracion.md:exists",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/04-ContratosIntegracion.md:content",
+      "status": "PASS",
+      "details": {
+        "minimumContentLength": 180,
+        "actualContentLength": 926
+      }
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/04-ContratosIntegracion.md:section:## Contratos e integraciones",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/04-ContratosIntegracion.md:identity:- Ticket: DOC-111",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/04-ContratosIntegracion.md:identity:- Cambio OpenSpec: doc-111-produccion-importacion-carga-carpeta",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/04-ContratosIntegracion.md:identity:- Clasificacion: cross_cutting",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/04-ContratosIntegracion.md:closure:tbd",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/04-ContratosIntegracion.md:closure:template_comment",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/04-ContratosIntegracion.md:closure:open_checklist",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/04-ContratosIntegracion.md:closure:template_instruction",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/05-PruebasEvidencia.md:exists",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/05-PruebasEvidencia.md:content",
+      "status": "PASS",
+      "details": {
+        "minimumContentLength": 180,
+        "actualContentLength": 17817
+      }
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/05-PruebasEvidencia.md:section:## Evidencia requerida",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/05-PruebasEvidencia.md:section:## QA/E2E WebForms",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/05-PruebasEvidencia.md:identity:- Ticket: DOC-111",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/05-PruebasEvidencia.md:identity:- Cambio OpenSpec: doc-111-produccion-importacion-carga-carpeta",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/05-PruebasEvidencia.md:identity:- Clasificacion: cross_cutting",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/05-PruebasEvidencia.md:closure:tbd",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/05-PruebasEvidencia.md:closure:template_comment",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/05-PruebasEvidencia.md:closure:open_checklist",
+      "status": "PASS"
+    },
+    {
+      "name": "document:Doc/Tecnica/Opsxj/doc-111-produccion-importacion-carga-carpeta/05-PruebasEvidencia.md:closure:template_instruction",
+      "status": "PASS"
+    },
+    {
+      "name": "refinement:exists",
+      "status": "PASS",
+      "details": {
+        "path": "openspec/changes/doc-111-produccion-importacion-carga-carpeta/refinement.md"
+      }
+    },
+    {
+      "name": "refinement:approved",
+      "status": "PASS"
+    },
+    {
+      "name": "refinement:no_placeholders",
+      "status": "PASS"
+    },
+    {
+      "name": "refinement:decisions",
+      "status": "PASS",
+      "details": {
+        "decisionIds": [
+          "D-01",
+          "D-02",
+          "D-03",
+          "D-04",
+          "D-05",
+          "D-06",
+          "D-07",
+          "D-08",
+          "D-09",
+          "D-10",
+          "D-11",
+          "D-12"
+        ],
+        "malformedDecisionRows": []
+      }
+    },
+    {
+      "name": "refinement:requirements",
+      "status": "PASS",
+      "details": {
+        "requirementIds": [
+          "RQ-01",
+          "RQ-02",
+          "RQ-03",
+          "RQ-04",
+          "RQ-05",
+          "RQ-06",
+          "RQ-07",
+          "RQ-08",
+          "RQ-09",
+          "RQ-10",
+          "RQ-11",
+          "RQ-12"
+        ]
+      }
+    },
+    {
+      "name": "refinement:design:exists",
+      "status": "PASS"
+    },
+    {
+      "name": "refinement:design:decisions",
+      "status": "PASS",
+      "details": {
+        "missingDecisionIds": []
+      }
+    },
+    {
+      "name": "refinement:spec:exists",
+      "status": "PASS"
+    },
+    {
+      "name": "refinement:spec:decisions",
+      "status": "PASS",
+      "details": {
+        "missingDecisionIds": []
+      }
+    },
+    {
+      "name": "refinement:tasks:exists",
+      "status": "PASS"
+    },
+    {
+      "name": "refinement:tasks:decisions",
+      "status": "PASS",
+      "details": {
+        "missingDecisionIds": []
+      }
+    },
+    {
+      "name": "refinement:tasks:origins",
+      "status": "PASS",
+      "details": {
+        "missingOrigins": []
+      }
+    },
+    {
+      "name": "openspec_tasks",
+      "status": "FAIL",
+      "details": {
+        "pendingTasks": 1
+      }
+    },
+    {
+      "name": "openspec_review",
+      "status": "FAIL",
+      "message": "Falta una revision OpenSpec persistida para el SHA actual.",
+      "details": {
+        "state": "PENDING",
+        "detail": "La etapa no tiene ejecuciones registradas."
+      }
+    },
+    {
+      "name": "evidence:unit",
+      "status": "PASS",
+      "details": {
+        "type": "unit",
+        "status": "pass",
+        "reference": "88 local tests PASS, including DOC111 driver, partial publication, operational degradation scope, restoration failure cases, DOC88 policy, shared session and ODBC SELECT controls. .tmp/doc111-degradation-tests-20261102.txt; Validacion/doc111-degradacion-individual-pass-20261102.md. Framework implementation evidence remains separately documented; real SII import not executed.",
+        "sha": "b2e93b726f221868cf2b82d43200a8e568871117",
+        "recordedAtUtc": "2026-11-02T21:43:57.818Z"
+      }
+    },
+    {
+      "name": "evidence:manual_qa",
+      "status": "FAIL",
+      "details": null
+    }
+  ],
+  "evidencePath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\.opsxj\\evidence\\DOC-111.json",
+  "message": "3 requisito(s) de gobierno pendiente(s)."
+}

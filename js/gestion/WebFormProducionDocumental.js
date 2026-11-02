@@ -54,6 +54,16 @@ $(document).ready(function () {
             },
             klass: "fas fa-folder-plus"
         },
+        'Importar carpetas': {
+            click: function () {
+                var host = document.getElementById('doc111-importacion');
+                if (host && window.ImportacionCarpetas) {
+                    window.ImportacionCarpetas.inicializar();
+                    if (host.doc111Instancia) { host.doc111Instancia.abrir(); }
+                }
+            },
+            klass: "fas fa-folder-plus"
+        },
         'Agrega Nivel ': {
         click: function (element) {
             document.getElementById("Button_activa_nuevo_nivel").click();
@@ -1034,6 +1044,25 @@ function auto_zise_popup_adjunta_documento_workflow() {
     }
 }
 //TERMINA ZONA LOAD FILE
+// Importacion por carpetas: agrega solo relaciones confirmadas a una rama ya
+// cargada, conservando seleccion, expansion y el recorrido de carga individual.
+function Doc111ActualizarRama(contexto, raices) {
+    var host = document.getElementById("doc111-importacion"), tree = document.getElementById("TreeViewArchivo");
+    function id(value) { return typeof value === "string" && /^[1-9][0-9]*$/.test(value); }
+    if (!host || !tree || !contexto || !id(contexto.nivelRef) || !/^[a-f0-9]{32}$/.test(contexto.referenciaContexto || "") || host.getAttribute("data-recuperacion") !== contexto.referenciaContexto || !Array.isArray(raices)) { return false; }
+    var parents = Array.prototype.filter.call(tree.querySelectorAll("a[title]"), function (a) { return a.title.split("\\\\")[0] === contexto.nivelRef && a.title.indexOf("\\\\") !== -1; });
+    if (parents.length !== 1 || !/^TreeViewArchivot[0-9]+$/.test(parents[0].id) || !parents[0].getClientRects().length) { return false; }
+    var parent = parents[0], branch = document.getElementById(parent.id.replace("TreeViewArchivot", "TreeViewArchivon") + "Nodes");
+    if (!branch || !tree.contains(branch)) { return false; }
+    raices.forEach(function (r) {
+        if (!r || r.tieneIntentoActivo || ["EXPEDIENTE_CONFIRMADO", "COMPLETADA", "PARCIAL"].indexOf(r.estado) === -1 || !id(r.expedienteId) || !id(r.relacionNivelId) || typeof r.nombreExpediente !== "string" || !r.nombreExpediente.trim()) { return; }
+        var title = r.relacionNivelId + "|" + contexto.nivelRef + "|" + r.expedienteId + "|";
+        var existing = Array.prototype.some.call(tree.querySelectorAll("a[title]"), function (a) { return a.title.replace(/\|$/, "") === title.replace(/\|$/, ""); });
+        if (!existing) { create_trenode_treview(title, r.nombreExpediente, "trenode", "TreeViewArchivo", "../Gestion/imagenes/folder-regular.png", "0", parent.id); }
+    });
+    return true;
+}
+
 function create_trenode_treview(title, texto, tipo_node, nombre_tree, ur_img_node, move, node_parent_id) {
     try {
         var element_a_eleccion; //Referencia al elemento A seleccioando
