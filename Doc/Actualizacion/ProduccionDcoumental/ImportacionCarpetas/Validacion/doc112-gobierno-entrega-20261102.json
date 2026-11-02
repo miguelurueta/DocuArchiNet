@@ -1,0 +1,21 @@
+{
+  "issueKey": "DOC-112",
+  "status": "APPROVED_FOR_PUBLICATION",
+  "baseBranch": "feature/DOC-112",
+  "baseHead": "06bfb9b7aa76a5edcd4266ca6a946cd0a5989456",
+  "recordScope": "corte de gobierno documental; baseHead identifica HEAD al verificar, no reemplaza las huellas del workspace",
+  "verificationSha256": "e0a0d1090074563c1d4fcdcc71988aa32e72e229af12dac40b269bc8b5b46112",
+  "passedChecks": 69,
+  "openChecks": [],
+  "refinementState": "approved",
+  "requiredEvidence": [
+    "documentation",
+    "manual_qa"
+  ],
+  "productTests": "not_applicable",
+  "editorialApproval": "APPROVED_BY_USER",
+  "archive": "openspec/changes/archive/2026-11-02-doc-112-produccion-importacion-carga-carpeta-contrato",
+  "specSync": "VERIFIED_12_REQUIREMENTS_24_SCENARIOS",
+  "publication": "AUTHORIZED_NOT_YET_PERFORMED",
+  "jiraClosure": "AUTHORIZED_PENDING_MERGE"
+}

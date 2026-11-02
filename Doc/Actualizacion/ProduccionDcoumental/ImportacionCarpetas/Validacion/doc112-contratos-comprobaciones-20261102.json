@@ -1,0 +1,47 @@
+{
+  "issueKey": "DOC-112",
+  "date": "2026-11-02",
+  "scope": "DOCUMENTARY_ONLY",
+  "tasks": {
+    "total": 12,
+    "complete": 12
+  },
+  "structuralValidation": "PASS",
+  "documentaryChecks": {
+    "status": "PASS",
+    "protectedFiles": 112,
+    "inventoryPaths": 72,
+    "localLinks": 21,
+    "operationalMethods": 12,
+    "requestFieldsChecked": 39,
+    "physicalColumnsChecked": 126,
+    "transitionTable": "unchanged",
+    "userDecisions": "unchanged",
+    "errors": []
+  },
+  "relativeLinksChecked": 39,
+  "refinementChecks": {
+    "pass": 12,
+    "open": []
+  },
+  "editorialApproval": "APPROVED_BY_USER",
+  "runtimeTests": "NOT_EXECUTED",
+  "sqlExecution": "NOT_EXECUTED",
+  "build": "NOT_APPLICABLE",
+  "documentSha256": {
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/design.md": "4d79620376ad4ddeaf6f5f670d51e508112ea363077bcd924c60bdd5ef449fd5",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/01-modelo-datos.md": "fe83ac06e684ce1f08c37cd2a768973fb6e718fbaa2173b7a55cadf4043baae7",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/02-contratos-operacion.md": "f988cd88b970c78f5bbaa563f47da890d18175d569d13ba428a469067781e561",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/03-estados-recuperacion.md": "234c4b08c1eaf371fb20a2d640c7e61aa30ea5a1aa9f2ff4e0f913ee7e093a77",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/04-decisiones-y-pendientes.md": "359ea00fbdcaa8428b568fbcc5531bb2f6b7b325ec9b6b75c961d628381eb4a5",
+    "openspec/changes/archive/2026-11-02-doc-112-produccion-importacion-carga-carpeta-contrato/proposal.md": "7b7dbd2ba9ca77e5b2959daaa3370c91df47989d948ffc8cc63e8a6dcd0aff64",
+    "openspec/changes/archive/2026-11-02-doc-112-produccion-importacion-carga-carpeta-contrato/design.md": "acb9b97cdeb9340ab9e1bc9fd8937894de04535437f43cb5328bb5fe4e2dc0ed",
+    "openspec/changes/archive/2026-11-02-doc-112-produccion-importacion-carga-carpeta-contrato/refinement.md": "3d1ac92ca91f2a22322ee83bf1317eb07fa7f6a5334736ed668f7325222720ac",
+    "openspec/changes/archive/2026-11-02-doc-112-produccion-importacion-carga-carpeta-contrato/tasks.md": "a77da96e506b77c6e8887591d0f4b4bda2c953e04556919e627f72aa774551d5",
+    "openspec/changes/archive/2026-11-02-doc-112-produccion-importacion-carga-carpeta-contrato/gap-analysis.md": "03b087c16745865c31cd564f687213448c2b98f5d0451af9f740dc1bd9a5b154",
+    "openspec/changes/archive/2026-11-02-doc-112-produccion-importacion-carga-carpeta-contrato/specs/produccion-importacion-carga-carpeta-contrato/spec.md": "27017d844435e953ae12bf876985f8798ae363ade3877a3a2de899b69cda734d",
+    "openspec/changes/archive/2026-11-02-doc-112-produccion-importacion-carga-carpeta-contrato/specs/produccion-importacion-carga-carpeta-contrato/jira-context.md": "673ac83273d66c2ff35788d7817ce90e42037a509b73ec60af509380e762f8b5",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc112-contratos-revision.md": "7f0adbe1cc009adc5c8d4899a4773b7b08878bebcccd06c0a724600c64f7c10e"
+  },
+  "archive": "openspec/changes/archive/2026-11-02-doc-112-produccion-importacion-carga-carpeta-contrato"
+}

@@ -1,6 +1,21 @@
-## Context
+## Why
 
-DOC-112: PRODUCCION-IMPORTACION-CARGA-CARPETA-CONTRATO
+DOC-110/111 ya contienen la implementación operativa, mientras los diseños comunes conservan propuestas y cortes históricos. DOC-112 consolida el diseño físico y los contratos actuales para que cliente, servidor y mantenimiento usen la misma evidencia y terminología.
+
+## What Changes
+
+- Reconciliar Diseno/01-modelo-datos.md, 02-contratos-operacion.md, 03-estados-recuperacion.md y 04-decisiones-y-pendientes.md con código/SQL versionados.
+- Actualizar Diseno/design.md como inventario de rutas, propietarios y consumidores existentes.
+- Corregir únicamente las diferencias concretas identificadas en gap-analysis.md: doce tareas, reutilizando contratos y evidencias existentes sin repetir REC ni reescribir los documentos completos.
+
+## Alcance y exclusiones
+
+Solo diseño/contratos y evidencia de revisión. No se modifican aplicación, SQL, configuración, permisos, SII o herramientas E2E. No se ejecutan cargas, DDL o compilación ni se reutiliza el PASS DOC-111 como ejecución DOC-112. El host opcional 13 y la capacidad operativa de limpieza no forman parte de esta entrega.
+
+## Capabilities
+
+- New capability: `produccion-importacion-carga-carpeta-contrato`, consolidación documental del contrato vigente.
+- Existing capability referenced: `produccion-importacion-carga-carpeta`, sin modificar su comportamiento normativo en este refinamiento.
 
 ## Jira Details
 
@@ -95,29 +110,22 @@ DOC-112: PRODUCCION-IMPORTACION-CARGA-CARPETA-CONTRATO
 > DOCUMENTACIÓN TÉCNICA
 > Actualizar documentación existente en Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/: Diseno/ para contratos y decisiones, y Validacion/ para evidencia. Mantener guía 00 y consumidores sincronizados si cambia un contrato. No abrir una segunda fuente de verdad. Registrar archivos y funciones afectados, dependencia propietaria, casos ejecutados/no ejecutados y riesgos pendientes. Una revisión estructural PASS no certifica implementación ni ausencia de regresiones.
 
-## Goals / Non-Goals
+## Jira Metadata
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+- Tipo: Tarea
+- Prioridad: Medium
+- Labels: CARGA, CARPETA, CONTRATO, IMPORTACION, PRODUCION
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+## Capabilities
 
-## Decisions
+### New Capabilities
+- `produccion-importacion-carga-carpeta-contrato`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### Modified Capabilities
+- 
 
+## Impact
 
-## Risks / Trade-offs
+- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
+- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
-
-## Migration Plan
-
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
-
-## Open Questions
-
-- TBD

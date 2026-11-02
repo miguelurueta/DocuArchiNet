@@ -1,57 +1,75 @@
 # Diseño 02 — Contratos de operación
 
-Estado: contrato propuesto para implementar tras cerrar pendientes de [04](04-decisiones-y-pendientes.md). Nombres de operaciones propios; no son endpoints existentes. El diseño se adapta a WebForms/ASMX/ASHX, no requiere MVC.
+Estado vigente: revisión DOC-112 del 2026-11-02 del contrato ya implementado en WebForms/ASMX/ASHX. Secciones 1/2/5 y referencias vigentes siguientes prevalecen sobre cortes locales anteriores; estos conservan fecha y procedencia. La [matriz final DOC-111](../Validacion/doc111-matriz-final-20261102.md) delimita evidencia real/local/no ejecutada. Esta revisión no ejecuta el producto.
 
-## 1. Transporte y autoridad
+## 1. Transporte, autoridad y respuesta vigentes
 
-Propuesta: ASMX nuevo para control JSON y ASHX nuevo para contenido multipart, fuera del handler compartido. Los nombres físicos se fijan siguiendo organización del proyecto al implementar. No modificar servicios SII ni añadir ramas de lote al handler de carga individual. Adaptadores de dominio no se exponen directamente a HTTP.
+Entradas operativas: POST JSON en `webservice/WebServiceImportacionCarpetas.asmx/<operacion>` y POST multipart en `generic_control/ImportacionCarpetasUpload.ashx`. Ambos ya existen. JSON usa `{ "solicitud": { ... } }` y respuesta ASMX bajo `d`; el handler devuelve directamente el sobre lógico. Se reutilizan sesión y autenticación existentes. No se exponen adaptadores como endpoints.
 
-ASMX devuelve DTO tipado: el cliente desempaqueta `d` si corresponde, sin doble serialización ni JSON como cadena dentro de JSON. ASHX devuelve el mismo sobre lógico sin `d`. El adaptador HTTP de frontend oculta esa diferencia. Toda mutación requiere protección contra solicitudes falsificadas compatible con la aplicación; incluirla también en multipart. No inventar cookies, reutilizar autenticación existente y resolver usuario/ámbito efectivo en servidor.
+`ImportacionCarpetasRequestGuard` comprueba contexto servidor con facultad de importar, usuario/empresa de sesión, POST y longitud positiva, tipo de contenido, vínculo del token a sesión/usuario/empresa y cabecera `X-Importacion-Carpetas-CSRF`. Comprueba Origin cuando está presente y rechaza `Sec-Fetch-Site: cross-site`. JSON se lee con UTF-8 estricto y esquema cerrado; multipart solo permite loteId, archivoId, claveIntento, sin duplicados, y un archivo. El cliente actual envía su parte como `file`; el guard exige un archivo pero no valida el nombre de esa parte como campo adicional. No se envían identidad autoritativa, permisos, SQL, ruta física o destino final desde el cliente.
 
-IDs incrementales/legacy y cantidades de bytes se representan como cadenas canónicas para no perder precisión en JavaScript. Revisiones y contadores acotados se representan como enteros. Instantes de auditoría en UTC ISO 8601 con Z; fechas documentales de calendario sin zona según contrato 05. Hash en hexadecimal minúscula de 64 caracteres; JSON no envía bytes del contenido. El request no puede incluir nombres SQL ni ruta física de staging.
+La autoridad administrativa DOC-110 usa su propio contexto/guard; importar no exige ni concede administrar. Cada servicio recompone el destino por nivel fijado y autoriza recursos para su fase. La matriz final DOC-111 RQ-02 distingue operaciones reales autorizadas de revocación/combinaciones probadas localmente; no acredita revocación real en esas corridas.
 
-Sobre común:
+`RespuestaPerfilImportacion` contiene exactamente ok, codigo, mensaje, operacionId, datos e incidencias. Las incidencias de ese sobre son `IncidenciaPerfilImportacion` (Campo, Codigo, Mensaje); las incidencias por raíz/archivo de preparación están en el resultado tipado, con su ámbito y correlación, no añadiendo campos al tipo del sobre. Ejemplo sintético, sin credenciales:
 
 ```json
 {
   "ok": false,
-  "codigo": "PLAN_NO_CONFIRMABLE",
-  "mensaje": "Revisa las incidencias indicadas.",
-  "operacionId": "uid-servidor",
+  "codigo": "CONFLICTO_REVISION",
+  "mensaje": "El plan o sus recursos cambiaron. Consulte su estado antes de continuar.",
+  "operacionId": "11111111111111111111111111111111",
   "datos": null,
-  "incidencias": [
-    {
-      "ambito": "ARCHIVO",
-      "raizIdCliente": "r1",
-      "archivoIdCliente": "a1",
-      "campo": "tipologia",
-      "codigo": "TIPOLOGIA_NO_RESUELTA",
-      "mensaje": "No se pudo resolver la tipología.",
-      "bloqueaUnidad": true
-    }
-  ]
+  "incidencias": []
 }
 ```
 
-Los identificadores del ejemplo son simbólicos; las implementaciones validan el formato definido. HTTP 200 no significa documento incorporado; el sobre y estado son autoridad. Preferir 400 estructura, 401 sin autenticación, 403 no autorizado, 409 revisión/conflicto, 413 límites y 500/503 error interno o capacidad no disponible. Si ASMX/IIS transforma la respuesta, probar el comportamiento y mapearlo en el cliente, sin mostrar HTML/stack trace. Error de transporte después de mutación requiere consulta, no reenvío ciego.
+IDs y bytes viajan como cadenas canónicas, revisiones/contadores acotados como enteros. Auditoría usa UTC; fechas documentales conservan calendario según contrato 05. Los DTO y modelos son la fuente de nombres y mayúsculas; no se normalizan arbitrariamente propiedades serializadas de modelos internos que forman parte de un resultado.
 
-## 2. Operaciones y propietarios
+La función `WebServiceImportacionCarpetas.EstadoHttp`, compartida por el handler, aplica este mapeo. No se ofrece un mapeo HTTP distinto de la implementación:
 
-| Operación | Propietario | Entrada principal | Salida / efecto |
-|---|---|---|---|
-| AbrirImportacion | 06 | nivelRef del árbol | Contexto validado, ruta canónica, perfiles compatibles y límites. Sin efectos documentales. |
-| Listar/ObtenerPerfil | 02 | versión/perfil y referencia de contexto | Configuración autorizada, estado y compatibilidad. |
-| PrepararPlan | 06 | nivelRef, versionId, inventario completo | planId/revisión/huella, incidencias, unidades elegibles y valores. Guarda preparación, no expedientes. |
-| ConfirmarPlan | 07-B | planId, revisión, huella y claveConfirmacion | loteId, raíces/archivos persistidos y política efectiva. Transacción idempotente. |
-| RecibirArchivo | 07-B | loteId, archivoId, clave de intento y un archivo multipart | recepción confirmada/rechazada, bytes/huella verificados; nunca éxito documental. |
-| AvanzarLote | 10 | loteId y revisión/clave de comando | Una fase acotada y estado actual. No promete ejecución posterior autónoma. |
-| SolicitarDetencion | 10 | loteId, revisión y clave | Señal registrada y operaciones en vuelo conocidas. No rollback. |
-| ReconciliarRecurso | 10 | loteId, recursoId, revisión y motivo | Verificación con evidencia o incertidumbre preservada. Puede completar fase pendiente solo si explícitamente autorizada. |
-| ConsultarLote / ListarLotes | 11 | loteId o filtros acotados/cursor | Estado persistido, totales, errores y acciones permitidas. Sin efectos. |
-| ConsultarArchivos/Raices | 11 | loteId, filtros y cursor | Páginas ordenadas y revisión de lectura. |
-| ExportarResultados | 11 | loteId/filtros autorizados | CSV protegido; no descarga archivos originales. |
+| HTTP | codigo |
+|---|---|
+| 200 | ok=True. No implica por sí mismo documento incorporado. |
+| 401 | SESION_REQUERIDA |
+| 403 | ACCESO_DENEGADO, SOLICITUD_NO_VERIFICADA |
+| 409 | CONFLICTO_REVISION, CODIGO_PERFIL_EXISTENTE, RESULTADO_INCIERTO, OPERACION_EN_CURSO, CONTENIDO_DISTINTO |
+| 413 | LIMITE_EXCEDIDO |
+| 415 | FORMATO_NO_SOPORTADO |
+| 422 | ARCHIVO_RECHAZADO |
+| 429 | RECEPCION_OCUPADA |
+| 503 | CAPACIDAD_NO_DISPONIBLE, ESQUEMA_FUENTES_INCOMPLETO |
+| 500 | ERROR_INTERNO |
+| 400 | Otros códigos de error no enumerados por EstadoHttp. |
 
-El cierre de ventana es local, no endpoint de cancelar. Una preparación nueva no elimina un lote anterior. El contexto enviado nunca puede sustituir la identidad autenticada.
+Se deshabilitan redirección Forms Authentication y errores IIS personalizados en la respuesta controlada; se indica no cachear. Una respuesta perdida exige consulta, no replay ciego. Los mensajes públicos no transportan SQL, credenciales, tokens, rutas ni evidencia privada del adaptador. El ASMX clasifica una excepción inesperada como ERROR_INTERNO con instrucción de consultar; recepción usa RESULTADO_INCIERTO cuando no puede comprobarla. Ninguna de esas etiquetas demuestra ausencia de efectos.
+
+## 2. Operaciones y propietarios vigentes
+
+Fuente: firmas de `WebServiceImportacionCarpetas.asmx.vb` y clases de `ImportacionCarpetasDtos.vb`. Todas devuelven RespuestaPerfilImportacion; la última columna identifica `datos`. La tabla enumera las doce operaciones operativas; los métodos administrativos DOC-110 de la misma fachada conservan su contrato separado.
+
+| Operación / propietario | Solicitud y campos exactos | datos y efecto permitido |
+|---|---|---|
+| AbrirImportacion / 06 | AbrirImportacionSolicitud: nivelRef | AperturaImportacionResultado: destino/ruta/límites y página de publicaciones compatibles; sin efectos documentales. |
+| ListarPerfilesImportacion / 06 | ListarPerfilesImportacionSolicitud: nivelRef, pagina, tamanoPagina | PaginaPerfilesImportacionOperativa; puedeHaberMas preserva paginación aunque se filtren incompatibles. |
+| PrepararPlan / 06 | PrepararPlanImportacionSolicitud: nivelRef, versionId, raices, archivos | PreparacionImportacionResultado: planId, revision, planHash, expiraUtc, nivelRef, snapshot, resultado. Guarda plan; no recibe bytes ni crea expediente. |
+| ConfirmarPlan / 07-B | ConfirmarPlanImportacionSolicitud: planId, revisionEsperada, planHashEsperado, claveConfirmacion | ConfirmacionImportacionResultado: loteId, planId, nivelRef, estado, revision, totalRaices, totalArchivos, totalBytes. Confirma inventario/snapshot, no ejecuta efectos documentales. |
+| ConsultarConfirmacionLote / 11 | ConsultarConfirmacionImportacionSolicitud: planId | ConsultaConfirmacionImportacionResultado: planId, confirmada, loteId, nivelRef. Lectura para recuperar respuesta de confirmación. |
+| ConsultarLote / 11 | ConsultarLoteImportacionSolicitud: loteId | EstadoLoteImportacionResultado: estado/revisión, política, totales, actividad/incertidumbre y acciones permitidas; sin avance. |
+| ConsultarRecursosLote / 11 | ConsultarRecursosImportacionSolicitud: loteId heredado, tipo, pagina, tamanoPagina, raizId, estado, estadoRecepcion | PaginaConsultaImportacionResultado con revisionLectura, totalOriginal/Filtrado y elementos; solo lectura autorizada. |
+| ExportarPaginaLote / 11 | ConsultarRecursosImportacionSolicitud: loteId heredado, tipo, pagina, tamanoPagina, raizId, estado, estadoRecepcion | ExportacionPaginaImportacionResultado: pagina, nombreArchivo, tipoContenido, contenido CSV protegido. No exportación total implícita ni descarga de originales. |
+| AvanzarLote / 10 | AvanzarLoteImportacionSolicitud: loteId, recursoId, fase, revisionEsperada, claveOperacion | AvanceLoteImportacionResultado con fase/estado y IDs públicos conocidos. Una fase explícita: CREAR_EXPEDIENTE, MATERIALIZAR_VALORES o ALMACENAR. No encadena efectos. |
+| SolicitarDetencion / 10 | DetenerLoteImportacionSolicitud: loteId, revisionEsperada | DetencionLoteImportacionResultado: loteId, estado, revision, detencionSolicitada. Sin clave adicional, rollback o aborto garantizado de llamada en vuelo. |
+| ReconciliarRecurso / 10 | ReconciliarRecursoImportacionSolicitud: loteId, intentoId, revisionEsperada | ReconciliacionRecursoImportacionResultado: resuelta y proyección heredada de avance. Verifica/persiste evidencia de un intento, sin invocar otra creación/almacenamiento. |
+| CerrarReservaSinInicio / 10 | ReconciliarRecursoImportacionSolicitud: loteId, intentoId, revisionEsperada | ReconciliacionRecursoImportacionResultado. Cierra solo reserva ALMACENAR sin inicio probado, bajo el bloqueo común con inicio; sin replay del escritor. |
+
+Recepción / 07-B: el handler recibe `RecibirArchivoImportacionSolicitud` mediante tres campos multipart loteId, archivoId, claveIntento y un archivo; devuelve `RecepcionArchivoImportacionResultado` con loteId, archivoId, estadoRecepcion, estadoEfecto, bytesRecibidos, contenidoHash y revision. Los bytes se consumen por stream, no JSON; RECIBIDO no significa almacenado/incorporado.
+
+Equivalencias de la propuesta histórica: Listar/ObtenerPerfil operativo se concreta en ListarPerfilesImportacion y el snapshot de preparación; no usar administración para seleccionar. ConsultarArchivos/Raices se concreta en ConsultarRecursosLote por tipo. ExportarResultados es ExportarPaginaLote. No hay ListarLotes público: se consulta un lote conocido y autorizado. Cancelación se concreta en SolicitarDetencion, sin endpoint CancelarLote. PlanRepositorio/OperacionRepositorio son capacidades del repositorio único, no implementaciones paralelas.
+
+Campos de manifiesto: cada raíz lleva seleccionId, idCliente, nombre; cada archivo lleva idCliente, raizIdCliente, nombre, rutaRelativa, bytes, ultimaModificacionLocal. El inventario confirmado se conserva incluso con rechazados. Paginación y límites se toman de los resultados/política servidor; no se anuncia soporte de fragmentos, subida masiva en una petición ni continuidad con navegador cerrado.
+
+La propiedad técnica de persistencia sigue 07-A → 06 → 07-B: repositorio/esquema antes de cálculo/persistencia del plan y confirmación/recepción. 08/09 son puertos internos de efectos; 10 coordina y 11 consulta. Esta secuencia explica dependencias ya implementadas, no trabajo nuevo DOC-112.
+
 
 ## 3. Apertura desde Producción
 
@@ -62,6 +80,14 @@ La ruta de display no identifica el nivel. Si no hay sello de revisión legacy, 
 Precisión implementada en DOC-111: ResolverDestino autoriza el nivel antes de construir la ruta. El sello, esquema 1, incorpora empresa, identidad física de origen RA y la cadena ordenada de IDs/padres/nombres/propietarios/estados. Abrir/preparar/confirmar requiere en nivel compartido agregar_expediente y carga_archivo; crear usa agregar_expediente y recibir/almacenar usa carga_archivo. La propiedad del nivel conserva las capacidades del flujo existente. AutorizarRecursos reconstruye el destino y verifica gabinete DA, relación de identidad, ALMACENA_IMAGEN y las opciones documentales existentes. Estas operaciones son componentes internos: la fachada debe resolver autoridad vigente en cada llamada y aún no se declara integrada por existir estos métodos.
 
 ## 4. Preparación y canonización
+
+### Referencia vigente de configuración y valores — DOC-112
+
+SnapshotPerfilImportacionOperativa conserva PerfilId, VersionId, NumeroVersion, Huella, Configuracion y Reglas desde publicación autorizada, no un borrador mutable. Se serializa mediante `Services/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionJson.vb`: JSON cerrado, ASCII escapado, profundidad máxima 16 y máximo 262144 caracteres; rechaza miembros desconocidos, duplicados y tipos incompatibles. Ese máximo no equivale a bytes de upload ni a una promesa de volumen.
+
+Se conservan [fuentes de expediente](05-contrato-fuentes-expediente.md) y [coincidencias/disponibilidad](06-coincidencias-disponibilidad.md). PREFLIGHT fija lo resoluble sin crear expediente. TRAS_EXPEDIENTE conserva fuente/tipo y propiedad pendiente explícitos para IDs/consecutivos aún inexistentes; no usa cero ficticio ni crea durante preview. `CoordinadorImportacionCarpetas.Valores.vb` resuelve pendientes desde identidad/valores de creación comprobados y persiste antes de almacenar mediante el parcial `.Valores.vb` del repositorio único. Si ValoresEfectivosFijados=True devuelve el checkpoint, incluso vacío, sin consultar otra vez proveedores. Las fechas generadas conservan su valor de creación; auditoría UTC no sustituye fecha documental. Una incompatibilidad posterior conserva expediente y bloquea el archivo, sin recrear.
+
+
 
 ### Corte local DOC-111, 2026-10-28
 
@@ -109,11 +135,24 @@ En parcial, una raíz sin ningún archivo elegible no crea expediente vacío. Er
 
 ## 5. Confirmación e idempotencia
 
-Entrada: planId, revisión/huella esperadas y claveConfirmacion estable creada para esa confirmación. El servidor carga el plan, no acepta valores finales del cliente. Revalida disponibilidad/autoridad/destino y coherencia; un cambio que altera resultados exige otro plan y revisión del usuario.
+Entrada JSON sintética para ConfirmarPlan (referencias ilustrativas, no ejecutar):
 
-Transacción: comprobar/reclamar plan → resolver clave existente → crear lote y todas sus raíces/archivos → asociar snapshot y marcar plan CONFIRMADO → commit. Las restricciones únicas evitan dos lotes bajo otra clave para el mismo plan. Ante repetición idéntica autorizada devolver lote existente; mismo key/datos distintos: conflicto. No considerar expirado el reintento de confirmación de un lote ya creado, pero revalidar acceso para consultarlo.
+```json
+{
+  "solicitud": {
+    "planId": "1001",
+    "revisionEsperada": 1,
+    "planHashEsperado": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "claveConfirmacion": "confirmacion-ejemplo-01"
+  }
+}
+```
 
-Salida contiene loteId y mapping `clienteRaizId→raizId`, `clienteArchivoId→archivoId`; archivos rechazados se conservan identificados y sin autorización de recepción según política. Totales originales no disminuyen por rechazo.
+Los cuatro campos coinciden con ConfirmarPlanImportacionSolicitud. El hash esperado procede de PrepararPlan y no se calcula sobre una edición local de la vista; el algoritmo y la identidad estable ya están definidos en CanonizadorManifiestoImportacion y el repositorio. El servidor recupera el plan/snapshot, revalida autoridad/destino/disponibilidad y compara revisión/huella. Cambiar contenido requiere otra preparación.
+
+La transacción de ConfirmarPlan del repositorio único confirma lote, raíces, archivos y plan con restricciones únicas por plan y por ámbito/solicitante/clave. Repetición idéntica autorizada devuelve el lote previo; mismo identificador o clave con contenido incompatible produce conflicto, no otro lote. Una revisión obsoleta se rechaza como CONFLICTO_REVISION salvo la repetición confirmada compatible que ya reconoce el repositorio. Si se pierde la respuesta, ConsultarConfirmacionLote consulta por planId antes de confirmar otra vez.
+
+ConfirmacionImportacionResultado devuelve loteId, planId, nivelRef, estado, revision y totales originales; no incluye mapas de raíces/archivos. Estos se recuperan con ConsultarRecursosLote (idCliente/recursoId/raizId), sin reducir totales por rechazados. Confirmar no recibe bytes ni crea expedientes.
 
 ## 6. Recepción
 
@@ -237,22 +276,21 @@ Se evalúa la retención desde actualizado_utc del lote, conservador respecto a 
 
 El resultado preserva totales original/filtrado, revisión, páginas, vencimiento calculado y motivos cerrados por archivo, sin devolver stagingRef, contenidoHash, rutas, mensajes del adaptador ni valores efectivos. candidatosEnPagina solo cuenta esa página. El diagnóstico cubre referencias registradas; no inventaría partes/copias huérfanas del disco. La eliminación de 11.7 permanece pendiente de política/facultad, verificación actual y reglas de reconciliación, con conservación de evidencia necesaria.
 
-## 9. Códigos de error mínimos
+## 9. Errores y recuperación de resultados
 
-| Código | Tratamiento |
-|---|---|
-| NO_AUTENTICADO / NO_AUTORIZADO | No iniciar efectos; renovar acceso o rechazar. |
-| DESTINO_INVALIDO / DESTINO_CAMBIO | Bloquear unidad afectada; nueva revisión sin redirección. |
-| PERFIL_NO_DISPONIBLE / VERSION_NO_COMPATIBLE | No sustituir por última versión; revisar. |
-| MANIFIESTO_INVALIDO / LIMITE_EXCEDIDO | Rechazo estructural/global, no parcial silencioso. |
-| PLAN_EXPIRADO / REVISION_OBSOLETA | Preparar/revisar de nuevo salvo confirmación ya persistida consultable. |
-| IDEMPOTENCIA_CONFLICTO | Misma clave con contenido distinto; no repetir efecto. |
-| ARCHIVO_RECHAZADO / CONTENIDO_DISTINTO | Incidencia por elemento con política aplicada. |
-| OPERACION_EN_CURSO | Consultar; no lanzar un competidor. |
-| RESULTADO_INCIERTO | Verificar, no reenviar almacenamiento automáticamente. |
-| ESQUEMA_NO_DISPONIBLE | Solo capacidad nueva no disponible; carga individual sigue operativa. |
+El catálogo HTTP vigente está en sección 1 y se contrasta con EstadoHttp; el tratamiento por operación procede de los servicios. CONFLICTO_REVISION exige consultar estado/revisión; RESULTADO_INCIERTO conserva recursos hasta evidencia; OPERACION_EN_CURSO/RECEPCION_OCUPADA no autorizan un competidor. CAPACIDAD_NO_DISPONIBLE es indisponibilidad de esta capacidad, sin trasladarla a la carga individual existente. No usar los nombres conceptuales anteriores NO_AUTENTICADO, REVISION_OBSOLETA, IDEMPOTENCIA_CONFLICTO o ESQUEMA_NO_DISPONIBLE como códigos wire garantizados.
 
-El prompt 12 debe probar serialización real ASMX/ASHX, status HTTP, sesión expirada y CSRF; este documento no certifica que el pipeline actual ya los resuelva.
+Errores globales de preflight bloquean confirmación; incidencias individuales se mantienen con correlación y se evalúan según la política fijada. Un HTTP 200 no sustituye examinar ok/datos/estadoEfecto. La matriz final DOC-111 registra serialización/sesión/operaciones ejercidas y casos locales; no convierte la revisión DOC-112 en otra prueba IIS/MySQL.
+
+### Reconciliación vigente y alcance verificador — DOC-112
+
+ReconciliarRecurso recibe loteId, intentoId y revisionEsperada, sin motivo libre, recursoId o payload de ejecución. Usa CoordinadorImportacionCarpetas.Reconciliacion y la composición verificadora con lectores de evidencia: no llama a los puertos de creación o almacenamiento. Puede confirmar un efecto ya ocurrido y consolidar el lote en el checkpoint; «completar» aquí no significa ejecutar otra fase externa. Evidencia incompleta conserva INCIERTO y los IDs conocidos.
+
+CerrarReservaSinInicio usa el mismo DTO y composición; exige reserva ALMACENAR nunca iniciada con prueba válida y bloqueo común contra el inicio. Repetir el cierre no libera otra reclamación. La recuperación histórica del lote 2 ejerció cierre del intento 5 y reconciliación del intento 6 conservando documento 16204 e inventario 23293, sin volver a almacenar ese PDF. Véanse [matriz final RQ-09](../Validacion/doc111-matriz-final-20261102.md) y [verificación final del lote 2](../Validacion/doc111-lote2-verificacion-pass-20261102.md); sus límites distinguen la recuperación real de carreras/pérdida de respuesta probadas localmente.
+
+## 10. Registro histórico de implementación por componente
+
+Los cortes fechados siguientes conservan su alcance local al momento de redactarse. Frases «todavía pendiente», «sin invocación real» o «candidato» no invalidan la implementación y aceptaciones posteriores de la matriz final. Igual criterio aplica a los cortes locales conservados en secciones 4/7/8: no prometen capacidad adicional ni sustituyen las fichas vigentes.
 
 ### Creación interna implementada localmente, 2026-10-29
 

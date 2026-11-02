@@ -4,7 +4,7 @@
   "changeName": "doc-112-produccion-importacion-carga-carpeta-contrato",
   "impact": "cross_cutting",
   "requiredEvidence": [
-    "unit",
+    "documentation",
     "manual_qa"
   ],
   "documentation": [
@@ -116,5 +116,23 @@
     "state": "approved",
     "taskOriginFormat": "Origen: D-XX, RQ-XX",
     "enforcement": "Cada decision debe llegar a design, spec y tasks; no se admiten reglas de framework ajeno al perfil tecnologico."
+  },
+  "evidenceScope": {
+    "kind": "documentary_only",
+    "rationale": "DOC-112 produce contratos/documentación; unit, E2E y build no aplican. Se requieren documentación y QA documental verificables; no se elimina revisión editorial.",
+    "notApplicable": [
+      "unit",
+      "e2e",
+      "build"
+    ]
+  },
+  "editorialApproval": {
+    "status": "approved",
+    "date": "2026-11-02",
+    "actor": "user",
+    "confirmation": "aprobado",
+    "scope": "documentary delivery, publication and closure",
+    "reviewReport": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc112-verificacion-final-20261102.md",
+    "reviewReportSha256": "a7ec370f0a8a71eaef4aef1b59654c8311d80423f09565999f22743916208db3"
   }
 }

@@ -1,6 +1,6 @@
 # Diseño 03 — Estados, coordinación y recuperación
 
-Estado: diseño propuesto con decisión funcional aprobada: ambos ámbitos, EXPEDIENTE y LOTE, configurables en el perfil. Las dos ramas son parte del alcance requerido.
+Estado vigente: implementación DOC-110/111, revisión documental DOC-112 del 2026-11-02. Ambos ámbitos EXPEDIENTE/LOTE y PARCIAL están implementados con un mismo coordinador. Se conserva la tabla cerrada y los cortes fechados como antecedentes; la [matriz final DOC-111](../Validacion/doc111-matriz-final-20261102.md) delimita evidencia real/local/no ejecutada. No se ejecutan efectos por revisar este documento.
 
 ## 1. Invariantes
 
@@ -76,7 +76,7 @@ La tabla **no concede autoridad ni prueba de efecto**. Toda transición necesita
 - BLOQUEADO → CREANDO o RECHAZADO → EN_CURSO/RECIBIENDO requieren elegibilidad original y prueba de no efecto; no corrigen silenciosamente elementos ineligibles del plan congelado. Cambiar inventario o reglas requiere otro plan.
 - DETENIDO → LISTO/RECIBIENDO requiere continuación explícita autorizada y señal de detención resuelta; esta tabla no implementa esa acción. Los agregados necesitan verificar sus condiciones/totales, no inferir éxito solo por la etiqueta previa.
 
-La recepción existente aplica esta tabla antes de reservar, confirmar o registrar un cambio de estado de archivo/intento, manteniendo sus guards de recurso/token/evidencia y transacciones. La reclamación documental, ejecución, agregación y reconciliación del coordinador todavía no están implementadas por publicar la tabla.
+**Corte histórico del 2026-10-28:** la recepción aplicaba la tabla antes de reservar/confirmar estados; en ese instante publicar la tabla no implementaba reclamación, ejecución, agregación o reconciliación. **Estado vigente:** esas capacidades se implementaron en CoordinadorImportacionCarpetas y sus parciales .Creacion/.Documento/.Valores/.Consolidacion/.Reconciliacion/.Operaciones, junto con el repositorio único. La matriz final RQ-07/08/09 registra sus comprobaciones posteriores. La tabla cerrada anterior se conserva: recepción, efecto, raíz, intento y lote siguen siendo dimensiones distintas y RECIBIDO no equivale a incorporación.
 
 ## 3. Barrera de integridad
 
@@ -88,7 +88,19 @@ La barrera completa exige todos los contenidos recibidos/verificados, reglas res
 | COMPLETO_OBLIGATORIO + LOTE | Todos los archivos previstos de todas las raíces están recibidos y elegibles. | No avanza ninguna raíz hasta cumplir la barrera global. |
 | PARCIAL_PERMITIDO | Procesar archivos elegibles/recibidos manteniendo rechazados; al menos uno elegible antes de crear raíz. | Errores individuales no bloquean automáticamente todo; errores globales sí. |
 
-Ambos ámbitos están aprobados: implementar y probar ambas ramas en el mismo coordinador. En modo completo no publicar ámbito NULL ni asignar uno silenciosamente; el usuario del perfil elige EXPEDIENTE o LOTE. En parcial persistir NO_APLICA. La política queda fijada al confirmar el lote y no se modifica al reanudar.
+Ambos ámbitos están aprobados e implementados en el mismo coordinador; no se abren dos motores ni se repite la decisión. En modo completo no publicar ámbito NULL ni asignar uno silenciosamente; el usuario del perfil elige EXPEDIENTE o LOTE. En parcial persistir NO_APLICA. La política queda fijada al confirmar el lote y no se modifica al reanudar.
+
+
+
+### Evidencia vigente por barrera — DOC-112
+
+| Política y ámbito | Evidencia heredada | Alcance comprobado |
+|---|---|---|
+| COMPLETO_OBLIGATORIO / EXPEDIENTE | [REC sesión 18](../Validacion/doc111-rec-expediente-pass-20261101.md) | Dos raíces/documentos, barrera por raíz, IDs/índices y replay/reapertura sin cambios. |
+| COMPLETO_OBLIGATORIO / LOTE | [REC sesión 22](../Validacion/doc111-rec-lote-pass-20261102.md) | Dos raíces/documentos, barrera común antes de efectos, IDs/índices y replay/reapertura sin cambios. |
+| PARCIAL_PERMITIDO / NO_APLICA | [REC sesión 25](../Validacion/doc111-rec-parcial-pass-20261102.md) | Dos PDF elegibles entre tres entradas; .tif rechazado conservado, sin recepción ni expediente por un elemento inválido. |
+
+Las aceptaciones combinan reapertura UI con operaciones del driver, no selección manual completa de carpetas en todos los navegadores. CAS/reclamaciones y carreras se mantienen conforme a código/pruebas locales ya documentadas; las aceptaciones no prueban todas las carreras ni atomicidad SQL/disco/XML. La precedencia de incertidumbre y los totales del inventario original se conservan.
 
 ### Agregación del lote
 
@@ -151,8 +163,16 @@ La reanudación requiere acceso al lote persistido. El navegador cerrado no mant
 
 ## 8. Condiciones para aceptar adaptadores
 
-`Registrar_Expediente_Conservacion`: comprobar límites, fechas/código, permisos externos, transacciones y efectos XML/relación; devuelve identidad real, pero no se ha demostrado correlación suficiente ante crash posterior.
+**Condición inicial histórica:** los métodos legacy eran candidatos cuya reutilización requería caracterización; esa condición no describe ya una integración sin aprobar.
 
-`AlmacenamientoDocumentoProduccionDocumental`: recibe lista de campos pero usa sesión, obtiene nombre físico y borra archivos. Es candidato, no adaptador aprobado. No se modifica su implementación ni la de SII. Si no es posible aislar sin cambios prohibidos, la integración de esa fase queda bloqueada; el resto de entregas puede continuar contra contratos probados sin simular éxito productivo.
+**Estado vigente, DOC-112:** AdaptadorExpedienteImportacion y su binding a Registrar_Expediente_Conservacion fueron caracterizados y ejercidos en los REC. Mantienen nivel fijado, relación e identidad verificadas y Archivo Gestión resuelto por nombre. AdaptadorDocumentoImportacion usa comando/valores efectivos, copia PDF consumible con nombre/extensión originales y staging retenido, invoca una sola vez el almacenamiento y comprueba documento/inventario/incorporación e índices según visibilidad de NOMBRE. Almacenamiento ya incorporado no se incorpora otra vez. La [matriz final RQ-07](../Validacion/doc111-matriz-final-20261102.md) acredita esos efectos en el ambiente de pruebas.
+
+La caracterización no garantiza correlación automática después de cualquier crash ni una transacción distribuida. Se conservan INCIERTO e IDs conocidos ante prueba insuficiente; timeout/lease no autorizan repetir. El cierre sin inicio y la reconciliación descritos en [contratos, sección 9](02-contratos-operacion.md) son verificadores, no nuevos escritores. El resultado físico se evalúa con lectura autorizada por IDs/evidencia, nunca por nombre global.
+
+La función legacy y SII permanecen intactos. La exclusión adicional por XML posterior al commit fue descartada por el usuario y no se reintroduce como bloqueo. Solo PDF está caracterizado; TIFF/Multi-TIFF siguen fuera de la capacidad del adaptador.
+
+El comando documental distingue IDs de recursos positivos de códigos nativos de formato: `CodigoFormatoLegacy` acepta un Integer con signo y representación decimal canónica; un código negativo válido no se rechaza por aplicar la regla de PK UInt32. El nombre NOMBRE se verifica según visibilidad del perfil y, cuando se proporciona como campo automático, debe coincidir con el nombre original. No se fuerza un índice visible que el perfil no tiene ni se sustituye el archivo original para satisfacer esa comprobación.
+
+**Antecedente local de mantenimiento (2026-10-30):** la descripción siguiente conserva su evidencia sintética y no habilita política ni limpieza real.
 
 Corte local 2026-10-30, limpieza controlada (11.7): capacidad interna sin endpoint/job, deshabilitada por defecto y con retencion servidor positiva explicita. Solo lote completo con inventario/checkpoints concordantes y sin actividad/incertidumbre; fecha mas reciente de lote/finalizacion de intentos y SELECT actuales de documento/relaciones/valores. Reutiliza staging privado y registro PREPARAR_LIMPIEZA confirmado antes de retirar un .bin exacto; segunda transaccion revalida y registra conclusion, sin prometer atomicidad disco/MySQL. Respuesta perdida conserva diario para recuperar ausencia autorizada; nunca repite efecto documental ni borra metadatos/partes/historial. Revocacion, politica ampliada/deshabilitada, evidencia cambiante y original alterado/retenido impiden retiro. Evidencia: Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-limpieza-local-20261030.md. Arnes Framework con PDF sintetico y SQL dobles, build Debug separado y coherencia PASS. 119/130; sin habilitar politica operativa ni limpiar datos del sistema, sin MySQL/HTTP/E2E reales. Funciones legacy/SII intactas; exclusion adicional del XML descartada por el usuario.
