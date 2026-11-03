@@ -1,0 +1,42 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "status": "PUBLICATION_RUNNER_READY_NOT_EXECUTED",
+  "localTests": {
+    "pass": 68,
+    "fail": 0,
+    "driver": 54,
+    "partial": 9,
+    "publisher": 5
+  },
+  "scope": "Two reviewed new profiles only; no plans/documents/permissions",
+  "files": [
+    {
+      "file": "tools/e2e/tests/support/doc114-published-test-profiles.cjs",
+      "sha256": "39cdd26c39d374f3b1def3ece606d613dd610770f03815add50a59f67582c56f"
+    },
+    {
+      "file": "tools/e2e/tests/support/doc111-partial-profile.cjs",
+      "sha256": "51866e11c92593ae0144b2d7e041bde794448e0221eeb0373baae6a49e209146"
+    },
+    {
+      "file": "tools/e2e/tests/support/doc114-plan-importacion.cjs",
+      "sha256": "4dd39c1e8dde268c7f2217ed689f6a69dc06391e4ca34da36f3fa9959a0b32a4"
+    },
+    {
+      "file": "tools/e2e/tests/doc114-published-test-profiles.test.cjs",
+      "sha256": "9918539073265f8575b510db72810acd0e6d7ab78dc6f2ee3948bdf9a5ed14cb"
+    },
+    {
+      "file": "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+      "sha256": "ba3a927a54551416c6a132af48da9516e2393cde43dbedc7e411ccfe6fda5bf6"
+    }
+  ],
+  "runtimeBackend": "UNCHANGED",
+  "realPublication": "NOT_EXECUTED",
+  "planAcceptance": "NOT_EXECUTED",
+  "tasks": {
+    "complete": 12,
+    "total": 16
+  }
+}

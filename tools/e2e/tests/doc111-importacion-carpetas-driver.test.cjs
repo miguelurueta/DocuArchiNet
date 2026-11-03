@@ -5,6 +5,192 @@ const runner=require('../scripts/run-doc111-importacion-carpetas.cjs');
 const examplePath=path.resolve(__dirname,'../profiles/doc111-importacion-carpetas.profile.example.json');
 const profile=()=>structuredClone(JSON.parse(fs.readFileSync(examplePath,'utf8')));
 
+test('DOC114: preparacion acotada conserva referencia, rechaza efectos y no reenvia incertidumbre',async()=>{
+  const plan=require('./support/doc114-plan-importacion.cjs'),p=profile();
+  const scope={scenario:'PLAN-01',environment:true,account:true,select:true,effects:true,discardable:true,tls:true,maximumPreparations:1};
+  assert.throws(()=>plan.authorize(p,{...scope,select:false}),/AUTHORIZATION/);
+  const calls=[],refs=[];let fail=false;
+  const auth={page:{locator:()=>({getAttribute:async()=>'synthetic-token'})},context:{request:{post:async(url,options)=>{calls.push({url,options});if(fail)throw Error('PRIVATE_COOKIE_SENTINEL');return {status:()=>200,json:async()=>({d:{ok:true,datos:{planId:'100'}}})};}}}};
+  const client=plan.createPreparationClient(auth,p,scope,r=>refs.push(r));await client.refreshToken();
+  for(const op of ['ConfirmarPlan','AvanzarLote','RecibirArchivo','ReconciliarRecurso','PublicarVersion'])await assert.rejects(client.request(op,{nivelRef:p.nivelRef}),/OPERATION_NOT_ALLOWED/);
+  await assert.rejects(client.request('PrepararPlan',{nivelRef:'999',versionId:p.versionId}),/LEVEL_NOT_AUTHORIZED/);
+  await client.request('PrepararPlan',{nivelRef:p.nivelRef,versionId:p.versionId,raices:[],archivos:[]});
+  assert.deepEqual(refs,[{planId:'100'}]);assert.equal(calls.length,1);assert.equal(calls[0].options.maxRetries,0);assert.equal(calls[0].options.maxRedirects,0);
+  await assert.rejects(client.request('PrepararPlan',{nivelRef:p.nivelRef,versionId:p.versionId}),/BUDGET_EXHAUSTED/);
+  const uncertain=plan.createPreparationClient(auth,p,{...scope,maximumPreparations:2});await uncertain.refreshToken();fail=true;
+  await assert.rejects(uncertain.request('PrepararPlan',{nivelRef:p.nivelRef,versionId:p.versionId}),e=>e.message==='DOC114_RESULT_NOT_CONFIRMED');
+  assert.equal(uncertain.uncertain,true);await assert.rejects(uncertain.request('PrepararPlan',{nivelRef:p.nivelRef,versionId:p.versionId}),/UNCERTAIN_OPERATION/);assert.equal(calls.length,2);
+  fail=false;const negative=plan.createPreparationClient(auth,p,{...scope,maximumPreparations:2});await negative.refreshToken();
+  await assert.rejects(negative.request('PrepararPlan',{nivelRef:p.nivelRef,versionId:p.versionId},['SOLICITUD_INVALIDA']),/EXPECTED_REJECTION/);
+  assert.equal(negative.uncertain,true);await assert.rejects(negative.request('PrepararPlan',{nivelRef:p.nivelRef,versionId:p.versionId}),/UNCERTAIN_OPERATION/);assert.equal(calls.length,3);
+});
+
+function doc114Result(){
+  const p=profile(),request={nivelRef:p.nivelRef,versionId:p.versionId,raices:[{idCliente:'r1',seleccionId:'s1',nombre:'000114'}],archivos:[{idCliente:'a1',raizIdCliente:'r1',nombre:'doc.pdf',rutaRelativa:'000114/doc.pdf',bytes:'7',ultimaModificacionLocal:'0'}]};
+  const data={planId:'100',revision:1,planHash:'a'.repeat(64),expiraUtc:'2030-01-01T00:01:00Z',nivelRef:p.nivelRef,snapshot:{VersionId:p.versionId},resultado:{PuedeConfirmar:true,UnidadesElegibles:['r1'],Incidencias:[],Elementos:[{Ambito:'RAIZ',RaizIdCliente:'r1',Valores:[{DestinoTipo:'CAMPO_EXPEDIENTE',DestinoRef:'CODIGO',Valor:'000114',Diferido:false}]},{Ambito:'ARCHIVO',RaizIdCliente:'r1',ArchivoIdCliente:'a1',Valores:[{DestinoTipo:'INDICE_GABINETE',DestinoRef:'99',Valor:null,Diferido:true,PropiedadPendiente:'ID'}]}]}};
+  return {p,request,data};
+}
+
+test('DOC114: lector de publicaciones bloquea preparacion sin solicitar efectos o cuenta SQL',async()=>{
+  const {createPreparationClient}=require('./support/doc114-plan-importacion.cjs'),p=profile(),calls=[];
+  const auth={page:{locator:()=>({getAttribute:async()=>'synthetic-token'})},context:{request:{post:async(url)=>{calls.push(url);return {status:()=>200,json:async()=>({ok:true,datos:{perfiles:[]}})};}}}};
+  const reader=createPreparationClient(auth,p,{environment:true,account:true,tls:true,effects:false,discardable:false},()=>{},{readOnly:true});await reader.refreshToken();
+  await reader.request('AbrirImportacion',{nivelRef:p.nivelRef});
+  await assert.rejects(reader.request('PrepararPlan',{nivelRef:p.nivelRef,versionId:p.versionId}),/READONLY_OPERATION_REQUIRED/);
+  assert.equal(calls.length,1);assert.equal(reader.attempts,0);
+});
+
+function doc114Session(scenario){
+  const f=doc114Result(),p={...f.p,mode:'EXPEDIENTE'},fixtures=require('../fixtures/doc114-plan-cases.json');
+  const profiles=[p,{...structuredClone(p),versionId:'106'},{...structuredClone(p),versionId:'107',mode:'LOTE'},{...structuredClone(p),versionId:'108',mode:'PARCIAL'}];
+  if(scenario==='PLAN-03')profiles.forEach(p=>p.baseUrl='https://localhost/GestionDocumental-Docuarchi.net/');
+  const session={version:1,scenario,identity:{userRef:'1',ambitoRef:'2'},profiles,cases:[],foreignLevel:'999',invalidVersion:'998'};
+  session.runtimeRoot=path.resolve(__dirname,'../../..');
+  const make=(key,index=0)=>({key,profile:index,request:{...structuredClone(f.request),versionId:profiles[index].versionId},expected:{confirmable:true,eligible:['r1'],incidences:[],values:[]}});
+  if(scenario==='PLAN-01'){
+    session.cases=fixtures.plan01.map(c=>make(c.key,c.key==='valid-format-b'?1:0));
+    session.cases.slice(0,2).forEach((c,i)=>{const format=fixtures.formats[i];c.request.raices[0].nombre=format.root;c.request.archivos[0].rutaRelativa=format.root+'/doc.pdf';c.expected.values=[{root:'r1',type:'CAMPO_EXPEDIENTE',ref:'CODIGO',value:format.expectedCode,deferred:false},{root:'r1',type:'CAMPO_EXPEDIENTE',ref:'FECHA_INICIAL',value:format.expectedDate,deferred:false},{root:'r1',file:'a1',type:'INDICE_GABINETE',ref:'99',value:null,deferred:true}];});
+    for(const c of session.cases.slice(2)){c.expected.incidences=[{root:'r1',file:'a1',code:fixtures.plan01.find(r=>r.key===c.key).incidence}];c.expected.confirmable=false;c.expected.eligible=[];}
+  }else if(scenario==='PLAN-02'){
+    session.cases=fixtures.plan02.map((row,i)=>{const c=make(row.key,i===1?2:i===2||i===4?3:0);c.expected.confirmable=row.confirmable;c.expected.eligible=row.eligible;c.expected.incidences=[{root:'r2',file:'a2',code:'SEGMENTO_AUSENTE'}];c.request.raices.push({idCliente:'r2',seleccionId:'s2',nombre:'Otro'});c.request.archivos.push({...structuredClone(c.request.archivos[0]),raizIdCliente:'r2',idCliente:'a2',rutaRelativa:'Otro/doc.pdf'});if(i===3||row.key==='foreign-level'){delete c.expected;c.rejectCodes=['ACCESO_DENEGADO'];c.request.nivelRef=session.foreignLevel;}if(row.key==='inconsistent-manifest'){delete c.expected;c.rejectCodes=['SOLICITUD_INVALIDA'];c.request.archivos[0].raizIdCliente='absent';}if(i===4)c.request.archivos.push({...structuredClone(c.request.archivos[1]),idCliente:'a3',nombre:'otro.pdf',rutaRelativa:'Otro/otro.pdf'});return c;});
+  }else{
+    session.cases=[make('baseline'),...fixtures.plan03.map(row=>{const c=make(row.key,row.key==='compatible-version-control'?1:0);if(row.key!=='compatible-version-control'){delete c.expected;c.rejectCodes=[row.expectedCode||'ACCESO_DENEGADO'];}if(row.extraField)c.request[row.extraField]={};if(row.key==='foreign-level')c.request.nivelRef=session.foreignLevel;if(row.key==='incompatible-version')c.request.versionId=session.invalidVersion;return c;})];
+  }
+  return session;
+}
+
+test('DOC114: recursos cerrados exigen cobertura completa y perfiles base compatibles',()=>{
+  const {validateSession}=require('./support/doc114-plan-importacion.cjs');
+  for(const scenario of ['PLAN-01','PLAN-02','PLAN-03']){
+    const s=doc114Session(scenario);assert.equal(validateSession(s),s);
+    for(const change of [x=>x.password='PRIVATE',x=>x.profiles[0].extra=true,x=>x.cases.pop(),x=>x.cases[0].profile=99]){const bad=structuredClone(s);change(bad);assert.throws(()=>validateSession(bad),/DOC11/);}
+  }
+  const same=doc114Session('PLAN-01');same.profiles[1].versionId=same.profiles[0].versionId;same.cases[1].request.versionId=same.profiles[0].versionId;assert.throws(()=>validateSession(same),/TWO_PUBLISHED/);
+});
+
+function doc114SyntheticRuntime(session){
+  const plans=[],events=[],refs=[];let index=0,revoked=false,failWhileRevoked=false;
+  const auth={page:{locator:()=>({getAttribute:async()=>'synthetic-token'})},context:{request:{post:async(url,options)=>{
+    if(url.endsWith('/AbrirImportacion')){assert.equal(revoked,false);events.push('READ_RESTORED');return {status:()=>200,json:async()=>({ok:true,datos:{nivelRef:session.profiles[0].nivelRef}})};}
+    const c=session.cases[index++];assert.deepEqual(options.data.solicitud,c.request);assert.equal(options.maxRetries,0);
+    if(c.key==='revoked-permission'){assert.equal(revoked,true);if(failWhileRevoked)throw Error('PRIVATE_COOKIE');}
+    if(c.rejectCodes)return {status:()=>c.rejectCodes[0]==='ACCESO_DENEGADO'?403:400,json:async()=>({ok:false,codigo:c.rejectCodes[0],datos:null})};
+    const p=session.profiles[c.profile],data={planId:String(100+plans.length),revision:1,planHash:'a'.repeat(64),nivelRef:p.nivelRef,expiraUtc:'2030-01-01T00:01:00Z',snapshot:{VersionId:p.versionId,Configuracion:{ModoIntegridad:p.mode==='PARCIAL'?'PARCIAL_PERMITIDO':'COMPLETO_OBLIGATORIO',AmbitoIntegridad:p.mode==='PARCIAL'?'NO_APLICA':p.mode}},resultado:{PuedeConfirmar:c.expected.confirmable,UnidadesElegibles:c.expected.eligible,Incidencias:c.expected.incidences.map(i=>({Codigo:i.code,RaizIdCliente:i.root,ArchivoIdCliente:i.file})),Elementos:[]}};
+    for(const r of c.request.raices)data.resultado.Elementos.push({Ambito:'RAIZ',RaizIdCliente:r.idCliente,Valores:[]});
+    for(const a of c.request.archivos)data.resultado.Elementos.push({Ambito:'ARCHIVO',RaizIdCliente:a.raizIdCliente,ArchivoIdCliente:a.idCliente,Valores:[]});
+    for(const v of c.expected.values)data.resultado.Elementos.find(e=>e.RaizIdCliente===v.root&&(v.file?e.ArchivoIdCliente===v.file:e.Ambito==='RAIZ')).Valores.push({DestinoTipo:v.type,DestinoRef:v.ref,Valor:v.value,Diferido:v.deferred,PropiedadPendiente:v.deferred?'ID':null});
+    const manifest={Raices:c.request.raices.map(r=>({SeleccionId:r.seleccionId,IdCliente:r.idCliente,Nombre:r.nombre})),Archivos:c.request.archivos.map(a=>({IdCliente:a.idCliente,RaizIdCliente:a.raizIdCliente,Nombre:a.nombre,RutaRelativa:a.rutaRelativa,Bytes:a.bytes,UltimaModificacionLocal:a.ultimaModificacionLocal}))};
+    plans.push({data,profile:p,row:{estado:data.resultado.PuedeConfirmar?'REVISABLE':'BLOQUEADO',revision:1,huella:data.planHash,contexto_doc:JSON.stringify({UsuarioRef:session.identity.userRef,AmbitoRef:session.identity.ambitoRef,NivelRef:p.nivelRef}),config_doc:JSON.stringify(data.snapshot),manifiesto_doc:JSON.stringify(manifest),resultado_doc:JSON.stringify(data.resultado),creado_utc:'2030-01-01T00:00:00Z',expira_utc:data.expiraUtc}});
+    return {status:()=>200,json:async()=>({ok:true,datos:data})};
+  }}}};
+  const query=async(origin,sql,args)=>{
+    assert.match(sql,/^SELECT /);
+    if(sql.includes('SELECT gabinete_id'))return [{gabinete_id:10}];if(sql.includes('SELECT NOMBRE'))return [{NOMBRE:'gabinete_test'}];
+    if(sql.includes('COUNT(*)'))return [{total:String(sql.includes('FROM ra_integracion_plan')?plans.filter(x=>x.profile.versionId===args[3]).length:0)}];
+    return plans.filter(p=>p.data.planId===args[0]).map(p=>p.row);
+  };
+  const startBridge=()=>({ready:async()=>({ok:true,stage:'READY',originalGranted:true,permissionColumn:'IMPORTAR_CARPETAS',userRef:session.identity.userRef,companyRef:session.identity.ambitoRef}),send:async op=>{events.push(op);revoked=op==='REVOKE';return {ok:true,stage:op==='REVOKE'?'REVOKED':'RESTORED',otherFieldsUnchanged:true};},close:async()=>{events.push('CLOSE');}});
+  const authorization={environment:true,account:true,select:true,effects:true,discardable:true,tls:true,revocation:true};
+  return {auth,query,authorization,refs,events,startBridge,plans,get postCount(){return index;},seedFirst:()=>auth.context.request.post('https://synthetic.invalid/PrepararPlan',{data:{solicitud:session.cases[0].request},maxRetries:0}),get revoked(){return revoked;},failOnRevocation(){failWhileRevoked=true;}};
+}
+test('DOC114: reanuda primer plan por lectura y prepara solo seis casos restantes',async()=>{
+  const {runPlanSession}=require('./support/doc114-plan-importacion.cjs'),s=doc114Session('PLAN-01'),f=doc114SyntheticRuntime(s);
+  await f.seedFirst();const preserved=structuredClone(f.plans[0]);
+  const result=await runPlanSession(f.auth,s,f.authorization,f.query,r=>f.refs.push(r),{resumePlan:{caseKey:'valid-format-a',planId:'100',planHash:'a'.repeat(64)}});
+  assert.equal(result.attempts,6);assert.equal(result.preparations,6);assert.equal(result.resumedPlans,1);assert.equal(f.postCount,7);assert.equal(f.refs.length,7);
+  assert.deepEqual(f.plans[0],preserved);assert.equal(f.plans.length,7);
+});
+test('DOC114 PLAN-03: conserva baseline y ejecuta seis solicitudes con una nueva preparacion y restauracion',async()=>{
+  const {runPlanSession}=require('./support/doc114-plan-importacion.cjs'),s=doc114Session('PLAN-03'),f=doc114SyntheticRuntime(s);await f.seedFirst();const preserved=structuredClone(f.plans[0]),proofs=[];
+  const result=await runPlanSession(f.auth,s,f.authorization,f.query,()=>{},{resumePlan:{caseKey:'baseline',planId:'100',planHash:'a'.repeat(64)},startBridge:f.startBridge,onPlanVerified:p=>proofs.push(p)});
+  assert.equal(result.attempts,6);assert.equal(result.preparations,1);assert.equal(result.rejections,5);assert.equal(result.resumedPlans,1);assert.equal(result.restorationVerified,true);assert.equal(f.postCount,7);assert.deepEqual(f.plans[0],preserved);assert.equal(proofs.length,2);assert.equal(f.revoked,false);
+});
+test('DOC114: rechazo discordante conserva solo HTTP/codigo/forma sin cuerpo privado',async()=>{
+ const {createPreparationClient,safePlanObservation}=require('./support/doc114-plan-importacion.cjs'),p=profile();
+ const auth={page:{locator:()=>({getAttribute:async()=>'private-token'})},context:{request:{post:async()=>({status:()=>400,json:async()=>({ok:false,codigo:'CONFIGURACION_INVALIDA',datos:null,mensaje:'private server details'})})}}};
+ const client=createPreparationClient(auth,p,{environment:true,account:true,select:true,effects:true,discardable:true,tls:true,scenario:'PLAN-03',maximumPreparations:1});await client.refreshToken();
+ await assert.rejects(client.request('PrepararPlan',{nivelRef:p.nivelRef,versionId:p.versionId},['SOLICITUD_INVALIDA']),e=>{assert.deepEqual(e.observation,{operation:'PrepararPlan',httpStatus:400,code:'CONFIGURACION_INVALIDA',domainEnvelope:true,hasData:false});assert.equal(JSON.stringify(e).includes('private'),false);return true;});
+ assert.equal(safePlanObservation({operation:'PrepararPlan',httpStatus:400,code:'PRIVATE',domainEnvelope:false,hasData:false}).code,null);
+});
+test('DOC114: huella de plan reanudado cambiada detiene antes de nuevos POST',async()=>{
+  const {runPlanSession,validateResumePlan}=require('./support/doc114-plan-importacion.cjs'),s=doc114Session('PLAN-01'),f=doc114SyntheticRuntime(s);await f.seedFirst();
+  await assert.rejects(runPlanSession(f.auth,s,f.authorization,f.query,()=>{},{resumePlan:{caseKey:'valid-format-a',planId:'100',planHash:'b'.repeat(64)}}),/RESUME_PLAN_HASH_CHANGED/);
+  assert.equal(f.postCount,1);assert.equal(f.plans.length,1);
+  for(const resume of [{caseKey:'valid-format-b',planId:'100',planHash:'a'.repeat(64)},{caseKey:'valid-format-a',planId:'100',planHash:'a'.repeat(64),extra:true}])assert.throws(()=>validateResumePlan(s,resume),/RESUME_SCOPE_INVALID/);
+  assert.throws(()=>validateResumePlan(doc114Session('PLAN-02'),{caseKey:'valid-format-a',planId:'100',planHash:'a'.repeat(64)}),/RESUME_SCOPE_INVALID/);
+});
+test('DOC114: selector reanudado limita a seis preparaciones y transmite referencia sin secretos persistidos',async()=>{
+  const selector=require('../scripts/run-doc114-plan-importacion.cjs'),s=doc114Session('PLAN-01'),file=path.join(require('node:os').tmpdir(),'doc114-resume-'+crypto.randomBytes(8).toString('hex')+'.json');fs.writeFileSync(file,JSON.stringify(s));
+  const resumePlan={caseKey:'valid-format-a',planId:'100',planHash:'a'.repeat(64)};let childEnv;
+  try{await selector.main(['--session',file,'--scenario','PLAN-01'],{resumePlan,requireInteractiveConsole(){},backendFingerprint:()=> 'c'.repeat(64),collectConfirmation:async(v,k)=>{v[k]='true';},collectValue:async(v,k)=>{v[k]='synthetic-private-input';},runChild:async(command,args,cwd,env,options)=>{
+    childEnv=env;assert.deepEqual(JSON.parse(env.DOC114_RESUME_PLAN),resumePlan);
+    options.redactOutput('DOC114_PLAN_RESULT='+JSON.stringify({scenario:'PLAN-01',status:'PASS',attempts:6,preparations:6,rejections:0,resumedPlans:1,confirmations:0,noDocumentEffects:true,readOnlyControls:true,restorationVerified:null,head:'a'.repeat(40),codeSha256:'b'.repeat(64),backendSha256:'c'.repeat(64)}));return {code:0};
+  }});assert.equal(childEnv.DOC111_E2E_PASSWORD,undefined);assert.equal(childEnv.DOC114_RESUME_PLAN,undefined);}finally{fs.unlinkSync(file);}
+});
+for(const scenario of ['PLAN-01','PLAN-02','PLAN-03'])test('DOC114 '+scenario+': orquestacion local con HTTP/SELECT dobles, no es E2E real',async()=>{
+  const {runPlanSession}=require('./support/doc114-plan-importacion.cjs'),s=doc114Session(scenario),f=doc114SyntheticRuntime(s);
+  const result=await runPlanSession(f.auth,s,f.authorization,f.query,r=>f.refs.push(r),{startBridge:f.startBridge});
+  assert.equal(result.status,'PASS');assert.equal(result.attempts,s.cases.length);assert.equal(result.confirmations,0);assert.equal(f.refs.length,result.preparations);
+  if(scenario==='PLAN-03'){assert.equal(result.restorationVerified,true);assert.deepEqual(f.events,['REVOKE','RESTORE','CLOSE','READ_RESTORED']);}
+});
+test('DOC114: error en sesion revocada restaura y cierra antes de propagar fallo saneado',async()=>{
+  const {runPlanSession}=require('./support/doc114-plan-importacion.cjs'),s=doc114Session('PLAN-03'),f=doc114SyntheticRuntime(s),progress=[];f.failOnRevocation();
+  await assert.rejects(runPlanSession(f.auth,s,f.authorization,f.query,()=>{},{startBridge:f.startBridge,onProgress:p=>progress.push(p.phase)}),e=>e.message==='DOC114_RESULT_NOT_CONFIRMED');
+  assert.equal(f.revoked,false);assert.deepEqual(f.events,['REVOKE','RESTORE','CLOSE']);
+  assert.deepEqual(progress.filter(p=>p.startsWith('PERMISSION_')),['PERMISSION_READY','PERMISSION_REVOKING','PERMISSION_REVOKED','PERMISSION_RESTORING','PERMISSION_RESTORED']);
+});
+
+test('DOC114: selector delega infraestructura, elimina secretos efimeros y sanea solo resultados cerrados',async()=>{
+  const selector=require('../scripts/run-doc114-plan-importacion.cjs'),s=doc114Session('PLAN-01'),file=path.join(require('node:os').tmpdir(),'doc114-selector-'+crypto.randomBytes(8).toString('hex')+'.json');fs.writeFileSync(file,JSON.stringify(s));
+  try{
+    for(const args of [[],['--session','x','--scenario','REC'],['--session','x','--scenario','PLAN-01','--confirm'],['--session','x','--scenario','PLAN-01','--password','PRIVATE']])assert.throws(()=>selector.parseArgs(args),/DOC114_/);
+    let spawned=0,childEnv;const prompts=[];
+    await selector.main(['--session',file,'--scenario','PLAN-01','--check'],{requireInteractiveConsole(){throw Error('NO_TTY_ALLOWED');}});
+    await selector.main(['--session',file,'--scenario','PLAN-01'],{requireInteractiveConsole(){},backendFingerprint:()=> 'c'.repeat(64),collectConfirmation:async(v,k)=>{prompts.push(k);v[k]='true';},collectValue:async(v,k)=>{v[k]='synthetic-private-input';},runChild:async(command,args,cwd,env,options)=>{
+      spawned++;childEnv=env;assert.ok(args.includes('tests/doc114-plan-importacion.spec.cjs'));assert.ok(args.includes('--retries=0'));assert.equal(env.DOC114_AUTH_REVOCATION,undefined);assert.equal(env.DOC111_E2E_PASSWORD,'synthetic-private-input');
+      const result={scenario:'PLAN-01',status:'PASS',attempts:s.cases.length,preparations:s.cases.length,rejections:0,confirmations:0,noDocumentEffects:true,readOnlyControls:true,restorationVerified:null,head:'a'.repeat(40),codeSha256:'b'.repeat(64),backendSha256:'c'.repeat(64),cookie:'PRIVATE'};
+      const text=options.redactOutput('raw COOKIE=PRIVATE\nDOC114_PLAN_RESULT='+JSON.stringify(result));assert.ok(text.includes('DOC114_PLAN_RESULT'));assert.ok(!text.includes('PRIVATE'));return {code:0};
+    }});
+    assert.equal(spawned,1);assert.ok(prompts.includes('effects'));assert.ok(!prompts.includes('revocation'));assert.equal(childEnv.DOC111_E2E_PASSWORD,undefined);assert.equal(childEnv.DOC114_SESSION,undefined);
+    assert.equal(selector.safeLine('DOC114_PLAN_REFERENCE='+JSON.stringify({scenario:'PLAN-01',planId:'100',secret:'PRIVATE'}),'PLAN-01').value.planId,'100');
+    assert.equal(selector.safeLine('DOC114_PLAN_FAILURE='+JSON.stringify({scenario:'PLAN-01',stage:'PLAN',code:'DOC114_BAD PRIVATE'}),'PLAN-01'),null);
+  }finally{fs.unlinkSync(file);}
+});
+
+test('DOC114: puente compartido exige autorizacion operacional antes de abrir procesos y conserva restauracion local',()=>{
+  const {startDatabaseBridge}=require('./support/doc110-permission-revocation.cjs');
+  const keys=['DOC114_AUTH_REVOCATION','DOC114_E2E_USER'],prior=Object.fromEntries(keys.map(k=>[k,process.env[k]]));
+  try{for(const k of keys)delete process.env[k];assert.throws(()=>startDatabaseBridge('doc110-permission-db.ps1',{operationalImport:true}),/AUTHORIZATION_REQUIRED/);assert.throws(()=>startDatabaseBridge('doc110-profile-schema-db.ps1',{operationalImport:true}),/SCRIPT_INVALID/);}
+  finally{for(const k of keys)if(prior[k]===undefined)delete process.env[k];else process.env[k]=prior[k];}
+  const os=require('node:os'),cp=require('node:child_process'),parent=path.resolve(os.tmpdir()),temp=fs.mkdtempSync(path.join(parent,'doc114-permission-'));
+  try{
+    const output=cp.execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',path.join(__dirname,'doc114-permission-bridge-local.ps1'),'-BridgePath',path.resolve(__dirname,'../scripts/support/doc110-permission-db.ps1'),'-FixtureDirectory',temp],{encoding:'utf8',stdio:['ignore','pipe','pipe']});
+    assert.match(output,/DOC114_PERMISSION_BRIDGE_LOCAL=PASS; NO_DATABASE=true/);
+  }finally{assert.ok(path.resolve(temp).startsWith(parent+path.sep));fs.rmSync(temp,{recursive:true,force:true});}
+});
+test('DOC114: aserciones conservan inventario, ceros, diferidos y detectan cambios efectivos',()=>{
+  const {assertPreparation}=require('./support/doc114-plan-importacion.cjs'),f=doc114Result();
+  const expected={confirmable:true,eligible:['r1'],values:[{root:'r1',type:'CAMPO_EXPEDIENTE',ref:'CODIGO',value:'000114',deferred:false},{root:'r1',file:'a1',type:'INDICE_GABINETE',ref:'99',value:null,deferred:true}]};
+  const hash=assertPreparation(f.data,f.request,expected);assert.match(hash,/^[a-f0-9]{64}$/);
+  assert.equal(assertPreparation({...f.data,planId:'101',expiraUtc:'2030-01-01T00:02:00Z'},f.request,expected),hash);
+  for(const change of [d=>d.resultado.Elementos.pop(),d=>d.resultado.UnidadesElegibles.push('r2'),d=>d.resultado.Elementos[0].Valores[0].Valor='114',d=>d.resultado.Elementos[1].Valores[0].Valor='123',d=>d.resultado.Incidencias.push(null),d=>d.resultado.Elementos[0].Valores.push(null)]){
+    const bad=structuredClone(f.data);change(bad);assert.throws(()=>assertPreparation(bad,f.request,expected),/DOC114_/);
+  }
+});
+
+test('DOC114: controles SELECT rechazan alteracion persistida y efectos sin guardar filas',async()=>{
+  const {createPlanControls}=require('./support/doc114-plan-importacion.cjs'),f=doc114Result(),queries=[];
+  const manifest={Raices:[{SeleccionId:'s1',IdCliente:'r1',Nombre:'000114'}],Archivos:[{IdCliente:'a1',RaizIdCliente:'r1',Nombre:'doc.pdf',RutaRelativa:'000114/doc.pdf',Bytes:'7',UltimaModificacionLocal:'0'}]};
+  let stored={estado:'REVISABLE',revision:1,huella:f.data.planHash.toUpperCase(),contexto_doc:JSON.stringify({UsuarioRef:'1',AmbitoRef:'2',NivelRef:f.p.nivelRef}),config_doc:JSON.stringify(f.data.snapshot),manifiesto_doc:JSON.stringify(manifest),resultado_doc:JSON.stringify(f.data.resultado),creado_utc:'2030-01-01T00:00:00Z',expira_utc:f.data.expiraUtc};
+  const query=async(origin,sql,args)=>{assert.match(sql,/^SELECT /);queries.push({origin,sql,args});if(sql.includes('SELECT gabinete_id'))return [{gabinete_id:10}];if(sql.includes('SELECT NOMBRE'))return [{NOMBRE:'gabinete_test'}];if(sql.includes('COUNT(*)'))return [{total:'0'}];return [stored];};
+  const controls=createPlanControls(query,f.p,{userRef:'1',ambitoRef:'2'});const before=await controls.snapshot();assert.equal(controls.unchanged(before,{...before,plans:'1'},1),true);
+  assert.throws(()=>controls.unchanged(before,{...before,documents:'1'},0),/DOCUMENT_EFFECT/);
+  assert.deepEqual(await controls.verifyPlan(f.data,f.request),{verified:true});
+  assert.ok(queries.some(q=>q.sql.includes('solicitante_ref=?')));assert.ok(queries.at(-1).sql.includes('usuario_ref=? AND ambito_ref=?'));assert.deepEqual(queries.at(-1).args,['100','1','2',f.p.nivelRef,f.p.versionId]);
+  stored={...stored,resultado_doc:JSON.stringify({...f.data.resultado,PuedeConfirmar:false})};await assert.rejects(controls.verifyPlan(f.data,f.request),/STORED_RESULT_CHANGED/);
+  stored={...stored,resultado_doc:JSON.stringify(f.data.resultado),expira_utc:'2030-01-02T00:01:00Z'};await assert.rejects(controls.verifyPlan(f.data,f.request),/STORED_EXPIRY_INVALID/);
+});
+
 test('DOC113: selector y alcance UI mantienen cerrado el perfil y las mutaciones',()=>{
   const ui=require('./support/doc113-ventana-importacion.cjs'),selector=require('../scripts/run-doc113-ventana-importacion.cjs');
   const p=profile(),options={scenario:'UI-01',alternateLevel:'8',alternateVersion:'6',confirm:false};

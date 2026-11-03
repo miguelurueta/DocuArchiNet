@@ -1,0 +1,114 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "scenario": "PLAN-03",
+  "status": "PASS",
+  "attempts": 6,
+  "preparations": 1,
+  "rejections": 5,
+  "resumedPlans": 1,
+  "confirmations": 0,
+  "noDocumentEffects": true,
+  "readOnlyControls": true,
+  "restorationVerified": true,
+  "head": "4461453f100e96e47c122d7a0f7222034b8e93da",
+  "codeSha256": "7f5f17515b39859c1038492ae19c9f7c3f619af8f55ef6fb6ef113728d3876ad",
+  "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "cumulativeOperatingAttempts": 8,
+  "totalScenarioPlans": 2,
+  "preservedPlansUnchanged": true,
+  "permissionReadbackVerified": true,
+  "recoveryJournalRestored": true,
+  "resourcesSha256": "33207a33576c05b121bb226bc86929876bd8324da88004a45426645c94f64cca",
+  "artifactSha256": "bcb3da016b24e22fedcd792db0cc5fe92bf8f058d846b7c6bf5226637d03e2d8",
+  "sessionSha256": "e658e20403665f39a08acf91cb2db614387a752d3bfb7ac3fe2d7afcd7cf6721",
+  "originalBaselineId": "22",
+  "newCompatiblePlanId": "23",
+  "verifiedPlans": [
+    {
+      "caseKey": "baseline",
+      "planId": "22",
+      "planHash": "65ae28489069ee6eba428834ae0a1d43c08166fdd5b0eb5687a0c9e3596cce2b"
+    },
+    {
+      "caseKey": "compatible-version-control",
+      "planId": "23",
+      "planHash": "59af6be1a43c71b28719b5237096d39addd7410bcc34a6d8c754206856bf205e"
+    }
+  ],
+  "preservedPlanIds": [
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22"
+  ],
+  "recovery": {
+    "stage": "RESTORED",
+    "restored": true,
+    "permissionColumn": "IMPORTAR_CARPETAS",
+    "userRef": "141",
+    "companyRef": "2",
+    "originalPermission": 1,
+    "otherFieldsHash": "36befe19df3d37eac09cfdca80d8c6336a87d021d81077dd8d6726260d52111d",
+    "journalSha256": "75e587aff3a548a6994cc83d67140b3aad3dc7919aba2bda374799133648df76",
+    "updatedUtc": "2026-11-03T21:19:32.4808481Z"
+  },
+  "cases": [
+    {
+      "key": "baseline",
+      "planId": "22",
+      "versionId": "40",
+      "validation": "Original preparation verified before first rejection; resumed only by SELECT/hash and final reread"
+    },
+    {
+      "key": "injected-result",
+      "expectedCode": "CONFIGURACION_INVALIDA",
+      "newPlan": false
+    },
+    {
+      "key": "injected-snapshot",
+      "expectedCode": "CONFIGURACION_INVALIDA",
+      "newPlan": false
+    },
+    {
+      "key": "foreign-level",
+      "expectedCode": "ACCESO_DENEGADO",
+      "newPlan": false
+    },
+    {
+      "key": "incompatible-version",
+      "expectedCode": "ACCESO_DENEGADO",
+      "newPlan": false
+    },
+    {
+      "key": "compatible-version-control",
+      "planId": "23",
+      "versionId": "42"
+    },
+    {
+      "key": "revoked-permission",
+      "expectedCode": "ACCESO_DENEGADO",
+      "newPlan": false,
+      "restored": true
+    }
+  ],
+  "budget": {
+    "originalOperatingRequests": 7,
+    "additionalNegativeRetryAuthorized": 1,
+    "cumulativeOperatingRequests": 8,
+    "scenarioNewPlans": 2,
+    "anonymousDiagnosticRequestsSeparate": 2
+  },
+  "tasks": {
+    "complete": 15,
+    "total": 16
+  }
+}

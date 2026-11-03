@@ -1,0 +1,49 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "status": "RESUME_READY_NOT_EXECUTED",
+  "resumePlan": {
+    "caseKey": "valid-format-a",
+    "planId": "11",
+    "planHash": "7ebb487d1d4ab4ed6495d80d279d445f898eddcc2daa0142d1f92711a24cf13a"
+  },
+  "originalAuthorizedPreparations": 7,
+  "consumedPreparations": 1,
+  "maximumNewPreparations": 6,
+  "scope": "Same approved PLAN-01 seven cases; first case rechecked only by SELECT; six remaining HTTP PrepararPlan calls at most",
+  "localRegression": {
+    "pass": 82,
+    "fail": 0,
+    "addedResumeTests": 3
+  },
+  "guards": [
+    "Prior-plan audit must find only 11",
+    "Backend SHA must match original attempt 4",
+    "Read plan 11 with same actor/company/level/version and approved hash",
+    "Verify stored expected values/context/manifest and unchanged document controls",
+    "Stop without POST if resumed plan hash drifts"
+  ],
+  "files": [
+    {
+      "file": "tools/e2e/tests/support/doc114-plan-importacion.cjs",
+      "sha256": "1e9ba900f59722a856769c6782804889b2d4859f62fcf535c29d01efadd07ee2"
+    },
+    {
+      "file": "tools/e2e/scripts/run-doc114-plan-importacion.cjs",
+      "sha256": "c8fa7edc5383305609caf5cdead3af8c996843bce819cefdb4af511301dce9e4"
+    },
+    {
+      "file": "tools/e2e/tests/doc114-plan-importacion.spec.cjs",
+      "sha256": "1773256ac6904fdb432457bc7284f936f529b78e90c0461504772a84ad3ae939"
+    },
+    {
+      "file": "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+      "sha256": "1c08ef48e809c731eb3e6b84b873bcd58d744707ff661ec7f7a3bf9b9690c18e"
+    }
+  ],
+  "originalHttpBodyRetained": false,
+  "tasks": {
+    "complete": 12,
+    "total": 16
+  }
+}

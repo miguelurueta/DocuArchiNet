@@ -1,0 +1,279 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "authorized": true,
+  "status": "APPROVED_NOT_EXECUTED",
+  "source": {
+    "perfilId": "27",
+    "versionId": "41",
+    "codigo": "DOC114-FORMATO-B-20261103",
+    "configuration": "Copy live configuration unchanged; require exact original reviewed rules before creating version",
+    "expectedRules": [
+      {
+        "ReglaId": null,
+        "DestinoTipo": "CAMPO_EXPEDIENTE",
+        "DestinoRef": "CODIGO",
+        "FuenteTipo": "CARPETA",
+        "EtapaResolucion": "PREFLIGHT",
+        "Obligatoria": true,
+        "Orden": 0,
+        "ValorConstante": null,
+        "PropiedadExpediente": null,
+        "Extraccion": "SEGMENTO",
+        "Separador": "#",
+        "Posicion": 0,
+        "QuitarExtension": false,
+        "RecortarEspacios": false,
+        "TipoValor": "TEXTO",
+        "FormatoFecha": null,
+        "LongitudMaxima": 45
+      },
+      {
+        "ReglaId": null,
+        "DestinoTipo": "CAMPO_EXPEDIENTE",
+        "DestinoRef": "NOMBRE",
+        "FuenteTipo": "CARPETA",
+        "EtapaResolucion": "PREFLIGHT",
+        "Obligatoria": true,
+        "Orden": 1,
+        "ValorConstante": null,
+        "PropiedadExpediente": null,
+        "Extraccion": "COMPLETO",
+        "Separador": null,
+        "Posicion": 0,
+        "QuitarExtension": false,
+        "RecortarEspacios": false,
+        "TipoValor": "TEXTO",
+        "FormatoFecha": null,
+        "LongitudMaxima": 160
+      },
+      {
+        "ReglaId": null,
+        "DestinoTipo": "CAMPO_EXPEDIENTE",
+        "DestinoRef": "FECHA_INICIAL",
+        "FuenteTipo": "CARPETA",
+        "EtapaResolucion": "PREFLIGHT",
+        "Obligatoria": true,
+        "Orden": 2,
+        "ValorConstante": null,
+        "PropiedadExpediente": null,
+        "Extraccion": "SEGMENTO",
+        "Separador": "#",
+        "Posicion": 1,
+        "QuitarExtension": false,
+        "RecortarEspacios": false,
+        "TipoValor": "FECHA",
+        "FormatoFecha": "dd-MM-yyyy",
+        "LongitudMaxima": 160
+      },
+      {
+        "ReglaId": null,
+        "DestinoTipo": "TIPOLOGIA",
+        "DestinoRef": "TIPO_DOCUMENTAL",
+        "FuenteTipo": "ARCHIVO",
+        "EtapaResolucion": "PREFLIGHT",
+        "Obligatoria": true,
+        "Orden": 3,
+        "ValorConstante": null,
+        "PropiedadExpediente": null,
+        "Extraccion": "COMPLETO",
+        "Separador": null,
+        "Posicion": 0,
+        "QuitarExtension": true,
+        "RecortarEspacios": false,
+        "TipoValor": "TEXTO",
+        "FormatoFecha": null,
+        "LongitudMaxima": 160
+      },
+      {
+        "ReglaId": null,
+        "DestinoTipo": "INDICE_GABINETE",
+        "DestinoRef": "14",
+        "FuenteTipo": "EXPEDIENTE",
+        "EtapaResolucion": "TRAS_EXPEDIENTE",
+        "Obligatoria": true,
+        "Orden": 4,
+        "ValorConstante": null,
+        "PropiedadExpediente": "ID",
+        "Extraccion": "COMPLETO",
+        "Separador": null,
+        "Posicion": 0,
+        "QuitarExtension": false,
+        "RecortarEspacios": false,
+        "TipoValor": "TEXTO",
+        "FormatoFecha": null,
+        "LongitudMaxima": 20
+      }
+    ]
+  },
+  "change": {
+    "operation": "Create and publish one new version in existing test profile 27",
+    "configurationChanges": [],
+    "ruleChanges": [
+      {
+        "destination": "TIPOLOGIA:TIPO_DOCUMENTAL",
+        "property": "TipoValor",
+        "before": "TEXTO",
+        "after": "REFERENCIA"
+      }
+    ],
+    "rules": [
+      {
+        "ReglaId": null,
+        "DestinoTipo": "CAMPO_EXPEDIENTE",
+        "DestinoRef": "CODIGO",
+        "FuenteTipo": "CARPETA",
+        "EtapaResolucion": "PREFLIGHT",
+        "Obligatoria": true,
+        "Orden": 0,
+        "ValorConstante": null,
+        "PropiedadExpediente": null,
+        "Extraccion": "SEGMENTO",
+        "Separador": "#",
+        "Posicion": 0,
+        "QuitarExtension": false,
+        "RecortarEspacios": false,
+        "TipoValor": "TEXTO",
+        "FormatoFecha": null,
+        "LongitudMaxima": 45
+      },
+      {
+        "ReglaId": null,
+        "DestinoTipo": "CAMPO_EXPEDIENTE",
+        "DestinoRef": "NOMBRE",
+        "FuenteTipo": "CARPETA",
+        "EtapaResolucion": "PREFLIGHT",
+        "Obligatoria": true,
+        "Orden": 1,
+        "ValorConstante": null,
+        "PropiedadExpediente": null,
+        "Extraccion": "COMPLETO",
+        "Separador": null,
+        "Posicion": 0,
+        "QuitarExtension": false,
+        "RecortarEspacios": false,
+        "TipoValor": "TEXTO",
+        "FormatoFecha": null,
+        "LongitudMaxima": 160
+      },
+      {
+        "ReglaId": null,
+        "DestinoTipo": "CAMPO_EXPEDIENTE",
+        "DestinoRef": "FECHA_INICIAL",
+        "FuenteTipo": "CARPETA",
+        "EtapaResolucion": "PREFLIGHT",
+        "Obligatoria": true,
+        "Orden": 2,
+        "ValorConstante": null,
+        "PropiedadExpediente": null,
+        "Extraccion": "SEGMENTO",
+        "Separador": "#",
+        "Posicion": 1,
+        "QuitarExtension": false,
+        "RecortarEspacios": false,
+        "TipoValor": "FECHA",
+        "FormatoFecha": "dd-MM-yyyy",
+        "LongitudMaxima": 160
+      },
+      {
+        "ReglaId": null,
+        "DestinoTipo": "TIPOLOGIA",
+        "DestinoRef": "TIPO_DOCUMENTAL",
+        "FuenteTipo": "ARCHIVO",
+        "EtapaResolucion": "PREFLIGHT",
+        "Obligatoria": true,
+        "Orden": 3,
+        "ValorConstante": null,
+        "PropiedadExpediente": null,
+        "Extraccion": "COMPLETO",
+        "Separador": null,
+        "Posicion": 0,
+        "QuitarExtension": true,
+        "RecortarEspacios": false,
+        "TipoValor": "REFERENCIA",
+        "FormatoFecha": null,
+        "LongitudMaxima": 160
+      },
+      {
+        "ReglaId": null,
+        "DestinoTipo": "INDICE_GABINETE",
+        "DestinoRef": "14",
+        "FuenteTipo": "EXPEDIENTE",
+        "EtapaResolucion": "TRAS_EXPEDIENTE",
+        "Obligatoria": true,
+        "Orden": 4,
+        "ValorConstante": null,
+        "PropiedadExpediente": "ID",
+        "Extraccion": "COMPLETO",
+        "Separador": null,
+        "Posicion": 0,
+        "QuitarExtension": false,
+        "RecortarEspacios": false,
+        "TipoValor": "TEXTO",
+        "FormatoFecha": null,
+        "LongitudMaxima": 20
+      }
+    ]
+  },
+  "preserve": [
+    {
+      "perfilId": "24",
+      "versionId": "38"
+    },
+    {
+      "perfilId": "25",
+      "versionId": "39"
+    },
+    {
+      "perfilId": "26",
+      "versionId": "40"
+    },
+    {
+      "perfilId": "27",
+      "versionId": "41"
+    }
+  ],
+  "effects": {
+    "newProfiles": 0,
+    "newPublishedVersions": 1,
+    "maximumAdministrativeMutations": 3,
+    "plans": 0,
+    "documents": 0,
+    "permissionChanges": 0
+  },
+  "operations": [
+    "CrearVersion",
+    "GuardarBorrador",
+    "PublicarVersion"
+  ],
+  "futurePlan01": {
+    "attempts": 7,
+    "validA": {
+      "versionId": "40",
+      "folder": "000114-20261103",
+      "file": "DOC114-79.pdf"
+    },
+    "validB": {
+      "versionId": "<returned new version ID>",
+      "folder": "000114#03-11-2026",
+      "file": "79.pdf"
+    },
+    "unknownType": {
+      "versionId": "41",
+      "folder": "000114#03-11-2026",
+      "file": "79.pdf",
+      "expected": "TIPOLOGIA_NO_UNIVOCA",
+      "precondition": "SELECT confirms code 79 is not unique in the published classification; an ID is never accepted implicitly as a code"
+    },
+    "remaining": [
+      "unparseable-name",
+      "missing-required",
+      "invalid-conversion",
+      "functional-length"
+    ]
+  },
+  "limitations": [
+    "No positive code lookup can be claimed without a usable unique code in this classification",
+    "Historical version 41 retained PUBLICADA; repository supports explicit historical selection"
+  ]
+}

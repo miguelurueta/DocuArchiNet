@@ -1,0 +1,104 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "status": "ATTEMPT_3_READY_NOT_EXECUTED",
+  "scenario": "PLAN-01",
+  "levelId": "7",
+  "profiles": [
+    {
+      "perfilId": "26",
+      "versionId": "40"
+    },
+    {
+      "perfilId": "27",
+      "versionId": "42"
+    },
+    {
+      "perfilId": "27",
+      "versionId": "41",
+      "purpose": "negative-code-vs-id"
+    }
+  ],
+  "maximumPreparations": 7,
+  "recipes": [
+    {
+      "key": "valid-format-a",
+      "versionId": "40",
+      "folder": "000114-20261103",
+      "file": "DOC114-79.pdf"
+    },
+    {
+      "key": "valid-format-b",
+      "versionId": "42",
+      "folder": "000114#03-11-2026",
+      "file": "79.pdf"
+    },
+    {
+      "key": "unknown-type",
+      "versionId": "41",
+      "file": "79.pdf",
+      "incidence": "TIPOLOGIA_NO_UNIVOCA",
+      "precondition": "SQL confirms numeric code 79 is not unique in classification"
+    },
+    {
+      "key": "unparseable-name",
+      "versionId": "40",
+      "file": "invalid.pdf",
+      "incidence": "SEGMENTO_AUSENTE"
+    },
+    {
+      "key": "missing-required",
+      "versionId": "40",
+      "file": "DOC114-.pdf",
+      "incidence": "VALOR_REQUERIDO"
+    },
+    {
+      "key": "invalid-conversion",
+      "versionId": "40",
+      "folder": "000114-20260230",
+      "incidence": "FECHA_INVALIDA"
+    },
+    {
+      "key": "functional-length",
+      "versionId": "40",
+      "rootLength": 121,
+      "incidence": "LONGITUD_NOMBRE_EXCEDIDA"
+    }
+  ],
+  "preflight": "Read published configurations 40/41/42 and classification-scoped active types; require reference ID 79; SQL numeric code 79 returns zero or multiple rows; no valid code lookup is needed or claimed.",
+  "expectedValidValues": {
+    "codigo": "000114",
+    "date": "2026-11-03",
+    "typologyId": {
+      "formatA": "79",
+      "formatB": "79"
+    },
+    "deferredIndex": {
+      "ref": "14",
+      "value": null,
+      "property": "ID"
+    }
+  },
+  "localResourceCheck": "PASS; seven cases and negative filename checks; no authenticated execution",
+  "runner": "Existing run-doc114-plan-importacion.cjs; same login/SELECT controls/checkpoints; approvals carried from explicit user instruction",
+  "sourceSha256": "1a7f3fdf30652e8e9c0e1dd1b2560160d6a5dda7454ee5b8cde0b818c35e5733",
+  "consoleSha256": "96036cf6c3f04e793b0683c8d9057de356957f1b565a3d7bf2dfa936125c1bde",
+  "effects": {
+    "maximumNewPlans": 7,
+    "confirmations": 0,
+    "newLots": 0,
+    "documents": 0,
+    "permissionChanges": 0
+  },
+  "planAcceptance": "NOT_EXECUTED",
+  "firstAttempt": {
+    "stage": "READONLY_TYPE",
+    "code": "DOC114_PLAN01_TYPE_UNAVAILABLE",
+    "preparationAttempts": 0
+  },
+  "typeSelectionRegression": {
+    "pass": 3,
+    "fail": 0
+  },
+  "previousPreparationAttempts": 0
+}

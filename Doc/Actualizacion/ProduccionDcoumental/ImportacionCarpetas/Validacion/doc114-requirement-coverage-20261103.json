@@ -1,0 +1,126 @@
+{
+  "issueKey": "DOC-114",
+  "requirements": 6,
+  "scenarios": 17,
+  "coverage": [
+    {
+      "requirement": "RQ-01",
+      "scenario": "Contexto válido",
+      "evidence": "PLAN-01/02/03, contexto persistido",
+      "provenance": "SERVIDOR REAL",
+      "implementation": "ServicioPreparacionImportacion.CalcularPlan/Preparar; createPlanControls.verifyPlan"
+    },
+    {
+      "requirement": "RQ-01",
+      "scenario": "Nivel ajeno o permiso revocado",
+      "evidence": "PLAN-02 foreign-level; PLAN-03 revoked-permission",
+      "provenance": "SERVIDOR REAL",
+      "implementation": "ImportacionCarpetasContextAdapter.Resolver/ResolverDestino; bridge OperationalImport"
+    },
+    {
+      "requirement": "RQ-02",
+      "scenario": "Homónimos y subcarpetas",
+      "evidence": "ManifestCases y PreflightCalculationCases, arnés Framework existente",
+      "provenance": "LOCAL FRAMEWORK",
+      "implementation": "tests/ImportacionCarpetasBehaviorTests.cs:1885 y 2676; CanonizadorManifiestoImportacion"
+    },
+    {
+      "requirement": "RQ-02",
+      "scenario": "Manifiesto incoherente o excedido",
+      "evidence": "PLAN-02 global-error/inconsistent-manifest; cuotas/colisiones en ManifestCases",
+      "provenance": "REAL + LOCAL",
+      "implementation": "CanonizadorManifiestoImportacion.Canonizar; PLAN-02"
+    },
+    {
+      "requirement": "RQ-03",
+      "scenario": "Dos formatos configurables",
+      "evidence": "PLAN-01 valid-format-a/b, versiones 40/42",
+      "provenance": "SERVIDOR REAL",
+      "implementation": "ResolvedorReglasPerfilImportacion y ServicioPreparacionImportacion"
+    },
+    {
+      "requirement": "RQ-03",
+      "scenario": "Errores por archivo",
+      "evidence": "PLAN-01 cinco variantes; PLAN-02 TIF rechazado",
+      "provenance": "SERVIDOR REAL",
+      "implementation": "assertPreparation compara incidencia/raíz/archivo e inventario completo"
+    },
+    {
+      "requirement": "RQ-03",
+      "scenario": "Identidad futura y contenido no recibido",
+      "evidence": "PLAN-01 índice14 Diferido=true/Valor=null/PropiedadPendiente; arnés sin business IO",
+      "provenance": "REAL + LOCAL",
+      "implementation": "ResolvedorReglasPerfilImportacion; assertPreparation"
+    },
+    {
+      "requirement": "RQ-04",
+      "scenario": "Completo por expediente",
+      "evidence": "PLAN-02 plan18, r1 elegible y r2 rechazada visible",
+      "provenance": "SERVIDOR REAL",
+      "implementation": "ServicioPreparacionImportacion.EvaluarElegibilidad"
+    },
+    {
+      "requirement": "RQ-04",
+      "scenario": "Completo por lote",
+      "evidence": "PLAN-02 plan19, ninguna raíz elegible",
+      "provenance": "SERVIDOR REAL",
+      "implementation": "ServicioPreparacionImportacion.EvaluarElegibilidad"
+    },
+    {
+      "requirement": "RQ-04",
+      "scenario": "Parcial con rechazados",
+      "evidence": "PLAN-02 planes20/21, raíz mixta conserva PDF/TIF",
+      "provenance": "SERVIDOR REAL",
+      "implementation": "ServicioPreparacionImportacion.EvaluarElegibilidad; assertPreparation"
+    },
+    {
+      "requirement": "RQ-04",
+      "scenario": "Error global",
+      "evidence": "PLAN-02 tres rechazos sin nuevos planes; conteos SELECT",
+      "provenance": "SERVIDOR REAL",
+      "implementation": "CanonizadorManifiestoImportacion/autoridad; createPlanControls.unchanged"
+    },
+    {
+      "requirement": "RQ-05",
+      "scenario": "Contenido determinista",
+      "evidence": "PreflightCalculationCases compara Escribir(first) con segundo cálculo idéntico",
+      "provenance": "LOCAL FRAMEWORK",
+      "implementation": "tests/ImportacionCarpetasBehaviorTests.cs:1908; ServicioPreparacionImportacion.CalcularPlan"
+    },
+    {
+      "requirement": "RQ-05",
+      "scenario": "Autoridad o referencias alteradas",
+      "evidence": "PLAN-03 inyecciones/nivel/versión/permiso; PlanStorageCases/ConfirmationServiceCases para revisión-huella",
+      "provenance": "REAL + LOCAL",
+      "implementation": "RequestGuard/PerfilImportacionJson; tests/ImportacionCarpetasBehaviorTests.cs:1166 y 1276"
+    },
+    {
+      "requirement": "RQ-05",
+      "scenario": "Cambio compatible de publicación",
+      "evidence": "PLAN-03 plan23 versión42 y plan22 versión40 intacto",
+      "provenance": "SERVIDOR REAL",
+      "implementation": "AdaptadorPerfilImportacionOperativa; runPlanSession y relectura final"
+    },
+    {
+      "requirement": "RQ-06",
+      "scenario": "Sin alcance de runtime aprobado",
+      "evidence": "Selector --check sin login; omisión de tres casos sin flags; tests del selector",
+      "provenance": "LOCAL POLÍTICA",
+      "implementation": "run-doc114-plan-importacion.cjs; doc114-plan-importacion.spec.cjs"
+    },
+    {
+      "requirement": "RQ-06",
+      "scenario": "Ejecución autorizada",
+      "evidence": "PLAN-01/02/03 propios, autorizaciones/budgets concretos y SHA separados",
+      "provenance": "SERVIDOR REAL",
+      "implementation": "Resultados por escenario en Validacion/; checkpoints saneados"
+    },
+    {
+      "requirement": "RQ-06",
+      "scenario": "Cierre con dependencia pendiente",
+      "evidence": "Fallos y recursos pendientes conservados hasta superar controles/restauración; no hubo PASS anticipado",
+      "provenance": "HISTORIAL REAL + POLÍTICA",
+      "implementation": "doc114-plan-preflight.md; snapshots de fallos y recuperación RESTORED"
+    }
+  ]
+}

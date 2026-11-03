@@ -1,0 +1,283 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "authorized": true,
+  "status": "APPROVED_NOT_EXECUTED",
+  "scenario": "PLAN-03",
+  "resourcesSha256": "33207a33576c05b121bb226bc86929876bd8324da88004a45426645c94f64cca",
+  "existingPlan": {
+    "planId": "22",
+    "caseKey": "baseline",
+    "policy": "Preserve and revalidate by SELECT/hash; do not repeat baseline PrepararPlan"
+  },
+  "operatingAttemptsAlreadyConsumed": 2,
+  "originalOperatingAttemptBudget": 7,
+  "originalRemainingAttempts": 5,
+  "requestedAdditionalNegativeAttempts": 1,
+  "nextOperatingHttpAttempts": 6,
+  "totalOperatingAttemptsAfterContinuation": 8,
+  "maximumTotalNewPlans": 2,
+  "maximumRemainingNewPlans": 1,
+  "preservePlanIds": [
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22"
+  ],
+  "changedExpectations": [
+    {
+      "caseKey": "injected-result",
+      "old": "SOLICITUD_INVALIDA",
+      "new": "CONFIGURACION_INVALIDA"
+    },
+    {
+      "caseKey": "injected-snapshot",
+      "old": "SOLICITUD_INVALIDA",
+      "new": "CONFIGURACION_INVALIDA"
+    }
+  ],
+  "unchangedAuthority": "Existing approved IMPORTAR_CARPETAS 1->0->1 for LUZ.AGUILERA user141/company2, not yet performed; no new permission scope requested",
+  "remainingRequests": [
+    {
+      "key": "injected-result",
+      "request": {
+        "nivelRef": "7",
+        "versionId": "40",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114-20261103"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-79.pdf",
+            "rutaRelativa": "000114-20261103/DOC114-79.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ],
+        "resultado": {
+          "PuedeConfirmar": true,
+          "UnidadesElegibles": [
+            "r1"
+          ]
+        }
+      },
+      "rejectCodes": [
+        "CONFIGURACION_INVALIDA"
+      ]
+    },
+    {
+      "key": "injected-snapshot",
+      "request": {
+        "nivelRef": "7",
+        "versionId": "40",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114-20261103"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-79.pdf",
+            "rutaRelativa": "000114-20261103/DOC114-79.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ],
+        "snapshot": {
+          "PerfilId": "26",
+          "VersionId": "40"
+        }
+      },
+      "rejectCodes": [
+        "CONFIGURACION_INVALIDA"
+      ]
+    },
+    {
+      "key": "foreign-level",
+      "request": {
+        "nivelRef": "4294967295",
+        "versionId": "40",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114-20261103"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-79.pdf",
+            "rutaRelativa": "000114-20261103/DOC114-79.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "rejectCodes": [
+        "ACCESO_DENEGADO"
+      ]
+    },
+    {
+      "key": "incompatible-version",
+      "request": {
+        "nivelRef": "7",
+        "versionId": "4294967295",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114-20261103"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-79.pdf",
+            "rutaRelativa": "000114-20261103/DOC114-79.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "rejectCodes": [
+        "ACCESO_DENEGADO"
+      ]
+    },
+    {
+      "key": "compatible-version-control",
+      "request": {
+        "nivelRef": "7",
+        "versionId": "42",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114#03-11-2026"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "79.pdf",
+            "rutaRelativa": "000114#03-11-2026/79.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "expected": {
+        "confirmable": true,
+        "eligible": [
+          "r1"
+        ],
+        "incidences": [],
+        "values": [
+          {
+            "root": "r1",
+            "type": "CAMPO_EXPEDIENTE",
+            "ref": "CODIGO",
+            "value": "000114",
+            "deferred": false
+          },
+          {
+            "root": "r1",
+            "type": "CAMPO_EXPEDIENTE",
+            "ref": "NOMBRE",
+            "value": "000114#03-11-2026",
+            "deferred": false
+          },
+          {
+            "root": "r1",
+            "type": "CAMPO_EXPEDIENTE",
+            "ref": "FECHA_INICIAL",
+            "value": "2026-11-03",
+            "deferred": false
+          },
+          {
+            "root": "r1",
+            "file": "a1",
+            "type": "TIPOLOGIA",
+            "ref": "TIPO_DOCUMENTAL",
+            "value": "79",
+            "deferred": false
+          },
+          {
+            "root": "r1",
+            "file": "a1",
+            "type": "INDICE_GABINETE",
+            "ref": "14",
+            "value": null,
+            "deferred": true
+          }
+        ]
+      }
+    },
+    {
+      "key": "revoked-permission",
+      "request": {
+        "nivelRef": "7",
+        "versionId": "40",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114-20261103"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-79.pdf",
+            "rutaRelativa": "000114-20261103/DOC114-79.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "rejectCodes": [
+        "ACCESO_DENEGADO"
+      ]
+    }
+  ],
+  "preconditions": [
+    "Audit finds only baseline plan22 in addition to prior plans11-21; otherwise stop",
+    "Revalidate baseline22 expected values/context/manifest/publication/row hash before new POST",
+    "Permission still1, other fields unchanged, no unresolved recovery journal",
+    "Same runtime backend SHA"
+  ],
+  "effects": {
+    "additionalBaselinePreparations": 0,
+    "remainingNewPlans": 1,
+    "confirmations": 0,
+    "documents": 0,
+    "profiles": 0,
+    "publications": 0
+  },
+  "localRegression": {
+    "pass": 88,
+    "fail": 0
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "status": "PASS",
+  "levelId": "7",
+  "cabinetId": "10",
+  "profiles": [
+    {
+      "key": "format-a",
+      "perfilId": "26",
+      "versionId": "40"
+    },
+    {
+      "key": "format-b",
+      "perfilId": "27",
+      "versionId": "41"
+    }
+  ],
+  "sourcePublicationsPreserved": [
+    {
+      "perfilId": "24",
+      "versionId": "38"
+    },
+    {
+      "perfilId": "25",
+      "versionId": "39"
+    }
+  ],
+  "proposalSha256": "8662f47efb99af0b549f44642f244d34fe0b7ade3edf4af34fe8b86495d48a6c",
+  "sessionSha256": "08eed3de8d6d66384e9346d99567ffd235dcf578e8e2d9316e0ad9d1aace15bf",
+  "verified": [
+    "Source snapshot fingerprints before and after publication",
+    "Administrative published content readback",
+    "Both new snapshots compatible in operative publication catalog"
+  ],
+  "mutations": [
+    {
+      "key": "format-a",
+      "operation": "CrearPerfil"
+    },
+    {
+      "key": "format-a",
+      "operation": "GuardarBorrador"
+    },
+    {
+      "key": "format-a",
+      "operation": "PublicarVersion"
+    },
+    {
+      "key": "format-b",
+      "operation": "CrearPerfil"
+    },
+    {
+      "key": "format-b",
+      "operation": "GuardarBorrador"
+    },
+    {
+      "key": "format-b",
+      "operation": "PublicarVersion"
+    }
+  ],
+  "plans": 0,
+  "documents": 0,
+  "permissionChanges": 0,
+  "planAcceptance": "NOT_EXECUTED",
+  "tasks": {
+    "complete": 12,
+    "total": 16
+  }
+}

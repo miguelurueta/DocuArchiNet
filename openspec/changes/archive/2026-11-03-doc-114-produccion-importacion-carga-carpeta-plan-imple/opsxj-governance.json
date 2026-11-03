@@ -116,5 +116,50 @@
     "state": "approved",
     "taskOriginFormat": "Origen: D-XX, RQ-XX",
     "enforcement": "Cada decision debe llegar a design, spec y tasks; no se admiten reglas de framework ajeno al perfil tecnologico."
+  },
+  "evidenceScope": {
+    "kind": "existing-preflight-functional-evidence",
+    "realPlanCases": [
+      "PLAN-01",
+      "PLAN-02",
+      "PLAN-03"
+    ],
+    "authorization": "Explicit DOC-114 environment/account/resources/preparations; permission revocation and restoration separately scoped",
+    "existingService": "ServicioPreparacionImportacion; reuse without new engine/repository/schema",
+    "knownNewProductDefect": "NONE_DEMONSTRATED_BY_INSPECTION",
+    "documentEffects": "PROHIBITED"
+  },
+  "editorialApproval": {
+    "issueKey": "DOC-114",
+    "date": "2026-11-03",
+    "status": "APPROVED_BY_USER",
+    "confirmation": "continua",
+    "context": "Respuesta directa a la solicitud de aprobar el informe consolidado para continuar con publicacion",
+    "scope": "Editorial acceptance of verified DOC114 delivery and continuation of publication workflow after checks",
+    "reviewReport": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc114-final-report-20261103.md",
+    "reviewReportSha256": "63571253664acd4d2026827bdef91b204fcd3d3efd65a6e1a833fe6b336785f8",
+    "tasks": "16/16",
+    "realCases": [
+      "PLAN-01",
+      "PLAN-02",
+      "PLAN-03"
+    ],
+    "permissionRestored": true,
+    "preservePlans": [
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "19",
+      "20",
+      "21",
+      "22",
+      "23"
+    ],
+    "additionalRuntimeEffects": false
   }
 }

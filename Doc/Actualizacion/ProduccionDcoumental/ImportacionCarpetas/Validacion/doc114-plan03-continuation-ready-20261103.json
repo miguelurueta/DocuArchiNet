@@ -1,0 +1,73 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "scenario": "PLAN-03",
+  "status": "AUTHORIZED_CONTINUATION_READY_NOT_EXECUTED",
+  "resourcesSha256": "33207a33576c05b121bb226bc86929876bd8324da88004a45426645c94f64cca",
+  "extraNegativeAttemptsAuthorized": 1,
+  "previousOperatingAttempts": 2,
+  "nextOperatingHttpAttempts": 6,
+  "maximumCumulativeOperatingAttempts": 8,
+  "preservedBaselineId": "22",
+  "maximumRemainingNewPlans": 1,
+  "maximumScenarioNewPlans": 2,
+  "preservedPlanIds": [
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22"
+  ],
+  "permissionScope": {
+    "table": "remit_dest_interno_perfil_produccion",
+    "column": "IMPORTAR_CARPETAS",
+    "userRef": "141",
+    "companyRef": "2",
+    "initial": 1,
+    "temporary": 0,
+    "restored": 1,
+    "maximumUpdates": 2,
+    "phase": "Only final revoked-permission rejection, same authenticated browser session",
+    "procedure": "Existing DOC110 bridge in OperationalImport mode with runtimeRoot; bind administrative DB by ID/hash of freshly prepared baseline; unique user/profile/primary key; compare-and-set; other-field hash; recovery journal and finally restore",
+    "accountImpact": "Temporarily prevents import for this test account during the final negative request",
+    "restorationRequiredForPass": true
+  },
+  "guards": [
+    "Previous stopped session and exact baseline22 reference",
+    "Permission1 and identical other-field hash to first run",
+    "Only known plans11-22; compare metadata for11-21 to first-run record",
+    "Baseline22 hash recomputed from canonical persisted documents and expected request/result reverified",
+    "Resume existing baseline by SELECT, never POST",
+    "Final permission1, other fields unchanged and recovery journal restored",
+    "All preserved plan metadata unchanged at close"
+  ],
+  "localRegression": {
+    "pass": 88,
+    "fail": 0
+  },
+  "continuationPreflightRegression": {
+    "pass": 4,
+    "fail": 0
+  },
+  "runnerCheck": {
+    "status": "PASS",
+    "attempts": 6,
+    "resumedPlans": 1,
+    "realExecution": false
+  },
+  "syntax": "PASS",
+  "consoleSha256": "505d9026640d71566c843674108f3826415233f28bfb710831240c08b3741caa",
+  "preflightSha256": "a0884d8d3bf23a34b283bf24b2efaeed861fd584f85ceadd96eadb8db878a09f",
+  "firstRunSourcePreserved": ".tmp/doc114-plan03-console-attempt1.cjs",
+  "tasks": {
+    "complete": 14,
+    "total": 16
+  }
+}

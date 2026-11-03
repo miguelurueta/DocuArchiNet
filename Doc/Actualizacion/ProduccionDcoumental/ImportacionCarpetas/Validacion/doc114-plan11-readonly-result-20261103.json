@@ -1,0 +1,23 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "status": "PASS",
+  "planId": "11",
+  "caseKey": "valid-format-a",
+  "storedHashVerified": true,
+  "expectedValuesVerified": true,
+  "liveSnapshotVerified": true,
+  "readOnlyControls": true,
+  "unchanged": true,
+  "preparations": 0,
+  "remainingPreparations": 6,
+  "originalHttpBodyRetained": false,
+  "planHash": "7ebb487d1d4ab4ed6495d80d279d445f898eddcc2daa0142d1f92711a24cf13a",
+  "snapshotComparison": {
+    "publishedVersionFound": true,
+    "exactArrayOrderEqual": false,
+    "canonicalRuleOrderEqual": true
+  },
+  "sessionSha256": "d5b5809361e1344c22d813f2adcf2b567ee92dee5b6754f15789ea2220cb190e",
+  "scope": "READONLY_VERIFICATION_OF_EXISTING_PLAN; not a replay of PrepararPlan and not the original retained HTTP body"
+}

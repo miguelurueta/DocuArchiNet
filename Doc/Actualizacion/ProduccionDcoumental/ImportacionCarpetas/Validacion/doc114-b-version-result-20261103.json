@@ -1,0 +1,36 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "status": "PASS",
+  "perfilId": "27",
+  "versionId": "42",
+  "sourceVersionId": "41",
+  "historyPreserved": true,
+  "sourceProfilesPreserved": true,
+  "plans": 0,
+  "documents": 0,
+  "permissionChanges": 0,
+  "proposalSha256": "acdf83680590c8ddaaec1c4a9018f5d83ecf821b113fe20168e7acad959f6033",
+  "sessionSha256": "c69fc597e0fc985a03157ea250515bde07e4ce3da3d60ea86bc061b92b8f3af0",
+  "operations": [
+    {
+      "operation": "CrearVersion",
+      "perfilId": "27"
+    },
+    {
+      "operation": "GuardarBorrador",
+      "perfilId": "27"
+    },
+    {
+      "operation": "PublicarVersion",
+      "perfilId": "27"
+    }
+  ],
+  "preservedVersions": [
+    "38",
+    "39",
+    "40",
+    "41"
+  ],
+  "planAcceptance": "NOT_EXECUTED"
+}

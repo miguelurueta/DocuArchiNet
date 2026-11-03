@@ -1,13 +1,22 @@
 ## Why
 
-PRODUCCION-IMPORTACION-CARGA-CARPETA-PLAN-IMPLE. Ver detalle funcional completo del ticket en la seccion Jira Details.
+El preflight solicitado por DOC-114 ya existe por DOC-111. Su código y arnés cubren preparación, políticas y protección del plan; falta acreditar los recorridos focales PLAN-01/02/03 con evidencia propia, sin reconstruir servicio, reglas o persistencia. La inspección no ha demostrado un defecto funcional nuevo.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-114.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Caracterizar la cobertura existente antes de añadir pruebas equivalentes o proponer cambios de producto.
+- Añadir suite focal, soporte y selector fino para PLAN-01/02/03 sobre infraestructura E2E compartida.
+- Verificar resultado/incidencias/diferidos, políticas y autoridad/integridad del plan con controles SELECT y efectos acotados a preparaciones autorizadas.
+- Conservar evidencia por escenario y límites de ejecución; corregir producto solo si una regresión demuestra una brecha concreta.
+
+## Capabilities
+
+- New: produccion-importacion-carga-carpeta-plan-imple, garantías y evidencia focal de preparación existente.
+- Reutiliza contratos operativos de importación, publicación y repositorio de planes. No añade otro motor, protocolo fragmentado, esquema o escritor documental.
+
+## Impact
+
+Infraestructura de pruebas en tools/e2e, arnés existente y documentación común. Sin cambio de contrato HTTP previsto. Ninguna corrida autenticada, preparación persistida o revocación de permisos se autoriza por generar este plan. La implementación propuesta conserva almacenamiento, SII, SQL, Web.config y permisos de activación.
 
 ## Jira Details
 

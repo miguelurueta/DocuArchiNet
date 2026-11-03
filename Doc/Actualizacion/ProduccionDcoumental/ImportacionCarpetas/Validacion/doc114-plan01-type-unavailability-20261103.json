@@ -1,0 +1,21 @@
+{
+  "issueKey": "DOC-114",
+  "scenario": "PLAN-01",
+  "status": "RESOURCE_UNAVAILABLE_BEFORE_PREPARATION",
+  "attempt": 2,
+  "failure": {
+    "stage": "READONLY_TYPE",
+    "code": "DOC114_NO_UNIQUE_TYPE_CODE_IN_CLASSIFICATION"
+  },
+  "typeObservation": {
+    "rows": 6,
+    "referencePresent": true,
+    "referenceCodeCategory": "NULL"
+  },
+  "preparationAttempts": 0,
+  "plansCreated": 0,
+  "proposedResolution": "One new version of test profile 27, change only typology rule TEXTO to REFERENCIA; preserve version 41 as numeric-ID/code negative",
+  "proposalAuthorized": false,
+  "localFrameworkStructuralValidation": "PASS; actual catalog checks not performed by local validator",
+  "remaining": "Additional publication requires specific authorization; PLAN-01 execution remains unaccepted"
+}

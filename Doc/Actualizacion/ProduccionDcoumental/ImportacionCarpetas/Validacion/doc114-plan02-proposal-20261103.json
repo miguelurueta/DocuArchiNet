@@ -1,0 +1,469 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "authorized": true,
+  "status": "APPROVED_NOT_EXECUTED",
+  "scenario": "PLAN-02",
+  "levelId": "7",
+  "cabinetId": "10",
+  "profiles": [
+    {
+      "perfilId": "26",
+      "versionId": "40",
+      "mode": "EXPEDIENTE"
+    },
+    {
+      "perfilId": "24",
+      "versionId": "38",
+      "mode": "LOTE"
+    },
+    {
+      "perfilId": "25",
+      "versionId": "39",
+      "mode": "PARCIAL"
+    }
+  ],
+  "maximumHttpPreparations": 7,
+  "maximumNewPlans": 4,
+  "expectedGlobalRejections": 3,
+  "preservePlanIds": [
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17"
+  ],
+  "effects": {
+    "confirmations": 0,
+    "newLots": 0,
+    "newProfiles": 0,
+    "publications": 0,
+    "documents": 0,
+    "permissionChanges": 0
+  },
+  "preconditions": [
+    "Current source publications/rules/policies compatible with reviewed versions",
+    "Extensions admit pdf and reject tif",
+    "Internal typology reference 79 remains authorized in classification",
+    "Negative destination 4294967295 must be absent; otherwise stop, never change permission",
+    "Audit and preserve plans 11-17 and read-only document controls"
+  ],
+  "cases": [
+    {
+      "key": "complete-expediente",
+      "versionId": "40",
+      "profileMode": "EXPEDIENTE",
+      "request": {
+        "nivelRef": "7",
+        "versionId": "40",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114-20261103"
+          },
+          {
+            "seleccionId": "s2",
+            "idCliente": "r2",
+            "nombre": "000115-20261103"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-79.pdf",
+            "rutaRelativa": "000114-20261103/DOC114-79.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          },
+          {
+            "idCliente": "a2",
+            "raizIdCliente": "r2",
+            "nombre": "DOC114-79.tif",
+            "rutaRelativa": "000115-20261103/DOC114-79.tif",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "expected": {
+        "confirmable": true,
+        "eligible": [
+          "r1"
+        ],
+        "incidences": [
+          {
+            "code": "EXTENSION_NO_PERMITIDA",
+            "root": "r2",
+            "file": "a2"
+          }
+        ],
+        "values": [
+          {
+            "root": "r1",
+            "type": "CAMPO_EXPEDIENTE",
+            "ref": "CODIGO",
+            "value": "000114",
+            "deferred": false
+          },
+          {
+            "root": "r1",
+            "type": "CAMPO_EXPEDIENTE",
+            "ref": "NOMBRE",
+            "value": "000114-20261103",
+            "deferred": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "complete-lote",
+      "versionId": "38",
+      "profileMode": "LOTE",
+      "request": {
+        "nivelRef": "7",
+        "versionId": "38",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114-20261103"
+          },
+          {
+            "seleccionId": "s2",
+            "idCliente": "r2",
+            "nombre": "000115-20261103"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-79.pdf",
+            "rutaRelativa": "000114-20261103/DOC114-79.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          },
+          {
+            "idCliente": "a2",
+            "raizIdCliente": "r2",
+            "nombre": "DOC114-79.tif",
+            "rutaRelativa": "000115-20261103/DOC114-79.tif",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "expected": {
+        "confirmable": false,
+        "eligible": [],
+        "incidences": [
+          {
+            "code": "EXTENSION_NO_PERMITIDA",
+            "root": "r2",
+            "file": "a2"
+          }
+        ],
+        "values": [
+          {
+            "root": "r1",
+            "type": "CAMPO_EXPEDIENTE",
+            "ref": "CODIGO",
+            "value": "000114-20261103",
+            "deferred": false
+          },
+          {
+            "root": "r1",
+            "type": "CAMPO_EXPEDIENTE",
+            "ref": "NOMBRE",
+            "value": "000114-20261103",
+            "deferred": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "partial",
+      "versionId": "39",
+      "profileMode": "PARCIAL",
+      "request": {
+        "nivelRef": "7",
+        "versionId": "39",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114-20261103"
+          },
+          {
+            "seleccionId": "s2",
+            "idCliente": "r2",
+            "nombre": "000115-20261103"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-79.pdf",
+            "rutaRelativa": "000114-20261103/DOC114-79.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          },
+          {
+            "idCliente": "a2",
+            "raizIdCliente": "r2",
+            "nombre": "DOC114-79.tif",
+            "rutaRelativa": "000115-20261103/DOC114-79.tif",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "expected": {
+        "confirmable": true,
+        "eligible": [
+          "r1"
+        ],
+        "incidences": [
+          {
+            "code": "EXTENSION_NO_PERMITIDA",
+            "root": "r2",
+            "file": "a2"
+          }
+        ],
+        "values": [
+          {
+            "root": "r1",
+            "type": "CAMPO_EXPEDIENTE",
+            "ref": "CODIGO",
+            "value": "000114-20261103",
+            "deferred": false
+          },
+          {
+            "root": "r1",
+            "type": "CAMPO_EXPEDIENTE",
+            "ref": "NOMBRE",
+            "value": "000114-20261103",
+            "deferred": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "global-error",
+      "versionId": "40",
+      "profileMode": "EXPEDIENTE",
+      "request": {
+        "nivelRef": "7",
+        "versionId": "40",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114-20261103"
+          },
+          {
+            "seleccionId": "s2",
+            "idCliente": "r2",
+            "nombre": "000115-20261103"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-79.pdf",
+            "rutaRelativa": "000114-20261103/DOC114-79.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          },
+          {
+            "idCliente": "a2",
+            "raizIdCliente": "r2",
+            "nombre": "DOC114-79.tif",
+            "rutaRelativa": "000115-20261103/DOC114-79.tif",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          },
+          {
+            "idCliente": "a-duplicate",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-79.pdf",
+            "rutaRelativa": "000114-20261103/DOC114-79.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "rejectCodes": [
+        "SOLICITUD_INVALIDA"
+      ]
+    },
+    {
+      "key": "mixed-partial-root",
+      "versionId": "39",
+      "profileMode": "PARCIAL",
+      "request": {
+        "nivelRef": "7",
+        "versionId": "39",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114-20261103"
+          },
+          {
+            "seleccionId": "s2",
+            "idCliente": "r2",
+            "nombre": "000115-20261103"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-79.pdf",
+            "rutaRelativa": "000114-20261103/DOC114-79.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          },
+          {
+            "idCliente": "a2",
+            "raizIdCliente": "r2",
+            "nombre": "DOC114-79.tif",
+            "rutaRelativa": "000115-20261103/DOC114-79.tif",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          },
+          {
+            "idCliente": "a3",
+            "raizIdCliente": "r2",
+            "nombre": "DOC114-79.pdf",
+            "rutaRelativa": "000115-20261103/DOC114-79.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "expected": {
+        "confirmable": true,
+        "eligible": [
+          "r1",
+          "r2"
+        ],
+        "incidences": [
+          {
+            "code": "EXTENSION_NO_PERMITIDA",
+            "root": "r2",
+            "file": "a2"
+          }
+        ],
+        "values": [
+          {
+            "root": "r1",
+            "type": "CAMPO_EXPEDIENTE",
+            "ref": "CODIGO",
+            "value": "000114-20261103",
+            "deferred": false
+          },
+          {
+            "root": "r1",
+            "type": "CAMPO_EXPEDIENTE",
+            "ref": "NOMBRE",
+            "value": "000114-20261103",
+            "deferred": false
+          }
+        ]
+      }
+    },
+    {
+      "key": "foreign-level",
+      "versionId": "40",
+      "profileMode": "EXPEDIENTE",
+      "request": {
+        "nivelRef": "4294967295",
+        "versionId": "40",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114-20261103"
+          },
+          {
+            "seleccionId": "s2",
+            "idCliente": "r2",
+            "nombre": "000115-20261103"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-79.pdf",
+            "rutaRelativa": "000114-20261103/DOC114-79.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          },
+          {
+            "idCliente": "a2",
+            "raizIdCliente": "r2",
+            "nombre": "DOC114-79.tif",
+            "rutaRelativa": "000115-20261103/DOC114-79.tif",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "rejectCodes": [
+        "ACCESO_DENEGADO"
+      ]
+    },
+    {
+      "key": "inconsistent-manifest",
+      "versionId": "40",
+      "profileMode": "EXPEDIENTE",
+      "request": {
+        "nivelRef": "7",
+        "versionId": "40",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114-20261103"
+          },
+          {
+            "seleccionId": "s2",
+            "idCliente": "r2",
+            "nombre": "000115-20261103"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-79.pdf",
+            "rutaRelativa": "000114-20261103/DOC114-79.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          },
+          {
+            "idCliente": "a2",
+            "raizIdCliente": "missing-root",
+            "nombre": "DOC114-79.tif",
+            "rutaRelativa": "000115-20261103/DOC114-79.tif",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "rejectCodes": [
+        "SOLICITUD_INVALIDA"
+      ]
+    }
+  ],
+  "localValidation": "PASS validateSession; runner --check required separately; no login or SQL performed"
+}

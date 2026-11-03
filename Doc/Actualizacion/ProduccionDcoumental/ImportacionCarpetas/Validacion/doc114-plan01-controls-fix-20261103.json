@@ -1,0 +1,40 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "scenario": "PLAN-01",
+  "attempt": 3,
+  "status": "STOPPED_REVIEW_REQUIRED",
+  "failure": {
+    "stage": "PLAN",
+    "code": "DOC114_E2E_FAILED"
+  },
+  "references": [],
+  "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "priorEffects": "NOT_YET_VERIFIED; no reference is not proof of no persisted plan",
+  "identifiedLocalDefect": "Document count used company column on physical cabinet; corrected to proven inventory relation",
+  "correction": "Company constrained on registro_producion_documental joined to physical document/inventory/expedition/cabinet; SELECT only",
+  "nextAttempt": 4,
+  "guard": "SELECT prior plans for actor/company/level and versions 40/41/42; any row stops before preparing. Exercise all control snapshots before entering runner.",
+  "localRegression": {
+    "pass": 76,
+    "fail": 0,
+    "newControlTests": 3
+  },
+  "syntax": "PASS",
+  "files": [
+    {
+      "file": "tools/e2e/tests/support/doc114-plan-importacion.cjs",
+      "sha256": "eae2648480f0c6d3a6e4d7b5f7d49d4a3fb5c704f928118ac0938ac808438428"
+    },
+    {
+      "file": "tools/e2e/tests/doc114-plan-importacion.spec.cjs",
+      "sha256": "472e60eb39ad56667c8f9dd2095108af0ff2f2ee0e4ac4a5c3e7a8d52e08f353"
+    },
+    {
+      "file": "tools/e2e/tests/doc114-plan-controls.test.cjs",
+      "sha256": "4ed010fd1f7e87cee64c1c6ef7ce1124193ddbdd85201cb6805af8ca3e51d56e"
+    }
+  ],
+  "newPreparations": "NOT_EXECUTED",
+  "permissionChanges": 0
+}
