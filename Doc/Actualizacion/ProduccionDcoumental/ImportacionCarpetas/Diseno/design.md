@@ -109,3 +109,18 @@ Actualización DOC-111, 2026-10-28: `ServicioPreparacionImportacion.vb` implemen
 Staging DOC-111, mismo día: `I/AlmacenStagingImportacion.vb` implementa el puerto interno de recepción/verificación/copia con recursos de servidor, escritura acotada, PDF validado con iTextSharp existente y original retenido independiente. Se registra Compile y se prueba con streams/archivos sintéticos en el arnés Framework previo. No se integra aún al servicio o al handler multipart ni confirma filas de recepción. Evidencia: `Validacion/doc111-staging-privado-20261028.md`.
 
 Recepción DOC-111, corte posterior del mismo día: se integra staging al servicio mediante IRecepcionArchivosImportacionRepository, implementado en el repositorio operativo existente. Se añaden lectura autorizada archivo/lote, reserva de intentos RECEPCION, confirmación transaccional, reenvío y reconciliación interna. El handler previsto `generic_control/ImportacionCarpetasUpload.ashx[.vb]` se incluye como Content/Compile y delega guard/servicio. El resultado del intento incorpora evidencia tipada de recepción. No se habilitan reclamaciones documentales, otros repositorios, migraciones o configuración automática. Evidencia local: `Validacion/doc111-recepcion-integrada-local-20261028.md`; MySQL/HTTP reales pendientes.
+
+## Delta DOC-113 — ventana integrada, 2026-11-03
+
+Se reutilizan las rutas de producto del inventario, incluyendo etapas, estado, API, vista, inventario y seguimiento ya integrados por DOC-111. El único archivo de producto corregido en este corte es ImportacionCarpetas.js: validación de datos anidados y retorno de foco. Las nuevas rutas fueron propuestas en refinamiento y ahora existen localmente; no acreditan aceptación real.
+
+| Archivo exacto | Estado | Propietario | Responsabilidad |
+|---|---|---|---|
+| tools/e2e/tests/doc113-ventana-importacion.spec.cjs | Implementado localmente; real NO_EJECUTADO | 05 / DOC-113 | UI-01/02/03 por gestos reales, controles SELECT y evidencia saneada. |
+| tools/e2e/tests/support/doc113-ventana-importacion.cjs | Implementado localmente | 05 / DOC-113 | Selección en árbol existente, fixtures, frontera de operaciones y controles reutilizados. |
+| tools/e2e/scripts/run-doc113-ventana-importacion.cjs | Implementado localmente | 05 / DOC-113 | Selector fino con consola/credenciales/proceso hijo compartidos, sin login o plataforma paralelos. |
+| tests/doc111-importacion-carpetas-client.test.cjs | Ampliación de suite existente | 05 / DOC-113 | Respuestas malformadas y retirada del host; 15 pruebas locales aprobadas. |
+| tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs | Ampliación compatible | 05 / DOC-113 | Autorización, saneamiento, delegación y controles; 43 pruebas locales aprobadas. |
+| tools/e2e/tests/support/doc110-code-evidence.cjs | Extensión compatible del helper existente | 05 / DOC-113 | Ámbito de evidencia explícito; el ámbito predeterminado DOC-110 se conserva. |
+
+El comando se registra en tools/e2e/package.json y reutiliza su configuración/reporteros, openSession y authenticated-workflow-session, interactive-e2e-console y el puente DSN SELECT existentes. No se añade .env ni se duplican catálogos/repositorios.

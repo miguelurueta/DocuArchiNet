@@ -1,0 +1,32 @@
+<!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06 -->
+# DOC-113 — Plan atómico de brechas
+
+Se reemplazan las ocho tareas genéricas iniciales, todas sin completar. Las capacidades ya implementadas se reutilizan según [gap-analysis.md](gap-analysis.md). Ningún checkbox se marca por el baseline DOC-111 o por este refinamiento. S/M son complejidad relativa.
+
+- [x] 1.1 [S] Actualizar el mapa común con componentes reutilizados y rutas UI propuestas. Área/archivos: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/design.md`. Origen: D-01, RQ-01. Verificación: El mapa mantiene como existentes controlador/API/vista/inventario y distingue las rutas de suite/soporte/selector propuestas en refinamiento de su implementación local actual; delimita evidencia DOC-111 frente a UI-01/02/03.
+
+- [x] 2.1 [M] Rechazar datos de apertura, perfiles y preparación incompatibles antes de actualizar el modelo. Área/archivos: `js/gestion/ImportacionCarpetas/ImportacionCarpetas.js`. Origen: D-02, RQ-02. Verificación: Incidencias=[null], valores nulos y catálogos inválidos no llegan al render ni habilitan Confirmar; se muestra error accesible y se conserva pantalla/cierre sin replay ni duplicar reglas servidor.
+
+- [x] 2.2 [M] Agregar regresión de respuestas válidas de transporte con datos anidados inválidos. Área/archivos: `tests/doc111-importacion-carpetas-client.test.cjs`. Origen: D-02, RQ-02. Verificación: La reproducción de Incidencias=[null] y los casos equivalentes de perfiles/valores quedan cubiertos con assets reales: sin pageerror ni confirmación y con error visible; el caso de control válido sigue funcionando.
+
+- [x] 3.1 [M] Cubrir inicialización repetida y retirada del host con apertura en vuelo y corregir el retorno de foco demostrado. Área/archivos: `tests/doc111-importacion-carpetas-client.test.cjs; js/gestion/ImportacionCarpetas/ImportacionCarpetas.js`. Origen: D-03, RQ-03. Verificación: Con el mismo host no se duplican eventos; al sustituirlo/desaparecer se destruye la instancia anterior, se ignora respuesta tardía y se conserva foco/scroll cuando corresponde; captura el disparador antes de deshabilitarlo y solo devuelve foco a nodos conectados. No introducir un hook nuevo si el código actual pasa.
+
+- [x] 4.1 [M] Implementar UI-01 con selección real de nivel y destino fijo. Área/archivos: `tools/e2e/tests/doc113-ventana-importacion.spec.cjs; tools/e2e/tests/support/doc113-ventana-importacion.cjs`. Origen: D-04, RQ-04. Verificación: El navegador acciona árbol/ventana/perfiles y observa el nivel A en UI y solicitudes tras navegar a B; reutiliza openSession y no llama al driver REC como sustituto de esos gestos.
+
+- [x] 4.2 [M] Implementar UI-02 con selector nativo, raíces homónimas y revisión invalidada. Área/archivos: `tools/e2e/tests/doc113-ventana-importacion.spec.cjs`. Origen: D-04, RQ-04. Verificación: Dos selecciones con subcarpetas conservan IDs/rutas distintos; cambiar inventario impide confirmar la revisión anterior. Las preparaciones/confirmación se controlan por autorización y se verifican sin avanzar efectos documentales.
+
+- [x] 4.3 [M] Implementar UI-03 con postback parcial, teclado y error visible. Área/archivos: `tools/e2e/tests/doc113-ventana-importacion.spec.cjs; tools/e2e/tests/support/doc113-ventana-importacion.cjs`. Origen: D-04, RQ-04. Verificación: Abrir/cerrar/reabrir y actualizar parcialmente la página real produce una petición por acción; foco/Escape/Tab funcionan y el error queda visible. Intercepciones se etiquetan y no acreditan respuesta del servidor real.
+
+- [x] 4.4 [M] Registrar un selector UI fino con autorización y consola compartidas. Área/archivos: `tools/e2e/scripts/run-doc113-ventana-importacion.cjs; tools/e2e/package.json; tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs; tools/e2e/tests/support/doc110-code-evidence.cjs`. Origen: D-05, RQ-05. Verificación: El comando UI-01/02/03 reutiliza collectConfirmation/collectValue/runChild y openSession; rechaza argumentos/alcances incompatibles, no pide URL MySQL ni crea .env/login/config paralelos y conserva la regresión del runner REC.
+
+- [x] 5.1 [M] Ejecutar y documentar UI-01/02/03 solo con autorización específica. Área/archivos: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc113-ventana-integrada.md`. Origen: D-05, RQ-05. Verificación: Cada caso tiene resultado EJECUTADO_OK/FALLIDO/NO_EJECUTADO, SHA/huella, pasos, evidencia saneada y controles SELECT aplicables; sin autorización se registra bloqueo y no se ejecuta, sin dar por cerrada la integración.
+
+- [x] 6.1 [S] Comprobar sintaxis y regresión cliente afectada tras las correcciones. Área/archivos: `tests/doc111-importacion-carpetas-client.test.cjs; tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs`. Origen: D-06, RQ-06. Verificación: node --check de los scripts modificados y la suite cliente ampliada pasan; los tests del selector compartido conservan REC y no realizan login o tráfico del sistema. El baseline de 13 pruebas queda identificado como anterior a la corrección.
+
+- [x] 6.2 [M] Comprobar la compilación WebForms con MSBuild Framework y salida aislada. Área/archivos: `GestionDocumental-Docuarchi.net.vbproj; Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc113-ventana-integrada.md`. Origen: D-06, RQ-06. Verificación: Se usa la herramienta Framework y referencias reales con salida/intermedios .tmp, sin desplegar ni tocar Web.config; se registra comando/resultado o limitación real, sin sustituir por dotnet build moderno.
+
+- [x] 6.3 [S] Consolidar el cierre técnico con límites y procedencia de cada evidencia. Área/archivos: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc113-ventana-integrada.md; Doc/Tecnica/Opsxj/doc-113-produccion-importacion-carpeta-venta-integrada/`. Origen: D-06, RQ-06. Verificación: El informe y dossier enlazan cambios concretos, casos UI-01/02/03 y evidencia local/real por SHA; OpenSpec estricto y trazabilidad pasan. No se declara aceptación integrada con casos reales sin ejecutar.
+
+## Orden y condiciones
+
+Mapa de reutilización → corrección de respuestas y su regresión → ciclo de vida local → suite UI y selector compartido → sintaxis/regresión/build → ejecución real autorizada → evidencia y cierre. Las tareas 4.1–4.4 pueden construirse sin autenticar; 5.1 depende de autorización y ambiente. 6.3 conserva explícitamente cualquier caso real no ejecutado y no permite declarar integración cerrada por la aprobación del diseño.

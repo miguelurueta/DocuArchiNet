@@ -1,0 +1,31 @@
+{
+  "issueKey": "DOC-113",
+  "state": "TECHNICALLY_VERIFIED_PENDING_EDITORIAL_APPROVAL",
+  "tasks": {
+    "complete": 12,
+    "total": 12
+  },
+  "requirements": 6,
+  "scenarios": 13,
+  "clientPass": 16,
+  "driverPass": 43,
+  "realUiCases": {
+    "UI-01": "PASS",
+    "UI-02": "PASS",
+    "UI-03": "PASS"
+  },
+  "build": "PASS Framework isolated; DLL not deployed",
+  "syntaxFiles": 7,
+  "linksVerified": 11,
+  "traceability": 11,
+  "openGovernanceChecks": [
+    "refinement:approved"
+  ],
+  "preservedPlans": [
+    "8",
+    "9"
+  ],
+  "confirmations": 0,
+  "documentEffects": 0,
+  "servedScriptSha256": "1bf5e26678f80f2bffeefc91610f368bc38288b7c641bd7d8059485f8e7f944a"
+}

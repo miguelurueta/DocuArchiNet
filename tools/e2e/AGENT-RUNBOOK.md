@@ -460,3 +460,15 @@ Los otros selectores son `LOTE` y `PARCIAL`; el modo debe coincidir con el perfi
 Ante un error, no volver a ejecutar el selector para «recuperar»: crea una preparación nueva. Conservar `DOC111_REC_REFERENCE` (solo IDs de plan/lote) y consultar primero la operación existente. La suite no reenvía una mutación incierta ni fuerza éxito. La salida saneada solo conserva referencias numéricas y resumen cerrado; no se guardan capturas, trazas, video, payloads ni filas de negocio. Recursos/staging se conservan para revisión; no hay borrado automático.
 
 Implementación local y límites: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-rec-drivers-local-20261030.md`. Su validación con dobles/listado no acredita aceptación real ni autoriza otra corrida.
+
+## DOC-113 — UI focal de importación por carpetas
+
+Reutiliza el perfil base cerrado DOC-111 y la misma consola/sesión/DSN; no hereda autorizaciones previas. Revisar primero sin autenticar:
+
+```powershell
+npm.cmd --prefix tools/e2e run test:doc113:ui -- --profile <perfil-base.json> --scenario UI-01 --alternate-level <nivel-B> --alternate-version <publicacion-B> --check
+```
+
+Sin --check, se requiere consola interactiva y confirmación SI completa de ambiente/cuenta/controles SELECT. Usuario de aplicación visible solo en consola; contraseñas enmascaradas. UI-02 autoriza dos preparaciones con los nombres del perfil y conserva recursos; --confirm exige aprobación adicional y solo confirma el segundo plan, sin recepción o avance documental. UI-03 exige nivel B y autorización del rechazo real de una apertura con nivel inválido 0. No se pide URL MySQL ni se crean archivos de secretos. UI-01 exige nivel B/publicación B distintos de A. Los IDs alternativos son parámetros no secretos validados.
+
+La suite compara SHA256 del JavaScript servido con el candidato antes de actuar. Una versión distinta detiene el caso. El selector suprime la salida no saneada del proceso y conserva referencias de planes/lote antes de fallar; no repetir tras un resultado desconocido sin consultar estado. Solo se captura el diálogo en Producción, sin login, cookies o trazas. No se reintroducen flags o listas de activación. E2E sin autorización queda NO_EJECUTADO, aunque pruebas locales y discovery pasen.

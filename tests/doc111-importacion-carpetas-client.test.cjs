@@ -7,6 +7,119 @@ const transportFactory = require('../js/gestion/ImportacionCarpetas/ImportacionC
 const file = (path, size = 7) => ({webkitRelativePath:path, name:path.split('/').pop(), size, lastModified:0});
 const result = {planId:'17', revision:2, planHash:'a'.repeat(64), resultado:{PuedeConfirmar:true}};
 
+// Misma infraestructura Chromium local: sin login, servidor o tráfico HTTP.
+async function withDoc113Page(work) {
+  const fs=require('node:fs'),path=require('node:path');
+  const {chromium}=require('../tools/e2e/node_modules/playwright');
+  const root=path.resolve(__dirname,'..'),parent=path.join(root,'.tmp');fs.mkdirSync(parent,{recursive:true});
+  const temp=fs.mkdtempSync(path.join(parent,'doc113-client-')),folder=path.join(temp,'Raiz');
+  fs.mkdirSync(folder);fs.writeFileSync(path.join(folder,'prueba.pdf'),'synthetic UI metadata');
+  const browser=await chromium.launch({headless:true});
+  try {
+    const page=await browser.newPage(),errors=[],network=[];
+    page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(/^https?:/.test(r.url()))network.push(r.url());});
+    await page.setContent('<!doctype html><html><body><button id="previous">Anterior</button><div id="doc111-importacion" data-api="/synthetic.asmx" data-upload="/synthetic.ashx" data-token="synthetic-only" data-nivel="7"><button type="button" data-doc111-open>Importar carpetas</button><button type="button" data-doc111-resume hidden>Consultar lote</button><span data-doc111-status role="status"></span></div></body></html>');
+    await page.evaluate(()=>{
+      window.confirm=()=>true;window.doc113Requests=[];window.doc113Held=[];window.doc113Bad='';window.doc113Hold=false;
+      const profile={PerfilId:'24',VersionId:'38',NumeroVersion:1,Configuracion:{NombreVisible:'Perfil sintético',GabineteId:10,ModoIntegridad:'PARCIAL_PERMITIDO',AmbitoIntegridad:'NO_APLICA'}};
+      window.XMLHttpRequest=class {
+        open(_method,url){this.operation=url.split('/').pop();}setRequestHeader(){}
+        abort(){this.aborted=true;if(this.onabort)this.onabort();}
+        complete(){
+          let data;
+          if(this.operation==='AbrirImportacion') {
+            const p=JSON.parse(JSON.stringify(profile));if(window.doc113Bad==='profile-null')p.Configuracion=null;if(window.doc113Bad==='profile-field')p.Configuracion.NombreVisible={};
+            data={nivelRef:'7',rutaCanonica:'Destino sintético',perfiles:[p],paginaPerfiles:{puedeHaberMas:true}};
+          }else if(this.operation==='ListarPerfilesImportacion')data={pagina:2,puedeHaberMas:false,perfiles:[null]};
+          else {
+            data={planId:'1001',revision:1,planHash:'a'.repeat(64),nivelRef:'7',resultado:{PuedeConfirmar:true,UnidadesElegibles:['r1'],Incidencias:[],Elementos:[]}};
+            if(window.doc113Bad==='incident-null')data.resultado.Incidencias=[null];
+            if(window.doc113Bad==='incident-field')data.resultado.Incidencias=[{Codigo:{},Mensaje:'x'}];
+            if(window.doc113Bad==='element-null')data.resultado.Elementos=[null];
+            if(window.doc113Bad==='value-null')data.resultado.Elementos=[{Valores:[null]}];
+            if(window.doc113Bad==='value-field')data.resultado.Elementos=[{Valores:[{DestinoRef:'X',Diferido:true,PropiedadPendiente:{}}]}];
+          }
+          this.status=200;this.responseText=JSON.stringify({d:{ok:true,codigo:'OK',mensaje:'Sintético',datos:data,incidencias:[]}});if(this.onload)this.onload();
+        }
+        send(body){window.doc113Requests.push({operation:this.operation,request:JSON.parse(body).solicitud});if(this.operation==='AbrirImportacion'&&window.doc113Hold)window.doc113Held.push(this);else queueMicrotask(()=>this.complete());}
+      };
+    });
+    for(const name of ['InventarioImportacion.js','ImportacionCarpetasApi.js','ImportacionCarpetasVista.js','ImportacionCarpetas.js'])await page.addScriptTag({path:path.join(root,'js/gestion/ImportacionCarpetas',name)});
+    await work(page,folder);assert.deepEqual(errors,[]);assert.deepEqual(network,[]);
+  }finally{
+    await browser.close();
+    if(!path.resolve(temp).startsWith(path.resolve(parent)+path.sep))throw Error('Unexpected fixture path');
+    fs.rmSync(temp,{recursive:true,force:true});
+  }
+}
+
+test('DOC-113: respuestas anidadas inválidas dejan error y revisión utilizable',async()=>{
+  await withDoc113Page(async(page,folder)=>{
+    for(const bad of ['profile-null','profile-field']){
+      await page.evaluate(value=>window.doc113Bad=value,bad);await page.locator('[data-doc111-open]').click();
+      await page.waitForFunction(()=>document.querySelector('[data-doc111-status]').textContent.includes('respuesta del servidor'));
+      assert.equal(await page.getByRole('dialog').count(),0);
+    }
+    await page.evaluate(()=>window.doc113Bad='');await page.locator('[data-doc111-open]').click();await page.getByRole('dialog').waitFor();
+    await page.getByRole('button',{name:'Más perfiles',exact:true}).click();
+    await page.waitForFunction(()=>document.querySelector('.doc111-notice').textContent.includes('respuesta del servidor'));
+    assert.equal(await page.getByLabel('Perfil publicado').locator('option').count(),2);
+    await page.getByLabel('Perfil publicado').selectOption('38');await page.getByRole('button',{name:'Agregar carpetas',exact:true}).click();
+    await page.locator('input[webkitdirectory]').setInputFiles(folder);
+    for(const bad of ['incident-null','incident-field','element-null','value-null','value-field']){
+      await page.evaluate(value=>window.doc113Bad=value,bad);await page.getByRole('button',{name:'Preparar revisión',exact:true}).click();
+      await page.waitForFunction(()=>document.querySelector('.doc111-notice').textContent.includes('respuesta del servidor'));
+      assert.equal(await page.getByRole('button',{name:'Confirmar plan',exact:true}).count(),0);
+      assert.equal(await page.getByRole('button',{name:'Preparar revisión',exact:true}).isEnabled(),true);
+    }
+    await page.evaluate(()=>window.doc113Bad='');await page.getByRole('button',{name:'Preparar revisión',exact:true}).click();
+    await page.getByRole('button',{name:'Confirmar plan',exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'Confirmar plan',exact:true}).isEnabled(),true);
+    await page.getByRole('button',{name:'Cerrar',exact:true}).click();assert.equal(await page.getByRole('dialog').count(),0);
+    assert.equal(await page.evaluate(()=>window.doc113Requests.some(r=>r.operation==='ConfirmarPlan')),false);
+  });
+});
+
+test('DOC-113: mismo host y retirada durante apertura no duplican ni reviven instancia',async()=>{
+  await withDoc113Page(async(page)=>{
+    await page.evaluate(()=>{ImportacionCarpetas.inicializar();ImportacionCarpetas.inicializar();});
+    await page.locator('[data-doc111-open]').click();await page.getByRole('dialog').waitFor();
+    await page.evaluate(()=>ImportacionCarpetas.inicializar());assert.equal(await page.getByRole('dialog').count(),1);
+    assert.equal(await page.evaluate(()=>window.doc113Requests.length),1);
+    await page.getByRole('button',{name:'Cerrar',exact:true}).click();assert.equal(await page.evaluate(()=>document.activeElement.hasAttribute('data-doc111-open')),true);
+    for(const replace of [true,false]){
+      await page.evaluate(()=>window.doc113Hold=true);await page.locator('[data-doc111-open]').click();
+      await page.waitForFunction(()=>window.doc113Held.length>0);
+      const outcome=await page.evaluate(replace=>{
+        const host=document.getElementById('doc111-importacion'),next=host.cloneNode(true),old=host.doc111Instancia;
+        if(replace)host.replaceWith(next);else host.remove();ImportacionCarpetas.inicializar();
+        const held=window.doc113Held.splice(0);held.forEach(xhr=>xhr.complete());
+        if(!replace){document.body.appendChild(next);ImportacionCarpetas.inicializar();}
+        return {destroyed:!host.doc111Instancia,replaced:old!==next.doc111Instancia,aborted:held.every(xhr=>xhr.aborted)};
+      },replace);
+      assert.deepEqual(outcome,{destroyed:true,replaced:true,aborted:true});
+      await page.waitForFunction(()=>document.querySelector('[data-doc111-open]').disabled===false);
+      assert.equal(await page.getByRole('dialog').count(),0);
+    }
+    await page.evaluate(()=>window.doc113Hold=false);await page.locator('[data-doc111-open]').click();await page.getByRole('dialog').waitFor();
+    await page.getByRole('button',{name:'Cerrar',exact:true}).focus();await page.keyboard.press('Escape');assert.equal(await page.getByRole('dialog').count(),0);
+  });
+});
+
+test('DOC-113: comprobar foco ignora dialogos legacy ocultos anteriores',async()=>{
+  const {focusWithinDialog}=require('../tools/e2e/tests/support/doc113-ventana-importacion.cjs');
+  await withDoc113Page(async(page)=>{
+    await page.evaluate(()=>{
+      const legacy=document.createElement('section');legacy.setAttribute('role','dialog');legacy.hidden=true;document.body.prepend(legacy);
+    });
+    await page.locator('[data-doc111-open]').click();await page.getByRole('dialog').waitFor();
+    await page.getByRole('button',{name:'Cerrar',exact:true}).focus();await page.keyboard.press('Shift+Tab');
+    assert.equal(await page.evaluate(()=>document.querySelector('[role=dialog]').contains(document.activeElement)),false);
+    assert.equal(await focusWithinDialog(page),true);
+    await page.keyboard.press('Tab');assert.equal(await focusWithinDialog(page),true);
+    await page.locator('#previous').focus();assert.equal(await focusWithinDialog(page),false);
+  });
+});
+
 test('DOC-111: acciones necesitan facultad servidor, recurso y padre confirmados', () => {
   const model={estado:{accionesPermitidas:['SOLICITAR_AVANCE']},raices:{elementos:[{recursoId:'40',estado:'EXPEDIENTE_CONFIRMADO'}]}};
   const root={recursoId:'41',estado:'PENDIENTE'}, file={recursoId:'30',raizId:'40',estadoRecepcion:'RECIBIDO',estado:'NO_INICIADO',valoresEfectivosFijados:false};

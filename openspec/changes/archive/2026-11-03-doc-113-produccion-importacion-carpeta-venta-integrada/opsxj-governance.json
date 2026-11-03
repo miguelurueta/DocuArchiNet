@@ -1,0 +1,156 @@
+{
+  "version": 3,
+  "issueKey": "DOC-113",
+  "changeName": "doc-113-produccion-importacion-carpeta-venta-integrada",
+  "impact": "cross_cutting",
+  "requiredEvidence": [
+    "unit",
+    "manual_qa",
+    "e2e",
+    "build"
+  ],
+  "documentation": [
+    "Doc/Tecnica/Opsxj/doc-113-produccion-importacion-carpeta-venta-integrada/01-ResumenTecnico.md",
+    "Doc/Tecnica/Opsxj/doc-113-produccion-importacion-carpeta-venta-integrada/02-ImpactoUI.md",
+    "Doc/Tecnica/Opsxj/doc-113-produccion-importacion-carpeta-venta-integrada/03-ServiciosYReglas.md",
+    "Doc/Tecnica/Opsxj/doc-113-produccion-importacion-carpeta-venta-integrada/04-ContratosIntegracion.md",
+    "Doc/Tecnica/Opsxj/doc-113-produccion-importacion-carpeta-venta-integrada/05-PruebasEvidencia.md"
+  ],
+  "documentationContract": [
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-113-produccion-importacion-carpeta-venta-integrada/01-ResumenTecnico.md",
+      "requiredSections": [
+        "## Objetivo",
+        "## Alcance y compatibilidad"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-113",
+        "changeName": "doc-113-produccion-importacion-carpeta-venta-integrada",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-113-produccion-importacion-carpeta-venta-integrada/02-ImpactoUI.md",
+      "requiredSections": [
+        "## Superficies UI",
+        "## Validacion visual"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-113",
+        "changeName": "doc-113-produccion-importacion-carpeta-venta-integrada",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-113-produccion-importacion-carpeta-venta-integrada/03-ServiciosYReglas.md",
+      "requiredSections": [
+        "## Servicios y reglas"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-113",
+        "changeName": "doc-113-produccion-importacion-carpeta-venta-integrada",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-113-produccion-importacion-carpeta-venta-integrada/04-ContratosIntegracion.md",
+      "requiredSections": [
+        "## Contratos e integraciones"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-113",
+        "changeName": "doc-113-produccion-importacion-carpeta-venta-integrada",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-113-produccion-importacion-carpeta-venta-integrada/05-PruebasEvidencia.md",
+      "requiredSections": [
+        "## Evidencia requerida",
+        "## QA/E2E WebForms"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-113",
+        "changeName": "doc-113-produccion-importacion-carpeta-venta-integrada",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    }
+  ],
+  "refinement": {
+    "version": 1,
+    "required": true,
+    "path": "openspec/changes/doc-113-produccion-importacion-carpeta-venta-integrada/refinement.md",
+    "state": "approved",
+    "taskOriginFormat": "Origen: D-XX, RQ-XX",
+    "enforcement": "Cada decision debe llegar a design, spec y tasks; no se admiten reglas de framework ajeno al perfil tecnologico."
+  },
+  "evidenceScope": {
+    "kind": "existing-window-functional-delta",
+    "realUiCases": [
+      "UI-01",
+      "UI-02",
+      "UI-03"
+    ],
+    "authorization": "required before authenticated execution; not inherited from DOC-111",
+    "syntheticBaseline": "13/13 passed; does not replace real UI cases",
+    "knownDefect": "F-01: nested null response crashes review rendering"
+  },
+  "editorialApproval": {
+    "issueKey": "DOC-113",
+    "status": "APPROVED_BY_USER",
+    "date": "2026-11-03",
+    "confirmation": "aprobado",
+    "scope": "Editorial approval of verified implementation; continue publication and closure after checks and verified merge",
+    "reviewReport": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc113-verificacion-final-20261103.md",
+    "reviewReportSha256": "f0d84ee388169f0e40ac7ffbcba2bf0876d373f667e5e8c23469798e06850f42",
+    "tests": {
+      "client": 16,
+      "driver": 43,
+      "realUi": [
+        "UI-01",
+        "UI-02",
+        "UI-03"
+      ]
+    },
+    "preservePlans": [
+      "8",
+      "9"
+    ],
+    "additionalRuntimeEffects": false
+  }
+}

@@ -96,6 +96,29 @@
         if (saved.planId) { host.doc111ConfirmacionPendiente = {planId:saved.planId}; }
         function save() { return references.guardar({loteId:host.doc111UltimoLote && host.doc111UltimoLote.loteId, planId:host.doc111ConfirmacionPendiente && host.doc111ConfirmacionPendiente.planId}); }
         function validId(id) { return typeof id === "string" && /^[1-9][0-9]*$/.test(id); }
+        // Solo forma de los datos que consume la vista; reglas y elegibilidad son del servidor.
+        function object(value) { return !!value && typeof value === "object" && !Array.isArray(value); }
+        function optionalText(value) { return value == null || typeof value === "string"; }
+        function revision(value) { return typeof value === "number" && Math.floor(value) === value && value > 0 && value <= 4294967295; }
+        function profile(value) {
+            if (!object(value) || !validId(value.PerfilId) || !validId(value.VersionId) || !object(value.Configuracion)) { return false; }
+            var config = value.Configuracion;
+            return (value.NumeroVersion == null || revision(value.NumeroVersion)) &&
+                (config.GabineteId == null || revision(config.GabineteId)) &&
+                ["NombreVisible", "ModoIntegridad", "AmbitoIntegridad", "FondoRef", "InstrumentoRef", "AreaRef", "SerieRef", "SubserieRef"].every(function (field) { return optionalText(config[field]); });
+        }
+        function profilePage(value) { return object(value) && revision(value.pagina) && typeof value.puedeHaberMas === "boolean" && Array.isArray(value.perfiles) && value.perfiles.every(profile); }
+        function valueForView(value) {
+            return object(value) && typeof value.DestinoRef === "string" && typeof value.Diferido === "boolean" && optionalText(value.Valor) &&
+                (value.Diferido ? typeof value.PropiedadPendiente === "string" : optionalText(value.PropiedadPendiente));
+        }
+        function preparation(value, level) {
+            if (!object(value) || !validId(value.planId) || !revision(value.revision) || typeof value.planHash !== "string" || !/^[a-f0-9]{64}$/.test(value.planHash) || value.nivelRef !== level || !object(value.resultado)) { return false; }
+            var result = value.resultado;
+            return typeof result.PuedeConfirmar === "boolean" && Array.isArray(result.UnidadesElegibles) && result.UnidadesElegibles.every(function (id) { return typeof id === "string"; }) &&
+                Array.isArray(result.Incidencias) && result.Incidencias.every(function (item) { return object(item) && optionalText(item.RaizIdCliente) && optionalText(item.ArchivoIdCliente) && optionalText(item.Campo) && typeof item.Codigo === "string" && typeof item.Mensaje === "string"; }) &&
+                Array.isArray(result.Elementos) && result.Elementos.every(function (item) { return object(item) && optionalText(item.RaizIdCliente) && optionalText(item.ArchivoIdCliente) && Array.isArray(item.Valores) && item.Valores.every(valueForView); });
+        }
         function key() {
             var bytes = new Uint8Array(16); if (!deps.crypto || !deps.crypto.getRandomValues) { throw new Error("NAVEGADOR_NO_COMPATIBLE"); }
             deps.crypto.getRandomValues(bytes); return "web_" + Array.prototype.map.call(bytes, function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
@@ -112,7 +135,7 @@
         function message(error) {
             if (error && error.planPendiente) { return "No se pudo confirmar el resultado del plan " + error.planPendiente + ". Conserva esta referencia para su verificación. No se repetirá la confirmación automáticamente."; }
             if (error && error.resultadoIncierto) { return "No se pudo confirmar el resultado. Consulta el estado antes de volver a enviar."; }
-            var texts = {SESION_REQUERIDA:"La sesión expiró. Recarga la página.", ACCESO_DENEGADO:"No tienes autorización vigente para esta operación.", CAPACIDAD_NO_DISPONIBLE:"La importación no está disponible con la configuración actual.", SOLICITUD_NO_VERIFICADA:"Recarga la página para renovar el contexto de la operación.", SELECCION_DIRECTORIOS_NO_DISPONIBLE:"Este navegador no permite seleccionar carpetas.", CONFLICTO_REVISION:"Los datos cambiaron. Consulta el estado o prepara una nueva revisión."};
+            var texts = {SESION_REQUERIDA:"La sesión expiró. Recarga la página.", ACCESO_DENEGADO:"No tienes autorización vigente para esta operación.", CAPACIDAD_NO_DISPONIBLE:"La importación no está disponible con la configuración actual.", SOLICITUD_NO_VERIFICADA:"Recarga la página para renovar el contexto de la operación.", SELECCION_DIRECTORIOS_NO_DISPONIBLE:"Este navegador no permite seleccionar carpetas.", CONFLICTO_REVISION:"Los datos cambiaron. Consulta el estado o prepara una nueva revisión.", RESPUESTA_INVALIDA:"La respuesta del servidor no es válida. Revisa la selección o vuelve a preparar."};
             if (error && error.message === "RESELECCION_NO_COINCIDE") { return "El archivo no coincide con el nombre, tamaño y fecha del archivo pendiente seleccionado. El lote permanece sin cambios."; }
             return texts[error && (error.codigo || error.message)] || "No se pudo completar la solicitud. Revisa la selección y consulta el estado antes de repetir.";
         }
@@ -164,6 +187,7 @@
             if (session.confirming) { host.doc111ConfirmacionPendiente = session.confirming; }
             save(); active = null; opening = false; session.api.cerrar(); session.picker.destruir(); session.unsubscribe(); session.operation.destruir(); session.view.destruir();
             session.urls.forEach(function (url) { deps.URL.revokeObjectURL(url); }); session.timers.forEach(function (id) { deps.clearTimeout(id); }); sync();
+            if (!force && session.returnFocus && session.returnFocus.isConnected && typeof session.returnFocus.focus === "function") { session.returnFocus.focus(); }
         }
         function action(session, name, value) {
             var model = session.model;
@@ -186,7 +210,9 @@
             if (pagers[name]) { model[pagers[name]] = value; refresh(session); return; }
             if (name === "mas-perfiles") {
                 run(session, function () { return session.api.invocar("ListarPerfilesImportacion", {nivelRef:model.contexto.nivelRef, pagina:model.paginaPerfiles + 1, tamanoPagina:50}).then(function (page) {
-                    if (active !== session) { return; } model.paginaPerfiles = page.pagina; model.masPerfiles = page.puedeHaberMas;
+                    if (active !== session) { return; }
+                    if (!profilePage(page) || page.pagina !== model.paginaPerfiles + 1) { throw new Error("RESPUESTA_INVALIDA"); }
+                    model.paginaPerfiles = page.pagina; model.masPerfiles = page.puedeHaberMas;
                     page.perfiles.forEach(function (p) { if (!model.perfiles.some(function (old) { return old.VersionId === p.VersionId; })) { model.perfiles.push(p); } });
                 }); }); return;
             }
@@ -197,7 +223,7 @@
                     request.nivelRef = model.contexto.nivelRef; request.versionId = ticket.versionId;
                     return session.api.invocar("PrepararPlan", request).then(function (plan) {
                         if (active !== session || !session.operation.vigente(ticket)) { return; }
-                        if (!plan || plan.nivelRef !== model.contexto.nivelRef || !plan.resultado || typeof plan.resultado.PuedeConfirmar !== "boolean" || !Array.isArray(plan.resultado.UnidadesElegibles) || !Array.isArray(plan.resultado.Incidencias) || !Array.isArray(plan.resultado.Elementos) || plan.resultado.Elementos.some(function (item) { return !item || !Array.isArray(item.Valores); })) { throw new Error("RESPUESTA_INVALIDA"); }
+                        if (!preparation(plan, model.contexto.nivelRef)) { throw new Error("RESPUESTA_INVALIDA"); }
                         model.confirmable = session.operation.registrarPreparacion(ticket, plan); model.plan = plan; model.etapa = 2; model.paginaIncidencias = model.paginaValores = 1;
                     });
                 }); return;
@@ -270,8 +296,8 @@
         }
         function abrir(resume) {
             if (active || opening || (!resume && (host.doc111ConfirmacionPendiente || !validId(host.getAttribute("data-nivel"))))) { return; }
-            var requestedLevel = host.getAttribute("data-nivel"); errorApertura = ""; opening = true; sync();
-            var session = {inventory:deps.InventarioImportacion.crear(), reselected:Object.create(null), urls:[], timers:[], confirming:null, scope:host.getAttribute("data-recuperacion")};
+            var requestedLevel = host.getAttribute("data-nivel"), returnFocus = host.ownerDocument && host.ownerDocument.activeElement; errorApertura = ""; opening = true; sync();
+            var session = {inventory:deps.InventarioImportacion.crear(), reselected:Object.create(null), urls:[], timers:[], confirming:null, scope:host.getAttribute("data-recuperacion"), returnFocus:returnFocus};
             try { session.api = deps.ImportacionCarpetasApi.crear({url:host.getAttribute("data-api"), uploadUrl:host.getAttribute("data-upload"), token:host.getAttribute("data-token")}); }
             catch (error) { opening = false; errorApertura = message(error); sync(); return; }
             session.operation = crear(session.inventory);
@@ -282,7 +308,7 @@
                 if (resume) { return consultar(session, 1); }
                 return session.api.invocar("AbrirImportacion", {nivelRef:requestedLevel}).then(function (result) {
                     if (active !== session) { return; }
-                    if (!result || result.nivelRef !== requestedLevel || !Array.isArray(result.perfiles) || result.perfiles.some(function (p) { return !p || !validId(p.VersionId) || !p.Configuracion; })) { throw new Error("RESPUESTA_INVALIDA"); }
+                    if (!object(result) || result.nivelRef !== requestedLevel || typeof result.rutaCanonica !== "string" || !Array.isArray(result.perfiles) || !result.perfiles.every(profile) || (result.paginaPerfiles != null && (!object(result.paginaPerfiles) || typeof result.paginaPerfiles.puedeHaberMas !== "boolean"))) { throw new Error("RESPUESTA_INVALIDA"); }
                     session.model.contexto = result; session.model.perfiles = result.perfiles; session.model.masPerfiles = result.paginaPerfiles && result.paginaPerfiles.puedeHaberMas;
                 });
             }).then(function () {

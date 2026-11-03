@@ -1,0 +1,65 @@
+{
+  "issueKey": "DOC-113",
+  "date": "2026-11-03",
+  "scope": "LOCAL_IMPLEMENTATION_NOT_DEPLOYED",
+  "head": "f7a88e38176e789e0b0369a6a23a56ab46769635",
+  "codeSha256": "c614b87c5f70ed718d577bdf6de953a1ccf175b01e9eb6d91c665bb2f6135830",
+  "files": [
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256": "1bf5e26678f80f2bffeefc91610f368bc38288b7c641bd7d8059485f8e7f944a"
+    },
+    {
+      "file": "tests/doc111-importacion-carpetas-client.test.cjs",
+      "sha256": "1b091b2e4e8f0a66ce98854a439573d87425920220bcc8152b449346823dd102"
+    },
+    {
+      "file": "tools/e2e/tests/support/doc113-ventana-importacion.cjs",
+      "sha256": "65a665efadb0e68e1cd907d0086026ec7b1cad04fcaaa7281e27f0a01a32d41e"
+    },
+    {
+      "file": "tools/e2e/tests/doc113-ventana-importacion.spec.cjs",
+      "sha256": "98aa206370c0ce8730d45c87e4dc4ec8c0b331e7bb471019885a802ad604af64"
+    },
+    {
+      "file": "tools/e2e/scripts/run-doc113-ventana-importacion.cjs",
+      "sha256": "cc08ffab83967379bddf1994d608038c3f8d5622cb704c7afa4cd20a3fe0afe5"
+    },
+    {
+      "file": "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+      "sha256": "bfeb8e3ba896c4144f6313fe77770f338040cea0b2979e2788e7be05c355277f"
+    },
+    {
+      "file": "tools/e2e/tests/support/doc110-code-evidence.cjs",
+      "sha256": "2b5a75e8f63cda728f41ac876d7ab36f2fd98f498da6b1a47014a10b9b46ba0b"
+    },
+    {
+      "file": "tools/e2e/package.json",
+      "sha256": "12f3dfe555ca2c4450bb5310a0aff1af1eb05efa7064ba7f339514b741146ead"
+    }
+  ],
+  "clientTests": {
+    "pass": 15,
+    "fail": 0
+  },
+  "driverTests": {
+    "pass": 43,
+    "fail": 0
+  },
+  "syntax": "PASS",
+  "msbuild": {
+    "exitCode": 0,
+    "tool": "Visual Studio 18 MSBuild Framework",
+    "deployed": false
+  },
+  "realCases": {
+    "UI-01": "NO_EJECUTADO",
+    "UI-02": "NO_EJECUTADO",
+    "UI-03": "NO_EJECUTADO"
+  },
+  "tasks": {
+    "complete": 10,
+    "total": 12
+  },
+  "closure": "BLOCKED_BY_REQUIRED_REAL_VALIDATION"
+}

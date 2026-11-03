@@ -5,6 +5,71 @@ const runner=require('../scripts/run-doc111-importacion-carpetas.cjs');
 const examplePath=path.resolve(__dirname,'../profiles/doc111-importacion-carpetas.profile.example.json');
 const profile=()=>structuredClone(JSON.parse(fs.readFileSync(examplePath,'utf8')));
 
+test('DOC113: selector y alcance UI mantienen cerrado el perfil y las mutaciones',()=>{
+  const ui=require('./support/doc113-ventana-importacion.cjs'),selector=require('../scripts/run-doc113-ventana-importacion.cjs');
+  const p=profile(),options={scenario:'UI-01',alternateLevel:'8',alternateVersion:'6',confirm:false};
+  assert.equal(ui.validateOptions(p,options),options);
+  for(const args of [[],['--profile','x','--scenario','LOTE'],['--profile','x','--scenario','UI-01','--confirm','--confirm'],['--profile','x','--scenario','UI-01','--password','private']])assert.throws(()=>selector.parseArgs(args),/DOC113_/);
+  assert.throws(()=>ui.validateOptions({...p,unknown:true},options),/CONTRACT_INVALID/);
+  assert.throws(()=>ui.validateOptions(p,{...options,alternateLevel:p.nivelRef}),/ALTERNATE_LEVEL/);
+  assert.throws(()=>ui.validateOptions(p,{...options,confirm:true}),/CONFIRM_SCOPE/);
+  assert.throws(()=>ui.assertAuthorization(options,{environment:true,account:true},p),/AUTHORIZATION/);
+  assert.throws(()=>ui.assertAuthorization({...options,scenario:'UI-02'},{environment:true,account:true,select:true},p),/EFFECTS_AUTHORIZATION/);
+  assert.throws(()=>ui.assertAuthorization({...options,scenario:'UI-03'},{environment:true,account:true,select:true},p),/PROBE_AUTHORIZATION/);
+  for(const operation of ['AvanzarLote','RecibirArchivo','CerrarReservaSinInicio','ReconciliarRecurso','PublicarVersion'])assert.equal(ui.allowedOperation(operation,{scenario:'UI-02',confirm:true}),false);
+  assert.equal(ui.allowedOperation('ConfirmarPlan',{scenario:'UI-02',confirm:false}),false);
+  assert.equal(ui.allowedOperation('PrepararPlan',options),false);
+});
+
+test('DOC113: fixtures reutilizan PDF válido y conservan dos raíces homónimas',()=>{
+  const {createFixtures}=require('./support/doc113-ventana-importacion.cjs');
+  const parent=path.resolve(__dirname,'../../../.tmp');fs.mkdirSync(parent,{recursive:true});
+  const fixtures=createFixtures(parent,profile());
+  try{
+    assert.equal(path.basename(fixtures.dirs[0]),path.basename(fixtures.dirs[1]));
+    assert.notEqual(path.basename(fixtures.dirs[0]),path.basename(fixtures.dirs[2]));
+    for(const dir of fixtures.dirs)assert.deepEqual(fs.readFileSync(path.join(dir,'Subcarpeta',FILE_NAME)),readFixture(profile()));
+  }finally{fixtures.close();}
+  assert.ok(fixtures.dirs.every(dir=>!fs.existsSync(dir)));
+});
+
+test('DOC113: selector delega consola/proceso y sanea resultados sin heredar autorizaciones',async()=>{
+  const selector=require('../scripts/run-doc113-ventana-importacion.cjs');let childEnv,childArgs,tty=0,values=0;
+  const pass={scenario:'UI-01',status:'PASS',preparations:0,confirmations:0,opens:1,readOnlyControls:true,noDocumentEffects:true,domVerified:true,head:'a'.repeat(40),codeSha256:'b'.repeat(64),servedScriptSha256:'c'.repeat(64)};
+  await selector.main(['--profile',examplePath,'--scenario','UI-01','--alternate-level','8','--alternate-version','6'],{
+    requireInteractiveConsole(){tty++;},collectConfirmation:async(object,key)=>object[key]='true',collectValue:async(object,key)=>{values++;object[key]='PRIVATE_SYNTHETIC';},
+    runChild:async(_command,args,_cwd,env,options)=>{
+      childEnv=env;childArgs=args;assert.equal(env.DOC111_AUTH_EFFECTS,undefined);assert.equal(env.DOC113_AUTH_EFFECTS,undefined);assert.equal(options.nonInteractiveChild,true);
+      const sanitized=options.redactOutput('Cookie: PRIVATE_SYNTHETIC\nDOC113_UI_RESULT='+JSON.stringify({...pass,password:'PRIVATE_SYNTHETIC'})+'\n');
+      assert.ok(!sanitized.includes('PRIVATE'));assert.ok(sanitized.startsWith('DOC113_UI_RESULT='));return {code:0};
+    }
+  });
+  assert.equal(tty,1);assert.equal(values,4);assert.ok(childArgs.includes('tests/doc113-ventana-importacion.spec.cjs'));
+  assert.equal(Object.keys(childEnv).filter(key=>/^DOC11[13]_/.test(key)).length,0);
+  assert.equal(selector.safeLine('DOC113_UI_RESULT='+JSON.stringify({...pass,opens:2}),'UI-01'),null);
+  assert.equal(selector.safeLine('DOC113_UI_FAILURE='+JSON.stringify({scenario:'UI-01',stage:'LOGIN',code:'PRIVATE password'}),'UI-01'),null);
+  const reference=selector.safeLine('DOC113_UI_REFERENCE='+JSON.stringify({scenario:'UI-02',planId:'5',cookie:'PRIVATE'}),'UI-02');assert.deepEqual(reference.value,{scenario:'UI-02',planId:'5'});
+});
+
+test('DOC113: controles SELECT acotados no certifican recepción o efectos presentes',async()=>{
+  const {createUiControls}=require('./support/doc113-ventana-importacion.cjs');
+  let received=false;const calls=[];
+  const query=async(origin,sql,args)=>{
+    calls.push({origin,sql,args});assert.ok(sql.startsWith('SELECT '));
+    if(sql.includes('FROM ra_integracion_perfil_version'))return [{gabinete_id:10}];
+    if(sql.includes('FROM system1'))return [{id_gabinete:10}];
+    if(sql.startsWith('SELECT COUNT'))return [{total:'0'}];
+    if(sql.startsWith('SELECT estado'))return [{estado:'REVISABLE',nivel_ref:'7',version_id:'5'}];
+    if(sql.includes('FROM ra_integracion_lote'))return [{config_doc:'{}'}];
+    if(sql.includes('FROM ra_integracion_raiz WHERE'))return [{identidad_expediente_doc:null,intento_activo_id:null}];
+    if(sql.includes('FROM ra_integracion_archivo f'))return [{resultado_doc:null,intento_activo_id:null,estado_recepcion:received?'RECIBIDO':'PENDIENTE'}];
+    return [];
+  };
+  const c=createUiControls(query,profile());assert.deepEqual(await c.precheck(),{plan:0n,lote:0n});await c.plan('5',false);await c.noEffects('5');received=true;await assert.rejects(c.noEffects('5'),/DOCUMENT_EFFECT_FOUND/);assert.ok(calls.some(c=>c.origin==='DA'));
+  const {captureCodeEvidence}=require('./support/doc110-code-evidence.cjs');
+  const proof=captureCodeEvidence({files:['js/gestion/ImportacionCarpetas/ImportacionCarpetas.js']});assert.equal(proof.files.length,1);assert.match(proof.scopeSha256,/^[a-f0-9]{64}$/);assert.throws(()=>captureCodeEvidence({files:['../private']}),/EVIDENCE_PATH_INVALID/);
+});
+
 test('DOC111: diagnostico de login convierte solo mensajes reconocidos a codigos sin conservar texto privado',()=>{
   for(const [message,code] of [['La contraseña  no es valida para el módulo GESTOR DOCUMENTAL','LOGIN_CREDENTIALS_REJECTED'],['El usuario  no coincide con el módulo GESTOR DOCUMENTAL','LOGIN_ACCOUNT_NOT_FOUND'],['El usuario esta bloqueado en la aplicación GESTOR DOCUMENTAL','LOGIN_ACCOUNT_BLOCKED'],['LOGIN_UNAVAILABLE','LOGIN_SERVICE_REJECTED']]){
     assert.equal(classifyLoginMessage(message),code);assert.equal(classifyLoginPostback("<script type=\"text/javascript\"> alert('"+message+"'); </script>"),code);
