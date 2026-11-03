@@ -1,0 +1,55 @@
+{
+  "issueKey": "DOC-113",
+  "date": "2026-11-03",
+  "scope": "LOCAL_TEST_FIX_NO_PRODUCT_CHANGE",
+  "files": [
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256": "1bf5e26678f80f2bffeefc91610f368bc38288b7c641bd7d8059485f8e7f944a"
+    },
+    {
+      "file": "tests/doc111-importacion-carpetas-client.test.cjs",
+      "sha256": "d5860eb07f0e4d45cc81a5e738bcd55c63a69cfcfc7a78dd952dce8593e09e43"
+    },
+    {
+      "file": "tools/e2e/tests/support/doc113-ventana-importacion.cjs",
+      "sha256": "bd7b015de67f659bd05738baa6bdabf03e465af1ff5b39d326dc5787a6b8542c"
+    },
+    {
+      "file": "tools/e2e/tests/doc113-ventana-importacion.spec.cjs",
+      "sha256": "98aa206370c0ce8730d45c87e4dc4ec8c0b331e7bb471019885a802ad604af64"
+    },
+    {
+      "file": "tools/e2e/scripts/run-doc113-ventana-importacion.cjs",
+      "sha256": "cc08ffab83967379bddf1994d608038c3f8d5622cb704c7afa4cd20a3fe0afe5"
+    },
+    {
+      "file": "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+      "sha256": "bfeb8e3ba896c4144f6313fe77770f338040cea0b2979e2788e7be05c355277f"
+    },
+    {
+      "file": "tools/e2e/tests/support/doc110-code-evidence.cjs",
+      "sha256": "2b5a75e8f63cda728f41ac876d7ab36f2fd98f498da6b1a47014a10b9b46ba0b"
+    },
+    {
+      "file": "tools/e2e/package.json",
+      "sha256": "12f3dfe555ca2c4450bb5310a0aff1af1eb05efa7064ba7f339514b741146ead"
+    }
+  ],
+  "clientTests": {
+    "pass": 16,
+    "fail": 0
+  },
+  "driverTests": {
+    "pass": 43,
+    "fail": 0
+  },
+  "servedProductSha256": "1bf5e26678f80f2bffeefc91610f368bc38288b7c641bd7d8059485f8e7f944a",
+  "reason": "Generic document.querySelector(role=dialog) selected a preceding hidden legacy dialog; use Playwright visible dialog locator for focus containment.",
+  "previousEvidence": "doc113-evidencia-local-20261103.json",
+  "realCases": {
+    "UI-01": "Previous PASS retained",
+    "UI-02": "Previous PASS retained",
+    "UI-03": "Pending rerun with corrected assertion"
+  }
+}

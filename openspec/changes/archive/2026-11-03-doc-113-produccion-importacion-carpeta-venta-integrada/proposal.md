@@ -1,13 +1,22 @@
 ## Why
 
-PRODUCCION-IMPORTACION-CARPETA-VENTA-INTEGRADA. Ver detalle funcional completo del ticket en la seccion Jira Details.
+La ventana ya existe por DOC-111 y sus contratos fueron consolidados en DOC-112. DOC-113 debe corregir brechas demostradas y acreditar los escenarios visuales UI-01/02/03, sin repetir la implementación de perfiles, inventario, transporte o seguimiento. Se reprodujo una respuesta de preparación inválida que rompe la revisión; las aceptaciones REC anteriores no cubren todo el recorrido visual solicitado.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-113.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Validar datos consumidos por apertura, catálogo y revisión antes de actualizar la pantalla.
+- Ampliar la regresión existente para respuestas anidadas inválidas y ciclo parcial del host.
+- Añadir una suite focal UI-01/02/03 y un selector fino dentro de tools/e2e reutilizando sesión, consola, perfil base y reporteros.
+- Registrar ejecución real solo con autorización específica, límites y procedencia de evidencia.
+
+## Capabilities
+
+- New: `produccion-importacion-carpeta-venta-integrada`, garantías y evidencia focales de la ventana existente.
+- Reutiliza `produccion-importacion-carga-carpeta` y sus contratos comunes; no crea otro motor, backend, administración o almacenamiento.
+
+## Alcance
+
+Una corrección de producto demostrada, pruebas y registro de evidencia. Sin cambios SQL, Web.config, permisos, SII o función legacy de almacenamiento. Los nuevos archivos enumerados en design son propuestas de implementación, no suites ya creadas.
 
 ## Jira Details
 
