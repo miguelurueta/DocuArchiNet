@@ -1,0 +1,94 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "scope": "LOCAL_SUITE_IMPLEMENTED_NO_AUTHENTICATED_EXECUTION",
+  "head": "4461453f100e96e47c122d7a0f7222034b8e93da",
+  "files": [
+    {
+      "file": "tools/e2e/tests/support/doc114-plan-importacion.cjs",
+      "sha256": "eda10c8c2d357f657eb5f728135cf1f4a3673355da26089daa1c057fea976bb6"
+    },
+    {
+      "file": "tools/e2e/tests/doc114-plan-importacion.spec.cjs",
+      "sha256": "f63481975533a07ef39344961b61b2f648f3125963f28cab9098eb8b40e809e7"
+    },
+    {
+      "file": "tools/e2e/scripts/run-doc114-plan-importacion.cjs",
+      "sha256": "40b9e2da898ae1b43b31de025675c6e525b6d04757e1e9351145ff99ef165f46"
+    },
+    {
+      "file": "tools/e2e/scripts/support/doc110-permission-db.ps1",
+      "sha256": "0f2e21b453d56d446d3d0175992cdb1e7da85a44742c8e82d23d57cf6bd1073b"
+    },
+    {
+      "file": "tools/e2e/tests/support/doc110-permission-revocation.cjs",
+      "sha256": "a6008c67300d8542a8cb48e26d8808feff992a6700a407a44f754c37001f4897"
+    },
+    {
+      "file": "tools/e2e/tests/doc114-permission-bridge-local.ps1",
+      "sha256": "5398b157ffaf297f7c9d756755e82c5326ba0eff3b51b8111025252731f0edb2"
+    },
+    {
+      "file": "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+      "sha256": "1094b14630b8b5c0e99412b569c9194440fb66d43312d4c64cfff0bece9e97fd"
+    },
+    {
+      "file": "tools/e2e/fixtures/doc114-plan-cases.json",
+      "sha256": "7edb8595be505e1b89d27f65bcb6009b2a6b461aa2005c95f12119146034c6d2"
+    },
+    {
+      "file": "tools/e2e/profiles/doc114-plan-session.profile.example.json",
+      "sha256": "d84c66212037fbbfe45b9a972cd193c27d78c53a4ae816256e12399ee5ea001a"
+    },
+    {
+      "file": "tools/e2e/package.json",
+      "sha256": "7331d6cb053ea212d167b02d9efdbe3816631aef1426757aab8724e5bb31e9f4"
+    },
+    {
+      "file": "tools/e2e/AGENT-RUNBOOK.md",
+      "sha256": "c9be8a1aa2d5a2c64894bba03298e0da2a681710f41ac8439fc407ddc3b1961d"
+    }
+  ],
+  "driverRegression": {
+    "pass": 53,
+    "fail": 0
+  },
+  "sharedRegression": {
+    "pass": 62,
+    "fail": 0
+  },
+  "existingDotNetHarness": {
+    "pass": 2,
+    "sourceUnchanged": true
+  },
+  "build": {
+    "tool": "Visual Studio 18 MSBuild Framework",
+    "exitCode": 0,
+    "output": ".tmp/doc114-build/bin/GestionDocumental-Docuarchi.net.dll",
+    "sha256": "85a752b426eb5e75cf9d601d7811bd7f0238a45953950742a4fa8923ca6016fb",
+    "deployed": false
+  },
+  "syntax": "PASS",
+  "playwright": {
+    "discovered": 3,
+    "withoutAuthorizationSkipped": 3,
+    "realExecution": false
+  },
+  "checkExample": {
+    "status": "PASS",
+    "realResources": false
+  },
+  "tasks": {
+    "complete": 12,
+    "total": 16
+  },
+  "runtime": "UNCHANGED",
+  "permissionMutation": "NOT_EXECUTED",
+  "editorialApproval": "DRAFT",
+  "remaining": [
+    "PLAN-01 real",
+    "PLAN-02 real",
+    "PLAN-03 real including authorized revocation/restoration",
+    "final technical consolidation"
+  ]
+}

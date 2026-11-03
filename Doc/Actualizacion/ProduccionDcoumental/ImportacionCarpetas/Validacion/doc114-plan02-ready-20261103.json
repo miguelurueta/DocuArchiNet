@@ -1,0 +1,53 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "scenario": "PLAN-02",
+  "status": "AUTHORIZED_READY_NOT_EXECUTED",
+  "resourcesSha256": "f97b3d7c78558d0c6a0da44c445157fda80fa011e03f98265b7e8f6b7952d469",
+  "maximumHttpPreparations": 7,
+  "maximumNewPlans": 4,
+  "expectedGlobalRejections": 3,
+  "preservedPlanIds": [
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17"
+  ],
+  "guards": [
+    "Published profile/version identity and exact reviewed rules",
+    "Correct modes and shared classification",
+    "pdf admitted, tif rejected",
+    "Typology reference 79 active and classified",
+    "Negative level 4294967295 absent",
+    "Controls SELECT for each profile",
+    "Plan11-17 state/revision/hash bound before and after",
+    "Runtime backend hash unchanged since accepted PLAN-01"
+  ],
+  "localRegression": {
+    "pass": 82,
+    "fail": 0
+  },
+  "preflightRegression": {
+    "pass": 3,
+    "fail": 0
+  },
+  "runnerCheck": "PASS; seven requests; no login",
+  "syntax": "PASS",
+  "consoleSha256": "7fae1ebec6052fd1cf6e697b42efdf5a8a08625e875bd8d8260553ed067ee79c",
+  "preflightSha256": "f9cfae27195fb7387145c1fd3dbdbe5f947749238bb12dcbbd164328dec4e416",
+  "effects": {
+    "confirmations": 0,
+    "newLots": 0,
+    "newProfiles": 0,
+    "publications": 0,
+    "documents": 0,
+    "permissionChanges": 0
+  },
+  "tasks": {
+    "complete": 13,
+    "total": 16
+  }
+}

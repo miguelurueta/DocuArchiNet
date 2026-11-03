@@ -23,8 +23,7 @@ function validatePartialProposal(p,profile){
 }
 // Usa la sesión y CSRF administrativos existentes. Cada mutación se envía una
 // sola vez; IDs nuevos se anuncian inmediatamente para revisar respuestas perdidas.
-async function preparePartialProfile(auth,profile,proposal,authorization,onReference=()=>{},runtime={}){
-  assertAuthorizations(authorization);validatePartialProposal(proposal,profile);
+async function createProfileAdministrator(auth,profile,runtime={}){
   const host=auth.page.locator('#doc110-perfiles');
   check(await host.count()===1,'PARTIAL_ADMIN_UNAVAILABLE');
   let token=await host.getAttribute('data-token');
@@ -40,6 +39,7 @@ async function preparePartialProfile(auth,profile,proposal,authorization,onRefer
   }
   check(typeof token==='string'&&token.length>0,'PARTIAL_ADMIN_UNAVAILABLE');
   async function call(operation,solicitud){
+    check(['ListarPerfiles','ObtenerPerfil','CrearPerfil','CrearVersion','GuardarBorrador','PublicarVersion','CambiarDisponibilidad'].includes(operation),'PARTIAL_OPERATION_INVALID');
     let response,body;
     try{
       response=await safePost(auth.context.request,new URL('webservice/WebServiceImportacionCarpetas.asmx/'+operation,profile.baseUrl).href,{maxRedirects:0,headers:{'X-Importacion-Perfil-CSRF':token,Origin:new URL(profile.baseUrl).origin},data:{solicitud}},operation);
@@ -48,6 +48,11 @@ async function preparePartialProfile(auth,profile,proposal,authorization,onRefer
     check(response.status()===200&&body?.ok===true&&body.datos,'PARTIAL_PROFILE_NOT_CONFIRMED');
     return body.datos;
   }
+  return {call};
+}
+async function preparePartialProfile(auth,profile,proposal,authorization,onReference=()=>{},runtime={}){
+  assertAuthorizations(authorization);validatePartialProposal(proposal,profile);
+  const {call}=await createProfileAdministrator(auth,profile,runtime);
   const source=await call('ObtenerPerfil',{perfilId:proposal.sourceProfileId,versionId:proposal.sourceVersionId});
   check(source.PerfilId===proposal.sourceProfileId&&source.Version?.VersionId===proposal.sourceVersionId&&source.Version.Estado==='PUBLICADA','PARTIAL_SOURCE_CHANGED');
   const configuration={...source.Version.Configuracion,ModoIntegridad:'PARCIAL_PERMITIDO',AmbitoIntegridad:'NO_APLICA'};
@@ -65,4 +70,4 @@ async function preparePartialProfile(auth,profile,proposal,authorization,onRefer
   check(p.Activo===true,'PARTIAL_PROFILE_NOT_CONFIRMED');
   return {...profile,versionId};
 }
-module.exports={validatePartialProposal,preparePartialProfile};
+module.exports={validatePartialProposal,preparePartialProfile,createProfileAdministrator,equalProfileData:equal,normalizeProfileRules:rules};

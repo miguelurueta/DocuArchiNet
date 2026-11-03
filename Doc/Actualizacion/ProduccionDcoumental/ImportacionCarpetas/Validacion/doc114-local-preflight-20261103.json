@@ -1,0 +1,57 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "scope": "LOCAL_NO_LOGIN_NO_REAL_SQL",
+  "baselineHarness": {
+    "pass": 2,
+    "fail": 0,
+    "includesExistingPreflight": true
+  },
+  "driverRegression": {
+    "pass": 46,
+    "fail": 0,
+    "newTests": 3
+  },
+  "newProductDefect": "NONE_DEMONSTRATED",
+  "realCases": {
+    "PLAN-01": "NO_EJECUTADO",
+    "PLAN-02": "NO_EJECUTADO",
+    "PLAN-03": "NO_EJECUTADO"
+  },
+  "files": [
+    {
+      "file": "tools/e2e/tests/support/doc114-plan-importacion.cjs",
+      "sha256": "a7af2c0d12a125faf83bf72dd38e081d963fa122131d19510b3ebafe4f5521d8"
+    },
+    {
+      "file": "tools/e2e/fixtures/doc114-plan-cases.json",
+      "sha256": "fe0e698760b88d7ea0f0f94ac321ad2440e47bce9a2b3a36523bba54fb607644"
+    },
+    {
+      "file": "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+      "sha256": "527301bb23dac351c2e5d72f8877632c03e5213f867b72d93a0b944d86963bd6"
+    },
+    {
+      "file": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "sha256": "188b71a541d706c2cf72b7c06d8ff3b658d724543df313a1737cd14bf799caa8"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioPreparacionImportacion.vb",
+      "sha256": "de80f0d66a34b8fe21c2048b3c56acd9326c8bc4f8b6614e482b22fac87a7d7b"
+    }
+  ],
+  "build": {
+    "tool": "Visual Studio 18 MSBuild Framework",
+    "exitCode": 0,
+    "output": ".tmp/doc114-build/bin/GestionDocumental-Docuarchi.net.dll",
+    "sha256": "85a752b426eb5e75cf9d601d7811bd7f0238a45953950742a4fa8923ca6016fb",
+    "deployed": false
+  },
+  "syntax": {
+    "status": "PASS",
+    "files": [
+      "tools/e2e/tests/support/doc114-plan-importacion.cjs",
+      "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs"
+    ]
+  }
+}

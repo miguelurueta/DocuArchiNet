@@ -1,0 +1,56 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "scenario": "PLAN-01",
+  "status": "PLAN_11_CREATED_REVIEW_REQUIRED",
+  "planId": "11",
+  "caseKey": "valid-format-a",
+  "preparationAttemptsConsumed": 1,
+  "remainingAuthorizedPreparations": 6,
+  "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "failure": {
+    "stage": "PLAN",
+    "code": "DOC114_STORED_RESULT_CHANGED"
+  },
+  "modelEvidence": [
+    {
+      "file": "Modelo/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionModels.vb",
+      "type": "ReglaPerfilImportacion",
+      "property": "Proveedor",
+      "serialization": "NullValueHandling.Ignore"
+    },
+    {
+      "file": "Modelo/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionModels.vb",
+      "type": "ValorReglaPerfilImportacion",
+      "property": "Procedencia",
+      "serialization": "NullValueHandling.Ignore"
+    }
+  ],
+  "comparatorFix": "Only those two null properties at their typed paths may equal omission. Retain all other nulls, rule IDs and nonnull providers/provenance.",
+  "localRegression": {
+    "pass": 78,
+    "fail": 0
+  },
+  "canonicalHashGolden": {
+    "pass": 1,
+    "fail": 0,
+    "comparison": "Existing Framework PerfilImportacionJson.HuellaPlan versus canonical stored-document envelope"
+  },
+  "originalHttpBodyRetained": false,
+  "readonlyReview": "PREPARED_NOT_EXECUTED",
+  "resume": "NOT_EXECUTED; do not repeat first preparation or replace plan 11",
+  "files": [
+    {
+      "file": "tools/e2e/tests/support/doc114-plan-importacion.cjs",
+      "sha256": "c6c4e038f3997beed995ecba753c3fd7e227fcece8b0108e2f4d6a5cbedbbab9"
+    },
+    {
+      "file": "tools/e2e/tests/doc114-plan-serialization.test.cjs",
+      "sha256": "742b7ee1a067b01907399fc1d93540d128f42c67c81c63075ed671f7463053b1"
+    }
+  ],
+  "tasks": {
+    "complete": 12,
+    "total": 16
+  }
+}

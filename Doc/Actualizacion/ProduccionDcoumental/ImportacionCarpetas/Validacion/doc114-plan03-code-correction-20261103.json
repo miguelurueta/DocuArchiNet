@@ -1,0 +1,67 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "status": "PLAN03_STOPPED_AT_INJECTED_RESULT",
+  "failure": {
+    "stage": "PLAN",
+    "code": "DOC114_EXPECTED_REJECTION_NOT_VERIFIED"
+  },
+  "progress": {
+    "caseKey": "injected-result",
+    "versionId": "40",
+    "phase": "PREPARATION"
+  },
+  "preservedBaselineId": "22",
+  "permission": {
+    "revocationReached": false,
+    "grantedAfterStop": true,
+    "otherFieldsUnchanged": true,
+    "recoveryJournalPresent": false
+  },
+  "iisLastRelevantStatuses": [
+    {
+      "date": "2026-11-03",
+      "time": "20:57:20",
+      "operation": "PrepararPlan",
+      "httpStatus": 200
+    },
+    {
+      "date": "2026-11-03",
+      "time": "20:57:53",
+      "operation": "PrepararPlan",
+      "httpStatus": 400
+    }
+  ],
+  "originalAuthenticatedFailureBodyRetained": false,
+  "runtimeValidatorDiagnostic": {
+    "scope": "LOCAL_REFLECTION_OF_EXISTING_RUNTIME_JSON_VALIDATOR",
+    "database": false,
+    "http": false,
+    "results": [
+      {
+        "caseKey": "injected-result",
+        "rejected": true,
+        "code": "CONFIGURACION_INVALIDA"
+      },
+      {
+        "caseKey": "injected-snapshot",
+        "rejected": true,
+        "code": "CONFIGURACION_INVALIDA"
+      }
+    ]
+  },
+  "anonymousDiagnostic": {
+    "requests": 2,
+    "authenticated": false,
+    "bothStatuses": 401,
+    "bothCodes": "SESION_REQUERIDA",
+    "conclusion": "Anonymous probe did not reach JSON body validation; no operating-account preparation and no credentials used"
+  },
+  "identifiedFixtureDefect": "Unknown fields use PerfilImportacionJson.Leer; it emits CONFIGURACION_INVALIDA. Fixtures demanded SOLICITUD_INVALIDA. Exact expectation corrected to existing runtime code, not widened.",
+  "localRegression": {
+    "pass": 88,
+    "fail": 0
+  },
+  "runtimeBackendChanged": false,
+  "plan03Accepted": false
+}

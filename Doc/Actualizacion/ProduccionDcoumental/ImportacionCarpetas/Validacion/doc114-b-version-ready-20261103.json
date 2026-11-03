@@ -1,0 +1,35 @@
+{
+  "issueKey": "DOC-114",
+  "status": "AUTHORIZED_RUNNER_READY_NOT_EXECUTED",
+  "date": "2026-11-03",
+  "proposalSha256": "acdf83680590c8ddaaec1c4a9018f5d83ecf821b113fe20168e7acad959f6033",
+  "localRegression": {
+    "pass": 73,
+    "fail": 0,
+    "newVersionTests": 5
+  },
+  "scope": "One new published version of test profile 27; only typology TipoValor TEXTO to REFERENCIA",
+  "files": [
+    {
+      "file": "tools/e2e/tests/support/doc114-reference-test-version.cjs",
+      "sha256": "438855e8cc4568c57dbd6b80d5e19b425806410251b2c01a36843eaf4ba6dec1"
+    },
+    {
+      "file": "tools/e2e/tests/doc114-reference-test-version.test.cjs",
+      "sha256": "ac5730e6cd9714a7b031c3e771b3a8fe5f81a11204522a5b7ea5a5be97b1863e"
+    },
+    {
+      "file": "tools/e2e/tests/support/doc111-partial-profile.cjs",
+      "sha256": "abec68d741b368c9267c32a6267007cab4bb83351acdd6a92a85a72cc1202e31"
+    }
+  ],
+  "runtimeBackend": "UNCHANGED",
+  "realPublication": "NOT_EXECUTED",
+  "plans": 0,
+  "documents": 0,
+  "permissionChanges": 0,
+  "tasks": {
+    "complete": 12,
+    "total": 16
+  }
+}

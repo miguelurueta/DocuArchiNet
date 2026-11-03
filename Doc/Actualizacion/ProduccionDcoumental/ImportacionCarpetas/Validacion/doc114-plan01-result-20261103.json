@@ -1,0 +1,130 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "scenario": "PLAN-01",
+  "status": "PASS",
+  "attempts": 6,
+  "preparations": 6,
+  "rejections": 0,
+  "resumedPlans": 1,
+  "confirmations": 0,
+  "noDocumentEffects": true,
+  "readOnlyControls": true,
+  "restorationVerified": null,
+  "head": "4461453f100e96e47c122d7a0f7222034b8e93da",
+  "codeSha256": "0b3bf1b95684894cfd114f712a4089840f88ea55e84d34a59e9dec9b52351600",
+  "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "totalOriginalAuthorizedAttempts": 7,
+  "totalConsumedPreparations": 7,
+  "preservedPlanIds": [
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17"
+  ],
+  "artifactSha256": "6c7a86216ceb9692eb85a36f7ebd11afd3d6d795c9c07de26c60c616c2ed5cbf",
+  "resourcesSha256": "047bf7d6e180ff2366ea7812057422d7725306b5e1c2b586148370ac0d0e016b",
+  "cases": [
+    {
+      "key": "valid-format-a",
+      "planId": "11",
+      "versionId": "40",
+      "confirmable": true,
+      "incidences": [],
+      "validation": "Original response assertions before stop plus subsequent readonly hash/expected-values/live-snapshot verification and final resumed SQL verification; not repeated HTTP"
+    },
+    {
+      "key": "valid-format-b",
+      "planId": "12",
+      "versionId": "42",
+      "confirmable": true,
+      "incidences": [],
+      "validation": "HTTP response and stored plan verified in final run"
+    },
+    {
+      "key": "unknown-type",
+      "planId": "13",
+      "versionId": "41",
+      "confirmable": false,
+      "incidences": [
+        {
+          "code": "TIPOLOGIA_NO_UNIVOCA",
+          "root": "r1",
+          "file": "a1"
+        }
+      ],
+      "validation": "HTTP response and stored plan verified in final run"
+    },
+    {
+      "key": "unparseable-name",
+      "planId": "14",
+      "versionId": "40",
+      "confirmable": false,
+      "incidences": [
+        {
+          "code": "SEGMENTO_AUSENTE",
+          "root": "r1",
+          "file": "a1"
+        }
+      ],
+      "validation": "HTTP response and stored plan verified in final run"
+    },
+    {
+      "key": "missing-required",
+      "planId": "15",
+      "versionId": "40",
+      "confirmable": false,
+      "incidences": [
+        {
+          "code": "VALOR_REQUERIDO",
+          "root": "r1",
+          "file": "a1"
+        }
+      ],
+      "validation": "HTTP response and stored plan verified in final run"
+    },
+    {
+      "key": "invalid-conversion",
+      "planId": "16",
+      "versionId": "40",
+      "confirmable": false,
+      "incidences": [
+        {
+          "code": "FECHA_INVALIDA",
+          "root": "r1"
+        }
+      ],
+      "validation": "HTTP response and stored plan verified in final run"
+    },
+    {
+      "key": "functional-length",
+      "planId": "17",
+      "versionId": "40",
+      "confirmable": false,
+      "incidences": [
+        {
+          "code": "LONGITUD_NOMBRE_EXCEDIDA",
+          "root": "r1"
+        }
+      ],
+      "validation": "HTTP response and stored plan verified in final run"
+    }
+  ],
+  "limitations": [
+    "Original HTTP body for plan 11 not retained; explicitly revalidated by read and original checkpoint, no retrospective body equality claimed",
+    "Positive typology-code fixture unavailable; numeric ID/code distinction checked negatively against historical TEXTO version 41",
+    "HEAD identifies worktree commit; codeSha256 identifies actual candidate scope including uncommitted implementation; runtime DLL fingerprint reported separately"
+  ],
+  "remaining": [
+    "PLAN-02 real",
+    "PLAN-03 real including specifically authorized permission revocation/restoration",
+    "Final technical consolidation and governance"
+  ],
+  "tasks": {
+    "complete": 13,
+    "total": 16
+  }
+}

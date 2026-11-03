@@ -124,3 +124,45 @@ Se reutilizan las rutas de producto del inventario, incluyendo etapas, estado, A
 | tools/e2e/tests/support/doc110-code-evidence.cjs | Extensión compatible del helper existente | 05 / DOC-113 | Ámbito de evidencia explícito; el ámbito predeterminado DOC-110 se conserva. |
 
 El comando se registra en tools/e2e/package.json y reutiliza su configuración/reporteros, openSession y authenticated-workflow-session, interactive-e2e-console y el puente DSN SELECT existentes. No se añade .env ni se duplican catálogos/repositorios.
+
+## Delta DOC-114 — preparación existente y pruebas focales
+
+Propietario 06. Se reutilizan ServicioPreparacionImportacion (Abrir/ListarPerfiles/CalcularPlan/Preparar/EvaluarElegibilidad), CanonizadorManifiestoImportacion, CoordinadorProveedorIndices y ResolvedorReglasPerfilImportacion; DTOs operativos y WebServiceImportacionCarpetas existentes. Autoridad/guard/catálogos en Infrastructure/ProduccionDocumental/ImportacionCarpetas; MySqlImportacionCarpetasRepository.GuardarPlan/ObtenerPlan es el repositorio único de 07. No se añade motor, DTO, tabla, protocolo fragmentado ni efecto documental.
+
+| Ruta exacta | Estado actual | Responsabilidad / consumidores |
+|---|---|---|
+| tools/e2e/tests/support/doc114-plan-importacion.cjs | Implementado localmente; no E2E real | Cliente de preparación con presupuesto/operaciones acotadas, aserciones y SELECT del plan/ausencia de efectos. |
+| tools/e2e/fixtures/doc114-plan-cases.json | Metadatos sintéticos locales | Dos formatos, valores/incidencias, políticas y negativos; necesita contraste con publicaciones autorizadas antes de ejecutar. |
+| tools/e2e/tests/doc114-plan-importacion.spec.cjs | Propuesto, no creado | PLAN-01/02/03 sobre servidor real con evidencia propia. |
+| tools/e2e/scripts/run-doc114-plan-importacion.cjs | Propuesto, no creado | Selector fino delegado en consola/proceso compartidos. |
+| tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs | Ampliado localmente | Tres regresiones de autorización, resultado/identidad/diferidos y controles SELECT. |
+
+Se reutilizan package.json/playwright.config.cjs/reporteros, openSession/authenticated-workflow-session, interactive-e2e-console y doc32-e2e-odbc. El cliente HTTP seguro es safePost de doc110-safe-request.cjs, sin retries. No se ejecuta runRec ni se duplica autenticación. El puente de revocación DOC-110 existente solo actúa sobre ADMINISTRAR_PERFILES_IMPORTACION: no prueba revocación de IMPORTAR_CARPETAS sin una extensión compatible o procedimiento operativo concreto y autorizado. No se ejecutó ese puente.
+
+### DOC-114 — estado del soporte focal
+
+Las rutas propuestas de suite y selector ya existen localmente: tools/e2e/tests/doc114-plan-importacion.spec.cjs y tools/e2e/scripts/run-doc114-plan-importacion.cjs. Complementos concretos: tools/e2e/profiles/doc114-plan-session.profile.example.json (datos de sesión ilustrativos) y tools/e2e/tests/doc114-permission-bridge-local.ps1 (prueba sin BD del puente por AST). La extensión compartida afecta doc110-permission-db.ps1 y doc110-permission-revocation.cjs, manteniendo el modo administrativo y agregando únicamente el permiso operativo con autorización/recuperación separadas. El inventario anterior describía el corte inicial; no acredita nuevas rutas pendientes cuando esta nota las identifica como locales. Ninguna de estas implementaciones locales implica E2E real, cambios de permisos o publicación.
+
+### DOC-114 — publicador de recursos
+
+`tools/e2e/tests/support/doc114-published-test-profiles.cjs` prepara únicamente las dos copias autorizadas. Reutiliza `createProfileAdministrator` extraído de `doc111-partial-profile.cjs` y el modo lector de `doc114-plan-importacion.cjs`. Regresión específica en `tools/e2e/tests/doc114-published-test-profiles.test.cjs`; no añade backend, configuración de despliegue ni preparación automática de planes. Alcance y evidencia: `Validacion/doc114-recursos-propuestos-20261103.md` y `Validacion/doc114-publisher-local-20261103.json`.
+
+### DOC-114 — versión adicional por referencia
+
+`tools/e2e/tests/support/doc114-reference-test-version.cjs` ejecuta el delta autorizado del perfil B, reutilizando `createProfileAdministrator` y el lector operativo. `tools/e2e/tests/doc114-reference-test-version.test.cjs` cubre autorización, alcance, historial y operaciones inciertas. No cambia backend ni catálogos; evidencia en `Validacion/doc114-b-version-ready-20261103.json`.
+
+### DOC-114 — controles SELECT y fases
+
+`tools/e2e/tests/doc114-plan-controls.test.cjs` verifica el control por empresa del inventario, correlación con gabinete/documento/expediente, diagnóstico cerrado y detención anterior al HTTP cuando falla un control. `runPlanSession` informa fases al checkpoint de la suite sin valores privados. Evidencia: `Validacion/doc114-plan01-controls-fix-20261103.json`.
+
+### DOC-114 — equivalencia de serializadores
+
+`comparePreparationDocuments` del soporte focal compara documentos persistidos frente a ASMX respetando solo los atributos NullValueHandling.Ignore de Proveedor/Procedencia. `tools/e2e/tests/doc114-plan-serialization.test.cjs` asegura que los otros campos, IDs y procedencias configuradas sigan siendo estrictos. Evidencia: `Validacion/doc114-plan11-review-ready-20261103.json`.
+
+### DOC-114 — continuación sin repetir preparación
+
+El soporte focal añade readExisting/validateResumePlan para revalidar el primer caso PLAN-01 por ID/huella y SELECT; el runner transmite la referencia sin alterar el perfil base ni añadir otra plataforma. Suite y selector distinguen planes conservados de llamadas nuevas y registran referencia/progreso. Tres pruebas locales en el driver acreditan seis nuevas preparaciones y primer plan intacto, rechazo de deriva/alcance y límites del selector. Evidencia: `Validacion/doc114-plan01-resume-ready-20261103.json`.
+
+### DOC-114 — cierre técnico y procedencia
+
+Suite y selector focales ejecutados con PASS real PLAN-01/02/03; planes11–23 conservados y permiso operativo restaurado. Sin archivos VB/proyecto/DDL/SII/configuración de producto modificados. Las extensiones de soporte/test son del prompt06, reutilizando autenticación/consola/configuración/SELECT/puente del repo. Informe actual y matriz6RQ/17escenarios: `Validacion/doc114-final-report-20261103.md` y `Validacion/doc114-requirement-coverage-20261103.json`. Los apartados previos de propuestas/no ejecución son cortes históricos.

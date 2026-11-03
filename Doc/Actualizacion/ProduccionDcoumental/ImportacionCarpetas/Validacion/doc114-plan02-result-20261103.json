@@ -1,0 +1,129 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "scenario": "PLAN-02",
+  "status": "PASS",
+  "attempts": 7,
+  "preparations": 4,
+  "rejections": 3,
+  "confirmations": 0,
+  "noDocumentEffects": true,
+  "readOnlyControls": true,
+  "restorationVerified": null,
+  "head": "4461453f100e96e47c122d7a0f7222034b8e93da",
+  "codeSha256": "2b0c75629be41dc6e5a90a96e5019453641ae102894a25fca75c347f6179b728",
+  "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "preservedPlansUnchanged": true,
+  "resourcesSha256": "f97b3d7c78558d0c6a0da44c445157fda80fa011e03f98265b7e8f6b7952d469",
+  "artifactSha256": "56a8f02a03e3b27488770c7297377b57ce290f14fda615914bdeaddc4057ebb0",
+  "sessionSha256": "0439b3767d28359d38f2e8d8dc59421e4352145701cb0c60f48b5fa544ef970f",
+  "newPlanIds": [
+    "18",
+    "19",
+    "20",
+    "21"
+  ],
+  "preservedPlanIds": [
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17"
+  ],
+  "cases": [
+    {
+      "key": "complete-expediente",
+      "versionId": "40",
+      "planId": "18",
+      "confirmable": true,
+      "eligible": [
+        "r1"
+      ],
+      "incidences": [
+        {
+          "code": "EXTENSION_NO_PERMITIDA",
+          "root": "r2",
+          "file": "a2"
+        }
+      ]
+    },
+    {
+      "key": "complete-lote",
+      "versionId": "38",
+      "planId": "19",
+      "confirmable": false,
+      "eligible": [],
+      "incidences": [
+        {
+          "code": "EXTENSION_NO_PERMITIDA",
+          "root": "r2",
+          "file": "a2"
+        }
+      ]
+    },
+    {
+      "key": "partial",
+      "versionId": "39",
+      "planId": "20",
+      "confirmable": true,
+      "eligible": [
+        "r1"
+      ],
+      "incidences": [
+        {
+          "code": "EXTENSION_NO_PERMITIDA",
+          "root": "r2",
+          "file": "a2"
+        }
+      ]
+    },
+    {
+      "key": "global-error",
+      "versionId": "40",
+      "rejected": true,
+      "expectedCode": "SOLICITUD_INVALIDA",
+      "newPlan": false
+    },
+    {
+      "key": "mixed-partial-root",
+      "versionId": "39",
+      "planId": "21",
+      "confirmable": true,
+      "eligible": [
+        "r1",
+        "r2"
+      ],
+      "incidences": [
+        {
+          "code": "EXTENSION_NO_PERMITIDA",
+          "root": "r2",
+          "file": "a2"
+        }
+      ]
+    },
+    {
+      "key": "foreign-level",
+      "versionId": "40",
+      "rejected": true,
+      "expectedCode": "ACCESO_DENEGADO",
+      "newPlan": false
+    },
+    {
+      "key": "inconsistent-manifest",
+      "versionId": "40",
+      "rejected": true,
+      "expectedCode": "SOLICITUD_INVALIDA",
+      "newPlan": false
+    }
+  ],
+  "remaining": [
+    "PLAN-03 real including separately approved operational permission revocation/restoration",
+    "Final technical consolidation and governance"
+  ],
+  "tasks": {
+    "complete": 14,
+    "total": 16
+  }
+}
