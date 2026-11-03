@@ -1,96 +1,88 @@
-# Inventario de implementación — DOC-111
+# Inventario de implementación — DOC-110/111, revisión DOC-112
 
-Estado: propuesta de refinamiento, 2026-10-27; ninguna fila Nueva acredita código generado. Complementa 01-modelo-datos, 02-contratos-operacion y 03-estados-recuperacion. No sustituye sus contratos. Guía 00 fija propietarios; DOC-111 integra 04–12 y excluye 13.
+Estado vigente, 2026-11-02: rutas de la tabla comprobadas en el repositorio local. La existencia del archivo no acredita despliegue en todos los ambientes. La [matriz final DOC-111](../Validacion/doc111-matriz-final-20261102.md) distingue aceptación real, comprobación local/estática y capacidades no ejecutadas. Base integrada de referencia: main `40c5f55e`; la revisión documental no cambia el código.
 
-Base inspeccionada: main 6313f91f, con DOC-110 en producción de código; no se presume esquema operativo instalado. Nombres de tablas propuestos permanecen los seis del modelo común hasta verificar nombres/tipos/collations en 07-A.
+La tabla conserva propietarios de la guía 00 y expande las rutas exactas. SQL permanece manual; la presencia de un script no acredita instalación en otro ambiente. Los parciales son partes de los mismos servicios/repositorios. No se crean capas ni un host desatendido por este inventario.
 
-Los prefijos de las rutas de la tabla son relativos al repositorio:
-M = Modelo/ProduccionDocumental/ImportacionCarpetas/;
-D = DTOs/ProduccionDocumental/ImportacionCarpetas/;
-S = Services/ProduccionDocumental/ImportacionCarpetas/;
-I = Infrastructure/ProduccionDocumental/ImportacionCarpetas/;
-R = Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/;
-J = js/gestion/ImportacionCarpetas/.
-
-| Archivo exacto (expandir prefijo) | Estado | Propietario | Responsabilidad y consumidor |
+| Archivo exacto (relativo al repositorio) | Estado al 2026-11-02 | Propietario | Responsabilidad y consumidor |
 |---|---|---|---|
-| M/ImportacionCarpetasModels.vb | Nuevo propuesto | 04/07-A | Contexto operativo, manifiesto, snapshots, estados/resultados; servicios/repositorio. |
-| M/ImportacionCarpetasInterfaces.vb | Nuevo propuesto | 04/07-A | Puertos de perfil operativo, política, repositorio, staging y efectos; 06–11. |
-| D/ImportacionCarpetasDtos.vb | Nuevo propuesto | 06/07/10/11 | Requests/sobre y páginas; ASMX/ASHX y cliente. |
-| I/ImportacionCarpetasContextAdapter.vb | Nuevo propuesto | 06 | Identidad activa/empresa/facultad/recursos, sin administración implícita. |
-| I/ImportacionCarpetasRequestGuard.vb | Nuevo propuesto | 06/07-B | JSON/multipart y token por propósito/contexto; fachadas operativas. |
-| I/AdaptadorPerfilImportacionOperativa.vb | Nuevo propuesto | 06 | Lectura de publicación y valores con autoridad operativa; preparación/confirmación. |
-| M/PerfilImportacionInterfaces.vb | Existente, extender preservando contratos | 02/06 | Puerto de lectura por propósito, sin otra configuración de perfil. |
-| S/ServicioPerfilImportacion.vb | Existente, compatibilidad obligatoria | 02/06 | Preservar semántica ADMINISTRACION; no convertir PuedeAdministrar en atajo. |
-| R/MySqlPerfilImportacionRepository.vb | Existente, extensión acotada | 02/06 | Reutilizar lectura autorizada mediante puerto operativo, manteniendo mutaciones administrativas. |
-| I/PerfilImportacionCatalogAdapter.vb | Existente, evaluar composición/extensión | 02/06 | Reutilizar validación/consulta de catálogo sin exigir facultad administrativa al importador. |
-| I/MySqlProveedorDatosIndices.vb | Existente, extensión acotada por propósito | 02/06 | Motor de consulta compatible; no elevar privilegios ni eludir política RA. |
-| S/ResolvedorReglasPerfilImportacion.vb | Existente, consumir | 02/06/08/09 | Resolución pura y diferidos, códigos textuales; evitar duplicar reglas. |
-| S/LimitesImportacionCarpetas.vb | Nuevo propuesto | 04/06/07 | Política servidor validada/inyección; sin cuota no se habilita capacidad. |
-| S/CanonizadorManifiestoImportacion.vb | Nuevo propuesto | 06 | Canonización, identidades, completitud y límites; preparación/recepción. |
-| S/ServicioPreparacionImportacion.vb | Nuevo propuesto | 06 | Abrir/preparar, contexto fijo, valores/elegibilidad/snapshot; fachada. |
-| R/MySqlImportacionCarpetasRepository.vb | Nuevo propuesto único | 07-A | Plan/confirmación/recepción/intentos/eventos/consulta; 06–11. |
-| S/ServicioRecepcionImportacion.vb | Nuevo propuesto | 07-B | Confirmar/recibir y reconciliar parte/fila; ASMX/ASHX. |
-| I/AlmacenStagingImportacion.vb | Nuevo propuesto | 07-B | Stream/contención/hash/cuota, original retenido y copias; recepción/09. |
-| I/AdaptadorExpedienteImportacion.vb | Implementado y probado localmente, 2026-10-29 | 08 | Fase de creación con comando explícito, inicio durable e incertidumbre; puerto estrecho ICreacionExpedienteImportacion, sin endpoint. |
-| I/AdaptadorExpedienteImportacion.Legacy.vb | Binding compilado, sin invocación real | 08 | Composición con autoridad/catálogos/repositorio y llamada nombrada a Conservación; conserva IDs ByRef en Finally. |
-| R/MySqlImportacionCarpetasRepository.ResultadoCreacion.vb | Implementado localmente, 2026-10-29 | 10 | Checkpoint de creación en intento/raíz/lote/evento, repetición exacta e incertidumbre; mismo repositorio y tablas. |
-| S/CoordinadorImportacionCarpetas.Barreras.vb | Implementado localmente, 2026-10-29 | 10 | Evaluación pura de recepción por EXPEDIENTE/LOTE o parcial contra inventario confirmado, sin efectos. |
-| S/CoordinadorImportacionCarpetas.Staging.vb | Implementado localmente, 2026-10-29 | 10 | Revalidación física y autoridad antes de una reserva de creación; conserva rechazados/inciertos y no invoca adaptadores. |
-| S/CoordinadorImportacionCarpetas.Creacion.vb | Implementado localmente, 2026-10-29 | 10 | Una fase por raíz: recurso propio, idempotencia, preparación/reserva, relectura y creador con retención física; sin bucle documental o endpoint. |
-| S/CoordinadorImportacionCarpetas.Documento.vb | Implementado localmente, 2026-10-30 | 10 | Una fase por archivo, histórico antes del disco, barreras compartidas, retención de originales y lectura del checkpoint; sin cierre de raíz/lote o endpoint. |
-| S/CoordinadorImportacionCarpetas.Consolidacion.vb | Implementado localmente, 2026-10-30 | 10 | Cálculo puro de estados desde todos los originales y pruebas terminales, sin fuentes/efectos o reconciliación automática. |
-| S/CoordinadorImportacionCarpetas.Reconciliacion.vb | Implementado localmente, 2026-10-30 | 10.8 | Reconciliación explícita por intento/revisión con autoridad vigente y evidencia conocida; sin nuevos efectos. |
-| S/CoordinadorImportacionCarpetas.Operaciones.vb | Implementado localmente, 2026-10-30 | 10.11 | Fachada de una fase por recurso y proyección pública de reconciliación; sin encadenar efectos. |
-| S/ServicioConsultaImportacion.Limpieza.vb | Implementado localmente, 2026-10-30 | 11.7 | Política explícita, revalidación y retiro de un original completo; consultas y diagnóstico no lo invocan. |
-| I/AlmacenStagingImportacion.Limpieza.vb y ComposicionLimpiezaOriginalImportacion.vb | Implementados localmente, 2026-10-30 | 11.7 | Bloqueo/rutas/hash privados y comprobación final SELECT, sin alterar almacenamiento legacy o exponer endpoint. |
-| R/MySqlImportacionCarpetasRepository.Limpieza.vb | Parcial del repositorio único, 2026-10-30 | 11.7 | Diario preparado/concluido en eventos existentes, vista completa bloqueada y recuperación sin borrar metadatos. |
-| tools/e2e/tests/support/doc111-importacion-carpetas.cjs | Implementado localmente, 2026-10-30 | 13.4 | Capacidades y controles SELECT; sesión/transporte existentes, sin reenvío incierto. |
-| tools/e2e/tests/doc111-importacion-carpetas.spec.cjs | Registrado y probado con dobles, 2026-10-30 | 13.5 | Un recorrido REC-01/02 por EXPEDIENTE, LOTE y PARCIAL; aceptación real pendiente. |
-| tools/e2e/scripts/run-doc111-importacion-carpetas.cjs | Implementado localmente, 2026-10-30 | 13.6–13.7 | Selector del paquete existente, --check sin efectos, autorización TTY y resumen saneado. |
-| J/ImportacionCarpetas.js, Api/Vista y WebFormProducionDocumental.js | Integración local, 2026-10-30 | 12.11 | Fases explícitas, detención/verificación sin replay y rama por relaciones confirmadas mediante helper existente, sin cambiar selección o duplicar nodos. |
-| W/WebServiceImportacionCarpetas.Composicion.vb y ASMX existente | Implementados localmente, 2026-10-30 | 10.11 | Avance/detención/reconciliación con guard operativo y composiciones existentes; binding productivo compilado, HTTP sintético. |
-| I/VerificadorReconciliacionImportacion.vb y ComposicionReconciliacionImportacion.vb | Implementados localmente, 2026-10-30 | 10.8 | Catálogos/lectores SELECT existentes, sin puertos de ejecución, staging o reserva. |
-| R/MySqlImportacionCarpetasRepository.Reconciliacion.vb | Parcial del único repositorio, 2026-10-30 | 10.8 | Vista correlacionada, confirmación canónica CAS y consolidación en la misma transacción; replay sin eventos. |
-| R/MySqlImportacionCarpetasRepository.Consolidacion.vb | Parcial del único repositorio, 2026-10-30 | 10 | Lectura acotada bajo bloqueo y consolidación CAS/eventos en transacción de checkpoint; conserva IDs, política, señal y totales. |
-| I/ComposicionDocumentoImportacion.vb | Composición real compilada, 2026-10-30 | 10 | Mismos autoridad/repositorio/staging/límites y adaptador documental; sin modificar configuración o habilitar un worker. |
-| I/ComposicionCreacionImportacion.vb | Composición compilada, sin ejecución real | 10 | Autoridad/repositorio/staging/adaptador existentes, mismas políticas servidor; no modifica configuración ni agrega rutas HTTP. |
-| S/CoordinadorImportacionCarpetas.Valores.vb | Implementado localmente, 2026-10-30 | 06/10 | Materializa un archivo tras creación confirmada, resuelve solo pendientes y conserva valores previos; repetición sin proveedores. |
-| R/MySqlImportacionCarpetasRepository.Valores.vb | Implementado localmente, 2026-10-30 | 07-A/10 | Vista propia comprobada por IDs y checkpoint CAS de valores/procedencia o rechazo; mismas tablas, sin escritura documental. |
-| I/ComposicionPerfilImportacionOperativa.vb | Composición compartida compilada, 2026-10-30 | 06/10 | Misma construcción de catálogo/proveedor/política para selección, preparación y materialización; sin nuevas rutas/configuración. |
-| R/MySqlImportacionCarpetasRepository.Barreras.vb | Implementado localmente, 2026-10-29 | 10 | Lectura acotada de metadatos de raíz/archivo bajo bloqueo común; consulta previa y revalidación antes de iniciar creación. |
-| I/ComandoCreacionExpedienteImportacion.vb | Implementado localmente, 2026-10-29 | 08 | Composición inmutable desde lote/raíz/intento y valores resueltos; preparación interna para el adaptador, sin invocación legacy. |
-| I/PerfilImportacionCatalogAdapter.Creacion.vb | Ampliación local del catálogo compartido, 2026-10-29 | 08 | Lectura de nombres por IDs confirmados y comprobación inversa bajo el alcance legacy; gabinete autorizado y responsable interno, sin efectos. |
-| I/AdaptadorDocumentoImportacion.vb y .Legacy.vb | Implementado localmente/binding compilado, 2026-10-30 | 09 | Comando inmutable, reserva nueva, copia PDF consumible con original retenido, llamada nombrada única y checkpoint; sin endpoint ni carga real. |
-| I/ComandoAlmacenamientoCarpetas.vb | Implementado localmente, 2026-10-30 | 09 | Archivo/intento/snapshot y valores fijados, compatibilidad Integer/texto y conflictos con campos automáticos/técnicos. |
-| I/PerfilImportacionCatalogAdapter.Documento.vb | Ampliación del catálogo compartido, 2026-10-30 | 09 | Nombres físicos, clase electrónica/PDF y SELECT de documento/inventario/incorporación/nombres/índices; no incorpora otra vez. |
-| R/MySqlImportacionCarpetasRepository.Documento.vb | Parcial del único repositorio, 2026-10-30 | 10 | Inicio durable y resultado documental en intento/archivo/lote/evento, idempotencia y preservación de incertidumbre; sin nuevas tablas. |
-| S/CoordinadorImportacionCarpetas.vb | Nuevo propuesto | 10 | Reclamo, una fase, barreras, detención/reconciliación; fachada. |
-| S/ServicioConsultaImportacion.vb | Nuevo propuesto | 11 | Lectura/páginas/CSV y diagnóstico/mantenimiento con política. |
-| webservice/WebServiceImportacionCarpetas.asmx | Existente | 06–11 | Misma fachada; no servicio web paralelo. |
-| webservice/WebServiceImportacionCarpetas.asmx.vb | Existente, ampliar | 06–11 | Dispatcher operativo separado del administrativo, DTO/errores; sin reglas documentales. |
-| generic_control/ImportacionCarpetasUpload.ashx | Nuevo propuesto | 07-B | Entrada multipart propia, no handler compartido. |
-| generic_control/ImportacionCarpetasUpload.ashx.vb | Nuevo propuesto | 07-B | Guard y delegación, sin coordinación documental. |
-| Gestion/WebFormProducionDocumental.aspx | Existente, ampliar | 05 | Contenedor/entrada propios sin segundo árbol/formulario. |
-| Gestion/WebFormProducionDocumental.aspx.vb | Existente, ampliar | 05/06 | Contexto de apertura sin redirigir lotes por Session. |
-| js/gestion/WebFormProducionDocumental.js | Existente, ampliar acotadamente | 05/11 | Nuevo disparador/actualización rama; conservar ActivaCargaArchivos. |
-| J/ImportacionCarpetas.js | Nuevo propuesto | 05/11 | Estado/ciclo de vida, preparación y lote; vista/transporte. |
-| J/InventarioImportacion.js | Nuevo propuesto | 05 | Colección File/raíces/identidades; manifiesto y selección repetible. |
-| J/ImportacionCarpetasApi.js | Nuevo propuesto | 05/07/10/11 | JSON/multipart, errores/progreso y reconciliación sin replay. |
-| J/ImportacionCarpetasVista.js | Nuevo propuesto | 05/11 | Etapas, páginas, texto seguro y acciones permitidas. |
-| J/ImportacionCarpetas.css | Nuevo propuesto | 05 | Estilos encapsulados, foco/adaptación. |
-| Sql/02-carga-carpetas-mysql51.sql (bajo raíz funcional) | Nuevo propuesto | 07-A | DDL operativo/permiso revisado y manual; sin DDL runtime. |
-| Sql/02-aplicacion-carga-carpetas.md (bajo raíz funcional) | Nuevo propuesto | 07-A | Pre/postcontroles SELECT, recuperación y límites de repetición. |
-| tests/ImportacionCarpetasBehaviorTests.cs | Nuevo propuesto | Por capacidad | Modelo/servicio/guard, transiciones y fallos; arnés Framework existente. |
-| tests/doc111-importacion-carpetas.test.cjs | Nuevo propuesto | 05/12 | Comportamiento cliente/contratos, reutilizando utilidades existentes. |
-| tests/PerfilImportacionBehaviorTestRunner.cs | Existente, extensión compatible | 12 | Invocar pruebas nuevas sin sustituir familias DOC-110. |
-| tools/e2e/tests/doc111-importacion-carpetas.spec.cjs | Nuevo propuesto | Capacidades/12 | REC agrupa casos especializados, sin suite duplicada. |
-| tools/e2e/tests/support/doc111-importacion-carpetas.cjs | Nuevo propuesto | Capacidades | Drivers/datos sintéticos; consume sesión/utilidades existentes. |
-| tools/e2e/scripts/run-doc111-importacion-carpetas.cjs | Nuevo propuesto | 12 | Selector de escenarios que delega consola/auth/reporteros; sin otro login/runner. |
-| tools/e2e/package.json | Existente, ampliar | 12 | Comando focal; mismas dependencias/configuración/reporteros. |
-| GestionDocumental-Docuarchi.net.vbproj | Existente, ampliar por fase | Cada entrega | Compile/Content de archivos efectivamente implementados, no incluir fixtures/secretos. |
+| Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasModels.vb | Existente; evidencia final DOC-111 | 04/07-A | Contexto operativo, manifiesto, snapshots, estados/resultados; servicios/repositorio. |
+| Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasInterfaces.vb | Existente; evidencia final DOC-111 | 04/07-A | Puertos de perfil operativo, política, repositorio, staging y efectos; 06–11. |
+| DTOs/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasDtos.vb | Existente; evidencia final DOC-111 | 06/07/10/11 | Requests/sobre y páginas; ASMX/ASHX y cliente. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasContextAdapter.vb | Existente; evidencia final DOC-111 | 06 | Identidad activa/empresa/facultad/recursos, sin administración implícita. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasRequestGuard.vb | Existente; evidencia final DOC-111 | 06/07-B | JSON/multipart y token por propósito/contexto; fachadas operativas. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorPerfilImportacionOperativa.vb | Existente; evidencia final DOC-111 | 06 | Lectura de publicación y valores con autoridad operativa; preparación/confirmación. |
+| Modelo/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionInterfaces.vb | Existente; evidencia final DOC-111 | 02/06 | Puerto de lectura por propósito, sin otra configuración de perfil. |
+| Services/ProduccionDocumental/ImportacionCarpetas/ServicioPerfilImportacion.vb | Existente; evidencia final DOC-111 | 02/06 | Preservar semántica ADMINISTRACION; no convertir PuedeAdministrar en atajo. |
+| Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlPerfilImportacionRepository.vb | Existente; evidencia final DOC-111 | 02/06 | Reutilizar lectura autorizada mediante puerto operativo, manteniendo mutaciones administrativas. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.vb | Existente; evidencia final DOC-111 | 02/06 | Reutilizar validación/consulta de catálogo sin exigir facultad administrativa al importador. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorDatosIndices.vb | Existente; evidencia final DOC-111 | 02/06 | Motor de consulta compatible; no elevar privilegios ni eludir política RA. |
+| Services/ProduccionDocumental/ImportacionCarpetas/ResolvedorReglasPerfilImportacion.vb | Existente; evidencia final DOC-111 | 02/06/08/09 | Resolución pura y diferidos, códigos textuales; evitar duplicar reglas. |
+| Services/ProduccionDocumental/ImportacionCarpetas/LimitesImportacionCarpetas.vb | Existente; evidencia final DOC-111 | 04/06/07 | Política servidor validada/inyección; sin cuota no se habilita capacidad. |
+| Services/ProduccionDocumental/ImportacionCarpetas/CanonizadorManifiestoImportacion.vb | Existente; evidencia final DOC-111 | 06 | Canonización, identidades, completitud y límites; preparación/recepción. |
+| Services/ProduccionDocumental/ImportacionCarpetas/ServicioPreparacionImportacion.vb | Existente; evidencia final DOC-111 | 06 | Abrir/preparar, contexto fijo, valores/elegibilidad/snapshot; fachada. |
+| Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.vb | Existente; evidencia final DOC-111 | 07-A | Plan/confirmación/recepción/intentos/eventos/consulta; 06–11. |
+| Services/ProduccionDocumental/ImportacionCarpetas/ServicioRecepcionImportacion.vb | Existente; evidencia final DOC-111 | 07-B | Confirmar/recibir y reconciliar parte/fila; ASMX/ASHX. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.vb | Existente; evidencia final DOC-111 | 07-B | Stream/contención/hash/cuota, original retenido y copias; recepción/09. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorExpedienteImportacion.vb | Existente; evidencia final DOC-111 | 08 | Fase de creación con comando explícito, inicio durable e incertidumbre; puerto estrecho ICreacionExpedienteImportacion, sin endpoint. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorExpedienteImportacion.Legacy.vb | Existente; evidencia final DOC-111 | 08 | Composición con autoridad/catálogos/repositorio y llamada nombrada a Conservación; conserva IDs ByRef en Finally. |
+| Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ResultadoCreacion.vb | Existente; evidencia final DOC-111 | 10 | Checkpoint de creación en intento/raíz/lote/evento, repetición exacta e incertidumbre; mismo repositorio y tablas. |
+| Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Barreras.vb | Existente; evidencia final DOC-111 | 10 | Evaluación pura de recepción por EXPEDIENTE/LOTE o parcial contra inventario confirmado, sin efectos. |
+| Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Staging.vb | Existente; evidencia final DOC-111 | 10 | Revalidación física y autoridad antes de una reserva de creación; conserva rechazados/inciertos y no invoca adaptadores. |
+| Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Creacion.vb | Existente; evidencia final DOC-111 | 10 | Una fase por raíz: recurso propio, idempotencia, preparación/reserva, relectura y creador con retención física; sin bucle documental o endpoint. |
+| Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Documento.vb | Existente; evidencia final DOC-111 | 10 | Una fase por archivo, histórico antes del disco, barreras compartidas, retención de originales y lectura del checkpoint; sin cierre de raíz/lote o endpoint. |
+| Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Consolidacion.vb | Existente; evidencia final DOC-111 | 10 | Cálculo puro de estados desde todos los originales y pruebas terminales, sin fuentes/efectos o reconciliación automática. |
+| Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Reconciliacion.vb | Existente; evidencia final DOC-111 | 10.8 | Reconciliación explícita por intento/revisión con autoridad vigente y evidencia conocida; sin nuevos efectos. |
+| Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Operaciones.vb | Existente; evidencia final DOC-111 | 10.11 | Fachada de una fase por recurso y proyección pública de reconciliación; sin encadenar efectos. |
+| Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.Limpieza.vb | Existente; evidencia final DOC-111 | 11.7 | Política explícita, revalidación y retiro de un original completo; consultas y diagnóstico no lo invocan. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.Limpieza.vb | Existente; evidencia final DOC-111 | 11.7 | Bloqueo/rutas/hash privados y comprobación final SELECT, sin alterar almacenamiento legacy o exponer endpoint. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionLimpiezaOriginalImportacion.vb | Existente; evidencia final DOC-111 | 11.7 | Bloqueo/rutas/hash privados y comprobación final SELECT, sin alterar almacenamiento legacy o exponer endpoint. |
+| Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Limpieza.vb | Existente; evidencia final DOC-111 | 11.7 | Diario preparado/concluido en eventos existentes, vista completa bloqueada y recuperación sin borrar metadatos. |
+| tools/e2e/tests/support/doc111-importacion-carpetas.cjs | Existente; evidencia final DOC-111 | 13.4 | Capacidades y controles SELECT; sesión/transporte existentes, sin reenvío incierto. |
+| tools/e2e/tests/doc111-importacion-carpetas.spec.cjs | Existente; evidencia final DOC-111 | 13.5 | Un recorrido REC-01/02 por EXPEDIENTE, LOTE y PARCIAL; aceptaciones reales con límites según matriz final. |
+| tools/e2e/scripts/run-doc111-importacion-carpetas.cjs | Existente; evidencia final DOC-111 | 13.6–13.7 | Selector del paquete existente, --check sin efectos, autorización TTY y resumen saneado. |
+| js/gestion/ImportacionCarpetas/ImportacionCarpetas.js | Existente; evidencia final DOC-111 | 12.11 | Fases explícitas, detención/verificación sin replay y rama por relaciones confirmadas mediante helper existente, sin cambiar selección o duplicar nodos. |
+| js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js | Existente; evidencia final DOC-111 | 12.11 | Fases explícitas, detención/verificación sin replay y rama por relaciones confirmadas mediante helper existente, sin cambiar selección o duplicar nodos. |
+| js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js | Existente; evidencia final DOC-111 | 12.11 | Fases explícitas, detención/verificación sin replay y rama por relaciones confirmadas mediante helper existente, sin cambiar selección o duplicar nodos. |
+| js/gestion/WebFormProducionDocumental.js | Existente; evidencia final DOC-111 | 12.11 | Fases explícitas, detención/verificación sin replay y rama por relaciones confirmadas mediante helper existente, sin cambiar selección o duplicar nodos. |
+| webservice/WebServiceImportacionCarpetas.Composicion.vb | Existente; evidencia final DOC-111 | 10.11 | Avance/detención/reconciliación con guard operativo y composiciones existentes; alcance real/local según matriz final. |
+| webservice/WebServiceImportacionCarpetas.asmx.vb | Existente; evidencia final DOC-111 | 10.11 | Avance/detención/reconciliación con guard operativo y composiciones existentes; alcance real/local según matriz final. |
+| Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Reconciliacion.vb | Existente; evidencia final DOC-111 | 10.8 | Vista correlacionada, confirmación canónica CAS y consolidación en la misma transacción; replay sin eventos. |
+| Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consolidacion.vb | Existente; evidencia final DOC-111 | 10 | Lectura acotada bajo bloqueo y consolidación CAS/eventos en transacción de checkpoint; conserva IDs, política, señal y totales. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionDocumentoImportacion.vb | Existente; evidencia final DOC-111 | 10 | Mismos autoridad/repositorio/staging/límites y adaptador documental; sin modificar configuración o habilitar un worker. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionCreacionImportacion.vb | Existente; evidencia final DOC-111 | 10 | Autoridad/repositorio/staging/adaptador existentes, mismas políticas servidor; no modifica configuración ni agrega rutas HTTP. |
+| Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Valores.vb | Existente; evidencia final DOC-111 | 06/10 | Materializa un archivo tras creación confirmada, resuelve solo pendientes y conserva valores previos; repetición sin proveedores. |
+| Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Valores.vb | Existente; evidencia final DOC-111 | 07-A/10 | Vista propia comprobada por IDs y checkpoint CAS de valores/procedencia o rechazo; mismas tablas, sin escritura documental. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionPerfilImportacionOperativa.vb | Existente; evidencia final DOC-111 | 06/10 | Misma construcción de catálogo/proveedor/política para selección, preparación y materialización; sin nuevas rutas/configuración. |
+| Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Barreras.vb | Existente; evidencia final DOC-111 | 10 | Lectura acotada de metadatos de raíz/archivo bajo bloqueo común; consulta previa y revalidación antes de iniciar creación. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoCreacionExpedienteImportacion.vb | Existente; evidencia final DOC-111 | 08 | Composición inmutable desde lote/raíz/intento y valores resueltos; preparación interna para el adaptador, sin invocación legacy. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.Creacion.vb | Existente; evidencia final DOC-111 | 08 | Lectura de nombres por IDs confirmados y comprobación inversa bajo el alcance legacy; gabinete autorizado y responsable interno, sin efectos. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.vb | Existente; evidencia final DOC-111 | 09 | Comando inmutable, reserva nueva, copia PDF consumible con original retenido, llamada nombrada única y checkpoint; evidencia de efectos según matriz final. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb | Existente; evidencia final DOC-111 | 09 | Comando inmutable, reserva nueva, copia PDF consumible con original retenido, llamada nombrada única y checkpoint; evidencia de efectos según matriz final. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoAlmacenamientoCarpetas.vb | Existente; evidencia final DOC-111 | 09 | Archivo/intento/snapshot y valores fijados, compatibilidad Integer/texto y conflictos con campos automáticos/técnicos. |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.Documento.vb | Existente; evidencia final DOC-111 | 09 | Nombres físicos, clase electrónica/PDF y SELECT de documento/inventario/incorporación/nombres/índices; no incorpora otra vez. |
+| Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Documento.vb | Existente; evidencia final DOC-111 | 10 | Inicio durable y resultado documental en intento/archivo/lote/evento, idempotencia y preservación de incertidumbre; sin nuevas tablas. |
+| Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.vb | Existente; evidencia final DOC-111 | 10 | Reclamo, una fase, barreras, detención/reconciliación; fachada. |
+| Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb | Existente; evidencia final DOC-111 | 11 | Lectura/páginas/CSV y diagnóstico/mantenimiento con política. |
+| webservice/WebServiceImportacionCarpetas.asmx | Existente; evidencia final DOC-111 | 06–11 | Misma fachada; no servicio web paralelo. |
+| generic_control/ImportacionCarpetasUpload.ashx | Existente; evidencia final DOC-111 | 07-B | Entrada multipart propia, no handler compartido. |
+| generic_control/ImportacionCarpetasUpload.ashx.vb | Existente; evidencia final DOC-111 | 07-B | Guard y delegación, sin coordinación documental. |
+| Gestion/WebFormProducionDocumental.aspx | Existente; evidencia final DOC-111 | 05 | Contenedor/entrada propios sin segundo árbol/formulario. |
+| Gestion/WebFormProducionDocumental.aspx.vb | Existente; evidencia final DOC-111 | 05/06 | Contexto de apertura sin redirigir lotes por Session. |
+| js/gestion/ImportacionCarpetas/InventarioImportacion.js | Existente; evidencia final DOC-111 | 05 | Colección File/raíces/identidades; manifiesto y selección repetible. |
+| js/gestion/ImportacionCarpetas/ImportacionCarpetas.css | Existente; evidencia final DOC-111 | 05 | Estilos encapsulados, foco/adaptación. |
+| Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Sql/02-carga-carpetas-mysql51.sql | Existente; evidencia final DOC-111 | 07-A | DDL operativo/permiso revisado y manual; sin DDL runtime. |
+| Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Sql/02-aplicacion-carga-carpetas.md | Existente; evidencia final DOC-111 | 07-A | Pre/postcontroles SELECT, recuperación y límites de repetición. |
+| tests/ImportacionCarpetasBehaviorTests.cs | Existente; evidencia final DOC-111 | Por capacidad | Modelo/servicio/guard, transiciones y fallos; arnés Framework existente. |
+| tests/doc111-importacion-carpetas-client.test.cjs | Existente; evidencia final DOC-111 | 05/12 | Comportamiento cliente/contratos, reutilizando utilidades existentes. |
+| tests/PerfilImportacionBehaviorTestRunner.cs | Existente; evidencia final DOC-111 | 12 | Invocar pruebas nuevas sin sustituir familias DOC-110. |
+| tools/e2e/package.json | Existente; evidencia final DOC-111 | 12 | Comando focal; mismas dependencias/configuración/reporteros. |
+| GestionDocumental-Docuarchi.net.vbproj | Existente; evidencia final DOC-111 | Cada entrega | Compile/Content de archivos efectivamente implementados, no incluir fixtures/secretos. |
 
-## Componentes que no se sustituyen
+## Registro histórico por componente — cortes 2026-10-28 a 2026-10-30
+
+Los párrafos siguientes conservan la procedencia de cada corte. Expresiones como «pendiente», «deshabilitado», «sin carga real» o «candidato» describen ese instante y quedan subordinadas al estado vigente y a la matriz final del 2026-11-02. En particular, la exclusión XML adicional fue descartada por el usuario y no es un bloqueo vigente. La función de almacenamiento compartida y SII se conservan.
+
 
 Verificación estructural DOC-111, 2026-10-28: el parcial `Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Verificacion.vb` añade lectura por IDs conocidos y queda incluido en Compile/arnés. No es otro repositorio, no modifica legacy ni expone endpoint. Adelanta parte de 9.4 sin cerrarla ni invocar creación. La revisión de helpers y metadatos históricos se documenta en 15; controles SELECT en el documento SQL existente. Evidencia `Validacion/doc111-verificacion-expediente-local-20261028.md`; 9.3/9.4 abiertas, avance total 95/130.
 

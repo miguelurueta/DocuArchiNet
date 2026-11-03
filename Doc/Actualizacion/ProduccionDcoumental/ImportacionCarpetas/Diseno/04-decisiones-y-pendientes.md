@@ -1,6 +1,6 @@
 # Diseño 04 — Decisiones, pendientes y secuencia
 
-Estado actualizado: diseño y contrato de fuentes documentados; **decisión de ámbitos cerrada por aprobación explícita del usuario**: ambos configurables en el perfil. SQL 01 generado como archivo revisable, no ejecutado. No se modificaron servicios, aplicación, prototipo o SII. P02 tiene ámbito RA y política de permisos definidos en DOC-110; asignación administrativa confirmada en aplicación externa; aceptación conjunta antes de habilitación. Las políticas de coincidencias y disponibilidad fueron aprobadas el 2026-10-20 y se desarrollan en `06-coincidencias-disponibilidad.md`; P03 conserva caracterización técnica del adaptador.
+Estado vigente, revisión DOC-112 del 2026-11-02: implementación y aceptaciones DOC-110/111 disponibles; [matriz final](../Validacion/doc111-matriz-final-20261102.md). Se distinguen condiciones técnicas históricas resueltas en ese alcance de las restricciones operativas aún abiertas. Ambos ámbitos fueron aprobados y ejercidos. La revisión no aplica SQL, cambia permisos ni ejecuta pruebas reales. Las decisiones del usuario de sección 1 se conservan.
 
 ## 1. Decisiones confirmadas del usuario
 
@@ -17,19 +17,19 @@ Confirmación de contexto: los permisos de Producción se administran en otra ap
 | D07 | Todos los archivos deben pasar; debe ser configurable. | Completo predeterminado, parcial explícito y ambos ámbitos aprobados: EXPEDIENTE o LOTE seleccionables al publicar. Política fijada en el lote. |
 | D08 | Base gráfica del flujo corregido aceptada. | Reutilizar interacción del prototipo, sustituir simulaciones; aceptación visual no prueba servicios. |
 
-## 2. Propuestas técnicas de este diseño
+## 2. Decisiones técnicas y procedencia
 
-Estas decisiones de arquitectura son propuestas revisables; no se atribuyen como instrucciones previas del usuario.
+Las propuestas técnicas originales se contrastan aquí con la implementación integrada. No se atribuyen como instrucciones históricas del usuario; el estado vigente y sus restricciones se apoyan en código y evidencia identificada.
 
 | ID | Propuesta | Motivo / límite |
 |---|---|---|
-| T01 | Nueve tablas nuevas con FK solo entre entidades propias. | Tres de configuración y seis de preparación/operación; catálogos legacy referenciados/verificados sin alterar índices ni SII. |
+| T01 | Nueve entidades principales de perfil y operación, sin fijar cantidad global. | Tres de configuración y seis operativas; tablas de proveedor/fuente, mapas y respaldos de DOC-110 se referencian sin duplicar catálogos. FK propias compatibles, sin modificar SII. |
 | T02 | INT UNSIGNED AUTO_INCREMENT como PK nueva, revisiones CAS y claves únicas explícitas. | Generación por MySQL y referencias INT UNSIGNED; transporte decimal canónico como String. No garantiza exactamente una vez en legacy. |
 | T03 | Documentos JSON escapados ASCII en LONGTEXT con esquemas cerrados. | MySQL 5.1 sin JSON nativo; conservar snapshots/Unicode sin duplicar catálogos. Límites/validadores son obligatorios. |
-| T04 | Referencias legacy lógicas canónicas. | Esquemas y claves mixtos; ID de expediente solo no representa toda su identidad física. Mapeo real pendiente antes de DDL. |
+| T04 | Referencias legacy lógicas canónicas implementadas. | Contexto servidor y verificadores por IDs/relaciones; la evidencia del ambiente de pruebas no garantiza igualdad de esquema/collation en otros ambientes. |
 | T05 | Preparación completa por request acotado inicialmente. | Evitar protocolo de fragmentos incompleto. Volumen objetivo podría exigir extensión contractual antes de implementar, no un aumento global improvisado. |
 | T06 | Plan inmutable por preparación; cambio de contenido crea otro plan. | Revisión clara y confirmación única por plan; simplifica auditoría y evita mutar un lote. |
-| T07 | ASMX propio de control y ASHX propio de recepción. | Adaptación a stack existente sin agregar lógica de lote al handler compartido. Nombres finales se ajustan a convenciones del proyecto. |
+| T07 | ASMX de control y ASHX de recepción implementados. | WebServiceImportacionCarpetas e ImportacionCarpetasUpload; fachada/DTO vigentes en 02, adaptadores internos sin endpoints. |
 | T08 | Ejecución acotada impulsada por peticiones; worker separado opcional. | Compatibilidad inicial con operación web; no prometer continuidad con navegador cerrado. |
 | T09 | Staging retenido más copia de trabajo consumible. | Legacy observado borra archivos; recuperación no puede depender del único archivo que consume. |
 | T10 | Fuentes diferidas para IDs/consecutivos del expediente. | No crear expedientes durante preview ni inventar valores. |
@@ -39,19 +39,19 @@ Estas decisiones de arquitectura son propuestas revisables; no se atribuyen como
 
 | ID | Pendiente | Quién / entrega | Qué bloquea | Qué puede avanzar |
 |---|---|---|---|---|
-| P01 — RESUELTO | El usuario aprobó soportar ambos ámbitos configurables en el perfil. | Decisión del usuario; contratos 02/04/06/10 | Ya no bloquea el diseño de la barrera. | Implementar y probar ambas ramas; elegir explícitamente al publicar en modo completo. |
-| P02 | Mapeo efectivo de identidad/ámbito/nivel y permisos de administración/importación. | Investigación 02/06/07-A | SQL/contratos finales de referencias y autorización. | Interfaces y pruebas con identidades sintéticas bien señaladas. |
-| P03 — PARCIAL | Fuentes documentadas en 05; BLOQUEAR/default y REUTILIZAR_VALIDADO aprobados en 06. Caracterizar identidad real/comparación y compatibilidad del adaptador. | Perfil 02 y adaptador 08 | Habilitar reutilización/creación operativa sin caracterización. | Persistir/validar opciones del perfil y redactar pruebas; no inventar identidad. |
-| P04 | Volumen y tamaños objetivo, límites de preparación/recepción, navegadores y tiempos de operación. | Usuario/operación; 04/07/12 | Capacidad anunciada, cuotas definitivas y necesidad de fragmentación. | Implementar límites configurables y errores de rechazo sin declarar capacidades ficticias. |
-| P05 | Retención de staging, intentos e historial y mecanismo de mantenimiento. | Operación; 11 | Borrado automático. | Consulta, listado en seco y limpieza solo bajo política configurada. |
-| P06 | Aislamiento de sesión, copias temporales, nombre original y concurrencia externa. | Caracterización 08/09 | Declarar reusable adaptador legacy y ejecutar efectos. | Persistencia, interfaz y contratos sin éxito simulado. |
-| P07 | Correlación fiable para crash posterior a creación/almacenamiento. | 08/09/10 | Reintento automático de efectos inciertos. | Estados inciertos, consulta y revisión autorizada con evidencia. |
-| P08 | Comportamiento de ASMX/ASHX con CSRF, errores, expiración y despliegue sin esquema. | 05/06/07/12 | Integración productiva segura. | Diseño y pruebas aisladas. |
-| P09 | Entorno/cuentas autorizados y aplicación manual de SQL. | Equipo del usuario | Integración real, E2E y carga. | Archivos SQL revisables, tests locales sin autenticación. |
+| P01 — RESUELTO | El usuario aprobó soportar ambos ámbitos configurables en el perfil. | Decisión del usuario; contratos 02/04/06/10 | Ya no bloquea el diseño de la barrera. | Ambas ramas implementadas y ejercidas; mantener elección explícita al publicar en modo completo. |
+| P02 — IMPLEMENTADO, alcance delimitado | Contexto RA, identidad/empresa/nivel y separación administrar/importar resueltos en adaptadores y guards. | DOC-110/111; administración externa conserva asignación de permisos. | No bloquea repetir diseño; otro ambiente requiere sus permisos/esquema. | Reutilizar contexto y contratos; revocación real no ejercida en los REC, cobertura local en matriz RQ-02. |
+| P03 — CARACTERIZADO, límites vigentes | Fuentes 05/06 y adaptador 08 implementados; creación/relación comprobadas en REC. | Perfil 02, adaptador 08; matriz RQ-04/07. | Una configuración o modo de reutilización no ejercido requiere su propia evidencia; no inferir aceptación universal. | Conservar reglas y pruebas existentes, sin rediseñar la identidad ni repetir la decisión de coincidencias. |
+| P04 — ABIERTO OPERATIVO | Volumen/tamaños objetivo, matriz de navegadores y presupuestos de tiempo sin acreditación productiva completa. | Operación/usuario; contratos 04 y validación 12. | Capacidad anunciada, cuotas definitivas y eventual extensión de fragmentación. | Límites configurables de perfil/transporte/JSON/sesión y errores vigentes; no asumir 500 archivos/25 MB ni todos los navegadores. |
+| P05 — ABIERTO OPERATIVO | Retención productiva de originales/intentos/historial y habilitación de mantenimiento. | Operación; capacidad interna 11. | Activar borrado automático o limpieza real sin política/facultad válidas. | Consulta/diagnóstico en seco; limpieza interna probada localmente permanece deshabilitada, sin endpoint/job. Recursos DOC-111 conservados. |
+| P06 — CARACTERIZADO, alcance aceptado | Contexto temporal, original retenido, copia consumible, nombre/índices y Archivo Gestión caracterizados; efectos reales en REC. | Adaptadores 08/09; matriz RQ-07. | No bloquea la integración PDF aceptada; nuevos formatos/escritores requieren caracterización. | Reutilizar adaptadores; función legacy/SII intactos. Exclusión XML adicional descartada por usuario, sin reabrirla. |
+| P07 — RECUPERACIÓN LIMITADA EXPLÍCITA | Verificador de evidencia y cierre sin inicio implementados; recuperación real lote 2 e invariantes/carreras locales. | Coordinador 10; matriz RQ-09. | Replay automático de efectos inciertos sin prueba inequívoca sigue prohibido. | Consultar, reconciliar con evidencia válida o conservar INCIERTO; no inventar correlación externa ni usar antigüedad. |
+| P08 — IMPLEMENTADO Y COMPROBADO POR CAPACIDAD | ASMX/ASHX, CSRF, sesión y degradación con carga individual preservada. | Entradas 06/07/10/11 y evidencia 12. | No certifica toda combinación IIS/permiso/navegador en otro ambiente. | Reutilizar mapeo real de EstadoHttp y matriz final; distinguir autenticación/operaciones reales de casos locales. |
+| P09 — EJERCIDO EN AMBIENTE AUTORIZADO | SQL manual, cuentas y recursos de prueba autorizados; tres modos REC y degradación/carga individual registrados. | Equipo del usuario; matriz final DOC-111. | Otra ejecución requiere su autorización aplicable; la revisión DOC-112 no la necesita ni la realiza. | Reutilizar reportes saneados, fechas/huellas y alcance; no almacenar credenciales ni declarar otro ambiente habilitado. |
 
-P01 se cerró por aprobación explícita, no por silencio. Se mantienen las demás condiciones técnicas y operativas: esta aprobación no acredita tablas, código ni pruebas integradas.
+P01 se cerró por aprobación explícita. Los demás estados anteriores se actualizan por evidencia, no por esa aprobación: implementación/aceptaciones delimitadas en DOC-111; P04/P05 siguen abiertos con responsables y efectos concretos. La revisión editorial DOC-112 no sustituye aceptación productiva universal.
 
-## 4. Evidencia del repositorio contrastada
+## 4. Evidencia inicial del repositorio — antecedente histórico
 
 | Evidencia | Conclusión permitida | Conclusión no demostrada |
 |---|---|---|
@@ -61,7 +61,9 @@ P01 se cerró por aprobación explícita, no por silencio. Se mantienen las dem�
 | `AlmacenamientoDocumentoProduccionDocumental`: campos índice explícitos, Session, File.Name y eliminación de archivos. | Reutilización requiere aislamiento y copias. | Método listo para worker o seguro con staging único/opaco. |
 | Pruebas DOC-88: 14 aprobadas en auditoría anterior. | Línea base estática del código actual. | Integración futura sin regresiones. No se repitieron en esta entrega de diseño sin cambios de código. |
 
-## 5. Secuencia concreta
+## 5. Secuencia técnica de las entregas ya integradas
+
+La lista conserva el orden de responsabilidad original, no un backlog por ejecutar otra vez. 07-A → 06 → 07-B ya está integrado; 08/09/10/11/12 tienen evidencia en la matriz final. P04/P05 conservan sus límites operativos y 13 sigue opcional.
 
 1. Aplicar P01 resuelto —ambos ámbitos configurables— y revisar las demás decisiones de contrato que condicionen publicación/ejecución. No repetir exploración del módulo desde cero.
 2. Implementar 02 conforme a modelo de perfil/reglas; entregar SQL 01 manual y resolvedor puro probado.
@@ -76,6 +78,6 @@ P01 se cerró por aprobación explícita, no por silencio. Se mantienen las dem�
 
 ## 6. Criterios de revisión del diseño
 
-Este diseño permite trabajar con nombres/propietarios/tipos/contratos comunes, pero no debe convertirse directamente en DDL sin cerrar P02 y comprobar tamaños/límites/collations del despliegue. El conjunto no modifica catálogos ni esquemas SII y no propone refactorizar el almacenamiento compartido.
+Este diseño documenta nombres/propietarios/tipos/contratos comunes implementados. La instalación en otro ambiente exige sus controles de tamaños/límites/collations y procedimientos manuales; P02 no sigue siendo un bloqueo general de la implementación aceptada. El conjunto no modifica catálogos ni esquemas SII y no propone refactorizar el almacenamiento compartido.
 
 Revisar los cuatro documentos en conjunto: el modelo de datos no define una política distinta de estados; las acciones disponibles se derivan del servicio, no de la UI. Toda modificación de contrato actualiza su consumidor y matriz de pruebas. Una decisión de negocio pendiente queda marcada y no se resuelve mediante código silencioso.

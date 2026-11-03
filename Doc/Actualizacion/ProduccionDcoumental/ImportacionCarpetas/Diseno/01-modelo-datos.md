@@ -1,14 +1,14 @@
-# Diseño 01 — Modelo de datos propuesto
+# Diseño 01 — Modelo de datos implementado y antecedentes
 
-Estado: diseño técnico para las entregas 02 y 07-A. No es DDL aplicado ni aprobación de las decisiones funcionales pendientes. Leer [decisiones y pendientes](04-decisiones-y-pendientes.md) antes de implementarlo.
+Estado vigente, revisión documental DOC-112 del 2026-11-02: diccionario contrastado con SQL versionado y repositorios de DOC-110/111. Las definiciones coincidentes se conservan; las diferencias se registran en la sección 6. La [matriz final DOC-111](../Validacion/doc111-matriz-final-20261102.md) acredita persistencia y efectos en el ambiente de pruebas descrito. No certifica instalación en otros ambientes ni constituye una nueva ejecución de SQL. Leer [decisiones y pendientes](04-decisiones-y-pendientes.md).
 
 ## 1. Evidencia y convenciones
 
 La evidencia `Exploracion/02-evidencia-esquema-perfil.json` corresponde a MySQL 5.1.37 y muestra collations mixtas: `expediente_archivo` usa latin1_swedish_ci; `detalle_gabienete`, utf8_general_ci. `system1.id_gabinete` y `detalle_gabienete.id_detalle_gabinete` son INT UNSIGNED. `expediente_archivo.ID_EXPEDIENTE` es INT UNSIGNED y su PK es compuesta con `CODIGO_UNICO`. No crear una FK solo a ID_EXPEDIENTE suponiendo que constituye toda su identidad. No se inspeccionaron nuevamente datos operativos.
 
-Decisiones técnicas propuestas:
+Convenciones implementadas, con límites de ambiente:
 
-- Todas las tablas nuevas InnoDB. Nombres siguientes son nuevos y deben verificarse libres antes de entregar el SQL.
+- Tablas propias InnoDB. Los nombres siguientes ya tienen scripts y repositorios; comprobar estado y precondiciones de cada ambiente antes de cualquier instalación manual, sin repetir los scripts sobre recursos existentes.
 - `ID`: INT UNSIGNED; solo las PK usan AUTO_INCREMENT de MySQL. Referencias del mismo tipo sin autoincremento. Transporte como cadena decimal canónica entre 1 y 4294967295; ausencia opcional null, nunca cero. No es una secuencia por empresa ni garantiza números sin huecos. La autorización se verifica por ámbito en cada operación.
 - `UID`: CHAR(32) ASCII/ascii_bin reservado para referencias opacas de staging y tokens técnicos; no para PK ni FK de entidades.
 - `HASH`: BINARY(32), SHA-256 calculado en aplicación; no depender de funciones SQL de otra versión. Las comparaciones de identidad de petición verifican también su representación canónica cuando corresponda, no solo la huella.
@@ -22,7 +22,7 @@ Decisiones técnicas propuestas:
 
 ## 2. Configuración — SQL 01, propietario prompt 02
 
-Materialización documental: [SQL 01](../Sql/01-perfil-importacion-mysql51.sql) y [procedimiento/diccionario físico](../Sql/01-aplicacion-perfil-importacion.md). Preparados para revisión; no aplicados. Ámbito DOC-110: empresa documental del usuario en el origen RA. Se verificaron nombres libres y esquema de permisos mediante SELECT el 2026-10-20, sin acreditar otros ambientes.
+Materialización histórica: [SQL 01](../Sql/01-perfil-importacion-mysql51.sql) y [procedimiento](../Sql/01-aplicacion-perfil-importacion.md). La identidad incremental vigente requiere leer además [SQL 03](../Sql/03-migrar-identificadores-perfil-mysql51.sql), su [procedimiento de transformación](../Sql/03-aplicacion-migracion-identidades.md) y [SQL 04 de activación](../Sql/04-activar-identificadores-perfil-mysql51.sql). SQL 03 crea/copía tablas `_ai` y mapas; SQL 04 cambia los nombres y restablece las FK. La presencia de SQL 03 por sí sola no significa activación. Ámbito DOC-110: empresa documental del usuario en RA; la evidencia SELECT del 2026-10-20 es histórica y no acredita todos los ambientes.
 
 ### `ra_integracion_perfil`
 
@@ -107,7 +107,8 @@ UQ `(version_id,destino_tipo,destino_ref)`: una asignación final por destino. S
 | clave_confirmacion | VARCHAR(64) ASCII | Clave de idempotencia dentro del solicitante/ámbito. |
 | solicitud_hash | HASH | Igual clave/diferente solicitud produce conflicto. |
 | version_id | ID FK | Versión fija del perfil. |
-| modo_integridad, ambito_integridad | CODE | Copia efectiva; ámbito no puede ser NULL al confirmar. |
+| modo_integridad | CODE | Copia efectiva de la política. |
+| ambito_integridad | CODE NULL físico | SQL 02 permite NULL; el servicio exige EXPEDIENTE/LOTE en completo o NO_APLICA en parcial al confirmar. La nulabilidad física no autoriza un lote confirmado incompleto. |
 | contexto_doc, config_doc | DOC | Snapshots con esquema y configuración incluyendo reglas. |
 | estado | CODE | Agregado operativo según diseño 03. |
 | detencion_solicitada | TINYINT UNSIGNED | Señal, no prueba de detención. |
@@ -201,10 +202,24 @@ No existen FK nuevas a tablas SII ni lotes en su esquema. El prompt 02 entrega S
 
 ## 5. Límites y aceptación del modelo
 
-Estado posterior a la aplicación, 2026-10-27: el usuario ejecutó manualmente SQL 02 y el verificador del repositorio confirmó tablas, columnas, índices y FK mediante SELECT. Las seis tablas operativas están vacías; IMPORTAR_CARPETAS continúa en cero. Véase `../Validacion/doc111-esquema-instalado-20261027.md`. Los contrastes de nombres libres citados a continuación describen la comprobación previa, no el estado instalado actual. La persistencia de planes y la ejecución documental siguen pendientes de implementación y prueba.
+**Corte histórico posterior a la aplicación, 2026-10-27:** el usuario ejecutó manualmente SQL 02 y el verificador confirmó tablas, columnas, índices y FK mediante SELECT. En ese instante las seis tablas estaban vacías e IMPORTAR_CARPETAS continuaba en cero; persistencia y ejecución aún no se habían implementado/probado. Véase `../Validacion/doc111-esquema-instalado-20261027.md`. Esas condiciones quedaron superadas por los planes/lotes y documentos de la matriz final DOC-111; no describen el estado vigente. Los contrastes de nombres libres siguientes pertenecen a la comprobación previa.
 
 Contraste DOC-111 del 2026-10-27: `tools/e2e/artifacts/doc111-schema-preflight.json` registra únicamente metadatos del ambiente configurado. Confirma MySQL 5.1.37-community, `ra_integracion_perfil_version.version_id` INT UNSIGNED incremental/no nulo y padre InnoDB; la tabla de permisos también es InnoDB. Los seis nombres operativos `ra_integracion_plan/lote/raiz/archivo/intento/evento` del modelo están libres e `IMPORTAR_CARPETAS` está ausente. La referencia numérica a versión no depende de una collation; las nuevas columnas de texto se declaran ASCII/ascii_bin explícitamente. Las collations legacy citadas en sección 1 siguen siendo evidencia previa, no una nueva inspección documental. Antes de aplicar se repetirán metadatos e índices/PK del padre, ausencia de destinos y nombres de FK según `../Sql/02-aplicacion-carga-carpetas.md`. No se consultaron filas RA/DA ni se ejecutó DDL. La traducción de contexto real a referencias canónicas sigue siendo responsabilidad del adaptador operativo y debe verificarse antes de habilitarlo; las nuevas tablas no imponen FK a identidades legacy.
 
-El modelo está propuesto para permitir diseño paralelo, no declara listas cerradas de campos legacy ya verificadas para todos los ambientes. Antes del SQL final: resolver mapeo ámbito/usuario/nivel, contratos DOC cerrados, validación de los ámbitos aprobados, longitudes de catálogos, tamaños configurados de JSON, calendario UTC y retención. Publicar requiere referencias completas y reglas soportadas; almacenamiento debe validar representabilidad en catálogos legacy.
+La condición original de «modelo propuesto para diseño paralelo» pertenece al corte previo a implementación. El modelo vigente no declara listas de campos legacy verificadas para todos los ambientes: otro despliegue debe comprobar mapeo ámbito/usuario/nivel, compatibilidad del esquema, longitudes y límites configurados. Publicar requiere referencias completas y reglas soportadas; almacenamiento valida representabilidad legacy. Retención operativa sigue abierta y no impide describir las tablas ya implementadas.
 
 Pruebas obligatorias: CAS de publicación, confirmación doble, misma clave/distinto hash/payload, plan expirado, FK/recurso cruzado, rollback de confirmación, nombre Unicode no representable, ruta larga, colisión de identidad y lectura de snapshot tras publicar otra versión. No ejecutar DDL operativo para demostrarlo sin autorización de ambiente.
+
+## 6. Diferencias corregidas por DOC-112 y correspondencia física
+
+| Elemento | Descripción anterior | Definición versionada / corrección | Fuente |
+|---|---|---|---|
+| Perfil/versión/regla, PK y FK | Se citaba solo SQL 01 aunque el diccionario ya declaraba ID incremental. | Mantener INT UNSIGNED AUTO_INCREMENT y referencias INT UNSIGNED; SQL 03 prepara `_ai` y mapas; SQL 04 activa nombres finales y FK versión→perfil/regla→versión RESTRICT. Los mapas y respaldos no son otros catálogos operativos. | SQL 03/04 y MySqlPerfilImportacionRepository. |
+| lote.ambito_integridad | CODE implícitamente NOT NULL. | VARCHAR(40) ASCII/ascii_bin NULL en SQL 02; validación de modo/ámbito obligatoria en Service. | SQL 02, ServicioRecepcionImportacion. |
+| Índices de versión del plan/lote | No enumerados en los párrafos de índices. | ix_integracion_plan_version(version_id) e ix_integracion_lote_version(version_id), además de las FK RESTRICT al padre. | SQL 02. |
+| Índices por recurso del intento | Descripción genérica «por recurso/fase». | ix_integracion_intento_raiz(raiz_id,fase) e ix_integracion_intento_archivo(archivo_id,fase); ix_integracion_intento_lote(lote_id,estado,inicio_utc) se conserva. | SQL 02. |
+| Índice por intento del evento | No enumerado. | ix_integracion_evento_intento(intento_id), con FK RESTRICT; recurso_id continúa como referencia lógica tipada, sin FK polimórfica. | SQL 02. |
+| Contexto, snapshots, bytes y claves | Definiciones ya compatibles. | Sin cambio: plan.usuario_ref y lote.solicitante_ref VARCHAR(128), DOC LONGTEXT ASCII/ascii_bin, SHA-256 BINARY(32), staging/token CHAR(32), bytes BIGINT UNSIGNED, PK/FK INT UNSIGNED y DATETIME UTC. | SQL 02 y parciales del repositorio único. |
+| Estado del esquema y capacidades | Tablas vacías, permiso cero y persistencia/efectos por implementar. | Conservar ese corte como histórico; las aceptaciones posteriores verificaron persistencia, barreras y efectos en recursos concretos. | Matriz final DOC-111. |
+
+Se mantienen las columnas y relaciones compatibles de SQL 02 y las tablas de configuración de SQL 03 más activación SQL 04. No se generó ni aplicó DDL. Proveedor/fuente y sus versiones pertenecen a DOC-110 y se referencian desde reglas/configuración; estas nueve entidades principales no fijan el número global de tablas del sistema.
