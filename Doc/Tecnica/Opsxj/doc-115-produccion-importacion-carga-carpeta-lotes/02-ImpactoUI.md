@@ -1,6 +1,10 @@
 # DOC-115 — ImpactoUI
 
-Ticket: DOC-115. Cambio: doc-115-produccion-importacion-carga-carpeta-lotes. Impacto: cross_cutting. Estado: implementación y validación completas, entrega pendiente de revisión/publicación.
+- Ticket: DOC-115
+- Cambio OpenSpec: doc-115-produccion-importacion-carga-carpeta-lotes
+- Clasificacion: cross_cutting
+
+Estado: implementación y validación completas, entrega pendiente de revisión/publicación.
 
 ## Superficies UI
 
