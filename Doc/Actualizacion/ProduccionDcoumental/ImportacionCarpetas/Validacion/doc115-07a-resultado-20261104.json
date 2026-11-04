@@ -1,0 +1,146 @@
+{
+  "issueKey": "DOC-115",
+  "phase": "07-A",
+  "status": "EJECUTADO_OK",
+  "attempt": 3,
+  "reviewDate": "2026-11-04",
+  "startedUtc": "2026-11-04T13:39:48.187Z",
+  "finishedUtc": "2026-11-04T13:40:08.617Z",
+  "plans": [
+    "29",
+    "30",
+    "31"
+  ],
+  "lots": [
+    "10",
+    "11"
+  ],
+  "archivoOperativoId": "16",
+  "intentoRecepcionId": "30",
+  "connections": "Independent physical connections per invocation; pooling disabled only in ephemeral test connection string",
+  "controlledRollbacks": 4,
+  "confirmationRollbackStages": [
+    "ANTES_EVENTO",
+    "EVENTO_INSERTADO",
+    "PLAN_CONFIRMADO"
+  ],
+  "receiptRollbackVerified": true,
+  "receiptCommitUnique": true,
+  "preexistingDataUnchanged": true,
+  "protectedGroups": [
+    "plan",
+    "lote",
+    "raiz",
+    "archivo",
+    "intento",
+    "evento",
+    "profiles",
+    "versions",
+    "rules",
+    "permissions",
+    "expedientes",
+    "documents",
+    "inventories"
+  ],
+  "protectedBefore": {
+    "plan": "0efa0193e5e6d8aa31e6379f7a4a67528cd19106d566b330debbaa52d5fa1517",
+    "lote": "b25f42ff18c24e034f7f06d861ba4705488571fe45c700716b34f161862af1d7",
+    "raiz": "104115b4d41d22f802a3a764dc54f9faf665b45e1f7620503a5808e9e47fcad9",
+    "archivo": "68884071b8b0546e40b42b099d325efd7f555d2ab56c3b06bfaf4e046592ffd9",
+    "intento": "2637885e2755721ece1abeed00a57c0e6a7de3b1236912fd2db075ae5e12e6a7",
+    "evento": "4f64b0812181c91d32cc8c334d9e6f0672ee682e87f6118e4515cd6eb43f8d95",
+    "profiles": "fd75d0c3c183c94a3d5ca2779351c463d30e51dc32c15708efa38b0cdd10451c",
+    "versions": "2fb09f7cca48b8ee7d67265404a6e62470cd1a59caa585bfd472b6b5719d9afb",
+    "rules": "42643f9bde69dcb13e9687be60fc729ed120b1cbc759e7dffb66bd550d92f1d2",
+    "permissions": "ca0d1e2f64e643188ba15af692b24e67b0f020cd5d01346922d54dcabe6b6d4f",
+    "expedientes": "b05d6671d37b8f9c0b845af62ffc8027208bd15a4e9dc03c5732476731127481",
+    "documents": "bfdd7ca4426a918315866e3b07d034c09e5ffe88e49c1d38d84fd5f8330b461d",
+    "inventories": "23541fa03aa2ef1be8db1adb04f01116795b02ec92c46030dc99a8bb318a7f9d"
+  },
+  "protectedAfter": {
+    "plan": "0efa0193e5e6d8aa31e6379f7a4a67528cd19106d566b330debbaa52d5fa1517",
+    "lote": "b25f42ff18c24e034f7f06d861ba4705488571fe45c700716b34f161862af1d7",
+    "raiz": "104115b4d41d22f802a3a764dc54f9faf665b45e1f7620503a5808e9e47fcad9",
+    "archivo": "68884071b8b0546e40b42b099d325efd7f555d2ab56c3b06bfaf4e046592ffd9",
+    "intento": "2637885e2755721ece1abeed00a57c0e6a7de3b1236912fd2db075ae5e12e6a7",
+    "evento": "4f64b0812181c91d32cc8c334d9e6f0672ee682e87f6118e4515cd6eb43f8d95",
+    "profiles": "fd75d0c3c183c94a3d5ca2779351c463d30e51dc32c15708efa38b0cdd10451c",
+    "versions": "2fb09f7cca48b8ee7d67265404a6e62470cd1a59caa585bfd472b6b5719d9afb",
+    "rules": "42643f9bde69dcb13e9687be60fc729ed120b1cbc759e7dffb66bd550d92f1d2",
+    "permissions": "ca0d1e2f64e643188ba15af692b24e67b0f020cd5d01346922d54dcabe6b6d4f",
+    "expedientes": "b05d6671d37b8f9c0b845af62ffc8027208bd15a4e9dc03c5732476731127481",
+    "documents": "bfdd7ca4426a918315866e3b07d034c09e5ffe88e49c1d38d84fd5f8330b461d",
+    "inventories": "23541fa03aa2ef1be8db1adb04f01116795b02ec92c46030dc99a8bb318a7f9d"
+  },
+  "oldMaximumIds": {
+    "plan": 28,
+    "lote": 9,
+    "raiz": 14,
+    "archivo": 15,
+    "intento": 29,
+    "evento": 110
+  },
+  "newRecordCountsAsserted": {
+    "plan": 3,
+    "lote": 2,
+    "raiz": 4,
+    "archivo": 4,
+    "intento": 1,
+    "evento": 4
+  },
+  "stagingOriginals": 1,
+  "stagingBytes": 677,
+  "documentEffects": 0,
+  "readOnlyControls": true,
+  "sourceFiles": [
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.vb",
+      "sha256": "2e40361d02629c7c904894b6ad6c4aae32146c3d305c8d1d840723c30f1b1cab"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.vb",
+      "sha256": "1b429f0cb5e318afe1645b51f5ca79d43e7f09cc37dcccb60e9a0c7356547024"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlPerfilImportacionRepository.vb",
+      "sha256": "7aecfd002395a37a1a03109ca9de4258b1b4f8013c534f6d33458410315fdfc4"
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "sha256": "d725cb30c99c879f477bf37406d30a2f2fab07ba65cb8a2822b9fa8c3df41480"
+    },
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "sha256": "356b1b35691e4f3ffedc8fc9bf006ce83ff9f4e1e8bb2301580e24cd4a3780f4"
+    },
+    {
+      "path": "tests/ImportacionCarpetasRepositoryIntegrationTests.cs",
+      "sha256": "1d930904e051435593028dcf517bb196330e3ec4c23418ade2c1de5a69e67dea"
+    },
+    {
+      "path": "tools/e2e/scripts/compile-doc111-persistence.cjs",
+      "sha256": "7ad2d68dcb63b2053274844763ed86d88581b5676e8d5f40cfa36360ce0fb98f"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc111-persistence.ps1",
+      "sha256": "a37383ac154b2fb0fca2051fc78fa867cc363cf34c6e9b3b0aad56b4f782c030"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc115-readonly-failure.ps1",
+      "sha256": "d459498fa987cb5352a1ca5765711497ec753171cd03096d0a2289204116ef7c"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc115-repository-integration.ps1",
+      "sha256": "38058866cba0e752b7143e77c1c36de6dad43527a1436f9a914c62f81a5ea395"
+    }
+  ],
+  "sourceSha256": "b84f54bc8081811edd9488fa89ce3380e412faaa065b6d62d9ad943dc729c65b",
+  "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "resourcesSha256": "ab6b77497f1ef242ba227144d694cb9f4b2f423aab9f41d8bb6ca8bc04eb64d3",
+  "limitations": [
+    "Explicit repository fixture context; HTTP identity/destination authority is covered separately by RECIB",
+    "AUTO_INCREMENT gaps caused by rolled-back/conflicting transactions are expected",
+    "No DDL, application deployment or definitive document storage"
+  ],
+  "delivery": "All implementation tasks completed; publication/Jira closure not performed"
+}

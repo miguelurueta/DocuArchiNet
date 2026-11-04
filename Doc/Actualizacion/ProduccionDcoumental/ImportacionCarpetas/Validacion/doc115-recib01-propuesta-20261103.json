@@ -1,0 +1,30 @@
+{
+  "issueKey": "DOC-115",
+  "scenario": "RECIB-01",
+  "status": "READY_AWAITING_SPECIFIC_AUTHORIZATION",
+  "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "identity": {
+    "userRef": "141",
+    "ambitoRef": "2"
+  },
+  "nivelRef": "7",
+  "versionId": "38",
+  "roots": [
+    "DOC115-20261103-RECIB01-01",
+    "DOC115-20261103-RECIB01-02"
+  ],
+  "preparations": 2,
+  "maximumLots": 1,
+  "confirmationRequests": 5,
+  "uploads": 0,
+  "documentEffects": 0,
+  "preserveResources": true,
+  "permissionChanges": 0,
+  "profileChanges": 0,
+  "sqlExecuted": false,
+  "selectOnlyControls": true,
+  "resourcesSha256": "e067baad445e7c3a4f8fb857240e1561e6e92639bd0893de6d7ce86e6ddf9fa8",
+  "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "credentialEntry": "Existing interactive console only; no credentials in proposal/chat",
+  "readBeforeRepeat": true
+}

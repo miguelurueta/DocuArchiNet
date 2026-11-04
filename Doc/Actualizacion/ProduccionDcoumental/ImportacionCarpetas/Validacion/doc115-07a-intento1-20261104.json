@@ -1,0 +1,22 @@
+{
+  "issueKey": "DOC-115",
+  "scenario": "REPO-07A",
+  "attempt": 1,
+  "status": "FALLIDO",
+  "phase": "READONLY_PREFLIGHT",
+  "code": "DOC115_REPOSITORY_INTEGRATION_FAILED",
+  "exactCause": "NOT_RETAINED",
+  "registeredWriteConnectionReached": false,
+  "repositoryIntegrationCalled": false,
+  "references": [],
+  "writesStarted": false,
+  "interpretation": "Application account was typed in the MySQL account field. This is not proof of an authentication failure: the original ODBC code was not retained.",
+  "correction": "Record OPEN_CONNECTION/SELECT step and closed SQLSTATE/native-code classification, without raw exception text",
+  "localNodePassed": 93,
+  "remainingBudget": {
+    "preparations": 3,
+    "maximumCommittedLots": 2,
+    "stagingOriginals": 1,
+    "controlledRollbacks": 4
+  }
+}

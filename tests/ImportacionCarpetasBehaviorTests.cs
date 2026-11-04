@@ -9,7 +9,7 @@ using System.Web;
 using System.Web.Hosting;
 using System.Web.SessionState;
 
-public static class ImportacionCarpetasBehaviorTests {
+public static partial class ImportacionCarpetasBehaviorTests {
     static void Check(bool condition,string message) { if(!condition)throw new Exception(message); }
 
     sealed class StagingStream : Stream {
@@ -129,14 +129,53 @@ public static class ImportacionCarpetasBehaviorTests {
             finally {release.Set();}
             Check(first.Wait(TimeSpan.FromSeconds(10)) && first.Result.estadoRecepcion=="RECIBIDO" && f.Repository.Commits==1,"DOC111 original executor did not finish exactly once");
         }
+        // DOC-115: tampering after a committed receipt preserves both evidence
+        // and counters. A valid-size file is not sufficient to authorize replay.
+        using(var f=new ReceiptFixture()) {
+            RecepcionArchivoImportacionResultado prior;using(var input=new StagingStream(f.Pdf))prior=f.Service.Recibir(f.Request,input);
+            var complete=f.Completed().Single();var changed=(byte[])f.Pdf.Clone();changed[20]^=1;File.WriteAllBytes(complete,changed);
+            using(var input=new StagingStream(f.Pdf)){Rejected("RESULTADO_INCIERTO",()=>f.Service.Recibir(f.Request,input));Check(input.BytesRead==0,"DOC115 changed retained content consumes replay before verification");}
+            Check(f.Repository.Commits==1 && f.Repository.Reservations==1 && f.Repository.File.ContenidoHash==prior.contenidoHash && f.Repository.File.EstadoEfecto=="NO_INICIADO","DOC115 altered retention overwrites confirmed row or starts document effects");
+            File.WriteAllBytes(complete,f.Pdf);
+        }
+        // Two different files compete for one injected finite quota. The first
+        // stream holds the real file lock; the second must not read any bytes.
+        using(var f=new ReceiptFixture())using(var entered=new System.Threading.ManualResetEventSlim(false))using(var release=new System.Threading.ManualResetEventSlim(false)) {
+            var quota=new LimitesImportacionCarpetas(2,4,(ulong)f.Pdf.Length,(ulong)f.Pdf.Length,16384,TimeSpan.FromMinutes(1),TimeSpan.FromHours(1));
+            var other=ReceiptClone(f.Repository.File);other.ArchivoId="31";
+            var firstAttempt=new IntentoImportacionCarpetas{IntentoId="50",LoteId="20",RaizId="40",ArchivoId="30",Fase="RECEPCION",Estado="EN_CURSO",TokenReclamacion=Guid.NewGuid().ToString("N")};
+            var secondAttempt=ReceiptClone(firstAttempt);secondAttempt.IntentoId="51";secondAttempt.ArchivoId="31";secondAttempt.TokenReclamacion=Guid.NewGuid().ToString("N");
+            var firstStore=new AlmacenStagingImportacion(f.Root,quota,f.Repository.Lot,f.Repository.File,10,200);
+            var secondStore=new AlmacenStagingImportacion(f.Root,quota,f.Repository.Lot,other,10,200);
+            var first=System.Threading.Tasks.Task.Factory.StartNew(()=>{using(var input=new StagingStream(f.Pdf){OnRead=()=>{entered.Set();if(!release.Wait(TimeSpan.FromSeconds(10)))throw new IOException("Fixture gate timeout");}})return firstStore.Recibir(f.Repository.Lot.Contexto,firstAttempt,input,f.Repository.File.BytesPrevistos);});
+            try{Check(entered.Wait(TimeSpan.FromSeconds(5)),"DOC115 quota writer never entered");using(var input=new StagingStream(f.Pdf)){Rejected("RECEPCION_OCUPADA",()=>secondStore.Recibir(f.Repository.Lot.Contexto,secondAttempt,input,other.BytesPrevistos));Check(input.BytesRead==0,"DOC115 concurrent quota competitor consumed bytes");}}finally{release.Set();}
+            Check(first.Wait(TimeSpan.FromSeconds(10)),"DOC115 quota writer did not complete");
+            using(var input=new StagingStream(f.Pdf)){Rejected("LIMITE_EXCEDIDO",()=>secondStore.Recibir(f.Repository.Lot.Contexto,secondAttempt,input,other.BytesPrevistos));Check(input.BytesRead==0,"DOC115 completed retention not counted toward finite quota");}
+            using(var input=new StagingStream(f.Pdf)){Check(firstStore.VerificarReenvio(f.Repository.Lot.Contexto,firstAttempt,input).ContenidoHash==first.Result.ContenidoHash,"DOC115 replay changes retained content");}
+            Check(f.Completed().Length==1 && new FileInfo(f.Completed().Single()).Length==f.Pdf.Length,"DOC115 quota/replay duplicated retained bytes");
+        }
+        using(var f=new ReceiptFixture()) {
+            var appData=Path.Combine(f.Root,"App_Data");Directory.CreateDirectory(appData);
+            var link=Path.Combine(appData,"ImportacionCarpetas");var outside=Path.Combine(f.Root,"junction-target");Directory.CreateDirectory(outside);
+            var start=new System.Diagnostics.ProcessStartInfo("cmd.exe","/c mklink /J \""+link+"\" \""+outside+"\""){UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true};
+            try{
+                using(var process=System.Diagnostics.Process.Start(start)){process.StandardOutput.ReadToEnd();process.StandardError.ReadToEnd();Check(process.WaitForExit(5000)&&process.ExitCode==0,"DOC115 local junction fixture unavailable");}
+                using(var input=new StagingStream(f.Pdf)){Rejected("CAPACIDAD_NO_DISPONIBLE",()=>f.Service.Recibir(f.Request,input));Check(input.BytesRead==0 && Directory.GetFiles(outside,"*",SearchOption.AllDirectories).Length==0,"DOC115 junction received bytes outside controlled staging");}
+            }finally{
+                // Remove only this verified link, without recursion or its target.
+                Check(Path.GetFullPath(link)==Path.Combine(Path.GetFullPath(f.Root),"App_Data","ImportacionCarpetas"),"DOC115 junction cleanup outside fixture");
+                if(Directory.Exists(link))Directory.Delete(link,false);
+            }
+        }
+        Console.WriteLine("DOC-115 altered retention and concurrent finite quota (real disk, persistence double): passed");
         Console.WriteLine("DOC-111 receipt ownership, replay, recovery and concurrency: passed");
     }
 
-    static byte[] ReceiptMultipart(byte[] pdf,bool extra=false) {
+    static byte[] ReceiptMultipart(byte[] pdf,bool extra=false,string extraField="usuarioRef") {
         using(var body=new MemoryStream()) {
             Action<string> append=s=>{var bytes=System.Text.Encoding.UTF8.GetBytes(s);body.Write(bytes,0,bytes.Length);};
             foreach(var item in new[]{new[]{"loteId","20"},new[]{"archivoId","30"},new[]{"claveIntento","command-1"}})append("--doc111-receipt\r\nContent-Disposition: form-data; name=\""+item[0]+"\"\r\n\r\n"+item[1]+"\r\n");
-            if(extra)append("--doc111-receipt\r\nContent-Disposition: form-data; name=\"usuarioRef\"\r\n\r\n99\r\n");
+            if(extra)append("--doc111-receipt\r\nContent-Disposition: form-data; name=\""+extraField+"\"\r\n\r\n99\r\n");
             append("--doc111-receipt\r\nContent-Disposition: form-data; name=\"file\"; filename=\"client-name.html\"\r\nContent-Type: text/html\r\n\r\n");body.Write(pdf,0,pdf.Length);append("\r\n--doc111-receipt--\r\n");return body.ToArray();
         }
     }
@@ -150,12 +189,13 @@ public static class ImportacionCarpetasBehaviorTests {
                 var constructor=typeof(ImportacionCarpetasUpload).GetConstructors(BindingFlags.NonPublic|BindingFlags.Instance).Single();
                 var handler=(ImportacionCarpetasUpload)constructor.Invoke(new object[]{f.Resources.Adapter,(Func<LimitesImportacionCarpetas>)(()=>f.Limits),factory});
                 Check(!handler.IsReusable && handler is IRequiresSessionState,"DOC111 multipart handler does not use approved session lifecycle");
-                foreach(var scenario in new[]{"token","origin","permission","session","extra"}) {
-                    var worker=new ImportRequest{Body=ReceiptMultipart(f.Pdf,scenario=="extra"),Mime="multipart/form-data; boundary=doc111-receipt"};var http=SessionFixture(worker:worker);worker.Token=ImportacionCarpetasRequestGuard.Emitir(http,RequestContext());
+                foreach(var scenario in new[]{"token","origin","permission","session","extra","gabineteId","expedienteId","nivelRef","estadoRecepcion"}) {
+                    var extra=new[]{"extra","gabineteId","expedienteId","nivelRef","estadoRecepcion"}.Contains(scenario);
+                    var worker=new ImportRequest{Body=ReceiptMultipart(f.Pdf,extra,scenario=="extra"?"usuarioRef":scenario),Mime="multipart/form-data; boundary=doc111-receipt"};var http=SessionFixture(worker:worker);worker.Token=ImportacionCarpetasRequestGuard.Emitir(http,RequestContext());
                     if(scenario=="token")worker.Token=null;if(scenario=="origin")worker.Origin="https://foreign.invalid";if(scenario=="permission")f.Resources.ImportAllowed=false;if(scenario=="session")http.Session.Clear();
                     HttpContext.Current=http;handler.ProcessRequest(http);http.Response.Flush();
-                    Check(http.Response.StatusCode==(scenario=="session"?401:scenario=="extra"?400:403) && factories==0,"DOC111 rejected multipart reaches service or wrong status");
-                    if(scenario!="extra")Check(worker.BodyReads==0,"DOC111 rejected authority/token/origin reads multipart body");
+                    Check(http.Response.StatusCode==(scenario=="session"?401:extra?400:403) && factories==0,"DOC111 rejected multipart reaches service or wrong status");
+                    if(!extra)Check(worker.BodyReads==0,"DOC111 rejected authority/token/origin reads multipart body");
                     Check(!worker.ResponseText.Contains("App_Data") && !worker.ResponseText.Contains("tokenReclamacion"),"DOC111 multipart error exposes private details");f.Resources.ImportAllowed=true;
                 }
                 var accepted=new ImportRequest{Body=ReceiptMultipart(f.Pdf),Mime="multipart/form-data; boundary=doc111-receipt"};var ok=SessionFixture(worker:accepted);accepted.Token=ImportacionCarpetasRequestGuard.Emitir(ok,RequestContext());HttpContext.Current=ok;
@@ -1407,6 +1447,9 @@ public static class ImportacionCarpetasBehaviorTests {
     }
 
     public static string[] RunRollbackIntegration(bool authorized,string connection,ContextoImportacionCarpetas context,string planId,string existingLotId) {
+        return RunRollbackIntegration(authorized,connection,context,planId,existingLotId,"1");
+    }
+    public static string[] RunRollbackIntegration(bool authorized,string connection,ContextoImportacionCarpetas context,string planId,string existingLotId,string committedPlanId) {
         if(!authorized)throw new Exception("DOC111_ROLLBACK_AUTHORIZATION_REQUIRED");
         var normal=new MySqlImportacionCarpetasRepository(connection);
         var original=normal.ObtenerPlan(context,planId);
@@ -1446,7 +1489,7 @@ public static class ImportacionCarpetasBehaviorTests {
             }
             Console.WriteLine("DOC111_ROLLBACK_STAGE_PASS: "+target);
         }
-        var committed=normal.ObtenerPlan(context,"1");
+        var committed=normal.ObtenerPlan(context,committedPlanId);
         Check(normal.ConfirmarPlan(context,committed.PlanId,1,committed.Huella,"post-rollback-"+Guid.NewGuid().ToString("N")).LoteId==existingLotId,"DOC111 rollback damaged committed replay");
         return stages;
     }
@@ -2723,6 +2766,7 @@ public static class ImportacionCarpetasBehaviorTests {
     }
 
     public static void Run() {
+        Doc115RepositoryGuardCases();
         QueryCases();QuerySqlCases();QueryDispatcherCases();RetentionDiagnosisCases();KnownExpedientRelationCases();KnownExpedientClassificationCases();CreationCommandCases();CreationCatalogCases();CreationLegacyCompatibilityCases();LegacyCreationAuthorityCases();ProductionArchiveCycleCases();CreationAdapterCases();CreationResultSqlCases();CreationCheckpointCases();CreationBarrierCases();PhysicalCreationStagingCases();CoordinatedCreationCases();DeferredValuesCases();
         ControlCases();
         TransitionCases();

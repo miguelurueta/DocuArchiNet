@@ -1,0 +1,47 @@
+{
+  "issueKey": "DOC-115",
+  "scenario": "RECIB-02",
+  "status": "EJECUTADO_OK",
+  "reviewDate": "2026-11-04",
+  "startedUtc": "2026-11-04T12:05:22.922Z",
+  "finishedUtc": "2026-11-04T12:08:51.723Z",
+  "plans": [
+    "26",
+    "27"
+  ],
+  "lots": [
+    "7",
+    "8"
+  ],
+  "preparations": 2,
+  "confirmations": 2,
+  "uploads": 8,
+  "validOriginalReceipts": 1,
+  "noDocumentEffects": true,
+  "readOnlyControls": true,
+  "preservedLotsUnchanged": true,
+  "preservedLotIds": [
+    "6"
+  ],
+  "sourceSha256": "ed4a011fc7cdaacd1bc208ae9a10592b644df207f87fd7d06f49a9670e40fff1",
+  "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "sourceMatchesCurrent": true,
+  "backendMatchesCurrent": true,
+  "verifiedCases": [
+    "foreign-file-ID",
+    "injected-destination-and-path-fields",
+    "missing-CSRF-token",
+    "truncated-676-byte-content",
+    "excess-678-byte-content",
+    "valid-677-byte-PDF",
+    "identical-replay",
+    "changed-content-replay"
+  ],
+  "consoleLabel": "DOC115_RECIB01_FINISHED was a wrapper label typo; operational scenario and both artifacts are RECIB-02",
+  "limitations": [
+    "Finite aggregate quota remains characterized locally with injected limits; not configured in this environment",
+    "No new read-only DB connection was opened for this review; it contrasts the saved test assertions/evidence",
+    "RECIB-03 and independent MySQL repository integration remain unexecuted"
+  ],
+  "overallIssueComplete": false
+}

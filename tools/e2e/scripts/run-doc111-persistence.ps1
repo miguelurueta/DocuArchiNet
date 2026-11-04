@@ -1,5 +1,12 @@
-param([switch]$AuthorizedPersistence,[switch]$AuthorizedTemporaryProfile24,[ValidateSet('Create','Rollback','PublicationRead')][string]$Mode='Create')
+param([switch]$AuthorizedPersistence,[switch]$AuthorizedTemporaryProfile24,[ValidateSet('Create','Rollback','PublicationRead','Doc115')][string]$Mode='Create',[switch]$AuthorizedDoc115,[string]$ResourcesFile,[string]$RuntimeRoot,[switch]$Check)
 $ErrorActionPreference='Stop'
+if($Mode -eq 'Doc115'){
+    if($Check){& (Join-Path $PSScriptRoot 'support/doc115-repository-integration.ps1') -ResourcesFile $ResourcesFile -RuntimeRoot $RuntimeRoot -Check;exit $LASTEXITCODE}
+    if(-not $AuthorizedDoc115 -or [string]::IsNullOrWhiteSpace($ResourcesFile) -or [string]::IsNullOrWhiteSpace($RuntimeRoot) -or $env:DOC115_07A_AUTHORIZED -ne 'true'){throw 'DOC115_REPOSITORY_AUTHORIZATION_REQUIRED'}
+    & (Join-Path $PSScriptRoot 'support/doc115-repository-integration.ps1') -ResourcesFile $ResourcesFile -RuntimeRoot $RuntimeRoot
+    exit $LASTEXITCODE
+}
+if($Check){throw 'DOC115_CHECK_MODE_INVALID'}
 if(-not $AuthorizedPersistence -or -not $AuthorizedTemporaryProfile24){throw 'DOC111_PERSISTENCE_AUTHORIZATION_REQUIRED'}
 $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../..'))
 $catalog=$null;$connection=$null;$runLock=$null;$profileRepo=$null;$adminContext=$null

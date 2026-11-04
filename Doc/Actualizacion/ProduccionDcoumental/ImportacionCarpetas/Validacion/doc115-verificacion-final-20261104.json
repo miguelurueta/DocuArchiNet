@@ -1,0 +1,111 @@
+{
+  "issueKey": "DOC-115",
+  "change": "doc-115-produccion-importacion-carga-carpeta-lotes",
+  "status": "PASS_WITH_DECLARED_SCOPE_LIMITS",
+  "reviewDate": "2026-11-04",
+  "method": "openspec-verify-change; source/test/evidence review, no repeated real execution",
+  "dimensions": {
+    "completeness": {
+      "complete": 28,
+      "total": 28,
+      "requirements": 9,
+      "scenarios": 19
+    },
+    "correctness": {
+      "requirementsCovered": 9,
+      "scenarioCoverage": "19/19 with documented mixed real/local/documentary evidence"
+    },
+    "coherence": {
+      "singleRepositoryAndSchema": true,
+      "reusedE2EInfrastructure": true,
+      "productVbProjectConfigChanges": 0
+    }
+  },
+  "issues": {
+    "critical": [],
+    "warnings": [],
+    "suggestions": []
+  },
+  "declaredLimits": [
+    "RECIB-03 discards successful application result at client; not server crash or network response loss",
+    "Finite aggregate quota is injected in local tests, not configured in the live environment",
+    "07-A context is a repository fixture; HTTP authority is separately covered by RECIB",
+    "No deployment or DDL; publication and Jira closure remain a separate delivery step"
+  ],
+  "coverage": [
+    {
+      "requirement": "RQ-01",
+      "decision": "D-01",
+      "implementation": "Diseno/design.md; Sql/02-carga-carpetas-mysql51.sql; MySqlImportacionCarpetasRepository.ValidarMetadatos",
+      "evidence": "doc115-07a-contraste-esquema-20261103.md; doc115-07a-resultado-20261104.json",
+      "assessment": "Mapa e instalación existente: revisión de código/DDL y metadatos reales antes de las operaciones; sin reaplicación de SQL."
+    },
+    {
+      "requirement": "RQ-02",
+      "decision": "D-02",
+      "implementation": "MySqlImportacionCarpetasRepository.ConfirmarPlan; ImportacionCarpetasRepositoryIntegrationTests.cs",
+      "evidence": "doc115-recib01-resultado-20261104.json; doc115-07a-resultado-20261104.json",
+      "assessment": "Mismo plan y clave entre planes: HTTP y transacciones reales independientes; replay y conflictos comprobados."
+    },
+    {
+      "requirement": "RQ-03",
+      "decision": "D-03",
+      "implementation": "ImportacionCarpetasRequestGuard.LeerMultipart; ServicioRecepcionImportacion.ObtenerRecepcion",
+      "evidence": "doc115-recib02-resultado-20261104.json; ImportacionCarpetasBehaviorTests.ReceiptHandlerCases",
+      "assessment": "ID cruzado y multipart no autorizado: ejecución HTTP/SELECT y guards del harness."
+    },
+    {
+      "requirement": "RQ-04",
+      "decision": "D-04",
+      "implementation": "AlmacenStagingImportacion; LimitesImportacionCarpetas; assertRejectedReceipt/assertStoredReceipt",
+      "evidence": "doc115-recib02-resultado-20261104.json; ImportacionCarpetasBehaviorTests.StagingCases/ReceiptServiceCases",
+      "assessment": "Truncado/exceso reales; PDF/formato/contención y junction con disco real local; cuota acumulada finita por inyección, sin fingir límite productivo configurado."
+    },
+    {
+      "requirement": "RQ-05",
+      "decision": "D-05",
+      "implementation": "ServicioRecepcionImportacion.ReconciliarRecepcion; interruptUpload; assertInterruptedState",
+      "evidence": "doc115-recib03-resultado-20261104.json; doc115-07a-resultado-20261104.json; ReceiptServiceCases",
+      "assessment": "Pérdida de resultado en cliente ejecutada; disco/fila con rollback MySQL real y divergencias con disco real/repositorio doble; contenido cambiado rechazado en HTTP."
+    },
+    {
+      "requirement": "RQ-06",
+      "decision": "D-06",
+      "implementation": "MySqlImportacionCarpetasRepository.ReservarIntento/ConfirmarRecepcion; BloquearLote",
+      "evidence": "doc115-07a-resultado-20261104.json; ReceiptServiceCases",
+      "assessment": "Dos conexiones reales para reservas/confirmación; concurrencia durante escritura y cuota finita con disco real y doble de persistencia, declaradas como locales."
+    },
+    {
+      "requirement": "RQ-07",
+      "decision": "D-07",
+      "implementation": "CoordinadorImportacionCarpetas.Barreras.vb; ServicioRecepcionImportacion; controles de recepción",
+      "evidence": "doc115-07a-resultado-20261104.json; doc115-07b-resultados.md; CreationBarrierCases",
+      "assessment": "Barrera congelada y denominadores: harness existente; no efectos documentales: SELECT real y huellas protegidas."
+    },
+    {
+      "requirement": "RQ-08",
+      "decision": "D-08",
+      "implementation": "run-doc111-persistence.ps1 modo Doc115; authenticated-workflow-session.cjs; doc115-recepcion-importacion.spec.cjs",
+      "evidence": "doc115-07a-resultados.md; doc115-07b-resultados.md",
+      "assessment": "Fundaciones sin UI ni 06 y recorrido integrado: ambos ejecutados; arnés/paquete/configuración compartidos."
+    },
+    {
+      "requirement": "RQ-09",
+      "decision": "D-09",
+      "implementation": "Guards de autorización; diarios saneados; informes fechados y huellas",
+      "evidence": "doc115-aprobacion-editorial-20261103.json; resultados e intentos DOC115 en Validacion/",
+      "assessment": "Validación no autorizada: tests de rechazo local; entrega verificable: cuatro capacidades reales, referencias/huellas y fallos históricos conservados."
+    }
+  ],
+  "localTests": {
+    "nodePassed": 93,
+    "frameworkHarnessPassed": 2
+  },
+  "realCapabilities": {
+    "REPO07A": "EJECUTADO_OK",
+    "RECIB01": "EJECUTADO_OK",
+    "RECIB02": "EJECUTADO_OK",
+    "RECIB03": "EJECUTADO_OK"
+  },
+  "publicationPerformed": false
+}

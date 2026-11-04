@@ -396,3 +396,19 @@ ListarPerfiles acepta termino opcional (texto hasta 160 caracteres). Su predicad
 
 ### COR-04 — Catálogos guiados y consulta puntual
 ConsultarCatalogo agrega referencia opcional al DTO cerrado y la transmite al filtro autorizado existente del adaptador. El editor pide página 1/tamaño 1 para resolver el nombre de un ID guardado ausente de la página actual. Sin referencia conserva la paginación anterior. No sustituir valores faltantes ni omitir permisos RA/DA. Frontend invalida descendientes al cambiar padres, reinicia páginas y descarta respuestas de contextos/vistas anteriores; no hay dependencia Fondo → Instrumento. Índices se consultan automáticamente por gabinete. Publicar exige formulario guardado; Consultar estado se reserva a conflicto/resultado incierto y protege ediciones locales. Evidencia y límites: Validacion/doc110-cor04-detalle-guiado.md.
+
+
+## Precisión DOC-115 — confirmación y recepción, 2026-11-03
+
+Caracterización documental del DTO y servicio existentes; no añade endpoints ni cambia el contrato:
+
+| Operación | Entrada cerrada | Respuesta datos | Autoridad y efecto permitido |
+| --- | --- | --- | --- |
+| ConfirmarPlan (ASMX POST) | planId cadena decimal, revisionEsperada UInt32, planHashEsperado hex64, claveConfirmacion ASCII 1–64 | loteId/planId/nivelRef cadenas; estado; revision/totalRaices/totalArchivos UInt32; totalBytes cadena decimal | Identidad/ámbito/nivel/sello persistidos; confirma solo inventario operativo. |
+| ImportacionCarpetasUpload (ASHX POST multipart) | exactamente loteId, archivoId, claveIntento y un archivo | loteId/archivoId; estadoRecepcion/estadoEfecto; bytesRecibidos cadena decimal; contenidoHash hex64; revision UInt32 | Reautoriza recurso del lote; recibe staging, sin gabinete/expediente/nivel/estado arbitrarios. |
+
+Ambas respuestas usan RespuestaPerfilImportacion y EstadoHttp vigentes. El repositorio calcula solicitud_hash de confirmación sobre planId/revision/huella. Misma clave con payload diferente es CONFLICTO_REVISION; un plan confirmado converge al lote conservando la clave original incluso con otra clave de confirmación. Un 1062, 1205 o 1213 de MySQL se convierte en CONFLICTO_REVISION: conservar evidencia, consultar estado y solo entonces repetir el mismo comando autorizado para verificar convergencia.
+
+claveIntento identifica la solicitud de recepción; la identidad de contenido se prueba con bytes y SHA-256 del retenido. Reenvío íntegro de RECIBIDO devuelve evidencia previa; contenido distinto produce CONTENIDO_DISTINTO sin sustitución. Un intento RECHAZADO no se reutiliza ciegamente. Una incertidumbre sin contenido íntegro no habilita otro escritor por antigüedad.
+
+ReconciliarRecepcion pertenece al servicio interno, no a una operación pública nueva. RECIBIDO no significa documento incorporado. Paths/stagingRef/token de reclamación no se publican. Errores de servidor anteriores al handler se registran como tales, sin atribuirles un envelope JSON de aplicación.

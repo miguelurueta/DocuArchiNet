@@ -1,0 +1,17 @@
+{
+  "issueKey": "DOC-115",
+  "scenario": "REPO-07A",
+  "attempt": 2,
+  "status": "FALLIDO",
+  "failureCode": "DOC115_READONLY_AUTHENTICATION_FAILED",
+  "step": "OPEN_CONNECTION",
+  "diagnosis": "MySQL read-only authentication rejected for the registered DSN. The evidence does not distinguish absent account, password mismatch or host account restrictions.",
+  "selectQueriesExecuted": false,
+  "registeredWriteConnectionReached": false,
+  "repositoryIntegrationCalled": false,
+  "writesStarted": false,
+  "references": [],
+  "authorizationStillAvailable": true,
+  "nextRequirement": "Valid MySQL SELECT-only credentials for MembershipUsers, entered only in private console. No automatic new attempt.",
+  "overallComplete": false
+}

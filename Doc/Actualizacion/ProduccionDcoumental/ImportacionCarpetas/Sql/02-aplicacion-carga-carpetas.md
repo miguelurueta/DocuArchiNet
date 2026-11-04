@@ -165,3 +165,16 @@ LIMIT 2;
 ```
 
 Estos controles no insertan expedientes, no modifican modo SQL/configuración, no abren rutas ni imprimen credenciales/cadenas de conexión. Sus resultados no habilitan por sí solos el adaptador: quedan pendientes la correspondencia por IDs, estabilidad de las búsquedas legacy y correlación/verificación de efectos. No corregir automáticamente datos, nombres, índices, volumen o modo SQL para forzar la llamada. Conservar evidencia saneada y separar metadatos actuales de la exploración histórica.
+
+
+## Revisión diferencial DOC-115 — 2026-11-03
+
+Esta revisión inspecciona archivos versionados; no vuelve a consultar el ambiente ni certifica instalación actual. El contraste del script y MySqlImportacionCarpetasRepository conserva seis tablas, diez FK, unicidad por plan y clave (ámbito, solicitante, clave), revisiones e intentos persistidos. No se identificó una brecha estructural que justifique incremento SQL en este corte. No se modificó el DDL base.
+
+Decisión de aplicación manual:
+
+1. Sin tablas ni columna de permiso: seguir precondiciones anteriores y aplicar el script una sola vez por el equipo autorizado.
+2. Instalación completa existente: ejecutar únicamente las comprobaciones SELECT anteriores y contrastar columnas, índices, motor y relaciones con el verificador del repositorio; NO aplicar el script 02 de nuevo.
+3. Instalación parcial o incompatible: detener antes de cualquier nueva sentencia; conservar inventario de sentencias aplicadas y metadatos observados. El equipo debe preparar/revisar un incremento específico del estado real, sin DROP ni reaplicación ciega. No hay incremento genérico autorizado por este documento.
+
+Un índice único evita duplicar identidades pero no prueba pertenencia entre lote/raíz/archivo/intento: el repositorio comprueba esas relaciones bajo transacción. intento_activo_id es referencia lógica. La revisión local no acredita concurrencia, rollback de datos ni durabilidad de MySQL. Pruebas 07-A reales siguen NO_EJECUTADO hasta autorización específica. No activar perfiles ni permisos como parte implícita del control.

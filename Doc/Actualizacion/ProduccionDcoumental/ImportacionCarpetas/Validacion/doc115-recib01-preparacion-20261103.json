@@ -1,0 +1,36 @@
+{
+  "issueKey": "DOC-115",
+  "scenario": "RECIB-01",
+  "status": "READY_AWAITING_SPECIFIC_AUTHORIZATION",
+  "localTests": {
+    "nodePassed": 78,
+    "frameworkHarnessPassed": 2,
+    "frameworkRepeatedThisCut": false
+  },
+  "realExecuted": false,
+  "corrections": [
+    "Use existing ASMX ConsultarConfirmacionLote",
+    "Validate decimal local modification timestamp before preparing",
+    "Stop before preparing if matching plan names already exist",
+    "Bound confirmation calls to the reviewed scenario budget"
+  ],
+  "resourcesSha256": "e067baad445e7c3a4f8fb857240e1561e6e92639bd0893de6d7ce86e6ddf9fa8",
+  "authorizationScope": {
+    "environment": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "accountRef": "141",
+    "companyRef": "2",
+    "levelRef": "7",
+    "versionRef": "38",
+    "preparations": 2,
+    "confirmationRequests": 5,
+    "maximumLots": 1,
+    "uploads": 0,
+    "documentEffects": 0,
+    "preserveResources": true
+  },
+  "previousCapabilitiesNotRetested": [
+    "07-A direct repository integration",
+    "RECIB-02",
+    "RECIB-03"
+  ]
+}
