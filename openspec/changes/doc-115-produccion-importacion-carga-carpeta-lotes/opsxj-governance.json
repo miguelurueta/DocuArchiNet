@@ -116,5 +116,8 @@
     "state": "approved",
     "taskOriginFormat": "Origen: D-XX, RQ-XX",
     "enforcement": "Cada decision debe llegar a design, spec y tasks; no se admiten reglas de framework ajeno al perfil tecnologico."
+  },
+  "technologyProfile": {
+    "name": "legacy-webforms-vb"
   }
 }

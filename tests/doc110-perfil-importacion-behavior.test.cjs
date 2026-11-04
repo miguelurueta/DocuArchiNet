@@ -106,7 +106,7 @@ function compileBehaviorHarness(directory) {
       'tests/PerfilImportacionRequestGuardBehaviorTests.cs','tests/PerfilImportacionCatalogBehaviorTests.cs',
       'tests/PerfilImportacionMigrationBehaviorTests.cs','tests/ProveedorIndicesBehaviorTests.cs','tests/ProveedorIndicesReglasBehaviorTests.cs','tests/PoliticaFuentesProveedorBehaviorTests.cs',
       'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Sql/Doc110MigrationJson.cs',
-      'tests/FuenteImportacionBehaviorTests.cs','tests/AdministracionProveedorBehaviorTests.cs','tests/ImportacionCarpetasBehaviorTests.cs','tests/PerfilImportacionBehaviorTestRunner.cs']);
+      'tests/FuenteImportacionBehaviorTests.cs','tests/AdministracionProveedorBehaviorTests.cs','tests/ImportacionCarpetasBehaviorTests.cs','tests/ImportacionCarpetasRepositoryIntegrationTests.cs','tests/PerfilImportacionBehaviorTestRunner.cs']);
     fs.copyFileSync(path.join(root,'tests/Fixtures/ProduccionDocumental/doc110-perfil-antes-proveedor.json'),path.join(directory,'doc110-perfil-antes-proveedor.json'));
     fs.copyFileSync(path.join(root,'tests/Fixtures/ProduccionDocumental/doc111-esquema-instalado-mysql51.json'),path.join(directory,'doc111-esquema-instalado-mysql51.json'));
     return { exe };
@@ -158,6 +158,8 @@ if (require.main === module) test('DOC-110: reglas y configuración ejecutadas e
     assert.match(output, /DOC-111 plan storage guards: passed/);
     assert.match(output, /DOC-111 parametrized coincidence reader: passed/);
     assert.match(output, /DOC-111 confirmation revalidation and ASMX replay: passed/);
+    assert.match(output, /DOC-115 altered retention and concurrent finite quota \(real disk, persistence double\): passed/);
+    assert.match(output, /DOC-115 repository integration authorization guard \(no database\): passed/);
     assert.match(output, /DOC-111 operational authority: passed/);
     assert.match(output, /DOC-111 destination and cabinet authority: passed/);
     assert.match(output, /DOC-111 operational request guard: passed/);

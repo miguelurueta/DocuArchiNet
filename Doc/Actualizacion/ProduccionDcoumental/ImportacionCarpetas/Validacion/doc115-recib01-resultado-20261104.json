@@ -1,0 +1,38 @@
+{
+  "issueKey": "DOC-115",
+  "scenario": "RECIB-01",
+  "status": "EJECUTADO_OK",
+  "reviewDate": "2026-11-04",
+  "startedUtc": "2026-11-04T00:02:49.077Z",
+  "finishedUtc": "2026-11-04T00:06:02.716Z",
+  "plans": [
+    "24",
+    "25"
+  ],
+  "lots": [
+    "6"
+  ],
+  "preparations": 2,
+  "confirmations": 5,
+  "uploads": 0,
+  "noDocumentEffects": true,
+  "readOnlyControls": true,
+  "sourceSha256": "fb00ef6c41e5e14ab138a408c04414d48dac5444b879d6e28db0b62d06202cee",
+  "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "sourceMatchesCurrent": true,
+  "backendMatchesCurrent": true,
+  "httpConcurrency": "SESSION_MAY_SERIALIZE",
+  "limitations": [
+    "HTTP requests may serialize within one session; not independent MySQL transaction concurrency",
+    "RECIB-02/03 and remaining 07-A integration are not certified by RECIB-01"
+  ],
+  "remainingTasks": [
+    "2.1",
+    "2.2",
+    "2.3",
+    "2.4",
+    "5.1",
+    "5.2"
+  ],
+  "overallIssueComplete": false
+}

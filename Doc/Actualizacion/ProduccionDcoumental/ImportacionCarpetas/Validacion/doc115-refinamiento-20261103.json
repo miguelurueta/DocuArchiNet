@@ -1,0 +1,137 @@
+{
+  "issueKey": "DOC-115",
+  "change": "doc-115-produccion-importacion-carga-carpeta-lotes",
+  "status": "DRAFT_REFINED_FOR_REVIEW",
+  "decisions": 9,
+  "requirements": 9,
+  "scenarios": 19,
+  "tasks": 28,
+  "refinementAudit": {
+    "applicable": true,
+    "status": "FAIL",
+    "checks": [
+      {
+        "name": "refinement:exists",
+        "status": "PASS",
+        "details": {
+          "path": "openspec/changes/doc-115-produccion-importacion-carga-carpeta-lotes/refinement.md"
+        }
+      },
+      {
+        "name": "refinement:approved",
+        "status": "FAIL"
+      },
+      {
+        "name": "refinement:no_placeholders",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:decisions",
+        "status": "PASS",
+        "details": {
+          "decisionIds": [
+            "D-01",
+            "D-02",
+            "D-03",
+            "D-04",
+            "D-05",
+            "D-06",
+            "D-07",
+            "D-08",
+            "D-09"
+          ],
+          "malformedDecisionRows": []
+        }
+      },
+      {
+        "name": "refinement:requirements",
+        "status": "PASS",
+        "details": {
+          "requirementIds": [
+            "RQ-01",
+            "RQ-02",
+            "RQ-03",
+            "RQ-04",
+            "RQ-05",
+            "RQ-06",
+            "RQ-07",
+            "RQ-08",
+            "RQ-09"
+          ]
+        }
+      },
+      {
+        "name": "refinement:design:exists",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:design:decisions",
+        "status": "PASS",
+        "details": {
+          "missingDecisionIds": []
+        }
+      },
+      {
+        "name": "refinement:spec:exists",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:spec:decisions",
+        "status": "PASS",
+        "details": {
+          "missingDecisionIds": []
+        }
+      },
+      {
+        "name": "refinement:tasks:exists",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:tasks:decisions",
+        "status": "PASS",
+        "details": {
+          "missingDecisionIds": []
+        }
+      },
+      {
+        "name": "refinement:tasks:origins",
+        "status": "PASS",
+        "details": {
+          "missingOrigins": []
+        }
+      },
+      {
+        "name": "refinement:profile:design:frontend_policy",
+        "status": "PASS",
+        "details": {
+          "technologyProfile": "legacy-webforms-vb",
+          "forbidden": []
+        }
+      },
+      {
+        "name": "refinement:profile:spec:frontend_policy",
+        "status": "PASS",
+        "details": {
+          "technologyProfile": "legacy-webforms-vb",
+          "forbidden": []
+        }
+      },
+      {
+        "name": "refinement:profile:tasks:frontend_policy",
+        "status": "PASS",
+        "details": {
+          "technologyProfile": "legacy-webforms-vb",
+          "forbidden": []
+        }
+      }
+    ],
+    "refinementPath": "openspec/changes/doc-115-produccion-importacion-carga-carpeta-lotes/refinement.md",
+    "synced": false,
+    "bootstrapped": false,
+    "message": "1 requisito(s) de refinement pendiente(s)."
+  },
+  "expectedOpenGate": "refinement:approved",
+  "runtimeTests": "NO_EJECUTADO",
+  "productChanges": 0,
+  "sqlExecuted": false
+}

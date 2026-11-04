@@ -1,0 +1,9 @@
+{
+  "issueKey": "DOC-115",
+  "date": "2026-11-03",
+  "source": "Mensaje del usuario posterior a revisión técnica",
+  "instruction": "aprobado",
+  "scope": "Decisiones y tareas refinadas para implementación local",
+  "runtimeAuthorization": false,
+  "sqlAuthorization": false
+}

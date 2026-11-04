@@ -166,3 +166,50 @@ El soporte focal añade readExisting/validateResumePlan para revalidar el primer
 ### DOC-114 — cierre técnico y procedencia
 
 Suite y selector focales ejecutados con PASS real PLAN-01/02/03; planes11–23 conservados y permiso operativo restaurado. Sin archivos VB/proyecto/DDL/SII/configuración de producto modificados. Las extensiones de soporte/test son del prompt06, reutilizando autenticación/consola/configuración/SELECT/puente del repo. Informe actual y matriz6RQ/17escenarios: `Validacion/doc114-final-report-20261103.md` y `Validacion/doc114-requirement-coverage-20261103.json`. Los apartados previos de propuestas/no ejecución son cortes históricos.
+
+
+## Delta DOC-115 — refinamiento de 07-A/07-B, 2026-11-03
+
+Este corte propone verificación diferencial; no implementa ni ejecuta recepción. El diseño OpenSpec referencia este mapa y los contratos comunes sin sustituirlos.
+
+| Ruta exacta | Propietario | Estado | Responsabilidad / consumidores |
+| --- | --- | --- | --- |
+| Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Sql/02-carga-carpetas-mysql51.sql | 07-A | Existente | Esquema único; repositorio operativo; usuario aplica manualmente |
+| Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Sql/02-aplicacion-carga-carpetas.md | 07-A | Existente | Pre/postcomprobaciones y recuperación DDL |
+| Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.vb | 07-A | Existente | Plan, lote, inventario, recepción e intentos; 06–11 consumen sus puertos |
+| Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasInterfaces.vb | 04/07 | Existente | Puertos compartidos consumidos por servicio/coordinador |
+| DTOs/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasDtos.vb | 06/07/10/11 | Existente | ConfirmarPlan/RecibirArchivo y respuestas; ASMX/ASHX |
+| Services/ProduccionDocumental/ImportacionCarpetas/ServicioRecepcionImportacion.vb | 07-B | Existente | Autoridad/confirmación/recepción/reconciliación interna |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.vb | 07-B | Existente | Original retenido, hash, cuota y exclusión; 09 consume referencia controlada |
+| Infrastructure/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasRequestGuard.vb | 06/07-B | Existente | Protección JSON/multipart compartida |
+| generic_control/ImportacionCarpetasUpload.ashx.vb | 07-B | Existente | Handler del receptor; no sustituye handler legacy |
+| webservice/WebServiceImportacionCarpetas.asmx.vb | 02/06/07/10/11 | Existente | Fachada pública; sin endpoints adicionales de prueba |
+| tests/ImportacionCarpetasBehaviorTests.cs | 07/10 | Existente | Caracterización con dobles/staging real, no MySQL real |
+| tools/e2e/tests/doc115-recepcion-importacion.spec.cjs | 07-B | Nuevo implementado localmente | Escenarios RECIB-01/02/03 en config existente |
+| tools/e2e/tests/support/doc115-recepcion-importacion.cjs | 07 | Nuevo implementado localmente | Soporte mínimo; delega sesión y autoridad existentes |
+| tools/e2e/scripts/run-doc115-recepcion-importacion.cjs | 07-B | Nuevo implementado localmente | Selección de escenarios sin autenticación paralela |
+| tools/e2e/fixtures/doc115-recepcion-cases.json | 07-B | Nuevo implementado localmente | Casos sintéticos sin perfiles productivos fijos |
+| tests/doc115-recepcion-contracts.test.cjs | 07 | Nuevo implementado localmente | Regresión local de selección/controles/saneamiento |
+| Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc115-recepcion-plan.md | 07 | Nuevo en refinamiento | Matriz de casos/estado, responsable y límites |
+
+Actualización DOC-115: la aprobación posterior habilitó implementación local. Las cinco rutas nuevas de pruebas/soporte ya existen; el producto VB y el DDL permanecen sin cambios. La extensión de tools/e2e/tests/support/doc114-plan-importacion.cjs solo admite scopes RECIB en su cliente de preparación y conserva consumidores PLAN. Las ejecuciones MySQL y HTTP siguen sin autorización específica.
+
+
+## DOC-115 — modo de integración 07-A, 2026-11-04
+
+| Ruta | Propietario | Estado | Responsabilidad / consumidores |
+| --- | --- | --- | --- |
+| tests/ImportacionCarpetasRepositoryIntegrationTests.cs | 07-A | Nuevo local | Parcial del harness C# existente; transacciones reales bajo autorización, no endpoint |
+| tests/doc115-07a-runner.test.cjs | 07-A | Nuevo local | Guards de autorización y compatibilidad de modos, sin BD |
+| tools/e2e/scripts/support/doc115-repository-integration.ps1 | 07-A | Nuevo local | Ejecución acotada y controles SELECT; invocado por el runner existente |
+| tools/e2e/scripts/run-doc111-persistence.ps1 | 07-A | Existente ampliado | Modo Doc115; modos previos conservan sus autorizaciones originales |
+
+El compilador existente incluye la nueva parcial, sin proyecto ni referencias de producto nuevos. RunRollbackIntegration conserva su firma anterior y agrega una sobrecarga de test que recibe el plan confirmado, eliminando la dependencia del ID fijo 1 para el modo nuevo. La ruta normativa de contratos y el esquema operativo único se conservan.
+
+## Diagnóstico ODBC del ejecutor DOC-115
+
+| Ruta | Propietario | Estado | Responsabilidad |
+| --- | --- | --- | --- |
+| tools/e2e/scripts/support/doc115-readonly-failure.ps1 | 07-A | Nuevo, validado localmente y en ejecución | Clasificación cerrada ODBC para el ejecutor, sin SQL ni secretos |
+
+Cierre técnico DOC-115 del 2026-11-04: 07-A y RECIB-01/02/03 ejecutados con resultados saneados. La tabla nueva es soporte de pruebas, no una operación pública ni una capa de producto adicional. Ver los informes de fase en Validacion/.

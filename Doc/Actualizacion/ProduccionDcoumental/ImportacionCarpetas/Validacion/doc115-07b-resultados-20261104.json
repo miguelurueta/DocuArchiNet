@@ -1,0 +1,44 @@
+{
+  "issueKey": "DOC-115",
+  "phase": "07-B",
+  "status": "EJECUTADO_OK",
+  "cases": [
+    {
+      "scenario": "RECIB-01",
+      "status": "EJECUTADO_OK",
+      "plans": [
+        "24",
+        "25"
+      ],
+      "lots": [
+        "6"
+      ],
+      "codeSha256": "fb00ef6c41e5e14ab138a408c04414d48dac5444b879d6e28db0b62d06202cee"
+    },
+    {
+      "scenario": "RECIB-02",
+      "status": "EJECUTADO_OK",
+      "plans": [
+        "26",
+        "27"
+      ],
+      "lots": [
+        "7",
+        "8"
+      ],
+      "codeSha256": "ed4a011fc7cdaacd1bc208ae9a10592b644df207f87fd7d06f49a9670e40fff1"
+    },
+    {
+      "scenario": "RECIB-03",
+      "status": "EJECUTADO_OK",
+      "plans": [
+        "28"
+      ],
+      "lots": [
+        "9"
+      ],
+      "codeSha256": "488eff5720e34ce69aa2ef749d7b44931903c612ac83109c80b8ed4b0e98ea4a"
+    }
+  ],
+  "overallIssueComplete": false
+}

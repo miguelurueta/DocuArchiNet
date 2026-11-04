@@ -1,0 +1,19 @@
+{
+  "issueKey": "DOC-115",
+  "scenario": "RECIB-01",
+  "attempt": 1,
+  "status": "FALLIDO",
+  "stage": "AFTER_OPENING_BEFORE_PREPARATION_OBSERVED",
+  "code": "DOC115_E2E_FAILED",
+  "references": [],
+  "timings": [
+    "DOC110_TIMING: AbrirImportacion 250ms"
+  ],
+  "exactCause": "NOT_RETAINED",
+  "databaseStateVerified": false,
+  "correction": "Closed failure classification and persisted progress before each stage",
+  "nodeRegressionPassed": 79,
+  "continuationAttempt": 2,
+  "continuation": "WAITING_FOR_OPERATOR_WITH_PRIOR_AUTHORIZATION",
+  "authorizationResourcesSha256": "e067baad445e7c3a4f8fb857240e1561e6e92639bd0893de6d7ce86e6ddf9fa8"
+}

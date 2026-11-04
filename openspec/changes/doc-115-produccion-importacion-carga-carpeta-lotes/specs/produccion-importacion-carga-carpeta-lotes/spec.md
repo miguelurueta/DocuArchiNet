@@ -1,116 +1,106 @@
-## ADDED Requirements
-### Requirement: PRODUCCION-IMPORTACION-CARGA-CARPETA-LOTES
-El sistema SHALL implementar el alcance definido para DOC-115.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
 
-#### Scenario: Reglas del ticket
-- Prompt 07 — Lotes y recepción de archivos
-- ROL ESPERADO
-- Actúa como arquitecto y desarrollador senior en   WebForms,  , JavaScript y MySQL 5.1, respetando las fronteras existentes y el alcance de esta entrega.
-- OBJETIVO Y ENCARGO
-- Lee guía 00, prompt 03 y diseño 04. Implementa la persistencia operativa y recepción recuperable de archivos de un plan validado por 06. Esta entrega no crea expedientes ni almacena documentos definitivos.
-- Trabajo
-- Dividir la entrega en 07-A (DDL y repositorios de plan/operación a partir de contratos 04 y perfil 02) y 07-B (confirmación/recepción integradas al preflight 06). 07-A no espera a que 06 esté implementado. Un único script operativo y una única implementación de repositorios sirven a ambas fases. La protección HTTP y autorización se aplican también a multipart y reintentos.
-- Implementa repositorios de lote, raíz, archivo e intentos/eventos definidos, con transacciones acotadas, consultas parametrizadas y separación de lectura/escritura. Expón contratos que consumirán 08–11; no acoples al HTML.
-- 
-- Confirmar plan mediante clave de idempotencia y restricción única de ámbito. Guardar configuración efectiva, nivel, inventario original y política completa/parcial. Misma clave con otro payload: conflicto; repetición idéntica: IDs y estado previos. Evita check-then-insert sin exclusión transaccional.
-- 
-- Recibir cada archivo solo si corresponde al lote autorizado y estado permitido. Rechazar IDs cruzados aunque los nombres coincidan. El contrato de recepción no acepta un gabinete o expediente arbitrario que eluda el plan.
-- 
-- Escribir en staging controlado mientras se recibe, con identidad física generada, contención de ruta y acceso no público. No concatenar nombre original/ruta relativa para construir la ruta de escritura. Un archivo parcial no se considera RECIBIDO.
-- 
-- Validar bytes reales, cuotas, formato permitido, huella y completitud. Los límites vienen de configuración aprobada y del servidor; no elevar IIS/ASP.NET globalmente para ocultar un límite. No fingir carga fragmentada si no está implementada.
-- 
-- Coordinar cierre/renombrado del temporal y registro de recepción. Diseña recuperación de escritura completada sin fila actualizada, fila que referencia temporal ausente y recepción concurrente. No prometer una transacción única entre disco y MySQL.
-- 
-- Repetir contenido ya confirmado devuelve recepción previa; contenido distinto bajo la misma identidad requiere rechazo/revisión. Proteger cuotas frente a concurrencia y a reintentos contabilizados dos veces.
-- 
-- No permitir que el cliente fuerce estados. Implementa revisión/exclusión persistida según diseño para que 10 reclame fases de forma segura.
-- 
-- SQL y entregables
-- El staging confirmado pertenece a esta capa y conserva el contenido necesario para recuperación. Entregar a 09 una referencia controlada, no autorización implícita para consumir el único original. Su copia de trabajo legacy, huella, nombre/extensión y limpieza son responsabilidades coordinadas con 09/11 según la guía 00.
-- Entregar Sql/02-carga-carpetas-mysql51.sql con DDL completo de entidades operativas, índices y relaciones compatibles. Referenciar las tablas de perfil desplegadas por Sql/01-perfil-importacion-mysql51.sql, sin recrearlas. Añadir pre/postcomprobaciones de solo lectura, orden de aplicación, repetición y recuperación parcial. El usuario aplica el SQL. Si ya existe un despliegue, entregar incremento separado.
-- CRITERIOS DE ACEPTACIÓN
-- Probar doble confirmación simultánea, clave repetida con payload diferente, archivo ajeno, ruta maliciosa, exceder cuota, archivo truncado, dos recepciones concurrentes, desconexión, resultado de recepción perdido y contenido cambiado. Verificar que completo espera todos los archivos de la unidad exigida y que recepción no produce efectos documentales. Las pruebas de transacciones requieren un entorno de pruebas autorizado; reportar lo que solo se probó con dobles.
-- CONTEXTO Y CONTRATO DE INTEGRACIÓN
-- Leer 00-guia-ejecucion-prompts.md y los artefactos vigentes de Diseno/; distinguir propuestas de componentes existentes. Para esta entrega, documentar el contrato request/response, autoridad, errores, estados y efectos permitidos. Flujo de referencia: Cliente → entrada ASMX/ASHX (responsabilidad de Controller) → Service → Repository/adaptadores → respuesta; no imponer   MVC a WebForms. Los adaptadores internos de 08/09 no se exponen como operaciones públicas independientes.
-- PRECONDICIONES DE RUTAS
-- Antes de implementar, inventariar los archivos exactos en Diseno/design.md, con propietario (prompt), existentes/nuevos, responsabilidad y consumidores. Es un mapa de implementación complementario a Diseno/01-modelo-datos.md y Diseno/02-contratos-operacion.md, no otro diseño de contratos. Si existe un cambio OpenSpec, referenciar ese mapa desde su design.md sin duplicarlo. Verificar estas ubicaciones propuestas contra el repositorio; no afirmar que los archivos nuevos ya existen ni crear todas las capas por ejecutar esta entrega.
-- Responsabilidad
-- Ubicación común propuesta
-- Propiedad
-- Modelos y puertos 
-- Modelo/ProduccionDocumental/ImportacionCarpetas/ 
-- 04 define; cada entrega añade solo su contrato. 
-- DTOs de entrada/salida 
-- DTOs/ProduccionDocumental/ImportacionCarpetas/ 
-- 02/06/07/10/11 según operación. 
-- Servicios y reglas 
-- Services/ProduccionDocumental/ImportacionCarpetas/ 
-- 02 perfil; 06 plan; 07 recepción; 10 coordinación; 11 consulta/mantenimiento. 
-- Repositorios 
-- Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/ 
-- 02 perfil; 07-A operación. Los demás consumen sus interfaces. 
-- Adaptadores documentales 
-- Infrastructure/ProduccionDocumental/ImportacionCarpetas/ 
-- 08 expedientes; 09 almacenamiento e incorporación. 
-- Servicio web nuevo 
-- webservice/WebServiceImportacionCarpetas.asmx y webservice/WebServiceImportacionCarpetas.asmx.vb 
-- Una fachada de las operaciones anteriores; sin reglas documentales en transporte. 
-- Recepción multipart nueva 
-- generic_control/ImportacionCarpetasUpload.ashx y generic_control/ImportacionCarpetasUpload.ashx.vb 
-- 07-B; delega en su servicio; no sustituye el handler compartido. 
-- Integración visual existente 
-- Gestion/WebFormProducionDocumental.aspx, su code-behind .aspx.vb y js/gestion/WebFormProducionDocumental.js 
-- 05 integra; 11 extiende resultados sobre la misma ventana. 
-- JavaScript específico nuevo 
-- js/gestion/ImportacionCarpetas/ 
-- 05 estado/transporte/renderizado; 11 seguimiento; nombres exactos en el inventario. 
-- Registrar los archivos nuevos de compilación y contenido en GestionDocumental-Docuarchi.net.vbproj según el tipo de recurso. Mantener namespaces y referencias compatibles con .NET Framework 4.6.1. Las rutas nuevas son destino de implementación, no evidencia de componentes existentes. El host opcional del 13 requiere su propio inventario tras decidir alojamiento; no inventar un ejecutable desplegado.
-- RESTRICCIONES CRÍTICAS
-- No debe modificarse SII: código, tablas, configuración, contratos ni consumidores. Preservar carga individual y contratos legacy; no cambiar pruebas/huellas para ocultar regresiones. No crear otro árbol ni cambiar el nivel al elegir perfil. No usar autorregistro, tareas ficticias, valores fijos del ejemplo ni temporizadores del prototipo como implementación productiva.
-- Mantener COMPLETO_OBLIGATORIO configurable por EXPEDIENTE o LOTE; exigir elección al publicar y congelarla en plan/lote. PARCIAL_PERMITIDO usa NO_APLICA. No prometer rollback global: conservar efectos confirmados y reconciliar incertidumbre. Cada prompt implementa solo su responsabilidad según la guía 00; no duplicar motor, repositorios ni endpoints.
-- El equipo aplica SQL manualmente: MySQL 5.1, sin migraciones automáticas. Los scripts de perfil pertenecen a 02 y los operativos a 07; otros cambios justificados usan incrementos coordinados. No ejecutar SQL por tener conexión ni declarar aplicado un script por existir.
-- PRUEBAS OBLIGATORIAS
-- Confirmación simultánea devuelve un lote; payload distinto con la misma clave se rechaza; transferencia truncada no queda RECIBIDO; reenvío y cuotas concurrentes no duplican conteos.
-- Ejecutar pruebas unitarias o QA manual reproducible según el impacto, además de integración para persistencia y efectos. Registrar comandos, entorno, resultado y limitaciones. Para cambios VB/proyecto, compilar con MSBuild usando la configuración real de GestionDocumental-Docuarchi.net.vbproj; no sustituirlo por un build .NET moderno. Si faltan herramientas/referencias, registrar la limitación. Para JavaScript, comprobar sintaxis con node --check <archivo-real> y comportamiento con la infraestructura existente. Las suites DOC-88 aplicables son evidencia estática, no prueba de persistencia real.
-- La validación E2E del comportamiento entregado es parte integral del mismo cambio: código, pruebas, validación autorizada y evidencia saneada forman su unidad de entrega. El prompt 12 consolida regresión transversal; no sustituye las pruebas de cada componente. Para servicios/adaptadores internos, validar primero contratos y fallos mediante unitarias/integración; no crear endpoints de prueba para eludir el coordinador. Si el recorrido depende de componentes posteriores, registrar integración pendiente y no declarar cerrado el comportamiento integrado.
-- Reutilizar exclusivamente autenticación, configuración, validadores y utilidades de tools/e2e; no crear login, arnés, proyecto Playwright ni .env paralelos. Leer AGENTS.md y tools/e2e/AGENT-RUNBOOK.md antes de autenticar. Ejecutar pruebas reales solo con autorización explícita del ambiente, cuentas y datos descartables; este prompt no concede esa autorización. Cubrir control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión relacionada con esta entrega.
-- Usar secretos efímeros; no imprimir ni guardar credenciales, cookies, tokens o cadenas de conexión. Consultas de control solo SELECT; conservar evidencia saneada. Respetar gates de seguridad existentes, sin habilitar arbitrariamente funciones o permisos para probar. No reintroducir flags ni listas de usuarios/grupos como activación de la experiencia moderna. No cerrar sin validación requerida: ante ambiente o autorización ausente, registrar bloqueo explícito, casos no ejecutados y motivo; mocks y simulaciones no sustituyen evidencia real.
-- 07-A se verifica con pruebas de repositorios/transacciones y revisión del SQL en entorno autorizado; no depende de una UI ni de 06 implementado. 07-B añade el recorrido real de confirmación/recepción. Registrar la evidencia y estado de cierre por fase, sin exigir en 07-A efectos documentales que no le pertenecen.
-- E2E POR CAPACIDAD Y CRITERIO DE CIERRE
-- Reutilizaci?n obligatoria de infraestructura E2E
-- Antes de escribir pruebas, inventariar y reutilizar tools/e2e/package.json, tools/e2e/playwright.config.cjs, tools/e2e/tests/support/, tools/e2e/scripts/, tools/e2e/fixtures/ y tools/e2e/AGENT-RUNBOOK.md. Ubicar las nuevas especificaciones en tools/e2e/tests/ y registrar solo los comandos necesarios en el paquete existente. Usar los reporteros y directorios de evidencia ya configurados; conservar saneamiento de secretos y datos sensibles tambi?n en capturas y trazas.
-- Reutilizar tools/e2e/tests/support/authenticated-workflow-session.cjs cuando su contrato soporte el acceso requerido; verificarlo antes, sin fabricar tareas Workflow. Si falta soporte para Producci?n, ampliar de forma compatible el soporte compartido y su configuraci?n/runner existente, con pruebas de regresi?n de los consumidores afectados. Reutilizar validadores de autorizaci?n, perfiles y utilidades aplicables identificados en el inventario; documentar qu? se reutiliza y qu? extensi?n m?nima necesita esta capacidad. No copiar suites completas ni introducir login, almacenamiento de sesi?n, .env, dependencias, instalaci?n de navegadores, runner o configuraci?n Playwright paralelos. Un script delgado nuevo dentro de tools/e2e/scripts/ solo puede seleccionar escenarios y delegar en los mecanismos compartidos; no reimplementar autenticaci?n ni autorizaci?n.
-- No cambiar globalmente workers, reintentos, timeouts, permisos o configuraci?n para lograr pruebas verdes. Cualquier extensi?n compartida debe mantener los contratos de las suites existentes y acreditar regresi?n pertinente. Las pruebas DOC-88 de pol?tica son evidencia est?tica complementaria, no reemplazan los escenarios E2E reales. El inventario de reutilizaci?n y la ausencia de infraestructura duplicada son criterios de aceptaci?n de esta entrega; para 04 se documentan y para 13 solo se implementan al activar su alcance opcional.
-- Implementar estos escenarios como parte de la entrega, reutilizando tools/e2e. Son pruebas futuras: esta documentación no acredita suites creadas ni corridas. Leer la estrategia de comprobación progresiva.
-- ID
-- Precondiciones
-- Pasos del recorrido
-- Aserciones obligatorias
-- RECIB-01 
-- 07-B y 06 integrados; perfil y plan reales. 
-- Confirmar dos veces concurrentemente con misma clave; repetir con payload distinto. 
-- Una identidad de lote; conflicto ante payload diferente; conservación de snapshot e inventario. 
-- RECIB-02 
-- Lote confirmado y archivos sintéticos. 
-- Enviar archivo truncado, ID de otro lote y ruta maliciosa; luego recibir uno válido y repetirlo. 
-- Inválidos rechazados; solo contenido íntegro queda RECIBIDO; reintento no duplica bytes/cuota; cero documentos definitivos. 
-- RECIB-03 
-- Recepción autorizada con interrupción de red controlada. 
-- Interrumpir transferencia; consultar estado y reenviar; perder respuesta después de recepción confirmada. 
-- Estado recuperable; no se declara recibido contenido parcial; se recupera recepción previa sin duplicar. 
-- Para cada caso registrar estado EJECUTADO_OK, FALLIDO o NO_EJECUTADO, SHA probado, ambiente, datos sintéticos, pasos/comando real, evidencia saneada de UI/HTTP y comprobaciones persistidas de solo lectura. No declarar aprobada una capacidad únicamente con mocks o revisión estática. Un caso bloqueado debe identificar dependencia y responsable; no se omite del informe.
-- 07-A entrega tests de repositorio y SQL, sin E2E de navegador ni dependencia de 06. Los escenarios RECIB corresponden a 07-B; no retrasar fundaciones por falta de la ventana.
-- Entregar especificación automatizada y comando reproducible dentro de la infraestructura existente; el nombre final se inventaría en Diseno/design.md. Si la autorización no permite ejecutarla, entregar suite y evidencia local pertinente, manteniendo la validación real pendiente. No habilitar permisos ni ejecutar cargas por inferencia de este prompt.
-- DOCUMENTACIÓN TÉCNICA
-- Actualizar documentación existente en Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/: Diseno/ para contratos y decisiones, y Validacion/ para evidencia. Mantener guía 00 y consumidores sincronizados si cambia un contrato. No abrir una segunda fuente de verdad. Registrar archivos y funciones afectados, dependencia propietaria, casos ejecutados/no ejecutados y riesgos pendientes. Una revisión estructural PASS no certifica implementación ni ausencia de regresiones.
-- ENTREGABLE FINAL
-- Entregar primero la persistencia 07-A y después confirmación y recepción 07-B; mantener un único esquema operativo y staging recuperable. Entregar los artefactos especificados en este prompt y una relación verificable de cambios, pruebas, resultados y pendientes. No declarar funcionalidades completas por entregar únicamente stubs, mocks o documentación.
+## ADDED Requirements
+
+### Requirement: RQ-01 Inventario y esquema únicos
+El sistema SHALL cumplir El mapa diferencia archivos existentes de propuestas y el SQL operativo referencia el perfil sin recrearlo. Decisión: D-01.
+
+#### Scenario: Mapa de reutilización
+- **WHEN** se revisan los componentes 07
+- **THEN** el inventario identifica propietario, existencia y consumidor sin crear repositorios paralelos
+
+#### Scenario: Instalación ya existente
+- **WHEN** el esquema operativo ya existe
+- **THEN** se usan pre/postcomprobaciones SELECT y no se reaplica el script base
+
+### Requirement: RQ-02 Confirmación idempotente
+El sistema SHALL cumplir Dos confirmadores del mismo plan conservan un lote; la misma clave con otro payload devuelve conflicto. Decisión: D-02.
+
+#### Scenario: Confirmación simultánea
+- **WHEN** dos conexiones confirman el mismo plan con payload idéntico
+- **THEN** existe un lote con snapshot e inventario originales y ambos resultados convergen a su identidad
+
+#### Scenario: Clave con payload distinto
+- **WHEN** dos planes del mismo ámbito/solicitante usan la misma clave
+- **THEN** solo uno puede crear lote y el otro devuelve conflicto sin insertar inventario adicional
+
+### Requirement: RQ-03 Autorización de recepción
+El sistema SHALL cumplir Archivo/lote cruzado, campos de destino o estado y petición sin autoridad se rechazan antes de escribir staging. Decisión: D-03.
+
+#### Scenario: ID cruzado
+- **WHEN** se envía un archivo perteneciente a otro lote aunque el nombre coincida
+- **THEN** la autoridad rechaza el recurso y no escribe bytes
+
+#### Scenario: Multipart no autorizado
+- **WHEN** se omite token o se inyecta gabinete, expediente o estado
+- **THEN** se rechaza la petición sin mutación operacional
+
+### Requirement: RQ-04 Integridad física y límites
+El sistema SHALL cumplir Solo bytes completos y PDF válido pasan a RECIBIDO; rutas de cliente nunca forman la ruta física y el reenvío no duplica cuota. Decisión: D-04.
+
+#### Scenario: Contenido truncado o formato inválido
+- **WHEN** el stream termina antes de bytesPrevistos o no es PDF válido
+- **THEN** no aparece un completo válido ni RECIBIDO
+
+#### Scenario: Ruta y cuota
+- **WHEN** se suministra ruta maliciosa o el contenido excede límites efectivos
+- **THEN** la escritura queda contenida o rechazada sin superar cuota; .part se mantiene como evidencia no recibida
+
+### Requirement: RQ-05 Recepción recuperable
+El sistema SHALL cumplir Corte de red, completo sin commit, fila sin temporal y respuesta perdida conservan estados verificables sin sobrescribir contenido. Decisión: D-05.
+
+#### Scenario: Respuesta perdida
+- **WHEN** el commit de recepción termina y el cliente pierde la respuesta
+- **THEN** consulta y reenvío devuelven la recepción previa sin nueva contabilidad
+
+#### Scenario: Disco y fila divergentes
+- **WHEN** queda un completo sin commit o una fila con contenido ausente
+- **THEN** solo evidencia íntegra permite reconciliar; ausencia bloquea reescritura automática
+
+#### Scenario: Contenido cambiado
+- **WHEN** se reenvía otra huella bajo la identidad confirmada
+- **THEN** se rechaza CONTENIDO_DISTINTO y se conserva el primer contenido
+
+### Requirement: RQ-06 Concurrencia y conteos
+El sistema SHALL cumplir Dos receptores no generan dos commits ni doble contabilidad; vencimiento o token nuevo no autoriza otra escritura incierta. Decisión: D-06.
+
+#### Scenario: Dos recepciones
+- **WHEN** dos ejecutores reclaman el mismo archivo durante una escritura
+- **THEN** solo una reclamación escribe y se confirma una vez; el otro obtiene resultado o conflicto seguro comprobado
+
+#### Scenario: Cuota concurrente
+- **WHEN** dos archivos compiten por un límite agregado finito inyectado
+- **THEN** partes y completos contabilizados no exceden el límite y replay no suma bytes
+
+### Requirement: RQ-07 Separación recepción/documentos
+El sistema SHALL cumplir EXPEDIENTE/LOTE/NO_APLICA permanecen congelados y recibir no crea expedientes ni documentos definitivos. Decisión: D-07.
+
+#### Scenario: Barrera congelada
+- **WHEN** falta un archivo en la unidad completa EXPEDIENTE o LOTE
+- **THEN** no se habilitan efectos documentales y no se reduce el denominador original
+
+#### Scenario: Recepción sin documentos
+- **WHEN** se confirma y recibe un lote elegible
+- **THEN** se conservan los conteos documentales y estadoEfecto NO_INICIADO de archivos elegibles
+
+### Requirement: RQ-08 Validación por fase y capacidad
+El sistema SHALL cumplir 07-A usa repositorios reales independientes de UI; RECIB-01/02/03 ejecutan 07-B con controles SELECT y evidencia saneada. Decisión: D-08.
+
+#### Scenario: Fundaciones independientes
+- **WHEN** 07-A se prueba sin ventana ni servicio de preflight ejecutable
+- **THEN** las transacciones reales y SQL tienen evidencia propia y no dependen de RECIB navegador
+
+#### Scenario: Recorrido integrado
+- **WHEN** se ejecutan RECIB-01/02/03 autorizados
+- **THEN** se verifican HTTP y persistencia SELECT sin invocar creación ni almacenamiento
+
+### Requirement: RQ-09 Entrega y recuperación operativa
+El sistema SHALL cumplir Cada caso identifica SHA/ambiente/estado y los no ejecutados bloquean el cierre correspondiente; SQL y datos reales requieren autorización propia. Decisión: D-09.
+
+#### Scenario: Validación no autorizada
+- **WHEN** falta autorización del ambiente/cuentas/recursos
+- **THEN** los casos reales quedan NO_EJECUTADO con responsable y no se cierra la fase afectada
+
+#### Scenario: Entrega verificable
+- **WHEN** se solicita cierre
+- **THEN** cada caso conserva SHA, resultado, comandos, recursos y limitaciones sin secretos

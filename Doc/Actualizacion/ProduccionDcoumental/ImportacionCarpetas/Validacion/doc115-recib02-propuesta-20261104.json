@@ -1,0 +1,53 @@
+{
+  "issueKey": "DOC-115",
+  "scenario": "RECIB-02",
+  "status": "READY_AWAITING_SPECIFIC_AUTHORIZATION",
+  "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "accountRef": "141",
+  "companyRef": "2",
+  "levelRef": "7",
+  "profileRef": "24",
+  "versionRef": "38",
+  "roots": [
+    "DOC115-20261104-RECIB02-01",
+    "DOC115-20261104-RECIB02-02"
+  ],
+  "preparations": 2,
+  "maximumLots": 2,
+  "confirmations": 2,
+  "uploads": 8,
+  "validOriginalReceipts": 1,
+  "documentEffects": 0,
+  "fixture": "doc111-carga-individual.pdf",
+  "fixtureBytes": 677,
+  "preserveLots": [
+    "6"
+  ],
+  "preservePlans": [
+    "24",
+    "25"
+  ],
+  "preserveResources": true,
+  "preserveRejectedParts": true,
+  "permissionChanges": 0,
+  "profileChanges": 0,
+  "configurationChanges": 0,
+  "selectOnlyControls": true,
+  "odbcDsn": "MembershipUsers",
+  "testCertificateRequiresAuthorization": true,
+  "sessionTimeoutMilliseconds": 900000,
+  "resourcesSha256": "9fe5d95ae4fa357792e144c83113ed8f9d4033bb7fce5cc148e6b11e6801349c",
+  "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "cases": [
+    "foreign-file-ID",
+    "injected-destination-and-path-fields",
+    "missing-CSRF-token",
+    "truncated-676-byte-content",
+    "excess-678-byte-content",
+    "valid-677-byte-PDF",
+    "identical-replay",
+    "changed-content-replay"
+  ],
+  "retryPolicy": "Stop on uncertain/nonterminal rejection; do not repeat without stored-state review",
+  "credentials": "Existing private console only; no MySQL URL"
+}

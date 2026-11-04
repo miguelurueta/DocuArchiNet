@@ -48,7 +48,7 @@ function comparePublishedSnapshot(stored,published){
 }
 function authorize(profile,scope){
   validateProfile(profile);
-  check(object(scope)&&SCENARIOS.includes(scope.scenario),'SCENARIO_INVALID');
+  check(object(scope)&&[...SCENARIOS,'RECIB-01','RECIB-02','RECIB-03'].includes(scope.scenario),'SCENARIO_INVALID');
   check(['environment','account','select','effects','discardable'].every(k=>scope[k]===true),'AUTHORIZATION_REQUIRED');
   check(!profile.ignoreHttpsErrors||scope.tls===true,'TLS_AUTHORIZATION_REQUIRED');
   check(Number.isInteger(scope.maximumPreparations)&&scope.maximumPreparations>=1&&scope.maximumPreparations<=64,'PREPARATION_BUDGET_REQUIRED');

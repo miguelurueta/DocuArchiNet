@@ -1,136 +1,88 @@
-## Context
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
 
-DOC-115: PRODUCCION-IMPORTACION-CARGA-CARPETA-LOTES
+# Diseño DOC-115
 
-## Jira Details
+## Contexto y alcance diferencial
 
-> Prompt 07 — Lotes y recepción de archivos
-> ROL ESPERADO
-> Actúa como arquitecto y desarrollador senior en   WebForms,  , JavaScript y MySQL 5.1, respetando las fronteras existentes y el alcance de esta entrega.
-> OBJETIVO Y ENCARGO
-> Lee guía 00, prompt 03 y diseño 04. Implementa la persistencia operativa y recepción recuperable de archivos de un plan validado por 06. Esta entrega no crea expedientes ni almacena documentos definitivos.
-> Trabajo
-> Dividir la entrega en 07-A (DDL y repositorios de plan/operación a partir de contratos 04 y perfil 02) y 07-B (confirmación/recepción integradas al preflight 06). 07-A no espera a que 06 esté implementado. Un único script operativo y una única implementación de repositorios sirven a ambas fases. La protección HTTP y autorización se aplican también a multipart y reintentos.
-> Implementa repositorios de lote, raíz, archivo e intentos/eventos definidos, con transacciones acotadas, consultas parametrizadas y separación de lectura/escritura. Expón contratos que consumirán 08–11; no acoples al HTML.
-> 
-> Confirmar plan mediante clave de idempotencia y restricción única de ámbito. Guardar configuración efectiva, nivel, inventario original y política completa/parcial. Misma clave con otro payload: conflicto; repetición idéntica: IDs y estado previos. Evita check-then-insert sin exclusión transaccional.
-> 
-> Recibir cada archivo solo si corresponde al lote autorizado y estado permitido. Rechazar IDs cruzados aunque los nombres coincidan. El contrato de recepción no acepta un gabinete o expediente arbitrario que eluda el plan.
-> 
-> Escribir en staging controlado mientras se recibe, con identidad física generada, contención de ruta y acceso no público. No concatenar nombre original/ruta relativa para construir la ruta de escritura. Un archivo parcial no se considera RECIBIDO.
-> 
-> Validar bytes reales, cuotas, formato permitido, huella y completitud. Los límites vienen de configuración aprobada y del servidor; no elevar IIS/ASP.NET globalmente para ocultar un límite. No fingir carga fragmentada si no está implementada.
-> 
-> Coordinar cierre/renombrado del temporal y registro de recepción. Diseña recuperación de escritura completada sin fila actualizada, fila que referencia temporal ausente y recepción concurrente. No prometer una transacción única entre disco y MySQL.
-> 
-> Repetir contenido ya confirmado devuelve recepción previa; contenido distinto bajo la misma identidad requiere rechazo/revisión. Proteger cuotas frente a concurrencia y a reintentos contabilizados dos veces.
-> 
-> No permitir que el cliente fuerce estados. Implementa revisión/exclusión persistida según diseño para que 10 reclame fases de forma segura.
-> 
-> SQL y entregables
-> El staging confirmado pertenece a esta capa y conserva el contenido necesario para recuperación. Entregar a 09 una referencia controlada, no autorización implícita para consumir el único original. Su copia de trabajo legacy, huella, nombre/extensión y limpieza son responsabilidades coordinadas con 09/11 según la guía 00.
-> Entregar Sql/02-carga-carpetas-mysql51.sql con DDL completo de entidades operativas, índices y relaciones compatibles. Referenciar las tablas de perfil desplegadas por Sql/01-perfil-importacion-mysql51.sql, sin recrearlas. Añadir pre/postcomprobaciones de solo lectura, orden de aplicación, repetición y recuperación parcial. El usuario aplica el SQL. Si ya existe un despliegue, entregar incremento separado.
-> CRITERIOS DE ACEPTACIÓN
-> Probar doble confirmación simultánea, clave repetida con payload diferente, archivo ajeno, ruta maliciosa, exceder cuota, archivo truncado, dos recepciones concurrentes, desconexión, resultado de recepción perdido y contenido cambiado. Verificar que completo espera todos los archivos de la unidad exigida y que recepción no produce efectos documentales. Las pruebas de transacciones requieren un entorno de pruebas autorizado; reportar lo que solo se probó con dobles.
-> CONTEXTO Y CONTRATO DE INTEGRACIÓN
-> Leer 00-guia-ejecucion-prompts.md y los artefactos vigentes de Diseno/; distinguir propuestas de componentes existentes. Para esta entrega, documentar el contrato request/response, autoridad, errores, estados y efectos permitidos. Flujo de referencia: Cliente → entrada ASMX/ASHX (responsabilidad de Controller) → Service → Repository/adaptadores → respuesta; no imponer   MVC a WebForms. Los adaptadores internos de 08/09 no se exponen como operaciones públicas independientes.
-> PRECONDICIONES DE RUTAS
-> Antes de implementar, inventariar los archivos exactos en Diseno/design.md, con propietario (prompt), existentes/nuevos, responsabilidad y consumidores. Es un mapa de implementación complementario a Diseno/01-modelo-datos.md y Diseno/02-contratos-operacion.md, no otro diseño de contratos. Si existe un cambio OpenSpec, referenciar ese mapa desde su design.md sin duplicarlo. Verificar estas ubicaciones propuestas contra el repositorio; no afirmar que los archivos nuevos ya existen ni crear todas las capas por ejecutar esta entrega.
-> Responsabilidad
-> Ubicación común propuesta
-> Propiedad
-> Modelos y puertos 
-> Modelo/ProduccionDocumental/ImportacionCarpetas/ 
-> 04 define; cada entrega añade solo su contrato. 
-> DTOs de entrada/salida 
-> DTOs/ProduccionDocumental/ImportacionCarpetas/ 
-> 02/06/07/10/11 según operación. 
-> Servicios y reglas 
-> Services/ProduccionDocumental/ImportacionCarpetas/ 
-> 02 perfil; 06 plan; 07 recepción; 10 coordinación; 11 consulta/mantenimiento. 
-> Repositorios 
-> Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/ 
-> 02 perfil; 07-A operación. Los demás consumen sus interfaces. 
-> Adaptadores documentales 
-> Infrastructure/ProduccionDocumental/ImportacionCarpetas/ 
-> 08 expedientes; 09 almacenamiento e incorporación. 
-> Servicio web nuevo 
-> webservice/WebServiceImportacionCarpetas.asmx y webservice/WebServiceImportacionCarpetas.asmx.vb 
-> Una fachada de las operaciones anteriores; sin reglas documentales en transporte. 
-> Recepción multipart nueva 
-> generic_control/ImportacionCarpetasUpload.ashx y generic_control/ImportacionCarpetasUpload.ashx.vb 
-> 07-B; delega en su servicio; no sustituye el handler compartido. 
-> Integración visual existente 
-> Gestion/WebFormProducionDocumental.aspx, su code-behind .aspx.vb y js/gestion/WebFormProducionDocumental.js 
-> 05 integra; 11 extiende resultados sobre la misma ventana. 
-> JavaScript específico nuevo 
-> js/gestion/ImportacionCarpetas/ 
-> 05 estado/transporte/renderizado; 11 seguimiento; nombres exactos en el inventario. 
-> Registrar los archivos nuevos de compilación y contenido en GestionDocumental-Docuarchi.net.vbproj según el tipo de recurso. Mantener namespaces y referencias compatibles con .NET Framework 4.6.1. Las rutas nuevas son destino de implementación, no evidencia de componentes existentes. El host opcional del 13 requiere su propio inventario tras decidir alojamiento; no inventar un ejecutable desplegado.
-> RESTRICCIONES CRÍTICAS
-> No debe modificarse SII: código, tablas, configuración, contratos ni consumidores. Preservar carga individual y contratos legacy; no cambiar pruebas/huellas para ocultar regresiones. No crear otro árbol ni cambiar el nivel al elegir perfil. No usar autorregistro, tareas ficticias, valores fijos del ejemplo ni temporizadores del prototipo como implementación productiva.
-> Mantener COMPLETO_OBLIGATORIO configurable por EXPEDIENTE o LOTE; exigir elección al publicar y congelarla en plan/lote. PARCIAL_PERMITIDO usa NO_APLICA. No prometer rollback global: conservar efectos confirmados y reconciliar incertidumbre. Cada prompt implementa solo su responsabilidad según la guía 00; no duplicar motor, repositorios ni endpoints.
-> El equipo aplica SQL manualmente: MySQL 5.1, sin migraciones automáticas. Los scripts de perfil pertenecen a 02 y los operativos a 07; otros cambios justificados usan incrementos coordinados. No ejecutar SQL por tener conexión ni declarar aplicado un script por existir.
-> PRUEBAS OBLIGATORIAS
-> Confirmación simultánea devuelve un lote; payload distinto con la misma clave se rechaza; transferencia truncada no queda RECIBIDO; reenvío y cuotas concurrentes no duplican conteos.
-> Ejecutar pruebas unitarias o QA manual reproducible según el impacto, además de integración para persistencia y efectos. Registrar comandos, entorno, resultado y limitaciones. Para cambios VB/proyecto, compilar con MSBuild usando la configuración real de GestionDocumental-Docuarchi.net.vbproj; no sustituirlo por un build .NET moderno. Si faltan herramientas/referencias, registrar la limitación. Para JavaScript, comprobar sintaxis con node --check <archivo-real> y comportamiento con la infraestructura existente. Las suites DOC-88 aplicables son evidencia estática, no prueba de persistencia real.
-> La validación E2E del comportamiento entregado es parte integral del mismo cambio: código, pruebas, validación autorizada y evidencia saneada forman su unidad de entrega. El prompt 12 consolida regresión transversal; no sustituye las pruebas de cada componente. Para servicios/adaptadores internos, validar primero contratos y fallos mediante unitarias/integración; no crear endpoints de prueba para eludir el coordinador. Si el recorrido depende de componentes posteriores, registrar integración pendiente y no declarar cerrado el comportamiento integrado.
-> Reutilizar exclusivamente autenticación, configuración, validadores y utilidades de tools/e2e; no crear login, arnés, proyecto Playwright ni .env paralelos. Leer AGENTS.md y tools/e2e/AGENT-RUNBOOK.md antes de autenticar. Ejecutar pruebas reales solo con autorización explícita del ambiente, cuentas y datos descartables; este prompt no concede esa autorización. Cubrir control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión relacionada con esta entrega.
-> Usar secretos efímeros; no imprimir ni guardar credenciales, cookies, tokens o cadenas de conexión. Consultas de control solo SELECT; conservar evidencia saneada. Respetar gates de seguridad existentes, sin habilitar arbitrariamente funciones o permisos para probar. No reintroducir flags ni listas de usuarios/grupos como activación de la experiencia moderna. No cerrar sin validación requerida: ante ambiente o autorización ausente, registrar bloqueo explícito, casos no ejecutados y motivo; mocks y simulaciones no sustituyen evidencia real.
-> 07-A se verifica con pruebas de repositorios/transacciones y revisión del SQL en entorno autorizado; no depende de una UI ni de 06 implementado. 07-B añade el recorrido real de confirmación/recepción. Registrar la evidencia y estado de cierre por fase, sin exigir en 07-A efectos documentales que no le pertenecen.
-> E2E POR CAPACIDAD Y CRITERIO DE CIERRE
-> Reutilizaci?n obligatoria de infraestructura E2E
-> Antes de escribir pruebas, inventariar y reutilizar tools/e2e/package.json, tools/e2e/playwright.config.cjs, tools/e2e/tests/support/, tools/e2e/scripts/, tools/e2e/fixtures/ y tools/e2e/AGENT-RUNBOOK.md. Ubicar las nuevas especificaciones en tools/e2e/tests/ y registrar solo los comandos necesarios en el paquete existente. Usar los reporteros y directorios de evidencia ya configurados; conservar saneamiento de secretos y datos sensibles tambi?n en capturas y trazas.
-> Reutilizar tools/e2e/tests/support/authenticated-workflow-session.cjs cuando su contrato soporte el acceso requerido; verificarlo antes, sin fabricar tareas Workflow. Si falta soporte para Producci?n, ampliar de forma compatible el soporte compartido y su configuraci?n/runner existente, con pruebas de regresi?n de los consumidores afectados. Reutilizar validadores de autorizaci?n, perfiles y utilidades aplicables identificados en el inventario; documentar qu? se reutiliza y qu? extensi?n m?nima necesita esta capacidad. No copiar suites completas ni introducir login, almacenamiento de sesi?n, .env, dependencias, instalaci?n de navegadores, runner o configuraci?n Playwright paralelos. Un script delgado nuevo dentro de tools/e2e/scripts/ solo puede seleccionar escenarios y delegar en los mecanismos compartidos; no reimplementar autenticaci?n ni autorizaci?n.
-> No cambiar globalmente workers, reintentos, timeouts, permisos o configuraci?n para lograr pruebas verdes. Cualquier extensi?n compartida debe mantener los contratos de las suites existentes y acreditar regresi?n pertinente. Las pruebas DOC-88 de pol?tica son evidencia est?tica complementaria, no reemplazan los escenarios E2E reales. El inventario de reutilizaci?n y la ausencia de infraestructura duplicada son criterios de aceptaci?n de esta entrega; para 04 se documentan y para 13 solo se implementan al activar su alcance opcional.
-> Implementar estos escenarios como parte de la entrega, reutilizando tools/e2e. Son pruebas futuras: esta documentación no acredita suites creadas ni corridas. Leer la estrategia de comprobación progresiva.
-> ID
-> Precondiciones
-> Pasos del recorrido
-> Aserciones obligatorias
-> RECIB-01 
-> 07-B y 06 integrados; perfil y plan reales. 
-> Confirmar dos veces concurrentemente con misma clave; repetir con payload distinto. 
-> Una identidad de lote; conflicto ante payload diferente; conservación de snapshot e inventario. 
-> RECIB-02 
-> Lote confirmado y archivos sintéticos. 
-> Enviar archivo truncado, ID de otro lote y ruta maliciosa; luego recibir uno válido y repetirlo. 
-> Inválidos rechazados; solo contenido íntegro queda RECIBIDO; reintento no duplica bytes/cuota; cero documentos definitivos. 
-> RECIB-03 
-> Recepción autorizada con interrupción de red controlada. 
-> Interrumpir transferencia; consultar estado y reenviar; perder respuesta después de recepción confirmada. 
-> Estado recuperable; no se declara recibido contenido parcial; se recupera recepción previa sin duplicar. 
-> Para cada caso registrar estado EJECUTADO_OK, FALLIDO o NO_EJECUTADO, SHA probado, ambiente, datos sintéticos, pasos/comando real, evidencia saneada de UI/HTTP y comprobaciones persistidas de solo lectura. No declarar aprobada una capacidad únicamente con mocks o revisión estática. Un caso bloqueado debe identificar dependencia y responsable; no se omite del informe.
-> 07-A entrega tests de repositorio y SQL, sin E2E de navegador ni dependencia de 06. Los escenarios RECIB corresponden a 07-B; no retrasar fundaciones por falta de la ventana.
-> Entregar especificación automatizada y comando reproducible dentro de la infraestructura existente; el nombre final se inventaría en Diseno/design.md. Si la autorización no permite ejecutarla, entregar suite y evidencia local pertinente, manteniendo la validación real pendiente. No habilitar permisos ni ejecutar cargas por inferencia de este prompt.
-> DOCUMENTACIÓN TÉCNICA
-> Actualizar documentación existente en Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/: Diseno/ para contratos y decisiones, y Validacion/ para evidencia. Mantener guía 00 y consumidores sincronizados si cambia un contrato. No abrir una segunda fuente de verdad. Registrar archivos y funciones afectados, dependencia propietaria, casos ejecutados/no ejecutados y riesgos pendientes. Una revisión estructural PASS no certifica implementación ni ausencia de regresiones.
-> ENTREGABLE FINAL
-> Entregar primero la persistencia 07-A y después confirmación y recepción 07-B; mantener un único esquema operativo y staging recuperable. Entregar los artefactos especificados en este prompt y una relación verificable de cambios, pruebas, resultados y pendientes. No declarar funcionalidades completas por entregar únicamente stubs, mocks o documentación.
+Base inspeccionada: origin/main 8bf61815f15357947d7d3308fefb5192626988a8, worktree feature/DOC-115. DOC-111 implementa el recorrido; DOC-112 documenta contratos y DOC-114 verifica planes. Este cambio acepta y endurece 07-A/07-B, no construye otro motor. Se revisaron guía 00, prompt 03/07, diseños 01/02/03 y mapa design.md, fuentes VB y pruebas existentes. La presencia de código no garantiza cada carrera ni su despliegue actual.
 
-## Goals / Non-Goals
+## Decisiones aprobadas por el usuario — 2026-11-03
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+### D-01 — Reutilizar una sola fundación operativa en 07-A y 07-B
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+Origen: RQ-01. Evidencia: MySqlImportacionCarpetasRepository.vb; Sql/02-carga-carpetas-mysql51.sql.
 
-## Decisions
+El esquema ya está en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Sql/02-carga-carpetas-mysql51.sql`: seis tablas InnoDB, plan/lote/raíz/archivo/intento/evento, diez FK e índices únicos por plan y clave de confirmación (ámbito, solicitante, clave). No existe un Sql/ operativo paralelo en raíz. Conservarlo y su procedimiento 02-aplicacion; solo una brecha estructural probada justifica incremento separado, nunca reaplicar DDL sobre instalación existente. El repositorio único y sus parciales sirven a 06–11. El mapa normativo es [Diseno/design.md](../../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/design.md); actualizar allí el inventario, no duplicar otro catálogo contractual.
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-02 — Confirmar bajo exclusión transaccional y unicidad de ámbito
 
+Origen: RQ-02. Evidencia: MySqlImportacionCarpetasRepository.vb: ConfirmarPlan, Repeticion.
 
-## Risks / Trade-offs
+ConfirmarPlan bloquea el plan, calcula solicitud_hash de plan/revisión/huella y consulta clave/plan dentro de Operar antes de insertar inventario y evento. Verificar tanto mismo plan como dos planes distintos con una misma clave de ámbito: el índice único debe impedir dos lotes y el perdedor debe obtener un conflicto seguro. Operar traduce 1062/1205/1213 a CONFLICTO_REVISION. Si una carrera válida termina en bloqueo/deadlock, conservar esa respuesta y consultar/repetir el mismo comando después de verificar estado; la convergencia se verifica por identidad persistida. No prometer dos respuestas HTTP exitosas inmediatas por ausencia de deadlock en una simulación. Una repetición con payload idéntico devuelve identidad y estado persistidos sin recrear inventario ni expirar retrospectivamente un plan confirmado. Un rollback de BD se prueba sin confundir huecos AUTO_INCREMENT con pérdida de integridad.
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+### D-03 — Conservar la autoridad y el contrato multipart cerrado
 
-## Migration Plan
+Origen: RQ-03. Evidencia: ImportacionCarpetasRequestGuard.vb: LeerMultipart; ServicioRecepcionImportacion.ObtenerRecepcion.
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+ASMX ConfirmarPlan conserva {planId, revisionEsperada, planHashEsperado, claveConfirmacion}. ASHX conserva exactamente loteId/archivoId/claveIntento y un archivo; no acepta gabinete, expediente, nivel ni estados nuevos. ServicioRecepcionImportacion resuelve identidad, ámbito, nivel y sello desde recursos persistidos y reautoriza antes del commit. ImportacionCarpetasRequestGuard valida POST/origen/token/cabeceras antes de Form/Files. Rechazo HTTP puede ocurrir en IIS antes del handler: clasificar capa y no exigir un JSON del producto donde el servidor corta el cuerpo.
 
-## Open Questions
+### D-04 — Mantener staging privado y cuotas efectivas sin ampliar configuración global
 
-- TBD
+Origen: RQ-04. Evidencia: AlmacenStagingImportacion.vb: Recibir, CopiarAcotado, BytesRetenidos; LimitesImportacionCarpetas.DesdeTransporte.
+
+AlmacenStagingImportacion usa App_Data/ImportacionCarpetas, identidades técnicas, .part/.bin, CreateNew, contención y rechazo de enlaces. Lee hasta un byte extra, compara longitud prevista, calcula SHA-256 y valida PDF antes del rename. El nombre original solo se valida como metadato. Caracterizar fallo de cuota considerando .part y .bin retenidos y reenvío del mismo contenido. DesdeTransporte configura MaximoBytesLote=ULong.MaxValue y retención TimeSpan.MaxValue: NO existe hoy una cuota agregada finita de producción ni una política nueva aprobada. Probar la guarda agregada con límites inyectados explícitos; en E2E probar límites efectivos de archivo/perfil/servidor y registrar lo no configurable. No añadir appSettings ni elevar IIS/httpRuntime. PDF es el formato caracterizado; TIF debe rechazarse aunque una extensión aparezca en la selección.
+
+### D-05 — Recuperar por evidencia persistida y física sin transacción disco/BD ficticia
+
+Origen: RQ-05. Evidencia: ServicioRecepcionImportacion.vb: Recibir, ReconciliarRecepcion; MySqlImportacionCarpetasRepository.RegistrarFalloRecepcion.
+
+El rename y el commit MySQL son operaciones separadas. Si existe .bin íntegro y el intento propio queda incierto, reconciliar verificando identidad, tamaño, formato y hash; nunca consumir el original como copia legacy. Si falta/varía el temporal de una fila RECIBIDO, bloquear la reutilización y conservar evidencia. El replay compara contenido con el retenido y CONTENIDO_DISTINTO no degrada el commit anterior. .part no acredita recepción. Para corte antes de un completo, consultar estado/intentohistórico antes de usar una nueva clave: la misma clave de intento RECHAZADO no se reutiliza y una incertidumbre no se libera por tiempo. No exponer ReconciliarRecepcion como endpoint de prueba; es método interno y se valida por integración del servicio. La vía pública existente solo se usa si su contrato autoriza esa fase.
+
+### D-06 — Mantener revisión y reclamación persistida como exclusión real
+
+Origen: RQ-06. Evidencia: MySqlImportacionCarpetasRepository.vb: ReservarIntento, ConfirmarRecepcion; AlmacenStagingImportacion.BloquearLote.
+
+ReservarIntento y ConfirmarRecepcion combinan revisión, token y comprobación de pertenencia; BloquearLote usa exclusión física FileShare.None. El competidor puede recibir RECEPCION_OCUPADA, OPERACION_EN_CURSO o CONFLICTO_REVISION según el punto probado; éxito final exige una sola recepción verificable, no un código genérico cualquiera. El handler implementa IRequiresSessionState y ASMX EnableSession: dos HTTP simultáneos de una sesión pueden serializarse. Por eso 07-A usa conexiones/transacciones independientes para probar la carrera real; las HTTP registran esa limitación y solo prueban concurrencia efectiva si el entorno permite contextos autorizados independientes para el mismo recurso sin cambiar autoridad. No cambiar el comportamiento de sesión global para fabricar la carrera.
+
+### D-07 — Congelar inventario y barrera sin invocar efectos documentales
+
+Origen: RQ-07. Evidencia: CoordinadorImportacionCarpetas.Barreras.vb; ServicioRecepcionImportacion.vb.
+
+Congelar snapshot, nivel, inventario original, modo y ámbito en lote. Completo EXPEDIENTE requiere todos sus archivos; LOTE requiere todo el inventario; parcial conserva NO_APLICA y rechazados. Reutilizar lógica de barrera como aserción sin llamar AvanzarLote, creadores ni adaptadores documentales. El receptor devuelve estadoRecepcion separado de estadoEfecto y no entrega stagingRef/ruta por HTTP. 09 consume referencia controlada y copia de trabajo; 11 es propietario de limpieza. No modificar la función de almacenamiento compleja ni reabrir aislamiento XML descartado.
+
+### D-08 — Extender exclusivamente la infraestructura de pruebas existente
+
+Origen: RQ-08. Evidencia: tools/e2e/tests/support/authenticated-workflow-session.cjs; doc111-importacion-carpetas.cjs; doc114-plan-importacion.cjs.
+
+Inventariar package.json, playwright.config.cjs, AGENT-RUNBOOK, support, scripts y fixtures. Reutilizar authenticated-workflow-session.cjs (acceso Producción ya ampliado), doc111-importacion-carpetas.cjs y controles SELECT de doc114-plan-importacion.cjs donde su contrato lo permita. No llamar el flujo DOC-111 completo porque avanza documentos. El script run-doc111-persistence.ps1 activa temporalmente el perfil 24: no ejecutarlo en DOC-115 por inferencia ni copiarlo entero. Extender sus utilidades/harness con selección explícita de casos y recursos aprobados, sin activación/permisos implícitos. Rutas nuevas implementadas en este corte local: tools/e2e/tests/doc115-recepcion-importacion.spec.cjs; tools/e2e/tests/support/doc115-recepcion-importacion.cjs; tools/e2e/scripts/run-doc115-recepcion-importacion.cjs; tools/e2e/fixtures/doc115-recepcion-cases.json; tests/doc115-recepcion-contracts.test.cjs. Un runner delgado delega autenticación/autorización. Conservar reporters, workers, reintentos y saneamiento de trazas/capturas; no guardar cookies ni cuentas.
+
+### D-09 — Cerrar cada fase con evidencia y aprobación explícita del alcance
+
+Origen: RQ-09. Evidencia: Validacion/doc111-matriz-final-20261102.md; tools/e2e/AGENT-RUNBOOK.md.
+
+RECIB-01 doble confirmación/payload distinto; RECIB-02 truncado/ID cruzado/ruta/cuota/recepción válida/replay y contenido cambiado; RECIB-03 desconexión/consulta/reenvío/respuesta perdida. Complementar 07-A con rollback real, esquema y reclamación concurrente. Cada caso registra EJECUTADO_OK/FALLIDO/NO_EJECUTADO, comando, SHA del código y backend servido, recursos/IDs y huellas SELECT antes/después. DOC-111 es antecedente y sus dobles no acreditan transacciones MySQL ni cortes de red DOC-115. No hay autorización nueva para ambiente, cuentas ni datos: responsable de la ejecución es el equipo del ambiente y la ejecución real queda NO_EJECUTADO hasta autorización específica. 07-A se cierra con repositorios/SQL; 07-B con RECIB reales, sin exigir efectos documentales a ninguna fase. Suspender ante resultado incierto, conservar IDs/staging y consultar antes de repetir. No borrar lotes ni recursos conservados.
+
+## Contratos y errores
+
+Respuesta común RespuestaPerfilImportacion: ok, codigo, mensaje, operacionId, datos. Confirmación devuelve loteId/planId/nivelRef/estado/revision/totales. Recepción devuelve loteId/archivoId/estadoRecepcion/estadoEfecto/bytesRecibidos/contenidoHash/revision. IDs y bytes se transportan en cadenas decimales según el DTO vigente; revisión UInt32. No admitir estructuras de estado nuevas desde cliente. Errores existentes que se caracterizan: SOLICITUD_INVALIDA, ACCESO_DENEGADO, CONFLICTO_REVISION, CAPACIDAD_NO_DISPONIBLE, LIMITE_EXCEDIDO, ARCHIVO_RECHAZADO, FORMATO_NO_SOPORTADO, CONTENIDO_DISTINTO, RECEPCION_OCUPADA, OPERACION_EN_CURSO y RESULTADO_INCIERTO; usar EstadoHttp vigente sin inventar códigos alternos.
+
+## Orden de entrega y verificación
+
+1. Inventario/contratos y SQL existente; harness local sin secretos.
+2. 07-A repositorios e integración transaccional autorizada independiente de UI.
+3. 07-B protección/recepción, RECIB-01/02/03 y regresión pertinente.
+4. Evidencia por fase, documentación común y validación del cambio.
+
+MSBuild real de GestionDocumental-Docuarchi.net.vbproj si cambia VB/proyecto; node --check en archivos JavaScript modificados; harness Framework y suites Node pertinentes. No compilar ni ejecutar pruebas de integración por editar documentación. Rollout sin DDL automático: revisar estado instalado; incremento separado solo si existe brecha. Rollback de código no elimina datos confirmados ni staging; recuperación explícita conserva recursos.
+
+## Corte de implementación local — 2026-11-03
+
+El usuario aprobó el refinamiento. La extensión compartida se limita a aceptar scopes RECIB-01/02/03 en createPreparationClient, conservando el contrato PLAN. La suite de recepción usa controles y autenticación existentes. RECIB-03 corta una petición HTTP incompleta y descarta deliberadamente el resultado de otra recepción confirmada; esta segunda parte prueba pérdida del resultado en cliente y no acredita caída del servidor ni respuesta perdida en red. No se ejecutaron estos escenarios reales. Ver Validacion/doc115-implementacion-local-20261103.md y la matriz por fase.
+
+## Preparación 07-A posterior a RECIB — 2026-11-04
+
+Se reutiliza el runner de persistencia con un modo autorizado separado, sin activar perfiles ni exigir tablas vacías. El mapa común registra la parcial de test y el soporte PowerShell. Tres planes/dos lotes máximos y un recibo permiten probar transacciones en conexiones independientes y cuatro rollbacks controlados. Se usa contexto de fixture autorizado y comprobaciones SELECT de autoridad/nivel/publicación, sin dependencia de 06/UI. No hay escritores SQL nuevos: la persistencia usa el repositorio existente. Ver Validacion/doc115-07a-preparacion-20261104.md para presupuesto, recuperación y límites.
+
+## Resultado de implementación y validación — 2026-11-04
+
+Las 28 tareas se completaron. 07-A verifica transacciones en conexiones independientes, unicidad, exclusión y cuatro rollbacks reales con el repositorio único. RECIB-01/02/03 cuentan con resultados HTTP/SELECT saneados y huellas por escenario. No se modificaron el producto VB, proyecto, esquema ni configuración. El diagnóstico de ODBC conserva pasos/códigos cerrados mediante tools/e2e/scripts/support/doc115-readonly-failure.ps1. Los cortes históricos anteriores se conservan; el informe vigente está en Validacion/doc115-07a-resultados.md y doc115-07b-resultados.md. La pérdida de resultado RECIB-03 corresponde al descarte en cliente y la cuota finita se caracteriza localmente por inyección.

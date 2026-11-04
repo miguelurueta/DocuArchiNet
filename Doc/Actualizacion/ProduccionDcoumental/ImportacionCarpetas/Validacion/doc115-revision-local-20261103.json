@@ -1,0 +1,39 @@
+{
+  "issueKey": "DOC-115",
+  "scope": "LOCAL_DOCUMENT_REVIEW",
+  "promptReviewStatus": "pass",
+  "completedTasks": [
+    "1.1",
+    "1.2",
+    "1.3",
+    "3.2",
+    "4.1"
+  ],
+  "totalTasks": 28,
+  "remainingTasks": 23,
+  "sqlSourceSha256": "8549d45d0bfd84df5d11ebe57110a3d4a2b0c9507223ea26d738eaf937c84933",
+  "repositorySourceSha256": "1b429f0cb5e318afe1645b51f5ca79d43e7f09cc37dcccb60e9a0c7356547024",
+  "tables": [
+    "ra_integracion_plan",
+    "ra_integracion_lote",
+    "ra_integracion_raiz",
+    "ra_integracion_archivo",
+    "ra_integracion_intento",
+    "ra_integracion_evento"
+  ],
+  "fks": [
+    "fk_integracion_plan_version",
+    "fk_integracion_lote_plan",
+    "fk_integracion_lote_version",
+    "fk_integracion_raiz_lote",
+    "fk_integracion_archivo_raiz",
+    "fk_integracion_intento_lote",
+    "fk_integracion_intento_raiz",
+    "fk_integracion_intento_archivo",
+    "fk_integracion_evento_lote",
+    "fk_integracion_evento_intento"
+  ],
+  "sqlExecuted": false,
+  "runtimeTests": "NO_EJECUTADO",
+  "refinementApproval": "DRAFT"
+}
