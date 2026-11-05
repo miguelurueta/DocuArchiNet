@@ -213,3 +213,26 @@ El compilador existente incluye la nueva parcial, sin proyecto ni referencias de
 | tools/e2e/scripts/support/doc115-readonly-failure.ps1 | 07-A | Nuevo, validado localmente y en ejecución | Clasificación cerrada ODBC para el ejecutor, sin SQL ni secretos |
 
 Cierre técnico DOC-115 del 2026-11-04: 07-A y RECIB-01/02/03 ejecutados con resultados saneados. La tabla nueva es soporte de pruebas, no una operación pública ni una capa de producto adicional. Ver los informes de fase en Validacion/.
+
+## Delta DOC-116 — aceptación local
+
+Fuente de revisión: copia local principal. No se altera el adaptador existente. Estado y límites en Validacion/doc116-e2e-local-20261105.md.
+
+| Ruta | Estado | Propietario y responsabilidad |
+| --- | --- | --- |
+| tools/e2e/tests/support/doc116-expedientes-importacion.cjs | Implementado y verificado localmente; no acredita aceptación real | 08 / DOC116; soporte, selector o prueba acotada de creación según su ruta |
+| tools/e2e/tests/doc116-expedientes-importacion.spec.cjs | Implementado y verificado localmente; no acredita aceptación real | 08 / DOC116; soporte, selector o prueba acotada de creación según su ruta |
+| tools/e2e/scripts/run-doc116-expedientes-importacion.cjs | Implementado y verificado localmente; no acredita aceptación real | 08 / DOC116; soporte, selector o prueba acotada de creación según su ruta |
+| tools/e2e/fixtures/doc116-expedientes-cases.json | Implementado y verificado localmente; no acredita aceptación real | 08 / DOC116; soporte, selector o prueba acotada de creación según su ruta |
+| tests/doc116-expedientes-contracts.test.cjs | Implementado y verificado localmente; no acredita aceptación real | 08 / DOC116; soporte, selector o prueba acotada de creación según su ruta |
+| tests/doc116-tree-selector.test.cjs | Implementado y verificado localmente; no acredita aceptación real | 08 / DOC116; soporte, selector o prueba acotada de creación según su ruta |
+
+El comando se agrega al paquete E2E existente. El puente local administrativo permanece intacto y EXP03 no se ejecuta sin mutador seguro; no se copia la variante de main sobre el archivo local. No se añaden endpoints de falla ni otro creador.
+
+### DOC116 — permiso de nivel compuesto localmente
+
+Se agregan tools/e2e/scripts/support/doc116-level-permission.ps1, tools/e2e/tests/doc116-level-permission-local.ps1 y tests/doc116-level-permission.test.cjs. Se amplían de forma acotada el puente doc110-permission-db.ps1 y su cliente doc110-permission-revocation.cjs, preservando las variantes existentes de cada copia. EXP03 queda compuesto con recuperación y lectura independiente, no ejecutado contra MySQL. Estado/evidencia actual: Validacion/doc116-exp03-local-20261105.md. No cambia producto/almacenamiento ni se importan cambios de main sobre la copia local.
+
+### DOC116 — corte consolidado de aceptación 2026-11-05
+
+Implementados setup/selector/suite de creación y factoría nativa compartida doc116-level-bridge.cjs. EXP01 PASS real, EXP02 cliente PASS parcial y EXP03 PASS real con permiso 629 restaurado. No hay cambios del creador/almacenamiento ni garantías nuevas del XML descartado. Matriz/SHAs/bloqueos vigentes: Validacion/doc116-expedientes-matriz.md y doc116-verificacion-final-20261105.json. EXP02 interno sigue NOT_COMPOSED/NO_EJECUTADO; aceptación global/archivo bloqueados. Los cortes anteriores permanecen históricos.

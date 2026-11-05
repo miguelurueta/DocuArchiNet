@@ -1,0 +1,119 @@
+{
+  "issueKey": "DOC-116",
+  "scenario": "EXP-01",
+  "status": "PASS",
+  "reviewDate": "2026-11-05",
+  "planId": "32",
+  "loteId": "16",
+  "references": [
+    {
+      "loteId": "16",
+      "raizId": "25",
+      "expedienteId": "657",
+      "relacionNivelId": "1082"
+    },
+    {
+      "loteId": "16",
+      "raizId": "26",
+      "expedienteId": "658",
+      "relacionNivelId": "1083"
+    }
+  ],
+  "levelA": "7",
+  "visibleLevelB": "8",
+  "versionId": "38",
+  "preparations": 1,
+  "confirmations": 1,
+  "uploads": 2,
+  "lots": 1,
+  "rootsCreated": 2,
+  "creationRequests": 4,
+  "documents": 0,
+  "replayUnchanged": true,
+  "readOnlyControls": true,
+  "preservedResourcesUnchanged": true,
+  "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "permissionChanges": 0,
+  "originalsInStaging": 2,
+  "preserveResources": true,
+  "preservedBefore": {
+    "scope": {
+      "maxPlan": "31",
+      "maxLot": "11"
+    },
+    "fingerprints": {
+      "plans": {
+        "count": 31,
+        "hash": "2ab1c8d95e6c2fb3380656406a03af95a2f4aa5ec8bcaf1e1bbcc24b11519f1e"
+      },
+      "lots": {
+        "count": 11,
+        "hash": "01a7d104b374457e2f03c883f4a8cd012d90606ae46fcd302048bfc929c6fd00"
+      },
+      "roots": {
+        "count": 18,
+        "hash": "b9bc05715992cb401fc87903204ff1475b291ff31729b230a9e9ac06db7b033f"
+      },
+      "files": {
+        "count": 19,
+        "hash": "8f0c6eee2e5123f80d5a319e8fe7471885b9133f204a4f1ad6bb7a642dc84b96"
+      },
+      "attempts": {
+        "count": 30,
+        "hash": "cbd48e1e0390e3ed0d252b5e6186288b7639bf3e435de399e90dc4d78aa81cf4"
+      },
+      "events": {
+        "count": 114,
+        "hash": "0882508bc89431b2517be7a536c51b51df353bb98627f215bca571ed74a62b90"
+      }
+    }
+  },
+  "preservedAfter": {
+    "scope": {
+      "maxPlan": "31",
+      "maxLot": "11"
+    },
+    "fingerprints": {
+      "plans": {
+        "count": 31,
+        "hash": "2ab1c8d95e6c2fb3380656406a03af95a2f4aa5ec8bcaf1e1bbcc24b11519f1e"
+      },
+      "lots": {
+        "count": 11,
+        "hash": "01a7d104b374457e2f03c883f4a8cd012d90606ae46fcd302048bfc929c6fd00"
+      },
+      "roots": {
+        "count": 18,
+        "hash": "b9bc05715992cb401fc87903204ff1475b291ff31729b230a9e9ac06db7b033f"
+      },
+      "files": {
+        "count": 19,
+        "hash": "8f0c6eee2e5123f80d5a319e8fe7471885b9133f204a4f1ad6bb7a642dc84b96"
+      },
+      "attempts": {
+        "count": 30,
+        "hash": "cbd48e1e0390e3ed0d252b5e6186288b7639bf3e435de399e90dc4d78aa81cf4"
+      },
+      "events": {
+        "count": 114,
+        "hash": "0882508bc89431b2517be7a536c51b51df353bb98627f215bca571ed74a62b90"
+      }
+    }
+  },
+  "evidence": {
+    "checkpoint": "tools/e2e/artifacts/doc116-exp01-20261105-attempt3.json",
+    "checkpointSha256": "c1581523fc8d8bff301f653113773ed121a5d713c69db2ff13d337ecaf037346",
+    "codeSha256": "78b8448db71e4d6581edb7b026f2e35c7a1f7bf33146b50f291abe3cca32ffcf",
+    "resourcesSha256": "647abf473712b1f4303efeea8b829a9dda6518569d7e37d5d0af1a16633b6376",
+    "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5"
+  },
+  "tests": {
+    "selectedLocalPass": 83
+  },
+  "limitations": [
+    "EXP-02 client variant not executed",
+    "EXP-02 internal authenticated failure not composed",
+    "EXP-03 real permission revocation not executed",
+    "Task 4.1 remains partial: only EXP-01 resources/effects specifically authorized"
+  ]
+}

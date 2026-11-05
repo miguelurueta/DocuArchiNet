@@ -1,0 +1,15 @@
+{
+  "issueKey": "DOC-116",
+  "status": "PREPARATION_NOT_REQUESTED",
+  "loginCompleted": true,
+  "selectControlsCompleted": true,
+  "observedLastHttpOperation": "ConsultarLote",
+  "serverReason": "NOT_RETAINED_BY_PREVIOUS_RUNNER",
+  "scope": {
+    "maxPlan": "31",
+    "maxLot": "11"
+  },
+  "originalCheckpoint": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\tools\\e2e\\artifacts\\doc116-exp01-20261105-authorized.json",
+  "nextAction": "READONLY_ACCESS_PROBE_WITH_CLASSIFIED_HTTP_METADATA",
+  "effectsBudgetConsumed": 0
+}

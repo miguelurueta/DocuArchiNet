@@ -1,0 +1,91 @@
+{
+  "issueKey": "DOC-116",
+  "date": "2026-11-05",
+  "status": "DRAFT_REFINED_LOCAL_SOURCE",
+  "sourceOfTruth": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+  "gitIsolation": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\.tmp\\doc116-work",
+  "decisions": 7,
+  "requirements": 7,
+  "scenarios": 14,
+  "tasks": 20,
+  "complexity": {
+    "S": 8,
+    "M": 12
+  },
+  "localFiles": [
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorExpedienteImportacion.vb",
+      "localSha256Normalized": "d45cbe7722222453f203984f76279694de5335b93a60eb6f06c85d8450bd1499",
+      "isolatedSha256Normalized": "d45cbe7722222453f203984f76279694de5335b93a60eb6f06c85d8450bd1499",
+      "matchesGitCopy": true
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorExpedienteImportacion.Legacy.vb",
+      "localSha256Normalized": "9aae53053063986f6941324e3b83e8fdd559404a7b15b9186fb321e86c1247b0",
+      "isolatedSha256Normalized": "9aae53053063986f6941324e3b83e8fdd559404a7b15b9186fb321e86c1247b0",
+      "matchesGitCopy": true
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Creacion.vb",
+      "localSha256Normalized": "2aeb517ba56eb1ad330c2e0f1c34363ce61a080c9b8577c982323e8f4a22580d",
+      "isolatedSha256Normalized": "2aeb517ba56eb1ad330c2e0f1c34363ce61a080c9b8577c982323e8f4a22580d",
+      "matchesGitCopy": true
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasContextAdapter.vb",
+      "localSha256Normalized": "7289a08734512a2f834502223ee838a4ffebe1b36ce7f02989c001e0f4754072",
+      "isolatedSha256Normalized": "7289a08734512a2f834502223ee838a4ffebe1b36ce7f02989c001e0f4754072",
+      "matchesGitCopy": true
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ResultadoCreacion.vb",
+      "localSha256Normalized": "ac8a69c5f730b9f942a9f65449071059740effeeb50daa65fde6ed796004d1d1",
+      "isolatedSha256Normalized": "ac8a69c5f730b9f942a9f65449071059740effeeb50daa65fde6ed796004d1d1",
+      "matchesGitCopy": true
+    },
+    {
+      "file": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "localSha256Normalized": "2f83eb3f835a8c97074b4336c7b282dc1275a92ac493490a72c0f3f02b532fca",
+      "isolatedSha256Normalized": "2f83eb3f835a8c97074b4336c7b282dc1275a92ac493490a72c0f3f02b532fca",
+      "matchesGitCopy": true
+    },
+    {
+      "file": "tools/e2e/scripts/support/doc110-permission-db.ps1",
+      "localSha256Normalized": "e9964d6687884c0e6e438facaf620c826359008a70e122dd3c9d50ba3d549d30",
+      "isolatedSha256Normalized": "bfc60ba8301555c05188789dc1f7c6dd177d75d4508ac76e95bd3815cac5a242",
+      "matchesGitCopy": false
+    },
+    {
+      "file": "tools/e2e/tests/support/doc110-permission-revocation.cjs",
+      "localSha256Normalized": "13c79e52b35f4cfcb72419d7416edaf2d657bb0d1fa81be6059a3eb84ca00a27",
+      "isolatedSha256Normalized": "cdf463adf625b900bf4b2b1523f891e4063686d3f6ab445ee576d79c94fb45aa",
+      "matchesGitCopy": false
+    },
+    {
+      "file": "tools/e2e/tests/support/doc111-importacion-carpetas.cjs",
+      "localSha256Normalized": "66c43623db41ea56b30f6f7a786ff2633ef82c0cafb072f5d4fb860723f61e60",
+      "isolatedSha256Normalized": "66c43623db41ea56b30f6f7a786ff2633ef82c0cafb072f5d4fb860723f61e60",
+      "matchesGitCopy": true
+    },
+    {
+      "file": "tools/e2e/tests/support/authenticated-workflow-session.cjs",
+      "localSha256Normalized": "e26634bbbd13aad52de7f207874ae42042fb486cdf590fae298d11f654e55b64",
+      "isolatedSha256Normalized": "e26634bbbd13aad52de7f207874ae42042fb486cdf590fae298d11f654e55b64",
+      "matchesGitCopy": true
+    },
+    {
+      "file": "tools/e2e/scripts/support/interactive-e2e-console.cjs",
+      "localSha256Normalized": "9101fb300d92d7c2d14069ed7ec9f907bb74aa1225e191f5676b5e6b022cdf10",
+      "isolatedSha256Normalized": "9101fb300d92d7c2d14069ed7ec9f907bb74aa1225e191f5676b5e6b022cdf10",
+      "matchesGitCopy": true
+    }
+  ],
+  "realExecution": false,
+  "permissionChanges": false,
+  "productChanges": 0,
+  "approval": false,
+  "dependencies": [
+    "EXP02 internal real injection requires safe authenticated procedure; no public failure hook",
+    "EXP03 requires non-owner actor and exact level-permission recovery contract"
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "issueKey": "DOC-116",
+  "reviewDate": "2026-11-05",
+  "variant": "CLIENT_RESULT_DISCARDED",
+  "scenario": "EXP-02",
+  "status": "PASS",
+  "preparations": 1,
+  "confirmations": 1,
+  "uploads": 2,
+  "lots": 1,
+  "caseComplete": false,
+  "internalFailure": "NO_EJECUTADO",
+  "responseObservation": "CLIENT_RESULT_DISCARDED",
+  "rootsCreated": 1,
+  "creationRequests": 2,
+  "documents": 0,
+  "replayUnchanged": true,
+  "readOnlyControls": true,
+  "preservedResourcesUnchanged": true,
+  "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "planId": "33",
+  "loteId": "17",
+  "reference": {
+    "loteId": "17",
+    "raizId": "27",
+    "expedienteId": "659",
+    "relacionNivelId": "1084"
+  },
+  "untouchedRootId": "28",
+  "untouchedRootVerified": true,
+  "permissionChanges": 0,
+  "originalsInStaging": 2,
+  "preserveResources": true,
+  "preservedBefore": {
+    "scope": {
+      "maxPlan": "32",
+      "maxLot": "16"
+    },
+    "fingerprints": {
+      "plans": {
+        "count": 32,
+        "hash": "96a75c84b069b36bb8cf2553ccc20232e8f5607d17356e872148806fc4a36032"
+      },
+      "lots": {
+        "count": 12,
+        "hash": "440a468fbc675f3476e550d8779cc525c33738ff0bc8c0bbb1f39caeedfc17f7"
+      },
+      "roots": {
+        "count": 20,
+        "hash": "f1a1c26eda110e432e8ff84fc0d8b8004160ded922e403689e6469cc30ded233"
+      },
+      "files": {
+        "count": 21,
+        "hash": "99e76baae69adbdd05fca3082ce54a12ae00af6dc5fa49454edf3dbb1e1376dc"
+      },
+      "attempts": {
+        "count": 34,
+        "hash": "25590205352e49b2c88b65016ea07f7d05d9352f51e8d72ca73c223b2fb5a21c"
+      },
+      "events": {
+        "count": 125,
+        "hash": "06ff68af439343e0390272f53ef6277d661f36b14a97fbb590e4fdef05e836b5"
+      }
+    }
+  },
+  "preservedAfter": {
+    "scope": {
+      "maxPlan": "32",
+      "maxLot": "16"
+    },
+    "fingerprints": {
+      "plans": {
+        "count": 32,
+        "hash": "96a75c84b069b36bb8cf2553ccc20232e8f5607d17356e872148806fc4a36032"
+      },
+      "lots": {
+        "count": 12,
+        "hash": "440a468fbc675f3476e550d8779cc525c33738ff0bc8c0bbb1f39caeedfc17f7"
+      },
+      "roots": {
+        "count": 20,
+        "hash": "f1a1c26eda110e432e8ff84fc0d8b8004160ded922e403689e6469cc30ded233"
+      },
+      "files": {
+        "count": 21,
+        "hash": "99e76baae69adbdd05fca3082ce54a12ae00af6dc5fa49454edf3dbb1e1376dc"
+      },
+      "attempts": {
+        "count": 34,
+        "hash": "25590205352e49b2c88b65016ea07f7d05d9352f51e8d72ca73c223b2fb5a21c"
+      },
+      "events": {
+        "count": 125,
+        "hash": "06ff68af439343e0390272f53ef6277d661f36b14a97fbb590e4fdef05e836b5"
+      }
+    }
+  },
+  "evidence": {
+    "checkpoint": "tools/e2e/artifacts/doc116-exp02-20261105-authorized.json",
+    "checkpointSha256": "44fb66a5b1ae09c204edbfbfb3d730c9dbab7367135be51b52b5759c24a794b7",
+    "codeSha256": "7c2f443540ab1431fe804ec0402eeb1aa84e95c405b513013c8038ae8506a8d1",
+    "resourcesSha256": "104236475bc90e5e716d9a4a7715197ff1065e4d654556f44074580a632b2d16",
+    "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5"
+  },
+  "tests": {
+    "selectedLocalPass": 85
+  },
+  "limitations": [
+    "PASS applies only to client-result discard and identical replay",
+    "Internal authenticated failure remains NOT_COMPOSED / NO_EJECUTADO",
+    "No server crash or HTTP response-loss coverage",
+    "EXP-03 real permission revocation remains pending",
+    "DOC-116 global acceptance remains incomplete"
+  ]
+}

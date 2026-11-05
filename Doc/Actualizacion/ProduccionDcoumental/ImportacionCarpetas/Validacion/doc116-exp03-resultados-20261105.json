@@ -1,0 +1,134 @@
+{
+  "issueKey": "DOC-116",
+  "reviewDate": "2026-11-05",
+  "scenario": "EXP-03",
+  "status": "PASS",
+  "preparations": 1,
+  "confirmations": 1,
+  "uploads": 2,
+  "lots": 1,
+  "caseComplete": true,
+  "internalFailure": null,
+  "responseObservation": null,
+  "rootsCreated": 0,
+  "creationRequests": 1,
+  "documents": 0,
+  "replayUnchanged": null,
+  "denialUnchanged": true,
+  "permissionRestored": true,
+  "readOnlyControls": true,
+  "preservedResourcesUnchanged": true,
+  "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "planId": "34",
+  "loteId": "18",
+  "level": "215",
+  "identity": {
+    "userRef": "141",
+    "ambitoRef": "2"
+  },
+  "permissionId": "629",
+  "permissionColumn": "agregar_expediente",
+  "permissionTransition": [
+    1,
+    0,
+    1
+  ],
+  "permanentPermissionChanges": 0,
+  "rootIds": [
+    "29",
+    "30"
+  ],
+  "permissionRestorationEvidence": {
+    "version": 1,
+    "userRef": "141",
+    "companyRef": "2",
+    "levelRef": "215",
+    "lotId": "18",
+    "permissionId": "629",
+    "environmentHash": "24cce9f4ae03e1b92b7f0cba1e89f395e9b4434f4c108f5ee571ae9515387b91",
+    "originalPermission": 1,
+    "otherFieldsHash": "a1dfd1a5ef0d1acf8d1c89ae3da09da8b4bc19f33a455bfe536aa2b5f2cc5c05",
+    "stage": "RESTORED",
+    "restored": true
+  },
+  "preservedBefore": {
+    "scope": {
+      "maxPlan": "33",
+      "maxLot": "17"
+    },
+    "fingerprints": {
+      "plans": {
+        "count": 33,
+        "hash": "9f07d44a16809f7c2f43f4089500b799068d76ccb93aa6ae1c5e6e9cc86ebf47"
+      },
+      "lots": {
+        "count": 13,
+        "hash": "7cda84e35a5f2bdef52f6daf70a276a1d1aa047fc87a6e39fd8d48a135b56e10"
+      },
+      "roots": {
+        "count": 22,
+        "hash": "4a765634c32f93d05a295c255837d67b041c908535fb416e04d37ce0fad5911c"
+      },
+      "files": {
+        "count": 23,
+        "hash": "785d6ead90ad20e3fc562ae9587e7af7a498a1f174f854cca532184ea8d07f7b"
+      },
+      "attempts": {
+        "count": 37,
+        "hash": "240deb935d17cf53175dbe0c99b4b23d33babcd31b7f7768e1e5328a29da1af5"
+      },
+      "events": {
+        "count": 133,
+        "hash": "9710f02bad19b8040fa0df5a4355c6284040a9c986296b15ecee167781b6e900"
+      }
+    }
+  },
+  "preservedAfter": {
+    "scope": {
+      "maxPlan": "33",
+      "maxLot": "17"
+    },
+    "fingerprints": {
+      "plans": {
+        "count": 33,
+        "hash": "9f07d44a16809f7c2f43f4089500b799068d76ccb93aa6ae1c5e6e9cc86ebf47"
+      },
+      "lots": {
+        "count": 13,
+        "hash": "7cda84e35a5f2bdef52f6daf70a276a1d1aa047fc87a6e39fd8d48a135b56e10"
+      },
+      "roots": {
+        "count": 22,
+        "hash": "4a765634c32f93d05a295c255837d67b041c908535fb416e04d37ce0fad5911c"
+      },
+      "files": {
+        "count": 23,
+        "hash": "785d6ead90ad20e3fc562ae9587e7af7a498a1f174f854cca532184ea8d07f7b"
+      },
+      "attempts": {
+        "count": 37,
+        "hash": "240deb935d17cf53175dbe0c99b4b23d33babcd31b7f7768e1e5328a29da1af5"
+      },
+      "events": {
+        "count": 133,
+        "hash": "9710f02bad19b8040fa0df5a4355c6284040a9c986296b15ecee167781b6e900"
+      }
+    }
+  },
+  "evidence": {
+    "checkpoint": "tools/e2e/artifacts/doc116-exp03-20261105-authorized.json",
+    "checkpointSha256": "bbbc4ca22c390cf7d76d5fc5c8694958ff95e10701599c5e26918f80a4ad1070",
+    "codeSha256": "68e5680c4eaefc997614e610919738610b30fc45025fc13ae7d86e8e9e467666",
+    "resourcesSha256": "9f48aed33261fe97a0caec1bed7d61f3f85577fe138586d37a880c0a57d18586",
+    "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+    "recoveryJournal": "tools/e2e/artifacts/doc116-level-permission-recovery.json",
+    "recoveryJournalSha256": "4c0a6c53f9158c2283e79e9912b1318ea3e7e2393153b4f27b381819d3d02733"
+  },
+  "tests": {
+    "selectedLocalPass": 95
+  },
+  "limitations": [
+    "EXP-02 internal authenticated failure remains NOT_COMPOSED / NO_EJECUTADO",
+    "DOC-116 global acceptance remains incomplete pending final consolidation and internal failure coverage decision"
+  ]
+}
