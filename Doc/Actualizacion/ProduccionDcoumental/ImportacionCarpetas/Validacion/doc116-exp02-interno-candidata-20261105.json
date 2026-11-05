@@ -1,0 +1,89 @@
+{
+  "issueKey": "DOC-116",
+  "status": "DORMANT_LAB_CANDIDATE_COMPILES_NOT_AUTHORIZED",
+  "executionAuthorized": false,
+  "acceptanceComplete": false,
+  "build": {
+    "status": "COMPILED_DORMANT_CANDIDATE",
+    "exitCode": 0,
+    "errorCodes": [],
+    "sourceBinding": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorExpedienteImportacion.Legacy.vb",
+    "sourceBindingSha256": "9aae53053063986f6941324e3b83e8fdd559404a7b15b9186fb321e86c1247b0",
+    "overlaySha256": "03dbf3e505d037acd9295a63e37d302fdf05ccb0e1fdb57caf822a7fd23c76cb",
+    "helperSha256": "6c4b40be999be43fe79d605fccbdb00a1e3fe8a2a278f46c131081a16d960285",
+    "runtimeBackendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+    "liveRuntimeUnchanged": true,
+    "deployed": false,
+    "executionAuthorized": false,
+    "authenticatedTestExecuted": false,
+    "scope": "Dormant local compilation only; scope IDs are invalid and all creation is refused before legacy",
+    "log": ".tmp/doc116-internal-candidate/compile.log",
+    "candidateAssemblySha256": "512c7eb2e97e980dbe0f8bf222bb85e830c06131b49e779c085d8823e0d35f33",
+    "metadataVerification": {
+      "overlayTypePresent": true,
+      "dormantLotConstant": "NO_AUTORIZADO",
+      "method": "ReflectionOnlyLoadFrom and GetRawConstantValue; no assembly execution"
+    }
+  },
+  "reusedResources": {
+    "planId": "34",
+    "lotId": "18",
+    "identity": {
+      "userRef": "141",
+      "ambitoRef": "2"
+    },
+    "level": "215",
+    "versionId": "38",
+    "roots": [
+      {
+        "rootId": "29",
+        "revision": 1
+      },
+      {
+        "rootId": "30",
+        "revision": 1
+      }
+    ],
+    "stagingOriginals": 2,
+    "newPlans": 0,
+    "newLots": 0,
+    "newReceipts": 0,
+    "readOnlyFreshnessCheckRequired": true
+  },
+  "proposedFaultWindows": [
+    {
+      "first": "AFTER_CHECKPOINT_COMMIT_BEFORE_RETURN",
+      "rootId": "29",
+      "expected": "Real checkpoint persists, internal return fails, coordinator consults historical result; confirmed replay retains IDs"
+    },
+    {
+      "second": "AFTER_LEGACY_BEFORE_CHECKPOINT",
+      "rootId": "30",
+      "expected": "Legacy assigns IDs; private evidence records them; checkpoint omitted by injected exception, uncertainty retained and no recreation permitted"
+    }
+  ],
+  "proposedMaximumEffects": {
+    "newExpedients": 2,
+    "definitiveDocuments": 0,
+    "permissionChanges": 0,
+    "creationRequests": 3
+  },
+  "runtimePlan": {
+    "status": "REQUIRES_DESIGN_APPROVAL_AND_EXECUTION_PREPARATION",
+    "productionSourceChanges": 0,
+    "newHttpFailureEndpoint": false,
+    "httpFailureHeaderOrFlag": false,
+    "activationRequiresSeparateExplicitAuthorization": true,
+    "originalRuntimeBackupAndRestorationRequired": true,
+    "originalRuntimeSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5"
+  },
+  "limitations": [
+    "Compilation and metadata inspection do not prove authenticated execution or correct recovery",
+    "Dormant candidate rejects all real creation before legacy and must never be deployed",
+    "Activation needs exact scope IDs and journal/recovery verified in a separately reviewed candidate",
+    "Internal driver, scoped binary activation and runtime restoration are not yet implemented or authorized",
+    "Precheckpoint failure can leave a real expedient and active attempt; preserve uncertainty and never repair by recreating",
+    "Postcommit return exception does not claim network-packet loss"
+  ],
+  "currentProductionTooling": "Restored to the exact reviewed local 95-test version; unused new-setup experiment removed because lot 18 can be reused"
+}

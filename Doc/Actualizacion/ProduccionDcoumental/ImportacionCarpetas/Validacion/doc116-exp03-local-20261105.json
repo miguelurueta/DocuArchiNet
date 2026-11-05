@@ -1,0 +1,99 @@
+{
+  "issueKey": "DOC-116",
+  "date": "2026-11-05",
+  "sourceOfTruth": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+  "status": "LOCAL_SCENARIOS_COMPOSED_REAL_ACCEPTANCE_NOT_EXECUTED",
+  "completed": 15,
+  "total": 20,
+  "open": [
+    "4.1",
+    "4.2",
+    "4.3",
+    "4.4",
+    "4.5"
+  ],
+  "tests": {
+    "selectedLocalPass": 71,
+    "localChromiumIncluded": true,
+    "powerShellProtocolIncluded": true,
+    "frameworkPriorPass": 2,
+    "playwrightDiscovered": 4,
+    "realExecuted": 0,
+    "isolatedSelectedPass": 91,
+    "isolatedSuiteDiffersFromLocal": true
+  },
+  "productChanges": 0,
+  "permissionChanges": false,
+  "scenarioComposition": {
+    "EXP-01": "LOCAL_READY_WITH_PREPARED_LOT",
+    "EXP-02-client": "LOCAL_READY_PARTIAL_COVERAGE",
+    "EXP-02-internal": "NOT_COMPOSED",
+    "EXP-03": "LOCAL_READY_WITH_SCOPED_LEVEL_RESOURCES"
+  },
+  "sourceFiles": [
+    {
+      "file": "tools/e2e/tests/support/doc116-expedientes-importacion.cjs",
+      "sha256": "d96a87c38cdfc6a96894fdc0106c3cf153d8f81335c9795e9e7efdcf1c2c23d1"
+    },
+    {
+      "file": "tools/e2e/tests/doc116-expedientes-importacion.spec.cjs",
+      "sha256": "8b00e1c8cf20a69ce77b4c6adda6f7ef8c6a75285b0ab7970afa381a9b8b938a"
+    },
+    {
+      "file": "tools/e2e/scripts/run-doc116-expedientes-importacion.cjs",
+      "sha256": "bc86c4423c8a2932fc7047bcce7e66e06ed9c2dbd562765ef5aa9c72bdf1cd0f"
+    },
+    {
+      "file": "tools/e2e/fixtures/doc116-expedientes-cases.json",
+      "sha256": "41085e9fc5ee35934bdd583f74f5eb577df772cdb39853c441ad725856406f37"
+    },
+    {
+      "file": "tests/doc116-expedientes-contracts.test.cjs",
+      "sha256": "7624a0b1824160b4515743645491fc377ec313ebbe91e76386a953c215beaa99"
+    },
+    {
+      "file": "tests/doc116-tree-selector.test.cjs",
+      "sha256": "8503a6c0be40dba7f7ea39970fd6ede910da32e2565570d84ae3aa7f4f5b7ebc"
+    },
+    {
+      "file": "tools/e2e/scripts/support/doc116-level-permission.ps1",
+      "sha256": "d22a318698468c07241c9a76ca61ed84943071803457503a7bfb60e6af9cd16b"
+    },
+    {
+      "file": "tools/e2e/tests/doc116-level-permission-local.ps1",
+      "sha256": "2f6916afb08bf4ab26bc3b81a94bf69c1a72e727f3a9cdd49b370b1179c63b58"
+    },
+    {
+      "file": "tests/doc116-level-permission.test.cjs",
+      "sha256": "817b7502c41f1e9ebbbe4fc86d9a236addc8846ed52a820744c0d09f9f113c84"
+    },
+    {
+      "file": "tools/e2e/scripts/support/doc110-permission-db.ps1",
+      "sha256": "99b4576c13ec22e745fec453246246330b1374d9e75b624aa149f64a5344f992"
+    },
+    {
+      "file": "tools/e2e/tests/support/doc110-permission-revocation.cjs",
+      "sha256": "a13d6f2c29e94cdaf28d2b5abdcb47286e47feff2d18714ded002470ad3a539b"
+    }
+  ],
+  "refinementAudit": {
+    "status": "PASS",
+    "checks": 15
+  },
+  "inspectedLocalBaselineUnchanged": false,
+  "sharedLocalSupportChanged": [
+    "tools/e2e/scripts/support/doc110-permission-db.ps1",
+    "tools/e2e/tests/support/doc110-permission-revocation.cjs"
+  ],
+  "isolatedSharedFiles": [
+    {
+      "file": "tools/e2e/scripts/support/doc110-permission-db.ps1",
+      "sha256": "5e46b01bfd94b8bc7a150bbc77772a165679f91361a08b4c2c97db31f68c789c"
+    },
+    {
+      "file": "tools/e2e/tests/support/doc110-permission-revocation.cjs",
+      "sha256": "cfa0cdfa310e4ebd9ccbd834352c6bfe8c985eb967dacad6b6c3d602a6a29e21"
+    }
+  ],
+  "protectedLocalBaselineUnchanged": true
+}

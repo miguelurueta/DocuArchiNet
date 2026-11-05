@@ -1,0 +1,34 @@
+{
+  "issueKey": "DOC-116",
+  "scenario": "EXP-01",
+  "date": "2026-11-05",
+  "instruction": "autorizado",
+  "authorization": true,
+  "proposalFile": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\.tmp\\doc116-exp01-resources.proposed.json",
+  "resourcesSha256": "9ad3d9922a747e46098fc165ecf95912aa4b0fd1cd6193324d0af616dbbd4c72",
+  "reviewedFiles": {
+    "tools/e2e/tests/support/doc116-exp01-setup.cjs": "8d23da2cf0ac886b12abeca3f663a660759ed762fac936db1778aace42606dc6",
+    "tools/e2e/tests/doc116-exp01-authorized.spec.cjs": "dc46b66017941c14e91564ae84aa04c3dd6848fd3cf62cf25219d8f8c122bf83",
+    "tools/e2e/scripts/run-doc116-exp01-authorized.cjs": "dd21cf502fe66af1e19e11ba7e7e8c21653710553f0dad67ad5f4f9c96c23df3",
+    "tests/doc116-exp01-setup.test.cjs": "dba29bfd9ba6a444ad029ee361e01d60c1af5bbca79c450b3c6b5bd4f0565a76",
+    "tools/e2e/tests/support/doc116-expedientes-importacion.cjs": "d96a87c38cdfc6a96894fdc0106c3cf153d8f81335c9795e9e7efdcf1c2c23d1",
+    "tools/e2e/tests/support/doc111-importacion-carpetas.cjs": "66c43623db41ea56b30f6f7a786ff2633ef82c0cafb072f5d4fb860723f61e60",
+    "tools/e2e/tests/support/authenticated-workflow-session.cjs": "60c33202ded594541a984ffdbe2ed2929734a5e48595440278039b854b93975b",
+    "tools/e2e/tests/support/doc110-safe-request.cjs": "c01b90b77c8e3b8cf89d2e9aeaf186e7fc01199f398d2dae5f4f169328248eca",
+    "tools/e2e/scripts/support/doc32-e2e-odbc.cjs": "d748cfd17cf3c170df4ce5cf7d4daf1959df16a3ed788084754d5ceec0a5a256",
+    "tools/e2e/scripts/support/interactive-e2e-console.cjs": "778d847653e3351e9e7c50957c7c16f21f9ba17e2d06eb020a2a5df5f3651087"
+  },
+  "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "checkpointFile": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\tools\\e2e\\artifacts\\doc116-exp01-20261105-authorized.json",
+  "limits": {
+    "plans": 1,
+    "lots": 1,
+    "receivedOriginals": 2,
+    "creationRequests": 4,
+    "newExpedients": 2,
+    "definitiveDocuments": 0,
+    "permissionChanges": 0
+  },
+  "sourceOfTruth": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+  "realExecution": "NOT_EXECUTED"
+}

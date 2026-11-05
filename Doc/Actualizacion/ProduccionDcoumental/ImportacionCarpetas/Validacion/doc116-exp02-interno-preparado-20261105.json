@@ -1,0 +1,51 @@
+{
+  "issueKey": "DOC-116",
+  "status": "INTERNAL_EXECUTOR_READY_ACTIVATION_PENDING",
+  "executionAuthorized": false,
+  "deployed": false,
+  "realExecution": false,
+  "localTests": {
+    "pass": 108,
+    "fail": 0
+  },
+  "candidate": {
+    "sha256": "e26242b901043394bd1dc38063becfe399cd093738cfd10b7ebca24785d8944a",
+    "path": ".tmp\\doc116-internal-scoped\\obj\\GestionDocumental-Docuarchi.net.dll",
+    "sourceInputs": 912,
+    "sourceInputsSha256": "412a115d0a4e7d8b6b839aa5ba17082337fce14bb129332645db82509909d1d3",
+    "originalRuntimeSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5"
+  },
+  "preparedManifest": ".tmp\\doc116-internal-prepared-activation.json",
+  "preparedManifestSha256": "328fd19b4a1696629cfe471843fa5e7b9f16cdc220a68ec31f3e8e2599447afa",
+  "reviewedCodeSha256": "8aa166a095fbb282ce6a9223d224056f82313a4a37a4f97cb69dbf1de0556e65",
+  "scope": {
+    "lotId": "18",
+    "level": "215",
+    "afterCommitRoot": "29",
+    "beforeCheckpointRoot": "30",
+    "newExpedientsMaximum": 2,
+    "creationRequestsMaximum": 3,
+    "newPlans": 0,
+    "newLots": 0,
+    "receipts": 0,
+    "definitiveDocuments": 0,
+    "permissionChanges": 0
+  },
+  "runtimeWindowSeconds": 600,
+  "recovery": {
+    "backupShaChecked": true,
+    "independentHiddenGuardian": true,
+    "restoreOnOwnerExitOrTimeout": true,
+    "atomicReplacement": true,
+    "windowsAclTransfer": true,
+    "refuseUnknownExternalBinary": true,
+    "reopenOriginalRuntime": true
+  },
+  "limitations": [
+    "Activation not authorized or performed",
+    "Local contract tests use doubles and disposable files; no authenticated internal-fault acceptance yet",
+    "Last root may remain EN_CURSO/INCIERTO with reliable IDs; no creation replay or manual checkpoint repair",
+    "Candidate derives from the authoritative local source and differs from the runtime previously accredited",
+    "Postcommit injected return exception does not claim network packet loss"
+  ]
+}

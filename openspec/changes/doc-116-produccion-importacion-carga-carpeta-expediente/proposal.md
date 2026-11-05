@@ -1,68 +1,27 @@
+# DOC-116 — verificación focal del adaptador de expedientes
+
 ## Why
 
-PRODUCCION-IMPORTACION-CARGA-CARPETA-EXPEDIENTE. Ver detalle funcional completo del ticket en la seccion Jira Details.
+El adaptador ya está implementado y DOC-111 acredita creación real en tres políticas. El ticket necesita cerrar combinaciones y negativos concretos, evitando otra implementación o repetir aceptación no afectada. La copia local del usuario es la fuente de revisión.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-116.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
-
-## Jira Details
-
-> Alcance refinado
-> Revisión de cobertura del adaptador de expedientes existente; cerrar solo brechas de contrato y aceptación. No implementar otro creador.
-> Base y procedencia
-> Revisión arquitectónica 2026-11-04 solicitada por el usuario frente a lo ya implementado. Base entregada: PR125 integrado en main, merge a3c7263763a89901ba78d05ccebc284a43a4cd76. DOC110–115 están Listo. Esta revisión es documental: no ejecuta nuevas pruebas ni certifica escenarios faltantes. Los resultados históricos conservan su SHA y ambiente; no equivalen a una nueva corrida del commit actual.
-> Implementación existente comprobada
-> Crear recibe contexto/raíz/lote/intento; usa autoridad y nivel fijados, inicio durable, operación legacy de conservación, captura de IDs y checkpoint en el repositorio único. El coordinador exige barrera y original verificado. Verificación por expediente/relación/ciclo Archivo Gestión, sin atribución por nombre. Fuentes diferidas se materializan después de confirmar el expediente. DOC111 ejecutó REC EXPEDIENTE/LOTE/PARCIAL con dos raíces y comprobación de IDs/relaciones; no equivale a los negativos EXP02/03.
-> Rutas que deben reutilizarse
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorExpedienteImportacion.vb
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorExpedienteImportacion.Legacy.vb
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Creacion.vb
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ResultadoCreacion.vb
-> Evidencia existente y su alcance
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-adaptador-creacion-local-20261029.md
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-fase-creacion-local-20261029.md
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-verificacion-expediente-local-20261028.md
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-rec-expediente-pass-20261101.md
-> Escenarios y trabajo pendiente
-> EXP-01 — COBERTURA PARCIAL REAL/LOCAL: dos raíces bajo nivel7 e IDs/relaciones tienen evidencia REC; cambio de selección A→B y destino fijo tienen pruebas locales/UI. Verificar la combinación exacta en el recorrido autenticado antes de marcar EXP01 completo; reutilizar la parte ya probada.
-> EXP-02 — LOCAL, aceptación específica pendiente: fallo tras creación y antes de checkpoint, respuesta perdida/IDs incompletos y reejecución de la misma raíz. La prueba debe reconciliar solo evidencia fiable o conservar INCIERTO sin otra creación; nunca buscar por nombre.
-> EXP-03 — LOCAL, aceptación específica pendiente: revocar permiso del nivel antes de crear, comprobar rechazo y cero expedientes nuevos con SELECT. La revocación probada en DOC114 para PrepararPlan no sustituye este efecto.
-> Contrato adicional — mapear homónimos en ámbitos distintos, códigos inválidos/límites funcionales, nivel movido y tipos/clasificación a las pruebas Framework existentes. Ejecutar solo lo no acreditado o afectado por un cambio. Caracterizar límites de coexistencia con creación manual sin prometer exclusión global.
-> Criterio de cierre
-> Entregar matriz criterio→código→prueba→SHA→estado; cubrir EXP01–03 o registrar explícitamente dependencia/no ejecución. No cerrar por existir el archivo ni exigir nuevas tablas/endpoint. Solo corregir defectos demostrados dentro de este adaptador.
-> Reglas comunes de ejecución
-> Reutilizar modelos, repositorio operativo, tablas, ASMX/ASHX, adaptadores, coordinador y herramientas E2E existentes. Antes de programar, contrastar cada criterio con código y evidencia; modificar producto solo ante una brecha reproducida y cubrir su regresión. Leer AGENTS.md y tools/e2e/AGENT-RUNBOOK.md antes de autenticar. Pruebas reales, cambios de permisos, fallos inyectados, limpieza y carga requieren autorización específica de ambiente, cuentas y recursos; este ticket no la concede. Controles RA/DA exclusivamente SELECT, secretos efímeros, evidencia saneada. No repetir efectos inciertos ni cargas ya acreditadas sin motivo.
-> Decisiones vigentes que sustituyen exigencias históricas
-> No modificar AlmacenamientoDocumentoProduccionDocumental ni SII. Se conserva PDF como formato soportado por este adaptador; TIFF/Multi-TIFF deben rechazarse, no implementarse para satisfacer el prompt anterior. El aislamiento adicional del XML posterior al commit frente a otras cargas fue descartado expresamente por el usuario: queda fuera del alcance y no se afirma como garantía. No habilitar workers, migraciones, permisos, cuotas globales ni limpieza automática por inferencia. Preservar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, snapshot, inventario original y efectos confirmados. Sin rollback global.
-> Fuente transversal
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-matriz-final-20261102.md
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc115-verificacion-final-20261104.md
-
-## Jira Metadata
-
-- Tipo: Tarea
-- Prioridad: Medium
-- Labels: CARGA, CARPETA, EXPEDIENTE, IMPORTACION, PRODUCION
+- Mapear evidencia por criterio y SHA local.
+- Completar EXP-01: selección A→B conservando destino A, sin almacenar documentos.
+- Caracterizar EXP-02 por ventana de fallo; separar descarte cliente y fallo interno real.
+- Preparar EXP-03 sobre permiso nativo de nivel y actor no propietario, con restauración.
+- Extender solo soporte/pruebas existentes ante una brecha comprobada; las rutas nuevas son propuestas.
 
 ## Capabilities
 
 ### New Capabilities
-- `produccion-importacion-carga-carpeta-expediente`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+
+- `produccion-importacion-carga-carpeta-expediente`: contrato verificable de destino, autoridad y recuperación de la creación existente. Es una formalización de aceptación, no un segundo motor.
 
 ### Modified Capabilities
-- 
+
+Ninguna modificación funcional de producto decidida en este corte.
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
-
-## Perfil tecnologico
-
-- Perfil de revision: legacy-webforms-vb (v1).
-- Alcance: ASP.NET Web Forms, code-behind VB.NET/C# y JavaScript gradual.
-- Este perfil orienta la revision tecnica; no reemplaza los requisitos funcionales ni arquitectonicos del ticket.
+Adaptador/coordinador/repositorio existentes, arnés Framework y paquete E2E. No hay cambios de VB, configuración, esquema, almacenamiento o SII. Las pruebas reales exigen autorización propia; el refinamiento permanece en revisión.

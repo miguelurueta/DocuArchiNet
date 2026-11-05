@@ -1,0 +1,43 @@
+{
+  "issueKey": "DOC-116",
+  "date": "2026-11-05",
+  "sourceOfTruth": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+  "status": "LOCAL_FOUNDATIONS_PASS_REAL_COMPOSITION_UNAVAILABLE",
+  "completed": [
+    "1.1",
+    "1.2",
+    "1.3",
+    "1.4",
+    "1.5",
+    "2.1",
+    "2.2",
+    "2.3"
+  ],
+  "total": 20,
+  "tests": {
+    "frameworkPass": 2,
+    "nodePass": 13,
+    "realExecuted": 0
+  },
+  "productChanges": 0,
+  "permissionChanges": 0,
+  "files": [
+    {
+      "file": "tools/e2e/tests/support/doc116-expedientes-importacion.cjs",
+      "sha256": "7133708000c7c88fb9850b0e182573c7549756e578d00b8ca87f3fba4c743db1"
+    },
+    {
+      "file": "tools/e2e/fixtures/doc116-expedientes-cases.json",
+      "sha256": "140161b783559245a8273a7b61d47b63750e36c7662b6b0787d5f149dae7cd8d"
+    },
+    {
+      "file": "tests/doc116-expedientes-contracts.test.cjs",
+      "sha256": "5e16d88e282f3752e1a313812c62722339794f9be2c352f30bb009c86e285031"
+    }
+  ],
+  "limitations": [
+    "No Playwright suite or interactive selector composed yet",
+    "No actual level-permission mutator implemented",
+    "Internal authenticated postcreation fault injection unavailable"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "preserveResources": true,
+  "definitiveDocuments": 0,
+  "runnerSetup": { "preparations": 0, "confirmations": 0, "uploads": 0 },
+  "precondition": "EXISTING_AUTHORIZED_LOT_WITH_TWO_FRESH_ROOTS_AND_TWO_RECEIVED_ORIGINALS",
+  "scenarios": {
+    "EXP-01": { "roots": 2, "maximumCreationRequests": 4, "maximumCreatedRoots": 2, "changeVisibleLevel": true },
+    "EXP-02": { "roots": 2, "maximumCreationRequests": 2, "maximumCreatedRoots": 1, "responseObservation": "CLIENT_RESULT_DISCARDED", "internalFailureIntegration": "NOT_COMPOSED" },
+    "EXP-03": { "roots": 2, "maximumCreationRequests": 1, "maximumCreatedRoots": 0, "permission": "agregar_expediente", "requiresNonOwner": true, "permissionMutationIntegration": "LOCAL_IMPLEMENTED_NOT_REAL_VERIFIED" }
+  }
+}

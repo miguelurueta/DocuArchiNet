@@ -1,0 +1,42 @@
+{
+  "issueKey": "DOC-116",
+  "scenario": "EXP-02-INTERNAL",
+  "date": "2026-11-05",
+  "authorization": {
+    "instruction": "autorizada, pero si me garantiza que no se pierde la DLL",
+    "date": "2026-11-05",
+    "scope": "Previously proposed lot 18 / roots 29,30 / maximum two expedients and three requests; temporary reviewed DLL maximum 600 seconds; preserve all resources and restore original runtime",
+    "condition": "Preserve original DLL before any activation; two durable independently checked backup files, both required at activation, reserve fallback available for restoration; retain both backups afterward",
+    "limitationExplained": "No absolute guarantee against physical machine/storage failure; no activation without intact verified copies"
+  },
+  "activationAuthorized": true,
+  "originalSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "candidateSha256": "e26242b901043394bd1dc38063becfe399cd093738cfd10b7ebca24785d8944a",
+  "backups": [
+    {
+      "path": ".tmp\\doc116-internal-runtime\\original.dll",
+      "sha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+      "verified": true
+    },
+    {
+      "path": ".tmp\\doc116-internal-reserve\\original.dll",
+      "sha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+      "verified": true
+    }
+  ],
+  "maximumRuntimeSeconds": 600,
+  "lotId": "18",
+  "roots": [
+    "29",
+    "30"
+  ],
+  "maximumNewExpedients": 2,
+  "maximumCreationRequests": 3,
+  "plans": 0,
+  "lots": 0,
+  "receipts": 0,
+  "documents": 0,
+  "permissionChanges": 0,
+  "deployed": false,
+  "realExecution": false
+}

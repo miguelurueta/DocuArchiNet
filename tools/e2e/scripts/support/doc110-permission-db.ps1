@@ -1,4 +1,4 @@
-param([switch]$Inspect,[switch]$Recover,[switch]$OperationalImport,[string]$RuntimeRoot,[string]$ExpectedPlanId,[string]$ExpectedPlanHash)
+param([switch]$Inspect,[switch]$Recover,[switch]$OperationalImport,[string]$RuntimeRoot,[string]$ExpectedPlanId,[string]$ExpectedPlanHash,[string]$Doc116LevelResourcesFile)
 $ErrorActionPreference='Stop'
 $repoRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../../..'))
 $targetLogin='LUZ.AGUILERA'
@@ -35,8 +35,9 @@ function Open-Doc110Database {
         $script:raConnection.Open()
     } finally {$reader.Dispose();$command.Dispose();$script:catalogConnection.Dispose();$script:catalogConnection=$null}
 }
-function Read-Doc110Rows([string]$Sql,[hashtable]$Parameters=@{}) {
+function Read-Doc110Rows([string]$Sql,[hashtable]$Parameters=@{},$Transaction=$null) {
     $command=$script:raConnection.CreateCommand();$command.CommandTimeout=5;$command.CommandText=$Sql
+    if($null -ne $Transaction){$command.Transaction=$Transaction}
     foreach($key in $Parameters.Keys){[void]$command.Parameters.AddWithValue($key,$Parameters[$key])}
     $reader=$command.ExecuteReader();$rows=New-Object 'System.Collections.Generic.List[object]'
     try {
@@ -104,6 +105,13 @@ function Restore-Doc110Permission {
     if((Get-Doc110OtherHash $verified) -cne $script:otherHash){throw 'DOC110_PERMISSION_OTHER_FIELDS_CHANGED'}
     Save-Doc110Recovery 'RESTORED' $true
     $script:restoreRequired=$false
+}
+
+if($PSBoundParameters.ContainsKey('Doc116LevelResourcesFile')){
+    . (Join-Path $PSScriptRoot 'doc116-level-permission.ps1')
+    Invoke-Doc116LevelBridge $Doc116LevelResourcesFile ([bool]$Recover) ([bool]$Inspect)
+    if([Environment]::ExitCode -ne 0){exit 1}
+    return
 }
 
 try {

@@ -1,0 +1,71 @@
+{
+  "issueKey": "DOC-116",
+  "date": "2026-11-05",
+  "sourceOfTruth": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+  "gitIsolation": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\.tmp\\doc116-work",
+  "status": "VERIFIED_READY_FOR_COMMIT_AND_PR_REVIEW",
+  "functionalAcceptance": true,
+  "tasks": {
+    "complete": 20,
+    "total": 20
+  },
+  "tests": {
+    "isolatedSelectedNodePass": 130,
+    "primaryRestoreTestsPass": 9,
+    "primaryPriorSelectedNodePass": 110,
+    "countsAreDistinct": true
+  },
+  "portabilityFix": {
+    "file": "tests/doc116-runtime-lease.test.cjs",
+    "scope": "Only observe real DLL if installed; always run filesystem restoration scenario against mapped disposable files",
+    "newRuntimeLogic": false
+  },
+  "runtime": {
+    "originalRestored": true,
+    "originalSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+    "retainedBackups": [
+      ".tmp/doc116-internal-runtime/original.dll",
+      ".tmp/doc116-internal-reserve/original.dll"
+    ]
+  },
+  "caseResults": [
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-exp01-resultados-20261105.json",
+      "sha256": "0e08c49f4544cb7de4cf2212d9ebf0003229d213e2ddbb8e6651b0539acc9b9e"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-exp02-resultados-20261105.json",
+      "sha256": "b6984e02e9bbf10700b9ebd430830398b76a53b7dcc40166a074f6c3b674d784"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-exp03-resultados-20261105.json",
+      "sha256": "1be8984d320d59a3b5862d7f1b3af0df1718c1a1591a9860d4c46264b9a205cd"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-exp02-interno-resultados-20261105.json",
+      "sha256": "c0de58dd0ef4eaf4412d85302ac590b58c741c33412ddc8185848d1e96acf76b"
+    }
+  ],
+  "operationalRemainder": {
+    "lotId": "18",
+    "rootId": "30",
+    "attemptId": "41",
+    "expedientId": "661",
+    "state": "EN_CURSO",
+    "publicState": "INCIERTO",
+    "recreated": false,
+    "reconciled": false,
+    "repeatForbiddenWithoutSeparateRecoveryReview": true
+  },
+  "governance": {
+    "registration": "Pending commit subject before SHA-bound evidence/review registration",
+    "noReviewOverride": true
+  },
+  "publication": {
+    "committed": false,
+    "pushed": false,
+    "prCreated": false,
+    "jiraDone": false,
+    "archived": false
+  }
+}

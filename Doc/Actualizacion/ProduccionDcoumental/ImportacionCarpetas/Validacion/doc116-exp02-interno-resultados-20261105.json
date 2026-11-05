@@ -1,0 +1,230 @@
+{
+  "issueKey": "DOC-116",
+  "date": "2026-11-05",
+  "scenario": "EXP-02-INTERNAL",
+  "status": "PASS",
+  "laboratoryVariant": true,
+  "afterCommitReturnFailureVerified": true,
+  "preCheckpointFailureVerified": true,
+  "confirmedReplayUnchanged": true,
+  "uncertainCreationNotRepeated": true,
+  "persistedUncertainAttemptState": "EN_CURSO",
+  "rootsCreated": 2,
+  "creationRequests": 3,
+  "documents": 0,
+  "permissionChanges": 0,
+  "preparations": 0,
+  "confirmations": 0,
+  "uploads": 0,
+  "references": [
+    {
+      "loteId": "18",
+      "raizId": "29",
+      "intentoId": "40",
+      "expedienteId": "660",
+      "relacionNivelId": "1085"
+    },
+    {
+      "loteId": "18",
+      "raizId": "30",
+      "intentoId": "41",
+      "expedienteId": "661",
+      "relacionNivelId": "1086"
+    }
+  ],
+  "runtimeRestored": true,
+  "reopenedWithOriginalRuntime": true,
+  "preservedResourcesUnchanged": true,
+  "originalSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "candidateSha256": "e26242b901043394bd1dc38063becfe399cd093738cfd10b7ebca24785d8944a",
+  "reviewStatus": "PASS_REVIEWED",
+  "caseComplete": true,
+  "acceptanceBasis": "Real authenticated HTTP and actual legacy/repository under explicitly authorized, scoped laboratory assembly; original runtime restored afterward",
+  "lotId": "18",
+  "planId": "34",
+  "level": "215",
+  "rootStates": [
+    {
+      "rootId": "29",
+      "attemptId": "40",
+      "expedientId": "660",
+      "levelRelationId": "1085",
+      "checkpoint": "CONFIRMADO",
+      "replay": "SAME_IDENTITIES_NO_ADDITIONAL_EFFECT"
+    },
+    {
+      "rootId": "30",
+      "attemptId": "41",
+      "expedientId": "661",
+      "levelRelationId": "1086",
+      "publicState": "INCIERTO",
+      "persistedAttemptState": "EN_CURSO",
+      "checkpoint": "NOT_WRITTEN",
+      "creationRepeated": false,
+      "reconciled": false
+    }
+  ],
+  "runtime": {
+    "originalSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+    "candidateSha256": "e26242b901043394bd1dc38063becfe399cd093738cfd10b7ebca24785d8944a",
+    "restored": true,
+    "backups": [
+      {
+        "file": ".tmp\\doc116-internal-runtime\\original.dll",
+        "sha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+        "bytes": 9627648,
+        "byteForByteEqual": true
+      },
+      {
+        "file": ".tmp\\doc116-internal-reserve\\original.dll",
+        "sha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+        "bytes": 9627648,
+        "byteForByteEqual": true
+      }
+    ],
+    "journal": "tools/e2e/artifacts/doc116-internal-runtime-lease.json",
+    "journalSha256": "5a9331603ed1f8950cfc97cec9251468c28c235ea7b1d30ce1784c2830509383",
+    "journalStage": "RESTORED",
+    "reopenedWithOriginalRuntime": true
+  },
+  "markers": [
+    {
+      "file": "App_Data\\DOC116-INTERNAL-LOTE18\\raiz-29.json",
+      "sha256": "402c6f5c0568ea1dad6db942255e899c67c7fad3833ce39cd8ae2010aeef9c9e",
+      "marker": {
+        "creacion": {
+          "CicloArchivoId": "4",
+          "CicloArchivoNombre": "Archivo Gestión",
+          "IntentoId": "40"
+        },
+        "estado": "CONFIRMADO",
+        "expediente": {
+          "ExpedienteId": "660",
+          "NivelRef": "215",
+          "OrigenLogico": "RA",
+          "RelacionNivelId": "1085"
+        },
+        "intentoId": "40",
+        "loteId": "18",
+        "modo": "AFTER_CHECKPOINT_COMMIT_BEFORE_RETURN",
+        "raizId": "29"
+      }
+    },
+    {
+      "file": "App_Data\\DOC116-INTERNAL-LOTE18\\raiz-30.json",
+      "sha256": "2c85b9464c44312a12a7be53c6f457baa6f0ad41893dfd921bb9443531b8a7d4",
+      "marker": {
+        "creacion": {
+          "CicloArchivoId": "4",
+          "CicloArchivoNombre": "Archivo Gestión",
+          "IntentoId": "41"
+        },
+        "estado": "CONFIRMADO",
+        "expediente": {
+          "ExpedienteId": "661",
+          "NivelRef": "215",
+          "OrigenLogico": "RA",
+          "RelacionNivelId": "1086"
+        },
+        "intentoId": "41",
+        "loteId": "18",
+        "modo": "AFTER_LEGACY_BEFORE_CHECKPOINT",
+        "raizId": "30"
+      }
+    }
+  ],
+  "sourceCopies": [
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/AnexosDOC116/Doc116InternalFaultCandidate.test-only.vb",
+      "originalInput": ".tmp/doc116-internal-scoped/Doc116InternalFaultCandidate.vb",
+      "sha256": "c659e9a72ed96cbb8221b34ca07554388b76da662973762d9f2508193c381224",
+      "usage": "Archived test-only source; not a production project Compile item or deployed code"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/AnexosDOC116/AdaptadorExpedienteImportacion.Legacy.test-only.vb",
+      "originalInput": ".tmp/doc116-internal-scoped/AdaptadorExpedienteImportacion.Legacy.Candidate.vb",
+      "sha256": "03dbf3e505d037acd9295a63e37d302fdf05ccb0e1fdb57caf822a7fd23c76cb",
+      "usage": "Archived test-only source; not a production project Compile item or deployed code"
+    }
+  ],
+  "preservedBefore": {
+    "scope": {
+      "maxPlan": "34",
+      "maxLot": "17"
+    },
+    "fingerprints": {
+      "plans": {
+        "count": 34,
+        "hash": "ac7547a50aeb4169196b9d55a7a89a73e538ef713f159e28549247632eb8d63a"
+      },
+      "lots": {
+        "count": 13,
+        "hash": "7cda84e35a5f2bdef52f6daf70a276a1d1aa047fc87a6e39fd8d48a135b56e10"
+      },
+      "roots": {
+        "count": 22,
+        "hash": "4a765634c32f93d05a295c255837d67b041c908535fb416e04d37ce0fad5911c"
+      },
+      "files": {
+        "count": 23,
+        "hash": "785d6ead90ad20e3fc562ae9587e7af7a498a1f174f854cca532184ea8d07f7b"
+      },
+      "attempts": {
+        "count": 37,
+        "hash": "240deb935d17cf53175dbe0c99b4b23d33babcd31b7f7768e1e5328a29da1af5"
+      },
+      "events": {
+        "count": 133,
+        "hash": "9710f02bad19b8040fa0df5a4355c6284040a9c986296b15ecee167781b6e900"
+      }
+    }
+  },
+  "preservedAfter": {
+    "scope": {
+      "maxPlan": "34",
+      "maxLot": "17"
+    },
+    "fingerprints": {
+      "plans": {
+        "count": 34,
+        "hash": "ac7547a50aeb4169196b9d55a7a89a73e538ef713f159e28549247632eb8d63a"
+      },
+      "lots": {
+        "count": 13,
+        "hash": "7cda84e35a5f2bdef52f6daf70a276a1d1aa047fc87a6e39fd8d48a135b56e10"
+      },
+      "roots": {
+        "count": 22,
+        "hash": "4a765634c32f93d05a295c255837d67b041c908535fb416e04d37ce0fad5911c"
+      },
+      "files": {
+        "count": 23,
+        "hash": "785d6ead90ad20e3fc562ae9587e7af7a498a1f174f854cca532184ea8d07f7b"
+      },
+      "attempts": {
+        "count": 37,
+        "hash": "240deb935d17cf53175dbe0c99b4b23d33babcd31b7f7768e1e5328a29da1af5"
+      },
+      "events": {
+        "count": 133,
+        "hash": "9710f02bad19b8040fa0df5a4355c6284040a9c986296b15ecee167781b6e900"
+      }
+    }
+  },
+  "evidence": {
+    "checkpoint": "tools/e2e/artifacts/doc116-internal-lote18.json",
+    "checkpointSha256": "b8b5b74a5d4684fb743328d083db9581aec2aa936a8e1a124ec89f28bcfe483c",
+    "codeSha256": "d3b8db793b211686db40cd3495df9ecc520254c2aaac48caf3081789643f5fa8",
+    "reviewedSourceInputCount": 930
+  },
+  "tests": {
+    "selectedLocalPass": 110
+  },
+  "limits": [
+    "Injected exception at internal return after SQL commit does not claim network packet loss",
+    "The precheckpoint root intentionally retains EN_CURSO/public INCIERTO and must not be recreated or manually assigned a checkpoint",
+    "Private marker CONFIRMADO describes verified legacy output in memory; it is not a durable SQL checkpoint for root 30",
+    "This new authenticated acceptance uses the laboratory assembly SHA, not the previously accredited production DLL SHA",
+    "Lot 18 changed as explicitly authorized; protected previous lots through 17 and plans through 34 retained matching fingerprints"
+  ]
+}

@@ -1,0 +1,285 @@
+{
+  "issueKey": "DOC-116",
+  "date": "2026-11-05",
+  "sourceOfTruth": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+  "status": "SCENARIO_ACCEPTANCE_VERIFIED_DELIVERY_PENDING",
+  "taskProgress": {
+    "completed": 20,
+    "total": 20,
+    "interpretation": "Checklist implementation and consolidation complete; full scenario acceptance remains blocked"
+  },
+  "acceptanceComplete": true,
+  "readyForArchive": false,
+  "readyForJiraDone": false,
+  "dimensions": {
+    "completeness": "20/20 tasks; EXP01, EXP02 client and authorized internal windows, EXP03 verified",
+    "correctness": "All scoped criteria verified; intent 41 intentionally retains EN_CURSO/public INCIERTO without recreation",
+    "coherence": "Approved D-01..D-07 followed; no product rewrite or public failure hook"
+  },
+  "requirements": [
+    {
+      "requirement": "RQ-01",
+      "decision": "D-01",
+      "status": "VERIFICADO",
+      "scope": "9 archivos protegidos coinciden con la línea base local; utilidades divergentes conservadas",
+      "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-refinamiento-local-20261105.json"
+    },
+    {
+      "requirement": "RQ-02",
+      "decision": "D-02",
+      "status": "VERIFICADO_CON_REUTILIZACION",
+      "scope": "Creador/coordinador/repositorio existentes; replay EXP01/02 por IDs; negativos de identidad con dobles",
+      "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-exp01-resultados-20261105.json"
+    },
+    {
+      "requirement": "RQ-03",
+      "decision": "D-03",
+      "status": "PASS_REAL",
+      "scope": "Plan 32/lote 16: 657/658 en nivel 7 tras selección visible 8; relaciones 1082/1083",
+      "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-exp01-resultados-20261105.json"
+    },
+    {
+      "requirement": "RQ-04",
+      "decision": "D-04",
+      "status": "PASS_AUTHENTICATED_LAB_VARIANT",
+      "scope": "Client variant and both internal windows verified; root 30 remains deliberately EN_CURSO/public INCIERTO without recreation",
+      "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-exp02-interno-resultados-20261105.json"
+    },
+    {
+      "requirement": "RQ-05",
+      "decision": "D-05",
+      "status": "PASS_REAL_RESTAURADO",
+      "scope": "Plan 34/lote 18: no propietario nivel 215; fila 629 1→0→1; cero creaciones",
+      "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-exp03-resultados-20261105.json"
+    },
+    {
+      "requirement": "RQ-06",
+      "decision": "D-06",
+      "status": "VERIFICADO",
+      "scope": "Login/cliente/DSN/SELECT/puente existentes; 95 pruebas locales; sin VB/DDL/configuración nuevos",
+      "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-exp03-preparacion-20261105.md"
+    },
+    {
+      "requirement": "RQ-07",
+      "decision": "D-07",
+      "status": "CONSOLIDATED_DELIVERY_REVIEW_PENDING",
+      "scope": "Case results, exact SHAs, restoration and remaining formal delivery steps documented",
+      "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-verificacion-final-20261105.json"
+    }
+  ],
+  "issues": [
+    {
+      "id": "DOC116-VERIFY-01",
+      "severity": "CRITICAL",
+      "requirement": "RQ-04",
+      "decision": "D-04",
+      "scenario": "EXP-02 ventana interna",
+      "status": "RESOLVED",
+      "cause": "A scoped laboratory composition now compiles and executor/restoration pass locally; authenticated internal-fault execution is still not authorized or completed",
+      "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-exp02-viabilidad-20261105.md",
+      "responsible": "Responsable del ambiente y arquitectura",
+      "requiredAction": "Approve the exact temporary DLL activation, bounded effects and restoration procedure; execute with real authentication and review both internal windows before acceptance.",
+      "prohibitedSubstitutes": [
+        "Client result discard presented as server failure",
+        "Mock HttpContext presented as real authorization",
+        "Public failure endpoint/header/flag",
+        "Deleting checkpoints or recreating by name"
+      ],
+      "resolutionEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-exp02-interno-resultados-20261105.json",
+      "resolution": "Both internal windows authenticated under authorized laboratory assembly; uncertainty retained without recreation; original DLL restored and byte-equal backups verified"
+    }
+  ],
+  "realCases": [
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-exp01-resultados-20261105.json",
+      "sha256": "0e08c49f4544cb7de4cf2212d9ebf0003229d213e2ddbb8e6651b0539acc9b9e",
+      "scenario": "EXP-01",
+      "status": "PASS",
+      "planId": "32",
+      "lotId": "16",
+      "codeSha256": "78b8448db71e4d6581edb7b026f2e35c7a1f7bf33146b50f291abe3cca32ffcf",
+      "resourcesSha256": "647abf473712b1f4303efeea8b829a9dda6518569d7e37d5d0af1a16633b6376",
+      "checkpointSha256": "c1581523fc8d8bff301f653113773ed121a5d713c69db2ff13d337ecaf037346",
+      "caseComplete": true
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-exp02-resultados-20261105.json",
+      "sha256": "b6984e02e9bbf10700b9ebd430830398b76a53b7dcc40166a074f6c3b674d784",
+      "scenario": "EXP-02",
+      "status": "PASS",
+      "planId": "33",
+      "lotId": "17",
+      "codeSha256": "7c2f443540ab1431fe804ec0402eeb1aa84e95c405b513013c8038ae8506a8d1",
+      "resourcesSha256": "104236475bc90e5e716d9a4a7715197ff1065e4d654556f44074580a632b2d16",
+      "checkpointSha256": "44fb66a5b1ae09c204edbfbfb3d730c9dbab7367135be51b52b5759c24a794b7",
+      "caseComplete": false
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-exp03-resultados-20261105.json",
+      "sha256": "1be8984d320d59a3b5862d7f1b3af0df1718c1a1591a9860d4c46264b9a205cd",
+      "scenario": "EXP-03",
+      "status": "PASS",
+      "planId": "34",
+      "lotId": "18",
+      "codeSha256": "68e5680c4eaefc997614e610919738610b30fc45025fc13ae7d86e8e9e467666",
+      "resourcesSha256": "9f48aed33261fe97a0caec1bed7d61f3f85577fe138586d37a880c0a57d18586",
+      "checkpointSha256": "bbbc4ca22c390cf7d76d5fc5c8694958ff95e10701599c5e26918f80a4ad1070",
+      "caseComplete": true
+    }
+  ],
+  "tests": {
+    "selectedNodePass": 110,
+    "frameworkPriorPass": 2,
+    "frameworkPriorReused": true,
+    "authenticatedRuns": 4,
+    "rerunForDocumentation": false
+  },
+  "protectedFiles": [
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorExpedienteImportacion.vb",
+      "sha256Normalized": "d45cbe7722222453f203984f76279694de5335b93a60eb6f06c85d8450bd1499",
+      "baselineSha256Normalized": "d45cbe7722222453f203984f76279694de5335b93a60eb6f06c85d8450bd1499"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorExpedienteImportacion.Legacy.vb",
+      "sha256Normalized": "9aae53053063986f6941324e3b83e8fdd559404a7b15b9186fb321e86c1247b0",
+      "baselineSha256Normalized": "9aae53053063986f6941324e3b83e8fdd559404a7b15b9186fb321e86c1247b0"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Creacion.vb",
+      "sha256Normalized": "2aeb517ba56eb1ad330c2e0f1c34363ce61a080c9b8577c982323e8f4a22580d",
+      "baselineSha256Normalized": "2aeb517ba56eb1ad330c2e0f1c34363ce61a080c9b8577c982323e8f4a22580d"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasContextAdapter.vb",
+      "sha256Normalized": "7289a08734512a2f834502223ee838a4ffebe1b36ce7f02989c001e0f4754072",
+      "baselineSha256Normalized": "7289a08734512a2f834502223ee838a4ffebe1b36ce7f02989c001e0f4754072"
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ResultadoCreacion.vb",
+      "sha256Normalized": "ac8a69c5f730b9f942a9f65449071059740effeeb50daa65fde6ed796004d1d1",
+      "baselineSha256Normalized": "ac8a69c5f730b9f942a9f65449071059740effeeb50daa65fde6ed796004d1d1"
+    },
+    {
+      "file": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "sha256Normalized": "2f83eb3f835a8c97074b4336c7b282dc1275a92ac493490a72c0f3f02b532fca",
+      "baselineSha256Normalized": "2f83eb3f835a8c97074b4336c7b282dc1275a92ac493490a72c0f3f02b532fca"
+    },
+    {
+      "file": "tools/e2e/tests/support/doc111-importacion-carpetas.cjs",
+      "sha256Normalized": "66c43623db41ea56b30f6f7a786ff2633ef82c0cafb072f5d4fb860723f61e60",
+      "baselineSha256Normalized": "66c43623db41ea56b30f6f7a786ff2633ef82c0cafb072f5d4fb860723f61e60"
+    },
+    {
+      "file": "tools/e2e/tests/support/authenticated-workflow-session.cjs",
+      "sha256Normalized": "e26634bbbd13aad52de7f207874ae42042fb486cdf590fae298d11f654e55b64",
+      "baselineSha256Normalized": "e26634bbbd13aad52de7f207874ae42042fb486cdf590fae298d11f654e55b64"
+    },
+    {
+      "file": "tools/e2e/scripts/support/interactive-e2e-console.cjs",
+      "sha256Normalized": "9101fb300d92d7c2d14069ed7ec9f907bb74aa1225e191f5676b5e6b022cdf10",
+      "baselineSha256Normalized": "9101fb300d92d7c2d14069ed7ec9f907bb74aa1225e191f5676b5e6b022cdf10"
+    }
+  ],
+  "sharedSupportVariants": [
+    {
+      "file": "tools/e2e/scripts/support/doc110-permission-db.ps1",
+      "localSha256": "99b4576c13ec22e745fec453246246330b1374d9e75b624aa149f64a5344f992",
+      "isolatedSha256": "5e46b01bfd94b8bc7a150bbc77772a165679f91361a08b4c2c97db31f68c789c"
+    },
+    {
+      "file": "tools/e2e/tests/support/doc110-permission-revocation.cjs",
+      "localSha256": "a13d6f2c29e94cdaf28d2b5abdcb47286e47feff2d18714ded002470ad3a539b",
+      "isolatedSha256": "cfa0cdfa310e4ebd9ccbd834352c6bfe8c985eb967dacad6b6c3d602a6a29e21"
+    }
+  ],
+  "runtime": {
+    "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+    "unchangedAcrossRuns": true,
+    "newProductChanges": 0
+  },
+  "resources": {
+    "preserved": true,
+    "newPlanIds": [
+      "32",
+      "33",
+      "34"
+    ],
+    "newLotIds": [
+      "16",
+      "17",
+      "18"
+    ],
+    "newExpedientIds": [
+      "657",
+      "658",
+      "659",
+      "660",
+      "661"
+    ],
+    "definitiveDocuments": 0,
+    "newStagingOriginals": 6,
+    "permissionId": "629",
+    "permissionTransition": [
+      1,
+      0,
+      1
+    ],
+    "permissionRestored": true,
+    "permanentPermissionChanges": 0,
+    "pendingVerification": {
+      "lotId": "18",
+      "rootId": "30",
+      "attemptId": "41",
+      "expedientId": "661",
+      "checkpointWritten": false,
+      "creationRepeated": false
+    }
+  },
+  "validation": {
+    "status": "STRUCTURAL_PASS_CLOSURE_HELD",
+    "openspecStrict": "PASS",
+    "refinementAudit": {
+      "passed": 15,
+      "total": 15
+    },
+    "governanceClosureStatus": "FAIL",
+    "governancePending": [
+      "openspec_review",
+      "evidence:unit",
+      "evidence:manual_qa"
+    ],
+    "closureReviewConfirmed": false,
+    "evidenceFreshnessCertified": false,
+    "noReviewOverride": true,
+    "noNewRealEffects": true,
+    "meaning": "Node and authenticated results are recorded in sanitized reports; formal commit-bound unit/manual_qa registration and closure review are pending. Their absence is not a failed test execution.",
+    "structuralAuditEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-auditoria-consolidacion-20261105.json"
+  },
+  "publication": {
+    "gitCommitted": false,
+    "published": false,
+    "jiraTransitioned": false,
+    "archivePerformed": false
+  },
+  "internalFollowUp": {
+    "status": "PASS_REVIEWED",
+    "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-exp02-interno-resultados-20261105.json",
+    "sha256": "c0de58dd0ef4eaf4412d85302ac590b58c741c33412ddc8185848d1e96acf76b",
+    "localTests": 110,
+    "realExecuted": true,
+    "activationAuthorized": true,
+    "runtimeRestored": true
+  },
+  "openCriticalIssues": 0,
+  "deliveryVerification": {
+    "isolatedNodePass": 130,
+    "isolatedNodeFail": 0,
+    "primaryRestoreTestsAfterPortabilityFix": 9,
+    "priorPrimarySelectedPass": 110,
+    "testCountsNotCombined": true,
+    "portabilityChange": "Only the test pre/post observation of a live DLL is optional when no runtime is installed; filesystem restoration scenarios still execute against disposable files",
+    "newAuthenticatedRuns": 0,
+    "newRuntimeChanges": 0
+  }
+}

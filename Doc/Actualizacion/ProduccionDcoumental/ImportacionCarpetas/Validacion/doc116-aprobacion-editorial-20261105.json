@@ -1,0 +1,8 @@
+{
+  "issueKey": "DOC-116",
+  "instruction": "continua",
+  "context": "Respuesta posterior al refinamiento con 20 tareas y aprobación editorial como siguiente paso",
+  "interpretation": "Continuar implementación local del refinamiento presentado",
+  "runtimeAuthorization": false,
+  "permissionMutationAuthorization": false
+}

@@ -1,0 +1,26 @@
+{
+  "issueKey": "DOC-116",
+  "scenario": "EXP-02",
+  "authorization": true,
+  "proposalFile": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Actualizacion\\ProduccionDcoumental\\ImportacionCarpetas\\Validacion\\doc116-exp02-recursos-propuestos-20261105.json",
+  "resourcesSha256": "104236475bc90e5e716d9a4a7715197ff1065e4d654556f44074580a632b2d16",
+  "reviewedFiles": {
+    "tools/e2e/tests/support/doc116-exp01-setup.cjs": "c5935123fed3219c0e812a1df0a735c374ae92776e790988428d662a46cf75c7",
+    "tools/e2e/tests/doc116-exp01-authorized.spec.cjs": "c5df1bdf41d3e7187366fdcb211ad285724357de7db9ffaed8de254672c16b20",
+    "tools/e2e/scripts/run-doc116-exp01-authorized.cjs": "e53670eefe46a3377c107783eb62f82e8a1682cd161a0a8ab731f4a08532e681",
+    "tests/doc116-exp01-setup.test.cjs": "8f3683954e10f03100f5146e501e7d7e14e31371f1a3227f81f29a244ba54317",
+    "tools/e2e/tests/support/doc116-expedientes-importacion.cjs": "d96a87c38cdfc6a96894fdc0106c3cf153d8f81335c9795e9e7efdcf1c2c23d1",
+    "tools/e2e/tests/support/doc111-importacion-carpetas.cjs": "66c43623db41ea56b30f6f7a786ff2633ef82c0cafb072f5d4fb860723f61e60",
+    "tools/e2e/tests/support/authenticated-workflow-session.cjs": "60c33202ded594541a984ffdbe2ed2929734a5e48595440278039b854b93975b",
+    "tools/e2e/tests/support/doc110-safe-request.cjs": "c01b90b77c8e3b8cf89d2e9aeaf186e7fc01199f398d2dae5f4f169328248eca",
+    "tools/e2e/scripts/support/doc32-e2e-odbc.cjs": "d748cfd17cf3c170df4ce5cf7d4daf1959df16a3ed788084754d5ceec0a5a256",
+    "tools/e2e/scripts/support/interactive-e2e-console.cjs": "778d847653e3351e9e7c50957c7c16f21f9ba17e2d06eb020a2a5df5f3651087",
+    "tests/doc116-exp01-discovery.test.cjs": "911c3044d6bbc06120b81bf979bb16a30e27e03764fa96af92b8ee8090bbcfa0"
+  },
+  "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "checkpointFile": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\tools\\e2e\\artifacts\\doc116-exp02-20261105-authorized.json",
+  "readOnlyProbe": false,
+  "instruction": "autorizado",
+  "date": "2026-11-05",
+  "authorizationBasis": "User explicitly approved the proposed EXP-02 client scenario: one plan, one lot, two staging PDFs, one new expedient and two creation/replay requests; preserve previous resources; zero definitive documents or permission changes. Internal failure remains unexecuted."
+}
