@@ -62,7 +62,7 @@ El sistema SHALL probar agregar_expediente en ra_pro_permisos_niveles para un ac
 - **THEN** se restaura el valor original exacto y se comprueba el diario y la lectura final
 
 ### Requirement: RQ-06 Infraestructura y mutaciones acotadas
-El sistema SHALL reutilizar sesión, safePost, consola, DSN MembershipUsers y controles SELECT. No usar runRec completo porque almacena documentos. El puente local es administrativo y la copia aislada tiene extensión operativa: ninguno acredita revocación de permiso de nivel. Una extensión de soporte requiere contrato cerrado, diario y restauración antes de cualquier ejecución. Decisión: D-06.
+El sistema SHALL reutilizar sesión, safePost, consola, DSN MembershipUsers y controles SELECT. No usar runRec completo porque almacena documentos. Los modos de administración de perfiles o de IMPORTAR_CARPETAS no sustituyen la comprobación nativa de agregar_expediente. La extensión de nivel requiere contrato cerrado, diario y restauración verificada antes de cualquier ejecución. Decisión: D-06.
 
 #### Scenario: Presupuesto y transporte
 - **WHEN** se ejecuta una suite autorizada de expedientes

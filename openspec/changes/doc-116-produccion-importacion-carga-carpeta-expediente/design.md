@@ -40,7 +40,7 @@ Evidencia local: Infrastructure/ProduccionDocumental/ImportacionCarpetas/Importa
 
 ### D-06 — Infraestructura y mutaciones acotadas
 
-Reutilizar sesión, safePost, consola, DSN MembershipUsers y controles SELECT. No usar runRec completo porque almacena documentos. El puente local es administrativo y la copia aislada tiene extensión operativa: ninguno acredita revocación de permiso de nivel. Una extensión de soporte requiere contrato cerrado, diario y restauración antes de cualquier ejecución.
+Reutilizar sesión, safePost, consola, DSN MembershipUsers y controles SELECT. No usar runRec completo porque almacena documentos. Los modos previos de administración de perfiles o de IMPORTAR_CARPETAS no acreditan por sí solos la revocación nativa de agregar_expediente. La extensión de nivel requiere contrato cerrado, diario y restauración verificada antes de cualquier ejecución.
 
 Evidencia local: tools/e2e/tests/support/doc111-importacion-carpetas.cjs createPlanControls; tools/e2e/tests/support/doc110-permission-revocation.cjs startDatabaseBridge.
 
