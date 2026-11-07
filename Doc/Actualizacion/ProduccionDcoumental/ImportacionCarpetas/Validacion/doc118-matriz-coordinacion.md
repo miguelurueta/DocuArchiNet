@@ -40,7 +40,7 @@ COORD-01 conserva crédito REAL histórico. COORD-02 y COORD-03 siguen abiertos 
 
 ## Continuación de preparación aprobada — 2026-11-07
 
-Aprobación editorial del usuario registrada tras el detalle de implementación. Mapa aplicado: 26 tareas, 11 S y 15 M, con cobertura D-01–D-10/RQ-01–RQ-10. Preparación y contraste local completan las tareas 1.x–3.x; no completan las tareas de integración 4.x.
+Aprobación editorial del usuario registrada tras el detalle de implementación. Mapa aplicado: 27 tareas, 11 S y 16 M, con cobertura D-01–D-10/RQ-01–RQ-10. Preparación y contraste local completan las tareas 1.x–3.x; no completan las tareas de integración 4.x.
 
 Revalidación conjunta: `node --test tests/doc110-perfil-importacion-behavior.test.cjs tests/doc111-importacion-carpetas-client.test.cjs`, 18/18 pruebas Node sin fallos, servicios sintéticos sin login/HTTP real. El resultado anterior 2/2 conserva su ejecución y alcance.
 
@@ -50,3 +50,8 @@ Se añadieron `doc118-plan-integracion.md` y `doc118-seguridad-recuperacion.md`.
 ## Autorización real y primer preflight
 
 El usuario autorizó la fase real del plan; tarea4.2 completada y progreso15/26. Una petición HEAD devolvió HTTP200. Credenciales ausentes en el proceso y captura segura aún sin seleccionar; cero login/SELECT/efectos. La DLL/PDB y Visual Studio se localizaron, pero la observación de la llamada activa no está calificada. Ambos casos específicos permanecen NO_EJECUTADOS; detalles y presupuesto acumulado en doc118-preflight-20261107.json y doc118-resultados-integracion.md.
+
+
+## Captura operativa y rechazo real
+
+Progreso16/27: consola por fases y preflight readOnly implementados y regresión106/106 local. El servidor rechazó el primer login real con DOC111_LOGIN_CREDENTIALS_REJECTED. Consumo acumulado98 HTTP C02,1 intento,0 SELECT de control,0 efectos; no se reintentó. Los casos COORD02/03 siguen NO_EJECUTADOS para aceptación. La propuesta de continuación mantiene500 HTTP globales/4 intentos y no se aplica por inferencia.

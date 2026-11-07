@@ -3,7 +3,7 @@
   "recordedUtc": "2026-11-07T20:30:39.605Z",
   "reviewedCodeCommit": "3c538a0f6aab1ba9fe36639815bccafb40ab1f5b",
   "authorizationReference": "execution-authorization.json",
-  "status": "PARTIAL_PREFLIGHT_CREDENTIALS_REQUIRED",
+  "status": "STOPPED_CREDENTIALS_REJECTED",
   "site": {
     "method": "HEAD",
     "path": "gestor.aspx",
@@ -42,14 +42,14 @@
   },
   "counters": {
     "COORD02": {
-      "allHttp": 1,
+      "allHttp": 98,
       "businessHttp": 0
     },
     "COORD03": {
       "allHttp": 0,
       "businessHttp": 0
     },
-    "loginAttempts": 0,
+    "loginAttempts": 1,
     "selectStatements": 0,
     "newPlans": 0,
     "newLots": 0,
@@ -60,10 +60,10 @@
     "stopRequests": 0
   },
   "remaining": {
-    "COORD02AllHttp": 249,
+    "COORD02AllHttp": 152,
     "COORD03AllHttp": 250,
     "selectStatements": 240,
-    "totalSessions": 4
+    "totalSessions": 3
   },
   "historicalAttemptsMutated": [],
   "caseStatus": {
@@ -71,10 +71,15 @@
     "COORD03": "NO_EJECUTADO"
   },
   "requiredBeforeEffects": [
+    "Corregir datos de acceso y revisar explícitamente la continuación tras el rechazo; no probar otra combinación automáticamente.",
     "Entrada de credenciales por consola TTY enmascarada existente; no por chat ni archivo.",
     "Verificar autoridad actual y publicación con el preflight autenticado.",
     "Calificar adaptador externo de depurador, símbolos y correlación sin afectar hilos ajenos.",
     "Preparar recursos nuevos y registrar sus IDs/huellas dentro del alcance autorizado."
   ],
-  "budgetCarryForward": "Antes de nuevos despachos cargar el contador previo y conservar la petición HEAD ya consumida; no reiniciar los presupuestos al abrir sesión."
+  "budgetCarryForward": "Antes de nuevos despachos cargar el contador previo y conservar la petición HEAD ya consumida; no reiniciar los presupuestos al abrir sesión.",
+  "loginResult": "DOC111_LOGIN_CREDENTIALS_REJECTED",
+  "authenticated": false,
+  "retryAutomaticallyAuthorized": false,
+  "safeLiveEvidence": "doc118-login-preflight-20261107.json"
 }

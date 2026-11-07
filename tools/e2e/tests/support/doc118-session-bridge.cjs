@@ -57,11 +57,9 @@ function budgetedAuth(auth,profile,budget,scenario){
     return auth.context.request.post(url,options);
   }}}};
 }
-async function openPair({browser,profile,environment,grant,scenario,budget,openSession=shared.openSession}){
-  authorize(profile,grant,scenario);check(budget&&['http','select','snapshot'].every(k=>typeof budget[k]==='function'),'SHARED_BUDGET_REQUIRED');
-  profile=structuredClone(profile);grant=Object.freeze({...grant});const sessions=[];let closedPair=false,windowClaimed=false;
-  // Context interception is installed before the shared helper begins login.
-  const limitedBrowser={newContext:async(...args)=>{
+function createScopedBrowser(browser,profile,budget,scenario){
+  // Also reusable by the authorized read-only preflight, before resource IDs exist.
+  return{newContext:async(...args)=>{
     const context=await browser.newContext({...args[0],serviceWorkers:'block'});
     try{await context.route('**/*',async route=>{
       try{
@@ -75,6 +73,11 @@ async function openPair({browser,profile,environment,grant,scenario,budget,openS
       }catch{await route.abort().catch(()=>{});}
     });return context;}catch{await context.close().catch(()=>{});throw new BridgeFault('CONTEXT_BUDGET_NOT_INSTALLED');}
   }};
+}
+async function openPair({browser,profile,environment,grant,scenario,budget,openSession=shared.openSession}){
+  authorize(profile,grant,scenario);check(budget&&['http','select','snapshot'].every(k=>typeof budget[k]==='function'),'SHARED_BUDGET_REQUIRED');
+  profile=structuredClone(profile);grant=Object.freeze({...grant});const sessions=[];let closedPair=false,windowClaimed=false;
+  const limitedBrowser=createScopedBrowser(browser,profile,budget,scenario);
   async function close(){
     if(closedPair)return;closedPair=true;
     const outcomes=await Promise.allSettled([...new Set(sessions.map(s=>s.context))].map(c=>c.close()));
@@ -148,4 +151,4 @@ async function runPreparedWindow({pair,profile,grant,scope,prepared,query,observ
     throw safe;
   }
 }
-module.exports={LIMITS,authorize,createBudget,openPair,prepareCommand,runPreparedWindow};
+module.exports={LIMITS,authorize,createBudget,createScopedBrowser,budgetedAuth,openPair,prepareCommand,runPreparedWindow};

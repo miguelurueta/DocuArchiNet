@@ -18,3 +18,6 @@ La búsqueda puntual posterior localizó la suite `tools/e2e/tests/doc111-import
 
 
 Enlace implementado: `doc118-session-bridge.cjs` reutiliza openSession/createDriver/createSelectControls. Consume una sola ventana por par, vincula autorización a runId/recursos/snapshot/comando y aplica presupuestos antes de despacho. COORD02 exige revisión vigente del segundo archivo y no acredita CONFLICTO_REVISION como exclusión. COORD03 utiliza SolicitarDetencion; el driver de lectura la rechaza. Los callbacks del observador externo y la preparación autorizada de recursos siguen a cargo del conductor exterior; no existe CLI autónomo de aceptación completa.
+
+
+La consola usa una cola local de fases permitidas y hashes de implementación. Los secretos solo viven en el proceso, se pasan efímeramente al helper compartido y se limpian al cerrar. No hay endpoint nuevo de producto, otro login ni SQL arbitrario desde la cola. PREFLIGHT es readOnly; no están completadas las fases documentales del ejecutor.

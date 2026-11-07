@@ -155,3 +155,10 @@ No declarar completo un caso que mantiene efecto incierto. Los intentos41/lote18
 ## Autorización concedida y continuidad
 
 La fase real está autorizada; no solicitar de nuevo aprobación del mismo alcance. El preflight inicial y contadores están en doc118-preflight-20261107.json. Solo se consumió un HEAD de preparación de C02: HTTP200; cero login/SELECT/efectos. Faltan credenciales efímeras mediante la consola enmascarada existente y calificación del observador. La consulta de preferencia de consola sigue abierta; no enviar secretos por chat ni persistirlos.
+
+
+## Ejecutor de captura y parada real
+
+run-doc118-live.cjs usa la consola enmascarada existente y mantiene secretos/contextos solo en memoria. Una cola local de fases cerradas contiene nombres de fase y hash del módulo revisado, sin credenciales ni SQL. PREFLIGHT reutiliza openSession, selector de nivel, driver readOnly y puente ODBC; otras fases documentales aún requieren completar/calificar su implementación. No se presenta la consola como ejecutor completo de aceptación.
+
+El primer login real fue rechazado:98 HTTP C02 acumulados,1 intento,0 SELECT de control y0 efectos. La consola terminó y eliminó los secretos. La continuación propuesta en execution-continuation-proposal.json todavía no cambia la autorización original:500 HTTP globales, redistribución425/75 y pareja reutilizada, conservando4 intentos/contextos y todos los límites de efectos. Se mantiene la parada sin retry hasta una decisión explícita.

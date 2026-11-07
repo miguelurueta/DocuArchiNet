@@ -14,7 +14,7 @@ Precisar las brechas COORD-02 (dos clientes, antigüedad y pérdida de respuesta
 Se reutilizan coordinador VB, MySQL, ASMX y JavaScript actuales. Se preservan políticas EXPEDIENTE/LOTE/PARCIAL, PDF, rechazo TIFF/Multi-TIFF, snapshot, inventario original y efectos confirmados. No hay migración, nuevo worker ni endpoint para reanudar. No se modifica almacenamiento compartido/SII ni se introduce aislamiento adicional del XML. Esta documentación se revierte por Git; eso no revierte efectos en datos.
 
 
-El usuario indicó «continua» después del detalle de implementación el 2026-11-07. Se aplicó el mapa de 26 tareas trazables y se prepararon los protocolos de dos sesiones, respuesta perdida y detención; su observación externa sigue sin calificación en runtime.
+El usuario indicó «continua» después del detalle de implementación el 2026-11-07. Se aplicó el mapa de 27 tareas trazables y se prepararon los protocolos de dos sesiones, respuesta perdida y detención; su observación externa sigue sin calificación en runtime.
 
 
 La incorporación de código se limita a la coordinación de pruebas y su enlace con sesiones/controles existentes en tools/e2e. No cambia código funcional ni concede PASS de integración; las pruebas distinguen coordinación, enlace y drivers compartidos.
@@ -24,3 +24,6 @@ La continuación añade el enlace DOC118 de dos sesiones y controles con los hel
 
 
 La fase real fue autorizada expresamente por el usuario. Se registraron alcance y límites en execution-authorization.json, con progreso15/26. El preflight HEAD devolvió200; todavía no hay autenticación, SELECT ni nuevos recursos.
+
+
+La captura por fases y su preflight readOnly están implementados; progreso16/27. El primer login real fue rechazado y el flujo se detuvo con0 efectos; la evidencia local106/106 no lo sustituye.

@@ -63,7 +63,7 @@ Los intentos históricos 41 (DOC116, lote18) y 53 (DOC117, lote21) se conservan 
 
 ## Resultado del refinamiento
 
-Estado: approved. Aprobación editorial registrada el 2026-11-07 por la indicación del usuario «continua», posterior al detalle de implementación y a la solicitud de revisión del refinamiento. Comprende alcance, decisiones y continuación con el desglose trazable presentado; no concede autorización de pruebas reales. tasks.md sustituye las ocho tareas genéricas por 26 tareas atómicas. La compuerta opsxj:refine verifica su trazabilidad; no acredita COORD-02/03 reales.
+Estado: approved. Aprobación editorial registrada el 2026-11-07 por la indicación del usuario «continua», posterior al detalle de implementación y a la solicitud de revisión del refinamiento. Comprende alcance, decisiones y continuación con el desglose trazable presentado; no concede autorización de pruebas reales. tasks.md sustituye las ocho tareas genéricas por 27 tareas atómicas. La compuerta opsxj:refine verifica su trazabilidad; no acredita COORD-02/03 reales.
 
 La validación estructural OpenSpec no sustituye esta aprobación ni concede autorización para E2E real. La entrega documental y su regresión local se registran en Git en la carpeta principal.
 

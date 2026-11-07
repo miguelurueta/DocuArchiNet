@@ -34,3 +34,8 @@ El helper nuevo se verificó con `node --test tests/doc118-active-call.test.cjs`
 ## Preflight real autorizado
 
 `doc118-preflight-20261107.json` y `doc118-resultados-integracion.md` registran un HEAD HTTP200 y localización de DLL/PDB/IDE, sin attach, login, SELECT ni efectos. La autorización ya está concedida; falta captura enmascarada de secretos efímeros y calificar el observador. COORD02/03 específicos siguen NO_EJECUTADOS. No se suma esta petición como prueba Node ni como aceptación documental.
+
+
+## Captura y preflight por fases
+
+Regresión conjunta106/106 (4 preflight,23 enlace,16 coordinación,63 drivers), cero fallos. El resultado real independiente fue DOC111_LOGIN_CREDENTIALS_REJECTED:98 HTTP acumulados,1 intento,0 SELECT de control y0 efectos. La evidencia saneada está en doc118-login-preflight-20261107.json; no registra datos introducidos ni atribuye el rechazo a un campo específico. Se conserva la parada sin retry y la propuesta de continuación sin autorización.

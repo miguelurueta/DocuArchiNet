@@ -24,3 +24,12 @@ No hay secretos efímeros de aplicación ni MySQL SELECT en el proceso. Se solic
 ## Estado de los casos
 
 COORD02 y COORD03 continúan NO_EJECUTADOS para su aceptación específica. El sitio accesible y la autorización no acreditan exclusión documental, detención en vuelo ni recuperación. Los intentos41/53 siguen intactos. Conservar el HEAD consumido al continuar y calificar la observación antes de iniciar un caso documental.
+
+
+## Captura y primer intento de autenticación
+
+Se abrió la consola local solicitada y se reutilizó la entrada enmascarada del arnés. Una primera activación se detuvo por un enlace local desactualizado antes de login/HTTP nuevos; se corrigió y verificó antes de reabrir. El siguiente intento llegó al servidor, que devolvió DOC111_LOGIN_CREDENTIALS_REJECTED. Se cerraron contextos/navegador y se limpiaron los secretos; no se probó otra combinación automáticamente.
+
+Consumo acumulado: C02=98/250 HTTP totales, incluyendo el HEAD previo; C03=0/250;1 intento/contexto de los4 autorizados;0 SELECT de control y0 efectos documentales. No se conoce qué dato de entrada causó el rechazo. Evidencia saneada: doc118-login-preflight-20261107.json.
+
+La propuesta execution-continuation-proposal.json conserva el techo global de500 HTTP y4 intentos/contextos, reutiliza una pareja independiente para ambos casos y redistribuye los topes a425 C02/75 C03. No está autorizada ni aplicada. Todos los límites documentales y SELECT permanecen iguales. Se requiere corregir la entrada en una captura nueva y decidir sobre esa continuación; no enviar secretos por chat.

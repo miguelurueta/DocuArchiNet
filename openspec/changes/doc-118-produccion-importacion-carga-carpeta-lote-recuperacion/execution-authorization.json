@@ -73,7 +73,22 @@
     "mechanism": "Helpers TTY existentes; captura enmascarada y datos efímeros.",
     "credentialsAvailableInAgentEnvironment": false,
     "consolePreferenceRequested": true,
-    "consolePreferenceAnswered": false
+    "consolePreferenceAnswered": true,
+    "consolePreference": "LOCAL_MASKED_CONSOLE",
+    "preferenceSource": "«continua» en respuesta a la propuesta de abrir la consola de captura."
   },
-  "executionStatus": "PREFLIGHT_STARTED_CREDENTIALS_REQUIRED"
+  "executionStatus": "STOPPED_CREDENTIALS_REJECTED",
+  "consumed": {
+    "allHttp": {
+      "COORD02": 98,
+      "COORD03": 0
+    },
+    "loginAttempts": 1,
+    "totalSessionAttempts": 1,
+    "selectStatements": 0,
+    "newPlans": 0,
+    "newLots": 0,
+    "newExpedientes": 0,
+    "newStoredDocuments": 0
+  }
 }
