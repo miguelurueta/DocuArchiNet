@@ -1,0 +1,184 @@
+{
+  "issueKey": "DOC-117",
+  "scenario": "ALM-02-INTERNAL",
+  "status": "PASS",
+  "date": "2026-11-06",
+  "environment": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "actorRef": "141",
+  "ambitoRef": "2",
+  "levelRef": "7",
+  "versionRef": "38",
+  "cabinetRef": "10",
+  "planId": "37",
+  "lotId": "21",
+  "authorization": {
+    "id": "8acc6c159c162668302fb82905560118",
+    "source": "User explicitly replied autorizado to the reviewed ALM-02 internal execution request",
+    "authorizedUtc": "2026-11-06T12:00:06.092Z",
+    "file": ".tmp/doc117-alm02-internal-authorization.json",
+    "sha256": "fb68c75d9a70409ecb18398d8f9491f369bf0ddd56140ebe061eb076be31147a"
+  },
+  "artifact": {
+    "file": "tools/e2e/artifacts/doc117-alm02-internal-8acc6c159c162668302fb82905560118.json",
+    "sha256": "a8f837c812facf17c70081dc1425eb129450c89420aa87269fd807cf3ca801fb"
+  },
+  "proposalSha256": "d68ee976d8637a932979da0b1f1ac2f06994fbcbbe8184fb5ada9c2693cbab8f",
+  "codeSha256": "87567cd547ffcd1b7358d93f625585f8e2bedeff148435c232b8531521b9599c",
+  "resourceScopeSha256": "0878b656ded3919a31b956e3378d5b94b2b4560dc9bd4503f09648583b88b323",
+  "originalSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "candidateSha256": "85824b255a826664a8395754d8903e51218ba1a8303595ee6e181c8c0dc05a95",
+  "startedUtc": "2026-11-06T12:00:24.578Z",
+  "finishedUtc": "2026-11-06T12:10:09.600Z",
+  "selectRequests": 191,
+  "budget": {
+    "storageRequests": 3,
+    "documents": 2,
+    "plans": 0,
+    "lots": 0,
+    "receipts": 0,
+    "expedients": 0,
+    "maximumSelectRequests": 240,
+    "maximumRuntimeSeconds": 600
+  },
+  "result": {
+    "status": "PASS",
+    "scenario": "ALM-02-INTERNAL",
+    "laboratoryVariant": true,
+    "storageRequests": 3,
+    "documents": 2,
+    "inventoryBefore": "8811",
+    "inventoryAfter": "8813",
+    "afterCommitReturnFailureVerified": true,
+    "preCheckpointFailureVerified": true,
+    "confirmedReplayUnchanged": true,
+    "uncertainStorageNotRepeated": true,
+    "persistedUncertainAttemptState": "EN_CURSO",
+    "writerEntries": 2,
+    "originalsVerified": true,
+    "references": [
+      {
+        "loteId": "21",
+        "raizId": "33",
+        "archivoId": "34",
+        "intentoId": "52",
+        "expedienteId": "664",
+        "relacionNivelId": "1089",
+        "documentoId": "16222",
+        "inventarioId": "23320"
+      },
+      {
+        "loteId": "21",
+        "raizId": "34",
+        "archivoId": "35",
+        "intentoId": "53",
+        "expedienteId": "665",
+        "relacionNivelId": "1090",
+        "documentoId": "16223",
+        "inventarioId": "23321"
+      }
+    ],
+    "runtimeRestored": true,
+    "bothBackupsVerified": true,
+    "reopenedWithOriginalRuntime": true,
+    "preservedResourcesUnchanged": true
+  },
+  "retainedOriginals": [
+    {
+      "archivoId": "34",
+      "bytes": "677",
+      "sha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c"
+    },
+    {
+      "archivoId": "35",
+      "bytes": "677",
+      "sha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c"
+    }
+  ],
+  "markers": {
+    "intento-archivo-34.json": "7071e7149d84975cb6deaf603793afb99f0bb4d47cb295c192c1cd23e766b7b8",
+    "escritor-archivo-34.json": "7071e7149d84975cb6deaf603793afb99f0bb4d47cb295c192c1cd23e766b7b8",
+    "archivo-34.json": "15f229aa942efc1ea8583d49bb6f213e27eaf56857530e83556df94d90bec22d",
+    "intento-archivo-35.json": "60882cc0d18719ddd68dd38b299b329f43c5e43c2ae519c83e03e599d0926eda",
+    "escritor-archivo-35.json": "60882cc0d18719ddd68dd38b299b329f43c5e43c2ae519c83e03e599d0926eda",
+    "archivo-35.json": "5df92d0b5420c48b7580f8bfa9e030446e87c5df3ba697c5ae61cc4c2b00bbcd"
+  },
+  "restoration": {
+    "journalSha256": "a496a829aebc11c8fcaff1d3f3fb77c8cb9c9eb32c305d7a3d989534370e2458",
+    "stage": "RESTORED",
+    "currentDllSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+    "backupSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+    "reserveBackupSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+    "reopenedAndVerifiedWithOriginal": true
+  },
+  "preservedBefore": {
+    "scope": {
+      "maxPlan": "36",
+      "maxLot": "20"
+    },
+    "fingerprints": {
+      "plans": {
+        "count": 36,
+        "hash": "dbfc9376a13ed4c2fb31f673ffcf36b1077fab6bab198cb6e60c1c722fe5b98a"
+      },
+      "lots": {
+        "count": 16,
+        "hash": "d24a0299092e2af77f696f243024ec34560af0865541dab6b394f3c8f5cac22c"
+      },
+      "roots": {
+        "count": 26,
+        "hash": "7d77ce517c6d39c4dea1b61b304021929c8f60d4795a84037aaf337810980489"
+      },
+      "files": {
+        "count": 27,
+        "hash": "4b3762ef067dd163ab0da0f0439e613b8df82bed9e9507c3fb5be3e3259b94a3"
+      },
+      "attempts": {
+        "count": 47,
+        "hash": "70934ae2ba2d4aaf3c06fc1fd5c3cd07306e4fa736da994150387e5287f29f98"
+      },
+      "events": {
+        "count": 167,
+        "hash": "c0c7e6ce19eae850416197656756819ec2582f12ce0366c83dcbebb4d886903a"
+      }
+    }
+  },
+  "preservedAfter": {
+    "scope": {
+      "maxPlan": "36",
+      "maxLot": "20"
+    },
+    "fingerprints": {
+      "plans": {
+        "count": 36,
+        "hash": "dbfc9376a13ed4c2fb31f673ffcf36b1077fab6bab198cb6e60c1c722fe5b98a"
+      },
+      "lots": {
+        "count": 16,
+        "hash": "d24a0299092e2af77f696f243024ec34560af0865541dab6b394f3c8f5cac22c"
+      },
+      "roots": {
+        "count": 26,
+        "hash": "7d77ce517c6d39c4dea1b61b304021929c8f60d4795a84037aaf337810980489"
+      },
+      "files": {
+        "count": 27,
+        "hash": "4b3762ef067dd163ab0da0f0439e613b8df82bed9e9507c3fb5be3e3259b94a3"
+      },
+      "attempts": {
+        "count": 47,
+        "hash": "70934ae2ba2d4aaf3c06fc1fd5c3cd07306e4fa736da994150387e5287f29f98"
+      },
+      "events": {
+        "count": 167,
+        "hash": "c0c7e6ce19eae850416197656756819ec2582f12ce0366c83dcbebb4d886903a"
+      }
+    }
+  },
+  "limits": [
+    "Laboratory variant; not a server crash or network cut",
+    "B remains EN_CURSO with public INCIERTO; no replay/reconcile/repair",
+    "Exactly two new documents; no new plans/lots/receipts/expedients in this phase",
+    "Resources and originals retained; no cleanup",
+    "No ALM-03/XML/SII concurrency claim"
+  ]
+}

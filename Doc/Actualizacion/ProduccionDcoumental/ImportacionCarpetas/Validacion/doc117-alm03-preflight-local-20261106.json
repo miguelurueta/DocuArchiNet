@@ -1,0 +1,33 @@
+{
+  "issueKey": "DOC-117",
+  "scenario": "ALM-03-PREFLIGHT-LOCAL",
+  "date": "2026-11-06",
+  "status": "LOCAL_PASS_REAL_EXECUTION_PENDING",
+  "applicationE2EExecuted": false,
+  "realSelectRequests": 0,
+  "proposalSha256": "7573f418c3a3a007373ca0cb028ed6f15af0945d542f5acf0489c168899e5dd1",
+  "codeSha256": "7a452e8d612dd703014c9eab0a18d3794757844d6b82e083961a47bf488fcd10",
+  "tests": {
+    "total": 16,
+    "passed": 16,
+    "failed": 0
+  },
+  "budget": {
+    "maximumSelectRequests": 12,
+    "applicationLogins": 0,
+    "preparations": 0,
+    "confirmations": 0,
+    "uploads": 0,
+    "newExpedients": 0,
+    "documents": 0,
+    "storageRequests": 0,
+    "runtimeChanges": 0
+  },
+  "authorizationScope": "ALM-03-PREFLIGHT-SELECT",
+  "files": {
+    "tools/e2e/scripts/run-doc117-alm03-preflight.cjs": "87559471ca8725a704f71db7b54cc06b7addf5a69952b2335d199016339085d5",
+    "tools/e2e/scripts/support/doc32-e2e-odbc.cjs": "d748cfd17cf3c170df4ce5cf7d4daf1959df16a3ed788084754d5ceec0a5a256",
+    "tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1": "7a4fb15210785f221835f865ce81a5b9c55aed6243f7592ee383e81640492d11",
+    "tools/e2e/scripts/support/interactive-e2e-console.cjs": "778d847653e3351e9e7c50957c7c16f21f9ba17e2d06eb020a2a5df5f3651087"
+  }
+}

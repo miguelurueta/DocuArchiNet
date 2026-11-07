@@ -22,6 +22,7 @@ const {
 } = require('./support/workflow-e2e-platform.cjs');
 const { loadProfile } = require('./support/workflow-e2e-platform-profile.cjs');
 const { resolveScenario } = require('./support/workflow-e2e-platform-registry.cjs');
+const { uploadOutcome } = require('./support/doc117-alm03-failure-evidence.cjs');
 
 const e2eRoot = path.resolve(__dirname, '..');
 const repositoryRoot = path.resolve(e2eRoot, '..', '..');
@@ -52,6 +53,9 @@ function fail(code) {
 
 function classifyProductionStorageRejection(value) {
   const message = String(value || '').normalize('NFKC').toLocaleUpperCase('es-CO');
+  if (message === 'DOC117_ALM03_DIAGNOSTIC_WRITER_BLOCKED') return 'PRODUCCION_DOCUMENTAL_E2E_DIAGNOSTIC_WRITER_BLOCKED';
+  if (message === 'DOC117_ALM03_DIAGNOSTIC_CONTEXT_REJECTED') return 'PRODUCCION_DOCUMENTAL_E2E_DIAGNOSTIC_CONTEXT_REJECTED';
+  if (message === 'DOC117_ALM03_DIAGNOSTIC_EVIDENCE_FAILED') return 'PRODUCCION_DOCUMENTAL_E2E_DIAGNOSTIC_EVIDENCE_FAILED';
   if (message.includes('INCONSISTENCIA GENERAL FUNCION UPLOAD_SAVE_FILE_GESTION_RESPUESTA')) return 'PRODUCCION_DOCUMENTAL_E2E_UPLOAD_SAVE_EXCEPTION';
   if (/REFERENCIA A OBJETO|OBJECT REFERENCE|NULLREFERENCE/.test(message)) return 'PRODUCCION_DOCUMENTAL_E2E_HANDLER_NULL_REFERENCE';
   if (message.includes('PRODUCCION_CARGA_ARCHIVO_NO_DISPONIBLE')) return 'PRODUCCION_DOCUMENTAL_E2E_FILE_UNAVAILABLE';
@@ -844,7 +848,7 @@ async function inspectScannerLinkOverlayUi({ context, plan }) {
   }
 }
 
-async function inspectProductionDocumentUploadPreviewUi({ context, plan }) {
+async function inspectProductionDocumentUploadPreviewUi({ context, plan, beforeStorage, onStored, onStorageOutcome, requiredDiagnosticScopeSha256, requiredDocumentTypeName, requiredRuntimeScopeSha256 }) {
   const page = await context.newPage();
   const executesStorage = plan.scenario.expectations.includes('production-document-upload-execution-ui');
   const timeout = Math.min(plan.profile.budgetMs, 60000);
@@ -867,6 +871,14 @@ async function inspectProductionDocumentUploadPreviewUi({ context, plan }) {
   let observedUploadRequests = 0;
   let navigationCount = 0;
   let documentUrl = null;
+  const diagnostic = { phase: 'PREPARATION', saveRequested: false, httpStatus: null,
+    serverResult: 'NOT_OBSERVED', identitiesObserved: false, projectionVerified: false };
+  let outcomePublished = false;
+  const publishOutcome = async (error, failed = false) => {
+    if (!executesStorage || !onStorageOutcome || outcomePublished) return;
+    outcomePublished = true;
+    await onStorageOutcome(uploadOutcome({ ...diagnostic, uploadRequestsObserved: observedUploadRequests }, error, failed));
+  };
   const onNavigation = (frame) => {
     if (frame !== page.mainFrame() || documentUrl === null) return;
     if (normalizeDocumentUrl(frame.url()) !== documentUrl) navigationCount += 1;
@@ -886,7 +898,18 @@ async function inspectProductionDocumentUploadPreviewUi({ context, plan }) {
     if (!response.ok()) fail('PRODUCCION_DOCUMENTAL_E2E_PREPARATION_TRANSPORT_FAILED');
     const payload = await response.json()
       .catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_PREPARATION_RESPONSE_INVALID'));
-    return payload?.d?.[0] || null;
+    const prepared = payload?.d?.[0] || null;
+    if (prepared?.AppError === 'YES' && requiredRuntimeScopeSha256 !== undefined) {
+      const headers = typeof response.headers === 'function' ? response.headers() : {};
+      if (!/^[a-f0-9]{64}$/.test(requiredRuntimeScopeSha256) || headers['x-doc117-alm03c-scope'] !== requiredRuntimeScopeSha256) fail('PRODUCCION_DOCUMENTAL_E2E_DIAGNOSTIC_RUNTIME_UNVERIFIED');
+    }
+    if (prepared?.AppError === 'YES' && requiredDiagnosticScopeSha256 !== undefined) {
+      const headers = typeof response.headers === 'function' ? response.headers() : {};
+      if (!/^[a-f0-9]{64}$/.test(requiredDiagnosticScopeSha256) || headers['x-doc117-guard-diag'] !== requiredDiagnosticScopeSha256) {
+        fail('PRODUCCION_DOCUMENTAL_E2E_DIAGNOSTIC_RUNTIME_UNVERIFIED');
+      }
+    }
+    return prepared;
   };
 
   try {
@@ -990,6 +1013,9 @@ async function inspectProductionDocumentUploadPreviewUi({ context, plan }) {
     const selectedTypologyName = await typology.locator('option:checked').textContent()
       .catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_DOCUMENT_TYPE_READ_FAILED'));
     const normalizeTypologyName = (value) => String(value || '').normalize('NFKC').replace(/\s+/g, ' ').trim().toLocaleUpperCase('es-CO');
+    if (requiredDocumentTypeName !== undefined && (typeof requiredDocumentTypeName !== 'string' || requiredDocumentTypeName.length===0 || selectedTypologyName!==requiredDocumentTypeName)) {
+      fail('PRODUCCION_DOCUMENTAL_E2E_DOCUMENT_TYPE_MISMATCH');
+    }
     if (normalizeTypologyName(selectedTypologyName) !== normalizeTypologyName(plan.profile.documentTypeName)) {
       fail('PRODUCCION_DOCUMENTAL_E2E_DOCUMENT_TYPE_MISMATCH');
     }
@@ -997,30 +1023,55 @@ async function inspectProductionDocumentUploadPreviewUi({ context, plan }) {
     if (await save.count() !== 1) fail('PRODUCCION_DOCUMENTAL_E2E_SAVE_UNAVAILABLE');
     if (executesStorage) {
       const existingRows = await page.locator('#data_grid tr[id]').evaluateAll((rows) => rows.map((row) => row.id));
+      // Optional caller coordination happens before dispatch, outside the writer.
+      diagnostic.phase = 'DISPATCH_GUARD';
+      if (beforeStorage) await beforeStorage();
       const uploadResponsePromise = page.waitForResponse((response) =>
-        response.request().method() === 'POST' && uploadPattern.test(response.url()), { timeout });
+        response.request().method() === 'POST' && uploadPattern.test(response.url()), { timeout })
+        .then((response) => response, () => null);
+      diagnostic.phase = 'SAVE';
+      diagnostic.saveRequested = true;
       await save.click().catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_SAVE_FAILED'));
-      const uploadResponse = await uploadResponsePromise
-        .catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_STORAGE_RESPONSE_UNAVAILABLE'));
+      diagnostic.phase = 'RESPONSE';
+      const uploadResponse = await uploadResponsePromise;
+      if (!uploadResponse) fail('PRODUCCION_DOCUMENTAL_E2E_STORAGE_RESPONSE_UNAVAILABLE');
+      const httpStatus = typeof uploadResponse.status === 'function' ? uploadResponse.status() : null;
+      diagnostic.httpStatus = Number.isInteger(httpStatus) && httpStatus >= 100 && httpStatus <= 599 ? httpStatus : null;
       if (!uploadResponse.ok()) fail('PRODUCCION_DOCUMENTAL_E2E_STORAGE_HTTP_FAILED');
+      diagnostic.phase = 'ENVELOPE';
       const uploadEnvelope = await uploadResponse.json()
         .catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_STORAGE_RESPONSE_INVALID'));
       const stored = Array.isArray(uploadEnvelope) && uploadEnvelope.length === 1 ? uploadEnvelope[0] : null;
       if (!stored) fail('PRODUCCION_DOCUMENTAL_E2E_STORAGE_ENVELOPE_INVALID');
+      diagnostic.phase = 'SERVER_RESULT';
+      diagnostic.serverResult = stored.error_sistema === 'YES' ? 'ACCEPTED' : 'REJECTED';
       if (stored.error_sistema !== 'YES') fail(classifyProductionStorageRejection(stored.error_sistema));
-      if (Number(stored.id_registro) <= 0) fail('PRODUCCION_DOCUMENTAL_E2E_STORAGE_RECORD_ID_INVALID');
-      if (Number(stored.id_image) <= 0) fail('PRODUCCION_DOCUMENTAL_E2E_STORAGE_IMAGE_ID_INVALID');
+      diagnostic.phase = 'IDENTITIES';
+      const numericReference = (value) => ['string', 'number'].includes(typeof value) &&
+        /^[1-9][0-9]{0,9}$/.test(String(value)) && Number(value) <= 4294967295;
+      if (!numericReference(stored.id_registro)) fail('PRODUCCION_DOCUMENTAL_E2E_STORAGE_RECORD_ID_INVALID');
+      if (!numericReference(stored.id_image)) fail('PRODUCCION_DOCUMENTAL_E2E_STORAGE_IMAGE_ID_INVALID');
       if (typeof stored.nombre_archivo !== 'string' || stored.nombre_archivo.trim() === '') {
         fail('PRODUCCION_DOCUMENTAL_E2E_STORAGE_FILE_NAME_INVALID');
       }
+      // Preserve numeric identities even if the subsequent UI projection fails.
+      diagnostic.identitiesObserved = true;
+      if (onStored) await onStored(Object.freeze({
+        documentoId: String(stored.id_image), inventarioId: String(stored.id_registro),
+        expedienteId: String(plan.profile.expedientId)
+      }));
+      diagnostic.phase = 'PROJECTION';
       await page.waitForFunction(({ rowId, previousRows }) => {
         const row = document.querySelector(`#data_grid tr[id="${CSS.escape(String(rowId))}"]`);
         return Boolean(row) && !previousRows.includes(String(rowId));
       }, { rowId: stored.id_registro, previousRows: existingRows }, { timeout })
         .catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_PROJECTION_FAILED'));
+      diagnostic.projectionVerified = true;
       await page.waitForTimeout(250);
       if (observedUploadRequests !== 1) fail('PRODUCCION_DOCUMENTAL_E2E_UPLOAD_COUNT_INVALID');
       if (navigationCount !== 0) fail('PRODUCCION_DOCUMENTAL_E2E_UI_CONTRACT_INVALID');
+      diagnostic.phase = 'COMPLETED';
+      await publishOutcome();
       return Object.freeze({
         codes: Object.freeze({
           invalidSelection: 'BLOCKED', preparation: 'CONFIRMED', documentType: 'CONFIRMED',
@@ -1042,6 +1093,10 @@ async function inspectProductionDocumentUploadPreviewUi({ context, plan }) {
       count: 1,
       latenciesMs: Object.freeze([])
     });
+  } catch (error) {
+    // Evidence failures must not replace the original closed UI failure.
+    await publishOutcome(error, true).catch(() => {});
+    throw error;
   } finally {
     await page.unroute(uploadPattern).catch(() => {});
     page.off('framenavigated', onNavigation);

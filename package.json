@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "opsxj:status": "node tools/opsxj/scripts/opsxj.js opsxj:status",
+    "test:doc117:local": "node tools/e2e/scripts/run-doc117-local-tests.cjs"
+  },
   "dependencies": {
     "codex": "^0.2.3"
   }

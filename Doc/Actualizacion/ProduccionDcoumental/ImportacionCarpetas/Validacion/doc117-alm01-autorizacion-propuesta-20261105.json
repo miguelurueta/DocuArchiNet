@@ -1,0 +1,83 @@
+{
+  "issueKey": "DOC-117",
+  "scenario": "ALM-01",
+  "authorized": false,
+  "status": "READY_FOR_SPECIFIC_EFFECT_AUTHORIZATION",
+  "environment": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "applicationAccount": "LUZ.AGUILERA",
+  "identity": {
+    "userRef": "141",
+    "ambitoRef": "2"
+  },
+  "levelId": "7",
+  "cabinetId": "10",
+  "manifestSha256": "2006f16cc218074f4b2d930daceea480ad5d19dbb1ac888295f7d3d5451ff47f",
+  "codeSha256": "80e339775133d15c38be9df9509756dc4977c1fc6524662bb2ee762aa459a6df",
+  "cases": [
+    {
+      "perfilId": "26",
+      "versionId": "40",
+      "rootName": "00011701-20261105",
+      "fileName": "DOC117-79.pdf",
+      "expected": {
+        "codigo": "00011701",
+        "nombre": "00011701-20261105",
+        "fechaInicial": "2026-11-05",
+        "tipologiaId": "79",
+        "indices": [
+          {
+            "referencia": "14",
+            "tipo": "TEXTO",
+            "binding": "CONFIRMED_EXPEDIENTE_ID",
+            "value": null
+          }
+        ]
+      }
+    },
+    {
+      "perfilId": "27",
+      "versionId": "42",
+      "rootName": "00011702#05-11-2026",
+      "fileName": "79.pdf",
+      "expected": {
+        "codigo": "00011702",
+        "nombre": "00011702#05-11-2026",
+        "fechaInicial": "2026-11-05",
+        "tipologiaId": "79",
+        "indices": [
+          {
+            "referencia": "14",
+            "tipo": "TEXTO",
+            "binding": "CONFIRMED_EXPEDIENTE_ID",
+            "value": null
+          }
+        ]
+      }
+    }
+  ],
+  "pdf": {
+    "file": "doc111-carga-individual.pdf",
+    "bytes": 677,
+    "sha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c"
+  },
+  "maximumEffects": {
+    "preparations": 2,
+    "confirmations": 2,
+    "lots": 2,
+    "uploads": 2,
+    "roots": 2,
+    "documents": 2,
+    "storageRequests": 4
+  },
+  "storageReplay": "At most one identical replay after confirmed verification for each document; no replay of uncertain effects",
+  "preserveNewResources": true,
+  "preservePreviousLots": true,
+  "dllInstallation": false,
+  "permissionChanges": false,
+  "profileChanges": false,
+  "siiChanges": false,
+  "xmlIsolationChanges": false,
+  "exclusiveWindow": true,
+  "selectControls": "MembershipUsers RA/DA, SELECT only, ephemeral MySQL credentials",
+  "preflightArtifact": "tools/e2e/artifacts/doc117-alm01-preflight-dae8dc50cfb99061.json"
+}

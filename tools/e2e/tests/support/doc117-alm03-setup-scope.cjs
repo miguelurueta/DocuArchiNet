@@ -1,0 +1,27 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+const ROOT=path.resolve(__dirname,'../../../..'),PROTOCOL='ALM03_CLOSED_RESOURCES_BEFORE_WRITER_V1';
+const sha=x=>crypto.createHash('sha256').update(x).digest('hex'),check=(v,c)=>{if(!v)throw Error('DOC117_ALM03_SETUP_'+c);};
+const id=v=>typeof v==='string'&&/^[1-9][0-9]{0,9}$/.test(v)&&BigInt(v)<=4294967295n;
+const hash=v=>typeof v==='string'&&/^[a-f0-9]{64}$/.test(v),parse=v=>typeof v==='string'?JSON.parse(v):v;
+const one=rows=>{check(Array.isArray(rows)&&rows.length===1,'INDIVIDUAL_NOT_UNIQUE');return rows[0];};
+const closed=(v,keys)=>check(v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).sort().join(',')===keys.slice().sort().join(','),'SCOPE_FIELDS_CHANGED');
+function validateScope(s){
+ closed(s,['individual','issueKey','protocol','runtimeRoot','runId','lotId','snapshotSha256','resources']);
+ check(s?.issueKey==='DOC-117'&&s.protocol===PROTOCOL&&s.runtimeRoot===ROOT&&/^[a-f0-9]{32}$/.test(s.runId)&&id(s.lotId)&&BigInt(s.lotId)>21n&&hash(s.snapshotSha256)&&Array.isArray(s.resources)&&s.resources.length===2,'RESOURCE_SCOPE_INVALID');
+ for(const [i,r]of s.resources.entries()){closed(r,['rootId','fileId','expedienteId','relacionNivelId','fileName','bytes','contentSha256','requestSha256']);check(['rootId','fileId','expedienteId','relacionNivelId'].every(k=>id(r[k]))&&BigInt(r.rootId)>34n&&BigInt(r.fileId)>35n&&BigInt(r.expedienteId)>665n&&r.fileName===['DOC117-ALM03-IMPORT-A-20261106.pdf','DOC117-ALM03-IMPORT-B-20261106.pdf'][i]&&r.bytes==='677'&&hash(r.contentSha256)&&hash(r.requestSha256),'IMPORT_RESOURCE_INVALID');}
+ check(['rootId','fileId','expedienteId','relacionNivelId','requestSha256'].every(k=>new Set(s.resources.map(r=>r[k])).size===2),'RESOURCE_COLLISION');
+ closed(s.individual,['expedienteId','levelId','relacionNivelId','typologyId','fileName','classificationSha256','cabinetName','bytes','contentSha256']);
+ check(s.individual.expedienteId==='467'&&s.individual.levelId==='8'&&s.individual.relacionNivelId==='1072'&&s.individual.typologyId==='50'&&s.individual.fileName==='DOC117-ALM03-IND-20261106.pdf'&&s.individual.bytes==='677'&&hash(s.individual.contentSha256)&&hash(s.individual.classificationSha256)&&typeof s.individual.cabinetName==='string'&&/^[A-Za-z_][A-Za-z0-9_]{0,63}$/.test(s.individual.cabinetName),'INDIVIDUAL_SCOPE_INVALID');return s;
+}
+async function verifyIndividual(query,p){
+ const r=one(await query('RA','SELECT ID_EXPEDIENTE,ID_EMPRESA_EXPEDIENTE,GABINETE_PRODUCION,id_instrumento,CODIGO_AREA_TRD,CODIGO_SERIE_TRD,CODIGO_SUB_SERIE_TRD FROM expediente_archivo WHERE ID_EXPEDIENTE=? AND ID_EMPRESA_EXPEDIENTE=? LIMIT 2',['467','2']));
+ check(sha(JSON.stringify(r))===p.individual.classificationSha256,'INDIVIDUAL_CLASSIFICATION_CHANGED');
+ const relation=one(await query('RA','SELECT r.id_registro AS relacion_id,n.id_nivel,n.estado_nivel FROM ra_pro_niveles_has_expediente_archivo r INNER JOIN ra_pro_niveles n ON n.id_nivel=r.ra_pro_niveles_id_nivel WHERE r.expediente_archivo_ID_EXPEDIENTE=? AND r.id_registro=? AND n.id_nivel=? LIMIT 2',['467','1072','8']));check(String(relation.relacion_id)==='1072'&&String(relation.id_nivel)==='8'&&String(relation.estado_nivel)==='1','INDIVIDUAL_RELATION_CHANGED');
+ const permissions=await query('RA','SELECT n.id_nivel FROM ra_pro_niveles n INNER JOIN remit_dest_interno u ON u.id_Remit_Dest_Int=n.remit_dest_interno_id_Remit_Dest_Int WHERE n.id_nivel IN (?,?) AND n.estado_nivel=1 AND u.Empresa_Gestion_Documental_id_empresa=? AND (u.id_Remit_Dest_Int=? OR EXISTS(SELECT 1 FROM ra_pro_permisos_niveles p WHERE p.ra_pro_niveles_id_nivel=n.id_nivel AND p.remit_dest_interno_id_Remit_Dest_Int=? AND p.estado_permiso=1 AND p.carga_archivo=1 AND (n.id_nivel=? OR p.agregar_expediente=1))) ORDER BY n.id_nivel LIMIT 3',['7','8','2','141','141','8']);check(permissions.length===2&&permissions.map(x=>String(x.id_nivel)).join(',')==='7,8','DUAL_LEVEL_AUTHORITY_UNAVAILABLE');
+ const cabinet=one(await query('DA','SELECT id_gabinete,NOMBRE FROM system1 WHERE id_gabinete=? LIMIT 2',['10']));check(String(cabinet.id_gabinete)==='10'&&cabinet.NOMBRE===r.GABINETE_PRODUCION&&/^[A-Za-z_][A-Za-z0-9_]{0,63}$/.test(cabinet.NOMBRE),'INDIVIDUAL_CABINET_CHANGED');
+ const typology=one(await query('RA','SELECT CAST(t.Id_Tipo_Doc_Series AS CHAR) AS type_id FROM tipo_doc_series t INNER JOIN expediente_archivo e ON e.id_instrumento=t.id_instrumento INNER JOIN ra_registro_instrumento_archivistico i ON i.id_instrumento=t.id_instrumento INNER JOIN registro_organigrama o ON o.ID_ORGANIGRAMA=i.registro_organigrama_ID_ORGANIGRAMA WHERE e.ID_EXPEDIENTE=? AND e.ID_EMPRESA_EXPEDIENTE=? AND o.EMPRESA_GESTION_DOCUMENTAL_ID_EMPRESA=? AND t.Estado_Tipo=1 AND i.Estado_instrumento=1 AND ((t.Series_Documentales_Id_Series=e.CODIGO_SERIE_TRD AND COALESCE(t.sub_serie_id_serie,0)=COALESCE(e.CODIGO_SUB_SERIE_TRD,0)) OR t.tipo_doc_trasversal=1) AND t.Id_Tipo_Doc_Series=? LIMIT 2',['467','2','2','50']));check(String(typology.type_id)==='50','INDIVIDUAL_TYPOLOGY_CHANGED');
+ const prior=await query('RA','SELECT ID_REGISTRO_PRODUCION_DOCUMENTAL FROM registro_producion_documental WHERE ID_EMPRESA_DOCUMENTO=? AND EXPEDIENTE_ARCHIVO_ID_EXPEDIENTE=? AND SEGUNDO_NOMBRE_DOCUMENTO=? LIMIT 2',['2','467',p.individual.fileName]);check(prior.length===0,'INDIVIDUAL_DOCUMENT_ALREADY_EXISTS');
+ return{...p.individual,cabinetName:cabinet.NOMBRE,bytes:String(p.fixture.bytes),contentSha256:p.fixture.sha256};
+}
+module.exports={PROTOCOL,validateScope,verifyIndividual,sha,ROOT};

@@ -1,0 +1,67 @@
+{
+    "issueKey":  "DOC-117",
+    "date":  "2026-11-06",
+    "kind":  "LOCAL_ONLY",
+    "head":  "b2e93b726f221868cf2b82d43200a8e568871117",
+    "build":  {
+                  "issueKey":  "DOC-117",
+                  "scenario":  "ALM-02",
+                  "status":  "COMPILED_DORMANT_CANDIDATE",
+                  "exitCode":  0,
+                  "errorCodes":  [
+
+                                 ],
+                  "sourceBinding":  "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+                  "sourceBindingSha256":  "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741",
+                  "overlaySha256":  "acb1b311549a81721e5f7760f0ac4a408c1be38b620e46663aaf1b51190182e8",
+                  "helperSha256":  "3def5d9adf4786338e7f0de1a246db6841796500f21c622d90042be15a7d321c",
+                  "sourceInputCount":  912,
+                  "sourceInputsSha256":  "412a115d0a4e7d8b6b839aa5ba17082337fce14bb129332645db82509909d1d3",
+                  "candidateSha256":  "d8966b9b4bf420981adde58d916878c1d3a7df1dfa23974774351dcfc70c7b0a",
+                  "originalSha256":  "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+                  "liveRuntimeUnchanged":  true,
+                  "productSourcesUnchanged":  true,
+                  "deployed":  false,
+                  "executionAuthorized":  false,
+                  "authenticatedTestExecuted":  false,
+                  "scope":  "Dormant invalid scope; all storage refused before writer. Not an ALM-02 real PASS."
+              },
+    "reviewedFiles":  {
+                          "tools/e2e/scripts/build-doc117-alm02-dormant.cjs":  "bdd7664387bf6ac810d44adcd91f3bda021d35d428516be0384123d99490896c",
+                          "tools/e2e/scripts/support/doc117-alm02-candidate.cjs":  "9f18cbd1f519cedccda7b120949f651053ed3b932a3966ccd4c836c156407122",
+                          "tools/e2e/fixtures/Doc117InternalDocumentCandidate.vb":  "3def5d9adf4786338e7f0de1a246db6841796500f21c622d90042be15a7d321c",
+                          "tests/doc117-alm02-candidate.test.cjs":  "17f2c25ddcda88b82f121cacd6495209f247bb1090a2578b465bd672a3a2e5ae",
+                          "tests/Fixtures/ProduccionDocumental/Doc117CandidateTestDoubles.vb":  "11c06b15aff1af1fd5a6e618dc471efb4105a28e7a290f8adf789b38cb05ae9e"
+                      },
+    "checks":  [
+                   {
+                       "fail":  0,
+                       "exitCode":  0,
+                       "command":  "node --test tests/doc117-alm02-candidate.test.cjs",
+                       "tests":  2,
+                       "pass":  2
+                   },
+                   {
+                       "fail":  0,
+                       "exitCode":  0,
+                       "command":  "node --test tests/doc110-perfil-importacion-behavior.test.cjs tests/doc117-almacenamiento.test.cjs tests/doc117-alm01-driver.test.cjs",
+                       "tests":  24,
+                       "pass":  24
+                   },
+                   {
+                       "exitCode":  0,
+                       "command":  "openspec.cmd validate doc-117-produccion-importacion-carga-carpeta-almacenamiento --strict",
+                       "status":  "PASS"
+                   }
+               ],
+    "realExecution":  "NO_EJECUTADO",
+    "runtimeInstalled":  false,
+    "activationReady":  false,
+    "tasksComplete":  15,
+    "tasksTotal":  18,
+    "pendingTasks":  [
+                         "16.1",
+                         "17.1",
+                         "18.1"
+                     ]
+}

@@ -1,0 +1,60 @@
+{
+  "issueKey": "DOC-117",
+  "scope": "ALM-03-DESTINATION-SELECT",
+  "environment": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "authorized": false,
+  "priorArtifact": "tools/e2e/artifacts/doc117-alm03-preflight-33a33a3671b9e27a0dc92aeece3e1f22.json",
+  "priorArtifactSha256": "10e453a412e4dde8671967d3f448da0d488fa3f809c6d8480c7996eaad953d34",
+  "priorSelectRequests": 8,
+  "maximumSelectRequests": 4,
+  "cumulativeMaximumSelectRequests": 12,
+  "effects": false,
+  "applicationLogins": false,
+  "runtimeChanges": false,
+  "controls": [
+    {
+      "key": "individual_expedition",
+      "origin": "RA",
+      "sql": "SELECT ID_EXPEDIENTE,ID_EMPRESA_EXPEDIENTE,GABINETE_PRODUCION,id_instrumento,CODIGO_AREA_TRD,CODIGO_SERIE_TRD,CODIGO_SUB_SERIE_TRD FROM expediente_archivo WHERE ID_EXPEDIENTE=? AND ID_EMPRESA_EXPEDIENTE=? LIMIT 2",
+      "parameters": [
+        "467",
+        "2"
+      ]
+    },
+    {
+      "key": "individual_relations",
+      "origin": "RA",
+      "sql": "SELECT r.id_registro AS relacion_id,r.ra_pro_niveles_id_nivel AS nivel_id,n.id_nivel_padre AS parent_id,n.estado_nivel FROM ra_pro_niveles_has_expediente_archivo r INNER JOIN ra_pro_niveles n ON n.id_nivel=r.ra_pro_niveles_id_nivel INNER JOIN remit_dest_interno u ON u.id_Remit_Dest_Int=n.remit_dest_interno_id_Remit_Dest_Int WHERE r.expediente_archivo_ID_EXPEDIENTE=? AND u.Empresa_Gestion_Documental_id_empresa=? ORDER BY r.id_registro LIMIT 9",
+      "parameters": [
+        "467",
+        "2"
+      ]
+    },
+    {
+      "key": "individual_typology",
+      "origin": "RA",
+      "sql": "SELECT CAST(t.Id_Tipo_Doc_Series AS CHAR) AS type_id FROM tipo_doc_series t INNER JOIN expediente_archivo e ON e.id_instrumento=t.id_instrumento INNER JOIN ra_registro_instrumento_archivistico i ON i.id_instrumento=t.id_instrumento INNER JOIN registro_organigrama o ON o.ID_ORGANIGRAMA=i.registro_organigrama_ID_ORGANIGRAMA WHERE e.ID_EXPEDIENTE=? AND e.ID_EMPRESA_EXPEDIENTE=? AND o.EMPRESA_GESTION_DOCUMENTAL_ID_EMPRESA=? AND t.Estado_Tipo=1 AND i.Estado_instrumento=1 AND ((t.Series_Documentales_Id_Series=e.CODIGO_SERIE_TRD AND COALESCE(t.sub_serie_id_serie,0)=COALESCE(e.CODIGO_SUB_SERIE_TRD,0)) OR t.tipo_doc_trasversal=1) AND t.Id_Tipo_Doc_Series=? LIMIT 2",
+      "parameters": [
+        "467",
+        "2",
+        "2",
+        "50"
+      ],
+      "requires": "Exactly one active compatible typology; no permission/configuration changes."
+    },
+    {
+      "key": "protected_attempts",
+      "origin": "RA",
+      "sql": "SELECT intento_id,lote_id,estado,fase,evidencia_doc,fin_utc FROM ra_integracion_intento WHERE (lote_id=? AND intento_id=?) OR (lote_id=? AND intento_id IN (?,?)) ORDER BY intento_id LIMIT 4",
+      "parameters": [
+        "18",
+        "41",
+        "21",
+        "52",
+        "53"
+      ],
+      "requires": "Observe 41 and 53 EN_CURSO, 52 CONFIRMADO with known IDs; no replay/reconcile/repair."
+    }
+  ],
+  "outputPolicy": "Diagnostic only. Numeric references, counts, booleans and hashes; no raw business rows or secrets. No acceptance or authority inferred."
+}

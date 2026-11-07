@@ -1,0 +1,66 @@
+{
+  "issueKey": "DOC-117",
+  "reviewDate": "2026-11-05",
+  "sourceOfTruth": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+  "deliveryBase": "9a1bce2be9cfd640184269c0e02d6ef94ff181f6",
+  "normalization": "CRLF to LF before SHA256",
+  "files": [
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.vb",
+      "sha256": "2c5e25c1ebcb3efeaa913c6d37c785390d934ced21b8b1ad1546ee5f080107f0",
+      "sameAsDelivery": true
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+      "sha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741",
+      "sameAsDelivery": true
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoAlmacenamientoCarpetas.vb",
+      "sha256": "51c90b801395fd6a23beb5b07b72dff668b585e8864351309e4db387c36da982",
+      "sameAsDelivery": true
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.Documento.vb",
+      "sha256": "92ad880f5eeb2d9c51d9ce5f352953d8c849da7e73a113bbaf345c1b0fc4c8ad",
+      "sameAsDelivery": true
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.vb",
+      "sha256": "7e4ddc9f4867dccd8057b98f9410dfe63a5f9d92ab6d801ba9d477cae7d819ed",
+      "sameAsDelivery": true
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Documento.vb",
+      "sha256": "7ffafac76b93aadf4caced13b48051490202185caad24abbe93fb83ed74816e7",
+      "sameAsDelivery": true
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Reconciliacion.vb",
+      "sha256": "b02bf718b51c663336b372672054601b41630271a8e1455c2c6014005f3962ba",
+      "sameAsDelivery": true
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Documento.vb",
+      "sha256": "fde8a4441f1ea4f95c794246e658b65c9e08069fefe9e9a0b8477db57b6fc9ef",
+      "sameAsDelivery": true
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/VerificadorReconciliacionImportacion.vb",
+      "sha256": "73615e518e26397c77f15aabe04ddf045538072d23cdbe18cf4f5636522355ca",
+      "sameAsDelivery": true
+    },
+    {
+      "file": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "sha256": "2f83eb3f835a8c97074b4336c7b282dc1275a92ac493490a72c0f3f02b532fca",
+      "sameAsDelivery": true
+    }
+  ],
+  "newAuthenticatedExecutions": 0,
+  "productChanges": 0,
+  "requirements": 8,
+  "scenarios": 16,
+  "proposedTasks": 18,
+  "approval": "EDITORIAL_APPROVED",
+  "approvalSource": "User continua after explicit design/task application question"
+}

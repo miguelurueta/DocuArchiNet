@@ -2519,9 +2519,11 @@ public static partial class ImportacionCarpetasBehaviorTests {
     static void DocumentAdapterCases(){
         using(var f=new DocumentAdapterFixture()){
             var originalRoot=PerfilImportacionJson.Escribir(f.Root);var originalValues=PerfilImportacionJson.Escribir(f.FileRecord.ValoresEfectivos);
+            var originalBytes=System.IO.File.ReadAllBytes(f.Stage.PathFor("30"));
             var command=f.Prepare();command.Archivo.ValoresEfectivos.Clear();Check(f.Prepare().Archivo.ValoresEfectivos.Count==2,"DOC111 document command not immutable");
             var r=f.Run();Check(r.Estado=="CONFIRMADO"&&r.DocumentoId=="90"&&r.InventarioId=="100"&&f.Writers==1&&f.Starts==1&&f.Verifications==1&&f.Writes==3&&f.Events==1,"DOC111 document adapter not invoked/checkpointed exactly once");
             Check(System.IO.File.Exists(f.Stage.PathFor("30"))&&!System.IO.File.Exists(f.CopyPath)&&PerfilImportacionJson.Escribir(f.Root)==originalRoot&&PerfilImportacionJson.Escribir(f.FileRecord.ValoresEfectivos)==originalValues,"DOC111 consumed copy destroys original, root or fixed values");
+            Check(originalBytes.SequenceEqual(System.IO.File.ReadAllBytes(f.Stage.PathFor("30"))),"DOC117 consumed copy changes original bytes");
             using(var released=new FileStream(f.Stage.PathFor("30"),FileMode.Open,FileAccess.ReadWrite,FileShare.None)){}
             Rejected("CONFIGURACION_INVALIDA",()=>f.Run());Check(f.Writers==1,"DOC111 document adapter replays old attempt");
             RepositoryHelper("PersistirResultadoDocumento",f.Command,f.Lot,f.Root,f.FileRecord,f.Attempt,r,DateTime.UtcNow,new Func<string,object[],int>((sql,args)=>{throw new Exception("Terminal replay writes");}),new Action(()=>{throw new Exception("Terminal replay event");}));
@@ -2535,7 +2537,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
         foreach(var mutate in new Action<DocumentAdapterFixture>[] {f=>f.FileRecord.ValoresEfectivosFijados=false,f=>f.Attempt.EsNuevaReserva=false,f=>f.Attempt.TokenReclamacion="invalid",f=>f.FileRecord.IntentoActivoId="99",f=>f.FileRecord.NombreOriginal="../wrong.pdf",f=>f.FileRecord.NombreOriginal="O'Brien.pdf",f=>f.FileRecord.NombreOriginal="name|other.pdf",f=>f.Root.IdentidadExpediente.NivelRef="99",f=>f.Lot.Snapshot.Reglas[0].ValorConstante="changed"})using(var f=new DocumentAdapterFixture()){
             mutate(f);Rejected("CONFIGURACION_INVALIDA",()=>f.Run());Check(f.Starts==0&&f.Writers==0,"DOC111 invalid documentary command reaches effect");
         }
-        using(var f=new DocumentAdapterFixture()){f.FileRecord.NombreOriginal="other.tif";Rejected("FORMATO_NO_SOPORTADO",()=>f.Run());Check(f.Starts==0,"DOC111 unsupported TIFF reaches effect");}
+        foreach(var name in new[]{"other.tif","other.tiff","multipage.TIF","multipage.TIFF"})using(var f=new DocumentAdapterFixture()){f.FileRecord.NombreOriginal=name;Rejected("FORMATO_NO_SOPORTADO",()=>f.Run());Check(f.Starts==0&&f.Writers==0,"DOC117 unsupported TIFF reaches effect");}
         using(var f=new DocumentAdapterFixture()){f.FileRecord.ValoresEfectivos.Add(ReceiptClone(f.FileRecord.ValoresEfectivos[0]));Rejected("CONFLICTO_REVISION",()=>f.Run());Check(f.Starts==0,"DOC111 duplicate effective values reach writer");}
         foreach(var name in new[]{"NOMBRE","nombre","CLASEDOCUMENTO","FECHAELABORACION","NOMBRESERIE","ID","ID_EXPEDIENTE","ID_INVENTARIO_DOCUMENTAL","bad-name"})using(var f=new DocumentAdapterFixture()){
             f.Data.Campos[0].Nombre=name;Rejected("CONFIGURACION_INVALIDA",()=>f.Run());Check(f.Starts==0,"DOC111 conflicting automatic/technical index ignored by legacy");

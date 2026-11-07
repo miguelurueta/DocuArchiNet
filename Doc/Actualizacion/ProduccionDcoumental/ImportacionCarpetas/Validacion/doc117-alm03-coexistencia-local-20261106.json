@@ -1,0 +1,167 @@
+{
+  "issueKey": "DOC-117",
+  "scenario": "ALM-03-COEXISTENCE-LOCAL",
+  "date": "2026-11-06",
+  "status": "LOCAL_PASS_SCOPED_CANDIDATE_NOT_INSTALLED",
+  "realExecutionAuthorized": false,
+  "realExecution": false,
+  "authenticatedExecution": false,
+  "realSelectRequests": 0,
+  "businessEffects": 0,
+  "liveRuntimeActivation": false,
+  "originalInputCount": 912,
+  "originalInputsUnchanged": true,
+  "sourceInputsSha256": "412a115d0a4e7d8b6b839aa5ba17082337fce14bb129332645db82509909d1d3",
+  "originalRuntimeSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "codeSha256": "3d35ef187201bfcd4d125844a8b240963266b2606cd5d74e238a24504241f01e",
+  "reviewedFiles": {
+    "tools/e2e/scripts/run-doc117-alm03-coexistence.cjs": "de99bd1bfe7a38be23b1c852d829e2bb8717f93fe5976cc6729581eeada11a8e",
+    "tools/e2e/tests/support/doc117-alm03-coexistence.cjs": "a58a8f4105ba55ea225317fa600e9f02bf0c8af36d2b7904dd7256fdd2be6b35",
+    "tools/e2e/tests/support/doc117-alm03-controls.cjs": "7e738a52709b1a519dd219aacecc0b0b35b1eaeafaca05c915b083959c73b25b",
+    "tools/e2e/tests/support/doc117-alm03-setup-scope.cjs": "9ca76d18c861e89a3be9f873e402d2983e67eb34f753775b97d1b060a5d6dad7",
+    "tools/e2e/tests/support/doc117-alm03-method-observation.cjs": "ab6b86818528edb511d5eee0776eb13350267bf8be938e49cbb15a28f3c7e6cd",
+    "tools/e2e/scripts/support/doc117-alm03-runtime-lease.cjs": "60da6e429acb2e8f2a574c93e524e35216a56f417091417a4bde8680781e0b4c",
+    "tools/e2e/scripts/support/doc117-alm03-scoped-candidate.cjs": "5c48f6a6f2603b24d0f1e463425c961d8e04274e0f2e02efa6b90c0bc72bbbbc",
+    "tools/e2e/scripts/support/doc117-alm03-candidate.cjs": "8647fb497e51c9ce30ad5243a481ad6975670b1a66fb5c5b8ecdeccb754fd7c0",
+    "tools/e2e/fixtures/Doc117Alm03ClosedGuard.vb": "ad7ce35a41163d1fdac87eed563cd0980dbb13aa8f08c7b4cdc2a3cf58c8e765",
+    "tools/e2e/fixtures/Doc117Alm03MethodObserver.vb": "90a65c581faa5d9e885219e29f8aed87838589ed1fcaa8cedef743df13dd1dfb",
+    "tools/e2e/scripts/support/doc117-internal-session.cjs": "745e233db645e01b44edffcf748c0fdb7ee4e10124887e4c08c0a6723c05aba3",
+    "tools/e2e/scripts/support/laboratory-runtime-lease.cjs": "8562728417a159368859884e6d8cdf4e2b771d42caf231a7736ac1ca528c320a",
+    "tools/e2e/scripts/run-workflow-e2e-platform.cjs": "77ce5537eb2816d8389fcc91c536dd62d2ad588600ffa7295f4e9e543dad5a19",
+    "tools/e2e/tests/support/doc117-alm02-internal.cjs": "87fba332dcc26936b5fd35ae5fde57f087f839fc503664391dfd48f8e03521e0",
+    "tools/e2e/tests/support/doc111-importacion-carpetas.cjs": "8936aacb0b0b9392c3d9944d7a029f7bfcb345ad4e4fb4fc3ac0b3dcaa3aadda",
+    "tools/e2e/tests/support/doc117-alm01-driver.cjs": "f45f23452333f48bacc5a08162f331fa352b04f56a18bbc4c830fd5c314b3d5f",
+    "tools/e2e/tests/support/doc116-exp01-setup.cjs": "33bd44970b3852c185df8c227437c65e45e1fc96a5c1a37e02d3b99f61ac2a32",
+    "tools/e2e/tests/support/doc116-expedientes-importacion.cjs": "d96a87c38cdfc6a96894fdc0106c3cf153d8f81335c9795e9e7efdcf1c2c23d1",
+    "tools/e2e/tests/support/doc110-safe-request.cjs": "c01b90b77c8e3b8cf89d2e9aeaf186e7fc01199f398d2dae5f4f169328248eca",
+    "tools/e2e/tests/support/authenticated-workflow-session.cjs": "60c33202ded594541a984ffdbe2ed2929734a5e48595440278039b854b93975b",
+    "tools/e2e/scripts/support/doc32-e2e-odbc.cjs": "d748cfd17cf3c170df4ce5cf7d4daf1959df16a3ed788084754d5ceec0a5a256",
+    "tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1": "7a4fb15210785f221835f865ce81a5b9c55aed6243f7592ee383e81640492d11",
+    "tools/e2e/scripts/support/interactive-e2e-console.cjs": "778d847653e3351e9e7c50957c7c16f21f9ba17e2d06eb020a2a5df5f3651087",
+    "tools/e2e/scripts/run-doc117-alm02-setup.cjs": "d6badb9017909aee3a50242143da254ac298cbd01e08dded61cc115c0d948c79",
+    "tools/e2e/scripts/support/workflow-e2e-platform.cjs": "5df627c15adf453bc8ee7fd6531dd5148ad35599ecc1a10785e336d065acd5e2",
+    "tools/e2e/scripts/support/workflow-e2e-platform-profile.cjs": "d6bd4385ab793dce01fd02a7f1d7e072245a8a610c403056558e2141b96dd243",
+    "tools/e2e/scripts/support/workflow-e2e-platform-registry.cjs": "d231572be8c4ac66c9703ac239f750cc302b2e2f4fded525b4c8d804ff3ab86e",
+    "tools/e2e/fixtures/Doc117SolicitudHash.vb": "d6e53e0cfe86768e2166c8a7130622c7a136376aa218a8fda2e2d86469481133",
+    "tools/e2e/fixtures/Doc117SolicitudHashConsole.vb": "3a6d0207b63468d3b224b503beb86a1672baade5a9454e35cf9863537d9201f3",
+    "tools/e2e/scripts/build-doc117-alm03-scoped.cjs": "3d48aa32debae9f0dc938887b6c4262c640b756cfcac63ebe5110228251627fc",
+    "tools/e2e/scripts/rehearse-doc117-alm03-runtime.cjs": "1be597efc324ad1e703a822941e3ff34c5e6c2ef409ac8f378bb8ce024490a04"
+  },
+  "proposal": {
+    "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03-coexistencia-propuesto-20261106.json",
+    "sha256": "1dd4c5c7a38c73f051f80f5ebfdc2c5ccaefb1e1d7e5038db796f73ba9775d1b"
+  },
+  "resourceScopeSha256": "ce0223fa7cda43dd727507a0b45a6384c71143e1f8035473ee9a09d15cf00cf9",
+  "resources": [
+    {
+      "rootId": "35",
+      "fileId": "36",
+      "expedienteId": "666",
+      "relacionNivelId": "1091",
+      "fileName": "DOC117-ALM03-IMPORT-A-20261106.pdf",
+      "bytes": "677",
+      "contentSha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c",
+      "requestSha256": "ef872c242edb01986ef349e7ef4fea61406a3eab070461f6be213b3789f9407a"
+    },
+    {
+      "rootId": "36",
+      "fileId": "37",
+      "expedienteId": "667",
+      "relacionNivelId": "1092",
+      "fileName": "DOC117-ALM03-IMPORT-B-20261106.pdf",
+      "bytes": "677",
+      "contentSha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c",
+      "requestSha256": "be5f71b86991e30bdd668de8980aec4e803b130c8123f47415c1fde6dadea211"
+    }
+  ],
+  "individual": {
+    "expedienteId": "467",
+    "levelId": "8",
+    "relacionNivelId": "1072",
+    "typologyId": "50",
+    "fileName": "DOC117-ALM03-IND-20261106.pdf",
+    "classificationSha256": "083005fcf663febf27982bef6ce9b2f17c03b278ea99d70267da3741cfcdf5ff",
+    "cabinetName": "CONTABIL",
+    "bytes": "677",
+    "contentSha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c"
+  },
+  "budgetRequested": {
+    "storageRequests": 3,
+    "documents": 3,
+    "plans": 0,
+    "lots": 0,
+    "receipts": 0,
+    "expedients": 0,
+    "maximumSelectRequests": 320,
+    "maximumRuntimeSeconds": 600
+  },
+  "build": {
+    "file": ".tmp/doc117-alm03-coexistencia-final-20261106/build-result.json",
+    "sha256": "fc1b22e6fb6992d1dbd7fd110a387652e69a1f6f20490f303dde7c975509fbcb",
+    "status": "COMPILED_SCOPED_NOT_INSTALLED",
+    "errorCount": 0,
+    "candidateSha256": "142e0d0bba0b6bcfd66933158ac163623784a2d0556c1a0f244ec92396b32e12",
+    "sourceStorageSha256": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c",
+    "originalMethodSha256": "32526f13c241b9248067149bf919720b4b8334db8c8cc88a0f5e79d7128d801e",
+    "originalBodySha256": "0c41f09eeb83b93b542ad7dbfeb77a265bf6d90da3d9a6f3c7516a94df58e7ca",
+    "helperSha256": "dc0d6865516874816962abeca82c81859e485b36919d1d0cdc5525aaa723261e",
+    "guardSha256": "1ce5ca28ea1748f174913d3a9272be25216cec2c42b7db005d49f985b1202694",
+    "bindingSha256": "934c58dff44488f7cd1b8b1cacc140f9781826e582844793f1be3967680fdc31",
+    "deployed": false
+  },
+  "rehearsal": {
+    "file": ".tmp/doc117-alm03-lease-5f05800beeaa4949822e147de4ecb6e2/rehearsal-result.json",
+    "sha256": "ea8de03f89b81cbf0e63660ce625ef8b2febbd1df5f95233757e8552899e64a8",
+    "issueKey": "DOC-117",
+    "scenario": "ALM-03-RUNTIME-REHEARSAL",
+    "status": "PASS",
+    "runId": "5f05800beeaa4949822e147de4ecb6e2",
+    "originalSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+    "candidateSha256": "142e0d0bba0b6bcfd66933158ac163623784a2d0556c1a0f244ec92396b32e12",
+    "independentGuardian": true,
+    "ownerExitedWithoutRestore": true,
+    "temporaryRuntimeRestored": true,
+    "bothBackupsByteIdentical": true,
+    "windowsAclTransferVerified": true,
+    "liveRuntimeActivation": false,
+    "authenticatedExecution": false,
+    "businessEffects": 0,
+    "maximumRuntimeSeconds": 600
+  },
+  "tests": {
+    "status": "PASS",
+    "total": 238,
+    "passed": 238,
+    "failed": 0,
+    "logFile": ".tmp/doc117-alm03-coexistencia-final-regression-20261106.tap",
+    "logSha256": "126b829ba587614928a8ca80bd4ba07c8fbfd1e68684e1ddcdad3d40e43e8845",
+    "testFilesFile": ".tmp/doc117-alm03-coexistencia-final-test-files-20261106.json",
+    "testFilesSha256": "21ca14f413f7cb324ac1b544bb26621a99061819d261444b767e1843218a9dcc",
+    "realWriterExecuted": false
+  },
+  "checkOnly": "PASS",
+  "openSpecStrict": "PASS",
+  "review": {
+    "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03-coexistencia-lista-20261106.md",
+    "sha256": "8ea61412dccd1df314e70b5672b9ff19a64d3a3aec2bf8100944b816119b4ea1"
+  },
+  "previousSetup": {
+    "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03-setup-pass-20261106.json",
+    "sha256": "8abb626c4103be65445a7c3a95ced26380b6ee2792d8720c59a1a45e074c7707",
+    "businessEffectsInThisLocalContinuation": 0
+  },
+  "acceptance": {
+    "alm03Real": "NO_EJECUTADO",
+    "alm03ConcurrentPass": false,
+    "naturalSerialization": "NO_ACREDITADO_WITHOUT_RETRY",
+    "xmlSiiAcceptance": false,
+    "progress": {
+      "complete": 16,
+      "total": 18,
+      "pending": [
+        "17.1",
+        "18.1"
+      ]
+    }
+  }
+}

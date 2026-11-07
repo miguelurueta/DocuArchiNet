@@ -1,0 +1,66 @@
+{
+  "issueKey": "DOC-117",
+  "date": "2026-11-05",
+  "command": "node --test tests/doc110-perfil-importacion-behavior.test.cjs",
+  "exitCode": 0,
+  "tests": 2,
+  "pass": 2,
+  "fail": 0,
+  "skipped": 0,
+  "durationMs": 13626.448,
+  "sourceOfTruth": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+  "testSourceSha256": "130d0506384c359a3cc87d96ada270597b4237dc87c69179a31c9a59edab0746",
+  "harnessSourceSha256": "f7d40ed48283f0bcbe3bf0e98424a4b1d040cb44a230cb7108e1069884be8ed3",
+  "productSourcesUnchanged": 9,
+  "scope": "Local .NET Framework, PDF temporal, escritor y persistencia dobles, SELECT sintéticos; sin MySQL/HTTP/IIS reales ni instalación de DLL",
+  "cases": [
+    {
+      "task": "3.1",
+      "fixture": "DocumentAdapterCases",
+      "assertion": "Contenido original idéntico byte a byte después de consumir la copia privada",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "task": "4.1",
+      "fixture": "DocumentPhaseCases",
+      "assertion": "Replay conserva IDs y un writer sin reabrir staging",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "task": "5.1",
+      "fixture": "DocumentVerificationCases/DocumentCatalogCases",
+      "assertion": "Texto con ceros, fecha canónica, DECIMAL equivalente y nombres/relaciones discordantes",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "task": "7.1",
+      "fixture": "DocumentAdapterCases/DocumentPhaseCases",
+      "assertion": "Fallo después del writer conserva incertidumbre e IDs sin otro writer",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "task": "8.1",
+      "fixture": "DocumentPhaseCases",
+      "assertion": "Retorno perdido después de checkpoint recupera CONFIRMADO por lectura",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "task": "10.1",
+      "fixture": "ReconciliationCases",
+      "assertion": "IDs completos y concordantes; EN_CURSO/incompletos no habilitan reconciliar",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "task": "12.1",
+      "fixture": "DocumentCatalogCases/DocumentPhaseCases",
+      "assertion": "Recursos ajenos, metadatos incompatibles y staging faltante rechazan sin escritor",
+      "status": "PASS_LOCAL"
+    },
+    {
+      "task": "13.1",
+      "fixture": "DocumentAdapterCases",
+      "assertion": "Nombres inseguros y cuatro variantes .tif/.tiff rechazadas antes de inicio y escritor",
+      "status": "PASS_LOCAL"
+    }
+  ]
+}
