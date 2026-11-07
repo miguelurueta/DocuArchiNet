@@ -1,0 +1,75 @@
+{
+  "issueKey": "DOC-117",
+  "scope": "ALM-02-INTERNAL",
+  "status": "PROPOSED_NOT_EXECUTED",
+  "authorizationGranted": false,
+  "environment": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "lotId": "21",
+  "actorRef": "141",
+  "ambitoRef": "2",
+  "levelRef": "7",
+  "versionRef": "38",
+  "cabinetRef": "10",
+  "rootNames": [
+    "DOC117-ALM02-A-20261106",
+    "DOC117-ALM02-B-20261106"
+  ],
+  "resourceScopeSha256": "0878b656ded3919a31b956e3378d5b94b2b4560dc9bd4503f09648583b88b323",
+  "readyFile": ".tmp/doc117-alm02-setup-aa3fd5e6d29ce3964046e42cff0e0560-ready.runtime.json",
+  "readyFileSha256": "bc72da0e4d20419934fe7edf3b18672854592f226f83ca888acd2d68290a75ba",
+  "candidateFile": ".tmp/doc117-alm02-lote21-counted-candidate-20261106/obj/GestionDocumental-Docuarchi.net.dll",
+  "candidateBuildReport": ".tmp/doc117-alm02-lote21-counted-candidate-20261106/build-result.json",
+  "sourceInputsFile": ".tmp/doc117-alm02-lote21-counted-candidate-20261106/source-inputs.json",
+  "candidateSha256": "85824b255a826664a8395754d8903e51218ba1a8303595ee6e181c8c0dc05a95",
+  "originalSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "hashToolFile": ".tmp/doc117-alm02-hash-tool-reviewed-20261106/Doc117SolicitudHash.exe",
+  "hashToolSha256": "7a16d1b42f2a380e1a706d78aaa5ee7f646cc6a62bb39fb7413c731108d64afb",
+  "budget": {
+    "storageRequests": 3,
+    "documents": 2,
+    "plans": 0,
+    "lots": 0,
+    "receipts": 0,
+    "expedients": 0,
+    "maximumSelectRequests": 240,
+    "maximumRuntimeSeconds": 600
+  },
+  "windows": [
+    {
+      "fileId": "34",
+      "rootId": "33",
+      "expedienteId": "664",
+      "relacionNivelId": "1089",
+      "mode": "AFTER_CHECKPOINT_COMMIT_BEFORE_RETURN",
+      "replayOnceAfterConfirmedRead": true
+    },
+    {
+      "fileId": "35",
+      "rootId": "34",
+      "expedienteId": "665",
+      "relacionNivelId": "1090",
+      "mode": "AFTER_VERIFICATION_BEFORE_CHECKPOINT",
+      "replayAllowed": false,
+      "persistedExpectedState": "EN_CURSO",
+      "publicExpectedState": "INCIERTO"
+    }
+  ],
+  "runtime": {
+    "temporaryCandidateActivationRequired": true,
+    "independentGuardian": true,
+    "maximumSeconds": 600,
+    "originalRestoreRequired": true,
+    "bothBackupsVerified": true,
+    "reopenWithOriginal": true
+  },
+  "preserveAllResources": true,
+  "sql": "SELECT_ONLY_REGISTERED_RA_DA_DSN",
+  "notGranted": [
+    "new plans/lots/receipts/expedients",
+    "replay/repair/reconcile uncertain B",
+    "changes of permissions/configuration/schema",
+    "cleanup",
+    "XML/SII isolation",
+    "ALM-03"
+  ]
+}

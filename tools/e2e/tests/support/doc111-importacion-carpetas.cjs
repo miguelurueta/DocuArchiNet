@@ -154,6 +154,8 @@ function createDriver(auth, profile, authorization, options = {}) {
       {maxRedirects:0, headers: {'X-Importacion-Carpetas-CSRF': token, Origin: new URL(profile.baseUrl).origin}, data: {solicitud: payload}}, operation);
     let raw; try { raw = await response.json(); } catch { fail('RESPONSE_INVALID'); }
     const body = raw?.d ?? raw;
+    if(operation==='PrepararPlan'&&id(body?.datos?.planId))options.onReference?.({planId:body.datos.planId});
+    if(operation==='ConfirmarPlan'&&id(body?.datos?.loteId))options.onReference?.({loteId:body.datos.loteId});
     check(body && typeof body.ok === 'boolean', 'RESPONSE_INVALID');
     if (expectFailure) { check(response.status() === 409 && !body.ok && body.codigo === 'OPERACION_EN_CURSO', 'BARRIER_NOT_ENFORCED'); return; }
     if(response.status() !== 200 || !body.ok){
@@ -179,11 +181,12 @@ function createDriver(auth, profile, authorization, options = {}) {
     }
     fail('PAGE_BUDGET_EXCEEDED');
   }
-  async function receive(loteId, file, bytes) {
+  async function receive(loteId, file, bytes, originalName = FILE_NAME) {
     check(!options.readOnly,'READONLY_OPERATION_REQUIRED');
+    check(originalName===FILE_NAME||typeof originalName==='string'&&/^[A-Za-z0-9][A-Za-z0-9 ._-]{0,119}\.pdf$/.test(originalName),'UPLOAD_NAME_INVALID');
     const response = await safePost(auth.context.request, new URL('generic_control/ImportacionCarpetasUpload.ashx', profile.baseUrl).href,
       {maxRedirects:0, headers: {'X-Importacion-Carpetas-CSRF': token, Origin: new URL(profile.baseUrl).origin}, multipart: {
-        loteId, archivoId: file.recursoId, claveIntento: crypto.randomBytes(16).toString('hex'), file: {name: FILE_NAME, mimeType: 'application/pdf', buffer: bytes}}}, 'RecibirArchivo');
+        loteId, archivoId: file.recursoId, claveIntento: crypto.randomBytes(16).toString('hex'), file: {name: originalName, mimeType: 'application/pdf', buffer: bytes}}}, 'RecibirArchivo');
     let r; try { const raw = await response.json(); r = raw.d ?? raw; } catch { fail('RECEIPT_NOT_CONFIRMED'); }
     check(response.status() === 200 && r.ok && r.datos?.loteId === loteId && r.datos.archivoId === file.recursoId && r.datos.estadoRecepcion === 'RECIBIDO', 'RECEIPT_NOT_CONFIRMED');
   }
@@ -229,34 +232,7 @@ function createSelectControls(query) {
     const events = await rows('RA', 'SELECT evento_id,intento_id,recurso_tipo,recurso_id,accion,codigo FROM ra_integracion_evento WHERE lote_id=? ORDER BY evento_id', [loteId]);
     return {lot, roots, files, attempts, events};
   }
-  async function verify(loteId, profile) {
-    const view = await snapshot(loteId), snapshotProfile = json(view.lot.config_doc), c = snapshotProfile.Configuracion, ctx = json(view.lot.contexto_doc);
-    check(snapshotProfile.VersionId === profile.versionId && c.ModoIntegridad === (profile.mode === 'PARCIAL' ? 'PARCIAL_PERMITIDO' : 'COMPLETO_OBLIGATORIO') && c.AmbitoIntegridad === (profile.mode === 'PARCIAL' ? 'NO_APLICA' : profile.mode), 'STORED_POLICY_CHANGED');
-    check(ctx.NivelRef === profile.nivelRef && String(view.lot.total_raices) === '2' && String(view.lot.total_archivos) === (profile.mode === 'PARCIAL' ? '3' : '2'), 'ORIGINAL_TOTALS_CHANGED');
-    check(view.lot.estado === (profile.mode === 'PARCIAL' ? 'PARCIAL' : 'COMPLETADO') && view.attempts.every(i => ['CONFIRMADO','RECHAZADO'].includes(i.estado)), 'FINAL_PROOF_INVALID');
-    const cabinet = one(await rows('DA', 'SELECT NOMBRE FROM system1 WHERE id_gabinete=?', [c.GabineteId]), 'CABINET_AMBIGUOUS');
-    const cycle = one(await rows('RA', 'SELECT Id_tipos_ciclo_archivo AS id,Nombre_Tipo_ciclo_archivo AS nombre FROM ra_de_tipos_ciclos_archivo WHERE Nombre_Tipo_ciclo_archivo=?', ['Archivo Gestión']), 'CYCLE_AMBIGUOUS');
-    check(cycle.nombre === 'Archivo Gestión', 'CYCLE_CHANGED');
-    const documentClass = one(await rows('RA', 'SELECT ID_TIPO_DOCUMENTO AS id FROM ra_tipo_documento WHERE DOCUMENTO=?', ['DOCUMENTO ELECTRONICO']), 'CLASS_AMBIGUOUS');
-    const extension = one(await rows('DA', 'SELECT ESTADO_NORMAL AS id FROM DA_EXTENSION WHERE ESTENSION=?', ['.PDF']), 'FORMAT_AMBIGUOUS');
-    check(view.roots.length === 2 && view.files.length === Number(view.lot.total_archivos), 'ORIGINAL_TOTALS_CHANGED');
-    check(view.files.reduce((sum,f)=>sum+BigInt(f.bytes_previstos),0n).toString() === String(view.lot.total_bytes), 'ORIGINAL_TOTALS_CHANGED');
-    const physical = [], expeditionIds = new Set(), documentIds = new Set();
-    for (let index = 0; index < 2; index++) {
-      const root = one(view.roots.filter(r => r.cliente_raiz_id === 'r' + (index + 1)), 'ROOT_CORRELATION_INVALID'), identity = json(root.identidad_expediente_doc), expected = profile.expectations[index];
-      check(root.estado === (profile.mode === 'PARCIAL' && index === 1 ? 'PARCIAL' : 'COMPLETADA') && !root.intento_activo_id, 'FINAL_PROOF_INVALID');
-      check(identity?.NivelRef === profile.nivelRef && id(identity.ExpedienteId) && id(identity.RelacionNivelId) && !expeditionIds.has(identity.ExpedienteId), 'ROOT_IDENTITY_INVALID'); expeditionIds.add(identity.ExpedienteId);
-      const proof = one(view.attempts.filter(i => String(i.raiz_id) === String(root.raiz_id) && i.fase === 'CREAR_EXPEDIENTE' && i.estado === 'CONFIRMADO' && i.fin_utc), 'CREATION_PROOF_INVALID');
-      const creation = json(proof.evidencia_doc);
-      check(creation?.Estado === 'CONFIRMADO' && creation.Creacion?.CicloArchivoId === String(cycle.id) && creation.Creacion.IntentoId === String(proof.intento_id) && creation.Expediente?.ExpedienteId === identity.ExpedienteId && creation.Expediente?.RelacionNivelId === identity.RelacionNivelId, 'CYCLE_CHANGED');
-      const exp = one(await rows('RA', 'SELECT e.*,r.ra_pro_niveles_id_nivel AS nivel FROM expediente_archivo e INNER JOIN ra_pro_niveles_has_expediente_archivo r ON r.expediente_archivo_ID_EXPEDIENTE=e.ID_EXPEDIENTE WHERE e.ID_EXPEDIENTE=? AND r.id_registro=?', [identity.ExpedienteId, identity.RelacionNivelId]), 'DESTINATION_NOT_VERIFIED');
-      check(String(exp.nivel) === profile.nivelRef && String(exp.ID_USUARIO_GESTION) === ctx.UsuarioRef && String(exp.ID_EMPRESA_EXPEDIENTE) === ctx.AmbitoRef && exp.CODIGO_UNICO === expected.codigo && exp.ALEAS_EXPEDIENTE === expected.nombre && exp.TEMA_EXPEDIENTE === expected.nombre && String(exp.Id_tipos_ciclo_archivo) === String(cycle.id) && exp.NOMBRE_CICLO_ARCHIVO === 'Archivo Gestión', 'EXPEDITION_VALUES_INVALID');
-      for (const [column, key] of [['ID_FONDO','FondoRef'],['id_instrumento','InstrumentoRef'],['CODIGO_AREA_TRD','AreaRef'],['CODIGO_SERIE_TRD','SerieRef'],['CODIGO_SUB_SERIE_TRD','SubserieRef'],['RA_TIP_EXPE_ID_TIPO_EXPEDIENTE','TipoExpedienteRef'],['ID_TIPO_UNIDAD_DOCUMENTAL','UnidadDocumentalRef']]) check((exp[column] == null ? null : String(exp[column])) === (c[key] ?? null), 'CLASSIFICATION_INVALID');
-      const file = one(view.files.filter(f => String(f.raiz_id) === String(root.raiz_id) && f.cliente_archivo_id === 'a' + (index + 1)), 'FILE_CORRELATION_INVALID'), result = json(file.resultado_doc), values = json(file.valores_efectivos_doc);
-      check(file.estado_efecto === 'COMPLETADO' && file.estado_recepcion === 'RECIBIDO' && !file.intento_activo_id && result?.Estado === 'CONFIRMADO' && result.Expediente.ExpedienteId === identity.ExpedienteId && result.Expediente.RelacionNivelId === identity.RelacionNivelId && String(result.GabineteId) === String(c.GabineteId) && result.OrigenGabinete === 'DA' && id(result.DocumentoId) && id(result.InventarioId) && !documentIds.has(result.DocumentoId), 'DOCUMENT_PROOF_INVALID'); documentIds.add(result.DocumentoId);
-      const documentProof = one(view.attempts.filter(a => String(a.archivo_id) === String(file.archivo_id) && a.fase === 'ALMACENAR' && a.estado === 'CONFIRMADO' && a.fin_utc), 'DOCUMENT_PROOF_INVALID');
-      check(JSON.stringify(json(documentProof.evidencia_doc)) === JSON.stringify(result) && JSON.stringify(result.ValoresEfectivos) === JSON.stringify(values), 'DOCUMENT_PROOF_INVALID');
-      assertEffective(values, expected);
+  async function readKnownDocumentBody(c,ctx,identity,expected,fileName,result,cabinet,documentClass,extension) {
       const selected = [], physicalNames = new Set();
       for (let i = 0; i < expected.indices.length; i++) {
         const wanted = expected.indices[i];
@@ -268,13 +244,68 @@ function createSelectControls(query) {
       const nameConfig=await rows('DA',"SELECT VISIBLE FROM detalle_gabienete WHERE GABINETE=? AND UPPER(CAMPO)='NOMBRE' LIMIT 2",[cabinet.NOMBRE]);
       check(nameConfig.length<=1&&nameConfig.every(r=>['0','1'].includes(String(r.VISIBLE))),'NAME_METADATA_INVALID');
       const visible=nameConfig.length===1&&String(nameConfig[0].VISIBLE)==='1';
-      const cabinetNameMatches=document.NOMBRE===FILE_NAME||(!visible&&(document.NOMBRE===null||document.NOMBRE===''));
-      check(String(document.ID_EXPEDIENTE) === identity.ExpedienteId && String(document.indexed_expedition) === identity.ExpedienteId && String(document.ID_USUARIO_GESTION) === ctx.UsuarioRef && String(document.inventory_user) === ctx.UsuarioRef && String(document.ID_EMPRESA_DOCUMENTO) === ctx.AmbitoRef && String(document.ID_TIPO_DOCUMENTO) === expected.tipologiaId && String(document.ID_CLASE_DOCUMENTO) === String(documentClass.id) && String(document.DBT) === String(extension.id) && cabinetNameMatches && [document.SEGUNDO_NOMBRE_DOCUMENTO,document.segundo_nombre].every(n => n === FILE_NAME) && document.inventory_format === '.PDF' && document.index_format === '.PDF', 'DOCUMENT_VALUES_INVALID');
+      const cabinetNameMatches=document.NOMBRE===fileName||(!visible&&(document.NOMBRE===null||document.NOMBRE===''));
+      check(String(document.ID_EXPEDIENTE) === identity.ExpedienteId && String(document.indexed_expedition) === identity.ExpedienteId && String(document.ID_USUARIO_GESTION) === ctx.UsuarioRef && String(document.inventory_user) === ctx.UsuarioRef && String(document.ID_EMPRESA_DOCUMENTO) === ctx.AmbitoRef && String(document.ID_TIPO_DOCUMENTO) === expected.tipologiaId && String(document.ID_CLASE_DOCUMENTO) === String(documentClass.id) && String(document.DBT) === String(extension.id) && cabinetNameMatches && [document.SEGUNDO_NOMBRE_DOCUMENTO,document.segundo_nombre].every(n => n === fileName) && document.inventory_format === '.PDF' && document.index_format === '.PDF', 'DOCUMENT_VALUES_INVALID');
       expected.indices.forEach((v,i) => check(same(document['value_' + i], v.valor, v.tipo), 'PHYSICAL_INDEX_INVALID'));
+    return document;
+  }
+  async function verify(loteId, profile, options = {}) {
+    closed(options,['singleRoot','fileNames','expectedDates']);
+    check(options.singleRoot===undefined||options.singleRoot===true&&profile.mode==='EXPEDIENTE','CONTROL_SCOPE_INVALID');
+    const rootCount=options.singleRoot?1:2, fileNames=options.fileNames||Array(rootCount).fill(FILE_NAME);
+    check(profile.expectations.length===rootCount&&Array.isArray(fileNames)&&fileNames.length===rootCount&&fileNames.every(n=>typeof n==='string'&&n.length>0&&!/[\\/\x00-\x1f]/.test(n)),'CONTROL_SCOPE_INVALID');
+    check(options.expectedDates===undefined||Array.isArray(options.expectedDates)&&options.expectedDates.length===rootCount&&options.expectedDates.every(d=>/^\d{4}-\d{2}-\d{2}$/.test(d)),'CONTROL_SCOPE_INVALID');
+    const view = await snapshot(loteId), snapshotProfile = json(view.lot.config_doc), c = snapshotProfile.Configuracion, ctx = json(view.lot.contexto_doc);
+    check(snapshotProfile.VersionId === profile.versionId && c.ModoIntegridad === (profile.mode === 'PARCIAL' ? 'PARCIAL_PERMITIDO' : 'COMPLETO_OBLIGATORIO') && c.AmbitoIntegridad === (profile.mode === 'PARCIAL' ? 'NO_APLICA' : profile.mode), 'STORED_POLICY_CHANGED');
+    check(ctx.NivelRef === profile.nivelRef && String(view.lot.total_raices) === String(rootCount) && String(view.lot.total_archivos) === (profile.mode === 'PARCIAL' ? '3' : String(rootCount)), 'ORIGINAL_TOTALS_CHANGED');
+    check(view.lot.estado === (profile.mode === 'PARCIAL' ? 'PARCIAL' : 'COMPLETADO') && view.attempts.every(i => ['CONFIRMADO','RECHAZADO'].includes(i.estado)), 'FINAL_PROOF_INVALID');
+    const cabinet = one(await rows('DA', 'SELECT NOMBRE FROM system1 WHERE id_gabinete=?', [c.GabineteId]), 'CABINET_AMBIGUOUS');
+    const cycle = one(await rows('RA', 'SELECT Id_tipos_ciclo_archivo AS id,Nombre_Tipo_ciclo_archivo AS nombre FROM ra_de_tipos_ciclos_archivo WHERE Nombre_Tipo_ciclo_archivo=?', ['Archivo Gestión']), 'CYCLE_AMBIGUOUS');
+    check(cycle.nombre === 'Archivo Gestión', 'CYCLE_CHANGED');
+    const documentClass = one(await rows('RA', 'SELECT ID_TIPO_DOCUMENTO AS id FROM ra_tipo_documento WHERE DOCUMENTO=?', ['DOCUMENTO ELECTRONICO']), 'CLASS_AMBIGUOUS');
+    const extension = one(await rows('DA', 'SELECT ESTADO_NORMAL AS id FROM DA_EXTENSION WHERE ESTENSION=?', ['.PDF']), 'FORMAT_AMBIGUOUS');
+    check(view.roots.length === rootCount && view.files.length === Number(view.lot.total_archivos), 'ORIGINAL_TOTALS_CHANGED');
+    check(view.files.reduce((sum,f)=>sum+BigInt(f.bytes_previstos),0n).toString() === String(view.lot.total_bytes), 'ORIGINAL_TOTALS_CHANGED');
+    const physical = [], expeditionIds = new Set(), documentIds = new Set();
+    for (let index = 0; index < rootCount; index++) {
+      const root = one(view.roots.filter(r => r.cliente_raiz_id === 'r' + (index + 1)), 'ROOT_CORRELATION_INVALID'), identity = json(root.identidad_expediente_doc), expected = profile.expectations[index];
+      check(root.estado === (profile.mode === 'PARCIAL' && index === 1 ? 'PARCIAL' : 'COMPLETADA') && !root.intento_activo_id, 'FINAL_PROOF_INVALID');
+      check(identity?.NivelRef === profile.nivelRef && id(identity.ExpedienteId) && id(identity.RelacionNivelId) && !expeditionIds.has(identity.ExpedienteId), 'ROOT_IDENTITY_INVALID'); expeditionIds.add(identity.ExpedienteId);
+      const proof = one(view.attempts.filter(i => String(i.raiz_id) === String(root.raiz_id) && i.fase === 'CREAR_EXPEDIENTE' && i.estado === 'CONFIRMADO' && i.fin_utc), 'CREATION_PROOF_INVALID');
+      const creation = json(proof.evidencia_doc);
+      check(creation?.Estado === 'CONFIRMADO' && creation.Creacion?.CicloArchivoId === String(cycle.id) && creation.Creacion.IntentoId === String(proof.intento_id) && creation.Expediente?.ExpedienteId === identity.ExpedienteId && creation.Expediente?.RelacionNivelId === identity.RelacionNivelId, 'CYCLE_CHANGED');
+      const exp = one(await rows('RA', 'SELECT e.*'+(options.expectedDates?',CAST(e.FECHA_EXTREMA_INICIAL AS CHAR) AS doc117_fecha_inicial':'')+',r.ra_pro_niveles_id_nivel AS nivel FROM expediente_archivo e INNER JOIN ra_pro_niveles_has_expediente_archivo r ON r.expediente_archivo_ID_EXPEDIENTE=e.ID_EXPEDIENTE WHERE e.ID_EXPEDIENTE=? AND r.id_registro=?', [identity.ExpedienteId, identity.RelacionNivelId]), 'DESTINATION_NOT_VERIFIED');
+      check(String(exp.nivel) === profile.nivelRef && String(exp.ID_USUARIO_GESTION) === ctx.UsuarioRef && String(exp.ID_EMPRESA_EXPEDIENTE) === ctx.AmbitoRef && exp.CODIGO_UNICO === expected.codigo && exp.ALEAS_EXPEDIENTE === expected.nombre && exp.TEMA_EXPEDIENTE === expected.nombre && String(exp.Id_tipos_ciclo_archivo) === String(cycle.id) && exp.NOMBRE_CICLO_ARCHIVO === 'Archivo Gestión', 'EXPEDITION_VALUES_INVALID');
+      if(options.expectedDates)check(exp.doc117_fecha_inicial===options.expectedDates[index],'EXPEDITION_DATE_INVALID');
+      for (const [column, key] of [['ID_FONDO','FondoRef'],['id_instrumento','InstrumentoRef'],['CODIGO_AREA_TRD','AreaRef'],['CODIGO_SERIE_TRD','SerieRef'],['CODIGO_SUB_SERIE_TRD','SubserieRef'],['RA_TIP_EXPE_ID_TIPO_EXPEDIENTE','TipoExpedienteRef'],['ID_TIPO_UNIDAD_DOCUMENTAL','UnidadDocumentalRef']]) check((exp[column] == null ? null : String(exp[column])) === (c[key] ?? null), 'CLASSIFICATION_INVALID');
+      const file = one(view.files.filter(f => String(f.raiz_id) === String(root.raiz_id) && f.cliente_archivo_id === 'a' + (index + 1)), 'FILE_CORRELATION_INVALID'), result = json(file.resultado_doc), values = json(file.valores_efectivos_doc);
+      check(file.estado_efecto === 'COMPLETADO' && file.estado_recepcion === 'RECIBIDO' && !file.intento_activo_id && result?.Estado === 'CONFIRMADO' && result.Expediente.ExpedienteId === identity.ExpedienteId && result.Expediente.RelacionNivelId === identity.RelacionNivelId && String(result.GabineteId) === String(c.GabineteId) && result.OrigenGabinete === 'DA' && id(result.DocumentoId) && id(result.InventarioId) && !documentIds.has(result.DocumentoId), 'DOCUMENT_PROOF_INVALID'); documentIds.add(result.DocumentoId);
+      const documentProof = one(view.attempts.filter(a => String(a.archivo_id) === String(file.archivo_id) && a.fase === 'ALMACENAR' && a.estado === 'CONFIRMADO' && a.fin_utc), 'DOCUMENT_PROOF_INVALID');
+      check(JSON.stringify(json(documentProof.evidencia_doc)) === JSON.stringify(result) && JSON.stringify(result.ValoresEfectivos) === JSON.stringify(values), 'DOCUMENT_PROOF_INVALID');
+      assertEffective(values, expected);
+      const document = await readKnownDocumentBody(c,ctx,identity,expected,fileNames[index],result,cabinet,documentClass,extension);
       physical.push(exp, document);
     }
     if (profile.mode === 'PARCIAL') check(view.files.some(f => f.cliente_archivo_id === 'bad' && (f.estado_efecto === 'RECHAZADO' || f.estado_recepcion === 'RECHAZADO')), 'REJECTION_LOST');
-    return {fingerprint: crypto.createHash('sha256').update(JSON.stringify({view,physical})).digest('hex'), roots: 2, documents: 2};
+    return {fingerprint: crypto.createHash('sha256').update(JSON.stringify({view,physical})).digest('hex'), roots: rootCount, documents: rootCount};
+  }
+  // Physical check by known IDs. Does not project a final operational state.
+  async function verifyKnownDocument(view,rootId,result,expected,fileName) {
+    check(view?.lot&&id(String(rootId))&&id(result?.DocumentoId)&&id(result?.InventarioId)&&typeof fileName==='string'&&fileName.length>0&&!/[\\/\x00-\x1f]/.test(fileName),'CONTROL_SCOPE_INVALID');
+    const config=json(view.lot.config_doc).Configuracion,ctx=json(view.lot.contexto_doc),root=one(view.roots.filter(r=>String(r.raiz_id)===String(rootId)),'ROOT_CORRELATION_INVALID'),identity=json(root.identidad_expediente_doc);
+    check(id(identity?.ExpedienteId)&&id(identity?.RelacionNivelId)&&identity.OrigenLogico==='RA'&&identity.NivelRef===ctx.NivelRef,'ROOT_IDENTITY_INVALID');
+    const cabinet=one(await rows('DA','SELECT NOMBRE FROM system1 WHERE id_gabinete=?',[config.GabineteId]),'CABINET_AMBIGUOUS');
+    const cycle=one(await rows('RA','SELECT Id_tipos_ciclo_archivo AS id,Nombre_Tipo_ciclo_archivo AS nombre FROM ra_de_tipos_ciclos_archivo WHERE Nombre_Tipo_ciclo_archivo=?',['Archivo Gestión']),'CYCLE_AMBIGUOUS');
+    const creation=json(one(view.attempts.filter(a=>String(a.raiz_id)===String(rootId)&&a.fase==='CREAR_EXPEDIENTE'&&a.estado==='CONFIRMADO'&&a.fin_utc),'CREATION_PROOF_INVALID').evidencia_doc);
+    check(cycle.nombre==='Archivo Gestión'&&creation?.Creacion?.CicloArchivoId===String(cycle.id)&&creation.Expediente?.ExpedienteId===identity.ExpedienteId&&creation.Expediente.RelacionNivelId===identity.RelacionNivelId,'CREATION_PROOF_INVALID');
+    const exp=one(await rows('RA','SELECT e.*,r.ra_pro_niveles_id_nivel AS nivel FROM expediente_archivo e INNER JOIN ra_pro_niveles_has_expediente_archivo r ON r.expediente_archivo_ID_EXPEDIENTE=e.ID_EXPEDIENTE WHERE e.ID_EXPEDIENTE=? AND r.id_registro=?',[identity.ExpedienteId,identity.RelacionNivelId]),'DESTINATION_NOT_VERIFIED');
+    check(String(exp.nivel)===ctx.NivelRef&&String(exp.ID_USUARIO_GESTION)===ctx.UsuarioRef&&String(exp.ID_EMPRESA_EXPEDIENTE)===ctx.AmbitoRef&&exp.CODIGO_UNICO===expected.codigo&&exp.ALEAS_EXPEDIENTE===expected.nombre&&exp.TEMA_EXPEDIENTE===expected.nombre&&String(exp.Id_tipos_ciclo_archivo)===String(cycle.id)&&exp.NOMBRE_CICLO_ARCHIVO==='Archivo Gestión','EXPEDITION_VALUES_INVALID');
+    for(const [column,key]of [['ID_FONDO','FondoRef'],['id_instrumento','InstrumentoRef'],['CODIGO_AREA_TRD','AreaRef'],['CODIGO_SERIE_TRD','SerieRef'],['CODIGO_SUB_SERIE_TRD','SubserieRef'],['RA_TIP_EXPE_ID_TIPO_EXPEDIENTE','TipoExpedienteRef'],['ID_TIPO_UNIDAD_DOCUMENTAL','UnidadDocumentalRef']])check((exp[column]==null?null:String(exp[column]))===(config[key]??null),'CLASSIFICATION_INVALID');
+    const documentClass=one(await rows('RA','SELECT ID_TIPO_DOCUMENTO AS id FROM ra_tipo_documento WHERE DOCUMENTO=?',['DOCUMENTO ELECTRONICO']),'CLASS_AMBIGUOUS');
+    const extension=one(await rows('DA','SELECT ESTADO_NORMAL AS id FROM DA_EXTENSION WHERE ESTENSION=?',['.PDF']),'FORMAT_AMBIGUOUS');
+    const document=await readKnownDocumentBody(config,ctx,identity,expected,fileName,result,cabinet,documentClass,extension);
+    for(const [origin,sql]of [['DA','SELECT COUNT(*) AS total FROM '+identifier(cabinet.NOMBRE)+' WHERE ID_EXPEDIENTE=?'],['RA','SELECT COUNT(*) AS total FROM registro_producion_documental WHERE EXPEDIENTE_ARCHIVO_ID_EXPEDIENTE=?'],['RA','SELECT COUNT(*) AS total FROM ra_cert_indice_expediente WHERE expediente_archivo_ID_EXPEDIENTE=?']])check(String(one(await rows(origin,sql,[identity.ExpedienteId]),'DOCUMENT_CONTROL_INVALID').total)==='1','DOCUMENT_UNIQUENESS_INVALID');
+    return{fingerprint:crypto.createHash('sha256').update(JSON.stringify({exp,document})).digest('hex'),documents:1,knownIdsVerified:true};
   }
   async function assertNoDocuments(view) {
     const config = json(view.lot.config_doc).Configuracion;
@@ -289,7 +320,7 @@ function createSelectControls(query) {
       ]) check(String(one(await rows(origin,sql,[identity.ExpedienteId]),'DOCUMENT_CONTROL_INVALID').total)==='0','DOCUMENT_ALREADY_PRESENT');
     }
   }
-  return {snapshot, verify, assertNoDocuments};
+  return {snapshot, verify, assertNoDocuments, verifyKnownDocument};
 }
 
 // Recuperacion explicita de un lote existente. Nunca prepara/confirma/recibe/crea.

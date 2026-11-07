@@ -1,0 +1,124 @@
+{
+  "issueKey": "DOC-117",
+  "scenario": "ALM-03-OBSERVABILITY-REVIEW",
+  "date": "2026-11-06",
+  "status": "LOCAL_REVIEW_EDITORIAL_DECISION_REQUIRED",
+  "applicationE2EExecuted": false,
+  "applicationAuthenticated": false,
+  "realSelectRequests": 0,
+  "businessEffects": 0,
+  "instrumentationInstalledInIis": false,
+  "editorialExceptionApproved": false,
+  "sourceWriter": {
+    "file": "workflow/ClassAlmacenamiento.vb",
+    "fileSha256": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c",
+    "method": "AlmacenamientoDocumentoProduccionDocumental",
+    "firstLine": 8893,
+    "lastLine": 9143,
+    "methodSha256": "d8da6c8ac16c0dac6957547dc2a80d2898f678d9b441f309fdf40f2eb29bbec9",
+    "directWriterCalls": 1,
+    "internalEntryExitTraceFound": false
+  },
+  "directCallers": [
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+      "fileSha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741",
+      "method": "InvocarAlmacenamiento",
+      "firstLine": 30,
+      "lastLine": 46,
+      "methodSha256": "70e0a198ade76134d0b1142956e06cd0c3403c876b9829ccc21486475a0aa0af",
+      "directWriterCalls": 1,
+      "internalEntryExitTraceFound": false
+    },
+    {
+      "file": "workflow/ClassAlmacenamiento.vb",
+      "fileSha256": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c",
+      "method": "PreAlmacenaDocumentoProduccion",
+      "firstLine": 8429,
+      "lastLine": 8561,
+      "methodSha256": "2e2b0cf31a3edb1820227e6b2f6b079a58e12386b2a29f7718299363df4328e1",
+      "directWriterCalls": 1,
+      "internalEntryExitTraceFound": false
+    }
+  ],
+  "originalCompileResourceInputs": 912,
+  "productInputsUnchanged": true,
+  "runtimeSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "analyzerTests": {
+    "total": 23,
+    "passed": 23,
+    "failed": 0
+  },
+  "syntheticClrProbe": {
+    "syntheticOnly": true,
+    "sessionId": "217",
+    "status": "CAPTURED_NOT_YET_ASSESSED",
+    "sessionObserved": true,
+    "groundTruthObserved": true,
+    "archiveObserved": true,
+    "iisTouched": false,
+    "applicationAuthenticated": false,
+    "databaseAccess": false,
+    "filesRoot": ".tmp/doc117-alm03-profiler-probe-v3-20261106",
+    "groundTruth": [
+      {
+        "mode": "OVERLAPPED",
+        "overlapTicks": "5045310"
+      },
+      {
+        "mode": "SERIALIZED",
+        "overlapTicks": "0"
+      }
+    ],
+    "frequencyHz": "10000000",
+    "perCallProfilerExtractionVerified": false,
+    "resourceCorrelationVerified": false,
+    "realAlm03Pass": false
+  },
+  "failedProbes": [
+    {
+      "path": ".tmp/doc117-alm03-profiler-probe-20261106",
+      "reason": "No session or ground truth; initial exit-code-based active/stopped flags are not evidence"
+    },
+    {
+      "path": ".tmp/doc117-alm03-profiler-probe-v2-20261106",
+      "reason": "Stopped handling the absent-session diagnostic; no capture"
+    }
+  ],
+  "sources": [
+    {
+      "title": "Visual Studio instrumentation overview",
+      "url": "https://learn.microsoft.com/en-us/visualstudio/profiling/instrumentation-overview?view=visualstudio"
+    },
+    {
+      "title": "Profiler CLI launch and attach restrictions",
+      "url": "https://learn.microsoft.com/en-us/visualstudio/profiling/profile-apps-from-command-line?view=visualstudio"
+    },
+    {
+      "title": "Instrumentation report views",
+      "url": "https://learn.microsoft.com/en-us/visualstudio/profiling/instrumentation?view=visualstudio"
+    },
+    {
+      "title": "CLR function enter/leave hooks",
+      "url": "https://learn.microsoft.com/en-us/dotnet/framework/unmanaged-api/profiling/icorprofilerinfo3-setenterleavefunctionhooks3-method"
+    }
+  ],
+  "progress": {
+    "complete": 16,
+    "total": 18,
+    "pending": [
+      "17.1",
+      "18.1"
+    ]
+  },
+  "files": {
+    "tools/e2e/tests/support/doc117-alm03-observation.cjs": "4fef71e7c1018ff436e8cf3198f62cc21082e6148ea893565a84cf3ee0ad8f29",
+    "tests/doc117-alm03-observation.test.cjs": "beb657e8eec9b52668d82145a0581bc720c16c319759354f73ae064645cb6530",
+    "tools/e2e/fixtures/Doc117Alm03TimingProbe.cs": "4ec95167d0fa9931fd0189422eb8b2baaeefcc3d5ad7674f8e2bdfb49e824c1a",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03-observacion-propuesta-20261106.md": "d22a48dce8dc41c4c8cd37848aa405adb21c03fad950f7f2ff3372b1e66195da",
+    ".tmp/doc117-alm03-profiler-probe-v3-20261106/Doc117Alm03TimingProbe.exe": "64841944be8da269774b21918bb28d48336e03e47a8d7206cb2b1a814298ed35",
+    ".tmp/doc117-alm03-profiler-probe-v3-20261106/probe.diagsession": "bfa63db003cab964c5b11018163d2a42898c5512d182521cb3df462d3114a250",
+    ".tmp/doc117-alm03-profiler-probe-v3-20261106/ground-truth.json": "45a075af793aa43085067f4e1f65862e23389a818b5553af8646e04932af8225",
+    ".tmp/doc117-alm03-profiler-probe-v3-20261106/probe-state.json": "0674dcbbea29e8f515b39645407b95f44cab36c4a09efe07134502cea8845ff7"
+  }
+}

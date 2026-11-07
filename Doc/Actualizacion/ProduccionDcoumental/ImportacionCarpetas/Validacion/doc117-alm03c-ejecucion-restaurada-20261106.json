@@ -1,0 +1,99 @@
+{
+  "issueKey": "DOC-117",
+  "scenario": "ALM-03C-COEXISTENCE",
+  "status": "DOCUMENT_WINDOWS_OBSERVED_POST_RESTORE_VERIFICATION_PENDING",
+  "finishedUtc": "2026-11-06T23:51:41.124Z",
+  "sourceArtifact": {
+    "file": "tools/e2e/artifacts/doc117-alm03c-coexistence-ec82e738600489f9ec7837a32eca1525.json",
+    "sha256": "d6eb2fbb18ec8e492435f239e8e3dd018da78aaffbeda740efa6b2f23420a9ac"
+  },
+  "authorization": {
+    "file": ".tmp/doc117-alm03c-coexistence-authorization.json",
+    "sha256": "826d7f950480d52d9ced1ca401c69a4a83bd8ffc260d3bc34ddc4b2a418ef1da"
+  },
+  "consoleExit": {
+    "file": ".tmp/doc117-alm03c-coexistence-console-exit.json",
+    "sha256": "36577b02d222a9e950fad3fe008ba0473862d0793bb9d05206c4845d9e0de5e8",
+    "exitCode": 2
+  },
+  "code": "DOC111_LOGIN_INPUT_REQUIRED",
+  "loginObservation": {
+    "postbackStatus": 200,
+    "productionStatus": null,
+    "probeStatus": null,
+    "finish": "COMPLETE",
+    "body": "AVAILABLE",
+    "unavailableAt": "NONE",
+    "category": "NONE",
+    "postedFields": "DIFFERENT"
+  },
+  "storageRequests": 3,
+  "documentsObserved": 3,
+  "references": [
+    {
+      "resourceKey": "IMPORT_A",
+      "documentoId": "16225",
+      "inventarioId": "23323",
+      "loteId": "23",
+      "raizId": "37",
+      "archivoId": "38",
+      "intentoId": "63",
+      "expedienteId": "668",
+      "relacionNivelId": "1093"
+    },
+    {
+      "resourceKey": "IMPORT_B",
+      "documentoId": "16227",
+      "inventarioId": "23325",
+      "loteId": "23",
+      "raizId": "38",
+      "archivoId": "39",
+      "intentoId": "64",
+      "expedienteId": "669",
+      "relacionNivelId": "1094"
+    },
+    {
+      "resourceKey": "INDIVIDUAL",
+      "documentoId": "16226",
+      "inventarioId": "23324",
+      "expedienteId": "467",
+      "relacionNivelId": "1072"
+    }
+  ],
+  "methodObservation": {
+    "classification": "METHOD_BODIES_OVERLAPPED",
+    "observationKind": "METHOD_BODY_ENTRY_EXIT_V1",
+    "overlapTicks": "997347",
+    "frequencyHz": "10000000",
+    "overlapNanosecondsFloor": "99734700",
+    "writerBodyOverlapVerified": true,
+    "businessEvidenceVerified": false,
+    "alm03ConcurrentPass": false,
+    "entries": 3,
+    "exits": 3,
+    "limitation": "Instrumented method lifetime only; no simultaneous-commit, ordinary-binary performance or XML/SII claim."
+  },
+  "runtimeOriginalVerified": true,
+  "bothNewBackupsByteIdentical": true,
+  "originalInputCount": 912,
+  "originalInputsUnchanged": true,
+  "selectRequests": 104,
+  "priorSelectRequests": 339,
+  "cumulativeSelectRequests": 443,
+  "maximumCumulativeSelectRequests": 659,
+  "readbackComplete": false,
+  "reopenedWithOriginalRuntime": false,
+  "alm03ConcurrentPass": false,
+  "progress": {
+    "complete": 16,
+    "total": 18,
+    "pending": [
+      "17.1",
+      "18.1"
+    ]
+  },
+  "document": {
+    "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03c-ejecucion-restaurada-20261106.md",
+    "sha256": "68538866cb34ae55751670a0b985c1613b666468a2c5198f79cd5c40b22650bc"
+  }
+}

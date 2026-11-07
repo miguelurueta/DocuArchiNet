@@ -1,0 +1,49 @@
+{
+  "issueKey": "DOC-117",
+  "status": "LOCAL_PASS_PREFLIGHT_SELECT_REQUIRES_AUTHORIZATION",
+  "manifestSha256": "2006f16cc218074f4b2d930daceea480ad5d19dbb1ac888295f7d3d5451ff47f",
+  "codeSha256": "80e339775133d15c38be9df9509756dc4977c1fc6524662bb2ee762aa459a6df",
+  "localSuite": {
+    "total": 65,
+    "pass": 65,
+    "fail": 0
+  },
+  "isolatedSuite": {
+    "total": 85,
+    "pass": 85,
+    "fail": 0,
+    "additionalMainRegressionCases": 20,
+    "countsAreNotAdditive": true
+  },
+  "sources": [
+    {
+      "file": "tools/e2e/tests/support/doc117-alm01-driver.cjs",
+      "sha256": "f45f23452333f48bacc5a08162f331fa352b04f56a18bbc4c830fd5c314b3d5f"
+    },
+    {
+      "file": "tools/e2e/scripts/run-doc117-alm01.cjs",
+      "sha256": "7ed1a22cbfc41be1074ac77a6a9121f42741032e0c371cdc5b35dc986fea5f82"
+    },
+    {
+      "file": "tools/e2e/tests/support/doc117-almacenamiento.cjs",
+      "sha256": "e4372be0f7cf7efc192a88200fd3cc6f38740edf4eb4d76f0b940dec8bdd6ad1"
+    },
+    {
+      "file": "tools/e2e/tests/support/doc111-importacion-carpetas.cjs",
+      "sha256": "f6d81b167932cd0a2e1d0af6e2a7c46452854e2c1844c87de59e8df343f4b1fe"
+    },
+    {
+      "file": "tests/doc117-alm01-driver.test.cjs",
+      "sha256": "f20091c2996886276a362c97b1eb62e780e21e2b9e3f5566515066a36fd9656a"
+    },
+    {
+      "file": "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+      "sha256": "14de36d3ab6ad3d644b896aa1da2759bad7b0c6316ab53722ea160c2a8f216cc"
+    }
+  ],
+  "rootAbsenceVerified": false,
+  "preflightSelectExecuted": false,
+  "effectsAuthorized": false,
+  "effectsExecuted": false,
+  "productSourceChanges": 0
+}

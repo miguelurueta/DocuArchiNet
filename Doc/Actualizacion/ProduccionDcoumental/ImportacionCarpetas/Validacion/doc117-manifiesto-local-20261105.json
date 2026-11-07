@@ -1,0 +1,50 @@
+{
+  "issueKey": "DOC-117",
+  "date": "2026-11-05",
+  "status": "LOCAL_PASS_READONLY_CHECK_READY_NOT_EXECUTED",
+  "manifestSha256": "2006f16cc218074f4b2d930daceea480ad5d19dbb1ac888295f7d3d5451ff47f",
+  "tests": {
+    "command": "node --test tests/doc117-almacenamiento.test.cjs",
+    "total": 8,
+    "pass": 8,
+    "fail": 0,
+    "realEffects": 0
+  },
+  "files": [
+    {
+      "file": "tools/e2e/fixtures/doc117-alm01-manifest.json",
+      "sha256": "732c643dcabd50b3621e7a6d5655b37a731bb6ceac7a1390fd7837bfbda0ffc3"
+    },
+    {
+      "file": "tools/e2e/tests/support/doc117-almacenamiento.cjs",
+      "sha256": "774a16b3e695d7efd6fc3d0580e95c81c39935dec906a56d133339559ea24724"
+    },
+    {
+      "file": "tools/e2e/scripts/run-doc117-publications-readonly.cjs",
+      "sha256": "77bee8ad221b1f37c9907f46e831a41947d0466b9274869e3231be38b55eebe8"
+    },
+    {
+      "file": "tests/doc117-almacenamiento.test.cjs",
+      "sha256": "84ea434628b38f38233b4cf644402b0ac1d0feaf168fdbb5b7fb7879575d7c42"
+    },
+    {
+      "file": "tests/Doc117ManifestBehaviorTests.cs",
+      "sha256": "df8e2607ceec1cf3613957ba11c0b9875d217d69974538d020e7873233a4b6f2"
+    }
+  ],
+  "readOnlyOperations": [
+    "AbrirImportacion",
+    "ListarPerfilesImportacion"
+  ],
+  "forbiddenOperations": [
+    "PrepararPlan",
+    "ConfirmarPlan",
+    "AvanzarLote",
+    "RecibirArchivo"
+  ],
+  "rootAbsenceVerified": false,
+  "liveSnapshotsVerified": false,
+  "realExecutionAuthorized": false,
+  "readOnlyAuthorizationRecorded": true,
+  "readOnlyConsoleLaunched": true
+}

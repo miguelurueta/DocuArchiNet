@@ -1,0 +1,72 @@
+{
+  "issueKey": "DOC-117",
+  "date": "2026-11-06",
+  "status": "PASS",
+  "kind": "REAL_SELECT_ONLY",
+  "scope": "ALM-02-PREFLIGHT-SELECT",
+  "authorization": {
+    "source": "User explicitly authorized the preceding eight SELECT preflight proposal",
+    "authorizationId": "501adf9096fee78a90e9090356abde5f",
+    "authorizedAtUtc": "2026-11-06T10:25:05.026Z",
+    "effects": false,
+    "applicationLogins": false,
+    "runtimeChanges": false
+  },
+  "evidence": "tools/e2e/artifacts/doc117-alm02-preflight-501adf9096fee78a90e9090356abde5f.json",
+  "proposalSha256": "825f64d8de27a9003425553c7439ace6f57ea524843564d51d9851bc7182cdeb",
+  "codeSha256": "d6ed2891c58b1876bd7586b10834198152b5e2a3a460d25452e65c83ffd79f57",
+  "selectRequests": 8,
+  "counts": {
+    "publication_recipe": 1,
+    "publication_rules": 5,
+    "root_absence": 0,
+    "prior_plan_absence": 0,
+    "prior_root_absence": 0,
+    "cabinet": 1,
+    "visible_indices": 21,
+    "protected_attempt": 1
+  },
+  "createdUtc": "2026-11-06T10:25:15.800Z",
+  "applicationLogins": 0,
+  "preparations": 0,
+  "confirmations": 0,
+  "uploads": 0,
+  "documents": 0,
+  "runtimeChanges": 0,
+  "stage": "protected_attempt",
+  "phase": "VERIFIED",
+  "publicationVerified": true,
+  "rootRecipeMatchesProposedNames": true,
+  "rootAbsenceVerified": true,
+  "priorPlansAbsent": true,
+  "priorRootsAbsent": true,
+  "cabinetVerified": true,
+  "visibleIndicesVerified": true,
+  "protectedAttemptObserved": true,
+  "publicationSha256": "0feabba5f1d357215c458d064a84769a56884aa11642caf864cabac22cdd17c6",
+  "scenario": "ALM-02-PREFLIGHT-SELECT",
+  "executionAuthorized": false,
+  "runtimeUnchanged": true,
+  "finishedUtc": "2026-11-06T10:25:44.415Z",
+  "originalRuntimeSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "localValidation": {
+    "command": "node --test tests/doc117-alm02-preflight.test.cjs",
+    "tests": 10,
+    "pass": 10,
+    "fail": 0,
+    "realDatabase": false
+  },
+  "reviewedFiles": {
+    "tools/e2e/scripts/run-doc117-alm02-preflight.cjs": "982b09d02816b5644f8766757c860b1c60b64cc81e7710878ad627e515fe965c",
+    "tests/doc117-alm02-preflight.test.cjs": "7a8629b0c3ba4f345bf664b123e2b44c69d59276eac7053ae7b6812579dd0efb",
+    "tools/e2e/scripts/support/doc32-e2e-odbc.cjs": "d748cfd17cf3c170df4ce5cf7d4daf1959df16a3ed788084754d5ceec0a5a256",
+    "tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1": "7a4fb15210785f221835f865ce81a5b9c55aed6243f7592ee383e81640492d11",
+    "tools/e2e/scripts/support/interactive-e2e-console.cjs": "778d847653e3351e9e7c50957c7c16f21f9ba17e2d06eb020a2a5df5f3651087"
+  },
+  "limitations": [
+    "Read-only preflight does not establish internal failure integration ALM-02 or coexistence ALM-03",
+    "No application authentication, permissions test, typology verification, laboratory DLL activation or restoration was performed",
+    "Protected attempt was observed once only; no before/after invariance claim is inferred",
+    "No effects authorization granted; tasks 16.1, 17.1 and 18.1 remain pending"
+  ]
+}

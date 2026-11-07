@@ -1,0 +1,84 @@
+{
+  "issueKey": "DOC-117",
+  "scope": "ALM-03C-SETUP",
+  "status": "PROPOSED_NOT_EXECUTED",
+  "environment": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "identity": {
+    "userRef": "141",
+    "ambitoRef": "2"
+  },
+  "levelId": "7",
+  "versionId": "38",
+  "cabinetId": "10",
+  "proofLotId": "21",
+  "publicationSha256": "0feabba5f1d357215c458d064a84769a56884aa11642caf864cabac22cdd17c6",
+  "originalRuntimeSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "rootNames": [
+    "DOC117-ALM03C-A-20261106",
+    "DOC117-ALM03C-B-20261106"
+  ],
+  "fixture": {
+    "file": "doc111-carga-individual.pdf",
+    "bytes": 677,
+    "sha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c"
+  },
+  "expected": {
+    "typologyId": "79",
+    "indexId": "14",
+    "indexType": "TEXTO",
+    "indexValue": "EEE"
+  },
+  "budget": {
+    "plans": 1,
+    "lots": 1,
+    "receipts": 2,
+    "createdExpedients": 2,
+    "materializations": 2,
+    "documents": 0,
+    "storageRequests": 0,
+    "runtimeChanges": 0,
+    "maximumSelectRequests": 160
+  },
+  "preservedLotIds": [
+    "18",
+    "19",
+    "20",
+    "21",
+    "22"
+  ],
+  "preserveAllExistingResources": true,
+  "preserveNewResources": true,
+  "noRetry": true,
+  "notGranted": [
+    "ALMACENAR or individual upload",
+    "DLL installation",
+    "internal fault injection",
+    "permission/configuration/schema changes",
+    "cleanup",
+    "replay/reconcile/repair protected attempts"
+  ],
+  "nextGate": "After setup: review actual new IDs, canonical description binding, closed native caller variant and restoration evidence before separately authorizing documents/runtime. Setup does not authorize those effects.",
+  "fileNames": [
+    "DOC117-ALM03C-IMPORT-A-20261106.pdf",
+    "DOC117-ALM03C-IMPORT-B-20261106.pdf"
+  ],
+  "individual": {
+    "expedienteId": "467",
+    "levelId": "8",
+    "relacionNivelId": "1072",
+    "typologyId": "50",
+    "fileName": "DOC117-ALM03C-IND-20261106.pdf",
+    "classificationSha256": "083005fcf663febf27982bef6ce9b2f17c03b278ea99d70267da3741cfcdf5ff"
+  },
+  "priorSelectRequests": 250,
+  "previousCumulativeSelectCeiling": 320,
+  "maximumCumulativeSelectRequests": 410,
+  "budgetIncreaseRequired": true,
+  "priorReadbackFile": "tools/e2e/artifacts/doc117-alm03-guard-probe-00ee73257399269edc67a1d474e4e3a7.json",
+  "priorReadbackSha256": "0429ef10ab6b825fce03ae79076601a2833981f5153e3b9e3f9f5d5e0a2c5f75",
+  "hashToolFile": ".tmp/doc117-alm03c-hash-tool-20261106/Doc117SolicitudHash.exe",
+  "hashToolSha256": "ab505b34bfdb43737cb07caa0c758d72423eef1e9ba29c6784b1ab122e72ac32",
+  "canonicalDescriptionBindingRequired": true,
+  "realExecutionAuthorized": false,
+  "budgetIncreaseAuthorized": false
+}

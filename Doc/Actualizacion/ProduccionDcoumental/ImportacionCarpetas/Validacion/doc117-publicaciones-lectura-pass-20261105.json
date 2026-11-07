@@ -1,0 +1,28 @@
+{
+  "issueKey": "DOC-117",
+  "status": "PASS",
+  "scenario": "ALM-01-PUBLICATIONS-READONLY",
+  "artifact": "tools/e2e/artifacts/doc117-publications-readonly-bc7e1e197446cf08.json",
+  "artifactSha256": "fa5889b17d8422a556d2673ac94dcbd8b4117831c0d1b825b9a0126cfba34a71",
+  "manifestSha256": "2006f16cc218074f4b2d930daceea480ad5d19dbb1ac888295f7d3d5451ff47f",
+  "publications": [
+    {
+      "perfilId": "26",
+      "versionId": "40",
+      "snapshotSha256": "dac2933f65ce8ad15dd3922eab5b1831d5495dcb9e21636350710fc014664b16",
+      "rulesMatched": true
+    },
+    {
+      "perfilId": "27",
+      "versionId": "42",
+      "snapshotSha256": "b4474e42abb2d746c75fe12aa5e7eb359677b408e393e4cfad7313afbb99a494",
+      "rulesMatched": true
+    }
+  ],
+  "preparations": 0,
+  "confirmations": 0,
+  "uploads": 0,
+  "documents": 0,
+  "rootAbsenceVerified": false,
+  "executionAuthorized": false
+}

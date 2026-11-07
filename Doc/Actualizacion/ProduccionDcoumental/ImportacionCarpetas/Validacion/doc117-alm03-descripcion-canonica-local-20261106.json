@@ -1,0 +1,78 @@
+{
+  "issueKey": "DOC-117",
+  "scenario": "ALM-03-CANONICAL-DESCRIPTION-LOCAL",
+  "date": "2026-11-06",
+  "status": "LOCAL_CORRECTION_PASS_DORMANT_NOT_INSTALLED",
+  "realExecution": false,
+  "authenticatedExecution": false,
+  "realSelectRequests": 0,
+  "temporaryUploads": 0,
+  "liveRuntimeActivation": false,
+  "realAuthorizationCreated": false,
+  "codeSha256": "79c7409e493c4876c0365c086847525004be972e6e0f953a4ecf8efe9c559324",
+  "reviewedFiles": {
+    "tools/e2e/scripts/support/doc117-alm03-canonical-description.cjs": "63333b63d9626130c800df5b5250461e61b838408487a11eab56415b18441f9b",
+    "tools/e2e/tests/support/doc117-alm03-canonical-controls.cjs": "b8ac3016630b92ae4ecb1bf70e65196bd5ea236c5dc9339d89a1b49a1b7f3248",
+    "tools/e2e/tests/support/doc117-alm03-controls.cjs": "7da1b16c063c39d4c0ff4f09fa6ca74a474a368af1aa1dd15b5bb63a75a3afea",
+    "tools/e2e/scripts/run-workflow-e2e-platform.cjs": "979367a0ff4cd08444100db54abc389fa63bc0cc6d4cb27631865ebe92d3ca5f",
+    "tools/e2e/scripts/build-doc117-alm03-canonical-dormant.cjs": "ca838ac321884b2bdee565c440da2ed066ba432d064000915ce209a0a106c696",
+    "tests/Doc117Alm03CanonicalDescriptionTests.cs": "10375de6517e0d4b4d7977a813d00a0c7c108410539a2ffc84519391ded10eaf",
+    "tests/doc117-alm03-canonical-description.test.cjs": "d0c8a09f90c6a40c73789a314e5bbc62fbcea556706894dee05d0c4ed3ca5afe",
+    "tests/doc117-alm03-controls.test.cjs": "cefc6a5d4759e439e49b509df8364881b6e6194bf49fd4e348d16f52a9dd5627",
+    "tests/doc117-alm03-individual-ui.test.cjs": "6c18da70d5a654375ecaad54d3ef2264deb0a925942a1826f77a249e38d755ea",
+    "tests/doc117-alm03-guard-probe-grant.test.cjs": "835e9a368a18d6a0b007107778970e362ab637ab509ee4eeda3ed9556a16b5a9"
+  },
+  "build": {
+    "file": ".tmp/doc117-alm03-canonical-build-20261106/build-result.json",
+    "sha256": "17608f2cca4852cc2f8a059c9c5b94e68f488a57939bbd2dc4083a51f154dd72",
+    "status": "COMPILED_CANONICAL_DORMANT_NO_BINDING",
+    "candidateSha256": "8f3c30d5d54d97345e1f01146649141dba1b431acd8c297efb0735f2cad8dcae",
+    "canonicalBindingPresent": false,
+    "writerAllowed": false,
+    "importsAllowed": false
+  },
+  "tests": {
+    "total": 310,
+    "passed": 310,
+    "failed": 0,
+    "logFile": ".tmp/doc117-alm03-canonical-final-regression-20261106.tap",
+    "logSha256": "f5c92df411513d9fb1d05bb62f85069d72bae2a67462d96a436849888dc9ab24",
+    "filesFile": ".tmp/doc117-alm03-canonical-final-test-files-20261106.json",
+    "filesSha256": "de7dc91fa24125aff322996c2e08a37c00d8f2b17d2b77b8fa30c46d712c8f5a"
+  },
+  "originalInputCount": 912,
+  "originalInputsUnchanged": true,
+  "sourceInputsSha256": "412a115d0a4e7d8b6b839aa5ba17082337fce14bb129332645db82509909d1d3",
+  "originalRuntimeSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "fourBackupsByteIdentical": true,
+  "historicalCandidateUnchanged": true,
+  "historicalDiagnosticUnchanged": {
+    "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03-guard-diagnostic-verificado-20261106.json",
+    "sha256": "299f1d02a362e22441f3143b210a71ad791e4730a593e4fb3ba5550caf7253d5"
+  },
+  "priorRealCumulativeSelectRequests": 250,
+  "currentRealCumulativeSelectRequests": 250,
+  "realCanonicalDescriptionRead": false,
+  "realPhysicalVerificationAfterCorrection": false,
+  "historicalGrantRejected": true,
+  "openSpecStrict": "PASS",
+  "document": {
+    "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03-descripcion-canonica-local-20261106.md",
+    "sha256": "1c345635d00f2eb331922adb493be03158f21632a1de9c4be21ab00266eb1fef"
+  },
+  "trackingFiles": {
+    "openspec/changes/doc-117-produccion-importacion-carga-carpeta-almacenamiento/tasks.md": "b2641b82611e12de4b88a431284e607b95353be97101b7dc6a4e9495ecaafc9e",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-matriz-almacenamiento.md": "3255f66e25f0d700a8adbc9bf095fe8232ddc4f24bef56519804a4270f18fa76",
+    "Doc/Tecnica/Opsxj/doc-117-produccion-importacion-carga-carpeta-almacenamiento/estado-local-20261106.md": "06b31b9cc3ed09d83ac2a5aa96a1bedb9fc6253fd4af50bc595baebcd13e984e",
+    "openspec/changes/doc-117-produccion-importacion-carga-carpeta-almacenamiento/design.md": "6c11e47f39c0a167f65f0cb4634d3676d4755a5443cfcf30406e8eb94a0d388a"
+  },
+  "progress": {
+    "complete": 16,
+    "total": 18,
+    "pending": [
+      "17.1",
+      "18.1"
+    ]
+  },
+  "alm03ConcurrentPass": false
+}

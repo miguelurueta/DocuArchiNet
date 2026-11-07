@@ -1,70 +1,106 @@
 ## Context
 
-DOC-117: PRODUCCION-IMPORTACION-CARGA-CARPETA-ALMACENAMIENTO
+DOC-117, perfil legacy-webforms-vb. Revisión local: 2026-11-05. Base aislada: main 9a1bce2be9cfd640184269c0e02d6ef94ff181f6, con DOC-116 integrado; el snapshot Jira conserva su procedencia anterior sin reescritura. Ver proposal.md para motivación.
 
-## Jira Details
-
-> Alcance refinado
-> Revisión focal del adaptador de almacenamiento/incorporación existente y su verificador; conservar la función compartida intacta.
-> Base y procedencia
-> Revisión arquitectónica 2026-11-04 solicitada por el usuario frente a lo ya implementado. Base entregada: PR125 integrado en main, merge a3c7263763a89901ba78d05ccebc284a43a4cd76. DOC110–115 están Listo. Esta revisión es documental: no ejecuta nuevas pruebas ni certifica escenarios faltantes. Los resultados históricos conservan su SHA y ambiente; no equivalen a una nueva corrida del commit actual.
-> Implementación existente comprobada
-> Comando explícito y valores efectivos verificados; copia consumible privada con nombre original, retención del staging, llamada legacy única, IDs documento/inventario capturados y comprobación de gabinete/expediente/índices/incorporación. Errores posteriores conservan INCIERTO sin replay. REC reales verificaron PDFs, nombres, índices, IDs y repetición/reapertura; lote2 tuvo reconciliación del documento16204 sin volver a almacenarlo. Esta evidencia no acredita todos los negativos ni concurrencia externa.
-> Rutas que deben reutilizarse
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.vb
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.vb
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Documento.vb
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Documento.vb
-> Evidencia existente y su alcance
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-adaptador-documento-local-20261030.md
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-fase-documento-local-20261030.md
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-valores-diferidos-local-20261030.md
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-rec-lote-pass-20261102.md
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-lote2-verificacion-pass-20261102.md
-> Escenarios y trabajo pendiente
-> ALM-01 — COBERTURA PARCIAL REAL/LOCAL: índices, tipología, nombre/extensión, vínculo e inventario tienen REC real; ceros/homónimos y guards están caracterizados localmente. DOC114 probó dos formatos en preparación; eso no acredita por sí solo su almacenamiento final. Completar únicamente combinaciones sin evidencia.
-> ALM-02 — COBERTURA PARCIAL REAL/LOCAL: lote2 acredita conservación del mismo documento y reconciliación; el fallo inyectado exacto después de almacenar/antes de checkpoint y sus ventanas requieren vincular pruebas locales e integración faltante. Con IDs insuficientes o evidencia discordante, conservar INCIERTO. Si falta incorporación no existe licencia para volver a almacenar ni inventar un reparador: comprobar la vía soportada y reportar bloqueo cuando no sea segura.
-> ALM-03 — NO ACREDITADO COMO CONCURRENCIA REAL: la carga individual durante degradación de DOC111 no equivale a importación y carga individual simultáneas. Si se requiere probar coexistencia, acotar a sesión, copia/original y relaciones con recursos autorizados. No reabrir el aislamiento XML descartado ni declarar SII concurrente validado; cualquier escenario SII requiere alcance y autorización separados.
-> Negativos — reutilizar pruebas de campo ajeno al gabinete, tipología inexistente, relación incorrecta, nombre inseguro, staging alterado, pérdida de respuesta y checkpoint fallido. Mantener rechazo explícito TIFF/Multi-TIFF; no ampliar formatos.
-> Criterio de cierre
-> Matriz ALM01–03 con procedencia real/local y límites, llamada legacy protegida, original conservado y ausencia de doble almacenamiento. Ninguna corrección preventiva de la función legacy o del XML. Integraciones no autorizadas permanecen NO_EJECUTADO y no se convierten en PASS.
-> Reglas comunes de ejecución
-> Reutilizar modelos, repositorio operativo, tablas, ASMX/ASHX, adaptadores, coordinador y herramientas E2E existentes. Antes de programar, contrastar cada criterio con código y evidencia; modificar producto solo ante una brecha reproducida y cubrir su regresión. Leer AGENTS.md y tools/e2e/AGENT-RUNBOOK.md antes de autenticar. Pruebas reales, cambios de permisos, fallos inyectados, limpieza y carga requieren autorización específica de ambiente, cuentas y recursos; este ticket no la concede. Controles RA/DA exclusivamente SELECT, secretos efímeros, evidencia saneada. No repetir efectos inciertos ni cargas ya acreditadas sin motivo.
-> Decisiones vigentes que sustituyen exigencias históricas
-> No modificar AlmacenamientoDocumentoProduccionDocumental ni SII. Se conserva PDF como formato soportado por este adaptador; TIFF/Multi-TIFF deben rechazarse, no implementarse para satisfacer el prompt anterior. El aislamiento adicional del XML posterior al commit frente a otras cargas fue descartado expresamente por el usuario: queda fuera del alcance y no se afirma como garantía. No habilitar workers, migraciones, permisos, cuotas globales ni limpieza automática por inferencia. Preservar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, snapshot, inventario original y efectos confirmados. Sin rollback global.
-> Fuente transversal
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-matriz-final-20261102.md
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc115-verificacion-final-20261104.md
+Se inspeccionaron los diez archivos enumerados en source-review.json. Comparación normalizada: 10/10 coinciden con la copia aislada. Esta comparación no acredita ejecución del binario actual. No se realizaron nuevas pruebas autenticadas.
 
 ## Goals / Non-Goals
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+Goals: matriz ALM por afirmación, pruebas faltantes acotadas y reutilización del escritor/verificador únicos.
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+Non-Goals: reimplementar almacenamiento, SII, aislamiento XML descartado, TIFF, workers, DDL, permisos/configuración, limpieza automática o rollback global. El intento 41 del lote 18 de DOC-116 queda preservado EN_CURSO/public INCIERTO y fuera de toda mutación.
 
 ## Decisions
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-01 — Fuente y procedencia
 
-## Perfil tecnologico
+La copia principal local prevalece; cada evidencia conserva SHA, fecha, ambiente y tipo real/local. Una divergencia con la copia aislada se revisa sin sobrescribir producto.
 
-- Perfil de revision: legacy-webforms-vb (v1).
-- Alcance: ASP.NET Web Forms, code-behind VB.NET/C# y JavaScript gradual.
-- Este perfil orienta la revision tecnica; no reemplaza los requisitos funcionales ni arquitectonicos del ticket.
+Evidencia: Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.vb; tests/ImportacionCarpetasBehaviorTests.cs.
+
+### D-02 — Original y llamada única
+
+Reutilizar comando, staging, adaptador y binding existentes: retener el original verificado, entregar copia privada consumible con nombre original e invocar legacy una vez por reserva válida.
+
+Evidencia: Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.vb Almacenar; Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb InvocarAlmacenamiento; Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.vb CrearCopiaTrabajo.
+
+### D-03 — Valores y relaciones ALM-01
+
+Verificar por IDs conocidos gabinete, expediente, inventario, incorporación, tipología, nombre/extensión y valores efectivos; conservar ceros de texto/referencia y comparar DECIMAL por valor numérico.
+
+Evidencia: Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.Documento.vb PrepararDatosAlmacenamiento/LeerAlmacenamiento; tests/ImportacionCarpetasBehaviorTests.cs DocumentVerificationCases.
+
+### D-04 — Incertidumbre ALM-02
+
+Separar descarte cliente, fallo previo al checkpoint y fallo de retorno posterior al commit. Leer el histórico antes de cualquier efecto; sin prueba durable suficiente conservar INCIERTO y los IDs válidos.
+
+Evidencia: Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.vb Almacenar; Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Documento.vb AlmacenarArchivo/ProyectarDocumento.
+
+Revisión editorial aprobada por el usuario mediante «aprobado» el 2026-11-06: el ID del intento nace dentro de `AvanzarLote` y no se predice ni reserva por SQL. Para el soporte exclusivo de laboratorio, compilar actor/destino, lote/raíces/archivos, expedientes, nombres/tamaños/hashes, snapshot y huellas exactas de solicitud. Fijar el primer intento concordante con creación atómica y `Flush(True)` antes de delegar en el inicio transaccional existente; las comprobaciones posteriores exigen el mismo registro durable. La fijación no sustituye la autoridad ni la barrera de escritor único. Registro ausente, alterado, ajeno o incompleto detiene la ejecución; no se borra para habilitar otra reserva. A se resuelve desde el histórico confirmado; B no se repite ni se repara.
+
+Las huellas se calculan con .NET y la misma serialización/ASCII del coordinador, con contraste contra su salida real en pruebas locales. El flag `EsNuevaReserva` es transitorio/JsonIgnore: `ComandoAlmacenamientoCarpetas.Preparar` valida la reserva de entrada y no conserva ese flag en su copia inmutable. El helper respeta ese contrato. Este ajuste permite implementación y pruebas locales del soporte; no autoriza instalación, autenticación o efectos. Detalle aprobado: `doc117-alm02-ajuste-alcance-propuesto-20261106.md` en Validacion.
+
+Instrumentación local posterior de la entrada al escritor: el binding de laboratorio `_invocar` exige la fijación concordante y crea una marca atómica durable una sola vez antes de delegar al escritor existente. El checkpoint exige esa marca. Así se observa directamente la entrada única y se rechaza una segunda invocación; no se modifica la función compartida. Ejecutor y revisión de la candidata cerrada del lote 21 en `doc117-alm02-interno-listo-20261106.md`; la ejecución real y su autorización siguen pendientes.
+
+### D-05 — Reconciliación sin escritor
+
+Usar solo reconciliación soportada con intento INCIERTO, IDs completos y relaciones concordantes. No reparar incorporación ausente ni buscar candidatos por nombre; EN_CURSO no autoriza reconciliar o repetir.
+
+Evidencia: Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Reconciliacion.vb ReconciliarIntento; Infrastructure/ProduccionDocumental/ImportacionCarpetas/VerificadorReconciliacionImportacion.vb.
+
+### D-06 — Coexistencia ALM-03
+
+Acreditar solapamiento real entre importación y carga individual únicamente con alcance autorizado; observar sesiones, copias/originales, IDs y relaciones. Degradación secuencial no es simultaneidad ni acredita XML/SII concurrente.
+
+Evidencia: Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-degradacion-individual-pass-20261102.md.
+
+Revisión local posterior 2026-11-06: los intervalos externos de los llamadores no demuestran solapamiento dentro del método compartido; la planificación entre marca y llamada puede producir un falso positivo. El analizador local conserva explícitamente esa limitación. Un ensayo sintético con el colector CLR instalado obtuvo captura, pero aún no acredita extracción por invocación/hilo/recurso. Propuesta pendiente de decisión editorial: `doc117-alm03-observacion-propuesta-20261106.md`, con excepción acotada de observación dentro de una copia exclusiva de laboratorio del escritor. La excepción no está aprobada ni aplicada; permanece la prohibición vigente, no se reduce RQ-06 y ALM-03 continúa NO_EJECUTADO. Evidencia local `doc117-alm03-observabilidad-local-20261106.json`.
+
+Aprobación editorial posterior del usuario mediante «aprobado»: se permite desarrollar/probar marcas internas exclusivamente en una copia de laboratorio de `AlmacenamientoDocumentoProduccionDocumental`, con entrada tras las guardas previas y salida en finally, preservando operaciones, errores, retornos y ByRef. Fuentes productivas/proyecto/bin permanecen intactos. La anotación previa de espera describe el momento anterior. Esta excepción no concede instalación, login, SELECT reales, recursos o almacenamiento. Prototipo desactivado primero; el binding activo deberá cerrar los tres recursos, identidades/huellas y dos sesiones independientes antes de presentarse para otra autorización. No introducir esperas, barreras entre escritores, reintentos o instrumentación productiva. El solapamiento será del método instrumentado, sin afirmar commits simultáneos, rendimiento ordinario o XML/SII.
+
+Lectura autorizada posterior: el destino individual 467 conserva relación 1072 en nivel 8, mientras la importación propuesta pertenece a nivel 7. No exigir que ambos destinos coincidan ni modificar la relación para ello. El alcance propuesto siguiente distingue explícitamente ambos niveles y exige sus facultades actuales, clasificación/gabinete/tipología y ausencia de nombre individual antes de preparar recursos. Las doce consultas de lectura no autorizan una carga en nivel 8 ni acreditan todavía su UI. Detalle `doc117-alm03-destino-lectura-20261106.md` y preparación revisable `doc117-alm03-setup-listo-20261106.md`.
+
+### D-07 — Rechazos y autoridad
+
+Reutilizar negativos de nombre inseguro, campo ajeno, tipología inválida, relación incorrecta, staging alterado y TIFF/Multi-TIFF; comprobar que el escritor no se ejecuta.
+
+Evidencia: Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoAlmacenamientoCarpetas.vb Preparar/ValidarDatos; tests/ImportacionCarpetasBehaviorTests.cs DocumentAdapterCases/DocumentCatalogCases.
+
+### D-08 — Ejecución y cierre
+
+No modificar almacenamiento compartido, SII o XML descartado. Cada integración requiere autorización específica de ambiente, cuentas, recursos y fallos; controles SELECT por DSN registrado, secretos efímeros y resultados saneados.
+
+Única excepción editorial aprobada posteriormente para D-06: observación interna del escritor en copia exclusiva de laboratorio, desarrollada y verificada fuera del proyecto. No autoriza modificar la función ordinaria, instalar la copia ni ejecutar cargas reales. Ver `doc117-alm03-observacion-propuesta-20261106.md` y la aprobación posterior registrada en tareas.
+
+Evidencia: AGENTS.md; tools/e2e/AGENT-RUNBOOK.md; tools/e2e/tests/support/doc111-importacion-carpetas.cjs.
+
+### Alternativas y secuencia
+
+Se descarta construir un adaptador nuevo porque ya hay comando inmutable, retención, invocación y verificación. Se descarta reparar efectos con un segundo almacenamiento porque puede duplicar documentos. Se descarta atribuir coexistencia a la degradación previa porque no hubo solapamiento de escritores. Se descarta añadir hooks de fallo productivos: los constructores Friend existentes permiten dobles locales; una variante temporal de laboratorio exigiría diseño separado, fuentes exactas, respaldo verificado, guardián de restauración y autorización específica. La autorización de DOC-116 no se reutiliza.
+
+ALM-01: vincular resultados REC y casos locales por nombre, tipo, fecha, decimal, ceros e incorporación. Para formatos A/B de DOC-114, comparar valores planificados con finales: PLAN-01 no sustituye almacenamiento final. Preparar una propuesta de carga solo para combinaciones no acreditadas.
+
+ALM-02: primero ejecutar dobles locales que observan un solo writer; después proponer por separado las ventanas internas pendientes. Si el efecto existe y falta checkpoint, no reejecutar. Si el estado es EN_CURSO o faltan IDs, registrar la limitación; solo un INCIERTO reconciliable y concordante puede pasar por la capacidad soportada. Falta de incorporación implica conservar incertidumbre; no se añade un reparador.
+
+ALM-03: propuesta separada con recursos distintos, dos solicitudes cuya ejecución se solape y evidencia de tiempos/límites del escritor. Dos envíos cercanos o serializados por sesión no bastan: declarar SERIALIZADO/NO_ACREDITADO. Observar originales y sus hashes, nombres, documento/inventario y relaciones finales; no extender las conclusiones a XML/SII.
 
 ## Risks / Trade-offs
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+- Evidencia histórica parcial → matriz con SHA propio y resultados por afirmación, sin trasladar PASS al commit actual.
+- Resultado posterior a efecto no confirmado → consultar sin invocar otra vez; conservar IDs y estado incierto.
+- Error del verificador o relación ausente → no confirmar ni reparar incorporación por inferencia.
+- Sesión ASP.NET serializada → comprobar solapamiento efectivo o no atribuir simultaneidad.
+- Datos reales no autorizados → dejar NO_EJECUTADO; el refinamiento no permite pruebas reales.
 
 ## Migration Plan
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+1. Revisar este diseño, requisitos y propuesta de tareas; registrar aprobación editorial antes de implementación.
+2. Sustituir las tareas genéricas por tasks-proposal.md después de su aprobación.
+3. Ejecutar regresión local y documentar brechas; modificar producto solo tras reproducir una.
+4. Presentar presupuestos concretos de integración antes de solicitar autorización.
+5. Cerrar solo con evidencia requerida o aceptación explícita de un alcance reducido; ninguna integración omitida se marca PASS. No hay despliegue ni migración previstos. Cualquier DLL de laboratorio exige su propio protocolo de restauración.
 
-## Open Questions
 
-- TBD
+### D-06 — Ajuste local de descripción posterior al diagnóstico real
+
+El diagnóstico de guardas confirmó descriptionExact=false/descriptionEquivalent=true sin entrar al escritor. Para una futura variante, obtener el texto canónico de la tipología autorizada mediante SELECT contextual inequívoco, comprobar su equivalencia con el nombre humano aprobado y fijar su hash UTF-8 exacto. La UI debe coincidir con ese texto antes de despachar; la guarda conserva el argumento original y exige igualdad exacta entre preparación y entrada. Los controles verifican ese mismo texto físico y su invariancia de catálogo, sin normalizar valores almacenados. Variante local versionada y desactivada; no cambia la guarda de evidencia anterior ni habilita reutilizar casos, presupuestos o permisos consumidos. Detalle doc117-alm03-descripcion-canonica-local-20261106.md/.json.

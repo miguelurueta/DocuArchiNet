@@ -1,51 +1,97 @@
+## Purpose
+
+Definir la conservación del original, la confirmación documental por identidades conocidas y la gestión de incertidumbre sin doble almacenamiento en la importación de carpetas.
+
 ## ADDED Requirements
-### Requirement: PRODUCCION-IMPORTACION-CARGA-CARPETA-ALMACENAMIENTO
-El sistema SHALL implementar el alcance definido para DOC-117.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-## Perfil tecnologico
 
-- Perfil de revision: legacy-webforms-vb (v1).
-- Alcance: ASP.NET Web Forms, code-behind VB.NET/C# y JavaScript gradual.
-- Este perfil orienta la revision tecnica; no reemplaza los requisitos funcionales ni arquitectonicos del ticket.
+### Requirement: RQ-01 Procedencia verificable
+La entrega SHALL distinguir fuente local, resultados históricos y resultados nuevos, conservando SHA, fecha, ambiente y alcance de cada evidencia. Trazabilidad: D-01.
 
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
+#### Scenario: Evidencia anterior
+- **WHEN** se reutiliza un REC histórico
+- **THEN** se conserva su procedencia y no se presenta como ejecución del commit actual
 
-#### Scenario: Reglas del ticket
-- Alcance refinado
-- Revisión focal del adaptador de almacenamiento/incorporación existente y su verificador; conservar la función compartida intacta.
-- Base y procedencia
-- Revisión arquitectónica 2026-11-04 solicitada por el usuario frente a lo ya implementado. Base entregada: PR125 integrado en main, merge a3c7263763a89901ba78d05ccebc284a43a4cd76. DOC110–115 están Listo. Esta revisión es documental: no ejecuta nuevas pruebas ni certifica escenarios faltantes. Los resultados históricos conservan su SHA y ambiente; no equivalen a una nueva corrida del commit actual.
-- Implementación existente comprobada
-- Comando explícito y valores efectivos verificados; copia consumible privada con nombre original, retención del staging, llamada legacy única, IDs documento/inventario capturados y comprobación de gabinete/expediente/índices/incorporación. Errores posteriores conservan INCIERTO sin replay. REC reales verificaron PDFs, nombres, índices, IDs y repetición/reapertura; lote2 tuvo reconciliación del documento16204 sin volver a almacenarlo. Esta evidencia no acredita todos los negativos ni concurrencia externa.
-- Rutas que deben reutilizarse
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.vb
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.vb
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Documento.vb
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Documento.vb
-- Evidencia existente y su alcance
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-adaptador-documento-local-20261030.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-fase-documento-local-20261030.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-valores-diferidos-local-20261030.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-rec-lote-pass-20261102.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-lote2-verificacion-pass-20261102.md
-- Escenarios y trabajo pendiente
-- ALM-01 — COBERTURA PARCIAL REAL/LOCAL: índices, tipología, nombre/extensión, vínculo e inventario tienen REC real; ceros/homónimos y guards están caracterizados localmente. DOC114 probó dos formatos en preparación; eso no acredita por sí solo su almacenamiento final. Completar únicamente combinaciones sin evidencia.
-- ALM-02 — COBERTURA PARCIAL REAL/LOCAL: lote2 acredita conservación del mismo documento y reconciliación; el fallo inyectado exacto después de almacenar/antes de checkpoint y sus ventanas requieren vincular pruebas locales e integración faltante. Con IDs insuficientes o evidencia discordante, conservar INCIERTO. Si falta incorporación no existe licencia para volver a almacenar ni inventar un reparador: comprobar la vía soportada y reportar bloqueo cuando no sea segura.
-- ALM-03 — NO ACREDITADO COMO CONCURRENCIA REAL: la carga individual durante degradación de DOC111 no equivale a importación y carga individual simultáneas. Si se requiere probar coexistencia, acotar a sesión, copia/original y relaciones con recursos autorizados. No reabrir el aislamiento XML descartado ni declarar SII concurrente validado; cualquier escenario SII requiere alcance y autorización separados.
-- Negativos — reutilizar pruebas de campo ajeno al gabinete, tipología inexistente, relación incorrecta, nombre inseguro, staging alterado, pérdida de respuesta y checkpoint fallido. Mantener rechazo explícito TIFF/Multi-TIFF; no ampliar formatos.
-- Criterio de cierre
-- Matriz ALM01–03 con procedencia real/local y límites, llamada legacy protegida, original conservado y ausencia de doble almacenamiento. Ninguna corrección preventiva de la función legacy o del XML. Integraciones no autorizadas permanecen NO_EJECUTADO y no se convierten en PASS.
-- Reglas comunes de ejecución
-- Reutilizar modelos, repositorio operativo, tablas, ASMX/ASHX, adaptadores, coordinador y herramientas E2E existentes. Antes de programar, contrastar cada criterio con código y evidencia; modificar producto solo ante una brecha reproducida y cubrir su regresión. Leer AGENTS.md y tools/e2e/AGENT-RUNBOOK.md antes de autenticar. Pruebas reales, cambios de permisos, fallos inyectados, limpieza y carga requieren autorización específica de ambiente, cuentas y recursos; este ticket no la concede. Controles RA/DA exclusivamente SELECT, secretos efímeros, evidencia saneada. No repetir efectos inciertos ni cargas ya acreditadas sin motivo.
-- Decisiones vigentes que sustituyen exigencias históricas
-- No modificar AlmacenamientoDocumentoProduccionDocumental ni SII. Se conserva PDF como formato soportado por este adaptador; TIFF/Multi-TIFF deben rechazarse, no implementarse para satisfacer el prompt anterior. El aislamiento adicional del XML posterior al commit frente a otras cargas fue descartado expresamente por el usuario: queda fuera del alcance y no se afirma como garantía. No habilitar workers, migraciones, permisos, cuotas globales ni limpieza automática por inferencia. Preservar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, snapshot, inventario original y efectos confirmados. Sin rollback global.
-- Fuente transversal
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-matriz-final-20261102.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc115-verificacion-final-20261104.md
+#### Scenario: Divergencia local
+- **WHEN** la copia aislada difiere de la principal
+- **THEN** se registra la diferencia sin sobrescribir la principal
+
+### Requirement: RQ-02 Original conservado y efecto único
+El sistema SHALL conservar el original recibido y usar una copia consumible privada con su nombre original; una repetición no SHALL volver a almacenar un efecto ya conocido. Trazabilidad: D-02.
+
+#### Scenario: Copia consumida
+- **WHEN** la carga consume o mueve su copia de trabajo
+- **THEN** el original permanece íntegro y verificable por tamaño y hash
+
+#### Scenario: Repetición confirmada
+- **WHEN** se repite el mismo comando confirmado
+- **THEN** se devuelven los mismos IDs sin nuevo almacenamiento
+
+### Requirement: RQ-03 Valores finales ALM-01
+La confirmación SHALL acreditar gabinete, expediente, documento, inventario, incorporación, tipología, nombre, extensión e índices efectivos mediante las identidades conocidas. Trazabilidad: D-03.
+
+#### Scenario: Texto y formatos
+- **WHEN** se contrastan valores finales de un formato autorizado
+- **THEN** los textos y referencias conservan sus ceros; fechas son canónicas y decimales equivalen numéricamente sin normalizar texto
+
+#### Scenario: Relación discordante
+- **WHEN** falta incorporación o difiere una relación, nombre o valor esperado
+- **THEN** no se confirma ni se atribuye el efecto por semejanza de nombre
+
+### Requirement: RQ-04 Incertidumbre ALM-02
+Ante un fallo posterior al efecto el sistema SHALL consultar la evidencia durable y conservar incertidumbre si no acredita confirmación; no SHALL repetir el almacenamiento para resolver una respuesta. Trazabilidad: D-04.
+
+#### Scenario: Retorno perdido después de commit
+- **WHEN** el checkpoint confirmado persiste aunque falle su retorno
+- **THEN** la lectura permite devolver la identidad confirmada sin otro escritor
+
+#### Scenario: Efecto sin checkpoint suficiente
+- **WHEN** el escritor produjo un efecto pero no hay confirmación durable suficiente
+- **THEN** se mantienen los IDs válidos disponibles y el resultado INCIERTO sin replay automático
+
+### Requirement: RQ-05 Reconciliación documental acotada
+La reconciliación SHALL confirmar únicamente intentos INCIERTO con identidades completas y evidencia concordante; no SHALL almacenar ni incorporar de nuevo. Trazabilidad: D-05.
+
+#### Scenario: Prueba suficiente
+- **WHEN** un intento INCIERTO tiene identidades y relaciones exactas
+- **THEN** la vía soportada confirma conservando documento e inventario sin otro efecto
+
+#### Scenario: Prueba insuficiente
+- **WHEN** el intento permanece EN_CURSO, faltan IDs o falta incorporación
+- **THEN** no se recrea ni repara el documento y se informa el bloqueo de confirmación
+
+### Requirement: RQ-06 Coexistencia ALM-03 con límites
+La aceptación de coexistencia SHALL distinguir solapamiento efectivo de serialización y delimitar sus conclusiones a los recursos observados. Trazabilidad: D-06.
+
+#### Scenario: Ejecución solapada
+- **WHEN** una importación y una carga individual autorizadas se solapan realmente
+- **THEN** se acreditan originales intactos e identidades y relaciones propias sin duplicación, sin afirmar aislamiento XML o SII
+
+#### Scenario: Serialización
+- **WHEN** dos solicitudes quedan serializadas o no hay evidencia de solapamiento
+- **THEN** la prueba no se declara PASS de concurrencia real
+
+#### Scenario: Observación interna exclusiva de laboratorio
+- **WHEN** se desarrolla la variante de observación aprobada editorialmente
+- **THEN** las marcas internas solo pertenecen a una copia de laboratorio que conserva retornos/errores/ByRef y fuentes ordinarias intactas; los intervalos externos no sustituyen al método, las trazas incompletas no acreditan solapamiento y la aprobación no autoriza instalación o efectos reales
+
+### Requirement: RQ-07 Rechazos antes del escritor
+El sistema SHALL rechazar recursos no autorizados, valores incompatibles, nombres inseguros, staging alterado y formatos TIFF/Multi-TIFF antes de ejecutar almacenamiento. Trazabilidad: D-07.
+
+#### Scenario: Recurso ajeno o alterado
+- **WHEN** se aporta un campo ajeno al gabinete, tipología inválida, relación incorrecta o staging alterado
+- **THEN** se rechaza el efecto sin llamar al escritor
+
+#### Scenario: Formato o nombre rechazado
+- **WHEN** se intenta TIFF/Multi-TIFF o un nombre inseguro
+- **THEN** no se almacena ni amplía la lista de formatos soportados
+
+### Requirement: RQ-08 Aceptación y autorización
+La validación SHALL usar autorizaciones específicas para efectos reales y controles exclusivamente SELECT; no SHALL convertir un escenario no ejecutado en evidencia positiva. Trazabilidad: D-08.
+
+#### Scenario: Escenario sin autorización
+- **WHEN** no hay autorización del ambiente, cuentas y recursos para un caso real
+- **THEN** el caso permanece NO_EJECUTADO sin efectos ni credenciales persistidas
+
+#### Scenario: Cierre trazable
+- **WHEN** se evalúa cerrar DOC-117
+- **THEN** la matriz identifica casos reales y locales, límites y faltantes; no oculta escenarios no acreditados

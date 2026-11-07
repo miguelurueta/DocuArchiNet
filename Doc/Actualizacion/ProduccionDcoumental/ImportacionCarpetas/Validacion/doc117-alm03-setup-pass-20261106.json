@@ -1,0 +1,157 @@
+{
+  "issueKey": "DOC-117",
+  "scenario": "ALM-03-SETUP",
+  "status": "PASS",
+  "date": "2026-11-06",
+  "environment": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "identity": {
+    "userRef": "141",
+    "ambitoRef": "2"
+  },
+  "importLevelId": "7",
+  "versionId": "38",
+  "cabinetId": "10",
+  "planId": "38",
+  "lotId": "22",
+  "authorization": {
+    "id": "57219fc625b867b54d8d282b6b1eb0a2",
+    "source": "User replied autoriza to the concrete ALM-03 setup request: one plan/lot, two receipts/expedients/materializations, at most 160 additional SELECT, no document storage or DLL changes",
+    "authorizedUtc": "2026-11-06T14:09:47.967Z",
+    "file": ".tmp/doc117-alm03-setup-authorization.json",
+    "sha256": "14e7724ad91c36f88dfaceab5c69c14eeb798b7c985b308b61aab363b452f246"
+  },
+  "artifact": {
+    "file": "tools/e2e/artifacts/doc117-alm03-setup-57219fc625b867b54d8d282b6b1eb0a2.json",
+    "sha256": "9e3b09bedf2ce8f4c92c17f5be5355294b4ed4c0fd85f34ce9aa4b8554680961"
+  },
+  "proposal": {
+    "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03-recursos-propuestos-20261106.json",
+    "sha256": "4c963e5824f6dcf61ca596d23128b6e28155a6170057e8223bb8dd809f12ac43"
+  },
+  "codeSha256": "c9fbb483d0f0a46780ac009ce1d412838c203727df0f598b477548b3d0ca0ca8",
+  "startedUtc": "2026-11-06T14:11:35.086Z",
+  "finishedUtc": "2026-11-06T14:15:41.822Z",
+  "selectRequests": 80,
+  "budget": {
+    "plans": 1,
+    "lots": 1,
+    "receipts": 2,
+    "createdExpedients": 2,
+    "materializations": 2,
+    "documents": 0,
+    "storageRequests": 0,
+    "runtimeChanges": 0,
+    "maximumSelectRequests": 160
+  },
+  "result": {
+    "status": "PASS",
+    "scenario": "ALM-03-SETUP",
+    "planId": "38",
+    "loteId": "22",
+    "plans": 1,
+    "additionalPreparations": 1,
+    "resumedExistingPlan": false,
+    "lots": 1,
+    "receipts": 2,
+    "createdExpedients": 2,
+    "materializations": 2,
+    "documents": 0,
+    "storageRequests": 0,
+    "runtimeChanges": 0,
+    "preservedResourcesUnchanged": true,
+    "originalsVerified": true,
+    "resourceScopePrepared": true
+  },
+  "resources": [
+    {
+      "rootId": "35",
+      "fileId": "36",
+      "expedienteId": "666",
+      "relacionNivelId": "1091",
+      "creationAttemptId": "56",
+      "fileName": "DOC117-ALM03-IMPORT-A-20261106.pdf",
+      "bytes": "677",
+      "contentSha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c"
+    },
+    {
+      "rootId": "36",
+      "fileId": "37",
+      "expedienteId": "667",
+      "relacionNivelId": "1092",
+      "creationAttemptId": "57",
+      "fileName": "DOC117-ALM03-IMPORT-B-20261106.pdf",
+      "bytes": "677",
+      "contentSha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c"
+    }
+  ],
+  "individual": {
+    "expedienteId": "467",
+    "levelId": "8",
+    "relacionNivelId": "1072",
+    "typologyId": "50",
+    "fileName": "DOC117-ALM03-IND-20261106.pdf",
+    "classificationSha256": "083005fcf663febf27982bef6ce9b2f17c03b278ea99d70267da3741cfcdf5ff",
+    "verifiedOnly": true,
+    "uploadExecuted": false
+  },
+  "scopeClosure": {
+    "protocol": "ALM03_CLOSED_RESOURCES_BEFORE_WRITER_V1",
+    "resourceScopeSha256": "ce0223fa7cda43dd727507a0b45a6384c71143e1f8035473ee9a09d15cf00cf9",
+    "privateReadyFile": ".tmp/doc117-alm03-setup-57219fc625b867b54d8d282b6b1eb0a2-ready.runtime.json",
+    "privateReadyFileSha256": "4bbb74746bdd9f1be08e35bdd41234aac9d60e1407f6c6bfb56f7a2407736a9c",
+    "scopeFile": ".tmp/doc117-alm03-setup-57219fc625b867b54d8d282b6b1eb0a2-scope.json",
+    "scopeFileSha256": "68d7df222d60dcc5e9c545ac9b7a09a9587a5c15e1b312f11191b5cc64497b03",
+    "nativeRequestHashCount": 2,
+    "operationKeysExcludedFromPublicEvidence": true,
+    "noPredictedStorageAttempts": true
+  },
+  "runtimeSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "runtimeUnchanged": true,
+  "originalProductInputsUnchanged": true,
+  "originalInputCount": 912,
+  "preservation": {
+    "verifiedInMemoryByExecutor": true,
+    "priorLotIds": [
+      "18",
+      "19",
+      "20",
+      "21"
+    ],
+    "baselineFingerprintsPersisted": false,
+    "scope": "Before/after comparison inside this single setup process; no raw rows or baseline fingerprints exported"
+  },
+  "realCoexistenceExecuted": false,
+  "progress": {
+    "complete": 16,
+    "total": 18,
+    "pending": [
+      "17.1",
+      "18.1"
+    ]
+  },
+  "reviewedFiles": {
+    "tools/e2e/scripts/run-doc117-alm03-setup.cjs": "14661b65fe5cda8477e8e211c5922a40b7062282409e3920086f8be67a036a2b",
+    "tools/e2e/tests/support/doc117-alm03-setup.cjs": "1bc3e18cbda0b40d60fb08094ca747ae7c8d069bac5c8cd7d340da411505bebc",
+    "tools/e2e/tests/support/doc117-alm03-setup-scope.cjs": "9ca76d18c861e89a3be9f873e402d2983e67eb34f753775b97d1b060a5d6dad7",
+    "tools/e2e/scripts/run-doc117-alm02-setup.cjs": "d6badb9017909aee3a50242143da254ac298cbd01e08dded61cc115c0d948c79",
+    "tools/e2e/tests/support/doc111-importacion-carpetas.cjs": "8936aacb0b0b9392c3d9944d7a029f7bfcb345ad4e4fb4fc3ac0b3dcaa3aadda",
+    "tools/e2e/tests/support/doc117-alm01-driver.cjs": "f45f23452333f48bacc5a08162f331fa352b04f56a18bbc4c830fd5c314b3d5f",
+    "tools/e2e/tests/support/doc116-exp01-setup.cjs": "33bd44970b3852c185df8c227437c65e45e1fc96a5c1a37e02d3b99f61ac2a32",
+    "tools/e2e/tests/support/doc114-plan-importacion.cjs": "3f1de2aee8189a650e04455c366ec3aadd72f8e5d16cdbe5ae48d6441862d1fd",
+    "tools/e2e/tests/support/doc110-safe-request.cjs": "c01b90b77c8e3b8cf89d2e9aeaf186e7fc01199f398d2dae5f4f169328248eca",
+    "tools/e2e/tests/support/authenticated-workflow-session.cjs": "60c33202ded594541a984ffdbe2ed2929734a5e48595440278039b854b93975b",
+    "tools/e2e/scripts/support/doc32-e2e-odbc.cjs": "d748cfd17cf3c170df4ce5cf7d4daf1959df16a3ed788084754d5ceec0a5a256",
+    "tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1": "7a4fb15210785f221835f865ce81a5b9c55aed6243f7592ee383e81640492d11",
+    "tools/e2e/scripts/support/interactive-e2e-console.cjs": "778d847653e3351e9e7c50957c7c16f21f9ba17e2d06eb020a2a5df5f3651087",
+    "tools/e2e/fixtures/Doc117SolicitudHash.vb": "d6e53e0cfe86768e2166c8a7130622c7a136376aa218a8fda2e2d86469481133",
+    "tools/e2e/fixtures/Doc117SolicitudHashConsole.vb": "3a6d0207b63468d3b224b503beb86a1672baade5a9454e35cf9863537d9201f3"
+  },
+  "limits": [
+    "Setup only; no ALMACENAR, individual upload or DLL installation",
+    "New import files remain RECIBIDO/NO_INICIADO without document results",
+    "Individual destination checked before and after; actual individual UI session remains pending",
+    "No ALM-03 overlap/acceptance claim",
+    "Active caller guards, candidate and executor still pending",
+    "Protected attempts 41/52/53 are not replayed/reconciled/repaired; all resources retained"
+  ]
+}

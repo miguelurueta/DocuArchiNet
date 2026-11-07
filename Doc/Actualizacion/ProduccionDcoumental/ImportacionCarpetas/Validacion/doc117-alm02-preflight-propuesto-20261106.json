@@ -1,0 +1,92 @@
+{
+  "issueKey": "DOC-117",
+  "scope": "ALM-02-PREFLIGHT-SELECT",
+  "status": "PROPOSED_NOT_EXECUTED",
+  "authorized": false,
+  "environment": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "applicationIdentity": { "userRef": "141", "ambitoRef": "2" },
+  "databaseAccount": "EXPLICIT_SELECT_ONLY_ACCOUNT_REQUIRED_VIA_MASKED_CONSOLE",
+  "databaseOrigins": ["RA", "DA"],
+  "dsnSource": "EXISTING_REGISTERED_RUNTIME_PROFILE",
+  "levelId": "7",
+  "versionId": "38",
+  "cabinetId": "10",
+  "proposedRootNames": ["DOC117-ALM02-A-20261106", "DOC117-ALM02-B-20261106"],
+  "proposedFixture": {
+    "file": "doc111-carga-individual.pdf",
+    "bytes": 677,
+    "sha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c"
+  },
+  "budget": {
+    "maximumSelectRequests": 8,
+    "applicationLogins": 0,
+    "preparations": 0,
+    "confirmations": 0,
+    "uploads": 0,
+    "newExpedients": 0,
+    "documents": 0,
+    "storageRequests": 0,
+    "runtimeChanges": 0
+  },
+  "controls": [
+    {
+      "key": "publication_recipe",
+      "origin": "RA",
+      "sql": "SELECT v.version_id,p.perfil_id,v.configuracion_doc FROM ra_integracion_perfil_version v INNER JOIN ra_integracion_perfil p ON p.perfil_id=v.perfil_id WHERE p.ambito_ref=? AND p.activo=1 AND v.estado='PUBLICADA' AND v.version_id=? LIMIT 2",
+      "parameters": ["2", "38"],
+      "requires": "Exactly one publication; inspect complete recipe before accepting the proposed names. No preparation if incompatible."
+    },
+    {
+      "key": "publication_rules",
+      "origin": "RA",
+      "sql": "SELECT regla_id,regla_doc FROM ra_integracion_perfil_regla WHERE version_id=? ORDER BY orden,destino_tipo,destino_ref LIMIT 101",
+      "parameters": ["38"],
+      "requires": "Complete ordered rule set within the configured limit. Derive effective codes and stop if absence checks need revised parameters; no extra query without reviewing this budget."
+    },
+    {
+      "key": "root_absence",
+      "origin": "RA",
+      "sql": "SELECT ID_EXPEDIENTE FROM expediente_archivo WHERE ID_EMPRESA_EXPEDIENTE=? AND (CODIGO_UNICO IN (?,?) OR ALEAS_EXPEDIENTE IN (?,?) OR TEMA_EXPEDIENTE IN (?,?)) LIMIT 3",
+      "parameters": ["2", "DOC117-ALM02-A-20261106", "DOC117-ALM02-B-20261106", "DOC117-ALM02-A-20261106", "DOC117-ALM02-B-20261106", "DOC117-ALM02-A-20261106", "DOC117-ALM02-B-20261106"],
+      "requires": "No rows. Reassess effective codes after reading the recipe; this lookup alone does not certify freshness."
+    },
+    {
+      "key": "prior_plan_absence",
+      "origin": "RA",
+      "sql": "SELECT plan_id FROM ra_integracion_plan WHERE ambito_ref=? AND nivel_ref=? AND (LOCATE(?,manifiesto_doc)>0 OR LOCATE(?,manifiesto_doc)>0) LIMIT 3",
+      "parameters": ["2", "7", "DOC117-ALM02-A-20261106", "DOC117-ALM02-B-20261106"],
+      "requires": "No rows; any prior plan stops the proposal without retries or effects."
+    },
+    {
+      "key": "prior_root_absence",
+      "origin": "RA",
+      "sql": "SELECT r.raiz_id FROM ra_integracion_raiz r INNER JOIN ra_integracion_lote l ON l.lote_id=r.lote_id WHERE l.ambito_ref=? AND l.nivel_ref=? AND (LOCATE(?,r.datos_doc)>0 OR LOCATE(?,r.datos_doc)>0) LIMIT 3",
+      "parameters": ["2", "7", "DOC117-ALM02-A-20261106", "DOC117-ALM02-B-20261106"],
+      "requires": "No rows."
+    },
+    {
+      "key": "cabinet",
+      "origin": "DA",
+      "sql": "SELECT id_gabinete,NOMBRE FROM system1 WHERE id_gabinete=? LIMIT 2",
+      "parameters": ["10"],
+      "requires": "Exactly one cabinet matching the publication."
+    },
+    {
+      "key": "visible_indices",
+      "origin": "DA",
+      "sql": "SELECT id_detalle_gabinete,CAMPO FROM detalle_gabienete WHERE id_gabinete=? AND VISIBLE=1 ORDER BY id_detalle_gabinete LIMIT 101",
+      "parameters": ["10"],
+      "requires": "Recipe references must match available visible fields; no schema changes."
+    },
+    {
+      "key": "protected_attempt",
+      "origin": "RA",
+      "sql": "SELECT intento_id,lote_id,estado,fase,evidencia_doc FROM ra_integracion_intento WHERE lote_id=? AND intento_id=? LIMIT 2",
+      "parameters": ["18", "41"],
+      "requires": "Observe only in memory; never mutate, reconcile or replay this resource."
+    }
+  ],
+  "outputPolicy": "Only sanitized booleans, counts and SHA256 of the inspected publication; do not persist query rows, credentials, cookies or connection strings.",
+  "notGranted": ["application authentication", "effects", "fault injection", "DLL installation", "permissions", "configuration", "cleanup", "ALM-03"],
+  "nextGate": "Review recipe and refine the exact resource manifest; obtain a separate effects authorization. This proposal does not authorize installation or certify runtime restore readiness."
+}

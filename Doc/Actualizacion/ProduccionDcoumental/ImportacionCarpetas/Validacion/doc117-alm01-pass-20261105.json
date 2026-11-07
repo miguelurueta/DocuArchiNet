@@ -1,0 +1,48 @@
+{
+  "issueKey": "DOC-117",
+  "status": "PASS",
+  "scenario": "ALM-01",
+  "artifact": "tools/e2e/artifacts/doc117-alm01-run-5f2f30afd71a745f.json",
+  "artifactSha256": "17919bca96a65a302255db238fb31fc7765e2456ba50e31c8ca27aa7d7cad531",
+  "completedUtc": "2026-11-06T00:33:12.324Z",
+  "manifestSha256": "2006f16cc218074f4b2d930daceea480ad5d19dbb1ac888295f7d3d5451ff47f",
+  "codeSha256": "80e339775133d15c38be9df9509756dc4977c1fc6524662bb2ee762aa459a6df",
+  "originalBackendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "originalAndBothBackupsVerified": true,
+  "primaryHead": "b2e93b726f221868cf2b82d43200a8e568871117",
+  "workspaceHasChanges": true,
+  "attribution": "Executed driver/source fingerprint and original backend DLL; primary HEAD alone does not identify uncommitted support",
+  "cases": [
+    {
+      "caseKey": "format-a",
+      "planId": "35",
+      "lotId": "19",
+      "expedienteId": "662",
+      "documentoId": "16220",
+      "inventarioId": "23318",
+      "originalVerified": true,
+      "replayAndReopenUnchanged": true
+    },
+    {
+      "caseKey": "format-b",
+      "planId": "36",
+      "lotId": "20",
+      "expedienteId": "663",
+      "documentoId": "16221",
+      "inventarioId": "23319",
+      "originalVerified": true,
+      "replayAndReopenUnchanged": true
+    }
+  ],
+  "preparations": 2,
+  "confirmations": 2,
+  "uploads": 2,
+  "roots": 2,
+  "documents": 2,
+  "storageRequests": 4,
+  "preservedLotsUnchanged": true,
+  "additionalRealScenarioAcceptance": {
+    "ALM02": false,
+    "ALM03": false
+  }
+}

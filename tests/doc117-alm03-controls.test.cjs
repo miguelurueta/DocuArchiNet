@@ -1,0 +1,44 @@
+'use strict';
+const {test}=require('node:test'),assert=require('node:assert/strict');
+const {createControls,expectedIndex,sameIndex}=require('../tools/e2e/tests/support/doc117-alm03-controls.cjs');
+const {sha}=require('../tools/e2e/tests/support/doc117-alm03-setup-scope.cjs');
+const {bindingFor}=require('../tools/e2e/scripts/support/doc117-alm03-canonical-description.cjs');
+function fixture(failure,description){
+ const d=new Date(),today=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+ const classification={ID_EXPEDIENTE:'467',ID_EMPRESA_EXPEDIENTE:'2',GABINETE_PRODUCION:'gab_fixture',id_instrumento:'4',CODIGO_AREA_TRD:'8',CODIGO_SERIE_TRD:'10',CODIGO_SUB_SERIE_TRD:'0'};
+ const individual={expedienteId:'467',levelId:'8',relacionNivelId:'1072',typologyId:'50',fileName:'DOC117-ALM03-IND-20261106.pdf',classificationSha256:sha(JSON.stringify(classification)),cabinetName:'gab_fixture',bytes:'677',contentSha256:'a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c'};
+ const mapping=[{nombre_campo:'CODIGO_UNICO',tipo_campo:'VARCHAR',id_detalle_gabinete:'14',CAMPO:'CODIGO_EXP',TIPO:'VARCHAR(16)'}],queries=[];let stored=false;
+ const query=async(origin,sql,args)=>{
+  queries.push({origin,sql,args});assert.match(sql,/^SELECT\b/);assert.ok(!sql.includes(';'));
+  if(sql.startsWith('SELECT ID_EXPEDIENTE'))return[stored&&failure==='classification'?{...classification,CODIGO_SERIE_TRD:'99'}:classification];
+  if(sql.includes('AS relacion_id'))return[{relacion_id:'1072',id_nivel:'8',estado_nivel:'1'}];
+  if(sql.startsWith('SELECT n.id_nivel'))return[{id_nivel:'7'},{id_nivel:'8'}];
+  if(sql.startsWith('SELECT id_gabinete'))return[{id_gabinete:'10',NOMBRE:'gab_fixture'}];
+  if(sql.startsWith('SELECT CAST(t.'))return[{type_id:'50',canonical_description:stored&&failure==='description-drift'?'Comprobante de Egreso':description||'Comprobante de Egreso'}];
+  if(sql.startsWith('SELECT ID_REGISTRO_PRODUCION'))return[];
+  if(sql.startsWith('SELECT id_relacion'))return failure==='duplicate-default'?[{id_relacion_gab_expe:'7'},{id_relacion_gab_expe:'8'}]:failure==='no-mapping'||failure==='absence-changed'&&!stored?[]:[{id_relacion_gab_expe:'7'}];
+  if(sql.startsWith('SELECT rgc.'))return failure==='empty-mapping'?[]:stored&&failure==='mapping'?[{...mapping[0],CAMPO:'OTRO'}]:mapping;
+  if(sql.startsWith('SELECT CAMPO,TIPO,VISIBLE'))return['EXPEDIENTE','CLASEDOCUMENTO','TIPODOCUMENTO','FECHAELABORACION','NOMBRESERIE','NOMBRESUBSERIE'].map(CAMPO=>({CAMPO,TIPO:CAMPO==='FECHAELABORACION'?(failure==='date-time'?'DATETIME':failure==='date-text'?'VARCHAR(10)':'DATE'):stored&&failure==='canonical-metadata'?'VARCHAR(99)':'VARCHAR(100)',VISIBLE:'1'}));
+  if(sql.startsWith('SELECT CODIGO_UNICO,NOMBRE_SERIE_TRD'))return[{CODIGO_UNICO:'000467',NOMBRE_SERIE_TRD:'Serie',NOMBRE_SUBSERIE_TRD:'Subserie'}];
+  if(sql.startsWith('SELECT CAST(`CODIGO_UNICO`'))return[{value_0:'000467'}];
+  if(sql.startsWith('SELECT COUNT'))return[{total:stored?(failure==='count'?'12':'11'):'10'}];
+  if(/SELECT [gri]\.\*/.test(sql))return[{key:stored&&failure==='preserved'?'changed':'retained'}];
+  if(sql.startsWith('SELECT ra_pro_niveles_id'))return[{ra_pro_niveles_id_nivel:'8'}];
+  if(sql.startsWith('SELECT g.ID,'))return[{ID:'20002',ID_EXPEDIENTE:'467',ID_USUARIO_GESTION:'141',NOMBRE:failure==='description-physical'?'Comprobante de Egreso':description||'Comprobante de Egreso',DBT:'9',ID_CLASE_DOCUMENTO:'3',ID_TIPO_DOCUMENTO:failure==='type'?'79':'50',ID_EMPRESA_DOCUMENTO:'2',inventory_user:'141',SEGUNDO_NOMBRE_DOCUMENTO:individual.fileName,inventory_format:'.PDF',ID_AREA_DEPARTAMENTO:'8',ID_SERIE_DOCUMENTO:'10',ID_SUBSERIE_DOCUMENTO:'0',segundo_nombre:individual.fileName,index_format:'.PDF',indexed_expedition:'467',value_0:failure==='zeros'?'467':'000467',canonical_0:failure==='canonical'?'467':'000467',canonical_1:'DOCUMENTO ELECTRONICO',canonical_2:failure==='description-index'?'Comprobante de Egreso':description||'Comprobante de Egreso',canonical_3:failure==='date-wrong'?'1900-01-01':failure==='date-text'?today.replaceAll('-','/'):failure==='date-time'?today+' 00:00:00':today,canonical_4:'Serie',canonical_5:'Subserie'}];
+  if(sql.startsWith('SELECT ID_TIPO_DOCUMENTO'))return[{id:'3'}];
+  if(sql.startsWith('SELECT ESTADO_NORMAL'))return[{id:'9'}];
+  if(sql.startsWith('SELECT VISIBLE'))return[{VISIBLE:'1'}];
+  throw Error('unhandled local SELECT');
+ };
+ const controls=description?require('../tools/e2e/tests/support/doc117-alm03-canonical-controls.cjs').createCanonicalControls(query,{individual,lotId:'22',resources:[]},{nivelRef:'7'},bindingFor(description)):createControls(query,{individual,lotId:'22',resources:[]},{nivelRef:'7'});
+ return{queries,controls,store:()=>{stored=true;}};
+}
+test('individual controls correlate physical document, inherited text zeros, classification, counts and prior records',async()=>{const f=fixture(),before=await f.controls.individualBefore();f.store();const r=await f.controls.individualPhysical({expedienteId:'467',documentoId:'20002',inventarioId:'30002'},before);assert.equal(r.physicalIndicesVerified,true);assert.equal(r.incorporations,1);assert.ok(f.queries.some(q=>q.sql.includes('id_cert_indice_expediente')));});
+for(const failure of ['classification','mapping','count','preserved','type','zeros','canonical','canonical-metadata','absence-changed'])test('individual controls reject '+failure,async()=>{const f=fixture(failure),before=await f.controls.individualBefore();f.store();await assert.rejects(f.controls.individualPhysical({expedienteId:'467',documentoId:'20002',inventarioId:'30002'},before));});
+test('the official optional mapping path works with no default relation and still verifies canonical indices',async()=>{const f=fixture('no-mapping'),before=await f.controls.individualBefore();assert.equal(before.indices.length,0);assert.ok(!f.queries.some(q=>q.sql.startsWith('SELECT rgc.')||/SELECT\s+FROM/.test(q.sql)));f.store();const r=await f.controls.individualPhysical({expedienteId:'467',documentoId:'20002',inventarioId:'30002'},before);assert.equal(r.mappingMode,'NO_DEFAULT_MAPPING');assert.equal(r.mappedIndicesVerified,0);assert.equal(r.canonicalIndicesVerified,6);});
+for(const type of ['date-text','date-time'])test('canonical date follows the existing writer conversion for '+type,async()=>{const f=fixture(type),before=await f.controls.individualBefore();f.store();await f.controls.individualPhysical({expedienteId:'467',documentoId:'20002',inventarioId:'30002'},before);});
+test('canonical date mismatch is rejected',async()=>{const f=fixture('date-wrong'),before=await f.controls.individualBefore();f.store();await assert.rejects(f.controls.individualPhysical({expedienteId:'467',documentoId:'20002',inventarioId:'30002'},before),/CANONICAL_INDEX_CHANGED/);});
+for(const failure of ['duplicate-default','empty-mapping'])test('preflight refuses ambiguous or incomplete configured mapping: '+failure,async()=>{const f=fixture(failure);await assert.rejects(f.controls.individualBefore());assert.ok(!f.queries.some(q=>q.sql.startsWith('SELECT g.ID,')));});
+test('index expectations follow the existing fixed mapping types and fail before storage for unsupported types',()=>{const m={tipo_campo:'VARCHAR',TIPO:'VARCHAR(3)'};assert.equal(expectedIndex(m,'000467'),'000');assert.equal(sameIndex('000','000',m),true);assert.equal(sameIndex('0','000',m),false);assert.equal(expectedIndex({tipo_campo:'INT',TIPO:'INT'},null),'0');assert.throws(()=>expectedIndex({tipo_campo:'VARCHAR',TIPO:'VARCHAR; DROP'},'x'));assert.throws(()=>expectedIndex({tipo_campo:'DECIMAL',TIPO:'DECIMAL'},'1.0'));});
+for(const description of ['COMPROBANTE DE EGRESO','  Comprobante\u00a0de  Egreso  ','Ｃｏｍｐｒｏｂａｎｔｅ de Egreso'])test('canonical controls require the exact catalog representation '+JSON.stringify(description),async()=>{const f=fixture(null,description),before=await f.controls.individualBefore();assert.equal(before.canonical.fields.find(x=>x.field==='TIPODOCUMENTO').value,description);f.store();assert.equal((await f.controls.individualPhysical({expedienteId:'467',documentoId:'20002',inventarioId:'30002'},before)).physicalIndicesVerified,true);});
+for(const failure of ['description-drift','description-physical','description-index'])test('canonical controls refuse equivalent but changed representation: '+failure,async()=>{const f=fixture(failure,'COMPROBANTE DE EGRESO'),before=await f.controls.individualBefore();f.store();await assert.rejects(f.controls.individualPhysical({expedienteId:'467',documentoId:'20002',inventarioId:'30002'},before));});

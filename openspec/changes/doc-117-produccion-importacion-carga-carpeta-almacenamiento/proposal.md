@@ -1,13 +1,25 @@
 ## Why
 
-PRODUCCION-IMPORTACION-CARGA-CARPETA-ALMACENAMIENTO. Ver detalle funcional completo del ticket en la seccion Jira Details.
+El almacenamiento ya existe y cuenta con REC histórico. DOC-117 debe precisar y completar la evidencia faltante de valores finales, fallos internos y coexistencia, evitando un segundo escritor y preservando los originales y efectos confirmados.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-117.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Contrastar ALM-01/02/03 con código local y evidencia, indicando qué afirmación acredita cada prueba.
+- Completar únicamente pruebas o soporte faltante; cambiar producto solo ante defecto reproducido y con regresión específica.
+- Formalizar la confirmación por IDs y la conservación de incertidumbre sin doble almacenamiento.
+- Proponer casos reales acotados con autorización independiente; no heredar permisos de DOC-111 o DOC-116.
+
+## Capabilities
+
+### New Capabilities
+- `produccion-importacion-carga-carpeta-almacenamiento`: contrato focal del adaptador de almacenamiento, sus verificaciones y límites de aceptación. Se formaliza comportamiento existente; no se crea otro motor.
+
+### Modified Capabilities
+Ninguna capacidad principal existente se modifica en este refinamiento.
+
+## Impact
+
+Adaptador documental, catálogo, coordinador y repositorio existentes como superficies de revisión y pruebas. Sin cambio de API, esquema, formatos soportados, función compartida o SII previsto. La copia local prevalece.
 
 ## Jira Details
 
@@ -49,22 +61,3 @@ PRODUCCION-IMPORTACION-CARGA-CARPETA-ALMACENAMIENTO. Ver detalle funcional compl
 - Tipo: Tarea
 - Prioridad: Medium
 - Labels: ALMACENAMIENTO, CARGA, CARPETA, EXPEDIENTE, IMPORTACION, PRODUCION
-
-## Capabilities
-
-### New Capabilities
-- `produccion-importacion-carga-carpeta-almacenamiento`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
-
-### Modified Capabilities
-- 
-
-## Impact
-
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
-
-## Perfil tecnologico
-
-- Perfil de revision: legacy-webforms-vb (v1).
-- Alcance: ASP.NET Web Forms, code-behind VB.NET/C# y JavaScript gradual.
-- Este perfil orienta la revision tecnica; no reemplaza los requisitos funcionales ni arquitectonicos del ticket.

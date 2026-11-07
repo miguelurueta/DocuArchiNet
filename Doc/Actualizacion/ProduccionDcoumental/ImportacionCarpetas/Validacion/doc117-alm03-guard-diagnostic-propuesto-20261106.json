@@ -1,0 +1,109 @@
+{
+  "issueKey": "DOC-117",
+  "scope": "ALM-03-GUARD-DIAGNOSTIC",
+  "date": "2026-11-06",
+  "status": "PROPOSED_NOT_AUTHORIZED",
+  "environment": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "resourceScope": {
+    "issueKey": "DOC-117",
+    "protocol": "ALM03_INDIVIDUAL_GUARD_DIAGNOSTIC_NO_WRITER_V1",
+    "runtimeRoot": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+    "runId": "148776b731119b39ff896564a60c5a6f",
+    "actorRef": "141",
+    "companyRef": "2",
+    "levelRef": "8",
+    "expedientRef": "467",
+    "relationRef": "1072",
+    "typologyRef": "50",
+    "cabinetRef": "10",
+    "cabinetName": "CONTABIL",
+    "fileName": "DOC117-ALM03-GUARD-DIAG-20261106.pdf",
+    "bytes": 677,
+    "contentSha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c",
+    "classificationSha256": "083005fcf663febf27982bef6ce9b2f17c03b278ea99d70267da3741cfcdf5ff",
+    "writerAllowed": false,
+    "importsAllowed": false,
+    "priorCaseSelectRequests": 146,
+    "maximumAdditionalSelectRequests": 160,
+    "maximumCumulativeSelectRequests": 306,
+    "maximumRuntimeSeconds": 600
+  },
+  "resourceScopeSha256": "364bd1443cb90cedd66447d2e2ab6ba09225f5ff426bb1a2ccaa61ec2bbd77cc",
+  "storageRequests": 0,
+  "documents": 0,
+  "temporaryUploads": 1,
+  "plans": 0,
+  "lots": 0,
+  "receipts": 0,
+  "expedients": 0,
+  "materializations": 0,
+  "priorSelectRequests": 146,
+  "maximumAdditionalSelectRequests": 160,
+  "maximumCumulativeSelectRequests": 306,
+  "maximumRuntimeSeconds": 600,
+  "writerAllowed": false,
+  "importsAllowed": false,
+  "replayAllowed": false,
+  "reconciliationAllowed": false,
+  "repairAllowed": false,
+  "cleanupAllowed": false,
+  "realExecutionAuthorized": false,
+  "runtimeActivationAuthorized": false,
+  "temporaryUploadAuthorized": false,
+  "historicalResourceScopeFile": ".tmp/doc117-alm03-setup-57219fc625b867b54d8d282b6b1eb0a2-scope.json",
+  "historicalResourceScopeFileSha256": "68d7df222d60dcc5e9c545ac9b7a09a9587a5c15e1b312f11191b5cc64497b03",
+  "priorReadbackFile": "tools/e2e/artifacts/doc117-alm03-post-stop-149655bd16ab32f957ddae7d44192109.json",
+  "priorReadbackSha256": "cc372656a5e27770d7787c220599330a68fa6a024996794abe1ae823059d5f62",
+  "buildReportFile": ".tmp/doc117-alm03-guard-probe-build-20261106/build-result.json",
+  "buildReportSha256": "7b2fa1efccee4a73a7027b893e7c1342777ffaf5b1193cea9b0e302280141463",
+  "candidateFile": ".tmp/doc117-alm03-guard-probe-build-20261106/obj/GestionDocumental-Docuarchi.net.dll",
+  "candidateSha256": "8952bd88c52e7375ad590ae955d9b157b782c9040bb0767915b43cffd05fc8eb",
+  "originalSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "sourceInputsFile": ".tmp/doc117-alm03-guard-probe-build-20261106/source-inputs.json",
+  "sourceInputsSha256": "412a115d0a4e7d8b6b839aa5ba17082337fce14bb129332645db82509909d1d3",
+  "fixtureFile": "tools/e2e/fixtures/DOC117-ALM03-GUARD-DIAG-20261106.pdf",
+  "preservedResources": {
+    "confirmedAttempt": "58",
+    "document": "16224",
+    "inventory": "23322",
+    "unstartedImportFile": "37",
+    "historicalAttempts": [
+      "41",
+      "52",
+      "53"
+    ],
+    "lot": "22",
+    "plan": "38",
+    "roots": [
+      "35",
+      "36"
+    ],
+    "stagingFiles": [
+      "36",
+      "37"
+    ],
+    "expedients": [
+      "666",
+      "667"
+    ],
+    "relations": [
+      "1091",
+      "1092"
+    ],
+    "previousIndividualTemporaryFilePreserved": true
+  },
+  "outcomes": [
+    "GUARDS_ACCEPTED_WRITER_BLOCKED",
+    "GUARDS_REJECTED_WRITER_BLOCKED",
+    "INCONCLUSIVE_STOP_WITHOUT_RETRY"
+  ],
+  "concurrencyCredit": false,
+  "progress": {
+    "complete": 16,
+    "total": 18,
+    "pending": [
+      "17.1",
+      "18.1"
+    ]
+  }
+}

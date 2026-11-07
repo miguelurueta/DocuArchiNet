@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-06",
+  "kind": "LOCAL_FILES_AND_PROCESSES_ONLY",
+  "issueKey": "DOC-117",
+  "scenario": "ALM-02-RUNTIME-REHEARSAL",
+  "status": "PASS",
+  "runId": "b97e5dc5ac39fd2cdb2df000690d884e",
+  "originalSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "candidateSha256": "d8966b9b4bf420981adde58d916878c1d3a7df1dfa23974774351dcfc70c7b0a",
+  "independentGuardian": true,
+  "ownerExitedWithoutRestore": true,
+  "candidateObservedInTemporarySite": true,
+  "temporaryRuntimeRestored": true,
+  "bothBackupsByteIdentical": true,
+  "windowsAclTransferVerified": true,
+  "liveRuntimeUnchanged": true,
+  "liveRuntimeActivation": false,
+  "authenticatedExecution": false,
+  "effectsAuthorized": false,
+  "maximumRuntimeSeconds": 600,
+  "scope": "Byte-copy rehearsal in a disposable .tmp site; no IIS/HTTP/database, DLL loading or activation in the live site",
+  "evidence": ".tmp/doc117-alm02-lease-b97e5dc5ac39fd2cdb2df000690d884e/rehearsal-result.json",
+  "tests": {
+    "command": "node --test tests/doc116-internal-fault.test.cjs tests/doc116-runtime-lease.test.cjs tests/doc117-runtime-lease.test.cjs tests/doc117-alm02-candidate.test.cjs tests/doc117-alm02-preflight.test.cjs",
+    "tests": 33,
+    "pass": 33,
+    "fail": 0,
+    "exitCode": 0
+  },
+  "deadlineTest": {
+    "kind": "INJECTED_CLOCK",
+    "maximumRuntimeSeconds": 600,
+    "realTenMinuteWait": false
+  },
+  "reviewedFiles": {
+    "tools/e2e/scripts/support/laboratory-runtime-lease.cjs": "8562728417a159368859884e6d8cdf4e2b771d42caf231a7736ac1ca528c320a",
+    "tools/e2e/scripts/support/doc116-runtime-lease.cjs": "8ab5014421f7e28d30d82ca620ac397271f217836f78c0e225c9a7d297662565",
+    "tools/e2e/scripts/support/doc117-runtime-lease.cjs": "518d56a714289ad9a87f459ee00c0368ec8a62db244bc0a5f69b7c54f17e445f",
+    "tools/e2e/scripts/rehearse-doc117-runtime.cjs": "91ed030b598beb380aade418b357f37fec672ace7b846707b462c051fbd3d2a9",
+    "tests/doc116-runtime-lease.test.cjs": "ad3058e19bbaa4f545aaf620fb00d1750e88b02b48c648b07ade1c8eff0e8ba9",
+    "tests/doc117-runtime-lease.test.cjs": "0d7ad64b1feec5105c97ed987d82a65bf0285a070fd69504e395741672fec4e1"
+  },
+  "designProposal": "doc117-alm02-ajuste-alcance-propuesto-20261106.md",
+  "designProposalApplied": false,
+  "liveActivationReady": false,
+  "newSelectRequests": 0,
+  "newApplicationLogins": 0,
+  "newDocuments": 0,
+  "tasksComplete": 15,
+  "tasksTotal": 18
+}
