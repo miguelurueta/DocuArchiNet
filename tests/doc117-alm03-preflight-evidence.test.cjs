@@ -1,4 +1,5 @@
 'use strict';
+const syntheticHistory=require('./support/doc117-history-fixture.cjs').install();
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {preflightFailure}=require('../tools/e2e/scripts/support/doc117-alm03-preflight-evidence.cjs');
 test('preflight keeps only explicit login and level codes, never arbitrary error details',()=>{
@@ -13,5 +14,5 @@ test('preflight preserves sanitized login observations and only the read-only lo
 });
 test('diagnostic code correction invalidates the previous real grant without changing native candidate or scope',()=>{
  const fs=require('node:fs'),path=require('node:path'),runner=require('../tools/e2e/scripts/run-doc117-alm03-guard-diagnostic.cjs'),prepared=runner.loadPrepared(),approval=JSON.parse(fs.readFileSync(path.join(__dirname,'../.tmp/doc117-alm03-guard-probe-authorization.json'),'utf8'));
- assert.notEqual(approval.codeSha256,runner.codeFingerprint());assert.equal(approval.candidateSha256,prepared.p.candidateSha256);assert.equal(approval.resourceScopeSha256,prepared.p.resourceScopeSha256);assert.throws(()=>runner.validateGrant(approval,prepared,runner.codeFingerprint()),/SPECIFIC_AUTHORIZATION_REQUIRED/);
+ assert.notEqual(approval.codeSha256,runner.codeFingerprint());assert.equal(approval.candidateSha256,prepared.p.candidateSha256);assert.equal(approval.resourceScopeSha256,prepared.p.resourceScopeSha256);assert.doesNotThrow(()=>runner.validateGrant({...approval,codeSha256:runner.codeFingerprint()},prepared,runner.codeFingerprint()));assert.throws(()=>runner.validateGrant(approval,prepared,runner.codeFingerprint()),/SPECIFIC_AUTHORIZATION_REQUIRED/);
 });

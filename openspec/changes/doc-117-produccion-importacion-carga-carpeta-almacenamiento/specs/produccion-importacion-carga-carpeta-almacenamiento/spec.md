@@ -95,4 +95,3 @@ La validación SHALL usar autorizaciones específicas para efectos reales y cont
 #### Scenario: Cierre trazable
 - **WHEN** se evalúa cerrar DOC-117
 - **THEN** la matriz identifica casos reales y locales, límites y faltantes; no oculta escenarios no acreditados
-

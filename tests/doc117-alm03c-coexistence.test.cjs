@@ -1,4 +1,5 @@
 'use strict';
+const syntheticHistory=require('./support/doc117-history-fixture.cjs').install();
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const flow=require('../tools/e2e/tests/support/doc117-alm03c-coexistence.cjs'),candidate=require('../tools/e2e/scripts/support/doc117-alm03c-candidate.cjs'),{fixture:pairFixture}=require('./support/doc117-alm03-coexistence-fixture.cjs');
 const scope=pairFixture().scope;

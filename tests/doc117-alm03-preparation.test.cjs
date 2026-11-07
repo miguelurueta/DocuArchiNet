@@ -1,4 +1,5 @@
 'use strict';
+const syntheticHistory=require('./support/doc117-history-fixture.cjs').install();
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {runPreparation}=require('../tools/e2e/tests/support/doc117-alm03-preparation.cjs');
 for(const mode of ['ok','login','transport','level','lot','mismatch'])test('preparation only: '+mode+' retains stage and calls each operation at most once',async()=>{
@@ -8,6 +9,6 @@ for(const mode of ['ok','login','transport','level','lot','mismatch'])test('prep
  if(mode==='ok'){assert.equal(r.status,'PREPARATION_VERIFIED');assert.deepEqual(calls,['open','level','lot']);}else{assert.equal(r.status,'PREPARATION_STOPPED');assert.equal(r.failedAt,['login','transport'].includes(mode)?'SESSION_OPEN_REQUESTED':mode==='level'?'LEVEL_SELECTION_REQUESTED':'LOT_READ_REQUESTED');assert.notEqual(r.failure.code,'UNCLASSIFIED_FAILURE');}
 });
 test('preparation grant accepts only a single read-only session and refuses the old runtime/upload authorization',()=>{
- const runner=require('../tools/e2e/scripts/run-doc117-alm03-preparation.cjs'),p=runner.loadPrepared(),a={scope:runner.SCOPE,authorized:true,environmentAuthorized:true,account:true,oneSession:true,readOnlyApi:true,environment:p.profile.baseUrl,profileSha256:p.profileSha256,previousSha256:p.previousSha256,codeSha256:p.codeSha256,controlSelect:false,temporaryUpload:false,runtimeChanges:false,storage:false,imports:false,authorizationId:'c'.repeat(32),tls:true};assert.doesNotThrow(()=>runner.validateGrant(a,p));
+ const runner=require('../tools/e2e/scripts/run-doc117-alm03-preparation.cjs'),p=syntheticHistory.preparation,a={scope:runner.SCOPE,authorized:true,environmentAuthorized:true,account:true,oneSession:true,readOnlyApi:true,environment:p.profile.baseUrl,profileSha256:p.profileSha256,previousSha256:p.previousSha256,codeSha256:p.codeSha256,controlSelect:false,temporaryUpload:false,runtimeChanges:false,storage:false,imports:false,authorizationId:'c'.repeat(32),tls:true};assert.doesNotThrow(()=>runner.validateGrant(a,p));
  for(const patch of [{scope:'ALM-03-GUARD-DIAGNOSTIC'},{oneSession:false},{readOnlyApi:false},{controlSelect:true},{temporaryUpload:true},{runtimeChanges:true},{storage:true},{imports:true},{codeSha256:'0'.repeat(64)},{previousSha256:'0'.repeat(64)},{profileSha256:'0'.repeat(64)}])assert.throws(()=>runner.validateGrant({...a,...patch},p),/SPECIFIC_AUTHORIZATION_REQUIRED/);
 });

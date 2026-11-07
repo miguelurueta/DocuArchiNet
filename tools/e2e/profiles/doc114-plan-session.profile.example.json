@@ -1,0 +1,392 @@
+{
+  "version": 1,
+  "scenario": "PLAN-01",
+  "runtimeRoot": "C:/REEMPLAZAR/DocuArchiNet",
+  "identity": {
+    "userRef": "1",
+    "ambitoRef": "2"
+  },
+  "profiles": [
+    {
+      "baseUrl": "https://test.invalid/app/",
+      "module": "GESTOR",
+      "odbcDsn": "dsn-ra-pruebas",
+      "docuarchiOdbcDsn": "dsn-da-pruebas",
+      "ignoreHttpsErrors": false,
+      "timeoutMilliseconds": 300000,
+      "nivelRef": "7",
+      "versionId": "5",
+      "mode": "EXPEDIENTE",
+      "pdfFixture": "doc110-carga-individual.pdf",
+      "rootNames": [
+        "DOC111-PRUEBA-1",
+        "DOC111-PRUEBA-2"
+      ],
+      "expectations": [
+        {
+          "codigo": "DOC111-PRUEBA-1",
+          "nombre": "DOC111-PRUEBA-1",
+          "tipologiaId": "9",
+          "indices": [
+            {
+              "referencia": "91",
+              "tipo": "TEXTO",
+              "valor": "0007"
+            }
+          ]
+        },
+        {
+          "codigo": "DOC111-PRUEBA-2",
+          "nombre": "DOC111-PRUEBA-2",
+          "tipologiaId": "9",
+          "indices": [
+            {
+              "referencia": "91",
+              "tipo": "TEXTO",
+              "valor": "0007"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "baseUrl": "https://test.invalid/app/",
+      "module": "GESTOR",
+      "odbcDsn": "dsn-ra-pruebas",
+      "docuarchiOdbcDsn": "dsn-da-pruebas",
+      "ignoreHttpsErrors": false,
+      "timeoutMilliseconds": 300000,
+      "nivelRef": "7",
+      "versionId": "106",
+      "mode": "EXPEDIENTE",
+      "pdfFixture": "doc110-carga-individual.pdf",
+      "rootNames": [
+        "DOC111-PRUEBA-1",
+        "DOC111-PRUEBA-2"
+      ],
+      "expectations": [
+        {
+          "codigo": "DOC111-PRUEBA-1",
+          "nombre": "DOC111-PRUEBA-1",
+          "tipologiaId": "9",
+          "indices": [
+            {
+              "referencia": "91",
+              "tipo": "TEXTO",
+              "valor": "0007"
+            }
+          ]
+        },
+        {
+          "codigo": "DOC111-PRUEBA-2",
+          "nombre": "DOC111-PRUEBA-2",
+          "tipologiaId": "9",
+          "indices": [
+            {
+              "referencia": "91",
+              "tipo": "TEXTO",
+              "valor": "0007"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "key": "valid-format-a",
+      "profile": 0,
+      "request": {
+        "nivelRef": "7",
+        "versionId": "5",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114-20261103"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-125.pdf",
+            "rutaRelativa": "000114-20261103/DOC114-125.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "expected": {
+        "confirmable": true,
+        "eligible": [
+          "r1"
+        ],
+        "incidences": [],
+        "values": [
+          {
+            "root": "r1",
+            "type": "CAMPO_EXPEDIENTE",
+            "ref": "CODIGO",
+            "value": "000114",
+            "deferred": false
+          },
+          {
+            "root": "r1",
+            "type": "CAMPO_EXPEDIENTE",
+            "ref": "FECHA_INICIAL",
+            "value": "2026-11-03",
+            "deferred": false
+          },
+          {
+            "root": "r1",
+            "file": "a1",
+            "type": "INDICE_GABINETE",
+            "ref": "99",
+            "value": null,
+            "deferred": true
+          }
+        ]
+      }
+    },
+    {
+      "key": "valid-format-b",
+      "profile": 1,
+      "request": {
+        "nivelRef": "7",
+        "versionId": "106",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114#03-11-2026"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-125.pdf",
+            "rutaRelativa": "000114#03-11-2026/DOC114-125.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "expected": {
+        "confirmable": true,
+        "eligible": [
+          "r1"
+        ],
+        "incidences": [],
+        "values": [
+          {
+            "root": "r1",
+            "type": "CAMPO_EXPEDIENTE",
+            "ref": "CODIGO",
+            "value": "000114",
+            "deferred": false
+          },
+          {
+            "root": "r1",
+            "type": "CAMPO_EXPEDIENTE",
+            "ref": "FECHA_INICIAL",
+            "value": "2026-11-03",
+            "deferred": false
+          },
+          {
+            "root": "r1",
+            "file": "a1",
+            "type": "INDICE_GABINETE",
+            "ref": "99",
+            "value": null,
+            "deferred": true
+          }
+        ]
+      }
+    },
+    {
+      "key": "unknown-type",
+      "profile": 0,
+      "request": {
+        "nivelRef": "7",
+        "versionId": "5",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114-20261103"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-UNKNOWN.pdf",
+            "rutaRelativa": "000114-20261103/DOC114-UNKNOWN.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "expected": {
+        "confirmable": false,
+        "eligible": [],
+        "incidences": [
+          {
+            "code": "TIPOLOGIA_NO_UNIVOCA",
+            "root": "r1",
+            "file": "a1"
+          }
+        ],
+        "values": []
+      }
+    },
+    {
+      "key": "unparseable-name",
+      "profile": 0,
+      "request": {
+        "nivelRef": "7",
+        "versionId": "5",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114-20261103"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "invalid.pdf",
+            "rutaRelativa": "000114-20261103/invalid.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "expected": {
+        "confirmable": false,
+        "eligible": [],
+        "incidences": [
+          {
+            "code": "SEGMENTO_AUSENTE",
+            "root": "r1",
+            "file": "a1"
+          }
+        ],
+        "values": []
+      }
+    },
+    {
+      "key": "missing-required",
+      "profile": 0,
+      "request": {
+        "nivelRef": "7",
+        "versionId": "5",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114-20261103"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-.pdf",
+            "rutaRelativa": "000114-20261103/DOC114-.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "expected": {
+        "confirmable": false,
+        "eligible": [],
+        "incidences": [
+          {
+            "code": "VALOR_REQUERIDO",
+            "root": "r1",
+            "file": "a1"
+          }
+        ],
+        "values": []
+      }
+    },
+    {
+      "key": "invalid-conversion",
+      "profile": 0,
+      "request": {
+        "nivelRef": "7",
+        "versionId": "5",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "000114-20260230"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-125.pdf",
+            "rutaRelativa": "000114-20260230/DOC114-125.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "expected": {
+        "confirmable": false,
+        "eligible": [],
+        "incidences": [
+          {
+            "code": "FECHA_INVALIDA",
+            "root": "r1"
+          }
+        ],
+        "values": []
+      }
+    },
+    {
+      "key": "functional-length",
+      "profile": 0,
+      "request": {
+        "nivelRef": "7",
+        "versionId": "5",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC114-125.pdf",
+            "rutaRelativa": "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN/DOC114-125.pdf",
+            "bytes": "7",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "expected": {
+        "confirmable": false,
+        "eligible": [],
+        "incidences": [
+          {
+            "code": "LONGITUD_NOMBRE_EXCEDIDA",
+            "root": "r1"
+          }
+        ],
+        "values": []
+      }
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 'use strict';
+const syntheticHistory=require('./support/doc117-history-fixture.cjs').install();
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),{execFileSync}=require('node:child_process');
 const {ROOT,GUARD,renderGuard,generate,resourceHashes}=require('../tools/e2e/scripts/support/doc117-alm03-scoped-candidate.cjs');
 const {TEMPLATE}=require('../tools/e2e/scripts/support/doc117-alm03-candidate.cjs');

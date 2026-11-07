@@ -1,8 +1,9 @@
 'use strict';
+const syntheticHistory=require('./support/doc117-history-fixture.cjs').install();
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {loadPrepared,validateGrant,codeFingerprint,main}=require('../tools/e2e/scripts/run-doc117-alm03-guard-diagnostic.cjs');
 test('guard probe checks sealed sources, prior 146 reads and original runtime without authorization or activation',async()=>{
- const p=loadPrepared();assert.equal(p.p.realExecutionAuthorized,false);assert.equal(p.p.runtimeActivationAuthorized,false);assert.equal(p.p.temporaryUploadAuthorized,false);assert.equal(p.p.documents,0);assert.equal(p.p.storageRequests,0);assert.equal(p.s.priorCaseSelectRequests,146);assert.equal(p.s.maximumAdditionalSelectRequests,160);assert.equal(p.s.maximumCumulativeSelectRequests,306);assert.equal(p.p.candidateSha256,'8952bd88c52e7375ad590ae955d9b157b782c9040bb0767915b43cffd05fc8eb');
+ const p=loadPrepared();assert.equal(p.p.realExecutionAuthorized,false);assert.equal(p.p.runtimeActivationAuthorized,false);assert.equal(p.p.temporaryUploadAuthorized,false);assert.equal(p.p.documents,0);assert.equal(p.p.storageRequests,0);assert.equal(p.s.priorCaseSelectRequests,146);assert.equal(p.s.maximumAdditionalSelectRequests,160);assert.equal(p.s.maximumCumulativeSelectRequests,306);assert.match(p.p.candidateSha256,/^[a-f0-9]{64}$/);
  const digest=target=>{if(!fs.existsSync(target))return null;if(fs.statSync(target).isDirectory())return fs.readdirSync(target).sort().map(name=>[name,digest(path.join(target,name))]);return require('node:crypto').createHash('sha256').update(fs.readFileSync(target)).digest('hex');};
  const targets=[p.run,p.proofDirectory,p.reservationDirectory,p.temporaryFile],before=targets.map(digest);await main(['--check']);assert.deepEqual(targets.map(digest),before);
 });

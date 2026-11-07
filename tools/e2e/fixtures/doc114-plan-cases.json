@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "scope": "SYNTHETIC_METADATA_ONLY_NOT_RUNTIME_AUTHORIZATION",
+  "formats": [
+    {"key":"format-a","root":"000114-20261103","otherRoot":"000115-20261103","file":"DOC114-125.pdf","expectedCode":"000114","expectedDate":"2026-11-03","folderSeparator":"-","dateFormat":"yyyyMMdd","typeSegment":1},
+    {"key":"format-b","root":"000114#03-11-2026","otherRoot":"000115#03-11-2026","file":"DOC114-125.pdf","expectedCode":"000114","expectedDate":"2026-11-03","folderSeparator":"#","dateFormat":"dd-MM-yyyy","typeSegment":1}
+  ],
+  "plan01": [
+    {"key":"valid-format-a","format":"format-a","expect":"VALUES_AND_TYPED_DEFERRED_SOURCES"},
+    {"key":"valid-format-b","format":"format-b","expect":"VALUES_AND_TYPED_DEFERRED_SOURCES"},
+    {"key":"unknown-type","file":"DOC114-UNKNOWN.pdf","requirement":"publication must demonstrate UNKNOWN is not an authorized type code","incidence":"TIPOLOGIA_NO_UNIVOCA"},
+    {"key":"unparseable-name","file":"invalid.pdf","incidence":"SEGMENTO_AUSENTE"},
+    {"key":"missing-required","file":"DOC114-.pdf","requirement":"published rule must require the extracted empty segment","incidence":"VALOR_REQUERIDO"},
+    {"key":"invalid-conversion","folder":"000114-20260230","requirement":"published root-date rule uses yyyyMMdd","incidence":"FECHA_INVALIDA"},
+    {"key":"functional-length","rootLength":121,"requirement":"published NOMBRE rule resolves the full root name","incidence":"LONGITUD_NOMBRE_EXCEDIDA"}
+  ],
+  "plan02": [
+    {"key":"complete-expediente","mode":"COMPLETO_OBLIGATORIO","scope":"EXPEDIENTE","eligible":["r1"],"confirmable":true},
+    {"key":"complete-lote","mode":"COMPLETO_OBLIGATORIO","scope":"LOTE","eligible":[],"confirmable":false},
+    {"key":"partial","mode":"PARCIAL_PERMITIDO","scope":"NO_APLICA","eligible":["r1"],"confirmable":true},
+    {"key":"global-error","requirement":"genuine incompatible/unauthorized context or inconsistent manifest, not a mocked response","eligible":[],"confirmable":false},
+    {"key":"mixed-partial-root","requirement":"r2 contains one rejected and one valid file under partial policy","eligible":["r1","r2"],"confirmable":true},
+    {"key":"foreign-level","requirement":"explicit foreign destination rejected by real authority","expectedCode":"ACCESO_DENEGADO","expectedNewPlans":0},
+    {"key":"inconsistent-manifest","requirement":"declared file references an absent root","expectedCode":"SOLICITUD_INVALIDA","expectedNewPlans":0}
+  ],
+  "plan03": [
+    {"key":"injected-result","extraField":"resultado","expectedCode":"CONFIGURACION_INVALIDA","expectedNewPlans":0},
+    {"key":"injected-snapshot","extraField":"snapshot","expectedCode":"CONFIGURACION_INVALIDA","expectedNewPlans":0},
+    {"key":"foreign-level","binding":"explicit authorized negative level reference","expectedCode":"ACCESO_DENEGADO","expectedNewPlans":0},
+    {"key":"incompatible-version","binding":"explicit incompatible or unavailable version reference","expectedNewPlans":0},
+    {"key":"compatible-version-control","binding":"separate compatible published base profile","expect":"NEW_PREPARATION_PREVIOUS_PLAN_UNCHANGED"},
+    {"key":"revoked-permission","binding":"same authenticated session, operational permission revoked through approved procedure","expectedCode":"ACCESO_DENEGADO","expectedNewPlans":0,"requiresRestoration":true}
+  ],
+  "manifestNegatives": ["duplicate-client-root-id","duplicate-selection-id","duplicate-client-file-id-in-root","missing-root-reference","empty-declared-root","parent-traversal","duplicate-normalized-path","file-directory-collision"],
+  "deferredSource": {"property":"ID","value":null,"deferred":true},
+  "limitations": [
+    "No real level/version/actor references are supplied here; resolve and authorize them separately.",
+    "Synthetic roots/type codes/formats must be contrasted with actual published rules and conflicts before any real preparation.",
+    "No binary content, future document identity, successful confirmation or permission mutation is represented as already verified."
+  ]
+}

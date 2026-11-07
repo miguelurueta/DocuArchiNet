@@ -61,4 +61,3 @@ Adaptador documental, catálogo, coordinador y repositorio existentes como super
 - Tipo: Tarea
 - Prioridad: Medium
 - Labels: ALMACENAMIENTO, CARGA, CARPETA, EXPEDIENTE, IMPORTACION, PRODUCION
-

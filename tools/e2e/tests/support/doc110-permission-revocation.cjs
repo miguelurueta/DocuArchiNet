@@ -48,12 +48,14 @@ function startDatabaseBridge(script='doc110-permission-db.ps1',options={}){
   if(!['doc110-permission-db.ps1','doc110-profile-schema-db.ps1'].includes(script))throw new Error('DOC110_DATABASE_BRIDGE_SCRIPT_INVALID');
   if(options.doc116LevelResourcesFile!==undefined&&(Object.keys(options).some(k=>k!=='doc116LevelResourcesFile')||typeof options.doc116LevelResourcesFile!=='string'||!require('node:path').isAbsolute(options.doc116LevelResourcesFile)||script!=='doc110-permission-db.ps1'||process.env.DOC116_AUTH_LEVEL_PERMISSION!=='true'||!/^[a-f0-9]{64}$/.test(process.env.DOC116_LEVEL_RESOURCES_SHA256||'')))throw new Error('DOC110_DATABASE_BRIDGE_SCRIPT_INVALID');
   if(options.doc116LevelResourcesFile===undefined){
-  if(Object.keys(options).some(k=>k!=='operationalSchema')||(options.operationalSchema!==undefined&&typeof options.operationalSchema!=='boolean')||(options.operationalSchema&&script!=='doc110-profile-schema-db.ps1'))throw new Error('DOC110_DATABASE_BRIDGE_SCRIPT_INVALID');
+  if(Object.keys(options).some(k=>!['operationalSchema','operationalImport','runtimeRoot','planId','planHash'].includes(k))||['operationalSchema','operationalImport'].some(k=>options[k]!==undefined&&typeof options[k]!=='boolean')||(options.operationalSchema&&script!=='doc110-profile-schema-db.ps1')||(options.operationalImport&&script!=='doc110-permission-db.ps1')||!options.operationalImport&&['runtimeRoot','planId','planHash'].some(k=>options[k]!==undefined))throw new Error('DOC110_DATABASE_BRIDGE_SCRIPT_INVALID');
   }
+  if(options.operationalImport&&(process.env.DOC114_AUTH_REVOCATION!=='true'||process.env.DOC114_E2E_USER?.toUpperCase()!=='LUZ.AGUILERA'))throw new Error('DOC114_OPERATIONAL_PERMISSION_AUTHORIZATION_REQUIRED');
   const {spawn}=require('node:child_process');
   const readline=require('node:readline'),path=require('node:path');
+  if(options.operationalImport&&(!path.isAbsolute(options.runtimeRoot||'')||!(/^[1-9][0-9]{0,9}$/).test(options.planId||'')||!(/^[a-f0-9]{64}$/).test(options.planHash||'')))throw new Error('DOC114_OPERATIONAL_PLAN_PROOF_REQUIRED');
   const child=spawn('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',
-    path.resolve(__dirname,'../../scripts/support',script),...options.operationalSchema?['-Operational']:[],...options.doc116LevelResourcesFile?['-Doc116LevelResourcesFile',options.doc116LevelResourcesFile]:[]],{windowsHide:true,stdio:['pipe','pipe','pipe']});
+    path.resolve(__dirname,'../../scripts/support',script),...options.operationalSchema?['-Operational']:[],...options.doc116LevelResourcesFile?['-Doc116LevelResourcesFile',options.doc116LevelResourcesFile]:[],...options.operationalImport?['-OperationalImport','-RuntimeRoot',options.runtimeRoot,'-ExpectedPlanId',options.planId,'-ExpectedPlanHash',options.planHash]:[]],{windowsHide:true,stdio:['pipe','pipe','pipe']});
   // Nunca reenviar stderr ni errores internos del proveedor de BD.
   child.stderr.resume();
   let pending=null,ended=false,exitCode=null;

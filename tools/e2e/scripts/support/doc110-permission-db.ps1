@@ -1,4 +1,4 @@
-param([switch]$Inspect,[switch]$Recover,[string]$Doc116LevelResourcesFile)
+param([switch]$Inspect,[switch]$Recover,[switch]$OperationalImport,[string]$RuntimeRoot,[string]$ExpectedPlanId,[string]$ExpectedPlanHash,[string]$Doc116LevelResourcesFile)
 $ErrorActionPreference='Stop'
 $repoRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../../..'))
 $targetLogin='LUZ.AGUILERA'
@@ -6,6 +6,15 @@ $raConnection=$null
 $catalogConnection=$null
 $restoreRequired=$false
 $recoveryPath=Join-Path $repoRoot 'tools/e2e/artifacts/doc110-permission-recovery.json'
+$permissionColumn='ADMINISTRAR_PERFILES_IMPORTACION'
+if($OperationalImport){
+    if($env:DOC114_AUTH_REVOCATION -cne 'true' -or ([string]$env:DOC114_E2E_USER).ToUpperInvariant() -cne $targetLogin){throw 'DOC114_OPERATIONAL_PERMISSION_AUTHORIZATION_REQUIRED'}
+    if(-not [IO.Path]::IsPathRooted($RuntimeRoot)){throw 'DOC114_RUNTIME_ROOT_REQUIRED'}
+    if(-not $Recover -and ($ExpectedPlanId -notmatch '^[1-9][0-9]{0,9}$' -or $ExpectedPlanHash -notmatch '^[a-f0-9]{64}$')){throw 'DOC114_OPERATIONAL_PLAN_PROOF_REQUIRED'}
+    $repoRoot=[IO.Path]::GetFullPath($RuntimeRoot)
+    $permissionColumn='IMPORTAR_CARPETAS'
+    $recoveryPath=Join-Path $repoRoot 'tools/e2e/artifacts/doc114-operational-permission-recovery.json'
+}
 
 function Open-Doc110Database {
     Add-Type -Path (Join-Path $repoRoot 'bin/MySql.Data.dll')
@@ -60,7 +69,7 @@ function Read-Doc110Target {
 function Get-Doc110OtherHash($Row) {
     $values=[ordered]@{}
     foreach($property in ($Row.PSObject.Properties | Sort-Object Name)){
-        if($property.Name -ne 'ADMINISTRAR_PERFILES_IMPORTACION'){$values[$property.Name]=$property.Value}
+        if($property.Name -ne $permissionColumn){$values[$property.Name]=$property.Value}
     }
     $json=ConvertTo-Json -InputObject $values -Compress -Depth 8
     $sha=[Security.Cryptography.SHA256]::Create()
@@ -68,13 +77,14 @@ function Get-Doc110OtherHash($Row) {
     finally {$sha.Dispose()}
 }
 function Save-Doc110Recovery([string]$Stage,[bool]$Restored) {
-    $record=[ordered]@{userRef=$script:targetUser;companyRef=$script:targetCompany;primaryColumn=$script:primaryColumn;primaryValue=[string]$script:primaryValue;originalPermission=1;otherFieldsHash=$script:otherHash;environmentHash=$script:environmentHash;stage=$Stage;restored=$Restored;updatedUtc=[DateTime]::UtcNow.ToString('o')}
+    $record=[ordered]@{userRef=$script:targetUser;companyRef=$script:targetCompany;primaryColumn=$script:primaryColumn;primaryValue=[string]$script:primaryValue;originalPermission=1;permissionColumn=$permissionColumn;otherFieldsHash=$script:otherHash;environmentHash=$script:environmentHash;stage=$Stage;restored=$Restored;updatedUtc=[DateTime]::UtcNow.ToString('o')}
     [void][IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($recoveryPath))
     [IO.File]::WriteAllText($recoveryPath,($record | ConvertTo-Json -Compress),[Text.Encoding]::UTF8)
 }
 function Set-Doc110Permission([int]$Expected,[int]$Value) {
     $command=$script:raConnection.CreateCommand();$command.CommandTimeout=5
-    $command.CommandText='UPDATE remit_dest_interno_perfil_produccion SET ADMINISTRAR_PERFILES_IMPORTACION=@value WHERE `'+$script:primaryColumn+'`=@primary AND remit_dest_interno_idremit_dest_interno=@usuario AND ADMINISTRAR_PERFILES_IMPORTACION=@expected'
+    if($permissionColumn -cne 'ADMINISTRAR_PERFILES_IMPORTACION' -and $permissionColumn -cne 'IMPORTAR_CARPETAS'){throw 'DOC110_PERMISSION_COLUMN_INVALID'}
+    $command.CommandText='UPDATE remit_dest_interno_perfil_produccion SET `'+$permissionColumn+'`=@value WHERE `'+$script:primaryColumn+'`=@primary AND remit_dest_interno_idremit_dest_interno=@usuario AND `'+$permissionColumn+'`=@expected'
     [void]$command.Parameters.AddWithValue('@value',$Value);[void]$command.Parameters.AddWithValue('@expected',$Expected)
     [void]$command.Parameters.AddWithValue('@primary',$script:primaryValue);[void]$command.Parameters.AddWithValue('@usuario',$script:targetUser)
     try {if($command.ExecuteNonQuery() -ne 1){throw 'DOC110_PERMISSION_COMPARE_AND_SET_FAILED'}}
@@ -88,13 +98,13 @@ function Restore-Doc110Permission {
         $script:raConnection=New-Object MySql.Data.MySqlClient.MySqlConnection($script:databaseBuilder.ConnectionString)
         $script:raConnection.Open();$current=Read-Doc110Target
     }
-    if([string]$current.ADMINISTRAR_PERFILES_IMPORTACION -ceq '0'){Set-Doc110Permission 0 1}
-    elseif([string]$current.ADMINISTRAR_PERFILES_IMPORTACION -cne '1'){throw 'DOC110_PERMISSION_RESTORE_CONFLICT'}
+    if([string]$current.PSObject.Properties[$permissionColumn].Value -ceq '0'){Set-Doc110Permission 0 1}
+    elseif([string]$current.PSObject.Properties[$permissionColumn].Value -cne '1'){throw 'DOC110_PERMISSION_RESTORE_CONFLICT'}
     $verified=Read-Doc110Target
-    if([string]$verified.ADMINISTRAR_PERFILES_IMPORTACION -cne '1'){throw 'DOC110_PERMISSION_RESTORE_UNCONFIRMED'}
-    $script:restoreRequired=$false
-    Save-Doc110Recovery 'RESTORED' $true
+    if([string]$verified.PSObject.Properties[$permissionColumn].Value -cne '1'){throw 'DOC110_PERMISSION_RESTORE_UNCONFIRMED'}
     if((Get-Doc110OtherHash $verified) -cne $script:otherHash){throw 'DOC110_PERMISSION_OTHER_FIELDS_CHANGED'}
+    Save-Doc110Recovery 'RESTORED' $true
+    $script:restoreRequired=$false
 }
 
 if($PSBoundParameters.ContainsKey('Doc116LevelResourcesFile')){
@@ -112,15 +122,19 @@ try {
     try {$script:environmentHash=([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($script:databaseBuilder.Server+'|'+$script:databaseBuilder.Database)))).Replace('-','')}
     finally {$sha.Dispose()}
     $script:otherHash=Get-Doc110OtherHash $original
+    if($OperationalImport -and -not $Recover){
+        $planProof=Read-Doc110Rows 'SELECT HEX(plan_hash) AS huella FROM ra_integracion_plan WHERE plan_id=@plan AND usuario_ref=@usuario AND ambito_ref=@ambito LIMIT 2' @{'@plan'=$ExpectedPlanId;'@usuario'=$script:targetUser;'@ambito'=$script:targetCompany}
+        if($planProof.Count -ne 1 -or ([string]$planProof[0].huella).ToLowerInvariant() -cne $ExpectedPlanHash){throw 'DOC114_OPERATIONAL_DATABASE_PROOF_MISMATCH'}
+    }
     if($Recover){
         $record=Get-Content -LiteralPath $recoveryPath -Raw | ConvertFrom-Json
-        if($record.originalPermission -ne 1 -or $record.userRef -cne $script:targetUser -or $record.companyRef -cne $script:targetCompany -or
+        if(($OperationalImport -and $record.permissionColumn -cne $permissionColumn) -or ($record.permissionColumn -and $record.permissionColumn -cne $permissionColumn) -or $record.originalPermission -ne 1 -or $record.userRef -cne $script:targetUser -or $record.companyRef -cne $script:targetCompany -or
           $record.primaryColumn -cne $script:primaryColumn -or $record.primaryValue -cne [string]$script:primaryValue -or $record.environmentHash -cne $script:environmentHash){throw 'DOC110_PERMISSION_RECOVERY_TARGET_MISMATCH'}
         $script:otherHash=[string]$record.otherFieldsHash;$script:restoreRequired=$true
         Restore-Doc110Permission
         [pscustomobject]@{ok=$true;stage='RESTORED';otherFieldsUnchanged=$true} | ConvertTo-Json -Compress
     } else {
-        if([string]$original.ADMINISTRAR_PERFILES_IMPORTACION -cne '1'){throw 'DOC110_PERMISSION_ORIGINAL_NOT_GRANTED'}
+        if([string]$original.PSObject.Properties[$permissionColumn].Value -cne '1'){throw 'DOC110_PERMISSION_ORIGINAL_NOT_GRANTED'}
         if($Inspect){
             [pscustomobject]@{ok=$true;stage='INSPECT';uniqueUser=$true;uniquePermissionRow=$true;singlePrimaryKey=$true;originalGranted=$true;userRef=$script:targetUser;companyRef=$script:targetCompany} | ConvertTo-Json -Compress
         } else {
@@ -128,7 +142,7 @@ try {
                 $previous=Get-Content -LiteralPath $recoveryPath -Raw | ConvertFrom-Json
                 if(-not $previous.restored){throw 'DOC110_PERMISSION_PREVIOUS_RECOVERY_REQUIRED'}
             }
-            [pscustomobject]@{ok=$true;stage='READY';userRef=$script:targetUser;companyRef=$script:targetCompany;originalGranted=$true} | ConvertTo-Json -Compress
+            [pscustomobject]@{ok=$true;stage='READY';userRef=$script:targetUser;companyRef=$script:targetCompany;originalGranted=$true;permissionColumn=$permissionColumn} | ConvertTo-Json -Compress
             while($true){
                 $inputTask=[Console]::In.ReadLineAsync()
                 if(-not $inputTask.Wait(300000)){break}
@@ -139,12 +153,12 @@ try {
                     'REVOKE' {
                         if($script:restoreRequired){throw 'DOC110_PERMISSION_ALREADY_REVOKED'}
                         $current=Read-Doc110Target
-                        if([string]$current.ADMINISTRAR_PERFILES_IMPORTACION -cne '1' -or (Get-Doc110OtherHash $current) -cne $script:otherHash){throw 'DOC110_PERMISSION_PRECONDITION_CHANGED'}
+                        if([string]$current.PSObject.Properties[$permissionColumn].Value -cne '1' -or (Get-Doc110OtherHash $current) -cne $script:otherHash){throw 'DOC110_PERMISSION_PRECONDITION_CHANGED'}
                         Save-Doc110Recovery 'REVOKE_ATTEMPT' $false
                         $script:restoreRequired=$true
                         Set-Doc110Permission 1 0
                         $current=Read-Doc110Target
-                        if([string]$current.ADMINISTRAR_PERFILES_IMPORTACION -cne '0' -or (Get-Doc110OtherHash $current) -cne $script:otherHash){throw 'DOC110_PERMISSION_REVOKE_UNCONFIRMED'}
+                        if([string]$current.PSObject.Properties[$permissionColumn].Value -cne '0' -or (Get-Doc110OtherHash $current) -cne $script:otherHash){throw 'DOC110_PERMISSION_REVOKE_UNCONFIRMED'}
                         Save-Doc110Recovery 'REVOKED' $false
                         [pscustomobject]@{ok=$true;stage='REVOKED';otherFieldsUnchanged=$true} | ConvertTo-Json -Compress
                     }

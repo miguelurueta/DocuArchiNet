@@ -1,4 +1,5 @@
 'use strict';
+const syntheticHistory=require('./support/doc117-history-fixture.cjs').install();
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {runProbe}=require('../tools/e2e/tests/support/doc117-alm03-guard-probe-driver.cjs');
 const {ROOT,KEYS,scopeDigest}=require('../tools/e2e/scripts/support/doc117-alm03-guard-diagnostic.cjs');

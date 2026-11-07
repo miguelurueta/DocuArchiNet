@@ -1,4 +1,5 @@
 'use strict';
+const syntheticHistory=require('./support/doc117-history-fixture.cjs').install();
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),{execFileSync}=require('node:child_process');
 const policy=require('../tools/e2e/scripts/support/doc117-alm03-canonical-description.cjs'),{ROOT,bindingFor,validateBinding,readBinding,transformGuard,generateDormant}=policy;
 test('catalog binding preserves exact representation and rejects forged hashes, extra fields and different identities',async()=>{
