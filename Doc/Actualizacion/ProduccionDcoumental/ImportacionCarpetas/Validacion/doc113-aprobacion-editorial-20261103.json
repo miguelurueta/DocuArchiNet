@@ -1,0 +1,23 @@
+{
+  "issueKey": "DOC-113",
+  "status": "APPROVED_BY_USER",
+  "date": "2026-11-03",
+  "confirmation": "aprobado",
+  "scope": "Editorial approval of verified implementation; continue publication and closure after checks and verified merge",
+  "reviewReport": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc113-verificacion-final-20261103.md",
+  "reviewReportSha256": "f0d84ee388169f0e40ac7ffbcba2bf0876d373f667e5e8c23469798e06850f42",
+  "tests": {
+    "client": 16,
+    "driver": 43,
+    "realUi": [
+      "UI-01",
+      "UI-02",
+      "UI-03"
+    ]
+  },
+  "preservePlans": [
+    "8",
+    "9"
+  ],
+  "additionalRuntimeEffects": false
+}

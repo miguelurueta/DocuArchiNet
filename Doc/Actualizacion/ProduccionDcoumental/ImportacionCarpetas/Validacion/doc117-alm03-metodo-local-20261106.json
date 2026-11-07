@@ -1,0 +1,113 @@
+{
+  "issueKey": "DOC-117",
+  "scenario": "ALM-03-INTERNAL-OBSERVATION-LOCAL",
+  "date": "2026-11-06",
+  "status": "LOCAL_PASS_DORMANT_NOT_INSTALLED",
+  "editorialApproval": {
+    "source": "User replied aprobado to internal-entry/exit observation only in a laboratory copy",
+    "developmentAndLocalTestsApproved": true,
+    "realExecutionApproved": false
+  },
+  "authenticatedExecution": false,
+  "realSelectRequests": 0,
+  "businessEffects": 0,
+  "liveRuntimeActivation": false,
+  "liveRuntimeSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "originalInputsUnchanged": true,
+  "originalInputCount": 912,
+  "sourceInputsSha256": "412a115d0a4e7d8b6b839aa5ba17082337fce14bb129332645db82509909d1d3",
+  "build": {
+    "file": ".tmp/doc117-alm03-dormant-final-20261106/build-result.json",
+    "sha256": "67f638ede8347b93cd82e1aa74597eca01defd4c4ee125ab842357061e5a22f4",
+    "candidateSha256": "d2003810f3395eb21eb096e153bb5245bb599f673844bdfda4ba1e75c5a86cd6",
+    "sourceStorageSha256": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c",
+    "originalMethodSha256ExcludingTrailingLineBreak": "32526f13c241b9248067149bf919720b4b8334db8c8cc88a0f5e79d7128d801e",
+    "originalBodySha256": "0c41f09eeb83b93b542ad7dbfeb77a265bf6d90da3d9a6f3c7516a94df58e7ca",
+    "overlayMethodSha256": "cd322e487bda7e7a3974fc9faafffdac9298db344c694affd43839fa5a27ad92",
+    "helperSha256": "90a65c581faa5d9e885219e29f8aed87838589ed1fcaa8cedef743df13dd1dfb",
+    "overlayReversibleToExactOriginal": true,
+    "errorCount": 0,
+    "scope": "Unconditional dormant rejection before original document body; no active caller/resource binding"
+  },
+  "rehearsal": {
+    "file": ".tmp/doc117-alm03-lease-bfe45c10ffa3383f163e9d14ee7a0358/rehearsal-result.json",
+    "sha256": "a6cf061755a9073655de2ed2767f488789e1fc4c7e530a9f8e758a40438ea7e0",
+    "issueKey": "DOC-117",
+    "scenario": "ALM-03-RUNTIME-REHEARSAL",
+    "status": "PASS",
+    "runId": "bfe45c10ffa3383f163e9d14ee7a0358",
+    "originalSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+    "candidateSha256": "d2003810f3395eb21eb096e153bb5245bb599f673844bdfda4ba1e75c5a86cd6",
+    "independentGuardian": true,
+    "ownerExitedWithoutRestore": true,
+    "temporaryRuntimeRestored": true,
+    "bothBackupsByteIdentical": true,
+    "windowsAclTransferVerified": true,
+    "liveRuntimeActivation": false,
+    "authenticatedExecution": false,
+    "businessEffects": 0,
+    "maximumRuntimeSeconds": 600
+  },
+  "tests": {
+    "status": "PASS",
+    "total": 184,
+    "passed": 184,
+    "failed": 0,
+    "alm03Subset": 50,
+    "logFile": ".tmp/doc117-alm03-dormant-regression-20261106.tap",
+    "logSha256": "801c0863965e43bad8066adc591ac7dea74f5b4a870891fe406be87519ef00e5",
+    "nativeCases": [
+      "internal-overlap",
+      "serialized",
+      "early-return",
+      "caught-error",
+      "uncaught-exception",
+      "entry-io",
+      "exit-io",
+      "duplicate-entry",
+      "altered-reservation",
+      "same-or-changed-sessions",
+      "duplicate-preparation"
+    ],
+    "nativeCasesIncludedInTopLevelCount": true
+  },
+  "openSpecStrict": "PASS",
+  "priorAlm02Evidence": {
+    "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm02-interno-pass-20261106.json",
+    "sha256": "5150564a3adeaa7c8b48cceec7c4d8f47fa1a4473dc2bc8599fd65f1a41953de",
+    "status": "PASS",
+    "artifactUnchanged": true
+  },
+  "remaining": [
+    "Authorized resource preflight/preparation",
+    "Active immutable-command and official individual-context caller guards",
+    "Exact resource/argument/session binding",
+    "Closed candidate, executor and real execution authorization",
+    "Real ALM-03 business and overlap evidence",
+    "Final consolidation"
+  ],
+  "progress": {
+    "complete": 16,
+    "total": 18,
+    "pending": [
+      "17.1",
+      "18.1"
+    ]
+  },
+  "files": {
+    "tools/e2e/scripts/support/doc117-alm03-candidate.cjs": "8647fb497e51c9ce30ad5243a481ad6975670b1a66fb5c5b8ecdeccb754fd7c0",
+    "tools/e2e/fixtures/Doc117Alm03MethodObserver.vb": "90a65c581faa5d9e885219e29f8aed87838589ed1fcaa8cedef743df13dd1dfb",
+    "tools/e2e/scripts/build-doc117-alm03-dormant.cjs": "75a262914e945b9e9eea41e9dcc94367cb7d6c3b493cd161246c9cc61e620194",
+    "tools/e2e/scripts/rehearse-doc117-alm03-runtime.cjs": "60e842c01ca49dadecd0407629a1996c3b1e36afebb9a69ee31f0ab93272899b",
+    "tools/e2e/scripts/support/laboratory-runtime-lease.cjs": "8562728417a159368859884e6d8cdf4e2b771d42caf231a7736ac1ca528c320a",
+    "tools/e2e/tests/support/doc117-alm03-method-observation.cjs": "ab6b86818528edb511d5eee0776eb13350267bf8be938e49cbb15a28f3c7e6cd",
+    "tests/Doc117Alm03ObserverBehaviorTests.cs": "b64af2cd6d331a1bdcb43a147a21ec1a94ef599edcd2a1760f2ebe12c345883e",
+    "tests/doc117-alm03-candidate.test.cjs": "4041bfa5d4e59254dd4c3d2c967d833561fceab72eabe5e1dd9e7de0a837e25d",
+    "tests/doc117-alm03-method-observation.test.cjs": "fcb792e652a8eabe1a8053c2c98ab0d3c302f64d14843c7ffb96a4ae050541ab",
+    "tests/doc117-alm03-runtime-rehearsal.test.cjs": "941a3ea66f39523f647ab1a3a8eda4fa1932aa0e3a1921cd46d1adcab2fff1ac",
+    "openspec/changes/doc-117-produccion-importacion-carga-carpeta-almacenamiento/design.md": "d67b33f20c2f06de3544daa95b0d0b2f89b0ca87a09be55cbc59eb358ad21533",
+    "openspec/changes/doc-117-produccion-importacion-carga-carpeta-almacenamiento/specs/produccion-importacion-carga-carpeta-almacenamiento/spec.md": "84a04e673f77b8888da338c0aca82831986aaa375acd06a10892e888fb3dbce8",
+    "openspec/changes/doc-117-produccion-importacion-carga-carpeta-almacenamiento/tasks.md": "88f72704ca0bf0eec9e319bf9fa4667a51d4cc98bb704d73af1f2155d7b12b34",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03-metodo-local-20261106.md": "dc83bff6cfc98ff93d5dd8d8b4cedb2b804b5acd1e316a30ea3346f145302550"
+  }
+}

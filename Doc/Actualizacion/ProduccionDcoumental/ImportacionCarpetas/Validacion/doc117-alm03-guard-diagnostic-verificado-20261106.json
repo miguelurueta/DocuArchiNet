@@ -1,0 +1,141 @@
+{
+  "issueKey": "DOC-117",
+  "scenario": "ALM-03-GUARD-DIAGNOSTIC",
+  "date": "2026-11-06",
+  "status": "VERIFIED_DIAGNOSTIC_GUARD_DESCRIPTION_REJECTED_NO_WRITER",
+  "finishedUtc": "2026-11-06T20:21:21.060Z",
+  "sourceArtifact": {
+    "file": "tools/e2e/artifacts/doc117-alm03-guard-probe-00ee73257399269edc67a1d474e4e3a7.json",
+    "sha256": "0429ef10ab6b825fce03ae79076601a2833981f5153e3b9e3f9f5d5e0a2c5f75"
+  },
+  "preparationArtifact": {
+    "file": "tools/e2e/artifacts/doc117-alm03-preparation-7b23741c6623372c66e79ba854fa6f37.json",
+    "sha256": "3164ac577a269aaf750b111a9d13bbe58707945cc8bde1fbbac8e3b64beda727"
+  },
+  "nativeProof": {
+    "file": "App_Data/DOC117-ALM03-GUARD-DIAG-148776b731119b39ff896564a60c5a6f/probe.json",
+    "sha256": "2e3c9d269866fcf336ea436bd2d5eb835e2803d46ee12940ee1c0d6c314a0c41",
+    "version": 1,
+    "protocol": "ALM03_INDIVIDUAL_GUARD_DIAGNOSTIC_NO_WRITER_V1",
+    "runId": "148776b731119b39ff896564a60c5a6f",
+    "scopeSha256": "364bd1443cb90cedd66447d2e2ab6ba09225f5ff426bb1a2ccaa61ec2bbd77cc",
+    "outcome": "GUARDS_REJECTED",
+    "code": "DOC117_ALM03_GUARD_INDIVIDUAL_ARGUMENTS_CHANGED",
+    "writerInvoked": false,
+    "checks": {
+      "site": true,
+      "actor": true,
+      "company": true,
+      "caller": true,
+      "relation": true,
+      "level": true,
+      "selectedExpedient": true,
+      "workflow": true,
+      "cabinet": true,
+      "expedient": true,
+      "typology": true,
+      "storageType": true,
+      "descriptionExact": false,
+      "descriptionEquivalent": true,
+      "documentClass": true,
+      "sessionTempPath": true,
+      "fileName": true
+    }
+  },
+  "authorization": {
+    "file": ".tmp/doc117-alm03-guard-probe-continuation-authorization.json",
+    "sha256": "8fb27e4c791aa8e75c7c4556b0170eb99a7884dbf37660a92ace47ede0b38432",
+    "authorizationId": "00ee73257399269edc67a1d474e4e3a7",
+    "parentAuthorizationId": "188de3a60bbbc41d97cd4ccf3fa04266",
+    "codeSha256": "89d2145c3891caa691f50f96bb91dc30ed8ec76cf7a7a5209c8cab8615f7f405"
+  },
+  "consoleExit": {
+    "file": ".tmp/doc117-alm03-guard-probe-continuation-console-exit.json",
+    "sha256": "e04a8faf50931f1fa681e428e5b118b7514ad9d12d182e73b83803a4c53cd15d",
+    "exitCode": 0
+  },
+  "selectRequests": 104,
+  "priorSelectRequests": 146,
+  "cumulativeSelectRequests": 250,
+  "maximumCumulativeSelectRequests": 306,
+  "temporaryUploads": 1,
+  "documentsCreated": 0,
+  "writerInvoked": false,
+  "businessEffectsVerified": true,
+  "inventoryBefore": "8814",
+  "inventoryAfter": "8814",
+  "baselineSha256": "93e6a2444c5332665a67135cca85ece61541037612df1e1291b25072af88e073",
+  "baselineIdentical": true,
+  "originalRuntimeSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "originalRuntimeRestored": true,
+  "bothBackupsByteIdentical": true,
+  "reopenedWithOriginalRuntime": true,
+  "finallyVerified": true,
+  "lease": {
+    "file": ".tmp/doc117-alm03-guard-probe-lease-148776b731119b39ff896564a60c5a6f/lease.json",
+    "sha256": "a9b4183e804b76f2b2803bd0bb7747cd1daf93d505ccfc09b6dcbdee701a0f77",
+    "status": "RESTORED"
+  },
+  "originalInputCount": 912,
+  "originalInputsUnchanged": true,
+  "sourceInputsSha256": "412a115d0a4e7d8b6b839aa5ba17082337fce14bb129332645db82509909d1d3",
+  "candidateSha256": "8952bd88c52e7375ad590ae955d9b157b782c9040bb0767915b43cffd05fc8eb",
+  "candidateUnchanged": true,
+  "historicalFilesUnchanged": {
+    "tools/e2e/artifacts/doc117-alm03-coexistence-149655bd16ab32f957ddae7d44192109.json": "6aa1a2200defeef42338aebcb5762864ca06195e3b95f64629452f355fc0b1b9",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03-detenido-verificado-20261106.json": "0f436ba1f7912d6674cbf820806079a4c43ead86879559c38e9fd5da71997091",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03-diagnostico-codigos-local-20261106.json": "d059bfd30225472db71222d21c0249241cfb8ac9472844d13f84589af98b7cbe",
+    "tools/e2e/artifacts/doc117-alm03-post-stop-149655bd16ab32f957ddae7d44192109.json": "cc372656a5e27770d7787c220599330a68fa6a024996794abe1ae823059d5f62"
+  },
+  "diagnosticTemporaryFilePreserved": {
+    "present": true,
+    "bytes": 677,
+    "sha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c"
+  },
+  "specificCurrentGuardFailureReproduced": true,
+  "historicalFailureRecovered": false,
+  "initialSessionFailureReproduced": false,
+  "descriptionValueRetained": false,
+  "exactNormalizationDifferenceKnown": false,
+  "guardOrProductionWriterFixed": false,
+  "localValidation": {
+    "previousRegression": {
+      "total": 289,
+      "passed": 289,
+      "failed": 0,
+      "logFile": ".tmp/doc117-alm03-preflight-evidence-regression-20261106.tap",
+      "logSha256": "22a016189e3cc9b5aa7e36b8832243ef568c1734e10723a131aa6aa3a14abf72",
+      "filesFile": ".tmp/doc117-alm03-preflight-evidence-test-files-20261106.json",
+      "filesSha256": "ad4016a8f252d106ef13157db6e570cf6244ec67ea03f4d844597369cff47cde"
+    },
+    "preparationFocusedTests": {
+      "total": 10,
+      "passed": 10,
+      "files": [
+        "tests/doc117-alm03-preparation.test.cjs",
+        "tests/doc117-alm03-preflight-evidence.test.cjs"
+      ],
+      "codeSha256": "0cbf2005c3e9c1412cefd4ba12dcd5a4a09eb64f4f30c1c65b0aa38d6b0fe011"
+    },
+    "openSpecStrict": "PASS",
+    "checks": "PASS"
+  },
+  "document": {
+    "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03-guard-diagnostic-verificado-20261106.md",
+    "sha256": "3ede4aee3bbe870c46003c3428f6bfce1b46f6ba634432d95d85103990161a87"
+  },
+  "trackingFiles": {
+    "openspec/changes/doc-117-produccion-importacion-carga-carpeta-almacenamiento/tasks.md": "c952710d80f65fca06fe3bac02f9d740f58e11c5f2648f633a1abf663717240e",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-matriz-almacenamiento.md": "f321a9804b634f8ccbcddacaf62255b2ed5ded8ccecc491a32637bd0aa94cb03",
+    "Doc/Tecnica/Opsxj/doc-117-produccion-importacion-carga-carpeta-almacenamiento/estado-local-20261106.md": "3c9f7d6c3ba635e2f27c0abc1753153e2d10e62ba43d3b20b350f8ca86c4ee5d"
+  },
+  "progress": {
+    "complete": 16,
+    "total": 18,
+    "pending": [
+      "17.1",
+      "18.1"
+    ]
+  },
+  "alm03ConcurrentPass": false
+}

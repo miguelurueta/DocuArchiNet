@@ -1,0 +1,42 @@
+{
+  "issueKey": "DOC-115",
+  "scenario": "RECIB-03",
+  "status": "EJECUTADO_OK",
+  "reviewDate": "2026-11-04",
+  "startedUtc": "2026-11-04T12:35:47.403Z",
+  "finishedUtc": "2026-11-04T12:38:45.546Z",
+  "plans": [
+    "28"
+  ],
+  "lots": [
+    "9"
+  ],
+  "preparations": 1,
+  "confirmations": 1,
+  "uploads": 3,
+  "validOriginalReceipts": 1,
+  "noDocumentEffects": true,
+  "readOnlyControls": true,
+  "preservedLotsUnchanged": true,
+  "preservedLotIds": [
+    "6",
+    "7",
+    "8"
+  ],
+  "interruption": {
+    "interrupted": true,
+    "declaredBytes": 1131,
+    "sentBytes": 754
+  },
+  "responseLoss": "CLIENT_RESULT_DISCARDED",
+  "sourceSha256": "488eff5720e34ce69aa2ef749d7b44931903c612ac83109c80b8ed4b0e98ea4a",
+  "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "sourceMatchesCurrent": true,
+  "backendMatchesCurrent": true,
+  "limitations": [
+    "Client wrote a partial multipart request; counts refer to the whole multipart body, not only PDF bytes",
+    "Successful application result deliberately discarded at client; not server crash or network response loss",
+    "Independent MySQL repository transactions in 07-A remain unexecuted"
+  ],
+  "overallIssueComplete": false
+}

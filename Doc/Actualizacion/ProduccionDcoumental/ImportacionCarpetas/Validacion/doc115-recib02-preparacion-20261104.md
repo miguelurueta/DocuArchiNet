@@ -1,0 +1,13 @@
+# DOC-115 — preparación de RECIB-02
+
+Estado: listo para autorización específica, sin ejecución autenticada. RECIB-01 ya verificó planes 24/25 y lote 6; este recorrido usa nombres nuevos DOC115-20261104-RECIB02-01/02. Ambiente local de pruebas, cuenta 141/empresa 2, nivel 7, perfil 24/version 38 y certificado de pruebas existente.
+
+Presupuesto: dos preparaciones, dos confirmaciones (hasta dos lotes) y ocho solicitudes multipart. Casos: ID de archivo de otro lote; campos extra de destino/ruta maliciosa; token ausente; contenido truncado (676 bytes); exceso (678 bytes); PDF válido de 677 bytes; reenvío idéntico; contenido cambiado. Solo una recepción original válida en staging del primer lote; el segundo lote sirve de control y queda sin recepción. No se crean expedientes ni se almacena/incorpora documento definitivo.
+
+Después de los tres rechazos de autoridad/contrato se comprueba por SELECT que ambos lotes no cambiaron. Después de truncado/exceso se exige RECHAZADO sin intento activo ni bytes/huella recibidos antes de otra escritura. La recepción válida comprueba IDs, bytes reales y SHA-256 en HTTP y fila, una única confirmación y staging técnico. El reenvío conserva las revisiones y los intentos. Se verifica lote 6 antes/después y se mantienen los conteos documentales. Los IDs de planes 24/25 se conservan; no existe operación escritora sobre ellos en este recorrido.
+
+Las partes rechazadas y los recursos nuevos se conservan; no se introduce limpieza automática. Cuota acumulada finita no está configurada en producción: el exceso real se contrasta con bytes previstos y límites existentes, sin afirmar que esa prueba acredita una cuota acumulada finita. La cuota agregada sigue caracterizada localmente con límite inyectado. Perfiles, permisos, Web.config y DDL no cambian. Controles RA/DA solo SELECT por DSN MembershipUsers con cuenta de lectura; credenciales efímeras solo en consola.
+
+Se usa timeout de sesión de 900000 ms para ocho solicitudes y sus comprobaciones intermedias; no se altera la configuración global de Playwright ni se añaden reintentos. Comando de revisión: node tools/e2e/scripts/run-doc115-recepcion-importacion.cjs --session ../../.tmp/doc115-recib02-resources.proposed.json --check desde el worktree. Sin --check exige autorización específica aún no registrada.
+
+Validación local de esta preparación: 84/84 pruebas Node PASS; sintaxis de soporte/runner y OpenSpec estricto PASS; modo --check PASS. Ninguna ejecución autenticada RECIB-02 realizada. El resultado histórico RECIB-01 conserva su propia huella y no se vuelve a atribuir al código ampliado.

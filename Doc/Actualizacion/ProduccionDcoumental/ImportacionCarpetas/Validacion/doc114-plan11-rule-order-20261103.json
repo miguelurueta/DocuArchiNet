@@ -1,0 +1,37 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "planId": "11",
+  "status": "READONLY_CHECK_INCOMPLETE",
+  "verified": {
+    "storedHash": true,
+    "expectedValues": true,
+    "storedContextManifestAndExpiry": true
+  },
+  "failure": {
+    "stage": "READONLY_PUBLICATION",
+    "code": "DOC114_PLAN11_LIVE_SNAPSHOT_CHANGED"
+  },
+  "identifiedComparatorDefect": "Publication rule list ordered by Orden; repository preparation sorts DestinoTipo/DestinoRef. The comparison must canonicalize this known representation difference.",
+  "sourceEvidence": [
+    "MySqlPerfilImportacionRepository.CargarContenido ORDER BY orden,destino_tipo,destino_ref",
+    "MySqlImportacionCarpetasRepository.PrepararPersistencia orders snapshot.Reglas by DestinoTipo/DestinoRef"
+  ],
+  "localRegression": {
+    "pass": 79,
+    "fail": 0
+  },
+  "strictPropertiesRetained": [
+    "ReglaId",
+    "Orden",
+    "Huella",
+    "Configuracion",
+    "non-null provider/provenance",
+    "all other rule fields"
+  ],
+  "preparations": 0,
+  "remainingAuthorizedPreparations": 6,
+  "retryReadOnly": "PREPARED_NOT_EXECUTED",
+  "originalHttpBodyRetained": false,
+  "supportSha256": "08a9a85e1e48840415eee6ba6d192e4e9b49077509909a99b51feca2dde9e9f5"
+}

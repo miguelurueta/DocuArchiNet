@@ -1,0 +1,848 @@
+{
+  "issueKey": "DOC-116",
+  "status": "PASS",
+  "readOnly": true,
+  "acceptanceExecuted": false,
+  "queries": [
+    {
+      "label": "ACTOR",
+      "rows": 1,
+      "sqlSha256": "7684ff220becc3baad68b49c1f829ce0a0cf0f705e0bea7a2da8cd4ac414bf8e"
+    },
+    {
+      "label": "LEVELS",
+      "rows": 91,
+      "sqlSha256": "821c45eca0b92e3a274dec3e4d838bd2b7ec19810b71168a8947fdfa25e1b7be"
+    },
+    {
+      "label": "LOTS",
+      "rows": 11,
+      "sqlSha256": "a67763abd3230de37f542f6e7a7be623eb656bcd6a501b3da4834ca7e75810a9"
+    },
+    {
+      "label": "ENGINES",
+      "rows": 4,
+      "sqlSha256": "7f5dd3378d580cbc6395e33efbd441f451be30b15937af5704c7f59947493892"
+    }
+  ],
+  "actor": "141",
+  "company": "2",
+  "levels": [
+    {
+      "levelId": "7",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "8",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "19",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "40",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "73",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "74",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "75",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "76",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "77",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "78",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "79",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "80",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "81",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "82",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "83",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "84",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "85",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "86",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "87",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "89",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "90",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "91",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "92",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "93",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "94",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "95",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "96",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "97",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "98",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "99",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "100",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "101",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "102",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "103",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "104",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "105",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "106",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "107",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "108",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "109",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "110",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "111",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "112",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "113",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "115",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "116",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "117",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "118",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "119",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "120",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "121",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "122",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "123",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "124",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "125",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "126",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "130",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "131",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "132",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "133",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "134",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "141",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "142",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "143",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "144",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "145",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "146",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "147",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "148",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "149",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "150",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "151",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "152",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "158",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "159",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "169",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "170",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "171",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "172",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "177",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "181",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "182",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "183",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "184",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "189",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "203",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "205",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "206",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "208",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    },
+    {
+      "levelId": "215",
+      "ownedByActor": false,
+      "permissionId": "629",
+      "canCreate": true,
+      "canUpload": true
+    },
+    {
+      "levelId": "218",
+      "ownedByActor": true,
+      "permissionId": null,
+      "canCreate": false,
+      "canUpload": false
+    }
+  ],
+  "ambiguousLevels": [],
+  "nonOwnerLevelCandidates": [
+    {
+      "levelId": "215",
+      "ownedByActor": false,
+      "permissionId": "629",
+      "canCreate": true,
+      "canUpload": true
+    }
+  ],
+  "checkedLots": [
+    {
+      "lotId": "11",
+      "planId": "31",
+      "levelId": "7",
+      "versionId": "38",
+      "state": "RECIBIENDO",
+      "stopped": false,
+      "roots": "2",
+      "files": "2",
+      "freshRoots": "2",
+      "readyFiles": "0",
+      "effects": "0"
+    },
+    {
+      "lotId": "10",
+      "planId": "29",
+      "levelId": "7",
+      "versionId": "38",
+      "state": "RECIBIENDO",
+      "stopped": false,
+      "roots": "2",
+      "files": "2",
+      "freshRoots": "2",
+      "readyFiles": "1",
+      "effects": "0"
+    },
+    {
+      "lotId": "9",
+      "planId": "28",
+      "levelId": "7",
+      "versionId": "38",
+      "state": "RECIBIENDO",
+      "stopped": false,
+      "roots": "1",
+      "files": "1",
+      "freshRoots": "1",
+      "readyFiles": "1",
+      "effects": "0"
+    },
+    {
+      "lotId": "8",
+      "planId": "27",
+      "levelId": "7",
+      "versionId": "38",
+      "state": "RECIBIENDO",
+      "stopped": false,
+      "roots": "1",
+      "files": "1",
+      "freshRoots": "1",
+      "readyFiles": "0",
+      "effects": "0"
+    },
+    {
+      "lotId": "7",
+      "planId": "26",
+      "levelId": "7",
+      "versionId": "38",
+      "state": "RECIBIENDO",
+      "stopped": false,
+      "roots": "1",
+      "files": "1",
+      "freshRoots": "1",
+      "readyFiles": "1",
+      "effects": "0"
+    },
+    {
+      "lotId": "6",
+      "planId": "24",
+      "levelId": "7",
+      "versionId": "38",
+      "state": "RECIBIENDO",
+      "stopped": false,
+      "roots": "1",
+      "files": "1",
+      "freshRoots": "1",
+      "readyFiles": "0",
+      "effects": "0"
+    },
+    {
+      "lotId": "5",
+      "planId": "7",
+      "levelId": "7",
+      "versionId": "39",
+      "state": "PARCIAL",
+      "stopped": false,
+      "roots": "2",
+      "files": "3",
+      "freshRoots": "0",
+      "readyFiles": "0",
+      "effects": "4"
+    },
+    {
+      "lotId": "4",
+      "planId": "6",
+      "levelId": "7",
+      "versionId": "38",
+      "state": "COMPLETADO",
+      "stopped": false,
+      "roots": "2",
+      "files": "2",
+      "freshRoots": "0",
+      "readyFiles": "0",
+      "effects": "4"
+    },
+    {
+      "lotId": "3",
+      "planId": "5",
+      "levelId": "7",
+      "versionId": "37",
+      "state": "COMPLETADO",
+      "stopped": false,
+      "roots": "2",
+      "files": "2",
+      "freshRoots": "0",
+      "readyFiles": "0",
+      "effects": "4"
+    },
+    {
+      "lotId": "2",
+      "planId": "4",
+      "levelId": "7",
+      "versionId": "38",
+      "state": "COMPLETADO",
+      "stopped": false,
+      "roots": "2",
+      "files": "2",
+      "freshRoots": "0",
+      "readyFiles": "0",
+      "effects": "5"
+    },
+    {
+      "lotId": "1",
+      "planId": "1",
+      "levelId": "7",
+      "versionId": "38",
+      "state": "RECIBIENDO",
+      "stopped": false,
+      "roots": "2",
+      "files": "2",
+      "freshRoots": "2",
+      "readyFiles": "0",
+      "effects": "0"
+    }
+  ],
+  "preparedLotCandidates": [],
+  "engines": [
+    {
+      "table": "ra_integracion_lote",
+      "engine": "InnoDB"
+    },
+    {
+      "table": "ra_pro_niveles",
+      "engine": "InnoDB"
+    },
+    {
+      "table": "ra_pro_permisos_niveles",
+      "engine": "InnoDB"
+    },
+    {
+      "table": "remit_dest_interno",
+      "engine": "InnoDB"
+    }
+  ],
+  "levelMutationEngineCompatible": true,
+  "writes": 0,
+  "creates": 0,
+  "permissionChanges": 0,
+  "readAt": "2026-11-05T14:12:21.406Z"
+}

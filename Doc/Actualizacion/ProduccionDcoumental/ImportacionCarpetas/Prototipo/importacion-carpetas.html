@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Importar carpetas · Producción documental · DocuArchi</title>
+  <link rel="stylesheet" href="importacion-carpetas.css">
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="#main"><span class="brand-icon">D</span>Docu<span>Archi</span></a><span class="module-name">Gestión documental</span><span class="environment">PROTOTIPO INTERACTIVO</span><span class="avatar" aria-label="Usuario de demostración">MG</span></header>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Contexto del módulo">
+      <div class="sidebar-caption">ESPACIO DE TRABAJO</div><div class="nav-current"><span aria-hidden="true">▤</span> Producción documental</div>
+      <div class="sidebar-caption tree-caption">ESTRUCTURA DOCUMENTAL <span>⌄</span></div>
+      <div class="tree"><div>⌄ <span class="folder">▰</span> Archivo de gestión</div><div class="indent">⌄ <span class="folder">▰</span> Área administrativa</div><button type="button" class="tree-node" data-level="nivel-demo-101" aria-pressed="false"><span class="folder">▰</span> Gestión de compras</button><button type="button" class="tree-node" data-level="nivel-demo-102" aria-pressed="false"><span class="folder">▰</span> Correspondencia</button></div>
+      <div class="side-note"><span class="side-note-icon">↥</span><strong>Importación por carpetas</strong><p>Cada carpeta seleccionada propone un expediente. El perfil completa sus datos.</p></div>
+      <div class="sidebar-bottom">Contexto ilustrativo<br><small>Los catálogos y permisos son de ejemplo.</small></div>
+    </aside>
+    <main id="main" tabindex="-1">
+      <div class="breadcrumb">Gestión documental <span>/</span> Producción documental</div>
+      <section class="production-home"><div class="heading"><div><div class="eyebrow">ESTRUCTURA DOCUMENTAL EXISTENTE</div><h1>Producción documental</h1><p>Selecciona un nivel en el árbol para trabajar con sus expedientes.</p></div></div><div class="panel"><div class="toolbar"><strong id="current-level">Ningún nivel seleccionado</strong><button id="open-import" class="button primary" disabled>↥ Importar carpetas</button></div><div class="body-pad"><div class="eyebrow">UBICACIÓN ACTUAL</div><p id="current-path">Selecciona Gestión de compras o Correspondencia en el árbol.</p><div class="info-box">La importación se abre desde la estructura que ya estás explorando. Las carpetas crearán expedientes bajo el nivel seleccionado; no se crearán niveles nuevos.</div><p class="tiny-note">Representación del punto de entrada existente. La administración y creación de estructuras no forman parte de esta importación.</p></div></div></section>
+      <dialog id="import-dialog" aria-labelledby="import-title">
+      <div class="heading"><div><div class="eyebrow">INCORPORACIÓN DOCUMENTAL</div><h1 id="import-title">Importar carpetas</h1><p>Organiza tus archivos en expedientes dentro del nivel seleccionado.</p></div><div class="toolbar-group"><button id="guide" class="button subtle">Cómo funciona <span aria-hidden="true">ⓘ</span></button><button id="close-import" class="icon-button" aria-label="Cerrar importación">×</button></div></div>
+      <div class="prototype-note"><strong>Vista de referencia</strong><span>No se transfieren archivos ni se crean expedientes. Los datos y resultados del servidor se simulan.</span></div>
+      <ol class="steps" aria-label="Etapas de importación"><li><span>1</span><div>Perfil<small>Configuración de destino</small></div></li><li><span>2</span><div>Carpetas<small>Selección de contenido</small></div></li><li><span>3</span><div>Revisión<small>Validación y confirmación</small></div></li><li><span>4</span><div>Resultados<small>Seguimiento por archivo</small></div></li></ol>
+      <div id="notice" class="notice" role="status" hidden></div>
+      <div class="workspace"><section class="panel main-panel" aria-labelledby="section-title"><div class="panel-title"><div><h2 id="section-title"></h2><p id="section-description"></p></div><span id="stage-label" class="tag neutral"></span></div><div id="stage-content"></div></section>
+      <aside class="summary panel" aria-label="Resumen de la importación"><div class="summary-head"><span class="eyebrow">DESTINO DOCUMENTAL</span><span class="tag success">Publicado</span></div><h3 id="summary-name"></h3><div id="summary-content"></div><div class="summary-foot"><span aria-hidden="true">ⓘ</span><p>El perfil aporta la configuración. Los permisos y datos de cada documento se validan nuevamente al importar.</p></div></aside></div>
+      <footer class="actionbar"><span id="footer-info"></span><div><button id="back" class="button">Anterior</button><button id="next" class="button primary"></button></div></footer>
+      </dialog>
+      <div class="bottom-note">DocuArchi · Producción documental <span>Base gráfica de implementación · Sin conexión a servicios</span></div>
+    </main>
+  </div>
+  <input id="folder-picker" type="file" webkitdirectory multiple hidden aria-label="Seleccionar carpeta">
+  <dialog id="detail-dialog" aria-labelledby="dialog-title"><div class="dialog-head"><h2 id="dialog-title"></h2><button id="close-dialog" class="icon-button" aria-label="Cerrar detalle">×</button></div><div id="dialog-content"></div><div class="dialog-footer"><button id="accept-dialog" class="button primary">Entendido</button></div></dialog>
+  <script src="importacion-carpetas.js"></script>
+</body>
+</html>

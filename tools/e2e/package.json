@@ -4,6 +4,10 @@
   "version": "1.0.0",
   "description": "Pruebas E2E protegidas para los ASMX Workflow DOC-10 y DOC-11.",
   "scripts": {
+    "test:doc111:rec": "node scripts/run-doc111-importacion-carpetas.cjs",
+    "test:doc110:session": "node scripts/run-doc110-profile-session.cjs",
+    "test:doc110:anonymous": "playwright test tests/doc110-perfil-importacion-anonymous.spec.cjs",
+    "test:doc110:perfiles": "playwright test tests/doc110-perfil-importacion.spec.cjs",
     "test:doc105:toolbar-dom": "node --test tests/doc105-toolbar-dom.test.cjs",
     "install:browsers": "playwright install chromium",
     "test:anonymous": "node scripts/assert-e2e-config.cjs anonymous && playwright test --grep @anonymous",
@@ -84,7 +88,9 @@
     "test:doc96:login-ui": "node scripts/run-doc96-login-second-factor-ui-interactive.cjs",
     "test:doc96:policy": "node --test tests/doc96-login-second-factor-ui-policy.test.cjs tests/authenticated-workflow-session.test.cjs",
     "test:doc97:policy": "node --test tests/doc97-login-second-factor-regression-policy.test.cjs",
-    "migrate:doc81:intent-schema": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/apply-doc81-intent-schema-interactive.ps1"
+    "migrate:doc81:intent-schema": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/apply-doc81-intent-schema-interactive.ps1",
+    "test:doc115:recepcion": "node scripts/run-doc115-recepcion-importacion.cjs",
+    "test:doc116:expedientes": "node scripts/run-doc116-expedientes-importacion.cjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",

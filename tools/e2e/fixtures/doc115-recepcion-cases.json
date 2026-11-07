@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "scenarios": {
+    "RECIB-01": {
+      "preparations": 2,
+      "maximumLots": 1,
+      "uploads": 0,
+      "checks": [
+        "same-plan-concurrent",
+        "changed-payload",
+        "cross-plan-key",
+        "snapshot-preserved"
+      ],
+      "confirmations": 5
+    },
+    "RECIB-02": {
+      "preparations": 2,
+      "maximumLots": 2,
+      "uploads": 8,
+      "checks": [
+        "cross-lot-id",
+        "injected-destination",
+        "missing-token",
+        "truncated",
+        "excess-bytes",
+        "valid",
+        "replay",
+        "changed-content"
+      ],
+      "confirmations": 2
+    },
+    "RECIB-03": {
+      "preparations": 1,
+      "maximumLots": 1,
+      "uploads": 3,
+      "checks": [
+        "interrupted-transfer",
+        "read-before-retry",
+        "valid-after-interruption",
+        "lost-response",
+        "replay-unchanged"
+      ],
+      "confirmations": 1
+    }
+  },
+  "documentEffects": false,
+  "automaticRetries": false,
+  "retention": "PRESERVE"
+}

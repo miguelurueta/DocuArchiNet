@@ -1,0 +1,93 @@
+{
+  "issueKey": "DOC-117",
+  "scenario": "ALM-03-SETUP-LOCAL",
+  "date": "2026-11-06",
+  "status": "LOCAL_PASS_REAL_SETUP_NOT_EXECUTED",
+  "authorizationGranted": false,
+  "realSetupExecuted": false,
+  "proposal": {
+    "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03-recursos-propuestos-20261106.json",
+    "sha256": "4c963e5824f6dcf61ca596d23128b6e28155a6170057e8223bb8dd809f12ac43"
+  },
+  "codeSha256": "c9fbb483d0f0a46780ac009ce1d412838c203727df0f598b477548b3d0ca0ca8",
+  "budget": {
+    "plans": 1,
+    "lots": 1,
+    "receipts": 2,
+    "createdExpedients": 2,
+    "materializations": 2,
+    "documents": 0,
+    "storageRequests": 0,
+    "runtimeChanges": 0,
+    "maximumSelectRequests": 160
+  },
+  "individual": {
+    "expedienteId": "467",
+    "levelId": "8",
+    "relacionNivelId": "1072",
+    "typologyId": "50",
+    "fileName": "DOC117-ALM03-IND-20261106.pdf",
+    "classificationSha256": "083005fcf663febf27982bef6ce9b2f17c03b278ea99d70267da3741cfcdf5ff"
+  },
+  "resourceNames": [
+    "DOC117-ALM03-A-20261106",
+    "DOC117-ALM03-B-20261106"
+  ],
+  "fileNames": [
+    "DOC117-ALM03-IMPORT-A-20261106.pdf",
+    "DOC117-ALM03-IMPORT-B-20261106.pdf"
+  ],
+  "fixture": {
+    "file": "doc111-carga-individual.pdf",
+    "bytes": 677,
+    "sha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c"
+  },
+  "hashToolSha256": "7a16d1b42f2a380e1a706d78aaa5ee7f646cc6a62bb39fb7413c731108d64afb",
+  "runtimeSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "originalProductInputsUnchanged": true,
+  "originalInputCount": 912,
+  "tests": {
+    "total": 221,
+    "passed": 221,
+    "failed": 0,
+    "newPreflightDiagnosticAndSetupCases": 37,
+    "logFile": ".tmp/doc117-alm03-setup-regression-20261106.tap",
+    "logSha256": "d7946e3e7097776c350536481484ec4926525773db370418f8e01227e2c9a42b"
+  },
+  "openSpecStrict": "PASS",
+  "priorReadEvidence": {
+    "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03-destino-lectura-20261106.json",
+    "sha256": "e36c66e4790d0cf18d4fbd6997b7d976d82507bef91ad53d79e5dc139b033f69",
+    "acceptedAsFullPreflight": false
+  },
+  "progress": {
+    "complete": 16,
+    "total": 18,
+    "pending": [
+      "17.1",
+      "18.1"
+    ]
+  },
+  "files": {
+    "tools/e2e/scripts/run-doc117-alm03-setup.cjs": "14661b65fe5cda8477e8e211c5922a40b7062282409e3920086f8be67a036a2b",
+    "tools/e2e/tests/support/doc117-alm03-setup.cjs": "1bc3e18cbda0b40d60fb08094ca747ae7c8d069bac5c8cd7d340da411505bebc",
+    "tools/e2e/tests/support/doc117-alm03-setup-scope.cjs": "9ca76d18c861e89a3be9f873e402d2983e67eb34f753775b97d1b060a5d6dad7",
+    "tools/e2e/scripts/run-doc117-alm02-setup.cjs": "d6badb9017909aee3a50242143da254ac298cbd01e08dded61cc115c0d948c79",
+    "tools/e2e/tests/support/doc111-importacion-carpetas.cjs": "8936aacb0b0b9392c3d9944d7a029f7bfcb345ad4e4fb4fc3ac0b3dcaa3aadda",
+    "tools/e2e/tests/support/doc117-alm01-driver.cjs": "f45f23452333f48bacc5a08162f331fa352b04f56a18bbc4c830fd5c314b3d5f",
+    "tools/e2e/tests/support/doc116-exp01-setup.cjs": "33bd44970b3852c185df8c227437c65e45e1fc96a5c1a37e02d3b99f61ac2a32",
+    "tools/e2e/tests/support/doc114-plan-importacion.cjs": "3f1de2aee8189a650e04455c366ec3aadd72f8e5d16cdbe5ae48d6441862d1fd",
+    "tools/e2e/tests/support/doc110-safe-request.cjs": "c01b90b77c8e3b8cf89d2e9aeaf186e7fc01199f398d2dae5f4f169328248eca",
+    "tools/e2e/tests/support/authenticated-workflow-session.cjs": "60c33202ded594541a984ffdbe2ed2929734a5e48595440278039b854b93975b",
+    "tools/e2e/scripts/support/doc32-e2e-odbc.cjs": "d748cfd17cf3c170df4ce5cf7d4daf1959df16a3ed788084754d5ceec0a5a256",
+    "tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1": "7a4fb15210785f221835f865ce81a5b9c55aed6243f7592ee383e81640492d11",
+    "tools/e2e/scripts/support/interactive-e2e-console.cjs": "778d847653e3351e9e7c50957c7c16f21f9ba17e2d06eb020a2a5df5f3651087",
+    "tools/e2e/fixtures/Doc117SolicitudHash.vb": "d6e53e0cfe86768e2166c8a7130622c7a136376aa218a8fda2e2d86469481133",
+    "tools/e2e/fixtures/Doc117SolicitudHashConsole.vb": "3a6d0207b63468d3b224b503beb86a1672baade5a9454e35cf9863537d9201f3",
+    "tests/doc117-alm03-preflight.test.cjs": "6af24d506e38b687c311933425dac45301d16654033fa30603d44f0d24028d38",
+    "tests/doc117-alm03-destination-readonly.test.cjs": "7c24070f4b9ca3f67bacce97aca89b13cbb9141e8c2df7195cce0c061eece4c5",
+    "tests/doc117-alm03-setup.test.cjs": "eb40ea24ac318698783cf35d6870179d061f00b971b76ee89989b32d7581d6a8",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03-recursos-propuestos-20261106.json": "4c963e5824f6dcf61ca596d23128b6e28155a6170057e8223bb8dd809f12ac43",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03-setup-listo-20261106.md": "6c9088d57a87b4a7311436cd976d0a81dd84998f19eea4ed94acb3e7eae14461"
+  }
+}

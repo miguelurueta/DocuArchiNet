@@ -1,0 +1,93 @@
+{
+  "issueKey": "DOC-113",
+  "case": "UI-02",
+  "state": "EJECUTADO_OK",
+  "date": "2026-11-03",
+  "startedUtc": "2026-11-03T13:08:44.500Z",
+  "finishedUtc": "2026-11-03T13:11:50.608Z",
+  "environment": "Same authorized DOC-111 test environment",
+  "level": "7",
+  "version": "38",
+  "rootNames": [
+    "DOC113-20261103-UI-01",
+    "DOC113-20261103-UI-02"
+  ],
+  "references": [
+    {
+      "scenario": "UI-02",
+      "planId": "8"
+    },
+    {
+      "scenario": "UI-02",
+      "planId": "9"
+    }
+  ],
+  "result": {
+    "scenario": "UI-02",
+    "status": "PASS",
+    "preparations": 2,
+    "confirmations": 0,
+    "opens": 1,
+    "readOnlyControls": true,
+    "noDocumentEffects": true,
+    "domVerified": true,
+    "head": "f7a88e38176e789e0b0369a6a23a56ab46769635",
+    "codeSha256": "b34ec1dcbe16006eeca5c8f16f74ba6a760065335cb14be4cbe09a31a9e36c35",
+    "servedScriptSha256": "1bf5e26678f80f2bffeefc91610f368bc38288b7c641bd7d8059485f8e7f944a"
+  },
+  "code": {
+    "head": "f7a88e38176e789e0b0369a6a23a56ab46769635",
+    "scopeSha256": "b34ec1dcbe16006eeca5c8f16f74ba6a760065335cb14be4cbe09a31a9e36c35",
+    "files": [
+      {
+        "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+        "sha256": "1bf5e26678f80f2bffeefc91610f368bc38288b7c641bd7d8059485f8e7f944a"
+      },
+      {
+        "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js",
+        "sha256": "c0820e377fcd801e08a16c8d3b8db7dc4df6122a2ac81ce9c4cbd6e6751f676f"
+      },
+      {
+        "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+        "sha256": "2321f39175874df3c9be0dbe4edfebc010c7640c21faaafa9bbc6b7da099d483"
+      },
+      {
+        "file": "js/gestion/ImportacionCarpetas/InventarioImportacion.js",
+        "sha256": "357a414e3e00b2670f46eba2a05b2f1980e196528e416a1ce0e3552391bd7377"
+      },
+      {
+        "file": "tools/e2e/scripts/run-doc113-ventana-importacion.cjs",
+        "sha256": "cc08ffab83967379bddf1994d608038c3f8d5622cb704c7afa4cd20a3fe0afe5"
+      },
+      {
+        "file": "tools/e2e/tests/doc113-ventana-importacion.spec.cjs",
+        "sha256": "98aa206370c0ce8730d45c87e4dc4ec8c0b331e7bb471019885a802ad604af64"
+      },
+      {
+        "file": "tools/e2e/tests/support/authenticated-workflow-session.cjs",
+        "sha256": "60c33202ded594541a984ffdbe2ed2929734a5e48595440278039b854b93975b"
+      },
+      {
+        "file": "tools/e2e/tests/support/doc110-code-evidence.cjs",
+        "sha256": "2b5a75e8f63cda728f41ac876d7ab36f2fd98f498da6b1a47014a10b9b46ba0b"
+      },
+      {
+        "file": "tools/e2e/tests/support/doc113-ventana-importacion.cjs",
+        "sha256": "65a665efadb0e68e1cd907d0086026ec7b1cad04fcaaa7281e27f0a01a32d41e"
+      }
+    ],
+    "note": "HEAD alone does not represent uncommitted files; hashes cover the explicit source/test scope."
+  },
+  "steps": [
+    "Select level 7 and open integrated dialog once; select publication 38.",
+    "Select two homonymous native directories with nested PDF fixtures and verify distinct client root/file IDs and relative paths.",
+    "Prepare plan 8 and inspect review; change selection and add third root.",
+    "Prepare plan 9; verify plan 8 remains unconfirmed and no confirmation request is sent.",
+    "Compare SELECT counts: exactly two new plans, zero new lots; verify DOM and absence of document effects."
+  ],
+  "limitations": [
+    "No lot confirmation or document upload authorized or executed.",
+    "UI-01 and UI-03 remain pending alternate references.",
+    "Local-validation aggregate and real E2E aggregate cover different explicit file lists; both manifests retained."
+  ]
+}

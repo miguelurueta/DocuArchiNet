@@ -1,0 +1,272 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "status": "APPROVED_ARCHIVED_PUBLICATION_PENDING",
+  "tasks": {
+    "complete": 16,
+    "total": 16
+  },
+  "requirements": 6,
+  "scenarios": 17,
+  "realScenarios": [
+    {
+      "scenario": "PLAN-01",
+      "status": "PASS",
+      "codeSha256": "0b3bf1b95684894cfd114f712a4089840f88ea55e84d34a59e9dec9b52351600",
+      "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5"
+    },
+    {
+      "scenario": "PLAN-02",
+      "status": "PASS",
+      "codeSha256": "2b0c75629be41dc6e5a90a96e5019453641ae102894a25fca75c347f6179b728",
+      "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5"
+    },
+    {
+      "scenario": "PLAN-03",
+      "status": "PASS",
+      "codeSha256": "7f5f17515b39859c1038492ae19c9f7c3f619af8f55ef6fb6ef113728d3876ad",
+      "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5"
+    }
+  ],
+  "preservedPlanIds": [
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22",
+    "23"
+  ],
+  "permission": {
+    "restored": true,
+    "column": "IMPORTAR_CARPETAS",
+    "userRef": "141",
+    "companyRef": "2",
+    "otherFieldsIntact": true
+  },
+  "localRegression": {
+    "pass": 88,
+    "fail": 0
+  },
+  "continuationPreflightRegression": {
+    "pass": 4,
+    "fail": 0
+  },
+  "dotNetHarness": {
+    "pass": 2,
+    "fail": 0,
+    "sourceUnchanged": true
+  },
+  "isolatedFrameworkBuild": {
+    "tool": "Visual Studio 18 MSBuild Framework",
+    "exitCode": 0,
+    "output": ".tmp/doc114-build/bin/GestionDocumental-Docuarchi.net.dll",
+    "sha256": "85a752b426eb5e75cf9d601d7811bd7f0238a45953950742a4fa8923ca6016fb",
+    "deployed": false
+  },
+  "powerShellBridgeFixture": "PASS; no DB",
+  "canonicalHashGolden": "PASS against existing Framework HuellaPlan",
+  "syntax": {
+    "node": "PASS",
+    "powerShell": "PASS"
+  },
+  "openSpecStrict": "PASS",
+  "traceability": {
+    "pass": 12,
+    "fail": 0,
+    "checks": [
+      {
+        "name": "refinement:exists",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:approved",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:no_placeholders",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:decisions",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:requirements",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:design:exists",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:design:decisions",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:spec:exists",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:spec:decisions",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:tasks:exists",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:tasks:decisions",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:tasks:origins",
+        "status": "PASS"
+      }
+    ],
+    "technical": "PASS",
+    "editorial": "APPROVED"
+  },
+  "source": {
+    "head": "4461453f100e96e47c122d7a0f7222034b8e93da",
+    "latestRealScopeSha256": "7f5f17515b39859c1038492ae19c9f7c3f619af8f55ef6fb6ef113728d3876ad",
+    "backendCurrentSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+    "productDiff": [],
+    "unchangedBackendSources": [
+      {
+        "file": "tests/ImportacionCarpetasBehaviorTests.cs",
+        "sha256": "188b71a541d706c2cf72b7c06d8ff3b658d724543df313a1737cd14bf799caa8"
+      },
+      {
+        "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioPreparacionImportacion.vb",
+        "sha256": "de80f0d66a34b8fe21c2048b3c56acd9326c8bc4f8b6614e482b22fac87a7d7b"
+      }
+    ],
+    "files": [
+      {
+        "file": "tools/e2e/AGENT-RUNBOOK.md",
+        "sha256": "02b9e1de534ab1980ea53e5c615a9821862b6095c841d2617601e8b17f129243"
+      },
+      {
+        "file": "tools/e2e/fixtures/doc114-plan-cases.json",
+        "sha256": "7f4917fe6eb1f418f5bc1b92444a7e05059f53a9382d1183f0499d4e35cbb27b"
+      },
+      {
+        "file": "tools/e2e/package.json",
+        "sha256": "7331d6cb053ea212d167b02d9efdbe3816631aef1426757aab8724e5bb31e9f4"
+      },
+      {
+        "file": "tools/e2e/profiles/doc114-plan-session.profile.example.json",
+        "sha256": "d84c66212037fbbfe45b9a972cd193c27d78c53a4ae816256e12399ee5ea001a"
+      },
+      {
+        "file": "tools/e2e/scripts/run-doc114-plan-importacion.cjs",
+        "sha256": "e0704e1f26acba6709d4065b500c6b9e2d02e6cfa108d36fb8ffc5b1ded67104"
+      },
+      {
+        "file": "tools/e2e/scripts/support/doc110-permission-db.ps1",
+        "sha256": "0f2e21b453d56d446d3d0175992cdb1e7da85a44742c8e82d23d57cf6bd1073b"
+      },
+      {
+        "file": "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+        "sha256": "50598e89580b34d5b9bacc2c6ffc59f9d0438682c9475b727f003e8477680634"
+      },
+      {
+        "file": "tools/e2e/tests/doc114-permission-bridge-local.ps1",
+        "sha256": "5398b157ffaf297f7c9d756755e82c5326ba0eff3b51b8111025252731f0edb2"
+      },
+      {
+        "file": "tools/e2e/tests/doc114-plan-controls.test.cjs",
+        "sha256": "4ed010fd1f7e87cee64c1c6ef7ce1124193ddbdd85201cb6805af8ca3e51d56e"
+      },
+      {
+        "file": "tools/e2e/tests/doc114-plan-importacion.spec.cjs",
+        "sha256": "8cd3254cbd3cfaf31ac6e0f2354d6fcd991a0ad8a7336f21680e80a37496285b"
+      },
+      {
+        "file": "tools/e2e/tests/doc114-plan-serialization.test.cjs",
+        "sha256": "b5d2bd64a4c1123618cae87d78efea59afb2aa25365a8d04da26ea2017b74148"
+      },
+      {
+        "file": "tools/e2e/tests/doc114-published-test-profiles.test.cjs",
+        "sha256": "9918539073265f8575b510db72810acd0e6d7ab78dc6f2ee3948bdf9a5ed14cb"
+      },
+      {
+        "file": "tools/e2e/tests/doc114-reference-test-version.test.cjs",
+        "sha256": "ac5730e6cd9714a7b031c3e771b3a8fe5f81a11204522a5b7ea5a5be97b1863e"
+      },
+      {
+        "file": "tools/e2e/tests/support/doc110-permission-revocation.cjs",
+        "sha256": "a6008c67300d8542a8cb48e26d8808feff992a6700a407a44f754c37001f4897"
+      },
+      {
+        "file": "tools/e2e/tests/support/doc111-partial-profile.cjs",
+        "sha256": "abec68d741b368c9267c32a6267007cab4bb83351acdd6a92a85a72cc1202e31"
+      },
+      {
+        "file": "tools/e2e/tests/support/doc114-plan-importacion.cjs",
+        "sha256": "f67e5174a416ca4cc5f4689e1de1c7a28883f7ec695427495146b59f22ceb0ab"
+      },
+      {
+        "file": "tools/e2e/tests/support/doc114-published-test-profiles.cjs",
+        "sha256": "39cdd26c39d374f3b1def3ece606d613dd610770f03815add50a59f67582c56f"
+      },
+      {
+        "file": "tools/e2e/tests/support/doc114-reference-test-version.cjs",
+        "sha256": "438855e8cc4568c57dbd6b80d5e19b425806410251b2c01a36843eaf4ba6dec1"
+      }
+    ]
+  },
+  "limitations": [
+    "Plan11 original HTTP body not retained; verified by original checkpoint and subsequent readonly hash/value/snapshot/manifest/context checks",
+    "No positive unique typology code available; two configured valid formats and negative ID/code test cover the approved cases",
+    "Homonyms/subfolders/quotas/determinism evidence is local Framework, explicitly distinct from real PLAN evidence"
+  ],
+  "externalPublication": "NOT_PERFORMED",
+  "jiraClosure": "NOT_PERFORMED",
+  "editorialApproval": {
+    "issueKey": "DOC-114",
+    "date": "2026-11-03",
+    "status": "APPROVED_BY_USER",
+    "confirmation": "continua",
+    "context": "Respuesta directa a la solicitud de aprobar el informe consolidado para continuar con publicacion",
+    "scope": "Editorial acceptance of verified DOC114 delivery and continuation of publication workflow after checks",
+    "reviewReport": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc114-final-report-20261103.md",
+    "reviewReportSha256": "63571253664acd4d2026827bdef91b204fcd3d3efd65a6e1a833fe6b336785f8",
+    "tasks": "16/16",
+    "realCases": [
+      "PLAN-01",
+      "PLAN-02",
+      "PLAN-03"
+    ],
+    "permissionRestored": true,
+    "preservePlans": [
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "19",
+      "20",
+      "21",
+      "22",
+      "23"
+    ],
+    "additionalRuntimeEffects": false
+  },
+  "governance": {
+    "status": "PASS",
+    "checks": 69
+  },
+  "archive": "openspec/changes/archive/2026-11-03-doc-114-produccion-importacion-carga-carpeta-plan-imple",
+  "specSync": "VERIFIED"
+}

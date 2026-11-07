@@ -1,0 +1,76 @@
+#doc110-perfiles .doc110-dialog {position:fixed;inset:3vh 3vw;z-index:1080;overflow:auto;background:#fff;color:#182331;border:1px solid #64748b;border-radius:8px;box-shadow:0 12px 70px #17203366;padding:24px;font:14px/1.5 Arial,sans-serif;}
+#doc110-perfiles [hidden] {display:none!important;}
+#doc110-perfiles button {margin:4px;padding:7px 12px;border:1px solid #64748b;border-radius:4px;background:#f8fafc;color:#12395c;cursor:pointer;}
+#doc110-perfiles button:focus-visible,#doc110-perfiles input:focus-visible,#doc110-perfiles select:focus-visible {outline:3px solid #1672c4;outline-offset:2px;}
+#doc110-perfiles fieldset {margin:16px 0;padding:14px;border:1px solid #cbd5e1;min-width:0;}
+#doc110-perfiles legend {width:auto;font-size:17px;padding:0 6px;}
+#doc110-perfiles .doc110-fields {display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;}
+#doc110-perfiles label {display:block;font-weight:600;}
+#doc110-perfiles input:not([type=checkbox]),#doc110-perfiles select {display:block;max-width:100%;width:100%;min-width:130px;padding:6px;border:1px solid #94a3b8;background:#fff;color:#182331;border-radius:3px;}
+#doc110-perfiles .doc110-scroll {overflow:auto;}
+#doc110-perfiles table {border-collapse:collapse;width:100%;margin:12px 0;}
+#doc110-perfiles th,#doc110-perfiles td {padding:9px;text-align:left;vertical-align:top;border-bottom:1px solid #cbd5e1;}
+#doc110-perfiles small {display:block;max-width:250px;font-weight:400;}
+#doc110-perfiles [role=status] {white-space:pre-wrap;border-left:3px solid #1672c4;padding:8px;background:#f1f5f9;}
+#doc110-perfiles [aria-busy=true] {cursor:progress;}
+#doc110-perfiles .doc110-fuente-estado,#doc110-perfiles .doc110-proveedor-estado {position:sticky;top:0;z-index:2;border:1px solid #64748b;border-left:4px solid #1672c4;box-shadow:0 2px 6px #17203322;}
+
+/* DOC-110: composición basada en SII moderno y en el prototipo de carpetas.
+   Alcance local: no carga ni modifica los estilos o componentes de SII. */
+#doc110-perfiles {--doc110-ink:#24384b;--doc110-muted:#637487;--doc110-line:#dce4ec;--doc110-blue:#35477f;}
+#doc110-perfiles *,#doc110-perfiles *::before,#doc110-perfiles *::after {box-sizing:border-box;}
+#doc110-perfiles .doc110-dialog {display:flex;flex-direction:column;inset:3vh max(2vw,calc((100vw - 1320px)/2));padding:0;border:1px solid var(--doc110-line);border-radius:12px;background:#f3f6f9;overflow:hidden;font:14px/1.5 "Segoe UI",Arial,sans-serif;box-shadow:0 18px 65px #17203355,0 0 0 100vmax #14202f66;color:var(--doc110-ink);}
+#doc110-perfiles .doc110-header {display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 24px;background:#fff;border-bottom:1px solid var(--doc110-line);flex:0 0 auto;}
+#doc110-perfiles .doc110-header h2 {margin:2px 0 4px;font-size:23px;line-height:1.25;font-weight:650;color:#1f2d44;}
+#doc110-perfiles .doc110-header p {margin:0;color:var(--doc110-muted);font-size:13px;}
+#doc110-perfiles .doc110-eyebrow {font-size:10px;letter-spacing:1.3px;font-weight:700;color:var(--doc110-blue);}
+#doc110-perfiles .doc110-header>button {flex:0 0 auto;}
+#doc110-perfiles .doc110-body {flex:1 1 auto;min-height:0;min-width:0;overflow:auto;padding:20px 24px 28px;overscroll-behavior:contain;scrollbar-gutter:stable;}
+#doc110-perfiles .doc110-body>h3 {font-size:18px;font-weight:650;margin:0 0 12px;overflow-wrap:anywhere;}
+#doc110-perfiles .doc110-dialog>[role=status] {flex:0 0 auto;position:static;margin:0;padding:9px 24px;border:0;border-bottom:1px solid #d5e3ef;border-left:4px solid #2168a5;background:#edf4fa;color:#23496c;font-size:13px;box-shadow:none;max-height:22vh;overflow:auto;}
+#doc110-perfiles .doc110-dialog>[role=status]:empty {display:none;}
+#doc110-perfiles .doc110-card,#doc110-perfiles fieldset {border:1px solid var(--doc110-line);border-radius:8px;background:#fff;padding:18px;margin:0 0 18px;}
+#doc110-perfiles legend {font-size:15px;font-weight:650;color:#35477f;padding:0 7px;margin:0;}
+#doc110-perfiles .doc110-card h4 {font-size:15px;margin:0 0 5px;color:#35477f;}
+#doc110-perfiles .doc110-help {font-size:12px;font-weight:400;color:var(--doc110-muted);margin:6px 0 14px;}
+#doc110-perfiles .doc110-context {border-left:3px solid #2168a5;padding:10px 14px;background:#eaf1f9;color:#335779;border-radius:0 5px 5px 0;font-size:13px;}
+#doc110-perfiles .doc110-fields {grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:16px;align-items:start;}
+#doc110-perfiles label {font-size:12px;font-weight:600;color:#354760;min-width:0;}
+#doc110-perfiles input:not([type=checkbox]),#doc110-perfiles select {font:14px "Segoe UI",Arial,sans-serif;margin-top:5px;min-width:0;min-height:38px;padding:8px 10px;border-color:#bdc9d8;}
+#doc110-perfiles input[readonly],#doc110-perfiles input:disabled,#doc110-perfiles select:disabled {background:#f3f5f8;color:#637487;}
+#doc110-perfiles button {font:600 13px "Segoe UI",Arial,sans-serif;min-height:38px;margin:3px;padding:8px 14px;border:1px solid #b9c7d8;border-radius:5px;color:#35477f;background:#fff;transition:background .12s;}
+#doc110-perfiles button:hover:not(:disabled) {background:#edf2fa;border-color:#8da4c7;}
+#doc110-perfiles button:disabled {opacity:.5;cursor:not-allowed;}
+#doc110-perfiles [data-proveedor=nuevo],#doc110-perfiles [data-proveedor=crear],#doc110-perfiles [data-proveedor=guardar],#doc110-perfiles [data-proveedor=ensayar],#doc110-perfiles [data-fuente=nueva],#doc110-perfiles [data-fuente=guardar],#doc110-perfiles [data-doc110=nuevo],#doc110-perfiles [data-doc110=crear],#doc110-perfiles [data-doc110=guardar] {background:var(--doc110-blue);border-color:var(--doc110-blue);color:#fff;}
+#doc110-perfiles [data-proveedor=publicar],#doc110-perfiles [data-doc110=publicar] {border-color:#247057;color:#247057;background:#f1f8f4;}
+#doc110-perfiles .doc110-toolbar,#doc110-perfiles .doc110-actions {display:flex;align-items:flex-end;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+#doc110-perfiles .doc110-toolbar>label {flex:1 1 260px;max-width:520px;}
+#doc110-perfiles .doc110-scroll {width:100%;max-width:100%;border:1px solid var(--doc110-line);border-radius:7px;background:#fff;overflow:auto;}
+#doc110-perfiles table {margin:0;background:#fff;font-size:13px;}
+#doc110-perfiles th {background:#eef2fb;color:#35477f;font-size:11px;letter-spacing:.35px;text-transform:uppercase;padding:12px;text-align:left;white-space:nowrap;}
+#doc110-perfiles td {padding:12px;vertical-align:middle;overflow-wrap:anywhere;}
+#doc110-perfiles tbody tr:hover {background:#f8faff;}
+#doc110-perfiles td input,#doc110-perfiles td select {min-width:140px;}
+#doc110-perfiles .doc110-empty {text-align:center;color:var(--doc110-muted);padding:36px 16px;}
+#doc110-perfiles .doc110-badge {display:inline-flex;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:650;background:#eaf0f6;color:#52677a;white-space:nowrap;}
+#doc110-perfiles .doc110-badge[data-tone=success] {background:#e9f5ee;color:#247057;}
+#doc110-perfiles .doc110-badge[data-tone=draft] {background:#fff3da;color:#875617;}
+#doc110-perfiles button.doc110-danger {border-color:#d9b3b6;color:#9b313a;background:#fff8f8;}
+#doc110-perfiles .doc110-body nav {border-top:1px solid var(--doc110-line);padding-top:14px;margin-top:20px;}
+#doc110-perfiles summary {cursor:pointer;color:#35477f;font-weight:600;}
+#doc110-perfiles .doc110-summary {min-width:200px;max-width:360px;font-size:12px;}
+#doc110-perfiles .doc110-summary dt {font-weight:650;color:#637487;margin-top:8px;}
+#doc110-perfiles .doc110-summary dd {margin:2px 0;overflow-wrap:anywhere;}
+#doc110-perfiles .doc110-column-options {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:8px;}
+#doc110-perfiles .doc110-column-options>label {display:flex;flex-direction:row-reverse;justify-content:flex-end;align-items:center;gap:10px;background:#f7f9fc;border:1px solid #dce4ec;border-radius:5px;padding:12px;overflow-wrap:anywhere;}
+#doc110-perfiles input[type=checkbox] {width:16px;height:16px;accent-color:#35477f;flex:0 0 auto;}
+#doc110-perfiles .doc110-selection {font-size:12px;margin-top:14px;color:var(--doc110-muted);}
+#doc110-perfiles .doc110-selection>span {display:inline-block;background:#edf3fa;border-radius:5px;padding:3px 7px;margin:3px;overflow-wrap:anywhere;}
+#doc110-perfiles .doc110-selection button {font-size:11px;min-height:28px;padding:4px 7px;}
+#doc110-perfiles .doc110-query-result:not(:empty) {border-top:1px solid var(--doc110-line);margin-top:14px;padding-top:10px;overflow-wrap:anywhere;}
+#doc110-perfiles .doc110-sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+@media(max-width:680px){#doc110-perfiles .doc110-dialog {inset:0;border-radius:0;}#doc110-perfiles .doc110-header {padding:12px;gap:8px;}#doc110-perfiles .doc110-header h2 {font-size:19px;}#doc110-perfiles .doc110-header p {display:none;}#doc110-perfiles .doc110-body {padding:14px 12px;}#doc110-perfiles .doc110-fields {grid-template-columns:1fr;}#doc110-perfiles .doc110-card,#doc110-perfiles fieldset {padding:12px;}#doc110-perfiles .doc110-dialog>[role=status] {padding:8px 12px;}#doc110-perfiles .doc110-scroll table {min-width:600px;}}
+@media(prefers-reduced-motion:reduce){#doc110-perfiles button {transition:none;}}
+
+/* Usa el dropdown Bootstrap de Produccion; solo iguala botones a sus enlaces. */
+#doc110-navigation > .dropdown-menu > button.dropdown-item {font:inherit;color:#6d7fcc;cursor:pointer;}

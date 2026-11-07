@@ -1,0 +1,17 @@
+{
+  "issueKey": "DOC-117",
+  "status": "PASS",
+  "artifact": "tools/e2e/artifacts/doc117-alm01-preflight-dae8dc50cfb99061.json",
+  "artifactSha256": "8ef0444d0974f095bc2804c711439d9b908cb9b3785597eb5a1e96c3ceb5ea97",
+  "codeSha256": "80e339775133d15c38be9df9509756dc4977c1fc6524662bb2ee762aa459a6df",
+  "scenario": "ALM-01-PREFLIGHT-SELECT",
+  "manifestSha256": "2006f16cc218074f4b2d930daceea480ad5d19dbb1ac888295f7d3d5451ff47f",
+  "rootAbsenceVerified": true,
+  "typologyVerified": true,
+  "cabinetAndIndexVerified": true,
+  "preparations": 0,
+  "confirmations": 0,
+  "uploads": 0,
+  "documents": 0,
+  "executionAuthorized": false
+}

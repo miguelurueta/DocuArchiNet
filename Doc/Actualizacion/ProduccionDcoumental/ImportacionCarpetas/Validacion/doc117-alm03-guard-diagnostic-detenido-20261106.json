@@ -1,0 +1,119 @@
+{
+  "issueKey": "DOC-117",
+  "scenario": "ALM-03-GUARD-DIAGNOSTIC",
+  "date": "2026-11-06",
+  "status": "STOPPED_PREFLIGHT_NO_RUNTIME_OR_UPLOAD",
+  "sourceArtifact": {
+    "file": "tools/e2e/artifacts/doc117-alm03-guard-probe-188de3a60bbbc41d97cd4ccf3fa04266.json",
+    "sha256": "5e6d8aade67eb8a796a6be35c83933c18d0fd97e6ab5735e3b66cc279c851b4d"
+  },
+  "authorization": {
+    "file": ".tmp/doc117-alm03-guard-probe-authorization.json",
+    "sha256": "ad8fca6580eb22e6d9aa93acf713c60028e3a80963cea3863a538b43253b0519",
+    "authorizationId": "188de3a60bbbc41d97cd4ccf3fa04266",
+    "codeSha256": "901f59d2fa397a6b3b27982477fe7ab1cfe30d8a1298eef2022a7c2f48ca495a"
+  },
+  "consoleExit": {
+    "file": ".tmp/doc117-alm03-guard-probe-console-exit.json",
+    "sha256": "aef421ac9914c0d4a2f2859db52a4629d91a929b88142134496197c5ac30dad3",
+    "exitCode": 2
+  },
+  "specificFailureRecovered": false,
+  "sessionEstablished": null,
+  "nativeDiagnosticReached": false,
+  "selectRequests": 0,
+  "cumulativeSelectRequests": 146,
+  "temporaryUploads": 0,
+  "documentsCreatedByThisRun": 0,
+  "liveRuntimeActivation": false,
+  "newBusinessPreservationReadback": false,
+  "originalRuntimeVerified": true,
+  "originalRuntimeSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "bothHistoricalBackupsByteIdentical": true,
+  "originalInputCount": 912,
+  "originalInputsUnchanged": true,
+  "sourceInputsSha256": "412a115d0a4e7d8b6b839aa5ba17082337fce14bb129332645db82509909d1d3",
+  "candidateUnchanged": true,
+  "candidateSha256": "8952bd88c52e7375ad590ae955d9b157b782c9040bb0767915b43cffd05fc8eb",
+  "historicalFilesUnchanged": {
+    "tools/e2e/artifacts/doc117-alm03-coexistence-149655bd16ab32f957ddae7d44192109.json": "6aa1a2200defeef42338aebcb5762864ca06195e3b95f64629452f355fc0b1b9",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03-detenido-verificado-20261106.json": "0f436ba1f7912d6674cbf820806079a4c43ead86879559c38e9fd5da71997091",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03-diagnostico-codigos-local-20261106.json": "d059bfd30225472db71222d21c0249241cfb8ac9472844d13f84589af98b7cbe",
+    "tools/e2e/artifacts/doc117-alm03-post-stop-149655bd16ab32f957ddae7d44192109.json": "cc372656a5e27770d7787c220599330a68fa6a024996794abe1ae823059d5f62"
+  },
+  "localCorrection": {
+    "codeSha256": "89d2145c3891caa691f50f96bb91dc30ed8ec76cf7a7a5209c8cab8615f7f405",
+    "reviewedFiles": {
+      "tools/e2e/scripts/run-doc117-alm03-guard-diagnostic.cjs": "5d99ec5d9c95e6b0683a7dbd26f2cb5f994c5a64c4f5494c1f641ae708d5a0eb",
+      "tools/e2e/scripts/support/doc117-alm03-guard-diagnostic.cjs": "11249ae26c5a140af24b8b2ec49742ee5c40e480e27497d62e89bb5f4e9e20bc",
+      "tools/e2e/scripts/support/doc117-alm03-guard-diagnostic-lease.cjs": "504bdcc90df91dc94d52b5a6e0cfaa1df96ee1a57c4efe528bef42d4a960da4c",
+      "tools/e2e/fixtures/Doc117Alm03GuardDiagnostic.vb": "a962583f964ec7fe1567d914ae7f302999ea07096b85d5c4aa77b77ea6ee3284",
+      "tools/e2e/fixtures/Doc117Alm03ClosedGuard.vb": "ad7ce35a41163d1fdac87eed563cd0980dbb13aa8f08c7b4cdc2a3cf58c8e765",
+      "tools/e2e/fixtures/Doc117Alm03MethodObserver.vb": "90a65c581faa5d9e885219e29f8aed87838589ed1fcaa8cedef743df13dd1dfb",
+      "tools/e2e/scripts/build-doc117-alm03-guard-diagnostic.cjs": "f81ac61125f50baf1943b1d82053d3bda0e718778f0338e970db1b8e437f2f39",
+      "tools/e2e/tests/support/doc117-alm03-guard-probe-driver.cjs": "3716df89a79e0b182f36f1faf5126568f9cfff2cdf591d000af280ef3b542cc4",
+      "tools/e2e/tests/support/doc117-alm03-guard-probe-controls.cjs": "3760616e107f156f869053a02a91677123e4a16c393efe6567a8f964500c05ff",
+      "tools/e2e/scripts/support/doc117-internal-session.cjs": "745e233db645e01b44edffcf748c0fdb7ee4e10124887e4c08c0a6723c05aba3",
+      "tools/e2e/scripts/support/laboratory-runtime-lease.cjs": "8562728417a159368859884e6d8cdf4e2b771d42caf231a7736ac1ca528c320a",
+      "tools/e2e/scripts/support/doc117-alm03-candidate.cjs": "8647fb497e51c9ce30ad5243a481ad6975670b1a66fb5c5b8ecdeccb754fd7c0",
+      "tools/e2e/tests/support/doc117-alm03-controls.cjs": "2d3f271eef2532ccd783b37c777c19265ed4b9dd16aaf93bc205e33fdfd7031d",
+      "tools/e2e/tests/support/doc117-alm02-internal.cjs": "87fba332dcc26936b5fd35ae5fde57f087f839fc503664391dfd48f8e03521e0",
+      "tools/e2e/tests/support/doc117-alm03-coexistence.cjs": "b080b351357b8857d41e60106a487b4d858a0eb2ca4b0a949580db89b451cb10",
+      "tools/e2e/scripts/support/doc117-alm03-scoped-candidate.cjs": "5c48f6a6f2603b24d0f1e463425c961d8e04274e0f2e02efa6b90c0bc72bbbbc",
+      "tools/e2e/tests/support/doc117-alm03-setup-scope.cjs": "9ca76d18c861e89a3be9f873e402d2983e67eb34f753775b97d1b060a5d6dad7",
+      "tools/e2e/tests/support/doc111-importacion-carpetas.cjs": "8936aacb0b0b9392c3d9944d7a029f7bfcb345ad4e4fb4fc3ac0b3dcaa3aadda",
+      "tools/e2e/tests/support/doc117-alm01-driver.cjs": "f45f23452333f48bacc5a08162f331fa352b04f56a18bbc4c830fd5c314b3d5f",
+      "tools/e2e/tests/support/doc116-exp01-setup.cjs": "33bd44970b3852c185df8c227437c65e45e1fc96a5c1a37e02d3b99f61ac2a32",
+      "tools/e2e/tests/support/doc116-expedientes-importacion.cjs": "d96a87c38cdfc6a96894fdc0106c3cf153d8f81335c9795e9e7efdcf1c2c23d1",
+      "tools/e2e/tests/support/authenticated-workflow-session.cjs": "60c33202ded594541a984ffdbe2ed2929734a5e48595440278039b854b93975b",
+      "tools/e2e/scripts/run-workflow-e2e-platform.cjs": "b4c30d16b4a62c9d01f95ed3e431115164b187a6673b99e5bb5ca476844f081a",
+      "tools/e2e/scripts/support/doc117-alm03-failure-evidence.cjs": "3b29c858120dbb9eeaf9d2b0b028007b6d650b287427c35fe147ee75ed71a45c",
+      "tools/e2e/scripts/support/doc32-e2e-odbc.cjs": "d748cfd17cf3c170df4ce5cf7d4daf1959df16a3ed788084754d5ceec0a5a256",
+      "tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1": "7a4fb15210785f221835f865ce81a5b9c55aed6243f7592ee383e81640492d11",
+      "tools/e2e/scripts/support/interactive-e2e-console.cjs": "778d847653e3351e9e7c50957c7c16f21f9ba17e2d06eb020a2a5df5f3651087",
+      "tools/e2e/tests/support/doc110-safe-request.cjs": "c01b90b77c8e3b8cf89d2e9aeaf186e7fc01199f398d2dae5f4f169328248eca",
+      "tools/e2e/tests/support/doc114-plan-importacion.cjs": "3f1de2aee8189a650e04455c366ec3aadd72f8e5d16cdbe5ae48d6441862d1fd",
+      "tools/e2e/tests/support/doc117-almacenamiento.cjs": "e4372be0f7cf7efc192a88200fd3cc6f38740edf4eb4d76f0b940dec8bdd6ad1",
+      "tools/e2e/scripts/support/doc117-alm02-candidate.cjs": "008364855fb136b9061b3c8c6eefca7e770dbdbd6a56167ae1cee585cdf11fc6",
+      "tools/e2e/tests/support/doc117-alm03-method-observation.cjs": "ab6b86818528edb511d5eee0776eb13350267bf8be938e49cbb15a28f3c7e6cd",
+      "tools/e2e/scripts/support/workflow-e2e-platform.cjs": "5df627c15adf453bc8ee7fd6531dd5148ad35599ecc1a10785e336d065acd5e2",
+      "tools/e2e/scripts/support/workflow-e2e-platform-profile.cjs": "d6bd4385ab793dce01fd02a7f1d7e072245a8a610c403056558e2141b96dd243",
+      "tools/e2e/scripts/support/workflow-e2e-platform-registry.cjs": "d231572be8c4ac66c9703ac239f750cc302b2e2f4fded525b4c8d804ff3ab86e",
+      "tools/e2e/scripts/support/e2e-test-resource-lifecycle.cjs": "69bb2ca3cd2b77d58f17ba5b4547453319b4fb25f7a9c1f592242cd197a4c5ef",
+      "tools/e2e/playwright.config.cjs": "cc3fcf6d7b7497877ca35c646d45549241e29cde924c355a88040f209e9a8af3",
+      "tools/e2e/scripts/support/doc117-alm03-preflight-evidence.cjs": "ecac97df7f80a7699cb4dbc041e9f9f83320b38285ac84b9901d1530ee70f536"
+    },
+    "previousGrantRejected": true,
+    "anotherRealAuthorizationCreated": false,
+    "repeatedAuthentication": false,
+    "tests": {
+      "total": 289,
+      "passed": 289,
+      "failed": 0,
+      "logFile": ".tmp/doc117-alm03-preflight-evidence-regression-20261106.tap",
+      "logSha256": "22a016189e3cc9b5aa7e36b8832243ef568c1734e10723a131aa6aa3a14abf72",
+      "filesFile": ".tmp/doc117-alm03-preflight-evidence-test-files-20261106.json",
+      "filesSha256": "ad4016a8f252d106ef13157db6e570cf6244ec67ea03f4d844597369cff47cde"
+    },
+    "openSpecStrict": "PASS",
+    "checkOnly": "PASS"
+  },
+  "document": {
+    "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03-guard-diagnostic-detenido-20261106.md",
+    "sha256": "ede02dd62619c7bdaa37324a5e44ad0d3ee6657986fb0e45a593476507a5da30"
+  },
+  "trackingFiles": {
+    "openspec/changes/doc-117-produccion-importacion-carga-carpeta-almacenamiento/tasks.md": "5445f4670a4dc90eb85e5fc2ffa4475370b8a84fbfcd63b8df49430f7ccd005d",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-matriz-almacenamiento.md": "58c260520467f36ade51ea4b98043dd9ef69b39f6ba82472ddd05dc721b04248",
+    "Doc/Tecnica/Opsxj/doc-117-produccion-importacion-carga-carpeta-almacenamiento/estado-local-20261106.md": "9a1fd0e6f308833f0837ac242e574b89f6052dbebab7323d9e0cfe1e9e5eeda7"
+  },
+  "progress": {
+    "complete": 16,
+    "total": 18,
+    "pending": [
+      "17.1",
+      "18.1"
+    ]
+  },
+  "alm03ConcurrentPass": false
+}

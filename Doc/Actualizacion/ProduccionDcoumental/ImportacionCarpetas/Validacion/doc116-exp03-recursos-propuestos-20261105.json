@@ -1,0 +1,99 @@
+{
+  "issueKey": "DOC-116",
+  "kind": "RESOURCE_PROPOSAL_NOT_AUTHORIZED",
+  "scenario": "EXP-03",
+  "profile": {
+    "versionId": "38",
+    "rootNames": [
+      "DOC116-20261105-EXP03-01",
+      "DOC116-20261105-EXP03-02"
+    ],
+    "nivelRef": "215",
+    "mode": "LOTE",
+    "pdfFixture": "doc111-carga-individual.pdf",
+    "ignoreHttpsErrors": true,
+    "module": "GESTOR",
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "timeoutMilliseconds": 900000,
+    "expectations": [
+      {
+        "nombre": "DOC116-20261105-EXP03-01",
+        "codigo": "DOC116-20261105-EXP03-01",
+        "tipologiaId": "79",
+        "indices": [
+          {
+            "valor": "EEE",
+            "tipo": "TEXTO",
+            "referencia": "14"
+          }
+        ]
+      },
+      {
+        "nombre": "DOC116-20261105-EXP03-02",
+        "codigo": "DOC116-20261105-EXP03-02",
+        "tipologiaId": "79",
+        "indices": [
+          {
+            "valor": "EEE",
+            "tipo": "TEXTO",
+            "referencia": "14"
+          }
+        ]
+      }
+    ],
+    "odbcDsn": "MembershipUsers",
+    "docuarchiOdbcDsn": "MembershipUsers"
+  },
+  "runtimeRoot": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+  "identity": {
+    "userRef": "141",
+    "ambitoRef": "2"
+  },
+  "levelB": "7",
+  "authProofLotId": "17",
+  "budget": {
+    "preparations": 1,
+    "maximumNewLots": 1,
+    "confirmations": 1,
+    "uploads": 2,
+    "maximumCreationRequests": 1,
+    "maximumCreatedExpedients": 0,
+    "definitiveDocuments": 0,
+    "permissionChanges": 2
+  },
+  "pdfBytes": 677,
+  "pdfSha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c",
+  "preservedLotIds": [
+    "17",
+    "16",
+    "11",
+    "10",
+    "9",
+    "8",
+    "7",
+    "6",
+    "5",
+    "4",
+    "3",
+    "2",
+    "1"
+  ],
+  "preserveAllExistingPlans": true,
+  "preserveResources": true,
+  "authorization": false,
+  "levelPermissionMutation": true,
+  "notes": [
+    "Revalidate actor 141/company 2 non-owner grant 629 at level 215 before preparing",
+    "Prepare and receive two fresh originals with grant active; then use existing administrative bridge",
+    "Temporarily change ONLY agregar_expediente 1 to 0; send exactly one creation expected denied; restore 0 to 1 in finally",
+    "Compare all other grant columns and operational snapshots; independent readback required before PASS",
+    "Environment hash comes from existing restored administrative journal and is revalidated against current registered connection before mutation; mismatch stops without permission write",
+    "Zero new expedients or definitive documents; preserve every resource",
+    "No acceptance of internal EXP-02 failure"
+  ],
+  "authProofLevelRef": "7",
+  "levelPermission": {
+    "permissionId": "629",
+    "environmentHash": "24cce9f4ae03e1b92b7f0cba1e89f395e9b4434f4c108f5ee571ae9515387b91"
+  }
+}

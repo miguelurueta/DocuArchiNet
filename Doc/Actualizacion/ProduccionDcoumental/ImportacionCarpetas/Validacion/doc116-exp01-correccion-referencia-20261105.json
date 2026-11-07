@@ -1,0 +1,20 @@
+{
+  "issueKey": "DOC-116",
+  "scenario": "EXP-01",
+  "cause": "REPOSITORY_FIXTURE_USED_AS_WEB_IDENTITY_PROOF",
+  "rejectedLot": "11",
+  "httpStatus": 403,
+  "serverCode": "ACCESO_DENEGADO",
+  "repositoryFixtureSource": "tools/e2e/scripts/support/doc115-repository-integration.ps1:63",
+  "repositoryEvidence": ".tmp/doc115-07a-session-3.json",
+  "replacementReadOnlyProofLot": "9",
+  "replacementProvenance": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc115-recib03-resultado-20261104.json",
+  "correction": "Open real destination first; compare stored actor/company/level/path/seal before protected HTTP lookup. Stop on mismatch. Preserve lot 11.",
+  "localTests": {
+    "pass": 83,
+    "fail": 0
+  },
+  "newEffectsBeforeCorrection": 0,
+  "productionFilesChanged": 0,
+  "authorization": "Existing explicit EXP-01 scope; new resource names and budgets unchanged."
+}

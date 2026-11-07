@@ -1,0 +1,49 @@
+{
+  "issueKey": "DOC-115",
+  "scenario": "RECIB-03",
+  "status": "READY_AWAITING_SPECIFIC_AUTHORIZATION",
+  "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "accountRef": "141",
+  "companyRef": "2",
+  "levelRef": "7",
+  "profileRef": "24",
+  "versionRef": "38",
+  "roots": [
+    "DOC115-20261104-RECIB03-01"
+  ],
+  "preparations": 1,
+  "confirmations": 1,
+  "maximumLots": 1,
+  "uploads": 3,
+  "validOriginalReceipts": 1,
+  "documentEffects": 0,
+  "fixture": "doc111-carga-individual.pdf",
+  "fixtureBytes": 677,
+  "preserveLots": [
+    "6",
+    "7",
+    "8"
+  ],
+  "preservePlans": [
+    "24",
+    "25",
+    "26",
+    "27"
+  ],
+  "preserveResources": true,
+  "preserveRejectedParts": true,
+  "selectOnlyControls": true,
+  "permissionChanges": 0,
+  "profileChanges": 0,
+  "configurationChanges": 0,
+  "odbcDsn": "MembershipUsers",
+  "testCertificateRequiresAuthorization": true,
+  "controlledInterruptionRequiresAuthorization": true,
+  "interruption": "One HTTP upload closed after writing an incomplete multipart body; no fake fragmentation",
+  "resultLoss": "Deliberately discard a successful application result on the client; not server failure or response lost in the network",
+  "retryPolicy": "Read state after interruption; proceed only from unchanged PENDIENTE or terminal RECHAZADO; otherwise stop for review",
+  "resourcesSha256": "df5e0ed518cf98644305a887509353221e2009ae03c04cdc5e3dbd02e4522535",
+  "backendSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "fixtureSha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c",
+  "credentials": "Existing private console only; no MySQL URL"
+}

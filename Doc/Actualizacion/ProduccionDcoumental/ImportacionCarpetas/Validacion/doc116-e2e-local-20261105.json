@@ -1,0 +1,62 @@
+{
+  "issueKey": "DOC-116",
+  "date": "2026-11-05",
+  "sourceOfTruth": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+  "status": "LOCAL_E2E_COMPOSED_REAL_ACCEPTANCE_NOT_EXECUTED",
+  "completed": 14,
+  "total": 20,
+  "open": [
+    "3.4",
+    "4.1",
+    "4.2",
+    "4.3",
+    "4.4",
+    "4.5"
+  ],
+  "tests": {
+    "nodePass": 21,
+    "localChromiumPass": 1,
+    "frameworkPass": 2,
+    "playwrightDiscovered": 4,
+    "realExecuted": 0
+  },
+  "productChanges": 0,
+  "permissionChanges": 0,
+  "scenarioComposition": {
+    "EXP-01": "LOCAL_READY_WITH_PREPARED_LOT",
+    "EXP-02-client": "LOCAL_READY_PARTIAL_COVERAGE",
+    "EXP-02-internal": "NOT_COMPOSED",
+    "EXP-03": "NOT_COMPOSED"
+  },
+  "sourceFiles": [
+    {
+      "file": "tools/e2e/tests/support/doc116-expedientes-importacion.cjs",
+      "sha256": "3ddb0b7e38aedf8e842f560b856adeedaefc5ce7cfb32c3d0137871819b87ec1"
+    },
+    {
+      "file": "tools/e2e/tests/doc116-expedientes-importacion.spec.cjs",
+      "sha256": "8f166cdc9c27c7a76ccd5b03e8c47a8b66face13a565aa6b352c5efb642bc687"
+    },
+    {
+      "file": "tools/e2e/scripts/run-doc116-expedientes-importacion.cjs",
+      "sha256": "031f935fa7c1495ac536b87f4925d67fa1072f0565da141d08a925786bdeecbb"
+    },
+    {
+      "file": "tools/e2e/fixtures/doc116-expedientes-cases.json",
+      "sha256": "c348d68a05d1d6d72e4a1a261d6539e992e0b61f8f510be7fc39645aea5f9493"
+    },
+    {
+      "file": "tests/doc116-expedientes-contracts.test.cjs",
+      "sha256": "370816db565bfbce58745bf54253f8989dc96d8948aac4a4154e9f01ab8cced6"
+    },
+    {
+      "file": "tests/doc116-tree-selector.test.cjs",
+      "sha256": "8503a6c0be40dba7f7ea39970fd6ede910da32e2565570d84ae3aa7f4f5b7ebc"
+    }
+  ],
+  "refinementAudit": {
+    "status": "PASS",
+    "checks": 15
+  },
+  "inspectedLocalBaselineUnchanged": true
+}

@@ -1,0 +1,57 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "scenario": "PLAN-03",
+  "status": "AUTHORIZED_READY_NOT_EXECUTED",
+  "resourcesSha256": "0cb40d8e745bafc5aef6bb440316272d5ff082c942e66e99584c18d484fb1db3",
+  "maximumHttpPreparations": 7,
+  "maximumNewPlans": 2,
+  "expectedGlobalRejections": 5,
+  "preservedPlanIds": [
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "21"
+  ],
+  "permission": {
+    "table": "remit_dest_interno_perfil_produccion",
+    "column": "IMPORTAR_CARPETAS",
+    "userRef": "141",
+    "companyRef": "2",
+    "initial": 1,
+    "temporary": 0,
+    "restored": 1,
+    "maximumUpdates": 2,
+    "phase": "Only final revoked-permission rejection, same authenticated browser session",
+    "procedure": "Existing DOC110 bridge in OperationalImport mode with runtimeRoot; bind administrative DB by ID/hash of freshly prepared baseline; unique user/profile/primary key; compare-and-set; other-field hash; recovery journal and finally restore",
+    "accountImpact": "Temporarily prevents import for this test account during the final negative request",
+    "restorationRequiredForPass": true
+  },
+  "controls": "Registered RA/DA DSNs with operator SELECT-only account; existing administrative bridge alone revokes/restores",
+  "localRegression": {
+    "pass": 86,
+    "fail": 0
+  },
+  "preflightRegression": {
+    "pass": 3,
+    "fail": 0
+  },
+  "powerShellBridgeFixture": "PASS; AST functions plus in-memory provider only; NO_DATABASE",
+  "runnerCheck": "PASS; no login or real execution",
+  "syntax": "PASS",
+  "consoleSha256": "e728757e822cf7a75d8743f156ce4bdd713186e2252d83428e5e90eb42799b19",
+  "preflightSha256": "52affd7fa86bfaff916e9c4593336722fe8039ed6b82ebcda27dbb22ca1a4c39",
+  "operationalSupportSha256": "cb55a938efe72a683dec34bbd2d2dca4edc14fd284ddebdd53e7522791dee47b",
+  "tasks": {
+    "complete": 14,
+    "total": 16
+  },
+  "realRevocation": "NOT_EXECUTED"
+}

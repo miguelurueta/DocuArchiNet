@@ -1,0 +1,281 @@
+{
+  "issueKey": "DOC-117",
+  "scenario": "ALM-03-PARTIAL-STOPPED",
+  "date": "2026-11-06",
+  "status": "STOPPED_READBACK_VERIFIED_NO_CONCURRENCY_CREDIT",
+  "concurrentAcceptance": "NO_ACREDITADO_INCOMPLETE_PAIR",
+  "alm03ConcurrentPass": false,
+  "sourceArtifact": {
+    "file": "tools/e2e/artifacts/doc117-alm03-coexistence-149655bd16ab32f957ddae7d44192109.json",
+    "sha256": "6aa1a2200defeef42338aebcb5762864ca06195e3b95f64629452f355fc0b1b9"
+  },
+  "authorizationId": "149655bd16ab32f957ddae7d44192109",
+  "originalAuthorizationId": "350ac90a29f77f9cc46b6b070f610680",
+  "proposalSha256": "1dd4c5c7a38c73f051f80f5ebfdc2c5ccaefb1e1d7e5038db796f73ba9775d1b",
+  "codeSha256": "4ecd43e46d6f5a93b3378cc463907234fd9f8e68a61e0ff620b8d49593c10cc2",
+  "resourceScopeSha256": "ce0223fa7cda43dd727507a0b45a6384c71143e1f8035473ee9a09d15cf00cf9",
+  "candidateSha256": "142e0d0bba0b6bcfd66933158ac163623784a2d0556c1a0f244ec92396b32e12",
+  "originalRuntimeSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "runtimeRestored": true,
+  "restorationPath": "finally",
+  "bothBackupsByteIdentical": true,
+  "originalInputCount": 912,
+  "originalInputsUnchanged": true,
+  "sourceInputsSha256": "412a115d0a4e7d8b6b839aa5ba17082337fce14bb129332645db82509909d1d3",
+  "counts": {
+    "priorPreflight": 32,
+    "indexDiagnostic": 3,
+    "continuation": 58,
+    "caseSelectsBeforeReadback": 93,
+    "postStopSelects": 53,
+    "cumulativeSelectRequests": 146,
+    "maximumCumulativeSelectRequests": 320,
+    "storageDispatchesRequested": 2,
+    "writerEntriesObserved": 1,
+    "writerExitsObserved": 1,
+    "bStorageDispatches": 0
+  },
+  "references": [
+    {
+      "resourceKey": "IMPORT_A",
+      "loteId": "22",
+      "raizId": "35",
+      "archivoId": "36",
+      "intentoId": "58",
+      "expedienteId": "666",
+      "relacionNivelId": "1091",
+      "documentoId": "16224",
+      "inventarioId": "23322",
+      "writerExit": "SUCCESS",
+      "durableCheckpoint": "CONFIRMADO"
+    },
+    {
+      "resourceKey": "INDIVIDUAL",
+      "expedienteId": "467",
+      "relacionNivelId": "1072",
+      "methodEntryObserved": false,
+      "physicalDocumentCount": 0,
+      "verification": "NO_DOCUMENT_FOUND"
+    },
+    {
+      "resourceKey": "IMPORT_B",
+      "loteId": "22",
+      "raizId": "36",
+      "archivoId": "37",
+      "expedienteId": "667",
+      "relacionNivelId": "1092",
+      "storageDispatchObserved": false,
+      "durableState": "NO_INICIADO"
+    }
+  ],
+  "nativeObservation": {
+    "files": [
+      "attempt-IMPORT_A.json",
+      "entry-IMPORT_A.json",
+      "exit-IMPORT_A.json",
+      "reserved-IMPORT_A.json"
+    ],
+    "sha256ByFile": {
+      "attempt-IMPORT_A.json": "eb50704daed41a4ba30bac6f3b61e44ef417967b8a6e11bb970e7760371dcc8e",
+      "entry-IMPORT_A.json": "58841c9e9d188dc055fc1cefe0ef33148a2b973db61a4a78edc362535432aee1",
+      "exit-IMPORT_A.json": "431eb718654a693c2fc533742e5ae37c69d9be71dfa68614e05fe036ce486c93",
+      "reserved-IMPORT_A.json": "df4cd731140b227f05b0515511084f17588f66cbd3d8a31b830699bc9517d256"
+    },
+    "entry": {
+      "version": 1,
+      "runId": "0d11221230e9d2d51ba5db964cdd20f5",
+      "resourceKey": "IMPORT_A",
+      "resourceSha256": "4da2ffa988790dd78a1f1d7d24ddd8cc18b9fef778d3da2e0f707276729a5223",
+      "boundary": "METHOD_BODY_ENTRY_EXIT_V1",
+      "phase": "ENTER",
+      "clockDomainId": "a41e1d996997468c96e1ee356eda8aed",
+      "frequencyHz": "10000000",
+      "highResolution": true,
+      "processId": "4236",
+      "appDomainId": "3",
+      "threadId": "104",
+      "nativeThreadId": "31512",
+      "ticks": "203622038878",
+      "sessionSlot": "IMPORT_SESSION",
+      "status": "PENDING",
+      "documentoId": null,
+      "inventarioId": null
+    },
+    "exit": {
+      "version": 1,
+      "runId": "0d11221230e9d2d51ba5db964cdd20f5",
+      "resourceKey": "IMPORT_A",
+      "resourceSha256": "4da2ffa988790dd78a1f1d7d24ddd8cc18b9fef778d3da2e0f707276729a5223",
+      "boundary": "METHOD_BODY_ENTRY_EXIT_V1",
+      "phase": "EXIT",
+      "clockDomainId": "a41e1d996997468c96e1ee356eda8aed",
+      "frequencyHz": "10000000",
+      "highResolution": true,
+      "processId": "4236",
+      "appDomainId": "3",
+      "threadId": "104",
+      "nativeThreadId": "31512",
+      "ticks": "203623072798",
+      "sessionSlot": "IMPORT_SESSION",
+      "status": "SUCCESS",
+      "documentoId": "16224",
+      "inventarioId": "23322"
+    },
+    "pin": {
+      "version": 1,
+      "runId": "0d11221230e9d2d51ba5db964cdd20f5",
+      "resourceKey": "IMPORT_A",
+      "intentoId": "58",
+      "solicitudHash": "ef872c242edb01986ef349e7ef4fea61406a3eab070461f6be213b3789f9407a"
+    },
+    "completeSummary": false,
+    "individualMethodObserved": false,
+    "secondImportMethodObserved": false,
+    "sessionDifferenceAtMethodVerified": false,
+    "classification": "INCOMPLETE_PAIR_NOT_SERIALIZATION_EVIDENCE"
+  },
+  "readback": {
+    "file": "tools/e2e/artifacts/doc117-alm03-post-stop-149655bd16ab32f957ddae7d44192109.json",
+    "sha256": "cc372656a5e27770d7787c220599330a68fa6a024996794abe1ae823059d5f62",
+    "status": "READ_VERIFICATION_COMPLETE",
+    "verified": true,
+    "verifierSource": {
+      "file": ".tmp/doc117-alm03-post-stop-readonly.cjs",
+      "sha256": "897dcac806a7440d8aa48299190055c0f38f0e73385a23bf3491120942bc624f"
+    }
+  },
+  "individualFailureDetailRetained": false,
+  "limitation": "The pair driver retained a generic failure code. The individual rejection point cannot be identified from the retained trace; it must not be inferred or reproduced by replaying a possibly uncertain storage.",
+  "xmlSiiAcceptance": false,
+  "progress": {
+    "complete": 16,
+    "total": 18,
+    "pending": [
+      "17.1",
+      "18.1"
+    ]
+  },
+  "inventory": {
+    "before": "8813",
+    "after": "8814"
+  },
+  "postStopProof": {
+    "issueKey": "DOC-117",
+    "scenario": "ALM-03-POST-STOP-READONLY",
+    "authorizationId": "149655bd16ab32f957ddae7d44192109",
+    "sourceArtifact": "tools/e2e/artifacts/doc117-alm03-coexistence-149655bd16ab32f957ddae7d44192109.json",
+    "sourceArtifactSha256": "6aa1a2200defeef42338aebcb5762864ca06195e3b95f64629452f355fc0b1b9",
+    "priorSelectRequests": 93,
+    "selectRequests": 53,
+    "cumulativeSelectRequests": 146,
+    "maximumCumulativeSelectRequests": 320,
+    "status": "READ_VERIFICATION_COMPLETE",
+    "history": [
+      {
+        "stage": "A_CONFIRMED_B_UNSTARTED",
+        "intentoId": "58",
+        "documentoId": "16224",
+        "inventarioId": "23322",
+        "bStorageAttempts": 0
+      },
+      {
+        "stage": "A_PHYSICAL_VERIFIED",
+        "fingerprint": "00031764d1223dfb7959f657d4838fcc4a96687fe3d459d4cf1480f410da51e2",
+        "documents": 1,
+        "knownIdsVerified": true
+      },
+      {
+        "stage": "STAGING_ORIGINALS_VERIFIED",
+        "originals": 2
+      },
+      {
+        "stage": "INDIVIDUAL_NO_DOCUMENT_AND_PRIOR_RECORDS_UNCHANGED",
+        "documentsWithCaseName": 0,
+        "canonicalIndices": 6,
+        "counts": [
+          "9",
+          "11",
+          "11"
+        ],
+        "priorDocumentsUnchanged": true,
+        "classificationUnchanged": true
+      },
+      {
+        "stage": "PRIOR_PLANS_LOTS_UNCHANGED",
+        "verified": true
+      },
+      {
+        "stage": "PROTECTED_ATTEMPTS_VERIFIED",
+        "states": [
+          {
+            "intentoId": "41",
+            "loteId": "18",
+            "estado": "EN_CURSO"
+          },
+          {
+            "intentoId": "52",
+            "loteId": "21",
+            "estado": "CONFIRMADO"
+          },
+          {
+            "intentoId": "53",
+            "loteId": "21",
+            "estado": "EN_CURSO"
+          },
+          {
+            "intentoId": "58",
+            "loteId": "22",
+            "estado": "CONFIRMADO"
+          }
+        ]
+      }
+    ],
+    "createdUtc": "2026-11-06T15:49:18.745Z",
+    "individualKnownReferences": [],
+    "inventoryBefore": "8813",
+    "inventoryAfter": "8814",
+    "preservedAfter": {
+      "scope": {
+        "maxPlan": "37",
+        "maxLot": "21"
+      },
+      "fingerprints": {
+        "plans": {
+          "count": 37,
+          "hash": "90fb26e7dcbcd3ec60f685505dd9630a46b080745924412e7937df9216d25d8a"
+        },
+        "lots": {
+          "count": 17,
+          "hash": "8e034b1cf5bcb59cf68885018798071bf2aad98843f551de6d56137fc845d8b3"
+        },
+        "roots": {
+          "count": 28,
+          "hash": "a8c2415067e1a2727108fe7029984580c336e5b6382d33d9d591a9b4c0342336"
+        },
+        "files": {
+          "count": 29,
+          "hash": "68990f2ce5b82045991f0391b456d18a91068512b22db841fb2a3ec48d4b39ca"
+        },
+        "attempts": {
+          "count": 53,
+          "hash": "23334a6048ae2f2d03deafb1019e69a67157424b4f6a70229d2c8e6dee0fadd6"
+        },
+        "events": {
+          "count": 187,
+          "hash": "3333b4568c579a778a8e2bab35ea6df13a7422980c5b5f5f1dd42086be6f117d"
+        }
+      }
+    },
+    "businessAcceptance": "NO_ACREDITADO_INCOMPLETE_PAIR",
+    "documentsObserved": 1,
+    "additionalStorageRequests": 0,
+    "applicationLogins": 0,
+    "runtimeOriginalVerified": true,
+    "bothBackupsByteIdentical": true,
+    "originalInputCount": 912,
+    "originalInputsUnchanged": true,
+    "individualTempPreserved": true,
+    "finishedUtc": "2026-11-06T16:11:34.248Z"
+  },
+  "openSpecStrict": "PASS"
+}

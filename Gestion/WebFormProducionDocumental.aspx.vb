@@ -2,6 +2,77 @@
 
 Public Class WebFormProducionDocumental
     Inherits System.Web.UI.Page
+
+    'Entrada operativa independiente del administrador de perfiles. El destino
+    'se valida al abrir; solo un nodo de nivel numerico sirve como referencia.
+    Protected Function RenderImportacionCarpetas() As String
+        Try
+            Dim autoridad As New ImportacionCarpetasContextAdapter()
+            Dim contexto = autoridad.Resolver(HttpContext.Current)
+            Dim token = ImportacionCarpetasRequestGuard.Emitir(HttpContext.Current, contexto)
+            Dim recuperacion = ImportacionCarpetasRequestGuard.ReferenciaRecuperacion(HttpContext.Current, contexto)
+            Dim nivel = Convert.ToString(Session("PG_SELECCION_TREVIEEW_PRODUCCION"))
+            If Not ValidadorPerfilImportacion.ReferenciaValida(nivel) Then nivel = ""
+            Return "<div id=""doc111-importacion"" data-api=""" & HttpUtility.HtmlAttributeEncode(ResolveUrl("~/webservice/WebServiceImportacionCarpetas.asmx")) &
+                """ data-upload=""" & HttpUtility.HtmlAttributeEncode(ResolveUrl("~/generic_control/ImportacionCarpetasUpload.ashx")) &
+                """ data-token=""" & HttpUtility.HtmlAttributeEncode(token) & """ data-recuperacion=""" & recuperacion & """ data-nivel=""" & nivel &
+                """><button type=""button"" data-doc111-open disabled>Importar carpetas</button><button type=""button"" data-doc111-resume hidden>Consultar último lote</button><button type=""button"" data-doc111-verificar hidden>Verificar confirmación pendiente</button><label>Referencia del lote <input type=""text"" inputmode=""numeric"" data-doc111-lote autocomplete=""off"" /></label><button type=""button"" data-doc111-consultar>Consultar lote</button><span data-doc111-status role=""status""></span></div>"
+        Catch ex As Exception
+            'La capacidad nueva no interrumpe Produccion ni la carga individual.
+            Return String.Empty
+        End Try
+    End Function
+
+    Protected Sub ImportacionCarpetas_PreRender(sender As Object, e As EventArgs) Handles Me.PreRender
+        Dim nivel = Convert.ToString(Session("PG_SELECCION_TREVIEEW_PRODUCCION"))
+        If Not ValidadorPerfilImportacion.ReferenciaValida(nivel) Then nivel = ""
+        ScriptManager.RegisterStartupScript(Me, Me.GetType(), "DOC111_NIVEL",
+            "var cargaHost=document.getElementById('doc111-importacion');if(cargaHost){cargaHost.setAttribute('data-nivel','" & nivel & "');}if(window.ImportacionCarpetas){window.ImportacionCarpetas.inicializar();}", True)
+    End Sub
+
+    Protected Function RenderPerfilImportacion() As String
+        Try
+            Dim contexto = New PerfilImportacionContextAdapter().Resolver(HttpContext.Current)
+            Dim token = PerfilImportacionRequestGuard.Emitir(HttpContext.Current, contexto)
+            Dim proveedores = "0"
+            Try
+                Dim autorizacion As New PerfilImportacionContextAdapter()
+                autorizacion.AutorizarProveedores(HttpContext.Current, contexto)
+                proveedores = If(contexto.PuedeAdministrarProveedores, "1", "0")
+            Catch ex As PerfilImportacionException
+                'El permiso adicional no debe impedir administrar perfiles existentes.
+            End Try
+            Dim fuentes = "0"
+            Try
+                Dim autorizacion As New PerfilImportacionContextAdapter()
+                autorizacion.AutorizarFuentes(HttpContext.Current, contexto)
+                fuentes = If(contexto.PuedeAdministrarFuentes, "1", "0")
+            Catch ex As PerfilImportacionException
+                'Falta de permiso/esquema afecta solo el administrador de fuentes.
+            End Try
+            Dim seleccion = Convert.ToString(Session("PG_SELECCION_TREVIEEW_PRODUCCION"))
+            Dim partes = seleccion.Split("|"c)
+            Dim nivel = If(partes.Length >= 3, partes(1), seleccion)
+            If Not ValidadorPerfilImportacion.ReferenciaValida(nivel) Then nivel = ""
+            Return "<div id=""doc110-perfiles"" data-api=""" & HttpUtility.HtmlAttributeEncode(ResolveUrl("~/webservice/WebServiceImportacionCarpetas.asmx")) &
+                """ data-fuentes=""" & fuentes & """ data-proveedores=""" & proveedores & """ data-token=""" & HttpUtility.HtmlAttributeEncode(token) & """ data-nivel=""" & HttpUtility.HtmlAttributeEncode(nivel) & """></div>"
+        Catch ex As PerfilImportacionException
+            'La capacidad nueva se oculta sin alterar Producción cuando falta permiso/esquema.
+            Return String.Empty
+        Catch ex As Exception
+            Return String.Empty
+        End Try
+    End Function
+
+    Protected Sub PerfilImportacion_PreRender(sender As Object, e As EventArgs) Handles Me.PreRender
+        'Sin otro árbol: transportar la selección vigente también después de UpdatePanel.
+        Dim seleccion = Convert.ToString(Session("PG_SELECCION_TREVIEEW_PRODUCCION"))
+        Dim partes = seleccion.Split("|"c)
+        Dim nivel = If(partes.Length >= 3, partes(1), seleccion)
+        If Not ValidadorPerfilImportacion.ReferenciaValida(nivel) Then nivel = ""
+        ScriptManager.RegisterStartupScript(Me, Me.GetType(), "DOC110_NIVEL",
+            "var perfilHost=document.getElementById('doc110-perfiles');if(perfilHost){perfilHost.setAttribute('data-nivel','" & nivel & "');}", True)
+    End Sub
     
     Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
         Dim cs As ClientScriptManager = Page.ClientScript

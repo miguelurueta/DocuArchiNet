@@ -1,0 +1,70 @@
+{
+  "issueKey": "DOC-117",
+  "date": "2026-11-06",
+  "scenario": "ALM-03-READONLY-PREPARATION",
+  "status": "DESTINATION_DIAGNOSED_PREFLIGHT_NOT_ACCEPTED",
+  "environment": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "applicationIdentity": {
+    "actor": "141",
+    "company": "2"
+  },
+  "selectRequests": 12,
+  "applicationLogins": 0,
+  "createdResources": 0,
+  "documents": 0,
+  "runtimeChanges": 0,
+  "runtimeSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "preflight": {
+    "artifact": "tools/e2e/artifacts/doc117-alm03-preflight-33a33a3671b9e27a0dc92aeece3e1f22.json",
+    "sha256": "10e453a412e4dde8671967d3f448da0d488fa3f809c6d8480c7996eaad953d34",
+    "status": "STOPPED_REVIEW_REQUIRED",
+    "authorizationId": "33a33a3671b9e27a0dc92aeece3e1f22",
+    "proposalSha256": "7573f418c3a3a007373ca0cb028ed6f15af0945d542f5acf0489c168899e5dd1",
+    "codeSha256": "7a452e8d612dd703014c9eab0a18d3794757844d6b82e083961a47bf488fcd10",
+    "selectRequests": 8,
+    "stage": "individual_destination",
+    "code": "DOC117_ALM03_PREFLIGHT_CONTROL_NOT_UNIQUE",
+    "proof": {
+      "publicationVerified": true,
+      "publicationSha256": "0feabba5f1d357215c458d064a84769a56884aa11642caf864cabac22cdd17c6",
+      "rootRecipeVerified": true,
+      "root_absence": true,
+      "prior_plan_absence": true,
+      "prior_root_absence": true,
+      "cabinetVerified": true,
+      "indicesVerified": true
+    },
+    "failedControlRowCountPersisted": false
+  },
+  "diagnostic": {
+    "artifact": "tools/e2e/artifacts/doc117-alm03-destination-d8901d156c1fcfc315e1867b505c8d8d.json",
+    "sha256": "0dd0d2d3f72f1098fe4e35fc6177fb24d0848c2ca809f14077df4a239c68296a",
+    "status": "DIAGNOSTIC_COMPLETE",
+    "authorizationId": "d8901d156c1fcfc315e1867b505c8d8d",
+    "proposalSha256": "7fb68d353597d1b0ef5294c5eb039738de4ba769549e569f98bcf564d7b3c989",
+    "codeSha256": "0beb4af472f1af45d0fff50c0a09ac00267810b5f5ef33a74ae639349fc3d358",
+    "selectRequests": 4,
+    "proof": {
+      "individualExpedientFound": true,
+      "individualClassificationSha256": "083005fcf663febf27982bef6ce9b2f17c03b278ea99d70267da3741cfcdf5ff",
+      "individualRelations": [
+        {
+          "relacionId": "1072",
+          "nivelId": "8",
+          "parentId": "0",
+          "active": true
+        }
+      ],
+      "individualTypologyAvailable": true,
+      "protectedAttemptsVerified": true,
+      "protectedAttemptsSha256": "6b2fd87f1c476518d553406e53171889e74b8c3748e3c1b13f41bd5dfaaf8f99"
+    },
+    "finishedUtc": "2026-11-06T13:50:41.756Z"
+  },
+  "limits": [
+    "No preflight or ALM-03 PASS",
+    "Individual level is 8; import level remains 7",
+    "Authority/cabinet/file absence and actual individual UI still require verification before effects",
+    "No protected attempt was replayed, reconciled or repaired"
+  ]
+}

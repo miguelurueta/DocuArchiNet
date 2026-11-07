@@ -1,0 +1,309 @@
+{
+  "version": 1,
+  "issueKey": "DOC-117",
+  "scenario": "ALM-01",
+  "status": "PROPOSED_NOT_EXECUTED",
+  "levelId": "7",
+  "cabinetId": "10",
+  "fixture": {
+    "file": "doc111-carga-individual.pdf",
+    "bytes": 677,
+    "sha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c"
+  },
+  "budget": {
+    "preparations": 2,
+    "confirmations": 2,
+    "lots": 2,
+    "uploads": 2,
+    "roots": 2,
+    "documents": 2,
+    "storageRequests": 4
+  },
+  "provenance": {
+    "kind": "HISTORICAL_RULE_RECIPE_NOT_LIVE_SNAPSHOT",
+    "source": "doc114-perfiles-propuestos-20261103.json",
+    "referenceBVersion": "42",
+    "liveSnapshotRequired": true,
+    "rootAbsenceRequired": true
+  },
+  "cases": [
+    {
+      "key": "format-a",
+      "perfilId": "26",
+      "versionId": "40",
+      "rootName": "00011701-20261105",
+      "fileName": "DOC117-79.pdf",
+      "manifest": {
+        "nivelRef": "7",
+        "versionId": "40",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "00011701-20261105"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "DOC117-79.pdf",
+            "rutaRelativa": "00011701-20261105/DOC117-79.pdf",
+            "bytes": "677",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "rules": [
+        {
+          "ReglaId": null,
+          "DestinoTipo": "CAMPO_EXPEDIENTE",
+          "DestinoRef": "CODIGO",
+          "FuenteTipo": "CARPETA",
+          "EtapaResolucion": "PREFLIGHT",
+          "Obligatoria": true,
+          "Orden": 0,
+          "ValorConstante": null,
+          "PropiedadExpediente": null,
+          "Extraccion": "SEGMENTO",
+          "Separador": "-",
+          "Posicion": 0,
+          "QuitarExtension": false,
+          "RecortarEspacios": false,
+          "TipoValor": "TEXTO",
+          "FormatoFecha": null,
+          "LongitudMaxima": 45
+        },
+        {
+          "ReglaId": null,
+          "DestinoTipo": "CAMPO_EXPEDIENTE",
+          "DestinoRef": "NOMBRE",
+          "FuenteTipo": "CARPETA",
+          "EtapaResolucion": "PREFLIGHT",
+          "Obligatoria": true,
+          "Orden": 1,
+          "ValorConstante": null,
+          "PropiedadExpediente": null,
+          "Extraccion": "COMPLETO",
+          "Separador": null,
+          "Posicion": 0,
+          "QuitarExtension": false,
+          "RecortarEspacios": false,
+          "TipoValor": "TEXTO",
+          "FormatoFecha": null,
+          "LongitudMaxima": 160
+        },
+        {
+          "ReglaId": null,
+          "DestinoTipo": "CAMPO_EXPEDIENTE",
+          "DestinoRef": "FECHA_INICIAL",
+          "FuenteTipo": "CARPETA",
+          "EtapaResolucion": "PREFLIGHT",
+          "Obligatoria": true,
+          "Orden": 2,
+          "ValorConstante": null,
+          "PropiedadExpediente": null,
+          "Extraccion": "SEGMENTO",
+          "Separador": "-",
+          "Posicion": 1,
+          "QuitarExtension": false,
+          "RecortarEspacios": false,
+          "TipoValor": "FECHA",
+          "FormatoFecha": "yyyyMMdd",
+          "LongitudMaxima": 160
+        },
+        {
+          "ReglaId": null,
+          "DestinoTipo": "TIPOLOGIA",
+          "DestinoRef": "TIPO_DOCUMENTAL",
+          "FuenteTipo": "ARCHIVO",
+          "EtapaResolucion": "PREFLIGHT",
+          "Obligatoria": true,
+          "Orden": 3,
+          "ValorConstante": null,
+          "PropiedadExpediente": null,
+          "Extraccion": "SEGMENTO",
+          "Separador": "-",
+          "Posicion": 1,
+          "QuitarExtension": true,
+          "RecortarEspacios": false,
+          "TipoValor": "REFERENCIA",
+          "FormatoFecha": null,
+          "LongitudMaxima": 160
+        },
+        {
+          "ReglaId": null,
+          "DestinoTipo": "INDICE_GABINETE",
+          "DestinoRef": "14",
+          "FuenteTipo": "EXPEDIENTE",
+          "EtapaResolucion": "TRAS_EXPEDIENTE",
+          "Obligatoria": true,
+          "Orden": 4,
+          "ValorConstante": null,
+          "PropiedadExpediente": "ID",
+          "Extraccion": "COMPLETO",
+          "Separador": null,
+          "Posicion": 0,
+          "QuitarExtension": false,
+          "RecortarEspacios": false,
+          "TipoValor": "TEXTO",
+          "FormatoFecha": null,
+          "LongitudMaxima": 20
+        }
+      ],
+      "expected": {
+        "codigo": "00011701",
+        "nombre": "00011701-20261105",
+        "fechaInicial": "2026-11-05",
+        "tipologiaId": "79",
+        "indices": [
+          {
+            "referencia": "14",
+            "tipo": "TEXTO",
+            "binding": "CONFIRMED_EXPEDIENTE_ID",
+            "value": null
+          }
+        ]
+      }
+    },
+    {
+      "key": "format-b",
+      "perfilId": "27",
+      "versionId": "42",
+      "rootName": "00011702#05-11-2026",
+      "fileName": "79.pdf",
+      "manifest": {
+        "nivelRef": "7",
+        "versionId": "42",
+        "raices": [
+          {
+            "seleccionId": "s1",
+            "idCliente": "r1",
+            "nombre": "00011702#05-11-2026"
+          }
+        ],
+        "archivos": [
+          {
+            "idCliente": "a1",
+            "raizIdCliente": "r1",
+            "nombre": "79.pdf",
+            "rutaRelativa": "00011702#05-11-2026/79.pdf",
+            "bytes": "677",
+            "ultimaModificacionLocal": "0"
+          }
+        ]
+      },
+      "rules": [
+        {
+          "ReglaId": null,
+          "DestinoTipo": "CAMPO_EXPEDIENTE",
+          "DestinoRef": "CODIGO",
+          "FuenteTipo": "CARPETA",
+          "EtapaResolucion": "PREFLIGHT",
+          "Obligatoria": true,
+          "Orden": 0,
+          "ValorConstante": null,
+          "PropiedadExpediente": null,
+          "Extraccion": "SEGMENTO",
+          "Separador": "#",
+          "Posicion": 0,
+          "QuitarExtension": false,
+          "RecortarEspacios": false,
+          "TipoValor": "TEXTO",
+          "FormatoFecha": null,
+          "LongitudMaxima": 45
+        },
+        {
+          "ReglaId": null,
+          "DestinoTipo": "CAMPO_EXPEDIENTE",
+          "DestinoRef": "NOMBRE",
+          "FuenteTipo": "CARPETA",
+          "EtapaResolucion": "PREFLIGHT",
+          "Obligatoria": true,
+          "Orden": 1,
+          "ValorConstante": null,
+          "PropiedadExpediente": null,
+          "Extraccion": "COMPLETO",
+          "Separador": null,
+          "Posicion": 0,
+          "QuitarExtension": false,
+          "RecortarEspacios": false,
+          "TipoValor": "TEXTO",
+          "FormatoFecha": null,
+          "LongitudMaxima": 160
+        },
+        {
+          "ReglaId": null,
+          "DestinoTipo": "CAMPO_EXPEDIENTE",
+          "DestinoRef": "FECHA_INICIAL",
+          "FuenteTipo": "CARPETA",
+          "EtapaResolucion": "PREFLIGHT",
+          "Obligatoria": true,
+          "Orden": 2,
+          "ValorConstante": null,
+          "PropiedadExpediente": null,
+          "Extraccion": "SEGMENTO",
+          "Separador": "#",
+          "Posicion": 1,
+          "QuitarExtension": false,
+          "RecortarEspacios": false,
+          "TipoValor": "FECHA",
+          "FormatoFecha": "dd-MM-yyyy",
+          "LongitudMaxima": 160
+        },
+        {
+          "ReglaId": null,
+          "DestinoTipo": "TIPOLOGIA",
+          "DestinoRef": "TIPO_DOCUMENTAL",
+          "FuenteTipo": "ARCHIVO",
+          "EtapaResolucion": "PREFLIGHT",
+          "Obligatoria": true,
+          "Orden": 3,
+          "ValorConstante": null,
+          "PropiedadExpediente": null,
+          "Extraccion": "COMPLETO",
+          "Separador": null,
+          "Posicion": 0,
+          "QuitarExtension": true,
+          "RecortarEspacios": false,
+          "TipoValor": "REFERENCIA",
+          "FormatoFecha": null,
+          "LongitudMaxima": 160
+        },
+        {
+          "ReglaId": null,
+          "DestinoTipo": "INDICE_GABINETE",
+          "DestinoRef": "14",
+          "FuenteTipo": "EXPEDIENTE",
+          "EtapaResolucion": "TRAS_EXPEDIENTE",
+          "Obligatoria": true,
+          "Orden": 4,
+          "ValorConstante": null,
+          "PropiedadExpediente": "ID",
+          "Extraccion": "COMPLETO",
+          "Separador": null,
+          "Posicion": 0,
+          "QuitarExtension": false,
+          "RecortarEspacios": false,
+          "TipoValor": "TEXTO",
+          "FormatoFecha": null,
+          "LongitudMaxima": 20
+        }
+      ],
+      "expected": {
+        "codigo": "00011702",
+        "nombre": "00011702#05-11-2026",
+        "fechaInicial": "2026-11-05",
+        "tipologiaId": "79",
+        "indices": [
+          {
+            "referencia": "14",
+            "tipo": "TEXTO",
+            "binding": "CONFIRMED_EXPEDIENTE_ID",
+            "value": null
+          }
+        ]
+      }
+    }
+  ]
+}

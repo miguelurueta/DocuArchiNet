@@ -1,0 +1,91 @@
+{
+  "issueKey": "DOC-116",
+  "kind": "RESOURCE_PROPOSAL_NOT_AUTHORIZED",
+  "scenario": "EXP-02",
+  "profile": {
+    "versionId": "38",
+    "rootNames": [
+      "DOC116-20261105-EXP02-01",
+      "DOC116-20261105-EXP02-02"
+    ],
+    "nivelRef": "7",
+    "mode": "LOTE",
+    "pdfFixture": "doc111-carga-individual.pdf",
+    "ignoreHttpsErrors": true,
+    "module": "GESTOR",
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "timeoutMilliseconds": 900000,
+    "expectations": [
+      {
+        "nombre": "DOC116-20261105-EXP02-01",
+        "codigo": "DOC116-20261105-EXP02-01",
+        "tipologiaId": "79",
+        "indices": [
+          {
+            "valor": "EEE",
+            "tipo": "TEXTO",
+            "referencia": "14"
+          }
+        ]
+      },
+      {
+        "nombre": "DOC116-20261105-EXP02-02",
+        "codigo": "DOC116-20261105-EXP02-02",
+        "tipologiaId": "79",
+        "indices": [
+          {
+            "valor": "EEE",
+            "tipo": "TEXTO",
+            "referencia": "14"
+          }
+        ]
+      }
+    ],
+    "odbcDsn": "MembershipUsers",
+    "docuarchiOdbcDsn": "MembershipUsers"
+  },
+  "runtimeRoot": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+  "identity": {
+    "userRef": "141",
+    "ambitoRef": "2"
+  },
+  "levelB": "8",
+  "authProofLotId": "16",
+  "budget": {
+    "preparations": 1,
+    "maximumNewLots": 1,
+    "confirmations": 1,
+    "uploads": 2,
+    "maximumCreationRequests": 2,
+    "maximumCreatedExpedients": 1,
+    "definitiveDocuments": 0,
+    "permissionChanges": 0
+  },
+  "pdfBytes": 677,
+  "pdfSha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c",
+  "preservedLotIds": [
+    "16",
+    "11",
+    "10",
+    "9",
+    "8",
+    "7",
+    "6",
+    "5",
+    "4",
+    "3",
+    "2",
+    "1"
+  ],
+  "preserveAllExistingPlans": true,
+  "preserveResources": true,
+  "authorization": false,
+  "levelPermissionMutation": false,
+  "notes": [
+    "Client-result discard only, after a confirmed creation; no internal failure or server crash claim",
+    "Query persisted identity and checkpoint before identical replay",
+    "Second root remains fresh and no definitive documents are created",
+    "Preserve all previous plans/lots and all new resources; stop on uncertainty",
+    "Creation portion must report caseComplete=false and internalFailure=NO_EJECUTADO"
+  ]
+}

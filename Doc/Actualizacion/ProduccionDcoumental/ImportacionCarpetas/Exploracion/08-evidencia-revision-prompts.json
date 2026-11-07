@@ -1,0 +1,269 @@
+{
+  "command": "npm.cmd --prefix Tools/opsxj run opsxj:prompt-review -- <prompt> --tech-profile legacy-webforms-vb --no-fix",
+  "reports": [
+    {
+      "status": "pass",
+      "promptPath": "02-prompt-implementacion-perfil-importacion.md",
+      "reviewedAtUtc": "2026-10-19T23:05:03.574Z",
+      "technologyProfile": "legacy-webforms-vb",
+      "summary": {
+        "blockers": 0,
+        "major": 0,
+        "minor": 0,
+        "info": 1
+      },
+      "findings": [
+        {
+          "severity": "INFO",
+          "code": "MANUAL_REVIEW_RECOMMENDED",
+          "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+          "expected": "Revision humana del prompt.",
+          "evidence": null
+        }
+      ],
+      "sha256": "7db88b247a1b42d45cd164e7c2aab9d5b81fa1534394958147980ad08dd260d9"
+    },
+    {
+      "status": "pass",
+      "promptPath": "03-prompt-implementacion-carga-carpetas.md",
+      "reviewedAtUtc": "2026-10-19T23:45:38.668Z",
+      "technologyProfile": "legacy-webforms-vb",
+      "summary": {
+        "blockers": 0,
+        "major": 0,
+        "minor": 0,
+        "info": 1
+      },
+      "findings": [
+        {
+          "severity": "INFO",
+          "code": "MANUAL_REVIEW_RECOMMENDED",
+          "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+          "expected": "Revision humana del prompt.",
+          "evidence": null
+        }
+      ],
+      "sha256": "60a2dc425b9b4b8c9ca1d4dd2c39c981bc8e0f3d560791e67a4a8a1960ee4684"
+    },
+    {
+      "status": "pass",
+      "promptPath": "04-prompt-diseno-fisico-contratos.md",
+      "reviewedAtUtc": "2026-10-19T23:05:04.448Z",
+      "technologyProfile": "legacy-webforms-vb",
+      "summary": {
+        "blockers": 0,
+        "major": 0,
+        "minor": 0,
+        "info": 1
+      },
+      "findings": [
+        {
+          "severity": "INFO",
+          "code": "MANUAL_REVIEW_RECOMMENDED",
+          "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+          "expected": "Revision humana del prompt.",
+          "evidence": null
+        }
+      ],
+      "sha256": "ea3a006eee6d942313bdd75e976dfcfffe899c2413d6b37e56b5a7e06543baf8"
+    },
+    {
+      "status": "pass",
+      "promptPath": "05-prompt-ventana-produccion.md",
+      "reviewedAtUtc": "2026-10-19T23:05:04.902Z",
+      "technologyProfile": "legacy-webforms-vb",
+      "summary": {
+        "blockers": 0,
+        "major": 0,
+        "minor": 0,
+        "info": 1
+      },
+      "findings": [
+        {
+          "severity": "INFO",
+          "code": "MANUAL_REVIEW_RECOMMENDED",
+          "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+          "expected": "Revision humana del prompt.",
+          "evidence": null
+        }
+      ],
+      "sha256": "49f5db844ed9f51e721a203acd1a82dbf5a26b8128909dea069ee3037b06564a"
+    },
+    {
+      "status": "pass",
+      "promptPath": "06-prompt-validacion-plan.md",
+      "reviewedAtUtc": "2026-10-19T23:05:05.398Z",
+      "technologyProfile": "legacy-webforms-vb",
+      "summary": {
+        "blockers": 0,
+        "major": 0,
+        "minor": 0,
+        "info": 1
+      },
+      "findings": [
+        {
+          "severity": "INFO",
+          "code": "MANUAL_REVIEW_RECOMMENDED",
+          "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+          "expected": "Revision humana del prompt.",
+          "evidence": null
+        }
+      ],
+      "sha256": "fcd145c872ff8dbb75057c12e7cc89573571066ebf72002086c29cec3804875f"
+    },
+    {
+      "status": "pass",
+      "promptPath": "07-prompt-lotes-recepcion.md",
+      "reviewedAtUtc": "2026-10-19T23:05:05.898Z",
+      "technologyProfile": "legacy-webforms-vb",
+      "summary": {
+        "blockers": 0,
+        "major": 0,
+        "minor": 0,
+        "info": 1
+      },
+      "findings": [
+        {
+          "severity": "INFO",
+          "code": "MANUAL_REVIEW_RECOMMENDED",
+          "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+          "expected": "Revision humana del prompt.",
+          "evidence": null
+        }
+      ],
+      "sha256": "dd0a5295a3e0a15c705c58babd7dfb83d6b14201f103771d241d99722626d391"
+    },
+    {
+      "status": "pass",
+      "promptPath": "08-prompt-adaptador-expedientes.md",
+      "reviewedAtUtc": "2026-10-19T23:05:06.386Z",
+      "technologyProfile": "legacy-webforms-vb",
+      "summary": {
+        "blockers": 0,
+        "major": 0,
+        "minor": 0,
+        "info": 1
+      },
+      "findings": [
+        {
+          "severity": "INFO",
+          "code": "MANUAL_REVIEW_RECOMMENDED",
+          "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+          "expected": "Revision humana del prompt.",
+          "evidence": null
+        }
+      ],
+      "sha256": "6641559efdafc48dd35112c48a87a3b986a94b111a77e32eb0db2a692070afd7"
+    },
+    {
+      "status": "pass",
+      "promptPath": "09-prompt-almacenamiento-incorporacion.md",
+      "reviewedAtUtc": "2026-10-19T23:05:06.842Z",
+      "technologyProfile": "legacy-webforms-vb",
+      "summary": {
+        "blockers": 0,
+        "major": 0,
+        "minor": 0,
+        "info": 1
+      },
+      "findings": [
+        {
+          "severity": "INFO",
+          "code": "MANUAL_REVIEW_RECOMMENDED",
+          "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+          "expected": "Revision humana del prompt.",
+          "evidence": null
+        }
+      ],
+      "sha256": "02779173cd1faef98c0116937bcfc8043d2f431aecd17f251945659d8d2d7cb8"
+    },
+    {
+      "status": "pass",
+      "promptPath": "10-prompt-coordinacion-recuperacion.md",
+      "reviewedAtUtc": "2026-10-19T23:05:07.301Z",
+      "technologyProfile": "legacy-webforms-vb",
+      "summary": {
+        "blockers": 0,
+        "major": 0,
+        "minor": 0,
+        "info": 1
+      },
+      "findings": [
+        {
+          "severity": "INFO",
+          "code": "MANUAL_REVIEW_RECOMMENDED",
+          "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+          "expected": "Revision humana del prompt.",
+          "evidence": null
+        }
+      ],
+      "sha256": "e2ed7e986031dc6c9b774cc0778d6342c552478951df8584e4fb6118ca629384"
+    },
+    {
+      "status": "pass",
+      "promptPath": "11-prompt-seguimiento-operacion.md",
+      "reviewedAtUtc": "2026-10-19T23:05:07.803Z",
+      "technologyProfile": "legacy-webforms-vb",
+      "summary": {
+        "blockers": 0,
+        "major": 0,
+        "minor": 0,
+        "info": 1
+      },
+      "findings": [
+        {
+          "severity": "INFO",
+          "code": "MANUAL_REVIEW_RECOMMENDED",
+          "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+          "expected": "Revision humana del prompt.",
+          "evidence": null
+        }
+      ],
+      "sha256": "248c4602a78cd3b856cdaa88bbced816726eb697f365bffb058400cf13124775"
+    },
+    {
+      "status": "pass",
+      "promptPath": "12-prompt-verificacion-integral.md",
+      "reviewedAtUtc": "2026-10-19T23:05:08.238Z",
+      "technologyProfile": "legacy-webforms-vb",
+      "summary": {
+        "blockers": 0,
+        "major": 0,
+        "minor": 0,
+        "info": 1
+      },
+      "findings": [
+        {
+          "severity": "INFO",
+          "code": "MANUAL_REVIEW_RECOMMENDED",
+          "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+          "expected": "Revision humana del prompt.",
+          "evidence": null
+        }
+      ],
+      "sha256": "8e2f6db5a6f25043c3a780dd1bfdcdbde71bafc04ecef74b79ce1c78364bc3be"
+    },
+    {
+      "status": "pass",
+      "promptPath": "13-prompt-ejecutor-desatendido-opcional.md",
+      "reviewedAtUtc": "2026-10-19T23:05:08.645Z",
+      "technologyProfile": "legacy-webforms-vb",
+      "summary": {
+        "blockers": 0,
+        "major": 0,
+        "minor": 0,
+        "info": 1
+      },
+      "findings": [
+        {
+          "severity": "INFO",
+          "code": "MANUAL_REVIEW_RECOMMENDED",
+          "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+          "expected": "Revision humana del prompt.",
+          "evidence": null
+        }
+      ],
+      "sha256": "300263ea447c8ee393497cec63ad9e524102c102e7fa538e66363a7c4d3ef8e5"
+    }
+  ]
+}

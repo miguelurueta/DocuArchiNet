@@ -1,0 +1,348 @@
+{
+  "issueKey": "DOC-117",
+  "scenario": "ALM-03C-COEXISTENCE",
+  "status": "PASS_REAL_LABORATORY_VARIANT_VERIFIED",
+  "date": "2026-11-06",
+  "finishedUtc": "2026-11-07T00:07:40.998Z",
+  "sourceEvidence": {
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm01-pass-20261105.json": "4d23e9ee0a972f3644731998912127ddfa2048ff9bba18d03fede7fee38e85ab",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm02-interno-pass-20261106.json": "5150564a3adeaa7c8b48cceec7c4d8f47fa1a4473dc2bc8599fd65f1a41953de",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03c-coexistencia-local-20261106.json": "97cc7df441c12025906678cdd91d49b00b7892f79d545faa3a64507825c3f7df",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03c-setup-pass-20261106.json": "7cc4aca7732778e72c7f3e652be4f975d120a7ad22ec55a7ef64ceb3243d37d0",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03c-ejecucion-restaurada-20261106.json": "a014132f3cf1d017c9468d93a6398ee9f5235a85a97032e0ce82e0c2bb3505d6",
+    "tools/e2e/artifacts/doc117-alm03c-coexistence-ec82e738600489f9ec7837a32eca1525.json": "d6eb2fbb18ec8e492435f239e8e3dd018da78aaffbeda740efa6b2f23420a9ac",
+    "tools/e2e/artifacts/doc117-alm03c-readback-ec82e738600489f9ec7837a32eca1525.json": "6e1d802a7a1cc2d660621696178428013b00682b3bdb39cc33aa1379260efe2a",
+    "tools/e2e/artifacts/doc117-alm03c-final-readback-ec82e738600489f9ec7837a32eca1525.json": "26051fb5e447ed978cabda54a6a144a612558c44bc7569eee0505bc44706e93b",
+    ".tmp/doc117-alm03c-coexistence-authorization.json": "826d7f950480d52d9ced1ca401c69a4a83bd8ffc260d3bc34ddc4b2a418ef1da",
+    ".tmp/doc117-alm03c-readback-authorization.json": "1d1e31e67af0743b5b940cd32623384b9789df8d3d533fa3b00d5eb17b1e4353",
+    ".tmp/doc117-alm03c-final-readback-authorization.json": "36e4d240dcb971250f03fc6517659da954ace01375cd3ccaf496af4eb931dc33",
+    ".tmp/doc117-alm03c-coexistence-console-exit.json": "36577b02d222a9e950fad3fe008ba0473862d0793bb9d05206c4845d9e0de5e8",
+    ".tmp/doc117-alm03c-readback-console-exit.json": "fa29a717e65fececf6d282813f47f218bc4aec79121c5c724fc415016798f5f9",
+    ".tmp/doc117-alm03c-final-readback-console-exit.json": "6dde55887105da1bb3da82a0fa1fcd024d5f5f43bcf0d262833b7bb8c60ca0a2"
+  },
+  "sourceExecutionStatus": "STOPPED_REVIEW_REQUIRED",
+  "sourceExecutionError": "DOC111_LOGIN_INPUT_REQUIRED",
+  "firstReadbackError": "DOC117_ALM03C_FINAL_LOT_NOT_CONFIRMED",
+  "finalReadbackStatus": "READ_VERIFICATION_COMPLETE",
+  "finalReadbackExitCode": 0,
+  "resourceScopeSha256": "9221008ec1566b27b7ee765e7ed8b770a2ba1b12bf42778eb5b40281d7d2ea19",
+  "candidateSha256": "dc45234fb9ad479e3dc4313b3c06be6bd550d65d5731c5eff7a1acdcf07d95a5",
+  "executionCodeSha256": "e67175461370fa1bfed66452cb6efd1ba2c3a39af6e7c2686c5997df94b036c0",
+  "finalReadbackCodeSha256": "91af8f539f13430e09399c1677f60f4b55baf5ea96d11dc5dfb3346d4dde74a8",
+  "finalReadbackReviewedFiles": {
+    "tools/e2e/scripts/run-doc117-alm03-coexistence.cjs": "0325891c43e43bbf34ae5b98169a81fd77d9ba7cde2e33f3bebb952626007617",
+    "tools/e2e/tests/support/doc117-alm03-coexistence.cjs": "dd7a2e1ba050aa275a9b28ac6a46882d02b52eb96fbd244e47012b8c236635a2",
+    "tools/e2e/tests/support/doc117-alm03-controls.cjs": "7da1b16c063c39d4c0ff4f09fa6ca74a474a368af1aa1dd15b5bb63a75a3afea",
+    "tools/e2e/tests/support/doc117-alm03-setup-scope.cjs": "9ca76d18c861e89a3be9f873e402d2983e67eb34f753775b97d1b060a5d6dad7",
+    "tools/e2e/tests/support/doc117-alm03-method-observation.cjs": "ab6b86818528edb511d5eee0776eb13350267bf8be938e49cbb15a28f3c7e6cd",
+    "tools/e2e/scripts/support/doc117-alm03-runtime-lease.cjs": "60da6e429acb2e8f2a574c93e524e35216a56f417091417a4bde8680781e0b4c",
+    "tools/e2e/scripts/support/doc117-alm03-scoped-candidate.cjs": "65b259fdbd33f2f8b45ffca8b563f919bc9bd59b244cd4dd1117507ddf177826",
+    "tools/e2e/scripts/support/doc117-alm03-candidate.cjs": "8647fb497e51c9ce30ad5243a481ad6975670b1a66fb5c5b8ecdeccb754fd7c0",
+    "tools/e2e/fixtures/Doc117Alm03ClosedGuard.vb": "ad7ce35a41163d1fdac87eed563cd0980dbb13aa8f08c7b4cdc2a3cf58c8e765",
+    "tools/e2e/fixtures/Doc117Alm03MethodObserver.vb": "90a65c581faa5d9e885219e29f8aed87838589ed1fcaa8cedef743df13dd1dfb",
+    "tools/e2e/scripts/support/doc117-internal-session.cjs": "745e233db645e01b44edffcf748c0fdb7ee4e10124887e4c08c0a6723c05aba3",
+    "tools/e2e/scripts/support/laboratory-runtime-lease.cjs": "8562728417a159368859884e6d8cdf4e2b771d42caf231a7736ac1ca528c320a",
+    "tools/e2e/scripts/run-workflow-e2e-platform.cjs": "238ec8ac5985a18a86c1171571d274de094dfd7ad423715c6f22a5d6b95a70e7",
+    "tools/e2e/tests/support/doc117-alm02-internal.cjs": "87fba332dcc26936b5fd35ae5fde57f087f839fc503664391dfd48f8e03521e0",
+    "tools/e2e/tests/support/doc111-importacion-carpetas.cjs": "8936aacb0b0b9392c3d9944d7a029f7bfcb345ad4e4fb4fc3ac0b3dcaa3aadda",
+    "tools/e2e/tests/support/doc117-alm01-driver.cjs": "f45f23452333f48bacc5a08162f331fa352b04f56a18bbc4c830fd5c314b3d5f",
+    "tools/e2e/tests/support/doc116-exp01-setup.cjs": "33bd44970b3852c185df8c227437c65e45e1fc96a5c1a37e02d3b99f61ac2a32",
+    "tools/e2e/tests/support/doc116-expedientes-importacion.cjs": "d96a87c38cdfc6a96894fdc0106c3cf153d8f81335c9795e9e7efdcf1c2c23d1",
+    "tools/e2e/tests/support/doc110-safe-request.cjs": "c01b90b77c8e3b8cf89d2e9aeaf186e7fc01199f398d2dae5f4f169328248eca",
+    "tools/e2e/tests/support/authenticated-workflow-session.cjs": "60c33202ded594541a984ffdbe2ed2929734a5e48595440278039b854b93975b",
+    "tools/e2e/scripts/support/doc32-e2e-odbc.cjs": "d748cfd17cf3c170df4ce5cf7d4daf1959df16a3ed788084754d5ceec0a5a256",
+    "tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1": "7a4fb15210785f221835f865ce81a5b9c55aed6243f7592ee383e81640492d11",
+    "tools/e2e/scripts/support/interactive-e2e-console.cjs": "778d847653e3351e9e7c50957c7c16f21f9ba17e2d06eb020a2a5df5f3651087",
+    "tools/e2e/scripts/run-doc117-alm02-setup.cjs": "d6badb9017909aee3a50242143da254ac298cbd01e08dded61cc115c0d948c79",
+    "tools/e2e/scripts/support/workflow-e2e-platform.cjs": "5df627c15adf453bc8ee7fd6531dd5148ad35599ecc1a10785e336d065acd5e2",
+    "tools/e2e/scripts/support/workflow-e2e-platform-profile.cjs": "d6bd4385ab793dce01fd02a7f1d7e072245a8a610c403056558e2141b96dd243",
+    "tools/e2e/scripts/support/workflow-e2e-platform-registry.cjs": "d231572be8c4ac66c9703ac239f750cc302b2e2f4fded525b4c8d804ff3ab86e",
+    "tools/e2e/fixtures/Doc117SolicitudHash.vb": "d6e53e0cfe86768e2166c8a7130622c7a136376aa218a8fda2e2d86469481133",
+    "tools/e2e/fixtures/Doc117SolicitudHashConsole.vb": "3a6d0207b63468d3b224b503beb86a1672baade5a9454e35cf9863537d9201f3",
+    "tools/e2e/scripts/build-doc117-alm03-scoped.cjs": "5de847f22665699521a6965f57cbf8cb5a1852ce9a735a4fc108e017a006b215",
+    "tools/e2e/scripts/rehearse-doc117-alm03-runtime.cjs": "158325a15c40f27dac9e3bd9bd47af9c17c3c8d898469f6ecd3be519c9a6de0a",
+    "tools/e2e/scripts/support/doc117-alm03-preflight-continuation.cjs": "6a9435a27fb3a425928537d2dc7a966338b5a456e5ce43ad5eb77e761d93d2eb",
+    "tools/e2e/scripts/support/doc117-alm03-failure-evidence.cjs": "3b29c858120dbb9eeaf9d2b0b028007b6d650b287427c35fe147ee75ed71a45c",
+    "tools/e2e/scripts/run-doc117-alm03c-coexistence.cjs": "66155c48f57457f8cd21d51ea4b89cde9e921cb316d943260a9afb1ad89b0685",
+    "tools/e2e/tests/support/doc117-alm03c-coexistence.cjs": "e28f18c87663c83033eb3b248d51e7bd2f1553da703d353288b7a417139e1e42",
+    "tools/e2e/tests/support/doc117-alm03c-post-read.cjs": "f0bdce90f7b70181f5b7a9750850a18e8cd0b8081486b179aab99fc301e00a47",
+    "tools/e2e/scripts/support/doc117-alm03c-candidate.cjs": "6ebdcf72cc103f51bc15e9396aafa31232594c7a098d572d64b80675e5c99507",
+    "tools/e2e/scripts/support/doc117-alm03c-runtime-lease.cjs": "ea71b4f955d45720417574afd6838568b558c9ce8c0f28df99a1c30b71a362e2",
+    "tools/e2e/tests/support/doc117-alm03c-scope.cjs": "9a541afecf752930a7cf3221d7d49f9c6cfb518a0a11a04e1125d61391e08da0",
+    "tools/e2e/tests/support/doc117-alm03-canonical-controls.cjs": "b8ac3016630b92ae4ecb1bf70e65196bd5ea236c5dc9339d89a1b49a1b7f3248",
+    "tools/e2e/scripts/support/doc117-alm03-canonical-description.cjs": "63333b63d9626130c800df5b5250461e61b838408487a11eab56415b18441f9b",
+    "tools/e2e/scripts/support/doc117-alm03-preflight-evidence.cjs": "ecac97df7f80a7699cb4dbc041e9f9f83320b38285ac84b9901d1530ee70f536",
+    "tools/e2e/scripts/build-doc117-alm03c-scoped.cjs": "fff8dcca442ac66c73bc037f1380fa271707195773379329f35c8a5445b8674b",
+    "tools/e2e/playwright.config.cjs": "cc3fcf6d7b7497877ca35c646d45549241e29cde924c355a88040f209e9a8af3",
+    "tools/e2e/scripts/support/doc117-alm03c-control-codes.cjs": "66495a890a0afb76ed5f6d6360ebd9ac1905354719110252944f089776434f80",
+    ".tmp/doc117-alm03c-readback.cjs": "dc368379593f1576d9ea9cde5fd1a713f1e27b6bced85469efe030c6aafa8810",
+    ".tmp/doc117-alm03c-final-readback.cjs": "a605c39e4b3f7d5c7de5803b5be1fa88659c01732aff84e62b03f117b0a711be",
+    "tools/e2e/tests/support/doc117-alm03c-readback-baseline.cjs": "9def79b7159f973df66f15097c06bc564be59eaae9c8ecd3a0401b361ec79c33",
+    "tools/e2e/tests/support/doc117-alm03c-final-readback.cjs": "d89da7376edbe5da7ca8d91906c5743c25c2c0df4dca55e75855f1b0df541be0"
+  },
+  "references": [
+    {
+      "resourceKey": "IMPORT_A",
+      "documentoId": "16225",
+      "inventarioId": "23323",
+      "loteId": "23",
+      "raizId": "37",
+      "archivoId": "38",
+      "intentoId": "63",
+      "expedienteId": "668",
+      "relacionNivelId": "1093"
+    },
+    {
+      "resourceKey": "IMPORT_B",
+      "documentoId": "16227",
+      "inventarioId": "23325",
+      "loteId": "23",
+      "raizId": "38",
+      "archivoId": "39",
+      "intentoId": "64",
+      "expedienteId": "669",
+      "relacionNivelId": "1094"
+    },
+    {
+      "resourceKey": "INDIVIDUAL",
+      "documentoId": "16226",
+      "inventarioId": "23324",
+      "expedienteId": "467",
+      "relacionNivelId": "1072"
+    }
+  ],
+  "storageRequests": 3,
+  "documents": 3,
+  "additionalReadbackDocumentRequests": 0,
+  "additionalReadbackRuntimeChanges": 0,
+  "methodObservation": {
+    "classification": "METHOD_BODIES_OVERLAPPED",
+    "observationKind": "METHOD_BODY_ENTRY_EXIT_V1",
+    "overlapTicks": "997347",
+    "frequencyHz": "10000000",
+    "overlapNanosecondsFloor": "99734700",
+    "writerBodyOverlapVerified": true,
+    "businessEvidenceVerified": false,
+    "alm03ConcurrentPass": false,
+    "entries": 3,
+    "exits": 3,
+    "limitation": "Instrumented method lifetime only; no simultaneous-commit, ordinary-binary performance or XML/SII claim."
+  },
+  "nativeMarkerHashes": {
+    "attempt-IMPORT_A.json": "f01b5bc9d9c33d897c105993bad951be9d18f2b40c39c0ceae25bedfbe303673",
+    "attempt-IMPORT_B.json": "31b79e0d210b5cd9c105b2aa8cd66b6bdf902481813a7a1e6cde3ae900105b9b",
+    "entry-IMPORT_A.json": "b109f5df15fc785aff431042332c22490d8257e67fc4ff3a4ffdbb621d476512",
+    "entry-IMPORT_B.json": "b954140de39ed3668ae1e13de2c95e3aed543813b418911876a4234747268f07",
+    "entry-INDIVIDUAL.json": "076cf8844e2f4dfca7e23e1c55512d324200e78e080f9f5ee9c9bf649958b66f",
+    "exit-IMPORT_A.json": "c5f310caa2cbc35814902b8f12d349c3c7db3ac22e58d39ad4f7f8fb285f5b61",
+    "exit-IMPORT_B.json": "3e8700e4236026fded4d7c0bde3ac17a1fc02a8f80f54ffbc40873ae8c532e43",
+    "exit-INDIVIDUAL.json": "c349f853ba333a16911c74a05aeb8edf59b63d7a816b35179f7b8ee20abcd8c3",
+    "reserved-IMPORT_A.json": "96fd2d5ce7a5625dd41c3f81cdde684783f9d66f8feb0be72cf9ced4d305d7fb",
+    "reserved-IMPORT_B.json": "a88ffbaf909c5ae9741435b55fa848e3b2b3f639eb8e0d64555541ababa7f7e2",
+    "reserved-INDIVIDUAL.json": "b4113116f319d627eb6e8506df6d01538fab91b8f84ab3180f8c96cc4a54b3c4",
+    "summary.json": "e6f9a4c41b04d34da185f6235b84988ee6679b3fee118bd82d8c8a35327af240"
+  },
+  "nativeGuardRejection": null,
+  "inventoryScope": "ACTOR_141_COMPANY_2",
+  "inventoryBefore": "8814",
+  "inventoryAfter": "8817",
+  "individualBaselineSha256": "56eb6815e52ac60d3ef39f24612cecd62c31ac6dd06b326e415da404174215fa",
+  "individualBeforeCounts": [
+    "9",
+    "11",
+    "11"
+  ],
+  "finalCounts": [
+    {
+      "resourceKey": "IMPORT_A",
+      "counts": [
+        "1",
+        "1",
+        "1"
+      ]
+    },
+    {
+      "resourceKey": "IMPORT_B",
+      "counts": [
+        "1",
+        "1",
+        "1"
+      ]
+    },
+    {
+      "resourceKey": "INDIVIDUAL",
+      "counts": [
+        "10",
+        "12",
+        "12"
+      ]
+    }
+  ],
+  "individualVerification": {
+    "knownIdsVerified": true,
+    "incorporations": 1,
+    "physicalIndicesVerified": true,
+    "mappedIndicesVerified": 0,
+    "canonicalIndicesVerified": 6,
+    "mappingMode": "NO_DEFAULT_MAPPING",
+    "classificationVerified": true,
+    "clientOriginalVerified": true
+  },
+  "preservedBefore": {
+    "scope": {
+      "maxPlan": "38",
+      "maxLot": "22"
+    },
+    "fingerprints": {
+      "plans": {
+        "count": 38,
+        "hash": "56a20b915dd1411d1a57fee715badb3acc816ad723a9030399f438b6dbb520d8"
+      },
+      "lots": {
+        "count": 18,
+        "hash": "5d4daef48273ab95d39d63812f85186c71360f31ba0dccf15eb5941b1741207a"
+      },
+      "roots": {
+        "count": 30,
+        "hash": "f6c9163449a4020185aedaa60953b9e6038ec8a275c726d239eda6f95309ea49"
+      },
+      "files": {
+        "count": 31,
+        "hash": "df84c1b67ec1e1b86d8a33908263bb46377a2811d05a156897da5292fd233891"
+      },
+      "attempts": {
+        "count": 58,
+        "hash": "267df38db0444c52cac219b0738a41efd2fe57c3dcd1f9e11329cbecea6034ad"
+      },
+      "events": {
+        "count": 205,
+        "hash": "8eef35d37000636d90edc60bba958c7f8f873a1dcf417164d1205caaf5eb75dd"
+      }
+    }
+  },
+  "preservedAfter": {
+    "scope": {
+      "maxPlan": "38",
+      "maxLot": "22"
+    },
+    "fingerprints": {
+      "plans": {
+        "count": 38,
+        "hash": "56a20b915dd1411d1a57fee715badb3acc816ad723a9030399f438b6dbb520d8"
+      },
+      "lots": {
+        "count": 18,
+        "hash": "5d4daef48273ab95d39d63812f85186c71360f31ba0dccf15eb5941b1741207a"
+      },
+      "roots": {
+        "count": 30,
+        "hash": "f6c9163449a4020185aedaa60953b9e6038ec8a275c726d239eda6f95309ea49"
+      },
+      "files": {
+        "count": 31,
+        "hash": "df84c1b67ec1e1b86d8a33908263bb46377a2811d05a156897da5292fd233891"
+      },
+      "attempts": {
+        "count": 58,
+        "hash": "267df38db0444c52cac219b0738a41efd2fe57c3dcd1f9e11329cbecea6034ad"
+      },
+      "events": {
+        "count": 205,
+        "hash": "8eef35d37000636d90edc60bba958c7f8f873a1dcf417164d1205caaf5eb75dd"
+      }
+    }
+  },
+  "preservedResourcesUnchanged": true,
+  "originalsVerifiedIndependently": [
+    {
+      "lotId": "22",
+      "fileId": "36",
+      "bytes": 677,
+      "sha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c"
+    },
+    {
+      "lotId": "22",
+      "fileId": "37",
+      "bytes": 677,
+      "sha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c"
+    },
+    {
+      "lotId": "23",
+      "fileId": "38",
+      "bytes": 677,
+      "sha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c"
+    },
+    {
+      "lotId": "23",
+      "fileId": "39",
+      "bytes": 677,
+      "sha256": "a5f1924afbae4bd631de893c49a56d9f09219075113e6da2ec983602cff84c6c"
+    }
+  ],
+  "originalRuntimeSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "runtimeRestored": true,
+  "leaseJournalSha256": "9ae717f48d2f1d96bc96a830fe7c767551dba16cd9f73a1cf0cf871934b46805",
+  "bothNewBackupsByteIdentical": true,
+  "fourHistoricalBackupsByteIdentical": true,
+  "reopenedWithOriginalRuntime": true,
+  "reopeningProofArtifact": "tools/e2e/artifacts/doc117-alm03c-readback-ec82e738600489f9ec7837a32eca1525.json",
+  "originalInputCount": 912,
+  "originalInputsSha256": "412a115d0a4e7d8b6b839aa5ba17082337fce14bb129332645db82509909d1d3",
+  "originalInputsUnchanged": true,
+  "finalLotState": "COMPLETADO",
+  "finalRootStates": [
+    "COMPLETADA",
+    "COMPLETADA"
+  ],
+  "allSixAttemptsConfirmed": true,
+  "priorSelectRequests": 339,
+  "executionSelectRequests": 104,
+  "firstReadbackSelectRequests": 50,
+  "finalReadbackSelectRequests": 88,
+  "cumulativeSelectRequests": 581,
+  "maximumCumulativeSelectRequests": 659,
+  "alm03ConcurrentPass": true,
+  "businessEvidenceVerified": true,
+  "tests": {
+    "total": 365,
+    "passed": 365,
+    "failed": 0,
+    "files": 43,
+    "logFile": ".tmp/doc117-alm03c-closure-regression-20261106.tap",
+    "logSha256": "dfb921bad0733960ab5f4a691956fd38b8c64ae43d020c8fb8ad95c1ccd0a67b",
+    "filesFile": ".tmp/doc117-alm03c-closure-test-files-20261106.json",
+    "filesSha256": "a96657ff0f296ef9034604ae570d83bb8ce217bf5e3ba29c3c4cf270d699d87a"
+  },
+  "openSpecStrict": "PASS",
+  "openSpecStrictLogSha256": "d78469f724bd1b39233dfb34af7028a0d284fd714582a44a213f2dc25e5b9f22",
+  "documentationContract": "PASS",
+  "technicalDocuments": {
+    "Doc/Tecnica/Opsxj/doc-117-produccion-importacion-carga-carpeta-almacenamiento/01-ResumenTecnico.md": "ba2ad483728ad0ec3c514bc0dc869b1364c840872d87bf4d4f77bc3c6cfc965c",
+    "Doc/Tecnica/Opsxj/doc-117-produccion-importacion-carga-carpeta-almacenamiento/02-ImpactoUI.md": "9354c19425f209e2edcd44c437d8801f9a7a0ea123cd3e23c3ecb37b36b909f2",
+    "Doc/Tecnica/Opsxj/doc-117-produccion-importacion-carga-carpeta-almacenamiento/03-ServiciosYReglas.md": "2af3ed16810819d030037ee86a04f6f50dd9d7f5864c88bf3789e1d383707654",
+    "Doc/Tecnica/Opsxj/doc-117-produccion-importacion-carga-carpeta-almacenamiento/04-ContratosIntegracion.md": "1484fe73a41631006512668d62a400701323c589713eeb924eb70c02569b8421",
+    "Doc/Tecnica/Opsxj/doc-117-produccion-importacion-carga-carpeta-almacenamiento/05-PruebasEvidencia.md": "db747773068407ec72f61b3fafc6d79a062a71f32f2c903e7eddce981c7a2ed6"
+  },
+  "trackingFiles": {
+    "openspec/changes/doc-117-produccion-importacion-carga-carpeta-almacenamiento/tasks.md": "99a6855d1fd951605ad10268c95b8de6f931966db8d0e1cb50b8acb17b6ae054",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-matriz-almacenamiento.md": "4e8625a579f2b970d7f05c6a5446f43fc5aefa32f02c0004e5028371db5cb0e2",
+    "Doc/Tecnica/Opsxj/doc-117-produccion-importacion-carga-carpeta-almacenamiento/estado-local-20261106.md": "635b010114b839db0ca13095bf20818d23760739660d5d3aeb8f67430fed259a"
+  },
+  "document": {
+    "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03c-coexistencia-pass-20261106.md",
+    "sha256": "d47d01cc55595c7230a02a891a7c54095e7233fb7e27fe94fb80edb67e6a5542"
+  },
+  "progress": {
+    "complete": 18,
+    "total": 18,
+    "pending": []
+  },
+  "formalDeliveryPublished": false,
+  "openSpecArchived": false,
+  "jiraTransitionPerformed": false,
+  "limits": [
+    "Instrumented laboratory method lifetime; no simultaneous-commit claim",
+    "No ordinary-binary performance or XML/SII concurrency claim",
+    "No retry/replay/repair/reconciliation/cleanup; preserve prior uncertain attempts"
+  ]
+}

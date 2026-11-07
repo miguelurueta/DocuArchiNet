@@ -6,6 +6,7 @@
         'Fecha : 2014-09-24
         '**********************************************************************
         Try
+            HttpContext.Current.Session("GA_ADMINISTRAR_PERFILES_IMPORTACION") = 0
             Dim Parametro_Consulta As String = "select * from remit_dest_interno_perfil_produccion where" &
             " remit_dest_interno_idremit_dest_interno =" & IdUsuarioGestion
             Dim ref As New conect.Dbase_Conction_Mysql
@@ -18,6 +19,11 @@
                 Exit Function
             End If
             If Dat_reader.Tables(0).Rows.Count > 0 Then
+                If Dat_reader.Tables(0).Rows.Count = 1 AndAlso Dat_reader.Tables(0).Columns.Contains("ADMINISTRAR_PERFILES_IMPORTACION") Then
+                    If PerfilImportacionContextAdapter.PermisoValido(Dat_reader.Tables(0).Rows(0).Item("ADMINISTRAR_PERFILES_IMPORTACION")) Then
+                        HttpContext.Current.Session("GA_ADMINISTRAR_PERFILES_IMPORTACION") = 1
+                    End If
+                End If
                 HttpContext.Current.Session.Item("GA_IDUSUARIOGESTION") = IdUsuarioGestion
                 HttpContext.Current.Session("GA_Manager_Produccion") = Dat_reader.Tables(0).Rows(0).Item("Manager_Produccion")
                 HttpContext.Current.Session("GA_Generar_Documento") = Dat_reader.Tables(0).Rows(0).Item("Generar_Documento")

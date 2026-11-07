@@ -10,6 +10,12 @@ Temp_Image/
 temp/
 tmp/
 
+# Datos de ejecucion local: conservar en disco, fuera de las entregas de codigo.
+/App_Data/
+/Temp_Gestion/
+/Temp_Radicacion/
+/repositorio/DIRECTROY/
+
 # Credenciales locales de las automatizaciones OPSXJ
 .env.jira
 env.jira

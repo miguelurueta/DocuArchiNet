@@ -1,0 +1,20 @@
+{
+  "issueKey": "DOC-116",
+  "scenario": "EXP-01",
+  "status": "STOPPED_BEFORE_TEST_EXECUTION",
+  "cause": "PLAYWRIGHT_FULL_TITLE_FILTER_MISMATCH",
+  "checkpointCreated": false,
+  "executedTests": 0,
+  "newPlans": 0,
+  "newLots": 0,
+  "uploads": 0,
+  "newExpedients": 0,
+  "loginAttempted": false,
+  "fix": "Remove the start anchor; Playwright prefixes the file name to the title.",
+  "regression": {
+    "discoveryListOnly": "PASS",
+    "setupTests": 8
+  },
+  "authorization": "Existing explicit authorization retained; same scope and budgets.",
+  "previousRunnerSha256": "dd21cf502fe66af1e19e11ba7e7e8c21653710553f0dad67ad5f4f9c96c23df3"
+}

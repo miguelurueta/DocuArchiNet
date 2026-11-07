@@ -1,0 +1,269 @@
+{
+  "issueKey": "DOC-114",
+  "date": "2026-11-03",
+  "authorized": true,
+  "status": "APPROVED_FOR_PUBLICATION_NOT_EXECUTED",
+  "levelId": "7",
+  "cabinetId": "10",
+  "source": {
+    "perfilId": "24",
+    "versionId": "38",
+    "snapshotSha256": "154428c84f2c9726b160e28673c99207510d08965d48468ec3f087206401c7b9"
+  },
+  "preservePublications": [
+    {
+      "perfilId": "25",
+      "versionId": "39",
+      "snapshotSha256": "08e9f963ae02d07c4e5646dc03519e3fd3ff6c89e8109a2eb8ce0074366f414a"
+    },
+    {
+      "perfilId": "24",
+      "versionId": "38",
+      "snapshotSha256": "154428c84f2c9726b160e28673c99207510d08965d48468ec3f087206401c7b9"
+    }
+  ],
+  "configurationSource": "Copy complete current configuration of 24/38 after verifying snapshot hash, then apply only configurationPatch; never modify source profile",
+  "profiles": [
+    {
+      "key": "format-a",
+      "codigo": "DOC114-FORMATO-A-20261103",
+      "nombre": "DOC-114 formato A expediente",
+      "configurationPatch": {
+        "NombreVisible": "DOC-114 formato A expediente",
+        "ModoIntegridad": "COMPLETO_OBLIGATORIO",
+        "AmbitoIntegridad": "EXPEDIENTE"
+      },
+      "reglas": [
+        {
+          "ReglaId": null,
+          "DestinoTipo": "CAMPO_EXPEDIENTE",
+          "DestinoRef": "CODIGO",
+          "FuenteTipo": "CARPETA",
+          "EtapaResolucion": "PREFLIGHT",
+          "Obligatoria": true,
+          "Orden": 0,
+          "ValorConstante": null,
+          "PropiedadExpediente": null,
+          "Extraccion": "SEGMENTO",
+          "Separador": "-",
+          "Posicion": 0,
+          "QuitarExtension": false,
+          "RecortarEspacios": false,
+          "TipoValor": "TEXTO",
+          "FormatoFecha": null,
+          "LongitudMaxima": 45
+        },
+        {
+          "ReglaId": null,
+          "DestinoTipo": "CAMPO_EXPEDIENTE",
+          "DestinoRef": "NOMBRE",
+          "FuenteTipo": "CARPETA",
+          "EtapaResolucion": "PREFLIGHT",
+          "Obligatoria": true,
+          "Orden": 1,
+          "ValorConstante": null,
+          "PropiedadExpediente": null,
+          "Extraccion": "COMPLETO",
+          "Separador": null,
+          "Posicion": 0,
+          "QuitarExtension": false,
+          "RecortarEspacios": false,
+          "TipoValor": "TEXTO",
+          "FormatoFecha": null,
+          "LongitudMaxima": 160
+        },
+        {
+          "ReglaId": null,
+          "DestinoTipo": "CAMPO_EXPEDIENTE",
+          "DestinoRef": "FECHA_INICIAL",
+          "FuenteTipo": "CARPETA",
+          "EtapaResolucion": "PREFLIGHT",
+          "Obligatoria": true,
+          "Orden": 2,
+          "ValorConstante": null,
+          "PropiedadExpediente": null,
+          "Extraccion": "SEGMENTO",
+          "Separador": "-",
+          "Posicion": 1,
+          "QuitarExtension": false,
+          "RecortarEspacios": false,
+          "TipoValor": "FECHA",
+          "FormatoFecha": "yyyyMMdd",
+          "LongitudMaxima": 160
+        },
+        {
+          "ReglaId": null,
+          "DestinoTipo": "TIPOLOGIA",
+          "DestinoRef": "TIPO_DOCUMENTAL",
+          "FuenteTipo": "ARCHIVO",
+          "EtapaResolucion": "PREFLIGHT",
+          "Obligatoria": true,
+          "Orden": 3,
+          "ValorConstante": null,
+          "PropiedadExpediente": null,
+          "Extraccion": "SEGMENTO",
+          "Separador": "-",
+          "Posicion": 1,
+          "QuitarExtension": true,
+          "RecortarEspacios": false,
+          "TipoValor": "REFERENCIA",
+          "FormatoFecha": null,
+          "LongitudMaxima": 160
+        },
+        {
+          "ReglaId": null,
+          "DestinoTipo": "INDICE_GABINETE",
+          "DestinoRef": "14",
+          "FuenteTipo": "EXPEDIENTE",
+          "EtapaResolucion": "TRAS_EXPEDIENTE",
+          "Obligatoria": true,
+          "Orden": 4,
+          "ValorConstante": null,
+          "PropiedadExpediente": "ID",
+          "Extraccion": "COMPLETO",
+          "Separador": null,
+          "Posicion": 0,
+          "QuitarExtension": false,
+          "RecortarEspacios": false,
+          "TipoValor": "TEXTO",
+          "FormatoFecha": null,
+          "LongitudMaxima": 20
+        }
+      ]
+    },
+    {
+      "key": "format-b",
+      "codigo": "DOC114-FORMATO-B-20261103",
+      "nombre": "DOC-114 formato B expediente",
+      "configurationPatch": {
+        "NombreVisible": "DOC-114 formato B expediente",
+        "ModoIntegridad": "COMPLETO_OBLIGATORIO",
+        "AmbitoIntegridad": "EXPEDIENTE"
+      },
+      "reglas": [
+        {
+          "ReglaId": null,
+          "DestinoTipo": "CAMPO_EXPEDIENTE",
+          "DestinoRef": "CODIGO",
+          "FuenteTipo": "CARPETA",
+          "EtapaResolucion": "PREFLIGHT",
+          "Obligatoria": true,
+          "Orden": 0,
+          "ValorConstante": null,
+          "PropiedadExpediente": null,
+          "Extraccion": "SEGMENTO",
+          "Separador": "#",
+          "Posicion": 0,
+          "QuitarExtension": false,
+          "RecortarEspacios": false,
+          "TipoValor": "TEXTO",
+          "FormatoFecha": null,
+          "LongitudMaxima": 45
+        },
+        {
+          "ReglaId": null,
+          "DestinoTipo": "CAMPO_EXPEDIENTE",
+          "DestinoRef": "NOMBRE",
+          "FuenteTipo": "CARPETA",
+          "EtapaResolucion": "PREFLIGHT",
+          "Obligatoria": true,
+          "Orden": 1,
+          "ValorConstante": null,
+          "PropiedadExpediente": null,
+          "Extraccion": "COMPLETO",
+          "Separador": null,
+          "Posicion": 0,
+          "QuitarExtension": false,
+          "RecortarEspacios": false,
+          "TipoValor": "TEXTO",
+          "FormatoFecha": null,
+          "LongitudMaxima": 160
+        },
+        {
+          "ReglaId": null,
+          "DestinoTipo": "CAMPO_EXPEDIENTE",
+          "DestinoRef": "FECHA_INICIAL",
+          "FuenteTipo": "CARPETA",
+          "EtapaResolucion": "PREFLIGHT",
+          "Obligatoria": true,
+          "Orden": 2,
+          "ValorConstante": null,
+          "PropiedadExpediente": null,
+          "Extraccion": "SEGMENTO",
+          "Separador": "#",
+          "Posicion": 1,
+          "QuitarExtension": false,
+          "RecortarEspacios": false,
+          "TipoValor": "FECHA",
+          "FormatoFecha": "dd-MM-yyyy",
+          "LongitudMaxima": 160
+        },
+        {
+          "ReglaId": null,
+          "DestinoTipo": "TIPOLOGIA",
+          "DestinoRef": "TIPO_DOCUMENTAL",
+          "FuenteTipo": "ARCHIVO",
+          "EtapaResolucion": "PREFLIGHT",
+          "Obligatoria": true,
+          "Orden": 3,
+          "ValorConstante": null,
+          "PropiedadExpediente": null,
+          "Extraccion": "COMPLETO",
+          "Separador": null,
+          "Posicion": 0,
+          "QuitarExtension": true,
+          "RecortarEspacios": false,
+          "TipoValor": "TEXTO",
+          "FormatoFecha": null,
+          "LongitudMaxima": 160
+        },
+        {
+          "ReglaId": null,
+          "DestinoTipo": "INDICE_GABINETE",
+          "DestinoRef": "14",
+          "FuenteTipo": "EXPEDIENTE",
+          "EtapaResolucion": "TRAS_EXPEDIENTE",
+          "Obligatoria": true,
+          "Orden": 4,
+          "ValorConstante": null,
+          "PropiedadExpediente": "ID",
+          "Extraccion": "COMPLETO",
+          "Separador": null,
+          "Posicion": 0,
+          "QuitarExtension": false,
+          "RecortarEspacios": false,
+          "TipoValor": "TEXTO",
+          "FormatoFecha": null,
+          "LongitudMaxima": 20
+        }
+      ]
+    }
+  ],
+  "maximumEffects": {
+    "newProfiles": 2,
+    "newPublishedVersions": 2,
+    "newPlans": 0,
+    "newLots": 0,
+    "permissionChanges": 0,
+    "documents": 0
+  },
+  "administrativeOperations": [
+    "CrearPerfil",
+    "GuardarBorrador",
+    "PublicarVersion",
+    "CambiarDisponibilidad (only the new profile if inactive)"
+  ],
+  "runtimeBindings": {
+    "formatA": "Filename DOC114-<authorized internal typology ID>.pdf, explicit REFERENCIA",
+    "formatB": "Filename <actual code of the same authorized typology>.pdf, explicit TEXTO; resolve code through existing authorized read controls before plan execution",
+    "negativeType": "Use a reference or code demonstrated unavailable, not a fabricated successful document identity",
+    "futureIdentity": "Deferred EXPEDIENTE.ID, value null; no materialization or creation"
+  },
+  "preconditions": [
+    "Explicit creation/publication authorization, separately from current read-only approval",
+    "Recheck source snapshot and all preserved publications before mutation",
+    "Inspect administrator access using existing DOC-110 session helpers",
+    "Record new profile/version IDs immediately and never retry an uncertain creation/publication",
+    "Read-back configuration and rules, verify source publications unchanged; preserve new resources"
+  ]
+}

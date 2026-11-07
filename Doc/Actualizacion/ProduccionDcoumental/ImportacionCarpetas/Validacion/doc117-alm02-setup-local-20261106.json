@@ -1,0 +1,32 @@
+{
+  "status": "READY_FOR_SPECIFIC_SETUP_AUTHORIZATION",
+  "issueKey": "DOC-117",
+  "date": "2026-11-06",
+  "scope": "ALM-02-SETUP",
+  "authorized": false,
+  "proposal": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm02-recursos-propuestos-20261106.json",
+  "proposalSha256": "6d2d9926cc083fdcd7d232f8d367b94ede9eca724dc066048be99543dfc76bf1",
+  "codeSha256": "edc08953292f17ce11fb8626c68856fb521833119add62c84a34a14f10dbd596",
+  "hashToolSha256": "7a16d1b42f2a380e1a706d78aaa5ee7f646cc6a62bb39fb7413c731108d64afb",
+  "budget": {
+    "plans": 1,
+    "lots": 1,
+    "receipts": 2,
+    "createdExpedients": 2,
+    "materializations": 2,
+    "documents": 0,
+    "storageRequests": 0,
+    "runtimeChanges": 0,
+    "maximumSelectRequests": 160
+  },
+  "originalRuntimeSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+  "localTests": {
+    "command": "node --test tests/doc117-alm02-setup.test.cjs",
+    "tests": 10,
+    "pass": 10,
+    "fail": 0
+  },
+  "realExecution": false,
+  "storageAuthorized": false,
+  "runtimeChangesAuthorized": false
+}

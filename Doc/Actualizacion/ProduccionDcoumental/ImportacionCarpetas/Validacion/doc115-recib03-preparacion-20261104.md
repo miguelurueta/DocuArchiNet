@@ -1,0 +1,13 @@
+# DOC-115 — preparación de RECIB-03
+
+Estado: listo para autorización específica. No se ejecutó una nueva autenticación, interrupción ni recepción real. RECIB-01/02 conservan sus evidencias históricas y huellas.
+
+Ambiente local de pruebas https://localhost/GestionDocumental-Docuarchi.net/, cuenta 141/empresa 2, nivel 7, perfil 24/version 38, certificado de pruebas existente. Una preparación con nombre DOC115-20261104-RECIB03-01, una confirmación y hasta un lote nuevo. Tres solicitudes de recepción: multipart incompleto con corte de transporte; recepción válida descartando deliberadamente su resultado en el cliente; reenvío idéntico después de consulta SELECT. Una única recepción original válida de PDF sintético de 677 bytes en staging. No se crean expedientes ni documentos definitivos.
+
+El corte cierra la conexión tras escribir parte del cuerpo manteniendo Content-Length mayor al enviado. Se guardan solo contadores seguros enviados/declarados tras el cierre. Se verifica persistencia antes de continuar: PENDIENTE debe permanecer sin cambios; RECHAZADO debe ser terminal sin contenido confirmado ni intento activo. RECIBIDO parcial, RECIBIENDO o INCIERTO detienen la ejecución. No hay continuación por timeout ni reintento automático del transporte.
+
+La segunda operación recibe realmente el PDF y descarta su resultado de aplicación en el cliente. Se consulta la fila y se exige tamaño, huella, referencia de staging y un solo intento confirmado antes del reenvío. El reenvío debe conservar revisión e intentos y devolver la misma identidad/contenido. Esta prueba no acredita caída del servidor, commit ambiguo de MySQL ni pérdida de respuesta en red. Esas divergencias conservan caracterización local con dobles y la integración independiente 07-A sigue abierta.
+
+Se comparan por SELECT los lotes 6/7/8 antes/después; se conservan planes 24–27 y los nuevos recursos/partes. Controles RA/DA con cuenta exclusivamente SELECT y DSN MembershipUsers, sin URL MySQL. No se modifican perfiles, permisos, Web.config, SQL ni configuración global de Playwright. El perfil compartido conserva una segunda entrada de metadatos heredada de RECIB-02; solo la única solicitud nueva entra en el presupuesto y no se prepara esa entrada heredada.
+
+Validación local: 89/89 pruebas Node PASS, con dobles de transporte y regresión de consumidores. El harness Framework previo conserva 2/2 PASS; no se repite por estos cambios JavaScript. --check de recursos, sintaxis de soporte/runner/spec y OpenSpec estricto: PASS. Requiere autorización nueva para este escenario y para el corte controlado; la autorización de RECIB-02 no se reutiliza para recibir en otro lote.

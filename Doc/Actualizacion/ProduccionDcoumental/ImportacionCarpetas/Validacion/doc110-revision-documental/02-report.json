@@ -1,0 +1,21 @@
+{
+  "status": "pass",
+  "promptPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Actualizacion\\ProduccionDcoumental\\ImportacionCarpetas\\02-prompt-implementacion-perfil-importacion.md",
+  "reviewedAtUtc": "2026-10-20T13:12:32.399Z",
+  "technologyProfile": "legacy-webforms-vb",
+  "summary": {
+    "blockers": 0,
+    "major": 0,
+    "minor": 0,
+    "info": 1
+  },
+  "findings": [
+    {
+      "severity": "INFO",
+      "code": "MANUAL_REVIEW_RECOMMENDED",
+      "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+      "expected": "Revision humana del prompt.",
+      "evidence": null
+    }
+  ]
+}
