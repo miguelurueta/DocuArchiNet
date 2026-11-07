@@ -1,52 +1,129 @@
 ## ADDED Requirements
-### Requirement: PRODUCCION-IMPORTACION-CARGA-CARPETA-LOTE-RECUPERACION
-El sistema SHALL implementar el alcance definido para DOC-118.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-## Perfil tecnologico
 
-- Perfil de revision: legacy-webforms-vb (v1).
-- Alcance: ASP.NET Web Forms, code-behind VB.NET/C# y JavaScript gradual.
-- Este perfil orienta la revision tecnica; no reemplaza los requisitos funcionales ni arquitectonicos del ticket.
+### Requirement: RQ-01 — Procedencia y cambio mínimo
 
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
+El sistema y su evidencia SHALL cumplir D-01: Reutilizar evidencia con su SHA y ambiente; modificar producto únicamente después de reproducir una brecha.
 
-#### Scenario: Reglas del ticket
-- Alcance refinado
-- Validar y reforzar solo brechas reproducidas de coordinación/recuperación existente. Prioridad: efectos inciertos, dos clientes y detención segura.
-- Base y procedencia
-- Revisión arquitectónica 2026-11-04 solicitada por el usuario frente a lo ya implementado. Base entregada: PR125 integrado en main, merge a3c7263763a89901ba78d05ccebc284a43a4cd76. DOC110–115 están Listo. Esta revisión es documental: no ejecuta nuevas pruebas ni certifica escenarios faltantes. Los resultados históricos conservan su SHA y ambiente; no equivalen a una nueva corrida del commit actual.
-- Implementación existente comprobada
-- Una fase por recurso/petición; barreras por EXPEDIENTE/LOTE y parcial; reclamaciones, revisiones, consolidación desde inventario original, detención y reconciliación por evidencia conocida. REC reales cubrieron los tres modos y replays; lote2 acredita cierre de reserva sin inicio y reconciliación documental. DOC115 añade concurrencia real de confirmación/recepción con conexiones físicas independientes; NO acredita concurrencia de escritores documentales ni una llamada legacy en vuelo.
-- Rutas que deben reutilizarse
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.vb
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Barreras.vb
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Consolidacion.vb
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Reconciliacion.vb
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Operaciones.vb
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Reconciliacion.vb
-- Evidencia existente y su alcance
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-barreras-creacion-local-20261029.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-consolidacion-local-20261030.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-reconciliacion-local-20261030.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-reserva-detencion-local-20261028.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc115-07a-resultados.md
-- Escenarios y trabajo pendiente
-- COORD-01 — COBERTURA REAL: reutilizar los REC EXPEDIENTE/LOTE/PARCIAL y sus pruebas de barrera/inventario. Contrastar el caso exacto A lista/B pendiente con la evidencia antes de cerrarlo; no repetir los recorridos completos ya aprobados por defecto.
-- COORD-02 — BRECHA PRIORITARIA: dos clientes/sesiones independientes solicitan avance documental, respuesta perdida y reclamación vencida mientras la primera llamada sigue activa. Debe haber un solo efecto; vencimiento jamás prueba ausencia; INCIERTO bloquea otra ejecución hasta verificación fiable. Definir puntos de fallo autorizados sin modificar el almacenamiento compartido. Los dobles locales y la recepción 07A no sustituyen esta integración.
-- COORD-03 — BRECHA PRIORITARIA: detención durante fase activa, cierre de navegador y consulta desde otra sesión autorizada. Conservar efecto confirmado/IDs/snapshot; impedir nuevas fases afectadas y verificar qué reanudación soporta realmente el contrato. No inventar un endpoint de reanudar ni continuidad desatendida.
-- Seguridad y disponibilidad — mapear pruebas existentes de permiso revocado, destino cambiado, revisión obsoleta y publicación nueva. La reanudación conserva snapshot; consulta/verificación siguen exigiendo autoridad. Completar solo negativos no acreditados en la fase correspondiente.
-- Criterio de cierre
-- Acreditar exclusión o bloqueo seguro de efectos documentales, detención en vuelo y consolidación exacta; documentar estados no resueltos y recuperación permitida. No duplicar máquina de estados, repositorio, motor o worker. No declarar completitud si persisten efectos inciertos.
-- Reglas comunes de ejecución
-- Reutilizar modelos, repositorio operativo, tablas, ASMX/ASHX, adaptadores, coordinador y herramientas E2E existentes. Antes de programar, contrastar cada criterio con código y evidencia; modificar producto solo ante una brecha reproducida y cubrir su regresión. Leer AGENTS.md y tools/e2e/AGENT-RUNBOOK.md antes de autenticar. Pruebas reales, cambios de permisos, fallos inyectados, limpieza y carga requieren autorización específica de ambiente, cuentas y recursos; este ticket no la concede. Controles RA/DA exclusivamente SELECT, secretos efímeros, evidencia saneada. No repetir efectos inciertos ni cargas ya acreditadas sin motivo.
-- Decisiones vigentes que sustituyen exigencias históricas
-- No modificar AlmacenamientoDocumentoProduccionDocumental ni SII. Se conserva PDF como formato soportado por este adaptador; TIFF/Multi-TIFF deben rechazarse, no implementarse para satisfacer el prompt anterior. El aislamiento adicional del XML posterior al commit frente a otras cargas fue descartado expresamente por el usuario: queda fuera del alcance y no se afirma como garantía. No habilitar workers, migraciones, permisos, cuotas globales ni limpieza automática por inferencia. Preservar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, snapshot, inventario original y efectos confirmados. Sin rollback global.
-- Fuente transversal
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-matriz-final-20261102.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc115-verificacion-final-20261104.md
+#### Scenario: Evidencia histórica conserva procedencia
+- **WHEN** se reutiliza un REC o reporte DOC115/117
+- **THEN** la matriz conserva su ruta, alcance, SHA y ambiente de origen y no lo presenta como corrida actual.
+
+#### Scenario: Sin brecha reproducida no hay cambio preventivo
+- **WHEN** el contraste muestra comportamiento existente compatible
+- **THEN** el trabajo aporta evidencia y regresión local, sin crear otro motor, repositorio o endpoint.
+
+### Requirement: RQ-02 — Exclusión documental por lote
+
+El sistema y su evidencia SHALL cumplir D-02: Una petición ejecuta una fase sobre un recurso; toda reclamación documental activa o incierta impide otro escritor en el lote.
+
+#### Scenario: Dos clientes sobre la misma solicitud
+- **WHEN** dos sesiones autorizadas solicitan el mismo avance mientras la primera llamada documental sigue activa
+- **THEN** la segunda devuelve historial o bloqueo seguro; no entra un segundo escritor ni aparece otra identidad documental.
+
+#### Scenario: Otro comando o archivo en el mismo lote
+- **WHEN** otra petición usa distinta clave o recurso mientras existe reclamación documental activa o incierta
+- **THEN** la reserva no permite un segundo efecto documental del lote; la revisión obsoleta tampoco habilita ejecución.
+
+### Requirement: RQ-03 — Barreras e inventario
+
+El sistema y su evidencia SHALL cumplir D-03: Preservar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, sin reducir el inventario original.
+
+#### Scenario: EXPEDIENTE con A lista y B por recibir
+- **WHEN** A tiene sus entradas requeridas listas y B conserva entradas por recibir en modo completo EXPEDIENTE
+- **THEN** A puede avanzar y B queda bloqueada sin alterar su inventario; el REC histórico acredita ese caso con su procedencia.
+
+#### Scenario: LOTE exige todas las raíces
+- **WHEN** el modo es completo LOTE y hay una entrada requerida sin recibir
+- **THEN** ninguna raíz inicia almacenamiento hasta satisfacer la barrera global.
+
+#### Scenario: Parcial preserva rechazos
+- **WHEN** el modo es PARCIAL_PERMITIDO/NO_APLICA y hay un PDF elegible y una entrada TIFF rechazada
+- **THEN** solo avanza el PDF elegible; el rechazo permanece contado en el inventario original y su resultado final.
+
+### Requirement: RQ-04 — Antigüedad sin toma de posesión
+
+El sistema y su evidencia SHALL cumplir D-04: No hay TTL documental habilitante: fecha antigua, desconexión o supuesta expiración no prueban ausencia de efecto ni liberan la reclamación.
+
+#### Scenario: Fecha antigua durante llamada activa
+- **WHEN** una reclamación tiene fecha antigua o el cliente la considera vencida y su llamada real sigue activa
+- **THEN** la antigüedad no permite takeover, liberar marcadores ni volver a invocar el escritor.
+
+#### Scenario: Incertidumbre conserva exclusión
+- **WHEN** el resultado no puede demostrarse durablemente y existe reclamación INCIERTO o marcador activo
+- **THEN** nuevos efectos quedan bloqueados hasta una verificación fiable por el contrato existente.
+
+### Requirement: RQ-05 — Respuesta perdida y certeza durable
+
+El sistema y su evidencia SHALL cumplir D-05: Repetir la misma solicitud consulta su resultado durable; efecto sin checkpoint conserva IDs observados y bloquea otra ejecución.
+
+#### Scenario: Pérdida posterior al checkpoint
+- **WHEN** la respuesta se pierde después del resultado durable confirmado y se repite la misma solicitud autorizada
+- **THEN** se devuelve la misma identidad confirmada y el contador de entradas al escritor permanece uno.
+
+#### Scenario: Efecto sin checkpoint
+- **WHEN** la llamada produce un efecto conocido pero no se confirma su checkpoint
+- **THEN** se conserva la identidad observada, se comunica incertidumbre y no se autoriza replay del escritor; EN_CURSO durable no se interpreta como fallo sin efecto.
+
+### Requirement: RQ-06 — Detención y consulta posterior
+
+El sistema y su evidencia SHALL cumplir D-06: La detención es una señal persistida; no cancela la llamada activa. Cerrar navegador no equivale a detener. Consultar lote no reanuda fases.
+
+#### Scenario: Detención con llamada real activa
+- **WHEN** una sesión autorizada solicita detención con revisión vigente durante ALMACENAR ya iniciado
+- **THEN** la señal queda persistida, se conserva la reclamación y la llamada puede finalizar conservando efecto e IDs; ninguna fase nueva afectada comienza.
+
+#### Scenario: Cerrar navegador y consultar desde otra sesión
+- **WHEN** se cierra el navegador y otra sesión autorizada consulta el lote por su referencia
+- **THEN** se observa su estado durable y snapshot sin asumir cancelación, detención implícita ni reanudación de fases.
+
+### Requirement: RQ-07 — Recuperación existente y limitada
+
+El sistema y su evidencia SHALL cumplir D-07: CerrarReservaSinInicio solo cierra una reserva ALMACENAR probada sin inicio y sin detención; ReconciliarRecurso verifica evidencia conocida de INCIERTO.
+
+#### Scenario: Cierre preinicio probado
+- **WHEN** CerrarReservaSinInicio recibe una reserva ALMACENAR/WEB_DOCUMENTO sin inicio, resultado ni evidencia, con vista exacta y sin detención
+- **THEN** cierra únicamente esa reserva como RECHAZADO/RESERVA_CERRADA_SIN_INICIO y sin documento/inventario; la confirmación pública refiere al cierre.
+
+#### Scenario: Recuperación no soportada permanece bloqueada
+- **WHEN** el intento está EN_CURSO, hay detención activa para un cierre preinicio, o falta evidencia concordante para reconciliar
+- **THEN** la operación no libera la reclamación ni fuerza estados por fecha; la evidencia registra el bloqueo y la vía permitida.
+
+#### Scenario: Reconciliación con identidad conocida
+- **WHEN** un intento INCIERTO tiene evidencia completa y concordante y autoridad vigente
+- **THEN** el contrato existente verifica y persiste el efecto conocido sin almacenar, crear o incorporar de nuevo; los intentos históricos protegidos quedan excluidos.
+
+### Requirement: RQ-08 — Autoridad vigente y snapshot
+
+El sistema y su evidencia SHALL cumplir D-08: Cada consulta, avance, detención o verificación exige autoridad actual; una publicación posterior no reemplaza el snapshot del lote.
+
+#### Scenario: Autoridad revocada o destino incompatible
+- **WHEN** se solicita consultar, avanzar, detener o reconciliar con permiso revocado o contexto/destino incompatible
+- **THEN** el contrato rechaza la operación sin exponer resultado ajeno ni iniciar nuevos efectos.
+
+#### Scenario: Snapshot y revisión
+- **WHEN** se publica otra versión después de confirmar el lote o se presenta una revisión obsoleta para una mutación nueva
+- **THEN** la publicación no reemplaza el snapshot y la revisión obsoleta no inicia un efecto; el historial autorizado de una misma solicitud conserva su resultado.
+
+### Requirement: RQ-09 — Consolidación exacta
+
+El sistema y su evidencia SHALL cumplir D-09: Derivar estados del inventario original y checkpoints; conservar efectos e IDs confirmados aun con detención.
+
+#### Scenario: Resultado desde inventario original
+- **WHEN** se consolida un lote con raíces, archivos rechazados y checkpoints positivos
+- **THEN** los conteos e identidades corresponden exactamente al inventario original y los efectos durables, sin eliminar rechazos ni duplicar documentos.
+
+#### Scenario: Prioridad de actividad e incertidumbre
+- **WHEN** se solicita detención y hay actividad o efecto incierto
+- **THEN** no se declara completitud: la actividad mantiene EN_CURSO y la incertidumbre exige verificación; solo todos los efectos requeridos positivos permiten COMPLETADO aun con señal final conservada.
+
+### Requirement: RQ-10 — Integración observable y autorizada
+
+El sistema y su evidencia SHALL cumplir D-10: COORD-02/03 requieren prueba nueva de la llamada legacy activa, sin modificar el almacenamiento compartido ni heredar excepciones anteriores.
+
+#### Scenario: Integración exige prueba dentro de llamada
+- **WHEN** se pretende acreditar COORD-02 o COORD-03 con dos clientes, fallo o detención
+- **THEN** la evidencia demuestra la llamada legacy real activa y el punto de coordinación, sin modificar almacenamiento compartido; pausas externas y superposición HTTP sola no bastan.
+
+#### Scenario: Autorización específica antes de ejecutar
+- **WHEN** se dispone de un plan compatible con ambiente, cuentas, recursos nuevos y límites definidos
+- **THEN** se solicita su autorización explícita antes de autenticar, inyectar fallos o ejecutar; los controles son SELECT y la evidencia no contiene secretos.

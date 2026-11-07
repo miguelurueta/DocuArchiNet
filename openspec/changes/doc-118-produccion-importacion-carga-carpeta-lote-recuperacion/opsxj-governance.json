@@ -113,7 +113,7 @@
     "version": 1,
     "required": true,
     "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/refinement.md",
-    "state": "approved",
+    "state": "draft",
     "taskOriginFormat": "Origen: D-XX, RQ-XX",
     "enforcement": "Cada decision debe llegar a design, spec y tasks; no se admiten reglas de framework ajeno al perfil tecnologico."
   },

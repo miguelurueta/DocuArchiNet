@@ -1,13 +1,14 @@
-# PRODUCCION-IMPORTACION-CARGA-CARPETA-LOTE-RECUPERACION
+# DOC-118 — coordinación y recuperación
 
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
-- Clasificacion: cross_cutting (Transversal)
+- Clasificación: cross_cutting
+- Estado: propuesta de refinamiento para revisión humana; sin despliegue ni integración real nueva.
+
 ## Superficies UI
 
-- [ ] Paginas WebForms, UserControls, modales y tablas afectadas.
-- [ ] Estados de foco, hover, seleccion, responsive y accesibilidad.
+Se inspeccionó js/gestion/ImportacionCarpetas/ImportacionCarpetas.js: consultar, cerrar y resume. Consultar lote recupera la vista; no ejecuta una fase ni borra la señal de detención. Cerrar libera el cliente y conserva referencias; no prueba cancelación del servidor. La consulta desde otra sesión exige autoridad actual y referencia al lote, conservando snapshot e identidades.
 
 ## Validacion visual
 
-Registrar captura o recorrido manual reproducible cuando aplique.
+Esta entrega no modifica marcado, estilos ni interacciones y no acredita una validación visual nueva. COORD-03 requiere evidenciar, en ejecución posteriormente autorizada, detención durante llamada real, cierre del navegador y consulta desde otra sesión. Los botones o hints del cliente no sustituyen los controles de autoridad, revisión y reclamación del servidor.

@@ -1,6 +1,6 @@
 ## Context
 
-DOC-118: PRODUCCION-IMPORTACION-CARGA-CARPETA-LOTE-RECUPERACION
+DOC-118 contrasta la coordinación y recuperación ya implementadas con sus brechas de evidencia. Base local inspeccionada: `5162b92996c7652a30fc39f3b4142a5dd17c166c`. La procedencia por archivo está en source-review.json. Perfil legacy-webforms-vb; no se propone una segunda máquina de estados.
 
 ## Jira Details
 
@@ -40,32 +40,92 @@ DOC-118: PRODUCCION-IMPORTACION-CARGA-CARPETA-LOTE-RECUPERACION
 
 ## Goals / Non-Goals
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+Objetivo: cerrar únicamente brechas reproducidas de exclusión documental, certeza del resultado y detención segura, reutilizando lo ya acreditado. Esta entrega define criterios; no modifica producto ni ejecuta integración real.
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+Fuera de alcance: modificar almacenamiento compartido/SII, aislamiento adicional del XML, TIFF/Multi-TIFF, workers, nuevo repositorio/endpoint de reanudar, migraciones, permisos, limpieza automática y rollback global.
 
 ## Decisions
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-01 — Procedencia y cambio mínimo (RQ-01)
 
-## Perfil tecnologico
+Reutilizar evidencia con su SHA y ambiente; modificar producto únicamente después de reproducir una brecha.
 
-- Perfil de revision: legacy-webforms-vb (v1).
-- Alcance: ASP.NET Web Forms, code-behind VB.NET/C# y JavaScript gradual.
-- Este perfil orienta la revision tecnica; no reemplaza los requisitos funcionales ni arquitectonicos del ticket.
+Evidencia: source-review.json; doc111-matriz-final-20261102.md; doc115-07a-resultados.md. Separar evidencia histórica, revisión actual y ejecución nueva.
+
+### D-02 — Exclusión documental por lote (RQ-02)
+
+Una petición ejecuta una fase sobre un recurso; toda reclamación documental activa o incierta impide otro escritor en el lote.
+
+Evidencia: CoordinadorImportacionCarpetas.Operaciones.vb: AvanzarLote; MySqlImportacionCarpetasRepository.Control.vb: ReservarIntentoDocumental/HayReclamacionDocumental. Acreditar dos clientes independientes contra el mismo avance y contra otro archivo del lote.
+
+### D-03 — Barreras e inventario (RQ-03)
+
+Preservar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, sin reducir el inventario original.
+
+Evidencia: CoordinadorImportacionCarpetas.Barreras.vb: EvaluarBarreraAlmacenamiento; doc111-rec-expediente-pass-20261101.md. Reutilizar COORD-01 histórico A lista/B por recibir y contrastar los tres modos.
+
+### D-04 — Antigüedad sin toma de posesión (RQ-04)
+
+No hay TTL documental habilitante: fecha antigua, desconexión o supuesta expiración no prueban ausencia de efecto ni liberan la reclamación.
+
+Evidencia: MySqlImportacionCarpetasRepository.Control.vb: HayReclamacionDocumental/ValidarReservaDocumental. Acreditar bloqueo con primera llamada todavía activa; no inventar un vencimiento de lease.
+
+### D-05 — Respuesta perdida y certeza durable (RQ-05)
+
+Repetir la misma solicitud consulta su resultado durable; efecto sin checkpoint conserva IDs observados y bloquea otra ejecución.
+
+Evidencia: CoordinadorImportacionCarpetas.Documento.vb: AlmacenarArchivo/ProyectarDocumento; doc117-alm02-interno-pass-20261106.md. Distinguir respuesta perdida después del checkpoint de efecto sin confirmación durable.
+
+### D-06 — Detención y consulta posterior (RQ-06)
+
+La detención es una señal persistida; no cancela la llamada activa. Cerrar navegador no equivale a detener. Consultar lote no reanuda fases.
+
+Evidencia: CoordinadorImportacionCarpetas.vb: SolicitarDetencion; ServicioConsultaImportacion.vb; ImportacionCarpetas.js: cerrar/resume. Acreditar detención en vuelo y consulta posterior desde otra sesión autorizada.
+
+### D-07 — Recuperación existente y limitada (RQ-07)
+
+CerrarReservaSinInicio solo cierra una reserva ALMACENAR probada sin inicio y sin detención; ReconciliarRecurso verifica evidencia conocida de INCIERTO.
+
+Evidencia: CoordinadorImportacionCarpetas.Reconciliacion.vb; MySqlImportacionCarpetasRepository.Reconciliacion.vb: PersistirCierreReservaSinInicio. No reparar EN_CURSO por antigüedad ni presentar el cierre RECHAZADO como éxito documental.
+
+### D-08 — Autoridad vigente y snapshot (RQ-08)
+
+Cada consulta, avance, detención o verificación exige autoridad actual; una publicación posterior no reemplaza el snapshot del lote.
+
+Evidencia: ServicioConsultaImportacion.vb; CoordinadorImportacionCarpetas.Documento.vb; CoordinadorImportacionCarpetas.Reconciliacion.vb. Mapear permiso revocado, destino cambiado, revisión obsoleta y publicación posterior antes de agregar negativos.
+
+### D-09 — Consolidación exacta (RQ-09)
+
+Derivar estados del inventario original y checkpoints; conservar efectos e IDs confirmados aun con detención.
+
+Evidencia: MySqlImportacionCarpetasRepository.Documento.vb: RegistrarResultadoDocumento; MySqlImportacionCarpetasRepository.Consolidacion.vb: ConsolidarEnTransaccion. Acreditar estado incierto/activo prioritario y COMPLETADO solo con todos los efectos positivos requeridos.
+
+### D-10 — Integración observable y autorizada (RQ-10)
+
+COORD-02/03 requieren prueba nueva de la llamada legacy activa, sin modificar el almacenamiento compartido ni heredar excepciones anteriores.
+
+Evidencia: AGENTS.md; tools/e2e/AGENT-RUNBOOK.md; doc118-matriz-coordinacion.md. Definir observación viable, ambiente, cuentas, recursos y presupuesto antes de solicitar autorización específica.
+
+## Comportamiento y límites observados
+
+AvanzarLote despacha una fase CREAR_EXPEDIENTE, MATERIALIZAR_VALORES o ALMACENAR por recurso. AlmacenarArchivo consulta primero el historial de la misma solicitud dentro del contexto autorizado: un replay confirmado devuelve la identidad durable sin escritor nuevo. Para una ejecución nueva exige revisión, barrera, staging y autoridad; la reserva transaccional usa el orden lote → raíz → archivo. HayReclamacionDocumental considera RESERVADO, EN_CURSO e INCIERTO y marcadores huérfanos, sin habilitar sustitución por fecha.
+
+SolicitarDetencion persiste la señal y consolida conservando la reclamación activa. RegistrarResultadoDocumento persiste checkpoint y llama a ConsolidarEnTransaccion en la misma transacción exterior. Un efecto completado al final conserva IDs y señal de detención; si todos los efectos requeridos son positivos puede resultar COMPLETADO. Con actividad sigue EN_CURSO; incertidumbre exige PENDIENTE_VERIFICACION; sin actividad y con trabajo sin completar, la señal permite DETENIDO. No se convierte un resultado incierto en fallo seguro.
+
+CerrarReservaSinInicio exige ALMACENAR/WEB_DOCUMENTO, RESERVADO, evento único de reserva y ausencia de inicio/resultado/evidencia, además de la vista y revisiones exactas y detencion_solicitada=false. El resultado durable es RECHAZADO/RESERVA_CERRADA_SIN_INICIO, sin documento/inventario; la respuesta pública confirma el cierre de la reserva, no un documento. No resuelve EN_CURSO ni una detención activa. ReconciliarRecurso verifica INCIERTO con identidad y evidencia conocidas, sin volver a almacenar; no fuerza EN_CURSO a INCIERTO.
+
+El cliente resume() abre la consulta del lote recordado; cerrar() libera recursos del cliente. Cerrar no persiste una detención ni demuestra que terminó la petición del servidor. Una sesión nueva debe satisfacer autorización actual y conservar el snapshot. No se promete continuidad desatendida ni reset de detención.
 
 ## Risks / Trade-offs
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+La exclusión conservadora puede dejar recursos bloqueados sin recuperación automática; es preferible mantener incertidumbre explícita a duplicar efectos. Una respuesta pública INCIERTO puede corresponder a intento durable EN_CURSO: distinguir ambas capas en la evidencia. Los resultados históricos retienen su SHA/ambiente y no certifican la instalación actual.
+
+La integración de COORD-02/03 depende de observación real de la llamada legacy activa sin modificar almacenamiento compartido. La excepción instrumental de DOC117 no se transfiere. Sin observabilidad compatible o autorización específica, esos casos permanecen NO_EJECUTADOS y no satisfacen el cierre.
 
 ## Migration Plan
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+Entrega documental sin despliegue ni migración. Después de aprobación humana: tareas atómicas, contraste de cobertura, preparación de integración, autorización específica y ejecución acotada. Un defecto reproducido habilita una corrección acotada y verificable. Revertir documentación mediante Git no revierte efectos documentales ni autoriza limpiar recursos.
 
-## Open Questions
+## Acceptance and review gates
 
-- TBD
+Diez decisiones y diez requisitos; escenarios en spec.md y cobertura en doc118-matriz-coordinacion.md. La aprobación de refinement.md y el reemplazo trazable de las tareas genéricas son compuertas antes de implementación. Las pruebas reales requieren una autorización separada posterior a un plan concreto. No hay autorización de ejecución implícita en este diseño.

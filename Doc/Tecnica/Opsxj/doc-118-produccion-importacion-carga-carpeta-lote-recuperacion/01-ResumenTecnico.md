@@ -1,13 +1,14 @@
-# PRODUCCION-IMPORTACION-CARGA-CARPETA-LOTE-RECUPERACION
+# DOC-118 — coordinación y recuperación
 
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
-- Clasificacion: cross_cutting (Transversal)
+- Clasificación: cross_cutting
+- Estado: propuesta de refinamiento para revisión humana; sin despliegue ni integración real nueva.
+
 ## Objetivo
 
-Describir el problema, la solucion aprobada y los componentes legacy afectados.
+Precisar las brechas COORD-02 (dos clientes, antigüedad y pérdida de respuesta durante llamada activa) y COORD-03 (detención en vuelo y consulta posterior), reutilizando COORD-01 histórico. El refinamiento contiene diez decisiones D-01–D-10 y diez requisitos RQ-01–RQ-10; no se cambia producto sin una brecha reproducida.
 
 ## Alcance y compatibilidad
 
-- [ ] Identificar paginas, controles, servicios o scripts afectados.
-- [ ] Registrar comportamiento preservado y estrategia de reversa.
+Se reutilizan coordinador VB, MySQL, ASMX y JavaScript actuales. Se preservan políticas EXPEDIENTE/LOTE/PARCIAL, PDF, rechazo TIFF/Multi-TIFF, snapshot, inventario original y efectos confirmados. No hay migración, nuevo worker ni endpoint para reanudar. No se modifica almacenamiento compartido/SII ni se introduce aislamiento adicional del XML. Esta documentación se revierte por Git; eso no revierte efectos en datos.

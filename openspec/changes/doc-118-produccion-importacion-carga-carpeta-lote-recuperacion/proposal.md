@@ -1,13 +1,13 @@
 ## Why
 
-PRODUCCION-IMPORTACION-CARGA-CARPETA-LOTE-RECUPERACION. Ver detalle funcional completo del ticket en la seccion Jira Details.
+La evidencia histórica acredita barreras, inventario y varios replays, pero no demuestra aún dos clientes documentales disputando una reclamación ni detención durante una llamada legacy activa. DOC-118 debe cerrar esas brechas sin duplicar infraestructura ni repetir efectos inciertos.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-118.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Contrastar código y evidencia de COORD-01/02/03 con procedencia verificable.
+- Definir exclusión por lote, respuesta perdida, antigüedad sin takeover, detención y recuperación limitada.
+- Preparar únicamente integraciones faltantes y autorizarlas por separado; corregir producto solo ante una brecha reproducida.
+- Preservar arquitectura legacy, PDF, snapshot, inventario y efectos confirmados.
 
 ## Jira Details
 
@@ -54,15 +54,15 @@ PRODUCCION-IMPORTACION-CARGA-CARPETA-LOTE-RECUPERACION. Ver detalle funcional co
 ## Capabilities
 
 ### New Capabilities
-- `produccion-importacion-carga-carpeta-lote-recuperacion`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `produccion-importacion-carga-carpeta-lote-recuperacion`: criterios verificables de coordinación y recuperación de la importación existente.
 
 ### Modified Capabilities
-- 
+
+No se introduce otro motor ni se propone cambiar contratos públicos en este refinamiento.
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
+Revisión transversal del coordinador VB, repositorio MySQL, consulta ASMX y cliente JavaScript existentes; esta entrega solo modifica documentación y especificaciones. COORD-02/03 requieren preparación y autorización específica posterior. El estado editorial sigue draft hasta revisión humana; no implica pase de integración.
 
 ## Perfil tecnologico
 

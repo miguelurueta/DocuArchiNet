@@ -1,0 +1,60 @@
+{
+  "issueKey": "DOC-118",
+  "date": "2026-11-07",
+  "reviewedCommit": "5162b92996c7652a30fc39f3b4142a5dd17c166c",
+  "editorialState": "draft",
+  "productChanges": false,
+  "newRealIntegration": false,
+  "decisions": 10,
+  "requirements": 10,
+  "scenarios": 22,
+  "sourceHashesVerified": 14,
+  "historicalReportHashesVerified": 10,
+  "checks": [
+    {
+      "command": "openspec.cmd validate doc-118-produccion-importacion-carga-carpeta-lote-recuperacion --strict",
+      "status": "PASS"
+    },
+    {
+      "command": "node --test tests/doc110-perfil-importacion-behavior.test.cjs",
+      "status": "PASS",
+      "nodeTests": 2,
+      "passed": 2,
+      "failed": 0,
+      "scope": "Compilacion VB/.NET Framework y reglas/DDL locales; sin HTTP ni conexion de datos."
+    },
+    {
+      "command": "git diff --check",
+      "status": "PASS"
+    },
+    {
+      "command": "npm.cmd --prefix tools/opsxj run opsxj:refine -- DOC-118",
+      "status": "FAIL",
+      "openChecks": [
+        "refinement:approved",
+        "refinement:tasks:decisions",
+        "refinement:tasks:origins"
+      ],
+      "reason": "Revision humana del refinamiento y desglose trazable de tareas tras aprobacion; no equivalen a defecto de producto."
+    }
+  ],
+  "protectedHistoricalAttempts": [
+    {
+      "attempt": 41,
+      "lot": 18,
+      "origin": "DOC-116",
+      "action": "NO_MUTATION"
+    },
+    {
+      "attempt": 53,
+      "lot": 21,
+      "origin": "DOC-117",
+      "action": "NO_MUTATION"
+    }
+  ],
+  "realIntegrationGaps": [
+    "COORD-02: clientes documentales independientes con primera llamada legacy realmente activa.",
+    "COORD-03: detencion durante llamada legacy realmente activa y consulta desde otra sesion autorizada."
+  ],
+  "executionDependency": "Observacion compatible sin alterar almacenamiento compartido; despues, plan concreto y autorizacion especifica de ambiente, cuentas, recursos, fallos y presupuesto."
+}
