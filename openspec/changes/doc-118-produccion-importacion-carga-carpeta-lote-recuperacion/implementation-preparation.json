@@ -53,6 +53,12 @@
       "passed": 16,
       "failed": 0,
       "scope": "Coordinacion acotada con callbacks/observador sintéticos; no autentica, adjunta depurador ni ejecuta SQL."
+    },
+    {
+      "command": "node tools/e2e/scripts/run-doc111-importacion-carpetas.cjs --check --profile tools/e2e/profiles/doc111-importacion-carpetas-lote-20261102.runtime.json --scenario LOTE",
+      "status": "PASS",
+      "output": "DOC111_CHECK=PASS; REAL_EXECUTION=false",
+      "scope": "Contrato de perfil y fixture existentes; sin login/SQL real."
     }
   ],
   "reviewedSourceHashesVerified": 14,
@@ -96,7 +102,7 @@
   "previousReview": "refinement-review.json conserva la evaluación histórica del borrador previo; este registro corresponde a la continuación aprobada.",
   "openDependencies": [
     "Calificación autorizada del observador externo en ambiente/proceso seleccionado.",
-    "Descriptores no sensibles de cuenta propietaria, nivel, versión, destinos y recursos nuevos.",
+    "Verificar en preflight autorizado la vigencia del ambiente/cuenta/nivel/version ya localizados; nombres DOC118 nuevos propuestos en el plan.",
     "Enlace revisado de sesiones/observador real con helper y contadores HTTP; protocolo acotado ya documentado.",
     "Autorización específica antes de autenticar, adjuntar depurador o ejecutar efectos."
   ],
@@ -110,5 +116,24 @@
       "path": "tests/doc118-active-call.test.cjs",
       "sha256": "78abad87637a3502168ee9870340a3feeb4d90ee5aa4094c9f69faa84947dd40"
     }
-  ]
+  ],
+  "existingE2EDiscovery": {
+    "date": "2026-11-07",
+    "suite": "tools/e2e/tests/doc111-importacion-carpetas.spec.cjs",
+    "runner": "tools/e2e/scripts/run-doc111-importacion-carpetas.cjs",
+    "support": "tools/e2e/tests/support/doc111-importacion-carpetas.cjs",
+    "localProfile": "tools/e2e/profiles/doc111-importacion-carpetas-lote-20261102.runtime.json",
+    "profileContractValidated": true,
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "module": "GESTOR",
+    "levelRef": "7",
+    "versionRef": "38",
+    "raDsn": "MembershipUsers",
+    "daDsn": "MembershipUsers",
+    "historicalActorRef": "141",
+    "historicalAmbitoRef": "2",
+    "currentAuthorityVerified": false,
+    "profileCommitted": false,
+    "realExecution": false
+  }
 }

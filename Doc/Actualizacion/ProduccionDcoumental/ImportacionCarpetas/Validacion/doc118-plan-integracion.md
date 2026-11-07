@@ -2,6 +2,31 @@
 
 Fecha: 2026-11-07. Origen: D-02/RQ-02, D-04/RQ-04, D-05/RQ-05, D-06/RQ-06 y D-10/RQ-10. Preparación local sobre `efd7a6b4ec4d981ca4ded4f0efbd08ce03082875`; no es evidencia de ejecución real ni autorización de ambiente/cuentas/recursos.
 
+## E2E y perfil existentes localizados
+
+La búsqueda puntual solicitada por el usuario encontró la suite real `tools/e2e/tests/doc111-importacion-carpetas.spec.cjs` y su entrada `npm.cmd --prefix tools/e2e run test:doc111:rec -- ...`. El soporte `tools/e2e/tests/support/doc111-importacion-carpetas.cjs` exporta openSession, createDriver, createSelectControls, runRec, runResume y runReconciliationResume; usa el helper de autenticación común y el puente ODBC existente. DOC118 debe reutilizar esas piezas y el helper acotado de coordinación, sin otro login ni plataforma.
+
+| Dato encontrado | Base reutilizable |
+| --- | --- |
+| Perfil LOTE local | `tools/e2e/profiles/doc111-importacion-carpetas-lote-20261102.runtime.json` |
+| Ambiente | `https://localhost/GestionDocumental-Docuarchi.net/` |
+| Módulo/nivel/versión | GESTOR / 7 / 38; perfil validado localmente, disponibilidad actual aún sin consultar |
+| DSN RA y DA | MembershipUsers, con credenciales de lectura efímeras |
+| PDF existente | `tools/e2e/fixtures/doc110-carga-individual.pdf` |
+| Referencia de cuenta/destino histórico | Usuario141/empresa2, gabinete10, tipología79, índice14 TEXTO EEE, documentados en `doc117-alm03c-preparacion-lista-20261106.md` y ejecución histórica de DOC117 |
+| TLS local | El perfil tiene ignoreHttpsErrors=true; requiere autorización específica para esa excepción antes de autenticar |
+
+Se encontraron también perfiles locales EXPEDIENTE (versión37) y PARCIAL (versión38). Para C02/C03 se selecciona el LOTE como base de preparación porque ambos originales estarán recibidos y ambas raíces elegibles antes de disputar almacenamiento. Su configuración se validó con el runner existente:
+
+```text
+node tools/e2e/scripts/run-doc111-importacion-carpetas.cjs --check --profile tools/e2e/profiles/doc111-importacion-carpetas-lote-20261102.runtime.json --scenario LOTE
+DOC111_CHECK=PASS; REAL_EXECUTION=false
+```
+
+El check solo valida argumentos, contrato del perfil y fixture. No inicia sesión, consulta datos ni comprueba permisos/publicación actuales. Los perfiles runtime permanecen locales e ignorados; no se copian a Git ni se imprimen secretos. Ya no hace falta pedir al usuario la ruta de ese perfil ni el identificador histórico de cuenta. Su autoridad vigente se comprobará con la sesión autorizada correspondiente.
+
+Los nombres/recursos DOC111/117 del perfil y los reportes no se reutilizan para ejecutar DOC118. Preparar en memoria nombres nuevos `DOC118-C02-A-20261107`/`DOC118-C02-B-20261107` y `DOC118-C03-A-20261107`/`DOC118-C03-B-20261107`, sujetos a comprobar ausencia por preflight autorizado. Los IDs de planes/lotes se obtendrán solo de sus nuevas confirmaciones. No ejecutar runRec completo para simular COORD02/03: su recorrido es secuencial y ya tiene crédito histórico en su alcance.
+
 ## Observación externa candidata
 
 El método ordinario está en `workflow/ClassAlmacenamiento.vb`, `AlmacenamientoDocumentoProduccionDocumental` (declaración en línea 8893 de la base revisada). El enlace real es `Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb:InvocarAlmacenamiento`. Los generadores DOC117 producen una copia `ClassAlmacenamiento.Laboratory.vb` con observador dentro del método y no cumplen la restricción DOC118 de mantener ese almacenamiento intacto.
@@ -102,7 +127,7 @@ Tope adicional de tráfico HTTP total del navegador/API: 250 peticiones por caso
 
 ## Registro necesario antes de solicitar autorización de ejecución
 
-Faltan descriptores reales verificados de ambiente/proceso, binario/símbolos, cuenta propietaria, nivel/versión y DSN RA/DA, nombres originales nuevos y enlace revisado del observador externo con las sesiones y contadores. No se heredan los de DOC117. Puede seleccionarse un perfil E2E existente no sensible; los datos secretos se capturan efímeramente con los helpers existentes y nunca se escriben en este documento.
+El perfil local, ambiente, nivel/versión, DSN y referencia histórica de cuenta ya están localizados arriba. Falta verificar su vigencia mediante preflight autorizado, identificar proceso/binario/símbolos y revisar el enlace del observador externo con las dos sesiones y contadores. Los nombres nuevos propuestos deben comprobar ausencia antes de preparar recursos. No se heredan permisos ni autorizaciones de DOC117; los secretos se capturan efímeramente con los helpers existentes y nunca se escriben en este documento.
 
 La persona responsable debe autorizar por separado el ambiente/cuenta y la observación mediante depurador antes de la calificación conectada. Solo después de disponer del conductor, recursos y límites completos se solicita la ejecución de cada caso. La aprobación editorial de DOC118 no sustituye esas autorizaciones.
 
