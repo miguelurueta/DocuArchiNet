@@ -102,7 +102,7 @@ El fallo efecto-sin-checkpoint conserva el crédito histórico DOC117-ALM02 y su
 
 ## Propuesta de límites para autorización
 
-Estos son límites propuestos, todavía no concedidos. Los descriptores reales de ambiente, cuenta, nivel, versión, destinos y nombres deben completarse desde configuración no sensible y preflight autorizado antes de ejecutar.
+Estos límites fueron autorizados expresamente por el usuario mediante «autorizado», después del commit 3c538a0f. El alcance y su fuente se registran en execution-authorization.json del cambio OpenSpec. Los descriptores reales de ambiente, cuenta, nivel, versión, destinos y nombres deben completarse desde configuración no sensible y preflight autorizado antes de ejecutar.
 
 | Recurso/acción | Máximo propuesto |
 | --- | --- |
@@ -150,3 +150,8 @@ Ante entrada inesperada de otro escritor, cambio de autoridad/destino, presupues
 Conservar únicamente nombres sintéticos aprobados, IDs, revisiones, códigos públicos, conteos, hashes, correspondencia de binario/símbolos, hilo y secuencia causal saneada. No cookies, tokens, credenciales, conexiones, cuerpos HTTP, memoria ni capturas del escritorio. Registrar separadamente autoridad de la sesión B, checkpoint durable, bloqueo, inventario original y alcance instrumental de la prueba.
 
 No declarar completo un caso que mantiene efecto incierto. Los intentos41/lote18 y53/lote21 quedan intactos, al igual que recursos históricos fuera del alcance nuevo.
+
+
+## Autorización concedida y continuidad
+
+La fase real está autorizada; no solicitar de nuevo aprobación del mismo alcance. El preflight inicial y contadores están en doc118-preflight-20261107.json. Solo se consumió un HEAD de preparación de C02: HTTP200; cero login/SELECT/efectos. Faltan credenciales efímeras mediante la consola enmascarada existente y calificación del observador. La consulta de preferencia de consola sigue abierta; no enviar secretos por chat ni persistirlos.

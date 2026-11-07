@@ -3,7 +3,7 @@
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
 - Clasificación: cross_cutting
-- Estado: refinamiento aprobado y preparación local en curso; sin despliegue ni integración real nueva.
+- Estado: refinamiento aprobado y fase real autorizada, preflight inicial sin autenticación; sin despliegue ni efectos documentales nuevos.
 
 ## Evidencia requerida
 
@@ -29,3 +29,8 @@ El helper nuevo se verificó con `node --test tests/doc118-active-call.test.cjs`
 ## Regresión del enlace de sesiones
 
 `node --test tests/doc118-session-bridge.test.cjs tests/doc118-active-call.test.cjs tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs`: 102/102 pruebas, cero fallos (23 enlace,16 coordinación,63 drivers compartidos). Estas corridas reemplazan las repeticiones de las mismas pruebas al contabilizar cobertura; no se suman varias veces. La comprobación readOnly incluye el rechazo de SolicitarDetencion antes de HTTP. Se usaron dobles de sesión/HTTP/SQL y observador; cero login, SELECT o attach reales.
+
+
+## Preflight real autorizado
+
+`doc118-preflight-20261107.json` y `doc118-resultados-integracion.md` registran un HEAD HTTP200 y localización de DLL/PDB/IDE, sin attach, login, SELECT ni efectos. La autorización ya está concedida; falta captura enmascarada de secretos efímeros y calificar el observador. COORD02/03 específicos siguen NO_EJECUTADOS. No se suma esta petición como prueba Node ni como aceptación documental.

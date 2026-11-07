@@ -45,3 +45,8 @@ Aprobación editorial del usuario registrada tras el detalle de implementación.
 Revalidación conjunta: `node --test tests/doc110-perfil-importacion-behavior.test.cjs tests/doc111-importacion-carpetas-client.test.cjs`, 18/18 pruebas Node sin fallos, servicios sintéticos sin login/HTTP real. El resultado anterior 2/2 conserva su ejecución y alcance.
 
 Se añadieron `doc118-plan-integracion.md` y `doc118-seguridad-recuperacion.md`. Visual Studio disponible localmente permite proponer observación externa con breakpoint e hilo seleccionado, pero su compatibilidad en el runtime sigue SIN_CALIFICAR. No se adjuntó depurador, autenticó ni ejecutó ningún efecto real. COORD-02/03 siguen NO_EJECUTADOS.
+
+
+## Autorización real y primer preflight
+
+El usuario autorizó la fase real del plan; tarea4.2 completada y progreso15/26. Una petición HEAD devolvió HTTP200. Credenciales ausentes en el proceso y captura segura aún sin seleccionar; cero login/SELECT/efectos. La DLL/PDB y Visual Studio se localizaron, pero la observación de la llamada activa no está calificada. Ambos casos específicos permanecen NO_EJECUTADOS; detalles y presupuesto acumulado en doc118-preflight-20261107.json y doc118-resultados-integracion.md.

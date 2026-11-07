@@ -3,7 +3,7 @@
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
 - Clasificación: cross_cutting
-- Estado: refinamiento aprobado y preparación local en curso; sin despliegue ni integración real nueva.
+- Estado: refinamiento aprobado y fase real autorizada, preflight inicial sin autenticación; sin despliegue ni efectos documentales nuevos.
 
 ## Objetivo
 
@@ -21,3 +21,6 @@ La incorporación de código se limita a la coordinación de pruebas y su enlace
 
 
 La continuación añade el enlace DOC118 de dos sesiones y controles con los helpers existentes; progreso 14/26. El único cambio al driver compartido es admitir SolicitarDetencion, que ya existe en ASMX. No se modifica producto ni almacenamiento compartido.
+
+
+La fase real fue autorizada expresamente por el usuario. Se registraron alcance y límites en execution-authorization.json, con progreso15/26. El preflight HEAD devolvió200; todavía no hay autenticación, SELECT ni nuevos recursos.

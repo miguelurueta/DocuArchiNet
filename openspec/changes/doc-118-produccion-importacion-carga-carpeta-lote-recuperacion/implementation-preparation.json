@@ -6,12 +6,13 @@
   "approval": {
     "source": "Mensaje del usuario «continua» posterior al detalle de implementación.",
     "scope": "Refinamiento presentado y continuación con desglose/preparación local.",
-    "realExecutionAuthorized": false
+    "realExecutionAuthorized": true,
+    "realExecutionAuthorizationReference": "execution-authorization.json"
   },
   "tasks": {
     "total": 26,
-    "complete": 14,
-    "remaining": 12,
+    "complete": 15,
+    "remaining": 11,
     "S": 11,
     "M": 15,
     "completeIds": [
@@ -28,7 +29,8 @@
       "3.4",
       "3.5",
       "3.6",
-      "3.7"
+      "3.7",
+      "4.2"
     ],
     "coverage": "D-01..D-10 / RQ-01..RQ-10"
   },
@@ -115,10 +117,10 @@
   ],
   "previousReview": "refinement-review.json conserva la evaluación histórica del borrador previo; este registro corresponde a la continuación aprobada.",
   "openDependencies": [
+    "Captura enmascarada de credenciales efímeras; elección de consola solicitada, aún sin respuesta.",
     "Calificación autorizada del observador externo en ambiente/proceso seleccionado.",
     "Verificar en preflight autorizado la vigencia del ambiente/cuenta/nivel/version ya localizados; nombres DOC118 nuevos propuestos en el plan.",
-    "Calificar el adaptador externo de depurador y suministrar recursos nuevos preparados bajo autorización; enlace de sesiones/presupuestos implementado localmente.",
-    "Autorización específica antes de autenticar, adjuntar depurador o ejecutar efectos."
+    "Calificar el adaptador externo de depurador y suministrar recursos nuevos preparados bajo autorización; enlace de sesiones/presupuestos implementado localmente."
   ],
   "localNodeTestsAcrossDisjointRuns": 120,
   "newToolFiles": [
@@ -184,5 +186,7 @@
     "realExecution": false,
     "standaloneCompleteCli": false
   },
-  "localTestAccounting": "102 pruebas actuales (23 bridge +16 coordinacion +63 driver) y18 previas disjuntas de servidor/cliente. Las corridas intermedias repetidas no se suman."
+  "localTestAccounting": "102 pruebas actuales (23 bridge +16 coordinacion +63 driver) y18 previas disjuntas de servidor/cliente. Las corridas intermedias repetidas no se suman.",
+  "runtimePreflightReference": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preflight-20261107.json",
+  "runtimePreflightStarted": true
 }

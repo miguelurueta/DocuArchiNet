@@ -1,0 +1,79 @@
+{
+  "issueKey": "DOC-118",
+  "version": 1,
+  "recordedUtc": "2026-11-07T20:30:39.603Z",
+  "source": {
+    "kind": "explicit-user-message",
+    "text": "autorizado",
+    "appliesTo": "Pregunta de autorización de la fase real del plan DOC118, posterior al commit 3c538a0f6aab1ba9fe36639815bccafb40ab1f5b."
+  },
+  "status": "AUTHORIZED",
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "runtimeRoot": "D:/imagenesda/DocuachiNet/DocuArchiNet",
+    "actorRef": "141",
+    "ambitoRef": "2",
+    "levelRef": "7",
+    "versionRef": "38",
+    "raDsn": "MembershipUsers",
+    "daDsn": "MembershipUsers",
+    "localTlsExceptionAuthorized": true
+  },
+  "scenarios": [
+    "COORD02",
+    "COORD03"
+  ],
+  "maximum": {
+    "newPlans": 2,
+    "newLots": 2,
+    "newRoots": 4,
+    "newPdfs": 4,
+    "newExpedientes": 4,
+    "newStoredDocuments": 3,
+    "stopRequests": 1,
+    "sessionsPerCase": 2,
+    "totalSessions": 4,
+    "loginAttemptsPerSession": 1,
+    "pauseMilliseconds": 30000,
+    "selectStatementsTotal": 240,
+    "businessHttp": {
+      "COORD02": 53,
+      "COORD03": 51
+    },
+    "allHttpPerCase": 250,
+    "caseDurationMilliseconds": 600000
+  },
+  "newRootNames": {
+    "COORD02": [
+      "DOC118-C02-A-20261107",
+      "DOC118-C02-B-20261107"
+    ],
+    "COORD03": [
+      "DOC118-C03-A-20261107",
+      "DOC118-C03-B-20261107"
+    ]
+  },
+  "debugger": {
+    "external": true,
+    "qualificationRequired": true,
+    "freezeOnlySelectedThread": true,
+    "storageSourceOrBinaryChangesAuthorized": false
+  },
+  "protectedHistoricalAttempts": [
+    41,
+    53
+  ],
+  "prohibited": [
+    "Replay/reparación de intentos históricos41/53.",
+    "Cambios a almacenamiento compartido/SII, permisos, migraciones o limpieza por inferencia.",
+    "Ejecutar un caso no observable o presentar incertidumbre como completitud.",
+    "Guardar o imprimir credenciales, cookies o conexiones."
+  ],
+  "secretCapture": {
+    "mechanism": "Helpers TTY existentes; captura enmascarada y datos efímeros.",
+    "credentialsAvailableInAgentEnvironment": false,
+    "consolePreferenceRequested": true,
+    "consolePreferenceAnswered": false
+  },
+  "executionStatus": "PREFLIGHT_STARTED_CREDENTIALS_REQUIRED"
+}
