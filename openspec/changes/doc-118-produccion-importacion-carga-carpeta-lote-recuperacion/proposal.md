@@ -62,7 +62,7 @@ No se introduce otro motor ni se propone cambiar contratos públicos en este ref
 
 ## Impact
 
-Revisión transversal del coordinador VB, repositorio MySQL, consulta ASMX y cliente JavaScript existentes; esta entrega solo modifica documentación y especificaciones. COORD-02/03 requieren preparación y autorización específica posterior. El estado editorial sigue draft hasta revisión humana; no implica pase de integración.
+Revisión transversal del coordinador VB, repositorio MySQL, consulta ASMX y cliente JavaScript existentes; esta entrega solo modifica documentación y especificaciones. COORD-02/03 requieren preparación y autorización específica posterior. El estado editorial está aprobado por el usuario; no implica pase ni autorización de integración real.
 
 ## Perfil tecnologico
 

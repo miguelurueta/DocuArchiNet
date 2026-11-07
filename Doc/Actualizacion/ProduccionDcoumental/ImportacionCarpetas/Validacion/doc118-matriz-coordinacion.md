@@ -36,3 +36,12 @@ Preparar recursos nuevos y dos sesiones autorizadas independientes, correlación
 Intento41/lote18 (DOC116) e intento53/lote21 (DOC117) quedan intactos: no replay, cierre, reconciliación ni reparación. Los demás recursos históricos tampoco se reutilizan para nuevas cargas por inferencia.
 
 COORD-01 conserva crédito REAL histórico. COORD-02 y COORD-03 siguen abiertos para su integración específica. Toda incertidumbre de los casos nuevos impide declararlos completos; consignar IDs conocidos, estado durable y público, bloqueo y recuperación realmente soportada. No declarar completitud global ni ocultar intentos históricos no resueltos. La revisión editorial y autorización de ejecución son decisiones separadas.
+
+
+## Continuación de preparación aprobada — 2026-11-07
+
+Aprobación editorial del usuario registrada tras el detalle de implementación. Mapa aplicado: 25 tareas, 11 S y 14 M, con cobertura D-01–D-10/RQ-01–RQ-10. Preparación y contraste local completan las tareas 1.x–3.x; no completan las tareas de integración 4.x.
+
+Revalidación conjunta: `node --test tests/doc110-perfil-importacion-behavior.test.cjs tests/doc111-importacion-carpetas-client.test.cjs`, 18/18 pruebas Node sin fallos, servicios sintéticos sin login/HTTP real. El resultado anterior 2/2 conserva su ejecución y alcance.
+
+Se añadieron `doc118-plan-integracion.md` y `doc118-seguridad-recuperacion.md`. Visual Studio disponible localmente permite proponer observación externa con breakpoint e hilo seleccionado, pero su compatibilidad en el runtime sigue SIN_CALIFICAR. No se adjuntó depurador, autenticó ni ejecutó ningún efecto real. COORD-02/03 siguen NO_EJECUTADOS.

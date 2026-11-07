@@ -1,4 +1,4 @@
-<!-- opsxj:refinement version=1 state=draft -->
+<!-- opsxj:refinement version=1 state=approved -->
 
 # Refinamiento DOC-118 — coordinación y recuperación
 
@@ -14,9 +14,9 @@ Este artefacto es la compuerta entre el ticket y la implementación. No se aprue
 
 Ya existen coordinador, repositorio transaccional MySQL, ASMX, adaptador documental y consulta de lotes. Se preservan PDF, rechazo TIFF/Multi-TIFF, snapshot e inventario original. No se propone modificar AlmacenamientoDocumentoProduccionDocumental ni SII; tampoco aislar el XML después del commit, agregar motor, worker, tablas, migraciones, permisos, limpieza o rollback global.
 
-## Decisiones propuestas para aprobación
+## Decisiones aprobadas
 
-| ID | Decisión verificable | Evidencia de código/documento | Design | Requirement | Trabajo por desglosar tras aprobación |
+| ID | Decisión verificable | Evidencia de código/documento | Design | Requirement | Trabajo vinculado en tasks.md |
 | --- | --- | --- | --- | --- | --- |
 | D-01 | Reutilizar evidencia con su SHA y ambiente; modificar producto únicamente después de reproducir una brecha. | source-review.json; doc111-matriz-final-20261102.md; doc115-07a-resultados.md | D-01 | RQ-01 | Separar evidencia histórica, revisión actual y ejecución nueva. |
 | D-02 | Una petición ejecuta una fase sobre un recurso; toda reclamación documental activa o incierta impide otro escritor en el lote. | CoordinadorImportacionCarpetas.Operaciones.vb: AvanzarLote; MySqlImportacionCarpetasRepository.Control.vb: ReservarIntentoDocumental/HayReclamacionDocumental | D-02 | RQ-02 | Acreditar dos clientes independientes contra el mismo avance y contra otro archivo del lote. |
@@ -63,6 +63,11 @@ Los intentos históricos 41 (DOC116, lote18) y 53 (DOC117, lote21) se conservan 
 
 ## Resultado del refinamiento
 
-Estado: borrador completo para revisión humana. No hay aprobación editorial registrada. tasks.md conserva el scaffold sin tareas marcadas como realizadas; el manifiesto declara draft en consonancia con este documento. El comando opsxj:refine debe seguir rechazando la compuerta hasta aprobar el alcance y aplicar la trazabilidad de tareas.
+Estado: approved. Aprobación editorial registrada el 2026-11-07 por la indicación del usuario «continua», posterior al detalle de implementación y a la solicitud de revisión del refinamiento. Comprende alcance, decisiones y continuación con el desglose trazable presentado; no concede autorización de pruebas reales. tasks.md sustituye las ocho tareas genéricas por 25 tareas atómicas. La compuerta opsxj:refine verifica su trazabilidad; no acredita COORD-02/03 reales.
 
 La validación estructural OpenSpec no sustituye esta aprobación ni concede autorización para E2E real. La entrega documental y su regresión local se registran en Git en la carpeta principal.
+
+
+## Avance de preparación
+
+El protocolo concreto está en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-plan-integracion.md`; el mapa de negativos y recuperación está en `doc118-seguridad-recuperacion.md` de la misma carpeta. Se propone calificar un depurador externo sin alterar almacenamiento compartido. Disponibilidad local del ejecutable no implica calificación del runtime. Las tareas 4.x conservan su compuerta de autorización específica.
