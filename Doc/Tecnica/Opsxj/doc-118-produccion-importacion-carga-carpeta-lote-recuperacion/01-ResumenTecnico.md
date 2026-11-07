@@ -14,7 +14,10 @@ Precisar las brechas COORD-02 (dos clientes, antigüedad y pérdida de respuesta
 Se reutilizan coordinador VB, MySQL, ASMX y JavaScript actuales. Se preservan políticas EXPEDIENTE/LOTE/PARCIAL, PDF, rechazo TIFF/Multi-TIFF, snapshot, inventario original y efectos confirmados. No hay migración, nuevo worker ni endpoint para reanudar. No se modifica almacenamiento compartido/SII ni se introduce aislamiento adicional del XML. Esta documentación se revierte por Git; eso no revierte efectos en datos.
 
 
-El usuario indicó «continua» después del detalle de implementación el 2026-11-07. Se aplicó el mapa de 25 tareas trazables y se prepararon los protocolos de dos sesiones, respuesta perdida y detención; su observación externa sigue sin calificación en runtime.
+El usuario indicó «continua» después del detalle de implementación el 2026-11-07. Se aplicó el mapa de 26 tareas trazables y se prepararon los protocolos de dos sesiones, respuesta perdida y detención; su observación externa sigue sin calificación en runtime.
 
 
-La única incorporación de código es un helper de coordinación de pruebas en tools/e2e, con callbacks para sesiones autorizadas/observador externo. No cambia código funcional ni concede PASS de integración; tiene 16 pruebas locales propias.
+La incorporación de código se limita a la coordinación de pruebas y su enlace con sesiones/controles existentes en tools/e2e. No cambia código funcional ni concede PASS de integración; las pruebas distinguen coordinación, enlace y drivers compartidos.
+
+
+La continuación añade el enlace DOC118 de dos sesiones y controles con los helpers existentes; progreso 14/26. El único cambio al driver compartido es admitir SolicitarDetencion, que ya existe en ASMX. No se modifica producto ni almacenamiento compartido.

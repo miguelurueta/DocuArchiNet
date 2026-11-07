@@ -6,7 +6,7 @@ const {safePost} = require('./doc110-safe-request.cjs');
 const {createWorkflowLoginPageSession,LOGIN_SELECTORS} = require('./authenticated-workflow-session.cjs');
 
 const MODES = Object.freeze(['EXPEDIENTE', 'LOTE', 'PARCIAL']);
-const OPERATIONS = Object.freeze(['AbrirImportacion', 'ListarPerfilesImportacion', 'PrepararPlan', 'ConfirmarPlan', 'ConsultarLote', 'ConsultarRecursosLote', 'AvanzarLote', 'CerrarReservaSinInicio', 'ReconciliarRecurso']);
+const OPERATIONS = Object.freeze(['AbrirImportacion', 'ListarPerfilesImportacion', 'PrepararPlan', 'ConfirmarPlan', 'ConsultarLote', 'ConsultarRecursosLote', 'AvanzarLote', 'SolicitarDetencion', 'CerrarReservaSinInicio', 'ReconciliarRecurso']);
 const FILE_NAME = 'DOC111 Órdenes 0007.pdf';
 function fail(code) { throw new Error('DOC111_' + code); }
 function check(value, code) { if (!value) fail(code); }

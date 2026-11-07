@@ -9,11 +9,11 @@
     "realExecutionAuthorized": false
   },
   "tasks": {
-    "total": 25,
-    "complete": 13,
+    "total": 26,
+    "complete": 14,
     "remaining": 12,
     "S": 11,
-    "M": 14,
+    "M": 15,
     "completeIds": [
       "1.1",
       "1.2",
@@ -27,7 +27,8 @@
       "3.3",
       "3.4",
       "3.5",
-      "3.6"
+      "3.6",
+      "3.7"
     ],
     "coverage": "D-01..D-10 / RQ-01..RQ-10"
   },
@@ -59,6 +60,19 @@
       "status": "PASS",
       "output": "DOC111_CHECK=PASS; REAL_EXECUTION=false",
       "scope": "Contrato de perfil y fixture existentes; sin login/SQL real."
+    },
+    {
+      "command": "node --test tests/doc118-session-bridge.test.cjs tests/doc118-active-call.test.cjs tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+      "status": "PASS",
+      "tests": 102,
+      "passed": 102,
+      "failed": 0,
+      "groups": {
+        "sessionBridge": 23,
+        "activeCall": 16,
+        "sharedDrivers": 63
+      },
+      "scope": "Sesiones, HTTP y SELECT sintéticos; sin login/SQL/depurador reales."
     }
   ],
   "reviewedSourceHashesVerified": 14,
@@ -103,10 +117,10 @@
   "openDependencies": [
     "Calificación autorizada del observador externo en ambiente/proceso seleccionado.",
     "Verificar en preflight autorizado la vigencia del ambiente/cuenta/nivel/version ya localizados; nombres DOC118 nuevos propuestos en el plan.",
-    "Enlace revisado de sesiones/observador real con helper y contadores HTTP; protocolo acotado ya documentado.",
+    "Calificar el adaptador externo de depurador y suministrar recursos nuevos preparados bajo autorización; enlace de sesiones/presupuestos implementado localmente.",
     "Autorización específica antes de autenticar, adjuntar depurador o ejecutar efectos."
   ],
-  "localNodeTestsAcrossDisjointRuns": 34,
+  "localNodeTestsAcrossDisjointRuns": 120,
   "newToolFiles": [
     {
       "path": "tools/e2e/tests/support/doc118-active-call.cjs",
@@ -115,6 +129,14 @@
     {
       "path": "tests/doc118-active-call.test.cjs",
       "sha256": "78abad87637a3502168ee9870340a3feeb4d90ee5aa4094c9f69faa84947dd40"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc118-session-bridge.cjs",
+      "sha256": "47ec0bd71b3c8157319ba2ab799e185b2b50957fe8da50f997c7c257a3006242"
+    },
+    {
+      "path": "tests/doc118-session-bridge.test.cjs",
+      "sha256": "99354b4250d40f644d88b0ade7e3ed2c9c716bce09adf33343982594b62aedd8"
     }
   ],
   "existingE2EDiscovery": {
@@ -135,5 +157,32 @@
     "currentAuthorityVerified": false,
     "profileCommitted": false,
     "realExecution": false
-  }
+  },
+  "changedSharedTools": [
+    {
+      "path": "tools/e2e/tests/support/doc111-importacion-carpetas.cjs",
+      "beforeSha256": "8936aacb0b0b9392c3d9944d7a029f7bfcb345ad4e4fb4fc3ac0b3dcaa3aadda",
+      "afterSha256": "f444a07bafac59cc7553a51901ad03725c29068fc6d6ecd4dbd496f4a13f5348",
+      "change": "Añadir SolicitarDetencion al allowlist existente; modo readOnly mantiene rechazo antes de transporte."
+    }
+  ],
+  "sessionBridge": {
+    "reviewedBaseCommit": "ee90b515c82c84bd7b6f227de28be69c2d159688",
+    "source": "tools/e2e/tests/support/doc118-session-bridge.cjs",
+    "test": "tests/doc118-session-bridge.test.cjs",
+    "reuses": [
+      "openSession",
+      "createDriver",
+      "createSelectControls",
+      "safePost",
+      "coordinateActiveCall"
+    ],
+    "sharedBudgetRequired": true,
+    "singleWindowPerPair": true,
+    "grantBoundToRunAndResources": true,
+    "operatorDebuggerAdapterQualified": false,
+    "realExecution": false,
+    "standaloneCompleteCli": false
+  },
+  "localTestAccounting": "102 pruebas actuales (23 bridge +16 coordinacion +63 driver) y18 previas disjuntas de servidor/cliente. Las corridas intermedias repetidas no se suman."
 }

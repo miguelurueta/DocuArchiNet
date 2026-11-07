@@ -24,3 +24,8 @@ Protocolo y dependencia real: `Doc/Actualizacion/ProduccionDcoumental/Importacio
 
 
 El helper nuevo se verificó con `node --test tests/doc118-active-call.test.cjs`: 16/16 pruebas, cero fallos. Verifica rechazo de observación no correlacionada, hilo cambiado, primera petición ya terminada, timeout, respuesta perdida y fallo de liberación sin reenvíos ni exposición de errores privados. Sumadas a las 18 anteriores son 34 pruebas locales en dos ejecuciones disjuntas; no acreditan el depurador real ni efectos documentales nuevos.
+
+
+## Regresión del enlace de sesiones
+
+`node --test tests/doc118-session-bridge.test.cjs tests/doc118-active-call.test.cjs tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs`: 102/102 pruebas, cero fallos (23 enlace,16 coordinación,63 drivers compartidos). Estas corridas reemplazan las repeticiones de las mismas pruebas al contabilizar cobertura; no se suman varias veces. La comprobación readOnly incluye el rechazo de SolicitarDetencion antes de HTTP. Se usaron dobles de sesión/HTTP/SQL y observador; cero login, SELECT o attach reales.

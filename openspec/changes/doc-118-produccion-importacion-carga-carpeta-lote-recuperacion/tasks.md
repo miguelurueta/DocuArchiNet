@@ -20,6 +20,8 @@
 - [x] 3.5 [S] Ejecutar regresión local de coordinación y cliente. Área/archivos: `tests/doc110-perfil-importacion-behavior.test.cjs, tests/doc111-importacion-carpetas-client.test.cjs`. Origen: D-02, RQ-02; D-06, RQ-06. Verificación: ambos archivos pasan sin HTTP ni conexión de datos; evidencia con contadores reales.
 - [x] 3.6 [M] Implementar la coordinación acotada entre una llamada activa y las acciones de otra sesión. Área/archivos: `tools/e2e/tests/support/doc118-active-call.cjs`, `tests/doc118-active-call.test.cjs`. Origen: D-10, RQ-10; D-02, RQ-02; D-06, RQ-06. Verificación: 16 pruebas locales verifican correlación interna, pausa máxima, hilo estable, liberación ante fallo, incertidumbre y ausencia de reintentos; el helper no concede autorización ni PASS de integración.
 
+- [x] 3.7 [M] Enlazar dos sesiones y controles existentes con la ventana activa de DOC118. Área/archivos: `tools/e2e/tests/support/doc118-session-bridge.cjs`, `tools/e2e/tests/support/doc111-importacion-carpetas.cjs`, `tests/doc118-session-bridge.test.cjs`. Origen: D-02, RQ-02; D-06, RQ-06; D-10, RQ-10. Verificación: 23 pruebas del adaptador y regresión conjunta 102/102 verifican reutilización de openSession/createDriver/createSelectControls, sesiones/grants, presupuestos y detención sin otro transporte/login ni efectos reales.
+
 ## 4. Integración real: compuertas antes de ejecutar
 
 - [ ] 4.1 [M] Calificar el observador externo en runtime autorizado. Área/archivos: `doc118-plan-integracion.md, doc118-resultados-integracion.md`. Origen: D-10, RQ-10. Verificación: símbolos/binario coinciden, se observa el interior de la llamada y otro hilo atiende peticiones durante intervalo controlado sin modificar almacenamiento compartido.
