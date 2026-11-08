@@ -1,6 +1,7 @@
 using System;
 public static class PerfilImportacionBehaviorTestRunner {
-    public static int Main() {
+    public static int Main(string[] args) {
+        if(args.Length>0)return ImportacionCarpetasBehaviorTests.RunStagingV2Child(args);
         try {
             PerfilImportacionReglasBehaviorTests.Run();
             PerfilImportacionServiceBehaviorTests.Run();

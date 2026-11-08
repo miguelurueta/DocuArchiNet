@@ -46,7 +46,10 @@
 
 - [x] 6.1 [M] RV-01: fijar documentos internos V2 de inicio, autorización y retorno observado y su serialización cerrada. Área/archivos: `Modelo/ProduccionDocumental/ImportacionCarpetas/DocumentosAlmacenamientoV2Importacion.vb`, proyecto VB, harness y pruebas de comportamiento existentes. Origen: D-11, RQ-11; RC-01, RC-03, RC-07 candidatos. Reproducción: intento69 durable EN_CURSO sin checkpoint y evidencia inicial V1 que no distingue autorización/retorno; no admite recuperación retrospectiva. Verificación:19 casos V2 pasan dentro del harness existente; regresión conjunta18/18 y herramientas205/205. Roundtrip canónico, rechazo de V1/forma extra/incompleta/contradictoria, vínculos exactos y ausencia de autoridad concedida por JSON; sin HTTP ni datos reales. Autorización local: «contiunua» posterior a la entrega RV-02-A y al siguiente paso RV-01; no habilita RV-02-B ni recuperación real.
 
+- [x] 6.2 [M] RV-02-B: añadir el puerto V2 de retención/guardia no destructiva al staging existente. Área/archivos: `ImportacionCarpetasStagingV2Interfaces.vb`, `AlmacenStagingImportacion.Recuperacion.vb`, proyecto y harness existentes. Origen: D-12, RQ-12; RC-02, RC-07 candidatos. Reproducción:69 EN_CURSO carece de prueba V2 y RV-02-A solo validó primitivas, sin puerto real. Verificación:21 casos del proveedor real sobre PDF sintético,3 procesos propios cerrados, exclusión/Dispose/identidad/ámbito, hardlink/junction, ausencia y rechazo de otra época;18/18 regresión y205/205 herramientas. No reutilizar AbrirRetiro ni cambiar V1. Autorización: «continua» posterior a RV-01 y al siguiente paso RV-02-B; sin despliegue, recuperación real o aumento de presupuestos.
+
 ## Ejecución y defectos reproducidos
+
 
 Las rutas cortas de informes se resuelven en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/`; las rutas de coordinador y repositorio son las de design.md y source-review.json. S/M indican complejidad relativa, no duración.
 
@@ -61,3 +64,5 @@ La continuación local del 2026-11-08 implementó las siete fases y cerró la re
 Corte de auditoría física y prueba sintética:4.6 cerrada por contención de69, referencias/huella preservadas y ausencia actual sin replay; quedan10 tareas pendientes. La liberación SDK pasó en proceso sintético, sin acreditar4.1 o COORD02/03. Fuente:`doc118-auditoria-fisica-liberacion-20261108.md`.
 
 Corte RV-01: se añadió y completó6.1; mapa18/28 con las mismas10 tareas reales/finales pendientes. El contrato interno no modifica D-07/RQ-07 ni completa4.1 o COORD02/03.
+
+Corte RV-02-B: se añadió y completó6.2; mapa19/29 y las mismas10 tareas anteriores pendientes. El puerto real está validado en fixtures NTFS locales; producción y recuperación siguen sin activar/calificar. Otra época del AppDomain, incluso tras reinicio, mantiene bloqueo.

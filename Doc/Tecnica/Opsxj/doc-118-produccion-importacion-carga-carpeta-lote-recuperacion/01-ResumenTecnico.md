@@ -1,6 +1,10 @@
 # DOC-118 — coordinación y recuperación
 
-## Corte actual de RV-01
+## Corte actual de RV-02-B
+
+Implementada6.2/D-12/RQ-12:puerto interno no destructivo del proveedor de staging, validado en21 casos sobre PDFs sintéticos y3 procesos propios cerrados. Regresión223/223 Node. Retención, identidad y sección sincronizada frente a Dispose; otro proceso/nodo o reinicio conserva bloqueo. V1 intacto y recuperación sin activar,69 protegido. Progreso19/29, mismas10 tareas anteriores. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-puerto-staging-v2-local-20261108.md`.
+
+## Corte anterior de RV-01
 
 Implementada6.1/D-11/RQ-11: contratos internos de inicio, autorización y retorno V2, con codec cerrado, huellas canónicas y transformaciones sin efectos.19 casos V2 pasan en el harness existente; regresión18/18 y herramientas205/205. JSON válido no concede autoridad ni prueba procedencia durable. Progreso18/28 por una tarea nueva completada; quedan las mismas10 tareas anteriores. Proveedor real y recuperación siguen pendientes,69 protegido. Evidencia:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-contratos-v2-local-20261108.md`.
 

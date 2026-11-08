@@ -29,6 +29,7 @@ Ya existen coordinador, repositorio transaccional MySQL, ASMX, adaptador documen
 | D-09 | Derivar estados del inventario original y checkpoints; conservar efectos e IDs confirmados aun con detención. | MySqlImportacionCarpetasRepository.Documento.vb: RegistrarResultadoDocumento; MySqlImportacionCarpetasRepository.Consolidacion.vb: ConsolidarEnTransaccion | D-09 | RQ-09 | Acreditar estado incierto/activo prioritario y COMPLETADO solo con todos los efectos positivos requeridos. |
 | D-10 | COORD-02/03 requieren prueba nueva de la llamada legacy activa, sin modificar el almacenamiento compartido ni heredar excepciones anteriores. | AGENTS.md; tools/e2e/AGENT-RUNBOOK.md; doc118-matriz-coordinacion.md | D-10 | RQ-10 | Definir observación viable, ambiente, cuentas, recursos y presupuesto antes de solicitar autorización específica. |
 | D-11 | Fijar contratos internos V2 sin conceder capacidad por JSON ni conectarlos al flujo vigente. | DocumentosAlmacenamientoV2Importacion.vb; ImportacionCarpetasDocumentosV2BehaviorTests.cs; doc118-contratos-v2-local-20261108.md | D-11 | RQ-11 | RV-01/6.1: esquema cerrado, vínculos canónicos, compatibilidad V1 y cero efectos/capacidad. |
+| D-12 | Añadir retención y guardia V2 no destructivas al proveedor existente; fallar cerrado ante ámbito, recurso, proveedor o época distintos. | AlmacenStagingImportacion.Recuperacion.vb; ImportacionCarpetasStagingV2Interfaces.vb; pruebas del harness | D-12 | RQ-12 | RV-02-B/6.2: original exacto, exclusión local, vida útil y sección sincronizada; sin activar recuperación. |
 
 ## Requisitos verificables
 
@@ -45,6 +46,7 @@ Ya existen coordinador, repositorio transaccional MySQL, ASMX, adaptador documen
 | RQ-09 | Consolidación exacta | Escenarios WHEN/THEN en spec.md, origen D-09. | Derivar estados del inventario original y checkpoints; conservar efectos e IDs confirmados aun con detención. |
 | RQ-10 | Integración observable y autorizada | Escenarios WHEN/THEN en spec.md, origen D-10. | COORD-02/03 requieren prueba nueva de la llamada legacy activa, sin modificar el almacenamiento compartido ni heredar excepciones anteriores. |
 | RQ-11 | Documentos internos V2 sin capacidad de ejecución | Escenarios WHEN/THEN en spec.md, origen D-11;19 casos del harness. | V1 y D-07/RQ-07 intactos; no backfill, procedencia durable, proveedor o gate acreditados por JSON. |
+| RQ-12 | Guardia de staging V2 no destructiva | Escenarios WHEN/THEN en spec.md, origen D-12; proveedor real sobre fixture local. | Sin cambios V1/AbrirRetiro; otro proceso/nodo o reinicio conserva bloqueo; no acredita producción ni69. |
 
 ## Dependencias concretas de ejecución
 
@@ -73,5 +75,7 @@ Ampliación local RV-01 del 2026-11-08:el usuario indicó «contiunua» después
 
 
 ## Avance de preparación
+
+Ampliación local RV-02-B:«continua» posterior a RV-01 y al siguiente paso explícito de integrar la guardia autoriza6.2/D-12/RQ-12. Se incorpora antes de implementar. Es el puerto local y su regresión; no autoriza activar recuperación, desplegar, tocar workers o ejecutar contra datos reales.
 
 El protocolo concreto está en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-plan-integracion.md`; el mapa de negativos y recuperación está en `doc118-seguridad-recuperacion.md` de la misma carpeta. Se propone calificar un depurador externo sin alterar almacenamiento compartido. Disponibilidad local del ejecutable no implica calificación del runtime. Las tareas 4.x conservan su compuerta de autorización específica.

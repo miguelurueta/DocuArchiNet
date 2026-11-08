@@ -66,6 +66,8 @@ Revisión transversal del coordinador VB, repositorio MySQL, consulta ASMX y cli
 
 Ampliación local RV-01 posterior a la brecha observada en69:se añaden contratos internos y codec V2 con regresión en el harness existente, bajo D-11/RQ-11 y6.1. El usuario autorizó continuar ese siguiente paso después de RV-02-A. No se conectan al flujo vigente ni habilitan recuperación; la integración del protocolo candidato sigue pendiente y69 permanece inelegible. Véase `recovery-v2-contract-authorization.json`.
 
+Ampliación local RV-02-B:«continua» posterior a RV-01 autoriza6.2/D-12/RQ-12, puerto interno de retención/guardia no destructiva en un parcial del staging existente. Se valida sobre fixtures locales; no modifica V1, no activa recuperación ni acredita producción, otro proceso/nodo o reinicio. Véase `recovery-v2-staging-authorization.json`.
+
 ## Perfil tecnologico
 
 - Perfil de revision: legacy-webforms-vb (v1).

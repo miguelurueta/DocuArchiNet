@@ -8709,6 +8709,8 @@
     <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\PerfilImportacionModels.vb" />
     <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\ImportacionCarpetasModels.vb" />
     <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\DocumentosAlmacenamientoV2Importacion.vb" />
+    <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\ImportacionCarpetasStagingV2Interfaces.vb" />
+    <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\AlmacenStagingImportacion.Recuperacion.vb" />
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.vb" />
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.Control.vb" />
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.Consulta.vb" />

@@ -1,6 +1,10 @@
 # DOC-118 — coordinación y recuperación
 
-## Regresión local tras RV-01
+## Regresión local tras RV-02-B
+
+223/223 Node actuales:18 comportamiento/cliente y205 herramientas. El harness añade21 casos del proveedor real y conserva19 casos RV-01, incluidos en el contador del harness.3 procesos sintéticos cerrados, exclusión frente a lectores de otro proceso, identidad, enlaces y Dispose comprobados. La producción, otro nodo/reinicio y recuperación siguen sin acreditar. Progreso19/29. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-puerto-staging-v2-local-20261108.json`.
+
+## Regresión anterior tras RV-01
 
 18/18 pruebas Node del harness/cliente y205/205 de herramientas,223 disjuntas actuales. El harness compila y ejecuta19 casos nuevos V2; no se suman al contador Node. Incluyen esquema cerrado, vínculos/fases, compatibilidad V1, privacidad, datos incompletos y ausencia de efectos/capacidad. No hubo nuevas sesiones, HTTP de negocio o SELECT. Código interno sin conexión a recuperación. Progreso18/28. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-contratos-v2-local-20261108.json`.
 

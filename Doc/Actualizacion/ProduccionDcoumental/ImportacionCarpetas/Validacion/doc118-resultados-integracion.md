@@ -1,4 +1,10 @@
-# Corte vigente — RV-01 implementada como contrato interno
+# Corte vigente — RV-02-B implementada y validada localmente
+
+Puerto de retención/guardia V2 en el proveedor existente, sin activar recuperación.21 casos nuevos en el harness,3 procesos sintéticos cerrados;223/223 Node actuales. Otra época del proveedor —incluido reinicio— permanece bloqueada. Progreso19/29 tras añadir y completar6.2; las10 tareas anteriores siguen pendientes.
+
+No hubo sesiones, HTTP de negocio, SELECT o efectos nuevos. Consumo1276 HTTP/113 SELECT/9 aperturas e intento69 protegido, sin backfill. Sigue RV-03, retención desde el adaptador. Evidencia:[puerto V2](doc118-puerto-staging-v2-local-20261108.json), [alcance](doc118-puerto-staging-v2-local-20261108.md).
+
+## Corte anterior — RV-01 implementada como contrato interno
 
 La tarea nueva6.1/D-11/RQ-11 fija documentos V2 de inicio, autorización y retorno, sin conectarlos al flujo.19 casos V2 pasan dentro del harness existente; regresión18/18 y herramientas205/205. El avance es18/28 por una tarea nueva completada; las10 tareas reales/finales anteriores permanecen abiertas. Leer JSON válido no prueba procedencia durable ni habilita invocación/recuperación.
 

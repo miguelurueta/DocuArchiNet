@@ -139,3 +139,15 @@ El sistema SHALL cumplir D-11: disponer de contratos internos V2 para inicio, au
 #### Scenario: Compatibilidad sin backfill
 - **WHEN** se intenta leer evidencia V1, incompleta o contradictoria como V2
 - **THEN** se rechaza sin añadir versión, origen, autorización o retorno por defecto; la serialización V1 y el intento69 permanecen intactos.
+
+### Requirement: RQ-12 — Puerto V2 no destructivo y acotado
+
+El proveedor SHALL cumplir D-12: ofrecer una retención y una guardia internas, no destructivas, sobre el mismo original existente de NTFS local. SHALL rechazar V1, recurso/hash/ámbito distintos, enlaces, original ausente y épocas de otro proceso/nodo o reinicio. SHALL conservar exclusión y handles durante su vida útil y permitir ejecutar una sección sincronizada sin que Dispose concurrente los libere. No SHALL crear originales, retirar archivos o decidir/persistir recuperaciones.
+
+#### Scenario: Lector activo o guardia liberada
+- **WHEN** otro proceso conserva el original abierto o se usa una guardia liberada
+- **THEN** la adquisición o validación se rechaza sin cambiar contenido ni metadatos operativos.
+
+#### Scenario: Nodo o instancia no acreditada
+- **WHEN** la evidencia corresponde a otra época del proveedor o no se demuestra identidad local concordante
+- **THEN** el puerto permanece bloqueado; un nombre de equipo o un hash igual no habilita recuperación.

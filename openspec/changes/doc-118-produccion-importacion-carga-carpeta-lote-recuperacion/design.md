@@ -128,7 +128,7 @@ Entrega documental sin despliegue ni migración. Después de aprobación humana:
 
 ## Acceptance and review gates
 
-Diez decisiones y requisitos originales, más D-11/RQ-11 para los contratos internos RV-01; escenarios en spec.md y cobertura en doc118-matriz-coordinacion.md y doc118-contratos-v2-local-20261108.md. La aprobación de refinement.md y el reemplazo trazable de las tareas genéricas son compuertas antes de implementación. Las pruebas reales requieren una autorización separada posterior a un plan concreto. No hay autorización de ejecución implícita en este diseño.
+Diez decisiones y requisitos originales, más D-11/RQ-11 para los contratos internos RV-01 y D-12/RQ-12 para el puerto local RV-02-B; escenarios en spec.md y evidencia de cada entrega. La aprobación de refinement.md y el reemplazo trazable de las tareas genéricas son compuertas antes de implementación. Las pruebas reales requieren una autorización separada posterior a un plan concreto. No hay autorización de ejecución implícita en este diseño.
 
 ## Evaluación adicional de recuperación EN_CURSO
 
@@ -141,3 +141,9 @@ Es una evaluación terminada y pendiente de revisión de implementación. D-07/R
 La continuación solicitada después de RV-02-A autoriza RV-01: modelos y codec internos de inicio, autorización y retorno observado, con esquema cerrado, vínculos canónicos y sin secretos. La brecha observada es el intento69 EN_CURSO sin checkpoint; su evidencia V1 no distingue autorización de invocación ni retorno. Se incorpora6.1 al mapa activo antes de cambiar código.
 
 Los documentos son datos, incluso cuando indican origen SERVIDOR: deserializarlos, construirlos o validar sus huellas no acredita procedencia durable, capacidad del proveedor, exclusión, autorización de invocar ni elegibilidad de recuperación. Esas pruebas corresponden a RV-02-B/RV-03/RV-04 y no se habilitan aquí. Los contratos no se conectan a coordinador, repositorio, adaptador ni HTTP. D-07/RQ-07 y V1 conservan su comportamiento; no hay backfill de69.
+
+### D-12 — Puerto V2 de staging conservador (RQ-12)
+
+La continuación posterior a RV-01 autoriza6.2/RV-02-B: retención y guardia no destructiva en un parcial del proveedor existente, sin ampliar su interfaz V1. Solo admite Windows/NTFS local con original existente, un enlace, tamaño/hash e identidad nativa concordantes; conserva handles del original y de sus ancestros. Referencias opacas del proveedor y una época aleatoria del AppDomain ligan la observación: otro proceso/nodo o reinicio no se acredita mediante nombre, hash del contenido o una declaración del cliente. Esta restricción deliberada mantiene bloqueada recuperación tras reiniciar el ejecutor.
+
+La guardia ofrece una sección interna sincronizada para que el futuro commit/rollback ocurra bajo exclusión y no compita con Dispose; no incluye SQL ni decide recuperación. RV-03 debe aplicar la retención desde antes del inicio durable; RV-04/RV-05 deben acreditar procedencia/diario y fencing transaccional. El puerto y su prueba local no califican despliegue, ejecutores V1, identidad permanente o distribuida ni el intento69.
