@@ -1,6 +1,10 @@
 # DOC-118 — coordinación y recuperación
 
-## Regresión local tras RV-02-A
+## Regresión local tras RV-01
+
+18/18 pruebas Node del harness/cliente y205/205 de herramientas,223 disjuntas actuales. El harness compila y ejecuta19 casos nuevos V2; no se suman al contador Node. Incluyen esquema cerrado, vínculos/fases, compatibilidad V1, privacidad, datos incompletos y ausencia de efectos/capacidad. No hubo nuevas sesiones, HTTP de negocio o SELECT. Código interno sin conexión a recuperación. Progreso18/28. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-contratos-v2-local-20261108.json`.
+
+## Regresión anterior tras RV-02-A
 
 205/205 pruebas en16 archivos. El probe nuevo aporta13 aserciones sobre NTFS local con6 procesos independientes y limpieza confirmada. No usa el staging real, sesiones, HTTP, SELECT o datos de negocio. Puerto del proveedor y recuperación V2 siguen pendientes; la prueba no habilita69 ni acredita identidad entre nodos. Fuente:Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-staging-lock-probe-20261108.json.
 

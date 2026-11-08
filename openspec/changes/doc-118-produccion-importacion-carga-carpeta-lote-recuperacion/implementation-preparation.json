@@ -10,11 +10,11 @@
     "realExecutionAuthorizationReference": "execution-authorization.json"
   },
   "tasks": {
-    "total": 27,
-    "complete": 17,
+    "total": 28,
+    "complete": 18,
     "remaining": 10,
     "S": 11,
-    "M": 16,
+    "M": 17,
     "completeIds": [
       "1.1",
       "1.2",
@@ -32,9 +32,10 @@
       "3.7",
       "4.2",
       "3.8",
-      "4.6"
+      "4.6",
+      "6.1"
     ],
-    "coverage": "D-01..D-10 / RQ-01..RQ-10"
+    "coverage": "D-01..D-11 / RQ-01..RQ-11"
   },
   "checks": [
     {
@@ -272,6 +273,26 @@
       },
       "scope": "Local-only regression; six synthetic child processes for staging primitive checks, no business sessions/data.",
       "recordedUtc": "2026-11-08T17:07:22.827Z"
+    },
+    {
+      "command": "node --test tests/doc110-perfil-importacion-behavior.test.cjs tests/doc111-importacion-carpetas-client.test.cjs",
+      "status": "PASS",
+      "tests": 18,
+      "passed": 18,
+      "failed": 0,
+      "internalDotNetCases": 19,
+      "internalCasesIncludedInNodeCount": false,
+      "scope": "RV-01 and existing V1/client regressions; local fixtures only.",
+      "recordedUtc": "2026-11-08T18:22:58.998Z"
+    },
+    {
+      "command": "node .tmp/doc118-check-full-local-20261108.cjs",
+      "status": "PASS",
+      "tests": 205,
+      "passed": 205,
+      "failed": 0,
+      "scope": "Current local tool regression after RV-01; no application effects.",
+      "recordedUtc": "2026-11-08T18:19:50.238Z"
     }
   ],
   "reviewedSourceHashesVerified": 14,
@@ -323,7 +344,7 @@
     "syntheticReleaseEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-synthetic-release-probe-20261108.json"
   },
   "realIntegrationExecuted": false,
-  "productChanged": false,
+  "productChanged": true,
   "protectedHistoricalAttempts": [
     41,
     53
@@ -539,7 +560,7 @@
     "actualRetainedPairAvailable": false,
     "documentalPhasesImplemented": true
   },
-  "localTestAccounting": "205 actuales más18 previas disjuntas; no sumar repeticiones.",
+  "localTestAccounting": "223 actuales:205 herramientas más18 comportamiento/cliente disjuntas.19 casos C# internos incluidos en el harness, no sumados al contador Node.",
   "runtimePreflightReference": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preflight-20261107.json",
   "runtimePreflightStarted": true,
   "realLoginAttempted": true,
@@ -608,14 +629,14 @@
   },
   "currentSelectAuditEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-active-effect-audit-20261108.json",
   "recoveryDesignEvaluation": {
-    "status": "EVALUATION_COMPLETE_IMPLEMENTATION_NOT_APPROVED",
+    "status": "LOCAL_CONTRACTS_IMPLEMENTED_PROTOCOL_NOT_ACTIVATED",
     "evidence": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-evaluation.json",
     "design": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-design.md",
     "candidateSpecification": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-spec.md",
     "candidatePlan": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-plan.md",
-    "productImplementationApproved": false,
+    "productImplementationApproved": true,
     "attempt69Eligible": false,
-    "activeTasksUnchanged": true,
+    "activeTasksUnchanged": false,
     "runtimeDelta": {
       "applicationLogins": 0,
       "httpRequests": 0,
@@ -628,9 +649,10 @@
       "refinementChecks": 15,
       "reviewedSourceHashes": 16,
       "candidateArtifactHashes": 3,
-      "activeTasksComplete": 17,
-      "activeTasksTotal": 27,
-      "applicationCodeChanged": false
+      "activeTasksComplete": 18,
+      "activeTasksTotal": 28,
+      "applicationCodeChanged": true,
+      "activeDecisionRequirementPairs": 11
     },
     "localValidation": {
       "task": "RV-02-A",
@@ -649,6 +671,118 @@
         "selectStatements": 0,
         "documentEffects": 0
       }
+    },
+    "localContractImplementation": {
+      "task": "RV-01 / 6.1",
+      "authorized": true,
+      "authorization": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-v2-contract-authorization.json",
+      "status": "PASS_LOCAL_CONTRACTS_ONLY",
+      "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-contratos-v2-local-20261108.json",
+      "sources": [
+        {
+          "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/DocumentosAlmacenamientoV2Importacion.vb",
+          "sha256": "ba94df1c587e466c09ae1c41bb1f55f10822cc8daad12f2117990b11115e22fc"
+        },
+        {
+          "path": "tests/ImportacionCarpetasDocumentosV2BehaviorTests.cs",
+          "sha256": "4abbe72a0f74b4ec0971c3e95e460257d1a960e8e28df1b95e3defddc0a0545d"
+        },
+        {
+          "path": "GestionDocumental-Docuarchi.net.vbproj",
+          "sha256": "3bf33bb0f4246a00420cfab5a9415055e3cf24dd68cc2c443b43314ade75c6c4"
+        }
+      ],
+      "reviewedSourceDeltas": [
+        {
+          "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+          "beforeCommit": "9c21c830f2150f9153f094723936c31469ab7280",
+          "beforeSha256": "130d0506384c359a3cc87d96ada270597b4237dc87c69179a31c9a59edab0746",
+          "afterSha256": "2eb443542b9f4a1d84985c85d974aade80f60d928558196d4569fb26d27fd2a4",
+          "scope": "RV-01: registro de parcial C# y compilación/aserción en harness existente; sin alterar casos V1."
+        },
+        {
+          "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+          "beforeCommit": "9c21c830f2150f9153f094723936c31469ab7280",
+          "beforeSha256": "f7d40ed48283f0bcbe3bf0e98424a4b1d040cb44a230cb7108e1069884be8ed3",
+          "afterSha256": "8da0a021e7e7b83c23996dd042c046e965c159045b6c0fa66b69a2645bf37566",
+          "scope": "RV-01: registro de parcial C# y compilación/aserción en harness existente; sin alterar casos V1."
+        }
+      ],
+      "internalBehaviorCases": 19,
+      "protocolIntegrationAuthorized": false,
+      "providerPortImplemented": false,
+      "runtimeDelta": {
+        "applicationLogins": 0,
+        "httpRequests": 0,
+        "selectStatements": 0,
+        "documentEffects": 0
+      },
+      "validation": {
+        "openSpecStrict": "PASS",
+        "refinement": "PASS",
+        "refinementChecks": 15,
+        "diffCheck": "PASS"
+      }
+    },
+    "approvedProductScope": "RV-01 / 6.1: internal data contracts only",
+    "protocolIntegrationApproved": false
+  },
+  "sourceReviewDeltas": [
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "beforeCommit": "9c21c830f2150f9153f094723936c31469ab7280",
+      "beforeSha256": "130d0506384c359a3cc87d96ada270597b4237dc87c69179a31c9a59edab0746",
+      "afterSha256": "2eb443542b9f4a1d84985c85d974aade80f60d928558196d4569fb26d27fd2a4",
+      "scope": "RV-01: registro de parcial C# y compilación/aserción en harness existente; sin alterar casos V1."
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "beforeCommit": "9c21c830f2150f9153f094723936c31469ab7280",
+      "beforeSha256": "f7d40ed48283f0bcbe3bf0e98424a4b1d040cb44a230cb7108e1069884be8ed3",
+      "afterSha256": "8da0a021e7e7b83c23996dd042c046e965c159045b6c0fa66b69a2645bf37566",
+      "scope": "RV-01: registro de parcial C# y compilación/aserción en harness existente; sin alterar casos V1."
+    }
+  ],
+  "productContractSources": [
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/DocumentosAlmacenamientoV2Importacion.vb",
+      "sha256": "ba94df1c587e466c09ae1c41bb1f55f10822cc8daad12f2117990b11115e22fc"
+    },
+    {
+      "path": "tests/ImportacionCarpetasDocumentosV2BehaviorTests.cs",
+      "sha256": "4abbe72a0f74b4ec0971c3e95e460257d1a960e8e28df1b95e3defddc0a0545d"
+    },
+    {
+      "path": "GestionDocumental-Docuarchi.net.vbproj",
+      "sha256": "3bf33bb0f4246a00420cfab5a9415055e3cf24dd68cc2c443b43314ade75c6c4"
+    }
+  ],
+  "reviewedSourceCurrentUnchanged": 12,
+  "rv01Continuation": {
+    "task": "6.1",
+    "status": "PASS_LOCAL_CONTRACTS_ONLY",
+    "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-contratos-v2-local-20261108.json",
+    "authorization": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-v2-contract-authorization.json",
+    "baseCommit": "9c21c830f2150f9153f094723936c31469ab7280",
+    "progress": {
+      "complete": 18,
+      "total": 28,
+      "remaining": 10,
+      "newTask": "6.1",
+      "previousComplete": 17,
+      "previousTotal": 27
+    },
+    "runtimeDelta": {
+      "applicationLogins": 0,
+      "httpRequests": 0,
+      "selectStatements": 0,
+      "documentEffects": 0
+    },
+    "validation": {
+      "openSpecStrict": "PASS",
+      "refinement": "PASS",
+      "refinementChecks": 15,
+      "diffCheck": "PASS"
     }
   }
 }

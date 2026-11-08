@@ -28,6 +28,7 @@ Ya existen coordinador, repositorio transaccional MySQL, ASMX, adaptador documen
 | D-08 | Cada consulta, avance, detención o verificación exige autoridad actual; una publicación posterior no reemplaza el snapshot del lote. | ServicioConsultaImportacion.vb; CoordinadorImportacionCarpetas.Documento.vb; CoordinadorImportacionCarpetas.Reconciliacion.vb | D-08 | RQ-08 | Mapear permiso revocado, destino cambiado, revisión obsoleta y publicación posterior antes de agregar negativos. |
 | D-09 | Derivar estados del inventario original y checkpoints; conservar efectos e IDs confirmados aun con detención. | MySqlImportacionCarpetasRepository.Documento.vb: RegistrarResultadoDocumento; MySqlImportacionCarpetasRepository.Consolidacion.vb: ConsolidarEnTransaccion | D-09 | RQ-09 | Acreditar estado incierto/activo prioritario y COMPLETADO solo con todos los efectos positivos requeridos. |
 | D-10 | COORD-02/03 requieren prueba nueva de la llamada legacy activa, sin modificar el almacenamiento compartido ni heredar excepciones anteriores. | AGENTS.md; tools/e2e/AGENT-RUNBOOK.md; doc118-matriz-coordinacion.md | D-10 | RQ-10 | Definir observación viable, ambiente, cuentas, recursos y presupuesto antes de solicitar autorización específica. |
+| D-11 | Fijar contratos internos V2 sin conceder capacidad por JSON ni conectarlos al flujo vigente. | DocumentosAlmacenamientoV2Importacion.vb; ImportacionCarpetasDocumentosV2BehaviorTests.cs; doc118-contratos-v2-local-20261108.md | D-11 | RQ-11 | RV-01/6.1: esquema cerrado, vínculos canónicos, compatibilidad V1 y cero efectos/capacidad. |
 
 ## Requisitos verificables
 
@@ -43,6 +44,7 @@ Ya existen coordinador, repositorio transaccional MySQL, ASMX, adaptador documen
 | RQ-08 | Autoridad vigente y snapshot | Escenarios WHEN/THEN en spec.md, origen D-08. | Cada consulta, avance, detención o verificación exige autoridad actual; una publicación posterior no reemplaza el snapshot del lote. |
 | RQ-09 | Consolidación exacta | Escenarios WHEN/THEN en spec.md, origen D-09. | Derivar estados del inventario original y checkpoints; conservar efectos e IDs confirmados aun con detención. |
 | RQ-10 | Integración observable y autorizada | Escenarios WHEN/THEN en spec.md, origen D-10. | COORD-02/03 requieren prueba nueva de la llamada legacy activa, sin modificar el almacenamiento compartido ni heredar excepciones anteriores. |
+| RQ-11 | Documentos internos V2 sin capacidad de ejecución | Escenarios WHEN/THEN en spec.md, origen D-11;19 casos del harness. | V1 y D-07/RQ-07 intactos; no backfill, procedencia durable, proveedor o gate acreditados por JSON. |
 
 ## Dependencias concretas de ejecución
 
@@ -66,6 +68,8 @@ Los intentos históricos 41 (DOC116, lote18) y 53 (DOC117, lote21) se conservan 
 Estado: approved. Aprobación editorial registrada el 2026-11-07 por la indicación del usuario «continua», posterior al detalle de implementación y a la solicitud de revisión del refinamiento. Comprende alcance, decisiones y continuación con el desglose trazable presentado; no concede autorización de pruebas reales. tasks.md sustituye las ocho tareas genéricas por 27 tareas atómicas. La compuerta opsxj:refine verifica su trazabilidad; no acredita COORD-02/03 reales.
 
 La validación estructural OpenSpec no sustituye esta aprobación ni concede autorización para E2E real. La entrega documental y su regresión local se registran en Git en la carpeta principal.
+
+Ampliación local RV-01 del 2026-11-08:el usuario indicó «contiunua» después de la entrega RV-02-A y del siguiente paso explícito RV-01. Esa continuación autoriza únicamente los documentos internos y su regresión. Se incorporaron D-11/RQ-11 y6.1 antes de modificar código; el mapa actual es18/28 tras completarla, con las mismas10 tareas anteriores pendientes. No acepta por inferencia la integración del protocolo candidato ni amplía autorización de ejecución real. Fuente:`recovery-v2-contract-authorization.json`.
 
 
 ## Avance de preparación

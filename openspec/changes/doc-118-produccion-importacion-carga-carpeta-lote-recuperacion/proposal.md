@@ -64,6 +64,8 @@ No se introduce otro motor ni se propone cambiar contratos públicos en este ref
 
 Revisión transversal del coordinador VB, repositorio MySQL, consulta ASMX y cliente JavaScript existentes; esta entrega solo modifica documentación y especificaciones. COORD-02/03 requieren preparación y autorización específica posterior. El estado editorial está aprobado por el usuario; no implica pase ni autorización de integración real.
 
+Ampliación local RV-01 posterior a la brecha observada en69:se añaden contratos internos y codec V2 con regresión en el harness existente, bajo D-11/RQ-11 y6.1. El usuario autorizó continuar ese siguiente paso después de RV-02-A. No se conectan al flujo vigente ni habilitan recuperación; la integración del protocolo candidato sigue pendiente y69 permanece inelegible. Véase `recovery-v2-contract-authorization.json`.
+
 ## Perfil tecnologico
 
 - Perfil de revision: legacy-webforms-vb (v1).

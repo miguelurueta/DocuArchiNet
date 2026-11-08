@@ -121,3 +121,11 @@ El usuario solicitó continuar con la compuerta de exclusión. La prueba local c
 El control posterior a liberar la guardia permitió un nuevo lector:conservar el handle hasta commit y aplicar el fencing de estado siguen siendo obligatorios. El resultado no implementa el puerto del proveedor, no acredita identidades entre nodos y no habilita recuperación de69. RV-02-B continúa pendiente.
 
 La identidad nativa se limita al mismo equipo y la vida del archivo; los IDs pueden reutilizarse y ReFS requiere un identificador distinto. No se usa un ID persistido como prueba suficiente de continuidad. [Referencia de Microsoft](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/ns-fileapi-by_handle_file_information). Evidencia y límites:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-staging-lock-probe-20261108.md`.
+
+## Contratos internos posteriores RV-01
+
+La continuación posterior autoriza6.1/D-11/RQ-11 para fijar los documentos sin conectar el protocolo. `DocumentosAlmacenamientoV2Importacion.vb` contiene inicio, autorización, retorno y un sobre de fase. El inicio liga propietario/ámbito/nivel, recurso, solicitud, huellas de contexto/snapshot/recepción/valores, expediente, gabinete, revisiones e identidad opaca del original. Autorización y retorno ligan huellas canónicas de sus documentos previos. No se guardan tokens, rutas, nombres de equipo, mensajes ni excepciones.
+
+Construir una autorización en memoria no es obtener permiso de invocar; leer JSON con origen SERVIDOR tampoco prueba su procedencia. Estos son contratos internos, sin llamadas desde HTTP, adaptador, coordinador o repositorio. La procedencia durable y la emisión bajo retención siguen pendientes de RV-02-B/RV-03/RV-04. El retorno INCIERTO admite conservar IDs parciales o ausentes; nunca los inventa ni vuelve elegible ese caso.
+
+Pasaron19 casos V2 en el harness de comportamiento existente y18/18 pruebas Node de comportamiento/cliente; las herramientas mantienen205/205. No se suman casos internos C# al total Node. Progreso activo18/28 por la nueva6.1 completada; quedan las mismas10 tareas anteriores. Evidencia:`doc118-contratos-v2-local-20261108.md`. El intento69 y D-07/RQ-07 permanecen sin cambios.

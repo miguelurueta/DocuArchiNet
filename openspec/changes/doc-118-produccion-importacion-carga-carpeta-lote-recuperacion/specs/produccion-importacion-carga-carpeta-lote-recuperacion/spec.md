@@ -127,3 +127,15 @@ El sistema y su evidencia SHALL cumplir D-10: COORD-02/03 requieren prueba nueva
 #### Scenario: Autorización específica antes de ejecutar
 - **WHEN** se dispone de un plan compatible con ambiente, cuentas, recursos nuevos y límites definidos
 - **THEN** se solicita su autorización explícita antes de autenticar, inyectar fallos o ejecutar; los controles son SELECT y la evidencia no contiene secretos.
+
+### Requirement: RQ-11 — Documentos internos V2 sin capacidad de ejecución
+
+El sistema SHALL cumplir D-11: disponer de contratos internos V2 para inicio, autorización y retorno observado con serialización cerrada y vínculos canónicos. SHALL rechazar versión/origen ausentes, V1, propiedades extra, datos incompletos y fases contradictorias. La validación de esos documentos no SHALL conceder autoridad, acreditar procedencia durable ni habilitar ejecución o recuperación; D-07/RQ-07 SHALL conservar su comportamiento.
+
+#### Scenario: Documento válido no concede capacidad
+- **WHEN** se construye o deserializa un documento V2 de forma válida, incluso si fue aportado por un cliente
+- **THEN** solo se obtiene un dato interno validado; no se invoca almacenamiento, no se acredita proveedor ni se recupera ningún intento.
+
+#### Scenario: Compatibilidad sin backfill
+- **WHEN** se intenta leer evidencia V1, incompleta o contradictoria como V2
+- **THEN** se rechaza sin añadir versión, origen, autorización o retorno por defecto; la serialización V1 y el intento69 permanecen intactos.

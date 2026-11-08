@@ -42,6 +42,10 @@
 - [ ] 5.3 [S] Validar artefactos y trazabilidad finales para revisión OPSXJ. Área/archivos: `openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/`. Origen: D-01, RQ-01. Verificación: OpenSpec estricto y refinement pasan sobre entrega final sin sustituir integración.
 - [ ] 5.4 [S] Verificar sincronización Git de la entrega final. Área/archivos: `feature/DOC-118 de la carpeta principal`. Origen: D-01, RQ-01. Verificación: cambios registrados, carpeta limpia y ahead/behind 0/0 con remoto.
 
+## 6. Contratos internos V2, sin activar recuperación
+
+- [x] 6.1 [M] RV-01: fijar documentos internos V2 de inicio, autorización y retorno observado y su serialización cerrada. Área/archivos: `Modelo/ProduccionDocumental/ImportacionCarpetas/DocumentosAlmacenamientoV2Importacion.vb`, proyecto VB, harness y pruebas de comportamiento existentes. Origen: D-11, RQ-11; RC-01, RC-03, RC-07 candidatos. Reproducción: intento69 durable EN_CURSO sin checkpoint y evidencia inicial V1 que no distingue autorización/retorno; no admite recuperación retrospectiva. Verificación:19 casos V2 pasan dentro del harness existente; regresión conjunta18/18 y herramientas205/205. Roundtrip canónico, rechazo de V1/forma extra/incompleta/contradictoria, vínculos exactos y ausencia de autoridad concedida por JSON; sin HTTP ni datos reales. Autorización local: «contiunua» posterior a la entrega RV-02-A y al siguiente paso RV-01; no habilita RV-02-B ni recuperación real.
+
 ## Ejecución y defectos reproducidos
 
 Las rutas cortas de informes se resuelven en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/`; las rutas de coordinador y repositorio son las de design.md y source-review.json. S/M indican complejidad relativa, no duración.
@@ -55,3 +59,5 @@ La continuación local del 2026-11-08 implementó las siete fases y cerró la re
 
 
 Corte de auditoría física y prueba sintética:4.6 cerrada por contención de69, referencias/huella preservadas y ausencia actual sin replay; quedan10 tareas pendientes. La liberación SDK pasó en proceso sintético, sin acreditar4.1 o COORD02/03. Fuente:`doc118-auditoria-fisica-liberacion-20261108.md`.
+
+Corte RV-01: se añadió y completó6.1; mapa18/28 con las mismas10 tareas reales/finales pendientes. El contrato interno no modifica D-07/RQ-07 ni completa4.1 o COORD02/03.

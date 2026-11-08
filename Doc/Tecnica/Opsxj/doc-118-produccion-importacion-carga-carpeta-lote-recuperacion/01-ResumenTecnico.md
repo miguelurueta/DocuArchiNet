@@ -1,6 +1,10 @@
 # DOC-118 — coordinación y recuperación
 
-## Corte actual de RV-02-A
+## Corte actual de RV-01
+
+Implementada6.1/D-11/RQ-11: contratos internos de inicio, autorización y retorno V2, con codec cerrado, huellas canónicas y transformaciones sin efectos.19 casos V2 pasan en el harness existente; regresión18/18 y herramientas205/205. JSON válido no concede autoridad ni prueba procedencia durable. Progreso18/28 por una tarea nueva completada; quedan las mismas10 tareas anteriores. Proveedor real y recuperación siguen pendientes,69 protegido. Evidencia:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-contratos-v2-local-20261108.md`.
+
+## Corte anterior de RV-02-A
 
 Las primitivas de exclusión sobre archivos sintéticos NTFS pasaron13/13 pruebas con6 procesos propios cerrados. La regresión conjunta pasa205/205. Se comprobaron lectores activos, salida, competencia, identidad/hash, copias, reemplazos, hardlinks y pérdida de guardia. El control de apertura después de liberar exige fencing durable; no se habilita recuperación con un lock aislado. RV-02-B, integración y calificación del proveedor real, sigue pendiente. Progreso17/27; intento69 protegido. Evidencia:Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-staging-lock-probe-20261108.md.
 

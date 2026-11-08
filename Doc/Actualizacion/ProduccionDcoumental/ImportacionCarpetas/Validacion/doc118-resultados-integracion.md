@@ -1,4 +1,10 @@
-# Corte vigente — RV-02-A validada localmente
+# Corte vigente — RV-01 implementada como contrato interno
+
+La tarea nueva6.1/D-11/RQ-11 fija documentos V2 de inicio, autorización y retorno, sin conectarlos al flujo.19 casos V2 pasan dentro del harness existente; regresión18/18 y herramientas205/205. El avance es18/28 por una tarea nueva completada; las10 tareas reales/finales anteriores permanecen abiertas. Leer JSON válido no prueba procedencia durable ni habilita invocación/recuperación.
+
+No hubo nuevas sesiones, HTTP de negocio, SELECT o efectos documentales. Intento69 protegido e inelegible; consumo real1276 HTTP/113 SELECT/9 aperturas. Siguiente:RV-02-B, puerto del proveedor. Evidencia:[contratos V2](doc118-contratos-v2-local-20261108.json), [alcance](doc118-contratos-v2-local-20261108.md).
+
+## Corte anterior — RV-02-A validada localmente
 
 La comprobación de primitivas de staging pasó13/13 pruebas con6 procesos sintéticos y limpieza confirmada. Acredita exclusión local en NTFS e identifica la necesidad de conservar el handle y aplicar fencing durable; no implementa ni califica el proveedor de producción. Regresión conjunta205/205. RV-02-B continúa pendiente. Contrato y progreso activos:17/27.
 
