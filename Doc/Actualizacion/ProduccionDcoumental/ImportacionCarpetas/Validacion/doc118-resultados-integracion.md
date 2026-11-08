@@ -1,4 +1,10 @@
-# Corte vigente — RV-03 implementada como recorrido interno
+# Corte vigente — RV-04 persistencia implementada y validada localmente
+
+Callbacks V2 en el repositorio existente; acuses después de Operar/commit, gate único, diario concordante y checkpoint/evento/consolidación juntos.20 casos SQL nuevos integrados con el adaptador sobre doble transaccional;223/223 Node y DDL ampliado válido. Progreso21/31; mismas10 tareas anteriores abiertas. No acredita MySQL real ni activa composición pública o recuperación.
+
+Sin sesiones, HTTP de negocio, SELECT o efectos documentales nuevos. Consumo1276 HTTP/113 SELECT/9 aperturas e intento69 protegido, sin backfill. Evidencia:[persistencia V2](doc118-persistencia-v2-local-20261108.json), [alcance](doc118-persistencia-v2-local-20261108.md).
+
+## Corte anterior — RV-03 implementada como recorrido interno
 
 Retención antes del inicio V2, acuses concordantes y observación de IDs en finally, sin fallback V1.20 casos nuevos del adaptador con staging real y dobles explícitos de persistencia/escritor;223/223 Node actuales. Progreso20/30 por nueva6.3 completada; las10 tareas anteriores siguen abiertas. Composición pública/MySQL y recuperación permanecen pendientes.
 

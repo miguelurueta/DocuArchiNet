@@ -50,7 +50,10 @@
 
 - [x] 6.3 [M] RV-03: añadir el recorrido interno V2 del adaptador con retención previa al inicio, acuses tipados de persistencia y observación de retorno. Área/archivos: `AdaptadorDocumentoImportacion.ProtocoloV2.vb`, `PersistenciaDocumentoV2Importacion.vb`, proyecto y harness existentes. Origen: D-13, RQ-13; RC-02, RC-03 candidatos. Reproducción:69 V1 EN_CURSO sin checkpoint y el adaptador actual adquiere su retención después del inicio. Verificación:20 casos nuevos, regresión18/18 y herramientas205/205; bloqueo antes/durante/después de inicio/gate, cero escritor ante acuse perdido/alterado, una llamada, IDs parciales, cancelación/ThreadAbort propagados y retención liberada. Puerto de persistencia simulado, sin fallback V1; MySQL es RV-04. Autorización:«continua» posterior a RV-02-B y al siguiente paso RV-03; sin activar composición pública, desplegar ni tocar69.
 
+- [x] 6.4 [M] RV-04: persistir inicio, autorización, retorno y checkpoint V2 en el repositorio MySQL existente. Área/archivos: nuevo parcial `MySqlImportacionCarpetasRepository.DocumentoV2.vb`, lector documental compatible, proyecto y harness. Origen: D-14, RQ-14; RC-01, RC-03, RC-06 candidatos. Reproducción:RV-03 solo dispone de dobles y69 carece de diario V2. Verificación:20 casos SQL nuevos integrados con adaptador sobre doble transaccional,18/18 regresión y205/205 herramientas; DDL estático ampliado pasa. Locks lote/raíz/archivo/intento, token/hash/evidencia/diario, gate de un solo uso, acuse tras Operar/commit, checkpoint/evento/consolidación en tx y V1 compatible. Sin DDL, ejecución real, activación pública o backfill. Autorización:«contiua con el flujo» posterior a RV-03 y al siguiente paso RV-04.
+
 ## Ejecución y defectos reproducidos
+
 
 
 
@@ -71,3 +74,5 @@ Corte RV-01: se añadió y completó6.1; mapa18/28 con las mismas10 tareas reale
 Corte RV-02-B: se añadió y completó6.2; mapa19/29 y las mismas10 tareas anteriores pendientes. El puerto real está validado en fixtures NTFS locales; producción y recuperación siguen sin activar/calificar. Otra época del AppDomain, incluso tras reinicio, mantiene bloqueo.
 
 Corte RV-03: se añadió y completó6.3; mapa20/30 y las mismas10 tareas anteriores pendientes. Recorrido interno del adaptador con dobles de persistencia/escritor y retención real. RV-04 y la composición pública V2 siguen pendientes.
+
+Corte RV-04: se añadió y completó6.4; mapa21/31, mismas10 tareas anteriores pendientes. Persistencia MySQL implementada y núcleo SQL integrado localmente con adaptador; atomicidad/concurrencia real MySQL, composición pública y recuperación siguen sin acreditar/activar.

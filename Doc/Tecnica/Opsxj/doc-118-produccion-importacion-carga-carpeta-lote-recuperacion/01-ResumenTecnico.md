@@ -1,6 +1,10 @@
 # DOC-118 — coordinación y recuperación
 
-## Corte actual de RV-03
+## Corte actual de RV-04
+
+Implementada6.4/D-14/RQ-14:persistencia V2 del repositorio existente, integrada localmente con el adaptador y un doble transaccional.20 casos SQL nuevos;223/223 Node, DDL ampliado válido. Gate de un solo uso, evidencia/diario concordantes y checkpoint/evento/consolidación en la transacción exterior. MySQL real, composición pública y recuperación no acreditados/activados;69 protegido. Progreso21/31. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-persistencia-v2-local-20261108.md`.
+
+## Corte anterior de RV-03
 
 Implementada6.3/D-13/RQ-13:recorrido interno del adaptador con retención antes del inicio, acuses obligatorios y observación en finally.20 casos nuevos con staging real y dobles de persistencia/escritor; regresión223/223 Node. Cancelación/ThreadAbort propagados, sin fallback V1. Composición pública y MySQL transaccional pendientes de RV-04,69 protegido. Progreso20/30, mismas10 tareas anteriores. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-adaptador-v2-local-20261108.md`.
 

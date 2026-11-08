@@ -10,11 +10,11 @@
     "realExecutionAuthorizationReference": "execution-authorization.json"
   },
   "tasks": {
-    "total": 30,
-    "complete": 20,
+    "total": 31,
+    "complete": 21,
     "remaining": 10,
     "S": 11,
-    "M": 19,
+    "M": 20,
     "completeIds": [
       "1.1",
       "1.2",
@@ -35,9 +35,10 @@
       "4.6",
       "6.1",
       "6.2",
-      "6.3"
+      "6.3",
+      "6.4"
     ],
-    "coverage": "D-01..D-13 / RQ-01..RQ-13"
+    "coverage": "D-01..D-14 / RQ-01..RQ-14"
   },
   "checks": [
     {
@@ -339,6 +340,36 @@
       "failed": 0,
       "scope": "Local tool regression after RV-03.",
       "recordedUtc": "2026-11-08T22:48:16.176Z"
+    },
+    {
+      "command": "node --test tests/doc110-perfil-importacion-behavior.test.cjs tests/doc111-importacion-carpetas-client.test.cjs",
+      "status": "PASS",
+      "tests": 18,
+      "passed": 18,
+      "failed": 0,
+      "internalRepositoryCases": 20,
+      "transactionalDouble": true,
+      "realDatabaseOpened": false,
+      "scope": "RV-04 SQL core integrated with adapter; existing regressions.",
+      "recordedUtc": "2026-11-08T23:24:18.201Z"
+    },
+    {
+      "command": "node --test --test-name-pattern=\"columnas UPDATE\" tests/doc110-perfil-importacion-behavior.test.cjs",
+      "status": "PASS",
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "alreadyIncludedInNodeCount": true,
+      "scope": "DDL guard now includes V2 partial."
+    },
+    {
+      "command": "node .tmp/doc118-check-full-local-20261108.cjs",
+      "status": "PASS",
+      "tests": 205,
+      "passed": 205,
+      "failed": 0,
+      "recordedUtc": "2026-11-08T23:19:36.787Z",
+      "scope": "Local tools after RV-04."
     }
   ],
   "reviewedSourceHashesVerified": 14,
@@ -606,7 +637,7 @@
     "actualRetainedPairAvailable": false,
     "documentalPhasesImplemented": true
   },
-  "localTestAccounting": "223 actuales:205 herramientas más18 comportamiento/cliente.19 contratos,21 proveedor y20 adaptador son casos C# internos incluidos en el harness; no sumados a Node.",
+  "localTestAccounting": "223 actuales:205 herramientas más18 comportamiento/cliente.19 contratos,21 proveedor,20 adaptador y20 SQL son casos C# internos incluidos en el harness. DDL enfocado ya incluido, sin sumar repeticiones.",
   "runtimePreflightReference": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preflight-20261107.json",
   "runtimePreflightStarted": true,
   "realLoginAttempted": true,
@@ -675,7 +706,7 @@
   },
   "currentSelectAuditEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-active-effect-audit-20261108.json",
   "recoveryDesignEvaluation": {
-    "status": "LOCAL_ADAPTER_IMPLEMENTED_MYSQL_AND_PUBLIC_ACTIVATION_PENDING",
+    "status": "LOCAL_MYSQL_CODE_IMPLEMENTED_REAL_QUALIFICATION_AND_RECOVERY_PENDING",
     "evidence": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-evaluation.json",
     "design": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-design.md",
     "candidateSpecification": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-spec.md",
@@ -695,10 +726,10 @@
       "refinementChecks": 15,
       "reviewedSourceHashes": 16,
       "candidateArtifactHashes": 3,
-      "activeTasksComplete": 20,
-      "activeTasksTotal": 30,
+      "activeTasksComplete": 21,
+      "activeTasksTotal": 31,
       "applicationCodeChanged": true,
-      "activeDecisionRequirementPairs": 13
+      "activeDecisionRequirementPairs": 14
     },
     "localValidation": {
       "task": "RV-02-A",
@@ -770,7 +801,7 @@
         "diffCheck": "PASS"
       }
     },
-    "approvedProductScope": "RV-01/RV-02-B/RV-03 local internal implementation only",
+    "approvedProductScope": "RV-01..RV-04 local internal implementation, no public activation",
     "protocolIntegrationApproved": false,
     "localProviderPortImplementation": {
       "task": "RV-02-B / 6.2",
@@ -913,6 +944,76 @@
         "refinementChecks": 15,
         "diffCheck": "PASS"
       }
+    },
+    "localPersistenceImplementation": {
+      "task": "RV-04 / 6.4",
+      "authorized": true,
+      "authorization": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-v2-persistence-authorization.json",
+      "status": "PASS_REPOSITORY_SQL_WITH_TRANSACTIONAL_DOUBLE",
+      "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-persistencia-v2-local-20261108.json",
+      "sources": [
+        {
+          "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.DocumentoV2.vb",
+          "sha256": "b18ac2a387b97d3dfd12039e69bafbadb6934b7c976182fc3124a6553625cf7b"
+        },
+        {
+          "path": "tests/ImportacionCarpetasPersistenciaV2BehaviorTests.cs",
+          "sha256": "863b985450d5f5d978e2013281f632a9a98c0b72f598dbb4999e786132c58a8d"
+        }
+      ],
+      "changedFiles": [
+        {
+          "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ResultadoCreacion.vb",
+          "beforeCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+          "beforeSha256": "ac8a69c5f730b9f942a9f65449071059740effeeb50daa65fde6ed796004d1d1",
+          "afterSha256": "f67e0e00350f3a5c2f66a925c62ceac2a7612c4db5ebffdaedd2c5ff54c8d6bc"
+        },
+        {
+          "path": "GestionDocumental-Docuarchi.net.vbproj",
+          "beforeCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+          "beforeSha256": "df01d772bdf7b78a0ac10c65790d82a6ec141f5e2efea68b2ef60c3d41caa9f1",
+          "afterSha256": "30c577ac3baf520996407b662d3016ee880e64388dfa5482ee813b3429ba29a9"
+        },
+        {
+          "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+          "beforeCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+          "beforeSha256": "444d9bd14b808c2e8c902f7d066efacd6d0515cd22591fa846977943e46f43a0",
+          "afterSha256": "da07691e6c4cba015e7925b8fa3c6a89ca8b8e43330bbb7b96d9dfcb1310fb58"
+        },
+        {
+          "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+          "beforeCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+          "beforeSha256": "7bddd635e8aa4aec00d45efaf7af803cac298737565fda91cf3df2cf2787644f",
+          "afterSha256": "9d8da3c468010c033b6bd55a037260eb68f03ead08082a52df3e55524506b830"
+        }
+      ],
+      "internalBehaviorCases": 20,
+      "limits": {
+        "mysqlV2CodeImplemented": true,
+        "sqlCoreValidatedLocally": true,
+        "realMysqlAtomicityQualified": false,
+        "realMysqlConcurrencyQualified": false,
+        "ackCreatedAfterOperarCommit": true,
+        "authorizationReissuedOnReplay": false,
+        "publicCompositionActivated": false,
+        "recoveryEnabled": false,
+        "productionProviderQualified": false,
+        "recoveryAfterProviderRestartSupported": false,
+        "v1BackfillAllowed": false,
+        "attempt69Eligible": false
+      },
+      "runtimeDelta": {
+        "applicationLogins": 0,
+        "httpRequests": 0,
+        "selectStatements": 0,
+        "documentEffects": 0
+      },
+      "validation": {
+        "openSpecStrict": "PASS",
+        "refinement": "PASS",
+        "refinementChecks": 15,
+        "diffCheck": "PASS"
+      }
     }
   },
   "sourceReviewDeltas": [
@@ -920,15 +1021,15 @@
       "path": "tests/ImportacionCarpetasBehaviorTests.cs",
       "beforeCommit": "9c21c830f2150f9153f094723936c31469ab7280",
       "beforeSha256": "130d0506384c359a3cc87d96ada270597b4237dc87c69179a31c9a59edab0746",
-      "afterSha256": "444d9bd14b808c2e8c902f7d066efacd6d0515cd22591fa846977943e46f43a0",
-      "scope": "RV-01/RV-02-B/RV-03: registro de parciales y compilación/aserción del harness; casos V1 intactos."
+      "afterSha256": "da07691e6c4cba015e7925b8fa3c6a89ca8b8e43330bbb7b96d9dfcb1310fb58",
+      "scope": "RV-01..RV-04: registro de parciales, compilación/aserciones y ampliación DDL del harness; casos V1 conservados."
     },
     {
       "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
       "beforeCommit": "9c21c830f2150f9153f094723936c31469ab7280",
       "beforeSha256": "f7d40ed48283f0bcbe3bf0e98424a4b1d040cb44a230cb7108e1069884be8ed3",
-      "afterSha256": "7bddd635e8aa4aec00d45efaf7af803cac298737565fda91cf3df2cf2787644f",
-      "scope": "RV-01/RV-02-B/RV-03: registro de parciales y compilación/aserción del harness; casos V1 intactos."
+      "afterSha256": "9d8da3c468010c033b6bd55a037260eb68f03ead08082a52df3e55524506b830",
+      "scope": "RV-01..RV-04: registro de parciales, compilación/aserciones y ampliación DDL del harness; casos V1 conservados."
     }
   ],
   "productContractSources": [
@@ -942,7 +1043,7 @@
     },
     {
       "path": "GestionDocumental-Docuarchi.net.vbproj",
-      "sha256": "df01d772bdf7b78a0ac10c65790d82a6ec141f5e2efea68b2ef60c3d41caa9f1"
+      "sha256": "30c577ac3baf520996407b662d3016ee880e64388dfa5482ee813b3429ba29a9"
     }
   ],
   "reviewedSourceCurrentUnchanged": 12,
@@ -992,29 +1093,29 @@
       "path": "GestionDocumental-Docuarchi.net.vbproj",
       "beforeCommit": "fb0b9189b6e2ad16c9491177fdf48d86cf09a27b",
       "beforeSha256": "3bf33bb0f4246a00420cfab5a9415055e3cf24dd68cc2c443b43314ade75c6c4",
-      "afterSha256": "df01d772bdf7b78a0ac10c65790d82a6ec141f5e2efea68b2ef60c3d41caa9f1",
-      "currentScope": "Cumulative RV-02-B/RV-03; historical RV-02-B evidence unchanged."
+      "afterSha256": "30c577ac3baf520996407b662d3016ee880e64388dfa5482ee813b3429ba29a9",
+      "currentScope": "Cumulative RV-01..RV-04; historical evidence unchanged."
     },
     {
       "path": "tests/PerfilImportacionBehaviorTestRunner.cs",
       "beforeCommit": "fb0b9189b6e2ad16c9491177fdf48d86cf09a27b",
       "beforeSha256": "1f9f04b511c6bf6bbca0c39224958b9972bdfe57b1f749d0e668a3528e1d18f4",
       "afterSha256": "a052d19fbc704c5b81a5494e7b2a1a674619942a52912e1ff64c98143e9cc331",
-      "currentScope": "Cumulative RV-02-B/RV-03; historical RV-02-B evidence unchanged."
+      "currentScope": "Cumulative RV-01..RV-04; historical evidence unchanged."
     },
     {
       "path": "tests/ImportacionCarpetasBehaviorTests.cs",
       "beforeCommit": "fb0b9189b6e2ad16c9491177fdf48d86cf09a27b",
       "beforeSha256": "2eb443542b9f4a1d84985c85d974aade80f60d928558196d4569fb26d27fd2a4",
-      "afterSha256": "444d9bd14b808c2e8c902f7d066efacd6d0515cd22591fa846977943e46f43a0",
-      "currentScope": "Cumulative RV-02-B/RV-03; historical RV-02-B evidence unchanged."
+      "afterSha256": "da07691e6c4cba015e7925b8fa3c6a89ca8b8e43330bbb7b96d9dfcb1310fb58",
+      "currentScope": "Cumulative RV-01..RV-04; historical evidence unchanged."
     },
     {
       "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
       "beforeCommit": "fb0b9189b6e2ad16c9491177fdf48d86cf09a27b",
       "beforeSha256": "8da0a021e7e7b83c23996dd042c046e965c159045b6c0fa66b69a2645bf37566",
-      "afterSha256": "7bddd635e8aa4aec00d45efaf7af803cac298737565fda91cf3df2cf2787644f",
-      "currentScope": "Cumulative RV-02-B/RV-03; historical RV-02-B evidence unchanged."
+      "afterSha256": "9d8da3c468010c033b6bd55a037260eb68f03ead08082a52df3e55524506b830",
+      "currentScope": "Cumulative RV-01..RV-04; historical evidence unchanged."
     }
   ],
   "rv02bContinuation": {
@@ -1063,19 +1164,22 @@
       "path": "GestionDocumental-Docuarchi.net.vbproj",
       "beforeCommit": "5c0d3a1c41cf7c4ee7bce3271864ea1b04a8df00",
       "beforeSha256": "ed7f33df982e7a39a82f5e2dead46925f44364a050987557917fa98b6192fbf3",
-      "afterSha256": "df01d772bdf7b78a0ac10c65790d82a6ec141f5e2efea68b2ef60c3d41caa9f1"
+      "afterSha256": "30c577ac3baf520996407b662d3016ee880e64388dfa5482ee813b3429ba29a9",
+      "currentScope": "Cumulative RV-01..RV-04; historical evidence unchanged."
     },
     {
       "path": "tests/ImportacionCarpetasBehaviorTests.cs",
       "beforeCommit": "5c0d3a1c41cf7c4ee7bce3271864ea1b04a8df00",
       "beforeSha256": "2dfe6c39b72449a59a532bfdec4fcd06ce9db34715f18cd5492f2b06c91651c9",
-      "afterSha256": "444d9bd14b808c2e8c902f7d066efacd6d0515cd22591fa846977943e46f43a0"
+      "afterSha256": "da07691e6c4cba015e7925b8fa3c6a89ca8b8e43330bbb7b96d9dfcb1310fb58",
+      "currentScope": "Cumulative RV-01..RV-04; historical evidence unchanged."
     },
     {
       "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
       "beforeCommit": "5c0d3a1c41cf7c4ee7bce3271864ea1b04a8df00",
       "beforeSha256": "4b0e8170d8e15e9efafcac7d458e5ac9c0ec3d63ec62b45bf6a891b230a6b5fa",
-      "afterSha256": "7bddd635e8aa4aec00d45efaf7af803cac298737565fda91cf3df2cf2787644f"
+      "afterSha256": "9d8da3c468010c033b6bd55a037260eb68f03ead08082a52df3e55524506b830",
+      "currentScope": "Cumulative RV-01..RV-04; historical evidence unchanged."
     }
   ],
   "rv03Continuation": {
@@ -1091,6 +1195,69 @@
       "newTask": "6.3",
       "previousComplete": 19,
       "previousTotal": 29
+    },
+    "runtimeDelta": {
+      "applicationLogins": 0,
+      "httpRequests": 0,
+      "selectStatements": 0,
+      "documentEffects": 0
+    },
+    "validation": {
+      "openSpecStrict": "PASS",
+      "refinement": "PASS",
+      "refinementChecks": 15,
+      "diffCheck": "PASS"
+    }
+  },
+  "productPersistenceSources": [
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.DocumentoV2.vb",
+      "sha256": "b18ac2a387b97d3dfd12039e69bafbadb6934b7c976182fc3124a6553625cf7b"
+    },
+    {
+      "path": "tests/ImportacionCarpetasPersistenciaV2BehaviorTests.cs",
+      "sha256": "863b985450d5f5d978e2013281f632a9a98c0b72f598dbb4999e786132c58a8d"
+    }
+  ],
+  "productPersistenceChangedFiles": [
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ResultadoCreacion.vb",
+      "beforeCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+      "beforeSha256": "ac8a69c5f730b9f942a9f65449071059740effeeb50daa65fde6ed796004d1d1",
+      "afterSha256": "f67e0e00350f3a5c2f66a925c62ceac2a7612c4db5ebffdaedd2c5ff54c8d6bc"
+    },
+    {
+      "path": "GestionDocumental-Docuarchi.net.vbproj",
+      "beforeCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+      "beforeSha256": "df01d772bdf7b78a0ac10c65790d82a6ec141f5e2efea68b2ef60c3d41caa9f1",
+      "afterSha256": "30c577ac3baf520996407b662d3016ee880e64388dfa5482ee813b3429ba29a9"
+    },
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "beforeCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+      "beforeSha256": "444d9bd14b808c2e8c902f7d066efacd6d0515cd22591fa846977943e46f43a0",
+      "afterSha256": "da07691e6c4cba015e7925b8fa3c6a89ca8b8e43330bbb7b96d9dfcb1310fb58"
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "beforeCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+      "beforeSha256": "7bddd635e8aa4aec00d45efaf7af803cac298737565fda91cf3df2cf2787644f",
+      "afterSha256": "9d8da3c468010c033b6bd55a037260eb68f03ead08082a52df3e55524506b830"
+    }
+  ],
+  "rv04Continuation": {
+    "task": "6.4",
+    "status": "PASS_REPOSITORY_SQL_WITH_TRANSACTIONAL_DOUBLE",
+    "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-persistencia-v2-local-20261108.json",
+    "authorization": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-v2-persistence-authorization.json",
+    "baseCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+    "progress": {
+      "complete": 21,
+      "total": 31,
+      "remaining": 10,
+      "newTask": "6.4",
+      "previousComplete": 20,
+      "previousTotal": 30
     },
     "runtimeDelta": {
       "applicationLogins": 0,

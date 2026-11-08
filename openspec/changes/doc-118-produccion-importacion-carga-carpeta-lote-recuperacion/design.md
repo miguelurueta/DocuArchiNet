@@ -128,7 +128,7 @@ Entrega documental sin despliegue ni migración. Después de aprobación humana:
 
 ## Acceptance and review gates
 
-Diez decisiones y requisitos originales, más D-11/RQ-11 para contratos internos, D-12/RQ-12 para staging local y D-13/RQ-13 para el recorrido interno del adaptador; escenarios en spec.md y evidencia de cada entrega. La aprobación de refinement.md y el reemplazo trazable de las tareas genéricas son compuertas antes de implementación. Las pruebas reales requieren una autorización separada posterior a un plan concreto. No hay autorización de ejecución implícita en este diseño.
+Diez decisiones y requisitos originales, más D-11/RQ-11 para contratos, D-12/RQ-12 para staging, D-13/RQ-13 para adaptador y D-14/RQ-14 para persistencia; escenarios en spec.md y evidencia de cada entrega. La aprobación de refinement.md y el reemplazo trazable de las tareas genéricas son compuertas antes de implementación. Las pruebas reales requieren una autorización separada posterior a un plan concreto. No hay autorización de ejecución implícita en este diseño.
 
 ## Evaluación adicional de recuperación EN_CURSO
 
@@ -153,3 +153,9 @@ La guardia ofrece una sección interna sincronizada para que el futuro commit/ro
 La continuación posterior a RV-02-B autoriza6.3/RV-03. Un nuevo parcial del adaptador reutiliza autorización, catálogo, copia, escritor y verificador existentes. Adquiere retención V2 antes de cualquier inicio durable y la conserva hasta salir. Un puerto interno de persistencia debe devolver un acuse tipado concordante de inicio y autorización; una excepción o respuesta perdida impide invocar. El futuro repositorio RV-04 solo emitirá esos acuses tras commit confirmado; un JSON o una transformación en memoria no los sustituye.
 
 El recorrido consume localmente una sola ejecución por instancia y no reintenta callbacks. Observa IDs al salir del escritor en finally, con intento acotado de registrar retorno antes de verificar/checkpoint. Retorno observado no equivale a confirmación física; INCIERTO puede conservar IDs parciales. Cancelación/ThreadAbort se propagan, sin ResetAbort, y se libera retención. No se usan inicio/checkpoint V1 como fallback. Hasta RV-04 no se modifica la composición pública, coordinador, repositorio o HTTP; la garantía transaccional se prueba aquí con dobles, no con MySQL.
+
+### D-14 — Diario y persistencia V2 en el repositorio existente (RQ-14)
+
+RV-04/6.4 añade un parcial al mismo repositorio y reutiliza Operar:locks lote→raíz→archivo→intento, SQL parametrizado, evento y cambio de evidencia en una transacción. El acuse se construye después de que Operar retorna tras commit. Una autorización ya persistida no se entrega nuevamente como permiso, incluso ante respuesta perdida. Diario duplicado, incompleto o contradictorio bloquea sin normalizar V1 a V2.
+
+La evidencia activa V2 se proyecta con un código distinto para que las lecturas existentes sigan funcionando y el checkpoint V1 la rechace. El checkpoint V2 guarda el resultado normal existente y conserva inicio/autorización/retorno tipados en el diario; resultado, archivo, lote, evento y consolidación usan la transacción exterior. La repetición solo devuelve resultado idéntico sin otro evento o consolidación. El alcance local prueba el mismo núcleo SQL con dobles transaccionales; no acredita un servidor MySQL real ni activa la composición pública o recuperación.

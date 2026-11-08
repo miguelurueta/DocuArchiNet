@@ -23,6 +23,7 @@ function compileBehaviorHarness(directory) {
       'Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasStagingV2Interfaces.vb',
       'Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.Recuperacion.vb',
       'Infrastructure/ProduccionDocumental/ImportacionCarpetas/PersistenciaDocumentoV2Importacion.vb',
+      'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.DocumentoV2.vb',
       'Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.ProtocoloV2.vb',
       'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.vb',
       'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Control.vb',
@@ -111,7 +112,7 @@ function compileBehaviorHarness(directory) {
       'tests/PerfilImportacionRequestGuardBehaviorTests.cs','tests/PerfilImportacionCatalogBehaviorTests.cs',
       'tests/PerfilImportacionMigrationBehaviorTests.cs','tests/ProveedorIndicesBehaviorTests.cs','tests/ProveedorIndicesReglasBehaviorTests.cs','tests/PoliticaFuentesProveedorBehaviorTests.cs',
       'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Sql/Doc110MigrationJson.cs',
-      'tests/FuenteImportacionBehaviorTests.cs','tests/AdministracionProveedorBehaviorTests.cs','tests/ImportacionCarpetasBehaviorTests.cs','tests/ImportacionCarpetasDocumentosV2BehaviorTests.cs','tests/ImportacionCarpetasStagingV2BehaviorTests.cs','tests/ImportacionCarpetasAdaptadorV2BehaviorTests.cs','tests/ImportacionCarpetasRepositoryIntegrationTests.cs','tests/PerfilImportacionBehaviorTestRunner.cs']);
+      'tests/FuenteImportacionBehaviorTests.cs','tests/AdministracionProveedorBehaviorTests.cs','tests/ImportacionCarpetasBehaviorTests.cs','tests/ImportacionCarpetasDocumentosV2BehaviorTests.cs','tests/ImportacionCarpetasStagingV2BehaviorTests.cs','tests/ImportacionCarpetasAdaptadorV2BehaviorTests.cs','tests/ImportacionCarpetasPersistenciaV2BehaviorTests.cs','tests/ImportacionCarpetasRepositoryIntegrationTests.cs','tests/PerfilImportacionBehaviorTestRunner.cs']);
     fs.copyFileSync(path.join(root,'tests/Fixtures/ProduccionDocumental/doc110-perfil-antes-proveedor.json'),path.join(directory,'doc110-perfil-antes-proveedor.json'));
     fs.copyFileSync(path.join(root,'tests/Fixtures/ProduccionDocumental/doc111-esquema-instalado-mysql51.json'),path.join(directory,'doc111-esquema-instalado-mysql51.json'));
     return { exe };
@@ -127,6 +128,7 @@ if (require.main === module) test('DOC-110: reglas y configuración ejecutadas e
     assert.match(output, /DOC-118 V2 internal document behavior cases: 19 passed; no execution capability/);
     assert.match(output, /DOC-118 V2 real staging behavior cases: 21 passed; synthetic child processes: 3 closed; no recovery activated/);
     assert.match(output, /DOC-118 V2 adapter behavior cases: 20 passed; persistence and writer doubles; no public activation/);
+    assert.match(output, /DOC-118 V2 repository SQL behavior cases: 20 passed; transactional double; adapter integrated; no database connection/);
     assert.match(output, /DOC-111 contracts and limits: passed/);
     assert.match(output, /DOC-111 private streaming staging and retained copy: passed/);
     assert.match(output, /DOC-111 receipt ownership, replay, recovery and concurrency: passed/);
@@ -195,7 +197,7 @@ if (require.main === module) test('DOC-111: columnas UPDATE de intentos correspo
   assert.ok(table, 'Falta el contrato DDL de intentos');
   const columns = new Set([...table[1].matchAll(/^\s*(\w+)\s+(?:INT|VARCHAR|CHAR|BINARY|DATETIME|LONGTEXT)\b/gim)].map(m => m[1].toLowerCase()));
   let checked = 0;
-  for (const name of ['MySqlImportacionCarpetasRepository.Control.vb', 'MySqlImportacionCarpetasRepository.ResultadoCreacion.vb', 'MySqlImportacionCarpetasRepository.Documento.vb', 'MySqlImportacionCarpetasRepository.Reconciliacion.vb']) {
+  for (const name of ['MySqlImportacionCarpetasRepository.Control.vb', 'MySqlImportacionCarpetasRepository.ResultadoCreacion.vb', 'MySqlImportacionCarpetasRepository.Documento.vb', 'MySqlImportacionCarpetasRepository.DocumentoV2.vb', 'MySqlImportacionCarpetasRepository.Reconciliacion.vb']) {
     const source = fs.readFileSync(path.join(root, 'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas', name), 'utf8');
     for (const update of source.matchAll(/UPDATE ra_integracion_intento SET (.*?) WHERE /g)) {
       for (const assignment of update[1].split(',')) {

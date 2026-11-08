@@ -1,6 +1,10 @@
 # DOC-118 — coordinación y recuperación
 
-## Regresión local tras RV-03
+## Regresión local tras RV-04
+
+223/223 Node actuales, más ejecución enfocada del chequeo DDL ya incluido.20 casos SQL nuevos dentro del harness prueban el mismo núcleo de producción integrado con el adaptador y un doble transaccional; no certifican MySQL real. Conserva los casos previos19/21/20, sin sumarlos al contador Node. Progreso21/31. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-persistencia-v2-local-20261108.json`.
+
+## Regresión anterior tras RV-03
 
 223/223 Node:18 comportamiento/cliente y205 herramientas. El harness incorpora20 casos del adaptador y conserva19 de contratos y21 del proveedor. Prueba retención anterior al inicio, respuesta perdida/alterada, una invocación, IDs parciales, concurrencia y cancelación/ThreadAbort propagados. Persistencia y escritor son dobles explícitos; no acredita MySQL o legacy real. Progreso20/30. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-adaptador-v2-local-20261108.json`.
 

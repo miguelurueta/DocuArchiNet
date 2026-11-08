@@ -8712,6 +8712,7 @@
     <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\ImportacionCarpetasStagingV2Interfaces.vb" />
     <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\AlmacenStagingImportacion.Recuperacion.vb" />
     <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\PersistenciaDocumentoV2Importacion.vb" />
+    <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.DocumentoV2.vb" />
     <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\AdaptadorDocumentoImportacion.ProtocoloV2.vb" />
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.vb" />
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.Control.vb" />

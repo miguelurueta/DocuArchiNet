@@ -70,6 +70,8 @@ Ampliación local RV-02-B:«continua» posterior a RV-01 autoriza6.2/D-12/RQ-12,
 
 Ampliación local RV-03:«continua» posterior a RV-02-B autoriza6.3/D-13/RQ-13, recorrido interno del adaptador con retención previa al inicio y puerto obligatorio de persistencia V2. Se prueba con dobles explícitos; no modifica la composición pública V1 ni implementa MySQL, que corresponde a RV-04. Véase `recovery-v2-adapter-authorization.json`.
 
+Continuación RV-04:«contiua con el flujo» autoriza6.4/D-14/RQ-14 dentro de DOC-118, sin trasladar trabajo a otro ticket. Se implementan los callbacks V2 en el repositorio existente y su lectura compatible; se valida el núcleo SQL con el adaptador mediante un doble transaccional. Sin DDL, conexión real, activación pública o backfill. Fuente:`recovery-v2-persistence-authorization.json`.
+
 ## Perfil tecnologico
 
 - Perfil de revision: legacy-webforms-vb (v1).

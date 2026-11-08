@@ -163,3 +163,15 @@ El adaptador SHALL cumplir D-13: conservar el original antes del inicio V2 y has
 #### Scenario: Salida incierta o abortada del escritor
 - **WHEN** el escritor deja IDs parciales o se interrumpe su llamada
 - **THEN** se intenta registrar una observación del mismo intento sin inventar IDs; un aborto se propaga y nunca provoca una segunda invocación.
+
+### Requirement: RQ-14 — Persistencia V2 y autorización de un solo uso
+
+El repositorio SHALL cumplir D-14: usar las tablas y transacción existentes para persistir evidencia y diario V2 concordantes, comparando recurso, contexto, revisión, token y solicitud. SHALL emitir acuse solo después del commit y nunca reemitir una autorización ya consumida como nuevo permiso. SHALL conservar compatibilidad V1, autoridad e inventario; no SHALL habilitar backfill o migraciones.
+
+#### Scenario: Respuesta perdida de autorización
+- **WHEN** se persiste una autorización y su respuesta se pierde
+- **THEN** otro intento de obtener autorización no recibe permiso de invocar ni provoca escrituras nuevas.
+
+#### Scenario: Checkpoint o evento fallido
+- **WHEN** falla una escritura, evento o consolidación durante el checkpoint
+- **THEN** la transacción no confirma un resultado parcial; un replay confirmado solo devuelve la misma identidad y no vuelve a consolidar.

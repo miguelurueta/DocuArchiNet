@@ -31,6 +31,7 @@ Ya existen coordinador, repositorio transaccional MySQL, ASMX, adaptador documen
 | D-11 | Fijar contratos internos V2 sin conceder capacidad por JSON ni conectarlos al flujo vigente. | DocumentosAlmacenamientoV2Importacion.vb; ImportacionCarpetasDocumentosV2BehaviorTests.cs; doc118-contratos-v2-local-20261108.md | D-11 | RQ-11 | RV-01/6.1: esquema cerrado, vínculos canónicos, compatibilidad V1 y cero efectos/capacidad. |
 | D-12 | Añadir retención y guardia V2 no destructivas al proveedor existente; fallar cerrado ante ámbito, recurso, proveedor o época distintos. | AlmacenStagingImportacion.Recuperacion.vb; ImportacionCarpetasStagingV2Interfaces.vb; pruebas del harness | D-12 | RQ-12 | RV-02-B/6.2: original exacto, exclusión local, vida útil y sección sincronizada; sin activar recuperación. |
 | D-13 | Retener antes del inicio V2 y exigir acuses internos concordantes antes de una única llamada al escritor; observar retorno y propagar abortos. | AdaptadorDocumentoImportacion.ProtocoloV2.vb; PersistenciaDocumentoV2Importacion.vb; harness existente | D-13 | RQ-13 | RV-03/6.3: dobles de persistencia y escritor, retención real; sin fallback V1 o composición pública. |
+| D-14 | Persistir evidencia y diario V2 en la transacción existente; autorización de un solo uso y checkpoint atómico. | MySqlImportacionCarpetasRepository.DocumentoV2.vb; lector documental compatible; harness SQL | D-14 | RQ-14 | RV-04/6.4: comparación exacta, rollback, replay sin efectos y acuse posterior al commit. |
 
 ## Requisitos verificables
 
@@ -49,6 +50,7 @@ Ya existen coordinador, repositorio transaccional MySQL, ASMX, adaptador documen
 | RQ-11 | Documentos internos V2 sin capacidad de ejecución | Escenarios WHEN/THEN en spec.md, origen D-11;19 casos del harness. | V1 y D-07/RQ-07 intactos; no backfill, procedencia durable, proveedor o gate acreditados por JSON. |
 | RQ-12 | Guardia de staging V2 no destructiva | Escenarios WHEN/THEN en spec.md, origen D-12; proveedor real sobre fixture local. | Sin cambios V1/AbrirRetiro; otro proceso/nodo o reinicio conserva bloqueo; no acredita producción ni69. |
 | RQ-13 | Adaptador V2 retenido y sin repetición | Escenarios WHEN/THEN en spec.md, origen D-13; intercalaciones y abortos locales. | RV-04 debe implementar commit/diario; este recorrido interno no activa V2, no usa fallback V1 ni recupera69. |
+| RQ-14 | Persistencia V2 y autorización de un solo uso | Escenarios WHEN/THEN en spec.md, origen D-14; núcleo SQL con doble transaccional. | Sin DDL o backfill; autorización repetida bloquea; checkpoint/evento/consolidación juntos. |
 
 ## Dependencias concretas de ejecución
 
@@ -77,6 +79,8 @@ Ampliación local RV-01 del 2026-11-08:el usuario indicó «contiunua» después
 
 
 ## Avance de preparación
+
+Ampliación RV-04:«contiua con el flujo» posterior a RV-03 y al siguiente paso RV-04 autoriza6.4/D-14/RQ-14, implementación local del repositorio y regresión. No concede ejecución MySQL real ni activación pública.
 
 Ampliación RV-03:«continua» posterior a RV-02-B y al siguiente paso de retención desde el adaptador autoriza6.3/D-13/RQ-13. El recorrido se prueba con puerto de persistencia simulado; RV-04 y la activación pública siguen pendientes. No amplía autorizaciones reales.
 

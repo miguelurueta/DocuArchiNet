@@ -1,8 +1,8 @@
 {
   "issueKey": "DOC-118",
-  "status": "LOCAL_ADAPTER_IMPLEMENTED_MYSQL_AND_PUBLIC_ACTIVATION_PENDING",
+  "status": "LOCAL_MYSQL_CODE_IMPLEMENTED_REAL_QUALIFICATION_AND_RECOVERY_PENDING",
   "reviewedCommit": "34099b316208431b2f5e6a58bea63ffa7b34ce24",
-  "recordedUtc": "2026-11-08T22:52:13.712Z",
+  "recordedUtc": "2026-11-08T23:24:18.201Z",
   "hashAlgorithm": "sha256-utf8-lf",
   "sources": [
     {
@@ -73,7 +73,7 @@
   "artifacts": [
     {
       "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-design.md",
-      "sha256": "56dd0b15b4564257bcf8e2fcd828b243f9eae3ec016497fbf4ee3cb5b9631e64"
+      "sha256": "ec0bbec404bef1d0a16ddb9206a5bc3d5ea81ce4f8127dffa1bb2d452388d6ec"
     },
     {
       "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-spec.md",
@@ -81,7 +81,7 @@
     },
     {
       "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-plan.md",
-      "sha256": "df65b93c0027af42876089d390b62cccaa0e4ab65d377a45882361c3e6b9cf9f"
+      "sha256": "033a662e955dd8557b21d6c4b606ed72f6302ba0acb8e3b259b86bb6af20aad6"
     }
   ],
   "conclusions": {
@@ -101,12 +101,12 @@
     "documentEffects": 0
   },
   "progress": {
-    "complete": 20,
-    "total": 30,
+    "complete": 21,
+    "total": 31,
     "remaining": 10,
-    "candidateTasksNotActivated": 6,
-    "candidateDeliverablesLocallyValidated": 4,
-    "candidateDeliverablesPending": 5
+    "candidateTasksNotActivated": 5,
+    "candidateDeliverablesLocallyValidated": 5,
+    "candidateDeliverablesPending": 4
   },
   "implementationApproval": false,
   "validation": {
@@ -115,10 +115,10 @@
     "refinementChecks": 15,
     "reviewedSourceHashes": 16,
     "candidateArtifactHashes": 3,
-    "activeTasksComplete": 20,
-    "activeTasksTotal": 30,
+    "activeTasksComplete": 21,
+    "activeTasksTotal": 31,
     "applicationCodeChanged": true,
-    "activeDecisionRequirementPairs": 13
+    "activeDecisionRequirementPairs": 14
   },
   "localValidation": {
     "task": "RV-02-A",
@@ -312,6 +312,76 @@
       "ackTypeAloneProvesCommit": false,
       "mysqlV2PersistenceImplemented": false,
       "crossInstanceTransactionalGateQualified": false,
+      "publicCompositionActivated": false,
+      "recoveryEnabled": false,
+      "productionProviderQualified": false,
+      "recoveryAfterProviderRestartSupported": false,
+      "v1BackfillAllowed": false,
+      "attempt69Eligible": false
+    },
+    "runtimeDelta": {
+      "applicationLogins": 0,
+      "httpRequests": 0,
+      "selectStatements": 0,
+      "documentEffects": 0
+    },
+    "validation": {
+      "openSpecStrict": "PASS",
+      "refinement": "PASS",
+      "refinementChecks": 15,
+      "diffCheck": "PASS"
+    }
+  },
+  "localPersistenceImplementation": {
+    "task": "RV-04 / 6.4",
+    "authorized": true,
+    "authorization": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-v2-persistence-authorization.json",
+    "status": "PASS_REPOSITORY_SQL_WITH_TRANSACTIONAL_DOUBLE",
+    "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-persistencia-v2-local-20261108.json",
+    "sources": [
+      {
+        "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.DocumentoV2.vb",
+        "sha256": "b18ac2a387b97d3dfd12039e69bafbadb6934b7c976182fc3124a6553625cf7b"
+      },
+      {
+        "path": "tests/ImportacionCarpetasPersistenciaV2BehaviorTests.cs",
+        "sha256": "863b985450d5f5d978e2013281f632a9a98c0b72f598dbb4999e786132c58a8d"
+      }
+    ],
+    "changedFiles": [
+      {
+        "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ResultadoCreacion.vb",
+        "beforeCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+        "beforeSha256": "ac8a69c5f730b9f942a9f65449071059740effeeb50daa65fde6ed796004d1d1",
+        "afterSha256": "f67e0e00350f3a5c2f66a925c62ceac2a7612c4db5ebffdaedd2c5ff54c8d6bc"
+      },
+      {
+        "path": "GestionDocumental-Docuarchi.net.vbproj",
+        "beforeCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+        "beforeSha256": "df01d772bdf7b78a0ac10c65790d82a6ec141f5e2efea68b2ef60c3d41caa9f1",
+        "afterSha256": "30c577ac3baf520996407b662d3016ee880e64388dfa5482ee813b3429ba29a9"
+      },
+      {
+        "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+        "beforeCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+        "beforeSha256": "444d9bd14b808c2e8c902f7d066efacd6d0515cd22591fa846977943e46f43a0",
+        "afterSha256": "da07691e6c4cba015e7925b8fa3c6a89ca8b8e43330bbb7b96d9dfcb1310fb58"
+      },
+      {
+        "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+        "beforeCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+        "beforeSha256": "7bddd635e8aa4aec00d45efaf7af803cac298737565fda91cf3df2cf2787644f",
+        "afterSha256": "9d8da3c468010c033b6bd55a037260eb68f03ead08082a52df3e55524506b830"
+      }
+    ],
+    "internalBehaviorCases": 20,
+    "limits": {
+      "mysqlV2CodeImplemented": true,
+      "sqlCoreValidatedLocally": true,
+      "realMysqlAtomicityQualified": false,
+      "realMysqlConcurrencyQualified": false,
+      "ackCreatedAfterOperarCommit": true,
+      "authorizationReissuedOnReplay": false,
       "publicCompositionActivated": false,
       "recoveryEnabled": false,
       "productionProviderQualified": false,
