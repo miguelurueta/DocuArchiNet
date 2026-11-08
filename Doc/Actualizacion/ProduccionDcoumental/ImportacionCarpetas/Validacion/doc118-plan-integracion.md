@@ -69,7 +69,7 @@ El helper no inicia sesión, adjunta depurador, consulta SQL, instala binarios n
 
 `tools/e2e/tests/support/doc118-session-bridge.cjs` añade el enlace de sesiones/controles. `openPair` llama dos veces al openSession compartido y crea los dos clientes con createDriver, conservando CSRF por sesión. Instala el contador HTTP antes del login, bloquea service workers para evitar eludir la interceptación y requiere contextos distintos. Cierra los contextos abiertos si falla el segundo login y no guarda ni solicita secretos por otro mecanismo.
 
-Los permisos de la capa exterior deben corresponder a DOC-118-COORD02 o DOC-118-COORD03, ambiente/cuenta y recursos concretos: runId, lote, archivos, snapshot y hash del comando. El enlace no concede esos permisos por sí mismo. Los lotes históricos18/21 se excluyen; cada par consume una sola ventana incluso si falla el preflight. Un mismo objeto createBudget debe acompañar la preparación y ambos casos: 53/51 HTTP de negocio, 250 HTTP totales por caso y 240 SELECT acumulados. No se reinicia el presupuesto al abrir otra sesión.
+Los permisos de la capa exterior deben corresponder a DOC-118-COORD02 o DOC-118-COORD03, ambiente/cuenta y recursos concretos: runId, lote, archivos, snapshot y hash del comando. El enlace no concede esos permisos por sí mismo. Los lotes históricos18/21 se excluyen; cada par consume una sola ventana incluso si falla el preflight. Un mismo objeto createBudget debe acompañar la preparación y ambos casos: 53/51 HTTP de negocio, 425/75 HTTP totales por caso (redistribución autorizada, global500) y240 SELECT acumulados. No se reinicia el presupuesto al abrir otra sesión.
 
 `runPreparedWindow` recibe recursos nuevos ya preparados, verifica por createSelectControls el propietario, nivel, snapshot, inventario y ausencia de reclamación previa; ambas sesiones deben consultar el lote con autoridad vigente. COORD02 repite el comando original y obtiene de nuevo la revisión del segundo archivo antes de solicitarlo. Solo acepta OPERACION_EN_CURSO o, para el replay del comando activo, RESULTADO_INCIERTO; CONFLICTO_REVISION no acredita el guard documental. COORD03 consulta la revisión del lote y usa SolicitarDetencion a través del driver compartido, cuya lista de operaciones se amplió para incluir el ASMX ya existente. El modo readOnly sigue impidiendo esa mutación antes del transporte.
 
@@ -135,7 +135,7 @@ El presupuesto HTTP de negocio incluye preparación y controles públicos, no so
 | ReconciliarRecurso/CerrarReservaSinInicio/otras mutaciones | 0 | 0 |
 | Total HTTP de negocio | 53 | 51 |
 
-Tope adicional de tráfico HTTP total del navegador/API: 250 peticiones por caso, incluyendo login, apertura/postbacks y recursos estáticos. No se suman otras 250 peticiones a las de negocio: son límites simultáneos. Máximo una autenticación por sesión; MFA no completado detiene sin bypass. Las lecturas ASMX y SELECT no son intercambiables en sus presupuestos. No agotar el presupuesto en polling automático; reservar controles para observar el desenlace y proteger recursos ante un corte. El conductor real debe aplicar los contadores antes de despacho; el helper de coordinación no controla tráfico por sí mismo.
+Tope adicional autorizado de tráfico HTTP total del navegador/API:425 C02 y75 C03, global500, incluyendo login, apertura/postbacks y recursos estáticos. No se suman peticiones adicionales a las de negocio: son límites simultáneos. Máximo una autenticación por sesión; MFA no completado detiene sin bypass. Las lecturas ASMX y SELECT no son intercambiables en sus presupuestos. No agotar el presupuesto en polling automático; reservar controles para observar el desenlace y proteger recursos ante un corte. El conductor real debe aplicar los contadores antes de despacho; el helper de coordinación no controla tráfico por sí mismo.
 
 ## Registro necesario antes de solicitar autorización de ejecución
 
@@ -154,11 +154,10 @@ No declarar completo un caso que mantiene efecto incierto. Los intentos41/lote18
 
 ## Autorización concedida y continuidad
 
-La fase real está autorizada; no solicitar de nuevo aprobación del mismo alcance. El preflight inicial y contadores están en doc118-preflight-20261107.json. Solo se consumió un HEAD de preparación de C02: HTTP200; cero login/SELECT/efectos. Faltan credenciales efímeras mediante la consola enmascarada existente y calificación del observador. La consulta de preferencia de consola sigue abierta; no enviar secretos por chat ni persistirlos.
+La fase real y la redistribución425/75 fueron autorizadas. Se consumieron425 HTTP C02,0 C03 y3 aperturas acumuladas; A autenticó y consultó lote23, B quedó sin confirmar al agotar C02. Se cerraron sesiones y borraron secretos, sin SELECT de control ni efectos. Véanse doc118-continuation-preflight-20261107.json y doc118-resultados-integracion.md. Queda1 apertura y0 HTTP C02: no cabe otra pareja bajo los topes vigentes.
 
+## Ejecutor por fases
 
-## Ejecutor de captura y parada real
+run-doc118-live.cjs reutiliza la consola enmascarada y conserva secretos/contextos solo en memoria. La cola local admite fases cerradas y hashes revisados. Solo PREFLIGHT está implementado: login compartido, HTML/token reales, driver readOnly y controles ODBC. Omite subrecursos de producción y selección visual del árbol; no acredita UI. La preparación/finalización documental y el observador externo deben completarse/calificarse antes de efectos.
 
-run-doc118-live.cjs usa la consola enmascarada existente y mantiene secretos/contextos solo en memoria. Una cola local de fases cerradas contiene nombres de fase y hash del módulo revisado, sin credenciales ni SQL. PREFLIGHT reutiliza openSession, selector de nivel, driver readOnly y puente ODBC; otras fases documentales aún requieren completar/calificar su implementación. No se presenta la consola como ejecutor completo de aceptación.
-
-El primer login real fue rechazado:98 HTTP C02 acumulados,1 intento,0 SELECT de control y0 efectos. La consola terminó y eliminó los secretos. La continuación propuesta en execution-continuation-proposal.json todavía no cambia la autorización original:500 HTTP globales, redistribución425/75 y pareja reutilizada, conservando4 intentos/contextos y todos los límites de efectos. Se mantiene la parada sin retry hasta una decisión explícita.
+El ledger carga la última evidencia cerrada y rechaza nuevos arranques con aprobación vieja, consumo discordante o capacidad insuficiente. No restablece98/1 ni reinicia el presupuesto. La propuesta execution-budget-continuation-proposal.json eleva solo tráfico/aperturas acumulados a1000/5 (925/75), mantiene425/3 consumidos y todos los límites de efectos. No está aplicada ni autorizada.

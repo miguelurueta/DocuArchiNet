@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),crypto=require('node:crypto');
-const {LIMITS,authorize,createBudget,openPair,prepareCommand,runPreparedWindow}=require('../tools/e2e/tests/support/doc118-session-bridge.cjs');
+const {LIMITS,authorize,createBudget,createScopedBrowser,budgetedAuth,openPair,bindExistingPair,prepareCommand,runPreparedWindow}=require('../tools/e2e/tests/support/doc118-session-bridge.cjs');
 const {METHOD}=require('../tools/e2e/tests/support/doc118-active-call.cjs');
 const example=require('../tools/e2e/profiles/doc111-importacion-carpetas.profile.example.json');
 const digest=s=>crypto.createHash('sha256').update(s).digest('hex');
@@ -89,3 +89,53 @@ test('DOC118 requires an explicit shared budget before opening contexts',async()
 test('DOC118 consumes the window once even when preflight fails without sending first',async()=>{const f=fixture(),pair=await openPair(f.options);try{f.view.files[0].revision++;await assert.rejects(runPreparedWindow(f.window(pair)));f.view.files[0].revision--;await assert.rejects(runPreparedWindow(f.window(pair)),/WINDOW_ALREADY_REQUESTED/);assert.equal(f.requests.length,0);}finally{await pair.close();}});
 test('DOC118 observes claims from other documentary phases before starting storage',async()=>{const f=fixture(),pair=await openPair(f.options);try{f.view.attempts.push({fase:'CREAR_EXPEDIENTE',estado:'INCIERTO'});await assert.rejects(runPreparedWindow(f.window(pair)),/INITIAL_CLAIM_CHANGED/);assert.equal(f.requests.length,0);}finally{await pair.close();}});
 test('DOC111 read-only driver refuses the newly exposed stop before HTTP',async()=>{const shared=require('../tools/e2e/tests/support/doc111-importacion-carpetas.cjs'),f=fixture();let calls=0;const reader=shared.createDriver({context:{request:{post:()=>{calls++;}}}},f.profile,{environment:true,account:true,select:true},{readOnly:true});await assert.rejects(reader.request('SolicitarDetencion',{loteId:'100',revisionEsperada:1}),/READONLY_OPERATION_REQUIRED/);assert.equal(calls,0);});
+const carried=()=>({scenarios:{COORD02:{http:98,operations:{}},COORD03:{http:0,operations:{}}},selects:0});
+test('DOC118 authorized redistribution carries all consumption and keeps the global500 ceiling',()=>{
+ const b=createBudget({allHttpPerCase:{COORD02:425,COORD03:75},carried:carried()});assert.equal(b.snapshot().scenarios.COORD02.http,98);
+ for(let i=98;i<425;i++)b.http('COORD02');for(let i=0;i<75;i++)b.http('COORD03');
+ assert.throws(()=>b.http('COORD02'),/HTTP_TOTAL_LIMIT/);assert.throws(()=>b.http('COORD03'),/HTTP_TOTAL_LIMIT/);
+ const s=b.snapshot();assert.equal(s.scenarios.COORD02.http+s.scenarios.COORD03.http,500);
+});
+test('DOC118 refuses malformed carry instead of silently resetting the rejected login consumption',()=>{
+ for(const policy of [{carried:null},{allHttpPerCase:null},{allHttpPerCase:{COORD02:500,COORD03:75}},{carried:{...carried(),selects:241}}])assert.throws(()=>createBudget(policy));
+ const prior=carried();prior.scenarios.COORD02.operations.UNKNOWN=1;assert.throws(()=>createBudget({carried:prior}),/CARRIED_BUDGET_INVALID/);
+});
+test('DOC118 binds a second case to the same independent sessions without another login or closing retained contexts',async()=>{
+ const f=fixture(),sessions=[];const open=f.options.openSession;f.options.openSession=async(...args)=>{const s=await open(...args);sessions.push(s);return s;};
+ const owned=await openPair(f.options);try{
+  const grant={...f.grant,scope:'DOC-118-COORD03'};
+  const reused=await bindExistingPair({sessions,profile:f.profile,grant,scenario:'COORD03',budget:owned.budget});
+  await reused.close();assert.equal(f.contexts.length,2);assert.ok(f.contexts.every(c=>c.closed===0));
+ }finally{await owned.close();}assert.ok(f.contexts.every(c=>c.closed===1));
+});
+test('DOC118 retained browser contexts charge subsequent case traffic to the selected case',async()=>{
+ const f=fixture(),budget=createBudget({allHttpPerCase:{COORD02:425,COORD03:75},carried:carried()});let active='COORD02';
+ const scoped=createScopedBrowser(f.browser,f.profile,budget,()=>active),context=await scoped.newContext();
+ const route={request:()=>({url:()=>f.profile.baseUrl+'asset.css'}),continue:async()=>{},abort:async()=>assert.fail('unexpected abort')};
+ await context.routes[0](route);active='COORD03';await context.routes[0](route);
+ assert.equal(budget.snapshot().scenarios.COORD02.http,99);assert.equal(budget.snapshot().scenarios.COORD03.http,1);
+});
+test('DOC118 live asset policy omits only image/font/media before dispatch without refunding prior HTTP',async()=>{
+ const f=fixture(),budget=createBudget({allHttpPerCase:{COORD02:425,COORD03:75},carried:carried()});let omitted=0,dispatched=0;
+ const browser=createScopedBrowser(f.browser,f.profile,budget,'COORD02',{omitNonessentialAssets:true,onOmittedAsset:()=>{omitted++;}}),context=await browser.newContext();
+ for(const kind of ['image','font','media','stylesheet','script'])await context.routes[0]({request:()=>({url:()=>f.profile.baseUrl+'asset',resourceType:()=>kind}),abort:async()=>{},continue:async()=>{dispatched++;}});
+ assert.equal(omitted,3);assert.equal(dispatched,2);assert.equal(budget.snapshot().scenarios.COORD02.http,100);
+});
+
+test('DOC118 API preflight preserves login resources and production HTML while suppressing production subresources',async()=>{
+ const f=fixture(),budget=createBudget();let omitted=0,dispatched=0;
+ const context=await createScopedBrowser(f.browser,f.profile,budget,'COORD02',{omitProductionSubresources:true,onOmittedAsset:()=>{omitted++;}}).newContext();
+ const production=f.profile.baseUrl+'Gestion/WebFormProducionDocumental.aspx',login=f.profile.baseUrl+'gestor.aspx';
+ for(const [frame,kind]of [[login,'script'],[login,'stylesheet'],[production,'document'],...['script','stylesheet','xhr','fetch','image','font','media'].map(k=>[production,k])]){
+  await context.routes[0]({request:()=>({url:()=>kind==='document'?production:f.profile.baseUrl+'asset',resourceType:()=>kind,frame:()=>({url:()=>frame})}),abort:async()=>{},continue:async()=>{dispatched++;}});
+ }
+ assert.equal(dispatched,3);assert.equal(omitted,7);assert.equal(budget.snapshot().scenarios.COORD02.http,3);
+});
+test('DOC118 production omission is opt-in and leaves API request budgeting and CSRF transport intact',async()=>{
+ const f=fixture(),budget=createBudget(),context=await createScopedBrowser(f.browser,f.profile,budget,'COORD02').newContext();let dispatched=0;
+ await context.routes[0]({request:()=>({url:()=>f.profile.baseUrl+'asset.js',resourceType:()=>'script',frame:()=>({url:()=>f.profile.baseUrl+'Gestion/WebFormProducionDocumental.aspx'})}),abort:async()=>assert.fail('UI policy changed by default'),continue:async()=>{dispatched++;}});
+ const auth={context,page:{locator:()=>({getAttribute:async()=>'synthetic-csrf'})}},client=require('../tools/e2e/tests/support/doc111-importacion-carpetas.cjs').createDriver(budgetedAuth(auth,f.profile,budget,'COORD02'),f.profile,f.grant);
+ await client.refreshToken();await client.request('ConsultarLote',{loteId:'100'});
+ assert.equal(dispatched,1);assert.equal(budget.snapshot().scenarios.COORD02.http,2);assert.equal(budget.snapshot().scenarios.COORD02.operations.ConsultarLote,1);
+ assert.ok(f.requests[0].options.headers['X-Importacion-Carpetas-CSRF']);
+});

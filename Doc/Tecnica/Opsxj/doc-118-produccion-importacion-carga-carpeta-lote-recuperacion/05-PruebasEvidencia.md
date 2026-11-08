@@ -3,7 +3,7 @@
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
 - Clasificación: cross_cutting
-- Estado: refinamiento aprobado y fase real autorizada, preflight inicial sin autenticación; sin despliegue ni efectos documentales nuevos.
+- Estado: refinamiento aprobado; continuación detenida por tope HTTP,16/27 tareas. Primera sesión autenticada, sin pareja completa ni efectos documentales.
 
 ## Evidencia requerida
 
@@ -26,16 +26,8 @@ Protocolo y dependencia real: `Doc/Actualizacion/ProduccionDcoumental/Importacio
 El helper nuevo se verificó con `node --test tests/doc118-active-call.test.cjs`: 16/16 pruebas, cero fallos. Verifica rechazo de observación no correlacionada, hilo cambiado, primera petición ya terminada, timeout, respuesta perdida y fallo de liberación sin reenvíos ni exposición de errores privados. Sumadas a las 18 anteriores son 34 pruebas locales en dos ejecuciones disjuntas; no acreditan el depurador real ni efectos documentales nuevos.
 
 
-## Regresión del enlace de sesiones
+## Regresión vigente y resultado real
 
-`node --test tests/doc118-session-bridge.test.cjs tests/doc118-active-call.test.cjs tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs`: 102/102 pruebas, cero fallos (23 enlace,16 coordinación,63 drivers compartidos). Estas corridas reemplazan las repeticiones de las mismas pruebas al contabilizar cobertura; no se suman varias veces. La comprobación readOnly incluye el rechazo de SolicitarDetencion antes de HTTP. Se usaron dobles de sesión/HTTP/SQL y observador; cero login, SELECT o attach reales.
+La regresión conjunta actual pasó120/120 (11 preflight,30 enlace,16 coordinación,63 drivers); se reemplazan las ejecuciones repetidas al contabilizar cobertura. Con las18 previas disjuntas de servidor/cliente son138 pruebas locales, no aceptación real. Los guards prueban CSRF, presupuesto acumulado, cierre, entrada segura y omisión optativa de subrecursos de producción conservando el login. No se ejecutó nuevamente la prueba del servidor por este cambio de herramientas.
 
-
-## Preflight real autorizado
-
-`doc118-preflight-20261107.json` y `doc118-resultados-integracion.md` registran un HEAD HTTP200 y localización de DLL/PDB/IDE, sin attach, login, SELECT ni efectos. La autorización ya está concedida; falta captura enmascarada de secretos efímeros y calificar el observador. COORD02/03 específicos siguen NO_EJECUTADOS. No se suma esta petición como prueba Node ni como aceptación documental.
-
-
-## Captura y preflight por fases
-
-Regresión conjunta106/106 (4 preflight,23 enlace,16 coordinación,63 drivers), cero fallos. El resultado real independiente fue DOC111_LOGIN_CREDENTIALS_REJECTED:98 HTTP acumulados,1 intento,0 SELECT de control y0 efectos. La evidencia saneada está en doc118-login-preflight-20261107.json; no registra datos introducidos ni atribuye el rechazo a un campo específico. Se conserva la parada sin retry y la propuesta de continuación sin autorización.
+doc118-continuation-preflight-20261107.json registra A autenticada/lote23 consultado, B sin confirmar al agotar425 HTTP C02 y3 aperturas acumuladas. C03=0, SELECT de control=0, efectos=0. Sesiones cerradas y secretos borrados. El rechazo anterior conserva su evidencia independiente. La autorización de redistribución sí fue concedida; la ampliación1000 HTTP/5 aperturas sigue propuesta. OpenSpec/refinement y las pruebas locales no completan COORD02/03.

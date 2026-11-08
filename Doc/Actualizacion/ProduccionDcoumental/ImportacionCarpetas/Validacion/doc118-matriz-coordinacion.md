@@ -47,11 +47,6 @@ Revalidación conjunta: `node --test tests/doc110-perfil-importacion-behavior.te
 Se añadieron `doc118-plan-integracion.md` y `doc118-seguridad-recuperacion.md`. Visual Studio disponible localmente permite proponer observación externa con breakpoint e hilo seleccionado, pero su compatibilidad en el runtime sigue SIN_CALIFICAR. No se adjuntó depurador, autenticó ni ejecutó ningún efecto real. COORD-02/03 siguen NO_EJECUTADOS.
 
 
-## Autorización real y primer preflight
+## Preflight real y continuación
 
-El usuario autorizó la fase real del plan; tarea4.2 completada y progreso15/26. Una petición HEAD devolvió HTTP200. Credenciales ausentes en el proceso y captura segura aún sin seleccionar; cero login/SELECT/efectos. La DLL/PDB y Visual Studio se localizaron, pero la observación de la llamada activa no está calificada. Ambos casos específicos permanecen NO_EJECUTADOS; detalles y presupuesto acumulado en doc118-preflight-20261107.json y doc118-resultados-integracion.md.
-
-
-## Captura operativa y rechazo real
-
-Progreso16/27: consola por fases y preflight readOnly implementados y regresión106/106 local. El servidor rechazó el primer login real con DOC111_LOGIN_CREDENTIALS_REJECTED. Consumo acumulado98 HTTP C02,1 intento,0 SELECT de control,0 efectos; no se reintentó. Los casos COORD02/03 siguen NO_EJECUTADOS para aceptación. La propuesta de continuación mantiene500 HTTP globales/4 intentos y no se aplica por inferencia.
+Progreso16/27. El primer rechazo consumió98 HTTP/1 apertura; la redistribución425/75 fue autorizada. La continuación autenticó A y consultó lote23, pero B se detuvo al alcanzar425 HTTP acumulados C02. Consumo actual:425/0 HTTP,3 aperturas,0 SELECT de control,0 efectos; sesiones cerradas y secretos borrados. doc118-continuation-preflight-20261107.json conserva el resultado real separado de120/120 pruebas locales. COORD02/03 siguen NO_EJECUTADOS para aceptación. La ampliación1000 HTTP/5 aperturas solo está propuesta. El observador y las fases documentales siguen pendientes.

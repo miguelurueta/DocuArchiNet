@@ -2,31 +2,29 @@
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const shared=require('../../tests/support/doc111-importacion-carpetas.cjs');
 const bridge=require('../../tests/support/doc118-session-bridge.cjs');
-const {selectProductionLevel}=require('../../tests/support/doc116-expedientes-importacion.cjs');
 const {queryRows}=require('./doc32-e2e-odbc.cjs');
 const check=(v,c)=>{if(!v)throw Error('DOC118_LIVE_'+c);};
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
 const one=rows=>{check(Array.isArray(rows)&&rows.length===1,'READ_RESULT_AMBIGUOUS');return rows[0];};
 function save(live,name,value){fs.writeFileSync(path.join(live.directory,name+'.json'),JSON.stringify(value,null,2)+'\n');}
 function assertDependencies(){
- check(['createScopedBrowser','budgetedAuth'].every(k=>typeof bridge[k]==='function')&&['openSession','createDriver','createSelectControls'].every(k=>typeof shared[k]==='function'),'DEPENDENCIES_NOT_READY');
+ check(['createScopedBrowser','budgetedAuth','bindExistingPair'].every(k=>typeof bridge[k]==='function')&&['openSession','createDriver','createSelectControls'].every(k=>typeof shared[k]==='function'),'DEPENDENCIES_NOT_READY');
 }
 async function preflight(live,dependencies={}){
  assertDependencies();
- check(live.sessionCount===0&&live.sessions.length===0,'PREVIOUS_SESSION_REQUIRES_REVIEW');
+ check(live.sessionCount===(live.carriedSessionAttempts||0)&&live.sessions.length===0,'PREVIOUS_SESSION_REQUIRES_REVIEW');
  const p=live.profile,grant={environment:true,account:true,select:true,tls:true,effects:false,discardable:false};
  const config=require('../../playwright.config.cjs'),chromium=dependencies.chromium||require('../../node_modules/@playwright/test').chromium;
  live.browser=await chromium.launch({headless:true,channel:config.use.channel,executablePath:config.use.executablePath});
- const browser=bridge.createScopedBrowser(live.browser,p,live.budget,'COORD02');
+ live.omittedAssets=0;
+ const browser=bridge.createScopedBrowser(live.browser,p,live.budget,()=>live.activeCase||'COORD02',{omitNonessentialAssets:true,omitProductionSubresources:true,onOmittedAsset:()=>{live.omittedAssets++;}});
  live.readClients=[];
  for(let i=0;i<2;i++){
   check(live.sessionCount<live.authorization.maximum.totalSessions,'SESSION_LIMIT');live.sessionCount++;
   live.mark?.('PREFLIGHT_BEFORE_LOGIN_'+(i?'B':'A'));
-  const auth=await (dependencies.openSession||shared.openSession)(browser,p,live.environment,grant);live.sessions.push(auth);
+  const auth=await (dependencies.openSession||shared.openSession)(browser,p,live.environment,grant,{beforeDiagnosticPost:operation=>live.budget.http(live.activeCase||'COORD02',operation)});live.sessions.push(auth);
   live.mark?.('PREFLIGHT_LOGIN_'+(i?'B':'A'));
-  await (dependencies.selectProductionLevel||selectProductionLevel)(auth.page,'7');
-  live.mark?.('PREFLIGHT_LEVEL_'+(i?'B':'A'));
-  const reader=shared.createDriver(bridge.budgetedAuth(auth,p,live.budget,'COORD02'),p,grant,{readOnly:true});
+  const reader=shared.createDriver(bridge.budgetedAuth(auth,p,live.budget,()=>live.activeCase||'COORD02'),p,grant,{readOnly:true});
   await reader.refreshToken();const lot=await reader.request('ConsultarLote',{loteId:'23'});
   check(lot.loteId==='23'&&lot.nivelRef==='7','CURRENT_AUTHORITY_UNCONFIRMED');live.readClients.push(reader);
   live.mark?.('PREFLIGHT_LOT_'+(i?'B':'A'));
@@ -49,7 +47,7 @@ async function preflight(live,dependencies={}){
  for(const loteId of ['18','21']){
   const snapshot=await live.controls.snapshot(loteId);live.preservation[loteId]=sha(JSON.stringify(snapshot));
  }
- save(live,'preflight',{issueKey:'DOC-118',stage:'AUTHENTICATED_PREFLIGHT_PASS',actorRef:'141',ambitoRef:'2',levelRef:'7',versionRef:'38',independentSessions:2,publicationVerified:true,cabinetVerified:true,protectedLots:['18','21'],counters:live.budget.snapshot(),newPlans:0,newLots:0,newDocumentEffects:0,observerQualified:false});
+ save(live,'preflight',{issueKey:'DOC-118',stage:'AUTHENTICATED_PREFLIGHT_PASS',actorRef:'141',ambitoRef:'2',levelRef:'7',versionRef:'38',independentSessions:2,publicationVerified:true,cabinetVerified:true,protectedLots:['18','21'],counters:live.budget.snapshot(),omittedBeforeDispatch:live.omittedAssets,productionUiExercised:false,newPlans:0,newLots:0,newDocumentEffects:0,observerQualified:false});
 }
 async function execute(phase,live){
  if(phase==='PREFLIGHT')return preflight(live);

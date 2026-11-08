@@ -3,7 +3,7 @@
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
 - Clasificación: cross_cutting
-- Estado: refinamiento aprobado y fase real autorizada, preflight inicial sin autenticación; sin despliegue ni efectos documentales nuevos.
+- Estado: refinamiento aprobado; continuación detenida por tope HTTP,16/27 tareas. Primera sesión autenticada, sin pareja completa ni efectos documentales.
 
 ## Servicios y reglas
 

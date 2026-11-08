@@ -1,6 +1,6 @@
 {
   "issueKey": "DOC-118",
-  "status": "PROPOSED_NOT_AUTHORIZED",
+  "status": "AUTHORIZED",
   "reason": "El primer intento real fue rechazado y consumió98 HTTP/1 intento. Se propone corregir datos por consola y reutilizar dos sesiones independientes para ambos casos, evitando repetir sus logins.",
   "currentAuthorization": "execution-authorization.json",
   "changes": {
@@ -30,12 +30,6 @@
     "sessionAttempts": 1,
     "selectStatements": 0
   },
-  "remainingIfApproved": {
-    "COORD02AllHttp": 327,
-    "COORD03AllHttp": 75,
-    "sessionAttempts": 3,
-    "selectStatements": 240
-  },
   "unchanged": {
     "businessHttp": {
       "COORD02": 53,
@@ -51,5 +45,25 @@
       53
     ]
   },
-  "execution": "No activar nuevos intentos ni cambiar límites del código hasta obtener una instrucción explícita sobre esta continuación. Captura corregida solo mediante consola enmascarada; no pedir contraseñas por chat."
+  "execution": "Continuación autorizada; captura corregida en consola enmascarada y consumo previo íntegro. Sin ampliar500 HTTP globales,4 contextos ni límites de efectos.",
+  "approval": {
+    "source": "Mensaje del usuario «autorizado» posterior a la propuesta de redistribución425/75 y reutilización de sesiones.",
+    "recordedUtc": "2026-11-08T01:23:51.033Z"
+  },
+  "remainingAfterApproval": {
+    "COORD02AllHttp": 327,
+    "COORD03AllHttp": 75,
+    "sessionAttempts": 3,
+    "selectStatements": 240
+  },
+  "result": {
+    "status": "STOPPED_BUDGET_REVIEW_REQUIRED",
+    "evidence": "doc118-continuation-preflight-20261107.json",
+    "cumulativeAllHttp": {
+      "COORD02": 425,
+      "COORD03": 0
+    },
+    "cumulativeSessionAttempts": 3,
+    "allSessionsClosed": true
+  }
 }

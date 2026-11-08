@@ -24,14 +24,30 @@ function authorize(profile,grant,scenario){
   check(/^[a-f0-9]{32}$/.test(grant.runId)&&['loteId','archivoAId','archivoBId'].every(k=>id(grant[k]))&&!['18','21'].includes(grant.loteId)&&grant.archivoAId!==grant.archivoBId&&['resourceSha256','snapshotSha256'].every(k=>/^[a-f0-9]{64}$/.test(grant[k])),'AUTHORIZED_RESOURCES_REQUIRED');
   check(!profile.ignoreHttpsErrors||grant.tls===true,'TLS_AUTHORIZATION_REQUIRED');
 }
-function createBudget(){
+function createBudget(policy={}){
+  check(policy&&typeof policy==='object'&&!Array.isArray(policy),'BUDGET_POLICY_INVALID');
+  check(Object.keys(policy).every(k=>['allHttpPerCase','carried'].includes(k)),'BUDGET_POLICY_INVALID');
+  const ceilings=structuredClone(Object.hasOwn(policy,'allHttpPerCase')?policy.allHttpPerCase:{COORD02:250,COORD03:250});
+  check(ceilings&&typeof ceilings==='object'&&!Array.isArray(ceilings),'BUDGET_POLICY_INVALID');
+  check(Object.keys(ceilings).sort().join()==='COORD02,COORD03'&&((ceilings.COORD02===250&&ceilings.COORD03===250)||(ceilings.COORD02===425&&ceilings.COORD03===75)),'BUDGET_POLICY_INVALID');
   const counts={COORD02:{http:0,operations:{}},COORD03:{http:0,operations:{}}};let selects=0;
+  if(Object.hasOwn(policy,'carried')){
+    closed(policy.carried,['scenarios','selects']);closed(policy.carried.scenarios,['COORD02','COORD03']);
+    for(const name of ['COORD02','COORD03']){
+      const prior=policy.carried.scenarios[name];closed(prior,['http','operations']);
+      check(Number.isInteger(prior.http)&&prior.http>=0&&prior.http<=ceilings[name]&&prior.operations&&typeof prior.operations==='object'&&!Array.isArray(prior.operations),'CARRIED_BUDGET_INVALID');
+      for(const [op,n]of Object.entries(prior.operations))check(Object.hasOwn(LIMITS[name],op)&&Number.isInteger(n)&&n>=0&&n<=LIMITS[name][op],'CARRIED_BUDGET_INVALID');
+      check(Object.values(prior.operations).reduce((a,b)=>a+b,0)<=prior.http,'CARRIED_BUDGET_INVALID');
+      counts[name]=structuredClone(prior);
+    }
+    check(Number.isInteger(policy.carried.selects)&&policy.carried.selects>=0&&policy.carried.selects<=240,'CARRIED_BUDGET_INVALID');selects=policy.carried.selects;
+  }
   function http(scenario,operation,payload){
     check(Object.hasOwn(LIMITS,scenario),'SCENARIO_INVALID');
     const counter=counts[scenario];
     const key=operation==='AvanzarLote'?payload?.fase:operation;
     if(operation)check(Object.hasOwn(LIMITS[scenario],key)&&(counter.operations[key]||0)<LIMITS[scenario][key],'HTTP_OPERATION_LIMIT');
-    check(counter.http<250,'HTTP_TOTAL_LIMIT');
+    check(counter.http<ceilings[scenario]&&counts.COORD02.http+counts.COORD03.http<500,'HTTP_TOTAL_LIMIT');
     if(operation)counter.operations[key]=(counter.operations[key]||0)+1;
     counter.http++;
   }
@@ -53,21 +69,34 @@ function operationAt(url,profile){
 function budgetedAuth(auth,profile,budget,scenario){
   return{...auth,context:{request:{post:(url,options)=>{
     const operation=operationAt(url,profile);check(operation,'REQUEST_SCOPE_INVALID');
-    budget.http(scenario,operation,options.data?.solicitud);
+    budget.http(typeof scenario==='function'?scenario():scenario,operation,options.data?.solicitud);
     return auth.context.request.post(url,options);
   }}}};
 }
-function createScopedBrowser(browser,profile,budget,scenario){
+function createScopedBrowser(browser,profile,budget,scenario,{omitNonessentialAssets=false,omitProductionSubresources=false,onOmittedAsset=()=>{}}={}){
   // Also reusable by the authorized read-only preflight, before resource IDs exist.
   return{newContext:async(...args)=>{
     const context=await browser.newContext({...args[0],serviceWorkers:'block'});
     try{await context.route('**/*',async route=>{
       try{
-        const request=route.request(),url=request.url();
+        const request=route.request(),url=request.url(),kind=request.resourceType?.();
+        // API preflight keeps the real login, server-rendered host and CSRF.
+        // Production UI scripts/tree are not needed by context.request.post.
+        // This opt-in must never be used to claim UI acceptance.
+        const production=new URL('Gestion/WebFormProducionDocumental.aspx',profile.baseUrl);
+        let productionFrame=false;
+        if(omitProductionSubresources&&kind!=='document'){
+          const frameUrl=request.frame?.()?.url?.();
+          if(frameUrl){const frame=new URL(frameUrl);productionFrame=frame.origin===production.origin&&frame.pathname===production.pathname;}
+        }
+        if(productionFrame){onOmittedAsset(kind);await route.abort();return;}
+        if(omitNonessentialAssets&&['image','font','media'].includes(kind)){
+          onOmittedAsset(kind);await route.abort();return; // Never dispatched; not an HTTP refund.
+        }
         if(/^https?:/.test(url)){
           const operation=operationAt(url,profile);let payload;
           if(operation==='AvanzarLote'){try{payload=request.postDataJSON()?.solicitud;}catch{throw new BridgeFault('REQUEST_SCOPE_INVALID');}}
-          budget.http(scenario,operation,payload);
+          budget.http(typeof scenario==='function'?scenario():scenario,operation,payload);
         }
         await route.continue();
       }catch{await route.abort().catch(()=>{});}
@@ -76,24 +105,32 @@ function createScopedBrowser(browser,profile,budget,scenario){
 }
 async function openPair({browser,profile,environment,grant,scenario,budget,openSession=shared.openSession}){
   authorize(profile,grant,scenario);check(budget&&['http','select','snapshot'].every(k=>typeof budget[k]==='function'),'SHARED_BUDGET_REQUIRED');
-  profile=structuredClone(profile);grant=Object.freeze({...grant});const sessions=[];let closedPair=false,windowClaimed=false;
+  profile=structuredClone(profile);grant=Object.freeze({...grant});const sessions=[];
   const limitedBrowser=createScopedBrowser(browser,profile,budget,scenario);
   async function close(){
-    if(closedPair)return;closedPair=true;
     const outcomes=await Promise.allSettled([...new Set(sessions.map(s=>s.context))].map(c=>c.close()));
     check(outcomes.every(o=>o.status==='fulfilled'),'SESSION_CLOSE_UNCONFIRMED');
   }
   try{
-    for(let i=0;i<2;i++)sessions.push(await openSession(limitedBrowser,profile,environment,grant));
-    check(sessions[0].context!==sessions[1].context,'DISTINCT_SESSIONS_REQUIRED');
-    const clients=sessions.map(auth=>shared.createDriver(budgetedAuth(auth,profile,budget,scenario),profile,grant));
-    for(const client of clients)await client.refreshToken();
-    return Object.freeze({clients:Object.freeze(clients),budget,scenario,authorizationSha256:binding(profile,grant),close,isClosed:()=>closedPair,
-      claimWindow:()=>{check(!windowClaimed,'WINDOW_ALREADY_REQUESTED');windowClaimed=true;}});
+    for(let i=0;i<2;i++)sessions.push(await openSession(limitedBrowser,profile,environment,grant,{beforeDiagnosticPost:operation=>budget.http(scenario,operation)}));
+    return await bindExistingPair({sessions,profile,grant,scenario,budget,retainSessions:false});
   }catch(error){
     try{await close();}catch{throw new BridgeFault('SESSION_CLOSE_UNCONFIRMED');}
     throw error instanceof BridgeFault?error:new BridgeFault('SESSION_OPEN_UNCONFIRMED');
   }
+}
+async function bindExistingPair({sessions,profile,grant,scenario,budget,retainSessions=true}){
+  authorize(profile,grant,scenario);check(budget&&['http','select','snapshot'].every(k=>typeof budget[k]==='function'),'SHARED_BUDGET_REQUIRED');
+  check(Array.isArray(sessions)&&sessions.length===2&&sessions[0].context!==sessions[1].context,'DISTINCT_SESSIONS_REQUIRED');
+  profile=structuredClone(profile);grant=Object.freeze({...grant});let closedPair=false,windowClaimed=false;
+  const clients=sessions.map(auth=>shared.createDriver(budgetedAuth(auth,profile,budget,scenario),profile,grant));
+  for(const client of clients)await client.refreshToken();
+  async function close(){
+    if(closedPair)return;closedPair=true;
+    if(!retainSessions){const results=await Promise.allSettled(sessions.map(s=>s.context.close()));check(results.every(r=>r.status==='fulfilled'),'SESSION_CLOSE_UNCONFIRMED');}
+  }
+  return Object.freeze({clients:Object.freeze(clients),budget,scenario,authorizationSha256:binding(profile,grant),close,isClosed:()=>closedPair,
+    claimWindow:()=>{check(!windowClaimed,'WINDOW_ALREADY_REQUESTED');windowClaimed=true;}});
 }
 function prepareCommand(prepared){
   closed(prepared,['loteId','archivoAId','archivoBId','revisionA','claveA','claveB','snapshotSha256']);
@@ -151,4 +188,4 @@ async function runPreparedWindow({pair,profile,grant,scope,prepared,query,observ
     throw safe;
   }
 }
-module.exports={LIMITS,authorize,createBudget,createScopedBrowser,budgetedAuth,openPair,prepareCommand,runPreparedWindow};
+module.exports={LIMITS,authorize,createBudget,createScopedBrowser,budgetedAuth,openPair,bindExistingPair,prepareCommand,runPreparedWindow};

@@ -3,7 +3,7 @@
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
 - Clasificación: cross_cutting
-- Estado: refinamiento aprobado y fase real autorizada, preflight inicial sin autenticación; sin despliegue ni efectos documentales nuevos.
+- Estado: refinamiento aprobado; continuación detenida por tope HTTP,16/27 tareas. Primera sesión autenticada, sin pareja completa ni efectos documentales.
 
 ## Contratos e integraciones
 
@@ -20,4 +20,4 @@ La búsqueda puntual posterior localizó la suite `tools/e2e/tests/doc111-import
 Enlace implementado: `doc118-session-bridge.cjs` reutiliza openSession/createDriver/createSelectControls. Consume una sola ventana por par, vincula autorización a runId/recursos/snapshot/comando y aplica presupuestos antes de despacho. COORD02 exige revisión vigente del segundo archivo y no acredita CONFLICTO_REVISION como exclusión. COORD03 utiliza SolicitarDetencion; el driver de lectura la rechaza. Los callbacks del observador externo y la preparación autorizada de recursos siguen a cargo del conductor exterior; no existe CLI autónomo de aceptación completa.
 
 
-La consola usa una cola local de fases permitidas y hashes de implementación. Los secretos solo viven en el proceso, se pasan efímeramente al helper compartido y se limpian al cerrar. No hay endpoint nuevo de producto, otro login ni SQL arbitrario desde la cola. PREFLIGHT es readOnly; no están completadas las fases documentales del ejecutor.
+La consola usa una cola local de fases permitidas y hashes de implementación. Los secretos solo viven en el proceso, se pasan efímeramente al helper compartido y se limpian al cerrar. No hay endpoint nuevo de producto, otro login ni SQL arbitrario desde la cola. PREFLIGHT es readOnly y usa HTML/token reales sin subrecursos de producción ni selección visual del árbol. El ledger lleva425 HTTP/3 aperturas y bloquea reinicios; no están completadas las fases documentales del ejecutor. La pareja se puede vincular al segundo caso sin login nuevo, revalidando autoridad por caso.

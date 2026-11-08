@@ -90,6 +90,34 @@
         "sharedDrivers": 63
       },
       "scope": "Dobles locales, sin confundirlos con el rechazo del preflight real."
+    },
+    {
+      "command": "node --test --test-reporter=dot tests/doc118-live-preflight.test.cjs tests/doc118-session-bridge.test.cjs tests/doc118-active-call.test.cjs tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+      "status": "PASS",
+      "tests": 118,
+      "passed": 118,
+      "failed": 0,
+      "groups": {
+        "livePreflight": 9,
+        "sessionBridge": 30,
+        "activeCall": 16,
+        "sharedDrivers": 63
+      },
+      "scope": "Regresión local con dobles. Optimización de recursos y arrastre del presupuesto; no se volvió a abrir sesión real tras el corte."
+    },
+    {
+      "command": "node --test --test-reporter=dot tests/doc118-live-preflight.test.cjs tests/doc118-session-bridge.test.cjs tests/doc118-active-call.test.cjs tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+      "status": "PASS",
+      "tests": 120,
+      "passed": 120,
+      "failed": 0,
+      "groups": {
+        "livePreflight": 11,
+        "sessionBridge": 30,
+        "activeCall": 16,
+        "sharedDrivers": 63
+      },
+      "scope": "Local. Incluye probe de diagnóstico dentro del mismo presupuesto y bloqueo antes de transporte al agotarlo; sin otra ejecución real."
     }
   ],
   "reviewedSourceHashesVerified": 14,
@@ -132,12 +160,11 @@
   ],
   "previousReview": "refinement-review.json conserva la evaluación histórica del borrador previo; este registro corresponde a la continuación aprobada.",
   "openDependencies": [
-    "Corrección de datos de acceso y decisión sobre execution-continuation-proposal.json después del rechazo real.",
-    "Calificación autorizada del observador externo en ambiente/proceso seleccionado.",
-    "Verificar en preflight autorizado la vigencia del ambiente/cuenta/nivel/version ya localizados; nombres DOC118 nuevos propuestos en el plan.",
-    "Calificar el adaptador externo de depurador y suministrar recursos nuevos preparados bajo autorización; enlace de sesiones/presupuestos implementado localmente."
+    "Decidir ampliación específica de aperturas/tráfico en execution-budget-continuation-proposal.json: el presupuesto vigente impide recrear la pareja.",
+    "Completar preflight autenticado de ambas sesiones y verificar publicación/SELECT sin reiniciar425 HTTP/3 aperturas.",
+    "Completar y calificar el observador externo y las fases documentales de la consola antes de crear recursos o almacenar."
   ],
-  "localNodeTestsAcrossDisjointRuns": 124,
+  "localNodeTestsAcrossDisjointRuns": 138,
   "newToolFiles": [
     {
       "path": "tools/e2e/tests/support/doc118-active-call.cjs",
@@ -149,23 +176,23 @@
     },
     {
       "path": "tools/e2e/tests/support/doc118-session-bridge.cjs",
-      "sha256": "4ffde94a4c724a5909313d4ac33518d1bd08a2517e4e41c4582261531ce36f94"
+      "sha256": "58a6f26cca65b738c8f0a5e0977a38f04306f39ec5806b3e1b25c234e8f01f85"
     },
     {
       "path": "tests/doc118-session-bridge.test.cjs",
-      "sha256": "99354b4250d40f644d88b0ade7e3ed2c9c716bce09adf33343982594b62aedd8"
+      "sha256": "cf9f5e281a6fe4976db4d0e2a30b7121727c539cda1d7b474aebea0f2b5b1848"
     },
     {
       "path": "tools/e2e/scripts/run-doc118-live.cjs",
-      "sha256": "a9012a4860c4e5ca86f9cdb6fe0594157f414cc3b470d0c630511c35ddeee0c9"
+      "sha256": "f0b3fa83517cf3d5e8f3f7a47ab7e306ccb6f6c4f2add34f93e6e91b2509e2f9"
     },
     {
       "path": "tools/e2e/scripts/support/doc118-live-plan.cjs",
-      "sha256": "1fcfe76c968a91719b7e3f9756839ac130d6d870f6c677af62a891dfc89e9ccb"
+      "sha256": "b67fa2ab0855802cb0e2fd11d23f289abbd387b12683e044f6b693b4c9f7ee46"
     },
     {
       "path": "tests/doc118-live-preflight.test.cjs",
-      "sha256": "f46b3c5e66bb2437c80911e6fe336da71a2c5c74b3a66b9b510aefdba74a797b"
+      "sha256": "5e68aed2bf82987c0bd1a73e250e9fc3467aa0a78f878b8b13371065216dc6a1"
     }
   ],
   "existingE2EDiscovery": {
@@ -185,14 +212,15 @@
     "historicalAmbitoRef": "2",
     "currentAuthorityVerified": false,
     "profileCommitted": false,
-    "realExecution": false
+    "realExecution": false,
+    "firstSessionReadOnlyAuthorityVerified": true
   },
   "changedSharedTools": [
     {
       "path": "tools/e2e/tests/support/doc111-importacion-carpetas.cjs",
       "beforeSha256": "8936aacb0b0b9392c3d9944d7a029f7bfcb345ad4e4fb4fc3ac0b3dcaa3aadda",
-      "afterSha256": "f444a07bafac59cc7553a51901ad03725c29068fc6d6ecd4dbd496f4a13f5348",
-      "change": "Añadir SolicitarDetencion al allowlist existente; modo readOnly mantiene rechazo antes de transporte."
+      "afterSha256": "b794339f0083ef1e615eff0ce9aa54f8ac5a0185b51ae0737074af5c9c8c01c5",
+      "change": "Añadir SolicitarDetencion al allowlist existente; modo readOnly mantiene rechazo antes de transporte. Callback optativo antes del diagnóstico AbrirImportacion para cargarlo al presupuesto externo; sin callback conserva comportamiento de consumidores previos."
     }
   ],
   "sessionBridge": {
@@ -211,12 +239,15 @@
     "grantBoundToRunAndResources": true,
     "operatorDebuggerAdapterQualified": false,
     "realExecution": false,
-    "standaloneCompleteCli": false
+    "standaloneCompleteCli": false,
+    "retainedIndependentPairSupported": true,
+    "actualRetainedPairAvailable": false
   },
-  "localTestAccounting": "106 pruebas actuales y18 previas disjuntas de servidor/cliente; no sumar repeticiones.",
+  "localTestAccounting": "120 actuales y18 previas disjuntas de servidor/cliente; no sumar repeticiones.",
   "runtimePreflightReference": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preflight-20261107.json",
   "runtimePreflightStarted": true,
   "realLoginAttempted": true,
-  "realLoginSucceeded": false,
-  "realLoginEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-login-preflight-20261107.json"
+  "realLoginSucceeded": true,
+  "realLoginEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-continuation-preflight-20261107.json",
+  "authenticatedPreflightCompleted": false
 }

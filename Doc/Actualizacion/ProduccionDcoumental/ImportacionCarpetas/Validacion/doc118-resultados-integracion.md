@@ -1,35 +1,33 @@
-# DOC-118 — autorización y preflight real
+# DOC-118 — resultado del preflight autorizado
 
-La persona responsable autorizó expresamente la fase real mediante «autorizado», después de revisar el plan de ambiente local, usuario141/empresa2, nivel7/versión38, TLS local, observador externo y límites de recursos. La autorización está registrada en `openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-authorization.json`. No se vuelve a solicitar esa autorización dentro del alcance concedido.
+La autorización del plan real y la redistribución425/75 están concedidas en execution-authorization.json y execution-continuation-proposal.json. La continuación se detuvo al agotar C02; esa aprobación no autoriza repetir otra pareja ni ampliar topes automáticamente.
 
 ## Resultado observado
 
-Se realizó una petición HEAD a gestor.aspx del ambiente autorizado: HTTP200. La DLL ordinaria y su PDB están presentes; sus huellas figuran en doc118-preflight-20261107.json. Esa presencia no acredita correspondencia de símbolos cargados ni observación del cuerpo de la llamada.
+El primer intento fue rechazado explícitamente por credenciales; quedó registrado en doc118-login-preflight-20261107.json con98 HTTP y1 apertura acumulados, incluido el HEAD inicial. Una activación local anterior falló antes de autenticación, sin HTTP adicionales.
 
-La aplicación usa DefaultAppPool, compartido por seis aplicaciones. Se localizó la instancia de Visual Studio de la carpeta principal en modo diseño, sin depuración activa. Se consultaron configuración/metadatos por lectura, sin attach, breakpoints, congelación de hilos ni cambios de IIS. La lectura automatizada de la API SDK quedó comprobada mediante un helper C# y se identificó el motor administrado .NET Framework local. Attach, breakpoints, Freeze/Thaw y observación interna siguen sin ejecutar ni calificar.
+Tras la autorización de redistribución, la nueva captura permitió autenticar A, seleccionar nivel7 y consultar lote23 por el driver readOnly. La apertura de B alcanzó425 HTTP acumulados de C02 y no terminó; no se observó rechazo de sus credenciales. El código genérico de consola se conserva separado de la clasificación de presupuesto en doc118-continuation-preflight-20261107.json. No se ejecutaron controles SELECT ni fases documentales.
 
-## Presupuesto consumido
+El guard cerró contextos/navegador y borró secretos. No se conserva sesión para reusar. Las3 aperturas/intentos son asignaciones antes de openSession, no una afirmación de tres postbacks de autenticación confirmados.
 
-| Concepto | Consumo |
-| --- | --- |
-| HTTP total C02 | 1 de250; HEAD de preparación, cero HTTP de negocio |
-| HTTP total C03 | 0 de250 |
-| Intentos de login | 0 |
-| Controles SELECT | 0 de240 |
-| Planes/lotes/raíces/archivos/expedientes/documentos nuevos | 0 |
-| Detenciones y mutaciones históricas | 0 |
+## Presupuesto acumulado vigente
 
-No hay secretos efímeros de aplicación ni MySQL SELECT en el proceso. Se solicitó elegir entre consola local de captura enmascarada y consola existente; aún no hay respuesta. No se probó un login vacío ni se buscaron credenciales en archivos. La captura de datos de acceso es una dependencia, no una nueva autorización.
+| Concepto | Consumido | Disponible con autorización actual |
+| --- | --- | --- |
+| HTTP C02 |425 de425, incluida1 consulta de negocio |0 |
+| HTTP C03 |0 de75 |75 |
+| HTTP global |425 de500 |75 |
+| Aperturas/intentos |3 de4 |1 |
+| SELECT de control |0 de240 |240 |
+| Planes/lotes/raíces/PDFs/expedientes/documentos nuevos |0 | Límites originales |
+| Detenciones, attach, breakpoints y congelaciones |0 | Sin ejecutar |
 
-## Estado de los casos
+## Corrección local y límites
 
-COORD02 y COORD03 continúan NO_EJECUTADOS para su aceptación específica. El sitio accesible y la autorización no acreditan exclusión documental, detención en vuelo ni recuperación. Los intentos41/53 siguen intactos. Conservar el HEAD consumido al continuar y calificar la observación antes de iniciar un caso documental.
+El preflight por API conserva el login compartido y el host/token emitidos en el HTML del servidor. Omite subrecursos de la pantalla de producción y la selección visual del árbol. RenderImportacionCarpetas emite el token a partir de Resolver; VinculoContexto lo vincula a sesión/usuario/empresa y ConsultarLote resuelve el nivel desde el lote bajo autoridad vigente. Esto no elude el guard ni acredita QA visual. Recursos omitidos antes de despacho no consumen HTTP; los425 anteriores siguen íntegros. El ahorro real aún no se midió.
 
+120/120 pruebas locales pasan:11 preflight,30 enlace,16 coordinación y63 drivers. Se verifican arrastre inmutable, ledger discordante, capacidad insuficiente, sesiones cerradas y recursos omitidos. El arranque actual rechaza nuevos logins porque quedó STOPPED_BUDGET_REVIEW_REQUIRED. La propuesta execution-budget-continuation-proposal.json plantea5 aperturas/1000 HTTP acumulados (925/75), conservando425 HTTP/3 aperturas consumidos. Sigue sin autorización.
 
-## Captura y primer intento de autenticación
+## Estado de aceptación
 
-Se abrió la consola local solicitada y se reutilizó la entrada enmascarada del arnés. Una primera activación se detuvo por un enlace local desactualizado antes de login/HTTP nuevos; se corrigió y verificó antes de reabrir. El siguiente intento llegó al servidor, que devolvió DOC111_LOGIN_CREDENTIALS_REJECTED. Se cerraron contextos/navegador y se limpiaron los secretos; no se probó otra combinación automáticamente.
-
-Consumo acumulado: C02=98/250 HTTP totales, incluyendo el HEAD previo; C03=0/250;1 intento/contexto de los4 autorizados;0 SELECT de control y0 efectos documentales. No se conoce qué dato de entrada causó el rechazo. Evidencia saneada: doc118-login-preflight-20261107.json.
-
-La propuesta execution-continuation-proposal.json conserva el techo global de500 HTTP y4 intentos/contextos, reutiliza una pareja independiente para ambos casos y redistribuye los topes a425 C02/75 C03. No está autorizada ni aplicada. Todos los límites documentales y SELECT permanecen iguales. Se requiere corregir la entrada en una captura nueva y decidir sobre esa continuación; no enviar secretos por chat.
+Progreso16/27. COORD02/03 permanecen NO_EJECUTADOS para aceptación específica. La CLI solo implementa PREFLIGHT; sus otras fases y el observador real siguen pendientes. La DLL/PDB ordinarios y el IDE fueron localizados, pero no hay attach ni correspondencia de símbolos cargados acreditada. DefaultAppPool es compartido por6 aplicaciones. No se cambia almacenamiento compartido, SII, binario, permisos ni IIS. Los intentos41/53 y lotes18/21 no se mutaron.

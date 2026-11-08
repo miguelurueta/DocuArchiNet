@@ -40,8 +40,13 @@
       "COORD02": 53,
       "COORD03": 51
     },
-    "allHttpPerCase": 250,
-    "caseDurationMilliseconds": 600000
+    "allHttpPerCase": {
+      "COORD02": 425,
+      "COORD03": 75
+    },
+    "caseDurationMilliseconds": 600000,
+    "previousAllHttpPerCase": 250,
+    "allHttpGlobal": 500
   },
   "newRootNames": {
     "COORD02": [
@@ -77,18 +82,47 @@
     "consolePreference": "LOCAL_MASKED_CONSOLE",
     "preferenceSource": "«continua» en respuesta a la propuesta de abrir la consola de captura."
   },
-  "executionStatus": "STOPPED_CREDENTIALS_REJECTED",
+  "executionStatus": "STOPPED_BUDGET_REVIEW_REQUIRED",
   "consumed": {
     "allHttp": {
-      "COORD02": 98,
+      "COORD02": 425,
       "COORD03": 0
     },
-    "loginAttempts": 1,
-    "totalSessionAttempts": 1,
+    "loginAttempts": 3,
+    "totalSessionAttempts": 3,
     "selectStatements": 0,
     "newPlans": 0,
     "newLots": 0,
     "newExpedientes": 0,
-    "newStoredDocuments": 0
+    "newStoredDocuments": 0,
+    "businessHttp": {
+      "COORD02": 1,
+      "COORD03": 0
+    },
+    "loginAttemptsMeaning": "Aperturas/intentos asignados antes de openSession; no prueba tres postbacks de login ni atribuye fallo a las credenciales de B."
+  },
+  "sessionReuse": "TWO_SHARED_INDEPENDENT_SESSIONS",
+  "continuationApproval": {
+    "status": "AUTHORIZED",
+    "source": "«autorizado» posterior a execution-continuation-proposal.json",
+    "proposal": "execution-continuation-proposal.json",
+    "recordedUtc": "2026-11-08T01:23:51.033Z"
+  },
+  "consumptionEvidence": "doc118-continuation-preflight-20261107.json",
+  "remaining": {
+    "allHttp": {
+      "COORD02": 0,
+      "COORD03": 75
+    },
+    "allHttpGlobal": 75,
+    "totalSessionAttempts": 1,
+    "selectStatements": 240
+  },
+  "lastResult": {
+    "evidence": "doc118-continuation-preflight-20261107.json",
+    "classification": "HTTP_BUDGET_EXHAUSTED",
+    "firstSessionAuthenticated": true,
+    "independentPairCompleted": false,
+    "closed": true
   }
 }

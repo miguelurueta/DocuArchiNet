@@ -3,7 +3,7 @@
   "recordedUtc": "2026-11-07T20:30:39.605Z",
   "reviewedCodeCommit": "3c538a0f6aab1ba9fe36639815bccafb40ab1f5b",
   "authorizationReference": "execution-authorization.json",
-  "status": "STOPPED_CREDENTIALS_REJECTED",
+  "status": "STOPPED_BUDGET_REVIEW_REQUIRED",
   "site": {
     "method": "HEAD",
     "path": "gestor.aspx",
@@ -42,14 +42,14 @@
   },
   "counters": {
     "COORD02": {
-      "allHttp": 98,
-      "businessHttp": 0
+      "allHttp": 425,
+      "businessHttp": 1
     },
     "COORD03": {
       "allHttp": 0,
       "businessHttp": 0
     },
-    "loginAttempts": 1,
+    "loginAttempts": 3,
     "selectStatements": 0,
     "newPlans": 0,
     "newLots": 0,
@@ -57,13 +57,14 @@
     "newFiles": 0,
     "newExpedientes": 0,
     "newStoredDocuments": 0,
-    "stopRequests": 0
+    "stopRequests": 0,
+    "sessionAttempts": 3
   },
   "remaining": {
-    "COORD02AllHttp": 152,
-    "COORD03AllHttp": 250,
+    "COORD02AllHttp": 0,
+    "COORD03AllHttp": 75,
     "selectStatements": 240,
-    "totalSessions": 3
+    "totalSessions": 1
   },
   "historicalAttemptsMutated": [],
   "caseStatus": {
@@ -71,15 +72,16 @@
     "COORD03": "NO_EJECUTADO"
   },
   "requiredBeforeEffects": [
-    "Corregir datos de acceso y revisar explícitamente la continuación tras el rechazo; no probar otra combinación automáticamente.",
-    "Entrada de credenciales por consola TTY enmascarada existente; no por chat ni archivo.",
-    "Verificar autoridad actual y publicación con el preflight autenticado.",
-    "Calificar adaptador externo de depurador, símbolos y correlación sin afectar hilos ajenos.",
-    "Preparar recursos nuevos y registrar sus IDs/huellas dentro del alcance autorizado."
+    "Decidir ampliación acotada de presupuesto y aperturas; el techo de C02 está agotado.",
+    "Nueva captura efímera solo por consola TTY enmascarada existente, después de aprobar la ampliación.",
+    "Completar preflight de dos sesiones, publicación y controles SELECT.",
+    "Calificar observador externo, símbolos y correlación; completar fases documentales antes de efectos.",
+    "Comprobar ausencia de nombres nuevos y registrar IDs/huellas de recursos preparados."
   ],
   "budgetCarryForward": "Antes de nuevos despachos cargar el contador previo y conservar la petición HEAD ya consumida; no reiniciar los presupuestos al abrir sesión.",
-  "loginResult": "DOC111_LOGIN_CREDENTIALS_REJECTED",
+  "loginResult": "FIRST_SESSION_CONFIRMED_SECOND_UNCONFIRMED",
   "authenticated": false,
   "retryAutomaticallyAuthorized": false,
-  "safeLiveEvidence": "doc118-login-preflight-20261107.json"
+  "safeLiveEvidence": "doc118-continuation-preflight-20261107.json",
+  "authenticatedMeaning": "No hay sesiones abiertas; la primera sesión de la continuación sí autenticó y consultó lote23."
 }

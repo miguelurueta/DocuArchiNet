@@ -9,7 +9,7 @@ const ROOT=path.resolve(__dirname,'../../..'),CHANGE='doc-118-produccion-importa
 const AUTH=path.join(ROOT,'openspec/changes',CHANGE,'execution-authorization.json');
 const IMPL=path.join(__dirname,'support/doc118-live-plan.cjs');
 const PHASES=['PREFLIGHT','PREPARE02','RUN02','FINISH02','PREPARE03','RUN03','VERIFY'];
-const STAGES=new Set(['PREFLIGHT_BEFORE_LOGIN_A','PREFLIGHT_LOGIN_A','PREFLIGHT_LEVEL_A','PREFLIGHT_LOT_A','PREFLIGHT_BEFORE_LOGIN_B','PREFLIGHT_LOGIN_B','PREFLIGHT_LEVEL_B','PREFLIGHT_LOT_B','PREFLIGHT_PUBLICATION','PREFLIGHT_CABINET','PREFLIGHT_OWNER','PREFLIGHT_PROTECTION']);
+const STAGES=new Set(['PREFLIGHT_BEFORE_LOGIN_A','PREFLIGHT_LOGIN_A','PREFLIGHT_LOT_A','PREFLIGHT_BEFORE_LOGIN_B','PREFLIGHT_LOGIN_B','PREFLIGHT_LOT_B','PREFLIGHT_PUBLICATION','PREFLIGHT_CABINET','PREFLIGHT_OWNER','PREFLIGHT_PROTECTION']);
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
 const read=p=>JSON.parse(fs.readFileSync(p,'utf8').replace(/^\uFEFF/,''));
 const check=(v,c)=>{if(!v)throw Error('DOC118_LIVE_'+c);};
@@ -17,25 +17,40 @@ function scope(a,p){
  check(a.issueKey==='DOC-118'&&a.status==='AUTHORIZED'&&a.environment.actorRef==='141'&&a.environment.ambitoRef==='2'&&a.environment.levelRef==='7'&&a.environment.versionRef==='38','AUTHORIZATION_CHANGED');
  check(a.environment.baseUrl===p.baseUrl&&p.nivelRef==='7'&&p.versionId==='38'&&p.module==='GESTOR'&&p.odbcDsn==='MembershipUsers'&&p.docuarchiOdbcDsn==='MembershipUsers','PROFILE_CHANGED');
  check(a.maximum.newLots===2&&a.maximum.newExpedientes===4&&a.maximum.newStoredDocuments===3&&a.maximum.selectStatementsTotal===240&&a.maximum.pauseMilliseconds===30000&&a.maximum.totalSessions===4&&a.environment.localTlsExceptionAuthorized===true,'LIMITS_CHANGED');
+ check(a.maximum.allHttpPerCase?.COORD02===425&&a.maximum.allHttpPerCase?.COORD03===75&&a.maximum.allHttpGlobal===500&&a.sessionReuse==='TWO_SHARED_INDEPENDENT_SESSIONS'&&a.continuationApproval?.status==='AUTHORIZED','CONTINUATION_NOT_AUTHORIZED');
  return sha(JSON.stringify({environment:a.environment,maximum:a.maximum,newRootNames:a.newRootNames,debugger:a.debugger,protectedHistoricalAttempts:a.protectedHistoricalAttempts}));
 }
+function continuationConsumption(a,proof){
+ // A previous approval is not permission to retry after a subsequent stop.
+ check(a.executionStatus==='CONTINUATION_AUTHORIZED_AWAITING_MASKED_CAPTURE','CONTINUATION_REVIEW_REQUIRED');
+ check(proof?.issueKey==='DOC-118'&&proof.status==='STOPPED_REVIEW_REQUIRED'&&proof.sessionsClosed===true&&proof.ephemeralSecretsCleared===true&&Number.isInteger(proof.sessionAttempts),'CARRIED_STATE_CHANGED');
+ const consumed=a.consumed,counters=proof.counters;
+ check(consumed&&counters&&proof.sessionAttempts===consumed.totalSessionAttempts&&proof.sessionAttempts===consumed.loginAttempts&&proof.sessionAttempts>=0&&proof.sessionAttempts<=a.maximum.totalSessions&&counters.selects===consumed.selectStatements&&['COORD02','COORD03'].every(k=>counters.scenarios?.[k]?.http===consumed.allHttp?.[k]),'CARRIED_STATE_CHANGED');
+ createBudget({allHttpPerCase:a.maximum.allHttpPerCase,carried:counters});
+ check(proof.sessionAttempts+2<=a.maximum.totalSessions&&['COORD02','COORD03'].every(k=>counters.scenarios[k].http<a.maximum.allHttpPerCase[k]),'CONTINUATION_CAPACITY_INSUFFICIENT');
+ return structuredClone({sessionAttempts:proof.sessionAttempts,counters});
+}
 async function main(args=process.argv.slice(2)){
+ process.title='DOC118 - Captura enmascarada E2E';
  check(args.length===2&&args[0]==='--run'&&/^[a-f0-9]{32}$/.test(args[1]),'ARGUMENT_INVALID');tty.requireInteractiveConsole();
- const runId=args[1],directory=path.join(ROOT,'.tmp','doc118-live-'+runId);check(!fs.existsSync(directory),'PREVIOUS_SESSION_REQUIRES_REVIEW');fs.mkdirSync(directory);
+ const runId=args[1],directory=path.join(ROOT,'.tmp','doc118-live-'+runId);check(!fs.existsSync(directory),'PREVIOUS_SESSION_REQUIRES_REVIEW');
  const profile=validateProfile(read(path.join(ROOT,'tools/e2e/profiles/doc111-importacion-carpetas-lote-20261102.runtime.json'))),authorization=read(AUTH),pin=scope(authorization,profile);
  require(IMPL).assertDependencies(); // Fail before secret entry if a shared binding is unavailable.
- const record={issueKey:'DOC-118',runId,pid:process.pid,status:'AWAITING_CREDENTIALS',createdUtc:new Date().toISOString(),phaseIndex:0,authorizationScopeSha256:pin,history:[],counters:null,references:[]};
+ check(['doc118-login-preflight-20261107.json','doc118-continuation-preflight-20261107.json'].includes(authorization.consumptionEvidence),'CARRIED_STATE_CHANGED');
+ const carried=continuationConsumption(authorization,read(path.join(ROOT,'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion',authorization.consumptionEvidence)));
+ fs.mkdirSync(directory);
+ const record={issueKey:'DOC-118',runId,pid:process.pid,status:'AWAITING_CREDENTIALS',createdUtc:new Date().toISOString(),phaseIndex:0,authorizationScopeSha256:pin,history:[],counters:null,references:[],carriedSessionAttempts:carried.sessionAttempts,carriedCounters:carried.counters};
  const statusFile=path.join(directory,'status.json'),requestFile=path.join(directory,'request.json');
  const save=()=>fs.writeFileSync(statusFile,JSON.stringify(record,null,2)+'\n');save();
  const secrets={},environment=Object.fromEntries(Object.entries(process.env).filter(([k])=>['PATH','Path','SystemRoot','WINDIR','TEMP','TMP','ComSpec','PATHEXT'].includes(k)));
- const live={ROOT,directory,runId,profile,authorization,budget:createBudget(),environment,sessions:[],prepared:{},browser:null,observer:null,sessionCount:0,startedCaseUtc:{},
+ const live={ROOT,directory,runId,profile,authorization,budget:createBudget({allHttpPerCase:authorization.maximum.allHttpPerCase,carried:carried.counters}),environment,sessions:[],prepared:{},browser:null,observer:null,sessionCount:carried.sessionAttempts,carriedSessionAttempts:carried.sessionAttempts,activeCase:'COORD02',startedCaseUtc:{},
    reference(ref){const safe={};for(const key of ['planId','loteId','raizId','archivoId','expedienteId','relacionNivelId','intentoId','documentoId','inventarioId'])if(typeof ref[key]==='string'&&/^[1-9][0-9]{0,9}$/.test(ref[key]))safe[key]=ref[key];record.references.push(safe);save();},
-   mark(stage){check(STAGES.has(stage),'STAGE_INVALID');record.status=stage;record.sessionAttempts=live.sessionCount;record.counters=live.budget.snapshot();save();}};
- live.budget.http('COORD02'); // HEAD already consumed by the authorized initial preflight.
+   mark(stage){check(STAGES.has(stage),'STAGE_INVALID');record.status=stage;record.lastStage=stage;record.sessionAttempts=live.sessionCount;record.counters=live.budget.snapshot();save();}};
+ record.counters=live.budget.snapshot();save();
  let requestedClose=false;
  try{
-  console.log('DOC-118: captura efimera para el ambiente local autorizado. No escriba contrasenas en el chat.');
-  await tty.collectValue(secrets,'user','Cuenta de aplicacion correspondiente al usuario 141',{secret:true});
+  console.log('DOC-118: continuacion autorizada. Entradas solo en memoria; sin reintentos automaticos.');
+  await tty.collectValue(secrets,'user','Login de aplicacion de la cuenta autorizada (usuario 141)',{secret:true});
   await tty.collectValue(secrets,'password','Contrasena de aplicacion',{secret:true});
   await tty.collectValue(secrets,'dbUser','Cuenta MySQL exclusivamente SELECT',{secret:true});
   await tty.collectValue(secrets,'dbPassword','Contrasena MySQL SELECT',{secret:true});
@@ -63,7 +78,7 @@ async function main(args=process.argv.slice(2)){
   record.status=record.phaseIndex===PHASES.length?'FINISHED_REQUIRES_EVIDENCE_REVIEW':'CLOSED_BY_OPERATOR';
  }catch(error){
   record.status='STOPPED_REVIEW_REQUIRED';
-  const own=['ARGUMENT_INVALID','PREVIOUS_SESSION_REQUIRES_REVIEW','AUTHORIZATION_CHANGED','PROFILE_CHANGED','LIMITS_CHANGED','REQUEST_INVALID','PHASE_ORDER_INVALID','IMPLEMENTATION_CHANGED','SESSION_EXPIRED'];
+  const own=['ARGUMENT_INVALID','PREVIOUS_SESSION_REQUIRES_REVIEW','AUTHORIZATION_CHANGED','PROFILE_CHANGED','LIMITS_CHANGED','CONTINUATION_NOT_AUTHORIZED','CARRIED_STATE_CHANGED','REQUEST_INVALID','PHASE_ORDER_INVALID','IMPLEMENTATION_CHANGED','SESSION_EXPIRED'];
   const known=['DOC111_LOGIN_CREDENTIALS_REJECTED','DOC111_LOGIN_ACCOUNT_NOT_FOUND','DOC111_LOGIN_ACCOUNT_BLOCKED','DOC111_LOGIN_SECOND_FACTOR_REQUIRED','DOC111_LOGIN_HTTP_REJECTED','DOC111_SESSION_NOT_ESTABLISHED','DOC111_IMPORT_ACCESS_DENIED','DOC111_IMPORT_CAPABILITY_UNAVAILABLE'];
   record.code=known.includes(error?.message)?error.message:own.map(c=>'DOC118_LIVE_'+c).includes(error?.message)?error.message:'DOC118_LIVE_PHASE_UNCONFIRMED';
   console.log(record.code+'; sin reintentos automaticos.');process.exitCode=2;
@@ -76,4 +91,4 @@ async function main(args=process.argv.slice(2)){
  }
 }
 if(require.main===module)main().catch(()=>{console.log('DOC118_LIVE_START_UNCONFIRMED; sin detalle privado.');process.exitCode=2;});
-module.exports={scope,PHASES};
+module.exports={scope,continuationConsumption,PHASES};

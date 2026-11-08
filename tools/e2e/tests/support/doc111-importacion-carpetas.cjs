@@ -119,6 +119,8 @@ async function openSession(browser, profile, environment, authorization, runtime
       // fabricated: the server still applies authority, policy and CSRF guards.
       let diagnostic='IMPORT_CONTROL_UNAVAILABLE';
       try {
+        // An outer bounded run also counts this failure-path API probe.
+        runtime.beforeDiagnosticPost?.('AbrirImportacion');
         const probe=await safePost(auth.context.request,new URL('webservice/WebServiceImportacionCarpetas.asmx/AbrirImportacion',profile.baseUrl).href,
           {maxRedirects:0,headers:{Origin:new URL(profile.baseUrl).origin},data:{solicitud:{nivelRef:profile.nivelRef}}},'AbrirImportacion');
         const raw=await probe.json(),body=raw?.d??raw;
