@@ -118,6 +118,27 @@
         "sharedDrivers": 63
       },
       "scope": "Local. Incluye probe de diagnóstico dentro del mismo presupuesto y bloqueo antes de transporte al agotarlo; sin otra ejecución real."
+    },
+    {
+      "command": "node --test --test-reporter=dot tests/doc118-live-preflight.test.cjs tests/doc118-session-bridge.test.cjs tests/doc118-active-call.test.cjs tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs tests/doc118-symbols.test.cjs tests/doc118-debugger-observer.test.cjs",
+      "status": "PASS",
+      "tests": 130,
+      "groups": {
+        "livePreflight": 12,
+        "sessionBridge": 31,
+        "activeCall": 16,
+        "sharedDrivers": 63,
+        "symbolFiles": 4,
+        "debuggerObserver": 4
+      },
+      "scope": "Local; no acredita Freeze/Thaw real ni fases documentales.",
+      "passed": 130,
+      "failed": 0
+    },
+    {
+      "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File .tmp/doc118-compile-observer-20261107.ps1",
+      "status": "PASS",
+      "scope": "Compilación SDK C# local; sin attach en ese chequeo."
     }
   ],
   "reviewedSourceHashesVerified": 14,
@@ -145,12 +166,18 @@
     "candidate": "Depurador administrado externo: breakpoint interno, Freeze/Thaw del hilo seleccionado.",
     "localExecutableFound": true,
     "runtimeQualified": false,
-    "debuggerAttached": false,
+    "debuggerAttached": true,
     "sourceOrBinaryChanged": false,
     "limitations": [
       "La instalación del IDE no prueba compatibilidad de attach o símbolos.",
       "La coordinación altera la planificación y no acredita rendimiento/concurrencia natural."
-    ]
+    ],
+    "debuggerCurrentlyAttached": false,
+    "onDiskGuidAndAgeMatch": true,
+    "temporarySourceBreakpointBound": true,
+    "selectedThreadEverFrozen": false,
+    "privateIdeCleanupInitiallyUnconfirmed": true,
+    "privateIdeAbsenceSubsequentlyVerified": true
   },
   "realIntegrationExecuted": false,
   "productChanged": false,
@@ -160,11 +187,11 @@
   ],
   "previousReview": "refinement-review.json conserva la evaluación histórica del borrador previo; este registro corresponde a la continuación aprobada.",
   "openDependencies": [
-    "Decidir ampliación específica de aperturas/tráfico en execution-budget-continuation-proposal.json: el presupuesto vigente impide recrear la pareja.",
-    "Completar preflight autenticado de ambas sesiones y verificar publicación/SELECT sin reiniciar425 HTTP/3 aperturas.",
-    "Completar y calificar el observador externo y las fases documentales de la consola antes de crear recursos o almacenar."
+    "Completar/calificar el controlador externo sobre worker vigente; no hubo observación interna ni congelación real.",
+    "Completar las fases documentales de la CLI antes de nuevos efectos.",
+    "Revisar salida de consola sin finally/ack CLOSE y conservar697 HTTP/17 SELECT/5 aperturas;0 aperturas restantes."
   ],
-  "localNodeTestsAcrossDisjointRuns": 138,
+  "localNodeTestsAcrossDisjointRuns": 148,
   "newToolFiles": [
     {
       "path": "tools/e2e/tests/support/doc118-active-call.cjs",
@@ -176,15 +203,15 @@
     },
     {
       "path": "tools/e2e/tests/support/doc118-session-bridge.cjs",
-      "sha256": "58a6f26cca65b738c8f0a5e0977a38f04306f39ec5806b3e1b25c234e8f01f85"
+      "sha256": "6bd13c211292dc6a1b5e655a14ebf49d226f962a6f7bfe755b3b37451151c9fa"
     },
     {
       "path": "tests/doc118-session-bridge.test.cjs",
-      "sha256": "cf9f5e281a6fe4976db4d0e2a30b7121727c539cda1d7b474aebea0f2b5b1848"
+      "sha256": "04ea3e1ba1b34ef927b35cd2ec69907a245826a3d687c64b2e02b8ad0ee4df7a"
     },
     {
       "path": "tools/e2e/scripts/run-doc118-live.cjs",
-      "sha256": "f0b3fa83517cf3d5e8f3f7a47ab7e306ccb6f6c4f2add34f93e6e91b2509e2f9"
+      "sha256": "9fc33809714c0e34f27a03ed094b95f367cadd28152df2a0fb6ec930d6c5a554"
     },
     {
       "path": "tools/e2e/scripts/support/doc118-live-plan.cjs",
@@ -192,7 +219,31 @@
     },
     {
       "path": "tests/doc118-live-preflight.test.cjs",
-      "sha256": "5e68aed2bf82987c0bd1a73e250e9fc3467aa0a78f878b8b13371065216dc6a1"
+      "sha256": "dd4004a94658271eb8f3888f9be6f4cecb66d6334a073f90bdb501d41b7c6df1"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc118-symbols.cjs",
+      "sha256": "64c2abdcdc549053fe80447b9d73d14db518ffaf471bba1f96adb373395be18f"
+    },
+    {
+      "path": "tests/doc118-symbols.test.cjs",
+      "sha256": "80e38bf60ffa4b70753b44184d9eab35618579e1d6f2811c67f8885f8f580bbe"
+    },
+    {
+      "path": "tools/e2e/scripts/support/Doc118Debugger.cs",
+      "sha256": "43b55db98436900a3cb0b2263934aa247dd85f1491c1e99a77b5b314266a93ac"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc118-debugger.ps1",
+      "sha256": "124526071a3a7124b92df1e064bae91e44d34b75c0180d8689145b6cd73bd297"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc118-debugger-observer.cjs",
+      "sha256": "6d6c2a05b89d58c0b1a7a069c887141f31746e530b7db001dc5057797fc2a583"
+    },
+    {
+      "path": "tests/doc118-debugger-observer.test.cjs",
+      "sha256": "d3b56a4a2ae34b27eb8aeb1714264a2a49efcd4c827f7587e03bd3ec18f4d3ca"
     }
   ],
   "existingE2EDiscovery": {
@@ -210,10 +261,11 @@
     "daDsn": "MembershipUsers",
     "historicalActorRef": "141",
     "historicalAmbitoRef": "2",
-    "currentAuthorityVerified": false,
+    "currentAuthorityVerified": true,
     "profileCommitted": false,
     "realExecution": false,
-    "firstSessionReadOnlyAuthorityVerified": true
+    "firstSessionReadOnlyAuthorityVerified": true,
+    "currentAuthorityVerifiedMeaning": "Verificado en las dos sesiones del preflight; no transferible a otra corrida."
   },
   "changedSharedTools": [
     {
@@ -243,11 +295,11 @@
     "retainedIndependentPairSupported": true,
     "actualRetainedPairAvailable": false
   },
-  "localTestAccounting": "120 actuales y18 previas disjuntas de servidor/cliente; no sumar repeticiones.",
+  "localTestAccounting": "130 actuales más18 previas disjuntas; no sumar repeticiones.",
   "runtimePreflightReference": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preflight-20261107.json",
   "runtimePreflightStarted": true,
   "realLoginAttempted": true,
   "realLoginSucceeded": true,
-  "realLoginEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-continuation-preflight-20261107.json",
-  "authenticatedPreflightCompleted": false
+  "realLoginEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-authenticated-preflight-20261107.json",
+  "authenticatedPreflightCompleted": true
 }

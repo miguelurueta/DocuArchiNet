@@ -1,33 +1,33 @@
-# DOC-118 — resultado del preflight autorizado
+# DOC-118 — preflight autenticado y bloqueo del observador
 
-La autorización del plan real y la redistribución425/75 están concedidas en execution-authorization.json y execution-continuation-proposal.json. La continuación se detuvo al agotar C02; esa aprobación no autoriza repetir otra pareja ni ampliar topes automáticamente.
+El preflight de dos sesiones pasó con publicación38/gabinete10 y17 SELECT. Consumo acumulado697 HTTP C02,0 C03 y5 aperturas;0 fases documentales y0 efectos. El worker26244 dejó de estar activo por causa no determinada. La consola terminó sin reconocer la orden CLOSE ni el finally; no quedan consola/shell ni hijos directos detectados. Las instancias privadas de depuración ya no están presentes y los dos IDE originales quedaron sin depuración activa, con12 breakpoints del usuario conservados. La observación interna sigue SIN_CALIFICAR. Evidencia: doc118-authenticated-preflight-20261107.json.
 
-## Resultado observado
+## Autorización y consumo
 
-El primer intento fue rechazado explícitamente por credenciales; quedó registrado en doc118-login-preflight-20261107.json con98 HTTP y1 apertura acumulados, incluido el HEAD inicial. Una activación local anterior falló antes de autenticación, sin HTTP adicionales.
+La ampliación1000 HTTP acumulados (925/75) y5 aperturas fue autorizada por el usuario y aplicada conservando425 HTTP/3 aperturas anteriores. La pareja nueva autenticó sin retries y consultó lote23 desde contextos independientes. El preflight comprobó publicación, gabinete, propietario y obtuvo baselines de lotes18/21 mediante17 SELECT de control. No se realizó una comparación posterior ni hubo solicitudes mutantes a esos lotes.
 
-Tras la autorización de redistribución, la nueva captura permitió autenticar A, seleccionar nivel7 y consultar lote23 por el driver readOnly. La apertura de B alcanzó425 HTTP acumulados de C02 y no terminó; no se observó rechazo de sus credenciales. El código genérico de consola se conserva separado de la clasificación de presupuesto en doc118-continuation-preflight-20261107.json. No se ejecutaron controles SELECT ni fases documentales.
-
-El guard cerró contextos/navegador y borró secretos. No se conserva sesión para reusar. Las3 aperturas/intentos son asignaciones antes de openSession, no una afirmación de tres postbacks de autenticación confirmados.
-
-## Presupuesto acumulado vigente
-
-| Concepto | Consumido | Disponible con autorización actual |
+| Concepto | Consumido | Disponible |
 | --- | --- | --- |
-| HTTP C02 |425 de425, incluida1 consulta de negocio |0 |
+| HTTP C02 |697 de925;3 ConsultarLote acumuladas |228 |
 | HTTP C03 |0 de75 |75 |
-| HTTP global |425 de500 |75 |
-| Aperturas/intentos |3 de4 |1 |
-| SELECT de control |0 de240 |240 |
+| HTTP global |697 de1000 |303 |
+| Aperturas/intentos asignados |5 de5 |0 |
+| SELECT de control |17 de240 |223 |
 | Planes/lotes/raíces/PDFs/expedientes/documentos nuevos |0 | Límites originales |
-| Detenciones, attach, breakpoints y congelaciones |0 | Sin ejecutar |
+| Detenciones y congelaciones |0 | Sin ejecutar |
 
-## Corrección local y límites
+La política de omisión evitó223 subrecursos antes de despacho. No son reembolsos de los425 HTTP anteriores ni evidencia de QA visual. La pareja consumió272 HTTP nuevos. Los archivos de entrada siguen locales e ignorados y no se conservaron datos de la captura en los informes.
 
-El preflight por API conserva el login compartido y el host/token emitidos en el HTML del servidor. Omite subrecursos de la pantalla de producción y la selección visual del árbol. RenderImportacionCarpetas emite el token a partir de Resolver; VinculoContexto lo vincula a sesión/usuario/empresa y ConsultarLote resuelve el nivel desde el lote bajo autoridad vigente. Esto no elude el guard ni acredita QA visual. Recursos omitidos antes de despacho no consumen HTTP; los425 anteriores siguen íntegros. El ahorro real aún no se midió.
+## Observador externo
 
-120/120 pruebas locales pasan:11 preflight,30 enlace,16 coordinación y63 drivers. Se verifican arrastre inmutable, ledger discordante, capacidad insuficiente, sesiones cerradas y recursos omitidos. El arranque actual rechaza nuevos logins porque quedó STOPPED_BUDGET_REVIEW_REQUIRED. La propuesta execution-budget-continuation-proposal.json plantea5 aperturas/1000 HTTP acumulados (925/75), conservando425 HTTP/3 aperturas consumidos. Sigue sin autorización.
+La lectura CodeView/MSF confirma GUID y edad coincidentes entre DLL/PDB ordinarios en disco, conservando sus hashes iniciales. Se corrigió el lector local para el mapa de directorio que abarca varios bloques de512 bytes. Esto no verifica el módulo cargado.
 
-## Estado de aceptación
+El IDE del repositorio tenía12 breakpoints habilitados. Se usaron instancias privadas vacías para no adoptar esa configuración. Una instancia adjuntó al worker26244 y resolvió un breakpoint False dentro del cuerpo ordinario; se cerró antes de efectos. Otra inicialización falló en BIND_SOURCE y no reconoció su limpieza; la inspección posterior no encontró la instancia privada ni depuración en los IDE originales. La última inicialización cerró en FIND_TARGET_PROCESS; la lectura de IIS confirmó que ya no había worker. No se determinó la causa de su salida; no atribuirla al idle, al depurador ni a un reciclado sin evidencia.
 
-Progreso16/27. COORD02/03 permanecen NO_EJECUTADOS para aceptación específica. La CLI solo implementa PREFLIGHT; sus otras fases y el observador real siguen pendientes. La DLL/PDB ordinarios y el IDE fueron localizados, pero no hay attach ni correspondencia de símbolos cargados acreditada. DefaultAppPool es compartido por6 aplicaciones. No se cambia almacenamiento compartido, SII, binario, permisos ni IIS. Los intentos41/53 y lotes18/21 no se mutaron.
+No hubo ARM documental, solicitud ALMACENAR ni Freeze/Thaw. El controlador y el adaptador permanecen candidatos: compilar, adjuntar y resolver un breakpoint no acreditan que otro cliente responda mientras un hilo está retenido. No se modifica almacenamiento compartido, SII, fuente VB, DLL/PDB, configuración o permisos de IIS.
+
+## Salida de consola y aceptación
+
+El último estado del proceso es PREFLIGHT_PASS. Se envió CLOSE con secuencia2, que quedó sin consumir; el proceso y su shell ya no existían al verificarlos y no se observaron hijos directos. El informe no afirma cierre protocolario de contextos ni borrado explícito por finally. La ausencia de la consola y del worker obliga a revisar una nueva ejecución; los contadores no se reinician y ya no quedan aperturas autorizadas.
+
+Progreso16/27. COORD02/03 específicos permanecen NO_EJECUTADOS. La CLI solo implementa PREFLIGHT; las fases documentales aún no están completas. Regresión local:130 pruebas (12 preflight,31 enlace,16 coordinación,63 drivers,4 símbolos,4 adaptador externo), separada de la evidencia real. El controlador C# compila contra el SDK instalado; no tiene calificación de retención de hilo en runtime.

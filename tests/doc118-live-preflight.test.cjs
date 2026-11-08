@@ -40,7 +40,7 @@ test('DOC118 console scope refuses a redistribution or effect increase not prese
  const {scope}=require('../tools/e2e/scripts/run-doc118-live.cjs');
  const base=JSON.parse(fs.readFileSync(path.join(__dirname,'../openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-authorization.json'),'utf8'));
  const p={...structuredClone(profile),baseUrl:base.environment.baseUrl,nivelRef:'7',versionId:'38',odbcDsn:'MembershipUsers',docuarchiOdbcDsn:'MembershipUsers'};
- assert.doesNotThrow(()=>scope(base,p));for(const change of [a=>a.maximum.totalSessions=5,a=>a.maximum.allHttpPerCase.COORD02=500,a=>a.maximum.newStoredDocuments=4]){const a=structuredClone(base);change(a);assert.throws(()=>scope(a,p));}
+ assert.doesNotThrow(()=>scope(base,p));for(const change of [a=>a.maximum.totalSessions=6,a=>a.maximum.allHttpPerCase.COORD02=1000,a=>a.maximum.newStoredDocuments=4,a=>a.budgetContinuationApproval.status='PENDING']){const a=structuredClone(base);change(a);assert.throws(()=>scope(a,p));}
 });
 
 function continuationFixture(){
@@ -56,11 +56,17 @@ test('DOC118 continuation carries immutable evidence and rejects a lower authori
 });
 test('DOC118 stopped continuation cannot reuse a previous approval or start another login',()=>{
  const {a,proof,load}=continuationFixture();a.executionStatus='STOPPED_BUDGET_REVIEW_REQUIRED';assert.throws(()=>load(a,proof),/CONTINUATION_REVIEW_REQUIRED/);
- a.executionStatus='CONTINUATION_AUTHORIZED_AWAITING_MASKED_CAPTURE';proof.sessionAttempts=3;proof.counters.scenarios.COORD02.http=425;
- Object.assign(a.consumed,{allHttp:{COORD02:425,COORD03:0},totalSessionAttempts:3,loginAttempts:3});assert.throws(()=>load(a,proof),/CONTINUATION_CAPACITY_INSUFFICIENT/);
+ a.executionStatus='CONTINUATION_AUTHORIZED_AWAITING_MASKED_CAPTURE';proof.sessionAttempts=5;proof.counters.scenarios.COORD02.http=925;
+ Object.assign(a.consumed,{allHttp:{COORD02:925,COORD03:0},totalSessionAttempts:5,loginAttempts:5});assert.throws(()=>load(a,proof),/CONTINUATION_CAPACITY_INSUFFICIENT/);
 });
 test('DOC118 continuation refuses unclosed sessions and uncleared secrets',()=>{
  for(const field of ['sessionsClosed','ephemeralSecretsCleared']){const {a,proof,load}=continuationFixture();proof[field]=false;assert.throws(()=>load(a,proof),/CARRIED_STATE_CHANGED/);}
+});
+
+test('DOC118 approved second continuation carries425 HTTP, one read and three openings before the last pair',()=>{
+ const {a,load}=continuationFixture(),proof=JSON.parse(fs.readFileSync(path.join(__dirname,'../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-continuation-preflight-20261107.json'),'utf8'));
+ Object.assign(a.consumed,{allHttp:{COORD02:425,COORD03:0},totalSessionAttempts:3,loginAttempts:3});
+ const carried=load(a,proof);assert.equal(carried.sessionAttempts,3);assert.equal(carried.counters.scenarios.COORD02.http,425);assert.equal(carried.counters.scenarios.COORD02.operations.ConsultarLote,1);
 });
 
 for(const exhausted of [false,true])test('DOC118 missing-host diagnostic '+(exhausted?'stops before API transport when budget is exhausted':'counts its read-only API probe in the same budget'),async()=>{

@@ -22,7 +22,7 @@
 
 - [x] 3.7 [M] Enlazar dos sesiones y controles existentes con la ventana activa de DOC118. Área/archivos: `tools/e2e/tests/support/doc118-session-bridge.cjs`, `tools/e2e/tests/support/doc111-importacion-carpetas.cjs`, `tests/doc118-session-bridge.test.cjs`. Origen: D-02, RQ-02; D-06, RQ-06; D-10, RQ-10. Verificación: 30 pruebas del adaptador y regresión conjunta120/120 verifican reutilización de openSession/createDriver/createSelectControls, sesiones/grants, presupuestos y detención sin otro transporte/login ni efectos reales.
 
-- [x] 3.8 [M] Preparar captura enmascarada y preflight autenticado por fases con los helpers existentes. Área/archivos: `tools/e2e/scripts/run-doc118-live.cjs`, `tools/e2e/scripts/support/doc118-live-plan.cjs`, `tests/doc118-live-preflight.test.cjs`. Origen: D-08, RQ-08; D-10, RQ-10. Verificación: regresión120/120, arrastre de contadores y bloqueo ante presupuesto agotado, binding verificado antes de captura, secretos solo en memoria y preflight readOnly; el rechazo real queda separado del PASS local y no provoca retries.
+- [x] 3.8 [M] Preparar captura enmascarada y preflight autenticado por fases con los helpers existentes. Área/archivos: `tools/e2e/scripts/run-doc118-live.cjs`, `tools/e2e/scripts/support/doc118-live-plan.cjs`, `tests/doc118-live-preflight.test.cjs`. Origen: D-08, RQ-08; D-10, RQ-10. Verificación: regresión130/130, arrastre de contadores y bloqueo ante presupuesto agotado, binding verificado antes de captura, secretos solo en memoria y preflight readOnly; el rechazo real queda separado del PASS local y no provoca retries.
 
 ## 4. Integración real: compuertas antes de ejecutar
 

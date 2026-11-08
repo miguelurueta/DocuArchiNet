@@ -96,6 +96,14 @@ test('DOC118 authorized redistribution carries all consumption and keeps the glo
  assert.throws(()=>b.http('COORD02'),/HTTP_TOTAL_LIMIT/);assert.throws(()=>b.http('COORD03'),/HTTP_TOTAL_LIMIT/);
  const s=b.snapshot();assert.equal(s.scenarios.COORD02.http+s.scenarios.COORD03.http,500);
 });
+
+test('DOC118 explicitly approved1000 ceiling retains425 prior HTTP and caps the new925/75 allocation',()=>{
+ const prior=carried();prior.scenarios.COORD02={http:425,operations:{ConsultarLote:1}};
+ const b=createBudget({allHttpPerCase:{COORD02:925,COORD03:75},allHttpGlobal:1000,carried:prior});
+ for(let i=425;i<925;i++)b.http('COORD02');for(let i=0;i<75;i++)b.http('COORD03');
+ assert.equal(b.snapshot().scenarios.COORD02.operations.ConsultarLote,1);assert.throws(()=>b.http('COORD02'),/HTTP_TOTAL_LIMIT/);assert.throws(()=>b.http('COORD03'),/HTTP_TOTAL_LIMIT/);
+ assert.throws(()=>createBudget({allHttpPerCase:{COORD02:925,COORD03:75}}),/BUDGET_POLICY_INVALID/);
+});
 test('DOC118 refuses malformed carry instead of silently resetting the rejected login consumption',()=>{
  for(const policy of [{carried:null},{allHttpPerCase:null},{allHttpPerCase:{COORD02:500,COORD03:75}},{carried:{...carried(),selects:241}}])assert.throws(()=>createBudget(policy));
  const prior=carried();prior.scenarios.COORD02.operations.UNKNOWN=1;assert.throws(()=>createBudget({carried:prior}),/CARRIED_BUDGET_INVALID/);

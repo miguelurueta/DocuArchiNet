@@ -3,7 +3,7 @@
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
 - Clasificación: cross_cutting
-- Estado: refinamiento aprobado; continuación detenida por tope HTTP,16/27 tareas. Primera sesión autenticada, sin pareja completa ni efectos documentales.
+- Estado: preflight autenticado PASS; observador SIN_CALIFICAR y revisión de consola pendiente. Progreso16/27, sin efectos documentales.
 
 ## Objetivo
 
@@ -14,4 +14,4 @@ Precisar las brechas COORD-02 (dos clientes, antigüedad y pérdida de respuesta
 Se reutilizan coordinador VB, MySQL, ASMX y JavaScript actuales. Se preservan políticas EXPEDIENTE/LOTE/PARCIAL, PDF, rechazo TIFF/Multi-TIFF, snapshot, inventario original y efectos confirmados. No hay migración, nuevo worker ni endpoint para reanudar. No se modifica almacenamiento compartido/SII ni se introduce aislamiento adicional del XML. Esta documentación se revierte por Git; eso no revierte efectos en datos.
 
 
-Progreso16/27. La continuación real autorizada autenticó A y consultó lote23; B quedó sin confirmar al agotar C02. Consumo acumulado425/0 HTTP,3 aperturas y0 SELECT de control/efectos. Se cerraron sesiones y borraron secretos. La reducción de tráfico y el guard contra reinicio de contadores pasan120/120 pruebas locales; no sustituyen aceptación real. Solo PREFLIGHT está implementado en la consola. El observador y las fases documentales siguen pendientes. La ampliación acotada1000 HTTP/5 aperturas (925/75) está propuesta, sin aplicar.
+El preflight de dos sesiones pasó con publicación38/gabinete10 y17 SELECT. Consumo acumulado697 HTTP C02,0 C03 y5 aperturas;0 fases documentales y0 efectos. El worker26244 dejó de estar activo por causa no determinada. La consola terminó sin reconocer la orden CLOSE ni el finally; no quedan consola/shell ni hijos directos detectados. Las instancias privadas de depuración ya no están presentes y los dos IDE originales quedaron sin depuración activa, con12 breakpoints del usuario conservados. La observación interna sigue SIN_CALIFICAR. Evidencia: doc118-authenticated-preflight-20261107.json.

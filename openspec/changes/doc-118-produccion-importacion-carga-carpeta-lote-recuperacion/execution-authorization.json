@@ -32,7 +32,7 @@
     "newStoredDocuments": 3,
     "stopRequests": 1,
     "sessionsPerCase": 2,
-    "totalSessions": 4,
+    "totalSessions": 5,
     "loginAttemptsPerSession": 1,
     "pauseMilliseconds": 30000,
     "selectStatementsTotal": 240,
@@ -41,12 +41,12 @@
       "COORD03": 51
     },
     "allHttpPerCase": {
-      "COORD02": 425,
+      "COORD02": 925,
       "COORD03": 75
     },
     "caseDurationMilliseconds": 600000,
     "previousAllHttpPerCase": 250,
-    "allHttpGlobal": 500
+    "allHttpGlobal": 1000
   },
   "newRootNames": {
     "COORD02": [
@@ -82,21 +82,21 @@
     "consolePreference": "LOCAL_MASKED_CONSOLE",
     "preferenceSource": "«continua» en respuesta a la propuesta de abrir la consola de captura."
   },
-  "executionStatus": "STOPPED_BUDGET_REVIEW_REQUIRED",
+  "executionStatus": "STOPPED_OBSERVER_AND_CONSOLE_REVIEW_REQUIRED",
   "consumed": {
     "allHttp": {
-      "COORD02": 425,
+      "COORD02": 697,
       "COORD03": 0
     },
-    "loginAttempts": 3,
-    "totalSessionAttempts": 3,
-    "selectStatements": 0,
+    "loginAttempts": 5,
+    "totalSessionAttempts": 5,
+    "selectStatements": 17,
     "newPlans": 0,
     "newLots": 0,
     "newExpedientes": 0,
     "newStoredDocuments": 0,
     "businessHttp": {
-      "COORD02": 1,
+      "COORD02": 3,
       "COORD03": 0
     },
     "loginAttemptsMeaning": "Aperturas/intentos asignados antes de openSession; no prueba tres postbacks de login ni atribuye fallo a las credenciales de B."
@@ -108,21 +108,28 @@
     "proposal": "execution-continuation-proposal.json",
     "recordedUtc": "2026-11-08T01:23:51.033Z"
   },
-  "consumptionEvidence": "doc118-continuation-preflight-20261107.json",
+  "consumptionEvidence": "doc118-authenticated-preflight-20261107.json",
   "remaining": {
     "allHttp": {
-      "COORD02": 0,
+      "COORD02": 228,
       "COORD03": 75
     },
-    "allHttpGlobal": 75,
-    "totalSessionAttempts": 1,
-    "selectStatements": 240
+    "allHttpGlobal": 303,
+    "totalSessionAttempts": 0,
+    "selectStatements": 223
   },
   "lastResult": {
-    "evidence": "doc118-continuation-preflight-20261107.json",
-    "classification": "HTTP_BUDGET_EXHAUSTED",
-    "firstSessionAuthenticated": true,
-    "independentPairCompleted": false,
-    "closed": true
+    "evidence": "doc118-authenticated-preflight-20261107.json",
+    "preflightPassed": true,
+    "observerQualified": false,
+    "workerNoLongerPresent": true,
+    "consoleExited": true,
+    "explicitCleanupAcknowledged": false
+  },
+  "budgetContinuationApproval": {
+    "status": "AUTHORIZED",
+    "source": "Mensaje del usuario «autorizado» posterior a la propuesta1000 HTTP acumulados (925/75) y5 aperturas totales.",
+    "recordedUtc": "2026-11-08T02:10:22.324Z",
+    "proposal": "execution-budget-continuation-proposal.json"
   }
 }

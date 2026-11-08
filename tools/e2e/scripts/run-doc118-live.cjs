@@ -16,8 +16,8 @@ const check=(v,c)=>{if(!v)throw Error('DOC118_LIVE_'+c);};
 function scope(a,p){
  check(a.issueKey==='DOC-118'&&a.status==='AUTHORIZED'&&a.environment.actorRef==='141'&&a.environment.ambitoRef==='2'&&a.environment.levelRef==='7'&&a.environment.versionRef==='38','AUTHORIZATION_CHANGED');
  check(a.environment.baseUrl===p.baseUrl&&p.nivelRef==='7'&&p.versionId==='38'&&p.module==='GESTOR'&&p.odbcDsn==='MembershipUsers'&&p.docuarchiOdbcDsn==='MembershipUsers','PROFILE_CHANGED');
- check(a.maximum.newLots===2&&a.maximum.newExpedientes===4&&a.maximum.newStoredDocuments===3&&a.maximum.selectStatementsTotal===240&&a.maximum.pauseMilliseconds===30000&&a.maximum.totalSessions===4&&a.environment.localTlsExceptionAuthorized===true,'LIMITS_CHANGED');
- check(a.maximum.allHttpPerCase?.COORD02===425&&a.maximum.allHttpPerCase?.COORD03===75&&a.maximum.allHttpGlobal===500&&a.sessionReuse==='TWO_SHARED_INDEPENDENT_SESSIONS'&&a.continuationApproval?.status==='AUTHORIZED','CONTINUATION_NOT_AUTHORIZED');
+ check(a.maximum.newLots===2&&a.maximum.newExpedientes===4&&a.maximum.newStoredDocuments===3&&a.maximum.selectStatementsTotal===240&&a.maximum.pauseMilliseconds===30000&&a.maximum.totalSessions===5&&a.environment.localTlsExceptionAuthorized===true,'LIMITS_CHANGED');
+ check(a.maximum.allHttpPerCase?.COORD02===925&&a.maximum.allHttpPerCase?.COORD03===75&&a.maximum.allHttpGlobal===1000&&a.sessionReuse==='TWO_SHARED_INDEPENDENT_SESSIONS'&&a.continuationApproval?.status==='AUTHORIZED'&&a.budgetContinuationApproval?.status==='AUTHORIZED','CONTINUATION_NOT_AUTHORIZED');
  return sha(JSON.stringify({environment:a.environment,maximum:a.maximum,newRootNames:a.newRootNames,debugger:a.debugger,protectedHistoricalAttempts:a.protectedHistoricalAttempts}));
 }
 function continuationConsumption(a,proof){
@@ -26,7 +26,7 @@ function continuationConsumption(a,proof){
  check(proof?.issueKey==='DOC-118'&&proof.status==='STOPPED_REVIEW_REQUIRED'&&proof.sessionsClosed===true&&proof.ephemeralSecretsCleared===true&&Number.isInteger(proof.sessionAttempts),'CARRIED_STATE_CHANGED');
  const consumed=a.consumed,counters=proof.counters;
  check(consumed&&counters&&proof.sessionAttempts===consumed.totalSessionAttempts&&proof.sessionAttempts===consumed.loginAttempts&&proof.sessionAttempts>=0&&proof.sessionAttempts<=a.maximum.totalSessions&&counters.selects===consumed.selectStatements&&['COORD02','COORD03'].every(k=>counters.scenarios?.[k]?.http===consumed.allHttp?.[k]),'CARRIED_STATE_CHANGED');
- createBudget({allHttpPerCase:a.maximum.allHttpPerCase,carried:counters});
+ createBudget({allHttpPerCase:a.maximum.allHttpPerCase,allHttpGlobal:a.maximum.allHttpGlobal,carried:counters});
  check(proof.sessionAttempts+2<=a.maximum.totalSessions&&['COORD02','COORD03'].every(k=>counters.scenarios[k].http<a.maximum.allHttpPerCase[k]),'CONTINUATION_CAPACITY_INSUFFICIENT');
  return structuredClone({sessionAttempts:proof.sessionAttempts,counters});
 }
@@ -36,14 +36,14 @@ async function main(args=process.argv.slice(2)){
  const runId=args[1],directory=path.join(ROOT,'.tmp','doc118-live-'+runId);check(!fs.existsSync(directory),'PREVIOUS_SESSION_REQUIRES_REVIEW');
  const profile=validateProfile(read(path.join(ROOT,'tools/e2e/profiles/doc111-importacion-carpetas-lote-20261102.runtime.json'))),authorization=read(AUTH),pin=scope(authorization,profile);
  require(IMPL).assertDependencies(); // Fail before secret entry if a shared binding is unavailable.
- check(['doc118-login-preflight-20261107.json','doc118-continuation-preflight-20261107.json'].includes(authorization.consumptionEvidence),'CARRIED_STATE_CHANGED');
+ check(['doc118-login-preflight-20261107.json','doc118-continuation-preflight-20261107.json','doc118-authenticated-preflight-20261107.json'].includes(authorization.consumptionEvidence),'CARRIED_STATE_CHANGED');
  const carried=continuationConsumption(authorization,read(path.join(ROOT,'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion',authorization.consumptionEvidence)));
  fs.mkdirSync(directory);
  const record={issueKey:'DOC-118',runId,pid:process.pid,status:'AWAITING_CREDENTIALS',createdUtc:new Date().toISOString(),phaseIndex:0,authorizationScopeSha256:pin,history:[],counters:null,references:[],carriedSessionAttempts:carried.sessionAttempts,carriedCounters:carried.counters};
  const statusFile=path.join(directory,'status.json'),requestFile=path.join(directory,'request.json');
  const save=()=>fs.writeFileSync(statusFile,JSON.stringify(record,null,2)+'\n');save();
  const secrets={},environment=Object.fromEntries(Object.entries(process.env).filter(([k])=>['PATH','Path','SystemRoot','WINDIR','TEMP','TMP','ComSpec','PATHEXT'].includes(k)));
- const live={ROOT,directory,runId,profile,authorization,budget:createBudget({allHttpPerCase:authorization.maximum.allHttpPerCase,carried:carried.counters}),environment,sessions:[],prepared:{},browser:null,observer:null,sessionCount:carried.sessionAttempts,carriedSessionAttempts:carried.sessionAttempts,activeCase:'COORD02',startedCaseUtc:{},
+ const live={ROOT,directory,runId,profile,authorization,budget:createBudget({allHttpPerCase:authorization.maximum.allHttpPerCase,allHttpGlobal:authorization.maximum.allHttpGlobal,carried:carried.counters}),environment,sessions:[],prepared:{},browser:null,observer:null,sessionCount:carried.sessionAttempts,carriedSessionAttempts:carried.sessionAttempts,activeCase:'COORD02',startedCaseUtc:{},
    reference(ref){const safe={};for(const key of ['planId','loteId','raizId','archivoId','expedienteId','relacionNivelId','intentoId','documentoId','inventarioId'])if(typeof ref[key]==='string'&&/^[1-9][0-9]{0,9}$/.test(ref[key]))safe[key]=ref[key];record.references.push(safe);save();},
    mark(stage){check(STAGES.has(stage),'STAGE_INVALID');record.status=stage;record.lastStage=stage;record.sessionAttempts=live.sessionCount;record.counters=live.budget.snapshot();save();}};
  record.counters=live.budget.snapshot();save();

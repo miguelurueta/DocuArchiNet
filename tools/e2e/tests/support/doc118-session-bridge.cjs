@@ -26,10 +26,11 @@ function authorize(profile,grant,scenario){
 }
 function createBudget(policy={}){
   check(policy&&typeof policy==='object'&&!Array.isArray(policy),'BUDGET_POLICY_INVALID');
-  check(Object.keys(policy).every(k=>['allHttpPerCase','carried'].includes(k)),'BUDGET_POLICY_INVALID');
+  check(Object.keys(policy).every(k=>['allHttpPerCase','allHttpGlobal','carried'].includes(k)),'BUDGET_POLICY_INVALID');
   const ceilings=structuredClone(Object.hasOwn(policy,'allHttpPerCase')?policy.allHttpPerCase:{COORD02:250,COORD03:250});
+  const globalCeiling=Object.hasOwn(policy,'allHttpGlobal')?policy.allHttpGlobal:500;
   check(ceilings&&typeof ceilings==='object'&&!Array.isArray(ceilings),'BUDGET_POLICY_INVALID');
-  check(Object.keys(ceilings).sort().join()==='COORD02,COORD03'&&((ceilings.COORD02===250&&ceilings.COORD03===250)||(ceilings.COORD02===425&&ceilings.COORD03===75)),'BUDGET_POLICY_INVALID');
+  check(Object.keys(ceilings).sort().join()==='COORD02,COORD03'&&((globalCeiling===500&&((ceilings.COORD02===250&&ceilings.COORD03===250)||(ceilings.COORD02===425&&ceilings.COORD03===75)))||(globalCeiling===1000&&ceilings.COORD02===925&&ceilings.COORD03===75)),'BUDGET_POLICY_INVALID');
   const counts={COORD02:{http:0,operations:{}},COORD03:{http:0,operations:{}}};let selects=0;
   if(Object.hasOwn(policy,'carried')){
     closed(policy.carried,['scenarios','selects']);closed(policy.carried.scenarios,['COORD02','COORD03']);
@@ -47,7 +48,7 @@ function createBudget(policy={}){
     const counter=counts[scenario];
     const key=operation==='AvanzarLote'?payload?.fase:operation;
     if(operation)check(Object.hasOwn(LIMITS[scenario],key)&&(counter.operations[key]||0)<LIMITS[scenario][key],'HTTP_OPERATION_LIMIT');
-    check(counter.http<ceilings[scenario]&&counts.COORD02.http+counts.COORD03.http<500,'HTTP_TOTAL_LIMIT');
+    check(counter.http<ceilings[scenario]&&counts.COORD02.http+counts.COORD03.http<globalCeiling,'HTTP_TOTAL_LIMIT');
     if(operation)counter.operations[key]=(counter.operations[key]||0)+1;
     counter.http++;
   }

@@ -3,7 +3,7 @@
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
 - Clasificación: cross_cutting
-- Estado: refinamiento aprobado; continuación detenida por tope HTTP,16/27 tareas. Primera sesión autenticada, sin pareja completa ni efectos documentales.
+- Estado: preflight autenticado PASS; observador SIN_CALIFICAR y revisión de consola pendiente. Progreso16/27, sin efectos documentales.
 
 ## Evidencia requerida
 
@@ -28,6 +28,6 @@ El helper nuevo se verificó con `node --test tests/doc118-active-call.test.cjs`
 
 ## Regresión vigente y resultado real
 
-La regresión conjunta actual pasó120/120 (11 preflight,30 enlace,16 coordinación,63 drivers); se reemplazan las ejecuciones repetidas al contabilizar cobertura. Con las18 previas disjuntas de servidor/cliente son138 pruebas locales, no aceptación real. Los guards prueban CSRF, presupuesto acumulado, cierre, entrada segura y omisión optativa de subrecursos de producción conservando el login. No se ejecutó nuevamente la prueba del servidor por este cambio de herramientas.
+El preflight de dos sesiones pasó con publicación38/gabinete10 y17 SELECT. Consumo acumulado697 HTTP C02,0 C03 y5 aperturas;0 fases documentales y0 efectos. El worker26244 dejó de estar activo por causa no determinada. La consola terminó sin reconocer la orden CLOSE ni el finally; no quedan consola/shell ni hijos directos detectados. Las instancias privadas de depuración ya no están presentes y los dos IDE originales quedaron sin depuración activa, con12 breakpoints del usuario conservados. La observación interna sigue SIN_CALIFICAR. Evidencia: doc118-authenticated-preflight-20261107.json.
 
-doc118-continuation-preflight-20261107.json registra A autenticada/lote23 consultado, B sin confirmar al agotar425 HTTP C02 y3 aperturas acumuladas. C03=0, SELECT de control=0, efectos=0. Sesiones cerradas y secretos borrados. El rechazo anterior conserva su evidencia independiente. La autorización de redistribución sí fue concedida; la ampliación1000 HTTP/5 aperturas sigue propuesta. OpenSpec/refinement y las pruebas locales no completan COORD02/03.
+130 pruebas locales:12 preflight,31 enlace,16 coordinación,63 drivers,4 símbolos y4 adaptador externo. Más18 previas disjuntas:148, sin sumar repeticiones. El C# compila y hubo source binding real, pero no Freeze/Thaw ni ARM. La limpieza de una instancia y el finally de la consola no tuvieron reconocimiento; conservar ambas limitaciones y su inspección posterior.

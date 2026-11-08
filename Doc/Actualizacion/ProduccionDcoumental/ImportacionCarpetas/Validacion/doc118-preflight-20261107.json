@@ -3,7 +3,7 @@
   "recordedUtc": "2026-11-07T20:30:39.605Z",
   "reviewedCodeCommit": "3c538a0f6aab1ba9fe36639815bccafb40ab1f5b",
   "authorizationReference": "execution-authorization.json",
-  "status": "STOPPED_BUDGET_REVIEW_REQUIRED",
+  "status": "STOPPED_OBSERVER_AND_CONSOLE_REVIEW_REQUIRED",
   "site": {
     "method": "HEAD",
     "path": "gestor.aspx",
@@ -21,14 +21,16 @@
     "applicationsInPool": 6,
     "targetApplicationPresent": true,
     "workerObserved": true,
-    "pdbMatchStatus": "NOT_VERIFIED"
+    "pdbMatchStatus": "ON_DISK_MATCH_LOADED_MODULE_NOT_VERIFIED",
+    "onDiskGuidAndAgeMatch": true,
+    "workerPresentAtFinalCheck": false
   },
   "debugger": {
     "matchingWorkspaceIdeFound": true,
     "matchingIdeMode": "DESIGN",
     "alreadyDebuggingTarget": false,
-    "attachedByAgent": false,
-    "breakpointsAdded": 0,
+    "attachedByAgent": true,
+    "breakpointsAdded": null,
     "threadsFrozen": 0,
     "activeBodyObservationQualified": false,
     "automationSdkAccess": "READ_CAPABILITIES_VERIFIED",
@@ -38,19 +40,22 @@
     "references": [
       "https://learn.microsoft.com/en-us/dotnet/api/envdte80.process2.attach2?view=visualstudiosdk-2022",
       "https://learn.microsoft.com/en-us/dotnet/api/envdte.thread.freeze?view=visualstudiosdk-2022"
-    ]
+    ],
+    "temporarySourceBreakpointResolved": true,
+    "documentalBreakpointArmed": false,
+    "currentAttached": false
   },
   "counters": {
     "COORD02": {
-      "allHttp": 425,
-      "businessHttp": 1
+      "allHttp": 697,
+      "businessHttp": 3
     },
     "COORD03": {
       "allHttp": 0,
       "businessHttp": 0
     },
-    "loginAttempts": 3,
-    "selectStatements": 0,
+    "loginAttempts": 5,
+    "selectStatements": 17,
     "newPlans": 0,
     "newLots": 0,
     "newRoots": 0,
@@ -58,13 +63,13 @@
     "newExpedientes": 0,
     "newStoredDocuments": 0,
     "stopRequests": 0,
-    "sessionAttempts": 3
+    "sessionAttempts": 5
   },
   "remaining": {
-    "COORD02AllHttp": 0,
+    "COORD02AllHttp": 228,
     "COORD03AllHttp": 75,
-    "selectStatements": 240,
-    "totalSessions": 1
+    "selectStatements": 223,
+    "totalSessions": 0
   },
   "historicalAttemptsMutated": [],
   "caseStatus": {
@@ -72,16 +77,15 @@
     "COORD03": "NO_EJECUTADO"
   },
   "requiredBeforeEffects": [
-    "Decidir ampliación acotada de presupuesto y aperturas; el techo de C02 está agotado.",
-    "Nueva captura efímera solo por consola TTY enmascarada existente, después de aprobar la ampliación.",
-    "Completar preflight de dos sesiones, publicación y controles SELECT.",
-    "Calificar observador externo, símbolos y correlación; completar fases documentales antes de efectos.",
-    "Comprobar ausencia de nombres nuevos y registrar IDs/huellas de recursos preparados."
+    "Resolver y verificar el controlador externo sobre un worker vigente antes de iniciar efectos; el attach/source binding no basta.",
+    "Completar y validar fases documentales del ejecutor; actualmente solo implementa PREFLIGHT.",
+    "Revisar la salida de la consola sin finally reconocido. No arrancar otra pareja: ya se consumieron5 de5 aperturas.",
+    "Mantener contadores697 HTTP/17 SELECT y excluir mutaciones de intentos41/53."
   ],
   "budgetCarryForward": "Antes de nuevos despachos cargar el contador previo y conservar la petición HEAD ya consumida; no reiniciar los presupuestos al abrir sesión.",
-  "loginResult": "FIRST_SESSION_CONFIRMED_SECOND_UNCONFIRMED",
+  "loginResult": "TWO_INDEPENDENT_SESSIONS_PREFLIGHT_PASS",
   "authenticated": false,
   "retryAutomaticallyAuthorized": false,
-  "safeLiveEvidence": "doc118-continuation-preflight-20261107.json",
-  "authenticatedMeaning": "No hay sesiones abiertas; la primera sesión de la continuación sí autenticó y consultó lote23."
+  "safeLiveEvidence": "doc118-authenticated-preflight-20261107.json",
+  "authenticatedMeaning": "Ambas sesiones autenticaron y completaron preflight; el proceso ya terminó. No se reconoce finalmente explícito."
 }

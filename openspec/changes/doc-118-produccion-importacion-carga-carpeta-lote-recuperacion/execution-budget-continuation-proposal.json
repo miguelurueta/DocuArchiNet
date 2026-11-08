@@ -1,6 +1,6 @@
 {
   "issueKey": "DOC-118",
-  "status": "PROPOSED_NOT_AUTHORIZED",
+  "status": "AUTHORIZED",
   "supersedesNoAuthorization": true,
   "reason": "La continuación autorizada llegó al tope425 HTTP de C02 abriendo B. A autenticó y consultó lote23. La pareja fue cerrada: una sola apertura restante no permite recrear dos sesiones independientes.",
   "evidence": "doc118-continuation-preflight-20261107.json",
@@ -34,12 +34,6 @@
       "COORD02": 1,
       "COORD03": 0
     }
-  },
-  "remainingIfApproved": {
-    "COORD02AllHttp": 500,
-    "COORD03AllHttp": 75,
-    "sessionAttempts": 2,
-    "selectStatements": 240
   },
   "preparedCorrection": {
     "source": "tools/e2e/scripts/support/doc118-live-plan.cjs",
@@ -78,5 +72,29 @@
       53
     ]
   },
-  "approvalRequired": "Solo ampliación acumulada de tráfico y aperturas. No reautoriza todo el plan ni sustituye los guards documentales; no aplicar estos topes hasta respuesta explícita."
+  "approvalRequired": "Solo ampliación acumulada de tráfico y aperturas. No reautoriza todo el plan ni sustituye los guards documentales; no aplicar estos topes hasta respuesta explícita.",
+  "approval": {
+    "status": "AUTHORIZED",
+    "source": "Mensaje del usuario «autorizado» posterior a la propuesta1000 HTTP acumulados (925/75) y5 aperturas totales.",
+    "recordedUtc": "2026-11-08T02:10:22.324Z",
+    "proposal": "execution-budget-continuation-proposal.json"
+  },
+  "remainingAfterApproval": {
+    "COORD02AllHttp": 500,
+    "COORD03AllHttp": 75,
+    "sessionAttempts": 2,
+    "selectStatements": 240
+  },
+  "result": {
+    "status": "STOPPED_OBSERVER_AND_CONSOLE_REVIEW_REQUIRED",
+    "evidence": "doc118-authenticated-preflight-20261107.json",
+    "preflightPassed": true,
+    "cumulativeAllHttp": {
+      "COORD02": 697,
+      "COORD03": 0
+    },
+    "cumulativeSessionAttempts": 5,
+    "controlSelects": 17,
+    "newDocumentEffects": 0
+  }
 }
