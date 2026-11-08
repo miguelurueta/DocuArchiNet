@@ -3,7 +3,7 @@
   "recordedUtc": "2026-11-07T20:30:39.605Z",
   "reviewedCodeCommit": "3c538a0f6aab1ba9fe36639815bccafb40ab1f5b",
   "authorizationReference": "execution-authorization.json",
-  "status": "STOPPED_OBSERVER_AND_CONSOLE_REVIEW_REQUIRED",
+  "status": "LOCAL_EXECUTOR_PREPARED_REQUIRES_FRESH_WINDOW",
   "site": {
     "method": "HEAD",
     "path": "gestor.aspx",
@@ -43,11 +43,12 @@
     ],
     "temporarySourceBreakpointResolved": true,
     "documentalBreakpointArmed": false,
-    "currentAttached": false
+    "currentAttached": false,
+    "sourceReadinessAndClosePassed": true
   },
   "counters": {
     "COORD02": {
-      "allHttp": 697,
+      "allHttp": 699,
       "businessHttp": 3
     },
     "COORD03": {
@@ -66,10 +67,11 @@
     "sessionAttempts": 5
   },
   "remaining": {
-    "COORD02AllHttp": 228,
+    "COORD02AllHttp": 226,
     "COORD03AllHttp": 75,
     "selectStatements": 223,
-    "totalSessions": 0
+    "totalSessions": 0,
+    "allHttpGlobal": 301
   },
   "historicalAttemptsMutated": [],
   "caseStatus": {
@@ -77,15 +79,15 @@
     "COORD03": "NO_EJECUTADO"
   },
   "requiredBeforeEffects": [
-    "Resolver y verificar el controlador externo sobre un worker vigente antes de iniciar efectos; el attach/source binding no basta.",
-    "Completar y validar fases documentales del ejecutor; actualmente solo implementa PREFLIGHT.",
-    "Revisar la salida de la consola sin finally reconocido. No arrancar otra pareja: ya se consumieron5 de5 aperturas.",
-    "Mantener contadores697 HTTP/17 SELECT y excluir mutaciones de intentos41/53."
+    "Autorizar pareja adicional/techo acumulado de execution-fresh-window-proposal.json;0 aperturas restantes.",
+    "Iniciar observador supervisado del runId nuevo, con worker/símbolos/heartbeat vigentes, antes de la captura.",
+    "Calificar retención y progreso de peer en la ventana autorizada; nunca presentar attach/cierre como esa calificación.",
+    "Conservar699 HTTP/17 SELECT/5 aperturas y las limitaciones de la consola antigua."
   ],
   "budgetCarryForward": "Antes de nuevos despachos cargar el contador previo y conservar la petición HEAD ya consumida; no reiniciar los presupuestos al abrir sesión.",
   "loginResult": "TWO_INDEPENDENT_SESSIONS_PREFLIGHT_PASS",
   "authenticated": false,
   "retryAutomaticallyAuthorized": false,
-  "safeLiveEvidence": "doc118-authenticated-preflight-20261107.json",
+  "safeLiveEvidence": "doc118-observer-readiness-20261108.json",
   "authenticatedMeaning": "Ambas sesiones autenticaron y completaron preflight; el proceso ya terminó. No se reconoce finalmente explícito."
 }

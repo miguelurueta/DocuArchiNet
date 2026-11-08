@@ -1,0 +1,90 @@
+{
+  "issueKey": "DOC-118",
+  "status": "PROPOSED_NOT_AUTHORIZED",
+  "reason": "El ejecutor ya implementa las siete fases y el observador pasó disponibilidad/INSPECT/CLOSE en sesión supervisada. Se agotaron5 de5 aperturas; el consumo699 HTTP y17 SELECT no se reinicia.",
+  "currentAuthorization": "execution-authorization.json",
+  "evidence": "doc118-observer-readiness-20261108.json",
+  "changes": {
+    "maximumTotalSessions": {
+      "before": 5,
+      "after": 7
+    },
+    "allHttpPerCase": {
+      "before": {
+        "COORD02": 925,
+        "COORD03": 75
+      },
+      "after": {
+        "COORD02": 1125,
+        "COORD03": 75
+      }
+    },
+    "allHttpGlobal": {
+      "before": 1000,
+      "after": 1200
+    }
+  },
+  "carriedConsumption": {
+    "COORD02AllHttp": 699,
+    "COORD03AllHttp": 0,
+    "sessionAttempts": 5,
+    "selectStatements": 17,
+    "businessHttp": {
+      "COORD02": 3,
+      "COORD03": 0
+    }
+  },
+  "remainingIfApproved": {
+    "COORD02AllHttp": 426,
+    "COORD03AllHttp": 75,
+    "allHttpGlobal": 501,
+    "sessionAttempts": 2,
+    "selectStatements": 223
+  },
+  "execution": "Una pareja nueva independiente, un intento por sesión y reutilización entre casos. Primero observador con runId/worker/archivos/heartbeat vigentes; luego consola enmascarada supervisada. Revalidar disponibilidad tras captura y antes de cada apertura. No repetir automáticamente preparación, ventana ni finalización. Mantener las fases en orden y el tiempo máximo por caso.",
+  "responseLossBoundary": "CLIENT_API_RESPONSE_DELIVERY: Playwright recibe la respuesta, se prueba checkpoint y se suprime su entrega al driver DOC111. No se afirma pérdida en el cable ni cancelación del servidor.",
+  "qualification": "Attach/source binding e INSPECT/CLOSE pasaron; ARM/Freeze/Thaw y progreso del peer durante retención siguen sin acreditar. La primera ventana documental debe calificarlos dentro de los topes; cualquier duda corta efectos siguientes y conserva referencias.",
+  "legacyExit": "La consola previa terminó sin finally/ack; su proceso/shell no existen y no se detectaron hijos directos. La causa permanece sin determinar. El marcador exclusivo de corrida y la supervisión impiden adoptar/reiniciar silenciosamente una corrida inconclusa.",
+  "unchanged": {
+    "environment": {
+      "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+      "runtimeRoot": "D:/imagenesda/DocuachiNet/DocuArchiNet",
+      "actorRef": "141",
+      "ambitoRef": "2",
+      "levelRef": "7",
+      "versionRef": "38",
+      "raDsn": "MembershipUsers",
+      "daDsn": "MembershipUsers",
+      "localTlsExceptionAuthorized": true
+    },
+    "newRootNames": {
+      "COORD02": [
+        "DOC118-C02-A-20261107",
+        "DOC118-C02-B-20261107"
+      ],
+      "COORD03": [
+        "DOC118-C03-A-20261107",
+        "DOC118-C03-B-20261107"
+      ]
+    },
+    "newPlans": 2,
+    "newLots": 2,
+    "newRoots": 4,
+    "newPdfs": 4,
+    "newExpedientes": 4,
+    "newStoredDocuments": 3,
+    "stopRequests": 1,
+    "businessHttp": {
+      "COORD02": 53,
+      "COORD03": 51
+    },
+    "pauseMilliseconds": 30000,
+    "caseDurationMilliseconds": 600000,
+    "selectStatementsTotal": 240,
+    "protectedHistoricalAttempts": [
+      41,
+      53
+    ]
+  },
+  "approvalRequired": "Solo2 aperturas adicionales y techo acumulado1200 HTTP (1125/75). No aplicar hasta respuesta explícita; no reautoriza el resto del plan ni concede PASS de integración."
+}

@@ -4,13 +4,13 @@ const {connectObserver}=require('../tools/e2e/tests/support/doc118-debugger-obse
 function fixture(){
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'doc118-observer-')),runId='e'.repeat(32),resourceSha256='a'.repeat(64),commands=[];
  let peerCalls=0;
- const observation={sourceBound:true,processId:26244,threadId:33,frozen:true,otherThreadsRunning:true,released:false,resourceSha256,entriesA:1,entriesB:0,fault:null,closed:false};
- const state={runId,sequence:0,status:'ATTACHED',observation,failure:null},save=()=>fs.writeFileSync(path.join(directory,'status.json'),JSON.stringify(state));save();
+ const observation={sourceBound:true,workerAlive:true,processId:26244,threadId:33,frozen:true,otherThreadsRunning:true,released:false,resourceSha256,entriesA:1,entriesB:0,fault:null,closed:false};
+ const state={runId,pid:process.pid,sequence:0,status:'ATTACHED',observation,failure:null},save=()=>{state.heartbeatUtc=new Date().toISOString();fs.writeFileSync(path.join(directory,'status.json'),JSON.stringify(state));};save();
  const timer=setInterval(()=>{const request=path.join(directory,'request.json');if(!fs.existsSync(request))return;
   const command=JSON.parse(fs.readFileSync(request));fs.unlinkSync(request);commands.push(command);state.sequence=command.sequence;
   if(command.operation==='ARM')state.status='INSIDE_FROZEN';
   if(command.operation==='RESUME'){observation.frozen=false;observation.released=true;state.status='RESUME';}
-  if(command.operation==='CLOSE')state.status='CLOSED';save();
+  if(command.operation==='CLOSE'){state.status='CLOSED';state.cleanupConfirmed=true;}save();
  },5);
  const observer=connectObserver({directory,runId,resourceSha256,peerProbe:async()=>{peerCalls++;},maximumWaitMilliseconds:200});
  return{observer,state,observation,commands,scope:{runId,resourceSha256},save,peerCalls:()=>peerCalls,async close(){clearInterval(timer);const resolved=path.resolve(directory);assert.ok(resolved.startsWith(path.resolve(os.tmpdir())+path.sep));fs.rmSync(resolved,{recursive:true,force:true});}};

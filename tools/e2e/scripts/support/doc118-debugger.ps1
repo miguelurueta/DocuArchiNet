@@ -1,5 +1,6 @@
 param([Parameter(Mandatory=$true)][ValidatePattern('^[a-f0-9]{32}$')][string]$RunId,[Parameter(Mandatory=$true)][ValidateRange(1,2147483647)][int]$WorkerId,[ValidateRange(1,3)][int]$Attempt=1)
 $ErrorActionPreference='Stop'
+. (Join-Path $PSScriptRoot 'doc118-debugger-protocol.ps1')
 $doc118Root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../../..'))
 $doc118Directory=Join-Path $doc118Root ('.tmp/doc118-debugger-'+$RunId+'-'+$Attempt)
 if(Test-Path -LiteralPath $doc118Directory){throw 'DOC118_OBSERVER_PREVIOUS_INSTANCE'}
@@ -9,7 +10,20 @@ $doc118Assemblies='C:\Program Files\Microsoft Visual Studio\18\Enterprise\Common
 $doc118Owner=$null
 $doc118Sequence=0
 $doc118Failure=$null
-function Save-Observer($state,$value){[pscustomobject]@{status=$state;runId=$RunId;pid=$PID;sequence=$doc118Sequence;observation=$value;failure=$doc118Failure}|ConvertTo-Json -Depth 6 -Compress|Set-Content -LiteralPath $doc118Status -Encoding UTF8}
+$doc118Created=[DateTime]::UtcNow.ToString('o')
+$doc118Hashes=[pscustomobject][ordered]@{
+ controller=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'Doc118Debugger.cs') -Algorithm SHA256).Hash.ToLowerInvariant()
+ protocol=(Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant()
+ commandProtocol=(Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'doc118-debugger-protocol.ps1') -Algorithm SHA256).Hash.ToLowerInvariant()
+ source=(Get-FileHash -LiteralPath (Join-Path $doc118Root 'workflow/ClassAlmacenamiento.vb') -Algorithm SHA256).Hash.ToLowerInvariant()
+}
+$doc118CleanupConfirmed=$false
+$doc118CurrentState='STARTING'
+function Save-Observer($state,$value){
+ $script:doc118CurrentState=$state
+ $data=[pscustomobject]@{status=$state;runId=$RunId;pid=$PID;sequence=$doc118Sequence;observation=$value;failure=$doc118Failure;cleanupConfirmed=$doc118CleanupConfirmed;createdUtc=$doc118Created;heartbeatUtc=[DateTime]::UtcNow.ToString('o');implementationHashes=$doc118Hashes}|ConvertTo-Json -Depth 6 -Compress
+ [Doc118AtomicStatus]::Write($doc118Status,$data)
+}
 try{
  Save-Observer 'STARTING' $null
  Add-Type -Path (Join-Path $doc118Assemblies 'Microsoft.VisualStudio.Interop.dll')
@@ -32,13 +46,12 @@ try{
   $doc118Request=Join-Path $doc118Directory 'request.json'
   if(Test-Path -LiteralPath $doc118Request){
    $command=Get-Content -LiteralPath $doc118Request -Raw|ConvertFrom-Json
-   $doc118Keys=@($command.PSObject.Properties.Name|Sort-Object)
-   if(($doc118Keys -join ',') -ne 'args,operation,sequence' -or $command.sequence -ne ($doc118Sequence+1)){throw 'DOC118_OBSERVER_COMMAND_INVALID'}
+   Confirm-Doc118ObserverCommand -Command $command -ExpectedSequence ($doc118Sequence+1)
    $doc118Sequence=$command.sequence
    Move-Item -LiteralPath $doc118Request -Destination (Join-Path $doc118Directory ('request-'+$doc118Sequence+'.consumed.json'))
    switch($command.operation){
-    'ARM' {if((@($command.args.PSObject.Properties.Name|Sort-Object)-join ',') -ne 'expA,expB,nameA,nameB,resourceSha256'){throw 'DOC118_OBSERVER_COMMAND_INVALID'};$doc118Owner.Arm([int]$command.args.expA,[string]$command.args.nameA,[int]$command.args.expB,[string]$command.args.nameB,[string]$command.args.resourceSha256)}
-    'INSPECT' {if(@($command.args.PSObject.Properties).Count -ne 0){throw 'DOC118_OBSERVER_COMMAND_INVALID'}}
+    'ARM' {$doc118Owner.Arm([int]$command.args.expA,[string]$command.args.nameA,[int]$command.args.expB,[string]$command.args.nameB,[string]$command.args.resourceSha256)}
+    'INSPECT' {}
     'RESUME' {$doc118Owner.Resume()}
     'CLOSE' {break}
     default {throw 'DOC118_OBSERVER_COMMAND_INVALID'}
@@ -48,7 +61,7 @@ try{
   }
   $observation=$doc118Owner.Inspect()
   if($observation.closed -or $observation.fault){Save-Observer 'REVIEW_REQUIRED' $observation;break}
-  if($observation.frozen){Save-Observer 'INSIDE_FROZEN' $observation}
+  if($observation.frozen){Save-Observer 'INSIDE_FROZEN' $observation}else{Save-Observer $doc118CurrentState $observation}
   Start-Sleep -Milliseconds 100
  }
 }catch{
@@ -58,6 +71,6 @@ try{
  Save-Observer 'UNCONFIRMED' $null
 }
 finally{
- try{if($null -ne $doc118Owner){$doc118Owner.Dispose();Save-Observer 'CLOSED' $null}}catch{Save-Observer 'RELEASE_UNCONFIRMED' $null}
+ try{if($null -ne $doc118Owner){$doc118Owner.Dispose();$doc118CleanupConfirmed=$doc118Owner.CleanupConfirmed;if($doc118CleanupConfirmed){Save-Observer 'CLOSED' $null}else{Save-Observer 'RELEASE_UNCONFIRMED' $null}}}catch{Save-Observer 'RELEASE_UNCONFIRMED' $null}
  try{[Doc118MessageFilter]::Remove()}catch{}
 }

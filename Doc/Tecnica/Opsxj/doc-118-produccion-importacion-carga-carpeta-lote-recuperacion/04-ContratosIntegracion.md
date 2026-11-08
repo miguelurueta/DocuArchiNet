@@ -3,7 +3,7 @@
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
 - Clasificación: cross_cutting
-- Estado: preflight autenticado PASS; observador SIN_CALIFICAR y revisión de consola pendiente. Progreso16/27, sin efectos documentales.
+- Estado: ejecutor de siete fases verificado localmente; disponibilidad/cierre de observador PASS, retención SIN_CALIFICAR. Progreso16/27.
 
 ## Contratos e integraciones
 
@@ -24,3 +24,6 @@ La consola usa una cola local de fases permitidas y hashes de implementación. L
 
 
 La ampliación está autorizada; el preflight pasó con17 SELECT. La consola y el worker terminaron, y el finally no fue reconocido. El candidato externo no ejecutó ARM/Freeze/Thaw; no habilita fases documentales por su attach/source binding.
+
+
+Las fases documentales ya están compuestas en el ejecutor, con orden/consumo únicos, sello de dependencias y marcador exclusivo de corrida. El retorno se corta entre Playwright y el driver después del checkpoint; no se afirma pérdida en el cable. La disponibilidad exige hashes, procesos y heartbeat vigentes antes de secretos. La evidencia final requiere revisión y los guards bloquean otra pareja bajo los topes agotados.

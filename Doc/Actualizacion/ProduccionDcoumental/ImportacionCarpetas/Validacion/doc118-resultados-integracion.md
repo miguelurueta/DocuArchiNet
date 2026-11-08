@@ -1,6 +1,6 @@
 # DOC-118 — preflight autenticado y bloqueo del observador
 
-El preflight de dos sesiones pasó con publicación38/gabinete10 y17 SELECT. Consumo acumulado697 HTTP C02,0 C03 y5 aperturas;0 fases documentales y0 efectos. El worker26244 dejó de estar activo por causa no determinada. La consola terminó sin reconocer la orden CLOSE ni el finally; no quedan consola/shell ni hijos directos detectados. Las instancias privadas de depuración ya no están presentes y los dos IDE originales quedaron sin depuración activa, con12 breakpoints del usuario conservados. La observación interna sigue SIN_CALIFICAR. Evidencia: doc118-authenticated-preflight-20261107.json.
+El preflight de dos sesiones pasó con publicación38/gabinete10 y17 SELECT. Consumo acumulado699 HTTP C02,0 C03 y5 aperturas;0 fases documentales y0 efectos. El worker26244 dejó de estar activo por causa no determinada. La consola terminó sin reconocer la orden CLOSE ni el finally; no quedan consola/shell ni hijos directos detectados. Las instancias privadas de depuración ya no están presentes y los dos IDE originales quedaron sin depuración activa, con12 breakpoints del usuario conservados. La observación interna sigue SIN_CALIFICAR. Evidencia: doc118-authenticated-preflight-20261107.json.
 
 ## Autorización y consumo
 
@@ -8,9 +8,9 @@ La ampliación1000 HTTP acumulados (925/75) y5 aperturas fue autorizada por el u
 
 | Concepto | Consumido | Disponible |
 | --- | --- | --- |
-| HTTP C02 |697 de925;3 ConsultarLote acumuladas |228 |
+| HTTP C02 |699 de925;3 ConsultarLote acumuladas |226 |
 | HTTP C03 |0 de75 |75 |
-| HTTP global |697 de1000 |303 |
+| HTTP global |699 de1000 |301 |
 | Aperturas/intentos asignados |5 de5 |0 |
 | SELECT de control |17 de240 |223 |
 | Planes/lotes/raíces/PDFs/expedientes/documentos nuevos |0 | Límites originales |
@@ -30,4 +30,11 @@ No hubo ARM documental, solicitud ALMACENAR ni Freeze/Thaw. El controlador y el 
 
 El último estado del proceso es PREFLIGHT_PASS. Se envió CLOSE con secuencia2, que quedó sin consumir; el proceso y su shell ya no existían al verificarlos y no se observaron hijos directos. El informe no afirma cierre protocolario de contextos ni borrado explícito por finally. La ausencia de la consola y del worker obliga a revisar una nueva ejecución; los contadores no se reinician y ya no quedan aperturas autorizadas.
 
-Progreso16/27. COORD02/03 específicos permanecen NO_EJECUTADOS. La CLI solo implementa PREFLIGHT; las fases documentales aún no están completas. Regresión local:130 pruebas (12 preflight,31 enlace,16 coordinación,63 drivers,4 símbolos,4 adaptador externo), separada de la evidencia real. El controlador C# compila contra el SDK instalado; no tiene calificación de retención de hilo en runtime.
+Progreso16/27. COORD02/03 específicos permanecen NO_EJECUTADOS. En ese corte la CLI solo implementaba PREFLIGHT; la continuación local posterior implementa las siete fases. Regresión local:130 pruebas (12 preflight,31 enlace,16 coordinación,63 drivers,4 símbolos,4 adaptador externo), separada de la evidencia real. El controlador C# compila contra el SDK instalado; no tiene calificación de retención de hilo en runtime.
+
+
+## Continuación local y comprobación del observador
+
+Las siete fases del ejecutor están implementadas y verificadas localmente. El observador real pasó disponibilidad, breakpoint de fuente, INSPECT y CLOSE con ack de limpieza y salida0 en sesión supervisada. No se ejecutaron ARM/Freeze/Thaw, fases documentales ni nuevas sesiones autenticadas. Consumo acumulado699 HTTP C02,0 C03,17 SELECT y5 aperturas;0 aperturas disponibles. Progreso16/27: COORD02/03 siguen NO_EJECUTADOS para aceptación.
+
+El detalle de la implementación está en doc118-ejecutor-fases-local-20261108.md. La consola previa sigue sin ack de finally; el controlador nuevo sí reconoció su cierre tras corregir el guardado atómico. La disponibilidad se comprobó sin autenticación. La calificación de retención y las ventanas de negocio siguen pendientes. La propuesta de1200 HTTP/7 aperturas no está aplicada.

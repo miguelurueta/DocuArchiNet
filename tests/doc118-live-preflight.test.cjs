@@ -62,6 +62,7 @@ test('DOC118 stopped continuation cannot reuse a previous approval or start anot
 test('DOC118 continuation refuses unclosed sessions and uncleared secrets',()=>{
  for(const field of ['sessionsClosed','ephemeralSecretsCleared']){const {a,proof,load}=continuationFixture();proof[field]=false;assert.throws(()=>load(a,proof),/CARRIED_STATE_CHANGED/);}
 });
+test('DOC118 public startup diagnostics expose only closed guard codes',()=>{const {publicGuardCode}=require('../tools/e2e/scripts/run-doc118-live.cjs');assert.equal(publicGuardCode(Error('DOC118_LIVE_OBSERVER_NOT_READY_BEFORE_CAPTURE')),'DOC118_LIVE_OBSERVER_NOT_READY_BEFORE_CAPTURE');assert.equal(publicGuardCode(Error('private-password')),'DOC118_LIVE_START_UNCONFIRMED');assert.equal(publicGuardCode(Error('DOC118_LIVE_CARRIED_STATE_CHANGED_PRIVATE_TOKEN')),'DOC118_LIVE_START_UNCONFIRMED');});
 
 test('DOC118 approved second continuation carries425 HTTP, one read and three openings before the last pair',()=>{
  const {a,load}=continuationFixture(),proof=JSON.parse(fs.readFileSync(path.join(__dirname,'../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-continuation-preflight-20261107.json'),'utf8'));

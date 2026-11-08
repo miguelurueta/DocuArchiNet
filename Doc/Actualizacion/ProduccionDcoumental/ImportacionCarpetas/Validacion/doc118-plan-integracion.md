@@ -156,12 +156,19 @@ No declarar completo un caso que mantiene efecto incierto. Los intentos41/lote18
 
 El preflight de dos sesiones pasó con publicación38/gabinete10 y17 SELECT. Consumo acumulado697 HTTP C02,0 C03 y5 aperturas;0 fases documentales y0 efectos. El worker26244 dejó de estar activo por causa no determinada. La consola terminó sin reconocer la orden CLOSE ni el finally; no quedan consola/shell ni hijos directos detectados. Las instancias privadas de depuración ya no están presentes y los dos IDE originales quedaron sin depuración activa, con12 breakpoints del usuario conservados. La observación interna sigue SIN_CALIFICAR. Evidencia: doc118-authenticated-preflight-20261107.json.
 
-La ampliación1000 HTTP/5 aperturas sí fue autorizada. Restan228 HTTP C02,75 C03,223 SELECT y0 aperturas. No ejecutar de nuevo la consola ni reautenticar automáticamente. Completar las fases documentales y calificar el observador antes de solicitar otra ventana concreta.
+La ampliación1000 HTTP/5 aperturas sí fue autorizada. Restan228 HTTP C02,75 C03,223 SELECT y0 aperturas. No ejecutar de nuevo la consola ni reautenticar automáticamente. La continuación local implementó las fases documentales; sigue pendiente calificar la retención del observador.
 
 ## Ejecutor y candidatos externos
 
-run-doc118-live.cjs solo implementa PREFLIGHT; su cola sigue cerrada por fases/hash y mantiene inputs efímeros. El driver API omite subrecursos de producción y selección visual del árbol, conservando el login compartido, HTML/token reales y comprobación ASMX de autoridad. La captura real se detuvo antes de fases documentales.
+En el corte anterior run-doc118-live.cjs solo implementaba PREFLIGHT; su cola sigue cerrada por fases/hash y mantiene inputs efímeros. El driver API omite subrecursos de producción y selección visual del árbol, conservando el login compartido, HTML/token reales y comprobación ASMX de autoridad. La captura real se detuvo antes de fases documentales.
 
 Doc118Debugger.cs/doc118-debugger.ps1 usan una instancia privada, un único worker explícito, breakpoint condicional dentro del cuerpo ordinario, lectura de parámetros sintéticos y un watchdog de20 segundos. No usan Stop/Terminate ni asignan variables del producto. El callback externo solo proyecta runtimeQualified después de una respuesta real del peer y una nueva inspección correlacionada. El candidato no está calificado: no se ejecutaron ARM/Freeze/Thaw. La limpieza no reconocida queda como resultado abierto aun cuando la inspección posterior no encontró la instancia.
 
 doc118-symbols.cjs contrasta CodeView/PDB MSF en disco; no sustituye la comprobación del módulo cargado. Referencias de formato: [LLVM MSF](https://llvm.org/docs/PDB/MsfFile.html) y [PDB Info](https://llvm.org/docs/PDB/PdbStream.html). SDK: [Breakpoints.Add](https://learn.microsoft.com/en-us/dotnet/api/envdte.breakpoints.add?view=visualstudiosdk-2022), [Thread.Freeze](https://learn.microsoft.com/en-us/dotnet/api/envdte.thread.freeze?view=visualstudiosdk-2022).
+
+
+## Ejecutor local completado
+
+Las siete fases del ejecutor están implementadas y verificadas localmente. El observador real pasó disponibilidad, breakpoint de fuente, INSPECT y CLOSE con ack de limpieza y salida0 en sesión supervisada. No se ejecutaron ARM/Freeze/Thaw, fases documentales ni nuevas sesiones autenticadas. Consumo acumulado699 HTTP C02,0 C03,17 SELECT y5 aperturas;0 aperturas disponibles. Progreso16/27: COORD02/03 siguen NO_EJECUTADOS para aceptación.
+
+Seguir doc118-ejecutor-fases-local-20261108.md y el launcher supervisado. El observador debe corresponder al runId nuevo antes de capturar entradas; no heredar el PID o la calificación de la comprobación cerrada. Los160 tests y el cierre SDK no completan las tareas4.x. La revisión de una ventana fresca está en execution-fresh-window-proposal.json.

@@ -158,7 +158,7 @@ async function expectBlocked(client,command,uncertain){
   }
   throw new BridgeFault('BLOCK_NOT_PROVEN');
 }
-async function runPreparedWindow({pair,profile,grant,scope,prepared,query,observer}){
+async function runPreparedWindow({pair,profile,grant,scope,prepared,query,observer,onFirstSettled=()=>{}}){
   authorize(profile,grant,pair.scenario);check(!pair.isClosed(),'SESSION_PAIR_CLOSED');
   check(pair.authorizationSha256===binding(profile,grant),'SESSION_AUTHORIZATION_CHANGED');
   const command=prepareCommand(prepared);
@@ -169,17 +169,30 @@ async function runPreparedWindow({pair,profile,grant,scope,prepared,query,observ
   const controls=shared.createSelectControls(async(origin,sql,args)=>{pair.budget.select(origin,sql);return query(origin,sql,args);});
   const codes=[];let firstRequested=false;
   try{
-    inspectSnapshot(await controls.snapshot(prepared.loteId),prepared,grant,true);
+    const initialB=inspectSnapshot(await controls.snapshot(prepared.loteId),prepared,grant,true);
     for(const client of pair.clients){const state=await client.request('ConsultarLote',{loteId:prepared.loteId});check(state.loteId===prepared.loteId&&state.nivelRef===profile.nivelRef&&!state.detencionSolicitada,'CURRENT_AUTHORITY_NOT_PROVEN');}
     const actions=pair.scenario==='COORD02'?[
       {kind:'SAME_COMMAND',execute:async()=>{codes.push(await expectBlocked(pair.clients[1],command,true));}},
-      {kind:'OTHER_FILE',execute:async()=>{const fresh=inspectSnapshot(await controls.snapshot(prepared.loteId),prepared,grant,false);codes.push(await expectBlocked(pair.clients[1],{loteId:prepared.loteId,recursoId:prepared.archivoBId,fase:'ALMACENAR',revisionEsperada:Number(fresh.revision),claveOperacion:prepared.claveB},false));}}
+      {kind:'OTHER_FILE',execute:async()=>{
+        // One bounded SELECT while frozen; the full inventory was pinned above.
+        const sql='SELECT l.lote_id,l.contexto_doc,l.config_doc,l.total_raices,l.total_archivos,f.archivo_id,f.raiz_id,f.revision,f.estado_recepcion,f.estado_efecto,f.valores_efectivos_doc,f.intento_activo_id,f.resultado_doc,r.estado AS raiz_estado FROM ra_integracion_lote l INNER JOIN ra_integracion_raiz r ON r.lote_id=l.lote_id INNER JOIN ra_integracion_archivo f ON f.raiz_id=r.raiz_id WHERE l.lote_id=? AND f.archivo_id=?';
+        pair.budget.select('RA',sql);const rows=await query('RA',sql,[prepared.loteId,prepared.archivoBId]);
+        check(Array.isArray(rows)&&rows.length===1,'SECOND_RESOURCE_CHANGED');const f=rows[0];let context;
+        try{context=JSON.parse(f.contexto_doc);}catch{throw new BridgeFault('PERSISTED_CONTEXT_INVALID');}
+        check(String(f.lote_id)===prepared.loteId&&String(f.archivo_id)===prepared.archivoBId&&String(f.raiz_id)===String(initialB.raiz_id)&&context.UsuarioRef===grant.actorRef&&context.AmbitoRef===grant.ambitoRef&&context.NivelRef===grant.levelRef&&hash(f.config_doc)===prepared.snapshotSha256&&Number(f.total_raices)===2&&Number(f.total_archivos)===2,'PERSISTED_CONTEXT_CHANGED');
+        check(f.raiz_estado==='EXPEDIENTE_CONFIRMADO'&&f.estado_recepcion==='RECIBIDO'&&f.estado_efecto==='NO_INICIADO'&&f.valores_efectivos_doc&&!f.intento_activo_id&&!f.resultado_doc&&revision(Number(f.revision)),'SECOND_RESOURCE_CHANGED');
+        codes.push(await expectBlocked(pair.clients[1],{loteId:prepared.loteId,recursoId:prepared.archivoBId,fase:'ALMACENAR',revisionEsperada:Number(f.revision),claveOperacion:prepared.claveB},false));
+      }}
     ]:[{kind:'STOP',execute:async()=>{
       const current=await pair.clients[1].request('ConsultarLote',{loteId:prepared.loteId});check(revision(current.revision),'LOT_REVISION_INVALID');
       const stopped=await pair.clients[1].request('SolicitarDetencion',{loteId:prepared.loteId,revisionEsperada:current.revision});
-      check(stopped.loteId===prepared.loteId&&stopped.detencionSolicitada===true&&stopped.estado==='EN_CURSO','STOP_NOT_CONFIRMED');codes.push('DETENCION_SOLICITADA');
+      check(stopped.loteId===prepared.loteId&&stopped.detencionSolicitada===true&&stopped.estado==='EN_CURSO','STOP_NOT_CONFIRMED');
+      const sql='SELECT l.lote_id,l.estado AS lot_state,l.detencion_solicitada AS lot_stop,f.estado_efecto,f.intento_activo_id FROM ra_integracion_lote l INNER JOIN ra_integracion_raiz r ON r.lote_id=l.lote_id INNER JOIN ra_integracion_archivo f ON f.raiz_id=r.raiz_id WHERE l.lote_id=? AND f.archivo_id=?';
+      pair.budget.select('RA',sql);const rows=await query('RA',sql,[prepared.loteId,prepared.archivoAId]);
+      check(Array.isArray(rows)&&rows.length===1&&String(rows[0].lote_id)===prepared.loteId&&rows[0].lot_state==='EN_CURSO'&&Number(rows[0].lot_stop)===1&&rows[0].estado_efecto==='EN_CURSO'&&id(String(rows[0].intento_activo_id)),'STOP_CLAIM_NOT_PERSISTED');
+      codes.push('DETENCION_SOLICITADA');
     }}];
-    const coordination=await coordinateActiveCall({scenario:pair.scenario,scope,first:()=>{firstRequested=true;return pair.clients[0].request('AvanzarLote',command);},actions,observer});
+    const coordination=await coordinateActiveCall({scenario:pair.scenario,scope,first:()=>{firstRequested=true;return pair.clients[0].request('AvanzarLote',command).then(r=>{onFirstSettled({fulfilled:true,estado:r.estado});return r;},()=>{onFirstSettled({fulfilled:false});throw new BridgeFault('FIRST_OUTCOME_UNCONFIRMED');});},actions,observer});
     return{scenario:pair.scenario,loteId:prepared.loteId,archivoAId:prepared.archivoAId,archivoBId:prepared.archivoBId,codes,coordination,budget:pair.budget.snapshot(),businessEvidenceVerified:false,integrationPass:false};
   }catch(error){
     const safe=error instanceof BridgeFault?error:new BridgeFault('WINDOW_NOT_CONFIRMED');

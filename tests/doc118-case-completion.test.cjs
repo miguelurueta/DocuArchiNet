@@ -1,0 +1,29 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict');
+const {inspectCheckpoint,finish02,finish03}=require('../tools/e2e/tests/support/doc118-case-completion.cjs');
+const crypto=require('node:crypto'),hash=x=>crypto.createHash('sha256').update(x).digest('hex');
+function fixture(scenario='COORD02'){
+ const config=JSON.stringify({VersionId:'38'}),calls=[],prepared={loteId:'100',archivoAId:'300',archivoBId:'301',snapshotSha256:hash(config),claveB:'synthetic-b'};
+ const c={scenario,actorRef:'141',ambitoRef:'2',prepared,command:{loteId:'100',recursoId:'300',fase:'ALMACENAR',revisionEsperada:1,claveOperacion:'synthetic-a'},profile:{nivelRef:'7',expectations:[{},{}]},originalTotalBytes:'200',targets:{expA:400,expB:401},fileNames:['DOC118-C02-A-20261107.pdf','DOC118-C02-B-20261107.pdf']};
+ const result={Estado:'CONFIRMADO',DocumentoId:'600',InventarioId:'700',Expediente:{ExpedienteId:'400',RelacionNivelId:'500'}};
+ const view={lot:{lote_id:'100',contexto_doc:JSON.stringify({UsuarioRef:'141',AmbitoRef:'2',NivelRef:'7'}),config_doc:config,estado:scenario==='COORD02'?'EN_CURSO':'DETENIDO',detencion_solicitada:scenario==='COORD03'?1:0,total_raices:2,total_archivos:2,total_bytes:'200'},roots:[0,1].map(i=>({raiz_id:String(200+i),estado:i?'EXPEDIENTE_CONFIRMADO':'COMPLETADA',identidad_expediente_doc:JSON.stringify({ExpedienteId:String(400+i),RelacionNivelId:String(500+i)})})),files:[{archivo_id:'300',raiz_id:'200',bytes_previstos:'100',estado_efecto:'COMPLETADO',estado_recepcion:'RECIBIDO',resultado_doc:JSON.stringify(result)},{archivo_id:'301',raiz_id:'201',bytes_previstos:'100',revision:3,estado_efecto:'NO_INICIADO',estado_recepcion:'RECIBIDO',resultado_doc:null}],attempts:[{archivo_id:'300',fase:'ALMACENAR',estado:'CONFIRMADO',fin_utc:'2030-01-01T00:00:01Z',evidencia_doc:JSON.stringify(result)}]};
+ c.inventorySha256=require('../tools/e2e/tests/support/doc118-case-preparation.cjs').inventoryFingerprint(view);
+ let entriesA=1,entriesB=0,closed=false,badReplay=false,mutateClose=false;
+ const controls={snapshot:async()=>structuredClone(view),verify:async(lot,p,o)=>{calls.push('physical-two');assert.equal(lot,'100');assert.equal(p,c.profile);assert.deepEqual(o.fileNames,c.fileNames);return{roots:2,documents:2};},verifyKnownDocument:async()=>{calls.push('physical-one');},assertNoDocuments:async v=>{calls.push('physical-none-b');assert.equal(v.roots.length,1);assert.equal(v.roots[0].raiz_id,'201');}};
+ const client={pages:async()=>[{recursoId:'301',revision:3}],request:async(op,p)=>{
+  calls.push({op,p});if(op==='ConsultarLote'){assert.ok(closed);return{loteId:'100',nivelRef:'7',estado:'DETENIDO',detencionSolicitada:true,hayIntentosActivos:false,hayIncertidumbre:false};}
+  if(p.recursoId==='300')return{estado:'CONFIRMADO',loteId:'100',archivoId:'300',fase:'ALMACENAR',documentoId:badReplay?'999':'600',inventarioId:'700'};
+  if(scenario==='COORD03')throw Object.assign(Error('synthetic reject'),{httpStatus:409,serverCode:'CONFLICTO_REVISION'});
+  entriesB++;view.lot.estado='COMPLETADO';view.roots[1].estado='COMPLETADA';view.files[1].resultado_doc=JSON.stringify({DocumentoId:'601',InventarioId:'701'});return{estado:'CONFIRMADO',fase:'ALMACENAR',archivoId:'301',loteId:'100',documentoId:'601',inventarioId:'701'};
+ }};
+ const observer={summary:async()=>({entriesA,entriesB})},closeFirstClient=async()=>{closed=true;calls.push('close-a');if(mutateClose)view.lot.config_doc='changed';};
+ const proof=inspectCheckpoint(view,c),firstOutcome={status:'DROPPED_AFTER_CHECKPOINT',boundary:'CLIENT_API_RESPONSE_DELIVERY',...proof};
+ return{c,view,calls,options:{caseData:c,client,controls,observer,closeFirstClient,firstOutcome},badReplay:()=>{badReplay=true;},duplicateWriter:()=>{entriesA=2;},mutateClose:()=>{mutateClose=true;}};
+}
+test('DOC118 completes C02 with one exact checkpoint replay before storing B and checking both documents',async()=>{const f=fixture(),r=await finish02(f.options);assert.equal(r.documents,2);assert.equal(r.integrationPass,false);const advances=f.calls.filter(c=>c.op==='AvanzarLote');assert.deepEqual(advances[0].p,f.c.command);assert.equal(advances[1].p.recursoId,'301');assert.equal(advances[1].p.revisionEsperada,3);assert.ok(f.calls.includes('physical-two'));});
+test('DOC118 completion never replays or stores B when A remains uncertain',async()=>{const f=fixture();f.view.files[0].intento_activo_id='900';await assert.rejects(finish02(f.options),/OUTCOME_UNCERTAIN/);assert.equal(f.calls.length,0);});
+test('DOC118 completion stops after a replay with different identity',async()=>{const f=fixture();f.badReplay();await assert.rejects(finish02(f.options),/REPLAY_IDENTITY_CHANGED/);assert.equal(f.calls.filter(c=>c.op==='AvanzarLote').length,1);});
+test('DOC118 completion refuses an extra writer before the replay',async()=>{const f=fixture();f.duplicateWriter();await assert.rejects(finish02(f.options),/WRITER_ENTRY_COUNT_CHANGED/);assert.equal(f.calls.length,0);});
+test('DOC118 C03 retains one physical document and closes A before consulting from B without resume',async()=>{const f=fixture('COORD03'),r=await finish03(f.options);assert.equal(r.stopDurable,true);assert.equal(r.documents,1);assert.equal(r.integrationPass,false);assert.ok(f.calls.indexOf('close-a')<f.calls.findIndex(c=>c.op==='ConsultarLote'));assert.equal(f.calls.filter(c=>c.op==='AvanzarLote').length,1);assert.ok(f.calls.includes('physical-none-b'));});
+test('DOC118 C03 stops before post-stop advance when client closure changes the snapshot',async()=>{const f=fixture('COORD03');f.mutateClose();await assert.rejects(finish03(f.options),/CLIENT_CLOSE_CHANGED_DATA/);assert.ok(!f.calls.some(c=>c.op==='AvanzarLote'));});
+test('DOC118 changed original bytes cannot permit a checkpoint replay',async()=>{const f=fixture();f.view.files[1].bytes_previstos='99';await assert.rejects(finish02(f.options),/ORIGINAL_CONTEXT_CHANGED/);assert.equal(f.calls.length,0);});

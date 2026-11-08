@@ -52,3 +52,10 @@ Se añadieron `doc118-plan-integracion.md` y `doc118-seguridad-recuperacion.md`.
 El preflight de dos sesiones pasó con publicación38/gabinete10 y17 SELECT. Consumo acumulado697 HTTP C02,0 C03 y5 aperturas;0 fases documentales y0 efectos. El worker26244 dejó de estar activo por causa no determinada. La consola terminó sin reconocer la orden CLOSE ni el finally; no quedan consola/shell ni hijos directos detectados. Las instancias privadas de depuración ya no están presentes y los dos IDE originales quedaron sin depuración activa, con12 breakpoints del usuario conservados. La observación interna sigue SIN_CALIFICAR. Evidencia: doc118-authenticated-preflight-20261107.json.
 
 La ampliación1000 HTTP/5 aperturas está autorizada y consumió la última pareja. Los130 tests locales y el breakpoint False resuelto no completan COORD02/03. Mantener16/27 y distinguir baselines SELECT, correspondencia de archivos en disco, attach/source binding y observación interna todavía no acreditada.
+
+
+## Ejecutor local y disponibilidad del observador
+
+Las siete fases del ejecutor están implementadas y verificadas localmente. El observador real pasó disponibilidad, breakpoint de fuente, INSPECT y CLOSE con ack de limpieza y salida0 en sesión supervisada. No se ejecutaron ARM/Freeze/Thaw, fases documentales ni nuevas sesiones autenticadas. Consumo acumulado699 HTTP C02,0 C03,17 SELECT y5 aperturas;0 aperturas disponibles. Progreso16/27: COORD02/03 siguen NO_EJECUTADOS para aceptación.
+
+El informe nuevo acredita solo disponibilidad/INSPECT/cierre. ARM y llamada en vuelo siguen sin ejecutar. doc118-ejecutor-fases-local-20261108.md distingue preparación, finalización, corte de entrega al driver y evidencia todavía necesaria.

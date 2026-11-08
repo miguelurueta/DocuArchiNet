@@ -3,7 +3,7 @@
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
 - Clasificación: cross_cutting
-- Estado: preflight autenticado PASS; observador SIN_CALIFICAR y revisión de consola pendiente. Progreso16/27, sin efectos documentales.
+- Estado: ejecutor de siete fases verificado localmente; disponibilidad/cierre de observador PASS, retención SIN_CALIFICAR. Progreso16/27.
 
 ## Evidencia requerida
 
@@ -31,3 +31,10 @@ El helper nuevo se verificó con `node --test tests/doc118-active-call.test.cjs`
 El preflight de dos sesiones pasó con publicación38/gabinete10 y17 SELECT. Consumo acumulado697 HTTP C02,0 C03 y5 aperturas;0 fases documentales y0 efectos. El worker26244 dejó de estar activo por causa no determinada. La consola terminó sin reconocer la orden CLOSE ni el finally; no quedan consola/shell ni hijos directos detectados. Las instancias privadas de depuración ya no están presentes y los dos IDE originales quedaron sin depuración activa, con12 breakpoints del usuario conservados. La observación interna sigue SIN_CALIFICAR. Evidencia: doc118-authenticated-preflight-20261107.json.
 
 130 pruebas locales:12 preflight,31 enlace,16 coordinación,63 drivers,4 símbolos y4 adaptador externo. Más18 previas disjuntas:148, sin sumar repeticiones. El C# compila y hubo source binding real, pero no Freeze/Thaw ni ARM. La limpieza de una instancia y el finally de la consola no tuvieron reconocimiento; conservar ambas limitaciones y su inspección posterior.
+
+
+## Ejecutor local y prueba SDK de disponibilidad
+
+Las siete fases del ejecutor están implementadas y verificadas localmente. El observador real pasó disponibilidad, breakpoint de fuente, INSPECT y CLOSE con ack de limpieza y salida0 en sesión supervisada. No se ejecutaron ARM/Freeze/Thaw, fases documentales ni nuevas sesiones autenticadas. Consumo acumulado699 HTTP C02,0 C03,17 SELECT y5 aperturas;0 aperturas disponibles. Progreso16/27: COORD02/03 siguen NO_EJECUTADOS para aceptación.
+
+160/160 locales y178 pruebas disjuntas contando18 previas; sin sumar repeticiones. doc118-observer-readiness-20261108.json conserva HEAD699 acumulado, fuente resuelta e INSPECT/CLOSE con ack. La regresión PowerShell incluye el ArgumentException reproducido del reemplazo atómico. No se ejecutaron las ventanas documentales.

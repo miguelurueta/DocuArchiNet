@@ -37,10 +37,12 @@ public sealed class Doc118Debugger : IDisposable {
  string nameA,nameB,resource;
  bool released=true,closed,qualifiedSource;
  string fault;
+ DateTime processStartedUtc;
+ public bool CleanupConfirmed {get;private set;}
  public string Stage {get;private set;}
  public void Initialize(int target,string sourceFile,int sourceLine) {
   Stage="CREATE_PRIVATE_IDE";
-  processId=target;source=Path.GetFullPath(sourceFile);line=sourceLine;
+  processId=target;processStartedUtc=Process.GetProcessById(target).StartTime.ToUniversalTime();source=Path.GetFullPath(sourceFile);line=sourceLine;
   ide=(EnvDTE._DTE)Activator.CreateInstance(Type.GetTypeFromProgID("VisualStudio.DTE.18.0",true));
   Stage="CHECK_PRIVATE_IDE";
   ide.UserControl=false;ide.SuppressUI=true;ide.MainWindow.Visible=false;
@@ -60,6 +62,7 @@ public sealed class Doc118Debugger : IDisposable {
   until=DateTime.UtcNow.AddSeconds(10);
   while(!SourceBound()&&DateTime.UtcNow<until)Thread.Sleep(100);
   qualifiedSource=SourceBound();
+  if(!qualifiedSource)throw new InvalidOperationException();
   Stage="INITIALIZED";
   watchdog=new Timer(_=>{if(held!=null&&!released&&(Stopwatch.GetTimestamp()-freezeStarted)*1000.0/Stopwatch.Frequency>=20000){fault="WATCHDOG_RELEASE";try{Resume();}catch{fault="RELEASE_UNCONFIRMED";}}},null,100,100);
  }
@@ -96,25 +99,34 @@ public sealed class Doc118Debugger : IDisposable {
   debugger.Go(false);
  }
  public object Inspect(){
+  bool alive=false;try{var p=Process.GetProcessById(processId);alive=p.ProcessName.Equals("w3wp",StringComparison.OrdinalIgnoreCase)&&p.StartTime.ToUniversalTime()==processStartedUtc;}catch{}
+  if(!alive&&!closed)fault="TARGET_EXITED";
   bool frozen=false;try{frozen=held!=null&&held.IsFrozen;}catch{if(held!=null&&!released)fault="FROZEN_READ_UNCONFIRMED";}
-  return new{sourceBound=qualifiedSource,processId=processId,threadId=threadId,frozen=frozen,otherThreadsRunning=!closed&&debugger.CurrentMode==EnvDTE.dbgDebugMode.dbgRunMode,released=released,resourceSha256=resource,entriesA=entriesA,entriesB=entriesB,fault=fault,closed=closed};
+  return new{sourceBound=qualifiedSource,processId=processId,workerAlive=alive,threadId=threadId,frozen=frozen,otherThreadsRunning=!closed&&alive&&debugger.CurrentMode==EnvDTE.dbgDebugMode.dbgRunMode,released=released,resourceSha256=resource,entriesA=entriesA,entriesB=entriesB,fault=fault,closed=closed};
  }
  public void Resume(){
   if(released)return;
   if(held!=null){held.Thaw();if(held.IsFrozen)throw new InvalidOperationException();}
-  if(debugger.CurrentMode==EnvDTE.dbgDebugMode.dbgBreakMode)debugger.Go(false);
+  if(held!=null&&debugger.CurrentMode==EnvDTE.dbgDebugMode.dbgBreakMode)debugger.Go(false);
   released=true;
  }
  void Detach(){
-  if(debugger==null){closed=true;return;}
+  if(debugger==null){closed=true;CleanupConfirmed=released;return;}
   try{Resume();}finally{
-   if(breakpoint!=null){breakpoint.Delete();breakpoint=null;}
-   foreach(EnvDTE.Process process in debugger.DebuggedProcesses)if(process.ProcessID==processId)process.Detach(false);
-   closed=true;
+   try{if(breakpoint!=null){breakpoint.Delete();breakpoint=null;}}
+   finally{
+    var targets=new List<EnvDTE.Process>();foreach(EnvDTE.Process process in debugger.DebuggedProcesses)if(process.ProcessID==processId)targets.Add(process);
+    foreach(var process in targets)process.Detach(true);
+    closed=debugger.DebuggedProcesses.Count==0;
+    CleanupConfirmed=closed&&released;
+   }
   }
  }
  public void Dispose(){
-  if(watchdog!=null)watchdog.Dispose();Detach();
-  if(ide!=null&&(debugger==null||debugger.DebuggedProcesses.Count==0)){try{ide.Quit();}catch(COMException){} }
+  try{Detach();}finally{
+   // Keep the release watchdog alive until detach/release is confirmed.
+   if(CleanupConfirmed&&watchdog!=null)watchdog.Dispose();
+   if(ide!=null&&(debugger==null||debugger.DebuggedProcesses.Count==0)){try{ide.Quit();}catch(COMException){} }
+  }
  }
 }

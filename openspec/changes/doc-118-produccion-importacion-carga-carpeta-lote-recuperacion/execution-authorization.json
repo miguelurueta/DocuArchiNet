@@ -82,10 +82,10 @@
     "consolePreference": "LOCAL_MASKED_CONSOLE",
     "preferenceSource": "«continua» en respuesta a la propuesta de abrir la consola de captura."
   },
-  "executionStatus": "STOPPED_OBSERVER_AND_CONSOLE_REVIEW_REQUIRED",
+  "executionStatus": "LOCAL_EXECUTOR_PREPARED_REQUIRES_FRESH_WINDOW",
   "consumed": {
     "allHttp": {
-      "COORD02": 697,
+      "COORD02": 699,
       "COORD03": 0
     },
     "loginAttempts": 5,
@@ -99,7 +99,7 @@
       "COORD02": 3,
       "COORD03": 0
     },
-    "loginAttemptsMeaning": "Aperturas/intentos asignados antes de openSession; no prueba tres postbacks de login ni atribuye fallo a las credenciales de B."
+    "loginAttemptsMeaning": "Aperturas/intentos asignados antes de openSession; conteo conservador acumulado, no afirma cinco postbacks confirmados."
   },
   "sessionReuse": "TWO_SHARED_INDEPENDENT_SESSIONS",
   "continuationApproval": {
@@ -108,23 +108,23 @@
     "proposal": "execution-continuation-proposal.json",
     "recordedUtc": "2026-11-08T01:23:51.033Z"
   },
-  "consumptionEvidence": "doc118-authenticated-preflight-20261107.json",
+  "consumptionEvidence": "doc118-observer-readiness-20261108.json",
   "remaining": {
     "allHttp": {
-      "COORD02": 228,
+      "COORD02": 226,
       "COORD03": 75
     },
-    "allHttpGlobal": 303,
+    "allHttpGlobal": 301,
     "totalSessionAttempts": 0,
     "selectStatements": 223
   },
   "lastResult": {
-    "evidence": "doc118-authenticated-preflight-20261107.json",
-    "preflightPassed": true,
-    "observerQualified": false,
-    "workerNoLongerPresent": true,
-    "consoleExited": true,
-    "explicitCleanupAcknowledged": false
+    "evidence": "doc118-observer-readiness-20261108.json",
+    "sourceReadinessAndClosePass": true,
+    "activeBodyObservationQualified": false,
+    "documentalPhasesExecuted": 0,
+    "newAuthenticatedSessionsThisContinuation": 0,
+    "legacyConsoleFinallyAcknowledged": false
   },
   "budgetContinuationApproval": {
     "status": "AUTHORIZED",

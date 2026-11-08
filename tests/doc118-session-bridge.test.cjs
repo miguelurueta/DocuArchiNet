@@ -28,7 +28,9 @@ function fixture(scenario='COORD02'){
  const openSession=async b=>{const context=await b.newContext();assert.equal(context.routes.length,1);return{context,page:{locator:()=>({getAttribute:async()=>'synthetic-csrf-'+contexts.indexOf(context)})}};};
  const query=async(origin,sql,args)=>{
    queries.push({origin,sql,args});let rows;
-   if(sql.includes('FROM ra_integracion_lote'))rows=[view.lot];
+   if(sql.includes('AS lot_stop'))rows=[{lote_id:view.lot.lote_id,lot_state:'EN_CURSO',lot_stop:view.lot.detencion_solicitada,estado_efecto:view.files[0].estado_efecto,intento_activo_id:view.files[0].intento_activo_id}];
+   else if(sql.includes('AS raiz_estado'))rows=[{...view.lot,...view.files[1],raiz_estado:view.roots[1].estado}];
+   else if(sql.includes('FROM ra_integracion_lote'))rows=[view.lot];
    else if(sql.includes('FROM ra_integracion_raiz'))rows=view.roots;
    else if(sql.includes('FROM ra_integracion_archivo'))rows=view.files;
    else if(sql.includes('FROM ra_integracion_intento'))rows=view.attempts;
@@ -46,7 +48,7 @@ test('DOC118 bridge reuses two DOC111 clients, session CSRF, SELECT controls and
    assert.deepEqual(result.codes,['RESULTADO_INCIERTO','OPERACION_EN_CURSO']);assert.equal(result.integrationPass,false);assert.equal(result.businessEvidenceVerified,false);
    const advances=f.requests.filter(r=>r.operation==='AvanzarLote');assert.equal(advances.length,3);assert.deepEqual(advances[1].payload,advances[0].payload);assert.equal(advances[2].payload.revisionEsperada,8);
    assert.notEqual(advances[0].context,advances[1].context);assert.notEqual(advances[0].options.headers['X-Importacion-Carpetas-CSRF'],advances[1].options.headers['X-Importacion-Carpetas-CSRF']);
-   assert.ok(f.requests.every(r=>r.options.maxRetries===0&&r.options.maxRedirects===0));assert.equal(result.budget.selects,10);assert.equal(result.budget.scenarios.COORD02.operations.ALMACENAR,3);assert.equal(f.releases(),1);
+   assert.ok(f.requests.every(r=>r.options.maxRetries===0&&r.options.maxRedirects===0));assert.equal(result.budget.selects,6);assert.equal(result.budget.scenarios.COORD02.operations.ALMACENAR,3);assert.equal(f.releases(),1);
    assert.ok(!JSON.stringify(result).includes('synthetic-a'));assert.ok(!JSON.stringify(result).includes('synthetic-csrf'));
  }finally{await pair.close();}assert.ok(f.contexts.every(c=>c.closed===1));await pair.close();assert.ok(f.contexts.every(c=>c.closed===1));
 });
@@ -88,6 +90,12 @@ test('DOC118 fixed limits match reviewed business HTTP budgets',()=>{assert.equa
 test('DOC118 requires an explicit shared budget before opening contexts',async()=>{const f=fixture();delete f.options.budget;await assert.rejects(openPair(f.options),/SHARED_BUDGET_REQUIRED/);assert.equal(f.contexts.length,0);});
 test('DOC118 consumes the window once even when preflight fails without sending first',async()=>{const f=fixture(),pair=await openPair(f.options);try{f.view.files[0].revision++;await assert.rejects(runPreparedWindow(f.window(pair)));f.view.files[0].revision--;await assert.rejects(runPreparedWindow(f.window(pair)),/WINDOW_ALREADY_REQUESTED/);assert.equal(f.requests.length,0);}finally{await pair.close();}});
 test('DOC118 observes claims from other documentary phases before starting storage',async()=>{const f=fixture(),pair=await openPair(f.options);try{f.view.attempts.push({fase:'CREAR_EXPEDIENTE',estado:'INCIERTO'});await assert.rejects(runPreparedWindow(f.window(pair)),/INITIAL_CLAIM_CHANGED/);assert.equal(f.requests.length,0);}finally{await pair.close();}});
+test('DOC118 fresh other-file control refuses changed authority or root while A is held',async()=>{
+ for(const mutate of [f=>f.view.files[1].raiz_id='999',f=>f.view.lot.contexto_doc=JSON.stringify({UsuarioRef:'999',AmbitoRef:'2',NivelRef:f.profile.nivelRef}),f=>f.view.roots[1].estado='INCIERTO']){
+  const f=fixture(),pair=await openPair(f.options);try{const original=f.observer.waitInside;f.observer.waitInside=async()=>{const p=await original();mutate(f);return p;};await assert.rejects(runPreparedWindow(f.window(pair)),/WINDOW_NOT_CONFIRMED/);assert.equal(f.requests.filter(r=>r.operation==='AvanzarLote'&&r.payload.recursoId==='301').length,0);assert.equal(f.releases(),1);}finally{await pair.close();}
+ }
+});
+test('DOC118 stop must be durable with the same active claim before thaw',async()=>{const f=fixture('COORD03'),pair=await openPair(f.options);try{const query=async(...args)=>{const rows=await f.query(...args);if(args[1].includes('AS lot_stop'))rows[0].lot_stop=0;return rows;};await assert.rejects(runPreparedWindow({...f.window(pair),query}),/WINDOW_NOT_CONFIRMED/);assert.equal(f.releases(),1);}finally{await pair.close();}});
 test('DOC111 read-only driver refuses the newly exposed stop before HTTP',async()=>{const shared=require('../tools/e2e/tests/support/doc111-importacion-carpetas.cjs'),f=fixture();let calls=0;const reader=shared.createDriver({context:{request:{post:()=>{calls++;}}}},f.profile,{environment:true,account:true,select:true},{readOnly:true});await assert.rejects(reader.request('SolicitarDetencion',{loteId:'100',revisionEsperada:1}),/READONLY_OPERATION_REQUIRED/);assert.equal(calls,0);});
 const carried=()=>({scenarios:{COORD02:{http:98,operations:{}},COORD03:{http:0,operations:{}}},selects:0});
 test('DOC118 authorized redistribution carries all consumption and keeps the global500 ceiling',()=>{

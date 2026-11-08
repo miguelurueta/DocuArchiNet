@@ -15,7 +15,8 @@ function connectObserver({directory,runId,resourceSha256,peerProbe,maximumWaitMi
   while(Date.now()<until){const state=read();if(state?.sequence===sequence){check(!state.failure&&!['UNCONFIRMED','RELEASE_UNCONFIRMED','REVIEW_REQUIRED'].includes(state.status),'COMMAND_UNCONFIRMED');return state;}await delay(25);}
   throw Error('DOC118_OBSERVER_COMMAND_TIMEOUT');
  }
- function active(state){const v=state?.observation;check(v&&v.sourceBound===true&&v.frozen===true&&v.otherThreadsRunning===true&&v.released===false&&v.closed===false&&!v.fault&&v.resourceSha256===resourceSha256&&Number.isInteger(v.threadId)&&v.threadId>0&&v.entriesA===1&&v.entriesB===0,'ACTIVE_BODY_UNCONFIRMED');if(threadId!==null)check(v.threadId===threadId&&v.processId===processId,'THREAD_CHANGED');threadId=v.threadId;processId=v.processId;return v;}
+ function active(state){const v=state?.observation,age=Date.now()-Date.parse(state?.heartbeatUtc);let ownerAlive=false;try{if(Number.isInteger(state?.pid)&&state.pid>0){process.kill(state.pid,0);ownerAlive=true;}}catch{}
+  check(ownerAlive&&Number.isFinite(age)&&age>=0&&age<=5000&&v&&v.workerAlive===true&&v.sourceBound===true&&v.frozen===true&&v.otherThreadsRunning===true&&v.released===false&&v.closed===false&&!v.fault&&v.resourceSha256===resourceSha256&&Number.isInteger(v.threadId)&&v.threadId>0&&Number.isInteger(v.processId)&&v.processId>0&&v.entriesA===1&&v.entriesB===0,'ACTIVE_BODY_UNCONFIRMED');if(threadId!==null)check(v.threadId===threadId&&v.processId===processId,'THREAD_CHANGED');threadId=v.threadId;processId=v.processId;return v;}
  function proof(state){active(state);check(qualified,'PEER_NOT_QUALIFIED');return{runId,resourceSha256,processId,threadId,method:METHOD,insideBody:true,frozen:true,runtimeQualified:true};}
  return{
   async arm(targets){const s=await command('ARM',{...targets,resourceSha256});check(s.observation?.sourceBound===true,'SOURCE_NOT_BOUND');},
@@ -26,7 +27,9 @@ function connectObserver({directory,runId,resourceSha256,peerProbe,maximumWaitMi
   async inspect(){return proof(await command('INSPECT'));},
   async resume(){await command('RESUME');},
   async summary(){const s=await command('INSPECT');check(s.observation?.released===true&&!s.observation.frozen&&!s.observation.fault,'RELEASE_NOT_CONFIRMED');return s.observation;},
-  async close(){const state=read();if(state?.status==='CLOSED')return;await command('CLOSE');const until=Date.now()+4000;while(Date.now()<until){const s=read();if(s?.status==='CLOSED'&&!s.failure)return;await delay(25);}throw Error('DOC118_OBSERVER_CLOSE_UNCONFIRMED');}
+  async close(){const state=read();if(state?.status==='CLOSED'){check(state.cleanupConfirmed===true,'CLOSE_UNCONFIRMED');return;}
+   if(state&&!state.failure&&!['UNCONFIRMED','RELEASE_UNCONFIRMED','REVIEW_REQUIRED'].includes(state.status))await command('CLOSE');
+   const until=Date.now()+4000;while(Date.now()<until){const s=read();if(s?.status==='CLOSED'&&s.cleanupConfirmed===true)return;await delay(25);}throw Error('DOC118_OBSERVER_CLOSE_UNCONFIRMED');}
  };
 }
 module.exports={connectObserver};
