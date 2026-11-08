@@ -1,4 +1,10 @@
-# Corte vigente — ausencia física actual y contención acreditada
+# Corte vigente — RV-02-A validada localmente
+
+La comprobación de primitivas de staging pasó13/13 pruebas con6 procesos sintéticos y limpieza confirmada. Acredita exclusión local en NTFS e identifica la necesidad de conservar el handle y aplicar fencing durable; no implementa ni califica el proveedor de producción. Regresión conjunta205/205. RV-02-B continúa pendiente. Contrato y progreso activos:17/27.
+
+No hubo nuevas sesiones, HTTP, SELECT o efectos de negocio. El intento69 sigue protegido y los consumos permanecen1276 HTTP/113 SELECT/9 aperturas. Evidencia:[prueba de staging](doc118-staging-lock-probe-20261108.json), [alcance y límites](doc118-staging-lock-probe-20261108.md).
+
+## Corte anterior — ausencia física actual y contención acreditada
 
 La auditoría SELECT de lote24/archivo40/expediente670 encontró0 registros en gabinete/inventario/índice. Intento69 sigue EN_CURSO y reclamado, sin checkpoint; no se libera ni repite. Archivo41 NO_INICIADO y sin documento físico. Snapshot estable. Acumulado1276 HTTP/113 SELECT/9 aperturas. Se acredita4.6 como contención, sin resolver69:17/27.
 

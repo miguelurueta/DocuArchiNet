@@ -73,7 +73,7 @@
   "artifacts": [
     {
       "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-design.md",
-      "sha256": "64a0bff8b733591fe648662f4a4016ad56d00b800e98541b3db0b1e63b3bb069"
+      "sha256": "d9f8307ee2c09f030213f6a86ab22a243f0458ae319c04162a6d1fe3eebd1b57"
     },
     {
       "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-spec.md",
@@ -81,7 +81,7 @@
     },
     {
       "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-plan.md",
-      "sha256": "f005d2cb4de875bda65e6190edf58f95b3ae9115484dfd64aa1218f4a270cd6d"
+      "sha256": "d86c4078d17995d3cef16f57480ef23a30977266bf9d8570d451d17db416c07a"
     }
   ],
   "conclusions": {
@@ -102,7 +102,7 @@
   "progress": {
     "complete": 17,
     "total": 27,
-    "candidateTasksNotActivated": 8
+    "candidateTasksNotActivated": 9
   },
   "implementationApproval": false,
   "validation": {
@@ -114,5 +114,23 @@
     "activeTasksComplete": 17,
     "activeTasksTotal": 27,
     "applicationCodeChanged": false
+  },
+  "localValidation": {
+    "task": "RV-02-A",
+    "status": "PASS_LOCAL_PRIMITIVES_ONLY",
+    "source": "Mensaje del usuario «continua» posterior al diseño y al siguiente paso de validar exclusión del proveedor.",
+    "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-staging-lock-probe-20261108.json",
+    "localAssertions": 13,
+    "childProcesses": 6,
+    "cleanupConfirmed": true,
+    "productProviderPortImplemented": false,
+    "productionProviderQualified": false,
+    "remainingTask": "RV-02-B",
+    "runtimeDelta": {
+      "applicationLogins": 0,
+      "httpRequests": 0,
+      "selectStatements": 0,
+      "documentEffects": 0
+    }
   }
 }

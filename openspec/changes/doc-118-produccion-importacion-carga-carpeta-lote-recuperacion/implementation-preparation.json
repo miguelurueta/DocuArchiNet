@@ -245,6 +245,33 @@
       "passed": 2,
       "failed": 0,
       "scope": "Existing .NET Framework behavior and DDL tests; no database/HTTP. Repeated cases, not additional unique tests."
+    },
+    {
+      "command": "node .tmp/doc118-check-full-local-20261108.cjs",
+      "status": "PASS",
+      "tests": 205,
+      "passed": 205,
+      "failed": 0,
+      "groups": {
+        "livePreflight": 19,
+        "sessionBridge": 36,
+        "activeCall": 16,
+        "sharedDrivers": 63,
+        "symbolFiles": 4,
+        "debuggerObserver": 4,
+        "casePreparation": 12,
+        "caseCompletion": 9,
+        "lostResponse": 3,
+        "lifecycle": 4,
+        "documentalPhases": 8,
+        "powershellProtocol": 2,
+        "selectAudit": 10,
+        "debuggerRelease": 1,
+        "releaseProbeBuild": 1,
+        "stagingLockProbe": 13
+      },
+      "scope": "Local-only regression; six synthetic child processes for staging primitive checks, no business sessions/data.",
+      "recordedUtc": "2026-11-08T17:07:22.827Z"
     }
   ],
   "reviewedSourceHashesVerified": 14,
@@ -303,11 +330,11 @@
   ],
   "previousReview": "refinement-review.json conserva la evaluación histórica del borrador previo; este registro corresponde a la continuación aprobada.",
   "openDependencies": [
-    "Revisar la implementación candidata V2 y acreditar exclusión del proveedor antes de aceptar una extensión del contrato; la evaluación de diseño ya terminó.",
+    "RV-02-A comprobada localmente. Fijar los documentos/origen V2 (RV-01) e integrar/acreditar el puerto real (RV-02-B) antes de cualquier recuperación.",
     "El intento69 permanece reclamado. No repetir ALMACENAR, forzar estados o inferir finalización por tiempo/ausencia.",
     "Completar4.1/4.3–4.5/4.7–4.8 y5.x. El probe sintético no sustituye esas evidencias;9 aperturas y ConsultarLote C02=20/20 están consumidos."
   ],
-  "localNodeTestsAcrossDisjointRuns": 210,
+  "localNodeTestsAcrossDisjointRuns": 223,
   "newToolFiles": [
     {
       "path": "tools/e2e/tests/support/doc118-active-call.cjs",
@@ -448,6 +475,18 @@
     {
       "path": "tools/e2e/scripts/run-doc118-debugger-probe.ps1",
       "sha256": "948ea19710e98cb2a5ed1b4062c5ff1a952bab57bda2aa16761cde415dd90e8c"
+    },
+    {
+      "path": "tests/doc118-staging-lock-probe.fixture.cs",
+      "sha256": "5e2688be3be1839ef2431d8f5446a9ffbd524b9dfeaeb2f0e0388fb657e0ce1d"
+    },
+    {
+      "path": "tests/doc118-staging-lock-probe.test.cjs",
+      "sha256": "5a411c74d7a4629b67db6fab5eece7a9caa6b2555ac737487c8efe64700d47b3"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc118-staging-lock-probe.ps1",
+      "sha256": "59214630aebe04dc10cfa08a40283252e3614d10813b46829f897d67c9e18394"
     }
   ],
   "existingE2EDiscovery": {
@@ -500,7 +539,7 @@
     "actualRetainedPairAvailable": false,
     "documentalPhasesImplemented": true
   },
-  "localTestAccounting": "192 actuales más18 previas disjuntas; no sumar las2 reejecutadas ni otras repeticiones.",
+  "localTestAccounting": "205 actuales más18 previas disjuntas; no sumar repeticiones.",
   "runtimePreflightReference": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preflight-20261107.json",
   "runtimePreflightStarted": true,
   "realLoginAttempted": true,
@@ -592,6 +631,24 @@
       "activeTasksComplete": 17,
       "activeTasksTotal": 27,
       "applicationCodeChanged": false
+    },
+    "localValidation": {
+      "task": "RV-02-A",
+      "status": "PASS_LOCAL_PRIMITIVES_ONLY",
+      "source": "Mensaje del usuario «continua» posterior al diseño y al siguiente paso de validar exclusión del proveedor.",
+      "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-staging-lock-probe-20261108.json",
+      "localAssertions": 13,
+      "childProcesses": 6,
+      "cleanupConfirmed": true,
+      "productProviderPortImplemented": false,
+      "productionProviderQualified": false,
+      "remainingTask": "RV-02-B",
+      "runtimeDelta": {
+        "applicationLogins": 0,
+        "httpRequests": 0,
+        "selectStatements": 0,
+        "documentEffects": 0
+      }
     }
   }
 }

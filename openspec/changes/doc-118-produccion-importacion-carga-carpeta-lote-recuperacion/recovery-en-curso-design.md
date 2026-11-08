@@ -113,3 +113,11 @@ La compatibilidad debe probar que V1 conserva su conducta y que un despliegue mi
 Antes de implementar: aprobar esta extensión de RQ-07, el documento tipado V2 y la prueba del proveedor; integrar tareas al mapa activo y verificar la excepción negativa y los predicados positivos. La factibilidad del proveedor es una compuerta: si no puede demostrarse con el almacenamiento actual, la rama correspondiente debe permanecer deshabilitada por falta de capacidad, sin sustituirla por una declaración del operador.
 
 La evaluación no elimina el bloqueo operativo de DOC-118 ni acredita sus casos reales pendientes. Progreso vigente:17/27. No hubo nuevas sesiones, HTTP, SELECT o efectos durante esta evaluación.
+
+## Validación local posterior RV-02-A
+
+El usuario solicitó continuar con la compuerta de exclusión. La prueba local con archivos sintéticos sobre NTFS pasó13/13 aserciones y confirmó salida de sus6 procesos hijo. Usa un handle de lectura exclusivo, identidad nativa del archivo abierto, tamaño y hash; rechaza otro archivo con los mismos bytes, reemplazo del mismo path, hardlinks, contenido cambiado, ausencia y guardia cerrada. No se abrió el staging real de ningún lote.
+
+El control posterior a liberar la guardia permitió un nuevo lector:conservar el handle hasta commit y aplicar el fencing de estado siguen siendo obligatorios. El resultado no implementa el puerto del proveedor, no acredita identidades entre nodos y no habilita recuperación de69. RV-02-B continúa pendiente.
+
+La identidad nativa se limita al mismo equipo y la vida del archivo; los IDs pueden reutilizarse y ReFS requiere un identificador distinto. No se usa un ID persistido como prueba suficiente de continuidad. [Referencia de Microsoft](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/ns-fileapi-by_handle_file_information). Evidencia y límites:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-staging-lock-probe-20261108.md`.

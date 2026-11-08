@@ -1,5 +1,9 @@
 # DOC-118 — coordinación y recuperación
 
+## Corte actual de RV-02-A
+
+Las primitivas de exclusión sobre archivos sintéticos NTFS pasaron13/13 pruebas con6 procesos propios cerrados. La regresión conjunta pasa205/205. Se comprobaron lectores activos, salida, competencia, identidad/hash, copias, reemplazos, hardlinks y pérdida de guardia. El control de apertura después de liberar exige fencing durable; no se habilita recuperación con un lock aislado. RV-02-B, integración y calificación del proveedor real, sigue pendiente. Progreso17/27; intento69 protegido. Evidencia:Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-staging-lock-probe-20261108.md.
+
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
 - Clasificación: cross_cutting

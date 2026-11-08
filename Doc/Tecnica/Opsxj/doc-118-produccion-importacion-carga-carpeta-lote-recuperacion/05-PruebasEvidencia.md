@@ -1,5 +1,9 @@
 # DOC-118 — coordinación y recuperación
 
+## Regresión local tras RV-02-A
+
+205/205 pruebas en16 archivos. El probe nuevo aporta13 aserciones sobre NTFS local con6 procesos independientes y limpieza confirmada. No usa el staging real, sesiones, HTTP, SELECT o datos de negocio. Puerto del proveedor y recuperación V2 siguen pendientes; la prueba no habilita69 ni acredita identidad entre nodos. Fuente:Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-staging-lock-probe-20261108.json.
+
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
 - Clasificación: cross_cutting
