@@ -1,6 +1,6 @@
 {
   "issueKey": "DOC-118",
-  "status": "AWAITING_EXPLICIT_APPROVAL",
+  "status": "AUTHORIZED",
   "currentAuthorization": "execution-authorization.json",
   "evidence": [
     "doc118-prepared-stop-20261108.json",
@@ -121,5 +121,34 @@
       53
     ]
   },
-  "approvalRequired": "Only two additional openings (nine total) and cumulative HTTP1500 (1425/75), carrying995 HTTP/40 SELECT/seven openings and the existing prepared resources. No limits are applied until explicit confirmation."
+  "approvalRequired": "Only two additional openings (nine total) and cumulative HTTP1500 (1425/75), carrying995 HTTP/40 SELECT/seven openings and the existing prepared resources. No limits are applied until explicit confirmation.",
+  "approval": {
+    "status": "AUTHORIZED",
+    "source": "Mensaje del usuario «continua» en respuesta a la propuesta de9 aperturas y1500 HTTP acumulados, conservando lote24 y consumo995 HTTP/40 SELECT/7 aperturas.",
+    "recordedUtc": "2026-11-08T13:11:21.679Z",
+    "proposal": "execution-prepared-recovery-proposal.json",
+    "carriedSessionAttempts": 7,
+    "carriedCounters": {
+      "scenarios": {
+        "COORD02": {
+          "http": 995,
+          "operations": {
+            "ConsultarLote": 13,
+            "AbrirImportacion": 1,
+            "PrepararPlan": 1,
+            "ConfirmarPlan": 1,
+            "ConsultarRecursosLote": 6,
+            "RecibirArchivo": 2,
+            "CREAR_EXPEDIENTE": 2,
+            "MATERIALIZAR_VALORES": 2
+          }
+        },
+        "COORD03": {
+          "http": 0,
+          "operations": {}
+        }
+      },
+      "selects": 40
+    }
+  }
 }

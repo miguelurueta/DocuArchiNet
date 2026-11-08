@@ -184,7 +184,7 @@
         "powershellProtocol": 1
       },
       "scope": "Local-only regression, no real login/SQL/storage; external ARM verification is separate.",
-      "recordedUtc": "2026-11-08T13:00:33.205Z"
+      "recordedUtc": "2026-11-08T13:14:25.457Z"
     }
   ],
   "reviewedSourceHashesVerified": 14,
@@ -238,9 +238,9 @@
   ],
   "previousReview": "refinement-review.json conserva la evaluación histórica del borrador previo; este registro corresponde a la continuación aprobada.",
   "openDependencies": [
-    "Confirmar únicamente las2 aperturas adicionales y el techo1500 HTTP acumulados de execution-prepared-recovery-proposal.json; vigentes7/7 aperturas y995/1200 HTTP.",
+    "Completar la captura local enmascarada y ejecutar PREFLIGHT con las dos aperturas adicionales autorizadas.",
     "Revalidar por SELECT el lote24 preparado y ausencia física sin repetir sus efectos.",
-    "Calificar Freeze/Thaw y respuesta del peer dentro de la llamada real, después completar C02/C03 y contraste de inventario."
+    "Calificar Freeze/Thaw y respuesta del peer dentro de la llamada real; después completar C02/C03 y contraste de inventario."
   ],
   "localNodeTestsAcrossDisjointRuns": 195,
   "newToolFiles": [
@@ -262,7 +262,7 @@
     },
     {
       "path": "tools/e2e/scripts/run-doc118-live.cjs",
-      "sha256": "9276342a83e0fa5c19cc45e6341f58e128291141f3237e282b61932c4a5bbeed"
+      "sha256": "81e4210f3414a2ba0e67930c1be2fdcbd8ae0541585656182df99c9531525150"
     },
     {
       "path": "tools/e2e/scripts/support/doc118-live-plan.cjs",
@@ -270,7 +270,7 @@
     },
     {
       "path": "tests/doc118-live-preflight.test.cjs",
-      "sha256": "dc6e2f486bda1dfa86dad9c789f9f2b91de14323d17f4593f810c8a8e5a4ac9a"
+      "sha256": "877d3797bbbfe262a08076b8656767b6c4c8c3e58f2ff1322978e1bab9955d39"
     },
     {
       "path": "tools/e2e/tests/support/doc118-symbols.cjs",
@@ -449,5 +449,17 @@
       ]
     }
   },
-  "currentRealExecutionEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-prepared-stop-20261108.json"
+  "currentRealExecutionEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-prepared-stop-20261108.json",
+  "currentContinuation": {
+    "runId": "d07bf61a87e6e888f9cda31eb4cf129e",
+    "recordedUtc": "2026-11-08T13:18:38.264Z",
+    "status": "AWAITING_CREDENTIALS",
+    "authorizedTotalOpenings": 9,
+    "authorizedAllHttp": 1500,
+    "carriedAllHttp": 996,
+    "carriedSelects": 40,
+    "carriedOpenings": 7,
+    "newLoginAttempts": 0,
+    "newDocumentEffects": 0
+  }
 }

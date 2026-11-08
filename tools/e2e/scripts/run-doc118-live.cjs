@@ -49,7 +49,7 @@ async function main(args=process.argv.slice(2)){
  const runId=args[1],directory=path.join(ROOT,'.tmp','doc118-live-'+runId);check(!fs.existsSync(directory),'PREVIOUS_SESSION_REQUIRES_REVIEW');
  const profile=validateProfile(read(path.join(ROOT,'tools/e2e/profiles/doc111-importacion-carpetas-lote-20261102.runtime.json'))),authorization=read(AUTH),pin=scope(authorization,profile);
  require(IMPL).assertDependencies(); // Fail before secret entry if a shared binding is unavailable.
- check(['doc118-login-preflight-20261107.json','doc118-continuation-preflight-20261107.json','doc118-authenticated-preflight-20261107.json','doc118-observer-readiness-20261108.json','doc118-prepared-stop-20261108.json'].includes(authorization.consumptionEvidence),'CARRIED_STATE_CHANGED');
+ check(['doc118-login-preflight-20261107.json','doc118-continuation-preflight-20261107.json','doc118-authenticated-preflight-20261107.json','doc118-observer-readiness-20261108.json','doc118-prepared-stop-20261108.json','doc118-prepared-recovery-readiness-20261108.json'].includes(authorization.consumptionEvidence),'CARRIED_STATE_CHANGED');
  const proof=read(path.join(ROOT,'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion',authorization.consumptionEvidence));
  const priorCapture=proof.previousEvidence==='doc118-authenticated-preflight-20261107.json'?read(path.join(ROOT,'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-authenticated-preflight-20261107.json')):undefined;
  const carried=continuationConsumption(authorization,proof,priorCapture);

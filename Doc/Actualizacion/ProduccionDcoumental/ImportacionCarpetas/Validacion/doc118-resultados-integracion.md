@@ -1,3 +1,9 @@
+# Ampliación autorizada para recuperar el lote24
+
+El usuario confirmó con «continua» la propuesta de9 aperturas/1500 HTTP acumulados (1425/75), conservando recursos y consumos. La petición HEAD de disponibilidad pasó HTTP200 y elevó el acumulado de995 a996; siguen40 SELECT y7 aperturas. El worker31784 tiene observador externo ATTACHED con sourceBound=true. La consola local enmascarada está abierta, pendiente de captura; este corte no registra otro login ni solicitudes documentales. La recuperación del lote24 y la calificación Freeze/Thaw siguen pendientes. Regresión177/177; progreso16/27. Evidencia de disponibilidad: `doc118-prepared-recovery-readiness-20261108.json`.
+
+## Cortes previos
+
 # Corte actual — lote24 conservado, antes del primer almacenamiento
 
 La autorización1200 HTTP/7 aperturas fue aplicada tras «confirmado». PREFLIGHT y PREPARE02 pasaron; RUN02 se detuvo antes de despachar ALMACENAR. Lote24:dos PDFs recibidos/materializados y expedientes670/671;0 documentos almacenados solicitados por esta corrida. Consumo995 HTTP/40 SELECT/7 aperturas, sin capacidad de otra apertura. Finally y limpieza del observador confirmados. ARM/RESUME/CLOSE posterior pasó sin escritor ni efectos; Freeze/Thaw y progreso del peer aún no calificados. Progreso16/27.

@@ -47,6 +47,7 @@ function continuationFixture(){
  const a=JSON.parse(fs.readFileSync(path.join(__dirname,'../openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-authorization.json'),'utf8'));
  const proof=JSON.parse(fs.readFileSync(path.join(__dirname,'../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-login-preflight-20261107.json'),'utf8'));
  a.executionStatus='CONTINUATION_AUTHORIZED_AWAITING_MASKED_CAPTURE';
+ a.maximum.totalSessions=7;a.maximum.allHttpGlobal=1200;a.maximum.allHttpPerCase={COORD02:1125,COORD03:75};
  delete a.freshWindowApproval; // Legacy closed-baseline cases, below the fresh floor.
  Object.assign(a.consumed,{allHttp:{COORD02:98,COORD03:0},totalSessionAttempts:1,loginAttempts:1,selectStatements:0});
  return{a,proof,load:require('../tools/e2e/scripts/run-doc118-live.cjs').continuationConsumption};
@@ -68,6 +69,7 @@ function freshFixture(){
  const base=path.join(__dirname,'../'),a=JSON.parse(fs.readFileSync(base+'openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-authorization.json','utf8'));
  const proof=JSON.parse(fs.readFileSync(base+'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observer-readiness-20261108.json','utf8'));
  const prior=JSON.parse(fs.readFileSync(base+'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-authenticated-preflight-20261107.json','utf8'));
+ a.maximum.totalSessions=7;a.maximum.allHttpGlobal=1200;a.maximum.allHttpPerCase={COORD02:1125,COORD03:75};
  a.executionStatus='CONTINUATION_AUTHORIZED_AWAITING_MASKED_CAPTURE';Object.assign(a.consumed,{allHttp:{COORD02:proof.counters.scenarios.COORD02.http,COORD03:0},totalSessionAttempts:5,loginAttempts:5,selectStatements:17});
  return{a,proof,prior,load:require('../tools/e2e/scripts/run-doc118-live.cjs').continuationConsumption};
 }
@@ -77,6 +79,7 @@ test('DOC118 fresh approval floor rejects a silently reduced ledger even when pr
 function preparedRecoveryFixture(){
  const base=path.join(__dirname,'../'),a=JSON.parse(fs.readFileSync(base+'openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-authorization.json','utf8')),proof=JSON.parse(fs.readFileSync(base+'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-prepared-stop-20261108.json','utf8'));
  a.executionStatus='CONTINUATION_AUTHORIZED_AWAITING_MASKED_CAPTURE';a.maximum.totalSessions=9;a.maximum.allHttpGlobal=1500;a.maximum.allHttpPerCase.COORD02=1425;
+ Object.assign(a.consumed,{allHttp:{COORD02:995,COORD03:0},loginAttempts:7,totalSessionAttempts:7,selectStatements:40,newPlans:1,newLots:1,newExpedientes:2,newStoredDocuments:0});
  a.preparedRecoveryApproval={status:'AUTHORIZED',proposal:'execution-prepared-recovery-proposal.json',carriedSessionAttempts:7,carriedCounters:structuredClone(proof.counters)};
  const p={...structuredClone(profile),baseUrl:a.environment.baseUrl,nivelRef:'7',versionId:'38',odbcDsn:'MembershipUsers',docuarchiOdbcDsn:'MembershipUsers'};
  return{a,proof,p,...require('../tools/e2e/scripts/run-doc118-live.cjs')};

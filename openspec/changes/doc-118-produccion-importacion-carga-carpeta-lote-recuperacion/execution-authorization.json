@@ -32,7 +32,7 @@
     "newStoredDocuments": 3,
     "stopRequests": 1,
     "sessionsPerCase": 2,
-    "totalSessions": 7,
+    "totalSessions": 9,
     "loginAttemptsPerSession": 1,
     "pauseMilliseconds": 30000,
     "selectStatementsTotal": 240,
@@ -41,12 +41,12 @@
       "COORD03": 51
     },
     "allHttpPerCase": {
-      "COORD02": 1125,
+      "COORD02": 1425,
       "COORD03": 75
     },
     "caseDurationMilliseconds": 600000,
     "previousAllHttpPerCase": 250,
-    "allHttpGlobal": 1200
+    "allHttpGlobal": 1500
   },
   "newRootNames": {
     "COORD02": [
@@ -82,10 +82,10 @@
     "consolePreference": "LOCAL_MASKED_CONSOLE",
     "preferenceSource": "«continua» en respuesta a la propuesta de abrir la consola de captura."
   },
-  "executionStatus": "STOPPED_PREPARED_REVIEW_REQUIRED",
+  "executionStatus": "CONTINUATION_AUTHORIZED_AWAITING_MASKED_CAPTURE",
   "consumed": {
     "allHttp": {
-      "COORD02": 995,
+      "COORD02": 996,
       "COORD03": 0
     },
     "loginAttempts": 7,
@@ -112,14 +112,14 @@
     "proposal": "execution-continuation-proposal.json",
     "recordedUtc": "2026-11-08T01:23:51.033Z"
   },
-  "consumptionEvidence": "doc118-prepared-stop-20261108.json",
+  "consumptionEvidence": "doc118-prepared-recovery-readiness-20261108.json",
   "remaining": {
     "allHttp": {
-      "COORD02": 130,
+      "COORD02": 429,
       "COORD03": 75
     },
-    "allHttpGlobal": 205,
-    "totalSessionAttempts": 0,
+    "allHttpGlobal": 504,
+    "totalSessionAttempts": 2,
     "selectStatements": 200,
     "newPlans": 1,
     "newLots": 1,
@@ -189,5 +189,34 @@
       "1095",
       "1096"
     ]
+  },
+  "preparedRecoveryApproval": {
+    "status": "AUTHORIZED",
+    "source": "Mensaje del usuario «continua» en respuesta a la propuesta de9 aperturas y1500 HTTP acumulados, conservando lote24 y consumo995 HTTP/40 SELECT/7 aperturas.",
+    "recordedUtc": "2026-11-08T13:11:21.679Z",
+    "proposal": "execution-prepared-recovery-proposal.json",
+    "carriedSessionAttempts": 7,
+    "carriedCounters": {
+      "scenarios": {
+        "COORD02": {
+          "http": 996,
+          "operations": {
+            "ConsultarLote": 13,
+            "AbrirImportacion": 1,
+            "PrepararPlan": 1,
+            "ConfirmarPlan": 1,
+            "ConsultarRecursosLote": 6,
+            "RecibirArchivo": 2,
+            "CREAR_EXPEDIENTE": 2,
+            "MATERIALIZAR_VALORES": 2
+          }
+        },
+        "COORD03": {
+          "http": 0,
+          "operations": {}
+        }
+      },
+      "selects": 40
+    }
   }
 }
