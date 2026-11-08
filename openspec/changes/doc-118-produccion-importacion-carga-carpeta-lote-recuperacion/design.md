@@ -129,3 +129,9 @@ Entrega documental sin despliegue ni migración. Después de aprobación humana:
 ## Acceptance and review gates
 
 Diez decisiones y diez requisitos; escenarios en spec.md y cobertura en doc118-matriz-coordinacion.md. La aprobación de refinement.md y el reemplazo trazable de las tareas genéricas son compuertas antes de implementación. Las pruebas reales requieren una autorización separada posterior a un plan concreto. No hay autorización de ejecución implícita en este diseño.
+
+## Evaluación adicional de recuperación EN_CURSO
+
+El usuario solicitó continuar con la evaluación de alcance de `execution-recovery-design-proposal.json`. La propuesta candidata está en `recovery-en-curso-design.md`, `recovery-en-curso-spec.md` y `recovery-en-curso-plan.md`. Condiciona una recuperación futura a evidencia V2 emitida por el servidor y exclusión física acreditada; no aplica retrospectivamente al intento69.
+
+Es una evaluación terminada y pendiente de revisión de implementación. D-07/RQ-07 vigentes y la autorización de ejecución no cambian; no se implementó ni ejecutó esa extensión.

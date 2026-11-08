@@ -303,7 +303,7 @@
   ],
   "previousReview": "refinement-review.json conserva la evaluación histórica del borrador previo; este registro corresponde a la continuación aprobada.",
   "openDependencies": [
-    "Decidir si se amplía el diseño para evaluar una recuperación de EN_CURSO con evidencia fiable de terminación y efectos; la propuesta no autoriza mutaciones.",
+    "Revisar la implementación candidata V2 y acreditar exclusión del proveedor antes de aceptar una extensión del contrato; la evaluación de diseño ya terminó.",
     "El intento69 permanece reclamado. No repetir ALMACENAR, forzar estados o inferir finalización por tiempo/ausencia.",
     "Completar4.1/4.3–4.5/4.7–4.8 y5.x. El probe sintético no sustituye esas evidencias;9 aperturas y ConsultarLote C02=20/20 están consumidos."
   ],
@@ -567,5 +567,31 @@
     "uncertaintyContained": true,
     "activeAttemptResolved": false
   },
-  "currentSelectAuditEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-active-effect-audit-20261108.json"
+  "currentSelectAuditEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-active-effect-audit-20261108.json",
+  "recoveryDesignEvaluation": {
+    "status": "EVALUATION_COMPLETE_IMPLEMENTATION_NOT_APPROVED",
+    "evidence": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-evaluation.json",
+    "design": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-design.md",
+    "candidateSpecification": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-spec.md",
+    "candidatePlan": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-plan.md",
+    "productImplementationApproved": false,
+    "attempt69Eligible": false,
+    "activeTasksUnchanged": true,
+    "runtimeDelta": {
+      "applicationLogins": 0,
+      "httpRequests": 0,
+      "selectStatements": 0,
+      "documentEffects": 0
+    },
+    "validation": {
+      "openSpecStrict": "PASS",
+      "refinement": "PASS",
+      "refinementChecks": 15,
+      "reviewedSourceHashes": 16,
+      "candidateArtifactHashes": 3,
+      "activeTasksComplete": 17,
+      "activeTasksTotal": 27,
+      "applicationCodeChanged": false
+    }
+  }
 }

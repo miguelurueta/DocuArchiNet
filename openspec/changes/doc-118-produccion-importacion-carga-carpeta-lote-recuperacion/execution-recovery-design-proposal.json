@@ -1,7 +1,23 @@
 {
   "issueKey": "DOC-118",
-  "status": "SCOPE_DECISION_REQUIRED",
+  "status": "DESIGN_EVALUATED_AWAITING_IMPLEMENTATION_REVIEW",
   "kind": "RECOVERY_DESIGN_ONLY",
+  "evaluationApproval": {
+    "status": "AUTHORIZED",
+    "source": "Mensaje del usuario «continua» posterior a la decisión de alcance presentada y a la propuesta de evaluar recuperación EN_CURSO.",
+    "recordedUtc": "2026-11-08T15:15:31Z",
+    "scope": "Evaluación y artefactos de diseño; no implementación, despliegue, nuevos presupuestos o mutaciones."
+  },
+  "evaluationResult": {
+    "status": "CONDITIONALLY_FEASIBLE_FOR_FUTURE_V2_ONLY",
+    "design": "recovery-en-curso-design.md",
+    "candidateSpecification": "recovery-en-curso-spec.md",
+    "candidatePlan": "recovery-en-curso-plan.md",
+    "activeContractChanged": false,
+    "productImplementationApproved": false,
+    "attempt69Eligible": false,
+    "newRuntimeActionsAuthorized": false
+  },
   "currentContract": "D-07 / RQ-07: CerrarReservaSinInicio only for RESERVADO without start; reconciliation only for INCIERTO with known evidence.",
   "blockedResource": {
     "loteId": "24",

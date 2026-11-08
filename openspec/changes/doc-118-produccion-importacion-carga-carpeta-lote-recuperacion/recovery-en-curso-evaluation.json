@@ -1,0 +1,118 @@
+{
+  "issueKey": "DOC-118",
+  "status": "EVALUATION_COMPLETE_IMPLEMENTATION_NOT_APPROVED",
+  "reviewedCommit": "34099b316208431b2f5e6a58bea63ffa7b34ce24",
+  "recordedUtc": "2026-11-08T15:23:04.792Z",
+  "hashAlgorithm": "sha256-utf8-lf",
+  "sources": [
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Documento.vb",
+      "sha256": "7ffafac76b93aadf4caced13b48051490202185caad24abbe93fb83ed74816e7"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Staging.vb",
+      "sha256": "09a0779b9eb189bc830e18d606da30767e6f764d4ab6c5af577404fe61607809"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Reconciliacion.vb",
+      "sha256": "b02bf718b51c663336b372672054601b41630271a8e1455c2c6014005f3962ba"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.vb",
+      "sha256": "2c5e25c1ebcb3efeaa913c6d37c785390d934ced21b8b1ad1546ee5f080107f0"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+      "sha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.vb",
+      "sha256": "7e4ddc9f4867dccd8057b98f9410dfe63a5f9d92ab6d801ba9d477cae7d819ed"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.Limpieza.vb",
+      "sha256": "4e76543a433f40f40b83d1ef922b58d2ce6b8197e7b31188d049a11b268ee679"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Documento.vb",
+      "sha256": "fde8a4441f1ea4f95c794246e658b65c9e08069fefe9e9a0b8477db57b6fc9ef"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Control.vb",
+      "sha256": "073ac42f728bc9b3acf567532781d00286929922cecba259015d5250e6bb66d4"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Reconciliacion.vb",
+      "sha256": "de98ba5dad27feee03a3425273fc595403fb3c84089e2c1af20dd4ddf8b25f7b"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoAlmacenamientoCarpetas.vb",
+      "sha256": "51c90b801395fd6a23beb5b07b72dff668b585e8864351309e4db387c36da982"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.Documento.vb",
+      "sha256": "92ad880f5eeb2d9c51d9ce5f352953d8c849da7e73a113bbaf345c1b0fc4c8ad"
+    },
+    {
+      "path": "workflow/ClassAlmacenamiento.vb",
+      "sha256": "f0e650b4e98cb0558b17092b2fa22c9439b5065aedd105ef5f2a34f6f98722e7"
+    },
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasModels.vb",
+      "sha256": "75ab5dbbb50fa8aa53570f04e3b31e9ab921411845fcd1a62d7f10403c8f3d98"
+    },
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasInterfaces.vb",
+      "sha256": "8cddf61ad6a0cfadd89b921d1aea738cbf3c9c9f67f273ed255edbd2a7023de6"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.vb",
+      "sha256": "5eb85254548bad7b8e918de7c82e40a095db67213060b7556edb9ff6d996018a"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-design.md",
+      "sha256": "64a0bff8b733591fe648662f4a4016ad56d00b800e98541b3db0b1e63b3bb069"
+    },
+    {
+      "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-spec.md",
+      "sha256": "b195b68c3b65b099fc9b4382446912bc041b371767084075c5d12556bd83f08b"
+    },
+    {
+      "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-plan.md",
+      "sha256": "f005d2cb4de875bda65e6190edf58f95b3ae9115484dfd64aa1218f4a270cd6d"
+    }
+  ],
+  "conclusions": {
+    "currentAttempt69RecoveryEligible": false,
+    "retrospectiveV2BackfillAllowed": false,
+    "futureRecoveryConditionalOnExclusiveProvider": true,
+    "clientClaimsAreProof": false,
+    "noInvocationClosureIsDocumentSuccess": false,
+    "observedKnownIdsMustMatchPhysicalVerification": true,
+    "activeContractChanged": false
+  },
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  },
+  "progress": {
+    "complete": 17,
+    "total": 27,
+    "candidateTasksNotActivated": 8
+  },
+  "implementationApproval": false,
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "reviewedSourceHashes": 16,
+    "candidateArtifactHashes": 3,
+    "activeTasksComplete": 17,
+    "activeTasksTotal": 27,
+    "applicationCodeChanged": false
+  }
+}
