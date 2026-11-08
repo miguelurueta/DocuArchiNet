@@ -1,3 +1,11 @@
+# Corte vigente — intento69 activo, sin replay permitido
+
+La continuación autorizada recuperó el lote24 y alcanzó RUN02; el observador falló durante liberación. Auditoría SELECT posterior:archivo40/intento69 EN_CURSO con reclamación activa y sin resultado durable; archivo41 NO_INICIADO y sin documento físico. Snapshot estable. Consumo1276 HTTP/95 SELECT/9 aperturas;0 aperturas disponibles. El efecto físico A permanece sin confirmar. C03 no iniciado. Limpieza del runner/observador/auditor confirmada. Corrección candidata local del observador y regresión187/187; no calificada en runtime. Progreso16/27.
+
+Detalle:[ventana y auditoría](doc118-ventana-activa-auditoria-20261108.md). Evidencia:[parada](doc118-active-window-stop-20261108.json), [auditoría](doc118-select-audit-20261108.json).
+
+## Cortes anteriores
+
 # Ampliación autorizada para recuperar el lote24
 
 El usuario confirmó con «continua» la propuesta de9 aperturas/1500 HTTP acumulados (1425/75), conservando recursos y consumos. La petición HEAD de disponibilidad pasó HTTP200 y elevó el acumulado de995 a996; siguen40 SELECT y7 aperturas. El worker31784 tiene observador externo ATTACHED con sourceBound=true. La consola local enmascarada está abierta, pendiente de captura; este corte no registra otro login ni solicitudes documentales. La recuperación del lote24 y la calificación Freeze/Thaw siguen pendientes. Regresión177/177; progreso16/27. Evidencia de disponibilidad: `doc118-prepared-recovery-readiness-20261108.json`.

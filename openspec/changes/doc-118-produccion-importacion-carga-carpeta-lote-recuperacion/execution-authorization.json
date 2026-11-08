@@ -82,28 +82,29 @@
     "consolePreference": "LOCAL_MASKED_CONSOLE",
     "preferenceSource": "«continua» en respuesta a la propuesta de abrir la consola de captura."
   },
-  "executionStatus": "CONTINUATION_AUTHORIZED_AWAITING_MASKED_CAPTURE",
+  "executionStatus": "STOPPED_RUNTIME_REVIEW_REQUIRED",
   "consumed": {
     "allHttp": {
-      "COORD02": 996,
+      "COORD02": 1276,
       "COORD03": 0
     },
-    "loginAttempts": 7,
-    "totalSessionAttempts": 7,
-    "selectStatements": 40,
+    "loginAttempts": 9,
+    "totalSessionAttempts": 9,
+    "selectStatements": 95,
     "newPlans": 1,
     "newLots": 1,
     "newExpedientes": 2,
-    "newStoredDocuments": 0,
+    "newStoredDocuments": null,
     "businessHttp": {
-      "COORD02": 28,
+      "COORD02": 38,
       "COORD03": 0
     },
     "loginAttemptsMeaning": "Aperturas/intentos asignados antes de openSession; conteo conservador acumulado, no afirma cinco postbacks confirmados.",
     "newRoots": 2,
     "newPdfs": 2,
     "newMaterializations": 2,
-    "stopRequests": 0
+    "stopRequests": 0,
+    "storedOutcomeRequiresVerification": true
   },
   "sessionReuse": "TWO_SHARED_INDEPENDENT_SESSIONS",
   "continuationApproval": {
@@ -112,34 +113,35 @@
     "proposal": "execution-continuation-proposal.json",
     "recordedUtc": "2026-11-08T01:23:51.033Z"
   },
-  "consumptionEvidence": "doc118-prepared-recovery-readiness-20261108.json",
+  "consumptionEvidence": "doc118-select-audit-20261108.json",
   "remaining": {
     "allHttp": {
-      "COORD02": 429,
+      "COORD02": 149,
       "COORD03": 75
     },
-    "allHttpGlobal": 504,
-    "totalSessionAttempts": 2,
-    "selectStatements": 200,
-    "newPlans": 1,
-    "newLots": 1,
-    "newRoots": 2,
-    "newPdfs": 2,
-    "newExpedientes": 2,
-    "newStoredDocuments": 3,
-    "stopRequests": 1
+    "allHttpGlobal": 224,
+    "totalSessionAttempts": 0,
+    "selectStatements": 145
   },
   "lastResult": {
-    "evidence": "doc118-prepared-stop-20261108.json",
-    "sourceReadinessAndClosePass": true,
-    "conditionalArmResumeClosePass": true,
-    "activeBodyObservationQualified": false,
-    "documentalPhasesExecuted": 1,
-    "storageRequestsDispatched": 0,
-    "newAuthenticatedSessionsThisContinuation": 2,
-    "sessionsClosed": true,
-    "ephemeralSecretsCleared": true,
-    "runLeaseReleased": true
+    "evidence": "doc118-select-audit-20261108.json",
+    "status": "AUDITED_ACTIVE_CLAIM_REQUIRES_REVIEW",
+    "loteId": "24",
+    "archivoId": "40",
+    "intentoId": "69",
+    "durableState": "EN_CURSO",
+    "activeClaim": true,
+    "documentoId": null,
+    "inventarioId": null,
+    "physicalOutcomeOfActiveFile": "UNCONFIRMED",
+    "secondFilePhysicalAbsenceVerified": true,
+    "confirmedDocumentsObserved": 0,
+    "storedDocumentsTotal": null,
+    "storageReplayAllowed": false,
+    "applicationSessionsClosed": true,
+    "observerCleanupConfirmed": true,
+    "auditSecretsCleared": true,
+    "snapshotUnchanged": true
   },
   "budgetContinuationApproval": {
     "status": "AUTHORIZED",
@@ -218,5 +220,6 @@
       },
       "selects": 40
     }
-  }
+  },
+  "preparedCaseRecoveryEligibility": "BLOCKED_PRIOR_STORAGE_ATTEMPT"
 }

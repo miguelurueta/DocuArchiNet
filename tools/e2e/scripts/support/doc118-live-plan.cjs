@@ -95,11 +95,17 @@ async function run(live,scenario,dependencies={}){
  check(!c.windowRequested,'WINDOW_ALREADY_REQUESTED');c.windowRequested=true;
  (dependencies.assertRuntimeReady||assertRuntimeReady)(live);
  const observer=(dependencies.connectObserver||connectObserver)({directory:live.observerBinding.directory,runId:live.runId,resourceSha256:c.resourceSha256,peerProbe:async()=>{const s=await c.pair.clients[1].request('ConsultarLote',{loteId:c.prepared.loteId});check(s.loteId===c.prepared.loteId&&s.nivelRef===c.profile.nivelRef,'PEER_AUTHORITY_UNCONFIRMED');}});
- live.observer=observer;c.observer=observer;await observer.arm(c.targets);
+ live.observer=observer;c.observer=observer;
+ try{
+ await observer.arm(c.targets);
  let settle;c.firstSettlement=new Promise(resolve=>{settle=resolve;});
  c.window=await (dependencies.runPreparedWindow||bridge.runPreparedWindow)({pair:c.pair,profile:c.profile,grant:c.grant,scope:{runId:live.runId,resourceSha256:c.resourceSha256},prepared:c.prepared,query:live.rawQuery,observer,onFirstSettled:settle});
  check(c.window.coordination.coordinationVerified===true&&!c.window.coordination.releaseUnconfirmed,'COORDINATION_NOT_CONFIRMED');
  live.protocolPhaseIndex++;save(live,'window-'+scenario,c.window);
+ }catch(error){
+  save(live,'stopped-window-'+scenario,{issueKey:'DOC-118',scenario,loteId:c.prepared.loteId,files:[c.prepared.archivoAId,c.prepared.archivoBId],firstRequested:typeof error.firstRequested==='boolean'?error.firstRequested:null,firstOutcome:['FULFILLED','REJECTED','UNKNOWN'].includes(error.firstOutcome)?error.firstOutcome:'UNKNOWN',coordination:error.coordination||null,codes:Array.isArray(error.codes)?error.codes:[],releaseUnconfirmed:error.releaseUnconfirmed===true,counters:live.budget.snapshot(),integrationPass:false});
+  throw error;
+ }
 }
 async function finish(live,dependencies={}){
  state(live,3);const c=live.prepared.COORD02;

@@ -177,3 +177,8 @@ Seguir doc118-ejecutor-fases-local-20261108.md y el launcher supervisado. El obs
 ## Continuación desde lote24 conservado
 
 La corrida autorizada de7 aperturas/1200 HTTP preparó C02 y se detuvo antes de ALMACENAR. No ejecutar otra preparación de C02: el descriptor cerrado plan40/lote24/raíces39-40/archivos40-41/expedientes670-671 permite reconstrucción solo tras SELECT sin intento de almacenamiento previo, sin actividad/incertidumbre, sin efecto físico y con snapshot estable. C03 conserva sus dos raíces nuevas pendientes. ARM/RESUME/CLOSE del controlador pasó; la ventana real todavía debe probar retención interna y respuesta del peer. La propuesta `execution-prepared-recovery-proposal.json` solicita9 aperturas/1500 HTTP acumulados; sigue pendiente. Fuente del corte: `doc118-preparacion-recuperacion-20261108.md`.
+
+
+## Corte obligatorio tras RUN02
+
+La recuperación del lote24 ya no es elegible:existe intento69 EN_CURSO sobre archivo40, sin checkpoint ni identidad durable y con reclamación activa. No reusar PREPARE02 para repetirlo. El archivo41 sigue sin intento y sin documentos físicos, pero la reclamación del lote impide otro escritor. No se ha aprobado otra corrida; los topes vigentes están consumidos en9 aperturas y ConsultarLote C02=20/20. La candidata de liberación requiere una calificación segura antes de cualquier ventana adicional; no se valida con replay de69. Ver `doc118-ventana-activa-auditoria-20261108.md`.

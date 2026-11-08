@@ -154,7 +154,9 @@ function inspectSnapshot(view,prepared,grant,initial){
 async function expectBlocked(client,command,uncertain){
   try{await client.request('AvanzarLote',command);}catch(error){
     if(error.httpStatus===409&&(error.serverCode==='OPERACION_EN_CURSO'||uncertain&&error.serverCode==='RESULTADO_INCIERTO'))return error.serverCode;
-    throw new BridgeFault('BLOCK_NOT_PROVEN');
+    const failure=new BridgeFault('BLOCK_NOT_PROVEN');
+    failure.httpStatus=Number.isInteger(error.httpStatus)?error.httpStatus:null;
+    const codes=['OPERACION_EN_CURSO','RESULTADO_INCIERTO','CONFLICTO_REVISION','ACCESO_DENEGADO','SOLICITUD_INVALIDA','SESION_REQUERIDA','CSRF_INVALIDO','ORIGEN_INVALIDO','ERROR_INTERNO','CONFIGURACION_INVALIDA','ARCHIVO_RECHAZADO'];failure.serverCode=codes.includes(error.serverCode)?error.serverCode:'UNCLASSIFIED';throw failure;
   }
   throw new BridgeFault('BLOCK_NOT_PROVEN');
 }
@@ -199,6 +201,7 @@ async function runPreparedWindow({pair,profile,grant,scope,prepared,query,observ
     safe.loteId=prepared.loteId;safe.firstRequested=firstRequested;
     safe.firstOutcome=['FULFILLED','REJECTED','UNKNOWN'].includes(error.coordination?.firstOutcome)?error.coordination.firstOutcome:'UNKNOWN';
     safe.releaseUnconfirmed=error.coordination?.releaseUnconfirmed===true;
+    safe.coordination=error.coordination||null;safe.codes=codes.slice();
     throw safe;
   }
 }

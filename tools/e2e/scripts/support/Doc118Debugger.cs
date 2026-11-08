@@ -22,6 +22,19 @@ public sealed class Doc118MessageFilter:IDoc118MessageFilter {
 
 // Owns a fresh, hidden IDE. Never adopts the user's debugger/breakpoints.
 // No Stop/Terminate, expression injection, writes to debuggee or function calls.
+public static class Doc118Release {
+ public static void Run(Func<bool> inBreak,Action requestBreak,Action thaw,Func<bool> isFrozen,Action go,Func<bool> inRun,int milliseconds){
+  if(milliseconds<=0||milliseconds>1000)throw new ArgumentOutOfRangeException();
+  if(!inBreak())requestBreak();
+  var until=DateTime.UtcNow.AddMilliseconds(milliseconds);
+  while(!inBreak()&&DateTime.UtcNow<until)Thread.Sleep(10);
+  if(!inBreak())throw new InvalidOperationException("RELEASE_BREAK_UNCONFIRMED");
+  thaw();if(isFrozen())throw new InvalidOperationException("RELEASE_THAW_UNCONFIRMED");
+  go();until=DateTime.UtcNow.AddMilliseconds(milliseconds);
+  while(!inRun()&&DateTime.UtcNow<until)Thread.Sleep(10);
+  if(!inRun())throw new InvalidOperationException("RELEASE_GO_UNCONFIRMED");
+ }
+}
 public sealed class Doc118Debugger : IDisposable {
  EnvDTE._DTE ide;
  EnvDTE80.Debugger2 debugger;
@@ -36,6 +49,7 @@ public sealed class Doc118Debugger : IDisposable {
  int expA,expB;
  string nameA,nameB,resource;
  bool released=true,closed,qualifiedSource;
+ volatile bool releaseDue;
  string fault;
  DateTime processStartedUtc;
  public bool CleanupConfirmed {get;private set;}
@@ -64,7 +78,8 @@ public sealed class Doc118Debugger : IDisposable {
   qualifiedSource=SourceBound();
   if(!qualifiedSource)throw new InvalidOperationException();
   Stage="INITIALIZED";
-  watchdog=new Timer(_=>{if(held!=null&&!released&&(Stopwatch.GetTimestamp()-freezeStarted)*1000.0/Stopwatch.Frequency>=20000){fault="WATCHDOG_RELEASE";try{Resume();}catch{fault="RELEASE_UNCONFIRMED";}}},null,100,100);
+  // COM calls remain on the controller's STA thread. The timer only signals it.
+  watchdog=new Timer(_=>{if(held!=null&&!released&&(Stopwatch.GetTimestamp()-freezeStarted)*1000.0/Stopwatch.Frequency>=20000)releaseDue=true;},null,100,100);
  }
  void AddBreakpoint(string condition){
   if(breakpoint!=null){breakpoint.Delete();breakpoint=null;}
@@ -80,7 +95,7 @@ public sealed class Doc118Debugger : IDisposable {
  public void Arm(int a,string an,int b,string bn,string digest){
   Stage="ARM_VALIDATE";
   if(closed||!qualifiedSource||!released||armCount>=2||a<=0||b<=0||a==b||!System.Text.RegularExpressions.Regex.IsMatch(an,"^DOC118-C0[23]-A-20261107\\.pdf$")||!System.Text.RegularExpressions.Regex.IsMatch(bn,"^DOC118-C0[23]-B-20261107\\.pdf$")||!System.Text.RegularExpressions.Regex.IsMatch(digest,"^[a-f0-9]{64}$"))throw new InvalidOperationException();
-  expA=a;expB=b;nameA=an;nameB=bn;resource=digest;entriesA=entriesB=0;threadId=0;held=null;fault=null;armCount++;
+  expA=a;expB=b;nameA=an;nameB=bn;resource=digest;entriesA=entriesB=0;threadId=0;held=null;fault=null;releaseDue=false;armCount++;
   Stage="ARM_ADD_BREAKPOINT";qualifiedSource=false;
   AddBreakpoint("(IdExpediente = "+a+" AndAlso NombreDocumento = \""+an+"\") OrElse (IdExpediente = "+b+" AndAlso NombreDocumento = \""+bn+"\")");
   Stage="ARM_BIND_SOURCE";
@@ -91,6 +106,7 @@ public sealed class Doc118Debugger : IDisposable {
  }
  string Value(string local){var value=debugger.GetExpression(local,false,500);if(!value.IsValidValue)throw new InvalidOperationException();return value.Value;}
  public void Poll(){
+  if(releaseDue&&!released){fault="WATCHDOG_RELEASE";Resume();}
   if(closed||debugger.CurrentMode!=EnvDTE.dbgDebugMode.dbgBreakMode)return;
   if(resource==null||debugger.CurrentProcess.ProcessID!=processId){fault="UNEXPECTED_BREAK";Detach();return;}
   var thread=debugger.CurrentThread;
@@ -112,9 +128,14 @@ public sealed class Doc118Debugger : IDisposable {
  }
  public void Resume(){
   if(released)return;
-  if(held!=null){held.Thaw();if(held.IsFrozen)throw new InvalidOperationException();}
-  if(held!=null&&debugger.CurrentMode==EnvDTE.dbgDebugMode.dbgBreakMode)debugger.Go(false);
-  released=true;
+  if(held!=null){
+   Doc118Release.Run(()=>debugger.CurrentMode==EnvDTE.dbgDebugMode.dbgBreakMode,
+    ()=>{Stage="RELEASE_BREAK";debugger.Break(false);},
+    ()=>{Stage="RELEASE_THAW";if(debugger.CurrentProcess.ProcessID!=processId||held.ID!=threadId)throw new InvalidOperationException();held.Thaw();},
+    ()=>held.IsFrozen,()=>{Stage="RELEASE_GO";debugger.Go(false);},
+    ()=>debugger.CurrentMode==EnvDTE.dbgDebugMode.dbgRunMode,1000);
+  }
+  released=true;releaseDue=false;Stage="RELEASED";
  }
  void Detach(){
   if(debugger==null){closed=true;CleanupConfirmed=released;return;}

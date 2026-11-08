@@ -6,3 +6,7 @@ test('DOC118 actual PowerShell protocol accepts empty inspection and refuses ext
  const output=cp.execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',path.join(__dirname,'doc118-debugger-protocol.fixture.ps1')],{input:JSON.stringify(commands.map(command=>({command}))),encoding:'utf8',windowsHide:true,env:Object.fromEntries(Object.entries(process.env).filter(([k])=>['PATH','Path','SystemRoot','WINDIR','TEMP','TMP'].includes(k)))});
  assert.deepEqual(JSON.parse(output.replace(/^\uFEFF/,'')),[true,true,true,false,false,false,false,false,false]);
 });
+test('DOC118 actual PowerShell owner retains body and close evidence when the current status is overwritten',()=>{
+ const output=cp.execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',path.join(__dirname,'doc118-debugger-trace.fixture.ps1')],{encoding:'utf8',windowsHide:true});
+ assert.deepEqual(JSON.parse(output.replace(/^\uFEFF/,'')),{events:4,bodyRetained:true,closeRetained:true,heartbeatDeduplicated:true});
+});

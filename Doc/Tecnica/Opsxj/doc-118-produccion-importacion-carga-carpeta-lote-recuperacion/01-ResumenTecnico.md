@@ -20,3 +20,8 @@ Las siete fases del ejecutor están implementadas y verificadas localmente. El o
 ## Corte posterior a la preparación del lote24
 
 Se conservó la preparación real de C02 (plan40/lote24, expedientes670/671) tras un fallo del observador anterior al primer ALMACENAR. Se corrigió la espera de binding y ARM/RESUME/CLOSE pasaron sin llamadas al escritor. La reconstrucción local relee identidades y ausencia física sin recrear recursos. Véase `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preparacion-recuperacion-20261108.md`.
+
+
+## Ventana real y auditoría posterior
+
+RUN02 se detuvo con fallo del depurador. Lote24/archivo40/intento69 permanece EN_CURSO, con reclamación activa y sin resultado durable; archivo41 mantiene NO_INICIADO y ausencia física verificada. No se puede afirmar cero efectos de A ni repetirlo. Acumulado1276 HTTP/95 SELECT/9 aperturas; C03 no iniciado. La candidata local sincroniza Break/Thaw/Go y conserva historial propio. Regresión187/187, SDK compilado, sin prueba documental posterior de esa corrección. Progreso16/27. Detalle:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-ventana-activa-auditoria-20261108.md`.

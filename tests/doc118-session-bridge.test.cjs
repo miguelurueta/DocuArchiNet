@@ -62,6 +62,11 @@ test('DOC118 bridge reuses two DOC111 clients, session CSRF, SELECT controls and
 test('DOC118 bridge sends existing SolicitarDetencion contract from second session with current lot revision',async()=>{
  const f=fixture('COORD03'),pair=await openPair(f.options);try{const result=await runPreparedWindow(f.window(pair));assert.deepEqual(result.codes,['DETENCION_SOLICITADA']);assert.deepEqual(f.requests.find(r=>r.operation==='SolicitarDetencion').payload,{loteId:'100',revisionEsperada:10});assert.equal(f.requests.filter(r=>r.operation==='AvanzarLote').length,1);assert.equal(result.integrationPass,false);}finally{await pair.close();}
 });
+test('DOC118 bridge retains a closed second-file failure and the verified interval when release also fails',async()=>{
+ const f=fixture(),pair=await openPair(f.options);try{f.setSecondCode('CONFLICTO_REVISION');const resume=f.observer.resume;f.observer.resume=async()=>{await resume();throw Error('PRIVATE_COM_DETAILS');};
+ await assert.rejects(runPreparedWindow(f.window(pair)),e=>{assert.equal(e.firstRequested,true);assert.equal(e.releaseUnconfirmed,true);assert.deepEqual(e.codes,['RESULTADO_INCIERTO']);assert.deepEqual(e.coordination.actionFailure,{kind:'OTHER_FILE',httpStatus:409,serverCode:'CONFLICTO_REVISION'});assert.ok(e.coordination.order.includes('OTHER_FILE_START'));assert.equal(JSON.stringify(e).includes('PRIVATE'),false);return true;});
+ }finally{await pair.close();}
+});
 test('DOC118 refuses inherited or incomplete grants before opening any session',async()=>{
  for(const change of [f=>f.grant.scope='ALM-03',f=>f.grant.concurrency=false,f=>f.grant.observer=false,f=>f.grant.select=false,f=>f.grant.actorRef='invalid',f=>f.grant.loteId='21']){
    const f=fixture();change(f);await assert.rejects(openPair(f.options));assert.equal(f.contexts.length,0);

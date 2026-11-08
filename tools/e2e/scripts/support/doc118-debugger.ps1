@@ -19,8 +19,17 @@ $doc118Hashes=[pscustomobject][ordered]@{
 }
 $doc118CleanupConfirmed=$false
 $doc118CurrentState='STARTING'
+$doc118LastTrace=''
+$doc118TraceEvents=0
 function Save-Observer($state,$value){
  $script:doc118CurrentState=$state
+ $projection=[pscustomobject]@{status=$state;runId=$RunId;sequence=$doc118Sequence;stage=if($doc118Owner){$doc118Owner.Stage}else{'LOAD_CONTROLLER'};observation=$value;failure=$doc118Failure;cleanupConfirmed=$doc118CleanupConfirmed}|ConvertTo-Json -Depth 6 -Compress
+ if($projection -ne $script:doc118LastTrace){
+  if($script:doc118TraceEvents -ge 2048){throw 'DOC118_OBSERVER_TRACE_LIMIT'}
+  $trace=[pscustomobject]@{utc=[DateTime]::UtcNow.ToString('o');value=($projection|ConvertFrom-Json)}|ConvertTo-Json -Depth 8 -Compress
+  [IO.File]::AppendAllText((Join-Path $doc118Directory 'observation-history.jsonl'),$trace+[Environment]::NewLine,(New-Object Text.UTF8Encoding($false)))
+  $script:doc118LastTrace=$projection;$script:doc118TraceEvents++
+ }
  $data=[pscustomobject]@{status=$state;runId=$RunId;pid=$PID;sequence=$doc118Sequence;observation=$value;failure=$doc118Failure;cleanupConfirmed=$doc118CleanupConfirmed;createdUtc=$doc118Created;heartbeatUtc=[DateTime]::UtcNow.ToString('o');implementationHashes=$doc118Hashes}|ConvertTo-Json -Depth 6 -Compress
  [Doc118AtomicStatus]::Write($doc118Status,$data)
 }

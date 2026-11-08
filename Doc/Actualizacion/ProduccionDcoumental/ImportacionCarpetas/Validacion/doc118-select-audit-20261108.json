@@ -1,0 +1,77 @@
+{
+  "issueKey": "DOC-118",
+  "status": "AUDIT_COMPLETE_REVIEW_REQUIRED",
+  "recordedUtc": "2026-11-08T13:41:53.833Z",
+  "loginAttempts": 0,
+  "httpRequests": 0,
+  "mutations": 0,
+  "ephemeralSecretsCleared": true,
+  "counters": {
+    "scenarios": {
+      "COORD02": {
+        "http": 1276,
+        "operations": {
+          "ConsultarLote": 20,
+          "AbrirImportacion": 1,
+          "PrepararPlan": 1,
+          "ConfirmarPlan": 1,
+          "ConsultarRecursosLote": 6,
+          "RecibirArchivo": 2,
+          "CREAR_EXPEDIENTE": 2,
+          "MATERIALIZAR_VALORES": 2,
+          "ALMACENAR": 3
+        }
+      },
+      "COORD03": {
+        "http": 0,
+        "operations": {}
+      }
+    },
+    "selects": 95
+  },
+  "result": {
+    "loteId": "24",
+    "estado": "EN_CURSO",
+    "detencionSolicitada": false,
+    "activeClaims": true,
+    "files": [
+      {
+        "archivoId": "40",
+        "raizId": "39",
+        "expedienteId": "670",
+        "rootState": "EXPEDIENTE_CONFIRMADO",
+        "receiptState": "RECIBIDO",
+        "effectState": "EN_CURSO",
+        "activeClaim": true,
+        "storageAttempts": [
+          {
+            "intentoId": "69",
+            "estado": "EN_CURSO",
+            "finished": false
+          }
+        ],
+        "documentoId": null,
+        "inventarioId": null,
+        "physical": "UNCONFIRMED"
+      },
+      {
+        "archivoId": "41",
+        "raizId": "40",
+        "expedienteId": "671",
+        "rootState": "EXPEDIENTE_CONFIRMADO",
+        "receiptState": "RECIBIDO",
+        "effectState": "NO_INICIADO",
+        "activeClaim": false,
+        "storageAttempts": [],
+        "documentoId": null,
+        "inventarioId": null,
+        "physical": "ABSENCE_VERIFIED"
+      }
+    ],
+    "fingerprint": "469f0de0f2699086a0c3810f2d8b9a28abdb529faceaa6954647f2b90452819b",
+    "snapshotUnchanged": true,
+    "confirmedDocuments": 0,
+    "integrationPass": false
+  },
+  "finishedUtc": "2026-11-08T13:42:56.594Z"
+}

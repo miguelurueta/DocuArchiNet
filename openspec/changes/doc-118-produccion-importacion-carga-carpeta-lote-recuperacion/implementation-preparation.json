@@ -185,6 +185,31 @@
       },
       "scope": "Local-only regression, no real login/SQL/storage; external ARM verification is separate.",
       "recordedUtc": "2026-11-08T13:14:25.457Z"
+    },
+    {
+      "command": "node .tmp/doc118-check-full-local-20261108.cjs",
+      "status": "PASS",
+      "tests": 187,
+      "passed": 187,
+      "failed": 0,
+      "groups": {
+        "livePreflight": 19,
+        "sessionBridge": 36,
+        "activeCall": 16,
+        "sharedDrivers": 63,
+        "symbolFiles": 4,
+        "debuggerObserver": 4,
+        "casePreparation": 12,
+        "caseCompletion": 9,
+        "lostResponse": 3,
+        "lifecycle": 4,
+        "documentalPhases": 8,
+        "powershellProtocol": 2,
+        "selectAudit": 6,
+        "debuggerRelease": 1
+      },
+      "recordedUtc": "2026-11-08T13:48:58.169Z",
+      "scope": "Local only; C# callback release and actual PowerShell owner trace without IDE attach. Real SELECT audit recorded separately."
     }
   ],
   "reviewedSourceHashesVerified": 14,
@@ -221,14 +246,17 @@
     "debuggerCurrentlyAttached": false,
     "onDiskGuidAndAgeMatch": true,
     "temporarySourceBreakpointBound": true,
-    "selectedThreadEverFrozen": false,
+    "selectedThreadEverFrozen": null,
     "privateIdeCleanupInitiallyUnconfirmed": true,
     "privateIdeAbsenceSubsequentlyVerified": true,
     "sourceReadinessAndClosePassed": true,
     "sourceReadinessEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observer-readiness-20261108.json",
     "currentlyAttached": false,
     "conditionalArmResumeClosePassed": true,
-    "conditionalArmEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observer-arm-20261108.json"
+    "conditionalArmEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observer-arm-20261108.json",
+    "releaseSynchronizationCandidateImplemented": true,
+    "releaseSynchronizationRuntimeQualified": false,
+    "controllerOwnedHistoryImplemented": true
   },
   "realIntegrationExecuted": false,
   "productChanged": false,
@@ -238,15 +266,15 @@
   ],
   "previousReview": "refinement-review.json conserva la evaluación histórica del borrador previo; este registro corresponde a la continuación aprobada.",
   "openDependencies": [
-    "Completar la captura local enmascarada y ejecutar PREFLIGHT con las dos aperturas adicionales autorizadas.",
-    "Revalidar por SELECT el lote24 preparado y ausencia física sin repetir sus efectos.",
-    "Calificar Freeze/Thaw y respuesta del peer dentro de la llamada real; después completar C02/C03 y contraste de inventario."
+    "Resolver por evidencia fiable el resultado del intento69 EN_CURSO sin replay, cambio de estado forzado ni takeover; no hay una recuperación automática autorizada para ese estado.",
+    "Calificar en un entorno seguro la sincronización corregida de liberación y la traza propia del observador antes de otra ventana documental.",
+    "Completar COORD02/03 y verificación final;9/9 aperturas y ConsultarLote C02=20/20 están consumidos. No se ha solicitado ni aplicado otra ampliación."
   ],
-  "localNodeTestsAcrossDisjointRuns": 195,
+  "localNodeTestsAcrossDisjointRuns": 205,
   "newToolFiles": [
     {
       "path": "tools/e2e/tests/support/doc118-active-call.cjs",
-      "sha256": "11c14e7aaad8dc80eccfc03bf35f791442706d5e2d473673bd959f51189d1b31"
+      "sha256": "c0ecde5a49db656e4ebbdb2326983bf43a10851a50e859bd5fb75f00a42e5b13"
     },
     {
       "path": "tests/doc118-active-call.test.cjs",
@@ -254,11 +282,11 @@
     },
     {
       "path": "tools/e2e/tests/support/doc118-session-bridge.cjs",
-      "sha256": "3e9f29239b931f6353c4c6a2bca7ceaa9eaab98815ed38eaac66d1a355968a0a"
+      "sha256": "3f689a70a11dcde40245d4a03b47e4beb91f6b1548361733c2480dc4c64dc52b"
     },
     {
       "path": "tests/doc118-session-bridge.test.cjs",
-      "sha256": "1d593ed5143a81bce661db4be721ac9080b7483b5f456b76dc702f4b67f8748e"
+      "sha256": "88e134b056f2ae95d6b411c2d35e5a97dc1e107aa63e02b727a2d4852aad8f34"
     },
     {
       "path": "tools/e2e/scripts/run-doc118-live.cjs",
@@ -266,7 +294,7 @@
     },
     {
       "path": "tools/e2e/scripts/support/doc118-live-plan.cjs",
-      "sha256": "81410504947284f2b37243368cc468129404e050f949d99074322b719500e25e"
+      "sha256": "9e4c578435bc0c779e4e8b7d862e0a5f8a2f186800d819f93068b8f1163f0078"
     },
     {
       "path": "tests/doc118-live-preflight.test.cjs",
@@ -282,11 +310,11 @@
     },
     {
       "path": "tools/e2e/scripts/support/Doc118Debugger.cs",
-      "sha256": "0e7d9a9f90b3980f1627af5d3dcb5ba2aace6a039d310343656ba69254408e7e"
+      "sha256": "7cbc71f4c13becf60d5b7c0727b3592789e733f96e4dd127b5928740d3ae38b3"
     },
     {
       "path": "tools/e2e/scripts/support/doc118-debugger.ps1",
-      "sha256": "d49a05028654b51a9ae5ac59490bc7bd06548d6858fa41ff2bea9fe3a9c81fe4"
+      "sha256": "23bbd65e7e3dc2cc8c054fe5158d8073368929ab57448a5af3f2fcb2e501e2ac"
     },
     {
       "path": "tools/e2e/tests/support/doc118-debugger-observer.cjs",
@@ -330,7 +358,7 @@
     },
     {
       "path": "tests/doc118-documental-phases.test.cjs",
-      "sha256": "f9f8956883a36a6b9ceb2f2a5a2117b5fb7e8223259a131ac43054185bd32f33"
+      "sha256": "832306664a78c1d92f4276724cd0b05675976e3a53c540ebd4529e676e780d57"
     },
     {
       "path": "tools/e2e/scripts/support/doc118-debugger-protocol.ps1",
@@ -338,7 +366,7 @@
     },
     {
       "path": "tests/doc118-debugger-protocol.test.cjs",
-      "sha256": "9edba55ba056aa3b49e8c92385f0d7f0e1d1bbe1f241de1b459d59a65009f2e6"
+      "sha256": "a8897b4a9f9188046300125207d1e1a1e91c3566921fea025eeddecf597893e3"
     },
     {
       "path": "tests/doc118-debugger-protocol.fixture.ps1",
@@ -347,6 +375,26 @@
     {
       "path": "tools/e2e/scripts/start-doc118-console.ps1",
       "sha256": "2ef7054d2144da05f86b2edae7bf659694052f16f7ec8808bb189238b4ab6af1"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc118-select-audit.cjs",
+      "sha256": "c4e9cf0fc220c0cd6d9807c3df694fc63fa9f32e5823c794161d1e0ea9e309be"
+    },
+    {
+      "path": "tests/doc118-select-audit.test.cjs",
+      "sha256": "b06008027b164aa8ff20220a64e0f3b1c9f51308f9c34fb206128ee34af81979"
+    },
+    {
+      "path": "tests/doc118-debugger-release.test.cjs",
+      "sha256": "6c9c843a4f4f79a400a9600f737e43a342801a0304434cde7b1e2ae316ca70ac"
+    },
+    {
+      "path": "tests/doc118-debugger-release.fixture.ps1",
+      "sha256": "d1ac20b57772093cde671c3c9e3a1dbfecb1c7bd73a92bc391cb60b82ec1b71b"
+    },
+    {
+      "path": "tests/doc118-debugger-trace.fixture.ps1",
+      "sha256": "7090216200ab12a5b1d36c18e342a73ce8cf4c14c68ee17ea3a91696e587a495"
     }
   ],
   "existingE2EDiscovery": {
@@ -399,7 +447,7 @@
     "actualRetainedPairAvailable": false,
     "documentalPhasesImplemented": true
   },
-  "localTestAccounting": "177 actuales más18 previas disjuntas; no sumar repeticiones.",
+  "localTestAccounting": "187 actuales más18 previas disjuntas; no sumar repeticiones.",
   "runtimePreflightReference": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preflight-20261107.json",
   "runtimePreflightStarted": true,
   "realLoginAttempted": true,
@@ -426,7 +474,7 @@
     "dependenciesSealed": true,
     "supervisedConsoleLauncher": "tools/e2e/scripts/start-doc118-console.ps1",
     "responseLossBoundary": "CLIENT_API_RESPONSE_DELIVERY",
-    "realStorageRequestsDispatched": 0,
+    "realStorageRequestsDispatched": 3,
     "preparedCaseRecoveryImplemented": true,
     "preparedCaseRecovery": {
       "planId": "40",
@@ -447,19 +495,21 @@
         "1095",
         "1096"
       ]
-    }
+    },
+    "preparedRecoveryCurrentlyEligible": false
   },
-  "currentRealExecutionEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-prepared-stop-20261108.json",
+  "currentRealExecutionEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-active-window-stop-20261108.json",
   "currentContinuation": {
     "runId": "d07bf61a87e6e888f9cda31eb4cf129e",
-    "recordedUtc": "2026-11-08T13:18:38.264Z",
-    "status": "AWAITING_CREDENTIALS",
-    "authorizedTotalOpenings": 9,
-    "authorizedAllHttp": 1500,
-    "carriedAllHttp": 996,
-    "carriedSelects": 40,
-    "carriedOpenings": 7,
-    "newLoginAttempts": 0,
-    "newDocumentEffects": 0
-  }
+    "status": "STOPPED_RUNTIME_REVIEW_REQUIRED",
+    "allHttp": 1276,
+    "selects": 95,
+    "totalSessionAttempts": 9,
+    "activeAttemptId": "69",
+    "loteId": "24",
+    "archivoId": "40",
+    "durableState": "EN_CURSO",
+    "storedOutcomeRequiresVerification": true
+  },
+  "currentSelectAuditEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-select-audit-20261108.json"
 }

@@ -43,3 +43,8 @@ Las siete fases del ejecutor están implementadas y verificadas localmente. El o
 ## Corte posterior a la preparación del lote24
 
 La regresión vigente pasa177/177. El corte real acumulado es995 HTTP/40 SELECT/7 aperturas, con dos expedientes y0 solicitudes ALMACENAR; limpieza confirmada. ARM/RESUME/CLOSE pasó sin Freeze ni escritor. COORD02/03 no están aceptados; progreso16/27. Propuesta de9 aperturas/1500 HTTP pendiente. Véase `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preparacion-recuperacion-20261108.md`.
+
+
+## Ventana real y auditoría posterior
+
+RUN02 se detuvo con fallo del depurador. Lote24/archivo40/intento69 permanece EN_CURSO, con reclamación activa y sin resultado durable; archivo41 mantiene NO_INICIADO y ausencia física verificada. No se puede afirmar cero efectos de A ni repetirlo. Acumulado1276 HTTP/95 SELECT/9 aperturas; C03 no iniciado. La candidata local sincroniza Break/Thaw/Go y conserva historial propio. Regresión187/187, SDK compilado, sin prueba documental posterior de esa corrección. Progreso16/27. Detalle:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-ventana-activa-auditoria-20261108.md`.

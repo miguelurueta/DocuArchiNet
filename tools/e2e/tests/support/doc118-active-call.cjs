@@ -29,7 +29,7 @@ async function coordinateActiveCall({scenario,scope,first,actions,observer,maxim
   check(Number.isInteger(maximumPauseMilliseconds)&&maximumPauseMilliseconds>0&&maximumPauseMilliseconds<=30000,'PAUSE_LIMIT_INVALID');
   scope=Object.freeze({...scope});
   actions=actions.map(({kind,execute})=>Object.freeze({kind,execute}));
-  const started=performance.now(),order=[],outcomes=[];let firstSettled=false,firstOutcome='UNKNOWN',errorCode=null;
+  const started=performance.now(),order=[],outcomes=[];let firstSettled=false,firstOutcome='UNKNOWN',errorCode=null,actionFailure=null;
   // Observe rejection immediately; the original error can contain headers or paths.
   const pending=Promise.resolve().then(first).then(()=>{firstSettled=true;firstOutcome='FULFILLED';},()=>{firstSettled=true;firstOutcome='REJECTED';});
   let release=true;
@@ -43,7 +43,11 @@ async function coordinateActiveCall({scenario,scope,first,actions,observer,maxim
     for(const action of actions){
       validateObservation(await bounded(()=>observer.inspect(scope)),scope,proof);check(!firstSettled,'FIRST_ALREADY_SETTLED');
       order.push(action.kind+'_START');
-      await bounded(()=>action.execute());outcomes.push({kind:action.kind,outcome:'FULFILLED'});order.push(action.kind+'_END');
+      try{await bounded(()=>action.execute());}catch(error){
+        const codes=['OPERACION_EN_CURSO','RESULTADO_INCIERTO','CONFLICTO_REVISION','ACCESO_DENEGADO','SOLICITUD_INVALIDA','SESION_REQUERIDA','CSRF_INVALIDO','ORIGEN_INVALIDO','ERROR_INTERNO','CONFIGURACION_INVALIDA','ARCHIVO_RECHAZADO'];
+        actionFailure={kind:action.kind,httpStatus:Number.isInteger(error.httpStatus)&&error.httpStatus>=100&&error.httpStatus<=599?error.httpStatus:null,serverCode:codes.includes(error.serverCode)?error.serverCode:'UNCLASSIFIED'};throw error;
+      }
+      outcomes.push({kind:action.kind,outcome:'FULFILLED'});order.push(action.kind+'_END');
       validateObservation(await bounded(()=>observer.inspect(scope)),scope,proof);check(!firstSettled,'FIRST_ALREADY_SETTLED');
     }
     order.push('ACTIVE_INTERVAL_VERIFIED');
@@ -55,7 +59,7 @@ async function coordinateActiveCall({scenario,scope,first,actions,observer,maxim
     // The caller must independently query the durable outcome. Never resend first.
     await limited(()=>pending,1000,()=>undefined);
   }
-  const result={scenario,coordinationVerified:errorCode===null,firstOutcome,actions:outcomes,order,releaseUnconfirmed:release,businessEvidenceVerified:false,integrationPass:false};
+  const result={scenario,coordinationVerified:errorCode===null,firstOutcome,actions:outcomes,actionFailure,order,releaseUnconfirmed:release,businessEvidenceVerified:false,integrationPass:false};
   if(errorCode){const error=Object.assign(new Error(errorCode),{code:errorCode,coordination:result});throw error;}
   return result;
 }
