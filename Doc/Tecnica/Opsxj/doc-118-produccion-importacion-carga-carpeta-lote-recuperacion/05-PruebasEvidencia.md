@@ -38,3 +38,8 @@ El preflight de dos sesiones pasó con publicación38/gabinete10 y17 SELECT. Con
 Las siete fases del ejecutor están implementadas y verificadas localmente. El observador real pasó disponibilidad, breakpoint de fuente, INSPECT y CLOSE con ack de limpieza y salida0 en sesión supervisada. No se ejecutaron ARM/Freeze/Thaw, fases documentales ni nuevas sesiones autenticadas. Consumo acumulado699 HTTP C02,0 C03,17 SELECT y5 aperturas;0 aperturas disponibles. Progreso16/27: COORD02/03 siguen NO_EJECUTADOS para aceptación.
 
 160/160 locales y178 pruebas disjuntas contando18 previas; sin sumar repeticiones. doc118-observer-readiness-20261108.json conserva HEAD699 acumulado, fuente resuelta e INSPECT/CLOSE con ack. La regresión PowerShell incluye el ArgumentException reproducido del reemplazo atómico. No se ejecutaron las ventanas documentales.
+
+
+## Corte posterior a la preparación del lote24
+
+La regresión vigente pasa177/177. El corte real acumulado es995 HTTP/40 SELECT/7 aperturas, con dos expedientes y0 solicitudes ALMACENAR; limpieza confirmada. ARM/RESUME/CLOSE pasó sin Freeze ni escritor. COORD02/03 no están aceptados; progreso16/27. Propuesta de9 aperturas/1500 HTTP pendiente. Véase `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preparacion-recuperacion-20261108.md`.

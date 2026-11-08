@@ -3,7 +3,7 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const shared=require('../../tests/support/doc111-importacion-carpetas.cjs');
 const bridge=require('../../tests/support/doc118-session-bridge.cjs');
 const {queryRows}=require('./doc32-e2e-odbc.cjs');
-const {prepareCase}=require('../../tests/support/doc118-case-preparation.cjs');
+const {prepareCase,recoverCase}=require('../../tests/support/doc118-case-preparation.cjs');
 const {inspectCheckpoint,finish02,finish03}=require('../../tests/support/doc118-case-completion.cjs');
 const {suppressFirstResponse}=require('../../tests/support/doc118-lost-response.cjs');
 const {assertObserverReady}=require('../../tests/support/doc118-live-lifecycle.cjs');
@@ -73,11 +73,13 @@ async function prepare(live,scenario,dependencies={}){
  check(!live.preparationRequested?.[scenario],'PREPARATION_ALREADY_REQUESTED');
  live.activeCase=scenario;live.startedCaseUtc[scenario]=Date.now();
  const ready=dependencies.assertRuntimeReady||assertRuntimeReady;ready(live);
- for(const reader of live.readClients){const s=await reader.request('ConsultarLote',{loteId:'23'});check(s.loteId==='23'&&s.nivelRef===live.profile.nivelRef,'CURRENT_AUTHORITY_UNCONFIRMED');}
+ const recovery=scenario==='COORD02'?live.authorization.preparedCaseRecovery:undefined;
+ const authorityLot=recovery?.loteId||'23';
+ for(const reader of live.readClients){const s=await reader.request('ConsultarLote',{loteId:authorityLot});check(s.loteId===authorityLot&&s.nivelRef===live.profile.nivelRef,'CURRENT_AUTHORITY_UNCONFIRMED');}
  live.preparationRequested={...live.preparationRequested,[scenario]:true};
  const grant={environment:true,account:true,effects:true,discardable:true,select:true,tls:true};
  const client=shared.createDriver(bridge.budgetedAuth(guardedSession(live.sessions[0],live),live.profile,live.budget,scenario),live.profile,grant,{onReference:r=>live.reference(r)});await client.refreshToken();
- const c=await (dependencies.prepareCase||prepareCase)({scenario,profile:live.profile,rootNames:live.authorization.newRootNames[scenario],actorRef:live.authorization.environment.actorRef,ambitoRef:live.authorization.environment.ambitoRef,client,controls:live.controls,query:live.query,assertSourceReady:()=>ready(live),onReference:r=>live.reference(r)});
+ const c=await (recovery?(dependencies.recoverCase||recoverCase):(dependencies.prepareCase||prepareCase))({scenario,profile:live.profile,rootNames:live.authorization.newRootNames[scenario],actorRef:live.authorization.environment.actorRef,ambitoRef:live.authorization.environment.ambitoRef,client,controls:live.controls,query:live.query,assertSourceReady:()=>ready(live),onReference:r=>live.reference(r),recovery});
  const bound={...grant,scope:'DOC-118-'+scenario,runId:live.runId,baseUrl:c.profile.baseUrl,levelRef:c.profile.nivelRef,versionRef:c.profile.versionId,actorRef:c.actorRef,ambitoRef:c.ambitoRef,concurrency:true,observer:true,...Object.fromEntries(['loteId','archivoAId','archivoBId','snapshotSha256'].map(k=>[k,c.prepared[k]])),resourceSha256:c.resourceSha256};
  let sessions=live.sessions.map(s=>guardedSession(s,live));
  if(scenario==='COORD02'){
@@ -86,7 +88,7 @@ async function prepare(live,scenario,dependencies={}){
  }
  c.grant=bound;c.pair=await (dependencies.bindExistingPair||bridge.bindExistingPair)({sessions,profile:c.profile,grant:bound,scenario,budget:live.budget});
  live.prepared[scenario]=c;live.protocolPhaseIndex++;
- save(live,'prepared-'+scenario,{issueKey:'DOC-118',scenario,loteId:c.prepared.loteId,files:[c.prepared.archivoAId,c.prepared.archivoBId],bothEligible:true,storedDocuments:0,integrationPass:false,counters:live.budget.snapshot()});
+ save(live,'prepared-'+scenario,{issueKey:'DOC-118',scenario,loteId:c.prepared.loteId,files:[c.prepared.archivoAId,c.prepared.archivoBId],bothEligible:true,storedDocuments:0,recoveredPreparation:c.recoveredPreparation===true,integrationPass:false,counters:live.budget.snapshot()});
 }
 async function run(live,scenario,dependencies={}){
  state(live,scenario==='COORD02'?2:5);const c=live.prepared[scenario];check(c,'CASE_NOT_PREPARED');

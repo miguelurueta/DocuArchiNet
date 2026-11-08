@@ -15,3 +15,8 @@ Se reutilizan coordinador VB, MySQL, ASMX y JavaScript actuales. Se preservan po
 
 
 Las siete fases del ejecutor están implementadas y verificadas localmente. El observador real pasó disponibilidad, breakpoint de fuente, INSPECT y CLOSE con ack de limpieza y salida0 en sesión supervisada. No se ejecutaron ARM/Freeze/Thaw, fases documentales ni nuevas sesiones autenticadas. Consumo acumulado699 HTTP C02,0 C03,17 SELECT y5 aperturas;0 aperturas disponibles. Progreso16/27: COORD02/03 siguen NO_EJECUTADOS para aceptación.
+
+
+## Corte posterior a la preparación del lote24
+
+Se conservó la preparación real de C02 (plan40/lote24, expedientes670/671) tras un fallo del observador anterior al primer ALMACENAR. Se corrigió la espera de binding y ARM/RESUME/CLOSE pasaron sin llamadas al escritor. La reconstrucción local relee identidades y ausencia física sin recrear recursos. Véase `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preparacion-recuperacion-20261108.md`.

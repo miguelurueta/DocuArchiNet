@@ -78,10 +78,16 @@ public sealed class Doc118Debugger : IDisposable {
   }}catch(COMException){}return false;
  }
  public void Arm(int a,string an,int b,string bn,string digest){
+  Stage="ARM_VALIDATE";
   if(closed||!qualifiedSource||!released||armCount>=2||a<=0||b<=0||a==b||!System.Text.RegularExpressions.Regex.IsMatch(an,"^DOC118-C0[23]-A-20261107\\.pdf$")||!System.Text.RegularExpressions.Regex.IsMatch(bn,"^DOC118-C0[23]-B-20261107\\.pdf$")||!System.Text.RegularExpressions.Regex.IsMatch(digest,"^[a-f0-9]{64}$"))throw new InvalidOperationException();
   expA=a;expB=b;nameA=an;nameB=bn;resource=digest;entriesA=entriesB=0;threadId=0;held=null;fault=null;armCount++;
+  Stage="ARM_ADD_BREAKPOINT";qualifiedSource=false;
   AddBreakpoint("(IdExpediente = "+a+" AndAlso NombreDocumento = \""+an+"\") OrElse (IdExpediente = "+b+" AndAlso NombreDocumento = \""+bn+"\")");
-  if(!SourceBound())throw new InvalidOperationException();released=false;
+  Stage="ARM_BIND_SOURCE";
+  var until=DateTime.UtcNow.AddMilliseconds(1500);
+  while(!SourceBound()&&DateTime.UtcNow<until)Thread.Sleep(50);
+  qualifiedSource=SourceBound();
+  if(!qualifiedSource)throw new InvalidOperationException();released=false;Stage="ARMED";
  }
  string Value(string local){var value=debugger.GetExpression(local,false,500);if(!value.IsValidValue)throw new InvalidOperationException();return value.Value;}
  public void Poll(){

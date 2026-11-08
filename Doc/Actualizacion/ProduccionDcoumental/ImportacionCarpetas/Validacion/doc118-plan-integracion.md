@@ -172,3 +172,8 @@ doc118-symbols.cjs contrasta CodeView/PDB MSF en disco; no sustituye la comproba
 Las siete fases del ejecutor están implementadas y verificadas localmente. El observador real pasó disponibilidad, breakpoint de fuente, INSPECT y CLOSE con ack de limpieza y salida0 en sesión supervisada. No se ejecutaron ARM/Freeze/Thaw, fases documentales ni nuevas sesiones autenticadas. Consumo acumulado699 HTTP C02,0 C03,17 SELECT y5 aperturas;0 aperturas disponibles. Progreso16/27: COORD02/03 siguen NO_EJECUTADOS para aceptación.
 
 Seguir doc118-ejecutor-fases-local-20261108.md y el launcher supervisado. El observador debe corresponder al runId nuevo antes de capturar entradas; no heredar el PID o la calificación de la comprobación cerrada. Los160 tests y el cierre SDK no completan las tareas4.x. La revisión de una ventana fresca está en execution-fresh-window-proposal.json.
+
+
+## Continuación desde lote24 conservado
+
+La corrida autorizada de7 aperturas/1200 HTTP preparó C02 y se detuvo antes de ALMACENAR. No ejecutar otra preparación de C02: el descriptor cerrado plan40/lote24/raíces39-40/archivos40-41/expedientes670-671 permite reconstrucción solo tras SELECT sin intento de almacenamiento previo, sin actividad/incertidumbre, sin efecto físico y con snapshot estable. C03 conserva sus dos raíces nuevas pendientes. ARM/RESUME/CLOSE del controlador pasó; la ventana real todavía debe probar retención interna y respuesta del peer. La propuesta `execution-prepared-recovery-proposal.json` solicita9 aperturas/1500 HTTP acumulados; sigue pendiente. Fuente del corte: `doc118-preparacion-recuperacion-20261108.md`.

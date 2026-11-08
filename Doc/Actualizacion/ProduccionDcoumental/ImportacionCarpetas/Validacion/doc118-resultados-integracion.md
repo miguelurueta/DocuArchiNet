@@ -1,3 +1,11 @@
+# Corte actual — lote24 conservado, antes del primer almacenamiento
+
+La autorización1200 HTTP/7 aperturas fue aplicada tras «confirmado». PREFLIGHT y PREPARE02 pasaron; RUN02 se detuvo antes de despachar ALMACENAR. Lote24:dos PDFs recibidos/materializados y expedientes670/671;0 documentos almacenados solicitados por esta corrida. Consumo995 HTTP/40 SELECT/7 aperturas, sin capacidad de otra apertura. Finally y limpieza del observador confirmados. ARM/RESUME/CLOSE posterior pasó sin escritor ni efectos; Freeze/Thaw y progreso del peer aún no calificados. Progreso16/27.
+
+Detalle y límites: [preparación y recuperación](doc118-preparacion-recuperacion-20261108.md), [corte saneado](doc118-prepared-stop-20261108.json), [ARM externo](doc118-observer-arm-20261108.json). Regresión local177/177. Recuperación implementada por lecturas del lote existente; propuesta9 aperturas/1500 HTTP pendiente, sin aplicar.
+
+## Cortes anteriores con su alcance original
+
 # DOC-118 — preflight autenticado y bloqueo del observador
 
 El preflight de dos sesiones pasó con publicación38/gabinete10 y17 SELECT. Consumo acumulado699 HTTP C02,0 C03 y5 aperturas;0 fases documentales y0 efectos. El worker26244 dejó de estar activo por causa no determinada. La consola terminó sin reconocer la orden CLOSE ni el finally; no quedan consola/shell ni hijos directos detectados. Las instancias privadas de depuración ya no están presentes y los dos IDE originales quedaron sin depuración activa, con12 breakpoints del usuario conservados. La observación interna sigue SIN_CALIFICAR. Evidencia: doc118-authenticated-preflight-20261107.json.
@@ -37,4 +45,4 @@ Progreso16/27. COORD02/03 específicos permanecen NO_EJECUTADOS. En ese corte la
 
 Las siete fases del ejecutor están implementadas y verificadas localmente. El observador real pasó disponibilidad, breakpoint de fuente, INSPECT y CLOSE con ack de limpieza y salida0 en sesión supervisada. No se ejecutaron ARM/Freeze/Thaw, fases documentales ni nuevas sesiones autenticadas. Consumo acumulado699 HTTP C02,0 C03,17 SELECT y5 aperturas;0 aperturas disponibles. Progreso16/27: COORD02/03 siguen NO_EJECUTADOS para aceptación.
 
-El detalle de la implementación está en doc118-ejecutor-fases-local-20261108.md. La consola previa sigue sin ack de finally; el controlador nuevo sí reconoció su cierre tras corregir el guardado atómico. La disponibilidad se comprobó sin autenticación. La calificación de retención y las ventanas de negocio siguen pendientes. La propuesta de1200 HTTP/7 aperturas no está aplicada.
+El detalle de la implementación está en doc118-ejecutor-fases-local-20261108.md. La consola previa sigue sin ack de finally; el controlador nuevo sí reconoció su cierre tras corregir el guardado atómico. La disponibilidad se comprobó sin autenticación. La calificación de retención y las ventanas de negocio siguen pendientes. En ese corte la propuesta de1200 HTTP/7 aperturas no estaba aplicada; la sección inicial registra su autorización y consumo posteriores.

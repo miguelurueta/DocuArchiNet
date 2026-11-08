@@ -4,6 +4,13 @@ const {LIMITS,authorize,createBudget,createScopedBrowser,budgetedAuth,openPair,b
 const {METHOD}=require('../tools/e2e/tests/support/doc118-active-call.cjs');
 const example=require('../tools/e2e/profiles/doc111-importacion-carpetas.profile.example.json');
 const digest=s=>crypto.createHash('sha256').update(s).digest('hex');
+test('DOC118 prepared recovery budget carries995 HTTP and40 SELECT and enforces the proposed1500 ceiling',()=>{
+ const fs=require('node:fs'),path=require('node:path'),proof=JSON.parse(fs.readFileSync(path.join(__dirname,'../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-prepared-stop-20261108.json'),'utf8'));
+ const b=createBudget({allHttpPerCase:{COORD02:1425,COORD03:75},allHttpGlobal:1500,carried:proof.counters});
+ assert.equal(b.snapshot().selects,40);assert.equal(b.snapshot().scenarios.COORD02.operations.CREAR_EXPEDIENTE,2);
+ for(let i=0;i<430;i++)b.http('COORD02');for(let i=0;i<75;i++)b.http('COORD03');
+ assert.throws(()=>b.http('COORD02'),/HTTP_TOTAL_LIMIT/);assert.throws(()=>b.http('COORD03'),/HTTP_TOTAL_LIMIT/);assert.equal(proof.counters.scenarios.COORD02.http,995);
+});
 function fixture(scenario='COORD02'){
  const profile=structuredClone(example),config=JSON.stringify({VersionId:profile.versionId});
  const prepared={loteId:'100',archivoAId:'300',archivoBId:'301',revisionA:1,claveA:'synthetic-a',claveB:'synthetic-b',snapshotSha256:digest(config)};
@@ -112,6 +119,7 @@ test('DOC118 explicitly approved1000 ceiling retains425 prior HTTP and caps the 
  assert.equal(b.snapshot().scenarios.COORD02.operations.ConsultarLote,1);assert.throws(()=>b.http('COORD02'),/HTTP_TOTAL_LIMIT/);assert.throws(()=>b.http('COORD03'),/HTTP_TOTAL_LIMIT/);
  assert.throws(()=>createBudget({allHttpPerCase:{COORD02:925,COORD03:75}}),/BUDGET_POLICY_INVALID/);
 });
+test('DOC118 confirmed1200 ceiling carries all699 HTTP and17 SELECT across the1125/75 allocation',()=>{const prior=carried();prior.scenarios.COORD02={http:699,operations:{ConsultarLote:3}};prior.selects=17;const b=createBudget({allHttpPerCase:{COORD02:1125,COORD03:75},allHttpGlobal:1200,carried:prior});for(let i=699;i<1125;i++)b.http('COORD02');for(let i=0;i<75;i++)b.http('COORD03');assert.throws(()=>b.http('COORD02'),/HTTP_TOTAL_LIMIT/);assert.throws(()=>b.http('COORD03'),/HTTP_TOTAL_LIMIT/);assert.equal(b.snapshot().selects,17);assert.equal(b.snapshot().scenarios.COORD02.operations.ConsultarLote,3);});
 test('DOC118 refuses malformed carry instead of silently resetting the rejected login consumption',()=>{
  for(const policy of [{carried:null},{allHttpPerCase:null},{allHttpPerCase:{COORD02:500,COORD03:75}},{carried:{...carried(),selects:241}}])assert.throws(()=>createBudget(policy));
  const prior=carried();prior.scenarios.COORD02.operations.UNKNOWN=1;assert.throws(()=>createBudget({carried:prior}),/CARRIED_BUDGET_INVALID/);

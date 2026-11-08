@@ -27,3 +27,8 @@ La ampliación está autorizada; el preflight pasó con17 SELECT. La consola y e
 
 
 Las fases documentales ya están compuestas en el ejecutor, con orden/consumo únicos, sello de dependencias y marcador exclusivo de corrida. El retorno se corta entre Playwright y el driver después del checkpoint; no se afirma pérdida en el cable. La disponibilidad exige hashes, procesos y heartbeat vigentes antes de secretos. La evidencia final requiere revisión y los guards bloquean otra pareja bajo los topes agotados.
+
+
+## Corte posterior a la preparación del lote24
+
+PREPARE02 admite la recuperación cerrada del lote24 mediante el mismo cliente y controles SELECT. Exige plan40, IDs/nombres/valores/contexto exactos, ausencia de cualquier ALMACENAR previo y ausencia física; no repite preparación/recepción/creación/materialización. FINISH02 reutiliza la revisión B del snapshot durable inalterado tras el replay. No cambian contratos ASMX. Véase `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preparacion-recuperacion-20261108.md`.

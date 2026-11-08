@@ -29,9 +29,9 @@ async function finish02({caseData:c,firstOutcome,client,controls,observer}){
  checkReply(await client.request('AvanzarLote',c.command),c,proof);
  check(hash(JSON.stringify(await controls.snapshot(c.prepared.loteId)))===proof.fingerprint,'REPLAY_CHANGED_DATA');
  const replayEntries=await observer.summary();check(replayEntries.entriesA===1&&replayEntries.entriesB===0,'REPLAY_ENTERED_WRITER');
- const b=one(await client.pages(c.prepared.loteId,'ARCHIVOS'),f=>f.recursoId===c.prepared.archivoBId);
- check(Number.isInteger(b.revision)&&b.revision===Number(proof.b.revision),'SECOND_REVISION_CHANGED');
- const reply=await client.request('AvanzarLote',{loteId:c.prepared.loteId,recursoId:c.prepared.archivoBId,fase:'ALMACENAR',revisionEsperada:b.revision,claveOperacion:c.prepared.claveB});
+ // The unchanged post-replay snapshot already proves B's current revision.
+ const revisionB=Number(proof.b.revision);check(Number.isInteger(revisionB)&&revisionB>0&&revisionB<4294967295,'SECOND_REVISION_CHANGED');
+ const reply=await client.request('AvanzarLote',{loteId:c.prepared.loteId,recursoId:c.prepared.archivoBId,fase:'ALMACENAR',revisionEsperada:revisionB,claveOperacion:c.prepared.claveB});
  check(reply?.estado==='CONFIRMADO'&&reply.archivoId===c.prepared.archivoBId&&reply.loteId===c.prepared.loteId&&reply.fase==='ALMACENAR'&&id(reply.documentoId)&&id(reply.inventarioId)&&reply.documentoId!==proof.documentoId&&reply.inventarioId!==proof.inventarioId,'SECOND_EFFECT_UNCONFIRMED');
  const physical=await controls.verify(c.prepared.loteId,c.profile,{fileNames:c.fileNames});check(physical.roots===2&&physical.documents===2,'PHYSICAL_EVIDENCE_UNCONFIRMED');
  const final=await controls.snapshot(c.prepared.loteId),storedB=JSON.parse(one(final.files,f=>String(f.archivo_id)===c.prepared.archivoBId).resultado_doc);

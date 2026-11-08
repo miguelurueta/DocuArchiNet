@@ -47,6 +47,7 @@ function continuationFixture(){
  const a=JSON.parse(fs.readFileSync(path.join(__dirname,'../openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-authorization.json'),'utf8'));
  const proof=JSON.parse(fs.readFileSync(path.join(__dirname,'../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-login-preflight-20261107.json'),'utf8'));
  a.executionStatus='CONTINUATION_AUTHORIZED_AWAITING_MASKED_CAPTURE';
+ delete a.freshWindowApproval; // Legacy closed-baseline cases, below the fresh floor.
  Object.assign(a.consumed,{allHttp:{COORD02:98,COORD03:0},totalSessionAttempts:1,loginAttempts:1,selectStatements:0});
  return{a,proof,load:require('../tools/e2e/scripts/run-doc118-live.cjs').continuationConsumption};
 }
@@ -56,13 +57,34 @@ test('DOC118 continuation carries immutable evidence and rejects a lower authori
 });
 test('DOC118 stopped continuation cannot reuse a previous approval or start another login',()=>{
  const {a,proof,load}=continuationFixture();a.executionStatus='STOPPED_BUDGET_REVIEW_REQUIRED';assert.throws(()=>load(a,proof),/CONTINUATION_REVIEW_REQUIRED/);
- a.executionStatus='CONTINUATION_AUTHORIZED_AWAITING_MASKED_CAPTURE';proof.sessionAttempts=5;proof.counters.scenarios.COORD02.http=925;
- Object.assign(a.consumed,{allHttp:{COORD02:925,COORD03:0},totalSessionAttempts:5,loginAttempts:5});assert.throws(()=>load(a,proof),/CONTINUATION_CAPACITY_INSUFFICIENT/);
+ a.executionStatus='CONTINUATION_AUTHORIZED_AWAITING_MASKED_CAPTURE';proof.sessionAttempts=7;proof.counters.scenarios.COORD02.http=1125;
+ Object.assign(a.consumed,{allHttp:{COORD02:1125,COORD03:0},totalSessionAttempts:7,loginAttempts:7});assert.throws(()=>load(a,proof),/CONTINUATION_CAPACITY_INSUFFICIENT/);
 });
 test('DOC118 continuation refuses unclosed sessions and uncleared secrets',()=>{
  for(const field of ['sessionsClosed','ephemeralSecretsCleared']){const {a,proof,load}=continuationFixture();proof[field]=false;assert.throws(()=>load(a,proof),/CARRIED_STATE_CHANGED/);}
 });
 test('DOC118 public startup diagnostics expose only closed guard codes',()=>{const {publicGuardCode}=require('../tools/e2e/scripts/run-doc118-live.cjs');assert.equal(publicGuardCode(Error('DOC118_LIVE_OBSERVER_NOT_READY_BEFORE_CAPTURE')),'DOC118_LIVE_OBSERVER_NOT_READY_BEFORE_CAPTURE');assert.equal(publicGuardCode(Error('private-password')),'DOC118_LIVE_START_UNCONFIRMED');assert.equal(publicGuardCode(Error('DOC118_LIVE_CARRIED_STATE_CHANGED_PRIVATE_TOKEN')),'DOC118_LIVE_START_UNCONFIRMED');});
+function freshFixture(){
+ const base=path.join(__dirname,'../'),a=JSON.parse(fs.readFileSync(base+'openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-authorization.json','utf8'));
+ const proof=JSON.parse(fs.readFileSync(base+'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observer-readiness-20261108.json','utf8'));
+ const prior=JSON.parse(fs.readFileSync(base+'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-authenticated-preflight-20261107.json','utf8'));
+ a.executionStatus='CONTINUATION_AUTHORIZED_AWAITING_MASKED_CAPTURE';Object.assign(a.consumed,{allHttp:{COORD02:proof.counters.scenarios.COORD02.http,COORD03:0},totalSessionAttempts:5,loginAttempts:5,selectStatements:17});
+ return{a,proof,prior,load:require('../tools/e2e/scripts/run-doc118-live.cjs').continuationConsumption};
+}
+test('DOC118 confirmed fresh window carries the reviewed process exit without inventing a finally acknowledgement',()=>{const {a,proof,prior,load}=freshFixture();const carried=load(a,proof,prior);assert.equal(carried.sessionAttempts,5);assert.ok(carried.counters.scenarios.COORD02.http>=699);assert.equal(carried.counters.selects,17);assert.equal(prior.consoleExit.finallyAcknowledged,false);prior.consoleExit.processExited=false;assert.throws(()=>load(a,proof,prior),/CARRIED_STATE_CHANGED/);});
+test('DOC118 fresh approval floor rejects a silently reduced ledger even when proof and authorization agree',()=>{const {a,proof,prior,load}=freshFixture();a.consumed.allHttp.COORD02=698;proof.counters.scenarios.COORD02.http=698;assert.throws(()=>load(a,proof,prior),/CARRIED_STATE_CHANGED/);});
+
+function preparedRecoveryFixture(){
+ const base=path.join(__dirname,'../'),a=JSON.parse(fs.readFileSync(base+'openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-authorization.json','utf8')),proof=JSON.parse(fs.readFileSync(base+'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-prepared-stop-20261108.json','utf8'));
+ a.executionStatus='CONTINUATION_AUTHORIZED_AWAITING_MASKED_CAPTURE';a.maximum.totalSessions=9;a.maximum.allHttpGlobal=1500;a.maximum.allHttpPerCase.COORD02=1425;
+ a.preparedRecoveryApproval={status:'AUTHORIZED',proposal:'execution-prepared-recovery-proposal.json',carriedSessionAttempts:7,carriedCounters:structuredClone(proof.counters)};
+ const p={...structuredClone(profile),baseUrl:a.environment.baseUrl,nivelRef:'7',versionId:'38',odbcDsn:'MembershipUsers',docuarchiOdbcDsn:'MembershipUsers'};
+ return{a,proof,p,...require('../tools/e2e/scripts/run-doc118-live.cjs')};
+}
+test('DOC118 recovery approval must be explicit before the proposed nine-opening budget is accepted',()=>{const f=preparedRecoveryFixture();assert.doesNotThrow(()=>f.scope(f.a,f.p));f.a.preparedRecoveryApproval.status='PENDING';assert.throws(()=>f.scope(f.a,f.p),/LIMITS_CHANGED/);});
+test('DOC118 prepared recovery carries seven openings, forty SELECTs and all preparation operation counts',()=>{const f=preparedRecoveryFixture(),r=f.continuationConsumption(f.a,f.proof);assert.equal(r.sessionAttempts,7);assert.equal(r.counters.scenarios.COORD02.http,995);assert.equal(r.counters.scenarios.COORD02.operations.CREAR_EXPEDIENTE,2);assert.equal(r.counters.selects,40);});
+test('DOC118 prepared recovery refuses prior storage, missing debugger cleanup or a reset resource ledger',()=>{for(const mutate of [f=>f.proof.storageRequestsDispatched=1,f=>f.proof.observerCleanupConfirmed=false,f=>f.a.consumed.newExpedientes=0,f=>f.a.preparedCaseRecovery.loteId='18']){const f=preparedRecoveryFixture();mutate(f);assert.throws(()=>f.continuationConsumption(f.a,f.proof));}});
+test('DOC118 the current stopped authorization cannot open another pair merely because recovery code exists',()=>{const f=preparedRecoveryFixture();f.a.executionStatus='STOPPED_PREPARED_REVIEW_REQUIRED';assert.throws(()=>f.continuationConsumption(f.a,f.proof),/CONTINUATION_REVIEW_REQUIRED/);});
 
 test('DOC118 approved second continuation carries425 HTTP, one read and three openings before the last pair',()=>{
  const {a,load}=continuationFixture(),proof=JSON.parse(fs.readFileSync(path.join(__dirname,'../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-continuation-preflight-20261107.json'),'utf8'));

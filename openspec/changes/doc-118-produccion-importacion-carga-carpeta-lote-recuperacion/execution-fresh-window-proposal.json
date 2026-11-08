@@ -1,6 +1,6 @@
 {
   "issueKey": "DOC-118",
-  "status": "PROPOSED_NOT_AUTHORIZED",
+  "status": "AUTHORIZED",
   "reason": "El ejecutor ya implementa las siete fases y el observador pasó disponibilidad/INSPECT/CLOSE en sesión supervisada. Se agotaron5 de5 aperturas; el consumo699 HTTP y17 SELECT no se reinicia.",
   "currentAuthorization": "execution-authorization.json",
   "evidence": "doc118-observer-readiness-20261108.json",
@@ -33,13 +33,6 @@
       "COORD02": 3,
       "COORD03": 0
     }
-  },
-  "remainingIfApproved": {
-    "COORD02AllHttp": 426,
-    "COORD03AllHttp": 75,
-    "allHttpGlobal": 501,
-    "sessionAttempts": 2,
-    "selectStatements": 223
   },
   "execution": "Una pareja nueva independiente, un intento por sesión y reutilización entre casos. Primero observador con runId/worker/archivos/heartbeat vigentes; luego consola enmascarada supervisada. Revalidar disponibilidad tras captura y antes de cada apertura. No repetir automáticamente preparación, ventana ni finalización. Mantener las fases en orden y el tiempo máximo por caso.",
   "responseLossBoundary": "CLIENT_API_RESPONSE_DELIVERY: Playwright recibe la respuesta, se prueba checkpoint y se suprime su entrega al driver DOC111. No se afirma pérdida en el cable ni cancelación del servidor.",
@@ -86,5 +79,35 @@
       53
     ]
   },
-  "approvalRequired": "Solo2 aperturas adicionales y techo acumulado1200 HTTP (1125/75). No aplicar hasta respuesta explícita; no reautoriza el resto del plan ni concede PASS de integración."
+  "approvalRequired": "Solo2 aperturas adicionales y techo acumulado1200 HTTP (1125/75). No aplicar hasta respuesta explícita; no reautoriza el resto del plan ni concede PASS de integración.",
+  "approval": {
+    "status": "AUTHORIZED",
+    "source": "Mensaje del usuario «confirmado» posterior a la propuesta de2 aperturas adicionales y1200 HTTP acumulados (1125/75).",
+    "recordedUtc": "2026-11-08T12:23:20.212Z",
+    "proposal": "execution-fresh-window-proposal.json",
+    "legacyExitAcknowledged": true,
+    "carriedCounters": {
+      "scenarios": {
+        "COORD02": {
+          "http": 699,
+          "operations": {
+            "ConsultarLote": 3
+          }
+        },
+        "COORD03": {
+          "http": 0,
+          "operations": {}
+        }
+      },
+      "selects": 17
+    },
+    "carriedSessionAttempts": 5
+  },
+  "remainingAfterApproval": {
+    "COORD02AllHttp": 426,
+    "COORD03AllHttp": 75,
+    "allHttpGlobal": 501,
+    "sessionAttempts": 2,
+    "selectStatements": 223
+  }
 }

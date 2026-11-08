@@ -162,6 +162,29 @@
       "passed": 160,
       "failed": 0,
       "recordedUtc": "2026-11-08T03:54:40.554Z"
+    },
+    {
+      "command": "node .tmp/doc118-check-full-local-20261108.cjs",
+      "status": "PASS",
+      "tests": 177,
+      "passed": 177,
+      "failed": 0,
+      "groups": {
+        "livePreflight": 19,
+        "sessionBridge": 35,
+        "activeCall": 16,
+        "sharedDrivers": 63,
+        "symbolFiles": 4,
+        "debuggerObserver": 4,
+        "casePreparation": 12,
+        "caseCompletion": 9,
+        "lostResponse": 3,
+        "lifecycle": 4,
+        "documentalPhases": 7,
+        "powershellProtocol": 1
+      },
+      "scope": "Local-only regression, no real login/SQL/storage; external ARM verification is separate.",
+      "recordedUtc": "2026-11-08T13:00:33.205Z"
     }
   ],
   "reviewedSourceHashesVerified": 14,
@@ -203,7 +226,9 @@
     "privateIdeAbsenceSubsequentlyVerified": true,
     "sourceReadinessAndClosePassed": true,
     "sourceReadinessEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observer-readiness-20261108.json",
-    "currentlyAttached": false
+    "currentlyAttached": false,
+    "conditionalArmResumeClosePassed": true,
+    "conditionalArmEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observer-arm-20261108.json"
   },
   "realIntegrationExecuted": false,
   "productChanged": false,
@@ -213,11 +238,11 @@
   ],
   "previousReview": "refinement-review.json conserva la evaluación histórica del borrador previo; este registro corresponde a la continuación aprobada.",
   "openDependencies": [
-    "Autorizar solamente la pareja adicional y el techo acumulado propuestos en execution-fresh-window-proposal.json; quedan0 aperturas vigentes.",
-    "Calificar ARM/Freeze/Thaw y respuesta de peer dentro de la llamada real en una ventana autorizada; la disponibilidad y el cierre no lo acreditan.",
-    "Mantener la salida antigua de consola sin finally como limitación; supervisión, heartbeat, marcador de corrida y sellado de dependencias implementados."
+    "Confirmar únicamente las2 aperturas adicionales y el techo1500 HTTP acumulados de execution-prepared-recovery-proposal.json; vigentes7/7 aperturas y995/1200 HTTP.",
+    "Revalidar por SELECT el lote24 preparado y ausencia física sin repetir sus efectos.",
+    "Calificar Freeze/Thaw y respuesta del peer dentro de la llamada real, después completar C02/C03 y contraste de inventario."
   ],
-  "localNodeTestsAcrossDisjointRuns": 178,
+  "localNodeTestsAcrossDisjointRuns": 195,
   "newToolFiles": [
     {
       "path": "tools/e2e/tests/support/doc118-active-call.cjs",
@@ -229,23 +254,23 @@
     },
     {
       "path": "tools/e2e/tests/support/doc118-session-bridge.cjs",
-      "sha256": "a8c9c30f3642699b2c0c181eeb70fe2bc1d364f9e3a9f91b0744dae0578b858e"
+      "sha256": "3e9f29239b931f6353c4c6a2bca7ceaa9eaab98815ed38eaac66d1a355968a0a"
     },
     {
       "path": "tests/doc118-session-bridge.test.cjs",
-      "sha256": "4b650c7d5b5b77ae68b3aa129886c310e96d673edf788e07f0d33c7e6c69c879"
+      "sha256": "1d593ed5143a81bce661db4be721ac9080b7483b5f456b76dc702f4b67f8748e"
     },
     {
       "path": "tools/e2e/scripts/run-doc118-live.cjs",
-      "sha256": "692744ed220ff9ec68d1d0b4ba0f0b68292aee4f284df076f5fd0e291ae5ac3d"
+      "sha256": "9276342a83e0fa5c19cc45e6341f58e128291141f3237e282b61932c4a5bbeed"
     },
     {
       "path": "tools/e2e/scripts/support/doc118-live-plan.cjs",
-      "sha256": "d011da9e32b6fb00327909de75acc3ccd0070e7768c2ebeef66a1b574d84ab57"
+      "sha256": "81410504947284f2b37243368cc468129404e050f949d99074322b719500e25e"
     },
     {
       "path": "tests/doc118-live-preflight.test.cjs",
-      "sha256": "9debf70499fcb34b4dfc45e6b8523bf49836a31fe730fe209529020f6c7fa0f7"
+      "sha256": "dc6e2f486bda1dfa86dad9c789f9f2b91de14323d17f4593f810c8a8e5a4ac9a"
     },
     {
       "path": "tools/e2e/tests/support/doc118-symbols.cjs",
@@ -257,7 +282,7 @@
     },
     {
       "path": "tools/e2e/scripts/support/Doc118Debugger.cs",
-      "sha256": "ca90f2cf639fde33dbbd103b93024859a2fd108d370b5bb0eefd3431f850e834"
+      "sha256": "0e7d9a9f90b3980f1627af5d3dcb5ba2aace6a039d310343656ba69254408e7e"
     },
     {
       "path": "tools/e2e/scripts/support/doc118-debugger.ps1",
@@ -273,19 +298,19 @@
     },
     {
       "path": "tools/e2e/tests/support/doc118-case-preparation.cjs",
-      "sha256": "9e1f453e82d954d8871737954e68a6bd08d73e52cc10451a81a852c122cc66e3"
+      "sha256": "b13a0281ee4c20ca90b1d858133fb7ec70beae6ac14656fab5e391a9cc2cdd63"
     },
     {
       "path": "tests/doc118-case-preparation.test.cjs",
-      "sha256": "12312b3dd478586d25653c50f0eaad4932489e09406793e8f89f08686ef8bea4"
+      "sha256": "0b37de8c8a3199e134cc094d6d5f86c844c6f3ec14fd6d1626a36d1b52674444"
     },
     {
       "path": "tools/e2e/tests/support/doc118-case-completion.cjs",
-      "sha256": "e47bf7cd0e19a11a2adce7daff8afcf8d5e6e61520f0a0a8ba95d641c0d88980"
+      "sha256": "0656e2830aa9a53af70029a2524164f520a90606b7f2e9ea783629b1d302ff1f"
     },
     {
       "path": "tests/doc118-case-completion.test.cjs",
-      "sha256": "eabe0d8379d5f47bc668a0a02fcaecca39311df693cb5f1db71a909b0c87c0c9"
+      "sha256": "a0e10e5ff464be607702d0245958219dac20fb0c2768422ac3b2dc299c51c6fd"
     },
     {
       "path": "tools/e2e/tests/support/doc118-lost-response.cjs",
@@ -305,7 +330,7 @@
     },
     {
       "path": "tests/doc118-documental-phases.test.cjs",
-      "sha256": "ccfc52400871d7f3c3256d11e20cb343b683b744760dd207026f1760de3c1396"
+      "sha256": "f9f8956883a36a6b9ceb2f2a5a2117b5fb7e8223259a131ac43054185bd32f33"
     },
     {
       "path": "tools/e2e/scripts/support/doc118-debugger-protocol.ps1",
@@ -374,12 +399,12 @@
     "actualRetainedPairAvailable": false,
     "documentalPhasesImplemented": true
   },
-  "localTestAccounting": "160 actuales más18 previas disjuntas; no sumar repeticiones.",
+  "localTestAccounting": "177 actuales más18 previas disjuntas; no sumar repeticiones.",
   "runtimePreflightReference": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preflight-20261107.json",
   "runtimePreflightStarted": true,
   "realLoginAttempted": true,
   "realLoginSucceeded": true,
-  "realLoginEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-authenticated-preflight-20261107.json",
+  "realLoginEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-prepared-stop-20261108.json",
   "authenticatedPreflightCompleted": true,
   "phaseExecutor": {
     "implemented": [
@@ -391,7 +416,7 @@
       "RUN03",
       "VERIFY"
     ],
-    "realDocumentalPhasesExecuted": 0,
+    "realDocumentalPhasesExecuted": 1,
     "phaseOrderEnforced": true,
     "singlePreparationAndWindow": true,
     "checkpointBeforeReplay": true,
@@ -400,6 +425,29 @@
     "globalRunLease": true,
     "dependenciesSealed": true,
     "supervisedConsoleLauncher": "tools/e2e/scripts/start-doc118-console.ps1",
-    "responseLossBoundary": "CLIENT_API_RESPONSE_DELIVERY"
-  }
+    "responseLossBoundary": "CLIENT_API_RESPONSE_DELIVERY",
+    "realStorageRequestsDispatched": 0,
+    "preparedCaseRecoveryImplemented": true,
+    "preparedCaseRecovery": {
+      "planId": "40",
+      "loteId": "24",
+      "roots": [
+        "39",
+        "40"
+      ],
+      "files": [
+        "40",
+        "41"
+      ],
+      "expedientes": [
+        "670",
+        "671"
+      ],
+      "relaciones": [
+        "1095",
+        "1096"
+      ]
+    }
+  },
+  "currentRealExecutionEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-prepared-stop-20261108.json"
 }

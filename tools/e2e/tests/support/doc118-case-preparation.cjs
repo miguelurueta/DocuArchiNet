@@ -52,7 +52,11 @@ async function prepareCase({scenario,profile,rootNames,actorRef,ambitoRef,client
  }
  for(const root of roots)await advance('CREAR_EXPEDIENTE','RAICES',root.idCliente);
  for(const file of files)await advance('MATERIALIZAR_VALORES','ARCHIVOS',file.idCliente);
- const view=await controls.snapshot(lot.loteId),context=JSON.parse(view.lot.contexto_doc);
+ return eligibleCase({scenario,p,actorRef,ambitoRef,view:await controls.snapshot(lot.loteId),loteId:lot.loteId,bytes,fileNames});
+}
+function eligibleCase({scenario,p,actorRef,ambitoRef,view,loteId,bytes,fileNames}){
+ const context=JSON.parse(view.lot.contexto_doc),roots=['r1','r2'].map(idCliente=>({idCliente})),files=['a1','a2'].map(idCliente=>({idCliente}));
+ check(String(view.lot.lote_id)===loteId&&!['18','21'].includes(loteId),'PERSISTED_CONTEXT_CHANGED');
  check(context.UsuarioRef===actorRef&&context.AmbitoRef===ambitoRef&&context.NivelRef===p.nivelRef&&view.lot.estado==='EN_CURSO'&&!Number(view.lot.detencion_solicitada)&&Number(view.lot.total_raices)===2&&Number(view.lot.total_archivos)===2&&String(view.lot.total_bytes)===String(bytes.length*2)&&view.roots.length===2&&view.files.length===2,'PERSISTED_CONTEXT_CHANGED');
  check(view.roots.every(r=>r.estado==='EXPEDIENTE_CONFIRMADO'&&!r.intento_activo_id)&&!view.attempts.some(a=>['RESERVADO','EN_CURSO','INCIERTO'].includes(a.estado)),'CLAIM_NOT_CLEAR');
  const selected=files.map((file,i)=>{
@@ -64,8 +68,31 @@ async function prepareCase({scenario,profile,rootNames,actorRef,ambitoRef,client
   return{file:f,identity};
  });
  check(selected[0].identity.ExpedienteId!==selected[1].identity.ExpedienteId,'ROOT_IDENTITY_COLLISION');
- const prepared={loteId:lot.loteId,archivoAId:String(selected[0].file.archivo_id),archivoBId:String(selected[1].file.archivo_id),revisionA:Number(selected[0].file.revision),claveA:crypto.randomBytes(16).toString('hex'),claveB:crypto.randomBytes(16).toString('hex'),snapshotSha256:hash(view.lot.config_doc)};
+ const prepared={loteId,archivoAId:String(selected[0].file.archivo_id),archivoBId:String(selected[1].file.archivo_id),revisionA:Number(selected[0].file.revision),claveA:crypto.randomBytes(16).toString('hex'),claveB:crypto.randomBytes(16).toString('hex'),snapshotSha256:hash(view.lot.config_doc)};
  const command=prepareCommand(prepared);
  return{scenario,actorRef,ambitoRef,profile:p,fileNames,prepared,command,resourceSha256:hash(JSON.stringify(command)),inventorySha256:inventoryFingerprint(view),targets:{expA:Number(selected[0].identity.ExpedienteId),expB:Number(selected[1].identity.ExpedienteId),nameA:fileNames[0],nameB:fileNames[1]},originalTotalBytes:String(view.lot.total_bytes)};
 }
-module.exports={caseProfile,effective,prepareCase,inventoryFingerprint};
+// Recovery is a read-only reconstruction before the first storage request.
+// Never repeat preparation, confirmation, receipt, root creation or materialization.
+async function recoverCase({scenario,profile,rootNames,actorRef,ambitoRef,client,controls,query,assertSourceReady,recovery,onReference=()=>{}}){
+ const p=caseProfile(profile,scenario,rootNames),bytes=shared.readFixture(p),fileNames=p.rootNames.map(n=>n+'.pdf');
+ check(scenario==='COORD02'&&JSON.stringify(recovery)===JSON.stringify({planId:'40',loteId:'24',roots:['39','40'],files:['40','41'],expedientes:['670','671'],relaciones:['1095','1096']}),'RECOVERY_DESCRIPTOR_INVALID');
+ check(actorRef==='141'&&ambitoRef==='2'&&p.nivelRef==='7'&&p.versionId==='38','RECOVERY_CONTEXT_CHANGED');
+ await assertSourceReady();
+ const rows=await query('RA','SELECT l.plan_id,l.version_id,l.ambito_ref,l.solicitante_ref,l.nivel_ref,l.config_doc AS lot_config,p.config_doc AS plan_config,p.estado AS plan_estado FROM ra_integracion_lote l INNER JOIN ra_integracion_plan p ON p.plan_id=l.plan_id WHERE l.lote_id=? AND l.plan_id=?',[recovery.loteId,recovery.planId]);
+ check(rows.length===1,'RECOVERY_PLAN_CHANGED');const plan=rows[0],config=JSON.parse(plan.lot_config);
+ check(String(plan.plan_id)===recovery.planId&&String(plan.version_id)===p.versionId&&String(plan.ambito_ref)===ambitoRef&&String(plan.solicitante_ref)===actorRef&&String(plan.nivel_ref)===p.nivelRef&&plan.plan_estado==='CONFIRMADO'&&plan.lot_config===plan.plan_config&&config.VersionId===p.versionId&&String(config.Configuracion.GabineteId)==='10'&&config.Configuracion.ModoIntegridad==='COMPLETO_OBLIGATORIO'&&config.Configuracion.AmbitoIntegridad==='LOTE','RECOVERY_PLAN_CHANGED');
+ const view=await controls.snapshot(recovery.loteId);
+ check(view.lot.config_doc===plan.lot_config&&!view.attempts.some(a=>a.fase==='ALMACENAR')&&!view.events.some(e=>e.accion==='ALMACENAR'||e.codigo?.startsWith('ALMACEN')),'RECOVERY_STORAGE_ALREADY_REQUESTED');
+ const c=eligibleCase({scenario,p,actorRef,ambitoRef,view,loteId:recovery.loteId,bytes,fileNames});
+ for(let i=0;i<2;i++){
+  const f=one(view.files,f=>f.cliente_archivo_id==='a'+(i+1)),r=one(view.roots,r=>r.cliente_raiz_id==='r'+(i+1)),identity=JSON.parse(r.identidad_expediente_doc);
+  check(String(f.archivo_id)===recovery.files[i]&&String(r.raiz_id)===recovery.roots[i]&&String(identity.ExpedienteId)===recovery.expedientes[i]&&String(identity.RelacionNivelId)===recovery.relaciones[i],'RECOVERY_IDENTITY_CHANGED');
+  const data=JSON.parse(r.datos_doc);check(data.IdCliente===r.cliente_raiz_id&&data.NombreOriginal===p.rootNames[i]&&['CODIGO','NOMBRE'].every(field=>one(data.ValoresPlan,v=>v.DestinoRef===field).Valor===p.rootNames[i]),'RECOVERY_ROOT_CHANGED');
+ }
+ await controls.assertNoDocuments(view);
+ check(hash(JSON.stringify(await controls.snapshot(recovery.loteId)))===hash(JSON.stringify(view)),'RECOVERY_DATA_CHANGED');
+ onReference({planId:recovery.planId,loteId:recovery.loteId});
+ return{...c,recoveredPreparation:true};
+}
+module.exports={caseProfile,effective,prepareCase,recoverCase,inventoryFingerprint};

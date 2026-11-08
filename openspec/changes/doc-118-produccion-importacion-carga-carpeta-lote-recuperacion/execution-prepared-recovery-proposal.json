@@ -1,0 +1,125 @@
+{
+  "issueKey": "DOC-118",
+  "status": "AWAITING_EXPLICIT_APPROVAL",
+  "currentAuthorization": "execution-authorization.json",
+  "evidence": [
+    "doc118-prepared-stop-20261108.json",
+    "doc118-observer-arm-20261108.json"
+  ],
+  "reason": "The approved seven openings are consumed. Resume the existing prepared lot after read-only verification; do not recreate C02.",
+  "changes": {
+    "maximumTotalSessions": {
+      "before": 7,
+      "after": 9
+    },
+    "allHttpGlobal": {
+      "before": 1200,
+      "after": 1500
+    },
+    "allHttpPerCase": {
+      "before": {
+        "COORD02": 1125,
+        "COORD03": 75
+      },
+      "after": {
+        "COORD02": 1425,
+        "COORD03": 75
+      }
+    }
+  },
+  "carriedSessionAttempts": 7,
+  "carriedCounters": {
+    "scenarios": {
+      "COORD02": {
+        "http": 995,
+        "operations": {
+          "ConsultarLote": 13,
+          "AbrirImportacion": 1,
+          "PrepararPlan": 1,
+          "ConfirmarPlan": 1,
+          "ConsultarRecursosLote": 6,
+          "RecibirArchivo": 2,
+          "CREAR_EXPEDIENTE": 2,
+          "MATERIALIZAR_VALORES": 2
+        }
+      },
+      "COORD03": {
+        "http": 0,
+        "operations": {}
+      }
+    },
+    "selects": 40
+  },
+  "carriedEffects": {
+    "newPlans": 1,
+    "newLots": 1,
+    "newRoots": 2,
+    "newPdfs": 2,
+    "newExpedientes": 2,
+    "newMaterializations": 2,
+    "newStoredDocuments": 0,
+    "stopRequests": 0
+  },
+  "preparedCaseRecovery": {
+    "planId": "40",
+    "loteId": "24",
+    "roots": [
+      "39",
+      "40"
+    ],
+    "files": [
+      "40",
+      "41"
+    ],
+    "expedientes": [
+      "670",
+      "671"
+    ],
+    "relaciones": [
+      "1095",
+      "1096"
+    ]
+  },
+  "execution": "One new independent pair, one login attempt per opening, reused between C02 and C03. PREFLIGHT; PREPARE02 becomes SELECT-only recovery of lot24 plus public authority reads; RUN02 and FINISH02 perform the first storage window; C03 alone creates its remaining two roots. No automatic retry.",
+  "recoveryChecks": [
+    "Pinned plan40/lot24 and owner141/company2/level7/version38; matching persisted plan/lot configuration.",
+    "Exactly root39/40, file40/41 and expediente670/671; approved names and effective values; both received and materialized.",
+    "No prior ALMACENAR attempt, active claim, uncertainty or stored result; physical absence in cabinet/inventory/index through SELECT.",
+    "Snapshot unchanged after physical absence verification; only then generate the first storage command keys in memory."
+  ],
+  "newWindowQualification": "ARM/RESUME/CLOSE passed without writer entry. Actual inside-body Freeze/Thaw and peer progress remain required before claiming concurrency.",
+  "unchanged": {
+    "environment": {
+      "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+      "runtimeRoot": "D:/imagenesda/DocuachiNet/DocuArchiNet",
+      "actorRef": "141",
+      "ambitoRef": "2",
+      "levelRef": "7",
+      "versionRef": "38",
+      "raDsn": "MembershipUsers",
+      "daDsn": "MembershipUsers",
+      "localTlsExceptionAuthorized": true
+    },
+    "maximumEffects": {
+      "newPlans": 2,
+      "newLots": 2,
+      "newRoots": 4,
+      "newPdfs": 4,
+      "newExpedientes": 4,
+      "newStoredDocuments": 3,
+      "stopRequests": 1
+    },
+    "selectStatementsTotal": 240,
+    "businessHttp": {
+      "COORD02": 53,
+      "COORD03": 51
+    },
+    "pauseMilliseconds": 30000,
+    "caseDurationMilliseconds": 600000,
+    "protectedHistoricalAttempts": [
+      41,
+      53
+    ]
+  },
+  "approvalRequired": "Only two additional openings (nine total) and cumulative HTTP1500 (1425/75), carrying995 HTTP/40 SELECT/seven openings and the existing prepared resources. No limits are applied until explicit confirmation."
+}

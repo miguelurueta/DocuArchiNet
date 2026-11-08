@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
-const {prepareCase}=require('../tools/e2e/tests/support/doc118-case-preparation.cjs');
+const {prepareCase,recoverCase}=require('../tools/e2e/tests/support/doc118-case-preparation.cjs');
 const profile=require('../tools/e2e/profiles/doc111-importacion-carpetas.profile.example.json');
 function fixture(){
  const calls=[],refs=[],roots=[0,1].map(i=>({recursoId:String(200+i),idCliente:'r'+(i+1),revision:1})),files=[0,1].map(i=>({recursoId:String(300+i),idCliente:'a'+(i+1),revision:1}));
@@ -24,3 +24,25 @@ test('DOC118 retains a returned plan reference and refuses an ineligible confirm
 test('DOC118 lost confirmation is never replayed or followed by receipt',async()=>{const f=fixture();f.loseConfirmation();await assert.rejects(prepareCase(f.options));assert.equal(f.calls.filter(c=>c.op==='ConfirmarPlan').length,1);assert.ok(!f.calls.some(c=>c.op==='receive'));assert.deepEqual(f.refs,[{planId:'90'}]);});
 test('DOC118 refuses a persisted foreign owner and preserves prepared resource references',async()=>{const f=fixture();f.setActor('999');await assert.rejects(prepareCase(f.options),/PERSISTED_CONTEXT_CHANGED/);assert.ok(f.refs.some(r=>r.loteId==='100'));});
 test('DOC118 preparation refuses historical or unapproved root names before source/API/SQL',async()=>{const f=fixture();f.options.rootNames=['historical-a','historical-b'];await assert.rejects(prepareCase(f.options),/ROOT_NAMES_CHANGED/);assert.equal(f.calls.length,0);});
+
+async function recoveryFixture(){
+ const f=fixture(),view=await f.controls.snapshot(),p=f.options.profile;
+ p.nivelRef='7';p.versionId='38';
+ view.lot.lote_id='24';view.lot.config_doc=JSON.stringify({VersionId:'38',Configuracion:{GabineteId:'10',ModoIntegridad:'COMPLETO_OBLIGATORIO',AmbitoIntegridad:'LOTE'}});
+ view.lot.contexto_doc=JSON.stringify({UsuarioRef:'141',AmbitoRef:'2',NivelRef:'7'});view.events=[];
+ for(let i=0;i<2;i++){
+  Object.assign(view.roots[i],{raiz_id:String(39+i),identidad_expediente_doc:JSON.stringify({ExpedienteId:String(670+i),RelacionNivelId:String(1095+i),NivelRef:'7'}),datos_doc:JSON.stringify({IdCliente:'r'+(i+1),NombreOriginal:f.options.rootNames[i],ValoresPlan:['CODIGO','NOMBRE'].map(DestinoRef=>({DestinoRef,Valor:f.options.rootNames[i]}))})});
+  Object.assign(view.files[i],{archivo_id:String(40+i),raiz_id:String(39+i)});
+ }
+ const plan={plan_id:'40',version_id:'38',ambito_ref:'2',solicitante_ref:'141',nivel_ref:'7',lot_config:view.lot.config_doc,plan_config:view.lot.config_doc,plan_estado:'CONFIRMADO'};
+ f.options.query=async(origin,sql)=>{assert.equal(origin,'RA');assert.match(sql,/^SELECT /);f.calls.push('select-plan');return[plan];};
+ f.options.controls={snapshot:async()=>structuredClone(view),assertNoDocuments:async()=>{f.calls.push('absence');}};
+ f.options.recovery={planId:'40',loteId:'24',roots:['39','40'],files:['40','41'],expedientes:['670','671'],relaciones:['1095','1096']};
+ return{...f,view,plan};
+}
+test('DOC118 prepared recovery reconstructs first storage commands using only reads and pinned identities',async()=>{const f=await recoveryFixture(),c=await recoverCase(f.options);assert.equal(c.recoveredPreparation,true);assert.equal(c.prepared.loteId,'24');assert.equal(c.targets.expA,670);assert.equal(c.targets.expB,671);assert.equal(c.command.recursoId,'40');assert.equal(c.command.fase,'ALMACENAR');assert.deepEqual(f.calls,['select-plan','absence']);assert.deepEqual(f.refs,[{planId:'40',loteId:'24'}]);});
+test('DOC118 recovery refuses any prior storage attempt even when it is rejected',async()=>{const f=await recoveryFixture();f.view.attempts.push({fase:'ALMACENAR',estado:'RECHAZADO'});await assert.rejects(recoverCase(f.options),/RECOVERY_STORAGE_ALREADY_REQUESTED/);assert.ok(!f.calls.includes('absence'));});
+test('DOC118 recovery refuses mismatched plan snapshot, root identity or approved name',async()=>{for(const mutate of [f=>f.plan.plan_config='changed',f=>f.view.roots[0].identidad_expediente_doc=JSON.stringify({ExpedienteId:'999',RelacionNivelId:'1095',NivelRef:'7'}),f=>f.view.roots[0].datos_doc=JSON.stringify({NombreOriginal:'foreign'})]){const f=await recoveryFixture();mutate(f);await assert.rejects(recoverCase(f.options));assert.ok(!f.calls.includes('absence'));}});
+test('DOC118 recovery refuses uncertainty, active claims or a changed inventory before physical absence checks',async()=>{for(const mutate of [f=>f.view.files[0].intento_activo_id='900',f=>f.view.attempts.push({fase:'MATERIALIZAR_VALORES',estado:'INCIERTO'}),f=>f.view.files.pop()]){const f=await recoveryFixture();mutate(f);await assert.rejects(recoverCase(f.options));assert.ok(!f.calls.includes('absence'));}});
+test('DOC118 recovery refuses a physical document or a snapshot changed during verification',async()=>{for(const existing of [true,false]){const f=await recoveryFixture();f.options.controls.assertNoDocuments=async()=>{if(existing)throw Error('DOCUMENT_ALREADY_PRESENT');f.view.lot.revision=99;};await assert.rejects(recoverCase(f.options),existing?/DOCUMENT_ALREADY_PRESENT/:/RECOVERY_DATA_CHANGED/);}});
+test('DOC118 recovery never substitutes another lot or case and source readiness precedes reads',async()=>{for(const mutate of [f=>f.options.recovery.loteId='18',f=>f.options.scenario='COORD03',f=>f.setSource(false)]){const f=await recoveryFixture();mutate(f);await assert.rejects(recoverCase(f.options));assert.equal(f.calls.length,0);}});

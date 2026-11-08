@@ -6,7 +6,7 @@
   "counters": {
     "scenarios": {
       "COORD02": {
-        "http": 699,
+        "http": 700,
         "operations": {
           "ConsultarLote": 3
         }
@@ -77,5 +77,29 @@
       "cleanupConfirmed": true
     }
   ],
-  "privacy": "Proyección cerrada sin secretos, cabeceras, conexiones, payloads o filas de negocio."
+  "privacy": "Proyección cerrada sin secretos, cabeceras, conexiones, payloads o filas de negocio.",
+  "sourceVerificationCounters": {
+    "scenarios": {
+      "COORD02": {
+        "http": 699,
+        "operations": {
+          "ConsultarLote": 3
+        }
+      },
+      "COORD03": {
+        "http": 0,
+        "operations": {}
+      }
+    },
+    "selects": 17
+  },
+  "followupPreparation": {
+    "runId": "e372f72da5f9bfdabe6c004ce93137b6",
+    "method": "HEAD",
+    "budgetCharged": 700,
+    "status": "READY",
+    "httpStatus": 200,
+    "utc": "2026-11-08T12:31:30.7746941Z",
+    "workerId": 28760
+  }
 }
