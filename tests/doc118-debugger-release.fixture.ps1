@@ -14,6 +14,11 @@ public static class Doc118ReleaseChecks {
    var expectedError=new string[]{null,null,"RELEASE_BREAK_UNCONFIRMED","RELEASE_THAW_UNCONFIRMED","RELEASE_GO_UNCONFIRMED"}[kind];
    if(String.Join(",",calls)!=expected||failure!=expectedError)throw new Exception("RELEASE_CHECK_FAILED");results.Add("PASS");
   }
+  int busy=0,breaks=0,thaws=0,modeAfter=0;
+  Doc118Release.Run(()=>{if(busy++<2)throw new System.Runtime.InteropServices.COMException("PRIVATE_TRANSIENT",unchecked((int)0x80010001));return modeAfter==1;},()=>{breaks++;modeAfter=1;},()=>{thaws++;},()=>false,()=>{modeAfter=0;},()=>modeAfter==0,100);
+  if(breaks!=1||thaws!=1)throw new Exception("MUTATION_REPEATED");results.Add("PASS");
+  int rejectedThaws=0;try{Doc118Release.Run(()=>true,()=>{},()=>{rejectedThaws++;throw new System.Runtime.InteropServices.COMException("REJECTED_ONCE",unchecked((int)0x80010001));},()=>true,()=>{},()=>false,20);throw new Exception("REJECTION_IGNORED");}catch(System.Runtime.InteropServices.COMException){}
+  if(rejectedThaws!=1)throw new Exception("THAW_RETRIED");results.Add("PASS");
   return results.ToArray();
  }
 }

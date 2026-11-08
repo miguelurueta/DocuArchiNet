@@ -1,3 +1,11 @@
+# Corte vigente — ausencia física actual y contención acreditada
+
+La auditoría SELECT de lote24/archivo40/expediente670 encontró0 registros en gabinete/inventario/índice. Intento69 sigue EN_CURSO y reclamado, sin checkpoint; no se libera ni repite. Archivo41 NO_INICIADO y sin documento físico. Snapshot estable. Acumulado1276 HTTP/113 SELECT/9 aperturas. Se acredita4.6 como contención, sin resolver69:17/27.
+
+La liberación del depurador pasó en un proceso sintético propio, con peer en ejecución y cierre confirmado; no califica legacy/ASMX. Regresión192/192. Detalle:[auditoría y probe](doc118-auditoria-fisica-liberacion-20261108.md). La decisión de alcance para evaluar recuperación EN_CURSO está propuesta, sin aplicar.
+
+## Cortes anteriores
+
 # Corte vigente — intento69 activo, sin replay permitido
 
 La continuación autorizada recuperó el lote24 y alcanzó RUN02; el observador falló durante liberación. Auditoría SELECT posterior:archivo40/intento69 EN_CURSO con reclamación activa y sin resultado durable; archivo41 NO_INICIADO y sin documento físico. Snapshot estable. Consumo1276 HTTP/95 SELECT/9 aperturas;0 aperturas disponibles. El efecto físico A permanece sin confirmar. C03 no iniciado. Limpieza del runner/observador/auditor confirmada. Corrección candidata local del observador y regresión187/187; no calificada en runtime. Progreso16/27.

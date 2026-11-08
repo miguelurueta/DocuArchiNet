@@ -11,8 +11,8 @@
   },
   "tasks": {
     "total": 27,
-    "complete": 16,
-    "remaining": 11,
+    "complete": 17,
+    "remaining": 10,
     "S": 11,
     "M": 16,
     "completeIds": [
@@ -31,7 +31,8 @@
       "3.6",
       "3.7",
       "4.2",
-      "3.8"
+      "3.8",
+      "4.6"
     ],
     "coverage": "D-01..D-10 / RQ-01..RQ-10"
   },
@@ -210,6 +211,40 @@
       },
       "recordedUtc": "2026-11-08T13:48:58.169Z",
       "scope": "Local only; C# callback release and actual PowerShell owner trace without IDE attach. Real SELECT audit recorded separately."
+    },
+    {
+      "command": "node .tmp/doc118-check-full-local-20261108.cjs",
+      "status": "PASS",
+      "tests": 192,
+      "passed": 192,
+      "failed": 0,
+      "groups": {
+        "livePreflight": 19,
+        "sessionBridge": 36,
+        "activeCall": 16,
+        "sharedDrivers": 63,
+        "symbolFiles": 4,
+        "debuggerObserver": 4,
+        "casePreparation": 12,
+        "caseCompletion": 9,
+        "lostResponse": 3,
+        "lifecycle": 4,
+        "documentalPhases": 8,
+        "powershellProtocol": 2,
+        "selectAudit": 10,
+        "debuggerRelease": 1,
+        "releaseProbeBuild": 1
+      },
+      "recordedUtc": "2026-11-08T14:30:47.730Z",
+      "scope": "Local regression; compile-only probe creates no IDE/process. Actual synthetic SDK run is separate evidence."
+    },
+    {
+      "command": "node --test tests/doc110-perfil-importacion-behavior.test.cjs",
+      "status": "PASS",
+      "tests": 2,
+      "passed": 2,
+      "failed": 0,
+      "scope": "Existing .NET Framework behavior and DDL tests; no database/HTTP. Repeated cases, not additional unique tests."
     }
   ],
   "reviewedSourceHashesVerified": 14,
@@ -256,7 +291,9 @@
     "conditionalArmEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observer-arm-20261108.json",
     "releaseSynchronizationCandidateImplemented": true,
     "releaseSynchronizationRuntimeQualified": false,
-    "controllerOwnedHistoryImplemented": true
+    "controllerOwnedHistoryImplemented": true,
+    "syntheticReleaseQualified": true,
+    "syntheticReleaseEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-synthetic-release-probe-20261108.json"
   },
   "realIntegrationExecuted": false,
   "productChanged": false,
@@ -266,11 +303,11 @@
   ],
   "previousReview": "refinement-review.json conserva la evaluación histórica del borrador previo; este registro corresponde a la continuación aprobada.",
   "openDependencies": [
-    "Resolver por evidencia fiable el resultado del intento69 EN_CURSO sin replay, cambio de estado forzado ni takeover; no hay una recuperación automática autorizada para ese estado.",
-    "Calificar en un entorno seguro la sincronización corregida de liberación y la traza propia del observador antes de otra ventana documental.",
-    "Completar COORD02/03 y verificación final;9/9 aperturas y ConsultarLote C02=20/20 están consumidos. No se ha solicitado ni aplicado otra ampliación."
+    "Decidir si se amplía el diseño para evaluar una recuperación de EN_CURSO con evidencia fiable de terminación y efectos; la propuesta no autoriza mutaciones.",
+    "El intento69 permanece reclamado. No repetir ALMACENAR, forzar estados o inferir finalización por tiempo/ausencia.",
+    "Completar4.1/4.3–4.5/4.7–4.8 y5.x. El probe sintético no sustituye esas evidencias;9 aperturas y ConsultarLote C02=20/20 están consumidos."
   ],
-  "localNodeTestsAcrossDisjointRuns": 205,
+  "localNodeTestsAcrossDisjointRuns": 210,
   "newToolFiles": [
     {
       "path": "tools/e2e/tests/support/doc118-active-call.cjs",
@@ -310,7 +347,7 @@
     },
     {
       "path": "tools/e2e/scripts/support/Doc118Debugger.cs",
-      "sha256": "7cbc71f4c13becf60d5b7c0727b3592789e733f96e4dd127b5928740d3ae38b3"
+      "sha256": "77944acdb1d4b0ed675962927969e5818e4e098cd629976ed2e3bd75eb1cad8c"
     },
     {
       "path": "tools/e2e/scripts/support/doc118-debugger.ps1",
@@ -378,23 +415,39 @@
     },
     {
       "path": "tools/e2e/scripts/run-doc118-select-audit.cjs",
-      "sha256": "c4e9cf0fc220c0cd6d9807c3df694fc63fa9f32e5823c794161d1e0ea9e309be"
+      "sha256": "f0f8e90bd39728db612d48a183e860f2520f9ca6291768bdb399c69588e06896"
     },
     {
       "path": "tests/doc118-select-audit.test.cjs",
-      "sha256": "b06008027b164aa8ff20220a64e0f3b1c9f51308f9c34fb206128ee34af81979"
+      "sha256": "6a384f61e9c4a64fdac4f20703a58a98ad784b1bdc974ad9454db6948e5e0907"
     },
     {
       "path": "tests/doc118-debugger-release.test.cjs",
-      "sha256": "6c9c843a4f4f79a400a9600f737e43a342801a0304434cde7b1e2ae316ca70ac"
+      "sha256": "1a622bcd356ed1af6e13eea21e76501989e2b280bf3e1df8f457fa12b48ebe23"
     },
     {
       "path": "tests/doc118-debugger-release.fixture.ps1",
-      "sha256": "d1ac20b57772093cde671c3c9e3a1dbfecb1c7bd73a92bc391cb60b82ec1b71b"
+      "sha256": "36953333e33f342104d289fc1f92f2eb1eb977b6c8f268380837f27595505d99"
     },
     {
       "path": "tests/doc118-debugger-trace.fixture.ps1",
       "sha256": "7090216200ab12a5b1d36c18e342a73ce8cf4c14c68ee17ea3a91696e587a495"
+    },
+    {
+      "path": "tests/doc118-release-probe.fixture.cs",
+      "sha256": "76e665120e5f4d2ca3dc677497e2e394178951af7c4c8922ebf41c73cba949f6"
+    },
+    {
+      "path": "tests/doc118-debugger-probe-runner.fixture.cs",
+      "sha256": "9e55408b7d58594473f207399c36d3ca85ffb75f7e757c540fef1da695723b02"
+    },
+    {
+      "path": "tests/doc118-release-probe-build.test.cjs",
+      "sha256": "e0c6ad1fc814c653d49393f368c28095d2846f22567b79855c36f61ea456b637"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc118-debugger-probe.ps1",
+      "sha256": "948ea19710e98cb2a5ed1b4062c5ff1a952bab57bda2aa16761cde415dd90e8c"
     }
   ],
   "existingE2EDiscovery": {
@@ -447,7 +500,7 @@
     "actualRetainedPairAvailable": false,
     "documentalPhasesImplemented": true
   },
-  "localTestAccounting": "187 actuales más18 previas disjuntas; no sumar repeticiones.",
+  "localTestAccounting": "192 actuales más18 previas disjuntas; no sumar las2 reejecutadas ni otras repeticiones.",
   "runtimePreflightReference": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preflight-20261107.json",
   "runtimePreflightStarted": true,
   "realLoginAttempted": true,
@@ -503,13 +556,16 @@
     "runId": "d07bf61a87e6e888f9cda31eb4cf129e",
     "status": "STOPPED_RUNTIME_REVIEW_REQUIRED",
     "allHttp": 1276,
-    "selects": 95,
+    "selects": 113,
     "totalSessionAttempts": 9,
     "activeAttemptId": "69",
     "loteId": "24",
     "archivoId": "40",
     "durableState": "EN_CURSO",
-    "storedOutcomeRequiresVerification": true
+    "storedOutcomeRequiresVerification": true,
+    "currentPhysicalAbsenceVerified": true,
+    "uncertaintyContained": true,
+    "activeAttemptResolved": false
   },
-  "currentSelectAuditEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-select-audit-20261108.json"
+  "currentSelectAuditEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-active-effect-audit-20261108.json"
 }

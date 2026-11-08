@@ -55,3 +55,8 @@ Evidencia local: CloseUnstartedReservationCases (línea2302), ReconciliationCase
 | Modo parcial con rechazo original | Mantener conteos originales y resultado parcial correspondiente |
 
 Las pruebas locales verifican derivación, SQL sintético y conexión de helpers; los REC reales históricos acreditan sus propios inventarios. COORD02/03 aún deben verificar el inventario de sus recursos nuevos mediante SELECT autorizado.
+
+
+## Contención nueva del intento69
+
+Lote24/archivo40 continúa EN_CURSO con reclamación activa y sin evidencia durable. Se conservaron las referencias y la misma huella operativa entre las auditorías de95 y113 SELECT; gabinete/inventario/índice muestran0 registros actuales para expediente670. El archivo41 mantiene NO_INICIADO y ausencia física. No hubo otro ALMACENAR ni cambio de estado. Esto cierra4.6 en su alcance de contención, sin convertir ausencia en permiso de replay ni atribuir un código HTTP no retenido. Reconciliar exige INCIERTO con evidencia y el cierre preinicio no admite EN_CURSO. Véase `doc118-auditoria-fisica-liberacion-20261108.md`.

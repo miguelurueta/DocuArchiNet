@@ -6,7 +6,23 @@ const ROOT=path.resolve(__dirname,'../../..'),CHANGE='doc-118-produccion-importa
 const hash=v=>crypto.createHash('sha256').update(JSON.stringify(v)).digest('hex'),check=v=>{if(!v)throw Error('DOC118_AUDIT_UNCONFIRMED');};
 const read=p=>JSON.parse(fs.readFileSync(p,'utf8').replace(/^\uFEFF/,'')),id=v=>typeof v==='string'&&/^[1-9][0-9]{0,9}$/.test(v),states=new Set(['EN_CURSO','DETENIDO','COMPLETADO','COMPLETADA','PENDIENTE_VERIFICACION','EXPEDIENTE_CONFIRMADO','RECIBIDO','NO_INICIADO','INCIERTO','RESERVADO','CONFIRMADO','RECHAZADO']);
 const state=v=>states.has(v)?v:'UNCLASSIFIED';
-async function audit({controls,profile}){
+async function inspectCurrentPhysical({query,controls,view,root,profile,index}){
+ const rows=await query('DA','SELECT NOMBRE FROM system1 WHERE id_gabinete=?',['10']);check(rows.length===1&&typeof rows[0].NOMBRE==='string'&&/^[A-Za-z_][A-Za-z0-9_]{0,63}$/.test(rows[0].NOMBRE));const cabinet=rows[0].NOMBRE,expedienteId=String(670+index),counts={};
+ for(const [key,origin,sql]of [
+  ['cabinet','DA','SELECT COUNT(*) AS total FROM `'+cabinet+'` WHERE ID_EXPEDIENTE=?'],
+  ['inventory','RA','SELECT COUNT(*) AS total FROM registro_producion_documental WHERE EXPEDIENTE_ARCHIVO_ID_EXPEDIENTE=?'],
+  ['index','RA','SELECT COUNT(*) AS total FROM ra_cert_indice_expediente WHERE expediente_archivo_ID_EXPEDIENTE=?']
+ ]){const selected=await query(origin,sql,[expedienteId]);check(selected.length===1&&/^[0-9]+$/.test(String(selected[0].total))&&Number.isSafeInteger(Number(selected[0].total)));counts[key]=Number(selected[0].total);}
+ const result={status:'PARTIAL_OR_AMBIGUOUS',counts,documentoId:null,inventarioId:null,replayAllowed:false};
+ if(Object.values(counts).every(n=>n===0)){result.status='CURRENT_ABSENCE_VERIFIED';return result;}
+ if(!Object.values(counts).every(n=>n===1))return result;
+ const candidates=await query('RA','SELECT ID_REGISTRO_PRODUCION_DOCUMENTAL AS inventario_id,ID_DOCUMENTO_DOCUARCHI_ALMACEN AS documento_id FROM registro_producion_documental WHERE EXPEDIENTE_ARCHIVO_ID_EXPEDIENTE=? AND ID_USUARIO_GESTION=? AND ID_EMPRESA_DOCUMENTO=? AND NOMBRE_GABINETE=? AND SEGUNDO_NOMBRE_DOCUMENTO=? AND FORMATO=? LIMIT 2',[expedienteId,'141','2',cabinet,profile.rootNames[index]+'.pdf','.PDF']);
+ if(candidates.length!==1||!id(String(candidates[0].documento_id))||!id(String(candidates[0].inventario_id)))return result;
+ const known={DocumentoId:String(candidates[0].documento_id),InventarioId:String(candidates[0].inventario_id)};
+ await controls.verifyKnownDocument(view,String(root.raiz_id),known,profile.expectations[index],profile.rootNames[index]+'.pdf');
+ return{...result,status:'CURRENT_KNOWN_IDS_VERIFIED_NO_CHECKPOINT',documentoId:known.DocumentoId,inventarioId:known.InventarioId};
+}
+async function audit({controls,profile,query,inspectActiveEffect=false}){
  const view=await controls.snapshot('24'),ctx=JSON.parse(view.lot.contexto_doc),cfg=JSON.parse(view.lot.config_doc);
  check(String(view.lot.lote_id)==='24'&&ctx.UsuarioRef==='141'&&ctx.AmbitoRef==='2'&&ctx.NivelRef==='7'&&cfg.VersionId==='38'&&String(cfg.Configuracion.GabineteId)==='10'&&view.roots.length===2&&view.files.length===2);
  const result={loteId:'24',estado:state(view.lot.estado),detencionSolicitada:Number(view.lot.detencion_solicitada)===1,activeClaims:view.roots.some(r=>r.intento_activo_id)||view.files.some(f=>f.intento_activo_id),files:[],fingerprint:hash(view)};
@@ -20,16 +36,21 @@ async function audit({controls,profile}){
     try{await controls.verifyKnownDocument(view,String(root.raiz_id),stored,profile.expectations[i],profile.rootNames[i]+'.pdf');item.physical='KNOWN_IDS_VERIFIED';}catch{item.physical='VERIFICATION_FAILED';}
    }
   }else if(file.estado_efecto==='NO_INICIADO'&&!file.intento_activo_id&&attempts.length===0){try{await controls.assertNoDocuments({...view,roots:[root]});item.physical='ABSENCE_VERIFIED';}catch{item.physical='VERIFICATION_FAILED';}}
+  else if(inspectActiveEffect&&i===0){
+   check(typeof query==='function'&&attempts.length===1&&String(attempts[0].intento_id)==='69');
+   try{item.physicalEvidence=await inspectCurrentPhysical({query,controls,view,root,profile,index:i});item.physical=item.physicalEvidence.status;}catch{item.physical='VERIFICATION_FAILED';}
+  }
   result.files.push(item);
  }
  result.snapshotUnchanged=hash(await controls.snapshot('24'))===result.fingerprint;
  result.confirmedDocuments=result.files.filter(f=>f.physical==='KNOWN_IDS_VERIFIED').length;result.integrationPass=false;return result;
 }
 async function main(){
- tty.requireInteractiveConsole();const authFile=path.join(ROOT,'openspec/changes',CHANGE,'execution-authorization.json'),a=read(authFile),prior=read(path.join(ROOT,'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-active-window-stop-20261108.json'));
- check(a.executionStatus==='STOPPED_RUNTIME_REVIEW_REQUIRED'&&a.maximum.totalSessions===9&&a.consumed.selectStatements===81&&prior.sessionsClosed&&prior.ephemeralSecretsCleared&&prior.observerCleanupConfirmed);
- const output=path.join(ROOT,'.tmp/doc118-select-audit-20261108.json');check(!fs.existsSync(output));
- const report={issueKey:'DOC-118',status:'AWAITING_SELECT_CREDENTIALS',recordedUtc:new Date().toISOString(),loginAttempts:0,httpRequests:0,mutations:0,ephemeralSecretsCleared:false,counters:prior.counters};
+ tty.requireInteractiveConsole();const args=process.argv.slice(2);check(args.length===0||args.length===1&&args[0]==='--inspect-active-effect');const inspectActiveEffect=args.length===1;
+ const authFile=path.join(ROOT,'openspec/changes',CHANGE,'execution-authorization.json'),a=read(authFile),ev=path.join(ROOT,'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion'),stop=read(path.join(ev,'doc118-active-window-stop-20261108.json')),prior=inspectActiveEffect?read(path.join(ev,'doc118-select-audit-20261108.json')):stop;
+ check(a.executionStatus==='STOPPED_RUNTIME_REVIEW_REQUIRED'&&a.maximum.totalSessions===9&&a.consumed.selectStatements===(inspectActiveEffect?95:81)&&stop.sessionsClosed&&stop.ephemeralSecretsCleared&&stop.observerCleanupConfirmed&&prior.ephemeralSecretsCleared&&prior.counters.selects===a.consumed.selectStatements);
+ const output=path.join(ROOT,inspectActiveEffect?'.tmp/doc118-active-effect-audit-20261108.json':'.tmp/doc118-select-audit-20261108.json');check(!fs.existsSync(output));
+ const report={issueKey:'DOC-118',mode:inspectActiveEffect?'INSPECT_ACTIVE_EFFECT':'CHECKPOINT_AUDIT',status:'AWAITING_SELECT_CREDENTIALS',recordedUtc:new Date().toISOString(),loginAttempts:0,httpRequests:0,mutations:0,ephemeralSecretsCleared:false,counters:prior.counters};
  const save=()=>fs.writeFileSync(output,JSON.stringify(report,null,2)+'\n');save();
  const secrets={},environment=Object.fromEntries(Object.entries(process.env).filter(([k])=>['PATH','Path','SystemRoot','WINDIR','TEMP','TMP'].includes(k))),budget=createBudget({allHttpPerCase:a.maximum.allHttpPerCase,allHttpGlobal:a.maximum.allHttpGlobal,carried:prior.counters});
  try{
@@ -38,7 +59,7 @@ async function main(){
   for(const prefix of ['DOC111_E2E','DOC111_DA_E2E'])Object.assign(environment,{[prefix+'_ODBC_DSN']:'MembershipUsers',[prefix+'_MYSQL_USER']:secrets.user,[prefix+'_MYSQL_PASSWORD']:secrets.password});for(const k of Object.keys(secrets))delete secrets[k];
   const query=async(origin,sql,args)=>{budget.select(origin,sql);report.counters=budget.snapshot();save();return queryRows(sql,args,environment,origin==='RA'?'DOC111_E2E':'DOC111_DA_E2E');};
   const profile=caseProfile(read(path.join(ROOT,'tools/e2e/profiles/doc111-importacion-carpetas-lote-20261102.runtime.json')),'COORD02',a.newRootNames.COORD02);
-  report.status='AUDITING_SELECT_ONLY';save();report.result=await audit({controls:shared.createSelectControls(query),profile});report.status='AUDIT_COMPLETE_REVIEW_REQUIRED';
+  report.status='AUDITING_SELECT_ONLY';save();report.result=await audit({controls:shared.createSelectControls(query),profile,query,inspectActiveEffect});report.status='AUDIT_COMPLETE_REVIEW_REQUIRED';
  }catch{report.status='AUDIT_UNCONFIRMED';process.exitCode=2;}finally{
   for(const k of Object.keys(secrets))delete secrets[k];for(const k of Object.keys(environment))delete environment[k];report.ephemeralSecretsCleared=true;report.counters=budget.snapshot();report.finishedUtc=new Date().toISOString();save();console.log(report.status+'; secretos eliminados.');
  }

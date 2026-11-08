@@ -48,3 +48,8 @@ La regresión vigente pasa177/177. El corte real acumulado es995 HTTP/40 SELECT/
 ## Ventana real y auditoría posterior
 
 RUN02 se detuvo con fallo del depurador. Lote24/archivo40/intento69 permanece EN_CURSO, con reclamación activa y sin resultado durable; archivo41 mantiene NO_INICIADO y ausencia física verificada. No se puede afirmar cero efectos de A ni repetirlo. Acumulado1276 HTTP/95 SELECT/9 aperturas; C03 no iniciado. La candidata local sincroniza Break/Thaw/Go y conserva historial propio. Regresión187/187, SDK compilado, sin prueba documental posterior de esa corrección. Progreso16/27. Detalle:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-ventana-activa-auditoria-20261108.md`.
+
+
+## Ausencia física y prueba sintética de liberación
+
+La auditoría encontró0 registros físicos de A/B y mantuvo intacto el intento69 EN_CURSO; no se permite replay. La contención4.6 queda acreditada:17/27. La mecánica SDK Freeze/peer/Break/Thaw/Go pasó en un proceso propio con PDB y fuente sintéticos, sin IIS ni efectos documentales; legacy sigue sin calificar. Regresión192/192 y2/2 comportamiento existentes. Acumulado1276 HTTP/113 SELECT/9 aperturas. La evaluación de un diseño de recuperación EN_CURSO está propuesta, sin implementación o mutación autorizadas. Véase `doc118-auditoria-fisica-liberacion-20261108.md`.

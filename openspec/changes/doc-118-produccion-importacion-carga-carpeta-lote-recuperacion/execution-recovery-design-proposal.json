@@ -1,0 +1,47 @@
+{
+  "issueKey": "DOC-118",
+  "status": "SCOPE_DECISION_REQUIRED",
+  "kind": "RECOVERY_DESIGN_ONLY",
+  "currentContract": "D-07 / RQ-07: CerrarReservaSinInicio only for RESERVADO without start; reconciliation only for INCIERTO with known evidence.",
+  "blockedResource": {
+    "loteId": "24",
+    "archivoId": "40",
+    "intentoId": "69",
+    "estado": "EN_CURSO",
+    "activeClaim": true,
+    "currentPhysicalAbsenceVerified": true,
+    "replayAllowed": false
+  },
+  "evidence": [
+    "doc118-active-effect-audit-20261108.json",
+    "doc118-synthetic-release-probe-20261108.json"
+  ],
+  "reason": "Current absence and a working debugger do not provide a supported recovery transition for an already-started attempt with no checkpoint. The current contract explicitly preserves this claim.",
+  "proposedDeliverable": "Evaluate and write a reviewable recovery design before any product implementation. Establish whether trustworthy evidence of executor termination and every relevant effect boundary can be obtained. If that evidence cannot be obtained, retain the blocked state.",
+  "designQuestions": [
+    "Which evidence proves the exact executor cannot continue, without using age, browser close or SQL absence as that proof?",
+    "Which read-only checks cover every relevant storage/SII outcome without modifying shared storage or inventing missing IDs?",
+    "Can recovery reuse the existing coordinator/repository and preserve fencing, known IDs, authority, snapshot and inventory?",
+    "What states must remain blocked when evidence is incomplete?"
+  ],
+  "possibleAffectedAreas": [
+    "OpenSpec design/spec/tasks and operational documentation",
+    "Existing coordinator/repository reconciliation contracts, only after a separately approved implementation plan"
+  ],
+  "notAuthorizedByThisProposal": [
+    "Changing attempt69 or any current business state",
+    "Replaying ALMACENAR, dropping claims or forcing EN_CURSO to INCIERTO",
+    "Changing shared storage/SII, permissions, migrations or automatic cleanup",
+    "New application sessions, extra resources or an expanded HTTP/SELECT ceiling"
+  ],
+  "alternatives": [
+    {
+      "key": "EVALUATE_EXPLICIT_RECOVERY",
+      "description": "Authorize the design evaluation above; no mutation or implementation is approved yet."
+    },
+    {
+      "key": "PRESERVE_CURRENT_CONTRACT",
+      "description": "Keep attempt69 blocked and DOC-118 open; preserve the existing recovery limits."
+    }
+  ]
+}

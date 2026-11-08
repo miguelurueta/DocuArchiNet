@@ -90,7 +90,7 @@
     },
     "loginAttempts": 9,
     "totalSessionAttempts": 9,
-    "selectStatements": 95,
+    "selectStatements": 113,
     "newPlans": 1,
     "newLots": 1,
     "newExpedientes": 2,
@@ -104,7 +104,8 @@
     "newPdfs": 2,
     "newMaterializations": 2,
     "stopRequests": 0,
-    "storedOutcomeRequiresVerification": true
+    "storedOutcomeRequiresVerification": true,
+    "confirmedDocumentsObserved": 0
   },
   "sessionReuse": "TWO_SHARED_INDEPENDENT_SESSIONS",
   "continuationApproval": {
@@ -113,7 +114,7 @@
     "proposal": "execution-continuation-proposal.json",
     "recordedUtc": "2026-11-08T01:23:51.033Z"
   },
-  "consumptionEvidence": "doc118-select-audit-20261108.json",
+  "consumptionEvidence": "doc118-active-effect-audit-20261108.json",
   "remaining": {
     "allHttp": {
       "COORD02": 149,
@@ -121,10 +122,10 @@
     },
     "allHttpGlobal": 224,
     "totalSessionAttempts": 0,
-    "selectStatements": 145
+    "selectStatements": 127
   },
   "lastResult": {
-    "evidence": "doc118-select-audit-20261108.json",
+    "evidence": "doc118-active-effect-audit-20261108.json",
     "status": "AUDITED_ACTIVE_CLAIM_REQUIRES_REVIEW",
     "loteId": "24",
     "archivoId": "40",
@@ -133,7 +134,7 @@
     "activeClaim": true,
     "documentoId": null,
     "inventarioId": null,
-    "physicalOutcomeOfActiveFile": "UNCONFIRMED",
+    "physicalOutcomeOfActiveFile": "CURRENT_ABSENCE_VERIFIED",
     "secondFilePhysicalAbsenceVerified": true,
     "confirmedDocumentsObserved": 0,
     "storedDocumentsTotal": null,
@@ -141,7 +142,13 @@
     "applicationSessionsClosed": true,
     "observerCleanupConfirmed": true,
     "auditSecretsCleared": true,
-    "snapshotUnchanged": true
+    "snapshotUnchanged": true,
+    "currentPhysicalCounts": {
+      "cabinet": 0,
+      "inventory": 0,
+      "index": 0
+    },
+    "absenceDoesNotAuthorizeReplay": true
   },
   "budgetContinuationApproval": {
     "status": "AUTHORIZED",
@@ -221,5 +228,8 @@
       "selects": 40
     }
   },
-  "preparedCaseRecoveryEligibility": "BLOCKED_PRIOR_STORAGE_ATTEMPT"
+  "preparedCaseRecoveryEligibility": "BLOCKED_PRIOR_STORAGE_ATTEMPT",
+  "protectedUnresolvedAttempts": [
+    69
+  ]
 }

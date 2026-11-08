@@ -23,16 +23,22 @@ public sealed class Doc118MessageFilter:IDoc118MessageFilter {
 // Owns a fresh, hidden IDE. Never adopts the user's debugger/breakpoints.
 // No Stop/Terminate, expression injection, writes to debuggee or function calls.
 public static class Doc118Release {
+ static bool Transient(COMException e){return e.HResult==unchecked((int)0x80010001)||e.HResult==unchecked((int)0x8001010A)||e.HResult==unchecked((int)0x80131302);}
+ static bool ReadMode(Func<bool> read,int milliseconds){
+  var until=DateTime.UtcNow.AddMilliseconds(milliseconds);
+  for(;;){try{return read();}catch(COMException e){if(!Transient(e)||DateTime.UtcNow>=until)throw;}Thread.Sleep(10);}
+ }
+ static void WaitMode(Func<bool> read,int milliseconds,string error){
+  var until=DateTime.UtcNow.AddMilliseconds(milliseconds);
+  do{try{if(read())return;}catch(COMException e){if(!Transient(e))throw;}Thread.Sleep(10);}while(DateTime.UtcNow<until);
+  throw new InvalidOperationException(error);
+ }
  public static void Run(Func<bool> inBreak,Action requestBreak,Action thaw,Func<bool> isFrozen,Action go,Func<bool> inRun,int milliseconds){
   if(milliseconds<=0||milliseconds>1000)throw new ArgumentOutOfRangeException();
-  if(!inBreak())requestBreak();
-  var until=DateTime.UtcNow.AddMilliseconds(milliseconds);
-  while(!inBreak()&&DateTime.UtcNow<until)Thread.Sleep(10);
-  if(!inBreak())throw new InvalidOperationException("RELEASE_BREAK_UNCONFIRMED");
+  if(!ReadMode(inBreak,milliseconds))requestBreak();
+  WaitMode(inBreak,milliseconds,"RELEASE_BREAK_UNCONFIRMED");
   thaw();if(isFrozen())throw new InvalidOperationException("RELEASE_THAW_UNCONFIRMED");
-  go();until=DateTime.UtcNow.AddMilliseconds(milliseconds);
-  while(!inRun()&&DateTime.UtcNow<until)Thread.Sleep(10);
-  if(!inRun())throw new InvalidOperationException("RELEASE_GO_UNCONFIRMED");
+  go();WaitMode(inRun,milliseconds,"RELEASE_GO_UNCONFIRMED");
  }
 }
 public sealed class Doc118Debugger : IDisposable {
@@ -129,6 +135,7 @@ public sealed class Doc118Debugger : IDisposable {
  public void Resume(){
   if(released)return;
   if(held!=null){
+   Stage="RELEASE_SYNC";
    Doc118Release.Run(()=>debugger.CurrentMode==EnvDTE.dbgDebugMode.dbgBreakMode,
     ()=>{Stage="RELEASE_BREAK";debugger.Break(false);},
     ()=>{Stage="RELEASE_THAW";if(debugger.CurrentProcess.ProcessID!=processId||held.ID!=threadId)throw new InvalidOperationException();held.Thaw();},
