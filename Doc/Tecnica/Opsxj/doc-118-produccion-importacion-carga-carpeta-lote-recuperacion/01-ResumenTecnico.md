@@ -1,6 +1,10 @@
 # DOC-118 — coordinación y recuperación
 
-## Corte actual de RV-02-B
+## Corte actual de RV-03
+
+Implementada6.3/D-13/RQ-13:recorrido interno del adaptador con retención antes del inicio, acuses obligatorios y observación en finally.20 casos nuevos con staging real y dobles de persistencia/escritor; regresión223/223 Node. Cancelación/ThreadAbort propagados, sin fallback V1. Composición pública y MySQL transaccional pendientes de RV-04,69 protegido. Progreso20/30, mismas10 tareas anteriores. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-adaptador-v2-local-20261108.md`.
+
+## Corte anterior de RV-02-B
 
 Implementada6.2/D-12/RQ-12:puerto interno no destructivo del proveedor de staging, validado en21 casos sobre PDFs sintéticos y3 procesos propios cerrados. Regresión223/223 Node. Retención, identidad y sección sincronizada frente a Dispose; otro proceso/nodo o reinicio conserva bloqueo. V1 intacto y recuperación sin activar,69 protegido. Progreso19/29, mismas10 tareas anteriores. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-puerto-staging-v2-local-20261108.md`.
 

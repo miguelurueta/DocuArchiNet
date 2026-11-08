@@ -68,6 +68,8 @@ Ampliación local RV-01 posterior a la brecha observada en69:se añaden contrato
 
 Ampliación local RV-02-B:«continua» posterior a RV-01 autoriza6.2/D-12/RQ-12, puerto interno de retención/guardia no destructiva en un parcial del staging existente. Se valida sobre fixtures locales; no modifica V1, no activa recuperación ni acredita producción, otro proceso/nodo o reinicio. Véase `recovery-v2-staging-authorization.json`.
 
+Ampliación local RV-03:«continua» posterior a RV-02-B autoriza6.3/D-13/RQ-13, recorrido interno del adaptador con retención previa al inicio y puerto obligatorio de persistencia V2. Se prueba con dobles explícitos; no modifica la composición pública V1 ni implementa MySQL, que corresponde a RV-04. Véase `recovery-v2-adapter-authorization.json`.
+
 ## Perfil tecnologico
 
 - Perfil de revision: legacy-webforms-vb (v1).

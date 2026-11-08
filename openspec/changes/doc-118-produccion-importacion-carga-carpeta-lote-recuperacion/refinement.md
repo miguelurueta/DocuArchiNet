@@ -30,6 +30,7 @@ Ya existen coordinador, repositorio transaccional MySQL, ASMX, adaptador documen
 | D-10 | COORD-02/03 requieren prueba nueva de la llamada legacy activa, sin modificar el almacenamiento compartido ni heredar excepciones anteriores. | AGENTS.md; tools/e2e/AGENT-RUNBOOK.md; doc118-matriz-coordinacion.md | D-10 | RQ-10 | Definir observación viable, ambiente, cuentas, recursos y presupuesto antes de solicitar autorización específica. |
 | D-11 | Fijar contratos internos V2 sin conceder capacidad por JSON ni conectarlos al flujo vigente. | DocumentosAlmacenamientoV2Importacion.vb; ImportacionCarpetasDocumentosV2BehaviorTests.cs; doc118-contratos-v2-local-20261108.md | D-11 | RQ-11 | RV-01/6.1: esquema cerrado, vínculos canónicos, compatibilidad V1 y cero efectos/capacidad. |
 | D-12 | Añadir retención y guardia V2 no destructivas al proveedor existente; fallar cerrado ante ámbito, recurso, proveedor o época distintos. | AlmacenStagingImportacion.Recuperacion.vb; ImportacionCarpetasStagingV2Interfaces.vb; pruebas del harness | D-12 | RQ-12 | RV-02-B/6.2: original exacto, exclusión local, vida útil y sección sincronizada; sin activar recuperación. |
+| D-13 | Retener antes del inicio V2 y exigir acuses internos concordantes antes de una única llamada al escritor; observar retorno y propagar abortos. | AdaptadorDocumentoImportacion.ProtocoloV2.vb; PersistenciaDocumentoV2Importacion.vb; harness existente | D-13 | RQ-13 | RV-03/6.3: dobles de persistencia y escritor, retención real; sin fallback V1 o composición pública. |
 
 ## Requisitos verificables
 
@@ -47,6 +48,7 @@ Ya existen coordinador, repositorio transaccional MySQL, ASMX, adaptador documen
 | RQ-10 | Integración observable y autorizada | Escenarios WHEN/THEN en spec.md, origen D-10. | COORD-02/03 requieren prueba nueva de la llamada legacy activa, sin modificar el almacenamiento compartido ni heredar excepciones anteriores. |
 | RQ-11 | Documentos internos V2 sin capacidad de ejecución | Escenarios WHEN/THEN en spec.md, origen D-11;19 casos del harness. | V1 y D-07/RQ-07 intactos; no backfill, procedencia durable, proveedor o gate acreditados por JSON. |
 | RQ-12 | Guardia de staging V2 no destructiva | Escenarios WHEN/THEN en spec.md, origen D-12; proveedor real sobre fixture local. | Sin cambios V1/AbrirRetiro; otro proceso/nodo o reinicio conserva bloqueo; no acredita producción ni69. |
+| RQ-13 | Adaptador V2 retenido y sin repetición | Escenarios WHEN/THEN en spec.md, origen D-13; intercalaciones y abortos locales. | RV-04 debe implementar commit/diario; este recorrido interno no activa V2, no usa fallback V1 ni recupera69. |
 
 ## Dependencias concretas de ejecución
 
@@ -75,6 +77,8 @@ Ampliación local RV-01 del 2026-11-08:el usuario indicó «contiunua» después
 
 
 ## Avance de preparación
+
+Ampliación RV-03:«continua» posterior a RV-02-B y al siguiente paso de retención desde el adaptador autoriza6.3/D-13/RQ-13. El recorrido se prueba con puerto de persistencia simulado; RV-04 y la activación pública siguen pendientes. No amplía autorizaciones reales.
 
 Ampliación local RV-02-B:«continua» posterior a RV-01 y al siguiente paso explícito de integrar la guardia autoriza6.2/D-12/RQ-12. Se incorpora antes de implementar. Es el puerto local y su regresión; no autoriza activar recuperación, desplegar, tocar workers o ejecutar contra datos reales.
 

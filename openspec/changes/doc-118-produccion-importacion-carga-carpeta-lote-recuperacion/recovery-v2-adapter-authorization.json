@@ -1,0 +1,27 @@
+{
+  "issueKey": "DOC-118",
+  "task": "RV-03 / 6.3",
+  "baseCommit": "5c0d3a1c41cf7c4ee7bce3271864ea1b04a8df00",
+  "recordedUtc": "2026-11-08T22:52:13.710Z",
+  "source": "Mensaje del usuario «continua» posterior a RV-02-B y al siguiente paso explícito RV-03.",
+  "scope": "Recorrido interno del adaptador con puerto de persistencia simulado y staging real sobre fixtures locales.",
+  "localAdapterImplementationAuthorized": true,
+  "publicCompositionActivationAuthorized": false,
+  "realExecutionAuthorized": false,
+  "deploymentAuthorized": false,
+  "attempt69Eligible": false,
+  "files": [
+    "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.ProtocoloV2.vb",
+    "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PersistenciaDocumentoV2Importacion.vb",
+    "tests/ImportacionCarpetasAdaptadorV2BehaviorTests.cs",
+    "GestionDocumental-Docuarchi.net.vbproj",
+    "tests/ImportacionCarpetasBehaviorTests.cs",
+    "tests/doc110-perfil-importacion-behavior.test.cjs"
+  ],
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  }
+}

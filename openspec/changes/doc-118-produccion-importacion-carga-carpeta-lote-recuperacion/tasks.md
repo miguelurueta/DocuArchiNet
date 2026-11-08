@@ -48,7 +48,10 @@
 
 - [x] 6.2 [M] RV-02-B: añadir el puerto V2 de retención/guardia no destructiva al staging existente. Área/archivos: `ImportacionCarpetasStagingV2Interfaces.vb`, `AlmacenStagingImportacion.Recuperacion.vb`, proyecto y harness existentes. Origen: D-12, RQ-12; RC-02, RC-07 candidatos. Reproducción:69 EN_CURSO carece de prueba V2 y RV-02-A solo validó primitivas, sin puerto real. Verificación:21 casos del proveedor real sobre PDF sintético,3 procesos propios cerrados, exclusión/Dispose/identidad/ámbito, hardlink/junction, ausencia y rechazo de otra época;18/18 regresión y205/205 herramientas. No reutilizar AbrirRetiro ni cambiar V1. Autorización: «continua» posterior a RV-01 y al siguiente paso RV-02-B; sin despliegue, recuperación real o aumento de presupuestos.
 
+- [x] 6.3 [M] RV-03: añadir el recorrido interno V2 del adaptador con retención previa al inicio, acuses tipados de persistencia y observación de retorno. Área/archivos: `AdaptadorDocumentoImportacion.ProtocoloV2.vb`, `PersistenciaDocumentoV2Importacion.vb`, proyecto y harness existentes. Origen: D-13, RQ-13; RC-02, RC-03 candidatos. Reproducción:69 V1 EN_CURSO sin checkpoint y el adaptador actual adquiere su retención después del inicio. Verificación:20 casos nuevos, regresión18/18 y herramientas205/205; bloqueo antes/durante/después de inicio/gate, cero escritor ante acuse perdido/alterado, una llamada, IDs parciales, cancelación/ThreadAbort propagados y retención liberada. Puerto de persistencia simulado, sin fallback V1; MySQL es RV-04. Autorización:«continua» posterior a RV-02-B y al siguiente paso RV-03; sin activar composición pública, desplegar ni tocar69.
+
 ## Ejecución y defectos reproducidos
+
 
 
 Las rutas cortas de informes se resuelven en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/`; las rutas de coordinador y repositorio son las de design.md y source-review.json. S/M indican complejidad relativa, no duración.
@@ -66,3 +69,5 @@ Corte de auditoría física y prueba sintética:4.6 cerrada por contención de69
 Corte RV-01: se añadió y completó6.1; mapa18/28 con las mismas10 tareas reales/finales pendientes. El contrato interno no modifica D-07/RQ-07 ni completa4.1 o COORD02/03.
 
 Corte RV-02-B: se añadió y completó6.2; mapa19/29 y las mismas10 tareas anteriores pendientes. El puerto real está validado en fixtures NTFS locales; producción y recuperación siguen sin activar/calificar. Otra época del AppDomain, incluso tras reinicio, mantiene bloqueo.
+
+Corte RV-03: se añadió y completó6.3; mapa20/30 y las mismas10 tareas anteriores pendientes. Recorrido interno del adaptador con dobles de persistencia/escritor y retención real. RV-04 y la composición pública V2 siguen pendientes.

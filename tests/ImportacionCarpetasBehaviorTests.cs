@@ -2770,6 +2770,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
     public static void Run() {
         DocumentProtocolV2Cases();
         StagingV2Cases();
+        AdapterV2Cases();
         Doc115RepositoryGuardCases();
         QueryCases();QuerySqlCases();QueryDispatcherCases();RetentionDiagnosisCases();KnownExpedientRelationCases();KnownExpedientClassificationCases();CreationCommandCases();CreationCatalogCases();CreationLegacyCompatibilityCases();LegacyCreationAuthorityCases();ProductionArchiveCycleCases();CreationAdapterCases();CreationResultSqlCases();CreationCheckpointCases();CreationBarrierCases();PhysicalCreationStagingCases();CoordinatedCreationCases();DeferredValuesCases();
         ControlCases();

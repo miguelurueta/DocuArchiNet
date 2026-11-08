@@ -128,7 +128,7 @@ Entrega documental sin despliegue ni migración. Después de aprobación humana:
 
 ## Acceptance and review gates
 
-Diez decisiones y requisitos originales, más D-11/RQ-11 para los contratos internos RV-01 y D-12/RQ-12 para el puerto local RV-02-B; escenarios en spec.md y evidencia de cada entrega. La aprobación de refinement.md y el reemplazo trazable de las tareas genéricas son compuertas antes de implementación. Las pruebas reales requieren una autorización separada posterior a un plan concreto. No hay autorización de ejecución implícita en este diseño.
+Diez decisiones y requisitos originales, más D-11/RQ-11 para contratos internos, D-12/RQ-12 para staging local y D-13/RQ-13 para el recorrido interno del adaptador; escenarios en spec.md y evidencia de cada entrega. La aprobación de refinement.md y el reemplazo trazable de las tareas genéricas son compuertas antes de implementación. Las pruebas reales requieren una autorización separada posterior a un plan concreto. No hay autorización de ejecución implícita en este diseño.
 
 ## Evaluación adicional de recuperación EN_CURSO
 
@@ -147,3 +147,9 @@ Los documentos son datos, incluso cuando indican origen SERVIDOR: deserializarlo
 La continuación posterior a RV-01 autoriza6.2/RV-02-B: retención y guardia no destructiva en un parcial del proveedor existente, sin ampliar su interfaz V1. Solo admite Windows/NTFS local con original existente, un enlace, tamaño/hash e identidad nativa concordantes; conserva handles del original y de sus ancestros. Referencias opacas del proveedor y una época aleatoria del AppDomain ligan la observación: otro proceso/nodo o reinicio no se acredita mediante nombre, hash del contenido o una declaración del cliente. Esta restricción deliberada mantiene bloqueada recuperación tras reiniciar el ejecutor.
 
 La guardia ofrece una sección interna sincronizada para que el futuro commit/rollback ocurra bajo exclusión y no compita con Dispose; no incluye SQL ni decide recuperación. RV-03 debe aplicar la retención desde antes del inicio durable; RV-04/RV-05 deben acreditar procedencia/diario y fencing transaccional. El puerto y su prueba local no califican despliegue, ejecutores V1, identidad permanente o distribuida ni el intento69.
+
+### D-13 — Adaptador V2 con retención y acuses internos (RQ-13)
+
+La continuación posterior a RV-02-B autoriza6.3/RV-03. Un nuevo parcial del adaptador reutiliza autorización, catálogo, copia, escritor y verificador existentes. Adquiere retención V2 antes de cualquier inicio durable y la conserva hasta salir. Un puerto interno de persistencia debe devolver un acuse tipado concordante de inicio y autorización; una excepción o respuesta perdida impide invocar. El futuro repositorio RV-04 solo emitirá esos acuses tras commit confirmado; un JSON o una transformación en memoria no los sustituye.
+
+El recorrido consume localmente una sola ejecución por instancia y no reintenta callbacks. Observa IDs al salir del escritor en finally, con intento acotado de registrar retorno antes de verificar/checkpoint. Retorno observado no equivale a confirmación física; INCIERTO puede conservar IDs parciales. Cancelación/ThreadAbort se propagan, sin ResetAbort, y se libera retención. No se usan inicio/checkpoint V1 como fallback. Hasta RV-04 no se modifica la composición pública, coordinador, repositorio o HTTP; la garantía transaccional se prueba aquí con dobles, no con MySQL.

@@ -151,3 +151,15 @@ El proveedor SHALL cumplir D-12: ofrecer una retención y una guardia internas, 
 #### Scenario: Nodo o instancia no acreditada
 - **WHEN** la evidencia corresponde a otra época del proveedor o no se demuestra identidad local concordante
 - **THEN** el puerto permanece bloqueado; un nombre de equipo o un hash igual no habilita recuperación.
+
+### Requirement: RQ-13 — Adaptador V2 retenido y sin repetición
+
+El adaptador SHALL cumplir D-13: conservar el original antes del inicio V2 y hasta salir. SHALL exigir acuses internos concordantes de inicio y autorización antes de llamar al escritor una sola vez. Una respuesta incierta no SHALL habilitar invocación ni fallback V1. SHALL intentar observar IDs en finally al salir del escritor, propagar cancelación/aborto y liberar la retención. La composición pública no SHALL activar V2 antes de disponer del repositorio transaccional RV-04.
+
+#### Scenario: Autorización incierta o evidencia alterada
+- **WHEN** falta un acuse de inicio/autorización, se pierde su respuesta o no coincide con el documento esperado
+- **THEN** no se invoca el escritor ni se reintenta; se conserva incertidumbre y se libera retención al salir.
+
+#### Scenario: Salida incierta o abortada del escritor
+- **WHEN** el escritor deja IDs parciales o se interrumpe su llamada
+- **THEN** se intenta registrar una observación del mismo intento sin inventar IDs; un aborto se propaga y nunca provoca una segunda invocación.

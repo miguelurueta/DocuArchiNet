@@ -1,4 +1,10 @@
-# Corte vigente — RV-02-B implementada y validada localmente
+# Corte vigente — RV-03 implementada como recorrido interno
+
+Retención antes del inicio V2, acuses concordantes y observación de IDs en finally, sin fallback V1.20 casos nuevos del adaptador con staging real y dobles explícitos de persistencia/escritor;223/223 Node actuales. Progreso20/30 por nueva6.3 completada; las10 tareas anteriores siguen abiertas. Composición pública/MySQL y recuperación permanecen pendientes.
+
+No hubo sesiones, HTTP de negocio, SELECT o efectos documentales nuevos. Consumo1276 HTTP/113 SELECT/9 aperturas e intento69 protegido, sin replay. Sigue RV-04, persistencia y diario transaccional. Evidencia:[adaptador V2](doc118-adaptador-v2-local-20261108.json), [alcance](doc118-adaptador-v2-local-20261108.md).
+
+## Corte anterior — RV-02-B implementada y validada localmente
 
 Puerto de retención/guardia V2 en el proveedor existente, sin activar recuperación.21 casos nuevos en el harness,3 procesos sintéticos cerrados;223/223 Node actuales. Otra época del proveedor —incluido reinicio— permanece bloqueada. Progreso19/29 tras añadir y completar6.2; las10 tareas anteriores siguen pendientes.
 
