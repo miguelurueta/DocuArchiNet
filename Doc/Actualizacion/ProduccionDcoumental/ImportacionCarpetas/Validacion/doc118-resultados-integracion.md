@@ -1,4 +1,10 @@
-# Corte vigente — RV-06 recuperación HTTP implementada
+# Corte vigente — RV-07 matriz local verificada
+
+12 casos nuevos combinan adaptador/repositorio/guardia con barreras explícitas:ejecutor activo, retorno/checkpoint, respuestas perdidas, dos recuperadores, rollback y lector en otro proceso. Cero cambios de producto;133 casos V2 internos y223/223 Node pasan. Progreso24/34, mismas10 tareas reales/finales abiertas; sigue RV-08. SQL/escritor/transacción son dobles, no califica MySQL/IIS ni COORD-02/03 reales.
+
+Dos procesos lectores nuevos cerrados; épocas ajenas, V1 y41/53/69 siguen bloqueados. Consumos1276 HTTP/113 SELECT/9 aperturas sin cambios. Evidencia:[matriz V2](doc118-matriz-v2-local-20261109.json), [detalle](doc118-matriz-v2-local-20261109.md).
+
+## Corte anterior — RV-06 recuperación HTTP implementada
 
 RecuperarDocumentoV2 expone cuatro referencias mediante el guard operativo y composición sin escritor, con autoridad RECONCILIAR y RA/DA fijados. Respuesta de cierre sin invocación separada de confirmación documental.19 casos HTTP nuevos con dispatcher/composición reales compilados, HTTP sintético y guardia real;223/223 Node. Progreso23/33; mismas10 tareas anteriores abiertas. Sin despliegue ni calificación MySQL real; almacenamiento habitual V1.
 

@@ -19,8 +19,9 @@ public static partial class ImportacionCarpetasBehaviorTests {
     sealed class RecoveryV2Fixture:IDisposable {
         public readonly SqlV2Fixture Sql=new SqlV2Fixture();public readonly CoordinadorImportacionCarpetas Service;public readonly object Port;public PlanImportacionCarpetas Plan;
         public bool Allowed=true,Physical=true,LostResponse,FailConsolidation;public int Reads,Guards,Checks,AbsenceReads,Saves,Writes,Consolidations,FailAt;public Action BeforeSave,AfterRead;public object LastGuard;readonly object sync=new object();
-        public RecoveryV2Fixture(bool positive=false){
-            Sql.Begin();if(positive){Sql.Gate();Sql.Observe();}
+        public int ExpectedWriterCalls;
+        public RecoveryV2Fixture(bool positive=false,bool begin=true){
+            if(begin)Sql.Begin();if(positive){Sql.Gate();Sql.Observe();}
             var s=Sql.State;Plan=new PlanImportacionCarpetas{PlanId=s.Lot.PlanId,Estado="CONFIRMADO",Contexto=ReceiptClone(s.Lot.Contexto),Snapshot=ReceiptClone(s.Lot.Snapshot),Manifiesto=new ManifiestoImportacionCarpetas(),Resultado=new ResultadoPreparacionImportacion{PuedeConfirmar=true}};
             Plan.Manifiesto.Raices.Add(new RaizManifiestoImportacion{IdCliente=s.Root.ClienteRaizId,Nombre=s.Root.NombreOriginal,SeleccionId="s1"});
             Plan.Manifiesto.Archivos.Add(new ArchivoManifiestoImportacion{IdCliente=s.File.ClienteArchivoId,RaizIdCliente=s.Root.ClienteRaizId,Nombre=s.File.NombreOriginal,RutaRelativa=s.File.RutaRelativa,Bytes=s.File.BytesPrevistos,UltimaModificacionLocal=s.File.UltimaModificacionLocal});
@@ -81,7 +82,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
             }));
             if(LostResponse)throw new IOException("SYNTHETIC_RECOVERY_RESPONSE_LOSS");return output;
         }
-        public void Dispose(){Check(Sql.Flow.Writers==0,"Recovery invoked writer");Sql.Dispose();}
+        public void Dispose(){try{Check(Sql.Flow.Writers==ExpectedWriterCalls,"Unexpected writer count in recovery fixture");}finally{Sql.Dispose();}}
     }
     static void RecoveryV2Cases(){
         int cases=0;Action<string,Action> run=(name,action)=>{action();cases++;Console.WriteLine("DOC-118 recovery V2 case: "+name+": passed");};

@@ -1,6 +1,10 @@
 # DOC-118 — coordinación y recuperación
 
-## Corte actual de RV-06
+## Corte actual de RV-07
+
+Verificada6.7 sin modificar producto o ampliar contratos.12 casos nuevos de intercalaciones combinan adaptador, núcleo SQL y guardia con dobles de escritor/SELECT/transacción; dos lectores propios vivos/terminados, ambos cerrados. Una invocación máxima, recuperación bloqueada sin escrituras nuevas, commit único, rollback e historial.133 casos V2 internos y223/223 Node pasan. Progreso24/34; RV-08 sigue. MySQL/IIS y COORD-02/03 reales sin calificar;41/53/69 protegidos. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-matriz-v2-local-20261109.md`.
+
+## Corte anterior de RV-06
 
 Implementada6.6/D-16/RQ-16:RecuperarDocumentoV2 con DTO cerrado, guard operativo, autoridad RECONCILIAR y composición sin escritor. Cierre sin invocación y documento confirmado se distinguen explícitamente; RA/DA y HttpContext fijados.19 casos HTTP sintéticos nuevos,223/223 Node. Progreso23/33; mismas10 tareas reales/finales abiertas. Sin despliegue ni conexión MySQL real; almacenamiento habitual V1 y69 protegido. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-recuperacion-http-v2-local-20261109.md`.
 

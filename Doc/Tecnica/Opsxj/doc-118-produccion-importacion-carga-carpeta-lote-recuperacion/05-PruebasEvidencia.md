@@ -1,6 +1,10 @@
 # DOC-118 — coordinación y recuperación
 
-## Regresión local tras RV-06
+## Regresión local tras RV-07
+
+223/223 Node:18 comportamiento/cliente y205 herramientas, sin sumar133 casos V2 internos del arnés. Los12 nuevos verifican intercalaciones antes/después de inicio, gate, escritor, observación y checkpoint; dos recuperadores, rollback y lector en otro proceso. Barreras explícitas con liberación acotada; dos hijos nuevos cerrados. Guardia real; escritor/SELECT/transacción simulados. Sin cambios de producto, despliegue o calificación MySQL/IIS real. Progreso24/34. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-matriz-v2-local-20261109.json`.
+
+## Regresión anterior tras RV-06
 
 223/223 Node:18 comportamiento/cliente y205 herramientas.19 casos nuevos HTTP V2 se incluyen dentro del arnés, sin sumarlos a Node; siguen pasando los102 casos V2 anteriores. Compila dispatcher/composición productivos y prueba guards, cuerpo cerrado, autoridad, proyección, historial y RA/DA/HttpContext. HTTP es sintético; guardia real sobre PDF de prueba, SELECT/transacción simulados y cero escritor. Sin despliegue ni calificación MySQL real. Progreso23/33. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-recuperacion-http-v2-local-20261109.json`.
 

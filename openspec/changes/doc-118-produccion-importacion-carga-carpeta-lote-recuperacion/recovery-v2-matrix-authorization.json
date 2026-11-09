@@ -1,0 +1,26 @@
+{
+  "issueKey": "DOC-118",
+  "task": "RV-07 / 6.7",
+  "baseCommit": "9e498e0db6621f6426cba4bfbf182f1ef675f035",
+  "recordedUtc": "2026-11-09T12:59:22.877Z",
+  "source": "Mensaje del usuario «continua» posterior a RV-06 y al siguiente paso explícito RV-07 de matriz de intercalaciones/compatibilidad.",
+  "scope": "Verificación local de contratos existentes, fixtures reales NTFS/procesos propios y dobles de escritor/SELECT/transacción; sin código de producto.",
+  "localMatrixVerificationAuthorized": true,
+  "productBehaviorExtensionAuthorized": false,
+  "realExecutionAuthorized": false,
+  "deploymentAuthorized": false,
+  "normalV2WriterActivationAuthorized": false,
+  "attempt69Eligible": false,
+  "files": [
+    "tests/ImportacionCarpetasMatrizV2BehaviorTests.cs",
+    "tests/ImportacionCarpetasRecuperacionV2BehaviorTests.cs",
+    "tests/ImportacionCarpetasBehaviorTests.cs",
+    "tests/doc110-perfil-importacion-behavior.test.cjs"
+  ],
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  }
+}

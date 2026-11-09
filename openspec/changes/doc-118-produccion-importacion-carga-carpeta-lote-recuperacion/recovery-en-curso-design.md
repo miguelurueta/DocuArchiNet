@@ -1,6 +1,6 @@
 # Recuperación explícita de EN_CURSO — diseño candidato
 
-Estado: pendiente de revisión de implementación. Evaluación solicitada con «continua» después de presentar `execution-recovery-design-proposal.json`. No modifica D-07/RQ-07 vigentes, código de producto, permisos, presupuesto o datos. No habilita una recuperación del intento69.
+Estado actual:implementación local hasta RV-06 y matriz de intercalaciones verificada en RV-07. Los apartados iniciales conservan el razonamiento de la evaluación original; los cortes posteriores delimitan lo implementado y su evidencia. No hay despliegue, presupuesto real nuevo ni recuperación de69.
 
 ## Conclusión
 
@@ -109,6 +109,10 @@ El intento69 sigue excluido. No se ha instalado V2 en su ejecutor, no tiene el d
 La compatibilidad debe probar que V1 conserva su conducta y que un despliegue mixto nunca inventa V2 ni habilita recuperación en nodos/proveedores sin exclusión acreditada. Ninguna entrega local concede autorización para desplegar, detener workers, cambiar permisos o actuar sobre datos reales.
 
 ## Revisión necesaria
+
+### Corte posterior RV-07
+
+La continuidad autorizada tras RV-06 incorpora6.7, verificación de D-12/RQ-12..D-16/RQ-16 sin ampliar contratos ni cambiar producto.12 casos nuevos con barreras explícitas combinan adaptador/repositorio/guardia, salida con respuestas perdidas, dos recuperadores, rollback y lector en otro proceso.133 casos V2 internos y223/223 Node pasan; dos lectores nuevos cerrados. La matriz distingue cada ventana y sus pruebas previas de diario, proveedor, V1, autoridad e historial. Progreso24/34; sigue RV-08. Es verificación local con SQL/escritor/transacción simulados; no califica MySQL/IIS ni una llamada legacy real. Fuente:`doc118-matriz-v2-local-20261109.md`.
 
 ### Corte posterior RV-06
 

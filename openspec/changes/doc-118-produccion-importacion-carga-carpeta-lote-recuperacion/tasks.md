@@ -56,7 +56,11 @@
 
 - [x] 6.6 [M] RV-06: exponer RecuperarDocumentoV2 mediante DTO cerrado, guard operativo y composición de recuperación existente. Área/archivos: ASMX/composición, DTOs, parcial RecuperacionV2 del coordinador y harness. Origen: D-16, RQ-16; RC-01/06/07. Reproducción:RV-05 solo dispone de operación interna y69 conserva evidencia V1 inelegible. Verificación: negativos de sesión/permiso/CSRF/origen/cuerpo/destino/revisión antes de guardia/escritura, proyección de cierre sin invocación separada de documento confirmado, replay autorizado sin efectos, excepción saneada y V1 intacto. Autorización:«continua» posterior a RV-05 y al siguiente paso RV-06; implementación y regresión local, sin desplegar o ejecutar datos reales.
 
+- [x] 6.7 [M] RV-07: cerrar la matriz local de intercalaciones y compatibilidad V2 reutilizando el harness y las fixtures existentes. Área/archivos: pruebas de recuperación, nuevo parcial de matriz, harness y matriz documental. Origen: D-12, RQ-12; D-13, RQ-13; D-14, RQ-14; D-15, RQ-15; D-16, RQ-16; RC-01..RC-07. Verificación: adaptador/repositorio/guardia reales de código bajo transacción simulada; ventanas de inicio/gate/escritor/retorno/checkpoint, dos recuperadores, rollback, proceso lector vivo/terminado y otra época, máximo una invocación y cero nuevas escrituras al bloquear. Contrastar con casos previos de diario, V1, proveedor, autoridad y privacidad; no duplicar evidencia ni afirmar MySQL/IIS reales. Autorización:«continua» posterior a RV-06 y al siguiente paso explícito RV-07; solo fixtures locales, sin despliegue, nuevos efectos reales o mutación de41/53/69.
+
 ## Ejecución y defectos reproducidos
+
+
 
 
 

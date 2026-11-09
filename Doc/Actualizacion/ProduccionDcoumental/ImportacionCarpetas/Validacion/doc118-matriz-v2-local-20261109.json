@@ -1,0 +1,411 @@
+{
+  "issueKey": "DOC-118",
+  "task": "RV-07 / 6.7",
+  "status": "PASS_LOCAL_INTERLEAVING_MATRIX_ONLY",
+  "recordedUtc": "2026-11-09T12:59:22.877Z",
+  "baseCommit": "9e498e0db6621f6426cba4bfbf182f1ef675f035",
+  "hashAlgorithm": "sha256-utf8-lf",
+  "sourceFiles": [
+    {
+      "path": "tests/ImportacionCarpetasMatrizV2BehaviorTests.cs",
+      "sha256": "469484c856bbe7453e1c3ad0c041e83b3a25a9a645630ee2506ce70fcf92eb2b"
+    }
+  ],
+  "changedFiles": [
+    {
+      "path": "tests/ImportacionCarpetasRecuperacionV2BehaviorTests.cs",
+      "beforeCommit": "9e498e0db6621f6426cba4bfbf182f1ef675f035",
+      "beforeSha256": "8b8cbcae4576f3f0e4104a0b2c715239b318733b60beada6a34058bcab552f25",
+      "afterSha256": "b182256b05aabce3b6d711d16dcf35be32a494d1e855727afdbdc2df124b314f"
+    },
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "beforeCommit": "9e498e0db6621f6426cba4bfbf182f1ef675f035",
+      "beforeSha256": "d0345a57e8aefcfde91e0ae66c1c9267ad2c663f5553928bb080167e9a392183",
+      "afterSha256": "e03648aa079d964157baf8d42761a8b2de97723c63260cbd2819b2a3d92b549f"
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "beforeCommit": "9e498e0db6621f6426cba4bfbf182f1ef675f035",
+      "beforeSha256": "180a9737f8eee9003926e4b5651bb4b402e09139c26a48408033cf093f3f8daa",
+      "afterSha256": "c77d4862eb8e97c43c40b6e0d932dd78f7c84edf4c3e84281989390b41d13e2b"
+    }
+  ],
+  "matrix": [
+    {
+      "requirement": "RC-01",
+      "condition": "V1 y protegidos sintéticos",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasMatrizV2BehaviorTests.cs",
+        "cases": [
+          "protected_v1_attempts_are_unchanged_in_mixed_protocol"
+        ]
+      },
+      "assertion": "Sin guardia, backfill o mutación.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-01",
+      "condition": "Pruebas/IDs HTTP",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasRecuperacionHttpV2BehaviorTests.cs",
+        "cases": [
+          "unknown_duplicate_coerced_or_forged_fields_block",
+          "body_is_authoritative_over_asmx_object"
+        ]
+      },
+      "assertion": "Entrada cerrada y cuerpo comprobado.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-02",
+      "condition": "Inicio retenido",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasMatrizV2BehaviorTests.cs",
+        "cases": [
+          "live_prepared_executor_blocks_recovery"
+        ]
+      },
+      "assertion": "Cero escrituras nuevas de recuperación; una invocación posterior del ejecutor.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-02",
+      "condition": "Gate/escritor activos",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasMatrizV2BehaviorTests.cs",
+        "cases": [
+          "live_gate_and_writer_never_grant_recovery"
+        ]
+      },
+      "assertion": "No desplazar al ejecutor o inferir ausencia.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-02",
+      "condition": "Retorno retenido",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasMatrizV2BehaviorTests.cs",
+        "cases": [
+          "live_observed_ids_still_require_executor_exit"
+        ]
+      },
+      "assertion": "IDs no sustituyen exclusión.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-06",
+      "condition": "Checkpoint retenido",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasMatrizV2BehaviorTests.cs",
+        "cases": [
+          "committed_history_is_readable_while_retention_is_live"
+        ]
+      },
+      "assertion": "Historial sin guardia/escrituras.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-04",
+      "condition": "Inicio con respuesta perdida",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasMatrizV2BehaviorTests.cs",
+        "cases": [
+          "lost_start_reply_closes_only_after_retention_release"
+        ]
+      },
+      "assertion": "Cierre sin invocación tras salida; conserva original.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-03",
+      "condition": "Gate con respuesta perdida",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasMatrizV2BehaviorTests.cs",
+        "cases": [
+          "lost_gate_reply_remains_ambiguous_after_exit"
+        ]
+      },
+      "assertion": "Bloqueo aun con handle libre y cero huellas.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-05",
+      "condition": "Observación con respuesta perdida",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasMatrizV2BehaviorTests.cs",
+        "cases": [
+          "lost_observation_reply_recovers_original_observed_ids"
+        ]
+      },
+      "assertion": "Mismos IDs y una sola invocación.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-06",
+      "condition": "Dos recuperadores",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasMatrizV2BehaviorTests.cs",
+        "cases": [
+          "two_recoverers_only_one_commit_then_history"
+        ]
+      },
+      "assertion": "Un commit y consolidación; contender bloqueado y luego historial.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-06",
+      "condition": "Rollback y contender",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasMatrizV2BehaviorTests.cs",
+        "cases": [
+          "rollback_excludes_contender_then_retry_commits_once"
+        ]
+      },
+      "assertion": "Sin publicación parcial; siguiente recuperación única.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-02",
+      "condition": "Lector vivo/terminado",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasMatrizV2BehaviorTests.cs",
+        "cases": [
+          "reader_process_exit_allows_only_same_epoch_recovery"
+        ]
+      },
+      "assertion": "Handle real excluye hasta salir; evidencia del padre sigue siendo obligatoria.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-07",
+      "condition": "Otra época tras salida",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasMatrizV2BehaviorTests.cs",
+        "cases": [
+          "foreign_epoch_stays_blocked_after_reader_process_exit"
+        ]
+      },
+      "assertion": "No acredita reinicio, otro nodo o proceso.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-02",
+      "condition": "Terminación de proceso/handle",
+      "evidence": {
+        "path": "tests/doc118-staging-lock-probe.test.cjs",
+        "cases": [
+          "process_exit_releases_handle"
+        ]
+      },
+      "assertion": "Solo capacidad nativa, sin habilitar elegibilidad.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-02",
+      "condition": "Original ausente/reemplazado",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasRecuperacionV2BehaviorTests.cs",
+        "cases": [
+          "original_missing_or_replaced_is_not_recreated"
+        ]
+      },
+      "assertion": "Sin crear o reemplazar original.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-02",
+      "condition": "Dispose concurrente",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasStagingV2BehaviorTests.cs",
+        "cases": [
+          "concurrent_dispose_waits_for_guard_section"
+        ]
+      },
+      "assertion": "Guardia conservada durante sección.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-03",
+      "condition": "Diario inválido",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasPersistenciaV2BehaviorTests.cs",
+        "cases": [
+          "duplicated_missing_and_unknown_journal_rejected"
+        ]
+      },
+      "assertion": "Rechazo sin normalizar evidencia.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-06",
+      "condition": "Autoridad/vista antes de commit",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasRecuperacionV2BehaviorTests.cs",
+        "cases": [
+          "authority_denied_before_read_or_commit",
+          "snapshot_changes_before_commit_are_rejected"
+        ]
+      },
+      "assertion": "No persiste contra estado obsoleto.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-06",
+      "condition": "Respuesta perdida y nueva reclamación",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasRecuperacionV2BehaviorTests.cs",
+        "cases": [
+          "lost_response_then_retry_returns_same_history",
+          "replay_is_history_even_after_new_claim"
+        ]
+      },
+      "assertion": "Historial no limpia marcador posterior.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-04",
+      "condition": "Detención e inventario",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasRecuperacionV2BehaviorTests.cs",
+        "cases": [
+          "stop_blocks_negative_and_preserves_positive",
+          "prepared_closes_control_preserves_original_and_inventory"
+        ]
+      },
+      "assertion": "Negativo bloquea con stop; positivo conserva identidad, señal y totales.",
+      "status": "PASS_LOCAL_ONLY"
+    },
+    {
+      "requirement": "RC-07",
+      "condition": "V1 y fuentes de producto",
+      "evidence": {
+        "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+        "cases": [
+          "DocumentAdapterCases",
+          "ReconciliationCases",
+          "OperationHttpCases"
+        ]
+      },
+      "assertion": "Regresión V1 preservada; cero archivos de producto modificados en RV-07.",
+      "status": "PASS_LOCAL_ONLY"
+    }
+  ],
+  "localRegression": {
+    "command": "node --test tests/doc110-perfil-importacion-behavior.test.cjs tests/doc111-importacion-carpetas-client.test.cjs",
+    "tests": 18,
+    "passed": 18,
+    "failed": 0
+  },
+  "internalDotNetCases": {
+    "matrixCases": 12,
+    "passed": 12,
+    "failed": 0,
+    "existingV2Cases": 121,
+    "totalV2Cases": 133,
+    "names": [
+      "live_prepared_executor_blocks_recovery",
+      "live_gate_and_writer_never_grant_recovery",
+      "live_observed_ids_still_require_executor_exit",
+      "committed_history_is_readable_while_retention_is_live",
+      "lost_start_reply_closes_only_after_retention_release",
+      "lost_gate_reply_remains_ambiguous_after_exit",
+      "lost_observation_reply_recovers_original_observed_ids",
+      "two_recoverers_only_one_commit_then_history",
+      "rollback_excludes_contender_then_retry_commits_once",
+      "reader_process_exit_allows_only_same_epoch_recovery",
+      "foreign_epoch_stays_blocked_after_reader_process_exit",
+      "protected_v1_attempts_are_unchanged_in_mixed_protocol"
+    ],
+    "includedInNodeCount": false
+  },
+  "fixture": {
+    "barriers": "ManualResetEventSlim; bounded waits; finally release and joined tasks",
+    "realAdapterAndRepositoryCoreCode": true,
+    "realStagingGuard": true,
+    "writerDouble": true,
+    "selectDouble": true,
+    "transactionalDouble": true,
+    "newAdapterRuns": 8,
+    "newWriterDoubleInvocations": 6,
+    "newReaderProcessesStarted": 2,
+    "newReaderProcessesExited": 2,
+    "existingProviderChildProcessesExited": 3,
+    "realRuntimeAttached": false,
+    "realDatabaseConnectionOpened": false
+  },
+  "toolRegression": {
+    "tests": 205,
+    "passed": 205,
+    "failed": 0,
+    "files": [
+      "tests/doc118-live-preflight.test.cjs",
+      "tests/doc118-session-bridge.test.cjs",
+      "tests/doc118-active-call.test.cjs",
+      "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+      "tests/doc118-symbols.test.cjs",
+      "tests/doc118-debugger-observer.test.cjs",
+      "tests/doc118-case-preparation.test.cjs",
+      "tests/doc118-case-completion.test.cjs",
+      "tests/doc118-lost-response.test.cjs",
+      "tests/doc118-live-lifecycle.test.cjs",
+      "tests/doc118-documental-phases.test.cjs",
+      "tests/doc118-debugger-protocol.test.cjs",
+      "tests/doc118-select-audit.test.cjs",
+      "tests/doc118-debugger-release.test.cjs",
+      "tests/doc118-release-probe-build.test.cjs",
+      "tests/doc118-staging-lock-probe.test.cjs"
+    ],
+    "scope": "LOCAL_ONLY",
+    "recordedUtc": "2026-11-09T12:56:16.533Z"
+  },
+  "disjointNodeTests": 223,
+  "progress": {
+    "complete": 24,
+    "total": 34,
+    "remaining": 10,
+    "newTask": "6.7",
+    "previousComplete": 23,
+    "previousTotal": 33
+  },
+  "limits": {
+    "productCodeChanged": false,
+    "contractChanged": false,
+    "deployed": false,
+    "hostedIisAsmxQualified": false,
+    "realMysqlQualified": false,
+    "coord02or03RealAccepted": false,
+    "normalStorageRemainsV1": true,
+    "normalFlowCreatesV2Attempts": false,
+    "backfillAllowed": false,
+    "attempt69Eligible": false,
+    "recoveryAfterProviderRestartSupported": false
+  },
+  "legacySourceReview": {
+    "baselineSources": 14,
+    "currentUnchanged": 12,
+    "authorizedTestDeltas": 2,
+    "historicalReportsUnchanged": 10,
+    "evaluationSourcesBaseline": 16,
+    "evaluationSourcesUnchanged": 15,
+    "authorizedCommandDelta": 1
+  },
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "decisionRequirementPairs": 16,
+    "diffCheck": "PASS"
+  },
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  },
+  "realConsumptionUnchanged": {
+    "httpRequests": 1276,
+    "selectStatements": 113,
+    "sessions": 9
+  }
+}

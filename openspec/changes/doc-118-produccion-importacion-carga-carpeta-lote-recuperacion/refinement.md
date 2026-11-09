@@ -84,6 +84,8 @@ Ampliación local RV-01 del 2026-11-08:el usuario indicó «contiunua» después
 
 ## Avance de preparación
 
+Continuación RV-07:«continua» posterior a RV-06 y al siguiente paso de matriz autoriza6.7, verificación de D-12/RQ-12..D-16/RQ-16 y RC-01..RC-07 sin ampliar contratos. Reutiliza fixtures y añade únicamente intercalaciones no cubiertas en conjunto, con staging real, procesos propios y SQL/transacción simulados. No concede despliegue, activación del escritor V2, ejecución real o recuperación de41/53/69.
+
 Continuación RV-06:«continua» posterior a la entrega RV-05 y al siguiente paso explícito de integración HTTP autoriza6.6/D-16/RQ-16 y regresión local. La operación solo compone recuperación; no activa el almacenamiento normal V2 ni concede despliegue, ejecución real o mutación de41/53/69.
 
 Continuación RV-05:«continua» después de RV-04 y de la recuperación limitada propuesta autoriza6.5/D-15/RQ-15 y su regresión local. La rama negativa se restringe a expediente sin huellas documentales. No concede ejecución real, publicación HTTP o mutación de41/53/69.

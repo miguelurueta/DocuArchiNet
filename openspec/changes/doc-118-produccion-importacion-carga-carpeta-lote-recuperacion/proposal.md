@@ -62,6 +62,8 @@ No se introduce otro motor ni se propone cambiar contratos públicos en este ref
 
 ## Impact
 
+Continuación RV-07:«continua» posterior a RV-06 autoriza6.7, matriz local de intercalaciones bajo los contratos D-12/RQ-12..D-16/RQ-16 existentes. Solo pruebas/evidencia, sin cambios de producto, despliegue o ejecución real. Fuente:`recovery-v2-matrix-authorization.json`.
+
 Continuación RV-06 del2026-11-09:«continua» posterior a RV-05 y al siguiente paso HTTP autoriza6.6/D-16/RQ-16. Se expone recuperación explícita mediante la entrada operativa y composición existentes, con referencias mínimas y respuesta de control diferenciada. Solo implementación/regresión local; almacenamiento habitual V1, sin despliegue o ejecución real. Fuente:`recovery-v2-http-authorization.json`.
 
 Revisión transversal del coordinador VB, repositorio MySQL, consulta ASMX y cliente JavaScript existentes; esta entrega solo modifica documentación y especificaciones. COORD-02/03 requieren preparación y autorización específica posterior. El estado editorial está aprobado por el usuario; no implica pase ni autorización de integración real.
