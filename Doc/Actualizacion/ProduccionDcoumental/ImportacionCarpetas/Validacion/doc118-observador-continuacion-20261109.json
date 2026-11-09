@@ -1,0 +1,223 @@
+{
+  "issueKey": "DOC-118",
+  "status": "SOURCE_BINDING_OBSERVER_ONLY_PASS",
+  "recordedUtc": "2026-11-09T20:18:03.530Z",
+  "repositoryCheckpoint": "58b816e5ff459b629fe172931417fc2e663a1e9c",
+  "review": {
+    "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-observer-continuation-review.json",
+    "sha256": "adea2af606a07b623845e4dbd96b6c33a4bacb1d1d4c72fc61dbb00e17c25591"
+  },
+  "originalAuthorization": {
+    "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-runtime-smoke-authorization.json",
+    "sha256": "45731d42006d00604ef9e92397627e08d17afd485e9a2644b4766475d93acb0b",
+    "approval": "aprobado"
+  },
+  "previousStop": {
+    "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-runtime-smoke-20261109.json",
+    "sha256": "6c8c9b4302d819e9390317cb5292b560f03140836521dbdce969f3d5f871a836",
+    "preserved": true
+  },
+  "rawExecution": {
+    "issueKey": "DOC-118",
+    "scope": "P4_B_REVIEWED_OBSERVER_ONLY_CONTINUATION",
+    "recordedUtc": "2026-11-09T20:14:34.2151868Z",
+    "status": "SOURCE_BINDING_OBSERVER_ONLY_PASS",
+    "stage": "INSPECT",
+    "httpRequests": 0,
+    "applicationLogins": 0,
+    "selectStatements": 0,
+    "documentEffects": 0,
+    "observerConnectionAttempts": 1,
+    "observerAttachmentConfirmed": true,
+    "documentalBreakpointArmed": false,
+    "threadsIntentionallyFrozen": 0,
+    "activeBodyObservationQualified": false,
+    "loadedMemoryIdentityVerified": false,
+    "cleanupConfirmed": true,
+    "ownIdeProcessId": null,
+    "ownIdeProcessExitVerified": false,
+    "preexistingIdesUntouched": true,
+    "observation": {
+      "sourceBound": true,
+      "processId": 31784,
+      "workerAlive": true,
+      "threadId": 0,
+      "frozen": false,
+      "otherThreadsRunning": true,
+      "released": true,
+      "resourceSha256": null,
+      "entriesA": 0,
+      "entriesB": 0,
+      "fault": null,
+      "closed": false
+    },
+    "workerId": 31784,
+    "ownIdeIdentityObservation": "UNCONFIRMED",
+    "completedUtc": "2026-11-09T20:14:46.6822584Z",
+    "elapsedMilliseconds": 12468
+  },
+  "rawExecutionEvidence": {
+    "path": ".tmp/doc118-p4b-observer-20261109-01/result.json",
+    "sha256": "1cf302c6df2768a40173d9489a99f87926ede4f3641c23cae2a0d729b5ac2a6b",
+    "localIgnored": true
+  },
+  "postDisposeProcessMetadata": {
+    "issueKey": "DOC-118",
+    "scope": "READ_ONLY_POST_DISPOSE_PROCESS_METADATA",
+    "recordedUtc": "2026-11-09T20:16:14.7887780Z",
+    "httpRequests": 0,
+    "observerConnections": 0,
+    "processesStartedInContinuationStillObserved": 0,
+    "preexistingIdeIdsStillObserved": [
+      22060,
+      22516
+    ],
+    "currentIdeMetadata": [
+      {
+        "processId": 22060,
+        "startedUtc": "2026-11-07T14:31:30.2129255Z",
+        "startedDuringContinuation": false
+      },
+      {
+        "processId": 22516,
+        "startedUtc": "2026-11-07T14:53:26.5885157Z",
+        "startedDuringContinuation": false
+      }
+    ],
+    "directOwnIdePidWasNotEstablished": true,
+    "sourceCleanupConfirmed": true,
+    "noProcessTerminated": true
+  },
+  "postDisposeEvidence": {
+    "path": ".tmp/doc118-observer-post-close-metadata.json",
+    "sha256": "f2bc57f8ee272ee3c4dd405e23728e0748760fa8dabc4d43241a88ec573e421d",
+    "localIgnored": true
+  },
+  "executor": {
+    "path": "tools/e2e/scripts/run-doc118-observer-continuation.ps1",
+    "sha256": "4b852d8f78db9fc11da1cf531aeea3e8347c1f0e5065576be8cb4ccf654c6219"
+  },
+  "pinnedFiles": [
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.dll",
+      "sha256": "9225b627c50b96c29ee9031173f0c578df4a16e970cb45404ee6be4d13eff291"
+    },
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.pdb",
+      "sha256": "37aab89e1a02ed2704644ec9d58e6f44f19125e36f1b8bdc60d3f7b8f4f97b72"
+    },
+    {
+      "path": "workflow/ClassAlmacenamiento.vb",
+      "sha256": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+      "sha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741"
+    },
+    {
+      "path": "Web.config",
+      "sha256": "fd392f3679b9bad1e72fd7cecb21b78bda051a863a5e545564e7978e563ef07a"
+    },
+    {
+      "path": "tools/e2e/scripts/support/Doc118Debugger.cs",
+      "sha256": "77944acdb1d4b0ed675962927969e5818e4e098cd629976ed2e3bd75eb1cad8c"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc118-runtime-smoke.ps1",
+      "sha256": "1c10920e9a07119bef59040b4385e02ccd39638894a1b63ca09f63868e9c8888"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc118-runtime-smoke-head.cjs",
+      "sha256": "5fee78974e19e8e165e2d98212ca3320ff5051e7c1ab917aadf33f042db156f4"
+    },
+    {
+      "path": "C:/Program Files/Microsoft Visual Studio/18/Enterprise/Common7/IDE/PublicAssemblies/Microsoft.VisualStudio.Interop.dll",
+      "sha256": "ea15f3a8d9256d6bf7e133e3f79ca11dde788d0ae052dae8f407b21b5becc108"
+    }
+  ],
+  "headCapacity": {
+    "path": ".tmp/doc118-p4b-20261109-01/head-dispatch.json",
+    "sha256": "4252d9655480e2ca7941a985639660cfdf02dae9d1884a28e17299c1ee21d56e",
+    "consumed": true,
+    "remaining": 0,
+    "preserved": true
+  },
+  "connectionCapacity": {
+    "path": ".tmp/doc118-p4b-observer-20261109-01/connection-attempt.json",
+    "sha256": "76bf078ea391d47e0bb9b371670baa1ca19c431582c599990a99c5b17a56574a",
+    "maximum": 1,
+    "consumed": 1,
+    "remaining": 0
+  },
+  "runtimeDelta": {
+    "httpRequests": 0,
+    "applicationLogins": 0,
+    "selectStatements": 0,
+    "documentEffects": 0,
+    "observerConnections": 1,
+    "documentalArms": 0,
+    "intentionalFreezes": 0
+  },
+  "combinedP4bConsumption": {
+    "httpRequests": 1,
+    "observerConnections": 1,
+    "applicationLogins": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  },
+  "cumulativeAcrossHistoricalAndP4b": {
+    "httpRequests": 1277,
+    "selectStatements": 113,
+    "sessions": 9
+  },
+  "acceptance": {
+    "sourceBindingConfirmed": true,
+    "sdkDetachReleaseConfirmed": true,
+    "privateIdePidDirectlyVerified": false,
+    "noNewIdeProcessObservedAfterWindow": true,
+    "activeBodyObservationQualified": false,
+    "loadedMemoryIdentityVerified": false,
+    "providerQualified": false,
+    "mysqlQualified": false,
+    "originalHeadClientResultStillUnconfirmed": true,
+    "integrationPass": false
+  },
+  "localChecks": {
+    "status": "PASS_LOCAL_ONLY",
+    "checks": 2,
+    "sdkAndOwnIdeWindowInteropCompile": "PASS",
+    "missingReviewBlockedBeforeIisOrConnection": "PASS",
+    "httpRequests": 0,
+    "observerConnections": 0,
+    "actualResultDirectoryCreated": false,
+    "recordedUtc": "2026-11-09T20:11:38.422Z",
+    "path": ".tmp/doc118-observer-continuation-local-checks.json",
+    "sha256": "d6d1fa5fd446d124f2674d0e784c0e89e0612df2ad063c662056e6311cee5e42"
+  },
+  "documents": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observador-continuacion-20261109.md",
+      "sha256": "24efb614758e3704485b6c81bbc6a37fa02fddb2818418c7f0f06525cebb07b8"
+    }
+  ],
+  "progress": {
+    "complete": 28,
+    "total": 38,
+    "remaining": 10,
+    "newTasks": 0
+  },
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "decisionRequirementPairs": 18,
+    "diffCheck": "PASS",
+    "pinsAndBackupStable": "PASS",
+    "priorStopAndHeadPreserved": "PASS",
+    "singleOriginalConnectionConsumed": "PASS",
+    "sourceBindingAndSdkDisposal": "PASS",
+    "noNewIdeResidualObserved": "PASS",
+    "privateIdeDirectPidObservation": "NOT_CONFIRMED",
+    "activeCallQualification": "NOT_EXECUTED"
+  }
+}

@@ -1,6 +1,6 @@
 {
   "issueKey": "DOC-118",
-  "status": "P4_B_STOPPED_HEAD_NOT_CONFIRMED_RUNTIME_QUALIFICATION_PENDING",
+  "status": "OBSERVER_SOURCE_BOUND_AND_SDK_CLOSED_ACTIVE_CALL_QUALIFICATION_PENDING",
   "reviewedCommit": "34099b316208431b2f5e6a58bea63ffa7b34ce24",
   "recordedUtc": "2026-11-09T14:54:24.098Z",
   "hashAlgorithm": "sha256-utf8-lf",
@@ -107,7 +107,8 @@
     "driverRecoveryOperationImplemented": true,
     "localAckLossPackageImplemented": true,
     "candidateOrdinaryBinaryDeployed": true,
-    "runtimeSmokePassed": false
+    "runtimeSmokePassed": false,
+    "observerSourceBindingConfirmed": true
   },
   "runtimeDelta": {
     "applicationLogins": 0,
@@ -1184,6 +1185,60 @@
       "stopBeforeObserver": "PASS",
       "realSmokeResult": "NOT_CONFIRMED",
       "sdkBinding": "NOT_EXECUTED"
+    }
+  },
+  "observerOnlyContinuation": {
+    "status": "SOURCE_BINDING_OBSERVER_ONLY_PASS",
+    "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observador-continuacion-20261109.json",
+    "review": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-observer-continuation-review.json",
+    "sourceBindingConfirmed": true,
+    "sdkDetachAndReleaseConfirmed": true,
+    "noNewIdeProcessObservedAfterWindow": true,
+    "activeBodyObservationQualified": false,
+    "runtimeQualified": false,
+    "integrationPass": false,
+    "runtimeDelta": {
+      "httpRequests": 0,
+      "applicationLogins": 0,
+      "selectStatements": 0,
+      "documentEffects": 0,
+      "observerConnections": 1,
+      "documentalArms": 0,
+      "intentionalFreezes": 0
+    },
+    "combinedP4bConsumption": {
+      "httpRequests": 1,
+      "observerConnections": 1,
+      "applicationLogins": 0,
+      "selectStatements": 0,
+      "documentEffects": 0
+    },
+    "remainingOriginalAllowance": {
+      "httpRequests": 0,
+      "applicationLogins": 0,
+      "selectStatements": 0,
+      "documentEffects": 0,
+      "observerConnections": 0
+    },
+    "progress": {
+      "complete": 28,
+      "total": 38,
+      "remaining": 10,
+      "newTasks": 0
+    },
+    "validation": {
+      "openSpecStrict": "PASS",
+      "refinement": "PASS",
+      "refinementChecks": 15,
+      "decisionRequirementPairs": 18,
+      "diffCheck": "PASS",
+      "pinsAndBackupStable": "PASS",
+      "priorStopAndHeadPreserved": "PASS",
+      "singleOriginalConnectionConsumed": "PASS",
+      "sourceBindingAndSdkDisposal": "PASS",
+      "noNewIdeResidualObserved": "PASS",
+      "privateIdeDirectPidObservation": "NOT_CONFIRMED",
+      "activeCallQualification": "NOT_EXECUTED"
     }
   }
 }

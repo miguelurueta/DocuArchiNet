@@ -105,3 +105,7 @@ Preparación P4-B de 4.1: vista OS del worker sin módulo objetivo observado, si
 Área de la preparación P4-B de4.1: tools/e2e/scripts/run-doc118-runtime-smoke.ps1 y support/doc118-runtime-smoke-head.cjs; invocación acotada del controlador existente, HEAD Playwright y rechazo antes de red/attach sin aprobación. Verificación: compilación SDK y cuatro controles locales, sin cambiar el runner histórico.
 
 P4-B autorizada y detenida en HEAD_ONCE: cliente sin estado HTTP; log IIS 200/14,807 s frente a plazo 10 s. Observador no conectado, cero ARM/Freeze/login/SELECT/efectos. Una HEAD consumida, ninguna restante; no repetir. Revisar continuación específica del observador conservando el corte. No completa 4.1 ni añade tareas; 28/38. Ver doc118-runtime-smoke-20261109.md.
+
+Continuación revisada de 4.1 tras «continua»: usar exclusivamente la conexión del observador aprobada y aún no consumida; cero HEAD/login/SELECT/efectos. Área: run-doc118-observer-continuation.ps1 y v2-observer-continuation-review.json. Guarda por evidencia del corte/capacidad exclusiva, SDK existente, Initialize/Inspect/Dispose, sin ARM/Freeze. Verificación local: compilación y rechazo sin revisión; no completa 4.1 por enlazar fuente sin llamada activa.
+
+Resultado de continuación de 4.1: SOURCE_BINDING_OBSERVER_ONLY_PASS y CleanupConfirmed=true, cero HTTP/login/SELECT/efectos y cero ARM/Freeze, una conexión de la autorización original consumida. No añade tareas ni completa 4.1 sin observar llamada activa; 28/38. Ver doc118-observador-continuacion-20261109.md.

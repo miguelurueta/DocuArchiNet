@@ -1,5 +1,9 @@
 # DOC-118 — coordinación y recuperación
 
+## Fuente del observador enlazada y SDK cerrado
+
+Continuación del observador revisada tras «continua»: fuente enlazada, worker vivo/otros hilos en ejecución, cero entradas/fallo/Freeze y desconexión/liberación SDK confirmadas. Cero HTTP/login/SELECT/efectos nuevos; una conexión aprobada consumida, ninguna restante. La HEAD anterior y su fallo se preservan. No se observó IDE nueva residual en la lectura posterior; PID propio no identificado directamente. Fuentes/instalación/SII intactos. 28/38, no completa 4.1 sin llamada activa. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observador-continuacion-20261109.json`.
+
 ## P4-B detenida en la comprobación HTTP
 
 P4-B aprobada y ejecutada una vez: cliente sin estado HTTP; log IIS con 200 y 14,807 s frente a timeout 10 s. Corte antes de construir/conectar observador, sin ARM/Freeze ni efectos. Una HEAD consumida y cero restantes; sin retries. Cero login/SELECT/efectos; acumulado entre histórico y P4-B 1277 HTTP/113 SELECT/9 aperturas. Fuentes/instalación/respaldo intactos. No acredita enlace de fuente o runtime. 28/38, sin nuevas tareas/cierres. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-runtime-smoke-20261109.json`.
