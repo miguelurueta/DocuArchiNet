@@ -1,0 +1,256 @@
+{
+  "issueKey": "DOC-118",
+  "tasks": [
+    "6.9",
+    "6.10"
+  ],
+  "status": "PASS_LOCAL_V2_BINDING_AND_DRIVER_NOT_DEPLOYED",
+  "recordedUtc": "2026-11-09T13:58:10.387Z",
+  "baseCommit": "f4d3ab2fcbf514af7dee4a0b0ee08c1f4dae50df",
+  "hashAlgorithm": "sha256-utf8-lf",
+  "sourceFiles": [
+    {
+      "path": "tests/ImportacionCarpetasEnlaceV2BehaviorTests.cs",
+      "sha256": "e3c638b377ad010de6ec42ceef77a09341b7a0b3ad4afa1be16219177c0cb745"
+    },
+    {
+      "path": "tests/doc118-v2-driver.test.cjs",
+      "sha256": "1f1959dae1c04b67a8f7e858c683708652823aa230e5146b0dd4343f8cbc63fd"
+    }
+  ],
+  "changedFiles": [
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.ProtocoloV2.vb",
+      "beforeCommit": "f4d3ab2fcbf514af7dee4a0b0ee08c1f4dae50df",
+      "beforeSha256": "d05bd8ca8eda5a6e9c2bde58fc11eb922e173f4968aa4c0c478d9d5708f16dc9",
+      "afterSha256": "9f5a425b57b1be1d48e8e16c4aa743d60491c545f54b4bf636a7696e50732291"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionDocumentoImportacion.vb",
+      "beforeCommit": "f4d3ab2fcbf514af7dee4a0b0ee08c1f4dae50df",
+      "beforeSha256": "8a53601c6162d1052cb4076a6354246696ec143fb9bfc821eb50b6903644f3eb",
+      "afterSha256": "9bac29e512e92fa11ba4f2b948e527a9ec90099253ad6a0fd444c115d625c3f0"
+    },
+    {
+      "path": "tests/Fixtures/ProduccionDocumental/Doc118ComposicionEscritoresStub.vb",
+      "beforeCommit": "f4d3ab2fcbf514af7dee4a0b0ee08c1f4dae50df",
+      "beforeSha256": "194613c13ff98d72d1db177875fb0bc2cdc0d159819bceaf8f1f1fe018d6127a",
+      "afterSha256": "72224b456ad31b532a137e40e200ee813a4d95495d22f3a0d41cfcc89617bd76"
+    },
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "beforeCommit": "f4d3ab2fcbf514af7dee4a0b0ee08c1f4dae50df",
+      "beforeSha256": "e03648aa079d964157baf8d42761a8b2de97723c63260cbd2819b2a3d92b549f",
+      "afterSha256": "96b5614dad10f50ba0478bed46cf970ed152a5d21ef91b1a4ddfac136f9867e7"
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "beforeCommit": "f4d3ab2fcbf514af7dee4a0b0ee08c1f4dae50df",
+      "beforeSha256": "c77d4862eb8e97c43c40b6e0d932dd78f7c84edf4c3e84281989390b41d13e2b",
+      "afterSha256": "c5d9f92f4f69981c978935b473dca288ac31128c6387547adad9e48c9da9c36a"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc111-importacion-carpetas.cjs",
+      "beforeCommit": "f4d3ab2fcbf514af7dee4a0b0ee08c1f4dae50df",
+      "beforeSha256": "b794339f0083ef1e615eff0ce9aa54f8ac5a0185b51ae0737074af5c9c8c01c5",
+      "afterSha256": "08cdd30b86483fde6ff461da4e19d10950353df6db71448ac7bf8e64886c9548"
+    }
+  ],
+  "documents": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-enlace-v2-local-20261109.md",
+      "sha256": "c814641c8377846fbc2df52909da22f78e1922bb74d6da3a4ed1842008441ac5"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-plan-real-v2-enlace-20261109.md",
+      "sha256": "4f736ed852ac854743342e48ab87325104585dfdd23d27a2aee7d01c8f676c07"
+    }
+  ],
+  "protectedSources": [
+    {
+      "path": "workflow/ClassAlmacenamiento.vb",
+      "beforeCommit": "f4d3ab2fcbf514af7dee4a0b0ee08c1f4dae50df",
+      "beforeSha256": "f0e650b4e98cb0558b17092b2fa22c9439b5065aedd105ef5f2a34f6f98722e7",
+      "afterSha256": "f0e650b4e98cb0558b17092b2fa22c9439b5065aedd105ef5f2a34f6f98722e7",
+      "unchanged": true
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+      "beforeCommit": "f4d3ab2fcbf514af7dee4a0b0ee08c1f4dae50df",
+      "beforeSha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741",
+      "afterSha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741",
+      "unchanged": true
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.vb",
+      "beforeCommit": "f4d3ab2fcbf514af7dee4a0b0ee08c1f4dae50df",
+      "beforeSha256": "2c5e25c1ebcb3efeaa913c6d37c785390d934ced21b8b1ad1546ee5f080107f0",
+      "afterSha256": "2c5e25c1ebcb3efeaa913c6d37c785390d934ced21b8b1ad1546ee5f080107f0",
+      "unchanged": true
+    }
+  ],
+  "previousReview": {
+    "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-revision-v2-local-20261109.json",
+    "sha256": "9755fd008a0aca21ba97f509b16a7747ebfb484feb90399c1c672889c76080cf",
+    "preserved": true
+  },
+  "localRegression": {
+    "command": "node --test tests/doc110-perfil-importacion-behavior.test.cjs tests/doc111-importacion-carpetas-client.test.cjs tests/doc118-v2-driver.test.cjs",
+    "tests": 30,
+    "passed": 30,
+    "failed": 0
+  },
+  "toolRegression": {
+    "tests": 205,
+    "passed": 205,
+    "failed": 0,
+    "files": [
+      "tests/doc118-live-preflight.test.cjs",
+      "tests/doc118-session-bridge.test.cjs",
+      "tests/doc118-active-call.test.cjs",
+      "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+      "tests/doc118-symbols.test.cjs",
+      "tests/doc118-debugger-observer.test.cjs",
+      "tests/doc118-case-preparation.test.cjs",
+      "tests/doc118-case-completion.test.cjs",
+      "tests/doc118-lost-response.test.cjs",
+      "tests/doc118-live-lifecycle.test.cjs",
+      "tests/doc118-documental-phases.test.cjs",
+      "tests/doc118-debugger-protocol.test.cjs",
+      "tests/doc118-select-audit.test.cjs",
+      "tests/doc118-debugger-release.test.cjs",
+      "tests/doc118-release-probe-build.test.cjs",
+      "tests/doc118-staging-lock-probe.test.cjs"
+    ],
+    "scope": "LOCAL_ONLY",
+    "recordedUtc": "2026-11-09T13:53:35.031Z"
+  },
+  "disjointNodeTests": 235,
+  "internalDotNetCases": {
+    "bindingCases": 12,
+    "passed": 12,
+    "failed": 0,
+    "existingV2Cases": 133,
+    "totalV2Cases": 145,
+    "names": [
+      "typed_binding_uses_current_server_lot_revision",
+      "null_or_foreign_lot_is_rejected_before_start",
+      "authority_denied_before_server_lot_read",
+      "server_lot_change_after_read_does_not_start",
+      "missing_persistence_or_reader_has_no_fallback",
+      "lost_start_ack_consumes_no_writer",
+      "lost_gate_ack_never_grants_invocation",
+      "lost_checkpoint_response_preserves_ids_and_single_writer",
+      "same_adapter_instance_cannot_write_twice",
+      "v1_history_returns_before_new_writer_factory",
+      "production_composition_and_dispatcher_are_compiled",
+      "binding_retains_original_before_native_v2_start"
+    ],
+    "includedInNodeCount": false
+  },
+  "newNodeDriverCases": {
+    "tests": 12,
+    "passed": 12,
+    "failed": 0,
+    "names": [
+      "DOC118 V2 driver: cierre de control usa transporte existente y no afirma documento",
+      "DOC118 V2 driver: positivo e historial mantienen identidad y banderas",
+      "DOC118 V2 driver: referencias incompletas o coerciones no alcanzan transporte",
+      "DOC118 V2 driver: pruebas o IDs aportados por cliente se rechazan",
+      "DOC118 V2 driver: modo readOnly impide recuperacion antes del envio",
+      "DOC118 V2 driver: respuesta ajena o mal tipada se rechaza sin reenvio",
+      "DOC118 V2 driver: cierre y confirmacion contradictorios nunca son exito",
+      "DOC118 V2 driver: respuesta con evidencia interna no se expone",
+      "DOC118 V2 driver: codigo exterior debe concordar y no basta ok",
+      "DOC118 V2 driver: rechazo HTTP conserva solo codigo conocido y no reintenta",
+      "DOC118 V2 driver: timeout y cuerpo ilegible no provocan replay",
+      "DOC118 V2 driver: captura referencias antes de esperar y proyecta sin alias"
+    ],
+    "includedInNodeCount": true
+  },
+  "fixture": {
+    "realAdapterCodecAndRepositoryCore": true,
+    "realStagingGuard": true,
+    "productionStorageCompositionCompiled": true,
+    "productionDispatcherCompiled": true,
+    "legacyStorageConstructorStubbed": true,
+    "legacyCreationFactoryStubbed": true,
+    "writerDouble": true,
+    "selectAndTransactionDoubles": true,
+    "sharedStorageFunctionInvocations": 0,
+    "realDatabaseConnectionOpened": false
+  },
+  "behavior": {
+    "newAttemptProtocolInCandidate": "V2",
+    "lotRevisionSource": "Same repository, current server lot; no HTTP/staging revision",
+    "contextSnapshotAndStateCompared": true,
+    "authorityBeforeLotRead": true,
+    "originPinReused": true,
+    "legacyHistoryBeforeWriterFactory": true,
+    "v1Fallback": false,
+    "driverTransportReused": true,
+    "driverRequestProperties": 4,
+    "driverResponseProperties": 14,
+    "driverReadOnlyBlocks": true,
+    "driverRetries": 0
+  },
+  "planGates": {
+    "P1": "IMPLEMENTED_AND_TESTED_LOCAL_CANDIDATE",
+    "P2": "IMPLEMENTED_AND_TESTED_LOCAL_CANDIDATE",
+    "P3": "UNIMPLEMENTED_RUNTIME_ACK_LOSS_BINDING",
+    "P4": "UNQUALIFIED_SITE_PROVIDER_MYSQL_IIS_OBSERVER",
+    "P5": "NOT_AUTHORIZED_REAL_EXECUTION",
+    "readyForRealExecution": false
+  },
+  "limits": {
+    "sharedStorageFunctionChanged": false,
+    "legacyInvokerChanged": false,
+    "siiChanged": false,
+    "publicV1AdapterChanged": false,
+    "deployed": false,
+    "realMysqlOrHostedIisQualified": false,
+    "backfillAllowed": false,
+    "attempt69Eligible": false,
+    "runtimeFaultHookInstalled": false
+  },
+  "legacySourceReview": {
+    "baselineSources": 14,
+    "currentUnchanged": 12,
+    "authorizedTestDeltas": 2,
+    "historicalReportsUnchanged": 10,
+    "evaluationSourcesBaseline": 16,
+    "evaluationSourcesUnchanged": 15,
+    "authorizedCommandDelta": 1
+  },
+  "progress": {
+    "complete": 27,
+    "total": 37,
+    "remaining": 10,
+    "newTasks": [
+      "6.9",
+      "6.10"
+    ],
+    "previousComplete": 25,
+    "previousTotal": 35
+  },
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "decisionRequirementPairs": 17,
+    "diffCheck": "PASS",
+    "protectedStorageHashes": "PASS",
+    "deltaProvenance": "PASS"
+  },
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  },
+  "realConsumptionUnchanged": {
+    "httpRequests": 1276,
+    "selectStatements": 113,
+    "sessions": 9
+  }
+}

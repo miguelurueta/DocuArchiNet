@@ -7,7 +7,36 @@ Imports System.Threading
 Public Partial Class AdaptadorDocumentoImportacion
     Private _ejecucionV2 As Integer
 
-    'Recorrido interno sin composición pública hasta disponer de RV-04.
+    Friend Shared Function EnlazarV2(adaptador As AdaptadorDocumentoImportacion, persistencia As PersistenciaDocumentoV2Importacion, obtenerLote As Func(Of ContextoImportacionCarpetas, String, LoteImportacionCarpetas)) As IAlmacenamientoDocumentoImportacion
+        If adaptador Is Nothing OrElse persistencia Is Nothing OrElse obtenerLote Is Nothing Then Throw New ArgumentNullException()
+        Return New EnlaceDocumentoV2(adaptador, persistencia, obtenerLote)
+    End Function
+
+    'El coordinador resuelve historial antes de crear este enlace. La revisión
+    'se obtiene del mismo repositorio; no se toma de HTTP ni del staging.
+    Private NotInheritable Class EnlaceDocumentoV2
+        Implements IAlmacenamientoDocumentoImportacion
+        Private ReadOnly _adaptador As AdaptadorDocumentoImportacion
+        Private ReadOnly _persistencia As PersistenciaDocumentoV2Importacion
+        Private ReadOnly _obtenerLote As Func(Of ContextoImportacionCarpetas, String, LoteImportacionCarpetas)
+        Public Sub New(adaptador As AdaptadorDocumentoImportacion, persistencia As PersistenciaDocumentoV2Importacion, obtenerLote As Func(Of ContextoImportacionCarpetas, String, LoteImportacionCarpetas))
+            _adaptador = adaptador : _persistencia = persistencia : _obtenerLote = obtenerLote
+        End Sub
+        Public Function Almacenar(contexto As ContextoImportacionCarpetas, raiz As RaizImportacionCarpetas, archivo As ArchivoImportacionCarpetas, snapshot As SnapshotPerfilImportacionOperativa, intento As IntentoImportacionCarpetas) As ResultadoEfectoImportacion Implements IAlmacenamientoDocumentoImportacion.Almacenar
+            Dim comando = ComandoAlmacenamientoCarpetas.Preparar(contexto, raiz, archivo, snapshot, intento)
+            _adaptador._autorizar(comando)
+            Dim obtenido = _obtenerLote(Copiar(comando.Contexto), comando.Intento.LoteId)
+            If obtenido Is Nothing Then Throw LoteIncompatible()
+            Dim lote = Copiar(obtenido)
+            If lote.LoteId <> comando.Intento.LoteId OrElse lote.Estado <> "EN_CURSO" OrElse lote.DetencionSolicitada OrElse lote.Revision = 0 OrElse lote.Revision >= UInteger.MaxValue - 1UI OrElse PerfilImportacionJson.Escribir(lote.Contexto) <> PerfilImportacionJson.Escribir(comando.Contexto) OrElse PerfilImportacionJson.Escribir(lote.Snapshot) <> PerfilImportacionJson.Escribir(comando.Snapshot) Then Throw LoteIncompatible()
+            Return _adaptador.AlmacenarV2(contexto, raiz, archivo, snapshot, intento, lote.Revision, _persistencia)
+        End Function
+        Private Shared Function LoteIncompatible() As PerfilImportacionException
+            Return New PerfilImportacionException("CONFLICTO_REVISION", "El lote ya no coincide con la solicitud documental.")
+        End Function
+    End Class
+
+    'Recorrido V2 utilizado por el enlace tipado de la composición documental.
     'Reutiliza los puertos existentes; jamás llama _iniciar/_registrar de V1.
     Friend Function AlmacenarV2(contexto As ContextoImportacionCarpetas, raiz As RaizImportacionCarpetas, archivo As ArchivoImportacionCarpetas, snapshot As SnapshotPerfilImportacionOperativa, intento As IntentoImportacionCarpetas, revisionLote As UInteger, persistencia As PersistenciaDocumentoV2Importacion) As ResultadoEfectoImportacion
         If persistencia Is Nothing Then Throw New PerfilImportacionException("CAPACIDAD_NO_DISPONIBLE", "La persistencia V2 no está compuesta.")

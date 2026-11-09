@@ -1,5 +1,11 @@
 # Plan candidato de implementación — recuperación V2
 
+## Continuación de enlace/driver posterior a RV-08
+
+Completadas6.9/6.10/D-17/RQ-17 localmente, autorizadas por «continua» posterior a RV-08. P1/P2 resueltos en candidato:composición V2 para intentos nuevos con revisión de servidor y driver DOC111 con operación cerrada de recuperación.235/235 Node y145 casos V2 internos; almacenamiento compartido/InvocarAlmacenamiento/SII intactos.27/37 tareas, mismas10 reales/finales abiertas. P3/P4/P5 continúan sin resolver; sin despliegue o ejecución real. Estado actualizado:`doc118-plan-real-v2-enlace-20261109.md`.
+
+## Corte anterior RV-08
+
 RV-01..RV-08 y la comprobación RV-02-A están completadas localmente. «continua» posterior a RV-07 autoriza6.8:revisión consolidada y plan real separado, sin cambiar producto o ampliar contratos. La operación HTTP se compone en código; almacenamiento habitual V1 y driver real sin operación V2 son dependencias explícitas antes de pedir ejecución. No hay despliegue ni calificación real. Deriva también de D-05/RQ-05, D-07/RQ-07, D-08/RQ-08, D-09/RQ-09 y D-10/RQ-10; los RC citan `recovery-en-curso-spec.md`. No autoriza ejecutar sobre69 ni ampliar presupuestos. S/M son complejidades relativas.
 
 | ID | Área y archivos previstos | Cambio acotado | Origen | Verificación requerida |

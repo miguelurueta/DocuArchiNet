@@ -60,7 +60,14 @@
 
 - [x] 6.8 [S] RV-08: consolidar revisión local de completitud/corrección/coherencia y preparar el plan real V2 separado con sus dependencias y presupuestos. Área/archivos: reporte de revisión, plan real V2, manifiestos OpenSpec y documentación técnica. Origen: D-01, RQ-01; D-10, RQ-10; D-11/RQ-11..D-16/RQ-16; RC-01..RC-07. Verificación:16 requisitos/35 escenarios trazados, matriz21 condiciones y133 casos V2 con evidencia223 Node de RV-07 y fuentes iguales; factibilidad local diferenciada de runtime, diez tareas reales/finales sin cerrar, bloqueo de composición V1/driver sin operación V2, recursos nuevos/límites/corte definidos y ninguna autorización real inferida. Autorización:«continua» posterior a RV-07 y al siguiente paso RV-08; solo revisión/preparación local, sin integrar escritor V2, desplegar, autenticar o tocar41/53/69.
 
+- [x] 6.9 [M] Integrar enlace V2 para almacenamiento nuevo en la composición existente. Área/archivos: ComposicionDocumentoImportacion, parcial ProtocoloV2 del adaptador y harness. Origen: D-17, RQ-17; D-13/RQ-13, D-14/RQ-14. Reproducción:RV-08/W-01, composición V1 no genera evidencia V2. Verificación: revisión/contexto/snapshot de servidor, autoridad/RA/DA, inicio/gate/retorno/checkpoint, máximo una invocación, bloqueo sin fallback, replay V1 sin escritor y huella de almacenamiento/SII intacta. Autorización:«continua» posterior a RV-08; solo código/regresión local, sin desplegar o ejecutar datos reales.
+
+- [x] 6.10 [M] Ampliar el driver E2E DOC111 con RecuperarDocumentoV2. Área/archivos: driver compartido y pruebas locales de transporte existentes/nuevas. Origen: D-17, RQ-17; D-16, RQ-16. Reproducción:RV-08/W-02, operación ausente del allowlist. Verificación: cuatro referencias cerradas antes del envío, readOnly bloqueado, misma sesión/token/origen/transporte, respuesta cerrada/correlacionada negativa/positiva/histórica, rechazos y timeout sin reintento ni secretos. Autorización:continuación del enlace/driver posterior a RV-08, sin otra plataforma/login o ejecución real.
+
 ## Ejecución y defectos reproducidos
+
+
+
 
 
 Las rutas cortas de informes se resuelven en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/`; las rutas de coordinador y repositorio son las de design.md y source-review.json. S/M indican complejidad relativa, no duración.

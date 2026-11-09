@@ -203,3 +203,19 @@ El sistema SHALL cumplir D-16: exponer RecuperarDocumentoV2 mediante el guard op
 #### Scenario: Cierre de control y confirmación separados
 - **WHEN** la recuperación devuelve un cierre sin invocación o una identidad confirmada
 - **THEN** la respuesta diferencia explícitamente cierreSinInvocacion y documentoConfirmado; el cierre negativo no afirma documento ni inventario, y una repetición autorizada consulta historial sin nuevas escrituras.
+
+### Requirement: RQ-17 — Enlace operativo V2 y driver cerrado
+
+El sistema SHALL cumplir D-17:componer V2 para intentos documentales nuevos mediante los adaptadores y repositorio existentes, con revisión/contexto/snapshot obtenidos del servidor. SHALL conservar autoridad, rechazo ante cambios y retención/diario V2, sin modificar el escritor compartido ni convertir historiales V1. El driver existente SHALL admitir la recuperación explícita con solicitud/respuesta cerradas, correlación y cero reenvíos automáticos. No SHALL activar ejecución real o despliegue por esta implementación local.
+
+#### Scenario: Lote de servidor concordante
+- **WHEN** una petición nueva alcanza el enlace documental con lote vigente y original V2 admitido
+- **THEN** el adaptador usa la revisión de servidor e inicio/gate/retorno/checkpoint V2, con una invocación máxima; cualquier discrepancia o falta de capacidad bloquea sin fallback V1.
+
+#### Scenario: Historial V1 y escritor compartido preservados
+- **WHEN** se consulta el mismo comando de un intento V1 existente o se revisan41/53/69
+- **THEN** el coordinador conserva la vía histórica sin construir un escritor ni añadir evidencia V2; almacenamiento compartido y SII permanecen intactos.
+
+#### Scenario: Driver de recuperación cerrado y sin replay
+- **WHEN** el driver recibe referencias adicionales, respuesta discordante o transporte incierto, o está en readOnly
+- **THEN** rechaza antes de efectos o de exponer la respuesta, no reintenta y distingue cierre de control de confirmación documental.

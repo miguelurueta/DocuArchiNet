@@ -1,6 +1,10 @@
 # DOC-118 — coordinación y recuperación
 
-## Corte actual de RV-08
+## Corte actual de enlace/driver V2
+
+Completadas6.9/6.10/D-17/RQ-17 en código candidato:composición de intentos nuevos usa revisión del lote de servidor y persistencia V2; el driver existente valida RecuperarDocumentoV2 sin retries.235/235 Node,145 casos V2 internos incluidos en el harness. Progreso27/37,10 tareas reales/finales abiertas. P1/P2 locales resueltos; P3/P4/P5 siguen abiertos. Sin despliegue o ejecución real; AlmacenamientoDocumentoProduccionDocumental, InvocarAlmacenamiento y SII intactos. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-enlace-v2-local-20261109.md`.
+
+## Corte anterior de RV-08
 
 Consolidada6.8:revisión de16 requisitos/35 escenarios y plan real V2 con dependencias, recursos nuevos y topes propuestos.9/9 entregables locales;25/35 tareas,10 reales/finales abiertas. DOC-118 no listo para archivo. Sin cambios de producto/pruebas;223/223 Node de RV-07 reutilizados con hashes iguales. La composición habitual V1 y el driver sin RecuperarDocumentoV2 deben integrarse/revisarse antes de solicitar una ejecución real; no se despliega ni amplían presupuestos aquí. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-revision-v2-local-20261109.md`.
 

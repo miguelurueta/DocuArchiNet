@@ -3,9 +3,13 @@
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
 - Clasificación: cross_cutting
-- Estado: revisión local V2 consolidada en RV-08;25/35 tareas, aceptación real y calificación del runtime abiertas.
+- Estado: enlace/driver V2 implementados localmente;27/37 tareas, aceptación real y calificación del runtime abiertas.
 
 ## Contratos e integraciones
+
+Corte6.9/6.10:el driver compartido ya admite RecuperarDocumentoV2, valida exactamente cuatro referencias y14 propiedades públicas correlacionadas y usa el mismo safePost/CSRF/origen, con cero retries y prohibición readOnly. El enlace candidato usa revisión de lote de servidor y persistencia V2 para intentos nuevos; no cambia el contrato HTTP de avance ni el escritor compartido. La revisión RV-08 que sigue conserva su base histórica; el estado vigente de P1/P2 está en `doc118-plan-real-v2-enlace-20261109.md`, con P3/P4/P5 abiertos y sin autorización real.
+
+### Corte anterior RV-08
 
 Contrato adicional RV-06:POST RecuperarDocumentoV2 recibe únicamente loteId/intentoId/revisionLoteEsperada/revisionArchivoEsperada por el guard operativo Gestión/CSRF/autoridad RECONCILIAR. Cierre sin invocación devuelve HTTP200/ok=true, estado RECHAZADO, código EJECUCION_CERRADA_SIN_INVOCACION, cierreSinInvocacion=true y documentoConfirmado=false, sin IDs documentales. Confirmación positiva expone solo IDs verificados. No se aceptan pruebas/rutas/proveedor del cliente. El driver DOC111 aún no admite esta operación y el almacenamiento habitual sigue V1. Resolver esos enlaces bajo alcance local concreto antes de la autorización real descrita en `doc118-plan-real-v2-20261109.md`; no existe todavía CLI ejecutable de ese plan.
 

@@ -128,13 +128,19 @@ Entrega documental sin despliegue ni migración. Después de aprobación humana:
 
 ## Acceptance and review gates
 
+### D-17 — Enlace V2 para intentos nuevos y driver existente (RQ-17)
+
+La indicación «continua» posterior a RV-08 y al siguiente paso de integrar composición/driver autoriza6.9/6.10 como código y regresión locales. ComposicionDocumentoImportacion compone un enlace IAlmacenamientoDocumentoImportacion que usa AlmacenarV2 y CrearPersistenciaDocumentoV2 del mismo repositorio. Obtiene revisión/contexto/snapshot del lote desde servidor, reautoriza y rechaza discrepancias o detención antes de iniciar. No modifica AlmacenamientoDocumentoProduccionDocumental, InvocarAlmacenamiento, SII ni el adaptador público V1; el coordinador consulta historial antes de construir un escritor, por lo que historiales V1 y los intentos protegidos no se convierten ni reejecutan. No hay fallback a V1 si falta capacidad V2.
+
+El driver DOC111 existente admite RecuperarDocumentoV2 mediante su mismo transporte, token y controles de autorización/readOnly. Comprueba cuatro referencias cerradas antes del envío y proyecta una respuesta cerrada/correlacionada:control cerrado sin invocación y documento confirmado son distintos. Timeout, rechazo o respuesta discordante no provoca reintento. El enlace se compila/prueba localmente, sin despliegue, ejecución real, nuevo login o endpoint de fallos; los puntos P3/P4/P5 del plan real siguen requiriendo preparación/calificación/autorización.
+
 ### D-16 — Recuperación HTTP explícita y acotada (RQ-16)
 
 La indicación «continua» posterior a la entrega RV-05 y al siguiente paso RV-06 autoriza6.6 dentro de DOC-118. Se expone RecuperarDocumentoV2 con loteId, intentoId, revisionLoteEsperada y revisionArchivoEsperada. Usa la entrada operativa existente:sesión Gestión, autoridad actual, POST/origen/CSRF, JSON cerrado y límites; el objeto que deserializa ASMX no reemplaza el cuerpo comprobado. Se reutiliza la autoridad RECONCILIAR y el mismo repositorio, guardia y catálogo de RV-05, sin puerto escritor ni fallback V1.
 
 La composición fija RA/DA y HttpContext de la petición, comprueba su vigencia antes de leer y durante la reautorización, y no acepta proveedor, rutas, IDs documentales o pruebas del cliente. El cierre negativo se devuelve como control resuelto con estado RECHAZADO, código EJECUCION_CERRADA_SIN_INVOCACION y documentoConfirmado=false; no se traduce en documento exitoso ni en un rechazo de recepción. La confirmación positiva expone únicamente IDs comprobados. La repetición conserva historial y exige autoridad actual. La composición habitual de almacenamiento sigue V1; activar un escritor V2, desplegar o ejecutar contra datos reales requiere su alcance separado.
 
-Diez decisiones y requisitos originales, más D-11/RQ-11..D-16/RQ-16 para contratos, staging, adaptador, persistencia, recuperación interna y entrada HTTP V2; escenarios en spec.md y evidencia de cada entrega. La aprobación de refinement.md y el reemplazo trazable de las tareas genéricas son compuertas antes de implementación. Las pruebas reales requieren una autorización separada posterior a un plan concreto. No hay autorización de ejecución implícita en este diseño.
+Diez decisiones y requisitos originales, más D-11/RQ-11..D-17/RQ-17 para contratos, staging, adaptador, persistencia, recuperación/HTTP y enlace/driver V2; escenarios en spec.md y evidencia de cada entrega. La aprobación de refinement.md y el reemplazo trazable de las tareas genéricas son compuertas antes de implementación. Las pruebas reales requieren una autorización separada posterior a un plan concreto. No hay autorización de ejecución implícita en este diseño.
 
 ## Evaluación adicional de recuperación EN_CURSO
 

@@ -62,6 +62,8 @@ No se introduce otro motor ni se propone cambiar contratos públicos en este ref
 
 ## Impact
 
+Continuación de enlace/driver:«continua» posterior a RV-08 autoriza6.9/6.10/D-17/RQ-17 en código candidato y regresión local. Se integran la composición para intentos nuevos y la operación cerrada del driver existente; no se modifica almacenamiento compartido/InvocarAlmacenamiento/SII ni se despliega o ejecuta. Fuente:`v2-binding-driver-authorization.json`.
+
 Continuación RV-08:«continua» posterior a RV-07 autoriza6.8, revisión consolidada y plan real separado sobre evidencia local existente. No implementa enlaces del escritor/driver ni despliega o ejecuta. La revisión conserva diez tareas reales/finales abiertas y no permite archivar DOC-118. Fuente:`recovery-v2-review-authorization.json`.
 
 Continuación RV-07:«continua» posterior a RV-06 autoriza6.7, matriz local de intercalaciones bajo los contratos D-12/RQ-12..D-16/RQ-16 existentes. Solo pruebas/evidencia, sin cambios de producto, despliegue o ejecución real. Fuente:`recovery-v2-matrix-authorization.json`.

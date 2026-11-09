@@ -1,6 +1,6 @@
 # Especificación candidata — recuperación V2 de EN_CURSO
 
-Estado:protocolo interno y operación HTTP de recuperación implementados hasta RV-06 bajo RQ-11..RQ-16, con evidencia local separada por entrega. No se desplegó ni se calificó la ejecución real; el almacenamiento habitual conserva V1 y D-07/RQ-07 mantienen sus operaciones. Los escenarios RC no son resultados reales de integración por sí mismos y69 permanece inelegible.
+Estado:protocolo y recuperación HTTP con evidencia RV-01..RV-08, más enlace/driver locales6.9/6.10 bajo RQ-17. La composición candidata de intentos nuevos usa V2; conserva historiales V1 y D-07/RQ-07. No se desplegó ni calificó ejecución real. Los escenarios RC no son resultados reales de integración por sí mismos y69 permanece inelegible.
 
 ## RC-01 — Elegibilidad por evidencia del servidor
 

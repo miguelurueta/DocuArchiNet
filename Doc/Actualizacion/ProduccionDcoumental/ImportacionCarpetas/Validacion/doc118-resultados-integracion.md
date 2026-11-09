@@ -1,4 +1,10 @@
-# Corte vigente — RV-08 revisión local y plan real preparados
+# Corte vigente — enlace V2 y driver implementados localmente
+
+Completadas6.9/6.10/D-17/RQ-17:composición de intentos nuevos con revisión de servidor, persistencia V2 y controles existentes; driver compartido admite recuperación con contratos cerrados y sin replay.12 casos nuevos de enlace y12 Node de driver;235/235 Node y145 casos V2 internos incluidos en el harness. Progreso27/37; mismas10 tareas reales/finales abiertas.
+
+Función compartida de almacenamiento, enlace legacy y SII intactos. P1/P2 del plan real resueltos solo en candidato; P3/P4/P5 siguen abiertos. Sin despliegue o ejecución real;1276 HTTP/113 SELECT/9 aperturas sin cambios. Evidencia:[enlace/driver](doc118-enlace-v2-local-20261109.json), [detalle](doc118-enlace-v2-local-20261109.md), [estado del plan](doc118-plan-real-v2-enlace-20261109.md).
+
+## Corte anterior — RV-08 revisión local y plan real preparados
 
 Revisión consolidada de16 requisitos/35 escenarios,21 condiciones de matriz y133 casos V2. Los9 entregables locales V2 quedan documentados; progreso25/35, mismas10 tareas reales/finales abiertas y DOC-118 no listo para archivo. Se reutiliza223/223 Node de RV-07 en e68d9972 con código/pruebas/herramientas sin cambios, comprobados por hashes; no hay una corrida nueva en RV-08.
 

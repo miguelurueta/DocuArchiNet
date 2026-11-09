@@ -6,12 +6,28 @@ const {safePost} = require('./doc110-safe-request.cjs');
 const {createWorkflowLoginPageSession,LOGIN_SELECTORS} = require('./authenticated-workflow-session.cjs');
 
 const MODES = Object.freeze(['EXPEDIENTE', 'LOTE', 'PARCIAL']);
-const OPERATIONS = Object.freeze(['AbrirImportacion', 'ListarPerfilesImportacion', 'PrepararPlan', 'ConfirmarPlan', 'ConsultarLote', 'ConsultarRecursosLote', 'AvanzarLote', 'SolicitarDetencion', 'CerrarReservaSinInicio', 'ReconciliarRecurso']);
+const OPERATIONS = Object.freeze(['AbrirImportacion', 'ListarPerfilesImportacion', 'PrepararPlan', 'ConfirmarPlan', 'ConsultarLote', 'ConsultarRecursosLote', 'AvanzarLote', 'SolicitarDetencion', 'CerrarReservaSinInicio', 'ReconciliarRecurso', 'RecuperarDocumentoV2']);
 const FILE_NAME = 'DOC111 Órdenes 0007.pdf';
 function fail(code) { throw new Error('DOC111_' + code); }
 function check(value, code) { if (!value) fail(code); }
 function id(value) { return typeof value === 'string' && /^[1-9][0-9]{0,9}$/.test(value) && BigInt(value) <= 4294967295n; }
 function closed(value, fields) { check(value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).every(k => fields.includes(k)), 'CONTRACT_INVALID'); }
+function recoveryRequest(value) {
+  const fields=['loteId','intentoId','revisionLoteEsperada','revisionArchivoEsperada'];
+  closed(value,fields);check(Object.keys(value).length===fields.length,'CONTRACT_INVALID');
+  const request=Object.fromEntries(fields.map(k=>[k,value[k]]));
+  check(id(request.loteId)&&id(request.intentoId)&&['revisionLoteEsperada','revisionArchivoEsperada'].every(k=>Number.isInteger(request[k])&&request[k]>0&&request[k]<=4294967295),'CONTRACT_INVALID');
+  return request;
+}
+function recoveryResponse(value,request,code) {
+  const fields=['loteId','intentoId','fase','estado','codigo','resuelta','repeticion','cierreSinInvocacion','documentoConfirmado','expedienteId','relacionNivelId','gabineteId','documentoId','inventarioId'];
+  check(value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).length===fields.length&&Object.keys(value).every(k=>fields.includes(k)),'RESPONSE_INVALID');
+  check(value.loteId===request.loteId&&value.intentoId===request.intentoId&&value.fase==='ALMACENAR'&&value.resuelta===true&&typeof value.repeticion==='boolean'&&['expedienteId','relacionNivelId','gabineteId'].every(k=>id(value[k]))&&value.codigo===code,'RESPONSE_INVALID');
+  const closedControl=value.estado==='RECHAZADO'&&value.codigo==='EJECUCION_CERRADA_SIN_INVOCACION'&&value.cierreSinInvocacion===true&&value.documentoConfirmado===false&&value.documentoId===null&&value.inventarioId===null;
+  const confirmed=value.estado==='CONFIRMADO'&&value.codigo==='DOCUMENTO_CONFIRMADO'&&value.cierreSinInvocacion===false&&value.documentoConfirmado===true&&id(value.documentoId)&&id(value.inventarioId);
+  check(closedControl||confirmed,'RESPONSE_INVALID');
+  return Object.fromEntries(fields.map(k=>[k,value[k]]));
+}
 function validateProfile(p) {
   closed(p, ['baseUrl', 'module', 'ignoreHttpsErrors', 'timeoutMilliseconds', 'odbcDsn', 'docuarchiOdbcDsn', 'nivelRef', 'versionId', 'mode', 'pdfFixture', 'rootNames', 'expectations']);
   check([p.odbcDsn,p.docuarchiOdbcDsn].every(d=>typeof d==='string'&&/^[A-Za-z0-9 _.-]{1,128}$/.test(d)), 'PROFILE_DSN_INVALID');
@@ -152,6 +168,7 @@ function createDriver(auth, profile, authorization, options = {}) {
   async function request(operation, payload, expectFailure = false) {
     check(OPERATIONS.includes(operation), 'OPERATION_INVALID');
     if(options.readOnly)check(['ConsultarLote','ConsultarRecursosLote'].includes(operation),'READONLY_OPERATION_REQUIRED');
+    if(operation==='RecuperarDocumentoV2')payload=recoveryRequest(payload);
     const response = await safePost(auth.context.request, new URL('webservice/WebServiceImportacionCarpetas.asmx/' + operation, profile.baseUrl).href,
       {maxRedirects:0, headers: {'X-Importacion-Carpetas-CSRF': token, Origin: new URL(profile.baseUrl).origin}, data: {solicitud: payload}}, operation);
     let raw; try { raw = await response.json(); } catch { fail('RESPONSE_INVALID'); }
@@ -163,11 +180,11 @@ function createDriver(auth, profile, authorization, options = {}) {
     if(response.status() !== 200 || !body.ok){
       const error=new Error('DOC111_OPERATION_NOT_CONFIRMED');
       error.operation=operation;error.httpStatus=response.status();
-      const codes=['CAPACIDAD_NO_DISPONIBLE','ACCESO_DENEGADO','SOLICITUD_INVALIDA','SESION_REQUERIDA','CSRF_INVALIDO','ORIGEN_INVALIDO','ERROR_INTERNO','CONFIGURACION_INVALIDA','OPERACION_EN_CURSO','CONFLICTO_REVISION','ARCHIVO_RECHAZADO','RESULTADO_INCIERTO'];
+      const codes=['CAPACIDAD_NO_DISPONIBLE','ACCESO_DENEGADO','SOLICITUD_INVALIDA','SESION_REQUERIDA','SOLICITUD_NO_VERIFICADA','CSRF_INVALIDO','ORIGEN_INVALIDO','ERROR_INTERNO','CONFIGURACION_INVALIDA','OPERACION_EN_CURSO','CONFLICTO_REVISION','ARCHIVO_RECHAZADO','RESULTADO_INCIERTO'];
       error.serverCode=codes.includes(body.codigo)?body.codigo:'NO_CLASIFICADO';
       throw error;
     }
-    return body.datos;
+    return operation==='RecuperarDocumentoV2'?recoveryResponse(body.datos,payload,body.codigo):body.datos;
   }
   async function pages(loteId, tipo) {
     const state = await request('ConsultarLote', {loteId});

@@ -34,6 +34,7 @@ Ya existen coordinador, repositorio transaccional MySQL, ASMX, adaptador documen
 | D-14 | Persistir evidencia y diario V2 en la transacción existente; autorización de un solo uso y checkpoint atómico. | MySqlImportacionCarpetasRepository.DocumentoV2.vb; lector documental compatible; harness SQL | D-14 | RQ-14 | RV-04/6.4: comparación exacta, rollback, replay sin efectos y acuse posterior al commit. |
 | D-15 | Recuperar internamente solo V2 con prueba/guardia concordantes, cierre sin invocación o confirmación por IDs observados; cero escritor. | Parciales RecuperacionV2 de coordinador/repositorio; comando y catálogo de comprobación | D-15 | RQ-15 | RV-05/6.5: autoridad/vista exactas, guardia hasta commit, rollback e historial sin afectar intentos posteriores. |
 | D-16 | Exponer recuperación explícita mediante entrada operativa cerrada y composición sin escritor. | ASMX/DTOs, composición de reconciliación y parcial RecuperacionV2 del coordinador | D-16 | RQ-16 | RV-06/6.6: sesión/CSRF/autoridad/contexto/revisiones, proyección segura y cierre sin invocación diferenciado. |
+| D-17 | Componer V2 solo para intentos nuevos y ampliar el driver existente con contratos cerrados. | ComposicionDocumentoImportacion, enlace del adaptador V2 y driver DOC111 | D-17 | RQ-17 |6.9/6.10: revisión de servidor, autoridad, compatibilidad histórica, respuesta correlacionada y sin reintentos. |
 
 ## Requisitos verificables
 
@@ -55,6 +56,7 @@ Ya existen coordinador, repositorio transaccional MySQL, ASMX, adaptador documen
 | RQ-14 | Persistencia V2 y autorización de un solo uso | Escenarios WHEN/THEN en spec.md, origen D-14; núcleo SQL con doble transaccional. | Sin DDL o backfill; autorización repetida bloquea; checkpoint/evento/consolidación juntos. |
 | RQ-15 | Recuperación interna V2 sin escritor | Escenarios WHEN/THEN en spec.md, origen D-15; cierre negativo/positivo bajo guardia. | Sin reset general, conversión a INCIERTO o backfill;69/V1 y proveedor distinto bloqueados; HTTP reservado para RV-06. |
 | RQ-16 | Recuperación HTTP explícita y acotada | Escenarios WHEN/THEN en spec.md, origen D-16; guard operativo y proyección pública. | Solo cuatro referencias; autoridad RECONCILIAR, RA/DA fijados y cero escritor; V1 y69 excluidos. |
+| RQ-17 | Enlace V2 y driver cerrado | Escenarios WHEN/THEN en spec.md, origen D-17; binding tipado y regresión del transporte existente. | Sin modificar función de almacenamiento/SII, backfill, fallback V1, despliegue o ejecución real. |
 
 ## Dependencias concretas de ejecución
 
@@ -83,6 +85,8 @@ Ampliación local RV-01 del 2026-11-08:el usuario indicó «contiunua» después
 
 
 ## Avance de preparación
+
+Continuación de enlace/driver:«continua» posterior a RV-08 y a la confirmación de conservar intacta la función de almacenamiento autoriza6.9/6.10/D-17/RQ-17 localmente. Sustituye la composición de intentos nuevos en código candidato y amplía solo el driver existente. No autoriza despliegue, fallos del runtime, login/HTTP/SQL reales o nuevos presupuestos.
 
 Continuación RV-08:«continua» posterior a RV-07 autoriza6.8, revisión local y preparación de plan real separado bajo D-01/RQ-01 y D-10/RQ-10. No amplía contratos ni autoriza composición del escritor, extensión del driver, despliegue, ejecución real, presupuesto adicional o recuperación de41/53/69. La revisión distingue dependencia de implementación y autorización futura; no solicita ejecutar un plan todavía sin enlace V2.
 

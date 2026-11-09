@@ -1,6 +1,10 @@
 # DOC-118 — coordinación y recuperación
 
-## Revisión de evidencia RV-08
+## Regresión de enlace/driver V2
+
+235/235 Node:30 comportamiento/cliente/driver nuevo y205 herramientas existentes.12 casos .NET nuevos del enlace se incluyen en145 casos V2 internos, sin sumarlos a Node. Compila composición documental/dispatcher reales y prueba revisión de servidor, autoridad/contexto, retención, acuses, historial V1 y puertos obligatorios; SQL/escritor simulados.12 pruebas Node nuevas validan contratos/correlación/privacidad, readOnly y timeout/rechazo sin replay. Sin invocar la función compartida ni modificar su fuente/SII. Progreso27/37; sin calificación MySQL/IIS real. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-enlace-v2-local-20261109.json`.
+
+## Revisión anterior de evidencia RV-08
 
 Se reutiliza la regresión de e68d9972/RV-07:223/223 Node y133 casos V2 internos incluidos en el arnés. RV-08 solo cambia documentación/manifiestos; se comprueban de nuevo hashes, referencias y trazabilidad, sin repetir compilaciones/pruebas ni atribuir otra corrida a los informes anteriores.16 requisitos/35 escenarios y21 condiciones mapeados.9/9 entregables locales,25/35 tareas;10 criterios reales/finales bloquean archivo. MySQL/IIS y COORD-02/03 no se aceptan por este corte. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-revision-v2-local-20261109.json`.
 

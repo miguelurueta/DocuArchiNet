@@ -1,6 +1,6 @@
 # Recuperación explícita de EN_CURSO — diseño candidato
 
-Estado actual:implementación local hasta RV-06, matriz de RV-07 y revisión/plan de RV-08 consolidados.9/9 entregables locales/preparación y25/35 tareas; diez reales/finales impiden archivo. Los apartados iniciales conservan el razonamiento de la evaluación original; los cortes posteriores delimitan su evidencia. No hay despliegue, presupuesto real nuevo ni recuperación de69.
+Estado actual:RV-01..RV-08 consolidados y continuación6.9/6.10/D-17/RQ-17 implementada localmente. La composición candidata de intentos nuevos usa V2 con revisión de servidor y el driver compartido admite la recuperación cerrada.27/37 tareas; diez reales/finales impiden archivo. Los apartados iniciales y cortes RV conservan su base histórica. Sin modificar almacenamiento compartido/SII, desplegar, ampliar presupuesto real o recuperar69.
 
 ## Conclusión
 
@@ -109,6 +109,10 @@ El intento69 sigue excluido. No se ha instalado V2 en su ejecutor, no tiene el d
 La compatibilidad debe probar que V1 conserva su conducta y que un despliegue mixto nunca inventa V2 ni habilita recuperación en nodos/proveedores sin exclusión acreditada. Ninguna entrega local concede autorización para desplegar, detener workers, cambiar permisos o actuar sobre datos reales.
 
 ## Revisión necesaria
+
+### Continuación de enlace/driver posterior a RV-08
+
+Resueltas P1/P2 en el candidato:enlace tipado AlmacenarV2/CrearPersistenciaDocumentoV2, revisión/contexto/snapshot desde servidor, orígenes fijados e historial V1 antes del escritor. Driver DOC111 con RecuperarDocumentoV2, contratos cerrados, readOnly y cero retries.12 casos de enlace y12 Node nuevos;235/235 Node,145 casos V2 internos incluidos. Método compartido/InvocarAlmacenamiento/SII intactos; no despliegue o ejecución real. P3/P4/P5 siguen abiertos. Progreso27/37. Fuente:`doc118-enlace-v2-local-20261109.md` y `doc118-plan-real-v2-enlace-20261109.md`.
 
 ### Corte posterior RV-08
 
