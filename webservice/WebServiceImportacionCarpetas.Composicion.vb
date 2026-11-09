@@ -11,6 +11,7 @@ Public Partial Class WebServiceImportacionCarpetas
             Case "MATERIALIZAR_VALORES" : Return ComposicionPerfilImportacionOperativa.CrearMaterializacion(http)
             Case "ALMACENAR" : Return ComposicionDocumentoImportacion.Crear(http)
             Case "RECONCILIAR" : Return ComposicionReconciliacionImportacion.Crear(http)
+            Case "RECUPERAR_DOCUMENTO_V2" : Return ComposicionReconciliacionImportacion.CrearRecuperacionV2(http)
             Case "DETENER_LOTE"
                 If http Is Nothing OrElse http.Session Is Nothing OrElse Not Object.ReferenceEquals(http, HttpContext.Current) Then Throw New PerfilImportacionException("SESION_REQUERIDA", "Se requiere una sesion vigente.")
                 Dim ra = ModuleSessionConnectionStringResolver.Resolve(http, "RA_"), da = ModuleSessionConnectionStringResolver.Resolve(http, "DA_")

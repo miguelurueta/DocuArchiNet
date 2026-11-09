@@ -1,8 +1,8 @@
 {
   "issueKey": "DOC-118",
-  "status": "INTERNAL_RECOVERY_IMPLEMENTED_HTTP_AND_REAL_QUALIFICATION_PENDING",
+  "status": "HTTP_RECOVERY_IMPLEMENTED_MATRIX_AND_REAL_QUALIFICATION_PENDING",
   "reviewedCommit": "34099b316208431b2f5e6a58bea63ffa7b34ce24",
-  "recordedUtc": "2026-11-09T12:10:27.533Z",
+  "recordedUtc": "2026-11-09T12:38:46.744Z",
   "hashAlgorithm": "sha256-utf8-lf",
   "sources": [
     {
@@ -73,15 +73,15 @@
   "artifacts": [
     {
       "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-design.md",
-      "sha256": "36bddbe6f0740d7fe4c50eeb3727079c917434f0dd2090b307b2167c86904d89"
+      "sha256": "6761169b2895aca707fecff5c2bb5a4a9a66f84fddbf386b6d22904f23aad720"
     },
     {
       "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-spec.md",
-      "sha256": "f815a53c51481d8b3236523490c6b5426eb68cf49283b707dd4b423857837356"
+      "sha256": "ade9ede39467178b90e06395a4ac9f524eeb938e473b255b4dbef08d0334818b"
     },
     {
       "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-plan.md",
-      "sha256": "9fe3c7a26901c0626833019391e8137cb2ca0ae6e206e3493d33348cd727e515"
+      "sha256": "6bab20143d48a16ab24eb25f1f238237db66a2dd2af5a4de9128916987453a3b"
     }
   ],
   "conclusions": {
@@ -94,7 +94,10 @@
     "activeContractChanged": true,
     "activeRecoveryContractD07Changed": false,
     "internalRecoveryImplemented": true,
-    "publicRecoveryActivated": false
+    "publicRecoveryActivated": false,
+    "publicRecoveryCodeComposed": true,
+    "publicRecoveryDeployed": false,
+    "normalStorageRemainsV1": true
   },
   "runtimeDelta": {
     "applicationLogins": 0,
@@ -103,12 +106,12 @@
     "documentEffects": 0
   },
   "progress": {
-    "complete": 22,
-    "total": 32,
+    "complete": 23,
+    "total": 33,
     "remaining": 10,
-    "candidateTasksNotActivated": 4,
-    "candidateDeliverablesLocallyValidated": 6,
-    "candidateDeliverablesPending": 3
+    "candidateTasksNotActivated": 3,
+    "candidateDeliverablesLocallyValidated": 7,
+    "candidateDeliverablesPending": 2
   },
   "implementationApproval": false,
   "validation": {
@@ -117,10 +120,10 @@
     "refinementChecks": 15,
     "reviewedSourceHashes": 16,
     "candidateArtifactHashes": 3,
-    "activeTasksComplete": 22,
-    "activeTasksTotal": 32,
+    "activeTasksComplete": 23,
+    "activeTasksTotal": 33,
     "applicationCodeChanged": true,
-    "activeDecisionRequirementPairs": 15,
+    "activeDecisionRequirementPairs": 16,
     "evaluationSourcesUnchanged": 15,
     "authorizedEvaluationSourceDeltas": 1
   },
@@ -500,6 +503,95 @@
       "openSpecStrict": "PASS",
       "refinement": "PASS",
       "refinementChecks": 15,
+      "diffCheck": "PASS"
+    }
+  },
+  "localHttpRecoveryImplementation": {
+    "task": "RV-06 / 6.6",
+    "authorized": true,
+    "authorization": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-v2-http-authorization.json",
+    "status": "PASS_HTTP_RECOVERY_CODE_LOCAL_ONLY",
+    "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-recuperacion-http-v2-local-20261109.json",
+    "sources": [
+      {
+        "path": "tests/ImportacionCarpetasRecuperacionHttpV2BehaviorTests.cs",
+        "sha256": "d05e97c6487d2a387d2b5efa261677eafd09d8010b781fd9e698ad5aba90fdae"
+      },
+      {
+        "path": "tests/Fixtures/ProduccionDocumental/Doc118ComposicionEscritoresStub.vb",
+        "sha256": "194613c13ff98d72d1db177875fb0bc2cdc0d159819bceaf8f1f1fe018d6127a"
+      }
+    ],
+    "changedFiles": [
+      {
+        "path": "DTOs/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasDtos.vb",
+        "beforeCommit": "036b0f12ae8a44c8c32ab4d519c0629ee9a9ba8c",
+        "beforeSha256": "d784855a9fd783fbc2b284635e3e7fb129e9452a88e60aa281dddc5ee3de2c37",
+        "afterSha256": "d6387bffe3d1162cfb92905896c7f1fdce13ea62f32678b4acb21ec264d5870a"
+      },
+      {
+        "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.RecuperacionV2.vb",
+        "beforeCommit": "036b0f12ae8a44c8c32ab4d519c0629ee9a9ba8c",
+        "beforeSha256": "69a3eb5570f182815ccc55a4dcf1184bb08fa49377b19193470b4b6093a9affd",
+        "afterSha256": "b15f9331376863e250b9d31ad6650c6ae9f7e195e73dfefb43480740eebcce45"
+      },
+      {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionReconciliacionImportacion.vb",
+        "beforeCommit": "036b0f12ae8a44c8c32ab4d519c0629ee9a9ba8c",
+        "beforeSha256": "4eee8a8be6ee607d4359672cc6d8c7477ce6baaf65946e8819708492fe2d6c56",
+        "afterSha256": "7f14345b6fae94e57fbc7f4dbc9963175609948c632c1e23150ceea0b5fc0531"
+      },
+      {
+        "path": "webservice/WebServiceImportacionCarpetas.asmx.vb",
+        "beforeCommit": "036b0f12ae8a44c8c32ab4d519c0629ee9a9ba8c",
+        "beforeSha256": "d431bf2a71b8b87b7d9a41b9df9ddffaa56712813d017ea72e35a6fae32147ae",
+        "afterSha256": "b2641e1f521433f9b78c942dc816a47f9551c906ae0a69ef04336b4ed7588331"
+      },
+      {
+        "path": "webservice/WebServiceImportacionCarpetas.Composicion.vb",
+        "beforeCommit": "036b0f12ae8a44c8c32ab4d519c0629ee9a9ba8c",
+        "beforeSha256": "b818f14b47e3f6c917cb29476de2bf10f3005be83339591e1c4eb911cf03c92e",
+        "afterSha256": "f5493fcdb647a5d00a01d435a4100d2d3e9ec5f5ac643cff8c276c23698424dd"
+      },
+      {
+        "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+        "beforeCommit": "036b0f12ae8a44c8c32ab4d519c0629ee9a9ba8c",
+        "beforeSha256": "8496e01142462c22bd08058059a111d96108494b424b9ec93929b89d7e222aaf",
+        "afterSha256": "d0345a57e8aefcfde91e0ae66c1c9267ad2c663f5553928bb080167e9a392183"
+      },
+      {
+        "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+        "beforeCommit": "036b0f12ae8a44c8c32ab4d519c0629ee9a9ba8c",
+        "beforeSha256": "1ee8a3104b82a05bd3ee75eb2a34fb1ff17b1362c2bfe5644223dfcd63602b5d",
+        "afterSha256": "180a9737f8eee9003926e4b5651bb4b402e09139c26a48408033cf093f3f8daa"
+      }
+    ],
+    "internalBehaviorCases": 19,
+    "limits": {
+      "httpRecoveryCodeComposed": true,
+      "deployed": false,
+      "hostedIisAsmxQualified": false,
+      "realMysqlQualified": false,
+      "normalStorageRemainsV1": true,
+      "normalFlowCreatesV2Attempts": false,
+      "clientUiAdded": false,
+      "automaticRecoveryAdded": false,
+      "writerPortPresent": false,
+      "backfillAllowed": false,
+      "attempt69Eligible": false,
+      "recoveryAfterProviderRestartSupported": false
+    },
+    "runtimeDelta": {
+      "applicationLogins": 0,
+      "httpRequests": 0,
+      "selectStatements": 0,
+      "documentEffects": 0
+    },
+    "validation": {
+      "openSpecStrict": "PASS",
+      "refinement": "PASS",
+      "refinementChecks": 15,
+      "decisionRequirementPairs": 16,
       "diffCheck": "PASS"
     }
   }

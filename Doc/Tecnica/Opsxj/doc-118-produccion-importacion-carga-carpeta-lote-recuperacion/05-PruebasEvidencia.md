@@ -1,6 +1,10 @@
 # DOC-118 — coordinación y recuperación
 
-## Regresión local tras RV-05
+## Regresión local tras RV-06
+
+223/223 Node:18 comportamiento/cliente y205 herramientas.19 casos nuevos HTTP V2 se incluyen dentro del arnés, sin sumarlos a Node; siguen pasando los102 casos V2 anteriores. Compila dispatcher/composición productivos y prueba guards, cuerpo cerrado, autoridad, proyección, historial y RA/DA/HttpContext. HTTP es sintético; guardia real sobre PDF de prueba, SELECT/transacción simulados y cero escritor. Sin despliegue ni calificación MySQL real. Progreso23/33. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-recuperacion-http-v2-local-20261109.json`.
+
+## Regresión anterior tras RV-05
 
 223/223 Node:18 comportamiento/cliente y205 herramientas. El harness añade22 casos de recuperación con guardia real sobre PDF sintético, SELECT/transacción simulados y cero escritor. Comprueba cierre de control, identidad confirmada, rollback, autoridad/vista exactas, historial y bloqueo V1/69. No certifica MySQL real ni habilita HTTP. Progreso22/32. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-recuperacion-v2-local-20261109.json`.
 

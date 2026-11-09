@@ -128,7 +128,13 @@ Entrega documental sin despliegue ni migración. Después de aprobación humana:
 
 ## Acceptance and review gates
 
-Diez decisiones y requisitos originales, más D-11/RQ-11..D-15/RQ-15 para contratos, staging, adaptador, persistencia y recuperación interna V2; escenarios en spec.md y evidencia de cada entrega. La aprobación de refinement.md y el reemplazo trazable de las tareas genéricas son compuertas antes de implementación. Las pruebas reales requieren una autorización separada posterior a un plan concreto. No hay autorización de ejecución implícita en este diseño.
+### D-16 — Recuperación HTTP explícita y acotada (RQ-16)
+
+La indicación «continua» posterior a la entrega RV-05 y al siguiente paso RV-06 autoriza6.6 dentro de DOC-118. Se expone RecuperarDocumentoV2 con loteId, intentoId, revisionLoteEsperada y revisionArchivoEsperada. Usa la entrada operativa existente:sesión Gestión, autoridad actual, POST/origen/CSRF, JSON cerrado y límites; el objeto que deserializa ASMX no reemplaza el cuerpo comprobado. Se reutiliza la autoridad RECONCILIAR y el mismo repositorio, guardia y catálogo de RV-05, sin puerto escritor ni fallback V1.
+
+La composición fija RA/DA y HttpContext de la petición, comprueba su vigencia antes de leer y durante la reautorización, y no acepta proveedor, rutas, IDs documentales o pruebas del cliente. El cierre negativo se devuelve como control resuelto con estado RECHAZADO, código EJECUCION_CERRADA_SIN_INVOCACION y documentoConfirmado=false; no se traduce en documento exitoso ni en un rechazo de recepción. La confirmación positiva expone únicamente IDs comprobados. La repetición conserva historial y exige autoridad actual. La composición habitual de almacenamiento sigue V1; activar un escritor V2, desplegar o ejecutar contra datos reales requiere su alcance separado.
+
+Diez decisiones y requisitos originales, más D-11/RQ-11..D-16/RQ-16 para contratos, staging, adaptador, persistencia, recuperación interna y entrada HTTP V2; escenarios en spec.md y evidencia de cada entrega. La aprobación de refinement.md y el reemplazo trazable de las tareas genéricas son compuertas antes de implementación. Las pruebas reales requieren una autorización separada posterior a un plan concreto. No hay autorización de ejecución implícita en este diseño.
 
 ## Evaluación adicional de recuperación EN_CURSO
 

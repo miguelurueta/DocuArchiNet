@@ -1,4 +1,10 @@
-# Corte vigente — RV-05 recuperación interna implementada
+# Corte vigente — RV-06 recuperación HTTP implementada
+
+RecuperarDocumentoV2 expone cuatro referencias mediante el guard operativo y composición sin escritor, con autoridad RECONCILIAR y RA/DA fijados. Respuesta de cierre sin invocación separada de confirmación documental.19 casos HTTP nuevos con dispatcher/composición reales compilados, HTTP sintético y guardia real;223/223 Node. Progreso23/33; mismas10 tareas anteriores abiertas. Sin despliegue ni calificación MySQL real; almacenamiento habitual V1.
+
+Consumos1276 HTTP/113 SELECT/9 aperturas sin cambios;41/53/69 protegidos. Evidencia:[recuperación HTTP V2](doc118-recuperacion-http-v2-local-20261109.json), [alcance](doc118-recuperacion-http-v2-local-20261109.md).
+
+## Corte anterior — RV-05 recuperación interna implementada
 
 Cierre negativo V2 limitado y confirmación por IDs observados, sin escritor, bajo guardia y vista comparada hasta commit/rollback.22 casos nuevos con guardia real/SELECT y transacción simulados;223/223 Node. Progreso22/32, mismas10 tareas anteriores abiertas. No acredita MySQL real ni activa HTTP.
 

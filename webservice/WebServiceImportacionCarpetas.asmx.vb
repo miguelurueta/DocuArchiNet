@@ -89,6 +89,15 @@ Public Partial Class WebServiceImportacionCarpetas
         Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) _coordinacionOperativa(http, _autoridadOperativa, "RECONCILIAR").CerrarReservaSinInicio(r))
     End Function
 
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function RecuperarDocumentoV2(solicitud As RecuperarDocumentoV2ImportacionSolicitud) As RespuestaPerfilImportacion
+        Return EjecutarEntradaOperativa(solicitud,
+            Function(http, limites, r)
+                CoordinadorImportacionCarpetas.ValidarSolicitudRecuperacionV2(r)
+                Return _coordinacionOperativa(http, _autoridadOperativa, "RECUPERAR_DOCUMENTO_V2").RecuperarDocumento(r)
+            End Function)
+    End Function
+
     Private Shared Function CrearConsultaOperativa(http As HttpContext, autoridad As ImportacionCarpetasContextAdapter) As ServicioConsultaImportacion
         Dim maximoPagina = ServicioConsultaImportacion.MaximoPagina
         Dim repositorio As New MySqlImportacionCarpetasRepository(ModuleSessionConnectionStringResolver.Resolve(http, "RA_"))
@@ -134,7 +143,11 @@ Public Partial Class WebServiceImportacionCarpetas
             If solicitud Is Nothing Then Throw New PerfilImportacionException("SOLICITUD_INVALIDA", "La solicitud es obligatoria.")
             salida.datos = accion(http, limites, entrada)
             Dim fase = TryCast(salida.datos, AvanceLoteImportacionResultado)
-            If fase IsNot Nothing AndAlso fase.estado = "INCIERTO" Then
+            Dim recuperacion = TryCast(salida.datos, RecuperacionDocumentoImportacionResultado)
+            If recuperacion IsNot Nothing Then
+                salida.ok = True : salida.codigo = recuperacion.codigo
+                salida.mensaje = If(recuperacion.cierreSinInvocacion, "Ejecución cerrada sin invocación; no confirma un documento.", "Documento confirmado mediante verificación de la identidad observada.")
+            ElseIf fase IsNot Nothing AndAlso fase.estado = "INCIERTO" Then
                 salida.codigo = "RESULTADO_INCIERTO" : salida.mensaje = "Consulte la evidencia del intento antes de continuar."
             ElseIf fase IsNot Nothing AndAlso fase.estado = "RECHAZADO" Then
                 salida.codigo = "ARCHIVO_RECHAZADO" : salida.mensaje = "El archivo no puede avanzar con los valores disponibles."

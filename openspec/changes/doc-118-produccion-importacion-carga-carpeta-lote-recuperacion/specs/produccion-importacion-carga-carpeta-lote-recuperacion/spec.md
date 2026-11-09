@@ -191,3 +191,15 @@ El sistema SHALL cumplir D-15 mediante una operación interna sin puerto de alma
 #### Scenario: Vista cambiada o recuperación repetida
 - **WHEN** cambian autoridad, revisión, evidencia, plan, diario o marcador antes de persistir, o se repite un cierre ya guardado
 - **THEN** rechaza una escritura contra una vista obsoleta; un historial concordante se devuelve sin nuevos efectos ni tocar una reclamación posterior.
+
+### Requirement: RQ-16 — Recuperación HTTP explícita y acotada
+
+El sistema SHALL cumplir D-16: exponer RecuperarDocumentoV2 mediante el guard operativo existente y un DTO cerrado de cuatro referencias, sin pruebas ni capacidad aportadas por el cliente. SHALL exigir autoridad actual de Gestión/RECONCILIAR, contexto y orígenes RA/DA concordantes; SHALL conservar las restricciones V2 de RQ-15. No SHALL conectar un escritor, modificar V1 o habilitar recuperación retrospectiva.
+
+#### Scenario: Entrada no autorizada o alterada
+- **WHEN** falta sesión/permiso/CSRF, cambia origen/destino, el JSON incluye evidencia o IDs documentales, o las revisiones activas discrepan
+- **THEN** rechaza la operación sin abrir guardia ni persistir recuperación; datos internos y excepciones no se exponen.
+
+#### Scenario: Cierre de control y confirmación separados
+- **WHEN** la recuperación devuelve un cierre sin invocación o una identidad confirmada
+- **THEN** la respuesta diferencia explícitamente cierreSinInvocacion y documentoConfirmado; el cierre negativo no afirma documento ni inventario, y una repetición autorizada consulta historial sin nuevas escrituras.

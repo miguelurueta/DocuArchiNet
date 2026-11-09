@@ -62,6 +62,8 @@ No se introduce otro motor ni se propone cambiar contratos públicos en este ref
 
 ## Impact
 
+Continuación RV-06 del2026-11-09:«continua» posterior a RV-05 y al siguiente paso HTTP autoriza6.6/D-16/RQ-16. Se expone recuperación explícita mediante la entrada operativa y composición existentes, con referencias mínimas y respuesta de control diferenciada. Solo implementación/regresión local; almacenamiento habitual V1, sin despliegue o ejecución real. Fuente:`recovery-v2-http-authorization.json`.
+
 Revisión transversal del coordinador VB, repositorio MySQL, consulta ASMX y cliente JavaScript existentes; esta entrega solo modifica documentación y especificaciones. COORD-02/03 requieren preparación y autorización específica posterior. El estado editorial está aprobado por el usuario; no implica pase ni autorización de integración real.
 
 Ampliación local RV-01 posterior a la brecha observada en69:se añaden contratos internos y codec V2 con regresión en el harness existente, bajo D-11/RQ-11 y6.1. El usuario autorizó continuar ese siguiente paso después de RV-02-A. No se conectan al flujo vigente ni habilitan recuperación; la integración del protocolo candidato sigue pendiente y69 permanece inelegible. Véase `recovery-v2-contract-authorization.json`.

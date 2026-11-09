@@ -33,6 +33,7 @@ Ya existen coordinador, repositorio transaccional MySQL, ASMX, adaptador documen
 | D-13 | Retener antes del inicio V2 y exigir acuses internos concordantes antes de una única llamada al escritor; observar retorno y propagar abortos. | AdaptadorDocumentoImportacion.ProtocoloV2.vb; PersistenciaDocumentoV2Importacion.vb; harness existente | D-13 | RQ-13 | RV-03/6.3: dobles de persistencia y escritor, retención real; sin fallback V1 o composición pública. |
 | D-14 | Persistir evidencia y diario V2 en la transacción existente; autorización de un solo uso y checkpoint atómico. | MySqlImportacionCarpetasRepository.DocumentoV2.vb; lector documental compatible; harness SQL | D-14 | RQ-14 | RV-04/6.4: comparación exacta, rollback, replay sin efectos y acuse posterior al commit. |
 | D-15 | Recuperar internamente solo V2 con prueba/guardia concordantes, cierre sin invocación o confirmación por IDs observados; cero escritor. | Parciales RecuperacionV2 de coordinador/repositorio; comando y catálogo de comprobación | D-15 | RQ-15 | RV-05/6.5: autoridad/vista exactas, guardia hasta commit, rollback e historial sin afectar intentos posteriores. |
+| D-16 | Exponer recuperación explícita mediante entrada operativa cerrada y composición sin escritor. | ASMX/DTOs, composición de reconciliación y parcial RecuperacionV2 del coordinador | D-16 | RQ-16 | RV-06/6.6: sesión/CSRF/autoridad/contexto/revisiones, proyección segura y cierre sin invocación diferenciado. |
 
 ## Requisitos verificables
 
@@ -53,6 +54,7 @@ Ya existen coordinador, repositorio transaccional MySQL, ASMX, adaptador documen
 | RQ-13 | Adaptador V2 retenido y sin repetición | Escenarios WHEN/THEN en spec.md, origen D-13; intercalaciones y abortos locales. | RV-04 debe implementar commit/diario; este recorrido interno no activa V2, no usa fallback V1 ni recupera69. |
 | RQ-14 | Persistencia V2 y autorización de un solo uso | Escenarios WHEN/THEN en spec.md, origen D-14; núcleo SQL con doble transaccional. | Sin DDL o backfill; autorización repetida bloquea; checkpoint/evento/consolidación juntos. |
 | RQ-15 | Recuperación interna V2 sin escritor | Escenarios WHEN/THEN en spec.md, origen D-15; cierre negativo/positivo bajo guardia. | Sin reset general, conversión a INCIERTO o backfill;69/V1 y proveedor distinto bloqueados; HTTP reservado para RV-06. |
+| RQ-16 | Recuperación HTTP explícita y acotada | Escenarios WHEN/THEN en spec.md, origen D-16; guard operativo y proyección pública. | Solo cuatro referencias; autoridad RECONCILIAR, RA/DA fijados y cero escritor; V1 y69 excluidos. |
 
 ## Dependencias concretas de ejecución
 
@@ -81,6 +83,8 @@ Ampliación local RV-01 del 2026-11-08:el usuario indicó «contiunua» después
 
 
 ## Avance de preparación
+
+Continuación RV-06:«continua» posterior a la entrega RV-05 y al siguiente paso explícito de integración HTTP autoriza6.6/D-16/RQ-16 y regresión local. La operación solo compone recuperación; no activa el almacenamiento normal V2 ni concede despliegue, ejecución real o mutación de41/53/69.
 
 Continuación RV-05:«continua» después de RV-04 y de la recuperación limitada propuesta autoriza6.5/D-15/RQ-15 y su regresión local. La rama negativa se restringe a expediente sin huellas documentales. No concede ejecución real, publicación HTTP o mutación de41/53/69.
 

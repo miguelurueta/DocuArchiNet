@@ -54,7 +54,11 @@
 
 - [x] 6.5 [M] RV-05: implementar recuperación interna V2 con guardia, clasificación y persistencia comparada. Área/archivos: parciales de coordinador/repositorio, comando de comprobación, catálogo SELECT y harness existentes. Origen: D-15, RQ-15; RC-01/02/04/05/06 candidatos. Reproducción:RV-04 conserva el diario pero no recupera EN_CURSO;69 permanece V1. Verificación:22 casos nuevos y223/223 Node; cierre negativo solo preparado/no invocación/expediente sin huellas y confirmación positiva solo IDs observados/verificados, guardia hasta commit/rollback, autoridad/vista/revisiones exactas, rollback e historial sin efectos. Staging real sintético, SELECT/transacción simulados, cero escritor. Sin conversión a INCIERTO, reset general, backfill, despliegue o ejecución real. Autorización:«continua» posterior a RV-04 y al siguiente paso de recuperación limitada V2.
 
+- [x] 6.6 [M] RV-06: exponer RecuperarDocumentoV2 mediante DTO cerrado, guard operativo y composición de recuperación existente. Área/archivos: ASMX/composición, DTOs, parcial RecuperacionV2 del coordinador y harness. Origen: D-16, RQ-16; RC-01/06/07. Reproducción:RV-05 solo dispone de operación interna y69 conserva evidencia V1 inelegible. Verificación: negativos de sesión/permiso/CSRF/origen/cuerpo/destino/revisión antes de guardia/escritura, proyección de cierre sin invocación separada de documento confirmado, replay autorizado sin efectos, excepción saneada y V1 intacto. Autorización:«continua» posterior a RV-05 y al siguiente paso RV-06; implementación y regresión local, sin desplegar o ejecutar datos reales.
+
 ## Ejecución y defectos reproducidos
+
+
 
 
 

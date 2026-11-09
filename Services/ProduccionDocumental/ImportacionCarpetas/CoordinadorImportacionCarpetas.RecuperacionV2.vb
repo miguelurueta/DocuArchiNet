@@ -8,6 +8,33 @@ Imports System.Security.Cryptography
 Imports System.Text
 
 Public Partial Class CoordinadorImportacionCarpetas
+    Private ReadOnly _recuperacionDocumentoV2 As RecuperacionDocumentoV2Importacion
+
+    Friend Sub New(identidad As Func(Of ContextoImportacionCarpetas), repositorio As IControlLoteImportacionRepository, destino As Func(Of String, ContextoImportacionCarpetas), autorizar As Action(Of ContextoImportacionCarpetas, ConfiguracionPerfilImportacion), recuperacion As RecuperacionDocumentoV2Importacion)
+        Me.New(identidad, repositorio, destino, autorizar)
+        If recuperacion Is Nothing Then Throw New ArgumentNullException("recuperacion")
+        _recuperacionDocumentoV2 = recuperacion
+    End Sub
+
+    Public Function RecuperarDocumento(solicitud As RecuperarDocumentoV2ImportacionSolicitud) As RecuperacionDocumentoImportacionResultado
+        ValidarSolicitudRecuperacionV2(solicitud)
+        Dim r = RecuperarDocumentoV2(solicitud.loteId, solicitud.intentoId, solicitud.revisionLoteEsperada, solicitud.revisionArchivoEsperada, _recuperacionDocumentoV2)
+        Dim resultado = r.Resultado
+        If Not r.Resuelta OrElse resultado Is Nothing OrElse resultado.Expediente Is Nothing Then Throw NoPermitida()
+        Dim cierre = resultado.Estado = "RECHAZADO" AndAlso resultado.Codigo = "EJECUCION_CERRADA_SIN_INVOCACION" AndAlso resultado.DocumentoId Is Nothing AndAlso resultado.InventarioId Is Nothing
+        Dim confirmado = resultado.Estado = "CONFIRMADO" AndAlso resultado.Codigo = "DOCUMENTO_CONFIRMADO" AndAlso ValidadorPerfilImportacion.ReferenciaValida(resultado.DocumentoId) AndAlso ValidadorPerfilImportacion.ReferenciaValida(resultado.InventarioId)
+        If Not cierre AndAlso Not confirmado Then Throw NoPermitida()
+        Return New RecuperacionDocumentoImportacionResultado With {.loteId = r.LoteId, .intentoId = r.IntentoId, .fase = r.Fase,
+            .estado = resultado.Estado, .codigo = resultado.Codigo, .resuelta = True, .repeticion = r.Repeticion,
+            .cierreSinInvocacion = cierre, .documentoConfirmado = confirmado, .expedienteId = resultado.Expediente.ExpedienteId,
+            .relacionNivelId = resultado.Expediente.RelacionNivelId, .gabineteId = resultado.GabineteId,
+            .documentoId = resultado.DocumentoId, .inventarioId = resultado.InventarioId}
+    End Function
+
+    Friend Shared Sub ValidarSolicitudRecuperacionV2(solicitud As RecuperarDocumentoV2ImportacionSolicitud)
+        If solicitud Is Nothing OrElse Not ValidadorPerfilImportacion.ReferenciaValida(solicitud.loteId) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(solicitud.intentoId) OrElse solicitud.revisionLoteEsperada = 0 OrElse solicitud.revisionArchivoEsperada = 0 Then Throw EntradaOperacionInvalida()
+    End Sub
+
     Friend Function RecuperarDocumentoV2(loteId As String, intentoId As String, revisionLote As UInteger, revisionArchivo As UInteger, puerto As RecuperacionDocumentoV2Importacion) As ResultadoReconciliacionImportacion
         If puerto Is Nothing Then Throw New PerfilImportacionException("CAPACIDAD_NO_DISPONIBLE", "La recuperación V2 no está compuesta.")
         If Not ValidadorPerfilImportacion.ReferenciaValida(loteId) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(intentoId) OrElse revisionLote = 0 OrElse revisionArchivo = 0 Then Throw EntradaOperacionInvalida()

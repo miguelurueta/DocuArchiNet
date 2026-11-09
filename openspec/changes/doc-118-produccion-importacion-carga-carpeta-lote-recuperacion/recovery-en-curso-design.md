@@ -110,6 +110,10 @@ La compatibilidad debe probar que V1 conserva su conducta y que un despliegue mi
 
 ## Revisión necesaria
 
+### Corte posterior RV-06
+
+La continuidad autorizada tras RV-05 incorpora6.6/D-16/RQ-16:RecuperarDocumentoV2 en ASMX con cuatro referencias cerradas, guard operativo y autoridad RECONCILIAR. La composición añade solo recuperación y fija HttpContext/RA/DA; no conecta un escritor. Su respuesta diferencia cierre RECHAZADO sin invocación de documento confirmado y conserva privacidad e historial autorizado.19 casos HTTP nuevos,223/223 Node; dispatcher/composición reales compilados, HTTP sintético/guardia real y SELECT/transacción simulados. Sin despliegue, calificación MySQL real o cambios del almacenamiento habitual V1. Progreso23/33; siguen RV-07/RV-08. Fuente:`doc118-recuperacion-http-v2-local-20261109.md`.
+
 Antes de implementar: aprobar esta extensión de RQ-07, el documento tipado V2 y la prueba del proveedor; integrar tareas al mapa activo y verificar la excepción negativa y los predicados positivos. La factibilidad del proveedor es una compuerta: si no puede demostrarse con el almacenamiento actual, la rama correspondiente debe permanecer deshabilitada por falta de capacidad, sin sustituirla por una declaración del operador.
 
 La evaluación no elimina el bloqueo operativo de DOC-118 ni acredita sus casos reales pendientes. Progreso vigente:17/27. No hubo nuevas sesiones, HTTP, SELECT o efectos durante esta evaluación.
