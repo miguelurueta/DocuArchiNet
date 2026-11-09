@@ -1002,5 +1002,37 @@
       "protectedStorageHashes": "PASS",
       "deltaProvenance": "PASS"
     }
+  },
+  "offlineCandidateBuild": {
+    "status": "PASS_OFFLINE_NOT_DEPLOYED",
+    "sourceCommit": "9d67c81f27cb714412d17772ad492b56968407a3",
+    "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-candidato-v2-build-20261109.json",
+    "proposal": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-candidate-deployment-proposal.json",
+    "proposalStatus": "PROPOSED_NOT_AUTHORIZED",
+    "compileSourceCount": 920,
+    "runtimeQualified": false,
+    "deployed": false,
+    "progress": {
+      "complete": 28,
+      "total": 38,
+      "remaining": 10,
+      "newTasks": 0
+    },
+    "runtimeDelta": {
+      "applicationLogins": 0,
+      "httpRequests": 0,
+      "selectStatements": 0,
+      "documentEffects": 0
+    },
+    "validation": {
+      "openSpecStrict": "PASS",
+      "refinement": "PASS",
+      "refinementChecks": 15,
+      "decisionRequirementPairs": 18,
+      "diffCheck": "PASS",
+      "sourceAndArtifactProvenance": "PASS",
+      "runtimeFilesUnchanged": "PASS",
+      "deploymentProposalStillUnauthorised": true
+    }
   }
 }

@@ -1,0 +1,109 @@
+{
+  "issueKey": "DOC-118",
+  "status": "PROPOSED_NOT_AUTHORIZED",
+  "stage": "P4_A_CANDIDATE_DEPLOYMENT_ONLY",
+  "recordedUtc": "2026-11-09T15:37:35.256Z",
+  "sourceCommit": "9d67c81f27cb714412d17772ad492b56968407a3",
+  "sourceTree": "2c6afabfbc7e52bc4130c9cd55ad61eb35c40b95",
+  "branch": "feature/DOC-118",
+  "sourceBuildEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-candidato-v2-build-20261109.json",
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "application": "Default Web Site/GestionDocumental-Docuarchi.net",
+    "runtimeRoot": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+    "physicalRootMatchesRepo": true,
+    "applicationPool": "DefaultAppPool",
+    "applicationsInPool": 6
+  },
+  "artifacts": [
+    {
+      "source": ".tmp/doc118-v2-candidate-9d67c81f/bin/GestionDocumental-Docuarchi.net.dll",
+      "destination": "bin/GestionDocumental-Docuarchi.net.dll",
+      "bytes": 9693696,
+      "candidateSha256": "9225b627c50b96c29ee9031173f0c578df4a16e970cb45404ee6be4d13eff291",
+      "expectedInstalledSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5"
+    },
+    {
+      "source": ".tmp/doc118-v2-candidate-9d67c81f/bin/GestionDocumental-Docuarchi.net.pdb",
+      "destination": "bin/GestionDocumental-Docuarchi.net.pdb",
+      "bytes": 10739200,
+      "candidateSha256": "37aab89e1a02ed2704644ec9d58e6f44f19125e36f1b8bdc60d3f7b8f4f97b72",
+      "expectedInstalledSha256": "7028b435d4ad0aeff074bf202fce4faa8742997c4e42edeecead2a4078d5eeeb"
+    }
+  ],
+  "maintenance": {
+    "applicationOnly": true,
+    "requiresOperatorWindowWithoutActiveImports": true,
+    "temporaryFile": "app_offline.htm",
+    "abortIfMaintenanceFileAlreadyExists": true,
+    "expectedMaximumSeconds": 60,
+    "automaticAppDomainReloadExpected": true,
+    "recycleApplicationPool": false,
+    "stopOrKillWorker": false
+  },
+  "backup": {
+    "directory": ".tmp/doc118-v2-deploy-9d67c81f-20261109-01/backup",
+    "files": [
+      {
+        "path": "bin/GestionDocumental-Docuarchi.net.dll",
+        "sha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5"
+      },
+      {
+        "path": "bin/GestionDocumental-Docuarchi.net.pdb",
+        "sha256": "7028b435d4ad0aeff074bf202fce4faa8742997c4e42edeecead2a4078d5eeeb"
+      }
+    ],
+    "keepBackup": true,
+    "restoreOnlyTheseTwoFilesOnCopyOrHashFailure": true,
+    "keepApplicationOfflineIfRestorationUnconfirmed": true
+  },
+  "beforeExecute": [
+    "Explicit user approval of this deployment and target maintenance window.",
+    "Clean synchronized principal repository, unchanged 920 compile sources/project and candidate hashes.",
+    "Recheck the IIS URL application maps to this exact principal repository.",
+    "Recheck installed DLL/PDB match expected hashes; no overwrite after external drift.",
+    "Fresh backup path inside .tmp, no existing app_offline.htm, no active import according to the operator window."
+  ],
+  "sequence": [
+    "Validate scope and all input/installed hashes.",
+    "Back up the two installed files without overwriting a previous backup; verify backup hashes.",
+    "Create app_offline.htm exclusively for this application and verify ownership/content.",
+    "Copy exactly the candidate DLL and PDB; verify both final hashes and on-disk CodeView/PDB concordance.",
+    "Remove only the owned maintenance file after both files verify, retaining backup.",
+    "On copy/hash failure restore exactly the two backed-up files and verify; only release owned maintenance after restoration confirms.",
+    "Record only sanitized file/hash/status evidence; report runtime not yet qualified."
+  ],
+  "budgets": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0,
+    "newBudgetsAuthorized": false
+  },
+  "prohibited": [
+    "Copy entire build output, Web.config, dependencies, configuration or secrets.",
+    "Modify shared storage/SII or install the acknowledgment-loss decorator/test host.",
+    "Attach a debugger, ARM/Freeze, invoke native storage, create or recover a business attempt.",
+    "Restart/recycle the six-application pool or kill a worker.",
+    "Mutate or replay lots18/21/24 or attempts41/53/69.",
+    "Run the V2 Q plan or COORD02/03 under historical session budgets."
+  ],
+  "afterDeployment": {
+    "P4": "LOADED_MODULE_PROVIDER_MYSQL_IIS_OBSERVER_QUALIFICATION_STILL_REQUIRED",
+    "P3": "LOCAL_PACKAGE_TESTED_NATIVE_TEST_HOST_BINDING_STILL_NOT_INSTALLED",
+    "P5": "REAL_EXECUTION_NOT_AUTHORIZED",
+    "httpHealthCheckAuthorized": false,
+    "runtimeQualified": false,
+    "integrationPass": false,
+    "progress": {
+      "complete": 28,
+      "total": 38,
+      "remaining": 10
+    }
+  },
+  "authorizationRequiredBy": [
+    "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/design.md",
+    "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-plan-real-v2-20261109.md",
+    "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-ack-loss-conductor-authorization.json"
+  ]
+}
