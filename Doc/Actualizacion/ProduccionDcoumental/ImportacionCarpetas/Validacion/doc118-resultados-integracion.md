@@ -1,5 +1,9 @@
 # Corte vigente — enlace V2 y driver implementados localmente
 
+## Corte local de pérdida de acuses V2
+
+Completada6.11/D-18/RQ-18: decorador de pruebas de pérdida de un acuse nativo válido y conductor acotado Q1/Q2/Q3, fuera del proyecto productivo.247/247 Node (42 comportamiento/cliente/driver/conductor y205 herramientas);157 casos V2 internos del harness, incluidos sin sumarlos a Node. Progreso28/38, mismas10 tareas reales/finales pendientes. P3 preparado y probado como paquete local; enlace/lector del host de pruebas aún sin instalar/calificar. P4/P5 abiertos. Sin modificar almacenamiento compartido/InvocarAlmacenamiento/SII ni ejecutar HTTP/SQL/login reales. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-acuses-v2-local-20261109.json`.
+
 Completadas6.9/6.10/D-17/RQ-17:composición de intentos nuevos con revisión de servidor, persistencia V2 y controles existentes; driver compartido admite recuperación con contratos cerrados y sin replay.12 casos nuevos de enlace y12 Node de driver;235/235 Node y145 casos V2 internos incluidos en el harness. Progreso27/37; mismas10 tareas reales/finales abiertas.
 
 Función compartida de almacenamiento, enlace legacy y SII intactos. P1/P2 del plan real resueltos solo en candidato; P3/P4/P5 siguen abiertos. Sin despliegue o ejecución real;1276 HTTP/113 SELECT/9 aperturas sin cambios. Evidencia:[enlace/driver](doc118-enlace-v2-local-20261109.json), [detalle](doc118-enlace-v2-local-20261109.md), [estado del plan](doc118-plan-real-v2-enlace-20261109.md).

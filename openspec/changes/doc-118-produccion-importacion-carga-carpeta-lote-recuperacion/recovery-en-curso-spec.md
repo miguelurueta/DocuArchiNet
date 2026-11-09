@@ -1,5 +1,9 @@
 # Especificación candidata — recuperación V2 de EN_CURSO
 
+## Continuación local de pérdida de acuses (6.11)
+
+Completada6.11/D-18/RQ-18: decorador de pruebas de pérdida de un acuse nativo válido y conductor acotado Q1/Q2/Q3, fuera del proyecto productivo.247/247 Node (42 comportamiento/cliente/driver/conductor y205 herramientas);157 casos V2 internos del harness, incluidos sin sumarlos a Node. Progreso28/38, mismas10 tareas reales/finales pendientes. P3 preparado y probado como paquete local; enlace/lector del host de pruebas aún sin instalar/calificar. P4/P5 abiertos. Sin modificar almacenamiento compartido/InvocarAlmacenamiento/SII ni ejecutar HTTP/SQL/login reales. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-acuses-v2-local-20261109.json`.
+
 Estado:protocolo y recuperación HTTP con evidencia RV-01..RV-08, más enlace/driver locales6.9/6.10 bajo RQ-17. La composición candidata de intentos nuevos usa V2; conserva historiales V1 y D-07/RQ-07. No se desplegó ni calificó ejecución real. Los escenarios RC no son resultados reales de integración por sí mismos y69 permanece inelegible.
 
 ## RC-01 — Elegibilidad por evidencia del servidor

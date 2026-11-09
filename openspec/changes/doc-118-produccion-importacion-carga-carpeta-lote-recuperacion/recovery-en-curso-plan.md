@@ -1,5 +1,9 @@
 # Plan candidato de implementación — recuperación V2
 
+## Continuación local de pérdida de acuses (6.11)
+
+Completada6.11/D-18/RQ-18: decorador de pruebas de pérdida de un acuse nativo válido y conductor acotado Q1/Q2/Q3, fuera del proyecto productivo.247/247 Node (42 comportamiento/cliente/driver/conductor y205 herramientas);157 casos V2 internos del harness, incluidos sin sumarlos a Node. Progreso28/38, mismas10 tareas reales/finales pendientes. P3 preparado y probado como paquete local; enlace/lector del host de pruebas aún sin instalar/calificar. P4/P5 abiertos. Sin modificar almacenamiento compartido/InvocarAlmacenamiento/SII ni ejecutar HTTP/SQL/login reales. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-acuses-v2-local-20261109.json`.
+
 ## Continuación de enlace/driver posterior a RV-08
 
 Completadas6.9/6.10/D-17/RQ-17 localmente, autorizadas por «continua» posterior a RV-08. P1/P2 resueltos en candidato:composición V2 para intentos nuevos con revisión de servidor y driver DOC111 con operación cerrada de recuperación.235/235 Node y145 casos V2 internos; almacenamiento compartido/InvocarAlmacenamiento/SII intactos.27/37 tareas, mismas10 reales/finales abiertas. P3/P4/P5 continúan sin resolver; sin despliegue o ejecución real. Estado actualizado:`doc118-plan-real-v2-enlace-20261109.md`.

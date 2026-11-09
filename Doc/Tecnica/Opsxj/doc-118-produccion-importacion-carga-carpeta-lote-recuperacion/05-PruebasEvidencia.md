@@ -1,5 +1,9 @@
 # DOC-118 — coordinación y recuperación
 
+## Corte local de pérdida de acuses V2
+
+Completada6.11/D-18/RQ-18: decorador de pruebas de pérdida de un acuse nativo válido y conductor acotado Q1/Q2/Q3, fuera del proyecto productivo.247/247 Node (42 comportamiento/cliente/driver/conductor y205 herramientas);157 casos V2 internos del harness, incluidos sin sumarlos a Node. Progreso28/38, mismas10 tareas reales/finales pendientes. P3 preparado y probado como paquete local; enlace/lector del host de pruebas aún sin instalar/calificar. P4/P5 abiertos. Sin modificar almacenamiento compartido/InvocarAlmacenamiento/SII ni ejecutar HTTP/SQL/login reales. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-acuses-v2-local-20261109.json`.
+
 ## Regresión de enlace/driver V2
 
 235/235 Node:30 comportamiento/cliente/driver nuevo y205 herramientas existentes.12 casos .NET nuevos del enlace se incluyen en145 casos V2 internos, sin sumarlos a Node. Compila composición documental/dispatcher reales y prueba revisión de servidor, autoridad/contexto, retención, acuses, historial V1 y puertos obligatorios; SQL/escritor simulados.12 pruebas Node nuevas validan contratos/correlación/privacidad, readOnly y timeout/rechazo sin replay. Sin invocar la función compartida ni modificar su fuente/SII. Progreso27/37; sin calificación MySQL/IIS real. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-enlace-v2-local-20261109.json`.

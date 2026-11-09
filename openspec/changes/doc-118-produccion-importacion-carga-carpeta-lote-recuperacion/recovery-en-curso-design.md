@@ -1,5 +1,9 @@
 # Recuperación explícita de EN_CURSO — diseño candidato
 
+## Continuación local de pérdida de acuses (6.11)
+
+Completada6.11/D-18/RQ-18: decorador de pruebas de pérdida de un acuse nativo válido y conductor acotado Q1/Q2/Q3, fuera del proyecto productivo.247/247 Node (42 comportamiento/cliente/driver/conductor y205 herramientas);157 casos V2 internos del harness, incluidos sin sumarlos a Node. Progreso28/38, mismas10 tareas reales/finales pendientes. P3 preparado y probado como paquete local; enlace/lector del host de pruebas aún sin instalar/calificar. P4/P5 abiertos. Sin modificar almacenamiento compartido/InvocarAlmacenamiento/SII ni ejecutar HTTP/SQL/login reales. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-acuses-v2-local-20261109.json`.
+
 Estado actual:RV-01..RV-08 consolidados y continuación6.9/6.10/D-17/RQ-17 implementada localmente. La composición candidata de intentos nuevos usa V2 con revisión de servidor y el driver compartido admite la recuperación cerrada.27/37 tareas; diez reales/finales impiden archivo. Los apartados iniciales y cortes RV conservan su base histórica. Sin modificar almacenamiento compartido/SII, desplegar, ampliar presupuesto real o recuperar69.
 
 ## Conclusión

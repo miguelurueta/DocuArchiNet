@@ -128,6 +128,12 @@ Entrega documental sin despliegue ni migración. Después de aprobación humana:
 
 ## Acceptance and review gates
 
+### D-18 — Conductor local de pérdida de acuse, fuera del producto (RQ-18)
+
+La continuación posterior al enlace/driver autoriza6.11 para preparar P3 localmente. Un decorador de pruebas de PersistenciaDocumentoV2Importacion se compila solo en el harness/paquete de prueba, nunca en el vbproj productivo. Se vincula a runId, comando exacto de servidor y revisión; admite INICIO/AUTORIZAR/OBSERVAR, invoca el callback nativo una sola vez por paso y pierde un único acuse únicamente después de recibirlo/validarlo. Fallo nativo, acuse ausente/incoherente, orden distinto, intento protegido, reentrada o cierre consumen/bloquean la capacidad sin retry ni fallback. No hay selector HTTP, variable de activación, escritura SQL de control o modificación de almacenamiento/SII.
+
+Un conductor acotado Q1/Q2/Q3 recibe driver, lectura y enlace de prueba ya suministrados por un host autorizado; no autentica, adjunta depurador o instala por sí mismo. Reutiliza request del driver, conserva presupuesto exterior mediante callback previo obligatorio, compara contexto/snapshot/inventario/original y estado durable antes/después, y nunca reenvía ALMACENAR. Q1/Q3 solo repiten recuperación confirmada para leer historial; Q2 conserva bloqueo. Errores se sanean y el cierre del enlace siempre se intenta. El resultado distingue verificación local de aceptación real:integrationPass=false. Q4 continúa con el observador existente, sujeto a calificación P4. P3 es un paquete candidato local, sin instalar hook en IIS; P4/P5 siguen abiertos.
+
 ### D-17 — Enlace V2 para intentos nuevos y driver existente (RQ-17)
 
 La indicación «continua» posterior a RV-08 y al siguiente paso de integrar composición/driver autoriza6.9/6.10 como código y regresión locales. ComposicionDocumentoImportacion compone un enlace IAlmacenamientoDocumentoImportacion que usa AlmacenarV2 y CrearPersistenciaDocumentoV2 del mismo repositorio. Obtiene revisión/contexto/snapshot del lote desde servidor, reautoriza y rechaza discrepancias o detención antes de iniciar. No modifica AlmacenamientoDocumentoProduccionDocumental, InvocarAlmacenamiento, SII ni el adaptador público V1; el coordinador consulta historial antes de construir un escritor, por lo que historiales V1 y los intentos protegidos no se convierten ni reejecutan. No hay fallback a V1 si falta capacidad V2.
@@ -140,7 +146,7 @@ La indicación «continua» posterior a la entrega RV-05 y al siguiente paso RV-
 
 La composición fija RA/DA y HttpContext de la petición, comprueba su vigencia antes de leer y durante la reautorización, y no acepta proveedor, rutas, IDs documentales o pruebas del cliente. El cierre negativo se devuelve como control resuelto con estado RECHAZADO, código EJECUCION_CERRADA_SIN_INVOCACION y documentoConfirmado=false; no se traduce en documento exitoso ni en un rechazo de recepción. La confirmación positiva expone únicamente IDs comprobados. La repetición conserva historial y exige autoridad actual. La composición habitual de almacenamiento sigue V1; activar un escritor V2, desplegar o ejecutar contra datos reales requiere su alcance separado.
 
-Diez decisiones y requisitos originales, más D-11/RQ-11..D-17/RQ-17 para contratos, staging, adaptador, persistencia, recuperación/HTTP y enlace/driver V2; escenarios en spec.md y evidencia de cada entrega. La aprobación de refinement.md y el reemplazo trazable de las tareas genéricas son compuertas antes de implementación. Las pruebas reales requieren una autorización separada posterior a un plan concreto. No hay autorización de ejecución implícita en este diseño.
+Diez decisiones y requisitos originales, más D-11/RQ-11..D-18/RQ-18 para contratos, staging, adaptador, persistencia, recuperación/HTTP, enlace/driver y paquete de pérdida de acuses V2; escenarios en spec.md y evidencia de cada entrega. La aprobación de refinement.md y el reemplazo trazable de las tareas genéricas son compuertas antes de implementación. Las pruebas reales requieren una autorización separada posterior a un plan concreto. No hay autorización de ejecución implícita en este diseño.
 
 ## Evaluación adicional de recuperación EN_CURSO
 

@@ -1,5 +1,9 @@
 ## Why
 
+## Continuación local de pérdida de acuses (6.11)
+
+Completada6.11/D-18/RQ-18: decorador de pruebas de pérdida de un acuse nativo válido y conductor acotado Q1/Q2/Q3, fuera del proyecto productivo.247/247 Node (42 comportamiento/cliente/driver/conductor y205 herramientas);157 casos V2 internos del harness, incluidos sin sumarlos a Node. Progreso28/38, mismas10 tareas reales/finales pendientes. P3 preparado y probado como paquete local; enlace/lector del host de pruebas aún sin instalar/calificar. P4/P5 abiertos. Sin modificar almacenamiento compartido/InvocarAlmacenamiento/SII ni ejecutar HTTP/SQL/login reales. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-acuses-v2-local-20261109.json`.
+
 La evidencia histórica acredita barreras, inventario y varios replays, pero no demuestra aún dos clientes documentales disputando una reclamación ni detención durante una llamada legacy activa. DOC-118 debe cerrar esas brechas sin duplicar infraestructura ni repetir efectos inciertos.
 
 ## What Changes

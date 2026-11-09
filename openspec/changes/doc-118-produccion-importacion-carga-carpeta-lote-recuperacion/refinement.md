@@ -35,6 +35,7 @@ Ya existen coordinador, repositorio transaccional MySQL, ASMX, adaptador documen
 | D-15 | Recuperar internamente solo V2 con prueba/guardia concordantes, cierre sin invocación o confirmación por IDs observados; cero escritor. | Parciales RecuperacionV2 de coordinador/repositorio; comando y catálogo de comprobación | D-15 | RQ-15 | RV-05/6.5: autoridad/vista exactas, guardia hasta commit, rollback e historial sin afectar intentos posteriores. |
 | D-16 | Exponer recuperación explícita mediante entrada operativa cerrada y composición sin escritor. | ASMX/DTOs, composición de reconciliación y parcial RecuperacionV2 del coordinador | D-16 | RQ-16 | RV-06/6.6: sesión/CSRF/autoridad/contexto/revisiones, proyección segura y cierre sin invocación diferenciado. |
 | D-17 | Componer V2 solo para intentos nuevos y ampliar el driver existente con contratos cerrados. | ComposicionDocumentoImportacion, enlace del adaptador V2 y driver DOC111 | D-17 | RQ-17 |6.9/6.10: revisión de servidor, autoridad, compatibilidad histórica, respuesta correlacionada y sin reintentos. |
+| D-18 | Preparar pérdida de un acuse en paquete de pruebas y conductor Q1/Q2/Q3 acotado. | Fixture VB fuera del producto, conductor y pruebas locales | D-18 | RQ-18 |6.11: acuse válido antes de perder, recurso/orden exactos, callbacks únicos, presupuesto exterior y resultado sin aceptación real. |
 
 ## Requisitos verificables
 
@@ -57,6 +58,7 @@ Ya existen coordinador, repositorio transaccional MySQL, ASMX, adaptador documen
 | RQ-15 | Recuperación interna V2 sin escritor | Escenarios WHEN/THEN en spec.md, origen D-15; cierre negativo/positivo bajo guardia. | Sin reset general, conversión a INCIERTO o backfill;69/V1 y proveedor distinto bloqueados; HTTP reservado para RV-06. |
 | RQ-16 | Recuperación HTTP explícita y acotada | Escenarios WHEN/THEN en spec.md, origen D-16; guard operativo y proyección pública. | Solo cuatro referencias; autoridad RECONCILIAR, RA/DA fijados y cero escritor; V1 y69 excluidos. |
 | RQ-17 | Enlace V2 y driver cerrado | Escenarios WHEN/THEN en spec.md, origen D-17; binding tipado y regresión del transporte existente. | Sin modificar función de almacenamiento/SII, backfill, fallback V1, despliegue o ejecución real. |
+| RQ-18 | Paquete de acuses y conductor de pruebas | Escenarios WHEN/THEN en spec.md, origen D-18; puerto nativo y driver existentes. | Decorador fuera del vbproj productivo; sin activación HTTP, login, SQL de control, despliegue o PASS real. |
 
 ## Dependencias concretas de ejecución
 
@@ -85,6 +87,8 @@ Ampliación local RV-01 del 2026-11-08:el usuario indicó «contiunua» después
 
 
 ## Avance de preparación
+
+Continuación de P3:«continua» posterior a6.9/6.10 y al siguiente paso del conductor de fallos autoriza6.11/D-18/RQ-18 localmente. Se prepara el paquete de pruebas sin instalar hook de runtime ni modificar composición/producto, almacenamiento compartido o SII. P4/P5 y toda ejecución real conservan sus requisitos de calificación/autorización.
 
 Continuación de enlace/driver:«continua» posterior a RV-08 y a la confirmación de conservar intacta la función de almacenamiento autoriza6.9/6.10/D-17/RQ-17 localmente. Sustituye la composición de intentos nuevos en código candidato y amplía solo el driver existente. No autoriza despliegue, fallos del runtime, login/HTTP/SQL reales o nuevos presupuestos.
 

@@ -219,3 +219,19 @@ El sistema SHALL cumplir D-17:componer V2 para intentos documentales nuevos medi
 #### Scenario: Driver de recuperación cerrado y sin replay
 - **WHEN** el driver recibe referencias adicionales, respuesta discordante o transporte incierto, o está en readOnly
 - **THEN** rechaza antes de efectos o de exponer la respuesta, no reintenta y distingue cierre de control de confirmación documental.
+
+### Requirement: RQ-18 — Pérdida de acuse acotada en paquete de prueba
+
+La preparación SHALL cumplir D-18:decorar solo los puertos de prueba con identidad/orden/revisión exactos y perder una única respuesta de INICIO/AUTORIZAR/OBSERVAR después de un acuse válido. SHALL conservar fallo/diario nativos y detener callbacks posteriores sin reintentos. El conductor SHALL usar driver/controles suministrados, presupuesto previo y evidencias concordantes, sin introducir login, endpoint de fallos o aceptar pruebas del cliente como autoridad. No SHALL incluir el decorador en el producto ni declarar aceptación real por pruebas locales.
+
+#### Scenario: Fallo anterior al acuse o recurso distinto
+- **WHEN** el callback nativo falla, el acuse es inválido o no coincide el comando/revisión/orden
+- **THEN** no emite una pérdida atribuida a commit confirmado ni continúa callbacks; conserva bloqueo y cero reenvíos.
+
+#### Scenario: Un acuse válido perdido
+- **WHEN** el puerto nativo devuelve el acuse concordante del paso seleccionado
+- **THEN** el decorador lo consume una sola vez y el adaptador conserva su semántica PREPARADO/AUTORIZADO/RETORNO_OBSERVADO, sin otro escritor o checkpoint inferido.
+
+#### Scenario: Conductor sin aceptación implícita
+- **WHEN** Q1/Q2/Q3 se coordinan con lectura/driver/enlace de prueba y presupuesto exterior
+- **THEN** se verifica cierre, bloqueo o mismos IDs según la ventana; timeout, discrepancia o cierre incierto detienen sin replay del escritor y el resultado no acredita integración real.

@@ -66,6 +66,8 @@
 
 ## Ejecución y defectos reproducidos
 
+- [x] 6.11 [M] Preparar paquete de pérdida de un acuse y conductor Q1/Q2/Q3 mediante puertos/driver existentes. Área/archivos: fixture VB de pruebas, conductor local y tests/harness. Origen: D-18, RQ-18; D-13/RQ-13, D-14/RQ-14, D-15/RQ-15. Reproducción:P3 requiere pérdida después de callback nativo/acuse válido, distinta de cortar HTTP tras checkpoint. Verificación: recurso/orden/revisión exactos, pérdida única, fallo nativo/acuse inválido sin falsa confirmación, sin retry ni callbacks posteriores; Q1/Q2/Q3 con presupuesto previo, lectura concordante, historial y cierre siempre intentado. Decorador excluido del proyecto productivo, almacenamiento/InvocarAlmacenamiento/SII intactos. Autorización:«continua» posterior al enlace/driver; solo paquete y pruebas locales, sin hook instalado, login/SQL/HTTP reales o despliegue.
+
 
 
 
@@ -91,3 +93,5 @@ Corte RV-03: se añadió y completó6.3; mapa20/30 y las mismas10 tareas anterio
 Corte RV-04: se añadió y completó6.4; mapa21/31, mismas10 tareas anteriores pendientes. Persistencia MySQL implementada y núcleo SQL integrado localmente con adaptador; atomicidad/concurrencia real MySQL, composición pública y recuperación siguen sin acreditar/activar.
 
 Corte RV-05 del2026-11-09:se añadió y completó6.5; mapa22/32, mismas10 tareas anteriores pendientes. Recuperación interna implementada y probada con guardia real/SELECT y transacción simulados; exposición pública y calificación real pendientes.69/V1 siguen inelegibles.
+
+Corte6.11: paquete de pérdida de acuse/conductor preparado y probado solo localmente.28/38 tareas; mismas10 reales/finales pendientes.247 Node y157 casos V2 internos. Sin hook instalado o calificación MySQL/IIS, ni cambios de almacenamiento/SII.
