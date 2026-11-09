@@ -1,5 +1,9 @@
 # DOC-118 — coordinación y recuperación
 
+## Despliegue autorizado del candidato V2
+
+Despliegue P4-A autorizado mediante «autoriozado»: DLL/PDB ordinarios instalados y verificados por hash/CodeView, respaldo preservado y mantenimiento propio retirado en 627 ms. Fuente compartida/InvocarAlmacenamiento/SII y Web.config intactos; pool de 6 aplicaciones sin reciclar. Cero login/HTTP/SQL/efectos. La vista de solicitudes IIS devuelve 0x80004001; se usó la ventana aprobada, sin afirmar ausencia demostrada de peticiones. Módulo cargado/proveedor/MySQL/observador aún sin calificar y runner histórico mantiene pin anterior. Progreso 28/38, ninguna tarea nueva o cerrada. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-despliegue-v2-20261109.json`.
+
 ## Candidato compilado y despliegue propuesto
 
 Compilación completa del candidato ordinario V2:MSBuild salida0,920 fuentes estables y DLL/PDB concordantes en .tmp; binarios instalados/Web.config/almacenamiento/SII intactos. Aplicación IIS localizada por lectura elevada; raíz igual al repo principal y pool compartido por6 aplicaciones. Propuesta de despliegue limitado a dos archivos, respaldo y mantenimiento solo de la aplicación, aún SIN_AUTORIZAR/SIN_EJECUTAR.28/38 tareas, ninguna nueva/cerrada. No se repite regresión247 Node ni se ejecuta HTTP/SQL/login. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-candidato-v2-build-20261109.json`. Alcance revisable:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-despliegue-v2-propuesto-20261109.md`.

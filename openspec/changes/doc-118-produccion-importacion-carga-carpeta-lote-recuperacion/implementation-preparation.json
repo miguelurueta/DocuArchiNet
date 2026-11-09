@@ -827,7 +827,7 @@
   },
   "currentSelectAuditEvidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-active-effect-audit-20261108.json",
   "recoveryDesignEvaluation": {
-    "status": "V2_ACK_LOSS_PACKAGE_AND_CONDUCTOR_IMPLEMENTED_LOCAL_REAL_GATES_OPEN",
+    "status": "V2_CANDIDATE_DEPLOYED_ON_DISK_RUNTIME_QUALIFICATION_PENDING",
     "evidence": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-evaluation.json",
     "design": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-design.md",
     "candidateSpecification": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-spec.md",
@@ -1744,6 +1744,53 @@
         "runtimeFilesUnchanged": "PASS",
         "deploymentProposalStillUnauthorised": true
       }
+    },
+    "candidateDeployment": {
+      "status": "DEPLOYED_ON_DISK_VERIFIED_RUNTIME_NOT_QUALIFIED",
+      "authorization": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-candidate-deployment-authorization.json",
+      "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-despliegue-v2-20261109.json",
+      "sourceCommit": "9d67c81f27cb714412d17772ad492b56968407a3",
+      "reviewedProposalCommit": "7a1444ff7d76a9fd501e9ec2b70c327c947495ac",
+      "deployedOnDisk": true,
+      "runtimeQualified": false,
+      "integrationPass": false,
+      "maintenanceRemoved": true,
+      "maintenanceMilliseconds": 627,
+      "backupVerified": true,
+      "requestMonitoringAvailable": false,
+      "requestMonitoringHresult": "80004001",
+      "runtimeDelta": {
+        "applicationLogins": 0,
+        "httpRequests": 0,
+        "selectStatements": 0,
+        "documentEffects": 0
+      },
+      "progress": {
+        "complete": 28,
+        "total": 38,
+        "remaining": 10,
+        "newTasks": 0
+      },
+      "planGates": {
+        "P1": "ORDINARY_V2_CANDIDATE_INSTALLED_ON_DISK_NOT_RUNTIME_QUALIFIED",
+        "P2": "LOCAL_DRIVER_TESTED_NO_REAL_HTTP",
+        "P3": "TEST_PACKAGE_ONLY_NATIVE_HOST_BINDING_NOT_INSTALLED",
+        "P4": "CANDIDATE_INSTALLED_RUNTIME_QUALIFICATION_STILL_PENDING",
+        "P5": "DEPLOYMENT_ONLY_AUTHORIZED_REAL_CASES_NOT_AUTHORIZED"
+      },
+      "validation": {
+        "openSpecStrict": "PASS",
+        "refinement": "PASS",
+        "refinementChecks": 15,
+        "decisionRequirementPairs": 18,
+        "diffCheck": "PASS",
+        "installedAndBackupHashes": "PASS",
+        "onDiskSymbols": "PASS",
+        "sourceAndConfigurationStable": "PASS",
+        "ownedMaintenanceRemoved": "PASS",
+        "runtimeQualification": "NOT_EXECUTED",
+        "healthHttp": "NOT_EXECUTED"
+      }
     }
   },
   "sourceReviewDeltas": [
@@ -2515,6 +2562,53 @@
       "sourceAndArtifactProvenance": "PASS",
       "runtimeFilesUnchanged": "PASS",
       "deploymentProposalStillUnauthorised": true
+    }
+  },
+  "candidateDeployment": {
+    "status": "DEPLOYED_ON_DISK_VERIFIED_RUNTIME_NOT_QUALIFIED",
+    "authorization": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-candidate-deployment-authorization.json",
+    "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-despliegue-v2-20261109.json",
+    "sourceCommit": "9d67c81f27cb714412d17772ad492b56968407a3",
+    "reviewedProposalCommit": "7a1444ff7d76a9fd501e9ec2b70c327c947495ac",
+    "deployedOnDisk": true,
+    "runtimeQualified": false,
+    "integrationPass": false,
+    "maintenanceRemoved": true,
+    "maintenanceMilliseconds": 627,
+    "backupVerified": true,
+    "requestMonitoringAvailable": false,
+    "requestMonitoringHresult": "80004001",
+    "runtimeDelta": {
+      "applicationLogins": 0,
+      "httpRequests": 0,
+      "selectStatements": 0,
+      "documentEffects": 0
+    },
+    "progress": {
+      "complete": 28,
+      "total": 38,
+      "remaining": 10,
+      "newTasks": 0
+    },
+    "planGates": {
+      "P1": "ORDINARY_V2_CANDIDATE_INSTALLED_ON_DISK_NOT_RUNTIME_QUALIFIED",
+      "P2": "LOCAL_DRIVER_TESTED_NO_REAL_HTTP",
+      "P3": "TEST_PACKAGE_ONLY_NATIVE_HOST_BINDING_NOT_INSTALLED",
+      "P4": "CANDIDATE_INSTALLED_RUNTIME_QUALIFICATION_STILL_PENDING",
+      "P5": "DEPLOYMENT_ONLY_AUTHORIZED_REAL_CASES_NOT_AUTHORIZED"
+    },
+    "validation": {
+      "openSpecStrict": "PASS",
+      "refinement": "PASS",
+      "refinementChecks": 15,
+      "decisionRequirementPairs": 18,
+      "diffCheck": "PASS",
+      "installedAndBackupHashes": "PASS",
+      "onDiskSymbols": "PASS",
+      "sourceAndConfigurationStable": "PASS",
+      "ownedMaintenanceRemoved": "PASS",
+      "runtimeQualification": "NOT_EXECUTED",
+      "healthHttp": "NOT_EXECUTED"
     }
   }
 }

@@ -97,3 +97,5 @@ Corte RV-05 del2026-11-09:se añadió y completó6.5; mapa22/32, mismas10 tareas
 Corte6.11: paquete de pérdida de acuse/conductor preparado y probado solo localmente.28/38 tareas; mismas10 reales/finales pendientes.247 Node y157 casos V2 internos. Sin hook instalado o calificación MySQL/IIS, ni cambios de almacenamiento/SII.
 
 Preparación de4.1 posterior a6.11: compilación completa offline y propuesta concreta de despliegue de DLL/PDB, sin modificar bin ni instalar hooks.920 fuentes estables, símbolos concordantes. No añade tareas ni acredita runtime;28/38. Ver doc118-candidato-v2-build-20261109.md y doc118-despliegue-v2-propuesto-20261109.md.
+
+Despliegue P4-A autorizado posterior a la propuesta: DLL/PDB instalados y verificados, respaldo preservado y mantenimiento propio retirado. Apoya 4.1 sin completarla; 28/38, ninguna tarea añadida. Vista de solicitudes IIS no implementada (0x80004001); runtime aún sin calificar, sin HTTP/SQL/login nuevos. Ver doc118-despliegue-v2-20261109.md.
