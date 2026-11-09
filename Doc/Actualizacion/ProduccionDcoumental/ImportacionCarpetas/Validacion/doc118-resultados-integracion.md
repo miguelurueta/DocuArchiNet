@@ -1,4 +1,10 @@
-# Corte vigente — RV-07 matriz local verificada
+# Corte vigente — RV-08 revisión local y plan real preparados
+
+Revisión consolidada de16 requisitos/35 escenarios,21 condiciones de matriz y133 casos V2. Los9 entregables locales V2 quedan documentados; progreso25/35, mismas10 tareas reales/finales abiertas y DOC-118 no listo para archivo. Se reutiliza223/223 Node de RV-07 en e68d9972 con código/pruebas/herramientas sin cambios, comprobados por hashes; no hay una corrida nueva en RV-08.
+
+El plan real propone dos lotes nuevos y límites separados todavía no autorizados. No es ejecutable hasta integrar el escritor V2, extender el driver y revisar el enlace de fallos/calificación del runtime. Sin despliegue/login/HTTP/SELECT reales;1276 HTTP/113 SELECT/9 aperturas sin cambios y41/53/69 protegidos. Evidencia:[revisión V2](doc118-revision-v2-local-20261109.json), [reporte](doc118-revision-v2-local-20261109.md), [plan real](doc118-plan-real-v2-20261109.md).
+
+## Corte anterior — RV-07 matriz local verificada
 
 12 casos nuevos combinan adaptador/repositorio/guardia con barreras explícitas:ejecutor activo, retorno/checkpoint, respuestas perdidas, dos recuperadores, rollback y lector en otro proceso. Cero cambios de producto;133 casos V2 internos y223/223 Node pasan. Progreso24/34, mismas10 tareas reales/finales abiertas; sigue RV-08. SQL/escritor/transacción son dobles, no califica MySQL/IIS ni COORD-02/03 reales.
 

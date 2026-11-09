@@ -1,6 +1,10 @@
 # DOC-118 — coordinación y recuperación
 
-## Regresión local tras RV-07
+## Revisión de evidencia RV-08
+
+Se reutiliza la regresión de e68d9972/RV-07:223/223 Node y133 casos V2 internos incluidos en el arnés. RV-08 solo cambia documentación/manifiestos; se comprueban de nuevo hashes, referencias y trazabilidad, sin repetir compilaciones/pruebas ni atribuir otra corrida a los informes anteriores.16 requisitos/35 escenarios y21 condiciones mapeados.9/9 entregables locales,25/35 tareas;10 criterios reales/finales bloquean archivo. MySQL/IIS y COORD-02/03 no se aceptan por este corte. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-revision-v2-local-20261109.json`.
+
+## Regresión local anterior tras RV-07
 
 223/223 Node:18 comportamiento/cliente y205 herramientas, sin sumar133 casos V2 internos del arnés. Los12 nuevos verifican intercalaciones antes/después de inicio, gate, escritor, observación y checkpoint; dos recuperadores, rollback y lector en otro proceso. Barreras explícitas con liberación acotada; dos hijos nuevos cerrados. Guardia real; escritor/SELECT/transacción simulados. Sin cambios de producto, despliegue o calificación MySQL/IIS real. Progreso24/34. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-matriz-v2-local-20261109.json`.
 

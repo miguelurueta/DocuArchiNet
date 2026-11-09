@@ -3,9 +3,11 @@
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
 - Clasificación: cross_cutting
-- Estado: ejecutor de siete fases verificado localmente; disponibilidad/cierre de observador PASS, retención SIN_CALIFICAR. Progreso16/27.
+- Estado: revisión local V2 consolidada en RV-08;25/35 tareas, aceptación real y calificación del runtime abiertas.
 
 ## Servicios y reglas
+
+RV-08 consolida los contratos D-11..D-16:inicio/gate/retorno V2, retención previa, mismo repositorio/transacción, recuperación sin escritor y entrada HTTP cerrada. La rama negativa exige PREPARADO sin invocación y expediente sin huellas; la positiva verifica IDs observados completos. Guardia y comparación de vista hasta commit/rollback; historial autorizado no escribe.133 casos V2 internos y matriz21 condiciones de RV-07, sin calificarlos como MySQL real. La composición habitual sigue V1; no se integra ni despliega en esta revisión.
 
 AvanzarLote despacha una fase por recurso; ReservarIntentoDocumental aplica exclusión por lote con transacción y revisión. HayReclamacionDocumental bloquea reservas RESERVADO/EN_CURSO/INCIERTO y marcadores huérfanos; no ofrece takeover por fecha. AlmacenarArchivo reutiliza historial de la misma solicitud antes de una reserva nueva.
 

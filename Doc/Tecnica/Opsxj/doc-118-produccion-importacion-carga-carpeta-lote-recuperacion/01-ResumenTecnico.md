@@ -1,6 +1,10 @@
 # DOC-118 — coordinación y recuperación
 
-## Corte actual de RV-07
+## Corte actual de RV-08
+
+Consolidada6.8:revisión de16 requisitos/35 escenarios y plan real V2 con dependencias, recursos nuevos y topes propuestos.9/9 entregables locales;25/35 tareas,10 reales/finales abiertas. DOC-118 no listo para archivo. Sin cambios de producto/pruebas;223/223 Node de RV-07 reutilizados con hashes iguales. La composición habitual V1 y el driver sin RecuperarDocumentoV2 deben integrarse/revisarse antes de solicitar una ejecución real; no se despliega ni amplían presupuestos aquí. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-revision-v2-local-20261109.md`.
+
+## Corte anterior de RV-07
 
 Verificada6.7 sin modificar producto o ampliar contratos.12 casos nuevos de intercalaciones combinan adaptador, núcleo SQL y guardia con dobles de escritor/SELECT/transacción; dos lectores propios vivos/terminados, ambos cerrados. Una invocación máxima, recuperación bloqueada sin escrituras nuevas, commit único, rollback e historial.133 casos V2 internos y223/223 Node pasan. Progreso24/34; RV-08 sigue. MySQL/IIS y COORD-02/03 reales sin calificar;41/53/69 protegidos. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-matriz-v2-local-20261109.md`.
 

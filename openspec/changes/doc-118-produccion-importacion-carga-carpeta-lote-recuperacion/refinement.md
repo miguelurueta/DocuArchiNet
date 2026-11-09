@@ -84,6 +84,8 @@ Ampliación local RV-01 del 2026-11-08:el usuario indicó «contiunua» después
 
 ## Avance de preparación
 
+Continuación RV-08:«continua» posterior a RV-07 autoriza6.8, revisión local y preparación de plan real separado bajo D-01/RQ-01 y D-10/RQ-10. No amplía contratos ni autoriza composición del escritor, extensión del driver, despliegue, ejecución real, presupuesto adicional o recuperación de41/53/69. La revisión distingue dependencia de implementación y autorización futura; no solicita ejecutar un plan todavía sin enlace V2.
+
 Continuación RV-07:«continua» posterior a RV-06 y al siguiente paso de matriz autoriza6.7, verificación de D-12/RQ-12..D-16/RQ-16 y RC-01..RC-07 sin ampliar contratos. Reutiliza fixtures y añade únicamente intercalaciones no cubiertas en conjunto, con staging real, procesos propios y SQL/transacción simulados. No concede despliegue, activación del escritor V2, ejecución real o recuperación de41/53/69.
 
 Continuación RV-06:«continua» posterior a la entrega RV-05 y al siguiente paso explícito de integración HTTP autoriza6.6/D-16/RQ-16 y regresión local. La operación solo compone recuperación; no activa el almacenamiento normal V2 ni concede despliegue, ejecución real o mutación de41/53/69.

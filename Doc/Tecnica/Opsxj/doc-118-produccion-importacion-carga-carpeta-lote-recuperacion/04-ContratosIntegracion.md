@@ -3,9 +3,11 @@
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
 - Clasificación: cross_cutting
-- Estado: ejecutor de siete fases verificado localmente; disponibilidad/cierre de observador PASS, retención SIN_CALIFICAR. Progreso16/27.
+- Estado: revisión local V2 consolidada en RV-08;25/35 tareas, aceptación real y calificación del runtime abiertas.
 
 ## Contratos e integraciones
+
+Contrato adicional RV-06:POST RecuperarDocumentoV2 recibe únicamente loteId/intentoId/revisionLoteEsperada/revisionArchivoEsperada por el guard operativo Gestión/CSRF/autoridad RECONCILIAR. Cierre sin invocación devuelve HTTP200/ok=true, estado RECHAZADO, código EJECUCION_CERRADA_SIN_INVOCACION, cierreSinInvocacion=true y documentoConfirmado=false, sin IDs documentales. Confirmación positiva expone solo IDs verificados. No se aceptan pruebas/rutas/proveedor del cliente. El driver DOC111 aún no admite esta operación y el almacenamiento habitual sigue V1. Resolver esos enlaces bajo alcance local concreto antes de la autorización real descrita en `doc118-plan-real-v2-20261109.md`; no existe todavía CLI ejecutable de ese plan.
 
 Reutilizar AvanzarLote, SolicitarDetencion, ConsultarLote/consultas existentes, ReconciliarRecurso y CerrarReservaSinInicio. No se inventa ReanudarLote. Mantener contrato de solicitud, identidad, revisión y snapshot. Replay confirmado devuelve los mismos IDs; resultado incierto no autoriza otra ejecución. Separar el estado durable EN_CURSO del sobre público INCIERTO y la confirmación de cierre preinicio del éxito documental.
 

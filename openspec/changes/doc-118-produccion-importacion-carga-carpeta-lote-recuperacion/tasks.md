@@ -58,14 +58,9 @@
 
 - [x] 6.7 [M] RV-07: cerrar la matriz local de intercalaciones y compatibilidad V2 reutilizando el harness y las fixtures existentes. Área/archivos: pruebas de recuperación, nuevo parcial de matriz, harness y matriz documental. Origen: D-12, RQ-12; D-13, RQ-13; D-14, RQ-14; D-15, RQ-15; D-16, RQ-16; RC-01..RC-07. Verificación: adaptador/repositorio/guardia reales de código bajo transacción simulada; ventanas de inicio/gate/escritor/retorno/checkpoint, dos recuperadores, rollback, proceso lector vivo/terminado y otra época, máximo una invocación y cero nuevas escrituras al bloquear. Contrastar con casos previos de diario, V1, proveedor, autoridad y privacidad; no duplicar evidencia ni afirmar MySQL/IIS reales. Autorización:«continua» posterior a RV-06 y al siguiente paso explícito RV-07; solo fixtures locales, sin despliegue, nuevos efectos reales o mutación de41/53/69.
 
+- [x] 6.8 [S] RV-08: consolidar revisión local de completitud/corrección/coherencia y preparar el plan real V2 separado con sus dependencias y presupuestos. Área/archivos: reporte de revisión, plan real V2, manifiestos OpenSpec y documentación técnica. Origen: D-01, RQ-01; D-10, RQ-10; D-11/RQ-11..D-16/RQ-16; RC-01..RC-07. Verificación:16 requisitos/35 escenarios trazados, matriz21 condiciones y133 casos V2 con evidencia223 Node de RV-07 y fuentes iguales; factibilidad local diferenciada de runtime, diez tareas reales/finales sin cerrar, bloqueo de composición V1/driver sin operación V2, recursos nuevos/límites/corte definidos y ninguna autorización real inferida. Autorización:«continua» posterior a RV-07 y al siguiente paso RV-08; solo revisión/preparación local, sin integrar escritor V2, desplegar, autenticar o tocar41/53/69.
+
 ## Ejecución y defectos reproducidos
-
-
-
-
-
-
-
 
 
 Las rutas cortas de informes se resuelven en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/`; las rutas de coordinador y repositorio son las de design.md y source-review.json. S/M indican complejidad relativa, no duración.

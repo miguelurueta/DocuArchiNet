@@ -1,6 +1,6 @@
 # Recuperación explícita de EN_CURSO — diseño candidato
 
-Estado actual:implementación local hasta RV-06 y matriz de intercalaciones verificada en RV-07. Los apartados iniciales conservan el razonamiento de la evaluación original; los cortes posteriores delimitan lo implementado y su evidencia. No hay despliegue, presupuesto real nuevo ni recuperación de69.
+Estado actual:implementación local hasta RV-06, matriz de RV-07 y revisión/plan de RV-08 consolidados.9/9 entregables locales/preparación y25/35 tareas; diez reales/finales impiden archivo. Los apartados iniciales conservan el razonamiento de la evaluación original; los cortes posteriores delimitan su evidencia. No hay despliegue, presupuesto real nuevo ni recuperación de69.
 
 ## Conclusión
 
@@ -109,6 +109,10 @@ El intento69 sigue excluido. No se ha instalado V2 en su ejecutor, no tiene el d
 La compatibilidad debe probar que V1 conserva su conducta y que un despliegue mixto nunca inventa V2 ni habilita recuperación en nodos/proveedores sin exclusión acreditada. Ninguna entrega local concede autorización para desplegar, detener workers, cambiar permisos o actuar sobre datos reales.
 
 ## Revisión necesaria
+
+### Corte posterior RV-08
+
+Consolidada6.8 tras la continuidad autorizada posterior a RV-07. Revisión de16 requisitos/35 escenarios con21 condiciones locales y ocho evidencias previas preservadas. Regresión223 Node/133 casos V2 de e68d9972 reutilizada con fuentes iguales; no hay corrida nueva. Diez tareas reales/finales bloquean archivo. El plan real separado define recursos nuevos y límites propuestos, con composición V2/driver/fallos y calificación del sitio aún sin resolver; no se pide ejecutar un plan sin esos enlaces.9/9 entregables locales/preparación,25/35 tareas. Fuente:`doc118-revision-v2-local-20261109.md` y `doc118-plan-real-v2-20261109.md`.
 
 ### Corte posterior RV-07
 
