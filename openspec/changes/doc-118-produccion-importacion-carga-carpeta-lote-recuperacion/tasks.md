@@ -99,3 +99,7 @@ Corte6.11: paquete de pérdida de acuse/conductor preparado y probado solo local
 Preparación de4.1 posterior a6.11: compilación completa offline y propuesta concreta de despliegue de DLL/PDB, sin modificar bin ni instalar hooks.920 fuentes estables, símbolos concordantes. No añade tareas ni acredita runtime;28/38. Ver doc118-candidato-v2-build-20261109.md y doc118-despliegue-v2-propuesto-20261109.md.
 
 Despliegue P4-A autorizado posterior a la propuesta: DLL/PDB instalados y verificados, respaldo preservado y mantenimiento propio retirado. Apoya 4.1 sin completarla; 28/38, ninguna tarea añadida. Vista de solicitudes IIS no implementada (0x80004001); runtime aún sin calificar, sin HTTP/SQL/login nuevos. Ver doc118-despliegue-v2-20261109.md.
+
+Preparación P4-B de 4.1: vista OS del worker sin módulo objetivo observado, sin inferir ausencia CLR. Preparada HEAD única y enlace de fuente SDK sin ARM/Freeze; pendiente autorización específica. No modifica pin histórico ni añade/cierra tareas; 28/38. Ver doc118-metadatos-runtime-20261109.md.
+
+Área de la preparación P4-B de4.1: tools/e2e/scripts/run-doc118-runtime-smoke.ps1 y support/doc118-runtime-smoke-head.cjs; invocación acotada del controlador existente, HEAD Playwright y rechazo antes de red/attach sin aprobación. Verificación: compilación SDK y cuatro controles locales, sin cambiar el runner histórico.

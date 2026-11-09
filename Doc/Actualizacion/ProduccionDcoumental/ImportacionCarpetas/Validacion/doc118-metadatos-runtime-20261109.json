@@ -1,0 +1,95 @@
+{
+  "issueKey": "DOC-118",
+  "scope": "READ_ONLY_IIS_PROCESS_MODULE_FILE_METADATA",
+  "recordedUtc": "2026-11-09T17:53:45.6351246Z",
+  "status": "TARGET_MODULE_NOT_OBSERVED_IN_OS_MODULE_VIEW",
+  "application": "Default Web Site/GestionDocumental-Docuarchi.net",
+  "workerCount": 1,
+  "matchingModules": 0,
+  "moduleMetadataAvailable": true,
+  "candidateModuleFileObserved": false,
+  "loadedMemoryIdentityVerified": false,
+  "loadedSymbolsVerified": false,
+  "activeBodyObservationQualified": false,
+  "observerAttached": false,
+  "applicationLogins": 0,
+  "httpRequests": 0,
+  "selectStatements": 0,
+  "documentEffects": 0,
+  "modules": [],
+  "completedUtc": "2026-11-09T17:53:45.9311181Z",
+  "repositoryCheckpoint": "380ebbf749dd909148168578999d73c264a5dac9",
+  "deployment": {
+    "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-despliegue-v2-20261109.json",
+    "sha256": "6bef591e65d33bb0e931666d6eda359ff04e34b4e5d44905887628604ed48f01",
+    "filesStable": true,
+    "backupStable": true
+  },
+  "executor": {
+    "path": ".tmp/inspect-doc118-loaded-module-380ebbf7.ps1",
+    "sha256": "17b171f5098b2e8851ac6fc577a3952651c6708964b9c66c75225cd0cdbad3d8",
+    "localIgnored": true
+  },
+  "documents": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-metadatos-runtime-20261109.md",
+      "sha256": "00d9bb8124e64f334274b2c1ce631c411cc253209a3b15ce946c3442e6cab231"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-calificacion-fuente-propuesta-20261109.md",
+      "sha256": "3108e47e30c990d133f03850287fa0d8266cf8262de5517c076c9c5b066e9d0e"
+    }
+  ],
+  "smokeProposal": {
+    "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-runtime-smoke-proposal.json",
+    "sha256": "9d2ec34fd3eb63a737bb6aca7441b90c00ae02d19143b0e7fb4953a32ae30e58",
+    "authorized": false
+  },
+  "localChecks": {
+    "sdkCompile": "PASS",
+    "checkModeNoHttpOrAttach": "PASS",
+    "executeWithoutApprovalBlocked": "PASS",
+    "headWithoutApprovalBlocked": "PASS",
+    "consumedHeadCapacityBlockedBeforeTransport": "PASS",
+    "checks": 4,
+    "evidence": ".tmp/doc118-p4b-local-checks.json",
+    "evidenceSha256": "02184bf27dfbb80e8db01406ad341f69e88b9f4abf3f79eee2341be5faba43b5",
+    "executionPolicyChanged": false
+  },
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "decisionRequirementPairs": 18,
+    "diffCheck": "PASS",
+    "installedFilesAndBackupUnchanged": "PASS",
+    "sdkLocalCompile": "PASS",
+    "missingApprovalGuards": "PASS",
+    "singleHttpCapacityGuard": "PASS",
+    "realSmokeExecution": "NOT_EXECUTED"
+  },
+  "progress": {
+    "complete": 28,
+    "total": 38,
+    "remaining": 10,
+    "newTasks": 0
+  },
+  "runtimeSmokeSources": [
+    {
+      "path": "tools/e2e/scripts/run-doc118-runtime-smoke.ps1",
+      "sha256": "1c10920e9a07119bef59040b4385e02ccd39638894a1b63ca09f63868e9c8888"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc118-runtime-smoke-head.cjs",
+      "sha256": "5fee78974e19e8e165e2d98212ca3320ff5051e7c1ab917aadf33f042db156f4"
+    }
+  ],
+  "priorNodeRegression": {
+    "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-acuses-v2-local-20261109.json",
+    "sha256": "27b6d7bb281633875113d4be2f4700fdcc48c99acacb85e1f5a4e6981383b29a",
+    "tests": 247,
+    "passed": 247,
+    "reusedNotRerun": true,
+    "additionalCliChecksNotIncludedInNodeCount": 4
+  }
+}

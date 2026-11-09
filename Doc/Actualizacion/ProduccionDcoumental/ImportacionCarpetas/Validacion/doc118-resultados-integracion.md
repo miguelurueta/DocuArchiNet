@@ -1,5 +1,9 @@
 # Corte vigente — enlace V2 y driver implementados localmente
 
+## Metadatos IIS y siguiente comprobación propuesta
+
+Inspección de metadatos IIS: un worker y módulo objetivo no observado en la vista del sistema operativo; no acredita ausencia en CLR o identidad cargada. Cero red/login/SQL/efectos y ningún cambio de producto/runner/instalación. Preparada P4-B: una HEAD y enlace de fuente mediante Initialize/Inspect/Dispose del SDK existente, sin ARM/Freeze; propuesta aún sin autorización. 28/38, ninguna tarea añadida/cerrada. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-metadatos-runtime-20261109.json`.
+
 ## Despliegue autorizado del candidato V2
 
 Despliegue P4-A autorizado mediante «autoriozado»: DLL/PDB ordinarios instalados y verificados por hash/CodeView, respaldo preservado y mantenimiento propio retirado en 627 ms. Fuente compartida/InvocarAlmacenamiento/SII y Web.config intactos; pool de 6 aplicaciones sin reciclar. Cero login/HTTP/SQL/efectos. La vista de solicitudes IIS devuelve 0x80004001; se usó la ventana aprobada, sin afirmar ausencia demostrada de peticiones. Módulo cargado/proveedor/MySQL/observador aún sin calificar y runner histórico mantiene pin anterior. Progreso 28/38, ninguna tarea nueva o cerrada. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-despliegue-v2-20261109.json`.

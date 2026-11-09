@@ -1082,5 +1082,60 @@
       "runtimeQualification": "NOT_EXECUTED",
       "healthHttp": "NOT_EXECUTED"
     }
+  },
+  "runtimeMetadataPreparation": {
+    "status": "TARGET_MODULE_NOT_OBSERVED_IN_OS_MODULE_VIEW",
+    "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-metadatos-runtime-20261109.json",
+    "proposal": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-runtime-smoke-proposal.json",
+    "proposalAuthorized": false,
+    "workerCount": 1,
+    "targetModuleObserved": false,
+    "loadedMemoryIdentityVerified": false,
+    "runtimeQualified": false,
+    "runtimeDelta": {
+      "applicationLogins": 0,
+      "httpRequests": 0,
+      "selectStatements": 0,
+      "documentEffects": 0
+    },
+    "progress": {
+      "complete": 28,
+      "total": 38,
+      "remaining": 10,
+      "newTasks": 0
+    },
+    "localChecks": {
+      "sdkCompile": "PASS",
+      "checkModeNoHttpOrAttach": "PASS",
+      "executeWithoutApprovalBlocked": "PASS",
+      "headWithoutApprovalBlocked": "PASS",
+      "consumedHeadCapacityBlockedBeforeTransport": "PASS",
+      "checks": 4,
+      "evidence": ".tmp/doc118-p4b-local-checks.json",
+      "evidenceSha256": "02184bf27dfbb80e8db01406ad341f69e88b9f4abf3f79eee2341be5faba43b5",
+      "executionPolicyChanged": false
+    },
+    "validation": {
+      "openSpecStrict": "PASS",
+      "refinement": "PASS",
+      "refinementChecks": 15,
+      "decisionRequirementPairs": 18,
+      "diffCheck": "PASS",
+      "installedFilesAndBackupUnchanged": "PASS",
+      "sdkLocalCompile": "PASS",
+      "missingApprovalGuards": "PASS",
+      "singleHttpCapacityGuard": "PASS",
+      "realSmokeExecution": "NOT_EXECUTED"
+    },
+    "sources": [
+      {
+        "path": "tools/e2e/scripts/run-doc118-runtime-smoke.ps1",
+        "sha256": "1c10920e9a07119bef59040b4385e02ccd39638894a1b63ca09f63868e9c8888"
+      },
+      {
+        "path": "tools/e2e/scripts/support/doc118-runtime-smoke-head.cjs",
+        "sha256": "5fee78974e19e8e165e2d98212ca3320ff5051e7c1ab917aadf33f042db156f4"
+      }
+    ]
   }
 }
