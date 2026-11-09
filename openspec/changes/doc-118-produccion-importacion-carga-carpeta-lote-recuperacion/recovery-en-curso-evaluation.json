@@ -1,6 +1,6 @@
 {
   "issueKey": "DOC-118",
-  "status": "V2_CANDIDATE_DEPLOYED_ON_DISK_RUNTIME_QUALIFICATION_PENDING",
+  "status": "P4_B_STOPPED_HEAD_NOT_CONFIRMED_RUNTIME_QUALIFICATION_PENDING",
   "reviewedCommit": "34099b316208431b2f5e6a58bea63ffa7b34ce24",
   "recordedUtc": "2026-11-09T14:54:24.098Z",
   "hashAlgorithm": "sha256-utf8-lf",
@@ -106,7 +106,8 @@
     "sharedStorageFunctionChanged": false,
     "driverRecoveryOperationImplemented": true,
     "localAckLossPackageImplemented": true,
-    "candidateOrdinaryBinaryDeployed": true
+    "candidateOrdinaryBinaryDeployed": true,
+    "runtimeSmokePassed": false
   },
   "runtimeDelta": {
     "applicationLogins": 0,
@@ -1137,5 +1138,52 @@
         "sha256": "5fee78974e19e8e165e2d98212ca3320ff5051e7c1ab917aadf33f042db156f4"
       }
     ]
+  },
+  "runtimeSmokeExecution": {
+    "status": "STOPPED_HEAD_NOT_CONFIRMED_NO_OBSERVER_CONNECTION",
+    "authorization": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-runtime-smoke-authorization.json",
+    "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-runtime-smoke-20261109.json",
+    "clientHttpStatus": null,
+    "serverLoggedHttpStatus": 200,
+    "serverProcessingMilliseconds": 14807,
+    "configuredHttpTimeoutMilliseconds": 10000,
+    "observerConnected": false,
+    "runtimeQualified": false,
+    "integrationPass": false,
+    "runtimeDelta": {
+      "httpRequests": 1,
+      "applicationLogins": 0,
+      "selectStatements": 0,
+      "documentEffects": 0,
+      "observerConnections": 0,
+      "documentalArms": 0,
+      "intentionalFreezes": 0
+    },
+    "cumulativeAcrossHistoricalAndP4b": {
+      "httpRequests": 1277,
+      "selectStatements": 113,
+      "sessions": 9
+    },
+    "headBudgetRemaining": 0,
+    "continuationRequiresReview": true,
+    "progress": {
+      "complete": 28,
+      "total": 38,
+      "remaining": 10,
+      "newTasks": 0
+    },
+    "validation": {
+      "openSpecStrict": "PASS",
+      "refinement": "PASS",
+      "refinementChecks": 15,
+      "decisionRequirementPairs": 18,
+      "diffCheck": "PASS",
+      "installedFilesSourcesAndBackupStable": "PASS",
+      "historicalReportsPreserved": "PASS",
+      "singleHeadCapacityConsumed": "PASS",
+      "stopBeforeObserver": "PASS",
+      "realSmokeResult": "NOT_CONFIRMED",
+      "sdkBinding": "NOT_EXECUTED"
+    }
   }
 }

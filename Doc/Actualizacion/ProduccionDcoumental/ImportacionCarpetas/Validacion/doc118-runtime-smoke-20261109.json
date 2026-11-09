@@ -1,0 +1,245 @@
+{
+  "issueKey": "DOC-118",
+  "status": "STOPPED_HEAD_NOT_CONFIRMED_NO_OBSERVER_CONNECTION",
+  "recordedUtc": "2026-11-09T19:58:32.212Z",
+  "reviewedProposalCommit": "3f56517eeb1009efd05ec54e14f0f37df7891735",
+  "authorization": {
+    "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-runtime-smoke-authorization.json",
+    "sha256": "45731d42006d00604ef9e92397627e08d17afd485e9a2644b4766475d93acb0b"
+  },
+  "proposal": {
+    "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-runtime-smoke-proposal.json",
+    "sha256": "9d2ec34fd3eb63a737bb6aca7441b90c00ae02d19143b0e7fb4953a32ae30e58",
+    "historicalDraftPreserved": true
+  },
+  "rawExecution": {
+    "issueKey": "DOC-118",
+    "scope": "P4_B_HEAD_AND_SOURCE_BINDING_SMOKE",
+    "recordedUtc": "2026-11-09T18:52:47.3754506Z",
+    "status": "UNCONFIRMED",
+    "stage": "HEAD_ONCE",
+    "applicationLogins": 0,
+    "httpRequests": 1,
+    "selectStatements": 0,
+    "documentEffects": 0,
+    "observerAttached": false,
+    "documentalBreakpointArmed": false,
+    "threadsIntentionallyFrozen": 0,
+    "activeBodyObservationQualified": false,
+    "loadedMemoryIdentityVerified": false,
+    "cleanupConfirmed": false,
+    "executeRequested": true,
+    "observation": null,
+    "http": {
+      "operation": "HEAD_GESTOR",
+      "httpRequests": 1,
+      "status": null,
+      "redirectFollowed": false,
+      "authenticated": false,
+      "failure": "HEAD_UNCONFIRMED"
+    },
+    "failure": {
+      "stage": "HEAD_ONCE",
+      "knownCode": "DOC118_P4B_HEAD_NOT_ACCEPTED",
+      "exceptionType": "RuntimeException",
+      "hresult": -2146233087
+    },
+    "completedUtc": "2026-11-09T18:52:58.7272027Z",
+    "elapsedMilliseconds": 11346
+  },
+  "rawExecutionEvidence": {
+    "path": ".tmp/doc118-p4b-20261109-01/result.json",
+    "sha256": "3241e8cba9f804b60f89a5223ab6261b2a4fb7c9f8a362fe21a07012486e9a42",
+    "localIgnored": true
+  },
+  "diagnosis": {
+    "issueKey": "DOC-118",
+    "scope": "READ_ONLY_LOCAL_LOGS_AFTER_SINGLE_HEAD",
+    "recordedUtc": "2026-11-09T19:55:46.7593729Z",
+    "additionalHttpRequests": 0,
+    "applicationLogins": 0,
+    "selectStatements": 0,
+    "documentEffects": 0,
+    "observerAttached": false,
+    "windowStartUtc": "2026-11-09T18:52:45.3754506Z",
+    "windowEndUtc": "2026-11-09T18:54:58.7272027Z",
+    "iisLogStatus": "MATCHED_TARGET_HEAD_METADATA",
+    "iisMatches": [
+      {
+        "utc": "2026-11-09T18:53:03.0000000Z",
+        "method": "HEAD",
+        "targetPathMatched": true,
+        "httpStatus": "200",
+        "httpSubstatus": "0",
+        "win32Status": "64",
+        "timeTakenMilliseconds": "14807"
+      }
+    ],
+    "applicationEventStatus": "NO_TARGET_EVENT_IN_BOUNDED_WINDOW",
+    "applicationEvents": [],
+    "businessRowsOrMessagesSaved": false,
+    "completedUtc": "2026-11-09T19:55:46.9334322Z"
+  },
+  "diagnosisExecutor": {
+    "path": ".tmp/diagnose-doc118-p4b-readonly.ps1",
+    "sha256": "bf0f35ed22c4b25ebb4516fe72663b71acf9df004079b4dbc1e4e99a8f910476",
+    "localIgnored": true
+  },
+  "clientOutcome": {
+    "httpStatus": null,
+    "failure": "HEAD_UNCONFIRMED",
+    "configuredTimeoutMilliseconds": 10000,
+    "totalElapsedMilliseconds": 11346
+  },
+  "serverLogOutcome": {
+    "utc": "2026-11-09T18:53:03.0000000Z",
+    "method": "HEAD",
+    "targetPathMatched": true,
+    "httpStatus": "200",
+    "httpSubstatus": "0",
+    "win32Status": "64",
+    "timeTakenMilliseconds": "14807"
+  },
+  "interpretation": {
+    "lateServerResponseCompatibleWithClientDeadline": true,
+    "timeoutCauseProvenByClientException": false,
+    "doesNotQualifySdkSourceBinding": true,
+    "loadedMemoryIdentityVerified": false,
+    "activeBodyObservationQualified": false,
+    "integrationPass": false
+  },
+  "observer": {
+    "constructed": false,
+    "connectionAttempts": 0,
+    "attachConfirmed": false,
+    "cleanupRequired": false,
+    "basis": "Pinned script stops on HEAD_NOT_ACCEPTED before New-Object Doc118Debugger."
+  },
+  "cleanup": {
+    "rawFlagPreserved": false,
+    "httpHelperFinished": true,
+    "httpContextCloseUnconfirmedReported": false,
+    "serverRequestCancellationProven": false,
+    "preexistingIdesUntouched": true
+  },
+  "runtimeDelta": {
+    "httpRequests": 1,
+    "applicationLogins": 0,
+    "selectStatements": 0,
+    "documentEffects": 0,
+    "observerConnections": 0,
+    "documentalArms": 0,
+    "intentionalFreezes": 0
+  },
+  "historicalConsumptionPreserved": {
+    "httpRequests": 1276,
+    "selectStatements": 113,
+    "sessions": 9
+  },
+  "cumulativeAcrossHistoricalAndP4b": {
+    "httpRequests": 1277,
+    "selectStatements": 113,
+    "sessions": 9
+  },
+  "headCapacity": {
+    "path": ".tmp/doc118-p4b-20261109-01/head-dispatch.json",
+    "sha256": "4252d9655480e2ca7941a985639660cfdf02dae9d1884a28e17299c1ee21d56e",
+    "consumed": true,
+    "remaining": 0
+  },
+  "pinnedFiles": [
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.dll",
+      "sha256": "9225b627c50b96c29ee9031173f0c578df4a16e970cb45404ee6be4d13eff291"
+    },
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.pdb",
+      "sha256": "37aab89e1a02ed2704644ec9d58e6f44f19125e36f1b8bdc60d3f7b8f4f97b72"
+    },
+    {
+      "path": "workflow/ClassAlmacenamiento.vb",
+      "sha256": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+      "sha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741"
+    },
+    {
+      "path": "Web.config",
+      "sha256": "fd392f3679b9bad1e72fd7cecb21b78bda051a863a5e545564e7978e563ef07a"
+    },
+    {
+      "path": "tools/e2e/scripts/support/Doc118Debugger.cs",
+      "sha256": "77944acdb1d4b0ed675962927969e5818e4e098cd629976ed2e3bd75eb1cad8c"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc118-runtime-smoke.ps1",
+      "sha256": "1c10920e9a07119bef59040b4385e02ccd39638894a1b63ca09f63868e9c8888"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc118-runtime-smoke-head.cjs",
+      "sha256": "5fee78974e19e8e165e2d98212ca3320ff5051e7c1ab917aadf33f042db156f4"
+    },
+    {
+      "path": "C:/Program Files/Microsoft Visual Studio/18/Enterprise/Common7/IDE/PublicAssemblies/Microsoft.VisualStudio.Interop.dll",
+      "sha256": "ea15f3a8d9256d6bf7e133e3f79ca11dde788d0ae052dae8f407b21b5becc108"
+    }
+  ],
+  "backupFiles": [
+    {
+      "path": ".tmp/doc118-v2-deploy-9d67c81f-20261109-01/backup/GestionDocumental-Docuarchi.net.dll",
+      "sha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5"
+    },
+    {
+      "path": ".tmp/doc118-v2-deploy-9d67c81f-20261109-01/backup/GestionDocumental-Docuarchi.net.pdb",
+      "sha256": "7028b435d4ad0aeff074bf202fce4faa8742997c4e42edeecead2a4078d5eeeb"
+    }
+  ],
+  "documents": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-runtime-smoke-20261109.md",
+      "sha256": "363a8af6b0b07a019c1f4012a92e0d70b532c873d324e6f2f742e3d19c484aa7"
+    }
+  ],
+  "historicalEvidence": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-despliegue-v2-20261109.json",
+      "sha256": "6bef591e65d33bb0e931666d6eda359ff04e34b4e5d44905887628604ed48f01",
+      "preserved": true
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-metadatos-runtime-20261109.json",
+      "sha256": "4bcb2ff76ca33be295b7ab6ec30219ea71af079ad05984cc7e1e437b329f0a48",
+      "preserved": true
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preflight-20261107.json",
+      "sha256": "faa87b395d5b7e2bfcc10cdb3a7e901fef419f93f836bfc6f175a52f00adb766",
+      "preserved": true
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-acuses-v2-local-20261109.json",
+      "sha256": "27b6d7bb281633875113d4be2f4700fdcc48c99acacb85e1f5a4e6981383b29a",
+      "preserved": true
+    }
+  ],
+  "progress": {
+    "complete": 28,
+    "total": 38,
+    "remaining": 10,
+    "newTasks": 0
+  },
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "decisionRequirementPairs": 18,
+    "diffCheck": "PASS",
+    "installedFilesSourcesAndBackupStable": "PASS",
+    "historicalReportsPreserved": "PASS",
+    "singleHeadCapacityConsumed": "PASS",
+    "stopBeforeObserver": "PASS",
+    "realSmokeResult": "NOT_CONFIRMED",
+    "sdkBinding": "NOT_EXECUTED"
+  }
+}

@@ -1,5 +1,9 @@
 # Corte vigente — enlace V2 y driver implementados localmente
 
+## P4-B detenida en la comprobación HTTP
+
+P4-B aprobada y ejecutada una vez: cliente sin estado HTTP; log IIS con 200 y 14,807 s frente a timeout 10 s. Corte antes de construir/conectar observador, sin ARM/Freeze ni efectos. Una HEAD consumida y cero restantes; sin retries. Cero login/SELECT/efectos; acumulado entre histórico y P4-B 1277 HTTP/113 SELECT/9 aperturas. Fuentes/instalación/respaldo intactos. No acredita enlace de fuente o runtime. 28/38, sin nuevas tareas/cierres. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-runtime-smoke-20261109.json`.
+
 ## Metadatos IIS y siguiente comprobación propuesta
 
 Inspección de metadatos IIS: un worker y módulo objetivo no observado en la vista del sistema operativo; no acredita ausencia en CLR o identidad cargada. Cero red/login/SQL/efectos y ningún cambio de producto/runner/instalación. Preparada P4-B: una HEAD y enlace de fuente mediante Initialize/Inspect/Dispose del SDK existente, sin ARM/Freeze; propuesta aún sin autorización. 28/38, ninguna tarea añadida/cerrada. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-metadatos-runtime-20261109.json`.

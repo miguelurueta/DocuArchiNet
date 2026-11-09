@@ -103,3 +103,5 @@ Despliegue P4-A autorizado posterior a la propuesta: DLL/PDB instalados y verifi
 Preparación P4-B de 4.1: vista OS del worker sin módulo objetivo observado, sin inferir ausencia CLR. Preparada HEAD única y enlace de fuente SDK sin ARM/Freeze; pendiente autorización específica. No modifica pin histórico ni añade/cierra tareas; 28/38. Ver doc118-metadatos-runtime-20261109.md.
 
 Área de la preparación P4-B de4.1: tools/e2e/scripts/run-doc118-runtime-smoke.ps1 y support/doc118-runtime-smoke-head.cjs; invocación acotada del controlador existente, HEAD Playwright y rechazo antes de red/attach sin aprobación. Verificación: compilación SDK y cuatro controles locales, sin cambiar el runner histórico.
+
+P4-B autorizada y detenida en HEAD_ONCE: cliente sin estado HTTP; log IIS 200/14,807 s frente a plazo 10 s. Observador no conectado, cero ARM/Freeze/login/SELECT/efectos. Una HEAD consumida, ninguna restante; no repetir. Revisar continuación específica del observador conservando el corte. No completa 4.1 ni añade tareas; 28/38. Ver doc118-runtime-smoke-20261109.md.
