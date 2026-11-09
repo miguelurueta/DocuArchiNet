@@ -1,5 +1,9 @@
 # Corte vigente — enlace V2 y driver implementados localmente
 
+## Ejecución consolidada: observador calificado y parada conservada
+
+4.1 calificada en llamada real con hilo interno congelado y otra sesión atendida; 29/38 tareas. Plan41/lote25 nuevo conservado: COORD02 detenido tras SAME_COMMAND, primera petición UNKNOWN y sin OTHER_FILE/COORD03. SDK liberado/cerrado y sesiones eliminadas; sin replay. Acumulado1578 HTTP/147 SELECT/11 sesiones. Corrección del ejecutor: diagnóstico cerrado y espera original tras RESUME hasta35s. 260/260 Node; almacenamiento/SII/binarios intactos. Auditoría SELECT pendiente de dos entradas enmascaradas. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-ejecucion-consolidada-20261109.json`.
+
 ## Fuente del observador enlazada y SDK cerrado
 
 Continuación del observador revisada tras «continua»: fuente enlazada, worker vivo/otros hilos en ejecución, cero entradas/fallo/Freeze y desconexión/liberación SDK confirmadas. Cero HTTP/login/SELECT/efectos nuevos; una conexión aprobada consumida, ninguna restante. La HEAD anterior y su fallo se preservan. No se observó IDE nueva residual en la lectura posterior; PID propio no identificado directamente. Fuentes/instalación/SII intactos. 28/38, no completa 4.1 sin llamada activa. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observador-continuacion-20261109.json`.

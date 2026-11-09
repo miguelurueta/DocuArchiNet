@@ -52,15 +52,16 @@ async function preflight(live,dependencies={}){
  live.publication={perfilId:String(publication.perfil_id),versionId:'38',configuration};
  live.preservation={};
  live.mark?.('PREFLIGHT_PROTECTION');
- for(const loteId of ['18','21']){
+ for(const loteId of (live.currentWindow?live.authorization.protectedLots:['18','21'])){
   const snapshot=await live.controls.snapshot(loteId);live.preservation[loteId]=sha(JSON.stringify(snapshot));
  }
- save(live,'preflight',{issueKey:'DOC-118',stage:'AUTHENTICATED_PREFLIGHT_PASS',actorRef:'141',ambitoRef:'2',levelRef:'7',versionRef:'38',independentSessions:2,publicationVerified:true,cabinetVerified:true,protectedLots:['18','21'],counters:live.budget.snapshot(),omittedBeforeDispatch:live.omittedAssets,productionUiExercised:false,newPlans:0,newLots:0,newDocumentEffects:0,observerQualified:false});
+ save(live,'preflight',{issueKey:'DOC-118',stage:'AUTHENTICATED_PREFLIGHT_PASS',actorRef:'141',ambitoRef:'2',levelRef:'7',versionRef:'38',independentSessions:2,publicationVerified:true,cabinetVerified:true,protectedLots:live.currentWindow?live.authorization.protectedLots:['18','21'],counters:live.budget.snapshot(),omittedBeforeDispatch:live.omittedAssets,productionUiExercised:false,newPlans:0,newLots:0,newDocumentEffects:0,observerQualified:false});
  live.protocolPhaseIndex=1;
 }
 function assertRuntimeReady(live){
  const result=verifySymbolFiles(fs.readFileSync(path.join(live.ROOT,'bin/GestionDocumental-Docuarchi.net.dll')),fs.readFileSync(path.join(live.ROOT,'bin/GestionDocumental-Docuarchi.net.pdb')));
- const expected=JSON.parse(fs.readFileSync(path.join(live.ROOT,'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preflight-20261107.json'),'utf8')).runtime;
+ if(live.currentWindow)require('./doc118-current-window.cjs').assertEvidence(live.authorization,live.ROOT);
+ const expected=live.currentWindow?live.authorization.runtimePin:JSON.parse(fs.readFileSync(path.join(live.ROOT,'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preflight-20261107.json'),'utf8')).runtime;
  check(result.dllSha256===expected.dllSha256&&result.pdbSha256===expected.pdbSha256,'ORDINARY_BINARY_CHANGED');
  const binding=assertObserverReady(live);
  if(!live.observer)live.observer=connectObserver({directory:binding.directory,runId:live.runId,resourceSha256:'0'.repeat(64)});
@@ -79,7 +80,7 @@ async function prepare(live,scenario,dependencies={}){
  live.preparationRequested={...live.preparationRequested,[scenario]:true};
  const grant={environment:true,account:true,effects:true,discardable:true,select:true,tls:true};
  const client=shared.createDriver(bridge.budgetedAuth(guardedSession(live.sessions[0],live),live.profile,live.budget,scenario),live.profile,grant,{onReference:r=>live.reference(r)});await client.refreshToken();
- const c=await (recovery?(dependencies.recoverCase||recoverCase):(dependencies.prepareCase||prepareCase))({scenario,profile:live.profile,rootNames:live.authorization.newRootNames[scenario],actorRef:live.authorization.environment.actorRef,ambitoRef:live.authorization.environment.ambitoRef,client,controls:live.controls,query:live.query,assertSourceReady:()=>ready(live),onReference:r=>live.reference(r),recovery});
+ const c=await (recovery?(dependencies.recoverCase||recoverCase):(dependencies.prepareCase||prepareCase))({scenario,profile:live.profile,rootNames:live.authorization.newRootNames[scenario],actorRef:live.authorization.environment.actorRef,ambitoRef:live.authorization.environment.ambitoRef,client,controls:live.controls,query:live.query,assertSourceReady:()=>ready(live),onReference:r=>live.reference(r),recovery,executionScope:live.currentWindow?{runId:live.runId}:undefined});
  const bound={...grant,scope:'DOC-118-'+scenario,runId:live.runId,baseUrl:c.profile.baseUrl,levelRef:c.profile.nivelRef,versionRef:c.profile.versionId,actorRef:c.actorRef,ambitoRef:c.ambitoRef,concurrency:true,observer:true,...Object.fromEntries(['loteId','archivoAId','archivoBId','snapshotSha256'].map(k=>[k,c.prepared[k]])),resourceSha256:c.resourceSha256};
  let sessions=live.sessions.map(s=>guardedSession(s,live));
  if(scenario==='COORD02'){
@@ -119,7 +120,7 @@ async function verify(live,dependencies={}){
  let timer;try{const outcome=await Promise.race([c.firstSettlement,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('DOC118_LIVE_FIRST_OUTCOME_UNCONFIRMED')),60000);})]);check(outcome.fulfilled&&outcome.estado==='CONFIRMADO','FIRST_OUTCOME_UNCONFIRMED');}finally{clearTimeout(timer);}
  c.completed=await (dependencies.finish03||finish03)({caseData:c,client:c.pair.clients[1],controls:live.controls,observer:c.observer,closeFirstClient:()=>live.sessions[0].context.close()});
  await c.pair.close();
- for(const loteId of ['18','21'])check(sha(JSON.stringify(await live.controls.snapshot(loteId)))===live.preservation[loteId],'PROTECTED_LOT_CHANGED');
+ for(const loteId of (live.currentWindow?live.authorization.protectedLots:['18','21']))check(sha(JSON.stringify(await live.controls.snapshot(loteId)))===live.preservation[loteId],'PROTECTED_LOT_CHANGED');
  const a=live.prepared.COORD02,b=live.prepared.COORD03;
  check(a.completed.documents===2&&b.completed.documents===1&&a.prepared.loteId!==b.prepared.loteId&&new Set([a.targets.expA,a.targets.expB,b.targets.expA,b.targets.expB]).size===4,'FINAL_TOTALS_UNCONFIRMED');
  const identities=[...a.completed.identities,...b.completed.identities];check(identities.length===3&&new Set(identities.map(i=>i.documentoId)).size===3&&new Set(identities.map(i=>i.inventarioId)).size===3,'FINAL_IDENTITY_COLLISION');

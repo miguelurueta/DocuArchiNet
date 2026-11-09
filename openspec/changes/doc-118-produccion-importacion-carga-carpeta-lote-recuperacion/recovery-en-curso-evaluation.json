@@ -117,9 +117,9 @@
     "documentEffects": 0
   },
   "progress": {
-    "complete": 28,
+    "complete": 29,
     "total": 38,
-    "remaining": 10,
+    "remaining": 9,
     "candidateDeliverablesLocallyValidated": 9,
     "candidateDeliverablesPending": 0,
     "newBindingTasksComplete": 2,
@@ -1239,6 +1239,127 @@
       "noNewIdeResidualObserved": "PASS",
       "privateIdeDirectPidObservation": "NOT_CONFIRMED",
       "activeCallQualification": "NOT_EXECUTED"
+    }
+  },
+  "currentWindowPreparation": {
+    "status": "STOPPED_REVIEW_REQUIRED_OBSERVER_QUALIFIED",
+    "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-ejecucion-consolidada-20261109.json",
+    "authorization": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-current-window.json",
+    "runId": "7896bbf5729a7f9996fbd8cc8e18af18",
+    "localRegression": {
+      "tests": 260,
+      "passed": 260,
+      "failed": 0,
+      "internalV2Cases": 157,
+      "internalCasesNotAddedToNodeCount": true,
+      "wholeSuiteRun": true,
+      "testFiles": [
+        "tests/doc118-live-preflight.test.cjs",
+        "tests/doc118-session-bridge.test.cjs",
+        "tests/doc118-active-call.test.cjs",
+        "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+        "tests/doc118-symbols.test.cjs",
+        "tests/doc118-debugger-observer.test.cjs",
+        "tests/doc118-case-preparation.test.cjs",
+        "tests/doc118-case-completion.test.cjs",
+        "tests/doc118-lost-response.test.cjs",
+        "tests/doc118-live-lifecycle.test.cjs",
+        "tests/doc118-documental-phases.test.cjs",
+        "tests/doc118-debugger-protocol.test.cjs",
+        "tests/doc118-select-audit.test.cjs",
+        "tests/doc118-debugger-release.test.cjs",
+        "tests/doc118-release-probe-build.test.cjs",
+        "tests/doc118-staging-lock-probe.test.cjs",
+        "tests/doc110-perfil-importacion-behavior.test.cjs",
+        "tests/doc111-importacion-carpetas-client.test.cjs",
+        "tests/doc118-v2-driver.test.cjs",
+        "tests/doc118-v2-fault-conductor.test.cjs",
+        "tests/doc118-current-window.test.cjs"
+      ]
+    },
+    "protectedFiles": [
+      {
+        "path": "workflow/ClassAlmacenamiento.vb",
+        "sha256": "f0e650b4e98cb0558b17092b2fa22c9439b5065aedd105ef5f2a34f6f98722e7",
+        "unchanged": true
+      },
+      {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+        "sha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741",
+        "unchanged": true
+      },
+      {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.vb",
+        "sha256": "2c5e25c1ebcb3efeaa913c6d37c785390d934ced21b8b1ad1546ee5f080107f0",
+        "unchanged": true
+      }
+    ],
+    "historicalTotals": {
+      "httpRequests": 1277,
+      "selectStatements": 113,
+      "sessions": 9
+    },
+    "runtimeDelta": {
+      "httpRequests": 301,
+      "selectStatements": 34,
+      "sessions": 2,
+      "documentEffects": null,
+      "documentEffectsStatus": "UNKNOWN_DO_NOT_REPLAY"
+    },
+    "accumulatedIncludingHistory": {
+      "httpRequests": 1578,
+      "selectStatements": 147,
+      "sessions": 11
+    },
+    "automaticPhases": true,
+    "credentialsCaptured": true,
+    "realIntegrationPassed": false,
+    "observerQualified": true,
+    "retainedCase": {
+      "loteId": "25",
+      "roots": [
+        "41",
+        "42"
+      ],
+      "files": [
+        "42",
+        "43"
+      ],
+      "expedientes": [
+        "672",
+        "673"
+      ],
+      "relaciones": [
+        "1097",
+        "1098"
+      ],
+      "fileNames": [
+        "DOC118-C02-A-20261107.pdf",
+        "DOC118-C02-B-20261107.pdf"
+      ]
+    },
+    "selectAudit": {
+      "status": "AWAITING_SELECT_CREDENTIALS",
+      "localConsoleOnly": true,
+      "newApplicationSessions": 0,
+      "newHttpRequests": 0,
+      "mutations": 0,
+      "resultAvailable": false
+    },
+    "progress": {
+      "complete": 29,
+      "total": 38,
+      "remaining": 9,
+      "newTasks": 0
+    },
+    "validation": {
+      "openSpecStrict": "PASS",
+      "refinement": "PASS",
+      "refinementChecks": 15,
+      "decisionRequirementPairs": 18,
+      "diffCheck": "PASS",
+      "protectedStorageHashes": "PASS",
+      "deltaProvenance": "PASS"
     }
   }
 }

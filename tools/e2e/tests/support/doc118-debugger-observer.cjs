@@ -1,7 +1,8 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path');
 const {METHOD}=require('./doc118-active-call.cjs');
-const check=(v,c)=>{if(!v)throw Error('DOC118_OBSERVER_'+c);};
+const fault=c=>Object.assign(Error('DOC118_OBSERVER_'+c),{code:'DOC118_OBSERVER_'+c});
+const check=(v,c)=>{if(!v)throw fault(c);};
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
 function connectObserver({directory,runId,resourceSha256,peerProbe,maximumWaitMilliseconds=12000}){
  const statusFile=path.join(directory,'status.json'),requestFile=path.join(directory,'request.json');
@@ -13,7 +14,7 @@ function connectObserver({directory,runId,resourceSha256,peerProbe,maximumWaitMi
   fs.writeFileSync(temporary,JSON.stringify({sequence,operation,args}),{flag:'wx'});fs.renameSync(temporary,requestFile);
   const until=Date.now()+4000;
   while(Date.now()<until){const state=read();if(state?.sequence===sequence){check(!state.failure&&!['UNCONFIRMED','RELEASE_UNCONFIRMED','REVIEW_REQUIRED'].includes(state.status),'COMMAND_UNCONFIRMED');return state;}await delay(25);}
-  throw Error('DOC118_OBSERVER_COMMAND_TIMEOUT');
+  throw fault('COMMAND_TIMEOUT');
  }
  function active(state){const v=state?.observation,age=Date.now()-Date.parse(state?.heartbeatUtc);let ownerAlive=false;try{if(Number.isInteger(state?.pid)&&state.pid>0){process.kill(state.pid,0);ownerAlive=true;}}catch{}
   check(ownerAlive&&Number.isFinite(age)&&age>=0&&age<=5000&&v&&v.workerAlive===true&&v.sourceBound===true&&v.frozen===true&&v.otherThreadsRunning===true&&v.released===false&&v.closed===false&&!v.fault&&v.resourceSha256===resourceSha256&&Number.isInteger(v.threadId)&&v.threadId>0&&Number.isInteger(v.processId)&&v.processId>0&&v.entriesA===1&&v.entriesB===0,'ACTIVE_BODY_UNCONFIRMED');if(threadId!==null)check(v.threadId===threadId&&v.processId===processId,'THREAD_CHANGED');threadId=v.threadId;processId=v.processId;return v;}

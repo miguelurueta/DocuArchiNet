@@ -1,0 +1,179 @@
+{
+  "issueKey": "DOC-118",
+  "kind": "DOC118_CURRENT_WINDOW",
+  "status": "AUTHORIZED",
+  "executionStatus": "STOPPED_REVIEW_REQUIRED",
+  "recordedUtc": "2026-11-09T21:40:10.202Z",
+  "source": {
+    "kind": "explicit-user-delegation",
+    "text": "esto esta muy largo continua sin pedirme autorizacion a ver si adelanta mas rapido",
+    "appliesTo": "Continue DOC-118 in the established test environment/account; consolidate preparation and authorized verification without repeated phase confirmations.",
+    "scopeSelection": "Agent selects a finite fresh window for the original COORD02/03 task using the already documented environment, account and effect limits; this is a new additive ledger, never a reset of historical counters."
+  },
+  "repositoryCheckpoint": "142f7f7c101eb8ffbaba817e646a511aa611c028",
+  "runId": "7896bbf5729a7f9996fbd8cc8e18af18",
+  "automaticPhases": true,
+  "businessCasesAuthorized": true,
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "runtimeRoot": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+    "application": "Default Web Site/GestionDocumental-Docuarchi.net",
+    "applicationPool": "DefaultAppPool",
+    "actorRef": "141",
+    "ambitoRef": "2",
+    "levelRef": "7",
+    "versionRef": "38",
+    "raDsn": "MembershipUsers",
+    "daDsn": "MembershipUsers",
+    "localTlsExceptionAuthorized": true
+  },
+  "maximum": {
+    "totalSessions": 2,
+    "loginAttemptsPerSession": 1,
+    "newPlans": 2,
+    "newLots": 2,
+    "newRoots": 4,
+    "newPdfs": 4,
+    "newExpedientes": 4,
+    "newStoredDocuments": 3,
+    "stopRequests": 1,
+    "pauseMilliseconds": 30000,
+    "selectStatementsTotal": 240,
+    "allHttpGlobal": 1000,
+    "allHttpPerCase": {
+      "COORD02": 925,
+      "COORD03": 75
+    },
+    "caseDurationMilliseconds": 600000
+  },
+  "historicalTotals": {
+    "httpRequests": 1277,
+    "selectStatements": 113,
+    "sessions": 9
+  },
+  "newRootNames": {
+    "COORD02": [
+      "DOC118-C02-A-20261109-7896bbf5",
+      "DOC118-C02-B-20261109-7896bbf5"
+    ],
+    "COORD03": [
+      "DOC118-C03-A-20261109-7896bbf5",
+      "DOC118-C03-B-20261109-7896bbf5"
+    ]
+  },
+  "pdfLabels": {
+    "COORD02": [
+      "DOC118-C02-A-20261107.pdf",
+      "DOC118-C02-B-20261107.pdf"
+    ],
+    "COORD03": [
+      "DOC118-C03-A-20261107.pdf",
+      "DOC118-C03-B-20261107.pdf"
+    ]
+  },
+  "pdfLabelMeaning": "Reused synthetic labels under new roots/expedientes and fresh original receipts; no historical file, claim or effect reused.",
+  "protectedLots": [
+    "18",
+    "21",
+    "24"
+  ],
+  "protectedAttempts": [
+    "41",
+    "53",
+    "69"
+  ],
+  "sessionReuse": "TWO_SHARED_INDEPENDENT_SESSIONS",
+  "runtimePin": {
+    "dllSha256": "9225b627c50b96c29ee9031173f0c578df4a16e970cb45404ee6be4d13eff291",
+    "pdbSha256": "37aab89e1a02ed2704644ec9d58e6f44f19125e36f1b8bdc60d3f7b8f4f97b72",
+    "storageSha256": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c"
+  },
+  "historicalEvidence": {
+    "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observador-continuacion-20261109.json",
+    "sha256": "52e383c21339c67d3330572bb7be45c38628cf1e8d78ccac76589ab572d7c81d"
+  },
+  "sourceBindingEvidence": {
+    "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observador-continuacion-20261109.json",
+    "sha256": "52e383c21339c67d3330572bb7be45c38628cf1e8d78ccac76589ab572d7c81d"
+  },
+  "regression": {
+    "tests": 255,
+    "passed": 255,
+    "failed": 0,
+    "internalV2Cases": 157,
+    "internalCasesNotAddedToNodeCount": true
+  },
+  "capture": {
+    "mechanism": "Existing local masked console; four inputs in memory, no files or chat secrets.",
+    "credentialsAvailableInAgentEnvironment": false,
+    "phaseConfirmations": false
+  },
+  "prohibited": [
+    "Modification of shared storage/SII, configuration, permission, schema or workers.",
+    "Mutation/replay of protected lots18/21/24 or attempts41/53/69.",
+    "Automatic retries after unknown mutation or failed authentication.",
+    "Reusing historical session budgets or replacing historical reports/pins.",
+    "Saving credentials, cookies, connections, payloads or business rows."
+  ],
+  "newWindowConsumption": {
+    "httpRequests": 301,
+    "selectStatements": 34,
+    "sessions": 2,
+    "documentEffects": null,
+    "documentEffectsStatus": "UNKNOWN_DO_NOT_REPLAY"
+  },
+  "maximumAggregateIncludingHistory": {
+    "httpRequests": 2277,
+    "selectStatements": 353,
+    "sessions": 11
+  },
+  "accumulatedIncludingHistory": {
+    "httpRequests": 1578,
+    "selectStatements": 147,
+    "sessions": 11
+  },
+  "stop": {
+    "code": "DOC118_LIVE_PHASE_UNCONFIRMED",
+    "finishedUtc": "2026-11-09T21:51:45.520Z",
+    "phaseIndex": 2,
+    "sessionsClosed": true,
+    "ephemeralSecretsCleared": true,
+    "observerCloseConfirmed": true,
+    "runLeaseReleased": true
+  },
+  "retainedCase": {
+    "loteId": "25",
+    "roots": [
+      "41",
+      "42"
+    ],
+    "files": [
+      "42",
+      "43"
+    ],
+    "expedientes": [
+      "672",
+      "673"
+    ],
+    "relaciones": [
+      "1097",
+      "1098"
+    ],
+    "fileNames": [
+      "DOC118-C02-A-20261107.pdf",
+      "DOC118-C02-B-20261107.pdf"
+    ]
+  },
+  "additionalProtectedLots": [
+    "25"
+  ],
+  "selectAuditAuthorized": true,
+  "selectAuditScope": {
+    "existingLotOnly": "25",
+    "newSessions": 0,
+    "httpRequests": 0,
+    "mutations": 0,
+    "remainingSelectStatements": 206,
+    "source": "Existing user delegation to continue diagnosis in the established test environment with the SELECT account; no new business run or replay."
+  }
+}

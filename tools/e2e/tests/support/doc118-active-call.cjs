@@ -9,6 +9,9 @@ class CoordinationFault extends Error { constructor(code){super('DOC118_'+code);
 const fail=code=>{throw new CoordinationFault(code);};
 const check=(value,code)=>{if(!value)fail(code);};
 const positive=value=>Number.isSafeInteger(value)&&value>0;
+// Only closed observer categories may cross the boundary; never its message,
+// stack, request arguments or an arbitrary external error code.
+const OBSERVER_CODES=new Set(['CONTROLLER_NOT_AVAILABLE','COMMAND_PENDING','COMMAND_UNCONFIRMED','COMMAND_TIMEOUT','ACTIVE_BODY_UNCONFIRMED','THREAD_CHANGED','PEER_NOT_QUALIFIED','SCOPE_CHANGED','SOURCE_NOT_BOUND'].map(c=>'DOC118_OBSERVER_'+c));
 async function limited(work,milliseconds,onTimeout){
   let timer;
   try{return await Promise.race([Promise.resolve().then(work),new Promise((resolve,reject)=>{timer=setTimeout(()=>{try{resolve(onTimeout());}catch(error){reject(error);}},milliseconds);})]);}
@@ -21,12 +24,13 @@ function validateObservation(value,scope,previous){
   if(previous)check(value.processId===previous.processId&&value.threadId===previous.threadId,'ACTIVE_THREAD_CHANGED');
   return {processId:value.processId,threadId:value.threadId};
 }
-async function coordinateActiveCall({scenario,scope,first,actions,observer,maximumPauseMilliseconds=30000}){
+async function coordinateActiveCall({scenario,scope,first,actions,observer,maximumPauseMilliseconds=30000,maximumSettlementMilliseconds=35000}){
   check(Object.hasOwn(CASES,scenario),'SCENARIO_INVALID');
   check(scope&&Object.keys(scope).sort().join()==='resourceSha256,runId'&&/^[a-f0-9]{32}$/.test(scope.runId)&&/^[a-f0-9]{64}$/.test(scope.resourceSha256),'SCOPE_INVALID');
   check(typeof first==='function'&&observer&&['waitInside','inspect','resume'].every(k=>typeof observer[k]==='function'),'DEPENDENCIES_INVALID');
   check(Array.isArray(actions)&&actions.length===CASES[scenario].length&&actions.every((a,i)=>a&&a.kind===CASES[scenario][i]&&typeof a.execute==='function'),'ACTIONS_INVALID');
   check(Number.isInteger(maximumPauseMilliseconds)&&maximumPauseMilliseconds>0&&maximumPauseMilliseconds<=30000,'PAUSE_LIMIT_INVALID');
+  check(Number.isInteger(maximumSettlementMilliseconds)&&maximumSettlementMilliseconds>0&&maximumSettlementMilliseconds<=35000,'SETTLEMENT_LIMIT_INVALID');
   scope=Object.freeze({...scope});
   actions=actions.map(({kind,execute})=>Object.freeze({kind,execute}));
   const started=performance.now(),order=[],outcomes=[];let firstSettled=false,firstOutcome='UNKNOWN',errorCode=null,actionFailure=null;
@@ -51,15 +55,18 @@ async function coordinateActiveCall({scenario,scope,first,actions,observer,maxim
       validateObservation(await bounded(()=>observer.inspect(scope)),scope,proof);check(!firstSettled,'FIRST_ALREADY_SETTLED');
     }
     order.push('ACTIVE_INTERVAL_VERIFIED');
-  }catch(error){errorCode=error instanceof CoordinationFault?error.code:'DOC118_COORDINATION_UNCERTAIN';}
+  }catch(error){errorCode=error instanceof CoordinationFault||OBSERVER_CODES.has(error?.code)?error.code:'DOC118_COORDINATION_UNCERTAIN';}
   finally{
     // Always attempt release once, even if observation failed after freezing.
     try{await limited(()=>observer.resume(scope),5000,()=>fail('RESUME_NOT_CONFIRMED'));order.push('RESUME_REQUESTED');release=false;}
     catch{errorCode='DOC118_RESUME_NOT_CONFIRMED';}
     // The caller must independently query the durable outcome. Never resend first.
-    await limited(()=>pending,1000,()=>undefined);
+    // Keep the authenticated contexts alive for the original request's 30 s
+    // transport deadline and its checkpoint read. Release is independent of
+    // this wait; timeout retains UNKNOWN and never starts a replacement call.
+    await limited(()=>pending,release?1000:maximumSettlementMilliseconds,()=>undefined);
   }
-  const result={scenario,coordinationVerified:errorCode===null,firstOutcome,actions:outcomes,actionFailure,order,releaseUnconfirmed:release,businessEvidenceVerified:false,integrationPass:false};
+  const result={scenario,coordinationVerified:errorCode===null,failureCode:errorCode,firstOutcome,actions:outcomes,actionFailure,order,releaseUnconfirmed:release,businessEvidenceVerified:false,integrationPass:false};
   if(errorCode){const error=Object.assign(new Error(errorCode),{code:errorCode,coordination:result});throw error;}
   return result;
 }

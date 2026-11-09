@@ -8,10 +8,12 @@ const id=value=>typeof value==='string'&&/^[1-9][0-9]{0,9}$/.test(value)&&BigInt
 const one=(items,predicate)=>{const rows=items.filter(predicate);check(rows.length===1,'CORRELATION_INVALID');return rows[0];};
 const hash=value=>crypto.createHash('sha256').update(value).digest('hex');
 const inventoryFingerprint=view=>hash(JSON.stringify({roots:view.roots.map(r=>[String(r.raiz_id),r.cliente_raiz_id,r.datos_doc,r.identidad_expediente_doc]),files:view.files.map(f=>[String(f.archivo_id),String(f.raiz_id),f.cliente_archivo_id,String(f.bytes_previstos)])}));
-function caseProfile(profile,scenario,rootNames){
+function caseProfile(profile,scenario,rootNames,executionScope){
  shared.validateProfile(profile);check(['COORD02','COORD03'].includes(scenario)&&profile.mode==='LOTE','SCOPE_INVALID');
+ if(executionScope)check(Object.keys(executionScope).join()==='runId','SCOPE_INVALID');
  const suffix=scenario==='COORD02'?'02':'03';
- check(JSON.stringify(rootNames)===JSON.stringify(['A','B'].map(slot=>'DOC118-C'+suffix+'-'+slot+'-20261107')),'ROOT_NAMES_CHANGED');
+ const expected=executionScope?require('../../scripts/support/doc118-current-window.cjs').rootNames(executionScope.runId,scenario):['A','B'].map(slot=>'DOC118-C'+suffix+'-'+slot+'-20261107');
+ check(JSON.stringify(rootNames)===JSON.stringify(expected),'ROOT_NAMES_CHANGED');
  const result=structuredClone(profile);result.rootNames=rootNames.slice();
  result.expectations=result.expectations.map((e,i)=>({...e,codigo:rootNames[i],nombre:rootNames[i]}));
  return shared.validateProfile(result);
@@ -21,8 +23,8 @@ function effective(values,expected){
  check(values.filter(v=>v.DestinoTipo==='TIPOLOGIA'&&v.Valor===expected.tipologiaId&&v.Diferido===false).length===1,'EFFECTIVE_VALUES_INVALID');
  for(const wanted of expected.indices){const v=one(values,x=>x.DestinoTipo==='INDICE_GABINETE'&&x.DestinoRef===wanted.referencia);check(v.TipoValor===wanted.tipo&&v.Valor===wanted.valor&&v.Diferido===false,'EFFECTIVE_VALUES_INVALID');}
 }
-async function prepareCase({scenario,profile,rootNames,actorRef,ambitoRef,client,controls,query,assertSourceReady,onReference=()=>{}}){
- const p=caseProfile(profile,scenario,rootNames),bytes=shared.readFixture(p),fileNames=p.rootNames.map(name=>name+'.pdf');
+async function prepareCase({scenario,profile,rootNames,actorRef,ambitoRef,client,controls,query,assertSourceReady,executionScope,onReference=()=>{}}){
+ const p=caseProfile(profile,scenario,rootNames,executionScope),bytes=shared.readFixture(p),fileNames=executionScope?require('../../scripts/support/doc118-current-window.cjs').fileNames(scenario):p.rootNames.map(name=>name+'.pdf');
  check(id(actorRef)&&id(ambitoRef)&&typeof query==='function'&&typeof assertSourceReady==='function','DEPENDENCIES_REQUIRED');
  await assertSourceReady(); // Must fail before plan/confirmation/receipt effects.
  const absent=await query('RA','SELECT COUNT(*) AS total FROM expediente_archivo WHERE ID_EMPRESA_EXPEDIENTE=? AND (CODIGO_UNICO IN (?,?) OR ALEAS_EXPEDIENTE IN (?,?))',[ambitoRef,...p.rootNames,...p.rootNames]);
@@ -39,7 +41,7 @@ async function prepareCase({scenario,profile,rootNames,actorRef,ambitoRef,client
  }
  const lot=await client.request('ConfirmarPlan',{planId:plan.planId,revisionEsperada:plan.revision,planHashEsperado:plan.planHash,claveConfirmacion:crypto.randomBytes(16).toString('hex')});
  if(id(lot?.loteId))onReference({planId:plan.planId,loteId:lot.loteId});
- check(id(lot?.loteId)&&!['18','21'].includes(lot.loteId)&&lot.nivelRef===p.nivelRef,'CONFIRMATION_INVALID');
+ check(id(lot?.loteId)&&!['18','21','24'].includes(lot.loteId)&&lot.nivelRef===p.nivelRef,'CONFIRMATION_INVALID');
  const initialRoots=await client.pages(lot.loteId,'RAICES'),initialFiles=await client.pages(lot.loteId,'ARCHIVOS');
  check(initialRoots.length===2&&initialFiles.length===2,'ORIGINAL_INVENTORY_CHANGED');
  for(let i=0;i<2;i++)await client.receive(lot.loteId,one(initialFiles,f=>f.idCliente===files[i].idCliente),bytes,fileNames[i]);

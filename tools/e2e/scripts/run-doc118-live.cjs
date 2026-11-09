@@ -17,6 +17,7 @@ const check=(v,c)=>{if(!v)throw Error('DOC118_LIVE_'+c);};
 const PUBLIC_GUARDS=new Set(['ARGUMENT_INVALID','PREVIOUS_SESSION_REQUIRES_REVIEW','AUTHORIZATION_CHANGED','PROFILE_CHANGED','LIMITS_CHANGED','CONTINUATION_NOT_AUTHORIZED','CARRIED_STATE_CHANGED','CONTINUATION_REVIEW_REQUIRED','CONTINUATION_CAPACITY_INSUFFICIENT','REQUEST_INVALID','PHASE_ORDER_INVALID','IMPLEMENTATION_CHANGED','SESSION_EXPIRED','CASE_DURATION_EXCEEDED','PREVIOUS_RUN_REQUIRES_REVIEW','LEASE_OWNER_CHANGED','OBSERVER_NOT_READY_BEFORE_CAPTURE','OBSERVER_BINDING_CHANGED','ORDINARY_BINARY_CHANGED'].map(c=>'DOC118_LIVE_'+c));
 function publicGuardCode(error,fallback='DOC118_LIVE_START_UNCONFIRMED'){return PUBLIC_GUARDS.has(error?.message)?error.message:fallback;}
 function scope(a,p){
+ if(a?.kind==='DOC118_CURRENT_WINDOW')return require('./support/doc118-current-window.cjs').scope(a,p);
  check(a.issueKey==='DOC-118'&&a.status==='AUTHORIZED'&&a.environment.actorRef==='141'&&a.environment.ambitoRef==='2'&&a.environment.levelRef==='7'&&a.environment.versionRef==='38','AUTHORIZATION_CHANGED');
  check(a.environment.baseUrl===p.baseUrl&&p.nivelRef==='7'&&p.versionId==='38'&&p.module==='GESTOR'&&p.odbcDsn==='MembershipUsers'&&p.docuarchiOdbcDsn==='MembershipUsers','PROFILE_CHANGED');
  const originalWindow=a.maximum.totalSessions===7&&a.maximum.allHttpGlobal===1200&&a.maximum.allHttpPerCase?.COORD02===1125;
@@ -45,26 +46,31 @@ function continuationConsumption(a,proof,priorCapture){
 }
 async function main(args=process.argv.slice(2)){
  process.title='DOC118 - Captura enmascarada E2E';
- check(args.length===2&&args[0]==='--run'&&/^[a-f0-9]{32}$/.test(args[1]),'ARGUMENT_INVALID');tty.requireInteractiveConsole();
+ check(args.length===2&&['--run','--current-window'].includes(args[0])&&/^[a-f0-9]{32}$/.test(args[1]),'ARGUMENT_INVALID');tty.requireInteractiveConsole();
+ const currentWindow=args[0]==='--current-window',windowAdapter=currentWindow?require('./support/doc118-current-window.cjs'):null,authorizationPath=currentWindow?path.join(ROOT,windowAdapter.AUTH_REL):AUTH;
  const runId=args[1],directory=path.join(ROOT,'.tmp','doc118-live-'+runId);check(!fs.existsSync(directory),'PREVIOUS_SESSION_REQUIRES_REVIEW');
- const profile=validateProfile(read(path.join(ROOT,'tools/e2e/profiles/doc111-importacion-carpetas-lote-20261102.runtime.json'))),authorization=read(AUTH),pin=scope(authorization,profile);
+ const profile=validateProfile(read(path.join(ROOT,'tools/e2e/profiles/doc111-importacion-carpetas-lote-20261102.runtime.json'))),authorization=read(authorizationPath),pin=scope(authorization,profile);
+ check(!currentWindow||authorization.runId===runId,'AUTHORIZATION_CHANGED');
  require(IMPL).assertDependencies(); // Fail before secret entry if a shared binding is unavailable.
+ let carried;
+ if(currentWindow){windowAdapter.assertEvidence(authorization,ROOT);carried=windowAdapter.initialState(authorization);}else{
  check(['doc118-login-preflight-20261107.json','doc118-continuation-preflight-20261107.json','doc118-authenticated-preflight-20261107.json','doc118-observer-readiness-20261108.json','doc118-prepared-stop-20261108.json','doc118-prepared-recovery-readiness-20261108.json'].includes(authorization.consumptionEvidence),'CARRIED_STATE_CHANGED');
  const proof=read(path.join(ROOT,'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion',authorization.consumptionEvidence));
  const priorCapture=proof.previousEvidence==='doc118-authenticated-preflight-20261107.json'?read(path.join(ROOT,'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-authenticated-preflight-20261107.json')):undefined;
- const carried=continuationConsumption(authorization,proof,priorCapture);
+ carried=continuationConsumption(authorization,proof,priorCapture);}
  const lease=acquireLease(ROOT,runId,pin),seal=implementationSeal(ROOT);
  fs.mkdirSync(directory);
  const record={issueKey:'DOC-118',runId,pid:process.pid,status:'VERIFYING_OBSERVER',createdUtc:new Date().toISOString(),phaseIndex:0,authorizationScopeSha256:pin,implementationSeal:seal,history:[],counters:null,references:[],carriedSessionAttempts:carried.sessionAttempts,carriedCounters:carried.counters};
  const statusFile=path.join(directory,'status.json'),requestFile=path.join(directory,'request.json');
- const save=()=>{record.heartbeatUtc=new Date().toISOString();fs.writeFileSync(statusFile+'.new',JSON.stringify(record,null,2)+'\n');fs.renameSync(statusFile+'.new',statusFile);};save();
+ if(currentWindow){record.windowKind='DOC118_CURRENT_WINDOW';record.historicalTotals=authorization.historicalTotals;record.automaticPhases=true;}
+ const save=()=>{record.heartbeatUtc=new Date().toISOString();if(currentWindow)record.accumulatedIncludingHistory=windowAdapter.aggregate(authorization,record.counters||carried.counters,record.sessionAttempts??carried.sessionAttempts);fs.writeFileSync(statusFile+'.new',JSON.stringify(record,null,2)+'\n');fs.renameSync(statusFile+'.new',statusFile);};save();
  const secrets={},environment=Object.fromEntries(Object.entries(process.env).filter(([k])=>['PATH','Path','SystemRoot','WINDIR','TEMP','TMP','ComSpec','PATHEXT'].includes(k)));
- const live={ROOT,directory,runId,profile,authorization,budget:createBudget({allHttpPerCase:authorization.maximum.allHttpPerCase,allHttpGlobal:authorization.maximum.allHttpGlobal,carried:carried.counters}),environment,sessions:[],prepared:{},browser:null,observer:null,sessionCount:carried.sessionAttempts,carriedSessionAttempts:carried.sessionAttempts,activeCase:'COORD02',startedCaseUtc:{},
+ const live={ROOT,directory,runId,profile,authorization,currentWindow,budget:createBudget({allHttpPerCase:authorization.maximum.allHttpPerCase,allHttpGlobal:authorization.maximum.allHttpGlobal,carried:carried.counters}),environment,sessions:[],prepared:{},browser:null,observer:null,sessionCount:carried.sessionAttempts,carriedSessionAttempts:carried.sessionAttempts,activeCase:'COORD02',startedCaseUtc:{},
    reference(ref){const safe={};for(const key of ['planId','loteId','raizId','archivoId','expedienteId','relacionNivelId','intentoId','documentoId','inventarioId'])if(typeof ref[key]==='string'&&/^[1-9][0-9]{0,9}$/.test(ref[key]))safe[key]=ref[key];record.references.push(safe);save();},
    mark(stage){check(STAGES.has(stage),'STAGE_INVALID');record.status=stage;record.lastStage=stage;record.sessionAttempts=live.sessionCount;record.counters=live.budget.snapshot();save();}};
  record.counters=live.budget.snapshot();save();
  live.assertActive=()=>{
-  const current=read(AUTH);check(current.executionStatus==='CONTINUATION_AUTHORIZED_AWAITING_MASKED_CAPTURE'&&scope(current,profile)===pin,'AUTHORIZATION_CHANGED');
+  const current=read(authorizationPath);check(current.executionStatus==='CONTINUATION_AUTHORIZED_AWAITING_MASKED_CAPTURE'&&scope(current,profile)===pin,'AUTHORIZATION_CHANGED');
   check(implementationSeal(ROOT)===seal,'IMPLEMENTATION_CHANGED');
   const started=live.startedCaseUtc[live.activeCase];check(!started||Date.now()-started<=authorization.maximum.caseDurationMilliseconds,'CASE_DURATION_EXCEEDED');
  };
@@ -84,13 +90,14 @@ async function main(args=process.argv.slice(2)){
   const expires=Date.now()+30*60*1000;
   while(!requestedClose){
    check(Date.now()<expires,'SESSION_EXPIRED');
+   if(currentWindow&&!fs.existsSync(requestFile))fs.writeFileSync(requestFile,JSON.stringify({sequence:record.phaseIndex+1,phase:PHASES[record.phaseIndex],implementationSha256:sha(fs.readFileSync(IMPL))}),{flag:'wx'});
    if(!fs.existsSync(requestFile)){if(Date.now()-Date.parse(record.heartbeatUtc)>5000)save();await new Promise(r=>setTimeout(r,250));continue;}
    const request=read(requestFile);check(Object.keys(request).sort().join()==='implementationSha256,phase,sequence','REQUEST_INVALID');
    check(request.sequence===record.phaseIndex+1&&(request.phase==='CLOSE'||request.phase===PHASES[record.phaseIndex]),'PHASE_ORDER_INVALID');
    fs.renameSync(requestFile,path.join(directory,'request-'+request.sequence+'.consumed.json'));
    if(request.phase==='CLOSE'){record.closeRequestAcknowledged=true;save();requestedClose=true;break;}
    live.assertActive();
-   check(scope(read(AUTH),profile)===pin,'AUTHORIZATION_CHANGED');
+   check(scope(read(authorizationPath),profile)===pin,'AUTHORIZATION_CHANGED');
    check(request.implementationSha256===sha(fs.readFileSync(IMPL)),'IMPLEMENTATION_CHANGED');
    record.status='RUNNING_'+request.phase;record.history.push({phase:request.phase,status:'REQUESTED',utc:new Date().toISOString()});save();
    delete require.cache[require.resolve(IMPL)];const implementation=require(IMPL);

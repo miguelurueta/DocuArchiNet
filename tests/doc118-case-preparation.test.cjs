@@ -25,6 +25,10 @@ test('DOC118 lost confirmation is never replayed or followed by receipt',async()
 test('DOC118 refuses a persisted foreign owner and preserves prepared resource references',async()=>{const f=fixture();f.setActor('999');await assert.rejects(prepareCase(f.options),/PERSISTED_CONTEXT_CHANGED/);assert.ok(f.refs.some(r=>r.loteId==='100'));});
 test('DOC118 preparation refuses historical or unapproved root names before source/API/SQL',async()=>{const f=fixture();f.options.rootNames=['historical-a','historical-b'];await assert.rejects(prepareCase(f.options),/ROOT_NAMES_CHANGED/);assert.equal(f.calls.length,0);});
 
+test('DOC118 fresh window prepares new roots and originals with existing SDK-compatible PDF labels',async()=>{const current=require('../tools/e2e/scripts/support/doc118-current-window.cjs'),f=fixture(),runId='a'.repeat(32);f.options.executionScope={runId};f.options.rootNames.splice(0,2,...current.rootNames(runId,'COORD02'));const c=await prepareCase(f.options);assert.deepEqual(f.calls.find(c=>c.op==='PrepararPlan').p.raices.map(r=>r.nombre),current.rootNames(runId,'COORD02'));assert.deepEqual(f.calls.filter(c=>c.op==='receive').map(c=>c.name),current.fileNames('COORD02'));assert.equal(c.targets.nameA,'DOC118-C02-A-20261107.pdf');assert.equal(c.targets.nameB,'DOC118-C02-B-20261107.pdf');assert.equal(f.calls.filter(c=>c.op==='PrepararPlan').length,1);});
+
+test('DOC118 fresh confirmation never proceeds on protected lot24',async()=>{const f=fixture(),request=f.options.client.request;f.options.client.request=async(op,p)=>op==='ConfirmarPlan'?{loteId:'24',nivelRef:f.options.profile.nivelRef}:request(op,p);await assert.rejects(prepareCase(f.options),/CONFIRMATION_INVALID/);assert.equal(f.calls.some(c=>c.op==='receive'||c.op==='AvanzarLote'),false);});
+
 async function recoveryFixture(){
  const f=fixture(),view=await f.controls.snapshot(),p=f.options.profile;
  p.nivelRef='7';p.versionId='38';
