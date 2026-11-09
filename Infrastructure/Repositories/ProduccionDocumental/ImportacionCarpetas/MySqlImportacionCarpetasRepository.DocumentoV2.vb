@@ -64,18 +64,21 @@ Public Partial Class MySqlImportacionCarpetasRepository
     End Function
 
     Private Shared Function CargarPersistenciaDocumentoV2(conexion As MySqlConnection, tx As MySqlTransaction, comando As ComandoAlmacenamientoCarpetas) As VistaPersistenciaDocumentoV2Importacion
-        Dim lote = BloquearLoteRecepcion(conexion, tx, comando.Contexto, comando.Intento.LoteId)
-        Dim raiz = CargarRaizControl(conexion, tx, lote.LoteId, comando.Intento.RaizId)
-        Dim archivo = CargarArchivoRecepcion(conexion, tx, comando.Contexto, lote.LoteId, comando.Intento.ArchivoId, True)
+        Return CargarPersistenciaDocumentoV2(conexion, tx, comando.Contexto, comando.Intento.LoteId, comando.Intento.RaizId, comando.Intento.ArchivoId, comando.Intento.IntentoId)
+    End Function
+    Private Shared Function CargarPersistenciaDocumentoV2(conexion As MySqlConnection, tx As MySqlTransaction, contexto As ContextoImportacionCarpetas, loteId As String, raizId As String, archivoId As String, intentoId As String) As VistaPersistenciaDocumentoV2Importacion
+        Dim lote = BloquearLoteRecepcion(conexion, tx, contexto, loteId)
+        Dim raiz = CargarRaizControl(conexion, tx, lote.LoteId, raizId)
+        Dim archivo = CargarArchivoRecepcion(conexion, tx, contexto, lote.LoteId, archivoId, True)
         Dim vista As New VistaPersistenciaDocumentoV2Importacion With {.Lote = lote, .Raiz = raiz, .Archivo = archivo}
-        Using cmd = ComandoOperacion(conexion, tx, "SELECT * FROM ra_integracion_intento WHERE intento_id=@intento AND lote_id=@lote AND raiz_id=@raiz AND archivo_id=@archivo AND fase='ALMACENAR' FOR UPDATE", "@intento", IdOperacion(comando.Intento.IntentoId), "@lote", IdOperacion(lote.LoteId), "@raiz", IdOperacion(raiz.RaizId), "@archivo", IdOperacion(archivo.ArchivoId))
+        Using cmd = ComandoOperacion(conexion, tx, "SELECT * FROM ra_integracion_intento WHERE intento_id=@intento AND lote_id=@lote AND raiz_id=@raiz AND archivo_id=@archivo AND fase='ALMACENAR' FOR UPDATE", "@intento", IdOperacion(intentoId), "@lote", IdOperacion(lote.LoteId), "@raiz", IdOperacion(raiz.RaizId), "@archivo", IdOperacion(archivo.ArchivoId))
             Using reader = cmd.ExecuteReader()
                 If Not reader.Read() Then Throw AccesoDenegado()
                 vista.Intento = LeerIntentoDocumental(reader)
                 If Not reader.IsDBNull(reader.GetOrdinal("evidencia_doc")) Then vista.Evidencia = CStr(reader("evidencia_doc"))
             End Using
         End Using
-        vista.Diario = LeerTablaConsulta(conexion, tx, "SELECT accion,codigo,actor_ref,recurso_tipo,recurso_id,lote_id,intento_id,detalle_doc FROM ra_integracion_evento WHERE lote_id=@lote AND intento_id=@intento ORDER BY evento_id LIMIT 6 FOR UPDATE", New Object() {"@lote", IdOperacion(lote.LoteId), "@intento", IdOperacion(vista.Intento.IntentoId)})
+        vista.Diario = LeerTablaConsulta(conexion, tx, "SELECT evento_id,ocurrido_utc,accion,codigo,actor_ref,recurso_tipo,recurso_id,lote_id,intento_id,detalle_doc FROM ra_integracion_evento WHERE lote_id=@lote AND intento_id=@intento ORDER BY evento_id LIMIT 6 FOR UPDATE", New Object() {"@lote", IdOperacion(lote.LoteId), "@intento", IdOperacion(vista.Intento.IntentoId)})
         Return vista
     End Function
 

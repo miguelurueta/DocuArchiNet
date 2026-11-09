@@ -1,6 +1,10 @@
 # DOC-118 — coordinación y recuperación
 
-## Regresión local tras RV-04
+## Regresión local tras RV-05
+
+223/223 Node:18 comportamiento/cliente y205 herramientas. El harness añade22 casos de recuperación con guardia real sobre PDF sintético, SELECT/transacción simulados y cero escritor. Comprueba cierre de control, identidad confirmada, rollback, autoridad/vista exactas, historial y bloqueo V1/69. No certifica MySQL real ni habilita HTTP. Progreso22/32. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-recuperacion-v2-local-20261109.json`.
+
+## Regresión anterior tras RV-04
 
 223/223 Node actuales, más ejecución enfocada del chequeo DDL ya incluido.20 casos SQL nuevos dentro del harness prueban el mismo núcleo de producción integrado con el adaptador y un doble transaccional; no certifican MySQL real. Conserva los casos previos19/21/20, sin sumarlos al contador Node. Progreso21/31. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-persistencia-v2-local-20261108.json`.
 

@@ -1,6 +1,10 @@
 # DOC-118 — coordinación y recuperación
 
-## Corte actual de RV-04
+## Corte actual de RV-05
+
+Implementada6.5/D-15/RQ-15:recuperación interna sin escritor, guardia hasta commit/rollback y vista exacta. Negativo exige PREPARADO sin invocación y expediente sin huellas; positivo verifica los mismos IDs observados.22 casos nuevos con guardia real/SELECT y transacción simulados;223/223 Node. Progreso22/32, mismas10 tareas anteriores pendientes. HTTP/calificación real pendientes,69 protegido. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-recuperacion-v2-local-20261109.md`.
+
+## Corte anterior de RV-04
 
 Implementada6.4/D-14/RQ-14:persistencia V2 del repositorio existente, integrada localmente con el adaptador y un doble transaccional.20 casos SQL nuevos;223/223 Node, DDL ampliado válido. Gate de un solo uso, evidencia/diario concordantes y checkpoint/evento/consolidación en la transacción exterior. MySQL real, composición pública y recuperación no acreditados/activados;69 protegido. Progreso21/31. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-persistencia-v2-local-20261108.md`.
 

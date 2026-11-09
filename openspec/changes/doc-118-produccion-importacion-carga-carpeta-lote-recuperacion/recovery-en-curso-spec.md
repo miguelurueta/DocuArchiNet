@@ -1,6 +1,6 @@
 # Especificación candidata — recuperación V2 de EN_CURSO
 
-Estado: propuesta para revisión. No es una modificación vigente de `specs/produccion-importacion-carga-carpeta-lote-recuperacion/spec.md`. Su implementación exige aceptar la extensión de D-07/RQ-07; sus escenarios aún no son resultados de pruebas.
+Estado:protocolo implementado internamente hasta RV-05 bajo RQ-11..RQ-15, con evidencia local separada por entrega. La exposición pública RV-06 y la calificación real siguen pendientes; D-07/RQ-07 públicos conservan su contrato. Los escenarios RC no son resultados reales de integración por sí mismos y69 permanece inelegible.
 
 ## RC-01 — Elegibilidad por evidencia del servidor
 

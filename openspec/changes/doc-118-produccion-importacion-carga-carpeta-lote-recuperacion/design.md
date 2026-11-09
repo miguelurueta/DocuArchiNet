@@ -128,7 +128,7 @@ Entrega documental sin despliegue ni migración. Después de aprobación humana:
 
 ## Acceptance and review gates
 
-Diez decisiones y requisitos originales, más D-11/RQ-11 para contratos, D-12/RQ-12 para staging, D-13/RQ-13 para adaptador y D-14/RQ-14 para persistencia; escenarios en spec.md y evidencia de cada entrega. La aprobación de refinement.md y el reemplazo trazable de las tareas genéricas son compuertas antes de implementación. Las pruebas reales requieren una autorización separada posterior a un plan concreto. No hay autorización de ejecución implícita en este diseño.
+Diez decisiones y requisitos originales, más D-11/RQ-11..D-15/RQ-15 para contratos, staging, adaptador, persistencia y recuperación interna V2; escenarios en spec.md y evidencia de cada entrega. La aprobación de refinement.md y el reemplazo trazable de las tareas genéricas son compuertas antes de implementación. Las pruebas reales requieren una autorización separada posterior a un plan concreto. No hay autorización de ejecución implícita en este diseño.
 
 ## Evaluación adicional de recuperación EN_CURSO
 
@@ -159,3 +159,9 @@ El recorrido consume localmente una sola ejecución por instancia y no reintenta
 RV-04/6.4 añade un parcial al mismo repositorio y reutiliza Operar:locks lote→raíz→archivo→intento, SQL parametrizado, evento y cambio de evidencia en una transacción. El acuse se construye después de que Operar retorna tras commit. Una autorización ya persistida no se entrega nuevamente como permiso, incluso ante respuesta perdida. Diario duplicado, incompleto o contradictorio bloquea sin normalizar V1 a V2.
 
 La evidencia activa V2 se proyecta con un código distinto para que las lecturas existentes sigan funcionando y el checkpoint V1 la rechace. El checkpoint V2 guarda el resultado normal existente y conserva inicio/autorización/retorno tipados en el diario; resultado, archivo, lote, evento y consolidación usan la transacción exterior. La repetición solo devuelve resultado idéntico sin otro evento o consolidación. El alcance local prueba el mismo núcleo SQL con dobles transaccionales; no acredita un servidor MySQL real ni activa la composición pública o recuperación.
+
+### D-15 — Recuperación interna V2 sin escritor (RQ-15)
+
+La continuación posterior a RV-04 autoriza6.5/RV-05. El coordinador obtiene evidencia/diario del repositorio, reautoriza y usa la guardia del proveedor. Solo PREPARADO coherente sin autorización/retorno/resultado y con expediente sin registros de gabinete/inventario/índice permite cierre RECHAZADO/EJECUCION_CERRADA_SIN_INVOCACION. Es una excepción V2 interna para retirar el marcador exacto y volver el archivo a NO_INICIADO, conservando recepción/PDF/expediente/valores/inventario. La comprobación negativa de expediente completo es deliberadamente conservadora:otros documentos bloquean ese cierre.
+
+Solo RETORNO_OBSERVADO con autorización/IDs completos y verificación física por los mismos IDs permite confirmar. El comando de comprobación mantiene EsVerificacion=true sin fingir RESERVADO o INCIERTO. No se inyecta ni llama un escritor. Persistencia reautoriza bajo locks y exige vista/plan/diario/revisiones/evidencia exactos; guardia durante Operar/commit/rollback. Evento y consolidación comparten transacción. Historial válido se devuelve sin guardia o nuevas escrituras, incluso tras otra reclamación. V1/69, gate sin retorno, IDs incompletos, stop negativo y proveedor no acreditado mantienen bloqueo. La exposición HTTP pertenece a RV-06.

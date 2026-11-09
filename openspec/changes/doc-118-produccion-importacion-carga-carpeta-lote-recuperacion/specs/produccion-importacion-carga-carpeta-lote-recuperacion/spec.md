@@ -175,3 +175,19 @@ El repositorio SHALL cumplir D-14: usar las tablas y transacción existentes par
 #### Scenario: Checkpoint o evento fallido
 - **WHEN** falla una escritura, evento o consolidación durante el checkpoint
 - **THEN** la transacción no confirma un resultado parcial; un replay confirmado solo devuelve la misma identidad y no vuelve a consolidar.
+
+### Requirement: RQ-15 — Recuperación interna V2 sin escritor
+
+El sistema SHALL cumplir D-15 mediante una operación interna sin puerto de almacenamiento. SHALL exigir inicio/diario V2 originales, autoridad, ámbito y vista concordantes y guardia viva hasta commit/rollback. V1, versión ausente o backfill no SHALL ser elegibles. Esta extensión interna no SHALL modificar la operación pública RQ-07 antes de RV-06.
+
+#### Scenario: Preparación sin invocación
+- **WHEN** V2 está PREPARADO sin autorización/retorno/resultado, no hay detención ni otra reclamación y el expediente carece de huellas documentales verificadas
+- **THEN** puede cerrar únicamente ese intento como RECHAZADO/EJECUCION_CERRADA_SIN_INVOCACION, retirar su marcador y conservar recepción, original, expediente, valores e inventario; no confirma un documento ni encadena almacenamiento.
+
+#### Scenario: Identidad observada verificable
+- **WHEN** hay retorno V2 concordante con IDs completos y verificación física positiva por esos mismos IDs
+- **THEN** puede confirmar esa identidad y consolidar atómicamente bajo guardia, conservando stop; no almacena de nuevo ni fuerza estados a INCIERTO.
+
+#### Scenario: Vista cambiada o recuperación repetida
+- **WHEN** cambian autoridad, revisión, evidencia, plan, diario o marcador antes de persistir, o se repite un cierre ya guardado
+- **THEN** rechaza una escritura contra una vista obsoleta; un historial concordante se devuelve sin nuevos efectos ni tocar una reclamación posterior.

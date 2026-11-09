@@ -52,7 +52,10 @@
 
 - [x] 6.4 [M] RV-04: persistir inicio, autorización, retorno y checkpoint V2 en el repositorio MySQL existente. Área/archivos: nuevo parcial `MySqlImportacionCarpetasRepository.DocumentoV2.vb`, lector documental compatible, proyecto y harness. Origen: D-14, RQ-14; RC-01, RC-03, RC-06 candidatos. Reproducción:RV-03 solo dispone de dobles y69 carece de diario V2. Verificación:20 casos SQL nuevos integrados con adaptador sobre doble transaccional,18/18 regresión y205/205 herramientas; DDL estático ampliado pasa. Locks lote/raíz/archivo/intento, token/hash/evidencia/diario, gate de un solo uso, acuse tras Operar/commit, checkpoint/evento/consolidación en tx y V1 compatible. Sin DDL, ejecución real, activación pública o backfill. Autorización:«contiua con el flujo» posterior a RV-03 y al siguiente paso RV-04.
 
+- [x] 6.5 [M] RV-05: implementar recuperación interna V2 con guardia, clasificación y persistencia comparada. Área/archivos: parciales de coordinador/repositorio, comando de comprobación, catálogo SELECT y harness existentes. Origen: D-15, RQ-15; RC-01/02/04/05/06 candidatos. Reproducción:RV-04 conserva el diario pero no recupera EN_CURSO;69 permanece V1. Verificación:22 casos nuevos y223/223 Node; cierre negativo solo preparado/no invocación/expediente sin huellas y confirmación positiva solo IDs observados/verificados, guardia hasta commit/rollback, autoridad/vista/revisiones exactas, rollback e historial sin efectos. Staging real sintético, SELECT/transacción simulados, cero escritor. Sin conversión a INCIERTO, reset general, backfill, despliegue o ejecución real. Autorización:«continua» posterior a RV-04 y al siguiente paso de recuperación limitada V2.
+
 ## Ejecución y defectos reproducidos
+
 
 
 
@@ -76,3 +79,5 @@ Corte RV-02-B: se añadió y completó6.2; mapa19/29 y las mismas10 tareas anter
 Corte RV-03: se añadió y completó6.3; mapa20/30 y las mismas10 tareas anteriores pendientes. Recorrido interno del adaptador con dobles de persistencia/escritor y retención real. RV-04 y la composición pública V2 siguen pendientes.
 
 Corte RV-04: se añadió y completó6.4; mapa21/31, mismas10 tareas anteriores pendientes. Persistencia MySQL implementada y núcleo SQL integrado localmente con adaptador; atomicidad/concurrencia real MySQL, composición pública y recuperación siguen sin acreditar/activar.
+
+Corte RV-05 del2026-11-09:se añadió y completó6.5; mapa22/32, mismas10 tareas anteriores pendientes. Recuperación interna implementada y probada con guardia real/SELECT y transacción simulados; exposición pública y calificación real pendientes.69/V1 siguen inelegibles.

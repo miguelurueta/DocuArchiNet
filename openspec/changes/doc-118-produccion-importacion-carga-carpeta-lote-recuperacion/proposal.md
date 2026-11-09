@@ -72,6 +72,8 @@ Ampliación local RV-03:«continua» posterior a RV-02-B autoriza6.3/D-13/RQ-13,
 
 Continuación RV-04:«contiua con el flujo» autoriza6.4/D-14/RQ-14 dentro de DOC-118, sin trasladar trabajo a otro ticket. Se implementan los callbacks V2 en el repositorio existente y su lectura compatible; se valida el núcleo SQL con el adaptador mediante un doble transaccional. Sin DDL, conexión real, activación pública o backfill. Fuente:`recovery-v2-persistence-authorization.json`.
 
+Continuación RV-05 del2026-11-09:«continua» posterior a RV-04 autoriza6.5/D-15/RQ-15, recuperación interna limitada. Cierre negativo requiere expediente sin huellas; positivo exige los IDs observados/verificados. Guardia y comparación de vista hasta commit, sin escritor o conversión general de estados. Regresión local, sin exposición HTTP, despliegue, ejecución real o mutación de69. Fuente:`recovery-v2-recovery-authorization.json`.
+
 ## Perfil tecnologico
 
 - Perfil de revision: legacy-webforms-vb (v1).

@@ -1,4 +1,10 @@
-# Corte vigente — RV-04 persistencia implementada y validada localmente
+# Corte vigente — RV-05 recuperación interna implementada
+
+Cierre negativo V2 limitado y confirmación por IDs observados, sin escritor, bajo guardia y vista comparada hasta commit/rollback.22 casos nuevos con guardia real/SELECT y transacción simulados;223/223 Node. Progreso22/32, mismas10 tareas anteriores abiertas. No acredita MySQL real ni activa HTTP.
+
+Sin sesiones, HTTP de negocio, SELECT reales o efectos nuevos. Consumos1276 HTTP/113 SELECT/9 aperturas,69 protegido y sin backfill. Evidencia:[recuperación V2](doc118-recuperacion-v2-local-20261109.json), [alcance](doc118-recuperacion-v2-local-20261109.md).
+
+## Corte anterior — RV-04 persistencia implementada y validada localmente
 
 Callbacks V2 en el repositorio existente; acuses después de Operar/commit, gate único, diario concordante y checkpoint/evento/consolidación juntos.20 casos SQL nuevos integrados con el adaptador sobre doble transaccional;223/223 Node y DDL ampliado válido. Progreso21/31; mismas10 tareas anteriores abiertas. No acredita MySQL real ni activa composición pública o recuperación.
 

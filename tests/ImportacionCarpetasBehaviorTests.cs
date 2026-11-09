@@ -2772,6 +2772,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
         StagingV2Cases();
         AdapterV2Cases();
         PersistenceV2Cases();
+        RecoveryV2Cases();
         Doc115RepositoryGuardCases();
         QueryCases();QuerySqlCases();QueryDispatcherCases();RetentionDiagnosisCases();KnownExpedientRelationCases();KnownExpedientClassificationCases();CreationCommandCases();CreationCatalogCases();CreationLegacyCompatibilityCases();LegacyCreationAuthorityCases();ProductionArchiveCycleCases();CreationAdapterCases();CreationResultSqlCases();CreationCheckpointCases();CreationBarrierCases();PhysicalCreationStagingCases();CoordinatedCreationCases();DeferredValuesCases();
         ControlCases();
