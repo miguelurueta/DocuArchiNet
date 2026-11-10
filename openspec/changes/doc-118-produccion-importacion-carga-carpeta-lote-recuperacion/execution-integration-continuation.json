@@ -2,7 +2,7 @@
   "issueKey": "DOC-118",
   "kind": "DOC118_INTEGRATION_CONTINUATION",
   "status": "AUTHORIZED",
-  "executionStatus": "CONTINUATION_AUTHORIZED_AWAITING_MASKED_CAPTURE",
+  "executionStatus": "STOPPED_DURING_FIRST_LOGIN_REVIEW_REQUIRED",
   "recordedUtc": "2026-11-10T11:59:48.396Z",
   "source": {
     "kind": "explicit-user-task-continuation",
@@ -111,9 +111,9 @@
     "Saving credentials, cookies, connections, payloads or business rows."
   ],
   "newWindowConsumption": {
-    "httpRequests": 2,
+    "httpRequests": 93,
     "selectStatements": 0,
-    "sessions": 0,
+    "sessions": 1,
     "documentEffects": 0
   },
   "maximumAggregateIncludingHistory": {
@@ -168,15 +168,16 @@
     "finishedUtc": "2026-11-10T12:14:34.734Z"
   },
   "postStopCandidateRegression": {
-    "tests": 268,
-    "passed": 268,
+    "tests": 274,
+    "passed": 274,
     "failed": 0,
     "internalV2Cases": 157,
     "internalCasesNotAddedToNodeCount": true,
-    "captureStagesRecordedForFutureAttempts": true
+    "clockSampledAfterHeartbeatRead": true,
+    "existingLoginFailureProjectorReused": true
   },
   "captureReview": {
-    "captureAttempt": 2,
+    "captureAttempt": 3,
     "userText": "lanza",
     "recordedUtc": "2026-11-10T12:37:54.374Z",
     "previousSessionAttempts": 0,
@@ -187,13 +188,43 @@
       "sha256": "15e4107ec4ebf45e6f63b3a06ea263fe6054d0f63586512d59470198890ffe29"
     },
     "previousObserverClosed": true,
-    "observerAttempt": 2,
+    "observerAttempt": 3,
     "noAuthenticationRetry": true,
     "preservedHttpConsumption": 1,
     "additionalWarmupHttp": 1,
     "additionalWarmupEvidence": {
       "path": ".tmp/doc118-integration-warmup-1dd584ce2fc6352d2c162545990b85dc-capture2.json",
       "sha256": "0aa70620a77f2cf68e983e4fb297cef6ff10e5f7a64662793a7dc2e107eb74d4"
+    },
+    "secondStop": {
+      "path": ".tmp/doc118-live-1dd584ce2fc6352d2c162545990b85dc-capture-stop-2/status.json",
+      "sha256": "98cd0176e2a46b3a6f394297d1026c016581b049b408495c749d8f1d2a8216d1"
+    },
+    "fix": "Sample observer clock after reading heartbeat; reproduced locally before fix and passing after fix, without relaxing future/stale rejection.",
+    "reviewedUtc": "2026-11-10T12:55:13.510Z",
+    "runtimeRefresh": {
+      "httpRequests": 1,
+      "method": "HEAD",
+      "relativePath": "gestor.aspx",
+      "retries": 0,
+      "redirects": 0,
+      "evidence": {
+        "path": ".tmp/doc118-integration-warmup-1dd584ce2fc6352d2c162545990b85dc-capture3.json",
+        "sha256": "b56555b0f1efa979371159720de0d718cb86183b67fb697a83b804458a3de9c9"
+      }
     }
+  },
+  "latestStop": {
+    "code": "DOC118_LIVE_PHASE_UNCONFIRMED",
+    "captureStage": "RUNTIME_RECHECK",
+    "lastStage": "PREFLIGHT_BEFORE_LOGIN_A",
+    "phaseIndex": 0,
+    "loginAttempts": 1,
+    "authenticatedSessionConfirmed": false,
+    "refsEmpty": true,
+    "observerClosed": true,
+    "secretsCleared": true,
+    "leaseReleased": true,
+    "finishedUtc": "2026-11-10T13:00:17.247Z"
   }
 }

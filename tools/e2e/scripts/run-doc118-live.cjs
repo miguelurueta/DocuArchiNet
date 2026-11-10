@@ -6,6 +6,7 @@ const tty=require('./support/interactive-e2e-console.cjs');
 const {validateProfile}=require('../tests/support/doc111-importacion-carpetas.cjs');
 const {createBudget}=require('../tests/support/doc118-session-bridge.cjs');
 const {implementationSeal,acquireLease}=require('../tests/support/doc118-live-lifecycle.cjs');
+const {preflightFailure}=require('./support/doc117-alm03-preflight-evidence.cjs');
 const ROOT=path.resolve(__dirname,'../../..'),CHANGE='doc-118-produccion-importacion-carga-carpeta-lote-recuperacion';
 const AUTH=path.join(ROOT,'openspec/changes',CHANGE,'execution-authorization.json');
 const IMPL=path.join(__dirname,'support/doc118-live-plan.cjs');
@@ -16,6 +17,7 @@ const read=p=>JSON.parse(fs.readFileSync(p,'utf8').replace(/^\uFEFF/,''));
 const check=(v,c)=>{if(!v)throw Error('DOC118_LIVE_'+c);};
 const PUBLIC_GUARDS=new Set(['ARGUMENT_INVALID','PREVIOUS_SESSION_REQUIRES_REVIEW','AUTHORIZATION_CHANGED','PROFILE_CHANGED','LIMITS_CHANGED','CONTINUATION_NOT_AUTHORIZED','CARRIED_STATE_CHANGED','CONTINUATION_REVIEW_REQUIRED','CONTINUATION_CAPACITY_INSUFFICIENT','REQUEST_INVALID','PHASE_ORDER_INVALID','IMPLEMENTATION_CHANGED','SESSION_EXPIRED','CASE_DURATION_EXCEEDED','PREVIOUS_RUN_REQUIRES_REVIEW','LEASE_OWNER_CHANGED','OBSERVER_NOT_READY_BEFORE_CAPTURE','OBSERVER_BINDING_CHANGED','ORDINARY_BINARY_CHANGED','CAPTURE_NOT_COMPLETED'].map(c=>'DOC118_LIVE_'+c));
 function publicGuardCode(error,fallback='DOC118_LIVE_START_UNCONFIRMED'){return PUBLIC_GUARDS.has(error?.message)?error.message:fallback;}
+function phaseFailure(error){const safe=preflightFailure(error);return{code:safe.code==='UNCLASSIFIED_FAILURE'?publicGuardCode(error,'DOC118_LIVE_PHASE_UNCONFIRMED'):safe.code,preflightFailure:safe};}
 async function captureCredentials(secrets,{collect=tty.collectValue,onStage=()=>{}}={}){
  for(const [name,label,stage]of [['user','Login de aplicacion de la cuenta autorizada (usuario 141)','APPLICATION_USER'],['password','Contrasena de aplicacion','APPLICATION_PASSWORD'],['dbUser','Cuenta MySQL exclusivamente SELECT','SELECT_USER'],['dbPassword','Contrasena MySQL SELECT','SELECT_PASSWORD']]){
   onStage(stage);try{await collect(secrets,name,label,{secret:true});}catch{throw Error('DOC118_LIVE_CAPTURE_NOT_COMPLETED');}
@@ -112,8 +114,7 @@ async function main(args=process.argv.slice(2)){
   record.status=record.phaseIndex===PHASES.length?'FINISHED_REQUIRES_EVIDENCE_REVIEW':'CLOSED_BY_OPERATOR';
  }catch(error){
   record.status='STOPPED_REVIEW_REQUIRED';
-  const known=['DOC111_LOGIN_CREDENTIALS_REJECTED','DOC111_LOGIN_ACCOUNT_NOT_FOUND','DOC111_LOGIN_ACCOUNT_BLOCKED','DOC111_LOGIN_SECOND_FACTOR_REQUIRED','DOC111_LOGIN_HTTP_REJECTED','DOC111_SESSION_NOT_ESTABLISHED','DOC111_IMPORT_ACCESS_DENIED','DOC111_IMPORT_CAPABILITY_UNAVAILABLE'];
-  record.code=known.includes(error?.message)?error.message:publicGuardCode(error,'DOC118_LIVE_PHASE_UNCONFIRMED');
+  Object.assign(record,phaseFailure(error));
   console.log(record.code+'; sin reintentos automaticos.');process.exitCode=2;
  }finally{
   try{if(live.observer?.close){await live.observer.close();record.observerCloseConfirmed=true;}}catch{record.observerCloseConfirmed=false;}
@@ -125,4 +126,4 @@ async function main(args=process.argv.slice(2)){
  }
 }
 if(require.main===module)main().catch(error=>{console.log(publicGuardCode(error)+'; sin detalle privado.');process.exitCode=2;});
-module.exports={scope,continuationConsumption,PHASES,publicGuardCode,captureCredentials};
+module.exports={scope,continuationConsumption,PHASES,publicGuardCode,captureCredentials,phaseFailure};

@@ -1,5 +1,9 @@
 # DOC-118 — coordinación y recuperación
 
+## Observador corregido; preflight detenido en acceso
+
+Se reprodujo y corrigió una carrera de reloj en la disponibilidad del observador, conservando rechazo de estados futuros/antiguos. La captura posterior completó las cuatro entradas y pasó a PREFLIGHT, pero la primera autenticación no se confirmó. Cero SELECT o recursos nuevos; SDK/contextos cerrados y credenciales eliminadas. Acumulado1671 HTTP/172 SELECT/12 intentos/aperturas; sin reintento automático.274/274 Node candidatos y32/38 tareas. Se reutiliza el diagnóstico cerrado de DOC117 para conservar códigos en futuras ejecuciones. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observador-preflight-20261110.json`.
+
 ## Captura revisada lanzada — 2026-11-10
 
 El usuario pidió «lanza» después de la parada sin login o efectos. Se preservó el intento anterior y se abrió la consola en el escritorio normal con observador2 enlazado;al registrar espera APPLICATION_USER. Ambas HEAD se conservan dentro del máximo:acumulado1580 HTTP/172 SELECT/11 sesiones.269/269 Node y32/38 tareas;sin nuevo PASS de integración. Lote25 confirmado/protegido y archivo anterior intacto. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-captura-revisada-20261110.json`.

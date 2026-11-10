@@ -1464,5 +1464,43 @@
       "sourceTraceability": "PASS",
       "gitSynchronization": "VERIFY_AT_DELIVERY"
     }
+  },
+  "readinessAndPreflight": {
+    "status": "STOPPED_DURING_FIRST_LOGIN_REVIEW_REQUIRED",
+    "reportPath": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observador-preflight-20261110.json",
+    "scopePath": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-integration-continuation.json",
+    "currentConsumption": {
+      "httpRequests": 93,
+      "selectStatements": 0,
+      "sessions": 1,
+      "documentEffects": 0
+    },
+    "cumulative": {
+      "httpRequests": 1671,
+      "selectStatements": 172,
+      "sessions": 12
+    },
+    "clockRaceReproducedAndFixed": true,
+    "localRegression": {
+      "tests": 274,
+      "passed": 274,
+      "failed": 0,
+      "wholeSuiteRun": true,
+      "internalV2Cases": 157,
+      "internalCasesNotAddedToNodeCount": true
+    },
+    "progress": {
+      "completed": 32,
+      "total": 38,
+      "pending": 6
+    },
+    "validation": {
+      "openSpecStrict": "PASS",
+      "refinement": "PASS",
+      "refinementChecks": 15,
+      "decisionRequirementPairs": 18,
+      "sourceTraceability": "PASS",
+      "gitSynchronization": "VERIFY_AT_DELIVERY"
+    }
   }
 }
