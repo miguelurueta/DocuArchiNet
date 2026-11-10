@@ -53,7 +53,7 @@ function continuationConsumption(a,proof,priorCapture){
  return structuredClone({sessionAttempts:proof.sessionAttempts,counters});
 }
 async function main(args=process.argv.slice(2)){
- process.title='DOC118 - Captura enmascarada E2E';
+ process.title='DOC-118 COORD-02/03 - consola '+process.pid;
  check(args.length===2&&['--run','--current-window','--integration-continuation'].includes(args[0])&&/^[a-f0-9]{32}$/.test(args[1]),'ARGUMENT_INVALID');tty.requireInteractiveConsole();
  const currentWindow=args[0]!=='--run',windowAdapter=currentWindow?require('./support/doc118-current-window.cjs'):null,authorizationPath=currentWindow?path.join(ROOT,args[0]==='--integration-continuation'?windowAdapter.CONTINUATION_AUTH_REL:windowAdapter.AUTH_REL):AUTH;
  const runId=args[1],directory=path.join(ROOT,'.tmp','doc118-live-'+runId);check(!fs.existsSync(directory),'PREVIOUS_SESSION_REQUIRES_REVIEW');
@@ -85,7 +85,7 @@ async function main(args=process.argv.slice(2)){
  let requestedClose=false;
  try{
   require(IMPL).assertRuntimeReady(live);record.status='AWAITING_CREDENTIALS';save();
-  console.log('DOC-118: cuatro entradas enmascaradas: usuario/contrasena de aplicacion y usuario/contrasena SELECT. Solo en memoria; sin reintentos automaticos.');
+  console.log('DOC-118: usuarios de aplicacion y SELECT visibles; contrasenas ocultas. Solo en memoria; sin reintentos automaticos.');
   await captureCredentials(secrets,{onStage:stage=>{record.captureStage=stage;save();}});
   Object.assign(environment,{DOC111_E2E_MODULE:profile.module,DOC111_E2E_USER:secrets.user,DOC111_E2E_PASSWORD:secrets.password});
   for(const [prefix,dsn]of [['DOC111_E2E',profile.odbcDsn],['DOC111_DA_E2E',profile.docuarchiOdbcDsn]])Object.assign(environment,{[prefix+'_ODBC_DSN']:dsn,[prefix+'_MYSQL_USER']:secrets.dbUser,[prefix+'_MYSQL_PASSWORD']:secrets.dbPassword});

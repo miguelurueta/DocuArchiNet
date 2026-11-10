@@ -2,16 +2,16 @@
   "issueKey": "DOC-118",
   "kind": "DOC118_INTEGRATION_CONTINUATION",
   "status": "AUTHORIZED",
-  "executionStatus": "STOPPED_DURING_FIRST_LOGIN_REVIEW_REQUIRED",
-  "recordedUtc": "2026-11-10T11:59:48.396Z",
+  "executionStatus": "STOPPED_DURING_RUN02_REVIEW_REQUIRED",
+  "recordedUtc": "2026-11-10T15:13:18.465Z",
   "source": {
     "kind": "explicit-user-task-continuation",
-    "text": "continua con el flujo y las tareas",
-    "appliesTo": "Complete the six remaining integration checks using the established test environment/account and existing two-case engine after reading the retained outcome.",
-    "scopeSelection": "Finite additive window selected under the user delegation:2 shared sessions,2 new lots,4 roots/PDFs/expedientes,3 stored documents,1000 HTTP/240 SELECT and one stop. No prior budget or unknown command is reused."
+    "text": "continua",
+    "appliesTo": "Complete COORD02/03 using the corrected observer after the retained lot26 audit. The confirmed file in26 remains protected and is not suitable for recreating an active first-call dispute.",
+    "scopeSelection": "Finite new window:2 independent shared sessions,2 new plans/lots,4 roots/PDFs/expedientes,3 stored documents,1 stop,1000 HTTP/240 SELECT. Preserve cumulative2185 HTTP/240 SELECT/15 session attempts. No historical replay or implicit budget reset."
   },
-  "repositoryCheckpoint": "65f2bb445839f5528a78d712d1a02152b73a6ec9",
-  "runId": "1dd584ce2fc6352d2c162545990b85dc",
+  "repositoryCheckpoint": "7c86371c713d7571490016fd696b6b56c0376b88",
+  "runId": "cb5a90e15b0ef3dd972d49af4b044af5",
   "automaticPhases": true,
   "businessCasesAuthorized": true,
   "environment": {
@@ -47,18 +47,18 @@
     "caseDurationMilliseconds": 600000
   },
   "historicalTotals": {
-    "httpRequests": 1578,
-    "selectStatements": 172,
-    "sessions": 11
+    "httpRequests": 2185,
+    "selectStatements": 240,
+    "sessions": 15
   },
   "newRootNames": {
     "COORD02": [
-      "DOC118-C02-A-20261109-1dd584ce",
-      "DOC118-C02-B-20261109-1dd584ce"
+      "DOC118-C02-A-20261109-cb5a90e1",
+      "DOC118-C02-B-20261109-cb5a90e1"
     ],
     "COORD03": [
-      "DOC118-C03-A-20261109-1dd584ce",
-      "DOC118-C03-B-20261109-1dd584ce"
+      "DOC118-C03-A-20261109-cb5a90e1",
+      "DOC118-C03-B-20261109-cb5a90e1"
     ]
   },
   "pdfLabels": {
@@ -76,13 +76,15 @@
     "18",
     "21",
     "24",
-    "25"
+    "25",
+    "26"
   ],
   "protectedAttempts": [
     "41",
     "53",
     "69",
-    "74"
+    "74",
+    "79"
   ],
   "sessionReuse": "TWO_SHARED_INDEPENDENT_SESSIONS",
   "runtimePin": {
@@ -99,62 +101,43 @@
     "sha256": "52e383c21339c67d3330572bb7be45c38628cf1e8d78ccac76589ab572d7c81d"
   },
   "capture": {
-    "mechanism": "Existing four-input masked console, launched on the normal interactive desktop outside CodexSandboxDesktop.",
+    "mechanism": "Existing four-input console on Default desktop: usernames visible, passwords masked; keep console open after runner exit.",
     "credentialsAvailableInAgentEnvironment": false,
     "phaseConfirmations": false
   },
   "prohibited": [
     "Modification of shared storage/SII, configuration, permission, schema or workers.",
-    "Mutation/replay of protected lots18/21/24/25 or attempts41/53/69/74.",
+    "Mutation/replay of protected lots18/21/24/25/26 or attempts41/53/69/74/79.",
     "Automatic retries after unknown mutation or failed authentication.",
     "Reusing historical session budgets or replacing historical reports/pins.",
     "Saving credentials, cookies, connections, payloads or business rows."
   ],
-  "newWindowConsumption": {
-    "httpRequests": 93,
-    "selectStatements": 0,
-    "sessions": 1,
-    "documentEffects": 0
-  },
   "maximumAggregateIncludingHistory": {
-    "httpRequests": 2578,
-    "selectStatements": 412,
-    "sessions": 13
+    "httpRequests": 3185,
+    "selectStatements": 480,
+    "sessions": 17
   },
   "settlementEvidence": {
     "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-auditoria-lote25-20261110.json",
     "sha256": "6710a99b132870d65c4a1f26d54613a5e4ca95954254f44bf0ddb0194e2fbb78"
   },
   "parentWindow": {
-    "runId": "7896bbf5729a7f9996fbd8cc8e18af18",
+    "runId": "8a0e5dbe62d8b6b8bd1b5339377ca20e",
     "consumption": {
-      "httpRequests": 301,
-      "selectStatements": 59,
+      "httpRequests": 299,
+      "selectStatements": 68,
       "sessions": 2
     },
     "latestReadEvidence": {
-      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-auditoria-lote25-20261110.json",
-      "sha256": "6710a99b132870d65c4a1f26d54613a5e4ca95954254f44bf0ddb0194e2fbb78"
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-lote26-observador-20261110.json",
+      "sha256": "66244b49bddbd5a2447a5af96806b27101f2856e215d6fc9061f9b160c5396c7"
     }
   },
   "regression": {
-    "tests": 266,
-    "passed": 266,
+    "tests": 280,
+    "passed": 280,
     "failed": 0,
-    "internalV2Cases": 157,
-    "internalCasesNotAddedToNodeCount": true,
-    "wholeSuiteRun": true
-  },
-  "bootstrapWarmup": {
-    "httpRequests": 1,
-    "method": "HEAD",
-    "relativePath": "gestor.aspx",
-    "retries": 0,
-    "redirects": 0,
-    "evidence": {
-      "path": ".tmp/doc118-integration-warmup-1dd584ce2fc6352d2c162545990b85dc.json",
-      "sha256": "4bb9898a0f122ec0e774924efde3bd7add38afd254b6a34b18985b8d5a07f5e1"
-    }
+    "validation": "REQUIRE_ACTUAL_PASS_BEFORE_LAUNCH"
   },
   "stop": {
     "phaseIndex": 0,
@@ -176,55 +159,114 @@
     "clockSampledAfterHeartbeatRead": true,
     "existingLoginFailureProjectorReused": true
   },
+  "loginContinuation": {
+    "userText": "continua",
+    "priorRunId": "1dd584ce2fc6352d2c162545990b85dc",
+    "diagnosticRunId": "a7fe7f4ab8653c512bc19f67698b5023",
+    "evidence": {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-acceso-confirmado-20261110.json",
+      "sha256": "f8a5ebaf0933ad8c22c0997298f8549205abff93f2f669280af874981da70779"
+    },
+    "priorAuthority": {
+      "path": ".tmp/doc118-authority-1dd584ce2fc6352d2c162545990b85dc-closed.json",
+      "sha256": "e05efc35397c2c8f03996cd10bb3938f92d471aa224a152f4ab71cac99518618"
+    }
+  },
+  "maximumCumulativeIncludingHistory": {
+    "httpRequests": 3185,
+    "selectStatements": 480,
+    "sessions": 17
+  },
+  "postAuditContinuation": {
+    "userText": "continua",
+    "priorRunId": "8a0e5dbe62d8b6b8bd1b5339377ca20e",
+    "evidence": {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-lote26-observador-20261110.json",
+      "sha256": "66244b49bddbd5a2447a5af96806b27101f2856e215d6fc9061f9b160c5396c7"
+    },
+    "priorAuthority": {
+      "path": ".tmp/doc118-authority-8a0e5dbe62d8b6b8bd1b5339377ca20e-closed.json",
+      "sha256": "56fcc26c3f85ef2ac0144810fcae6a5bd67929fd5b152db8b4c53e3c57618909"
+    },
+    "candidateObserverWaitMilliseconds": 25000,
+    "outerCoordinationLimitMilliseconds": 30000
+  },
+  "newWindowConsumption": {
+    "httpRequests": 302,
+    "selectStatements": 74,
+    "sessions": 2
+  },
+  "bootstrapWarmup": {
+    "httpRequests": 1,
+    "method": "HEAD",
+    "relativePath": "gestor.aspx",
+    "retries": 0,
+    "redirects": 0,
+    "evidence": {
+      "path": ".tmp/doc118-integration-warmup-cb5a90e15b0ef3dd972d49af4b044af5.json",
+      "sha256": "0b54809886b54bd7dfebda4c02945e5e04754f1d5e14eeb74f8cb0453b1ca6bc"
+    }
+  },
   "captureReview": {
-    "captureAttempt": 3,
-    "userText": "lanza",
-    "recordedUtc": "2026-11-10T12:37:54.374Z",
+    "captureAttempt": 2,
+    "userText": "continua",
+    "recordedUtc": "2026-11-10T15:22:46.700Z",
     "previousSessionAttempts": 0,
     "previousSelectStatements": 0,
     "previousBusinessEffects": 0,
     "previousStop": {
-      "path": ".tmp/doc118-live-1dd584ce2fc6352d2c162545990b85dc-capture-stop-1/status.json",
-      "sha256": "15e4107ec4ebf45e6f63b3a06ea263fe6054d0f63586512d59470198890ffe29"
+      "path": ".tmp/doc118-live-cb5a90e15b0ef3dd972d49af4b044af5-capture-stop-1/status.json",
+      "sha256": "c582f33598691a0802bba81f54d93fa45a33330425a212aad55c520af465b76b"
     },
     "previousObserverClosed": true,
-    "observerAttempt": 3,
+    "observerAttempt": 2,
     "noAuthenticationRetry": true,
     "preservedHttpConsumption": 1,
-    "additionalWarmupHttp": 1,
-    "additionalWarmupEvidence": {
-      "path": ".tmp/doc118-integration-warmup-1dd584ce2fc6352d2c162545990b85dc-capture2.json",
-      "sha256": "0aa70620a77f2cf68e983e4fb297cef6ff10e5f7a64662793a7dc2e107eb74d4"
-    },
-    "secondStop": {
-      "path": ".tmp/doc118-live-1dd584ce2fc6352d2c162545990b85dc-capture-stop-2/status.json",
-      "sha256": "98cd0176e2a46b3a6f394297d1026c016581b049b408495c749d8f1d2a8216d1"
-    },
-    "fix": "Sample observer clock after reading heartbeat; reproduced locally before fix and passing after fix, without relaxing future/stale rejection.",
-    "reviewedUtc": "2026-11-10T12:55:13.510Z",
-    "runtimeRefresh": {
-      "httpRequests": 1,
-      "method": "HEAD",
-      "relativePath": "gestor.aspx",
-      "retries": 0,
-      "redirects": 0,
-      "evidence": {
-        "path": ".tmp/doc118-integration-warmup-1dd584ce2fc6352d2c162545990b85dc-capture3.json",
-        "sha256": "b56555b0f1efa979371159720de0d718cb86183b67fb697a83b804458a3de9c9"
-      }
+    "localReadinessProbe": {
+      "path": ".tmp/doc118-readiness-probe-capture2.json",
+      "sha256": "a5815bc4bcd4f3d0a35fdc430caad1c5807810909f7e37bf6a88689f59224602"
     }
   },
   "latestStop": {
-    "code": "DOC118_LIVE_PHASE_UNCONFIRMED",
-    "captureStage": "RUNTIME_RECHECK",
-    "lastStage": "PREFLIGHT_BEFORE_LOGIN_A",
-    "phaseIndex": 0,
-    "loginAttempts": 1,
-    "authenticatedSessionConfirmed": false,
-    "refsEmpty": true,
-    "observerClosed": true,
-    "secretsCleared": true,
-    "leaseReleased": true,
-    "finishedUtc": "2026-11-10T13:00:17.247Z"
+    "status": "STOPPED_REVIEW_REQUIRED",
+    "phaseIndex": 2,
+    "loteId": "27",
+    "failureCode": "DOC118_COORDINATION_UNCERTAIN",
+    "actionFailure": {
+      "kind": "OTHER_FILE",
+      "httpStatus": 409,
+      "serverCode": "CONFLICTO_REVISION"
+    },
+    "sameCommandBlocked": true,
+    "otherFileCode": "CONFLICTO_REVISION",
+    "accumulatedIncludingHistory": {
+      "httpRequests": 2487,
+      "selectStatements": 289,
+      "sessions": 17
+    },
+    "localEvidence": [
+      {
+        "path": ".tmp/doc118-live-cb5a90e15b0ef3dd972d49af4b044af5/status.json",
+        "sha256": "40a174f2c01e07d15f8f8708e789e0da49e44dd0e41dac1a01764e59fa75b2f1"
+      },
+      {
+        "path": ".tmp/doc118-live-cb5a90e15b0ef3dd972d49af4b044af5/stopped-window-COORD02.json",
+        "sha256": "1d417ba8fddd719c4c1c48c8feabe98f0eb2ee6e019083d984fb5ae5da411ce8"
+      }
+    ],
+    "automaticRetry": false
+  },
+  "readAudit": {
+    "status": "COMPLETED_READ_ONLY",
+    "reportPath": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-lote27-coordinacion-20261110.json",
+    "localEvidence": {
+      "path": ".tmp/doc118-live-cb5a90e15b0ef3dd972d49af4b044af5/select-audit-lot27.json",
+      "sha256": "8d9c710ee4d78fa66c81e28753c5e1da2b8f16651c47e05c8770ba0817378f9c"
+    },
+    "additionalSelectStatements": 25,
+    "windowSelectStatements": 74,
+    "newBusinessEffects": 0,
+    "confirmedDocuments": 1,
+    "secondFileAbsenceVerified": true
   }
 }

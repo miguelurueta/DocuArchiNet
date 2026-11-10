@@ -1,5 +1,13 @@
 # Corte vigente — enlace V2 y driver implementados localmente
 
+## Cierre tecnico:38/38
+
+Integracion aceptada tras revision de evidencia:COORD02 acredita misma solicitud, exclusion del otro archivo por la barrera nativa con revision vigente y retorno perdido despues del checkpoint con replay unico/misma identidad. Lote27 COMPLETADO:documentos16237 y16238, inventarios23346 y23348. COORD03 lote28 DETENIDO:documento16239/inventario23349, segundo archivo sin efecto; stop en vuelo, cierre del primer contexto y consulta por el segundo sin reanudar, todos verificados.4 raices/4 PDFs/3 documentos, sin duplicados; lotes18/21/24/25/26 conservados.285/285 Node; almacenamiento compartido/SII, binario/configuracion y archivo administrativo intactos. Consumo acumulado2793 HTTP/444 SELECT/19 aperturas; se conserva la extension revisada de sesiones. Sesiones/SDK cerrados y secretos eliminados. Los fallos previos son historia:el motor completo detenido no se reetiqueta como PASS. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-completa-20261110.json`.
+
+## Estado actual del lote26 y lector del observador
+
+PREFLIGHT y PREPARE02 pasaron. RUN02 se detuvo sin ejecutar SAME_COMMAND/OTHER_FILE; el SDK retuvo una entrada al escritor y confirmo liberacion/cierre. La auditoria de25 SELECT encontro intento79 CONFIRMADO, documento16236/inventario23345 verificados fisicamente, B sin intento ni efecto y ninguna reclamacion activa; snapshot estable. No se repitio almacenamiento. Se reprodujo localmente un falso CONTROLLER_NOT_AVAILABLE ante EBUSY transitorio del estado y se corrigio solo su lectura acotada250ms; no se conoce el error I/O exacto de la corrida. COORD02/03 siguen sin PASS y el progreso permanece32/38. Acumulado2185 HTTP/240 SELECT/15 intentos de sesion; ventana299 HTTP/68 SELECT/2 sesiones. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-lote26-observador-20261110.json`.
+
 ## Observador corregido; preflight detenido en acceso
 
 Se reprodujo y corrigió una carrera de reloj en la disponibilidad del observador, conservando rechazo de estados futuros/antiguos. La captura posterior completó las cuatro entradas y pasó a PREFLIGHT, pero la primera autenticación no se confirmó. Cero SELECT o recursos nuevos; SDK/contextos cerrados y credenciales eliminadas. Acumulado1671 HTTP/172 SELECT/12 intentos/aperturas; sin reintento automático.274/274 Node candidatos y32/38 tareas. Se reutiliza el diagnóstico cerrado de DOC117 para conservar códigos en futuras ejecuciones. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observador-preflight-20261110.json`.

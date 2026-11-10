@@ -31,3 +31,11 @@ test('DOC118 external observer refuses scope changes and a changed selected thre
 test('DOC118 external observer stops on controller failure without claiming runtime qualification',async()=>{const f=fixture();try{
  f.state.failure={stage:'FIND_TARGET_PROCESS'};f.save();await assert.rejects(f.observer.waitInside(f.scope),/CONTROLLER_NOT_AVAILABLE/);assert.equal(f.peerCalls(),0);
 }finally{await f.close();}});
+test('DOC118 transient status sharing errors do not lose a live frozen observer or resend a command',async()=>{const f=fixture(),originalRead=fs.readFileSync;let remaining=1;try{
+ f.state.status='INSIDE_FROZEN';f.save();fs.readFileSync=function(file,...args){if(String(file).endsWith(path.sep+'status.json')&&remaining-->0)throw Object.assign(Error('synthetic sharing collision'),{code:'EBUSY'});return originalRead.call(this,file,...args);};
+ const proof=await f.observer.waitInside(f.scope);assert.equal(proof.runtimeQualified,true);assert.equal(f.peerCalls(),1);assert.deepEqual(f.commands.map(c=>c.operation),['INSPECT']);
+}finally{fs.readFileSync=originalRead;await f.close();}});
+test('DOC118 persistent inaccessible or invalid status cannot qualify the controller or send peer requests',async()=>{for(const failure of ['EBUSY','INVALID_JSON']){const f=fixture(),originalRead=fs.readFileSync;try{
+ fs.readFileSync=function(file,...args){if(String(file).endsWith(path.sep+'status.json')){if(failure==='INVALID_JSON')return '{broken';throw Object.assign(Error('synthetic inaccessible status'),{code:failure});}return originalRead.call(this,file,...args);};
+ await assert.rejects(f.observer.waitInside(f.scope),/CONTROLLER_NOT_AVAILABLE/);assert.equal(f.peerCalls(),0);assert.equal(f.commands.length,0);
+}finally{fs.readFileSync=originalRead;await f.close();}}});

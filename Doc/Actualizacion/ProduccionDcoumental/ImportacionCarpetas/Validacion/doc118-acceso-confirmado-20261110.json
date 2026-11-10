@@ -1,0 +1,47 @@
+{
+  "issueKey": "DOC-118",
+  "status": "LOGIN_CONFIRMED",
+  "sourceUserText": "lanza",
+  "startedUtc": "2026-11-10T14:04:56.116Z",
+  "finishedUtc": "2026-11-10T14:05:30.203Z",
+  "environment": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "module": "GESTOR",
+  "runId": "a7fe7f4ab8653c512bc19f67698b5023",
+  "priorRunId": "1dd584ce2fc6352d2c162545990b85dc",
+  "localEvidencePath": ".tmp/doc118-login-diagnostic-20261110.json",
+  "localEvidenceSha256": "2b2c546df246a0be3ecdce715a6769faef0ebdafa8f39f35a004d702c6a13f18",
+  "loginObservation": {
+    "postbackStatus": 200,
+    "productionStatus": 200,
+    "probeStatus": null,
+    "finish": "COMPLETE",
+    "body": "UNAVAILABLE",
+    "unavailableAt": "BODY",
+    "category": "BODY_NOT_RETAINED",
+    "postedFields": "MATCHED"
+  },
+  "pageReady": true,
+  "newLoginAttempts": 1,
+  "windowSessionAttempts": 2,
+  "maximumWindowSessions": 2,
+  "windowHttpRequests": 308,
+  "newHttpRequests": 215,
+  "accumulatedIncludingHistory": {
+    "httpRequests": 1886,
+    "selectStatements": 172,
+    "sessions": 13
+  },
+  "selectStatements": 0,
+  "newBusinessEffects": 0,
+  "sessionsClosed": true,
+  "ephemeralSecretsCleared": true,
+  "runLeaseReleased": true,
+  "automaticRetry": false,
+  "storageUnchanged": true,
+  "remainingIntegrationTasks": 6,
+  "progress": {
+    "complete": 32,
+    "total": 38
+  },
+  "nextStep": "Review a finite window for the two independent sessions required by the remaining integration cases; this closed read-only session is not retained or reusable."
+}

@@ -63,7 +63,7 @@ function assertRuntimeReady(live){
  if(live.currentWindow)require('./doc118-current-window.cjs').assertEvidence(live.authorization,live.ROOT);
  const expected=live.currentWindow?live.authorization.runtimePin:JSON.parse(fs.readFileSync(path.join(live.ROOT,'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preflight-20261107.json'),'utf8')).runtime;
  check(result.dllSha256===expected.dllSha256&&result.pdbSha256===expected.pdbSha256,'ORDINARY_BINARY_CHANGED');
- const binding=assertObserverReady(live);
+ let binding;try{binding=assertObserverReady(live);}catch(error){if(error?.observerReadiness)save(live,'observer-readiness-failure',error.observerReadiness);throw error;}
  if(!live.observer)live.observer=connectObserver({directory:binding.directory,runId:live.runId,resourceSha256:'0'.repeat(64)});
  return binding;
 }

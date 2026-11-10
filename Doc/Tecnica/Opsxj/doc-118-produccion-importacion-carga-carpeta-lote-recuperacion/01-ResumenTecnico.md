@@ -1,5 +1,9 @@
 # DOC-118 — coordinación y recuperación
 
+## Cierre tecnico:38/38
+
+Integracion aceptada tras revision de evidencia:COORD02 acredita misma solicitud, exclusion del otro archivo por la barrera nativa con revision vigente y retorno perdido despues del checkpoint con replay unico/misma identidad. Lote27 COMPLETADO:documentos16237 y16238, inventarios23346 y23348. COORD03 lote28 DETENIDO:documento16239/inventario23349, segundo archivo sin efecto; stop en vuelo, cierre del primer contexto y consulta por el segundo sin reanudar, todos verificados.4 raices/4 PDFs/3 documentos, sin duplicados; lotes18/21/24/25/26 conservados.285/285 Node; almacenamiento compartido/SII, binario/configuracion y archivo administrativo intactos. Consumo acumulado2793 HTTP/444 SELECT/19 aperturas; se conserva la extension revisada de sesiones. Sesiones/SDK cerrados y secretos eliminados. Los fallos previos son historia:el motor completo detenido no se reetiqueta como PASS. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-completa-20261110.json`.
+
 ## Observador corregido; preflight detenido en acceso
 
 Se reprodujo y corrigió una carrera de reloj en la disponibilidad del observador, conservando rechazo de estados futuros/antiguos. La captura posterior completó las cuatro entradas y pasó a PREFLIGHT, pero la primera autenticación no se confirmó. Cero SELECT o recursos nuevos; SDK/contextos cerrados y credenciales eliminadas. Acumulado1671 HTTP/172 SELECT/12 intentos/aperturas; sin reintento automático.274/274 Node candidatos y32/38 tareas. Se reutiliza el diagnóstico cerrado de DOC117 para conservar códigos en futuras ejecuciones. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observador-preflight-20261110.json`.

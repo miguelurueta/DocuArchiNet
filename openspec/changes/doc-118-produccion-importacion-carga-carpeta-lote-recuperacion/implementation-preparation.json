@@ -11,8 +11,8 @@
   },
   "tasks": {
     "total": 38,
-    "complete": 32,
-    "remaining": 6,
+    "complete": 38,
+    "remaining": 0,
     "S": 12,
     "M": 26,
     "completeIds": [
@@ -710,6 +710,14 @@
     {
       "path": "tools/e2e/scripts/run-doc118-staging-lock-probe.ps1",
       "sha256": "59214630aebe04dc10cfa08a40283252e3614d10813b46829f897d67c9e18394"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc118-retained-response.cjs",
+      "sha256": "37c00f339bda3577c2b49375b104107a2c82db32f28bff75b254cfa1b1300095"
+    },
+    {
+      "path": "tests/doc118-retained-response.test.cjs",
+      "sha256": "3bde82445bbff7d42f0acc306ddd06b6ce8fb6f0ff2aa6bb5009dbf4dd2131f0"
     }
   ],
   "existingE2EDiscovery": {
@@ -3737,5 +3745,379 @@
       "total": 38
     },
     "nextStep": "Review a finite window for the two independent sessions required by the remaining integration cases; this closed read-only session is not retained or reusable."
+  },
+  "postLoginContinuationToolDeltas": [
+    {
+      "path": "tools/e2e/scripts/support/doc118-current-window.cjs",
+      "beforeCommit": "7c86371c713d7571490016fd696b6b56c0376b88",
+      "beforeSha256": "20236e5a984abbf521a14a0f1b9c5b1a774c0ff5c6f84bdd79b4bcbd9e24cce2",
+      "afterSha256": "30a4f4312f21d1641dd9fe0ecd483716ccebb64803a758e727f9c496c819152d"
+    },
+    {
+      "path": "tests/doc118-current-window.test.cjs",
+      "beforeCommit": "7c86371c713d7571490016fd696b6b56c0376b88",
+      "beforeSha256": "8fbe036784bbe946334f6376cfb5eb2fad9158c7b832d85cb0d9fe2d9ca606a7",
+      "afterSha256": "53f71a0c95be3732b19059440de1517cdfdb6d00bc7b75c5ef39cff80e85c4a8"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc118-live.cjs",
+      "beforeCommit": "7c86371c713d7571490016fd696b6b56c0376b88",
+      "beforeSha256": "e801e685a284fcf2167643dae29a4145e18fb6d7831dbf114742df56a736da50",
+      "afterSha256": "a947036534031d2a4888bcc57dfbd6901b47c99910a2c6a38e5d3625e35bca81"
+    },
+    {
+      "path": "tools/e2e/scripts/start-doc118-console.ps1",
+      "beforeCommit": "7c86371c713d7571490016fd696b6b56c0376b88",
+      "beforeSha256": "1cfc77f3a302251b3873f5dbe0a8e2edc3908f9b9ac25c84a076b171b46f053b",
+      "afterSha256": "376400cbf2d78009f44348e70f1292120737f3b12fc38e07ede5522340dcd717"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc118-debugger-observer.cjs",
+      "beforeCommit": "7c86371c713d7571490016fd696b6b56c0376b88",
+      "beforeSha256": "5c057c28e5eaa9577cc0fcce14065525f0766f13d378883d666ce8d72ab440ee",
+      "afterSha256": "df86120e8e3cdb2f45b0f2d61d4bd3f1a48feb05a0561f53732cc6cf2d5e38f8"
+    },
+    {
+      "path": "tests/doc118-debugger-observer.test.cjs",
+      "beforeCommit": "7c86371c713d7571490016fd696b6b56c0376b88",
+      "beforeSha256": "4bfd1a7ca6738ca2f9d5e58dd935b4257455b15594087671cfecf962385000b0",
+      "afterSha256": "b4e207fbd1e385023481dd0128d00a5a5e83b640676438e409cdf940176a84b7"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc118-live-lifecycle.cjs",
+      "beforeCommit": "7c86371c713d7571490016fd696b6b56c0376b88",
+      "beforeSha256": "ff46b6241d65aa0a4fe2030d4cc1146547a6407cb27359fb9b0c6dad056bf0c4",
+      "afterSha256": "68d36f8f74f346844b0a9cc50d707217e64ab07a1aa5ae269862cd5b3d8c2348"
+    },
+    {
+      "path": "tests/doc118-live-lifecycle.test.cjs",
+      "beforeCommit": "7c86371c713d7571490016fd696b6b56c0376b88",
+      "beforeSha256": "889f1e351f5e3dab7359e0c87ff2caca912c21d95ec171b2b12e2b50db80ec28",
+      "afterSha256": "17406557d074ade93bd8ef36eff7f54bb5c7d7c43f8741420d9f7470b9ec8f85"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc118-live-plan.cjs",
+      "beforeCommit": "7c86371c713d7571490016fd696b6b56c0376b88",
+      "beforeSha256": "c056031a912324c152bfda785dd333acdf2bbf0625832676d91110d224eb8f82",
+      "afterSha256": "906af2a814e2eb43743ad73d08ef004e5cf1712bdf9b6c75127007c1f430d8dc"
+    }
+  ],
+  "postLoginContinuation": {
+    "state": "STOPPED_DURING_RUN02_REVIEW_REQUIRED",
+    "runId": "8a0e5dbe62d8b6b8bd1b5339377ca20e",
+    "sourceUserText": "continua",
+    "evidence": {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-acceso-confirmado-20261110.json",
+      "sha256": "f8a5ebaf0933ad8c22c0997298f8549205abff93f2f669280af874981da70779"
+    },
+    "historicalTotals": {
+      "httpRequests": 1886,
+      "selectStatements": 172,
+      "sessions": 13
+    },
+    "maximum": {
+      "totalSessions": 2,
+      "loginAttemptsPerSession": 1,
+      "newPlans": 2,
+      "newLots": 2,
+      "newRoots": 4,
+      "newPdfs": 4,
+      "newExpedientes": 4,
+      "newStoredDocuments": 3,
+      "stopRequests": 1,
+      "pauseMilliseconds": 30000,
+      "selectStatementsTotal": 240,
+      "allHttpGlobal": 1000,
+      "allHttpPerCase": {
+        "COORD02": 925,
+        "COORD03": 75
+      },
+      "caseDurationMilliseconds": 600000
+    },
+    "progress": {
+      "complete": 32,
+      "total": 38
+    },
+    "localRegression": {
+      "tests": 277,
+      "passed": 277,
+      "failed": 0,
+      "testRunnerExitCode": 0,
+      "finishedUtc": "2026-11-10T15:07:38.191Z",
+      "files": [
+        "tests/doc118-live-preflight.test.cjs",
+        "tests/doc118-session-bridge.test.cjs",
+        "tests/doc118-active-call.test.cjs",
+        "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+        "tests/doc118-symbols.test.cjs",
+        "tests/doc118-debugger-observer.test.cjs",
+        "tests/doc118-case-preparation.test.cjs",
+        "tests/doc118-case-completion.test.cjs",
+        "tests/doc118-lost-response.test.cjs",
+        "tests/doc118-live-lifecycle.test.cjs",
+        "tests/doc118-documental-phases.test.cjs",
+        "tests/doc118-debugger-protocol.test.cjs",
+        "tests/doc118-select-audit.test.cjs",
+        "tests/doc118-debugger-release.test.cjs",
+        "tests/doc118-release-probe-build.test.cjs",
+        "tests/doc118-staging-lock-probe.test.cjs",
+        "tests/doc110-perfil-importacion-behavior.test.cjs",
+        "tests/doc111-importacion-carpetas-client.test.cjs",
+        "tests/doc118-v2-driver.test.cjs",
+        "tests/doc118-v2-fault-conductor.test.cjs",
+        "tests/doc118-current-window.test.cjs"
+      ],
+      "candidateOnlyAfterStoppedRun": true
+    },
+    "latestStop": {
+      "status": "STOPPED_REVIEW_REQUIRED",
+      "phaseIndex": 2,
+      "loteId": "26",
+      "firstOutcome": "REJECTED",
+      "failureCode": "DOC118_OBSERVER_CONTROLLER_NOT_AVAILABLE",
+      "businessOutcome": "NOT_YET_VERIFIED_BY_SELECT",
+      "counters": {
+        "scenarios": {
+          "COORD02": {
+            "http": 299,
+            "operations": {
+              "ConsultarLote": 12,
+              "AbrirImportacion": 1,
+              "PrepararPlan": 1,
+              "ConfirmarPlan": 1,
+              "ConsultarRecursosLote": 6,
+              "RecibirArchivo": 2,
+              "CREAR_EXPEDIENTE": 2,
+              "MATERIALIZAR_VALORES": 2,
+              "ALMACENAR": 1
+            }
+          },
+          "COORD03": {
+            "http": 0,
+            "operations": {}
+          }
+        },
+        "selects": 43
+      },
+      "accumulatedIncludingHistory": {
+        "httpRequests": 2185,
+        "selectStatements": 215,
+        "sessions": 15
+      },
+      "observerClosed": true,
+      "sessionsClosed": true,
+      "ephemeralSecretsCleared": true,
+      "runLeaseReleased": true,
+      "localEvidence": [
+        {
+          "path": ".tmp/doc118-live-8a0e5dbe62d8b6b8bd1b5339377ca20e/status.json",
+          "sha256": "ab58fdcfdbb39f8d290191dcaa81b51a5a7f83339e8c6e78e50da79ba8f431f6"
+        },
+        {
+          "path": ".tmp/doc118-live-8a0e5dbe62d8b6b8bd1b5339377ca20e/stopped-window-COORD02.json",
+          "sha256": "111f2aa111dfc8359e070304a4e5401eb97104ea2b187bb2435bafd394325062"
+        },
+        {
+          "path": ".tmp/doc118-debugger-8a0e5dbe62d8b6b8bd1b5339377ca20e-1/status.json",
+          "sha256": "e16793f5729cbad3560c6964d09c1f00a861f4e9b701f025915c85c47de41248"
+        },
+        {
+          "path": ".tmp/doc118-debugger-8a0e5dbe62d8b6b8bd1b5339377ca20e-1/observation-history.jsonl",
+          "sha256": "2d29e0e000859acbb0d4d3461332a63cba1d1457b08e8ac6ce1548ffa57464f3"
+        }
+      ],
+      "automaticRetry": false
+    },
+    "consoleWindowFix": "Keep the interactive console open after runner exit; read-only result window opened separately. No rerun.",
+    "latestReadAudit": {
+      "status": "PHYSICAL_READ_CONFIRMED_INTEGRATION_PENDING",
+      "reportPath": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-lote26-observador-20261110.json",
+      "accumulatedIncludingHistory": {
+        "httpRequests": 2185,
+        "selectStatements": 240,
+        "sessions": 15
+      },
+      "reportSha256": "66244b49bddbd5a2447a5af96806b27101f2856e215d6fc9061f9b160c5396c7"
+    },
+    "observerReaderCorrection": {
+      "retainedHistory": "ARM -> INSIDE_FROZEN (entriesA1/B0) -> RESUME -> CLOSE -> CLOSED; no SDK failure retained.",
+      "reproducedDefect": "A single EBUSY when reading the atomic status file produces CONTROLLER_NOT_AVAILABLE even with a live frozen controller.",
+      "beforeFix": {
+        "passed": 5,
+        "failed": 1
+      },
+      "afterFix": {
+        "passed": 6,
+        "failed": 0
+      },
+      "correction": "Retry local status reads only for EBUSY/EACCES/EPERM/ENOENT, bounded250ms; invalid JSON and persistent failure still block. No HTTP/controller command retries.",
+      "actualIoCauseRetained": false,
+      "retrospectiveAttribution": "NOT_PROVEN",
+      "integrationPass": false
+    },
+    "localRegressionAtExecution": {
+      "passed": 275,
+      "failed": 0
+    }
+  },
+  "postAuditContinuation": {
+    "state": "STOPPED_DURING_RUN02_REVIEW_REQUIRED",
+    "runId": "cb5a90e15b0ef3dd972d49af4b044af5",
+    "sourceUserText": "continua",
+    "historicalTotals": {
+      "httpRequests": 2185,
+      "selectStatements": 240,
+      "sessions": 15
+    },
+    "evidence": {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-lote26-observador-20261110.json",
+      "sha256": "66244b49bddbd5a2447a5af96806b27101f2856e215d6fc9061f9b160c5396c7"
+    },
+    "maximum": {
+      "totalSessions": 2,
+      "loginAttemptsPerSession": 1,
+      "newPlans": 2,
+      "newLots": 2,
+      "newRoots": 4,
+      "newPdfs": 4,
+      "newExpedientes": 4,
+      "newStoredDocuments": 3,
+      "stopRequests": 1,
+      "pauseMilliseconds": 30000,
+      "selectStatementsTotal": 240,
+      "allHttpGlobal": 1000,
+      "allHttpPerCase": {
+        "COORD02": 925,
+        "COORD03": 75
+      },
+      "caseDurationMilliseconds": 600000
+    },
+    "progress": {
+      "complete": 34,
+      "total": 38,
+      "pending": 4
+    },
+    "captureReview": {
+      "captureAttempt": 2,
+      "userText": "continua",
+      "recordedUtc": "2026-11-10T15:22:46.700Z",
+      "previousSessionAttempts": 0,
+      "previousSelectStatements": 0,
+      "previousBusinessEffects": 0,
+      "previousStop": {
+        "path": ".tmp/doc118-live-cb5a90e15b0ef3dd972d49af4b044af5-capture-stop-1/status.json",
+        "sha256": "c582f33598691a0802bba81f54d93fa45a33330425a212aad55c520af465b76b"
+      },
+      "previousObserverClosed": true,
+      "observerAttempt": 2,
+      "noAuthenticationRetry": true,
+      "preservedHttpConsumption": 1,
+      "localReadinessProbe": {
+        "path": ".tmp/doc118-readiness-probe-capture2.json",
+        "sha256": "a5815bc4bcd4f3d0a35fdc430caad1c5807810909f7e37bf6a88689f59224602"
+      }
+    },
+    "readinessCorrection": {
+      "diagnostics": "Closed per-attempt rejection reasons and bounded250ms local sharing retries; invalid/stale/foreign state still blocks.",
+      "syntheticBeforeFix": {
+        "passed": 11,
+        "failed": 1
+      },
+      "syntheticAfterFix": {
+        "passed": 12,
+        "failed": 0
+      },
+      "liveProbe": {
+        "samples": 200,
+        "passed": 200,
+        "httpRequests": 0,
+        "sessionAttempts": 0,
+        "documentEffects": 0
+      }
+    },
+    "latestReport": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-lote27-coordinacion-20261110.json",
+    "remainingTasks": [
+      "4.5",
+      "4.7",
+      "4.8",
+      "5.1"
+    ]
+  },
+  "retainedCompletion": {
+    "state": "COMPLETED_REVIEWED",
+    "executionId": "589da9382ce2ec3d081ce9aa3ad0a7cc",
+    "scopePath": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-retained-completion.json",
+    "carriedCounters": {
+      "scenarios": {
+        "COORD02": {
+          "http": 302,
+          "operations": {
+            "ConsultarLote": 13,
+            "AbrirImportacion": 1,
+            "PrepararPlan": 1,
+            "ConfirmarPlan": 1,
+            "ConsultarRecursosLote": 6,
+            "RecibirArchivo": 2,
+            "CREAR_EXPEDIENTE": 2,
+            "MATERIALIZAR_VALORES": 2,
+            "ALMACENAR": 3
+          }
+        },
+        "COORD03": {
+          "http": 0,
+          "operations": {}
+        }
+      },
+      "selects": 74
+    },
+    "historicalTotals": {
+      "httpRequests": 2487,
+      "selectStatements": 314,
+      "sessions": 17
+    },
+    "maximum": {
+      "newAuthenticatedSessions": 2,
+      "loginAttemptsPerSession": 1,
+      "newPlans": 1,
+      "newLots": 1,
+      "newRoots": 2,
+      "newPdfs": 2,
+      "newExpedientes": 2,
+      "newStoredDocuments": 2,
+      "stopRequests": 1,
+      "originalWindowHttp": 1000,
+      "originalWindowSelect": 240,
+      "remainingHttp": 698,
+      "remainingSelect": 166,
+      "pauseMilliseconds": 30000,
+      "caseDurationMilliseconds": 600000
+    },
+    "progress": {
+      "complete": 38,
+      "total": 38,
+      "pending": 0
+    },
+    "resultPath": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-completa-20261110.json"
+  },
+  "finalIntegration": {
+    "status": "INTEGRATION_ACCEPTED",
+    "reportPath": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-completa-20261110.json",
+    "progress": {
+      "complete": 38,
+      "total": 38,
+      "pending": 0
+    },
+    "localRegression": {
+      "tests": 285,
+      "passed": 285,
+      "failed": 0,
+      "internalV2Cases": 157,
+      "internalCasesIncludedNotAdded": true
+    },
+    "accumulatedIncludingHistory": {
+      "httpRequests": 2793,
+      "selectStatements": 444,
+      "sessions": 19
+    }
   }
 }

@@ -2,7 +2,7 @@
   "version": 1,
   "issueKey": "DOC-118",
   "changeName": "doc-118-produccion-importacion-carga-carpeta-lote-recuperacion",
-  "status": "ACTIVE",
+  "status": "COMPLETED",
   "recordedUtc": "2026-11-10T11:16:50.450Z",
   "source": {
     "userText": "continua con el flujo y las tareas",
@@ -17,9 +17,9 @@
     "snapshotPreserved": true
   },
   "technicalProgress": {
-    "completed": 32,
+    "completed": 38,
     "total": 38,
-    "pending": 6
+    "pending": 0
   },
   "readAudit": {
     "authorized": false,
@@ -47,25 +47,33 @@
     }
   },
   "integrationContinuation": {
-    "state": "STOPPED_DURING_FIRST_LOGIN_REVIEW_REQUIRED",
+    "state": "STOPPED_DURING_RUN02_REVIEW_REQUIRED",
     "authorizationPath": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-integration-continuation.json",
-    "runId": "1dd584ce2fc6352d2c162545990b85dc",
+    "runId": "cb5a90e15b0ef3dd972d49af4b044af5",
     "consumed": {
-      "httpRequests": 93,
-      "selectStatements": 0,
-      "sessions": 1,
-      "documentEffects": 0
+      "httpRequests": 302,
+      "selectStatements": 74,
+      "sessions": 2
     },
     "accumulatedIncludingHistory": {
-      "httpRequests": 1671,
-      "selectStatements": 172,
-      "sessions": 12
+      "httpRequests": 2487,
+      "selectStatements": 314,
+      "sessions": 17
     },
     "nextAction": "Clarify whether all four credential inputs were completed. Review the capture-only stop before another console; no authentication or business command was dispatched.",
     "captureAttempt": 2,
-    "latestReport": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observador-preflight-20261110.json",
-    "loginConfirmed": false,
-    "automaticLoginRetry": false
+    "latestReport": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-lote27-coordinacion-20261110.json",
+    "loginConfirmed": true,
+    "automaticLoginRetry": false,
+    "previousRunId": "8a0e5dbe62d8b6b8bd1b5339377ca20e",
+    "historicalTotals": {
+      "httpRequests": 2185,
+      "selectStatements": 240,
+      "sessions": 15
+    },
+    "newLotId": "26",
+    "latestFailure": "DOC118_OBSERVER_CONTROLLER_NOT_AVAILABLE",
+    "documentaryOutcome": "A_CONFIRMED_B_NOT_STARTED_NO_ACTIVE_CLAIM"
   },
   "protectedLots": [
     "18",
@@ -91,5 +99,26 @@
     "documentation": "5.2 COMPLETE_WITH_EXPLICIT_LIMITATIONS",
     "git": "5.4 PRIOR_DELIVERY_VERIFIED_RECHECK_CURRENT_DELIVERY",
     "validation": "5.3 OPEN_SPEC_STRICT_AND_REFINEMENT_PASSED"
+  },
+  "retainedCompletion": {
+    "state": "COMPLETED_REVIEWED",
+    "executionId": "589da9382ce2ec3d081ce9aa3ad0a7cc",
+    "scopePath": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-retained-completion.json",
+    "newStoredDocumentsMaximum": 2,
+    "resultPath": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-completa-20261110.json"
+  },
+  "finalIntegration": {
+    "status": "INTEGRATION_ACCEPTED",
+    "reportPath": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-completa-20261110.json",
+    "progress": {
+      "complete": 38,
+      "total": 38,
+      "pending": 0
+    },
+    "accumulatedIncludingHistory": {
+      "httpRequests": 2793,
+      "selectStatements": 444,
+      "sessions": 19
+    }
   }
 }
