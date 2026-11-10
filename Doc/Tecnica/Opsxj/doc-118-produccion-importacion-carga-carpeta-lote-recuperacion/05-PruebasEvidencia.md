@@ -1,5 +1,9 @@
 # DOC-118 — coordinación y recuperación
 
+## Cierre administrativo con salvedades — 2026-11-10
+
+Jira confirmó el cierre administrativo en Listo (comentario24490), aceptado por el usuario conservando las nueve tareas pendientes. 29/38;260/260 Node históricos y observador4.1 calificado, sin aceptación completa de COORD02/03 ni QA/E2E. Lote25 retenido con almacenamiento UNKNOWN, sin replay ni limpieza. Cambio archivado en `openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion`; sin sincronizar specs ni fusionar la rama. Las compuertas ordinarias OPSXJ siguen sin aprobarse; no se presenta como cierre técnico completo. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-cierre-administrativo-20261110.json`.
+
 ## Ejecución consolidada: observador calificado y parada conservada
 
 4.1 calificada en llamada real con hilo interno congelado y otra sesión atendida; 29/38 tareas. Plan41/lote25 nuevo conservado: COORD02 detenido tras SAME_COMMAND, primera petición UNKNOWN y sin OTHER_FILE/COORD03. SDK liberado/cerrado y sesiones eliminadas; sin replay. Acumulado1578 HTTP/147 SELECT/11 sesiones. Corrección del ejecutor: diagnóstico cerrado y espera original tras RESUME hasta35s. 260/260 Node; almacenamiento/SII/binarios intactos. Auditoría SELECT pendiente de dos entradas enmascaradas. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-ejecucion-consolidada-20261109.json`.
