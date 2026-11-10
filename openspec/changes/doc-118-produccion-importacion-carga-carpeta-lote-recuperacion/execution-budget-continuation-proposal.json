@@ -1,0 +1,100 @@
+{
+  "issueKey": "DOC-118",
+  "status": "AUTHORIZED",
+  "supersedesNoAuthorization": true,
+  "reason": "La continuación autorizada llegó al tope425 HTTP de C02 abriendo B. A autenticó y consultó lote23. La pareja fue cerrada: una sola apertura restante no permite recrear dos sesiones independientes.",
+  "evidence": "doc118-continuation-preflight-20261107.json",
+  "currentAuthorization": "execution-authorization.json",
+  "changes": {
+    "maximumTotalSessions": {
+      "before": 4,
+      "after": 5
+    },
+    "allHttpPerCase": {
+      "before": {
+        "COORD02": 425,
+        "COORD03": 75
+      },
+      "after": {
+        "COORD02": 925,
+        "COORD03": 75
+      }
+    },
+    "allHttpGlobal": {
+      "before": 500,
+      "after": 1000
+    }
+  },
+  "carriedConsumption": {
+    "COORD02AllHttp": 425,
+    "COORD03AllHttp": 0,
+    "sessionAttempts": 3,
+    "selectStatements": 0,
+    "businessHttp": {
+      "COORD02": 1,
+      "COORD03": 0
+    }
+  },
+  "preparedCorrection": {
+    "source": "tools/e2e/scripts/support/doc118-live-plan.cjs",
+    "transportPolicy": "Login compartido intacto; HTML de producción y CSRF reales; recursos de la pantalla de producción omitidos antes de despacho y sin selección visual del árbol.",
+    "validation": "120/120 pruebas locales. Ahorro real aún no medido; se detiene al nuevo techo y no se garantizan los casos reales por inferencia.",
+    "carryGuard": "Arranque rechaza aprobación anterior, ledger discordante o capacidad insuficiente antes de pedir secretos."
+  },
+  "execution": "Una sola pareja nueva, un intento por sesión y sin retries; conservarla para ambos casos revalidando autoridad. Primero PREFLIGHT readOnly. Antes de efectos, completar/calificar observador y fases documentales; el ejecutor aún no es una CLI completa de aceptación.",
+  "unchanged": {
+    "environment": {
+      "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+      "runtimeRoot": "D:/imagenesda/DocuachiNet/DocuArchiNet",
+      "actorRef": "141",
+      "ambitoRef": "2",
+      "levelRef": "7",
+      "versionRef": "38",
+      "raDsn": "MembershipUsers",
+      "daDsn": "MembershipUsers",
+      "localTlsExceptionAuthorized": true
+    },
+    "maximumNewPlans": 2,
+    "maximumNewLots": 2,
+    "maximumNewRoots": 4,
+    "maximumNewPdfs": 4,
+    "maximumNewExpedientes": 4,
+    "maximumNewStoredDocuments": 3,
+    "maximumStopRequests": 1,
+    "businessHttp": {
+      "COORD02": 53,
+      "COORD03": 51
+    },
+    "maximumPauseMilliseconds": 30000,
+    "maximumSelectStatements": 240,
+    "protectedAttempts": [
+      41,
+      53
+    ]
+  },
+  "approvalRequired": "Solo ampliación acumulada de tráfico y aperturas. No reautoriza todo el plan ni sustituye los guards documentales; no aplicar estos topes hasta respuesta explícita.",
+  "approval": {
+    "status": "AUTHORIZED",
+    "source": "Mensaje del usuario «autorizado» posterior a la propuesta1000 HTTP acumulados (925/75) y5 aperturas totales.",
+    "recordedUtc": "2026-11-08T02:10:22.324Z",
+    "proposal": "execution-budget-continuation-proposal.json"
+  },
+  "remainingAfterApproval": {
+    "COORD02AllHttp": 500,
+    "COORD03AllHttp": 75,
+    "sessionAttempts": 2,
+    "selectStatements": 240
+  },
+  "result": {
+    "status": "STOPPED_OBSERVER_AND_CONSOLE_REVIEW_REQUIRED",
+    "evidence": "doc118-authenticated-preflight-20261107.json",
+    "preflightPassed": true,
+    "cumulativeAllHttp": {
+      "COORD02": 697,
+      "COORD03": 0
+    },
+    "cumulativeSessionAttempts": 5,
+    "controlSelects": 17,
+    "newDocumentEffects": 0
+  }
+}

@@ -1,5 +1,9 @@
 # Corte vigente — enlace V2 y driver implementados localmente
 
+## Continuación técnica activa — 2026-11-10
+
+Jira En curso y mismo cambio OpenSpec reactivado, conservando el archivo administrativo intacto. Se acreditan5.2 por resultados/procedencia explícitos y5.4 por sincronización comprobada;5.3 pasó OpenSpec estricto/refinement;32/38, con seis comprobaciones reales pendientes. La auditoría SELECT del lote25 se retoma con contadores intactos y sin replay; requiere dos entradas enmascaradas.22/22 pruebas focales; almacenamiento/SII/binarios intactos. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-continuacion-tareas-20261110.json`.
+
 ## Cierre administrativo con salvedades — 2026-11-10
 
 Jira confirmó el cierre administrativo en Listo (comentario24490), aceptado por el usuario conservando las nueve tareas pendientes. 29/38;260/260 Node históricos y observador4.1 calificado, sin aceptación completa de COORD02/03 ni QA/E2E. Lote25 retenido con almacenamiento UNKNOWN, sin replay ni limpieza. Cambio archivado en `openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion`; sin sincronizar specs ni fusionar la rama. Las compuertas ordinarias OPSXJ siguen sin aprobarse; no se presenta como cierre técnico completo. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-cierre-administrativo-20261110.json`.

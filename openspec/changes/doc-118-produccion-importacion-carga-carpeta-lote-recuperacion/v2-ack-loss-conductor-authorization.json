@@ -1,0 +1,26 @@
+{
+  "issueKey": "DOC-118",
+  "tasks": [
+    "6.11"
+  ],
+  "baseCommit": "1a322a5ca8b85ff9b76457512e72a5ee9da91ae8",
+  "recordedUtc": "2026-11-09T14:54:24.098Z",
+  "source": "Mensaje «continua» posterior a la entrega de enlace/driver y al siguiente paso P3 de preparar pérdida de acuse y conductor acotado.",
+  "scope": "Paquete de prueba fuera del proyecto productivo y regresión local Q1/Q2/Q3.",
+  "localAckLossPackageAuthorized": true,
+  "localConductorAuthorized": true,
+  "sharedStorageFunctionModificationAuthorized": false,
+  "siiModificationAuthorized": false,
+  "realExecutionAuthorized": false,
+  "deploymentAuthorized": false,
+  "runtimeFaultHookInstallationAuthorized": false,
+  "newHttpActivationAuthorized": false,
+  "newBudgetsAuthorized": false,
+  "attempt69Eligible": false,
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  }
+}

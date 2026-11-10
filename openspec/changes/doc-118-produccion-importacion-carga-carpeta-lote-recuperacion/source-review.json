@@ -1,0 +1,118 @@
+{
+  "issueKey": "DOC-118",
+  "reviewDate": "2026-11-07",
+  "reviewedCommit": "5162b92996c7652a30fc39f3b4142a5dd17c166c",
+  "integratedMainCommit": "ee36f5ae540c02fd9986670f0a7c0305a7db47f5",
+  "hashAlgorithm": "sha256-utf8-lf",
+  "scope": "Revisión documental y ejecución local sin conexión; no certifica binarios instalados ni nueva integración real.",
+  "sources": [
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.vb",
+      "sha256": "5eb85254548bad7b8e918de7c82e40a095db67213060b7556edb9ff6d996018a"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Operaciones.vb",
+      "sha256": "5318c9db2d94f2398509d0a96e0ec3db5730fd6257b8ea4e0726b435a1446fed"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Documento.vb",
+      "sha256": "7ffafac76b93aadf4caced13b48051490202185caad24abbe93fb83ed74816e7"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Barreras.vb",
+      "sha256": "e7db7e6087b4faa24856ad4e2715971925628789fc302cc12582e3edeb7e7290"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Consolidacion.vb",
+      "sha256": "5c7c32a947771df977cb9b5593d2feb5bfcc6ecd5337741917d93a0ff5f1460f"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Reconciliacion.vb",
+      "sha256": "b02bf718b51c663336b372672054601b41630271a8e1455c2c6014005f3962ba"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb",
+      "sha256": "8577d176098db090257142cfcbca7ade9b9ebaba3380099679f2864e144fe369"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Control.vb",
+      "sha256": "073ac42f728bc9b3acf567532781d00286929922cecba259015d5250e6bb66d4"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Documento.vb",
+      "sha256": "fde8a4441f1ea4f95c794246e658b65c9e08069fefe9e9a0b8477db57b6fc9ef"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consolidacion.vb",
+      "sha256": "b81979923f59f2a356b44882ed46f7903229d63ac707871df511916b3df8bc23"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Reconciliacion.vb",
+      "sha256": "de98ba5dad27feee03a3425273fc595403fb3c84089e2c1af20dd4ddf8b25f7b"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256": "ecfed0a3044e50ecb0c15bdad42a0f62a5788c1e7e8e35383cbcaa5de2d630f2"
+    },
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "sha256": "130d0506384c359a3cc87d96ada270597b4237dc87c69179a31c9a59edab0746"
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "sha256": "f7d40ed48283f0bcbe3bf0e98424a4b1d040cb44a230cb7108e1069884be8ed3"
+    }
+  ],
+  "historicalReports": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-rec-expediente-pass-20261101.md",
+      "sha256": "a075228faf5a42f0d29b0b5b78a4fab4eeae4ff32a565414ca1459d0d24f239a",
+      "provenance": "SHA, ambiente y autorización conservados en el reporte original; no transferidos a DOC-118."
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-rec-lote-pass-20261102.md",
+      "sha256": "03cb7c9d28ba57119dfc4b776adfbd4d4279b729e26cad00b5fc805ff5936a55",
+      "provenance": "SHA, ambiente y autorización conservados en el reporte original; no transferidos a DOC-118."
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-rec-parcial-pass-20261102.md",
+      "sha256": "93f0bd460cdb915174a099f3f5be8e05fd02d4e9260fa27bfbe183411b59781a",
+      "provenance": "SHA, ambiente y autorización conservados en el reporte original; no transferidos a DOC-118."
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-reserva-detencion-local-20261028.md",
+      "sha256": "2846dfa7fc1f750a0c947e9395d82fae06386272059193eded6479d9d2ce5dc7",
+      "provenance": "SHA, ambiente y autorización conservados en el reporte original; no transferidos a DOC-118."
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-barreras-creacion-local-20261029.md",
+      "sha256": "aa9f9e4e87a502746b5b323ad077606b9f3d2d0ef4ac09cd15dcf7f4b574920e",
+      "provenance": "SHA, ambiente y autorización conservados en el reporte original; no transferidos a DOC-118."
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-consolidacion-local-20261030.md",
+      "sha256": "90a343f49d38c5b0f7de05f1684a0e2b1d9a2b83f4f65730674370e7ed50de67",
+      "provenance": "SHA, ambiente y autorización conservados en el reporte original; no transferidos a DOC-118."
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-reconciliacion-local-20261030.md",
+      "sha256": "68d47e6c093a207ab2b12ea4795fd1f4caab64260b1ef397f37e8172dc766faa",
+      "provenance": "SHA, ambiente y autorización conservados en el reporte original; no transferidos a DOC-118."
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc115-07a-resultados.md",
+      "sha256": "d8b7350599f9d59009d0b97be79d87361b87037b5e2f2f73830ddfefb03a6c21",
+      "provenance": "SHA, ambiente y autorización conservados en el reporte original; no transferidos a DOC-118."
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm02-interno-pass-20261106.md",
+      "sha256": "08c0c17c135f9d4de9128f671352ec4bc437e06031d03a9ed86193a9cc92b1a6",
+      "provenance": "SHA, ambiente y autorización conservados en el reporte original; no transferidos a DOC-118."
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-alm03c-coexistencia-pass-20261106.md",
+      "sha256": "d47d01cc55595c7230a02a891a7c54095e7233fb7e27fe94fb80edb67e6a5542",
+      "provenance": "SHA, ambiente y autorización conservados en el reporte original; no transferidos a DOC-118."
+    }
+  ]
+}

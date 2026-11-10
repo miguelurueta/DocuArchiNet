@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "issueKey": "DOC-118",
+  "changeName": "doc-118-produccion-importacion-carga-carpeta-lote-recuperacion",
+  "status": "ACTIVE",
+  "recordedUtc": "2026-11-10T11:16:50.450Z",
+  "source": {
+    "userText": "continua con el flujo y las tareas",
+    "scope": "Resume the remaining tasks of DOC-118 after architectural review, preserving the administrative closure as history."
+  },
+  "baseCommit": "fdab3d9ef08e4440270f6ef82b0c754222b4dcba",
+  "previousAdministrativeClosure": {
+    "archivePath": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion",
+    "closurePath": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/administrative-closure.json",
+    "sha256": "35ac51f173f63b8886e9bacae5ba9f73887f1a268309b96dab2df119c4a72449",
+    "jiraCommentId": "24490",
+    "snapshotPreserved": true
+  },
+  "technicalProgress": {
+    "completed": 32,
+    "total": 38,
+    "pending": 6
+  },
+  "readAudit": {
+    "authorized": true,
+    "readOnly": true,
+    "runId": "7896bbf5729a7f9996fbd8cc8e18af18",
+    "attemptId": "6ddb61d382abb419d6025f783430b624",
+    "loteId": "25",
+    "maximumSelectStatementsTotal": 240,
+    "carriedSelectStatements": 34,
+    "maximumAdditionalSelectStatements": 206,
+    "carriedHttpRequests": 301,
+    "carriedSessions": 2,
+    "originalCancelledReport": ".tmp/doc118-live-7896bbf5729a7f9996fbd8cc8e18af18/select-audit.json",
+    "originalCancelledReportSha256": "8123ad32f60b739459b7564c90b764210dacf788901b4ad4a48e836d119f50b8",
+    "historicalCountersNotReset": true,
+    "newApplicationSessions": 0,
+    "newApplicationHttp": 0,
+    "newBusinessMutations": 0
+  },
+  "integrationContinuation": {
+    "state": "NOT_STARTED",
+    "prerequisite": "Read the retained lot25 outcome before any new integration execution; the old storage request is never replayed from uncertainty."
+  },
+  "protectedLots": [
+    "18",
+    "21",
+    "24",
+    "25"
+  ],
+  "protectedHistoricalAttempts": [
+    "41",
+    "53",
+    "69"
+  ],
+  "sharedStorageChanged": false,
+  "originalCheckpointsPreserved": true,
+  "jira": {
+    "status": "En curso",
+    "transitionId": "21",
+    "readBackVerified": true,
+    "issueUrl": "https://contasoftcompany.atlassian.net/browse/DOC-118"
+  },
+  "evidenceReport": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-continuacion-tareas-20261110.json",
+  "formalTasks": {
+    "documentation": "5.2 COMPLETE_WITH_EXPLICIT_LIMITATIONS",
+    "git": "5.4 PRIOR_DELIVERY_VERIFIED_RECHECK_CURRENT_DELIVERY",
+    "validation": "5.3 OPEN_SPEC_STRICT_AND_REFINEMENT_PASSED"
+  }
+}

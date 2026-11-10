@@ -53,15 +53,27 @@ async function audit({controls,profile,query,inspectActiveEffect=false,binding=H
  result.snapshotUnchanged=hash(await controls.snapshot(binding.loteId))===result.fingerprint;
  result.confirmedDocuments=result.files.filter(f=>f.physical==='KNOWN_IDS_VERIFIED').length;result.integrationPass=false;return result;
 }
-async function auditCurrentWindow(args){
- tty.requireInteractiveConsole();check(args.length===1&&/^[a-f0-9]{32}$/.test(args[0]));
+function validateAuditResumption(m,{runId,attemptId,prior,cancelled,cancelledSha256}){
+ const s=m?.readAudit,rel='.tmp/doc118-live-'+runId+'/select-audit.json';
+ check(m?.issueKey==='DOC-118'&&m.status==='ACTIVE'&&s?.authorized===true&&s.readOnly===true&&s.runId===runId&&s.attemptId===attemptId&&/^[a-f0-9]{32}$/.test(attemptId)&&s.loteId==='25');
+ check(s.maximumSelectStatementsTotal===240&&s.carriedSelectStatements===34&&s.maximumAdditionalSelectStatements===206&&s.historicalCountersNotReset===true&&s.carriedHttpRequests===301&&s.carriedSessions===2&&s.newApplicationSessions===0&&s.newApplicationHttp===0&&s.newBusinessMutations===0);
+ check(s.originalCancelledReport===rel&&/^[a-f0-9]{64}$/.test(cancelledSha256)&&s.originalCancelledReportSha256===cancelledSha256);
+ check(prior.status==='STOPPED_REVIEW_REQUIRED'&&prior.sessionAttempts===2&&prior.counters.selects===34&&prior.counters.scenarios.COORD02.http===301&&prior.counters.scenarios.COORD03.http===0);
+ check(cancelled.issueKey==='DOC-118'&&cancelled.runId===runId&&cancelled.status==='CANCELLED_ADMINISTRATIVE_CLOSURE'&&cancelled.ephemeralSecretsCleared===true&&cancelled.mutations===0&&JSON.stringify(cancelled.counters)===JSON.stringify(prior.counters));
+ return 'select-audit-'+attemptId+'.json';
+}
+async function auditCurrentWindow(args,{resume=false}={}){
+ tty.requireInteractiveConsole();check(args.length===(resume?2:1)&&/^[a-f0-9]{32}$/.test(args[0]));
  const runId=args[0],a=read(path.join(ROOT,'openspec/changes',CHANGE,'execution-current-window.json')),directory=path.join(ROOT,'.tmp','doc118-live-'+runId),prior=read(path.join(directory,'status.json'));
  check(a.runId===runId&&a.executionStatus==='STOPPED_REVIEW_REQUIRED'&&a.selectAuditAuthorized===true&&a.maximum.selectStatementsTotal===240&&a.maximum.totalSessions===2&&prior.status==='STOPPED_REVIEW_REQUIRED'&&prior.sessionsClosed===true&&prior.ephemeralSecretsCleared===true&&prior.observerCloseConfirmed===true&&prior.sessionAttempts===2&&prior.counters.selects===a.newWindowConsumption.selectStatements);
  const binding=validateBinding(a.retainedCase);check(binding.loteId==='25'&&JSON.stringify(binding.roots)===JSON.stringify(['41','42'])&&JSON.stringify(binding.files)===JSON.stringify(['42','43'])&&JSON.stringify(binding.expedientes)===JSON.stringify(['672','673'])&&JSON.stringify(binding.relaciones)===JSON.stringify(['1097','1098']));
  check(prior.references.some(r=>r.loteId===binding.loteId)&&binding.roots.every((r,i)=>prior.references.some(x=>x.raizId===r&&x.expedienteId===binding.expedientes[i]&&x.relacionNivelId===binding.relaciones[i])));
- const output=path.join(directory,'select-audit.json');check(!fs.existsSync(output));
+ let outputName='select-audit.json';
+ if(resume){const cancelledPath=path.join(directory,'select-audit.json'),cancelled=read(cancelledPath),resumption=read(path.join(ROOT,'openspec/changes',CHANGE,'implementation-resumption.json'));outputName=validateAuditResumption(resumption,{runId,attemptId:args[1],prior,cancelled,cancelledSha256:crypto.createHash('sha256').update(fs.readFileSync(cancelledPath)).digest('hex')});}
+ const output=path.join(directory,outputName);check(!fs.existsSync(output));
  const report={issueKey:'DOC-118',runId,mode:'CURRENT_WINDOW_SELECT_ONLY',status:'AWAITING_SELECT_CREDENTIALS',recordedUtc:new Date().toISOString(),loginAttempts:0,httpRequests:0,mutations:0,ephemeralSecretsCleared:false,counters:prior.counters};
- const save=()=>fs.writeFileSync(output,JSON.stringify(report,null,2)+'\n');save();
+ if(resume){report.resumeAttemptId=args[1];report.historicalCountersNotReset=true;report.priorCancelledReportPreserved=true;process.title='DOC-118 SELECT lote 25';}
+ const save=()=>fs.writeFileSync(output,JSON.stringify(report,null,2)+'\n');fs.writeFileSync(output,JSON.stringify(report,null,2)+'\n',{flag:'wx'});
  const secrets={},environment=Object.fromEntries(Object.entries(process.env).filter(([k])=>['PATH','Path','SystemRoot','WINDIR','TEMP','TMP'].includes(k))),budget=createBudget({allHttpPerCase:a.maximum.allHttpPerCase,allHttpGlobal:a.maximum.allHttpGlobal,carried:prior.counters});
  try{
   console.log('DOC-118: auditoria SELECT del lote conservado25. Sin login de aplicacion ni escrituras.');
@@ -75,6 +87,7 @@ async function auditCurrentWindow(args){
  }
 }
 async function main(){
+ if(process.argv[2]==='--resume-current-audit')return auditCurrentWindow(process.argv.slice(3),{resume:true});
  if(process.argv[2]==='--current-window')return auditCurrentWindow(process.argv.slice(3));
  tty.requireInteractiveConsole();const args=process.argv.slice(2);check(args.length===0||args.length===1&&args[0]==='--inspect-active-effect');const inspectActiveEffect=args.length===1;
  const authFile=path.join(ROOT,'openspec/changes',CHANGE,'execution-authorization.json'),a=read(authFile),ev=path.join(ROOT,'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion'),stop=read(path.join(ev,'doc118-active-window-stop-20261108.json')),prior=inspectActiveEffect?read(path.join(ev,'doc118-select-audit-20261108.json')):stop;
@@ -94,4 +107,4 @@ async function main(){
   for(const k of Object.keys(secrets))delete secrets[k];for(const k of Object.keys(environment))delete environment[k];report.ephemeralSecretsCleared=true;report.counters=budget.snapshot();report.finishedUtc=new Date().toISOString();save();console.log(report.status+'; secretos eliminados.');
  }
 }
-if(require.main===module)main().catch(()=>{console.log('DOC118_AUDIT_START_UNCONFIRMED');process.exitCode=2;});module.exports={audit};
+if(require.main===module)main().catch(()=>{console.log('DOC118_AUDIT_START_UNCONFIRMED');process.exitCode=2;});module.exports={audit,validateAuditResumption};

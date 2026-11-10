@@ -1,0 +1,121 @@
+{
+  "issueKey": "DOC-118",
+  "status": "AUTHORIZED",
+  "stage": "P4_B_HEAD_AND_SOURCE_BINDING_SMOKE",
+  "recordedUtc": "2026-11-09T18:52:14.009Z",
+  "source": {
+    "kind": "explicit-user-message",
+    "text": "aprobado",
+    "appliesTo": "Final approval request for one unauthenticated HEAD with local TLS exception and observer connect/inspect/close on the six-application shared worker, without ARM/Freeze."
+  },
+  "reviewedProposalCommit": "3f56517eeb1009efd05ec54e14f0f37df7891735",
+  "proposal": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-runtime-smoke-proposal.json",
+  "proposalSha256": "9d2ec34fd3eb63a737bb6aca7441b90c00ae02d19143b0e7fb4953a32ae30e58",
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "application": "Default Web Site/GestionDocumental-Docuarchi.net",
+    "runtimeRoot": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+    "applicationPool": "DefaultAppPool",
+    "applicationsInPool": 6
+  },
+  "pinnedFiles": [
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.dll",
+      "sha256": "9225b627c50b96c29ee9031173f0c578df4a16e970cb45404ee6be4d13eff291"
+    },
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.pdb",
+      "sha256": "37aab89e1a02ed2704644ec9d58e6f44f19125e36f1b8bdc60d3f7b8f4f97b72"
+    },
+    {
+      "path": "workflow/ClassAlmacenamiento.vb",
+      "sha256": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+      "sha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741"
+    },
+    {
+      "path": "Web.config",
+      "sha256": "fd392f3679b9bad1e72fd7cecb21b78bda051a863a5e545564e7978e563ef07a"
+    },
+    {
+      "path": "tools/e2e/scripts/support/Doc118Debugger.cs",
+      "sha256": "77944acdb1d4b0ed675962927969e5818e4e098cd629976ed2e3bd75eb1cad8c"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc118-runtime-smoke.ps1",
+      "sha256": "1c10920e9a07119bef59040b4385e02ccd39638894a1b63ca09f63868e9c8888"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc118-runtime-smoke-head.cjs",
+      "sha256": "5fee78974e19e8e165e2d98212ca3320ff5051e7c1ab917aadf33f042db156f4"
+    },
+    {
+      "path": "C:/Program Files/Microsoft Visual Studio/18/Enterprise/Common7/IDE/PublicAssemblies/Microsoft.VisualStudio.Interop.dll",
+      "sha256": "ea15f3a8d9256d6bf7e133e3f79ca11dde788d0ae052dae8f407b21b5becc108"
+    }
+  ],
+  "maximum": {
+    "httpRequests": 1,
+    "applicationLogins": 0,
+    "selectStatements": 0,
+    "documentEffects": 0,
+    "observerConnections": 1,
+    "documentalArms": 0,
+    "intentionalFreezes": 0,
+    "automaticRetries": 0,
+    "softDurationSeconds": 90
+  },
+  "headRequestAuthorized": true,
+  "localTlsExceptionAuthorized": true,
+  "observerAttachmentAuthorized": true,
+  "privateHiddenIdeAuthorized": true,
+  "conditionalFalseBreakpointAndDisposalAuthorized": true,
+  "armAuthorized": false,
+  "freezeAuthorized": false,
+  "globalPauseAuthorized": false,
+  "appPoolRecycleAuthorized": false,
+  "workerTerminationAuthorized": false,
+  "businessCasesAuthorized": false,
+  "applicationLoginAuthorized": false,
+  "selectControlsAuthorized": false,
+  "sharedStorageModificationAuthorized": false,
+  "siiModificationAuthorized": false,
+  "additionalHttpBudgetAuthorized": 1,
+  "additionalSessionBudgetAuthorized": 0,
+  "additionalSelectBudgetAuthorized": 0,
+  "historicalConsumptionUnchanged": {
+    "httpRequests": 1276,
+    "selectStatements": 113,
+    "sessions": 9
+  },
+  "executionStatus": "STOPPED_HEAD_NOT_CONFIRMED_REVIEW_REQUIRED",
+  "attemptRecordedUtc": "2026-11-09T18:52:47.3754506Z",
+  "attemptCompletedUtc": "2026-11-09T18:52:58.7272027Z",
+  "consumed": {
+    "httpRequests": 1,
+    "applicationLogins": 0,
+    "selectStatements": 0,
+    "documentEffects": 0,
+    "observerConnections": 0,
+    "documentalArms": 0,
+    "intentionalFreezes": 0
+  },
+  "remainingInApprovedMaximum": {
+    "httpRequests": 0,
+    "applicationLogins": 0,
+    "selectStatements": 0,
+    "documentEffects": 0,
+    "observerConnections": 1
+  },
+  "unusedObserverConnectionDoesNotBypassStopCondition": true,
+  "continuationRequiresReview": true,
+  "newHeadAttemptAuthorized": false,
+  "clientHttpStatus": null,
+  "serverLogObservation": {
+    "httpStatus": 200,
+    "timeTakenMilliseconds": 14807,
+    "clientTimeoutMilliseconds": 10000
+  }
+}

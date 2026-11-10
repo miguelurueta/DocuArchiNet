@@ -1,0 +1,26 @@
+{
+  "issueKey": "DOC-118",
+  "tasks": [
+    "6.9",
+    "6.10"
+  ],
+  "baseCommit": "f4d3ab2fcbf514af7dee4a0b0ee08c1f4dae50df",
+  "recordedUtc": "2026-11-09T13:58:10.387Z",
+  "source": "Mensaje «continua» posterior a RV-08, al siguiente paso explícito de integrar almacenamiento V2/driver y a la confirmación de preservar la función compartida.",
+  "scope": "Enlace de intentos nuevos y driver existente en código candidato; regresión local.",
+  "localNewAttemptBindingAuthorized": true,
+  "localDriverExtensionAuthorized": true,
+  "sharedStorageFunctionModificationAuthorized": false,
+  "siiModificationAuthorized": false,
+  "realExecutionAuthorized": false,
+  "deploymentAuthorized": false,
+  "runtimeFaultInjectionAuthorized": false,
+  "newBudgetsAuthorized": false,
+  "attempt69Eligible": false,
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  }
+}
