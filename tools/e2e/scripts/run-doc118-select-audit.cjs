@@ -77,7 +77,7 @@ async function auditCurrentWindow(args,{resume=false}={}){
  const secrets={},environment=Object.fromEntries(Object.entries(process.env).filter(([k])=>['PATH','Path','SystemRoot','WINDIR','TEMP','TMP'].includes(k))),budget=createBudget({allHttpPerCase:a.maximum.allHttpPerCase,allHttpGlobal:a.maximum.allHttpGlobal,carried:prior.counters});
  try{
   console.log('DOC-118: auditoria SELECT del lote conservado25. Sin login de aplicacion ni escrituras.');
-  await tty.collectValue(secrets,'user','Cuenta MySQL exclusivamente SELECT',{secret:true});await tty.collectValue(secrets,'password','Contrasena MySQL SELECT',{secret:true});
+  await tty.collectValue(secrets,'user','Cuenta MySQL exclusivamente SELECT');await tty.collectValue(secrets,'password','Contrasena MySQL SELECT',{secret:true});
   for(const prefix of ['DOC111_E2E','DOC111_DA_E2E'])Object.assign(environment,{[prefix+'_ODBC_DSN']:'MembershipUsers',[prefix+'_MYSQL_USER']:secrets.user,[prefix+'_MYSQL_PASSWORD']:secrets.password});for(const k of Object.keys(secrets))delete secrets[k];
   const query=async(origin,sql,parameters)=>{check(budget.snapshot().selects<a.maximum.selectStatementsTotal);budget.select(origin,sql);report.counters=budget.snapshot();save();return queryRows(sql,parameters,environment,origin==='RA'?'DOC111_E2E':'DOC111_DA_E2E');};
   const profile=caseProfile(read(path.join(ROOT,'tools/e2e/profiles/doc111-importacion-carpetas-lote-20261102.runtime.json')),'COORD02',a.newRootNames.COORD02,{runId});
@@ -98,7 +98,7 @@ async function main(){
  const secrets={},environment=Object.fromEntries(Object.entries(process.env).filter(([k])=>['PATH','Path','SystemRoot','WINDIR','TEMP','TMP'].includes(k))),budget=createBudget({allHttpPerCase:a.maximum.allHttpPerCase,allHttpGlobal:a.maximum.allHttpGlobal,carried:prior.counters});
  try{
   console.log('DOC-118: auditoria SELECT del lote24. Sin login de aplicacion ni escrituras.');
-  await tty.collectValue(secrets,'user','Cuenta MySQL exclusivamente SELECT',{secret:true});await tty.collectValue(secrets,'password','Contrasena MySQL SELECT',{secret:true});
+  await tty.collectValue(secrets,'user','Cuenta MySQL exclusivamente SELECT');await tty.collectValue(secrets,'password','Contrasena MySQL SELECT',{secret:true});
   for(const prefix of ['DOC111_E2E','DOC111_DA_E2E'])Object.assign(environment,{[prefix+'_ODBC_DSN']:'MembershipUsers',[prefix+'_MYSQL_USER']:secrets.user,[prefix+'_MYSQL_PASSWORD']:secrets.password});for(const k of Object.keys(secrets))delete secrets[k];
   const query=async(origin,sql,args)=>{budget.select(origin,sql);report.counters=budget.snapshot();save();return queryRows(sql,args,environment,origin==='RA'?'DOC111_E2E':'DOC111_DA_E2E');};
   const profile=caseProfile(read(path.join(ROOT,'tools/e2e/profiles/doc111-importacion-carpetas-lote-20261102.runtime.json')),'COORD02',a.newRootNames.COORD02);

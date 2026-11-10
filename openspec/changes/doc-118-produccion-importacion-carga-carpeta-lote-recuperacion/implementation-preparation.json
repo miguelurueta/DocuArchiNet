@@ -3659,5 +3659,37 @@
       "sourceTraceability": "PASS",
       "gitSynchronization": "VERIFY_AT_DELIVERY"
     }
+  },
+  "ttyCaptureToolDeltas": [
+    {
+      "path": "tools/e2e/scripts/run-doc118-live.cjs",
+      "beforeCommit": "06296e29109e414ac1f2190eadf8a5fc94246e91",
+      "beforeSha256": "c928ada84066cb4be54d6130616e6fc0efb4cd1b4e5257b2aff77dc635e0bfd3",
+      "afterSha256": "e801e685a284fcf2167643dae29a4145e18fb6d7831dbf114742df56a736da50"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc118-select-audit.cjs",
+      "beforeCommit": "06296e29109e414ac1f2190eadf8a5fc94246e91",
+      "beforeSha256": "b3f2ac8825d18904dbc780366807b2600059d9128f9c46b261bd50f890131c95",
+      "afterSha256": "eafba90915ac63cdd84e03fb750742851274a5267c2f7748b05cb9730d70e304"
+    },
+    {
+      "path": "tests/doc118-live-lifecycle.test.cjs",
+      "beforeCommit": "06296e29109e414ac1f2190eadf8a5fc94246e91",
+      "beforeSha256": "622ab7675b4679536343b357b8c7676153d2ce971957e5f089a2164afaa40807",
+      "afterSha256": "889f1e351f5e3dab7359e0c87ff2caca912c21d95ec171b2b12e2b50db80ec28"
+    }
+  ],
+  "ttyCaptureCorrection": {
+    "userRequest": "corrige la TTY no deja ver los usuario los tiene todos como si fueran pasword",
+    "usernames": "VISIBLE_IN_INTERACTIVE_CONSOLE",
+    "passwords": "MASKED",
+    "scope": "Application and SELECT audit username prompts only; values stay ephemeral and are excluded from status files.",
+    "validation": {
+      "command": "node --test tests/doc118-live-lifecycle.test.cjs tests/doc118-select-audit.test.cjs",
+      "passed": 26,
+      "failed": 0
+    },
+    "authenticatedExecution": false
   }
 }

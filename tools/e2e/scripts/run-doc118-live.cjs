@@ -20,7 +20,7 @@ function publicGuardCode(error,fallback='DOC118_LIVE_START_UNCONFIRMED'){return 
 function phaseFailure(error){const safe=preflightFailure(error);return{code:safe.code==='UNCLASSIFIED_FAILURE'?publicGuardCode(error,'DOC118_LIVE_PHASE_UNCONFIRMED'):safe.code,preflightFailure:safe};}
 async function captureCredentials(secrets,{collect=tty.collectValue,onStage=()=>{}}={}){
  for(const [name,label,stage]of [['user','Login de aplicacion de la cuenta autorizada (usuario 141)','APPLICATION_USER'],['password','Contrasena de aplicacion','APPLICATION_PASSWORD'],['dbUser','Cuenta MySQL exclusivamente SELECT','SELECT_USER'],['dbPassword','Contrasena MySQL SELECT','SELECT_PASSWORD']]){
-  onStage(stage);try{await collect(secrets,name,label,{secret:true});}catch{throw Error('DOC118_LIVE_CAPTURE_NOT_COMPLETED');}
+  onStage(stage);try{await collect(secrets,name,label,{secret:name==='password'||name==='dbPassword'});}catch{throw Error('DOC118_LIVE_CAPTURE_NOT_COMPLETED');}
  }
  onStage('RUNTIME_RECHECK');
 }
