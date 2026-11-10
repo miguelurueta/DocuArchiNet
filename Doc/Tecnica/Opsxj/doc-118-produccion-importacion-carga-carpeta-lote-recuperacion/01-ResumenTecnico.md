@@ -70,7 +70,7 @@ Las primitivas de exclusión sobre archivos sintéticos NTFS pasaron13/13 prueba
 
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
-- Clasificación: cross_cutting
+- Clasificacion: cross_cutting
 - Estado: ejecutor de siete fases verificado localmente; disponibilidad/cierre de observador PASS, retención SIN_CALIFICAR. Progreso16/27.
 
 ## Objetivo

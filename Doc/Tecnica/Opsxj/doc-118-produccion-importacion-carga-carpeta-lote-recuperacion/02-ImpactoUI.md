@@ -6,7 +6,7 @@ Completada6.11/D-18/RQ-18: decorador de pruebas de pérdida de un acuse nativo v
 
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
-- Clasificación: cross_cutting
+- Clasificacion: cross_cutting
 - Estado: enlace/driver V2 implementados localmente;27/37 tareas, aceptación real y calificación del runtime abiertas.
 
 ## Superficies UI

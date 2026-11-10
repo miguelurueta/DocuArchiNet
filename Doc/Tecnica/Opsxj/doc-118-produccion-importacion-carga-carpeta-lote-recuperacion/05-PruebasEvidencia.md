@@ -70,7 +70,7 @@ Se reutiliza la regresión de e68d9972/RV-07:223/223 Node y133 casos V2 internos
 
 - Ticket: DOC-118
 - Cambio OpenSpec: doc-118-produccion-importacion-carga-carpeta-lote-recuperacion
-- Clasificación: cross_cutting
+- Clasificacion: cross_cutting
 - Estado: ejecutor de siete fases verificado localmente; disponibilidad/cierre de observador PASS, retención SIN_CALIFICAR. Progreso16/27.
 
 ## Evidencia requerida
