@@ -1,0 +1,93 @@
+{
+  "issueKey": "DOC-118",
+  "recordedUtc": "2026-11-07T20:30:39.605Z",
+  "reviewedCodeCommit": "3c538a0f6aab1ba9fe36639815bccafb40ab1f5b",
+  "authorizationReference": "execution-authorization.json",
+  "status": "LOCAL_EXECUTOR_PREPARED_REQUIRES_FRESH_WINDOW",
+  "site": {
+    "method": "HEAD",
+    "path": "gestor.aspx",
+    "httpStatus": 200,
+    "authenticated": false
+  },
+  "runtime": {
+    "dllSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+    "dllBytes": 9627648,
+    "pdbSha256": "7028b435d4ad0aeff074bf202fce4faa8742997c4e42edeecead2a4078d5eeeb",
+    "pdbBytes": 10640896,
+    "pdbMatchesLoadedModule": null,
+    "pdbMatchMeaning": "No verificado: presencia y huella del archivo, sin acreditar carga/correspondencia de símbolos.",
+    "appPool": "DefaultAppPool",
+    "applicationsInPool": 6,
+    "targetApplicationPresent": true,
+    "workerObserved": true,
+    "pdbMatchStatus": "ON_DISK_MATCH_LOADED_MODULE_NOT_VERIFIED",
+    "onDiskGuidAndAgeMatch": true,
+    "workerPresentAtFinalCheck": false
+  },
+  "debugger": {
+    "matchingWorkspaceIdeFound": true,
+    "matchingIdeMode": "DESIGN",
+    "alreadyDebuggingTarget": false,
+    "attachedByAgent": true,
+    "breakpointsAdded": null,
+    "threadsFrozen": 0,
+    "activeBodyObservationQualified": false,
+    "automationSdkAccess": "READ_CAPABILITIES_VERIFIED",
+    "managedEngineAvailable": true,
+    "managedEngineId": "{449EC4CC-30D2-4032-9256-EE18EB41B62B}",
+    "controlOperationsQualified": false,
+    "references": [
+      "https://learn.microsoft.com/en-us/dotnet/api/envdte80.process2.attach2?view=visualstudiosdk-2022",
+      "https://learn.microsoft.com/en-us/dotnet/api/envdte.thread.freeze?view=visualstudiosdk-2022"
+    ],
+    "temporarySourceBreakpointResolved": true,
+    "documentalBreakpointArmed": false,
+    "currentAttached": false,
+    "sourceReadinessAndClosePassed": true
+  },
+  "counters": {
+    "COORD02": {
+      "allHttp": 699,
+      "businessHttp": 3
+    },
+    "COORD03": {
+      "allHttp": 0,
+      "businessHttp": 0
+    },
+    "loginAttempts": 5,
+    "selectStatements": 17,
+    "newPlans": 0,
+    "newLots": 0,
+    "newRoots": 0,
+    "newFiles": 0,
+    "newExpedientes": 0,
+    "newStoredDocuments": 0,
+    "stopRequests": 0,
+    "sessionAttempts": 5
+  },
+  "remaining": {
+    "COORD02AllHttp": 226,
+    "COORD03AllHttp": 75,
+    "selectStatements": 223,
+    "totalSessions": 0,
+    "allHttpGlobal": 301
+  },
+  "historicalAttemptsMutated": [],
+  "caseStatus": {
+    "COORD02": "NO_EJECUTADO",
+    "COORD03": "NO_EJECUTADO"
+  },
+  "requiredBeforeEffects": [
+    "Autorizar pareja adicional/techo acumulado de execution-fresh-window-proposal.json;0 aperturas restantes.",
+    "Iniciar observador supervisado del runId nuevo, con worker/símbolos/heartbeat vigentes, antes de la captura.",
+    "Calificar retención y progreso de peer en la ventana autorizada; nunca presentar attach/cierre como esa calificación.",
+    "Conservar699 HTTP/17 SELECT/5 aperturas y las limitaciones de la consola antigua."
+  ],
+  "budgetCarryForward": "Antes de nuevos despachos cargar el contador previo y conservar la petición HEAD ya consumida; no reiniciar los presupuestos al abrir sesión.",
+  "loginResult": "TWO_INDEPENDENT_SESSIONS_PREFLIGHT_PASS",
+  "authenticated": false,
+  "retryAutomaticallyAuthorized": false,
+  "safeLiveEvidence": "doc118-observer-readiness-20261108.json",
+  "authenticatedMeaning": "Ambas sesiones autenticaron y completaron preflight; el proceso ya terminó. No se reconoce finalmente explícito."
+}

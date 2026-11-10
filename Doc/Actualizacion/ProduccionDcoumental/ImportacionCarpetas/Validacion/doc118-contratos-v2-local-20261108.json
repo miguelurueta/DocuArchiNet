@@ -1,0 +1,141 @@
+{
+  "issueKey": "DOC-118",
+  "task": "RV-01 / 6.1",
+  "status": "PASS_LOCAL_CONTRACTS_ONLY",
+  "recordedUtc": "2026-11-08T18:22:58.998Z",
+  "baseCommit": "9c21c830f2150f9153f094723936c31469ab7280",
+  "hashAlgorithm": "sha256-utf8-lf",
+  "sourceFiles": [
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/DocumentosAlmacenamientoV2Importacion.vb",
+      "sha256": "ba94df1c587e466c09ae1c41bb1f55f10822cc8daad12f2117990b11115e22fc"
+    },
+    {
+      "path": "tests/ImportacionCarpetasDocumentosV2BehaviorTests.cs",
+      "sha256": "4abbe72a0f74b4ec0971c3e95e460257d1a960e8e28df1b95e3defddc0a0545d"
+    },
+    {
+      "path": "GestionDocumental-Docuarchi.net.vbproj",
+      "sha256": "3bf33bb0f4246a00420cfab5a9415055e3cf24dd68cc2c443b43314ade75c6c4"
+    }
+  ],
+  "reviewedSourceDeltas": [
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "beforeCommit": "9c21c830f2150f9153f094723936c31469ab7280",
+      "beforeSha256": "130d0506384c359a3cc87d96ada270597b4237dc87c69179a31c9a59edab0746",
+      "afterSha256": "2eb443542b9f4a1d84985c85d974aade80f60d928558196d4569fb26d27fd2a4",
+      "scope": "RV-01: registro de parcial C# y compilación/aserción en harness existente; sin alterar casos V1."
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "beforeCommit": "9c21c830f2150f9153f094723936c31469ab7280",
+      "beforeSha256": "f7d40ed48283f0bcbe3bf0e98424a4b1d040cb44a230cb7108e1069884be8ed3",
+      "afterSha256": "8da0a021e7e7b83c23996dd042c046e965c159045b6c0fa66b69a2645bf37566",
+      "scope": "RV-01: registro de parcial C# y compilación/aserción en harness existente; sin alterar casos V1."
+    }
+  ],
+  "localRegression": {
+    "command": "node --test tests/doc110-perfil-importacion-behavior.test.cjs tests/doc111-importacion-carpetas-client.test.cjs",
+    "tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "frameworkBehaviorTests": 2,
+    "clientTests": 16
+  },
+  "internalDotNetCases": {
+    "count": 19,
+    "passed": 19,
+    "failed": 0,
+    "names": [
+      "canonical_roundtrip_all_phases",
+      "v1_not_upgraded_including_synthetic_69",
+      "missing_or_wrong_versions",
+      "origin_is_explicit_not_defaulted",
+      "all_initial_fields_required",
+      "extra_client_claims_rejected",
+      "duplicate_wrong_case_trailing_and_oversize_json",
+      "canonical_identifiers_and_revisions",
+      "hashes_and_provider_references_closed",
+      "prepared_cannot_contain_later_evidence",
+      "authorization_binds_initial_document",
+      "return_requires_authorization_and_exact_binding",
+      "confirmed_return_requires_both_observed_ids",
+      "uncertain_return_preserves_partial_or_missing_ids",
+      "pure_transitions_cannot_authorize_twice_or_skip_gate",
+      "factory_checks_original_and_result_scope",
+      "returned_objects_do_not_alias_input",
+      "raw_secrets_paths_and_messages_not_serialized",
+      "json_is_data_not_client_authority_or_v1_result"
+    ],
+    "includedInNodeCount": false
+  },
+  "toolRegression": {
+    "tests": 205,
+    "passed": 205,
+    "failed": 0,
+    "files": [
+      "tests/doc118-live-preflight.test.cjs",
+      "tests/doc118-session-bridge.test.cjs",
+      "tests/doc118-active-call.test.cjs",
+      "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+      "tests/doc118-symbols.test.cjs",
+      "tests/doc118-debugger-observer.test.cjs",
+      "tests/doc118-case-preparation.test.cjs",
+      "tests/doc118-case-completion.test.cjs",
+      "tests/doc118-lost-response.test.cjs",
+      "tests/doc118-live-lifecycle.test.cjs",
+      "tests/doc118-documental-phases.test.cjs",
+      "tests/doc118-debugger-protocol.test.cjs",
+      "tests/doc118-select-audit.test.cjs",
+      "tests/doc118-debugger-release.test.cjs",
+      "tests/doc118-release-probe-build.test.cjs",
+      "tests/doc118-staging-lock-probe.test.cjs"
+    ],
+    "scope": "LOCAL_ONLY",
+    "recordedUtc": "2026-11-08T18:19:50.238Z"
+  },
+  "disjointNodeTests": 223,
+  "legacySourceReview": {
+    "baselineVerified": 14,
+    "currentUnchanged": 12,
+    "authorizedTestDeltas": 2,
+    "historicalReportsUnchanged": 10,
+    "recoveryEvaluationSourcesUnchanged": 16
+  },
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "diffCheck": "PASS"
+  },
+  "progress": {
+    "complete": 18,
+    "total": 28,
+    "remaining": 10,
+    "newTask": "6.1",
+    "previousComplete": 17,
+    "previousTotal": 27
+  },
+  "limits": {
+    "serverOriginLabelIsAuthority": false,
+    "jsonIsDurableProof": false,
+    "providerPortImplemented": false,
+    "productionProviderQualified": false,
+    "storageGateImplemented": false,
+    "recoveryEnabled": false,
+    "v1BackfillAllowed": false,
+    "attempt69Eligible": false
+  },
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  },
+  "realConsumptionUnchanged": {
+    "httpRequests": 1276,
+    "selectStatements": 113,
+    "sessions": 9
+  }
+}

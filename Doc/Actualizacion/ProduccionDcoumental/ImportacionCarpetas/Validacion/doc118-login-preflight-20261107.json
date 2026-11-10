@@ -1,0 +1,38 @@
+{
+  "issueKey": "DOC-118",
+  "runId": "fc29af9db23edc9d734e42c2a1bf3b3e",
+  "status": "STOPPED_REVIEW_REQUIRED",
+  "code": "DOC111_LOGIN_CREDENTIALS_REJECTED",
+  "phaseIndex": 0,
+  "sessionAttempts": 1,
+  "counters": {
+    "scenarios": {
+      "COORD02": {
+        "http": 98,
+        "operations": {}
+      },
+      "COORD03": {
+        "http": 0,
+        "operations": {}
+      }
+    },
+    "selects": 0
+  },
+  "sessionsClosed": true,
+  "ephemeralSecretsCleared": true,
+  "createdUtc": "2026-11-07T20:56:05.110Z",
+  "finishedUtc": "2026-11-07T21:02:00.794Z",
+  "realLoginAttempted": true,
+  "authenticated": false,
+  "newDocumentEffects": 0,
+  "automaticLoginRetries": 0,
+  "priorLocalStart": {
+    "runId": "cf84419c83b87e253f86e9595b8b02a3",
+    "status": "STOPPED_BEFORE_AUTHENTICATION",
+    "reason": "Consola cargó una versión previa del enlace compartido; binding corregido y comprobado antes de la siguiente captura.",
+    "additionalHttpRequests": 0,
+    "loginAttempts": 0,
+    "selectStatements": 0
+  },
+  "privacy": "Proyección cerrada del resultado; sin datos de entrada, cookies, tokens, conexiones o cuerpos HTTP."
+}

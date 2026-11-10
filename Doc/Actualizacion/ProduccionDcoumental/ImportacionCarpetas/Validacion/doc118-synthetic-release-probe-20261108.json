@@ -1,0 +1,53 @@
+{
+  "issueKey": "DOC-118",
+  "probeId": "d893979b40d24c3fba0ae5937ab586a4",
+  "scope": "SYNTHETIC_PROCESS_ONLY",
+  "recordedUtc": "2026-11-08T14:20:40.3091790Z",
+  "status": "PASS",
+  "stage": "RUN_SDK_PROBE",
+  "failure": null,
+  "appLoginAttempts": 0,
+  "httpRequests": 0,
+  "selectStatements": 0,
+  "documentEffects": 0,
+  "legacyRuntimeQualified": false,
+  "childExited": true,
+  "observation": {
+    "status": "RELEASE_PROBE_PASS",
+    "stage": "WAIT_SYNTHETIC_COMPLETION",
+    "processId": 34356,
+    "threadId": 11932,
+    "hresult": 0,
+    "exceptionType": null,
+    "privateIdeInitiallyEmpty": true,
+    "sourceBound": true,
+    "frozen": true,
+    "peerProgress": true,
+    "releaseConfirmed": true,
+    "targetCompletedOnce": true,
+    "cleanupConfirmed": true
+  },
+  "controllerSha256": "77944acdb1d4b0ed675962927969e5818e4e098cd629976ed2e3bd75eb1cad8c",
+  "precedingSyntheticCheck": {
+    "probeId": "2f27ca0d94c34b0c91ae7c9dc0bddbac",
+    "status": "UNCONFIRMED",
+    "stage": "ENTER_SYNTHETIC_BODY",
+    "hresult": -2147418111,
+    "frozen": false,
+    "cleanupConfirmed": true,
+    "childExited": true
+  },
+  "requestObservation": {
+    "issueKey": "DOC-118",
+    "recordedUtc": "2026-11-08T14:29:03.0723857Z",
+    "status": "UNCONFIRMED",
+    "method": "APPCMD_READ_ONLY",
+    "workerId": 31784,
+    "workerExists": true,
+    "matchingAdvanceRouteRequests": null,
+    "httpRequests": 0,
+    "applicationLogins": 0,
+    "mutations": 0,
+    "attempt69OutcomeProven": false
+  }
+}

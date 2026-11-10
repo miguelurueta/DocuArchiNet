@@ -1,0 +1,164 @@
+{
+  "issueKey": "DOC-118",
+  "baseCommit": "9d67c81f27cb714412d17772ad492b56968407a3",
+  "recordedUtc": "2026-11-09T15:28:22.042Z",
+  "scope": "OFFLINE_FULL_PROJECT_BUILD_AND_ON_DISK_SYMBOLS_ONLY",
+  "status": "PASS_OFFLINE_NOT_DEPLOYED",
+  "command": {
+    "executable": "C:/Program Files/Microsoft Visual Studio/18/Enterprise/MSBuild/Current/Bin/amd64/MSBuild.exe",
+    "args": [
+      "GestionDocumental-Docuarchi.net.vbproj",
+      "/t:Build",
+      "/nologo",
+      "/v:quiet",
+      "/m:1",
+      "/clp:ErrorsOnly",
+      "/p:Configuration=Debug",
+      "/p:DeployOnBuild=false",
+      "/p:PublishDatabases=false",
+      "/p:BuildProjectReferences=false",
+      "/p:UseHostCompilerIfAvailable=false",
+      "/p:UseSharedCompilation=false",
+      "/p:OutputPath=D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\.tmp\\doc118-v2-candidate-9d67c81f\\bin\\",
+      "/p:OutDir=D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\.tmp\\doc118-v2-candidate-9d67c81f\\bin\\",
+      "/p:BaseIntermediateOutputPath=D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\.tmp\\doc118-v2-candidate-9d67c81f\\obj\\",
+      "/p:IntermediateOutputPath=D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\.tmp\\doc118-v2-candidate-9d67c81f\\obj\\"
+    ]
+  },
+  "exitCode": 0,
+  "timeoutOrSpawnFailure": false,
+  "errors": [],
+  "generalCodes": [],
+  "compileSourceCount": 920,
+  "compileInputHash": "8874d2649750dd33ad0346ffcea75acfe809cea873fbc192fa802a5538885f6a",
+  "compileSourcesStable": true,
+  "projectSha256": "f3670dfa2fb880576b5c9e67b86968c6301ee068fab86888e565b1081e7a4b2b",
+  "candidateDirectory": ".tmp/doc118-v2-candidate-9d67c81f",
+  "candidateSymbols": {
+    "kind": "ON_DISK_CODEVIEW_PDB_MATCH",
+    "dllSha256": "9225b627c50b96c29ee9031173f0c578df4a16e970cb45404ee6be4d13eff291",
+    "pdbSha256": "37aab89e1a02ed2704644ec9d58e6f44f19125e36f1b8bdc60d3f7b8f4f97b72",
+    "guidAndAgeMatch": true,
+    "loadedModuleVerified": false,
+    "activeBodyObservationQualified": false
+  },
+  "ordinarySymbols": {
+    "kind": "ON_DISK_CODEVIEW_PDB_MATCH",
+    "dllSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+    "pdbSha256": "7028b435d4ad0aeff074bf202fce4faa8742997c4e42edeecead2a4078d5eeeb",
+    "guidAndAgeMatch": true,
+    "loadedModuleVerified": false,
+    "activeBodyObservationQualified": false
+  },
+  "protectedSources": [
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.dll",
+      "beforeSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+      "afterSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+      "unchanged": true
+    },
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.pdb",
+      "beforeSha256": "7028b435d4ad0aeff074bf202fce4faa8742997c4e42edeecead2a4078d5eeeb",
+      "afterSha256": "7028b435d4ad0aeff074bf202fce4faa8742997c4e42edeecead2a4078d5eeeb",
+      "unchanged": true
+    },
+    {
+      "path": "Web.config",
+      "beforeSha256": "fd392f3679b9bad1e72fd7cecb21b78bda051a863a5e545564e7978e563ef07a",
+      "afterSha256": "fd392f3679b9bad1e72fd7cecb21b78bda051a863a5e545564e7978e563ef07a",
+      "unchanged": true
+    },
+    {
+      "path": "workflow/ClassAlmacenamiento.vb",
+      "beforeSha256": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c",
+      "afterSha256": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c",
+      "unchanged": true
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+      "beforeSha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741",
+      "afterSha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741",
+      "unchanged": true
+    }
+  ],
+  "decoratorCompiledInProduct": false,
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  },
+  "runtimeQualified": false,
+  "deployed": false,
+  "iisInspection": {
+    "issueKey": "DOC-118",
+    "scope": "READ_ONLY_IIS_CONFIGURATION",
+    "recordedUtc": "2026-11-09T15:35:21.7400924Z",
+    "application": "Default Web Site/GestionDocumental-Docuarchi.net",
+    "physicalPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+    "physicalRootMatchesRepo": true,
+    "applicationPool": "DefaultAppPool",
+    "applicationsInPool": 6,
+    "loadedModuleVerified": false,
+    "observerAttached": false,
+    "runtimeQualified": false,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "applicationLogins": 0
+  },
+  "artifacts": [
+    {
+      "source": ".tmp/doc118-v2-candidate-9d67c81f/bin/GestionDocumental-Docuarchi.net.dll",
+      "destination": "bin/GestionDocumental-Docuarchi.net.dll",
+      "bytes": 9693696,
+      "candidateSha256": "9225b627c50b96c29ee9031173f0c578df4a16e970cb45404ee6be4d13eff291",
+      "expectedInstalledSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5"
+    },
+    {
+      "source": ".tmp/doc118-v2-candidate-9d67c81f/bin/GestionDocumental-Docuarchi.net.pdb",
+      "destination": "bin/GestionDocumental-Docuarchi.net.pdb",
+      "bytes": 10739200,
+      "candidateSha256": "37aab89e1a02ed2704644ec9d58e6f44f19125e36f1b8bdc60d3f7b8f4f97b72",
+      "expectedInstalledSha256": "7028b435d4ad0aeff074bf202fce4faa8742997c4e42edeecead2a4078d5eeeb"
+    }
+  ],
+  "deploymentProposal": {
+    "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-candidate-deployment-proposal.json",
+    "sha256": "7c22ace6eb28ec2e17f93eb963613a48870f908efad2b3a135047641d4c7afa3",
+    "status": "PROPOSED_NOT_AUTHORIZED"
+  },
+  "documents": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-candidato-v2-build-20261109.md",
+      "sha256": "8aafc928fc31705ddd3d56354f4dcabb81fb9fe7d640eda747083f2296fac833"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-despliegue-v2-propuesto-20261109.md",
+      "sha256": "432a6c0260bbeaf3072077e60824133d888662afc371c7ff9e2f484823bcb501"
+    }
+  ],
+  "priorNodeRegression": {
+    "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-acuses-v2-local-20261109.json",
+    "sha256": "27b6d7bb281633875113d4be2f4700fdcc48c99acacb85e1f5a4e6981383b29a",
+    "tests": 247,
+    "passed": 247,
+    "reusedNotRerun": true
+  },
+  "progress": {
+    "complete": 28,
+    "total": 38,
+    "remaining": 10,
+    "newTasks": 0
+  },
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "decisionRequirementPairs": 18,
+    "diffCheck": "PASS",
+    "sourceAndArtifactProvenance": "PASS",
+    "runtimeFilesUnchanged": "PASS",
+    "deploymentProposalStillUnauthorised": true
+  }
+}

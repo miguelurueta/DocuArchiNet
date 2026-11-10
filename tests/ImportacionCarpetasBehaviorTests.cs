@@ -1777,7 +1777,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
             Check(endpoint.ConsultarLote(new ConsultarLoteImportacionSolicitud{loteId="20"}).ok,"Revocation fixture has no previously authorized request");
             var savedLot=PerfilImportacionJson.Escribir(repository.Lot);var token=firstWorker.Token;var factoryCount=factories;var policyCount=policyReads;var resourceReads=fixture.Reads;
             fixture.ImportAllowed=false;
-            var operations=new[]{"AbrirImportacion","ListarPerfilesImportacion","PrepararPlan","ConfirmarPlan","ConsultarLote","ConsultarConfirmacionLote","ConsultarRecursosLote","ExportarPaginaLote","AvanzarLote","SolicitarDetencion","ReconciliarRecurso","CerrarReservaSinInicio"};
+            var operations=new[]{"AbrirImportacion","ListarPerfilesImportacion","PrepararPlan","ConfirmarPlan","ConsultarLote","ConsultarConfirmacionLote","ConsultarRecursosLote","ExportarPaginaLote","AvanzarLote","SolicitarDetencion","ReconciliarRecurso","CerrarReservaSinInicio","RecuperarDocumentoV2"};
             foreach(var operation in operations){
                 var method=typeof(WebServiceImportacionCarpetas).GetMethod(operation);var request=Activator.CreateInstance(method.GetParameters().Single().ParameterType);
                 var worker=new ImportRequest{Body=System.Text.Encoding.UTF8.GetBytes(PerfilImportacionJson.Escribir(new{solicitud=request})),Token=token};var next=SessionFixture(worker:worker,sessionId:first.Session.SessionID);
@@ -2768,6 +2768,15 @@ public static partial class ImportacionCarpetasBehaviorTests {
     }
 
     public static void Run() {
+        DocumentProtocolV2Cases();
+        StagingV2Cases();
+        AdapterV2Cases();
+        PersistenceV2Cases();
+        RecoveryV2Cases();
+        RecoveryHttpV2Cases();
+        MatrixV2Cases();
+        BindingV2Cases();
+        AckLossV2Cases();
         Doc115RepositoryGuardCases();
         QueryCases();QuerySqlCases();QueryDispatcherCases();RetentionDiagnosisCases();KnownExpedientRelationCases();KnownExpedientClassificationCases();CreationCommandCases();CreationCatalogCases();CreationLegacyCompatibilityCases();LegacyCreationAuthorityCases();ProductionArchiveCycleCases();CreationAdapterCases();CreationResultSqlCases();CreationCheckpointCases();CreationBarrierCases();PhysicalCreationStagingCases();CoordinatedCreationCases();DeferredValuesCases();
         ControlCases();

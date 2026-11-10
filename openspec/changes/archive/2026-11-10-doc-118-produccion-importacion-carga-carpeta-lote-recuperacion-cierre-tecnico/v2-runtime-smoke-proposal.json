@@ -1,0 +1,149 @@
+{
+  "issueKey": "DOC-118",
+  "status": "PROPOSED_NOT_AUTHORIZED",
+  "stage": "P4_B_HEAD_AND_SOURCE_BINDING_SMOKE",
+  "recordedUtc": "2026-11-09T17:59:53.334Z",
+  "repositoryCheckpoint": "380ebbf749dd909148168578999d73c264a5dac9",
+  "sourceCodeCommit": "9d67c81f27cb714412d17772ad492b56968407a3",
+  "deployment": {
+    "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-despliegue-v2-20261109.json",
+    "sha256": "6bef591e65d33bb0e931666d6eda359ff04e34b4e5d44905887628604ed48f01"
+  },
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "application": "Default Web Site/GestionDocumental-Docuarchi.net",
+    "runtimeRoot": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+    "applicationPool": "DefaultAppPool",
+    "applicationsInPool": 6
+  },
+  "pinnedFiles": [
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.dll",
+      "sha256": "9225b627c50b96c29ee9031173f0c578df4a16e970cb45404ee6be4d13eff291"
+    },
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.pdb",
+      "sha256": "37aab89e1a02ed2704644ec9d58e6f44f19125e36f1b8bdc60d3f7b8f4f97b72"
+    },
+    {
+      "path": "workflow/ClassAlmacenamiento.vb",
+      "sha256": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+      "sha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741"
+    },
+    {
+      "path": "Web.config",
+      "sha256": "fd392f3679b9bad1e72fd7cecb21b78bda051a863a5e545564e7978e563ef07a"
+    },
+    {
+      "path": "tools/e2e/scripts/support/Doc118Debugger.cs",
+      "sha256": "77944acdb1d4b0ed675962927969e5818e4e098cd629976ed2e3bd75eb1cad8c"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc118-runtime-smoke.ps1",
+      "sha256": "1c10920e9a07119bef59040b4385e02ccd39638894a1b63ca09f63868e9c8888"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc118-runtime-smoke-head.cjs",
+      "sha256": "5fee78974e19e8e165e2d98212ca3320ff5051e7c1ab917aadf33f042db156f4"
+    },
+    {
+      "path": "C:/Program Files/Microsoft Visual Studio/18/Enterprise/Common7/IDE/PublicAssemblies/Microsoft.VisualStudio.Interop.dll",
+      "sha256": "ea15f3a8d9256d6bf7e133e3f79ca11dde788d0ae052dae8f407b21b5becc108"
+    }
+  ],
+  "localResultDirectory": ".tmp/doc118-p4b-20261109-01",
+  "authorizationFile": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-runtime-smoke-authorization.json",
+  "http": {
+    "method": "HEAD",
+    "relativePath": "gestor.aspx",
+    "timeoutMilliseconds": 10000,
+    "retries": 0,
+    "redirects": 0,
+    "localTlsException": true,
+    "authenticated": false,
+    "acceptedStatuses": [
+      200,
+      302
+    ],
+    "cookiesOrBodiesSaved": false,
+    "atomicCapacityFile": ".tmp/doc118-p4b-20261109-01/head-dispatch.json",
+    "rejectPreviouslyConsumedCapacityBeforeTransport": true
+  },
+  "observer": {
+    "implementation": "tools/e2e/scripts/support/Doc118Debugger.cs",
+    "privateHiddenIde": true,
+    "workerSelectedAfterHeadFromPinnedPool": true,
+    "requireExactlyOneWorker": true,
+    "initialBreakpointCondition": "False",
+    "allowedMethods": [
+      "Initialize",
+      "Inspect",
+      "Dispose"
+    ],
+    "armAuthorized": false,
+    "freezeAuthorized": false,
+    "globalPauseAuthorized": false,
+    "attachMayTransientlyAffectSharedWorker": true,
+    "cleanupRequired": true,
+    "noForceKillOnCloseFailure": true
+  },
+  "maximum": {
+    "httpRequests": 1,
+    "applicationLogins": 0,
+    "selectStatements": 0,
+    "documentEffects": 0,
+    "observerConnections": 1,
+    "documentalArms": 0,
+    "intentionalFreezes": 0,
+    "automaticRetries": 0,
+    "softDurationSeconds": 90
+  },
+  "durationMeaning": "HTTP timeout10s; SDK attach/bind waits10s each in existing controller. Overall90s checked between phases; COM calls are not forcibly interrupted, and an unconfirmed close is preserved for review.",
+  "commands": {
+    "check": "powershell.exe -NoProfile -STA -File tools/e2e/scripts/run-doc118-runtime-smoke.ps1 -CheckOnly",
+    "execute": "powershell.exe -NoProfile -STA -File tools/e2e/scripts/run-doc118-runtime-smoke.ps1 -Execute"
+  },
+  "sequence": [
+    "Validate installed DLL/PDB and pinned helpers/controller/configuration.",
+    "Verify dedicated explicit approval and IIS physical root/pool.",
+    "Send a single unauthenticated HEAD using existing Playwright API transport; zero retries, redirects or assets.",
+    "Resolve one current worker for the pinned shared pool; do not assume a previous PID.",
+    "Create a private hidden IDE, attach existing SDK controller and bind its conditional-False source breakpoint.",
+    "Inspect sourceBound/workerAlive/otherThreadsRunning/released and zero entries/frozen/fault.",
+    "Dispose controller, remove only its breakpoint, detach and close its private IDE in finally; no pool/process kill.",
+    "Revalidate pins and report sanitized result and incremental counters."
+  ],
+  "stopOn": [
+    "Hash/configuration drift or existing result/maintenance.",
+    "HTTP timeout, status outside200/302 or unconfirmed context close; no retry.",
+    "Missing/multiple workers or source binding failure.",
+    "Duration exceeded at a phase boundary or cleanup unconfirmed."
+  ],
+  "limits": [
+    "This smoke does not prove loaded memory identity, an active storage call, native MySQL semantics, provider identity or COORD02/03.",
+    "No login, business command, SELECT, attempt recovery, ARM/Freeze, installation, config/permission change or pool recycle.",
+    "The False-condition breakpoint is temporary debugger state; shared storage source/binary remain unchanged.",
+    "The pool hosts six applications: connecting the debugger can have a transient effect on the shared worker.",
+    "Preserve all historical reports and runner pin; change no runtime baseline until the new evidence is reviewed."
+  ],
+  "realCasesAuthorized": false,
+  "newBudgetsAuthorized": false,
+  "progress": {
+    "complete": 28,
+    "total": 38,
+    "remaining": 10
+  },
+  "historicalConsumption": {
+    "httpRequests": 1276,
+    "selectStatements": 113,
+    "sessions": 9
+  },
+  "proposedIncrementIfApproved": {
+    "httpRequests": 1,
+    "selectStatements": 0,
+    "sessions": 0
+  }
+}

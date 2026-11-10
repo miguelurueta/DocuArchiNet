@@ -1,0 +1,99 @@
+{
+  "issueKey": "DOC-118",
+  "scope": "LOCAL_SYNTHETIC_FILES_ONLY",
+  "status": "PASS",
+  "recordedUtc": "2026-11-08T17:07:21.6538117Z",
+  "fileSystem": "NTFS",
+  "stage": "RUN_SYNTHETIC_CASES",
+  "driveType": 3,
+  "cleanupConfirmed": true,
+  "localPrimitivesQualified": true,
+  "productionProviderQualified": false,
+  "providerPortImplemented": false,
+  "legacyRuntimeQualified": false,
+  "requiresDurableFence": true,
+  "fileIdIsPermanent": false,
+  "crossNodeIdentityProven": false,
+  "childrenStarted": 6,
+  "childrenExited": 6,
+  "appLoginAttempts": 0,
+  "httpRequests": 0,
+  "selectStatements": 0,
+  "businessEffects": 0,
+  "cases": [
+    {
+      "name": "active_reader_blocks_recovery",
+      "code": "PASS",
+      "passed": true,
+      "elapsedMilliseconds": 285
+    },
+    {
+      "name": "graceful_exit_allows_same_original",
+      "code": "PASS",
+      "passed": true,
+      "elapsedMilliseconds": 173
+    },
+    {
+      "name": "process_exit_releases_handle",
+      "code": "PASS",
+      "passed": true,
+      "elapsedMilliseconds": 114
+    },
+    {
+      "name": "exclusive_guard_blocks_late_reader_and_contender",
+      "code": "PASS",
+      "passed": true,
+      "elapsedMilliseconds": 187
+    },
+    {
+      "name": "identical_copy_has_different_identity",
+      "code": "PASS",
+      "passed": true,
+      "elapsedMilliseconds": 5
+    },
+    {
+      "name": "hardlink_alias_rejected",
+      "code": "PASS",
+      "passed": true,
+      "elapsedMilliseconds": 5
+    },
+    {
+      "name": "same_path_replacement_rejected",
+      "code": "PASS",
+      "passed": true,
+      "elapsedMilliseconds": 6
+    },
+    {
+      "name": "missing_original_not_created",
+      "code": "PASS",
+      "passed": true,
+      "elapsedMilliseconds": 1
+    },
+    {
+      "name": "changed_content_rejected_without_handle_leak",
+      "code": "PASS",
+      "passed": true,
+      "elapsedMilliseconds": 5
+    },
+    {
+      "name": "disposed_guard_cannot_be_reused",
+      "code": "PASS",
+      "passed": true,
+      "elapsedMilliseconds": 2
+    },
+    {
+      "name": "reader_after_release_requires_durable_fence",
+      "code": "PASS",
+      "passed": true,
+      "elapsedMilliseconds": 100
+    },
+    {
+      "name": "network_path_refused_without_open",
+      "code": "PASS",
+      "passed": true,
+      "elapsedMilliseconds": 0
+    }
+  ],
+  "probeId": "f44dcbe5fe7180b11586c95acf511ee9",
+  "fixtureSha256": "5e2688be3be1839ef2431d8f5446a9ffbd524b9dfeaeb2f0e0388fb657e0ce1d"
+}

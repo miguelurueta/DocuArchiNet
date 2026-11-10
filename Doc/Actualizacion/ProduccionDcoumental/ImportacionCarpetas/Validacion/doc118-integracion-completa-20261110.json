@@ -1,0 +1,213 @@
+{
+  "issueKey": "DOC-118",
+  "status": "INTEGRATION_ACCEPTED",
+  "reviewedUtc": "2026-11-10T16:09:07.123Z",
+  "runId": "cb5a90e15b0ef3dd972d49af4b044af5",
+  "executionId": "589da9382ce2ec3d081ce9aa3ad0a7cc",
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "runtimeRoot": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+    "application": "Default Web Site/GestionDocumental-Docuarchi.net",
+    "applicationPool": "DefaultAppPool",
+    "actorRef": "141",
+    "ambitoRef": "2",
+    "levelRef": "7",
+    "versionRef": "38",
+    "raDsn": "MembershipUsers",
+    "daDsn": "MembershipUsers",
+    "localTlsExceptionAuthorized": true
+  },
+  "progress": {
+    "complete": 38,
+    "total": 38,
+    "pending": 0
+  },
+  "case27": {
+    "loteId": "27",
+    "state": "COMPLETADO",
+    "roots": 2,
+    "documents": 2,
+    "identities": [
+      {
+        "archivoId": "46",
+        "documentoId": "16237",
+        "inventarioId": "23346"
+      },
+      {
+        "archivoId": "47",
+        "documentoId": "16238",
+        "inventarioId": "23348"
+      }
+    ],
+    "sameCommand": {
+      "status": "PASS",
+      "basis": "Two independent owner sessions, identical active command safely blocked with RESULTADO_INCIERTO, same thread frozen, entriesA1/B0 and one physically verified identity."
+    },
+    "otherFile": {
+      "status": "PASS_BY_NATIVE_BARRIER_REVIEW",
+      "basis": "OTHER_FILE used the fresh SELECT revision after verifying received/eligible B, root and inventory; the live writer A remained frozen and B returned409 CONFLICTO_REVISION with entriesB0. The native complete-lot barrier excludes another EN_CURSO file before repository reservation.",
+      "repositoryClaimGuardReached": false,
+      "genericRevisionConflictAloneAccepted": false,
+      "criterionClarification": "Reception requirements are met; the native documentary barrier may itself enforce exclusion. No requirement mandates a particular error code or bypassing that barrier."
+    },
+    "responseLoss": {
+      "status": "PASS",
+      "scenario": "RESPONSE_LOSS_RETAINED_B",
+      "loteId": "27",
+      "archivoId": "47",
+      "documentoId": "16238",
+      "inventarioId": "23348",
+      "existingAUnchanged": true,
+      "responseDroppedAfterCheckpoint": true,
+      "replaySameIdentity": true,
+      "physicalVerified": true,
+      "writerEntries": 1,
+      "fingerprint": "c8e288c92c5725625af9eb97517d1656e41bc74a511d3ef3441b4c7fd0776023",
+      "integrationPass": true
+    }
+  },
+  "case28": {
+    "status": "PASS",
+    "scenario": "COORD03",
+    "loteId": "28",
+    "documents": 1,
+    "roots": 2,
+    "identities": [
+      {
+        "archivoId": "48",
+        "documentoId": "16239",
+        "inventarioId": "23349"
+      }
+    ],
+    "stopDurable": true,
+    "firstContextClosed": true,
+    "queryFromSecondSession": true,
+    "physicalVerified": true,
+    "writerEntries": 1,
+    "integrationPass": true
+  },
+  "physicalInventory": {
+    "roots": 4,
+    "originalFiles": 4,
+    "confirmedDocuments": 3,
+    "unstartedStoppedFiles": 1,
+    "noDuplicateIdentities": true,
+    "allKnownIdentitiesPhysicallyVerified": true,
+    "protectedBaselinesUnchanged": true
+  },
+  "retainedContinuationConsumption": {
+    "httpRequests": 306,
+    "selectStatements": 130,
+    "newAuthenticatedSessions": 2,
+    "newLots": 1,
+    "newRoots": 2,
+    "newPdfs": 2,
+    "newExpedientes": 2,
+    "newStoredDocuments": 2,
+    "stopRequests": 1
+  },
+  "originalWindowConsumption": {
+    "httpRequests": 608,
+    "selectStatements": 204,
+    "authenticatedSessions": 4,
+    "newLots": 2,
+    "newRoots": 4,
+    "newPdfs": 4,
+    "newExpedientes": 4,
+    "newStoredDocuments": 3,
+    "stopRequests": 1
+  },
+  "accumulatedIncludingHistory": {
+    "httpRequests": 2793,
+    "selectStatements": 444,
+    "sessions": 19
+  },
+  "allLimitsRespected": true,
+  "sessionExtensionExplicitlyReviewed": true,
+  "closed": {
+    "sessions": true,
+    "observer": true,
+    "ephemeralSecretsCleared": true,
+    "runLeaseReleased": true
+  },
+  "localRegression": {
+    "tests": 285,
+    "passed": 285,
+    "failed": 0,
+    "internalV2Cases": 157,
+    "internalCasesIncludedNotAdded": true
+  },
+  "protectedFiles": [
+    {
+      "path": "workflow/ClassAlmacenamiento.vb",
+      "sha256": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+      "sha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.vb",
+      "sha256": "2c5e25c1ebcb3efeaa913c6d37c785390d934ced21b8b1ad1546ee5f080107f0"
+    },
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.dll",
+      "sha256": "9225b627c50b96c29ee9031173f0c578df4a16e970cb45404ee6be4d13eff291"
+    },
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.pdb",
+      "sha256": "37aab89e1a02ed2704644ec9d58e6f44f19125e36f1b8bdc60d3f7b8f4f97b72"
+    },
+    {
+      "path": "Web.config",
+      "sha256": "fd392f3679b9bad1e72fd7cecb21b78bda051a863a5e545564e7978e563ef07a"
+    }
+  ],
+  "archivePreserved": {
+    "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion",
+    "files": 38,
+    "unchanged": true
+  },
+  "evidence": [
+    {
+      "path": ".tmp/doc118-retained-589da9382ce2ec3d081ce9aa3ad0a7cc/status.json",
+      "sha256": "ce1d68f9182b3efcb41c9da8aa5612b2f7c251421e39a8f76dee1f0fc398ff33"
+    },
+    {
+      "path": ".tmp/doc118-retained-589da9382ce2ec3d081ce9aa3ad0a7cc/retained-response.json",
+      "sha256": "26a551b40d662991b2a3fe6b422ba048a7934b658f45ce1cb6906219d477c729"
+    },
+    {
+      "path": ".tmp/doc118-debugger-cb5a90e15b0ef3dd972d49af4b044af5-3/status.json",
+      "sha256": "0bbb9d56ff0224c30925ecfbfa96c5e5dcd1992f6a9a40e8f2475194c276c965"
+    },
+    {
+      "path": ".tmp/doc118-debugger-cb5a90e15b0ef3dd972d49af4b044af5-3/observation-history.jsonl",
+      "sha256": "de9689ce1f92b9b6c2813c74423de8c52be4ebbeb9c2dd6b29b5021fa72340b5"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-lote27-coordinacion-20261110.json",
+      "sha256": "24e9e5fa44bbb267e012b241be28cf28346b3b7ffea6de7b0a47d1880b72ed0a"
+    }
+  ],
+  "verification": {
+    "completeness": "38/38 tasks; all remaining real criteria have reviewed evidence.",
+    "correctness": "Native exclusion, durable loss/replay and stop/reopen proofs use existing HTTP/SELECT/SDK; historical and raw failed runs remain unchanged.",
+    "coherence": "Existing runtime, coordinator, storage, source pins and providers retained; no new product endpoint, writer, worker, configuration or schema.",
+    "criticalIssues": [],
+    "limitations": [
+      "OTHER_FILE exclusion is enforced by the native complete-lot barrier and returns CONFLICTO_REVISION with a current file revision; repository claim guard is not claimed to have been reached.",
+      "Earlier physical effects remain preserved; this is a consolidated qualification over retained case27 and the focused continuation, not a rewrite of the stopped full-engine run.",
+      "Public UI clicks and P3 real ack-loss injection were not added to the authorized integration; their existing local/historical scope remains separate."
+    ]
+  },
+  "gitSynchronization": "VERIFY_AT_DELIVERY",
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "decisionRequirementPairs": 18,
+    "sourceTraceability": "PASS",
+    "scope": "Current candidate and retained real evidence; historical failures remain immutable."
+  }
+}

@@ -1,0 +1,322 @@
+{
+  "issueKey": "DOC-118",
+  "status": "STOPPED_DURING_FIRST_LOGIN_REVIEW_REQUIRED",
+  "recordedUtc": "2026-11-10T13:13:09.193Z",
+  "baseCommit": "41c00b5535e98383dc6a63516fc58893708fce26",
+  "runId": "1dd584ce2fc6352d2c162545990b85dc",
+  "authorization": {
+    "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-integration-continuation.json",
+    "sha256": "e05efc35397c2c8f03996cd10bb3938f92d471aa224a152f4ab71cac99518618",
+    "scopeSha256AtExecution": "0ef27c28ef9a5cd4884791e308e73dab037b66abae770eb405f37d6016c1e0cd"
+  },
+  "clockRace": {
+    "reproducedBeforeFix": true,
+    "failingTest": "observer readiness samples the clock after reading a heartbeat written during the check",
+    "oldResult": "DOC118_LIVE_OBSERVER_NOT_READY_BEFORE_CAPTURE",
+    "fix": "Sample the current clock after reading each candidate heartbeat instead of once before scanning files.",
+    "futureAndStaleRejectionPreserved": true,
+    "observedPriorStop": "RUNTIME_RECHECK with zero login attempts; exact age was not logged, so the demonstrated race is compatible with that stop rather than a retroactively measured age."
+  },
+  "captureReview": {
+    "captureAttempt": 3,
+    "userText": "lanza",
+    "recordedUtc": "2026-11-10T12:37:54.374Z",
+    "previousSessionAttempts": 0,
+    "previousSelectStatements": 0,
+    "previousBusinessEffects": 0,
+    "previousStop": {
+      "path": ".tmp/doc118-live-1dd584ce2fc6352d2c162545990b85dc-capture-stop-1/status.json",
+      "sha256": "15e4107ec4ebf45e6f63b3a06ea263fe6054d0f63586512d59470198890ffe29"
+    },
+    "previousObserverClosed": true,
+    "observerAttempt": 3,
+    "noAuthenticationRetry": true,
+    "preservedHttpConsumption": 1,
+    "additionalWarmupHttp": 1,
+    "additionalWarmupEvidence": {
+      "path": ".tmp/doc118-integration-warmup-1dd584ce2fc6352d2c162545990b85dc-capture2.json",
+      "sha256": "0aa70620a77f2cf68e983e4fb297cef6ff10e5f7a64662793a7dc2e107eb74d4"
+    },
+    "secondStop": {
+      "path": ".tmp/doc118-live-1dd584ce2fc6352d2c162545990b85dc-capture-stop-2/status.json",
+      "sha256": "98cd0176e2a46b3a6f394297d1026c016581b049b408495c749d8f1d2a8216d1"
+    },
+    "fix": "Sample observer clock after reading heartbeat; reproduced locally before fix and passing after fix, without relaxing future/stale rejection.",
+    "reviewedUtc": "2026-11-10T12:55:13.510Z",
+    "runtimeRefresh": {
+      "httpRequests": 1,
+      "method": "HEAD",
+      "relativePath": "gestor.aspx",
+      "retries": 0,
+      "redirects": 0,
+      "evidence": {
+        "path": ".tmp/doc118-integration-warmup-1dd584ce2fc6352d2c162545990b85dc-capture3.json",
+        "sha256": "b56555b0f1efa979371159720de0d718cb86183b67fb697a83b804458a3de9c9"
+      }
+    }
+  },
+  "executedStop": {
+    "issueKey": "DOC-118",
+    "runId": "1dd584ce2fc6352d2c162545990b85dc",
+    "pid": 31728,
+    "status": "STOPPED_REVIEW_REQUIRED",
+    "createdUtc": "2026-11-10T12:58:52.440Z",
+    "phaseIndex": 0,
+    "authorizationScopeSha256": "0ef27c28ef9a5cd4884791e308e73dab037b66abae770eb405f37d6016c1e0cd",
+    "implementationSeal": "cc2dc1fd4c23f337a340670a274622459932f04d57523fce9269c0d620b68c3d",
+    "history": [
+      {
+        "phase": "PREFLIGHT",
+        "status": "REQUESTED",
+        "utc": "2026-11-10T13:00:10.385Z"
+      }
+    ],
+    "counters": {
+      "scenarios": {
+        "COORD02": {
+          "http": 93,
+          "operations": {}
+        },
+        "COORD03": {
+          "http": 0,
+          "operations": {}
+        }
+      },
+      "selects": 0
+    },
+    "references": [],
+    "carriedSessionAttempts": 0,
+    "carriedCounters": {
+      "scenarios": {
+        "COORD02": {
+          "http": 3,
+          "operations": {}
+        },
+        "COORD03": {
+          "http": 0,
+          "operations": {}
+        }
+      },
+      "selects": 0
+    },
+    "windowKind": "DOC118_INTEGRATION_CONTINUATION",
+    "historicalTotals": {
+      "httpRequests": 1578,
+      "selectStatements": 172,
+      "sessions": 11
+    },
+    "automaticPhases": true,
+    "heartbeatUtc": "2026-11-10T13:00:17.249Z",
+    "accumulatedIncludingHistory": {
+      "httpRequests": 1671,
+      "selectStatements": 172,
+      "sessions": 12
+    },
+    "captureStage": "RUNTIME_RECHECK",
+    "lastStage": "PREFLIGHT_BEFORE_LOGIN_A",
+    "sessionAttempts": 1,
+    "code": "DOC118_LIVE_PHASE_UNCONFIRMED",
+    "observerCloseConfirmed": true,
+    "sessionsClosed": true,
+    "ephemeralSecretsCleared": true,
+    "finishedUtc": "2026-11-10T13:00:17.247Z",
+    "runLeaseReleased": true
+  },
+  "observer": {
+    "attempt": 3,
+    "status": "CLOSED",
+    "cleanupConfirmed": true,
+    "controllerPid": 21952,
+    "sourceBoundBeforeCapture": true,
+    "noArm": true,
+    "writerEntries": 0
+  },
+  "iisMetadata": {
+    "source": "IIS_METADATA_ONLY",
+    "correlation": "TIME_AND_ENDPOINT_ONLY",
+    "queryStringsAndUsersNotReadIntoEvidence": true,
+    "rows": [
+      {
+        "utc": "13:00:15",
+        "method": "GET",
+        "endpoint": "LOGIN_PAGE",
+        "httpStatus": "200",
+        "substatus": "0",
+        "win32Status": "0",
+        "milliseconds": "4371"
+      },
+      {
+        "utc": "13:00:16",
+        "method": "POST",
+        "endpoint": "LOGIN_PAGE",
+        "httpStatus": "200",
+        "substatus": "0",
+        "win32Status": "0",
+        "milliseconds": "219"
+      }
+    ]
+  },
+  "authentication": {
+    "attempts": 1,
+    "confirmed": false,
+    "exactFailureCode": "NOT_RETAINED_BY_EXECUTED_WRAPPER",
+    "badPasswordProven": false,
+    "automaticRetry": false,
+    "newBusinessEffects": 0
+  },
+  "candidatePostStop": {
+    "reusedLoginFailureProjector": "tools/e2e/scripts/support/doc117-alm03-preflight-evidence.cjs",
+    "projectsClosedCodeAndLoginObservation": true,
+    "privateMessagesAndFormsNotProjected": true,
+    "dependencyIncludedInImplementationSeal": true
+  },
+  "changedFiles": [
+    {
+      "path": "tools/e2e/tests/support/doc118-live-lifecycle.cjs",
+      "beforeCommit": "41c00b5535e98383dc6a63516fc58893708fce26",
+      "beforeSha256": "6822abab8c6fd33a174577ec53eca02a779c7fbf5e1415ab98c1f003fcabe609",
+      "afterSha256": "ff46b6241d65aa0a4fe2030d4cc1146547a6407cb27359fb9b0c6dad056bf0c4"
+    },
+    {
+      "path": "tests/doc118-live-lifecycle.test.cjs",
+      "beforeCommit": "41c00b5535e98383dc6a63516fc58893708fce26",
+      "beforeSha256": "9ce078019fe6657975521b2ea11603587466a1cb2ad2551fb9c4f7d885531729",
+      "afterSha256": "622ab7675b4679536343b357b8c7676153d2ce971957e5f089a2164afaa40807"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc118-current-window.cjs",
+      "beforeCommit": "41c00b5535e98383dc6a63516fc58893708fce26",
+      "beforeSha256": "5278efd5c6327122d74c1e8b2794dc3eb15ac364a72d960835b0cd403fe482c6",
+      "afterSha256": "20236e5a984abbf521a14a0f1b9c5b1a774c0ff5c6f84bdd79b4bcbd9e24cce2"
+    },
+    {
+      "path": "tests/doc118-current-window.test.cjs",
+      "beforeCommit": "41c00b5535e98383dc6a63516fc58893708fce26",
+      "beforeSha256": "c23e9b74e543e7ca49082c708ab184317e797138566cb16d19c362d5397d3235",
+      "afterSha256": "8fbe036784bbe946334f6376cfb5eb2fad9158c7b832d85cb0d9fe2d9ca606a7"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc118-live.cjs",
+      "beforeCommit": "41c00b5535e98383dc6a63516fc58893708fce26",
+      "beforeSha256": "243bffa6982df0da293f12a04ec7e35408e7113426edc0766116c4ad28ce4d0e",
+      "afterSha256": "c928ada84066cb4be54d6130616e6fc0efb4cd1b4e5257b2aff77dc635e0bfd3"
+    }
+  ],
+  "reusedSources": [
+    {
+      "path": "tools/e2e/scripts/support/doc117-alm03-preflight-evidence.cjs",
+      "sha256": "ecac97df7f80a7699cb4dbc041e9f9f83320b38285ac84b9901d1530ee70f536"
+    }
+  ],
+  "protectedFiles": [
+    {
+      "path": "workflow/ClassAlmacenamiento.vb",
+      "sha256": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+      "sha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.vb",
+      "sha256": "2c5e25c1ebcb3efeaa913c6d37c785390d934ced21b8b1ad1546ee5f080107f0"
+    },
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.dll",
+      "sha256": "9225b627c50b96c29ee9031173f0c578df4a16e970cb45404ee6be4d13eff291"
+    },
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.pdb",
+      "sha256": "37aab89e1a02ed2704644ec9d58e6f44f19125e36f1b8bdc60d3f7b8f4f97b72"
+    },
+    {
+      "path": "Web.config",
+      "sha256": "fd392f3679b9bad1e72fd7cecb21b78bda051a863a5e545564e7978e563ef07a"
+    }
+  ],
+  "localRegression": {
+    "tests": 274,
+    "passed": 274,
+    "failed": 0,
+    "wholeSuiteRun": true,
+    "internalV2Cases": 157,
+    "internalCasesNotAddedToNodeCount": true
+  },
+  "historicalTotals": {
+    "httpRequests": 1578,
+    "selectStatements": 172,
+    "sessions": 11
+  },
+  "newWindowConsumption": {
+    "httpRequests": 93,
+    "selectStatements": 0,
+    "sessions": 1,
+    "documentEffects": 0
+  },
+  "accumulatedIncludingHistory": {
+    "httpRequests": 1671,
+    "selectStatements": 172,
+    "sessions": 12
+  },
+  "remainingWindowCapacity": {
+    "httpRequests": 907,
+    "selectStatements": 240,
+    "sessions": 1,
+    "newPlans": 2,
+    "newLots": 2,
+    "newStoredDocuments": 3
+  },
+  "twoFreshSessionsStillRequiredForFullRun": true,
+  "progress": {
+    "completed": 32,
+    "total": 38,
+    "pending": 6
+  },
+  "realIntegrationPassed": false,
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "decisionRequirementPairs": 18,
+    "sourceTraceability": "PASS",
+    "gitSynchronization": "VERIFY_AT_DELIVERY"
+  },
+  "runtimeArtifacts": [
+    {
+      "path": ".tmp/doc118-live-1dd584ce2fc6352d2c162545990b85dc/status.json",
+      "sha256": "eeeee480710232d7f5ea072120c6780a9d84c02bbf4026038c9781e0ea77b6d8",
+      "excludedFromGit": true
+    },
+    {
+      "path": ".tmp/doc118-live-1dd584ce2fc6352d2c162545990b85dc-capture-stop-1/status.json",
+      "sha256": "15e4107ec4ebf45e6f63b3a06ea263fe6054d0f63586512d59470198890ffe29",
+      "excludedFromGit": true
+    },
+    {
+      "path": ".tmp/doc118-live-1dd584ce2fc6352d2c162545990b85dc-capture-stop-2/status.json",
+      "sha256": "98cd0176e2a46b3a6f394297d1026c016581b049b408495c749d8f1d2a8216d1",
+      "excludedFromGit": true
+    },
+    {
+      "path": ".tmp/doc118-debugger-1dd584ce2fc6352d2c162545990b85dc-3/status.json",
+      "sha256": "bbcc1f79e39f3e87de3095545b8839cfa62b31e9be9889f43f664a87dffeb27e",
+      "excludedFromGit": true
+    },
+    {
+      "path": ".tmp/doc118-debugger-1dd584ce2fc6352d2c162545990b85dc-3/observation-history.jsonl",
+      "sha256": "5a4f6aa07cf76410a4df951dfaaa19606d78b72b5615faddf5ae9c1e64c7616d",
+      "excludedFromGit": true
+    },
+    {
+      "path": ".tmp/doc118-integration-warmup-1dd584ce2fc6352d2c162545990b85dc-capture3.json",
+      "sha256": "b56555b0f1efa979371159720de0d718cb86183b67fb697a83b804458a3de9c9",
+      "excludedFromGit": true
+    }
+  ],
+  "documents": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observador-preflight-20261110.md",
+      "sha256": "4793eef9c27f5f91a273364ffa2c3085ae8a893758f62e849098b33b486d4850"
+    }
+  ]
+}

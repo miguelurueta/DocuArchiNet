@@ -1,0 +1,158 @@
+{
+  "issueKey": "DOC-118",
+  "runId": "e372f72da5f9bfdabe6c004ce93137b6",
+  "pid": 18876,
+  "status": "STOPPED_REVIEW_REQUIRED",
+  "createdUtc": "2026-11-08T12:33:28.926Z",
+  "phaseIndex": 2,
+  "authorizationScopeSha256": "b1ddf351656a55db4a4b6d17273fbf80b320def29e893bca073390693004aa73",
+  "implementationSeal": "1561d8164d37b17a1c4e3c95ae7d8cae7e701a6a3cdedfd97eb41524920ecc49",
+  "history": [
+    {
+      "phase": "PREFLIGHT",
+      "status": "REQUESTED",
+      "utc": "2026-11-08T12:36:29.611Z"
+    },
+    {
+      "phase": "PREFLIGHT",
+      "status": "PASS",
+      "utc": "2026-11-08T12:37:43.668Z"
+    },
+    {
+      "phase": "PREPARE02",
+      "status": "REQUESTED",
+      "utc": "2026-11-08T12:39:05.464Z"
+    },
+    {
+      "phase": "PREPARE02",
+      "status": "PASS",
+      "utc": "2026-11-08T12:39:24.695Z"
+    },
+    {
+      "phase": "RUN02",
+      "status": "REQUESTED",
+      "utc": "2026-11-08T12:40:28.403Z"
+    }
+  ],
+  "counters": {
+    "scenarios": {
+      "COORD02": {
+        "http": 996,
+        "operations": {
+          "ConsultarLote": 13,
+          "AbrirImportacion": 1,
+          "PrepararPlan": 1,
+          "ConfirmarPlan": 1,
+          "ConsultarRecursosLote": 6,
+          "RecibirArchivo": 2,
+          "CREAR_EXPEDIENTE": 2,
+          "MATERIALIZAR_VALORES": 2
+        }
+      },
+      "COORD03": {
+        "http": 0,
+        "operations": {}
+      }
+    },
+    "selects": 40
+  },
+  "references": [
+    {
+      "planId": "40"
+    },
+    {
+      "planId": "40"
+    },
+    {
+      "loteId": "24"
+    },
+    {
+      "planId": "40",
+      "loteId": "24"
+    },
+    {
+      "raizId": "39",
+      "expedienteId": "670",
+      "relacionNivelId": "1095"
+    },
+    {
+      "raizId": "40",
+      "expedienteId": "671",
+      "relacionNivelId": "1096"
+    }
+  ],
+  "carriedSessionAttempts": 5,
+  "carriedCounters": {
+    "scenarios": {
+      "COORD02": {
+        "http": 700,
+        "operations": {
+          "ConsultarLote": 3
+        }
+      },
+      "COORD03": {
+        "http": 0,
+        "operations": {}
+      }
+    },
+    "selects": 17
+  },
+  "heartbeatUtc": "2026-11-08T12:40:29.006Z",
+  "lastStage": "PREFLIGHT_PROTECTION",
+  "sessionAttempts": 7,
+  "code": "DOC118_LIVE_PHASE_UNCONFIRMED",
+  "sessionsClosed": true,
+  "ephemeralSecretsCleared": true,
+  "finishedUtc": "2026-11-08T12:40:29.004Z",
+  "runLeaseReleased": true,
+  "observerCleanupConfirmed": true,
+  "storageRequestsDispatched": 0,
+  "preparedCaseRecovery": {
+    "planId": "40",
+    "loteId": "24",
+    "roots": [
+      "39",
+      "40"
+    ],
+    "files": [
+      "40",
+      "41"
+    ],
+    "expedientes": [
+      "670",
+      "671"
+    ],
+    "relaciones": [
+      "1095",
+      "1096"
+    ]
+  },
+  "consumedEffects": {
+    "newPlans": 1,
+    "newLots": 1,
+    "newRoots": 2,
+    "newPdfs": 2,
+    "newExpedientes": 2,
+    "newMaterializations": 2,
+    "newStoredDocuments": 0,
+    "stopRequests": 0
+  },
+  "storageOutcomeMeaning": "No ALMACENAR dispatched by this runner; physical absence must still be proven by SELECT before any recovery.",
+  "observerFailure": {
+    "stage": "INITIALIZED",
+    "hresult": -2146233079,
+    "exceptionType": "InvalidOperationException",
+    "sequence": 1,
+    "cleanupConfirmed": true
+  },
+  "integrationPass": false,
+  "previousEvidence": "doc118-prepared-stop-20261108.json",
+  "followupPreparation": {
+    "runId": "d07bf61a87e6e888f9cda31eb4cf129e",
+    "method": "HEAD",
+    "status": "READY",
+    "httpStatus": 200,
+    "workerId": 31784,
+    "utc": "2026-11-08T13:12:58.018Z"
+  }
+}

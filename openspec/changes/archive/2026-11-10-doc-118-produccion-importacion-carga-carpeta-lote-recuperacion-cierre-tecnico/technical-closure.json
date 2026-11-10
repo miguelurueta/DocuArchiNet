@@ -1,0 +1,259 @@
+{
+  "version": 1,
+  "issueKey": "DOC-118",
+  "changeName": "doc-118-produccion-importacion-carga-carpeta-lote-recuperacion",
+  "status": "TECHNICALLY_COMPLETED_ARCHIVED",
+  "recordedUtc": "2026-11-10T16:24:37.304Z",
+  "sourceUserDecision": {
+    "proposal": "Conservar el archivo administrativo anterior y usar el sufijo -cierre-tecnico para el archivo final.",
+    "answer": "continua",
+    "specSync": "SKIPPED_BY_PREVIOUS_CONFIRMED_SCOPE",
+    "merge": "EXCLUDED_BY_PREVIOUS_CONFIRMED_SCOPE"
+  },
+  "baseCommit": "9281706ef7b6588529b5c5c1b95b593dc962f4af",
+  "archive": {
+    "previousPath": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion",
+    "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion-cierre-tecnico",
+    "historicalAdministrativeArchive": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion",
+    "historicalFilesUnchanged": 38,
+    "originalFiles": 41,
+    "movedWithoutContentChange": 40,
+    "changedMetadata": [
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion-cierre-tecnico/opsxj-governance.json",
+        "reason": "Resolve refinement against the actual technical archive when OPSXJ selects its suffixed name.",
+        "previousRefinementPath": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/refinement.md",
+        "refinementPath": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion-cierre-tecnico/refinement.md",
+        "beforeSha256": "9be59671bae79623bf5204f7ec33fedebdaa2efb2b6cb6c434b264fd5cf80eb3",
+        "afterSha256": "81bfb49596905340080523ff04abad72c54554ebb90d45095b45eebe13968ff0"
+      }
+    ],
+    "inventory": [
+      {
+        "relativePath": "administrative-closure.json",
+        "sha256": "35ac51f173f63b8886e9bacae5ba9f73887f1a268309b96dab2df119c4a72449",
+        "blobSha": "34fc5a7ed1ba31eb89926e070d0ed33db4ab4f8e"
+      },
+      {
+        "relativePath": "administrative-closure.md",
+        "sha256": "290fb538e1107dc09d831767e41e7e8ad54fb5096fd94c3c41a0bc649b330277",
+        "blobSha": "e2d53c3fffd4eae6c739d7f6afd9693a40be613e"
+      },
+      {
+        "relativePath": "design.md",
+        "sha256": "7ab0f52913f3ea7db6576d60de1754f40ded277b68044ab97f5651dcbbc4bcb6",
+        "blobSha": "912b75c3626f67982624a836e71acfd4d7832182"
+      },
+      {
+        "relativePath": "execution-authorization.json",
+        "sha256": "d87a4cdaac97be54938435830d807b3a6abb5ead68f695a3b9d0e9893a1bda4a",
+        "blobSha": "5d9e2dc7b45273d92999c89d9e224e4e38444c46"
+      },
+      {
+        "relativePath": "execution-budget-continuation-proposal.json",
+        "sha256": "82594877857c1ca8fceaceeaa2829dece3716691146c6fe9f8c7368d27bfa4cb",
+        "blobSha": "84609e20643503fc814f8ed2d6392109edbd3b65"
+      },
+      {
+        "relativePath": "execution-continuation-proposal.json",
+        "sha256": "8d01166b19f9ad47d2c5d9834b3d5ce66c862e7ffa7b0324c7691def9ae06de3",
+        "blobSha": "1af40b97a4d5537290bf1f8fc892151441b35ba1"
+      },
+      {
+        "relativePath": "execution-current-window.json",
+        "sha256": "02c43bd2facd7581e0b13b1e9d8898e94f20ecd2b6f2c49f9a43407c2dc2de95",
+        "blobSha": "6a05235d2bfbd85a0f82ab03a0106cac952bacdb"
+      },
+      {
+        "relativePath": "execution-fresh-window-proposal.json",
+        "sha256": "ed037a3eb2e2c9e3c48041395f84975a0074b68492c7bb46d698bb4b24d197a3",
+        "blobSha": "a844fdbb0e23d5392efdd3777cbcab4ee1a78746"
+      },
+      {
+        "relativePath": "execution-integration-continuation.json",
+        "sha256": "76d84c6d5d2d1424fb3fc2180a4ced38af6f15a94c721b92b7fb7b629058c0c7",
+        "blobSha": "65b54032962e9064c4b13e2c0699898dd5a76028"
+      },
+      {
+        "relativePath": "execution-prepared-recovery-proposal.json",
+        "sha256": "922c4935e91d38dfb8b69a9167822e56dc59606b9f76b397ebd3b3bf06927ea6",
+        "blobSha": "6ea189b34a3e4f0bc654a0288356174dd0e4c169"
+      },
+      {
+        "relativePath": "execution-recovery-design-proposal.json",
+        "sha256": "ac234fad5347e2a833fe7514a7458c66ad8cf6dabf76cbcd9977c6d3b1060911",
+        "blobSha": "edc8d6e80dd5c0bdb43cdfc24f53aa017348e1ab"
+      },
+      {
+        "relativePath": "execution-retained-completion.json",
+        "sha256": "d4913be1006260e96ec7824390c1d3e8a05d41981ed2a4461c5566c54e53ee17",
+        "blobSha": "f16bb1936b272ac14e5ff026b68cc7a821ec0604"
+      },
+      {
+        "relativePath": "implementation-preparation.json",
+        "sha256": "6ee89d23332295ec6498e4396d69c28f8ccb64c24c5a908b404075452706023c",
+        "blobSha": "cb248aa71de1993a24b0e84e09b8d1dc0ec8859d"
+      },
+      {
+        "relativePath": "implementation-resumption.json",
+        "sha256": "de6a8afe94e77cb7d18d2208122e3c725ed6a9ba332b5427058aec5c50ee29ba",
+        "blobSha": "48ea62bf04b8498875532bc70a397d48185a34fe"
+      },
+      {
+        "relativePath": "opsxj-governance.json",
+        "sha256": "9be59671bae79623bf5204f7ec33fedebdaa2efb2b6cb6c434b264fd5cf80eb3",
+        "blobSha": "201a5dede9e7b5da03497985675711245c7327ee"
+      },
+      {
+        "relativePath": "proposal.md",
+        "sha256": "017882a2714d760c2c6e271573035b6793fdd6f46895e7cb4803a6c5b05830eb",
+        "blobSha": "f37fb94872e92dc68db873c32a6750c61d50f379"
+      },
+      {
+        "relativePath": "recovery-en-curso-design.md",
+        "sha256": "7da415787d6f00bcabdefb4238c26a890492b2be7bd2aec7215a45689ea367f8",
+        "blobSha": "631a07649880c4bfdab8e251b4abe49a1c98e291"
+      },
+      {
+        "relativePath": "recovery-en-curso-evaluation.json",
+        "sha256": "3f4b968b9948a77110f1a86be6e9a9c5d885e6d7e7f761fd8c865dc1f2947759",
+        "blobSha": "f57ab2ec043d4e0de9fd8f39047608a4319c9f79"
+      },
+      {
+        "relativePath": "recovery-en-curso-plan.md",
+        "sha256": "2156cc55a84ea3f8be4ef54ce91c51a1c55d2ea07dddf4f276e14339ed6291ee",
+        "blobSha": "75a6086c19e131fada921e323e89744ee2129588"
+      },
+      {
+        "relativePath": "recovery-en-curso-spec.md",
+        "sha256": "0c173c8f8bb165a6aa057deacb42f21f5fbf8e0359315c521321dfb4d646000f",
+        "blobSha": "dcf713172dee6d11bb66ad25b21761ee35790139"
+      },
+      {
+        "relativePath": "recovery-v2-adapter-authorization.json",
+        "sha256": "d1380fa5b6f3a00ecad0d8db9314f83c963fb880e98500ac8b324df73f3edb6a",
+        "blobSha": "f0818dc3b9e8a7313ee4c3261982d5c0caff834c"
+      },
+      {
+        "relativePath": "recovery-v2-contract-authorization.json",
+        "sha256": "29c9da29fde30544a5efb98138712b4a07ae351bd69e106acd436cbda042257b",
+        "blobSha": "587308ed1267be0dcaf31accc745c34ae78ccbb7"
+      },
+      {
+        "relativePath": "recovery-v2-http-authorization.json",
+        "sha256": "450fea86e3a34996db1ae44c66a64609f3e21b84d4ab7afefe5addd0249c3d0e",
+        "blobSha": "e5c87a4034febc7ea47074f3c01e548ea2274a13"
+      },
+      {
+        "relativePath": "recovery-v2-matrix-authorization.json",
+        "sha256": "a32f4d1f0000b2e27f9abf19d260deb0a445edc211f5b1dd14956b3e5924ef7f",
+        "blobSha": "e66fecfe1198a8e0af89fff4113d2aedf7900c08"
+      },
+      {
+        "relativePath": "recovery-v2-persistence-authorization.json",
+        "sha256": "6e84be4c1c5412848795443cda18db65c2341d8397e2c53d201d9f01180585f2",
+        "blobSha": "c6f458459d2de1e651fe1fbe3c8e53b6069deba6"
+      },
+      {
+        "relativePath": "recovery-v2-recovery-authorization.json",
+        "sha256": "f396e6127de8311bbad20cc723788ff5e9d45e4a25c5dad5eca47bc09659aba7",
+        "blobSha": "c20b5eefa10a579fa206bf3c25de702bd032935c"
+      },
+      {
+        "relativePath": "recovery-v2-review-authorization.json",
+        "sha256": "53f01e13bcd2426c5e34800b168041c8f32db31233f11d1ef55a517ae7b7b800",
+        "blobSha": "047fd60c0af64429e8ad349f8be767e566a0df21"
+      },
+      {
+        "relativePath": "recovery-v2-staging-authorization.json",
+        "sha256": "3668bde72e468993106e3056de003c25d243613ab62a86b492b83fea65aa815a",
+        "blobSha": "904089edd0c6bcd041c84735279905a379d62ba7"
+      },
+      {
+        "relativePath": "refinement-review.json",
+        "sha256": "5a95f2bd5fad4f9c44e203822ae92e011f966ba621c88e3ebaaf5d5990d33bf0",
+        "blobSha": "74d5368b9618e68f5da448d2418becf87802965f"
+      },
+      {
+        "relativePath": "refinement.md",
+        "sha256": "c390dd07f0019cde0493fb538f28bded99711e21305c9d10ae2ebfc7a53b3272",
+        "blobSha": "5e630cc89fab0a27c9221b2a51693e804f85ee13"
+      },
+      {
+        "relativePath": "source-review.json",
+        "sha256": "047b6e6829f72434656ddb629e2a35e1b349eba39c96d2535961e0ee39d973d3",
+        "blobSha": "fe7785048ebf5dec09f9fc97ee0a8bbdebdbf126"
+      },
+      {
+        "relativePath": "specs/produccion-importacion-carga-carpeta-lote-recuperacion/jira-context.md",
+        "sha256": "8855883dcc873661f3be8fa5886affd8d145cd57666ed566da322869e8d08d8b",
+        "blobSha": "7d81673b523a734e83f186f392f8754da024f3aa"
+      },
+      {
+        "relativePath": "specs/produccion-importacion-carga-carpeta-lote-recuperacion/spec.md",
+        "sha256": "2f6c72e4bcbe984f8232a102ff16bd9662b87e385f43c186ab6046a7de972770",
+        "blobSha": "1c7dd19181421dcece456ace3704790c4e486ad3"
+      },
+      {
+        "relativePath": "tasks.md",
+        "sha256": "be5138b4ae072c10195a416953fe397ba128137ed4f7afaa29c9bf3b52ae5880",
+        "blobSha": "3b748056c9043d96dc352d26437af03823f6c2d0"
+      },
+      {
+        "relativePath": "v2-ack-loss-conductor-authorization.json",
+        "sha256": "66b857552a7cc0b9b7d0f9950570311bfd85f266d9954b279e3d65f6eaa29a17",
+        "blobSha": "4e5c60e4197ab7ab4846b2540d7a0c0d4b75979e"
+      },
+      {
+        "relativePath": "v2-binding-driver-authorization.json",
+        "sha256": "d6bf63f70c971f7053c4d7aa90f8705917a3affdffe4eb8ac3e5cb6f55bc3664",
+        "blobSha": "27b567bb8529454d494039a2c0b1974cbb505cc7"
+      },
+      {
+        "relativePath": "v2-candidate-deployment-authorization.json",
+        "sha256": "4a9d8497478baa55513156072fb360982fb18f90ba93c94c08e3b5dd3956b879",
+        "blobSha": "44cfa3ae46163a3eb0014d3590028043bd1e8a45"
+      },
+      {
+        "relativePath": "v2-candidate-deployment-proposal.json",
+        "sha256": "7c22ace6eb28ec2e17f93eb963613a48870f908efad2b3a135047641d4c7afa3",
+        "blobSha": "d1f545b00ace87b58bb151943b4e61404cb4345e"
+      },
+      {
+        "relativePath": "v2-observer-continuation-review.json",
+        "sha256": "adea2af606a07b623845e4dbd96b6c33a4bacb1d1d4c72fc61dbb00e17c25591",
+        "blobSha": "c4f365894892e8121b4bfc4bc7f49df19978791c"
+      },
+      {
+        "relativePath": "v2-runtime-smoke-authorization.json",
+        "sha256": "45731d42006d00604ef9e92397627e08d17afd485e9a2644b4766475d93acb0b",
+        "blobSha": "9ce10e61bbbb7eb347e584c1f94919fa6fa67330"
+      },
+      {
+        "relativePath": "v2-runtime-smoke-proposal.json",
+        "sha256": "9d2ec34fd3eb63a737bb6aca7441b90c00ae02d19143b0e7fb4953a32ae30e58",
+        "blobSha": "62d5b46d625ec5b015e414ac3fa3526ecc2da83b"
+      }
+    ]
+  },
+  "progress": {
+    "complete": 38,
+    "total": 38,
+    "pending": 0
+  },
+  "validation": {
+    "unitTests": 285,
+    "openSpecStrict": "PASS",
+    "opsxjGovernance": "PASS_AT_BASE_COMMIT",
+    "review": "Codex",
+    "specRequirementsRetained": 18,
+    "specScenariosRetained": 41,
+    "mainSpecsUpdated": false
+  },
+  "integrationReport": {
+    "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-completa-20261110.json",
+    "sha256": "653735c9394e17dd0ea200991aef6a3f9754c236bacac5e17e3b461879a142ca"
+  },
+  "scope": "Technical archive only. Original stopped runs and the previous administrative closure remain history. No new application execution, storage, merge or Jira transition.",
+  "gitSynchronization": "VERIFY_AT_DELIVERY"
+}

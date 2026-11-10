@@ -1,0 +1,235 @@
+{
+  "issueKey": "DOC-118",
+  "version": 1,
+  "recordedUtc": "2026-11-07T20:30:39.603Z",
+  "source": {
+    "kind": "explicit-user-message",
+    "text": "autorizado",
+    "appliesTo": "Pregunta de autorización de la fase real del plan DOC118, posterior al commit 3c538a0f6aab1ba9fe36639815bccafb40ab1f5b."
+  },
+  "status": "AUTHORIZED",
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "runtimeRoot": "D:/imagenesda/DocuachiNet/DocuArchiNet",
+    "actorRef": "141",
+    "ambitoRef": "2",
+    "levelRef": "7",
+    "versionRef": "38",
+    "raDsn": "MembershipUsers",
+    "daDsn": "MembershipUsers",
+    "localTlsExceptionAuthorized": true
+  },
+  "scenarios": [
+    "COORD02",
+    "COORD03"
+  ],
+  "maximum": {
+    "newPlans": 2,
+    "newLots": 2,
+    "newRoots": 4,
+    "newPdfs": 4,
+    "newExpedientes": 4,
+    "newStoredDocuments": 3,
+    "stopRequests": 1,
+    "sessionsPerCase": 2,
+    "totalSessions": 9,
+    "loginAttemptsPerSession": 1,
+    "pauseMilliseconds": 30000,
+    "selectStatementsTotal": 240,
+    "businessHttp": {
+      "COORD02": 53,
+      "COORD03": 51
+    },
+    "allHttpPerCase": {
+      "COORD02": 1425,
+      "COORD03": 75
+    },
+    "caseDurationMilliseconds": 600000,
+    "previousAllHttpPerCase": 250,
+    "allHttpGlobal": 1500
+  },
+  "newRootNames": {
+    "COORD02": [
+      "DOC118-C02-A-20261107",
+      "DOC118-C02-B-20261107"
+    ],
+    "COORD03": [
+      "DOC118-C03-A-20261107",
+      "DOC118-C03-B-20261107"
+    ]
+  },
+  "debugger": {
+    "external": true,
+    "qualificationRequired": true,
+    "freezeOnlySelectedThread": true,
+    "storageSourceOrBinaryChangesAuthorized": false
+  },
+  "protectedHistoricalAttempts": [
+    41,
+    53
+  ],
+  "prohibited": [
+    "Replay/reparación de intentos históricos41/53.",
+    "Cambios a almacenamiento compartido/SII, permisos, migraciones o limpieza por inferencia.",
+    "Ejecutar un caso no observable o presentar incertidumbre como completitud.",
+    "Guardar o imprimir credenciales, cookies o conexiones."
+  ],
+  "secretCapture": {
+    "mechanism": "Helpers TTY existentes; captura enmascarada y datos efímeros.",
+    "credentialsAvailableInAgentEnvironment": false,
+    "consolePreferenceRequested": true,
+    "consolePreferenceAnswered": true,
+    "consolePreference": "LOCAL_MASKED_CONSOLE",
+    "preferenceSource": "«continua» en respuesta a la propuesta de abrir la consola de captura."
+  },
+  "executionStatus": "STOPPED_RUNTIME_REVIEW_REQUIRED",
+  "consumed": {
+    "allHttp": {
+      "COORD02": 1276,
+      "COORD03": 0
+    },
+    "loginAttempts": 9,
+    "totalSessionAttempts": 9,
+    "selectStatements": 113,
+    "newPlans": 1,
+    "newLots": 1,
+    "newExpedientes": 2,
+    "newStoredDocuments": null,
+    "businessHttp": {
+      "COORD02": 38,
+      "COORD03": 0
+    },
+    "loginAttemptsMeaning": "Aperturas/intentos asignados antes de openSession; conteo conservador acumulado, no afirma cinco postbacks confirmados.",
+    "newRoots": 2,
+    "newPdfs": 2,
+    "newMaterializations": 2,
+    "stopRequests": 0,
+    "storedOutcomeRequiresVerification": true,
+    "confirmedDocumentsObserved": 0
+  },
+  "sessionReuse": "TWO_SHARED_INDEPENDENT_SESSIONS",
+  "continuationApproval": {
+    "status": "AUTHORIZED",
+    "source": "«autorizado» posterior a execution-continuation-proposal.json",
+    "proposal": "execution-continuation-proposal.json",
+    "recordedUtc": "2026-11-08T01:23:51.033Z"
+  },
+  "consumptionEvidence": "doc118-active-effect-audit-20261108.json",
+  "remaining": {
+    "allHttp": {
+      "COORD02": 149,
+      "COORD03": 75
+    },
+    "allHttpGlobal": 224,
+    "totalSessionAttempts": 0,
+    "selectStatements": 127
+  },
+  "lastResult": {
+    "evidence": "doc118-active-effect-audit-20261108.json",
+    "status": "AUDITED_ACTIVE_CLAIM_REQUIRES_REVIEW",
+    "loteId": "24",
+    "archivoId": "40",
+    "intentoId": "69",
+    "durableState": "EN_CURSO",
+    "activeClaim": true,
+    "documentoId": null,
+    "inventarioId": null,
+    "physicalOutcomeOfActiveFile": "CURRENT_ABSENCE_VERIFIED",
+    "secondFilePhysicalAbsenceVerified": true,
+    "confirmedDocumentsObserved": 0,
+    "storedDocumentsTotal": null,
+    "storageReplayAllowed": false,
+    "applicationSessionsClosed": true,
+    "observerCleanupConfirmed": true,
+    "auditSecretsCleared": true,
+    "snapshotUnchanged": true,
+    "currentPhysicalCounts": {
+      "cabinet": 0,
+      "inventory": 0,
+      "index": 0
+    },
+    "absenceDoesNotAuthorizeReplay": true
+  },
+  "budgetContinuationApproval": {
+    "status": "AUTHORIZED",
+    "source": "Mensaje del usuario «autorizado» posterior a la propuesta1000 HTTP acumulados (925/75) y5 aperturas totales.",
+    "recordedUtc": "2026-11-08T02:10:22.324Z",
+    "proposal": "execution-budget-continuation-proposal.json"
+  },
+  "freshWindowApproval": {
+    "status": "AUTHORIZED",
+    "source": "Mensaje del usuario «confirmado» posterior a la propuesta de2 aperturas adicionales y1200 HTTP acumulados (1125/75).",
+    "recordedUtc": "2026-11-08T12:23:20.212Z",
+    "proposal": "execution-fresh-window-proposal.json",
+    "legacyExitAcknowledged": true,
+    "carriedCounters": {
+      "scenarios": {
+        "COORD02": {
+          "http": 699,
+          "operations": {
+            "ConsultarLote": 3
+          }
+        },
+        "COORD03": {
+          "http": 0,
+          "operations": {}
+        }
+      },
+      "selects": 17
+    },
+    "carriedSessionAttempts": 5
+  },
+  "preparedCaseRecovery": {
+    "planId": "40",
+    "loteId": "24",
+    "roots": [
+      "39",
+      "40"
+    ],
+    "files": [
+      "40",
+      "41"
+    ],
+    "expedientes": [
+      "670",
+      "671"
+    ],
+    "relaciones": [
+      "1095",
+      "1096"
+    ]
+  },
+  "preparedRecoveryApproval": {
+    "status": "AUTHORIZED",
+    "source": "Mensaje del usuario «continua» en respuesta a la propuesta de9 aperturas y1500 HTTP acumulados, conservando lote24 y consumo995 HTTP/40 SELECT/7 aperturas.",
+    "recordedUtc": "2026-11-08T13:11:21.679Z",
+    "proposal": "execution-prepared-recovery-proposal.json",
+    "carriedSessionAttempts": 7,
+    "carriedCounters": {
+      "scenarios": {
+        "COORD02": {
+          "http": 996,
+          "operations": {
+            "ConsultarLote": 13,
+            "AbrirImportacion": 1,
+            "PrepararPlan": 1,
+            "ConfirmarPlan": 1,
+            "ConsultarRecursosLote": 6,
+            "RecibirArchivo": 2,
+            "CREAR_EXPEDIENTE": 2,
+            "MATERIALIZAR_VALORES": 2
+          }
+        },
+        "COORD03": {
+          "http": 0,
+          "operations": {}
+        }
+      },
+      "selects": 40
+    }
+  },
+  "preparedCaseRecoveryEligibility": "BLOCKED_PRIOR_STORAGE_ATTEMPT",
+  "protectedUnresolvedAttempts": [
+    69
+  ]
+}

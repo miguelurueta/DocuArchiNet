@@ -99,6 +99,32 @@ Public Class ReconciliarRecursoImportacionSolicitud
     Public Property revisionEsperada As UInteger
 End Class
 
+'No admite evidencia, IDs documentales, proveedor ni rutas del cliente.
+Public Class RecuperarDocumentoV2ImportacionSolicitud
+    Public Property loteId As String
+    Public Property intentoId As String
+    Public Property revisionLoteEsperada As UInteger
+    Public Property revisionArchivoEsperada As UInteger
+End Class
+
+'El resultado del control es distinto del resultado de almacenar un archivo.
+Public Class RecuperacionDocumentoImportacionResultado
+    Public Property loteId As String
+    Public Property intentoId As String
+    Public Property fase As String
+    Public Property estado As String
+    Public Property codigo As String
+    Public Property resuelta As Boolean
+    Public Property repeticion As Boolean
+    Public Property cierreSinInvocacion As Boolean
+    Public Property documentoConfirmado As Boolean
+    Public Property expedienteId As String
+    Public Property relacionNivelId As String
+    Public Property gabineteId As String
+    Public Property documentoId As String
+    Public Property inventarioId As String
+End Class
+
 'Proyeccion publica: no serializar resultados internos de los adaptadores.
 Public Class AvanceLoteImportacionResultado
     Public Property loteId As String

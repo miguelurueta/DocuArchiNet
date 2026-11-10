@@ -1,0 +1,31 @@
+{
+  "issueKey": "DOC-118",
+  "task": "RV-05 / 6.5",
+  "baseCommit": "f42321a1dc474d9b9fd1973409da2a40846e587d",
+  "recordedUtc": "2026-11-09T12:10:27.530Z",
+  "source": "Mensaje del usuario «continua» posterior a RV-04 y al siguiente paso explícito de recuperación limitada V2.",
+  "scope": "Recuperación interna negativa/positiva sin escritor; guardia real sobre fixtures, SELECT y transacción simulados. Negativo solo expediente sin huellas documentales.",
+  "localRecoveryImplementationAuthorized": true,
+  "realDatabaseExecutionAuthorized": false,
+  "publicHttpActivationAuthorized": false,
+  "deploymentAuthorized": false,
+  "attempt69Eligible": false,
+  "files": [
+    "Modelo/ProduccionDocumental/ImportacionCarpetas/RecuperacionDocumentoV2Importacion.vb",
+    "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.RecuperacionV2.vb",
+    "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.RecuperacionV2.vb",
+    "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.RecuperacionV2.vb",
+    "tests/ImportacionCarpetasRecuperacionV2BehaviorTests.cs",
+    "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoAlmacenamientoCarpetas.vb",
+    "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.DocumentoV2.vb",
+    "GestionDocumental-Docuarchi.net.vbproj",
+    "tests/ImportacionCarpetasBehaviorTests.cs",
+    "tests/doc110-perfil-importacion-behavior.test.cjs"
+  ],
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  }
+}

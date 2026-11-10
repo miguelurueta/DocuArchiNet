@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "issueKey": "DOC-118",
+  "changeName": "doc-118-produccion-importacion-carga-carpeta-lote-recuperacion",
+  "status": "COMPLETED",
+  "recordedUtc": "2026-11-10T11:16:50.450Z",
+  "source": {
+    "userText": "continua con el flujo y las tareas",
+    "scope": "Resume the remaining tasks of DOC-118 after architectural review, preserving the administrative closure as history."
+  },
+  "baseCommit": "fdab3d9ef08e4440270f6ef82b0c754222b4dcba",
+  "previousAdministrativeClosure": {
+    "archivePath": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion",
+    "closurePath": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/administrative-closure.json",
+    "sha256": "35ac51f173f63b8886e9bacae5ba9f73887f1a268309b96dab2df119c4a72449",
+    "jiraCommentId": "24490",
+    "snapshotPreserved": true
+  },
+  "technicalProgress": {
+    "completed": 38,
+    "total": 38,
+    "pending": 0
+  },
+  "readAudit": {
+    "authorized": false,
+    "readOnly": true,
+    "runId": "7896bbf5729a7f9996fbd8cc8e18af18",
+    "attemptId": "6ddb61d382abb419d6025f783430b624",
+    "loteId": "25",
+    "maximumSelectStatementsTotal": 240,
+    "carriedSelectStatements": 34,
+    "maximumAdditionalSelectStatements": 206,
+    "carriedHttpRequests": 301,
+    "carriedSessions": 2,
+    "originalCancelledReport": ".tmp/doc118-live-7896bbf5729a7f9996fbd8cc8e18af18/select-audit.json",
+    "originalCancelledReportSha256": "8123ad32f60b739459b7564c90b764210dacf788901b4ad4a48e836d119f50b8",
+    "historicalCountersNotReset": true,
+    "newApplicationSessions": 0,
+    "newApplicationHttp": 0,
+    "newBusinessMutations": 0,
+    "executed": {
+      "status": "PHYSICAL_READ_CONFIRMED",
+      "selectStatements": 25,
+      "totalWindowSelectsAfterAudit": 59,
+      "ephemeralSecretsCleared": true,
+      "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-auditoria-lote25-20261110.json"
+    }
+  },
+  "integrationContinuation": {
+    "state": "STOPPED_DURING_RUN02_REVIEW_REQUIRED",
+    "authorizationPath": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-integration-continuation.json",
+    "runId": "cb5a90e15b0ef3dd972d49af4b044af5",
+    "consumed": {
+      "httpRequests": 302,
+      "selectStatements": 74,
+      "sessions": 2
+    },
+    "accumulatedIncludingHistory": {
+      "httpRequests": 2487,
+      "selectStatements": 314,
+      "sessions": 17
+    },
+    "nextAction": "Clarify whether all four credential inputs were completed. Review the capture-only stop before another console; no authentication or business command was dispatched.",
+    "captureAttempt": 2,
+    "latestReport": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-lote27-coordinacion-20261110.json",
+    "loginConfirmed": true,
+    "automaticLoginRetry": false,
+    "previousRunId": "8a0e5dbe62d8b6b8bd1b5339377ca20e",
+    "historicalTotals": {
+      "httpRequests": 2185,
+      "selectStatements": 240,
+      "sessions": 15
+    },
+    "newLotId": "26",
+    "latestFailure": "DOC118_OBSERVER_CONTROLLER_NOT_AVAILABLE",
+    "documentaryOutcome": "A_CONFIRMED_B_NOT_STARTED_NO_ACTIVE_CLAIM"
+  },
+  "protectedLots": [
+    "18",
+    "21",
+    "24",
+    "25"
+  ],
+  "protectedHistoricalAttempts": [
+    "41",
+    "53",
+    "69"
+  ],
+  "sharedStorageChanged": false,
+  "originalCheckpointsPreserved": true,
+  "jira": {
+    "status": "En curso",
+    "transitionId": "21",
+    "readBackVerified": true,
+    "issueUrl": "https://contasoftcompany.atlassian.net/browse/DOC-118"
+  },
+  "evidenceReport": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-continuacion-tareas-20261110.json",
+  "formalTasks": {
+    "documentation": "5.2 COMPLETE_WITH_EXPLICIT_LIMITATIONS",
+    "git": "5.4 PRIOR_DELIVERY_VERIFIED_RECHECK_CURRENT_DELIVERY",
+    "validation": "5.3 OPEN_SPEC_STRICT_AND_REFINEMENT_PASSED"
+  },
+  "retainedCompletion": {
+    "state": "COMPLETED_REVIEWED",
+    "executionId": "589da9382ce2ec3d081ce9aa3ad0a7cc",
+    "scopePath": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-retained-completion.json",
+    "newStoredDocumentsMaximum": 2,
+    "resultPath": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-completa-20261110.json"
+  },
+  "finalIntegration": {
+    "status": "INTEGRATION_ACCEPTED",
+    "reportPath": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-completa-20261110.json",
+    "progress": {
+      "complete": 38,
+      "total": 38,
+      "pending": 0
+    },
+    "accumulatedIncludingHistory": {
+      "httpRequests": 2793,
+      "selectStatements": 444,
+      "sessions": 19
+    }
+  }
+}

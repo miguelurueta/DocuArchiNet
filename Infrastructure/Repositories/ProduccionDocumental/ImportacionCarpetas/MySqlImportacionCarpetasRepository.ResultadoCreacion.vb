@@ -94,7 +94,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
     Private Shared Function LeerIntentoDocumental(reader As IDataRecord) As IntentoImportacionCarpetas
         Dim intento As New IntentoImportacionCarpetas With {.IntentoId = Texto(reader("intento_id")), .LoteId = Texto(reader("lote_id")), .RaizId = Texto(reader("raiz_id")), .ArchivoId = If(reader.IsDBNull(reader.GetOrdinal("archivo_id")), Nothing, Texto(reader("archivo_id"))), .Fase = Texto(reader("fase")), .Estado = Texto(reader("estado")), .EjecutorRef = Texto(reader("ejecutor_ref")), .TokenReclamacion = Texto(reader("token_reclamacion")), .SolicitudHash = Hexadecimal(DirectCast(reader("solicitud_hash"), Byte())), .InicioUtc = TextoUtc(CDate(reader("inicio_utc"))), .UltimoContactoUtc = TextoUtc(CDate(reader("ultimo_contacto_utc")))}
         If Not reader.IsDBNull(reader.GetOrdinal("fin_utc")) Then intento.FinUtc = TextoUtc(CDate(reader("fin_utc")))
-        If Not reader.IsDBNull(reader.GetOrdinal("evidencia_doc")) Then intento.Resultado = LeerPersistido(Of ResultadoEfectoImportacion)(CStr(reader("evidencia_doc")))
+        If Not reader.IsDBNull(reader.GetOrdinal("evidencia_doc")) Then intento.Resultado = LeerEvidenciaDocumentalCompatible(CStr(reader("evidencia_doc")), intento)
         If Not EstadosImportacionCarpetas.EsIntento(intento.Estado) OrElse Not HexExacto(intento.TokenReclamacion, 32) Then Throw NoDisponible()
         Return intento
     End Function

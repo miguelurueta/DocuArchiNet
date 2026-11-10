@@ -1,0 +1,64 @@
+{
+  "issueKey": "DOC-118",
+  "runId": "a7d99f3c426ea10b30df0b0d8b132a13",
+  "status": "STOPPED_REVIEW_REQUIRED",
+  "code": "DOC118_LIVE_PHASE_UNCONFIRMED",
+  "classification": "HTTP_BUDGET_EXHAUSTED",
+  "lastStage": "PREFLIGHT_BEFORE_LOGIN_B",
+  "phaseIndex": 0,
+  "sessionAttempts": 3,
+  "counters": {
+    "scenarios": {
+      "COORD02": {
+        "http": 425,
+        "operations": {
+          "ConsultarLote": 1
+        }
+      },
+      "COORD03": {
+        "http": 0,
+        "operations": {}
+      }
+    },
+    "selects": 0
+  },
+  "carriedSessionAttempts": 1,
+  "carriedCounters": {
+    "scenarios": {
+      "COORD02": {
+        "http": 98,
+        "operations": {}
+      },
+      "COORD03": {
+        "http": 0,
+        "operations": {}
+      }
+    },
+    "selects": 0
+  },
+  "sessionsClosed": true,
+  "ephemeralSecretsCleared": true,
+  "createdUtc": "2026-11-08T01:34:37.383Z",
+  "finishedUtc": "2026-11-08T01:35:59.522Z",
+  "firstSession": {
+    "authenticated": true,
+    "levelSelected": true,
+    "readOnlyLotConfirmed": "23"
+  },
+  "secondSession": {
+    "authenticationConfirmed": false,
+    "credentialRejectionObserved": false
+  },
+  "newPlans": 0,
+  "newLots": 0,
+  "newRoots": 0,
+  "newPdfs": 0,
+  "newExpedientes": 0,
+  "newStoredDocuments": 0,
+  "stopRequests": 0,
+  "automaticLoginRetries": 0,
+  "observerQualified": false,
+  "sessionAttemptMeaning": "Aperturas/intentos asignados antes de openSession; no prueba tres postbacks de login ni atribuye fallo a las credenciales de B.",
+  "classificationEvidence": "C02 alcanzó el techo425 durante apertura de B; la consulta de A ya había confirmado lote23/nivel7. El código de consola fue genérico y se conserva.",
+  "privacy": "Proyección cerrada; sin entradas, cookies, tokens, conexiones, payloads ni cuerpos HTTP."
+}

@@ -1,0 +1,27 @@
+{
+  "issueKey": "DOC-118",
+  "task": "RV-04 / 6.4",
+  "baseCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+  "recordedUtc": "2026-11-08T23:24:18.200Z",
+  "source": "Mensaje del usuario «contiua con el flujo» posterior a RV-03 y al siguiente paso RV-04; mantener trabajo en DOC-118.",
+  "scope": "Implementación local de persistencia y lector compatible; regresión del núcleo SQL integrado con adaptador sobre doble transaccional.",
+  "localPersistenceImplementationAuthorized": true,
+  "realDatabaseExecutionAuthorized": false,
+  "publicActivationAuthorized": false,
+  "deploymentAuthorized": false,
+  "attempt69Eligible": false,
+  "files": [
+    "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.DocumentoV2.vb",
+    "tests/ImportacionCarpetasPersistenciaV2BehaviorTests.cs",
+    "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ResultadoCreacion.vb",
+    "GestionDocumental-Docuarchi.net.vbproj",
+    "tests/ImportacionCarpetasBehaviorTests.cs",
+    "tests/doc110-perfil-importacion-behavior.test.cjs"
+  ],
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  }
+}

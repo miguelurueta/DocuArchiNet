@@ -56,7 +56,12 @@ Public NotInheritable Class ComandoAlmacenamientoCarpetas
     Public Shared Function PrepararComprobacionFinal(contexto As ContextoImportacionCarpetas, raiz As RaizImportacionCarpetas, archivo As ArchivoImportacionCarpetas, snapshot As SnapshotPerfilImportacionOperativa, intento As IntentoImportacionCarpetas) As ComandoAlmacenamientoCarpetas
         Return Componer(contexto, raiz, archivo, snapshot, intento, True, True)
     End Function
-    Private Shared Function Componer(contexto As ContextoImportacionCarpetas, raiz As RaizImportacionCarpetas, archivo As ArchivoImportacionCarpetas, snapshot As SnapshotPerfilImportacionOperativa, intento As IntentoImportacionCarpetas, verificacion As Boolean, Optional final As Boolean = False) As ComandoAlmacenamientoCarpetas
+    Friend Shared Function PrepararRecuperacionV2(contexto As ContextoImportacionCarpetas, raiz As RaizImportacionCarpetas, archivo As ArchivoImportacionCarpetas, snapshot As SnapshotPerfilImportacionOperativa, intento As IntentoImportacionCarpetas, documento As DocumentoAlmacenamientoV2Importacion) As ComandoAlmacenamientoCarpetas
+        Dim prueba = DocumentosAlmacenamientoV2Importacion.Leer(DocumentosAlmacenamientoV2Importacion.Escribir(documento))
+        If intento Is Nothing OrElse archivo Is Nothing OrElse prueba.Inicio.IntentoId <> intento.IntentoId OrElse prueba.Inicio.LoteId <> intento.LoteId OrElse prueba.Inicio.RaizId <> intento.RaizId OrElse prueba.Inicio.ArchivoId <> archivo.ArchivoId Then Throw Fallo()
+        Return Componer(contexto, raiz, archivo, snapshot, intento, True, False, True)
+    End Function
+    Private Shared Function Componer(contexto As ContextoImportacionCarpetas, raiz As RaizImportacionCarpetas, archivo As ArchivoImportacionCarpetas, snapshot As SnapshotPerfilImportacionOperativa, intento As IntentoImportacionCarpetas, verificacion As Boolean, Optional final As Boolean = False, Optional recuperacionV2 As Boolean = False) As ComandoAlmacenamientoCarpetas
         If contexto Is Nothing OrElse Not contexto.PuedeImportar OrElse raiz Is Nothing OrElse archivo Is Nothing OrElse snapshot Is Nothing OrElse intento Is Nothing Then Throw Fallo()
         For Each referencia In New String() {contexto.UsuarioRef, contexto.AmbitoRef, contexto.NivelRef, raiz.LoteId, raiz.RaizId, archivo.ArchivoId, intento.IntentoId}
             ComandoCreacionExpedienteImportacion.EnteroLegacy(referencia)
@@ -71,6 +76,8 @@ Public NotInheritable Class ComandoAlmacenamientoCarpetas
             If Not verificacion OrElse raiz.Estado <> "COMPLETADA" OrElse archivo.EstadoEfecto <> "COMPLETADO" OrElse archivo.IntentoActivoId IsNot Nothing OrElse intento.Estado <> "CONFIRMADO" OrElse String.IsNullOrEmpty(intento.FinUtc) OrElse intento.EsNuevaReserva OrElse intento.Resultado Is Nothing OrElse intento.Resultado.Estado <> "CONFIRMADO" OrElse Not ValidadorPerfilImportacion.ReferenciaValida(intento.Resultado.DocumentoId) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(intento.Resultado.InventarioId) OrElse PerfilImportacionJson.Escribir(archivo.Resultado) <> PerfilImportacionJson.Escribir(intento.Resultado) Then Throw Fallo()
         ElseIf intento.FinUtc IsNot Nothing OrElse archivo.IntentoActivoId <> intento.IntentoId Then
             Throw Fallo()
+        ElseIf recuperacionV2 Then
+            If Not verificacion OrElse raiz.Estado <> "EXPEDIENTE_CONFIRMADO" OrElse intento.Estado <> "EN_CURSO" OrElse intento.EsNuevaReserva OrElse archivo.EstadoEfecto <> "EN_CURSO" OrElse archivo.Resultado IsNot Nothing OrElse intento.Resultado Is Nothing OrElse intento.Resultado.Estado <> "EN_CURSO" OrElse intento.Resultado.Codigo <> "ALMACENAMIENTO_PREPARADO_V2" Then Throw Fallo()
         ElseIf verificacion Then
             If Not {"EXPEDIENTE_CONFIRMADO", "INCIERTO"}.Contains(raiz.Estado) OrElse intento.Estado <> "INCIERTO" OrElse intento.EsNuevaReserva OrElse archivo.EstadoEfecto <> "INCIERTO" OrElse intento.Resultado Is Nothing OrElse intento.Resultado.Estado <> "INCIERTO" OrElse Not ValidadorPerfilImportacion.ReferenciaValida(intento.Resultado.DocumentoId) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(intento.Resultado.InventarioId) OrElse PerfilImportacionJson.Escribir(archivo.Resultado) <> PerfilImportacionJson.Escribir(intento.Resultado) Then Throw Fallo()
         ElseIf raiz.Estado <> "EXPEDIENTE_CONFIRMADO" OrElse intento.Estado <> "RESERVADO" OrElse Not intento.EsNuevaReserva OrElse intento.Resultado IsNot Nothing OrElse archivo.EstadoEfecto <> "EN_CURSO" OrElse archivo.Resultado IsNot Nothing Then

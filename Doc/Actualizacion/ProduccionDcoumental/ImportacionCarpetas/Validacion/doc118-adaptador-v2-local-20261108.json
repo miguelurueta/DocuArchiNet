@@ -1,0 +1,173 @@
+{
+  "issueKey": "DOC-118",
+  "task": "RV-03 / 6.3",
+  "status": "PASS_LOCAL_ADAPTER_WITH_PERSISTENCE_DOUBLE",
+  "recordedUtc": "2026-11-08T22:54:15.136Z",
+  "baseCommit": "5c0d3a1c41cf7c4ee7bce3271864ea1b04a8df00",
+  "hashAlgorithm": "sha256-utf8-lf",
+  "sourceFiles": [
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.ProtocoloV2.vb",
+      "sha256": "d05bd8ca8eda5a6e9c2bde58fc11eb922e173f4968aa4c0c478d9d5708f16dc9"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PersistenciaDocumentoV2Importacion.vb",
+      "sha256": "809fa113539d43822c13ebc48697ca805dd9b4d6d545f2c885f3773fa38ff794"
+    },
+    {
+      "path": "tests/ImportacionCarpetasAdaptadorV2BehaviorTests.cs",
+      "sha256": "ea1b285473a9e22323a3e36f4059dd47fcdbc82c7fa8110d84ad497fe5a3b05a"
+    }
+  ],
+  "changedFiles": [
+    {
+      "path": "GestionDocumental-Docuarchi.net.vbproj",
+      "beforeCommit": "5c0d3a1c41cf7c4ee7bce3271864ea1b04a8df00",
+      "beforeSha256": "ed7f33df982e7a39a82f5e2dead46925f44364a050987557917fa98b6192fbf3",
+      "afterSha256": "df01d772bdf7b78a0ac10c65790d82a6ec141f5e2efea68b2ef60c3d41caa9f1"
+    },
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "beforeCommit": "5c0d3a1c41cf7c4ee7bce3271864ea1b04a8df00",
+      "beforeSha256": "2dfe6c39b72449a59a532bfdec4fcd06ce9db34715f18cd5492f2b06c91651c9",
+      "afterSha256": "444d9bd14b808c2e8c902f7d066efacd6d0515cd22591fa846977943e46f43a0"
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "beforeCommit": "5c0d3a1c41cf7c4ee7bce3271864ea1b04a8df00",
+      "beforeSha256": "4b0e8170d8e15e9efafcac7d458e5ac9c0ec3d63ec62b45bf6a891b230a6b5fa",
+      "afterSha256": "7bddd635e8aa4aec00d45efaf7af803cac298737565fda91cf3df2cf2787644f"
+    }
+  ],
+  "reviewedSourceDeltas": [
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "beforeCommit": "9c21c830f2150f9153f094723936c31469ab7280",
+      "beforeSha256": "130d0506384c359a3cc87d96ada270597b4237dc87c69179a31c9a59edab0746",
+      "afterSha256": "444d9bd14b808c2e8c902f7d066efacd6d0515cd22591fa846977943e46f43a0",
+      "scope": "RV-01/RV-02-B/RV-03: registro de parciales y compilación/aserción del harness; casos V1 intactos."
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "beforeCommit": "9c21c830f2150f9153f094723936c31469ab7280",
+      "beforeSha256": "f7d40ed48283f0bcbe3bf0e98424a4b1d040cb44a230cb7108e1069884be8ed3",
+      "afterSha256": "7bddd635e8aa4aec00d45efaf7af803cac298737565fda91cf3df2cf2787644f",
+      "scope": "RV-01/RV-02-B/RV-03: registro de parciales y compilación/aserción del harness; casos V1 intactos."
+    }
+  ],
+  "localRegression": {
+    "command": "node --test tests/doc110-perfil-importacion-behavior.test.cjs tests/doc111-importacion-carpetas-client.test.cjs",
+    "tests": 18,
+    "passed": 18,
+    "failed": 0
+  },
+  "internalDotNetCases": {
+    "adapterCases": 20,
+    "passed": 20,
+    "failed": 0,
+    "existingContractCases": 19,
+    "existingProviderCases": 21,
+    "names": [
+      "retention_before_start_through_checkpoint",
+      "lost_initial_ack_never_reaches_gate_or_writer",
+      "null_or_altered_initial_ack_rejected",
+      "lost_gate_ack_never_invokes_writer",
+      "null_wrong_phase_or_foreign_gate_ack_rejected",
+      "revocation_after_gate_blocks_writer",
+      "missing_original_prevents_any_durable_start",
+      "ordinary_writer_failure_preserves_observed_ids",
+      "partial_ids_remain_partial",
+      "observation_is_not_physical_confirmation",
+      "lost_null_or_changed_observation_skips_checkpoint",
+      "failed_physical_verification_stays_uncertain",
+      "lost_checkpoint_response_preserves_known_identity",
+      "altered_checkpoint_is_not_accepted",
+      "same_instance_cannot_execute_twice",
+      "concurrent_call_on_same_adapter_is_rejected",
+      "cancellation_propagates_after_observation_and_release",
+      "thread_abort_propagates_without_reset_abort",
+      "internal_ack_cannot_be_json_authority",
+      "private_errors_sanitized_and_no_v1_fallback"
+    ],
+    "includedInNodeCount": false
+  },
+  "fixture": {
+    "realStagingProvider": true,
+    "persistenceDouble": true,
+    "writerDouble": true,
+    "existingSyntheticChildProcessesClosed": 3,
+    "abortedOwnThreadsClosed": 1,
+    "resetAbortUsed": false
+  },
+  "toolRegression": {
+    "tests": 205,
+    "passed": 205,
+    "failed": 0,
+    "files": [
+      "tests/doc118-live-preflight.test.cjs",
+      "tests/doc118-session-bridge.test.cjs",
+      "tests/doc118-active-call.test.cjs",
+      "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+      "tests/doc118-symbols.test.cjs",
+      "tests/doc118-debugger-observer.test.cjs",
+      "tests/doc118-case-preparation.test.cjs",
+      "tests/doc118-case-completion.test.cjs",
+      "tests/doc118-lost-response.test.cjs",
+      "tests/doc118-live-lifecycle.test.cjs",
+      "tests/doc118-documental-phases.test.cjs",
+      "tests/doc118-debugger-protocol.test.cjs",
+      "tests/doc118-select-audit.test.cjs",
+      "tests/doc118-debugger-release.test.cjs",
+      "tests/doc118-release-probe-build.test.cjs",
+      "tests/doc118-staging-lock-probe.test.cjs"
+    ],
+    "scope": "LOCAL_ONLY",
+    "recordedUtc": "2026-11-08T22:48:16.176Z"
+  },
+  "disjointNodeTests": 223,
+  "legacySourceReview": {
+    "baselineSources": 14,
+    "currentUnchanged": 12,
+    "authorizedTestDeltas": 2,
+    "historicalReportsUnchanged": 10,
+    "recoveryEvaluationSourcesUnchanged": 16
+  },
+  "progress": {
+    "complete": 20,
+    "total": 30,
+    "remaining": 10,
+    "newTask": "6.3",
+    "previousComplete": 19,
+    "previousTotal": 29
+  },
+  "limits": {
+    "adapterPathImplemented": true,
+    "retentionBeforeStart": true,
+    "ackTypeAloneProvesCommit": false,
+    "mysqlV2PersistenceImplemented": false,
+    "crossInstanceTransactionalGateQualified": false,
+    "publicCompositionActivated": false,
+    "recoveryEnabled": false,
+    "productionProviderQualified": false,
+    "recoveryAfterProviderRestartSupported": false,
+    "v1BackfillAllowed": false,
+    "attempt69Eligible": false
+  },
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "diffCheck": "PASS"
+  },
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  },
+  "realConsumptionUnchanged": {
+    "httpRequests": 1276,
+    "selectStatements": 113,
+    "sessions": 9
+  }
+}

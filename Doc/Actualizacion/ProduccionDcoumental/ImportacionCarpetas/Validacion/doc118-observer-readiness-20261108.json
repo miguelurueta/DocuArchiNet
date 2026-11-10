@@ -1,0 +1,105 @@
+{
+  "issueKey": "DOC-118",
+  "runId": "35ead0468ff6fa43b7aacd47fac3c174",
+  "status": "SOURCE_READINESS_AND_CLOSE_PASS",
+  "sessionAttempts": 5,
+  "counters": {
+    "scenarios": {
+      "COORD02": {
+        "http": 700,
+        "operations": {
+          "ConsultarLote": 3
+        }
+      },
+      "COORD03": {
+        "http": 0,
+        "operations": {}
+      }
+    },
+    "selects": 17
+  },
+  "previousEvidence": "doc118-authenticated-preflight-20261107.json",
+  "newAuthenticatedSessions": 0,
+  "newDocumentEffects": 0,
+  "headStatus": 200,
+  "workerId": 28520,
+  "recordedUtc": "2026-11-08T03:31:02.3332103Z",
+  "sourceBound": true,
+  "cleanupConfirmed": true,
+  "activeBodyObservationQualified": false,
+  "previousHeadResult": "UNCONFIRMED_POWERSHELL_TRANSPORT",
+  "sourceReadyPassed": true,
+  "inspectPassed": true,
+  "observerBinding": {
+    "controllerPid": 2668,
+    "workerPid": 28520,
+    "createdUtc": "2026-11-08T03:44:17.9095673Z"
+  },
+  "documentalBreakpointArmed": false,
+  "threadsFrozen": 0,
+  "sdkClosedUtc": "2026-11-08T03:45:30.816Z",
+  "cleanupScope": "PRIVATE_DEBUGGER_FROM_THIS_READINESS_CHECK",
+  "controllerExitCode": 0,
+  "controllerProcessExitVerified": true,
+  "privateIdeAbsenceVerified": true,
+  "protocolCommands": [
+    "INSPECT",
+    "CLOSE"
+  ],
+  "documentalPhasesRequested": 0,
+  "newPlans": 0,
+  "newLots": 0,
+  "newExpedientes": 0,
+  "newStoredDocuments": 0,
+  "legacyConsoleFinallyAcknowledged": false,
+  "legacyConsoleExitCause": "NOT_DETERMINED",
+  "statusPublicationDefect": {
+    "reproduced": true,
+    "operation": "File.Replace",
+    "classification": "POWERSHELL_NULL_STRING_ARGUMENT_COERCION",
+    "fix": "Null backup passed from typed C#; PowerShell regression writes STARTING then atomically replaces it with CLOSED.",
+    "regression": "tests/doc118-debugger-protocol.test.cjs"
+  },
+  "readinessAttempts": [
+    {
+      "attempt": 1,
+      "status": "PROCESS_EXITED_WITHOUT_STATUS_ACK"
+    },
+    {
+      "attempt": 2,
+      "status": "EXIT_1_FILE_REPLACE_ARGUMENT_ERROR",
+      "supervised": true
+    },
+    {
+      "attempt": 3,
+      "status": "SOURCE_READINESS_AND_CLOSE_PASS",
+      "supervised": true,
+      "cleanupConfirmed": true
+    }
+  ],
+  "privacy": "Proyección cerrada sin secretos, cabeceras, conexiones, payloads o filas de negocio.",
+  "sourceVerificationCounters": {
+    "scenarios": {
+      "COORD02": {
+        "http": 699,
+        "operations": {
+          "ConsultarLote": 3
+        }
+      },
+      "COORD03": {
+        "http": 0,
+        "operations": {}
+      }
+    },
+    "selects": 17
+  },
+  "followupPreparation": {
+    "runId": "e372f72da5f9bfdabe6c004ce93137b6",
+    "method": "HEAD",
+    "budgetCharged": 700,
+    "status": "READY",
+    "httpStatus": 200,
+    "utc": "2026-11-08T12:31:30.7746941Z",
+    "workerId": 28760
+  }
+}

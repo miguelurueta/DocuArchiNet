@@ -1,0 +1,143 @@
+{
+  "issueKey": "DOC-118",
+  "status": "COORD02_EXCLUSION_QUALIFIED_RESPONSE_AND_STOP_PENDING",
+  "runId": "cb5a90e15b0ef3dd972d49af4b044af5",
+  "readAudit": {
+    "loteId": "27",
+    "estado": "EN_CURSO",
+    "detencionSolicitada": false,
+    "activeClaims": false,
+    "files": [
+      {
+        "archivoId": "46",
+        "raizId": "45",
+        "expedienteId": "676",
+        "rootState": "COMPLETADA",
+        "receiptState": "RECIBIDO",
+        "effectState": "COMPLETADO",
+        "activeClaim": false,
+        "storageAttempts": [
+          {
+            "intentoId": "84",
+            "estado": "CONFIRMADO",
+            "finished": true
+          }
+        ],
+        "documentoId": "16237",
+        "inventarioId": "23346",
+        "physical": "KNOWN_IDS_VERIFIED"
+      },
+      {
+        "archivoId": "47",
+        "raizId": "46",
+        "expedienteId": "677",
+        "rootState": "EXPEDIENTE_CONFIRMADO",
+        "receiptState": "RECIBIDO",
+        "effectState": "NO_INICIADO",
+        "activeClaim": false,
+        "storageAttempts": [],
+        "documentoId": null,
+        "inventarioId": null,
+        "physical": "ABSENCE_VERIFIED"
+      }
+    ],
+    "fingerprint": "c2b2813e6fc4cb984b0e18a312fc3fdfc393f333afef71c89cdc84cf2dd0b2ba",
+    "snapshotUnchanged": true,
+    "confirmedDocuments": 1,
+    "integrationPass": false
+  },
+  "counters": {
+    "scenarios": {
+      "COORD02": {
+        "http": 302,
+        "operations": {
+          "ConsultarLote": 13,
+          "AbrirImportacion": 1,
+          "PrepararPlan": 1,
+          "ConfirmarPlan": 1,
+          "ConsultarRecursosLote": 6,
+          "RecibirArchivo": 2,
+          "CREAR_EXPEDIENTE": 2,
+          "MATERIALIZAR_VALORES": 2,
+          "ALMACENAR": 3
+        }
+      },
+      "COORD03": {
+        "http": 0,
+        "operations": {}
+      }
+    },
+    "selects": 74
+  },
+  "accumulatedIncludingHistory": {
+    "httpRequests": 2487,
+    "selectStatements": 314,
+    "sessions": 17
+  },
+  "localEvidence": [
+    {
+      "path": ".tmp/doc118-live-cb5a90e15b0ef3dd972d49af4b044af5/status.json",
+      "sha256": "40a174f2c01e07d15f8f8708e789e0da49e44dd0e41dac1a01764e59fa75b2f1"
+    },
+    {
+      "path": ".tmp/doc118-live-cb5a90e15b0ef3dd972d49af4b044af5/stopped-window-COORD02.json",
+      "sha256": "1d417ba8fddd719c4c1c48c8feabe98f0eb2ee6e019083d984fb5ae5da411ce8"
+    },
+    {
+      "path": ".tmp/doc118-live-cb5a90e15b0ef3dd972d49af4b044af5/select-audit-lot27.json",
+      "sha256": "8d9c710ee4d78fa66c81e28753c5e1da2b8f16651c47e05c8770ba0817378f9c"
+    },
+    {
+      "path": ".tmp/doc118-debugger-cb5a90e15b0ef3dd972d49af4b044af5-2/observation-history.jsonl",
+      "sha256": "b7b78286da8e05e26321ed04cc01ddfe4aa2a481dce9ab2725585f6b6754f8e9"
+    }
+  ],
+  "qualifications": {
+    "task43": {
+      "status": "PASS",
+      "basis": "Two independent owner sessions, identical active command safely blocked with RESULTADO_INCIERTO, same thread frozen, entriesA1/B0 and one physically verified identity."
+    },
+    "task44": {
+      "status": "PASS_BY_NATIVE_BARRIER_REVIEW",
+      "basis": "OTHER_FILE used the fresh SELECT revision after verifying received/eligible B, root and inventory; the live writer A remained frozen and B returned409 CONFLICTO_REVISION with entriesB0. The native complete-lot barrier excludes another EN_CURSO file before repository reservation.",
+      "repositoryClaimGuardReached": false,
+      "genericRevisionConflictAloneAccepted": false,
+      "criterionClarification": "Reception requirements are met; the native documentary barrier may itself enforce exclusion. No requirement mandates a particular error code or bypassing that barrier."
+    }
+  },
+  "sourceReview": [
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Barreras.vb",
+      "sha256": "e7db7e6087b4faa24856ad4e2715971925628789fc302cc12582e3edeb7e7290"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Documento.vb",
+      "sha256": "7ffafac76b93aadf4caced13b48051490202185caad24abbe93fb83ed74816e7"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Control.vb",
+      "sha256": "073ac42f728bc9b3acf567532781d00286929922cecba259015d5250e6bb66d4"
+    }
+  ],
+  "originalEngineResultUnchanged": true,
+  "wholeCoord02Pass": false,
+  "progress": {
+    "complete": 34,
+    "total": 38,
+    "pending": 4
+  },
+  "remainingTasks": [
+    "4.5",
+    "4.7",
+    "4.8",
+    "5.1"
+  ],
+  "nextRemainingEffects": {
+    "existingLot": "27",
+    "existingFile": "47",
+    "newLots": 1,
+    "newRoots": 2,
+    "newDocuments": 2
+  },
+  "changesKeptLocal": true
+}

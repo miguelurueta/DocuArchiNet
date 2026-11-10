@@ -1,0 +1,131 @@
+{
+  "issueKey": "DOC-118",
+  "runId": "e0d1949e6fa153267231048de1f63b94",
+  "status": "STOPPED_OBSERVER_AND_CONSOLE_REVIEW_REQUIRED",
+  "preflightStatus": "AUTHENTICATED_PREFLIGHT_PASS",
+  "preflightPassedUtc": "2026-11-08T02:13:17.956Z",
+  "sessionAttempts": 5,
+  "counters": {
+    "scenarios": {
+      "COORD02": {
+        "http": 697,
+        "operations": {
+          "ConsultarLote": 3
+        }
+      },
+      "COORD03": {
+        "http": 0,
+        "operations": {}
+      }
+    },
+    "selects": 17
+  },
+  "carriedSessionAttempts": 3,
+  "carriedCounters": {
+    "scenarios": {
+      "COORD02": {
+        "http": 425,
+        "operations": {
+          "ConsultarLote": 1
+        }
+      },
+      "COORD03": {
+        "http": 0,
+        "operations": {}
+      }
+    },
+    "selects": 0
+  },
+  "independentSessions": 2,
+  "publicationVerified": true,
+  "cabinetVerified": true,
+  "actorRef": "141",
+  "ambitoRef": "2",
+  "levelRef": "7",
+  "versionRef": "38",
+  "protectedLots": {
+    "baselineRead": [
+      "18",
+      "21"
+    ],
+    "mutationRequests": 0,
+    "postExecutionComparisonCompleted": false
+  },
+  "omittedBeforeDispatch": 223,
+  "productionUiExercised": false,
+  "newPlans": 0,
+  "newLots": 0,
+  "newRoots": 0,
+  "newPdfs": 0,
+  "newExpedientes": 0,
+  "newStoredDocuments": 0,
+  "stopRequests": 0,
+  "documentalPhasesRequested": 0,
+  "consoleExit": {
+    "processExited": true,
+    "shellExited": true,
+    "directChildrenObserved": 0,
+    "closeRequestAcknowledged": false,
+    "finallyAcknowledged": false,
+    "cause": "NOT_DETERMINED"
+  },
+  "sessionsClosed": null,
+  "ephemeralSecretsCleared": null,
+  "secretCleanupMeaning": "El proceso terminó; no hubo reconocimiento del finally. No afirmar borrado explícito ni cierre protocolario. No se persistieron entradas de la captura.",
+  "observer": {
+    "onDiskSymbolFiles": {
+      "issueKey": "DOC-118",
+      "recordedUtc": "2026-11-08T02:14:06.681Z",
+      "kind": "ON_DISK_CODEVIEW_PDB_MATCH",
+      "dllSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+      "pdbSha256": "7028b435d4ad0aeff074bf202fce4faa8742997c4e42edeecead2a4078d5eeeb",
+      "guidAndAgeMatch": true,
+      "loadedModuleVerified": false,
+      "activeBodyObservationQualified": false
+    },
+    "temporarySourceBreakpointBound": true,
+    "workerIdObserved": 26244,
+    "workerPresentAtFinalCheck": false,
+    "userIdeEnabledBreakpointsBefore": 12,
+    "userIdeEnabledBreakpointsAfter": 12,
+    "userIdeDebuggingAtFinalCheck": false,
+    "privateIdePresentAtFinalCheck": false,
+    "documentalBreakpointArmed": false,
+    "threadsFrozen": 0,
+    "activeBodyObservationQualified": false,
+    "attempts": [
+      {
+        "directorySuffix": "initial",
+        "status": "CLOSED",
+        "failureStage": "NOT_RECORDED"
+      },
+      {
+        "directorySuffix": "1",
+        "status": "CLOSED_BY_OPERATOR_BEFORE_EFFECTS",
+        "sourceBound": true
+      },
+      {
+        "directorySuffix": "2",
+        "status": "RELEASE_UNCONFIRMED_THEN_PRIVATE_IDE_ABSENCE_VERIFIED",
+        "failureStage": "BIND_SOURCE"
+      },
+      {
+        "directorySuffix": "3",
+        "status": "CLOSED",
+        "failureStage": "FIND_TARGET_PROCESS"
+      }
+    ]
+  },
+  "finalEnvironmentCheck": {
+    "issueKey": "DOC-118",
+    "recordedUtc": "2026-11-08T02:45:39.6607094Z",
+    "consoleProcessAlive": false,
+    "consoleShellAlive": false,
+    "directChildProcesses": 0,
+    "workers": [],
+    "explicitConsoleFinallyAcknowledged": false,
+    "documentalPhasesRequested": 0
+  },
+  "automaticLoginRetries": 0,
+  "privacy": "Proyección cerrada; sin entradas, cookies, tokens, conexiones, cuerpos HTTP ni filas de negocio."
+}

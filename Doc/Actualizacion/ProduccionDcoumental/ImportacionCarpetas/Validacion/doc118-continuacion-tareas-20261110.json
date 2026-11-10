@@ -1,0 +1,333 @@
+{
+  "issueKey": "DOC-118",
+  "status": "ACTIVE_CONTINUATION_AWAITING_SELECT_INPUT",
+  "recordedUtc": "2026-11-10T11:37:03.671Z",
+  "baseCommit": "fdab3d9ef08e4440270f6ef82b0c754222b4dcba",
+  "scope": {
+    "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/implementation-resumption.json",
+    "sha256": "1d68b7d7e35abb07e657807a49a652d9cbb1d09e5b54f684b75db8272b804db4"
+  },
+  "jira": {
+    "status": "En curso",
+    "transitionId": "21",
+    "readBackVerified": true,
+    "issueUrl": "https://contasoftcompany.atlassian.net/browse/DOC-118"
+  },
+  "archivePreserved": {
+    "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion",
+    "files": [
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/administrative-closure.json",
+        "sha256": "35ac51f173f63b8886e9bacae5ba9f73887f1a268309b96dab2df119c4a72449"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/administrative-closure.md",
+        "sha256": "290fb538e1107dc09d831767e41e7e8ad54fb5096fd94c3c41a0bc649b330277"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/design.md",
+        "sha256": "7ab0f52913f3ea7db6576d60de1754f40ded277b68044ab97f5651dcbbc4bcb6"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-authorization.json",
+        "sha256": "d87a4cdaac97be54938435830d807b3a6abb5ead68f695a3b9d0e9893a1bda4a"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-budget-continuation-proposal.json",
+        "sha256": "82594877857c1ca8fceaceeaa2829dece3716691146c6fe9f8c7368d27bfa4cb"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-continuation-proposal.json",
+        "sha256": "8d01166b19f9ad47d2c5d9834b3d5ce66c862e7ffa7b0324c7691def9ae06de3"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-current-window.json",
+        "sha256": "02c43bd2facd7581e0b13b1e9d8898e94f20ecd2b6f2c49f9a43407c2dc2de95"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-fresh-window-proposal.json",
+        "sha256": "ed037a3eb2e2c9e3c48041395f84975a0074b68492c7bb46d698bb4b24d197a3"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-prepared-recovery-proposal.json",
+        "sha256": "922c4935e91d38dfb8b69a9167822e56dc59606b9f76b397ebd3b3bf06927ea6"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-recovery-design-proposal.json",
+        "sha256": "ac234fad5347e2a833fe7514a7458c66ad8cf6dabf76cbcd9977c6d3b1060911"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/implementation-preparation.json",
+        "sha256": "e014b522c07178af0727bd6faaff57961c0e9c8c845b9ec7181ee5e59c746899"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/opsxj-governance.json",
+        "sha256": "9be59671bae79623bf5204f7ec33fedebdaa2efb2b6cb6c434b264fd5cf80eb3"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/proposal.md",
+        "sha256": "017882a2714d760c2c6e271573035b6793fdd6f46895e7cb4803a6c5b05830eb"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-design.md",
+        "sha256": "7da415787d6f00bcabdefb4238c26a890492b2be7bd2aec7215a45689ea367f8"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-evaluation.json",
+        "sha256": "cc5d2f17e6534f18cc50642da1d8e699f90e74c1826aa3e916a8feb9e8bad8d3"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-plan.md",
+        "sha256": "2156cc55a84ea3f8be4ef54ce91c51a1c55d2ea07dddf4f276e14339ed6291ee"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-en-curso-spec.md",
+        "sha256": "0c173c8f8bb165a6aa057deacb42f21f5fbf8e0359315c521321dfb4d646000f"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-v2-adapter-authorization.json",
+        "sha256": "d1380fa5b6f3a00ecad0d8db9314f83c963fb880e98500ac8b324df73f3edb6a"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-v2-contract-authorization.json",
+        "sha256": "29c9da29fde30544a5efb98138712b4a07ae351bd69e106acd436cbda042257b"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-v2-http-authorization.json",
+        "sha256": "450fea86e3a34996db1ae44c66a64609f3e21b84d4ab7afefe5addd0249c3d0e"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-v2-matrix-authorization.json",
+        "sha256": "a32f4d1f0000b2e27f9abf19d260deb0a445edc211f5b1dd14956b3e5924ef7f"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-v2-persistence-authorization.json",
+        "sha256": "6e84be4c1c5412848795443cda18db65c2341d8397e2c53d201d9f01180585f2"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-v2-recovery-authorization.json",
+        "sha256": "f396e6127de8311bbad20cc723788ff5e9d45e4a25c5dad5eca47bc09659aba7"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-v2-review-authorization.json",
+        "sha256": "53f01e13bcd2426c5e34800b168041c8f32db31233f11d1ef55a517ae7b7b800"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/recovery-v2-staging-authorization.json",
+        "sha256": "3668bde72e468993106e3056de003c25d243613ab62a86b492b83fea65aa815a"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/refinement-review.json",
+        "sha256": "5a95f2bd5fad4f9c44e203822ae92e011f966ba621c88e3ebaaf5d5990d33bf0"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/refinement.md",
+        "sha256": "c390dd07f0019cde0493fb538f28bded99711e21305c9d10ae2ebfc7a53b3272"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/source-review.json",
+        "sha256": "047b6e6829f72434656ddb629e2a35e1b349eba39c96d2535961e0ee39d973d3"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/specs/produccion-importacion-carga-carpeta-lote-recuperacion/jira-context.md",
+        "sha256": "8855883dcc873661f3be8fa5886affd8d145cd57666ed566da322869e8d08d8b"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/specs/produccion-importacion-carga-carpeta-lote-recuperacion/spec.md",
+        "sha256": "2f6c72e4bcbe984f8232a102ff16bd9662b87e385f43c186ab6046a7de972770"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/tasks.md",
+        "sha256": "8a227fa36850b7268b9ab6b0dfe514a9cdf0dad09040744fe27e48b47f0979fb"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-ack-loss-conductor-authorization.json",
+        "sha256": "66b857552a7cc0b9b7d0f9950570311bfd85f266d9954b279e3d65f6eaa29a17"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-binding-driver-authorization.json",
+        "sha256": "d6bf63f70c971f7053c4d7aa90f8705917a3affdffe4eb8ac3e5cb6f55bc3664"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-candidate-deployment-authorization.json",
+        "sha256": "4a9d8497478baa55513156072fb360982fb18f90ba93c94c08e3b5dd3956b879"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-candidate-deployment-proposal.json",
+        "sha256": "7c22ace6eb28ec2e17f93eb963613a48870f908efad2b3a135047641d4c7afa3"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-observer-continuation-review.json",
+        "sha256": "adea2af606a07b623845e4dbd96b6c33a4bacb1d1d4c72fc61dbb00e17c25591"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-runtime-smoke-authorization.json",
+        "sha256": "45731d42006d00604ef9e92397627e08d17afd485e9a2644b4766475d93acb0b"
+      },
+      {
+        "path": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-runtime-smoke-proposal.json",
+        "sha256": "9d2ec34fd3eb63a737bb6aca7441b90c00ae02d19143b0e7fb4953a32ae30e58"
+      }
+    ]
+  },
+  "changedFiles": [
+    {
+      "path": "tools/e2e/scripts/run-doc118-select-audit.cjs",
+      "beforeCommit": "fdab3d9ef08e4440270f6ef82b0c754222b4dcba",
+      "beforeSha256": "e4db542824516b36d307f94e7ac9b9fd5626b70ec842ba22f4689d63d393356b",
+      "afterSha256": "b3f2ac8825d18904dbc780366807b2600059d9128f9c46b261bd50f890131c95"
+    },
+    {
+      "path": "tests/doc118-select-audit.test.cjs",
+      "beforeCommit": "fdab3d9ef08e4440270f6ef82b0c754222b4dcba",
+      "beforeSha256": "b52cb9f89849fc20ae5d27bec79d540f46a0eb8012d5791bb5dc6f9071e14e06",
+      "afterSha256": "81d188a17b91f18bd026b88cb9c4cd96ef7a12b936d69bf3bae48fb40d532eae"
+    }
+  ],
+  "protectedFiles": [
+    {
+      "path": "workflow/ClassAlmacenamiento.vb",
+      "sha256": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+      "sha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.vb",
+      "sha256": "2c5e25c1ebcb3efeaa913c6d37c785390d934ced21b8b1ad1546ee5f080107f0"
+    },
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.dll",
+      "sha256": "9225b627c50b96c29ee9031173f0c578df4a16e970cb45404ee6be4d13eff291"
+    },
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.pdb",
+      "sha256": "37aab89e1a02ed2704644ec9d58e6f44f19125e36f1b8bdc60d3f7b8f4f97b72"
+    },
+    {
+      "path": "Web.config",
+      "sha256": "fd392f3679b9bad1e72fd7cecb21b78bda051a863a5e545564e7978e563ef07a"
+    }
+  ],
+  "priorRegression": {
+    "tests": 260,
+    "passed": 260,
+    "historical": true
+  },
+  "focusedRegression": {
+    "tests": 22,
+    "passed": 22,
+    "failed": 0,
+    "newTests": 3,
+    "commands": [
+      "node --test tests/doc118-select-audit.test.cjs tests/doc118-current-window.test.cjs"
+    ],
+    "fullSuiteRerun": false
+  },
+  "currentAudit": {
+    "runId": "7896bbf5729a7f9996fbd8cc8e18af18",
+    "attemptId": "6ddb61d382abb419d6025f783430b624",
+    "status": "AUDIT_COMPLETE_REVIEW_REQUIRED",
+    "resultAvailable": true,
+    "output": ".tmp/doc118-live-7896bbf5729a7f9996fbd8cc8e18af18/select-audit-6ddb61d382abb419d6025f783430b624.json",
+    "carriedCounters": {
+      "scenarios": {
+        "COORD02": {
+          "http": 301,
+          "operations": {
+            "ConsultarLote": 13,
+            "AbrirImportacion": 1,
+            "PrepararPlan": 1,
+            "ConfirmarPlan": 1,
+            "ConsultarRecursosLote": 6,
+            "RecibirArchivo": 2,
+            "CREAR_EXPEDIENTE": 2,
+            "MATERIALIZAR_VALORES": 2,
+            "ALMACENAR": 2
+          }
+        },
+        "COORD03": {
+          "http": 0,
+          "operations": {}
+        }
+      },
+      "selects": 34
+    },
+    "counters": {
+      "scenarios": {
+        "COORD02": {
+          "http": 301,
+          "operations": {
+            "ConsultarLote": 13,
+            "AbrirImportacion": 1,
+            "PrepararPlan": 1,
+            "ConfirmarPlan": 1,
+            "ConsultarRecursosLote": 6,
+            "RecibirArchivo": 2,
+            "CREAR_EXPEDIENTE": 2,
+            "MATERIALIZAR_VALORES": 2,
+            "ALMACENAR": 2
+          }
+        },
+        "COORD03": {
+          "http": 0,
+          "operations": {}
+        }
+      },
+      "selects": 59
+    }
+  },
+  "priorGitDelivery": {
+    "issueKey": "DOC-118",
+    "status": "ADMINISTRATIVELY_CLOSED_WITH_SALVEDADES",
+    "jiraStatus": "Listo",
+    "jiraUrl": "https://contasoftcompany.atlassian.net/browse/DOC-118",
+    "commentId": "24490",
+    "head": "fdab3d9ef08e4440270f6ef82b0c754222b4dcba",
+    "tree": "3e86d8cf4df09c63484fbd7f1bc60effa8101c43",
+    "branch": "feature/DOC-118",
+    "clean": true,
+    "ahead": 0,
+    "behind": 0,
+    "localCommitBackup": "4c99a4215f18d0eae61ee976d9bfdd956d3c7ea4",
+    "archivedTo": "openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion",
+    "originalFilesPreserved": 36,
+    "pendingTasksPreserved": 9,
+    "fullTechnicalAcceptance": false,
+    "mainSpecsUpdated": false,
+    "merged": false,
+    "storageUnchanged": true,
+    "lot25ReplayAllowed": false,
+    "checkedUtc": "2026-11-10T11:00:56.848Z"
+  },
+  "formalTasks": {
+    "documentation": "5.2 COMPLETE_WITH_EXPLICIT_LIMITATIONS",
+    "git": "5.4 PRIOR_DELIVERY_VERIFIED_RECHECK_CURRENT_DELIVERY",
+    "validation": "5.3 OPEN_SPEC_STRICT_AND_REFINEMENT_PASSED"
+  },
+  "progress": {
+    "completed": 32,
+    "total": 38,
+    "pending": 6
+  },
+  "realIntegrationPassed": false,
+  "documents": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-continuacion-tareas-20261110.md",
+      "sha256": "ac6f468049d159bfa5dbadc1db17b4d62f68e119dc4b2862d7258c0c38b69285"
+    }
+  ],
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "decisionRequirementPairs": 18,
+    "sourceTraceability": "PASS",
+    "archivePreserved": "PASS",
+    "finalGitSynchronization": "CHECK_AT_DELIVERY"
+  },
+  "latestIntegrationContinuation": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-continuacion-20261110.json",
+  "latestReviewedCapture": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-captura-revisada-20261110.json",
+  "latestReadinessAndPreflight": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observador-preflight-20261110.json"
+}

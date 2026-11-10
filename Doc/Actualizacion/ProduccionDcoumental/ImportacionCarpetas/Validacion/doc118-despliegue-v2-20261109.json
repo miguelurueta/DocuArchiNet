@@ -1,0 +1,189 @@
+{
+  "issueKey": "DOC-118",
+  "scope": "AUTHORIZED_P4_A_TWO_FILE_APPLICATION_DEPLOYMENT",
+  "recordedUtc": "2026-11-09T16:35:21.519Z",
+  "repositoryCheckpoint": "7a1444ff7d76a9fd501e9ec2b70c327c947495ac",
+  "sourceCommit": "9d67c81f27cb714412d17772ad492b56968407a3",
+  "status": "DEPLOYED_ON_DISK_VERIFIED_RUNTIME_NOT_QUALIFIED",
+  "executed": true,
+  "maintenanceCreated": true,
+  "maintenanceRemoved": true,
+  "maintenanceRetained": false,
+  "maintenanceMilliseconds": 627,
+  "copyAttempted": true,
+  "backupVerified": true,
+  "rollbackAttempted": false,
+  "rollbackVerified": false,
+  "files": [
+    {
+      "source": ".tmp/doc118-v2-candidate-9d67c81f/bin/GestionDocumental-Docuarchi.net.dll",
+      "destination": "bin/GestionDocumental-Docuarchi.net.dll",
+      "backup": ".tmp/doc118-v2-deploy-9d67c81f-20261109-01/backup/GestionDocumental-Docuarchi.net.dll",
+      "beforeSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+      "candidateSha256": "9225b627c50b96c29ee9031173f0c578df4a16e970cb45404ee6be4d13eff291",
+      "backupSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+      "afterSha256": "9225b627c50b96c29ee9031173f0c578df4a16e970cb45404ee6be4d13eff291"
+    },
+    {
+      "source": ".tmp/doc118-v2-candidate-9d67c81f/bin/GestionDocumental-Docuarchi.net.pdb",
+      "destination": "bin/GestionDocumental-Docuarchi.net.pdb",
+      "backup": ".tmp/doc118-v2-deploy-9d67c81f-20261109-01/backup/GestionDocumental-Docuarchi.net.pdb",
+      "beforeSha256": "7028b435d4ad0aeff074bf202fce4faa8742997c4e42edeecead2a4078d5eeeb",
+      "candidateSha256": "37aab89e1a02ed2704644ec9d58e6f44f19125e36f1b8bdc60d3f7b8f4f97b72",
+      "backupSha256": "7028b435d4ad0aeff074bf202fce4faa8742997c4e42edeecead2a4078d5eeeb",
+      "afterSha256": "37aab89e1a02ed2704644ec9d58e6f44f19125e36f1b8bdc60d3f7b8f4f97b72"
+    }
+  ],
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  },
+  "poolRecycled": false,
+  "workerStopped": false,
+  "observerAttached": false,
+  "runtimeQualified": false,
+  "integrationPass": false,
+  "candidateSymbols": {
+    "kind": "ON_DISK_CODEVIEW_PDB_MATCH",
+    "dllSha256": "9225b627c50b96c29ee9031173f0c578df4a16e970cb45404ee6be4d13eff291",
+    "pdbSha256": "37aab89e1a02ed2704644ec9d58e6f44f19125e36f1b8bdc60d3f7b8f4f97b72",
+    "guidAndAgeMatch": true,
+    "loadedModuleVerified": false,
+    "activeBodyObservationQualified": false
+  },
+  "beforeSymbols": {
+    "kind": "ON_DISK_CODEVIEW_PDB_MATCH",
+    "dllSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5",
+    "pdbSha256": "7028b435d4ad0aeff074bf202fce4faa8742997c4e42edeecead2a4078d5eeeb",
+    "guidAndAgeMatch": true,
+    "loadedModuleVerified": false,
+    "activeBodyObservationQualified": false
+  },
+  "iis": {
+    "application": "Default Web Site/GestionDocumental-Docuarchi.net",
+    "physicalRootMatchesRepo": true,
+    "applicationPool": "DefaultAppPool",
+    "applicationsInPool": 6
+  },
+  "requestsBefore": {
+    "scope": "APPPOOL_READ_ONLY_REQUEST_VIEW",
+    "available": false,
+    "targetRequests": null,
+    "reason": "E_NOTIMPL_80004001",
+    "maintenanceBasis": "EXPLICIT_OPERATOR_APPROVAL_OF_WINDOW_WITHOUT_ACTIVE_IMPORTS"
+  },
+  "requestsAtMaintenance": {
+    "scope": "APPPOOL_READ_ONLY_REQUEST_VIEW",
+    "available": false,
+    "targetRequests": null,
+    "reason": "E_NOTIMPL_80004001",
+    "maintenanceBasis": "EXPLICIT_OPERATOR_APPROVAL_OF_WINDOW_WITHOUT_ACTIVE_IMPORTS"
+  },
+  "requestsAfterMaintenance": {
+    "scope": "APPPOOL_READ_ONLY_REQUEST_VIEW",
+    "available": false,
+    "targetRequests": null,
+    "reason": "E_NOTIMPL_80004001",
+    "maintenanceBasis": "EXPLICIT_OPERATOR_APPROVAL_OF_WINDOW_WITHOUT_ACTIVE_IMPORTS"
+  },
+  "afterSymbols": {
+    "kind": "ON_DISK_CODEVIEW_PDB_MATCH",
+    "dllSha256": "9225b627c50b96c29ee9031173f0c578df4a16e970cb45404ee6be4d13eff291",
+    "pdbSha256": "37aab89e1a02ed2704644ec9d58e6f44f19125e36f1b8bdc60d3f7b8f4f97b72",
+    "guidAndAgeMatch": true,
+    "loadedModuleVerified": false,
+    "activeBodyObservationQualified": false
+  },
+  "protectedSources": [
+    {
+      "path": "Web.config",
+      "expectedSha256": "fd392f3679b9bad1e72fd7cecb21b78bda051a863a5e545564e7978e563ef07a",
+      "afterSha256": "fd392f3679b9bad1e72fd7cecb21b78bda051a863a5e545564e7978e563ef07a",
+      "unchanged": true
+    },
+    {
+      "path": "workflow/ClassAlmacenamiento.vb",
+      "expectedSha256": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c",
+      "afterSha256": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c",
+      "unchanged": true
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+      "expectedSha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741",
+      "afterSha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741",
+      "unchanged": true
+    }
+  ],
+  "completedUtc": "2026-11-09T16:35:23.785Z",
+  "authorization": {
+    "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-candidate-deployment-authorization.json",
+    "sha256": "4a9d8497478baa55513156072fb360982fb18f90ba93c94c08e3b5dd3956b879"
+  },
+  "proposal": {
+    "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-candidate-deployment-proposal.json",
+    "sha256": "7c22ace6eb28ec2e17f93eb963613a48870f908efad2b3a135047641d4c7afa3",
+    "reviewedCommit": "7a1444ff7d76a9fd501e9ec2b70c327c947495ac",
+    "historicalDraftPreserved": true
+  },
+  "sourceBuild": {
+    "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-candidato-v2-build-20261109.json",
+    "sha256": "9b905694d11db722cfccf88771e45b9c09efa6c068cdf26b421a4e01912adf5c",
+    "preserved": true,
+    "compileSourcesRevalidated": 920
+  },
+  "executor": {
+    "path": ".tmp/doc118-deploy-v2-candidate.cjs",
+    "sha256": "bb122b62d45f9bec1fe0079a42fed42a45292cd36918091c8cd7896a4dfef3db",
+    "localIgnored": true
+  },
+  "documents": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-despliegue-v2-20261109.md",
+      "sha256": "33f5d54edc2bd8245827f60600f38226095bbde6192c91db9b57bc6e6a6f13f5"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-plan-real-v2-despliegue-20261109.md",
+      "sha256": "eb2d8b04eac95acb5322f15abd23e9341dcf449627feaed52ca7d51851c57c06"
+    }
+  ],
+  "priorNodeRegression": {
+    "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-acuses-v2-local-20261109.json",
+    "sha256": "27b6d7bb281633875113d4be2f4700fdcc48c99acacb85e1f5a4e6981383b29a",
+    "tests": 247,
+    "passed": 247,
+    "reusedNotRerun": true
+  },
+  "historicalRuntimePin": {
+    "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-preflight-20261107.json",
+    "sha256": "faa87b395d5b7e2bfcc10cdb3a7e901fef419f93f836bfc6f175a52f00adb766",
+    "preserved": true,
+    "compatibleWithNewBinary": false,
+    "guardRemains": "ORDINARY_BINARY_CHANGED"
+  },
+  "progress": {
+    "complete": 28,
+    "total": 38,
+    "remaining": 10,
+    "newTasks": 0
+  },
+  "realConsumptionUnchanged": {
+    "httpRequests": 1276,
+    "selectStatements": 113,
+    "sessions": 9
+  },
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "decisionRequirementPairs": 18,
+    "diffCheck": "PASS",
+    "installedAndBackupHashes": "PASS",
+    "onDiskSymbols": "PASS",
+    "sourceAndConfigurationStable": "PASS",
+    "ownedMaintenanceRemoved": "PASS",
+    "runtimeQualification": "NOT_EXECUTED",
+    "healthHttp": "NOT_EXECUTED"
+  }
+}

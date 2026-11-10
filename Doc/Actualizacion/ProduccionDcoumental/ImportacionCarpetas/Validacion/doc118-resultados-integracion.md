@@ -1,0 +1,186 @@
+# Corte vigente — enlace V2 y driver implementados localmente
+
+## Cierre tecnico:38/38
+
+Integracion aceptada tras revision de evidencia:COORD02 acredita misma solicitud, exclusion del otro archivo por la barrera nativa con revision vigente y retorno perdido despues del checkpoint con replay unico/misma identidad. Lote27 COMPLETADO:documentos16237 y16238, inventarios23346 y23348. COORD03 lote28 DETENIDO:documento16239/inventario23349, segundo archivo sin efecto; stop en vuelo, cierre del primer contexto y consulta por el segundo sin reanudar, todos verificados.4 raices/4 PDFs/3 documentos, sin duplicados; lotes18/21/24/25/26 conservados.285/285 Node; almacenamiento compartido/SII, binario/configuracion y archivo administrativo intactos. Consumo acumulado2793 HTTP/444 SELECT/19 aperturas; se conserva la extension revisada de sesiones. Sesiones/SDK cerrados y secretos eliminados. Los fallos previos son historia:el motor completo detenido no se reetiqueta como PASS. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-completa-20261110.json`.
+
+## Estado actual del lote26 y lector del observador
+
+PREFLIGHT y PREPARE02 pasaron. RUN02 se detuvo sin ejecutar SAME_COMMAND/OTHER_FILE; el SDK retuvo una entrada al escritor y confirmo liberacion/cierre. La auditoria de25 SELECT encontro intento79 CONFIRMADO, documento16236/inventario23345 verificados fisicamente, B sin intento ni efecto y ninguna reclamacion activa; snapshot estable. No se repitio almacenamiento. Se reprodujo localmente un falso CONTROLLER_NOT_AVAILABLE ante EBUSY transitorio del estado y se corrigio solo su lectura acotada250ms; no se conoce el error I/O exacto de la corrida. COORD02/03 siguen sin PASS y el progreso permanece32/38. Acumulado2185 HTTP/240 SELECT/15 intentos de sesion; ventana299 HTTP/68 SELECT/2 sesiones. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-lote26-observador-20261110.json`.
+
+## Observador corregido; preflight detenido en acceso
+
+Se reprodujo y corrigió una carrera de reloj en la disponibilidad del observador, conservando rechazo de estados futuros/antiguos. La captura posterior completó las cuatro entradas y pasó a PREFLIGHT, pero la primera autenticación no se confirmó. Cero SELECT o recursos nuevos; SDK/contextos cerrados y credenciales eliminadas. Acumulado1671 HTTP/172 SELECT/12 intentos/aperturas; sin reintento automático.274/274 Node candidatos y32/38 tareas. Se reutiliza el diagnóstico cerrado de DOC117 para conservar códigos en futuras ejecuciones. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observador-preflight-20261110.json`.
+
+## Captura revisada lanzada — 2026-11-10
+
+El usuario pidió «lanza» después de la parada sin login o efectos. Se preservó el intento anterior y se abrió la consola en el escritorio normal con observador2 enlazado;al registrar espera APPLICATION_USER. Ambas HEAD se conservan dentro del máximo:acumulado1580 HTTP/172 SELECT/11 sesiones.269/269 Node y32/38 tareas;sin nuevo PASS de integración. Lote25 confirmado/protegido y archivo anterior intacto. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-captura-revisada-20261110.json`.
+
+## Lectura durable resuelta;captura de integración por revisar
+
+Lote25:documento16235/inventario23339 físicamente confirmados y archivoB sin efecto, mediante25 SELECT nuevos y sin replay. La consola se hizo visible fuera del escritorio aislado. La ventana nueva consumió solo1 HEAD;se detuvo antes de login/fases, con SDK/secretos cerrados. Acumulado1579 HTTP/172 SELECT/11 sesiones.268/268 Node candidatos;32/38 tareas. Falta aclarar la captura de cuatro entradas antes de otra ejecución. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-continuacion-20261110.json`.
+
+## Continuación técnica activa — 2026-11-10
+
+Jira En curso y mismo cambio OpenSpec reactivado, conservando el archivo administrativo intacto. Se acreditan5.2 por resultados/procedencia explícitos y5.4 por sincronización comprobada;5.3 pasó OpenSpec estricto/refinement;32/38, con seis comprobaciones reales pendientes. La auditoría SELECT del lote25 se retoma con contadores intactos y sin replay; requiere dos entradas enmascaradas.22/22 pruebas focales; almacenamiento/SII/binarios intactos. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-continuacion-tareas-20261110.json`.
+
+## Cierre administrativo con salvedades — 2026-11-10
+
+Jira confirmó el cierre administrativo en Listo (comentario24490), aceptado por el usuario conservando las nueve tareas pendientes. 29/38;260/260 Node históricos y observador4.1 calificado, sin aceptación completa de COORD02/03 ni QA/E2E. Lote25 retenido con almacenamiento UNKNOWN, sin replay ni limpieza. Cambio archivado en `openspec/changes/archive/2026-11-10-doc-118-produccion-importacion-carga-carpeta-lote-recuperacion`; sin sincronizar specs ni fusionar la rama. Las compuertas ordinarias OPSXJ siguen sin aprobarse; no se presenta como cierre técnico completo. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-cierre-administrativo-20261110.json`.
+
+## Ejecución consolidada: observador calificado y parada conservada
+
+4.1 calificada en llamada real con hilo interno congelado y otra sesión atendida; 29/38 tareas. Plan41/lote25 nuevo conservado: COORD02 detenido tras SAME_COMMAND, primera petición UNKNOWN y sin OTHER_FILE/COORD03. SDK liberado/cerrado y sesiones eliminadas; sin replay. Acumulado1578 HTTP/147 SELECT/11 sesiones. Corrección del ejecutor: diagnóstico cerrado y espera original tras RESUME hasta35s. 260/260 Node; almacenamiento/SII/binarios intactos. Auditoría SELECT pendiente de dos entradas enmascaradas. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-ejecucion-consolidada-20261109.json`.
+
+## Fuente del observador enlazada y SDK cerrado
+
+Continuación del observador revisada tras «continua»: fuente enlazada, worker vivo/otros hilos en ejecución, cero entradas/fallo/Freeze y desconexión/liberación SDK confirmadas. Cero HTTP/login/SELECT/efectos nuevos; una conexión aprobada consumida, ninguna restante. La HEAD anterior y su fallo se preservan. No se observó IDE nueva residual en la lectura posterior; PID propio no identificado directamente. Fuentes/instalación/SII intactos. 28/38, no completa 4.1 sin llamada activa. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observador-continuacion-20261109.json`.
+
+## P4-B detenida en la comprobación HTTP
+
+P4-B aprobada y ejecutada una vez: cliente sin estado HTTP; log IIS con 200 y 14,807 s frente a timeout 10 s. Corte antes de construir/conectar observador, sin ARM/Freeze ni efectos. Una HEAD consumida y cero restantes; sin retries. Cero login/SELECT/efectos; acumulado entre histórico y P4-B 1277 HTTP/113 SELECT/9 aperturas. Fuentes/instalación/respaldo intactos. No acredita enlace de fuente o runtime. 28/38, sin nuevas tareas/cierres. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-runtime-smoke-20261109.json`.
+
+## Metadatos IIS y siguiente comprobación propuesta
+
+Inspección de metadatos IIS: un worker y módulo objetivo no observado en la vista del sistema operativo; no acredita ausencia en CLR o identidad cargada. Cero red/login/SQL/efectos y ningún cambio de producto/runner/instalación. Preparada P4-B: una HEAD y enlace de fuente mediante Initialize/Inspect/Dispose del SDK existente, sin ARM/Freeze; propuesta aún sin autorización. 28/38, ninguna tarea añadida/cerrada. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-metadatos-runtime-20261109.json`.
+
+## Despliegue autorizado del candidato V2
+
+Despliegue P4-A autorizado mediante «autoriozado»: DLL/PDB ordinarios instalados y verificados por hash/CodeView, respaldo preservado y mantenimiento propio retirado en 627 ms. Fuente compartida/InvocarAlmacenamiento/SII y Web.config intactos; pool de 6 aplicaciones sin reciclar. Cero login/HTTP/SQL/efectos. La vista de solicitudes IIS devuelve 0x80004001; se usó la ventana aprobada, sin afirmar ausencia demostrada de peticiones. Módulo cargado/proveedor/MySQL/observador aún sin calificar y runner histórico mantiene pin anterior. Progreso 28/38, ninguna tarea nueva o cerrada. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-despliegue-v2-20261109.json`.
+
+## Candidato compilado y despliegue propuesto
+
+Compilación completa del candidato ordinario V2:MSBuild salida0,920 fuentes estables y DLL/PDB concordantes en .tmp; binarios instalados/Web.config/almacenamiento/SII intactos. Aplicación IIS localizada por lectura elevada; raíz igual al repo principal y pool compartido por6 aplicaciones. Propuesta de despliegue limitado a dos archivos, respaldo y mantenimiento solo de la aplicación, aún SIN_AUTORIZAR/SIN_EJECUTAR.28/38 tareas, ninguna nueva/cerrada. No se repite regresión247 Node ni se ejecuta HTTP/SQL/login. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-candidato-v2-build-20261109.json`. Alcance revisable:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-despliegue-v2-propuesto-20261109.md`.
+
+## Corte local de pérdida de acuses V2
+
+Completada6.11/D-18/RQ-18: decorador de pruebas de pérdida de un acuse nativo válido y conductor acotado Q1/Q2/Q3, fuera del proyecto productivo.247/247 Node (42 comportamiento/cliente/driver/conductor y205 herramientas);157 casos V2 internos del harness, incluidos sin sumarlos a Node. Progreso28/38, mismas10 tareas reales/finales pendientes. P3 preparado y probado como paquete local; enlace/lector del host de pruebas aún sin instalar/calificar. P4/P5 abiertos. Sin modificar almacenamiento compartido/InvocarAlmacenamiento/SII ni ejecutar HTTP/SQL/login reales. Fuente:`Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-acuses-v2-local-20261109.json`.
+
+Completadas6.9/6.10/D-17/RQ-17:composición de intentos nuevos con revisión de servidor, persistencia V2 y controles existentes; driver compartido admite recuperación con contratos cerrados y sin replay.12 casos nuevos de enlace y12 Node de driver;235/235 Node y145 casos V2 internos incluidos en el harness. Progreso27/37; mismas10 tareas reales/finales abiertas.
+
+Función compartida de almacenamiento, enlace legacy y SII intactos. P1/P2 del plan real resueltos solo en candidato; P3/P4/P5 siguen abiertos. Sin despliegue o ejecución real;1276 HTTP/113 SELECT/9 aperturas sin cambios. Evidencia:[enlace/driver](doc118-enlace-v2-local-20261109.json), [detalle](doc118-enlace-v2-local-20261109.md), [estado del plan](doc118-plan-real-v2-enlace-20261109.md).
+
+## Corte anterior — RV-08 revisión local y plan real preparados
+
+Revisión consolidada de16 requisitos/35 escenarios,21 condiciones de matriz y133 casos V2. Los9 entregables locales V2 quedan documentados; progreso25/35, mismas10 tareas reales/finales abiertas y DOC-118 no listo para archivo. Se reutiliza223/223 Node de RV-07 en e68d9972 con código/pruebas/herramientas sin cambios, comprobados por hashes; no hay una corrida nueva en RV-08.
+
+El plan real propone dos lotes nuevos y límites separados todavía no autorizados. No es ejecutable hasta integrar el escritor V2, extender el driver y revisar el enlace de fallos/calificación del runtime. Sin despliegue/login/HTTP/SELECT reales;1276 HTTP/113 SELECT/9 aperturas sin cambios y41/53/69 protegidos. Evidencia:[revisión V2](doc118-revision-v2-local-20261109.json), [reporte](doc118-revision-v2-local-20261109.md), [plan real](doc118-plan-real-v2-20261109.md).
+
+## Corte anterior — RV-07 matriz local verificada
+
+12 casos nuevos combinan adaptador/repositorio/guardia con barreras explícitas:ejecutor activo, retorno/checkpoint, respuestas perdidas, dos recuperadores, rollback y lector en otro proceso. Cero cambios de producto;133 casos V2 internos y223/223 Node pasan. Progreso24/34, mismas10 tareas reales/finales abiertas; sigue RV-08. SQL/escritor/transacción son dobles, no califica MySQL/IIS ni COORD-02/03 reales.
+
+Dos procesos lectores nuevos cerrados; épocas ajenas, V1 y41/53/69 siguen bloqueados. Consumos1276 HTTP/113 SELECT/9 aperturas sin cambios. Evidencia:[matriz V2](doc118-matriz-v2-local-20261109.json), [detalle](doc118-matriz-v2-local-20261109.md).
+
+## Corte anterior — RV-06 recuperación HTTP implementada
+
+RecuperarDocumentoV2 expone cuatro referencias mediante el guard operativo y composición sin escritor, con autoridad RECONCILIAR y RA/DA fijados. Respuesta de cierre sin invocación separada de confirmación documental.19 casos HTTP nuevos con dispatcher/composición reales compilados, HTTP sintético y guardia real;223/223 Node. Progreso23/33; mismas10 tareas anteriores abiertas. Sin despliegue ni calificación MySQL real; almacenamiento habitual V1.
+
+Consumos1276 HTTP/113 SELECT/9 aperturas sin cambios;41/53/69 protegidos. Evidencia:[recuperación HTTP V2](doc118-recuperacion-http-v2-local-20261109.json), [alcance](doc118-recuperacion-http-v2-local-20261109.md).
+
+## Corte anterior — RV-05 recuperación interna implementada
+
+Cierre negativo V2 limitado y confirmación por IDs observados, sin escritor, bajo guardia y vista comparada hasta commit/rollback.22 casos nuevos con guardia real/SELECT y transacción simulados;223/223 Node. Progreso22/32, mismas10 tareas anteriores abiertas. No acredita MySQL real ni activa HTTP.
+
+Sin sesiones, HTTP de negocio, SELECT reales o efectos nuevos. Consumos1276 HTTP/113 SELECT/9 aperturas,69 protegido y sin backfill. Evidencia:[recuperación V2](doc118-recuperacion-v2-local-20261109.json), [alcance](doc118-recuperacion-v2-local-20261109.md).
+
+## Corte anterior — RV-04 persistencia implementada y validada localmente
+
+Callbacks V2 en el repositorio existente; acuses después de Operar/commit, gate único, diario concordante y checkpoint/evento/consolidación juntos.20 casos SQL nuevos integrados con el adaptador sobre doble transaccional;223/223 Node y DDL ampliado válido. Progreso21/31; mismas10 tareas anteriores abiertas. No acredita MySQL real ni activa composición pública o recuperación.
+
+Sin sesiones, HTTP de negocio, SELECT o efectos documentales nuevos. Consumo1276 HTTP/113 SELECT/9 aperturas e intento69 protegido, sin backfill. Evidencia:[persistencia V2](doc118-persistencia-v2-local-20261108.json), [alcance](doc118-persistencia-v2-local-20261108.md).
+
+## Corte anterior — RV-03 implementada como recorrido interno
+
+Retención antes del inicio V2, acuses concordantes y observación de IDs en finally, sin fallback V1.20 casos nuevos del adaptador con staging real y dobles explícitos de persistencia/escritor;223/223 Node actuales. Progreso20/30 por nueva6.3 completada; las10 tareas anteriores siguen abiertas. Composición pública/MySQL y recuperación permanecen pendientes.
+
+No hubo sesiones, HTTP de negocio, SELECT o efectos documentales nuevos. Consumo1276 HTTP/113 SELECT/9 aperturas e intento69 protegido, sin replay. Sigue RV-04, persistencia y diario transaccional. Evidencia:[adaptador V2](doc118-adaptador-v2-local-20261108.json), [alcance](doc118-adaptador-v2-local-20261108.md).
+
+## Corte anterior — RV-02-B implementada y validada localmente
+
+Puerto de retención/guardia V2 en el proveedor existente, sin activar recuperación.21 casos nuevos en el harness,3 procesos sintéticos cerrados;223/223 Node actuales. Otra época del proveedor —incluido reinicio— permanece bloqueada. Progreso19/29 tras añadir y completar6.2; las10 tareas anteriores siguen pendientes.
+
+No hubo sesiones, HTTP de negocio, SELECT o efectos nuevos. Consumo1276 HTTP/113 SELECT/9 aperturas e intento69 protegido, sin backfill. Sigue RV-03, retención desde el adaptador. Evidencia:[puerto V2](doc118-puerto-staging-v2-local-20261108.json), [alcance](doc118-puerto-staging-v2-local-20261108.md).
+
+## Corte anterior — RV-01 implementada como contrato interno
+
+La tarea nueva6.1/D-11/RQ-11 fija documentos V2 de inicio, autorización y retorno, sin conectarlos al flujo.19 casos V2 pasan dentro del harness existente; regresión18/18 y herramientas205/205. El avance es18/28 por una tarea nueva completada; las10 tareas reales/finales anteriores permanecen abiertas. Leer JSON válido no prueba procedencia durable ni habilita invocación/recuperación.
+
+No hubo nuevas sesiones, HTTP de negocio, SELECT o efectos documentales. Intento69 protegido e inelegible; consumo real1276 HTTP/113 SELECT/9 aperturas. Siguiente:RV-02-B, puerto del proveedor. Evidencia:[contratos V2](doc118-contratos-v2-local-20261108.json), [alcance](doc118-contratos-v2-local-20261108.md).
+
+## Corte anterior — RV-02-A validada localmente
+
+La comprobación de primitivas de staging pasó13/13 pruebas con6 procesos sintéticos y limpieza confirmada. Acredita exclusión local en NTFS e identifica la necesidad de conservar el handle y aplicar fencing durable; no implementa ni califica el proveedor de producción. Regresión conjunta205/205. RV-02-B continúa pendiente. Contrato y progreso activos:17/27.
+
+No hubo nuevas sesiones, HTTP, SELECT o efectos de negocio. El intento69 sigue protegido y los consumos permanecen1276 HTTP/113 SELECT/9 aperturas. Evidencia:[prueba de staging](doc118-staging-lock-probe-20261108.json), [alcance y límites](doc118-staging-lock-probe-20261108.md).
+
+## Corte anterior — ausencia física actual y contención acreditada
+
+La auditoría SELECT de lote24/archivo40/expediente670 encontró0 registros en gabinete/inventario/índice. Intento69 sigue EN_CURSO y reclamado, sin checkpoint; no se libera ni repite. Archivo41 NO_INICIADO y sin documento físico. Snapshot estable. Acumulado1276 HTTP/113 SELECT/9 aperturas. Se acredita4.6 como contención, sin resolver69:17/27.
+
+La liberación del depurador pasó en un proceso sintético propio, con peer en ejecución y cierre confirmado; no califica legacy/ASMX. Regresión192/192. Detalle:[auditoría y probe](doc118-auditoria-fisica-liberacion-20261108.md). La decisión de alcance para evaluar recuperación EN_CURSO está propuesta, sin aplicar.
+
+## Cortes anteriores
+
+# Corte vigente — intento69 activo, sin replay permitido
+
+La continuación autorizada recuperó el lote24 y alcanzó RUN02; el observador falló durante liberación. Auditoría SELECT posterior:archivo40/intento69 EN_CURSO con reclamación activa y sin resultado durable; archivo41 NO_INICIADO y sin documento físico. Snapshot estable. Consumo1276 HTTP/95 SELECT/9 aperturas;0 aperturas disponibles. El efecto físico A permanece sin confirmar. C03 no iniciado. Limpieza del runner/observador/auditor confirmada. Corrección candidata local del observador y regresión187/187; no calificada en runtime. Progreso16/27.
+
+Detalle:[ventana y auditoría](doc118-ventana-activa-auditoria-20261108.md). Evidencia:[parada](doc118-active-window-stop-20261108.json), [auditoría](doc118-select-audit-20261108.json).
+
+## Cortes anteriores
+
+# Ampliación autorizada para recuperar el lote24
+
+El usuario confirmó con «continua» la propuesta de9 aperturas/1500 HTTP acumulados (1425/75), conservando recursos y consumos. La petición HEAD de disponibilidad pasó HTTP200 y elevó el acumulado de995 a996; siguen40 SELECT y7 aperturas. El worker31784 tiene observador externo ATTACHED con sourceBound=true. La consola local enmascarada está abierta, pendiente de captura; este corte no registra otro login ni solicitudes documentales. La recuperación del lote24 y la calificación Freeze/Thaw siguen pendientes. Regresión177/177; progreso16/27. Evidencia de disponibilidad: `doc118-prepared-recovery-readiness-20261108.json`.
+
+## Cortes previos
+
+# Corte actual — lote24 conservado, antes del primer almacenamiento
+
+La autorización1200 HTTP/7 aperturas fue aplicada tras «confirmado». PREFLIGHT y PREPARE02 pasaron; RUN02 se detuvo antes de despachar ALMACENAR. Lote24:dos PDFs recibidos/materializados y expedientes670/671;0 documentos almacenados solicitados por esta corrida. Consumo995 HTTP/40 SELECT/7 aperturas, sin capacidad de otra apertura. Finally y limpieza del observador confirmados. ARM/RESUME/CLOSE posterior pasó sin escritor ni efectos; Freeze/Thaw y progreso del peer aún no calificados. Progreso16/27.
+
+Detalle y límites: [preparación y recuperación](doc118-preparacion-recuperacion-20261108.md), [corte saneado](doc118-prepared-stop-20261108.json), [ARM externo](doc118-observer-arm-20261108.json). Regresión local177/177. Recuperación implementada por lecturas del lote existente; propuesta9 aperturas/1500 HTTP pendiente, sin aplicar.
+
+## Cortes anteriores con su alcance original
+
+# DOC-118 — preflight autenticado y bloqueo del observador
+
+El preflight de dos sesiones pasó con publicación38/gabinete10 y17 SELECT. Consumo acumulado699 HTTP C02,0 C03 y5 aperturas;0 fases documentales y0 efectos. El worker26244 dejó de estar activo por causa no determinada. La consola terminó sin reconocer la orden CLOSE ni el finally; no quedan consola/shell ni hijos directos detectados. Las instancias privadas de depuración ya no están presentes y los dos IDE originales quedaron sin depuración activa, con12 breakpoints del usuario conservados. La observación interna sigue SIN_CALIFICAR. Evidencia: doc118-authenticated-preflight-20261107.json.
+
+## Autorización y consumo
+
+La ampliación1000 HTTP acumulados (925/75) y5 aperturas fue autorizada por el usuario y aplicada conservando425 HTTP/3 aperturas anteriores. La pareja nueva autenticó sin retries y consultó lote23 desde contextos independientes. El preflight comprobó publicación, gabinete, propietario y obtuvo baselines de lotes18/21 mediante17 SELECT de control. No se realizó una comparación posterior ni hubo solicitudes mutantes a esos lotes.
+
+| Concepto | Consumido | Disponible |
+| --- | --- | --- |
+| HTTP C02 |699 de925;3 ConsultarLote acumuladas |226 |
+| HTTP C03 |0 de75 |75 |
+| HTTP global |699 de1000 |301 |
+| Aperturas/intentos asignados |5 de5 |0 |
+| SELECT de control |17 de240 |223 |
+| Planes/lotes/raíces/PDFs/expedientes/documentos nuevos |0 | Límites originales |
+| Detenciones y congelaciones |0 | Sin ejecutar |
+
+La política de omisión evitó223 subrecursos antes de despacho. No son reembolsos de los425 HTTP anteriores ni evidencia de QA visual. La pareja consumió272 HTTP nuevos. Los archivos de entrada siguen locales e ignorados y no se conservaron datos de la captura en los informes.
+
+## Observador externo
+
+La lectura CodeView/MSF confirma GUID y edad coincidentes entre DLL/PDB ordinarios en disco, conservando sus hashes iniciales. Se corrigió el lector local para el mapa de directorio que abarca varios bloques de512 bytes. Esto no verifica el módulo cargado.
+
+El IDE del repositorio tenía12 breakpoints habilitados. Se usaron instancias privadas vacías para no adoptar esa configuración. Una instancia adjuntó al worker26244 y resolvió un breakpoint False dentro del cuerpo ordinario; se cerró antes de efectos. Otra inicialización falló en BIND_SOURCE y no reconoció su limpieza; la inspección posterior no encontró la instancia privada ni depuración en los IDE originales. La última inicialización cerró en FIND_TARGET_PROCESS; la lectura de IIS confirmó que ya no había worker. No se determinó la causa de su salida; no atribuirla al idle, al depurador ni a un reciclado sin evidencia.
+
+No hubo ARM documental, solicitud ALMACENAR ni Freeze/Thaw. El controlador y el adaptador permanecen candidatos: compilar, adjuntar y resolver un breakpoint no acreditan que otro cliente responda mientras un hilo está retenido. No se modifica almacenamiento compartido, SII, fuente VB, DLL/PDB, configuración o permisos de IIS.
+
+## Salida de consola y aceptación
+
+El último estado del proceso es PREFLIGHT_PASS. Se envió CLOSE con secuencia2, que quedó sin consumir; el proceso y su shell ya no existían al verificarlos y no se observaron hijos directos. El informe no afirma cierre protocolario de contextos ni borrado explícito por finally. La ausencia de la consola y del worker obliga a revisar una nueva ejecución; los contadores no se reinician y ya no quedan aperturas autorizadas.
+
+Progreso16/27. COORD02/03 específicos permanecen NO_EJECUTADOS. En ese corte la CLI solo implementaba PREFLIGHT; la continuación local posterior implementa las siete fases. Regresión local:130 pruebas (12 preflight,31 enlace,16 coordinación,63 drivers,4 símbolos,4 adaptador externo), separada de la evidencia real. El controlador C# compila contra el SDK instalado; no tiene calificación de retención de hilo en runtime.
+
+
+## Continuación local y comprobación del observador
+
+Las siete fases del ejecutor están implementadas y verificadas localmente. El observador real pasó disponibilidad, breakpoint de fuente, INSPECT y CLOSE con ack de limpieza y salida0 en sesión supervisada. No se ejecutaron ARM/Freeze/Thaw, fases documentales ni nuevas sesiones autenticadas. Consumo acumulado699 HTTP C02,0 C03,17 SELECT y5 aperturas;0 aperturas disponibles. Progreso16/27: COORD02/03 siguen NO_EJECUTADOS para aceptación.
+
+El detalle de la implementación está en doc118-ejecutor-fases-local-20261108.md. La consola previa sigue sin ack de finally; el controlador nuevo sí reconoció su cierre tras corregir el guardado atómico. La disponibilidad se comprobó sin autenticación. La calificación de retención y las ventanas de negocio siguen pendientes. En ese corte la propuesta de1200 HTTP/7 aperturas no estaba aplicada; la sección inicial registra su autorización y consumo posteriores.

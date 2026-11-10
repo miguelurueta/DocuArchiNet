@@ -1,0 +1,33 @@
+{
+  "issueKey": "DOC-118",
+  "status": "ARM_RESUME_CLOSE_PASS",
+  "runId": "e372f72da5f9bfdabe6c004ce93137b6",
+  "workerId": 28760,
+  "controllerPid": 21668,
+  "sequences": [
+    1,
+    2,
+    3
+  ],
+  "sourceBound": true,
+  "entriesA": 0,
+  "entriesB": 0,
+  "frozen": false,
+  "releaseConfirmed": true,
+  "cleanupConfirmed": true,
+  "implementationHashes": {
+    "controller": "0e7d9a9f90b3980f1627af5d3dcb5ba2aace6a039d310343656ba69254408e7e",
+    "protocol": "d49a05028654b51a9ae5ac59490bc7bd06548d6858fa41ff2bea9fe3a9c81fe4",
+    "commandProtocol": "ad9893675e8b6c21ba5adbe554977e608d96ba844c74c0eb92a7da96f91dfcbc",
+    "source": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c"
+  },
+  "armUtc": "2026-11-08T12:53:08.2484704Z",
+  "closedUtc": "2026-11-08T12:53:23.7499092Z",
+  "newAuthenticatedSessions": 0,
+  "httpRequests": 0,
+  "selectStatements": 0,
+  "newDocumentEffects": 0,
+  "activeBodyObservationQualified": false,
+  "integrationPass": false,
+  "limitation": "ARM acknowledgement only; Freeze/Thaw, first writer entry and peer progress while frozen still require the real storage window."
+}

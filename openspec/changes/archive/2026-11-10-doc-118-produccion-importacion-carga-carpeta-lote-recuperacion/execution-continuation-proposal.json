@@ -1,0 +1,69 @@
+{
+  "issueKey": "DOC-118",
+  "status": "AUTHORIZED",
+  "reason": "El primer intento real fue rechazado y consumió98 HTTP/1 intento. Se propone corregir datos por consola y reutilizar dos sesiones independientes para ambos casos, evitando repetir sus logins.",
+  "currentAuthorization": "execution-authorization.json",
+  "changes": {
+    "maximumTotalSessions": {
+      "before": 4,
+      "after": 4
+    },
+    "sessionReuse": "Una misma pareja independiente del propietario se conserva para C02 y C03, revalidando autoridad/contexto por caso.",
+    "allHttpPerCase": {
+      "before": {
+        "COORD02": 250,
+        "COORD03": 250
+      },
+      "after": {
+        "COORD02": 425,
+        "COORD03": 75
+      }
+    },
+    "allHttpGlobal": {
+      "before": 500,
+      "after": 500
+    }
+  },
+  "carriedConsumption": {
+    "COORD02AllHttp": 98,
+    "COORD03AllHttp": 0,
+    "sessionAttempts": 1,
+    "selectStatements": 0
+  },
+  "unchanged": {
+    "businessHttp": {
+      "COORD02": 53,
+      "COORD03": 51
+    },
+    "maximumNewLots": 2,
+    "maximumNewPdfs": 4,
+    "maximumNewExpedientes": 4,
+    "maximumNewStoredDocuments": 3,
+    "maximumPauseMilliseconds": 30000,
+    "protectedAttempts": [
+      41,
+      53
+    ]
+  },
+  "execution": "Continuación autorizada; captura corregida en consola enmascarada y consumo previo íntegro. Sin ampliar500 HTTP globales,4 contextos ni límites de efectos.",
+  "approval": {
+    "source": "Mensaje del usuario «autorizado» posterior a la propuesta de redistribución425/75 y reutilización de sesiones.",
+    "recordedUtc": "2026-11-08T01:23:51.033Z"
+  },
+  "remainingAfterApproval": {
+    "COORD02AllHttp": 327,
+    "COORD03AllHttp": 75,
+    "sessionAttempts": 3,
+    "selectStatements": 240
+  },
+  "result": {
+    "status": "STOPPED_BUDGET_REVIEW_REQUIRED",
+    "evidence": "doc118-continuation-preflight-20261107.json",
+    "cumulativeAllHttp": {
+      "COORD02": 425,
+      "COORD03": 0
+    },
+    "cumulativeSessionAttempts": 3,
+    "allSessionsClosed": true
+  }
+}

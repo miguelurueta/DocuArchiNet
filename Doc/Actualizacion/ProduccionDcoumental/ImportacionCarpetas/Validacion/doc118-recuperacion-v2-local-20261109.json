@@ -1,0 +1,210 @@
+{
+  "issueKey": "DOC-118",
+  "task": "RV-05 / 6.5",
+  "status": "PASS_INTERNAL_RECOVERY_LOCAL_ONLY",
+  "recordedUtc": "2026-11-09T12:10:27.533Z",
+  "baseCommit": "f42321a1dc474d9b9fd1973409da2a40846e587d",
+  "hashAlgorithm": "sha256-utf8-lf",
+  "sourceFiles": [
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/RecuperacionDocumentoV2Importacion.vb",
+      "sha256": "70ccfad4a1cea69d7dc7d255f17cbfa4356a9fd40022bc0d546f22ac1210241e"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.RecuperacionV2.vb",
+      "sha256": "69a3eb5570f182815ccc55a4dcf1184bb08fa49377b19193470b4b6093a9affd"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.RecuperacionV2.vb",
+      "sha256": "7cb19af1738252ff456907d6c545297e1803a502741e783108c35ae9a5bc5bc0"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.RecuperacionV2.vb",
+      "sha256": "bfe7b9f4fddc358ca9a8b4289b9597226ebf24f95e9ee22e329e401bf67e46f9"
+    },
+    {
+      "path": "tests/ImportacionCarpetasRecuperacionV2BehaviorTests.cs",
+      "sha256": "8b8cbcae4576f3f0e4104a0b2c715239b318733b60beada6a34058bcab552f25"
+    }
+  ],
+  "changedFiles": [
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoAlmacenamientoCarpetas.vb",
+      "beforeCommit": "f42321a1dc474d9b9fd1973409da2a40846e587d",
+      "beforeSha256": "51c90b801395fd6a23beb5b07b72dff668b585e8864351309e4db387c36da982",
+      "afterSha256": "6021e84e2a903bb8c4a345cfd491651f32f0d06301069367f8cffce84ae32aa0"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.DocumentoV2.vb",
+      "beforeCommit": "f42321a1dc474d9b9fd1973409da2a40846e587d",
+      "beforeSha256": "b18ac2a387b97d3dfd12039e69bafbadb6934b7c976182fc3124a6553625cf7b",
+      "afterSha256": "aeefc2f839eb8ab8ab8383511c769af379d3bfab5a76bf3c72ae48dd10845e4b"
+    },
+    {
+      "path": "GestionDocumental-Docuarchi.net.vbproj",
+      "beforeCommit": "f42321a1dc474d9b9fd1973409da2a40846e587d",
+      "beforeSha256": "30c577ac3baf520996407b662d3016ee880e64388dfa5482ee813b3429ba29a9",
+      "afterSha256": "3fcd5942634c21d84adeecdda08b11c32dc8683c56c3b583dbf27a578169fcfc"
+    },
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "beforeCommit": "f42321a1dc474d9b9fd1973409da2a40846e587d",
+      "beforeSha256": "da07691e6c4cba015e7925b8fa3c6a89ca8b8e43330bbb7b96d9dfcb1310fb58",
+      "afterSha256": "8496e01142462c22bd08058059a111d96108494b424b9ec93929b89d7e222aaf"
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "beforeCommit": "f42321a1dc474d9b9fd1973409da2a40846e587d",
+      "beforeSha256": "9d8da3c468010c033b6bd55a037260eb68f03ead08082a52df3e55524506b830",
+      "afterSha256": "1ee8a3104b82a05bd3ee75eb2a34fb1ff17b1362c2bfe5644223dfcd63602b5d"
+    }
+  ],
+  "reviewedSourceDeltas": [
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "beforeCommit": "9c21c830f2150f9153f094723936c31469ab7280",
+      "beforeSha256": "130d0506384c359a3cc87d96ada270597b4237dc87c69179a31c9a59edab0746",
+      "afterSha256": "8496e01142462c22bd08058059a111d96108494b424b9ec93929b89d7e222aaf",
+      "scope": "RV-01..RV-05: registro de parciales, compilación/aserciones y DDL del harness; casos V1 conservados."
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "beforeCommit": "9c21c830f2150f9153f094723936c31469ab7280",
+      "beforeSha256": "f7d40ed48283f0bcbe3bf0e98424a4b1d040cb44a230cb7108e1069884be8ed3",
+      "afterSha256": "1ee8a3104b82a05bd3ee75eb2a34fb1ff17b1362c2bfe5644223dfcd63602b5d",
+      "scope": "RV-01..RV-05: registro de parciales, compilación/aserciones y DDL del harness; casos V1 conservados."
+    }
+  ],
+  "evaluationSourceDeltas": [
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoAlmacenamientoCarpetas.vb",
+      "beforeCommit": "f42321a1dc474d9b9fd1973409da2a40846e587d",
+      "beforeSha256": "51c90b801395fd6a23beb5b07b72dff668b585e8864351309e4db387c36da982",
+      "afterSha256": "6021e84e2a903bb8c4a345cfd491651f32f0d06301069367f8cffce84ae32aa0",
+      "scope": "RV-05: constructor interno de comprobación EN_CURSO/EsVerificacion=true; ramas V1 conservadas."
+    }
+  ],
+  "localRegression": {
+    "command": "node --test tests/doc110-perfil-importacion-behavior.test.cjs tests/doc111-importacion-carpetas-client.test.cjs",
+    "tests": 18,
+    "passed": 18,
+    "failed": 0
+  },
+  "internalDotNetCases": {
+    "recoveryCases": 22,
+    "passed": 22,
+    "failed": 0,
+    "existingContractCases": 19,
+    "existingProviderCases": 21,
+    "existingAdapterCases": 20,
+    "existingRepositoryCases": 20,
+    "names": [
+      "prepared_closes_control_preserves_original_and_inventory",
+      "observed_complete_ids_confirm_without_writer",
+      "gate_without_return_remains_blocked",
+      "partial_observed_ids_remain_blocked",
+      "v1_and_synthetic_69_are_not_backfilled",
+      "active_retention_blocks_recovery",
+      "original_missing_or_replaced_is_not_recreated",
+      "negative_nonempty_expedition_and_positive_mismatch_block",
+      "stop_blocks_negative_and_preserves_positive",
+      "stale_client_revisions_do_not_reach_guard",
+      "authority_denied_before_read_or_commit",
+      "snapshot_changes_before_commit_are_rejected",
+      "changed_claim_does_not_get_removed",
+      "rollback_on_every_write_and_consolidation",
+      "guard_survives_writes_and_lost_guard_prevents_commit",
+      "replay_is_history_even_after_new_claim",
+      "lost_response_then_retry_returns_same_history",
+      "existing_checkpoint_returns_history_without_guard",
+      "verification_command_rejects_storage_ports",
+      "outcomes_do_not_expose_protocol_or_paths",
+      "another_epoch_is_not_qualified_for_recovery",
+      "corrupted_or_reordered_history_is_rejected"
+    ],
+    "includedInNodeCount": false
+  },
+  "fixture": {
+    "realStagingGuard": true,
+    "realCatalogVerificationCode": true,
+    "selectDouble": true,
+    "transactionalDouble": true,
+    "storageWriterCalls": 0,
+    "realDatabaseConnectionOpened": false,
+    "existingSyntheticChildProcessesClosed": 3
+  },
+  "toolRegression": {
+    "tests": 205,
+    "passed": 205,
+    "failed": 0,
+    "files": [
+      "tests/doc118-live-preflight.test.cjs",
+      "tests/doc118-session-bridge.test.cjs",
+      "tests/doc118-active-call.test.cjs",
+      "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+      "tests/doc118-symbols.test.cjs",
+      "tests/doc118-debugger-observer.test.cjs",
+      "tests/doc118-case-preparation.test.cjs",
+      "tests/doc118-case-completion.test.cjs",
+      "tests/doc118-lost-response.test.cjs",
+      "tests/doc118-live-lifecycle.test.cjs",
+      "tests/doc118-documental-phases.test.cjs",
+      "tests/doc118-debugger-protocol.test.cjs",
+      "tests/doc118-select-audit.test.cjs",
+      "tests/doc118-debugger-release.test.cjs",
+      "tests/doc118-release-probe-build.test.cjs",
+      "tests/doc118-staging-lock-probe.test.cjs"
+    ],
+    "scope": "LOCAL_ONLY",
+    "recordedUtc": "2026-11-09T12:01:30.859Z"
+  },
+  "disjointNodeTests": 223,
+  "legacySourceReview": {
+    "baselineSources": 14,
+    "currentUnchanged": 12,
+    "authorizedTestDeltas": 2,
+    "historicalReportsUnchanged": 10,
+    "evaluationSourcesBaseline": 16,
+    "evaluationSourcesUnchanged": 15,
+    "authorizedCommandDelta": 1
+  },
+  "progress": {
+    "complete": 22,
+    "total": 32,
+    "remaining": 10,
+    "newTask": "6.5",
+    "previousComplete": 21,
+    "previousTotal": 31
+  },
+  "limits": {
+    "internalRecoveryImplemented": true,
+    "publicHttpActivated": false,
+    "realMysqlAtomicityQualified": false,
+    "productionProviderQualified": false,
+    "negativeClosureRequiresWholeExpeditionWithoutDocumentFootprints": true,
+    "positiveRequiresObservedKnownIds": true,
+    "storagePortPresent": false,
+    "conversionToInciertoUsed": false,
+    "generalResetTransitionAdded": false,
+    "recoveryAfterProviderRestartSupported": false,
+    "v1BackfillAllowed": false,
+    "attempt69Eligible": false
+  },
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "diffCheck": "PASS"
+  },
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  },
+  "realConsumptionUnchanged": {
+    "httpRequests": 1276,
+    "selectStatements": 113,
+    "sessions": 9
+  }
+}

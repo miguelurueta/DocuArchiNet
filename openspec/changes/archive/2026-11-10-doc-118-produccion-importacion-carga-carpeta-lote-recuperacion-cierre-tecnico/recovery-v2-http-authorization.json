@@ -1,0 +1,30 @@
+{
+  "issueKey": "DOC-118",
+  "task": "RV-06 / 6.6",
+  "baseCommit": "036b0f12ae8a44c8c32ab4d519c0629ee9a9ba8c",
+  "recordedUtc": "2026-11-09T12:38:46.744Z",
+  "source": "Mensaje del usuario «continua» posterior a la entrega RV-05 y al siguiente paso explícito RV-06 de integración HTTP.",
+  "scope": "Operación HTTP explícita de recuperación y regresión local; no activar almacenamiento habitual V2 ni ejecutar contra datos reales.",
+  "httpRecoveryCodeImplementationAuthorized": true,
+  "realExecutionAuthorized": false,
+  "deploymentAuthorized": false,
+  "normalV2WriterActivationAuthorized": false,
+  "attempt69Eligible": false,
+  "files": [
+    "tests/ImportacionCarpetasRecuperacionHttpV2BehaviorTests.cs",
+    "tests/Fixtures/ProduccionDocumental/Doc118ComposicionEscritoresStub.vb",
+    "DTOs/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasDtos.vb",
+    "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.RecuperacionV2.vb",
+    "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionReconciliacionImportacion.vb",
+    "webservice/WebServiceImportacionCarpetas.asmx.vb",
+    "webservice/WebServiceImportacionCarpetas.Composicion.vb",
+    "tests/ImportacionCarpetasBehaviorTests.cs",
+    "tests/doc110-perfil-importacion-behavior.test.cjs"
+  ],
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  }
+}

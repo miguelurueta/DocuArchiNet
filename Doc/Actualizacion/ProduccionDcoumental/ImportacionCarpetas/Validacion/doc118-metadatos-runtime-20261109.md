@@ -1,0 +1,11 @@
+# DOC-118 — inspección de metadatos del worker IIS
+
+Lectura de solo metadatos en el ambiente local: configuración IIS, worker del pool y vista de módulos del sistema operativo. DLL/PDB y respaldo del despliegue conservan sus hashes. Se observó un worker y **cero coincidencias del módulo DocuArchiNet** en esa vista. Esto no demuestra ausencia en el CLR ni identidad del módulo cargado; no se leyeron bytes de memoria de negocio ni se conectó un depurador. No se guardaron rutas/listas de otros módulos.
+
+Incremento: 0 HTTP, 0 login, 0 SELECT, 0 efectos. Fuente principal `380ebbf749dd909148168578999d73c264a5dac9`, estado limpio antes de inspeccionar. El ejecutor de lectura permanece local y su huella figura en el JSON. La observación apoya 4.1; no cierra esa tarea ni ninguna otra. Progreso 28/38. Se conservan los reportes y el pin histórico; no se cambia el runner para aceptar una DLL sin evidencia de calificación.
+
+Siguiente paso concreto preparado: [una HEAD y comprobación del enlace de fuente](doc118-calificacion-fuente-propuesta-20261109.md), con controlador SDK existente, sin ARM/Freeze, login o datos. Necesita autorización específica de red/depurador: la aprobación anterior cubrió instalación y mantenimiento, y `v2-candidate-deployment-authorization.json` dejó `observerAttachmentAuthorized=false`.
+
+Comprobación local del SDK y del invocador: cuatro controles PASS. Compila el controlador existente; CheckOnly no conecta ni envía HTTP; Execute y el helper HEAD sin el manifiesto dedicado rechazan antes de red/attach. No se creó autorización ni directorio de resultado real. La compilación/guardas se comprobaron fuera del entorno restringido después de un rechazo de ejecución de scripts sin firma dentro de ese entorno, sin cambiar la política. Se conserva la regresión Node 247 de 6.11 como evidencia previa, sin repetirla ni sumar estos cuatro controles a su conteo.
+
+La capacidad HEAD se consume mediante archivo exclusivo antes del transporte; una capacidad ya consumida se rechaza incluso invocando el helper directamente. El cuarto control usa una autorización sintética en un directorio de fixture propio y demuestra rechazo antes de cargar Playwright, sin crear una aprobación en el repo principal.

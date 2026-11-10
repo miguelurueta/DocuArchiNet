@@ -1,0 +1,27 @@
+{
+  "issueKey": "DOC-118",
+  "task": "RV-01 / 6.1",
+  "recordedUtc": "2026-11-08T18:22:58.997Z",
+  "source": "Mensaje del usuario «contiunua» posterior a RV-02-A y al siguiente paso explícito RV-01.",
+  "scope": "Contratos internos y codec V2, inclusión en proyecto y regresión local; sin integración del protocolo.",
+  "localContractImplementationAuthorized": true,
+  "protocolIntegrationAuthorized": false,
+  "realExecutionAuthorized": false,
+  "deploymentAuthorized": false,
+  "attempt69Eligible": false,
+  "activeContractD07Changed": false,
+  "baseCommit": "9c21c830f2150f9153f094723936c31469ab7280",
+  "files": [
+    "Modelo/ProduccionDocumental/ImportacionCarpetas/DocumentosAlmacenamientoV2Importacion.vb",
+    "tests/ImportacionCarpetasDocumentosV2BehaviorTests.cs",
+    "GestionDocumental-Docuarchi.net.vbproj",
+    "tests/ImportacionCarpetasBehaviorTests.cs",
+    "tests/doc110-perfil-importacion-behavior.test.cjs"
+  ],
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  }
+}

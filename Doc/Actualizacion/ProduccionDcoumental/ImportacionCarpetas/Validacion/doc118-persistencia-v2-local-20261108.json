@@ -1,0 +1,185 @@
+{
+  "issueKey": "DOC-118",
+  "task": "RV-04 / 6.4",
+  "status": "PASS_REPOSITORY_SQL_WITH_TRANSACTIONAL_DOUBLE",
+  "recordedUtc": "2026-11-08T23:24:18.201Z",
+  "baseCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+  "hashAlgorithm": "sha256-utf8-lf",
+  "sourceFiles": [
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.DocumentoV2.vb",
+      "sha256": "b18ac2a387b97d3dfd12039e69bafbadb6934b7c976182fc3124a6553625cf7b"
+    },
+    {
+      "path": "tests/ImportacionCarpetasPersistenciaV2BehaviorTests.cs",
+      "sha256": "863b985450d5f5d978e2013281f632a9a98c0b72f598dbb4999e786132c58a8d"
+    }
+  ],
+  "changedFiles": [
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ResultadoCreacion.vb",
+      "beforeCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+      "beforeSha256": "ac8a69c5f730b9f942a9f65449071059740effeeb50daa65fde6ed796004d1d1",
+      "afterSha256": "f67e0e00350f3a5c2f66a925c62ceac2a7612c4db5ebffdaedd2c5ff54c8d6bc"
+    },
+    {
+      "path": "GestionDocumental-Docuarchi.net.vbproj",
+      "beforeCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+      "beforeSha256": "df01d772bdf7b78a0ac10c65790d82a6ec141f5e2efea68b2ef60c3d41caa9f1",
+      "afterSha256": "30c577ac3baf520996407b662d3016ee880e64388dfa5482ee813b3429ba29a9"
+    },
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "beforeCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+      "beforeSha256": "444d9bd14b808c2e8c902f7d066efacd6d0515cd22591fa846977943e46f43a0",
+      "afterSha256": "da07691e6c4cba015e7925b8fa3c6a89ca8b8e43330bbb7b96d9dfcb1310fb58"
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "beforeCommit": "f3a1bb91d5f0cdd4ec0e62255c544c2ba0aaf1a0",
+      "beforeSha256": "7bddd635e8aa4aec00d45efaf7af803cac298737565fda91cf3df2cf2787644f",
+      "afterSha256": "9d8da3c468010c033b6bd55a037260eb68f03ead08082a52df3e55524506b830"
+    }
+  ],
+  "reviewedSourceDeltas": [
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "beforeCommit": "9c21c830f2150f9153f094723936c31469ab7280",
+      "beforeSha256": "130d0506384c359a3cc87d96ada270597b4237dc87c69179a31c9a59edab0746",
+      "afterSha256": "da07691e6c4cba015e7925b8fa3c6a89ca8b8e43330bbb7b96d9dfcb1310fb58",
+      "scope": "RV-01..RV-04: registro de parciales, compilación/aserciones y ampliación DDL del harness; casos V1 conservados."
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "beforeCommit": "9c21c830f2150f9153f094723936c31469ab7280",
+      "beforeSha256": "f7d40ed48283f0bcbe3bf0e98424a4b1d040cb44a230cb7108e1069884be8ed3",
+      "afterSha256": "9d8da3c468010c033b6bd55a037260eb68f03ead08082a52df3e55524506b830",
+      "scope": "RV-01..RV-04: registro de parciales, compilación/aserciones y ampliación DDL del harness; casos V1 conservados."
+    }
+  ],
+  "localRegression": {
+    "command": "node --test tests/doc110-perfil-importacion-behavior.test.cjs tests/doc111-importacion-carpetas-client.test.cjs",
+    "tests": 18,
+    "passed": 18,
+    "failed": 0
+  },
+  "focusedDdl": {
+    "command": "node --test --test-name-pattern=\"columnas UPDATE\" tests/doc110-perfil-importacion-behavior.test.cjs",
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "includedInRegressionCount": true
+  },
+  "internalDotNetCases": {
+    "repositoryCases": 20,
+    "passed": 20,
+    "failed": 0,
+    "existingContractCases": 19,
+    "existingProviderCases": 21,
+    "existingAdapterCases": 20,
+    "names": [
+      "adapter_uses_repository_core_for_full_protocol",
+      "lost_start_commit_has_no_gate_or_writer",
+      "lost_gate_commit_cannot_be_issued_again",
+      "concurrent_gate_only_one_permission",
+      "duplicate_initial_start_rejected",
+      "start_and_gate_rollback_on_each_statement",
+      "checkpoint_rollback_on_each_statement",
+      "consolidation_failure_rolls_back_result_and_event",
+      "confirmed_checkpoint_replay_is_history_only",
+      "uncertain_checkpoint_keeps_claim_and_partial_ids",
+      "stop_blocks_gate_but_is_preserved_after_writer",
+      "known_ids_must_match_observed_return",
+      "duplicated_missing_and_unknown_journal_rejected",
+      "actor_resource_and_event_code_must_match",
+      "token_hash_scope_and_revision_changes_rejected",
+      "v1_active_evidence_never_backfilled",
+      "v2_read_projection_rejects_v1_checkpoint",
+      "v1_reader_roundtrip_and_malformed_v2_fail_closed",
+      "lost_observation_ack_stops_without_checkpoint",
+      "lost_checkpoint_ack_keeps_durable_confirmation"
+    ],
+    "includedInNodeCount": false
+  },
+  "fixture": {
+    "adapterIntegrated": true,
+    "productionSqlCore": true,
+    "transactionalDouble": true,
+    "writerDouble": true,
+    "realDatabaseConnectionOpened": false,
+    "existingSyntheticChildProcessesClosed": 3
+  },
+  "toolRegression": {
+    "tests": 205,
+    "passed": 205,
+    "failed": 0,
+    "files": [
+      "tests/doc118-live-preflight.test.cjs",
+      "tests/doc118-session-bridge.test.cjs",
+      "tests/doc118-active-call.test.cjs",
+      "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+      "tests/doc118-symbols.test.cjs",
+      "tests/doc118-debugger-observer.test.cjs",
+      "tests/doc118-case-preparation.test.cjs",
+      "tests/doc118-case-completion.test.cjs",
+      "tests/doc118-lost-response.test.cjs",
+      "tests/doc118-live-lifecycle.test.cjs",
+      "tests/doc118-documental-phases.test.cjs",
+      "tests/doc118-debugger-protocol.test.cjs",
+      "tests/doc118-select-audit.test.cjs",
+      "tests/doc118-debugger-release.test.cjs",
+      "tests/doc118-release-probe-build.test.cjs",
+      "tests/doc118-staging-lock-probe.test.cjs"
+    ],
+    "scope": "LOCAL_ONLY",
+    "recordedUtc": "2026-11-08T23:19:36.787Z"
+  },
+  "disjointNodeTests": 223,
+  "legacySourceReview": {
+    "baselineSources": 14,
+    "currentUnchanged": 12,
+    "authorizedTestDeltas": 2,
+    "historicalReportsUnchanged": 10,
+    "recoveryEvaluationSourcesUnchanged": 16,
+    "compatibleReaderChangeRecordedSeparately": true
+  },
+  "progress": {
+    "complete": 21,
+    "total": 31,
+    "remaining": 10,
+    "newTask": "6.4",
+    "previousComplete": 20,
+    "previousTotal": 30
+  },
+  "limits": {
+    "mysqlV2CodeImplemented": true,
+    "sqlCoreValidatedLocally": true,
+    "realMysqlAtomicityQualified": false,
+    "realMysqlConcurrencyQualified": false,
+    "ackCreatedAfterOperarCommit": true,
+    "authorizationReissuedOnReplay": false,
+    "publicCompositionActivated": false,
+    "recoveryEnabled": false,
+    "productionProviderQualified": false,
+    "recoveryAfterProviderRestartSupported": false,
+    "v1BackfillAllowed": false,
+    "attempt69Eligible": false
+  },
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "diffCheck": "PASS"
+  },
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  },
+  "realConsumptionUnchanged": {
+    "httpRequests": 1276,
+    "selectStatements": 113,
+    "sessions": 9
+  }
+}

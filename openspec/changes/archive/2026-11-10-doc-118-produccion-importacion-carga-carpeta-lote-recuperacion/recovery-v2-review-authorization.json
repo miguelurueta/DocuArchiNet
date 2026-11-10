@@ -1,0 +1,21 @@
+{
+  "issueKey": "DOC-118",
+  "task": "RV-08 / 6.8",
+  "baseCommit": "e68d9972c467967890912f620352c6ea9dc2619c",
+  "recordedUtc": "2026-11-09T13:20:38.234Z",
+  "source": "Mensaje del usuario «continua» posterior a RV-07 y al siguiente paso explícito RV-08 de revisión/plan real separado.",
+  "scope": "Consolidación local y propuesta revisable; sin integrar escritor/driver, alterar contratos o ejecutar.",
+  "localReviewAndPlanningAuthorized": true,
+  "normalV2WriterBindingAuthorized": false,
+  "driverExtensionAuthorized": false,
+  "realExecutionAuthorized": false,
+  "deploymentAuthorized": false,
+  "newBudgetsAuthorized": false,
+  "attempt69Eligible": false,
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "issueKey": "DOC-118",
+  "status": "PHYSICAL_READ_CONFIRMED",
+  "recordedUtc": "2026-11-10T11:59:48.392Z",
+  "historicalBaseline": {
+    "httpRequests": 1277,
+    "selectStatements": 113,
+    "sessions": 9
+  },
+  "priorWindowConsumption": {
+    "httpRequests": 301,
+    "selectStatements": 59,
+    "sessions": 2
+  },
+  "accumulatedIncludingHistory": {
+    "httpRequests": 1578,
+    "selectStatements": 172,
+    "sessions": 11
+  },
+  "auditResult": {
+    "loteId": "25",
+    "estado": "EN_CURSO",
+    "detencionSolicitada": false,
+    "activeClaims": false,
+    "files": [
+      {
+        "archivoId": "42",
+        "raizId": "41",
+        "expedienteId": "672",
+        "rootState": "COMPLETADA",
+        "receiptState": "RECIBIDO",
+        "effectState": "COMPLETADO",
+        "activeClaim": false,
+        "storageAttempts": [
+          {
+            "intentoId": "74",
+            "estado": "CONFIRMADO",
+            "finished": true
+          }
+        ],
+        "documentoId": "16235",
+        "inventarioId": "23339",
+        "physical": "KNOWN_IDS_VERIFIED"
+      },
+      {
+        "archivoId": "43",
+        "raizId": "42",
+        "expedienteId": "673",
+        "rootState": "EXPEDIENTE_CONFIRMADO",
+        "receiptState": "RECIBIDO",
+        "effectState": "NO_INICIADO",
+        "activeClaim": false,
+        "storageAttempts": [],
+        "documentoId": null,
+        "inventarioId": null,
+        "physical": "ABSENCE_VERIFIED"
+      }
+    ],
+    "fingerprint": "3c382e332f0e5ccdb3835408f0ab95e9efee10aa796c04a0050f262cf8ab594d",
+    "snapshotUnchanged": true,
+    "confirmedDocuments": 1,
+    "integrationPass": false
+  },
+  "newAuditSelects": 25,
+  "newHttpRequests": 0,
+  "newSessions": 0,
+  "newBusinessMutations": 0,
+  "ephemeralSecretsCleared": true,
+  "originalResponseOutcome": "UNKNOWN_AT_ORIGINAL_CLIENT",
+  "durableOutcomeNow": "CONFIRMED_BY_SELECT_AND_PHYSICAL_IDENTITY",
+  "noHistoricalReplay": true,
+  "caseCoordinationAcceptance": "INCOMPLETE_OTHER_FILE_AND_LOSS_BOUNDARY_NOT_PROVEN",
+  "sources": [
+    {
+      "path": ".tmp/doc118-live-7896bbf5729a7f9996fbd8cc8e18af18/select-audit-6ddb61d382abb419d6025f783430b624.json",
+      "sha256": "1437837d4fb4ff1650cddb7829333cbeecdf29798828a1477260e41de478ca2d",
+      "excludedFromGit": true
+    },
+    {
+      "path": ".tmp/doc118-live-7896bbf5729a7f9996fbd8cc8e18af18/status.json",
+      "sha256": "3468e62e67ec234ab909415878f774be9336cf8be861d03ff93868226f00132d",
+      "excludedFromGit": true
+    },
+    {
+      "path": ".tmp/doc118-live-7896bbf5729a7f9996fbd8cc8e18af18/visible-console-handoff.json",
+      "sha256": "c8779833e7b50ada37ea2079b5c0d023af3102b1f501b142786a81ddc327f80d",
+      "excludedFromGit": true
+    }
+  ],
+  "progress": {
+    "completed": 32,
+    "total": 38,
+    "pending": 6
+  }
+}

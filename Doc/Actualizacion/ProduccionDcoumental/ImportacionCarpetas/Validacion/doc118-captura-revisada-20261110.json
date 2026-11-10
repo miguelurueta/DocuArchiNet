@@ -1,0 +1,151 @@
+{
+  "issueKey": "DOC-118",
+  "status": "AWAITING_REVIEWED_CAPTURE_INPUT",
+  "recordedUtc": "2026-11-10T12:43:20.443Z",
+  "source": {
+    "userText": "lanza",
+    "scope": "Launch a new credential capture after a reviewed stop with zero login attempts, zero SELECT and zero business effects."
+  },
+  "runId": "1dd584ce2fc6352d2c162545990b85dc",
+  "captureAttempt": 2,
+  "baseCommit": "f5e95d584c75b4bfcedfd865a6c1937b44971390",
+  "scope": {
+    "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-integration-continuation.json",
+    "sha256": "76978166444d61e40f5d30d41b04e2d93d559a220eb324e578fc5820c91296b3",
+    "scopeSha256AtCapture": "c08ee73831ce08db26dd46d1f258e4f7ded662792b4ae6a40b18dc4f575ed55d"
+  },
+  "previousCapture": {
+    "path": ".tmp/doc118-live-1dd584ce2fc6352d2c162545990b85dc-capture-stop-1/status.json",
+    "sha256": "15e4107ec4ebf45e6f63b3a06ea263fe6054d0f63586512d59470198890ffe29",
+    "status": "STOPPED_REVIEW_REQUIRED",
+    "phaseIndex": 0,
+    "sessionAttempts": 0,
+    "selects": 0,
+    "businessEffects": 0,
+    "observerClosed": true,
+    "credentialsCleared": true
+  },
+  "currentSnapshot": {
+    "issueKey": "DOC-118",
+    "runId": "1dd584ce2fc6352d2c162545990b85dc",
+    "pid": 40084,
+    "status": "AWAITING_CREDENTIALS",
+    "createdUtc": "2026-11-10T12:39:58.628Z",
+    "phaseIndex": 0,
+    "authorizationScopeSha256": "c08ee73831ce08db26dd46d1f258e4f7ded662792b4ae6a40b18dc4f575ed55d",
+    "implementationSeal": "dee2c7124dad9a51b9f75a279ca62523a5ab202ec2afae98524c4cca8bbfd676",
+    "history": [],
+    "counters": {
+      "scenarios": {
+        "COORD02": {
+          "http": 2,
+          "operations": {}
+        },
+        "COORD03": {
+          "http": 0,
+          "operations": {}
+        }
+      },
+      "selects": 0
+    },
+    "references": [],
+    "carriedSessionAttempts": 0,
+    "carriedCounters": {
+      "scenarios": {
+        "COORD02": {
+          "http": 2,
+          "operations": {}
+        },
+        "COORD03": {
+          "http": 0,
+          "operations": {}
+        }
+      },
+      "selects": 0
+    },
+    "windowKind": "DOC118_INTEGRATION_CONTINUATION",
+    "historicalTotals": {
+      "httpRequests": 1578,
+      "selectStatements": 172,
+      "sessions": 11
+    },
+    "automaticPhases": true,
+    "heartbeatUtc": "2026-11-10T12:39:58.692Z",
+    "accumulatedIncludingHistory": {
+      "httpRequests": 1580,
+      "selectStatements": 172,
+      "sessions": 11
+    },
+    "captureStage": "APPLICATION_USER"
+  },
+  "observer": {
+    "attempt": 2,
+    "status": "ATTACHED",
+    "sourceBound": true,
+    "workerId": 30912,
+    "controllerPid": 43380
+  },
+  "historicalTotals": {
+    "httpRequests": 1578,
+    "selectStatements": 172,
+    "sessions": 11
+  },
+  "newWindowConsumedAtCapture": {
+    "httpRequests": 2,
+    "selectStatements": 0,
+    "sessions": 0,
+    "documentEffects": 0
+  },
+  "accumulatedIncludingHistory": {
+    "httpRequests": 1580,
+    "selectStatements": 172,
+    "sessions": 11
+  },
+  "budgetNotReset": true,
+  "authenticationRetried": false,
+  "additionalWarmupHttp": 1,
+  "maximumHttpUnchanged": 1000,
+  "maximumSessionsUnchanged": 2,
+  "changedFiles": [
+    {
+      "path": "tools/e2e/scripts/support/doc118-current-window.cjs",
+      "beforeCommit": "f5e95d584c75b4bfcedfd865a6c1937b44971390",
+      "beforeSha256": "64cc757017b58ccc999039c03a3393dbbdabfd4500d3b956988e22ed9d423bd0",
+      "afterSha256": "5278efd5c6327122d74c1e8b2794dc3eb15ac364a72d960835b0cd403fe482c6"
+    },
+    {
+      "path": "tests/doc118-current-window.test.cjs",
+      "beforeCommit": "f5e95d584c75b4bfcedfd865a6c1937b44971390",
+      "beforeSha256": "7059e9f2e846b11078eea92859df1714f90acdfffb3fc2f2c756635abe055f2a",
+      "afterSha256": "c23e9b74e543e7ca49082c708ab184317e797138566cb16d19c362d5397d3235"
+    }
+  ],
+  "localRegression": {
+    "tests": 269,
+    "passed": 269,
+    "failed": 0,
+    "internalV2Cases": 157,
+    "internalCasesNotAddedToNodeCount": true,
+    "wholeSuiteRun": true
+  },
+  "progress": {
+    "completed": 32,
+    "total": 38,
+    "pending": 6
+  },
+  "realIntegrationPassed": false,
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "decisionRequirementPairs": 18,
+    "sourceTraceability": "PASS",
+    "gitSynchronization": "VERIFY_AT_DELIVERY"
+  },
+  "documents": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-captura-revisada-20261110.md",
+      "sha256": "dc8b4c4cd4935ea3e1e14a4dce3e603a5d60b91c75dee9d91f4eee1a75cce267"
+    }
+  ]
+}

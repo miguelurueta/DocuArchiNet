@@ -1,0 +1,134 @@
+{
+  "issueKey": "DOC-118",
+  "runId": "d07bf61a87e6e888f9cda31eb4cf129e",
+  "pid": 29924,
+  "status": "STOPPED_REVIEW_REQUIRED",
+  "createdUtc": "2026-11-08T13:15:59.387Z",
+  "phaseIndex": 2,
+  "authorizationScopeSha256": "7c67ed2e5886d6afb03a5969ed09de722142082d8bc4f06d5f09c47f9c296f0f",
+  "implementationSeal": "8618491e0a2b0b0d760a94fd7b90b440d5504ee2440a2b02890374d16a7f3f52",
+  "history": [
+    {
+      "phase": "PREFLIGHT",
+      "status": "REQUESTED",
+      "utc": "2026-11-08T13:23:40.015Z"
+    },
+    {
+      "phase": "PREFLIGHT",
+      "status": "PASS",
+      "utc": "2026-11-08T13:24:54.439Z"
+    },
+    {
+      "phase": "PREPARE02",
+      "status": "REQUESTED",
+      "utc": "2026-11-08T13:28:01.185Z"
+    },
+    {
+      "phase": "PREPARE02",
+      "status": "PASS",
+      "utc": "2026-11-08T13:28:45.830Z"
+    },
+    {
+      "phase": "RUN02",
+      "status": "REQUESTED",
+      "utc": "2026-11-08T13:34:54.472Z"
+    }
+  ],
+  "counters": {
+    "scenarios": {
+      "COORD02": {
+        "http": 1276,
+        "operations": {
+          "ConsultarLote": 20,
+          "AbrirImportacion": 1,
+          "PrepararPlan": 1,
+          "ConfirmarPlan": 1,
+          "ConsultarRecursosLote": 6,
+          "RecibirArchivo": 2,
+          "CREAR_EXPEDIENTE": 2,
+          "MATERIALIZAR_VALORES": 2,
+          "ALMACENAR": 3
+        }
+      },
+      "COORD03": {
+        "http": 0,
+        "operations": {}
+      }
+    },
+    "selects": 81
+  },
+  "references": [
+    {
+      "planId": "40",
+      "loteId": "24"
+    }
+  ],
+  "carriedSessionAttempts": 7,
+  "carriedCounters": {
+    "scenarios": {
+      "COORD02": {
+        "http": 996,
+        "operations": {
+          "ConsultarLote": 13,
+          "AbrirImportacion": 1,
+          "PrepararPlan": 1,
+          "ConfirmarPlan": 1,
+          "ConsultarRecursosLote": 6,
+          "RecibirArchivo": 2,
+          "CREAR_EXPEDIENTE": 2,
+          "MATERIALIZAR_VALORES": 2
+        }
+      },
+      "COORD03": {
+        "http": 0,
+        "operations": {}
+      }
+    },
+    "selects": 40
+  },
+  "heartbeatUtc": "2026-11-08T13:35:14.241Z",
+  "lastStage": "PREFLIGHT_PROTECTION",
+  "sessionAttempts": 9,
+  "code": "DOC118_LIVE_PHASE_UNCONFIRMED",
+  "observerCloseConfirmed": true,
+  "sessionsClosed": true,
+  "ephemeralSecretsCleared": true,
+  "finishedUtc": "2026-11-08T13:35:14.239Z",
+  "runLeaseReleased": true,
+  "observerFailure": {
+    "stage": "ARMED",
+    "hresult": -2146233598,
+    "exceptionType": "COMException"
+  },
+  "observerCleanupConfirmed": true,
+  "storageRequestsDispatched": 3,
+  "newStoredDocuments": null,
+  "durableOutcome": "REQUIRES_SELECT_AUDIT",
+  "preparedCaseRecovery": {
+    "planId": "40",
+    "loteId": "24",
+    "roots": [
+      "39",
+      "40"
+    ],
+    "files": [
+      "40",
+      "41"
+    ],
+    "expedientes": [
+      "670",
+      "671"
+    ],
+    "relaciones": [
+      "1095",
+      "1096"
+    ]
+  },
+  "trace": {
+    "endedBeforeActiveBody": true,
+    "events": 2,
+    "closedObserved": false,
+    "limitation": "The separate watcher expired after20 minutes; it did not retain the body interval or the controller close."
+  },
+  "integrationPass": false
+}

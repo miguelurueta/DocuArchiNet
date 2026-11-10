@@ -1,0 +1,294 @@
+{
+  "issueKey": "DOC-118",
+  "tasks": [
+    "6.11"
+  ],
+  "status": "PASS_LOCAL_ACK_LOSS_PACKAGE_AND_CONDUCTOR_NOT_INSTALLED",
+  "recordedUtc": "2026-11-09T14:54:24.098Z",
+  "baseCommit": "1a322a5ca8b85ff9b76457512e72a5ee9da91ae8",
+  "hashAlgorithm": "sha256-utf8-lf",
+  "sourceFiles": [
+    {
+      "path": "tests/Fixtures/ProduccionDocumental/Doc118PerdidaAcuseV2.vb",
+      "sha256": "eb031c283bfd158fedbcbdafa08ed6b8288f46a236da634cec746497678b6c5b"
+    },
+    {
+      "path": "tests/ImportacionCarpetasPerdidaAcuseV2BehaviorTests.cs",
+      "sha256": "4d9a4279c67c3017a2ee2d9b004629d80a028de5f9bba2426da6854a7e37915f"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc118-v2-fault-conductor.cjs",
+      "sha256": "e9916c47326e211fbc6c50f77304e3dfabe1bb9551f686e6d0a0952dfb9fdfa2"
+    },
+    {
+      "path": "tests/doc118-v2-fault-conductor.test.cjs",
+      "sha256": "d413402d250e38144ee79902c2b1e9ac7540897a5e20e19ccb8f21c53ae8829a"
+    }
+  ],
+  "changedFiles": [
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "beforeCommit": "1a322a5ca8b85ff9b76457512e72a5ee9da91ae8",
+      "beforeSha256": "96b5614dad10f50ba0478bed46cf970ed152a5d21ef91b1a4ddfac136f9867e7",
+      "afterSha256": "33bc52483d4010d9c7cbe849f79cd1b3546f7f1cd899aaf382baf84c52c0f99d"
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "beforeCommit": "1a322a5ca8b85ff9b76457512e72a5ee9da91ae8",
+      "beforeSha256": "c5d9f92f4f69981c978935b473dca288ac31128c6387547adad9e48c9da9c36a",
+      "afterSha256": "4359090f43986e8657162a56f80355ddd6a070f6a6707c72f01a1aa25753d258"
+    }
+  ],
+  "documents": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-acuses-v2-local-20261109.md",
+      "sha256": "0fd1635dbb3485e626295f52cd5836bab8cdfd508cf683f49b68e7d01ce16b32"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-plan-real-v2-acuses-20261109.md",
+      "sha256": "79a5cd762ad2cc0e86e6f6f866e26abf6f32fb32f48d45a9e0d2066766c05304"
+    }
+  ],
+  "protectedSources": [
+    {
+      "path": "workflow/ClassAlmacenamiento.vb",
+      "beforeCommit": "1a322a5ca8b85ff9b76457512e72a5ee9da91ae8",
+      "beforeSha256": "f0e650b4e98cb0558b17092b2fa22c9439b5065aedd105ef5f2a34f6f98722e7",
+      "afterSha256": "f0e650b4e98cb0558b17092b2fa22c9439b5065aedd105ef5f2a34f6f98722e7",
+      "unchanged": true
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+      "beforeCommit": "1a322a5ca8b85ff9b76457512e72a5ee9da91ae8",
+      "beforeSha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741",
+      "afterSha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741",
+      "unchanged": true
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.vb",
+      "beforeCommit": "1a322a5ca8b85ff9b76457512e72a5ee9da91ae8",
+      "beforeSha256": "2c5e25c1ebcb3efeaa913c6d37c785390d934ced21b8b1ad1546ee5f080107f0",
+      "afterSha256": "2c5e25c1ebcb3efeaa913c6d37c785390d934ced21b8b1ad1546ee5f080107f0",
+      "unchanged": true
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.ProtocoloV2.vb",
+      "beforeCommit": "1a322a5ca8b85ff9b76457512e72a5ee9da91ae8",
+      "beforeSha256": "9f5a425b57b1be1d48e8e16c4aa743d60491c545f54b4bf636a7696e50732291",
+      "afterSha256": "9f5a425b57b1be1d48e8e16c4aa743d60491c545f54b4bf636a7696e50732291",
+      "unchanged": true
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionDocumentoImportacion.vb",
+      "beforeCommit": "1a322a5ca8b85ff9b76457512e72a5ee9da91ae8",
+      "beforeSha256": "9bac29e512e92fa11ba4f2b948e527a9ec90099253ad6a0fd444c115d625c3f0",
+      "afterSha256": "9bac29e512e92fa11ba4f2b948e527a9ec90099253ad6a0fd444c115d625c3f0",
+      "unchanged": true
+    },
+    {
+      "path": "tools/e2e/tests/support/doc111-importacion-carpetas.cjs",
+      "beforeCommit": "1a322a5ca8b85ff9b76457512e72a5ee9da91ae8",
+      "beforeSha256": "08cdd30b86483fde6ff461da4e19d10950353df6db71448ac7bf8e64886c9548",
+      "afterSha256": "08cdd30b86483fde6ff461da4e19d10950353df6db71448ac7bf8e64886c9548",
+      "unchanged": true
+    }
+  ],
+  "previousReports": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-revision-v2-local-20261109.json",
+      "sha256": "9755fd008a0aca21ba97f509b16a7747ebfb484feb90399c1c672889c76080cf",
+      "preserved": true
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-enlace-v2-local-20261109.json",
+      "sha256": "77d1dbbd8c5bf5c7c1fb26911b0e0d0760c5e590550918e9bc625661b8f11cb6",
+      "preserved": true
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-enlace-v2-local-20261109.md",
+      "sha256": "c814641c8377846fbc2df52909da22f78e1922bb74d6da3a4ed1842008441ac5",
+      "preserved": true
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-plan-real-v2-enlace-20261109.md",
+      "sha256": "4f736ed852ac854743342e48ab87325104585dfdd23d27a2aee7d01c8f676c07",
+      "preserved": true
+    }
+  ],
+  "localRegression": {
+    "command": "node --test tests/doc110-perfil-importacion-behavior.test.cjs tests/doc111-importacion-carpetas-client.test.cjs tests/doc118-v2-driver.test.cjs tests/doc118-v2-fault-conductor.test.cjs",
+    "tests": 42,
+    "passed": 42,
+    "failed": 0
+  },
+  "toolRegression": {
+    "tests": 205,
+    "passed": 205,
+    "failed": 0,
+    "files": [
+      "tests/doc118-live-preflight.test.cjs",
+      "tests/doc118-session-bridge.test.cjs",
+      "tests/doc118-active-call.test.cjs",
+      "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+      "tests/doc118-symbols.test.cjs",
+      "tests/doc118-debugger-observer.test.cjs",
+      "tests/doc118-case-preparation.test.cjs",
+      "tests/doc118-case-completion.test.cjs",
+      "tests/doc118-lost-response.test.cjs",
+      "tests/doc118-live-lifecycle.test.cjs",
+      "tests/doc118-documental-phases.test.cjs",
+      "tests/doc118-debugger-protocol.test.cjs",
+      "tests/doc118-select-audit.test.cjs",
+      "tests/doc118-debugger-release.test.cjs",
+      "tests/doc118-release-probe-build.test.cjs",
+      "tests/doc118-staging-lock-probe.test.cjs"
+    ],
+    "scope": "LOCAL_ONLY",
+    "recordedUtc": "2026-11-09T14:49:45.214Z"
+  },
+  "disjointNodeTests": 247,
+  "internalDotNetCases": {
+    "ackLossCases": 12,
+    "passed": 12,
+    "failed": 0,
+    "existingV2Cases": 145,
+    "totalV2Cases": 157,
+    "names": [
+      "native_start_ack_lost_then_negative_recovery",
+      "native_gate_ack_lost_stays_blocked",
+      "native_observation_ack_lost_recovers_same_ids",
+      "native_rollback_is_not_reported_as_lost_ack",
+      "null_or_altered_ack_closes_without_loss_claim",
+      "different_command_is_rejected_before_native_callback",
+      "different_revision_is_rejected_before_native_callback",
+      "phase_run_and_protected_attempts_are_refused",
+      "lost_ack_is_single_use_and_has_no_result_callback",
+      "out_of_order_callback_closes_without_native_write",
+      "dispose_and_redecoration_never_rearm_capability",
+      "parallel_start_has_one_native_callback_and_loss"
+    ],
+    "includedInNodeCount": false
+  },
+  "newNodeConductorCases": {
+    "tests": 12,
+    "passed": 12,
+    "failed": 0,
+    "names": [
+      "DOC118 V2 fault conductor: Q1 cierra control y repite solo historial",
+      "DOC118 V2 fault conductor: Q2 conserva bloqueo sin replay",
+      "DOC118 V2 fault conductor: Q3 confirma IDs observados con un escritor",
+      "DOC118 V2 fault conductor: alcance cerrado y decorador excluido del producto",
+      "DOC118 V2 fault conductor: autoridad o presupuesto bloquean antes de HTTP",
+      "DOC118 V2 fault conductor: contexto o inventario distintos impiden recuperar",
+      "DOC118 V2 fault conductor: acuse no demostrado o duplicado no se acepta",
+      "DOC118 V2 fault conductor: IDs parciales o evidencia fisica discrepante conservan bloqueo",
+      "DOC118 V2 fault conductor: respuesta o transporte inciertos no repiten recuperacion",
+      "DOC118 V2 fault conductor: otro rechazo o cambio bajo bloqueo no acreditan Q2",
+      "DOC118 V2 fault conductor: historial que escribe no se presenta estable",
+      "DOC118 V2 fault conductor: capacidad unica y cierre siempre intentado"
+    ],
+    "includedInNodeCount": true
+  },
+  "fixture": {
+    "realAdapterCodecRepositoryAndCompositionCore": true,
+    "realStagingGuard": true,
+    "writerDouble": true,
+    "selectAndTransactionDoubles": true,
+    "sharedStorageFunctionInvocations": 0,
+    "realDatabaseConnectionOpened": false,
+    "productionProjectIncludesDecorator": false
+  },
+  "behavior": {
+    "singleUse": true,
+    "nativeCallbacksAtMostOnceInOrder": true,
+    "lossOnlyAfterValidatedNativeAck": true,
+    "nativeExceptionDoesNotClaimAckLoss": true,
+    "exactCommandAndRevision": true,
+    "noResultCallback": true,
+    "phases": [
+      "INICIO",
+      "AUTORIZAR",
+      "OBSERVAR"
+    ],
+    "cases": [
+      "Q1",
+      "Q2",
+      "Q3"
+    ],
+    "driverReused": true,
+    "conductorHasOwnTransport": false,
+    "maxStorageRequests": 1,
+    "maxRecoveryRequests": 2,
+    "maxEvidenceReads": 4,
+    "mandatoryExternalBudgetCallback": true,
+    "activityAndDurationCheckedBetweenOperations": true,
+    "hostOwnsCallbackTimeouts": true,
+    "retryAfterUncertainTransport": false,
+    "confirmedRecoveryHistoryOnly": true,
+    "disarmAlwaysAttemptedAfterArmAttempt": true,
+    "sanitizedReport": true,
+    "businessEvidenceVerified": false,
+    "integrationPass": false
+  },
+  "planGates": {
+    "P1": "IMPLEMENTED_AND_TESTED_LOCAL_CANDIDATE",
+    "P2": "IMPLEMENTED_AND_TESTED_LOCAL_CANDIDATE",
+    "P3": "PACKAGE_AND_CONDUCTOR_TESTED_LOCAL_NOT_INSTALLED",
+    "P4": "UNQUALIFIED_SITE_PROVIDER_MYSQL_IIS_OBSERVER_AND_TEST_HOST_BINDING",
+    "P5": "NOT_AUTHORIZED_REAL_EXECUTION",
+    "readyForRealExecution": false
+  },
+  "limits": {
+    "sharedStorageFunctionChanged": false,
+    "legacyInvokerChanged": false,
+    "siiChanged": false,
+    "productFilesChanged": false,
+    "driverChangedThisDelivery": false,
+    "deployed": false,
+    "realMysqlOrHostedIisQualified": false,
+    "backfillAllowed": false,
+    "attempt69Eligible": false,
+    "runtimeFaultHookInstalled": false,
+    "testHostBindingAndReadProjectionImplemented": false,
+    "standaloneRealRunnerImplemented": false
+  },
+  "legacySourceReview": {
+    "baselineSources": 14,
+    "currentUnchanged": 12,
+    "authorizedTestDeltas": 2,
+    "historicalReportsUnchanged": 10,
+    "evaluationSourcesBaseline": 16,
+    "evaluationSourcesUnchanged": 15,
+    "authorizedCommandDelta": 1
+  },
+  "progress": {
+    "complete": 28,
+    "total": 38,
+    "remaining": 10,
+    "newTasks": [
+      "6.11"
+    ],
+    "previousComplete": 27,
+    "previousTotal": 37
+  },
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "decisionRequirementPairs": 18,
+    "diffCheck": "PASS",
+    "protectedStorageHashes": "PASS",
+    "deltaProvenance": "PASS"
+  },
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  },
+  "realConsumptionUnchanged": {
+    "httpRequests": 1276,
+    "selectStatements": 113,
+    "sessions": 9
+  }
+}

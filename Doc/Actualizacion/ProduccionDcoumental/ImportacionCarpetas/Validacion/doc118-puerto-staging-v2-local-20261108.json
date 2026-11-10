@@ -1,0 +1,179 @@
+{
+  "issueKey": "DOC-118",
+  "task": "RV-02-B / 6.2",
+  "status": "PASS_LOCAL_PROVIDER_PORT_ONLY",
+  "baseCommit": "fb0b9189b6e2ad16c9491177fdf48d86cf09a27b",
+  "recordedUtc": "2026-11-08T22:30:50.485Z",
+  "hashAlgorithm": "sha256-utf8-lf",
+  "sourceFiles": [
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.Recuperacion.vb",
+      "sha256": "6dad369137a48a16accc34083c726aa139ddd96805a40de003077fc05a7f0600"
+    },
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasStagingV2Interfaces.vb",
+      "sha256": "67035bc0209b38a828d6c957e88beaa75292a98d5c10c3f1da82a07e66c0cd3e"
+    },
+    {
+      "path": "tests/ImportacionCarpetasStagingV2BehaviorTests.cs",
+      "sha256": "37e2fc5259b0288a1a682e09e8f888480623f657deb19a1b653e75c9da018f48"
+    }
+  ],
+  "changedFiles": [
+    {
+      "path": "GestionDocumental-Docuarchi.net.vbproj",
+      "beforeCommit": "fb0b9189b6e2ad16c9491177fdf48d86cf09a27b",
+      "beforeSha256": "3bf33bb0f4246a00420cfab5a9415055e3cf24dd68cc2c443b43314ade75c6c4",
+      "afterSha256": "ed7f33df982e7a39a82f5e2dead46925f44364a050987557917fa98b6192fbf3"
+    },
+    {
+      "path": "tests/PerfilImportacionBehaviorTestRunner.cs",
+      "beforeCommit": "fb0b9189b6e2ad16c9491177fdf48d86cf09a27b",
+      "beforeSha256": "1f9f04b511c6bf6bbca0c39224958b9972bdfe57b1f749d0e668a3528e1d18f4",
+      "afterSha256": "a052d19fbc704c5b81a5494e7b2a1a674619942a52912e1ff64c98143e9cc331"
+    },
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "beforeCommit": "fb0b9189b6e2ad16c9491177fdf48d86cf09a27b",
+      "beforeSha256": "2eb443542b9f4a1d84985c85d974aade80f60d928558196d4569fb26d27fd2a4",
+      "afterSha256": "2dfe6c39b72449a59a532bfdec4fcd06ce9db34715f18cd5492f2b06c91651c9"
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "beforeCommit": "fb0b9189b6e2ad16c9491177fdf48d86cf09a27b",
+      "beforeSha256": "8da0a021e7e7b83c23996dd042c046e965c159045b6c0fa66b69a2645bf37566",
+      "afterSha256": "4b0e8170d8e15e9efafcac7d458e5ac9c0ec3d63ec62b45bf6a891b230a6b5fa"
+    }
+  ],
+  "reviewedSourceDeltas": [
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "beforeCommit": "9c21c830f2150f9153f094723936c31469ab7280",
+      "beforeSha256": "130d0506384c359a3cc87d96ada270597b4237dc87c69179a31c9a59edab0746",
+      "afterSha256": "2dfe6c39b72449a59a532bfdec4fcd06ce9db34715f18cd5492f2b06c91651c9",
+      "scope": "RV-01/RV-02-B: registro de parciales y compilación/aserción del harness; casos V1 intactos."
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "beforeCommit": "9c21c830f2150f9153f094723936c31469ab7280",
+      "beforeSha256": "f7d40ed48283f0bcbe3bf0e98424a4b1d040cb44a230cb7108e1069884be8ed3",
+      "afterSha256": "4b0e8170d8e15e9efafcac7d458e5ac9c0ec3d63ec62b45bf6a891b230a6b5fa",
+      "scope": "RV-01/RV-02-B: registro de parciales y compilación/aserción del harness; casos V1 intactos."
+    }
+  ],
+  "localRegression": {
+    "command": "node --test tests/doc110-perfil-importacion-behavior.test.cjs tests/doc111-importacion-carpetas-client.test.cjs",
+    "tests": 18,
+    "passed": 18,
+    "failed": 0
+  },
+  "internalDotNetCases": {
+    "newProviderCases": 21,
+    "passed": 21,
+    "failed": 0,
+    "existingContractCases": 19,
+    "names": [
+      "real_provider_retention_and_matching_guard",
+      "guard_blocks_reader_writer_delete_and_ancestor_rename",
+      "disposed_guard_and_retention_refuse_reuse",
+      "missing_original_not_created",
+      "same_bytes_replacement_rejected_without_handle_leak",
+      "changed_content_rejected_without_handle_leak",
+      "hardlinks_rejected_and_rejection_releases_handles",
+      "junction_ancestor_rejected_without_touching_target",
+      "network_device_relative_and_stream_paths_refused_before_io",
+      "v1_and_missing_document_are_ineligible",
+      "other_epoch_is_not_certified_by_content",
+      "provider_and_physical_identity_must_match",
+      "scope_and_fingerprints_must_match",
+      "authority_and_active_metadata_required",
+      "missing_lock_not_created_and_busy_lock_blocks",
+      "guard_section_preserves_exclusion_on_success_and_exception",
+      "concurrent_dispose_waits_for_guard_section",
+      "v1_reader_also_blocks_new_guard",
+      "other_process_reader_blocks_then_guard_succeeds",
+      "guard_blocks_late_reader_in_other_process",
+      "no_operational_changes_or_private_json_projection"
+    ],
+    "includedInNodeCount": false
+  },
+  "childProcesses": {
+    "readers": 2,
+    "junctionHelper": 1,
+    "totalStarted": 3,
+    "totalExited": 3,
+    "cleanupConfirmed": true
+  },
+  "toolRegression": {
+    "tests": 205,
+    "passed": 205,
+    "failed": 0,
+    "files": [
+      "tests/doc118-live-preflight.test.cjs",
+      "tests/doc118-session-bridge.test.cjs",
+      "tests/doc118-active-call.test.cjs",
+      "tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+      "tests/doc118-symbols.test.cjs",
+      "tests/doc118-debugger-observer.test.cjs",
+      "tests/doc118-case-preparation.test.cjs",
+      "tests/doc118-case-completion.test.cjs",
+      "tests/doc118-lost-response.test.cjs",
+      "tests/doc118-live-lifecycle.test.cjs",
+      "tests/doc118-documental-phases.test.cjs",
+      "tests/doc118-debugger-protocol.test.cjs",
+      "tests/doc118-select-audit.test.cjs",
+      "tests/doc118-debugger-release.test.cjs",
+      "tests/doc118-release-probe-build.test.cjs",
+      "tests/doc118-staging-lock-probe.test.cjs"
+    ],
+    "scope": "LOCAL_ONLY",
+    "recordedUtc": "2026-11-08T22:27:18.365Z"
+  },
+  "disjointNodeTests": 223,
+  "legacySourceReview": {
+    "baselineSources": 14,
+    "currentUnchanged": 12,
+    "authorizedTestDeltas": 2,
+    "historicalReportsUnchanged": 10,
+    "recoveryEvaluationSourcesUnchanged": 16
+  },
+  "progress": {
+    "complete": 19,
+    "total": 29,
+    "remaining": 10,
+    "newTask": "6.2",
+    "previousComplete": 18,
+    "previousTotal": 28
+  },
+  "limits": {
+    "providerPortImplemented": true,
+    "productionProviderQualified": false,
+    "ntfsLocalOnly": true,
+    "sameAppDomainEpochOnly": true,
+    "recoveryAfterProviderRestartSupported": false,
+    "crossNodeIdentityProven": false,
+    "fileIdIsPermanent": false,
+    "storageGateImplemented": false,
+    "recoveryEnabled": false,
+    "clientClaimsAreProof": false,
+    "v1BackfillAllowed": false,
+    "attempt69Eligible": false
+  },
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "diffCheck": "PASS"
+  },
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  },
+  "realConsumptionUnchanged": {
+    "httpRequests": 1276,
+    "selectStatements": 113,
+    "sessions": 9
+  }
+}

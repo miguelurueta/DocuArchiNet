@@ -1,0 +1,884 @@
+{
+  "issueKey": "DOC-118",
+  "task": "RV-08 / 6.8",
+  "status": "LOCAL_REVIEW_COMPLETE_REAL_INTEGRATION_BLOCKED",
+  "recordedUtc": "2026-11-09T13:20:38.234Z",
+  "baseCommit": "e68d9972c467967890912f620352c6ea9dc2619c",
+  "hashAlgorithm": "sha256-utf8-lf",
+  "documents": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-revision-v2-local-20261109.md",
+      "sha256": "87a70bae1ca400e730d401cdc88fc64f83e306a06d18d1ffaaa5a9c086ae8062"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-plan-real-v2-20261109.md",
+      "sha256": "0edf45e457eb9534f1fa8160e6e69622710d15dd8d24df8986dc3aed8575a70e"
+    }
+  ],
+  "previousDeliveryEvidence": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-staging-lock-probe-20261108.json",
+      "sha256": "eb829752f755bd3f56665ad9a196ce3fdc98279fb0a562be7b295343db716018"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-contratos-v2-local-20261108.json",
+      "sha256": "b1aa0c1ec09632287dee5327c488e819c830b1c04fd46591d1fcf25548ccf7c6"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-puerto-staging-v2-local-20261108.json",
+      "sha256": "43bfd610844ec70547f0f13791b2e99875b799ac6563d7a69a5bf70cd7b49e28"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-adaptador-v2-local-20261108.json",
+      "sha256": "4ffe2cca4ed5195fb93fab75efa995cab48a2fcb57069f252010c995468304d0"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-persistencia-v2-local-20261108.json",
+      "sha256": "cbbe6be259eb6cddc8079367683bd064a720312027cc05447182e95f948992b4"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-recuperacion-v2-local-20261109.json",
+      "sha256": "7c46d6bccd29783afe1ffedea11e7212a5304b9630af252fb232a47c609971fa"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-recuperacion-http-v2-local-20261109.json",
+      "sha256": "11d31d1a39139bc730bf7dfc5899d5a4b1f6e71d84f754be665879030d89c0aa"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-matriz-v2-local-20261109.json",
+      "sha256": "2bb7139b006e1fc0095bf19fed348b8bc111456f718fce132c950f417243d35a"
+    }
+  ],
+  "verification": {
+    "completeness": {
+      "progress": {
+        "complete": 25,
+        "total": 35,
+        "remaining": 10,
+        "newTask": "6.8",
+        "previousComplete": 24,
+        "previousTotal": 34
+      },
+      "localDeliverablesComplete": 9,
+      "localDeliverablesTotal": 9,
+      "criticalArchiveIssues": 10
+    },
+    "correctness": {
+      "requirementsMapped": 16,
+      "scenariosMapped": 35,
+      "requirementMapping": [
+        {
+          "id": "RQ-01",
+          "name": "Procedencia y cambio mínimo",
+          "status": "PASS_PROVENANCE_LOCAL",
+          "implementation": {
+            "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/source-review.json",
+            "line": 1,
+            "anchor": null,
+            "sha256": "047b6e6829f72434656ddb629e2a35e1b349eba39c96d2535961e0ee39d973d3"
+          },
+          "tests": {
+            "path": "tools/opsxj/scripts/lib/refinementService.js",
+            "line": 243,
+            "anchor": "export const auditRefinement",
+            "sha256": "1fb9f3fdf342d0d4ff427e56bb4a52da8cb182646752bff03572b123704c83b6"
+          },
+          "scenarios": [
+            {
+              "name": "Evidencia histórica conserva procedencia",
+              "evidenceScope": "PASS_PROVENANCE_LOCAL",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "Sin brecha reproducida no hay cambio preventivo",
+              "evidenceScope": "PASS_PROVENANCE_LOCAL",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            }
+          ],
+          "verificationProcedure": "Hash verification of historical sources/reports and the refinement audit; no ControlCases product test is claimed as provenance evidence."
+        },
+        {
+          "id": "RQ-02",
+          "name": "Exclusión documental por lote",
+          "status": "LOCAL_COVERAGE_REAL_PENDING",
+          "implementation": {
+            "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Control.vb",
+            "line": 72,
+            "anchor": "HayReclamacionDocumental",
+            "sha256": "073ac42f728bc9b3acf567532781d00286929922cecba259015d5250e6bb66d4"
+          },
+          "tests": {
+            "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+            "line": 2220,
+            "anchor": "static void DocumentGlobalBarrierCases",
+            "sha256": "e03648aa079d964157baf8d42761a8b2de97723c63260cbd2819b2a3d92b549f"
+          },
+          "scenarios": [
+            {
+              "name": "Dos clientes sobre la misma solicitud",
+              "evidenceScope": "LOCAL_COVERAGE_REAL_PENDING",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "Otro comando o archivo en el mismo lote",
+              "evidenceScope": "LOCAL_COVERAGE_REAL_PENDING",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            }
+          ]
+        },
+        {
+          "id": "RQ-03",
+          "name": "Barreras e inventario",
+          "status": "LOCAL_AND_EXPLICIT_HISTORICAL_EVIDENCE",
+          "implementation": {
+            "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Barreras.vb",
+            "line": 14,
+            "anchor": "EvaluarBarreraAlmacenamiento",
+            "sha256": "e7db7e6087b4faa24856ad4e2715971925628789fc302cc12582e3edeb7e7290"
+          },
+          "tests": {
+            "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+            "line": 676,
+            "anchor": "static void CreationBarrierCases",
+            "sha256": "e03648aa079d964157baf8d42761a8b2de97723c63260cbd2819b2a3d92b549f"
+          },
+          "scenarios": [
+            {
+              "name": "EXPEDIENTE con A lista y B por recibir",
+              "evidenceScope": "LOCAL_AND_EXPLICIT_HISTORICAL_EVIDENCE",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "LOTE exige todas las raíces",
+              "evidenceScope": "LOCAL_AND_EXPLICIT_HISTORICAL_EVIDENCE",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "Parcial preserva rechazos",
+              "evidenceScope": "LOCAL_AND_EXPLICIT_HISTORICAL_EVIDENCE",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            }
+          ]
+        },
+        {
+          "id": "RQ-04",
+          "name": "Antigüedad sin toma de posesión",
+          "status": "LOCAL_COVERAGE_REAL_PENDING",
+          "implementation": {
+            "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Control.vb",
+            "line": 72,
+            "anchor": "HayReclamacionDocumental",
+            "sha256": "073ac42f728bc9b3acf567532781d00286929922cecba259015d5250e6bb66d4"
+          },
+          "tests": {
+            "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+            "line": 267,
+            "anchor": "static void ControlCases",
+            "sha256": "e03648aa079d964157baf8d42761a8b2de97723c63260cbd2819b2a3d92b549f"
+          },
+          "scenarios": [
+            {
+              "name": "Fecha antigua durante llamada activa",
+              "evidenceScope": "LOCAL_COVERAGE_REAL_PENDING",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "Incertidumbre conserva exclusión",
+              "evidenceScope": "LOCAL_COVERAGE_REAL_PENDING",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            }
+          ]
+        },
+        {
+          "id": "RQ-05",
+          "name": "Respuesta perdida y certeza durable",
+          "status": "LOCAL_AND_HISTORICAL_REAL_CASE_PENDING",
+          "implementation": {
+            "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Documento.vb",
+            "line": 21,
+            "anchor": "AlmacenarArchivo",
+            "sha256": "7ffafac76b93aadf4caced13b48051490202185caad24abbe93fb83ed74816e7"
+          },
+          "tests": {
+            "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+            "line": 2180,
+            "anchor": "static void DocumentPhaseCases",
+            "sha256": "e03648aa079d964157baf8d42761a8b2de97723c63260cbd2819b2a3d92b549f"
+          },
+          "scenarios": [
+            {
+              "name": "Pérdida posterior al checkpoint",
+              "evidenceScope": "LOCAL_AND_HISTORICAL_REAL_CASE_PENDING",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "Efecto sin checkpoint",
+              "evidenceScope": "LOCAL_AND_HISTORICAL_REAL_CASE_PENDING",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            }
+          ]
+        },
+        {
+          "id": "RQ-06",
+          "name": "Detención y consulta posterior",
+          "status": "LOCAL_COVERAGE_REAL_PENDING",
+          "implementation": {
+            "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.vb",
+            "line": 22,
+            "anchor": "SolicitarDetencion",
+            "sha256": "5eb85254548bad7b8e918de7c82e40a095db67213060b7556edb9ff6d996018a"
+          },
+          "tests": {
+            "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+            "line": 944,
+            "anchor": "static void OperationHttpCases",
+            "sha256": "e03648aa079d964157baf8d42761a8b2de97723c63260cbd2819b2a3d92b549f"
+          },
+          "scenarios": [
+            {
+              "name": "Detención con llamada real activa",
+              "evidenceScope": "LOCAL_COVERAGE_REAL_PENDING",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "Cerrar navegador y consultar desde otra sesión",
+              "evidenceScope": "LOCAL_COVERAGE_REAL_PENDING",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            }
+          ]
+        },
+        {
+          "id": "RQ-07",
+          "name": "Recuperación existente y limitada",
+          "status": "EXISTING_LIMITED_CONTRACT_PRESERVED",
+          "implementation": {
+            "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Reconciliacion.vb",
+            "line": 21,
+            "anchor": "CerrarReservaSinInicio",
+            "sha256": "b02bf718b51c663336b372672054601b41630271a8e1455c2c6014005f3962ba"
+          },
+          "tests": {
+            "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+            "line": 2348,
+            "anchor": "static void ReconciliationCases",
+            "sha256": "e03648aa079d964157baf8d42761a8b2de97723c63260cbd2819b2a3d92b549f"
+          },
+          "scenarios": [
+            {
+              "name": "Cierre preinicio probado",
+              "evidenceScope": "EXISTING_LIMITED_CONTRACT_PRESERVED",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "Recuperación no soportada permanece bloqueada",
+              "evidenceScope": "EXISTING_LIMITED_CONTRACT_PRESERVED",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "Reconciliación con identidad conocida",
+              "evidenceScope": "EXISTING_LIMITED_CONTRACT_PRESERVED",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            }
+          ]
+        },
+        {
+          "id": "RQ-08",
+          "name": "Autoridad vigente y snapshot",
+          "status": "LOCAL_AND_HISTORICAL_NO_LIVE_REFRESH",
+          "implementation": {
+            "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasContextAdapter.vb",
+            "line": 52,
+            "anchor": "ResolverDestino",
+            "sha256": "7289a08734512a2f834502223ee838a4ffebe1b36ce7f02989c001e0f4754072"
+          },
+          "tests": {
+            "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+            "line": 1508,
+            "anchor": "static void ContextAuthorityCases",
+            "sha256": "e03648aa079d964157baf8d42761a8b2de97723c63260cbd2819b2a3d92b549f"
+          },
+          "scenarios": [
+            {
+              "name": "Autoridad revocada o destino incompatible",
+              "evidenceScope": "LOCAL_AND_HISTORICAL_NO_LIVE_REFRESH",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "Snapshot y revisión",
+              "evidenceScope": "LOCAL_AND_HISTORICAL_NO_LIVE_REFRESH",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            }
+          ]
+        },
+        {
+          "id": "RQ-09",
+          "name": "Consolidación exacta",
+          "status": "LOCAL_AND_HISTORICAL_NEW_REAL_INVENTORY_PENDING",
+          "implementation": {
+            "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consolidacion.vb",
+            "line": 17,
+            "anchor": "ConsolidarEnTransaccion",
+            "sha256": "b81979923f59f2a356b44882ed46f7903229d63ac707871df511916b3df8bc23"
+          },
+          "tests": {
+            "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+            "line": 2480,
+            "anchor": "static void ConsolidationCases",
+            "sha256": "e03648aa079d964157baf8d42761a8b2de97723c63260cbd2819b2a3d92b549f"
+          },
+          "scenarios": [
+            {
+              "name": "Resultado desde inventario original",
+              "evidenceScope": "LOCAL_AND_HISTORICAL_NEW_REAL_INVENTORY_PENDING",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "Prioridad de actividad e incertidumbre",
+              "evidenceScope": "LOCAL_AND_HISTORICAL_NEW_REAL_INVENTORY_PENDING",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            }
+          ]
+        },
+        {
+          "id": "RQ-10",
+          "name": "Integración observable y autorizada",
+          "status": "PREPARATION_ONLY_REAL_OBSERVATION_NOT_ACCEPTED",
+          "implementation": {
+            "path": "tools/e2e/tests/support/doc118-active-call.cjs",
+            "line": 1,
+            "anchor": null,
+            "sha256": "c0ecde5a49db656e4ebbdb2326983bf43a10851a50e859bd5fb75f00a42e5b13"
+          },
+          "tests": {
+            "path": "tests/doc118-active-call.test.cjs",
+            "line": 1,
+            "anchor": null,
+            "sha256": "78abad87637a3502168ee9870340a3feeb4d90ee5aa4094c9f69faa84947dd40"
+          },
+          "scenarios": [
+            {
+              "name": "Integración exige prueba dentro de llamada",
+              "evidenceScope": "PREPARATION_ONLY_REAL_OBSERVATION_NOT_ACCEPTED",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "Autorización específica antes de ejecutar",
+              "evidenceScope": "PREPARATION_ONLY_REAL_OBSERVATION_NOT_ACCEPTED",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            }
+          ]
+        },
+        {
+          "id": "RQ-11",
+          "name": "Documentos internos V2 sin capacidad de ejecución",
+          "status": "IMPLEMENTED_LOCAL_RUNTIME_UNQUALIFIED",
+          "implementation": {
+            "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/DocumentosAlmacenamientoV2Importacion.vb",
+            "line": 1,
+            "anchor": null,
+            "sha256": "ba94df1c587e466c09ae1c41bb1f55f10822cc8daad12f2117990b11115e22fc"
+          },
+          "tests": {
+            "path": "tests/ImportacionCarpetasDocumentosV2BehaviorTests.cs",
+            "line": 23,
+            "anchor": "static void DocumentProtocolV2Cases",
+            "sha256": "4abbe72a0f74b4ec0971c3e95e460257d1a960e8e28df1b95e3defddc0a0545d"
+          },
+          "scenarios": [
+            {
+              "name": "Documento válido no concede capacidad",
+              "evidenceScope": "IMPLEMENTED_LOCAL_RUNTIME_UNQUALIFIED",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "Compatibilidad sin backfill",
+              "evidenceScope": "IMPLEMENTED_LOCAL_RUNTIME_UNQUALIFIED",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            }
+          ]
+        },
+        {
+          "id": "RQ-12",
+          "name": "Puerto V2 no destructivo y acotado",
+          "status": "IMPLEMENTED_LOCAL_RUNTIME_UNQUALIFIED",
+          "implementation": {
+            "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.Recuperacion.vb",
+            "line": 17,
+            "anchor": "EpocaStagingV2",
+            "sha256": "6dad369137a48a16accc34083c726aa139ddd96805a40de003077fc05a7f0600"
+          },
+          "tests": {
+            "path": "tests/ImportacionCarpetasStagingV2BehaviorTests.cs",
+            "line": 68,
+            "anchor": "static void StagingV2Cases",
+            "sha256": "37e2fc5259b0288a1a682e09e8f888480623f657deb19a1b653e75c9da018f48"
+          },
+          "scenarios": [
+            {
+              "name": "Lector activo o guardia liberada",
+              "evidenceScope": "IMPLEMENTED_LOCAL_RUNTIME_UNQUALIFIED",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "Nodo o instancia no acreditada",
+              "evidenceScope": "IMPLEMENTED_LOCAL_RUNTIME_UNQUALIFIED",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            }
+          ]
+        },
+        {
+          "id": "RQ-13",
+          "name": "Adaptador V2 retenido y sin repetición",
+          "status": "IMPLEMENTED_LOCAL_RUNTIME_UNQUALIFIED",
+          "implementation": {
+            "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.ProtocoloV2.vb",
+            "line": 12,
+            "anchor": "AlmacenarV2",
+            "sha256": "d05bd8ca8eda5a6e9c2bde58fc11eb922e173f4968aa4c0c478d9d5708f16dc9"
+          },
+          "tests": {
+            "path": "tests/ImportacionCarpetasAdaptadorV2BehaviorTests.cs",
+            "line": 57,
+            "anchor": "static void AdapterV2Cases",
+            "sha256": "ea1b285473a9e22323a3e36f4059dd47fcdbc82c7fa8110d84ad497fe5a3b05a"
+          },
+          "scenarios": [
+            {
+              "name": "Autorización incierta o evidencia alterada",
+              "evidenceScope": "IMPLEMENTED_LOCAL_RUNTIME_UNQUALIFIED",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "Salida incierta o abortada del escritor",
+              "evidenceScope": "IMPLEMENTED_LOCAL_RUNTIME_UNQUALIFIED",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            }
+          ]
+        },
+        {
+          "id": "RQ-14",
+          "name": "Persistencia V2 y autorización de un solo uso",
+          "status": "IMPLEMENTED_LOCAL_RUNTIME_UNQUALIFIED",
+          "implementation": {
+            "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.DocumentoV2.vb",
+            "line": 25,
+            "anchor": "CrearPersistenciaDocumentoV2",
+            "sha256": "aeefc2f839eb8ab8ab8383511c769af379d3bfab5a76bf3c72ae48dd10845e4b"
+          },
+          "tests": {
+            "path": "tests/ImportacionCarpetasPersistenciaV2BehaviorTests.cs",
+            "line": 66,
+            "anchor": "static void PersistenceV2Cases",
+            "sha256": "863b985450d5f5d978e2013281f632a9a98c0b72f598dbb4999e786132c58a8d"
+          },
+          "scenarios": [
+            {
+              "name": "Respuesta perdida de autorización",
+              "evidenceScope": "IMPLEMENTED_LOCAL_RUNTIME_UNQUALIFIED",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "Checkpoint o evento fallido",
+              "evidenceScope": "IMPLEMENTED_LOCAL_RUNTIME_UNQUALIFIED",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            }
+          ]
+        },
+        {
+          "id": "RQ-15",
+          "name": "Recuperación interna V2 sin escritor",
+          "status": "IMPLEMENTED_LOCAL_RUNTIME_UNQUALIFIED",
+          "implementation": {
+            "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.RecuperacionV2.vb",
+            "line": 50,
+            "anchor": "PersistirRecuperacionDocumentoV2",
+            "sha256": "7cb19af1738252ff456907d6c545297e1803a502741e783108c35ae9a5bc5bc0"
+          },
+          "tests": {
+            "path": "tests/ImportacionCarpetasRecuperacionV2BehaviorTests.cs",
+            "line": 87,
+            "anchor": "static void RecoveryV2Cases",
+            "sha256": "b182256b05aabce3b6d711d16dcf35be32a494d1e855727afdbdc2df124b314f"
+          },
+          "scenarios": [
+            {
+              "name": "Preparación sin invocación",
+              "evidenceScope": "IMPLEMENTED_LOCAL_RUNTIME_UNQUALIFIED",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "Identidad observada verificable",
+              "evidenceScope": "IMPLEMENTED_LOCAL_RUNTIME_UNQUALIFIED",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "Vista cambiada o recuperación repetida",
+              "evidenceScope": "IMPLEMENTED_LOCAL_RUNTIME_UNQUALIFIED",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            }
+          ]
+        },
+        {
+          "id": "RQ-16",
+          "name": "Recuperación HTTP explícita y acotada",
+          "status": "IMPLEMENTED_LOCAL_HOSTED_HTTP_UNQUALIFIED",
+          "implementation": {
+            "path": "webservice/WebServiceImportacionCarpetas.asmx.vb",
+            "line": 93,
+            "anchor": "Public Function RecuperarDocumentoV2",
+            "sha256": "b2641e1f521433f9b78c942dc816a47f9551c906ae0a69ef04336b4ed7588331"
+          },
+          "tests": {
+            "path": "tests/ImportacionCarpetasRecuperacionHttpV2BehaviorTests.cs",
+            "line": 48,
+            "anchor": "static void RecoveryHttpV2Cases",
+            "sha256": "d05e97c6487d2a387d2b5efa261677eafd09d8010b781fd9e698ad5aba90fdae"
+          },
+          "scenarios": [
+            {
+              "name": "Entrada no autorizada o alterada",
+              "evidenceScope": "IMPLEMENTED_LOCAL_HOSTED_HTTP_UNQUALIFIED",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            },
+            {
+              "name": "Cierre de control y confirmación separados",
+              "evidenceScope": "IMPLEMENTED_LOCAL_HOSTED_HTTP_UNQUALIFIED",
+              "coverageBasis": "Requirement-level code/test mapping and explicitly scoped reports; not a new real acceptance result."
+            }
+          ]
+        }
+      ],
+      "realAcceptanceInferred": false
+    },
+    "coherence": {
+      "newProductDivergenceFound": false,
+      "contractChanged": false,
+      "newEngineWorkerOrDdl": false,
+      "normalStorageRemainsV1": true
+    }
+  },
+  "criticalIssues": [
+    {
+      "severity": "CRITICAL",
+      "scope": "BEFORE_ARCHIVE",
+      "taskId": "4.1",
+      "description": "4.1 [M] Calificar el observador externo en runtime autorizado. Área/archivos: `doc118-plan-integracion.md, doc118-resultados-integracion.md`. Origen: D-10, RQ-10. Verificación: símbolos/binario coinciden, se observa el interior de la llamada y otro hilo atiende peticiones durante intervalo controlado sin modificar almacenamiento compartido.",
+      "location": {
+        "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/tasks.md",
+        "line": 29,
+        "anchor": "- [ ] 4.1 ",
+        "sha256": "1941155bdd8e82af7782027fbe045cc4ed9da155fc691e5522060bbef1799701"
+      },
+      "recommendation": "Complete the exact remaining acceptance/delivery criterion; local RV evidence cannot substitute it."
+    },
+    {
+      "severity": "CRITICAL",
+      "scope": "BEFORE_ARCHIVE",
+      "taskId": "4.3",
+      "description": "4.3 [M] Acreditar disputa del mismo comando con primera llamada activa. Área/archivos: `doc118-resultados-integracion.md, tools/e2e`. Origen: D-02, RQ-02; D-04, RQ-04. Verificación: segunda sesión obtiene historial/bloqueo seguro, una entrada al escritor y una identidad; antigüedad no habilita takeover.",
+      "location": {
+        "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/tasks.md",
+        "line": 31,
+        "anchor": "- [ ] 4.3 ",
+        "sha256": "1941155bdd8e82af7782027fbe045cc4ed9da155fc691e5522060bbef1799701"
+      },
+      "recommendation": "Complete the exact remaining acceptance/delivery criterion; local RV evidence cannot substitute it."
+    },
+    {
+      "severity": "CRITICAL",
+      "scope": "BEFORE_ARCHIVE",
+      "taskId": "4.4",
+      "description": "4.4 [M] Acreditar bloqueo de otro archivo elegible del mismo lote. Área/archivos: `doc118-resultados-integracion.md, tools/e2e`. Origen: D-02, RQ-02. Verificación: segunda petición tiene revisión vigente y barrera satisfecha pero no entra otro escritor mientras sigue la primera reclamación.",
+      "location": {
+        "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/tasks.md",
+        "line": 32,
+        "anchor": "- [ ] 4.4 ",
+        "sha256": "1941155bdd8e82af7782027fbe045cc4ed9da155fc691e5522060bbef1799701"
+      },
+      "recommendation": "Complete the exact remaining acceptance/delivery criterion; local RV evidence cannot substitute it."
+    },
+    {
+      "severity": "CRITICAL",
+      "scope": "BEFORE_ARCHIVE",
+      "taskId": "4.5",
+      "description": "4.5 [M] Acreditar recuperación del retorno perdido después del checkpoint. Área/archivos: `doc118-resultados-integracion.md, tools/e2e`. Origen: D-05, RQ-05. Verificación: tras probar checkpoint confirmado, consulta y un único replay del mismo comando devuelven mismos IDs sin otro escritor.",
+      "location": {
+        "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/tasks.md",
+        "line": 33,
+        "anchor": "- [ ] 4.5 ",
+        "sha256": "1941155bdd8e82af7782027fbe045cc4ed9da155fc691e5522060bbef1799701"
+      },
+      "recommendation": "Complete the exact remaining acceptance/delivery criterion; local RV evidence cannot substitute it."
+    },
+    {
+      "severity": "CRITICAL",
+      "scope": "BEFORE_ARCHIVE",
+      "taskId": "4.7",
+      "description": "4.7 [M] Acreditar detención con almacenamiento realmente en vuelo. Área/archivos: `doc118-resultados-integracion.md, tools/e2e`. Origen: D-06, RQ-06. Verificación: detención confirmada dentro del intervalo activo, efecto/IDs retenidos al finalizar y ninguna fase nueva afectada.",
+      "location": {
+        "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/tasks.md",
+        "line": 35,
+        "anchor": "- [ ] 4.7 ",
+        "sha256": "1941155bdd8e82af7782027fbe045cc4ed9da155fc691e5522060bbef1799701"
+      },
+      "recommendation": "Complete the exact remaining acceptance/delivery criterion; local RV evidence cannot substitute it."
+    },
+    {
+      "severity": "CRITICAL",
+      "scope": "BEFORE_ARCHIVE",
+      "taskId": "4.8",
+      "description": "4.8 [M] Acreditar cierre de navegador y consulta posterior autorizada. Área/archivos: `doc118-resultados-integracion.md, ImportacionCarpetas.js`. Origen: D-06, RQ-06; D-08, RQ-08. Verificación: otra sesión observa snapshot, señal y estado durable sin reanudar ni cancelar implícitamente.",
+      "location": {
+        "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/tasks.md",
+        "line": 36,
+        "anchor": "- [ ] 4.8 ",
+        "sha256": "1941155bdd8e82af7782027fbe045cc4ed9da155fc691e5522060bbef1799701"
+      },
+      "recommendation": "Complete the exact remaining acceptance/delivery criterion; local RV evidence cannot substitute it."
+    },
+    {
+      "severity": "CRITICAL",
+      "scope": "BEFORE_ARCHIVE",
+      "taskId": "5.1",
+      "description": "5.1 [M] Verificar inventario e identidades de los casos nuevos por SELECT. Área/archivos: `doc118-resultados-integracion.md`. Origen: D-09, RQ-09. Verificación: totales originales y documentos/inventarios coinciden exactamente; ningún efecto incierto se presenta completo.",
+      "location": {
+        "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/tasks.md",
+        "line": 40,
+        "anchor": "- [ ] 5.1 ",
+        "sha256": "1941155bdd8e82af7782027fbe045cc4ed9da155fc691e5522060bbef1799701"
+      },
+      "recommendation": "Complete the exact remaining acceptance/delivery criterion; local RV evidence cannot substitute it."
+    },
+    {
+      "severity": "CRITICAL",
+      "scope": "BEFORE_ARCHIVE",
+      "taskId": "5.2",
+      "description": "5.2 [S] Consolidar evidencia final y limitaciones en documentación técnica. Área/archivos: `Doc/Tecnica/Opsxj/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/, doc118-matriz-coordinacion.md`. Origen: D-01, RQ-01; D-10, RQ-10. Verificación: cada caso tiene resultado/procedencia y no ejecutados no figuran PASS.",
+      "location": {
+        "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/tasks.md",
+        "line": 41,
+        "anchor": "- [ ] 5.2 ",
+        "sha256": "1941155bdd8e82af7782027fbe045cc4ed9da155fc691e5522060bbef1799701"
+      },
+      "recommendation": "Complete the exact remaining acceptance/delivery criterion; local RV evidence cannot substitute it."
+    },
+    {
+      "severity": "CRITICAL",
+      "scope": "BEFORE_ARCHIVE",
+      "taskId": "5.3",
+      "description": "5.3 [S] Validar artefactos y trazabilidad finales para revisión OPSXJ. Área/archivos: `openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/`. Origen: D-01, RQ-01. Verificación: OpenSpec estricto y refinement pasan sobre entrega final sin sustituir integración.",
+      "location": {
+        "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/tasks.md",
+        "line": 42,
+        "anchor": "- [ ] 5.3 ",
+        "sha256": "1941155bdd8e82af7782027fbe045cc4ed9da155fc691e5522060bbef1799701"
+      },
+      "recommendation": "Complete the exact remaining acceptance/delivery criterion; local RV evidence cannot substitute it."
+    },
+    {
+      "severity": "CRITICAL",
+      "scope": "BEFORE_ARCHIVE",
+      "taskId": "5.4",
+      "description": "5.4 [S] Verificar sincronización Git de la entrega final. Área/archivos: `feature/DOC-118 de la carpeta principal`. Origen: D-01, RQ-01. Verificación: cambios registrados, carpeta limpia y ahead/behind 0/0 con remoto.",
+      "location": {
+        "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/tasks.md",
+        "line": 43,
+        "anchor": "- [ ] 5.4 ",
+        "sha256": "1941155bdd8e82af7782027fbe045cc4ed9da155fc691e5522060bbef1799701"
+      },
+      "recommendation": "Complete the exact remaining acceptance/delivery criterion; local RV evidence cannot substitute it."
+    }
+  ],
+  "warningIssues": [
+    {
+      "id": "W-01",
+      "description": "Normal storage composition still uses V1.",
+      "location": {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionDocumentoImportacion.vb",
+        "line": 8,
+        "anchor": "Public Shared Function Crear",
+        "sha256": "8a53601c6162d1052cb4076a6354246696ec143fb9bfc821eb50b6903644f3eb"
+      },
+      "action": "Implement and review a scoped V2 binding for new attempts before requesting runtime deployment."
+    },
+    {
+      "id": "W-02",
+      "description": "The shared E2E driver does not allow RecuperarDocumentoV2.",
+      "location": {
+        "path": "tools/e2e/tests/support/doc111-importacion-carpetas.cjs",
+        "line": 9,
+        "anchor": "const OPERATIONS",
+        "sha256": "b794339f0083ef1e615eff0ce9aa54f8ac5a0185b51ae0737074af5c9c8c01c5"
+      },
+      "action": "Extend existing allowlist and response validation with local regression; no alternate transport."
+    },
+    {
+      "id": "W-03",
+      "description": "Provider epoch and native MySQL/hosted IIS guarantees are not qualified in the site.",
+      "location": {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.Recuperacion.vb",
+        "line": 17,
+        "anchor": "EpocaStagingV2",
+        "sha256": "6dad369137a48a16accc34083c726aa139ddd96805a40de003077fc05a7f0600"
+      },
+      "action": "Qualify the approved local provider/runtime and actual MySQL transactions; keep other epochs/restarts blocked."
+    }
+  ],
+  "suggestions": [],
+  "localFeasibility": {
+    "status": "PASS_BOUNDED_LOCAL_ONLY",
+    "productionProviderQualified": false,
+    "crossProcessOrRestartEpochQualified": false,
+    "matrixConditions": 21
+  },
+  "regressionReused": {
+    "commit": "e68d9972c467967890912f620352c6ea9dc2619c",
+    "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-matriz-v2-local-20261109.json",
+    "disjointNodeTests": 223,
+    "passedNodeTests": 223,
+    "failedNodeTests": 0,
+    "internalV2Cases": 133,
+    "codeTestsAndToolsUnchanged": true,
+    "commandsRerun": false,
+    "newTestsAdded": 0
+  },
+  "proposedPlan": {
+    "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-plan-real-v2-20261109.md",
+    "status": "PREPARED_WITH_DEPENDENCIES_NOT_AUTHORIZED_NOT_EXECUTABLE",
+    "environmentAvailabilityChecked": false,
+    "proposedEnvironment": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "historicalReferences": {
+      "module": "GESTOR",
+      "owner": "141",
+      "company": "2",
+      "level": "7",
+      "version": "38",
+      "cabinet": "10",
+      "documentType": "79",
+      "index": "14"
+    },
+    "runId": "DOC118-V2-QA-20261109-01",
+    "newResourceNames": [
+      "DOC118-V2-QA-20261109-01-A1",
+      "DOC118-V2-QA-20261109-01-A2",
+      "DOC118-V2-QA-20261109-01-B1",
+      "DOC118-V2-QA-20261109-01-B2"
+    ],
+    "namesReservedOrAbsenceChecked": false,
+    "proposedLimits": {
+      "sessions": 2,
+      "authenticationsPerSession": 1,
+      "newLots": 2,
+      "newRoots": 4,
+      "newPdfs": 4,
+      "expeditionCreations": 4,
+      "storageInvocations": 2,
+      "totalHttp": 1000,
+      "businessHttp": 100,
+      "recoveryRequests": 7,
+      "newStorageRequests": 4,
+      "stateAndResourceQueries": 69,
+      "selectStatements": 180,
+      "reservedDiagnosticHttp": 20,
+      "reservedDiagnosticSelect": 36,
+      "individualPauseSeconds": 30,
+      "minutesPerLot": 15
+    },
+    "businessBudgetFixedOperations": 31,
+    "businessBudgetSum": 100,
+    "cases": [
+      {
+        "id": "Q1",
+        "resource": "A1",
+        "fault": "INICIO acknowledgment lost after commit",
+        "expected": "CONTROL_CLOSED_WITHOUT_INVOCATION",
+        "writerInvocations": 0,
+        "recoveryRequests": 2
+      },
+      {
+        "id": "Q2",
+        "resource": "A2",
+        "fault": "AUTORIZAR acknowledgment lost after commit",
+        "expected": "EXPECTED_BLOCK_PRESERVE_CLAIM",
+        "writerInvocations": 0,
+        "recoveryRequests": 1
+      },
+      {
+        "id": "Q3",
+        "resource": "B1",
+        "fault": "OBSERVAR acknowledgment lost after commit",
+        "expected": "CONFIRM_SAME_OBSERVED_IDS",
+        "writerInvocations": 1,
+        "recoveryRequests": 2
+      },
+      {
+        "id": "Q4",
+        "resource": "B2",
+        "fault": "Explicitly qualified active-call observation",
+        "expected": "BLOCK_WHILE_ACTIVE_THEN_CHECKPOINT_HISTORY",
+        "writerInvocations": 1,
+        "recoveryRequests": 2
+      }
+    ],
+    "prerequisites": [
+      {
+        "id": "P1",
+        "state": "UNIMPLEMENTED",
+        "description": "Reviewed V2 normal storage binding for new attempts."
+      },
+      {
+        "id": "P2",
+        "state": "UNIMPLEMENTED",
+        "description": "Reviewed extension of existing E2E driver."
+      },
+      {
+        "id": "P3",
+        "state": "UNIMPLEMENTED",
+        "description": "Reviewed bounded acknowledgment-loss binding; no business SQL edits."
+      },
+      {
+        "id": "P4",
+        "state": "UNQUALIFIED",
+        "description": "Approved site/provider/epoch/MySQL/IIS and active-call observer qualification."
+      },
+      {
+        "id": "P5",
+        "state": "NOT_AUTHORIZED",
+        "description": "Concrete candidate/runner SHAs, environment/resources and new budget approval."
+      }
+    ],
+    "doesNotReplaceOriginalCoord02or03": true
+  },
+  "readyForArchive": false,
+  "readyForRealExecution": false,
+  "progress": {
+    "complete": 25,
+    "total": 35,
+    "remaining": 10,
+    "newTask": "6.8",
+    "previousComplete": 24,
+    "previousTotal": 34
+  },
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "decisionRequirementPairs": 16,
+    "diffCheck": "PASS",
+    "reviewReferences": "PASS",
+    "reviewedReferences": 45,
+    "previousReportsUnchanged": 8,
+    "proposedBudgetConsistency": "PASS"
+  },
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  },
+  "realConsumptionUnchanged": {
+    "httpRequests": 1276,
+    "selectStatements": 113,
+    "sessions": 9
+  }
+}

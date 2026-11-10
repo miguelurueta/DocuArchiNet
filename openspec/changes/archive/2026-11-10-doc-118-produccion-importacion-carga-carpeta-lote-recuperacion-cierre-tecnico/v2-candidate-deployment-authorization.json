@@ -1,0 +1,72 @@
+{
+  "issueKey": "DOC-118",
+  "status": "AUTHORIZED",
+  "stage": "P4_A_CANDIDATE_DEPLOYMENT_ONLY",
+  "source": {
+    "kind": "explicit-user-message",
+    "text": "autoriozado",
+    "appliesTo": "Approval after the pinned two-file deployment and target application maintenance proposal in commit 7a1444ff7d76a9fd501e9ec2b70c327c947495ac"
+  },
+  "proposal": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/v2-candidate-deployment-proposal.json",
+  "proposalSha256": "7c22ace6eb28ec2e17f93eb963613a48870f908efad2b3a135047641d4c7afa3",
+  "recordedUtc": "2026-11-09T16:35:22.963Z",
+  "deploymentAuthorized": true,
+  "applicationMaintenanceAndReloadAuthorized": true,
+  "backupAndScopedRestorationAuthorized": true,
+  "realE2EAuthorized": false,
+  "newBudgetsAuthorized": false,
+  "observerAttachmentAuthorized": false,
+  "reviewedProposalCommit": "7a1444ff7d76a9fd501e9ec2b70c327c947495ac",
+  "sourceCodeCommit": "9d67c81f27cb714412d17772ad492b56968407a3",
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "application": "Default Web Site/GestionDocumental-Docuarchi.net",
+    "runtimeRoot": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+    "physicalRootMatchesRepo": true,
+    "applicationPool": "DefaultAppPool",
+    "applicationsInPool": 6
+  },
+  "artifacts": [
+    {
+      "source": ".tmp/doc118-v2-candidate-9d67c81f/bin/GestionDocumental-Docuarchi.net.dll",
+      "destination": "bin/GestionDocumental-Docuarchi.net.dll",
+      "bytes": 9693696,
+      "candidateSha256": "9225b627c50b96c29ee9031173f0c578df4a16e970cb45404ee6be4d13eff291",
+      "expectedInstalledSha256": "4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5"
+    },
+    {
+      "source": ".tmp/doc118-v2-candidate-9d67c81f/bin/GestionDocumental-Docuarchi.net.pdb",
+      "destination": "bin/GestionDocumental-Docuarchi.net.pdb",
+      "bytes": 10739200,
+      "candidateSha256": "37aab89e1a02ed2704644ec9d58e6f44f19125e36f1b8bdc60d3f7b8f4f97b72",
+      "expectedInstalledSha256": "7028b435d4ad0aeff074bf202fce4faa8742997c4e42edeecead2a4078d5eeeb"
+    }
+  ],
+  "maintenance": {
+    "applicationOnly": true,
+    "requiresOperatorWindowWithoutActiveImports": true,
+    "temporaryFile": "app_offline.htm",
+    "abortIfMaintenanceFileAlreadyExists": true,
+    "expectedMaximumSeconds": 60,
+    "automaticAppDomainReloadExpected": true,
+    "recycleApplicationPool": false,
+    "stopOrKillWorker": false
+  },
+  "scopeLimits": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0,
+    "newBudgetsAuthorized": false
+  },
+  "requestMonitorLimitation": {
+    "hresult": "80004001",
+    "activeRequestCount": null,
+    "zeroActiveRequestsClaimed": false,
+    "basis": "User approval of the proposed maintenance window without active imports; request monitoring was an additional observation unavailable in this IIS configuration."
+  },
+  "sharedStorageSourceChangeAuthorized": false,
+  "siiChangeAuthorized": false,
+  "appPoolRecycleAuthorized": false,
+  "statusAfterExecution": "DEPLOYED_ON_DISK_VERIFIED_RUNTIME_NOT_QUALIFIED"
+}

@@ -1,0 +1,28 @@
+{
+  "issueKey": "DOC-118",
+  "task": "RV-02-B / 6.2",
+  "baseCommit": "fb0b9189b6e2ad16c9491177fdf48d86cf09a27b",
+  "recordedUtc": "2026-11-08T22:30:50.484Z",
+  "source": "Mensaje del usuario «continua» posterior a RV-01 y al siguiente paso explícito RV-02-B.",
+  "scope": "Puerto interno de retención/guardia V2 en el proveedor existente y pruebas locales; sin activar recuperación.",
+  "localProviderPortAuthorized": true,
+  "protocolIntegrationAuthorized": false,
+  "realExecutionAuthorized": false,
+  "deploymentAuthorized": false,
+  "attempt69Eligible": false,
+  "files": [
+    "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.Recuperacion.vb",
+    "Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasStagingV2Interfaces.vb",
+    "tests/ImportacionCarpetasStagingV2BehaviorTests.cs",
+    "GestionDocumental-Docuarchi.net.vbproj",
+    "tests/PerfilImportacionBehaviorTestRunner.cs",
+    "tests/ImportacionCarpetasBehaviorTests.cs",
+    "tests/doc110-perfil-importacion-behavior.test.cjs"
+  ],
+  "runtimeDelta": {
+    "applicationLogins": 0,
+    "httpRequests": 0,
+    "selectStatements": 0,
+    "documentEffects": 0
+  }
+}
