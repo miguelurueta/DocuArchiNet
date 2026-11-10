@@ -1,0 +1,244 @@
+{
+  "issueKey": "DOC-118",
+  "status": "STOPPED_BEFORE_LOGIN_CAPTURE_REVIEW_REQUIRED",
+  "recordedUtc": "2026-11-10T12:20:55.579Z",
+  "baseCommit": "65f2bb445839f5528a78d712d1a02152b73a6ec9",
+  "runId": "1dd584ce2fc6352d2c162545990b85dc",
+  "authorization": {
+    "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-integration-continuation.json",
+    "sha256": "871209834feba3822d5bef1c9f6d839d3b021c418514db250cc7fd40b151d228",
+    "scopeSha256AtExecution": "9ccd55baa103ada1903ad16bcd05679b94602371528be1f1bb3ec44fe2de03be"
+  },
+  "implementedAfterStop": {
+    "captureStages": [
+      "APPLICATION_USER",
+      "APPLICATION_PASSWORD",
+      "SELECT_USER",
+      "SELECT_PASSWORD",
+      "RUNTIME_RECHECK"
+    ],
+    "closedFailureCode": "DOC118_LIVE_CAPTURE_NOT_COMPLETED",
+    "privateInputAndCauseNotPersisted": true
+  },
+  "executedStop": {
+    "issueKey": "DOC-118",
+    "runId": "1dd584ce2fc6352d2c162545990b85dc",
+    "pid": 38752,
+    "status": "STOPPED_REVIEW_REQUIRED",
+    "createdUtc": "2026-11-10T12:14:15.859Z",
+    "phaseIndex": 0,
+    "authorizationScopeSha256": "9ccd55baa103ada1903ad16bcd05679b94602371528be1f1bb3ec44fe2de03be",
+    "implementationSeal": "df563ef5b0f0be0250dbbc0f8f126cc29a5684214df79bb7e02e584024b3e987",
+    "history": [],
+    "counters": {
+      "scenarios": {
+        "COORD02": {
+          "http": 1,
+          "operations": {}
+        },
+        "COORD03": {
+          "http": 0,
+          "operations": {}
+        }
+      },
+      "selects": 0
+    },
+    "references": [],
+    "carriedSessionAttempts": 0,
+    "carriedCounters": {
+      "scenarios": {
+        "COORD02": {
+          "http": 1,
+          "operations": {}
+        },
+        "COORD03": {
+          "http": 0,
+          "operations": {}
+        }
+      },
+      "selects": 0
+    },
+    "windowKind": "DOC118_INTEGRATION_CONTINUATION",
+    "historicalTotals": {
+      "httpRequests": 1578,
+      "selectStatements": 172,
+      "sessions": 11
+    },
+    "automaticPhases": true,
+    "heartbeatUtc": "2026-11-10T12:14:34.739Z",
+    "accumulatedIncludingHistory": {
+      "httpRequests": 1579,
+      "selectStatements": 172,
+      "sessions": 11
+    },
+    "code": "DOC118_LIVE_PHASE_UNCONFIRMED",
+    "observerCloseConfirmed": true,
+    "sessionsClosed": true,
+    "sessionAttempts": 0,
+    "ephemeralSecretsCleared": true,
+    "finishedUtc": "2026-11-10T12:14:34.734Z",
+    "runLeaseReleased": true
+  },
+  "observer": {
+    "status": "CLOSED",
+    "cleanupConfirmed": true,
+    "controllerPid": 5724,
+    "sourceBoundBeforeCapture": true,
+    "writerEntries": 0
+  },
+  "settledPriorWindow": {
+    "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-auditoria-lote25-20261110.json",
+    "sha256": "6710a99b132870d65c4a1f26d54613a5e4ca95954254f44bf0ddb0194e2fbb78",
+    "physicalReadConfirmed": true,
+    "documentoId": "16235",
+    "inventarioId": "23339",
+    "loteId": "25",
+    "replayed": false
+  },
+  "historicalTotals": {
+    "httpRequests": 1578,
+    "selectStatements": 172,
+    "sessions": 11
+  },
+  "newWindowConsumption": {
+    "httpRequests": 1,
+    "selectStatements": 0,
+    "sessions": 0,
+    "documentEffects": 0
+  },
+  "accumulatedIncludingHistory": {
+    "httpRequests": 1579,
+    "selectStatements": 172,
+    "sessions": 11
+  },
+  "remainingWindowCapacity": {
+    "httpRequests": 999,
+    "selectStatements": 240,
+    "sessions": 2,
+    "newPlans": 2,
+    "newLots": 2,
+    "newStoredDocuments": 3
+  },
+  "changedFiles": [
+    {
+      "path": "tools/e2e/scripts/run-doc118-live.cjs",
+      "beforeCommit": "65f2bb445839f5528a78d712d1a02152b73a6ec9",
+      "beforeSha256": "2e9e5db1659c2df9f4e804362ad5c1f6c95b0558852e34d90e67430a89bc7a7c",
+      "afterSha256": "243bffa6982df0da293f12a04ec7e35408e7113426edc0766116c4ad28ce4d0e"
+    },
+    {
+      "path": "tools/e2e/scripts/start-doc118-console.ps1",
+      "beforeCommit": "65f2bb445839f5528a78d712d1a02152b73a6ec9",
+      "beforeSha256": "cdcd8e5351477af244ee2f7edc46f321f230891714face408630af268f31aa93",
+      "afterSha256": "1cfc77f3a302251b3873f5dbe0a8e2edc3908f9b9ac25c84a076b171b46f053b"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc118-current-window.cjs",
+      "beforeCommit": "65f2bb445839f5528a78d712d1a02152b73a6ec9",
+      "beforeSha256": "d273704413a5d7fd6f2214fbfd4bb63320c3eb2566adf0ce285e32b93b323a17",
+      "afterSha256": "64cc757017b58ccc999039c03a3393dbbdabfd4500d3b956988e22ed9d423bd0"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc118-case-preparation.cjs",
+      "beforeCommit": "65f2bb445839f5528a78d712d1a02152b73a6ec9",
+      "beforeSha256": "2d693e7e3d35319476b27090ea57491b2fb42c3efca11a4afe6d591e4d7bfdfa",
+      "afterSha256": "6c1c2061f46e33316b18bfe01f1ffc32fc517843d757e733de296c795c3f19f3"
+    },
+    {
+      "path": "tests/doc118-current-window.test.cjs",
+      "beforeCommit": "65f2bb445839f5528a78d712d1a02152b73a6ec9",
+      "beforeSha256": "e654ed7c07c917a8688fe69ac5e56c589ec2faf39262737019acb8500e71636c",
+      "afterSha256": "7059e9f2e846b11078eea92859df1714f90acdfffb3fc2f2c756635abe055f2a"
+    },
+    {
+      "path": "tests/doc118-case-preparation.test.cjs",
+      "beforeCommit": "65f2bb445839f5528a78d712d1a02152b73a6ec9",
+      "beforeSha256": "2f5de95c625272b30244423ba538a84342c3c5e151c0164191c75987171bc023",
+      "afterSha256": "585c08c5d9fab05c1ad8e9dcba2e8255a03e6c2b737d7535482e5ffa0e836529"
+    },
+    {
+      "path": "tests/doc118-live-lifecycle.test.cjs",
+      "beforeCommit": "65f2bb445839f5528a78d712d1a02152b73a6ec9",
+      "beforeSha256": "43d655b30c9d20b677661b7018b73cdd6089bf551d0e1cc0e43e74781f73ea51",
+      "afterSha256": "9ce078019fe6657975521b2ea11603587466a1cb2ad2551fb9c4f7d885531729"
+    }
+  ],
+  "protectedFiles": [
+    {
+      "path": "workflow/ClassAlmacenamiento.vb",
+      "sha256": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+      "sha256": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.vb",
+      "sha256": "2c5e25c1ebcb3efeaa913c6d37c785390d934ced21b8b1ad1546ee5f080107f0"
+    },
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.dll",
+      "sha256": "9225b627c50b96c29ee9031173f0c578df4a16e970cb45404ee6be4d13eff291"
+    },
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.pdb",
+      "sha256": "37aab89e1a02ed2704644ec9d58e6f44f19125e36f1b8bdc60d3f7b8f4f97b72"
+    },
+    {
+      "path": "Web.config",
+      "sha256": "fd392f3679b9bad1e72fd7cecb21b78bda051a863a5e545564e7978e563ef07a"
+    }
+  ],
+  "localRegression": {
+    "tests": 268,
+    "passed": 268,
+    "failed": 0,
+    "wholeSuiteRun": true,
+    "internalV2Cases": 157,
+    "internalCasesNotAddedToNodeCount": true,
+    "additionalCasesSince260": 8
+  },
+  "progress": {
+    "completed": 32,
+    "total": 38,
+    "pending": 6
+  },
+  "realIntegrationPassed": false,
+  "normalOpsxjGovernancePassed": false,
+  "validation": {
+    "openSpecStrict": "PASS",
+    "refinement": "PASS",
+    "refinementChecks": 15,
+    "decisionRequirementPairs": 18,
+    "sourceTraceability": "PASS",
+    "gitSynchronization": "VERIFY_AT_DELIVERY"
+  },
+  "runtimeArtifacts": [
+    {
+      "path": ".tmp/doc118-live-1dd584ce2fc6352d2c162545990b85dc/status.json",
+      "sha256": "15e4107ec4ebf45e6f63b3a06ea263fe6054d0f63586512d59470198890ffe29",
+      "excludedFromGit": true
+    },
+    {
+      "path": ".tmp/doc118-debugger-1dd584ce2fc6352d2c162545990b85dc-1/status.json",
+      "sha256": "12f8e9a92b0233d41ebb9954df3ea411bf7dc236f0f74c3cf9dc3e4ead0c780f",
+      "excludedFromGit": true
+    },
+    {
+      "path": ".tmp/doc118-debugger-1dd584ce2fc6352d2c162545990b85dc-1/observation-history.jsonl",
+      "sha256": "0116dc9ea30585d77a17174a2241ff42327adfc887f3e949877f0134f1603344",
+      "excludedFromGit": true
+    },
+    {
+      "path": ".tmp/doc118-integration-warmup-1dd584ce2fc6352d2c162545990b85dc.json",
+      "sha256": "4bb9898a0f122ec0e774924efde3bd7add38afd254b6a34b18985b8d5a07f5e1",
+      "excludedFromGit": true
+    }
+  ],
+  "documents": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-continuacion-20261110.md",
+      "sha256": "9f998ec24dad5a376d8971747c01027480da38d1a8ba87bd257dea262a755bba"
+    }
+  ]
+}

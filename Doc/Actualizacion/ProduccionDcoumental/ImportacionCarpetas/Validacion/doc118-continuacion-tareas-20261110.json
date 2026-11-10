@@ -5,7 +5,7 @@
   "baseCommit": "fdab3d9ef08e4440270f6ef82b0c754222b4dcba",
   "scope": {
     "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/implementation-resumption.json",
-    "sha256": "453ae89b5824d12f1b78c3ce1745f545249649cd5c3630933b0f3ae79659ad8c"
+    "sha256": "2a1f40e45aef0b4a564d160d34fdbdffb89ec8333790a6bc7bf8bb6f12045b92"
   },
   "jira": {
     "status": "En curso",
@@ -228,8 +228,8 @@
   "currentAudit": {
     "runId": "7896bbf5729a7f9996fbd8cc8e18af18",
     "attemptId": "6ddb61d382abb419d6025f783430b624",
-    "status": "AWAITING_SELECT_CREDENTIALS",
-    "resultAvailable": false,
+    "status": "AUDIT_COMPLETE_REVIEW_REQUIRED",
+    "resultAvailable": true,
     "output": ".tmp/doc118-live-7896bbf5729a7f9996fbd8cc8e18af18/select-audit-6ddb61d382abb419d6025f783430b624.json",
     "carriedCounters": {
       "scenarios": {
@@ -253,6 +253,29 @@
         }
       },
       "selects": 34
+    },
+    "counters": {
+      "scenarios": {
+        "COORD02": {
+          "http": 301,
+          "operations": {
+            "ConsultarLote": 13,
+            "AbrirImportacion": 1,
+            "PrepararPlan": 1,
+            "ConfirmarPlan": 1,
+            "ConsultarRecursosLote": 6,
+            "RecibirArchivo": 2,
+            "CREAR_EXPEDIENTE": 2,
+            "MATERIALIZAR_VALORES": 2,
+            "ALMACENAR": 2
+          }
+        },
+        "COORD03": {
+          "http": 0,
+          "operations": {}
+        }
+      },
+      "selects": 59
     }
   },
   "priorGitDelivery": {
@@ -292,7 +315,7 @@
   "documents": [
     {
       "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-continuacion-tareas-20261110.md",
-      "sha256": "ffff17f1faedbff2768560a55460581a1470f0f6c7a605158166fec34e822090"
+      "sha256": "ac6f468049d159bfa5dbadc1db17b4d62f68e119dc4b2862d7258c0c38b69285"
     }
   ],
   "validation": {
@@ -303,5 +326,6 @@
     "sourceTraceability": "PASS",
     "archivePreserved": "PASS",
     "finalGitSynchronization": "CHECK_AT_DELIVERY"
-  }
+  },
+  "latestIntegrationContinuation": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-continuacion-20261110.json"
 }

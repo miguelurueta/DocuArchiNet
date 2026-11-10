@@ -30,3 +30,5 @@ Los dos recorridos propuestos reutilizan el motor existente:COORD02 agrupa4.3/4.
 Progreso inicial de esta continuación:31/38, con5.3 pendiente de verificación y las seis comprobaciones reales pendientes. Los detalles de validación y progreso final se registran en doc118-continuacion-tareas-20261110.json.
 
 Verificación formal completada después del registro inicial:OpenSpec estricto PASS y refinement PASS con15 comprobaciones/18 parejas D/RQ. Se cierra5.3;progreso vigente32/38. Permanecen exclusivamente las seis comprobaciones reales4.3/4.4/4.5/4.7/4.8/5.1. No equivale a aprobar todas las compuertas OPSXJ o QA/E2E.
+
+Actualización posterior:la captura SELECT se hizo visible en el escritorio normal y terminó. Lote25:documento16235/inventario23339 confirmados por IDs;B sin efecto. La nueva ventana quedó detenida antes de login, sin fases o recursos creados.268/268 Node candidatos;contador global1579 HTTP/172 SELECT/11 sesiones. Véase doc118-integracion-continuacion-20261110.json.

@@ -1387,5 +1387,44 @@
       "El intento69 permanece reclamado. No repetir ALMACENAR, forzar estados o inferir finalización por tiempo/ausencia.",
       "Observador 4.1 calificado; completar 4.3–4.5/4.7–4.8 y5.x. Lote25 conservado sin replay; efecto pendiente de SELECT. Ventana adicional consumida:301 HTTP/34 SELECT/2 sesiones; total1578/147/11."
     ]
+  },
+  "integrationContinuation": {
+    "status": "STOPPED_BEFORE_LOGIN_CAPTURE_REVIEW_REQUIRED",
+    "reportPath": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-continuacion-20261110.json",
+    "authorizationPath": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-integration-continuation.json",
+    "priorPhysicalReadConfirmed": true,
+    "currentConsumption": {
+      "httpRequests": 1,
+      "selectStatements": 0,
+      "sessions": 0,
+      "documentEffects": 0
+    },
+    "accumulatedIncludingHistory": {
+      "httpRequests": 1579,
+      "selectStatements": 172,
+      "sessions": 11
+    },
+    "localRegression": {
+      "tests": 268,
+      "passed": 268,
+      "failed": 0,
+      "wholeSuiteRun": true,
+      "internalV2Cases": 157,
+      "internalCasesNotAddedToNodeCount": true,
+      "additionalCasesSince260": 8
+    },
+    "progress": {
+      "completed": 32,
+      "total": 38,
+      "pending": 6
+    },
+    "validation": {
+      "openSpecStrict": "PASS",
+      "refinement": "PASS",
+      "refinementChecks": 15,
+      "decisionRequirementPairs": 18,
+      "sourceTraceability": "PASS",
+      "gitSynchronization": "VERIFY_AT_DELIVERY"
+    }
   }
 }

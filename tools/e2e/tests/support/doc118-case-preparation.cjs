@@ -41,7 +41,7 @@ async function prepareCase({scenario,profile,rootNames,actorRef,ambitoRef,client
  }
  const lot=await client.request('ConfirmarPlan',{planId:plan.planId,revisionEsperada:plan.revision,planHashEsperado:plan.planHash,claveConfirmacion:crypto.randomBytes(16).toString('hex')});
  if(id(lot?.loteId))onReference({planId:plan.planId,loteId:lot.loteId});
- check(id(lot?.loteId)&&!['18','21','24'].includes(lot.loteId)&&lot.nivelRef===p.nivelRef,'CONFIRMATION_INVALID');
+ check(id(lot?.loteId)&&!['18','21','24','25'].includes(lot.loteId)&&lot.nivelRef===p.nivelRef,'CONFIRMATION_INVALID');
  const initialRoots=await client.pages(lot.loteId,'RAICES'),initialFiles=await client.pages(lot.loteId,'ARCHIVOS');
  check(initialRoots.length===2&&initialFiles.length===2,'ORIGINAL_INVENTORY_CHANGED');
  for(let i=0;i<2;i++)await client.receive(lot.loteId,one(initialFiles,f=>f.idCliente===files[i].idCliente),bytes,fileNames[i]);

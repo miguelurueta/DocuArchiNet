@@ -22,7 +22,7 @@
     "pending": 6
   },
   "readAudit": {
-    "authorized": true,
+    "authorized": false,
     "readOnly": true,
     "runId": "7896bbf5729a7f9996fbd8cc8e18af18",
     "attemptId": "6ddb61d382abb419d6025f783430b624",
@@ -37,11 +37,31 @@
     "historicalCountersNotReset": true,
     "newApplicationSessions": 0,
     "newApplicationHttp": 0,
-    "newBusinessMutations": 0
+    "newBusinessMutations": 0,
+    "executed": {
+      "status": "PHYSICAL_READ_CONFIRMED",
+      "selectStatements": 25,
+      "totalWindowSelectsAfterAudit": 59,
+      "ephemeralSecretsCleared": true,
+      "evidence": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-auditoria-lote25-20261110.json"
+    }
   },
   "integrationContinuation": {
-    "state": "NOT_STARTED",
-    "prerequisite": "Read the retained lot25 outcome before any new integration execution; the old storage request is never replayed from uncertainty."
+    "state": "STOPPED_BEFORE_LOGIN_CAPTURE_REVIEW_REQUIRED",
+    "authorizationPath": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-integration-continuation.json",
+    "runId": "1dd584ce2fc6352d2c162545990b85dc",
+    "consumed": {
+      "httpRequests": 1,
+      "selectStatements": 0,
+      "sessions": 0,
+      "documentEffects": 0
+    },
+    "accumulatedIncludingHistory": {
+      "httpRequests": 1579,
+      "selectStatements": 172,
+      "sessions": 11
+    },
+    "nextAction": "Clarify whether all four credential inputs were completed. Review the capture-only stop before another console; no authentication or business command was dispatched."
   },
   "protectedLots": [
     "18",

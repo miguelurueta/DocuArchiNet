@@ -2103,6 +2103,45 @@
         "El intento69 permanece reclamado. No repetir ALMACENAR, forzar estados o inferir finalización por tiempo/ausencia.",
         "Observador 4.1 calificado; completar 4.3–4.5/4.7–4.8 y5.x. Lote25 conservado sin replay; efecto pendiente de SELECT. Ventana adicional consumida:301 HTTP/34 SELECT/2 sesiones; total1578/147/11."
       ]
+    },
+    "integrationContinuation": {
+      "status": "STOPPED_BEFORE_LOGIN_CAPTURE_REVIEW_REQUIRED",
+      "reportPath": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-continuacion-20261110.json",
+      "authorizationPath": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-integration-continuation.json",
+      "priorPhysicalReadConfirmed": true,
+      "currentConsumption": {
+        "httpRequests": 1,
+        "selectStatements": 0,
+        "sessions": 0,
+        "documentEffects": 0
+      },
+      "accumulatedIncludingHistory": {
+        "httpRequests": 1579,
+        "selectStatements": 172,
+        "sessions": 11
+      },
+      "localRegression": {
+        "tests": 268,
+        "passed": 268,
+        "failed": 0,
+        "wholeSuiteRun": true,
+        "internalV2Cases": 157,
+        "internalCasesNotAddedToNodeCount": true,
+        "additionalCasesSince260": 8
+      },
+      "progress": {
+        "completed": 32,
+        "total": 38,
+        "pending": 6
+      },
+      "validation": {
+        "openSpecStrict": "PASS",
+        "refinement": "PASS",
+        "refinementChecks": 15,
+        "decisionRequirementPairs": 18,
+        "sourceTraceability": "PASS",
+        "gitSynchronization": "VERIFY_AT_DELIVERY"
+      }
     }
   },
   "sourceReviewDeltas": [
@@ -3333,5 +3372,88 @@
       "El intento69 permanece reclamado. No repetir ALMACENAR, forzar estados o inferir finalización por tiempo/ausencia.",
       "Observador 4.1 calificado; completar 4.3–4.5/4.7–4.8 y5.x. Lote25 conservado sin replay; efecto pendiente de SELECT. Ventana adicional consumida:301 HTTP/34 SELECT/2 sesiones; total1578/147/11."
     ]
+  },
+  "integrationContinuationToolDeltas": [
+    {
+      "path": "tools/e2e/scripts/run-doc118-live.cjs",
+      "beforeCommit": "65f2bb445839f5528a78d712d1a02152b73a6ec9",
+      "beforeSha256": "2e9e5db1659c2df9f4e804362ad5c1f6c95b0558852e34d90e67430a89bc7a7c",
+      "afterSha256": "243bffa6982df0da293f12a04ec7e35408e7113426edc0766116c4ad28ce4d0e"
+    },
+    {
+      "path": "tools/e2e/scripts/start-doc118-console.ps1",
+      "beforeCommit": "65f2bb445839f5528a78d712d1a02152b73a6ec9",
+      "beforeSha256": "cdcd8e5351477af244ee2f7edc46f321f230891714face408630af268f31aa93",
+      "afterSha256": "1cfc77f3a302251b3873f5dbe0a8e2edc3908f9b9ac25c84a076b171b46f053b"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc118-current-window.cjs",
+      "beforeCommit": "65f2bb445839f5528a78d712d1a02152b73a6ec9",
+      "beforeSha256": "d273704413a5d7fd6f2214fbfd4bb63320c3eb2566adf0ce285e32b93b323a17",
+      "afterSha256": "64cc757017b58ccc999039c03a3393dbbdabfd4500d3b956988e22ed9d423bd0"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc118-case-preparation.cjs",
+      "beforeCommit": "65f2bb445839f5528a78d712d1a02152b73a6ec9",
+      "beforeSha256": "2d693e7e3d35319476b27090ea57491b2fb42c3efca11a4afe6d591e4d7bfdfa",
+      "afterSha256": "6c1c2061f46e33316b18bfe01f1ffc32fc517843d757e733de296c795c3f19f3"
+    },
+    {
+      "path": "tests/doc118-current-window.test.cjs",
+      "beforeCommit": "65f2bb445839f5528a78d712d1a02152b73a6ec9",
+      "beforeSha256": "e654ed7c07c917a8688fe69ac5e56c589ec2faf39262737019acb8500e71636c",
+      "afterSha256": "7059e9f2e846b11078eea92859df1714f90acdfffb3fc2f2c756635abe055f2a"
+    },
+    {
+      "path": "tests/doc118-case-preparation.test.cjs",
+      "beforeCommit": "65f2bb445839f5528a78d712d1a02152b73a6ec9",
+      "beforeSha256": "2f5de95c625272b30244423ba538a84342c3c5e151c0164191c75987171bc023",
+      "afterSha256": "585c08c5d9fab05c1ad8e9dcba2e8255a03e6c2b737d7535482e5ffa0e836529"
+    },
+    {
+      "path": "tests/doc118-live-lifecycle.test.cjs",
+      "beforeCommit": "65f2bb445839f5528a78d712d1a02152b73a6ec9",
+      "beforeSha256": "43d655b30c9d20b677661b7018b73cdd6089bf551d0e1cc0e43e74781f73ea51",
+      "afterSha256": "9ce078019fe6657975521b2ea11603587466a1cb2ad2551fb9c4f7d885531729"
+    }
+  ],
+  "integrationContinuation": {
+    "status": "STOPPED_BEFORE_LOGIN_CAPTURE_REVIEW_REQUIRED",
+    "reportPath": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-continuacion-20261110.json",
+    "authorizationPath": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-integration-continuation.json",
+    "priorPhysicalReadConfirmed": true,
+    "currentConsumption": {
+      "httpRequests": 1,
+      "selectStatements": 0,
+      "sessions": 0,
+      "documentEffects": 0
+    },
+    "accumulatedIncludingHistory": {
+      "httpRequests": 1579,
+      "selectStatements": 172,
+      "sessions": 11
+    },
+    "localRegression": {
+      "tests": 268,
+      "passed": 268,
+      "failed": 0,
+      "wholeSuiteRun": true,
+      "internalV2Cases": 157,
+      "internalCasesNotAddedToNodeCount": true,
+      "additionalCasesSince260": 8
+    },
+    "progress": {
+      "completed": 32,
+      "total": 38,
+      "pending": 6
+    },
+    "validation": {
+      "openSpecStrict": "PASS",
+      "refinement": "PASS",
+      "refinementChecks": 15,
+      "decisionRequirementPairs": 18,
+      "sourceTraceability": "PASS",
+      "gitSynchronization": "VERIFY_AT_DELIVERY"
+    }
   }
 }

@@ -1,0 +1,178 @@
+{
+  "issueKey": "DOC-118",
+  "kind": "DOC118_INTEGRATION_CONTINUATION",
+  "status": "AUTHORIZED",
+  "executionStatus": "STOPPED_BEFORE_LOGIN_REVIEW_REQUIRED",
+  "recordedUtc": "2026-11-10T11:59:48.396Z",
+  "source": {
+    "kind": "explicit-user-task-continuation",
+    "text": "continua con el flujo y las tareas",
+    "appliesTo": "Complete the six remaining integration checks using the established test environment/account and existing two-case engine after reading the retained outcome.",
+    "scopeSelection": "Finite additive window selected under the user delegation:2 shared sessions,2 new lots,4 roots/PDFs/expedientes,3 stored documents,1000 HTTP/240 SELECT and one stop. No prior budget or unknown command is reused."
+  },
+  "repositoryCheckpoint": "65f2bb445839f5528a78d712d1a02152b73a6ec9",
+  "runId": "1dd584ce2fc6352d2c162545990b85dc",
+  "automaticPhases": true,
+  "businessCasesAuthorized": true,
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "runtimeRoot": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+    "application": "Default Web Site/GestionDocumental-Docuarchi.net",
+    "applicationPool": "DefaultAppPool",
+    "actorRef": "141",
+    "ambitoRef": "2",
+    "levelRef": "7",
+    "versionRef": "38",
+    "raDsn": "MembershipUsers",
+    "daDsn": "MembershipUsers",
+    "localTlsExceptionAuthorized": true
+  },
+  "maximum": {
+    "totalSessions": 2,
+    "loginAttemptsPerSession": 1,
+    "newPlans": 2,
+    "newLots": 2,
+    "newRoots": 4,
+    "newPdfs": 4,
+    "newExpedientes": 4,
+    "newStoredDocuments": 3,
+    "stopRequests": 1,
+    "pauseMilliseconds": 30000,
+    "selectStatementsTotal": 240,
+    "allHttpGlobal": 1000,
+    "allHttpPerCase": {
+      "COORD02": 925,
+      "COORD03": 75
+    },
+    "caseDurationMilliseconds": 600000
+  },
+  "historicalTotals": {
+    "httpRequests": 1578,
+    "selectStatements": 172,
+    "sessions": 11
+  },
+  "newRootNames": {
+    "COORD02": [
+      "DOC118-C02-A-20261109-1dd584ce",
+      "DOC118-C02-B-20261109-1dd584ce"
+    ],
+    "COORD03": [
+      "DOC118-C03-A-20261109-1dd584ce",
+      "DOC118-C03-B-20261109-1dd584ce"
+    ]
+  },
+  "pdfLabels": {
+    "COORD02": [
+      "DOC118-C02-A-20261107.pdf",
+      "DOC118-C02-B-20261107.pdf"
+    ],
+    "COORD03": [
+      "DOC118-C03-A-20261107.pdf",
+      "DOC118-C03-B-20261107.pdf"
+    ]
+  },
+  "pdfLabelMeaning": "Reused synthetic labels under new roots/expedientes and fresh original receipts; no historical file, claim or effect reused.",
+  "protectedLots": [
+    "18",
+    "21",
+    "24",
+    "25"
+  ],
+  "protectedAttempts": [
+    "41",
+    "53",
+    "69",
+    "74"
+  ],
+  "sessionReuse": "TWO_SHARED_INDEPENDENT_SESSIONS",
+  "runtimePin": {
+    "dllSha256": "9225b627c50b96c29ee9031173f0c578df4a16e970cb45404ee6be4d13eff291",
+    "pdbSha256": "37aab89e1a02ed2704644ec9d58e6f44f19125e36f1b8bdc60d3f7b8f4f97b72",
+    "storageSha256": "77d96def65f27c95817524dc2be25e2a0bcaf3e3a3035ff0be3828e818347a8c"
+  },
+  "historicalEvidence": {
+    "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observador-continuacion-20261109.json",
+    "sha256": "52e383c21339c67d3330572bb7be45c38628cf1e8d78ccac76589ab572d7c81d"
+  },
+  "sourceBindingEvidence": {
+    "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-observador-continuacion-20261109.json",
+    "sha256": "52e383c21339c67d3330572bb7be45c38628cf1e8d78ccac76589ab572d7c81d"
+  },
+  "capture": {
+    "mechanism": "Existing four-input masked console, launched on the normal interactive desktop outside CodexSandboxDesktop.",
+    "credentialsAvailableInAgentEnvironment": false,
+    "phaseConfirmations": false
+  },
+  "prohibited": [
+    "Modification of shared storage/SII, configuration, permission, schema or workers.",
+    "Mutation/replay of protected lots18/21/24/25 or attempts41/53/69/74.",
+    "Automatic retries after unknown mutation or failed authentication.",
+    "Reusing historical session budgets or replacing historical reports/pins.",
+    "Saving credentials, cookies, connections, payloads or business rows."
+  ],
+  "newWindowConsumption": {
+    "httpRequests": 1,
+    "selectStatements": 0,
+    "sessions": 0,
+    "documentEffects": 0
+  },
+  "maximumAggregateIncludingHistory": {
+    "httpRequests": 2578,
+    "selectStatements": 412,
+    "sessions": 13
+  },
+  "settlementEvidence": {
+    "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-auditoria-lote25-20261110.json",
+    "sha256": "6710a99b132870d65c4a1f26d54613a5e4ca95954254f44bf0ddb0194e2fbb78"
+  },
+  "parentWindow": {
+    "runId": "7896bbf5729a7f9996fbd8cc8e18af18",
+    "consumption": {
+      "httpRequests": 301,
+      "selectStatements": 59,
+      "sessions": 2
+    },
+    "latestReadEvidence": {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-auditoria-lote25-20261110.json",
+      "sha256": "6710a99b132870d65c4a1f26d54613a5e4ca95954254f44bf0ddb0194e2fbb78"
+    }
+  },
+  "regression": {
+    "tests": 266,
+    "passed": 266,
+    "failed": 0,
+    "internalV2Cases": 157,
+    "internalCasesNotAddedToNodeCount": true,
+    "wholeSuiteRun": true
+  },
+  "bootstrapWarmup": {
+    "httpRequests": 1,
+    "method": "HEAD",
+    "relativePath": "gestor.aspx",
+    "retries": 0,
+    "redirects": 0,
+    "evidence": {
+      "path": ".tmp/doc118-integration-warmup-1dd584ce2fc6352d2c162545990b85dc.json",
+      "sha256": "4bb9898a0f122ec0e774924efde3bd7add38afd254b6a34b18985b8d5a07f5e1"
+    }
+  },
+  "stop": {
+    "phaseIndex": 0,
+    "historyEmpty": true,
+    "sessionAttempts": 0,
+    "code": "DOC118_LIVE_PHASE_UNCONFIRMED",
+    "captureStage": "NOT_RECORDED_BY_EXECUTED_VERSION",
+    "observerClosed": true,
+    "credentialsCleared": true,
+    "runLeaseReleased": true,
+    "finishedUtc": "2026-11-10T12:14:34.734Z"
+  },
+  "postStopCandidateRegression": {
+    "tests": 268,
+    "passed": 268,
+    "failed": 0,
+    "internalV2Cases": 157,
+    "internalCasesNotAddedToNodeCount": true,
+    "captureStagesRecordedForFutureAttempts": true
+  }
+}
