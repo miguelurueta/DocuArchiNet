@@ -5,7 +5,7 @@
   "baseCommit": "fdab3d9ef08e4440270f6ef82b0c754222b4dcba",
   "scope": {
     "path": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/implementation-resumption.json",
-    "sha256": "2a1f40e45aef0b4a564d160d34fdbdffb89ec8333790a6bc7bf8bb6f12045b92"
+    "sha256": "0fc35dbc9054519bd5780d850dde17107c02c7c4f873e5a7f7316d2d7332882f"
   },
   "jira": {
     "status": "En curso",
@@ -327,5 +327,6 @@
     "archivePreserved": "PASS",
     "finalGitSynchronization": "CHECK_AT_DELIVERY"
   },
-  "latestIntegrationContinuation": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-continuacion-20261110.json"
+  "latestIntegrationContinuation": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-continuacion-20261110.json",
+  "latestReviewedCapture": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-captura-revisada-20261110.json"
 }

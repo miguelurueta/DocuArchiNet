@@ -2142,6 +2142,44 @@
         "sourceTraceability": "PASS",
         "gitSynchronization": "VERIFY_AT_DELIVERY"
       }
+    },
+    "captureReviewContinuation": {
+      "status": "AWAITING_REVIEWED_CAPTURE_INPUT",
+      "reportPath": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-captura-revisada-20261110.json",
+      "scopePath": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-integration-continuation.json",
+      "captureAttempt": 2,
+      "consumed": {
+        "httpRequests": 2,
+        "selectStatements": 0,
+        "sessions": 0,
+        "documentEffects": 0
+      },
+      "cumulative": {
+        "httpRequests": 1580,
+        "selectStatements": 172,
+        "sessions": 11
+      },
+      "localRegression": {
+        "tests": 269,
+        "passed": 269,
+        "failed": 0,
+        "internalV2Cases": 157,
+        "internalCasesNotAddedToNodeCount": true,
+        "wholeSuiteRun": true
+      },
+      "progress": {
+        "completed": 32,
+        "total": 38,
+        "pending": 6
+      },
+      "validation": {
+        "openSpecStrict": "PASS",
+        "refinement": "PASS",
+        "refinementChecks": 15,
+        "decisionRequirementPairs": 18,
+        "sourceTraceability": "PASS",
+        "gitSynchronization": "VERIFY_AT_DELIVERY"
+      }
     }
   },
   "sourceReviewDeltas": [
@@ -3441,6 +3479,58 @@
       "internalV2Cases": 157,
       "internalCasesNotAddedToNodeCount": true,
       "additionalCasesSince260": 8
+    },
+    "progress": {
+      "completed": 32,
+      "total": 38,
+      "pending": 6
+    },
+    "validation": {
+      "openSpecStrict": "PASS",
+      "refinement": "PASS",
+      "refinementChecks": 15,
+      "decisionRequirementPairs": 18,
+      "sourceTraceability": "PASS",
+      "gitSynchronization": "VERIFY_AT_DELIVERY"
+    }
+  },
+  "captureReviewToolDeltas": [
+    {
+      "path": "tools/e2e/scripts/support/doc118-current-window.cjs",
+      "beforeCommit": "f5e95d584c75b4bfcedfd865a6c1937b44971390",
+      "beforeSha256": "64cc757017b58ccc999039c03a3393dbbdabfd4500d3b956988e22ed9d423bd0",
+      "afterSha256": "5278efd5c6327122d74c1e8b2794dc3eb15ac364a72d960835b0cd403fe482c6"
+    },
+    {
+      "path": "tests/doc118-current-window.test.cjs",
+      "beforeCommit": "f5e95d584c75b4bfcedfd865a6c1937b44971390",
+      "beforeSha256": "7059e9f2e846b11078eea92859df1714f90acdfffb3fc2f2c756635abe055f2a",
+      "afterSha256": "c23e9b74e543e7ca49082c708ab184317e797138566cb16d19c362d5397d3235"
+    }
+  ],
+  "captureReviewContinuation": {
+    "status": "AWAITING_REVIEWED_CAPTURE_INPUT",
+    "reportPath": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-captura-revisada-20261110.json",
+    "scopePath": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-integration-continuation.json",
+    "captureAttempt": 2,
+    "consumed": {
+      "httpRequests": 2,
+      "selectStatements": 0,
+      "sessions": 0,
+      "documentEffects": 0
+    },
+    "cumulative": {
+      "httpRequests": 1580,
+      "selectStatements": 172,
+      "sessions": 11
+    },
+    "localRegression": {
+      "tests": 269,
+      "passed": 269,
+      "failed": 0,
+      "internalV2Cases": 157,
+      "internalCasesNotAddedToNodeCount": true,
+      "wholeSuiteRun": true
     },
     "progress": {
       "completed": 32,

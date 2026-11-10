@@ -2,7 +2,7 @@
   "issueKey": "DOC-118",
   "kind": "DOC118_INTEGRATION_CONTINUATION",
   "status": "AUTHORIZED",
-  "executionStatus": "STOPPED_BEFORE_LOGIN_REVIEW_REQUIRED",
+  "executionStatus": "CONTINUATION_AUTHORIZED_AWAITING_MASKED_CAPTURE",
   "recordedUtc": "2026-11-10T11:59:48.396Z",
   "source": {
     "kind": "explicit-user-task-continuation",
@@ -111,7 +111,7 @@
     "Saving credentials, cookies, connections, payloads or business rows."
   ],
   "newWindowConsumption": {
-    "httpRequests": 1,
+    "httpRequests": 2,
     "selectStatements": 0,
     "sessions": 0,
     "documentEffects": 0
@@ -174,5 +174,26 @@
     "internalV2Cases": 157,
     "internalCasesNotAddedToNodeCount": true,
     "captureStagesRecordedForFutureAttempts": true
+  },
+  "captureReview": {
+    "captureAttempt": 2,
+    "userText": "lanza",
+    "recordedUtc": "2026-11-10T12:37:54.374Z",
+    "previousSessionAttempts": 0,
+    "previousSelectStatements": 0,
+    "previousBusinessEffects": 0,
+    "previousStop": {
+      "path": ".tmp/doc118-live-1dd584ce2fc6352d2c162545990b85dc-capture-stop-1/status.json",
+      "sha256": "15e4107ec4ebf45e6f63b3a06ea263fe6054d0f63586512d59470198890ffe29"
+    },
+    "previousObserverClosed": true,
+    "observerAttempt": 2,
+    "noAuthenticationRetry": true,
+    "preservedHttpConsumption": 1,
+    "additionalWarmupHttp": 1,
+    "additionalWarmupEvidence": {
+      "path": ".tmp/doc118-integration-warmup-1dd584ce2fc6352d2c162545990b85dc-capture2.json",
+      "sha256": "0aa70620a77f2cf68e983e4fb297cef6ff10e5f7a64662793a7dc2e107eb74d4"
+    }
   }
 }

@@ -1,0 +1,9 @@
+# DOC-118 — captura revisada solicitada con «lanza»
+
+Se revisó la parada anterior:phaseIndex0,history/referencias vacíos,cero intentos de login,cero SELECT,cero planes/lotes/documentos,SDK cerrado y credenciales eliminadas. Se preservó su carpeta íntegra como .tmp/doc118-live-1dd584ce2fc6352d2c162545990b85dc-capture-stop-1;el JSON de alcance conserva la huella del reporte anterior. No se reenvió una mutación ni se reintentó una autenticación.
+
+El usuario solicitó «lanza». Se reabrió la captura con el mismo alcance finito y contadores conservados. El worker volvió a apagarse por inactividad;una HEAD adicional única respondió200 y quedó contabilizada. Son2 HTTP consumidas de1000,0 SELECT y0 sesiones nuevas de2. Histórico1578 HTTP/172 SELECT/11 sesiones intacto;acumulado1580/172/11. Sin reiniciar presupuesto ni ampliar efectos.
+
+El observador existente se conectó en su intento2 al worker30912,con fuente enlazada. La consola se lanzó fuera de CodexSandboxDesktop,en el escritorio normal. Al registrar estaba AWAITING_CREDENTIALS/APPLICATION_USER,sin sesiones o fases. Pide las cuatro entradas enmascaradas de aplicación y SELECT y continuará automáticamente tras comprobarlas. El diagnóstico conserva solo la etapa,nunca valores.
+
+Regresión completa269/269 Node;157 casos V2 internos incluidos sin sumarlos. Dos deltas de herramienta/pruebas desde f5e95d5 verifican la conservación de ambas HEAD y rechazan reutilizar un stop con login/efectos o ampliar la capacidad. Lote25 conserva documento16235/inventario23339 comprobados y no se reenvía. Estado técnico32/38,seis comprobaciones reales aún abiertas. Archivo anterior,almacenamiento/SII,binarios y configuración intactos. Este registro describe el inicio de la captura;no anticipa aceptación de integración. Fuente:doc118-captura-revisada-20261110.json.

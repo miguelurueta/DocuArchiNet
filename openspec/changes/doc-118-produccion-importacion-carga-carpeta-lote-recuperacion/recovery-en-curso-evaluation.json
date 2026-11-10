@@ -1426,5 +1426,43 @@
       "sourceTraceability": "PASS",
       "gitSynchronization": "VERIFY_AT_DELIVERY"
     }
+  },
+  "captureReviewContinuation": {
+    "status": "AWAITING_REVIEWED_CAPTURE_INPUT",
+    "reportPath": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-captura-revisada-20261110.json",
+    "scopePath": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-integration-continuation.json",
+    "captureAttempt": 2,
+    "consumed": {
+      "httpRequests": 2,
+      "selectStatements": 0,
+      "sessions": 0,
+      "documentEffects": 0
+    },
+    "cumulative": {
+      "httpRequests": 1580,
+      "selectStatements": 172,
+      "sessions": 11
+    },
+    "localRegression": {
+      "tests": 269,
+      "passed": 269,
+      "failed": 0,
+      "internalV2Cases": 157,
+      "internalCasesNotAddedToNodeCount": true,
+      "wholeSuiteRun": true
+    },
+    "progress": {
+      "completed": 32,
+      "total": 38,
+      "pending": 6
+    },
+    "validation": {
+      "openSpecStrict": "PASS",
+      "refinement": "PASS",
+      "refinementChecks": 15,
+      "decisionRequirementPairs": 18,
+      "sourceTraceability": "PASS",
+      "gitSynchronization": "VERIFY_AT_DELIVERY"
+    }
   }
 }

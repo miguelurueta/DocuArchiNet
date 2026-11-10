@@ -47,21 +47,23 @@
     }
   },
   "integrationContinuation": {
-    "state": "STOPPED_BEFORE_LOGIN_CAPTURE_REVIEW_REQUIRED",
+    "state": "AWAITING_REVIEWED_CAPTURE_INPUT",
     "authorizationPath": "openspec/changes/doc-118-produccion-importacion-carga-carpeta-lote-recuperacion/execution-integration-continuation.json",
     "runId": "1dd584ce2fc6352d2c162545990b85dc",
     "consumed": {
-      "httpRequests": 1,
+      "httpRequests": 2,
       "selectStatements": 0,
       "sessions": 0,
       "documentEffects": 0
     },
     "accumulatedIncludingHistory": {
-      "httpRequests": 1579,
+      "httpRequests": 1580,
       "selectStatements": 172,
       "sessions": 11
     },
-    "nextAction": "Clarify whether all four credential inputs were completed. Review the capture-only stop before another console; no authentication or business command was dispatched."
+    "nextAction": "Clarify whether all four credential inputs were completed. Review the capture-only stop before another console; no authentication or business command was dispatched.",
+    "captureAttempt": 2,
+    "latestReport": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-captura-revisada-20261110.json"
   },
   "protectedLots": [
     "18",
