@@ -1,0 +1,110 @@
+﻿{
+    "status":  "PASS",
+    "createdAtUtc":  "2026-11-11T11:52:35.2100248Z",
+    "command":  "npm.cmd --prefix tools/opsxj run opsxj:prompt-review -- \u003cprompt.md\u003e --tech-profile legacy-webforms-vb --no-fix",
+    "reviewType":  "structural",
+    "baseCommit":  "9faa8a35106d8f35ca1164f6d580596b36cd4c06",
+    "sqlPolicy":  "Generar archivos SQL; ejecución manual por el usuario; esperar confirmación; revisión posterior exclusivamente SELECT. El agente no aplica archivos SQL.",
+    "semanticReview":  "Coherencia contrastada con la exploración, las decisiones aprobadas y la regla de SQL manual. Los siete prompts distinguen archivo generado, confirmación de ejecución y verificación posterior.",
+    "prompts":  [
+                    {
+                        "prompt":  "01-esquema-contratos-y-configuracion.md",
+                        "sha256":  "cb1f3f524d4585410bbd69b5fbf0909c43187b8aa57ca31fdabfb1c92e20b1e8",
+                        "status":  "pass",
+                        "technologyProfile":  "legacy-webforms-vb",
+                        "reviewedAtUtc":  "2026-11-11T11:52:32.236Z",
+                        "summary":  {
+                                        "blockers":  0,
+                                        "major":  0,
+                                        "minor":  0,
+                                        "info":  1
+                                    },
+                        "report":  "Revision/01-esquema-contratos-y-configuracion.review.json"
+                    },
+                    {
+                        "prompt":  "02-autorizacion-conexion-y-plantillas.md",
+                        "sha256":  "fc882970d44a120ecd9c4f96ff23d4dad01a92e7f2a7e1548d91022a2b6ac19d",
+                        "status":  "pass",
+                        "technologyProfile":  "legacy-webforms-vb",
+                        "reviewedAtUtc":  "2026-11-11T11:52:32.777Z",
+                        "summary":  {
+                                        "blockers":  0,
+                                        "major":  0,
+                                        "minor":  0,
+                                        "info":  1
+                                    },
+                        "report":  "Revision/02-autorizacion-conexion-y-plantillas.review.json"
+                    },
+                    {
+                        "prompt":  "03-lectura-y-validacion-excel.md",
+                        "sha256":  "c293388b4103e435bf712c6eec47daad6bd577e481f96831286c258c607ca930",
+                        "status":  "pass",
+                        "technologyProfile":  "legacy-webforms-vb",
+                        "reviewedAtUtc":  "2026-11-11T11:52:33.252Z",
+                        "summary":  {
+                                        "blockers":  0,
+                                        "major":  0,
+                                        "minor":  0,
+                                        "info":  1
+                                    },
+                        "report":  "Revision/03-lectura-y-validacion-excel.review.json"
+                    },
+                    {
+                        "prompt":  "04-recepcion-y-preparacion.md",
+                        "sha256":  "bb1af68aa180d89fb795e78f0243cb68eeb943968186ccdf5ab425f92f4b41eb",
+                        "status":  "pass",
+                        "technologyProfile":  "legacy-webforms-vb",
+                        "reviewedAtUtc":  "2026-11-11T11:52:33.727Z",
+                        "summary":  {
+                                        "blockers":  0,
+                                        "major":  0,
+                                        "minor":  0,
+                                        "info":  1
+                                    },
+                        "report":  "Revision/04-recepcion-y-preparacion.review.json"
+                    },
+                    {
+                        "prompt":  "05-confirmacion-y-recuperacion.md",
+                        "sha256":  "5a099a65f57377454d39bf1330e88c7a415bcedd9ba825c7413578503a0aaae7",
+                        "status":  "pass",
+                        "technologyProfile":  "legacy-webforms-vb",
+                        "reviewedAtUtc":  "2026-11-11T11:52:34.201Z",
+                        "summary":  {
+                                        "blockers":  0,
+                                        "major":  0,
+                                        "minor":  0,
+                                        "info":  1
+                                    },
+                        "report":  "Revision/05-confirmacion-y-recuperacion.review.json"
+                    },
+                    {
+                        "prompt":  "06-interfaz-y-menu.md",
+                        "sha256":  "760868e0723ccc963a207c0bb5c6efeb550e7770baf709f621a3020a2b693017",
+                        "status":  "pass",
+                        "technologyProfile":  "legacy-webforms-vb",
+                        "reviewedAtUtc":  "2026-11-11T11:52:34.670Z",
+                        "summary":  {
+                                        "blockers":  0,
+                                        "major":  0,
+                                        "minor":  0,
+                                        "info":  1
+                                    },
+                        "report":  "Revision/06-interfaz-y-menu.review.json"
+                    },
+                    {
+                        "prompt":  "07-verificacion-integral-y-cierre.md",
+                        "sha256":  "984b36b3c4fcd9b4fffd80306763219f4589525e7e6ddc46674dabfbab171ba1",
+                        "status":  "pass",
+                        "technologyProfile":  "legacy-webforms-vb",
+                        "reviewedAtUtc":  "2026-11-11T11:52:35.164Z",
+                        "summary":  {
+                                        "blockers":  0,
+                                        "major":  0,
+                                        "minor":  0,
+                                        "info":  1
+                                    },
+                        "report":  "Revision/07-verificacion-integral-y-cierre.review.json"
+                    }
+                ],
+    "hashNormalization":  "UTF-8 text with LF line endings"
+}
