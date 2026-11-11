@@ -1,77 +1,113 @@
 ## Context
 
-DOC-119: PRODUCCION-IMPORTACION-CARGA-CARPETA-SEGUIMIENTO
+DOC-119 — PRODUCCION-IMPORTACION-CARGA-CARPETA-SEGUIMIENTO. Fuente completa preservada en `specs/produccion-importacion-carga-carpeta-seguimiento/jira-context.md`, incluido el acuerdo UI/UX de 2026-11-10.
 
-## Jira Details
+Inspección de código sobre `d7dbf201338bbfef3f82e3521359f30b1824bf95`, rama `feature/DOC-119`, carpeta principal. Jira identifica main `9faa8a35106d8f35ca1164f6d580596b36cd4c06` como contraste actual; `a3c7263763a89901ba78d05ccebc284a43a4cd76` es antecedente histórico. Ninguna evidencia anterior se atribuye a una corrida de DOC-119.
 
-> Alcance refinado
-> Validación operativa del seguimiento existente: lectura/CSV, recuperación del cliente y árbol. Limpieza permanece condicionada a una decisión explícita de retención y habilitación. Incluye, como fase final posterior a la validación operativa, la reorganización acotada de accesos de importación y consulta en el menú superior y contextual de cada nivel, conservando el asistente y la recuperación existentes.
-> Base y procedencia
-> Revisión arquitectónica 2026-11-04 solicitada por el usuario frente a lo ya implementado. Base entregada: PR125 integrado en main, merge a3c7263763a89901ba78d05ccebc284a43a4cd76. DOC110–115 están Listo. Esta revisión es documental: no ejecuta nuevas pruebas ni certifica escenarios faltantes. Los resultados históricos conservan su SHA y ambiente; no equivalen a una nueva corrida del commit actual.
-> Implementación existente comprobada
-> Consulta autorizada, filtros/páginas, totales originales, CSV seguro por página, recuperación por IDs/sessionStorage, reselección y actualización por relación/ID sin cambiar selección. Consultar/exportar no ejecuta reconciliación. DOC113 acredita apertura, preparación, foco/teclado/postback/reapertura; no acredita todos los estados del seguimiento. Limpieza interna existe con diario y verificación; la composición actual usa por defecto política deshabilitada y permite inyección explícita. No hay endpoint, botón ni job de borrado. El informe local histórico menciona claves de configuración: no asumirlas instaladas ni añadirlas a Web.config.
-> Rutas que deben reutilizarse
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.Limpieza.vb
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionLimpiezaOriginalImportacion.vb
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/js/gestion/ImportacionCarpetas/ImportacionCarpetas.js
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/js/gestion/WebFormProducionDocumental.js
-> Evidencia existente y su alcance
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-consulta-exportacion-local-20261028.md
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-recuperacion-local-20261028.md
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-cliente-rama-local-20261030.md
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-limpieza-local-20261030.md
-> Escenarios y trabajo pendiente
-> SEG-01 — LOCAL + consultas reales REC: falta acreditar el recorrido integrado de filtros/paginación/descarga CSV y usuario ajeno con estados mixtos. Verificar lectura sin mutación con SELECT, totalOriginal separado de totalFiltrado, recibido frente a almacenado y fórmulas CSV neutralizadas. La exportación vigente es de una página; no presentarla como exportación total.
-> SEG-02 — COBERTURA PARCIAL: REC acredita reapertura por IDs; navegador local acredita reselección, homónimos y árbol con helper real/servicio sintético. Completar recarga autenticada con recepción pendiente y actualización deduplicada del nivel original, conservando selección. Metadatos no prueban igualdad: bytes/hash/autoridad se verifican en servidor.
-> SEG-03 — CONDICIONADO, NO_EJECUTADO REAL: limpieza local protege activos/inciertos/permanentes y solo retira el original .bin elegible, sin poda de .part/historial. Antes de ejecución real se requiere política de retención, mecanismo operativo interno concreto y autorización específica. Si se acuerda operación sin limpieza habilitada, documentar ese límite y consumo de disco; no marcar SEG03 ejecutado ni inventar plazo/borrado automático.
-> Guía operativa — actualizar pasos de consulta, CSV paginado, selección local pendiente, incertidumbre, detención y recuperación de DOC118. Separar comandos de lectura de efectos. No crear un segundo coordinador ni un planificador web.
-> Criterio de cierre
-> Cerrar SEG01/02 con evidencia integrada y resolver explícitamente el alcance/estado de SEG03. Registrar discrepancias documentales contra código actual. Mantener resultados y temporales de pruebas conservados; este ticket no autoriza su eliminación.
-> Reglas comunes de ejecución
-> Reutilizar modelos, repositorio operativo, tablas, ASMX/ASHX, adaptadores, coordinador y herramientas E2E existentes. Antes de programar, contrastar cada criterio con código y evidencia; modificar producto solo ante una brecha reproducida y cubrir su regresión. Leer AGENTS.md y tools/e2e/AGENT-RUNBOOK.md antes de autenticar. Pruebas reales, cambios de permisos, fallos inyectados, limpieza y carga requieren autorización específica de ambiente, cuentas y recursos; este ticket no la concede. Controles RA/DA exclusivamente SELECT, secretos efímeros, evidencia saneada. No repetir efectos inciertos ni cargas ya acreditadas sin motivo.
-> Decisiones vigentes que sustituyen exigencias históricas
-> No modificar AlmacenamientoDocumentoProduccionDocumental ni SII. Se conserva PDF como formato soportado por este adaptador; TIFF/Multi-TIFF deben rechazarse, no implementarse para satisfacer el prompt anterior. El aislamiento adicional del XML posterior al commit frente a otras cargas fue descartado expresamente por el usuario: queda fuera del alcance y no se afirma como garantía. No habilitar workers, migraciones, permisos, cuotas globales ni limpieza automática por inferencia. Preservar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, snapshot, inventario original y efectos confirmados. Sin rollback global.
-> Fuente transversal
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-matriz-final-20261102.md
-> https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc115-verificacion-final-20261104.md
-> Acuerdo de alcance UI/UX — 2026-11-10
-> Actualización autorizada por el usuario tras revisar la grabación de Producción Documental. Secuencia: acreditar primero el seguimiento operativo de DOC-119; ejecutar al final de DOC-119 la reorganización de accesos descrita aquí; después consolidar y cerrar DOC-120 sobre la interfaz resultante. Esta fase queda dentro de DOC-119, sin crear otro ticket ni trasladar SEG01/02 a DOC-120.
-> La base a3c7263763a89901ba78d05ccebc284a43a4cd76 citada arriba conserva su carácter histórico. El punto de contraste actual es main 9faa8a35106d8f35ca1164f6d580596b36cd4c06, posterior al cierre de DOC-118 y al merge de PR128. Antes de ejecutar, registrar el SHA real y contrastar las evidencias de DOC116–118; no atribuir resultados históricos a una nueva corrida.
-> Fase final de DOC-119 — reorganización acotada de interfaz
-> UI-01 — Integrar los accesos operativos en el menú Importación existente: Importar carpetas… y Consultar importación…. Separar visualmente perfiles/proveedores/fuentes y respetar sus permisos actuales. Retirar la franja permanente de controles de importación cuando sus funciones tengan un acceso equivalente verificado. La consulta por referencia pasa a su diálogo o vista de consulta; no se elimina.
-> UI-02 — Ofrecer Importar carpetas aquí… y el acceso a consulta pertinente en el menú contextual de cada nivel elegible y autorizado. El menú superior toma el nivel seleccionado; el contextual toma explícitamente el nivel pulsado, aunque antes estuviera seleccionado otro. No aplicar la acción indiscriminadamente a expedientes, documentos o zonas vacías. Mostrar el nivel y la ruta canónica autorizada en el asistente; impedir cambios silenciosos de destino.
-> UI-03 — Reutilizar el mismo asistente, servicios, contratos y controles de autoridad. Conservar consulta por referencia, último lote y verificación de confirmación pendiente, además de recuperación por IDs/sessionStorage, reselección y actualización deduplicada del árbol sin perder selección. Los pendientes relevantes mantienen aviso visible. Esta reorganización no exige construir un historial nuevo ni ampliar el contrato de consulta; la consulta contextual debe respetar el contexto y la autoridad existentes.
-> UI-04 — Corregir el recorte del menú contextual dentro del área visible, con ajuste de posición y desplazamiento cuando su altura lo requiera. Permitir apertura por teclado, navegación, Escape y retorno del foco. Revisar los otros consumidores si se modifica jquery.contextMenu.js, porque es un componente compartido.
-> UI-05 — Verificar ambos accesos, nivel seleccionado frente a nivel pulsado, niveles homónimos, falta de selección, permisos denegados/revocados, reapertura/postback/recarga, consulta y recuperación de confirmación pendiente, foco/teclado y visibilidad del menú. Reutilizar las pruebas existentes y ampliar solo los casos afectados; comprobar también los menús compartidos y la carga individual pertinente. No repetir cargas ni efectos inciertos sin motivo. Registrar resultado, SHA, ambiente y límites reales.
-> Cierre y límites complementarios de DOC-119
-> Mantener SEG01/02 y resolver explícitamente SEG03 según el criterio original. Un defecto reproducible de destino, autoridad, acceso o recuperación se corrige y verifica durante DOC-119; no se difiere bajo la etiqueta de mejora visual. La reorganización UI01–05 se realiza después de la validación operativa y queda verificada antes del cierre final de DOC-120. Actualizar la guía operativa con la navegación definitiva.
-> No modificar AlmacenamientoDocumentoProduccionDocumental, SII, esquema de base de datos ni semántica de recepción/confirmación/recuperación para implementar esta reorganización. No habilitar limpieza ni jobs. Las reglas de autorización de pruebas reales, retención, SELECT y secretos siguen vigentes; esta edición de Jira no autoriza ejecutar cargas, fallos inyectados o borrados.
+La consulta actual reautoriza propietario/ámbito/nivel/recursos y usa SELECT, con snapshot por página. CSV exporta una página. La recuperación guarda IDs acotados y actualiza el árbol por relaciones confirmadas.
+
+| Criterio | Hallazgo de inspección | Implicación |
+| --- | --- | --- |
+| SEG-01 | Servicio admite raíz/estado/recepción; cliente consulta/exporta sin esos filtros | Reproducir brecha antes de corregir con DTO vigente |
+| UI-01 | El menú Importación se crea desde el host administrativo; los accesos operativos están en una franja aparte | Garantizar acceso al importador sin administrar perfiles |
+| UI-02 | Contextual de Paneltreview llama abrir sin capturar el nodo; abrir usa data-nivel | Fijar nivel pulsado explícito, reautorizado por servidor |
+| UI-04 | Plugin posiciona antes de mostrar, sin límite vertical ni teclado explícito | Reproducir recorte y teclado; inventariar consumidores compartidos |
+| DOC-118 | Archivo administrativo 29/38 conservado y cierre técnico posterior 38/38 en JSON/reporte | Separar cortes; ninguno acredita SEG-01/02 actual |
 
 ## Goals / Non-Goals
 
 **Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+
+- Acreditar SEG-01/02 integrados y explicitar resolución operativa de SEG-03.
+- Reorganizar UI-01–05 después de aceptar el seguimiento.
+- Preservar autoridad, destino, recuperación, identidad y efectos confirmados.
 
 **Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+
+- Historial nuevo, exportación global, nuevas capas/endpoints/tablas.
+- Modificar SII, AlmacenamientoDocumentoProduccionDocumental, semántica operativa o soporte PDF.
+- Habilitar limpieza, workers, permisos, cuotas o aislamiento adicional XML por inferencia.
+- Reutilizar autorizaciones reales anteriores o borrar recursos de pruebas.
+
+## PRECONDICIONES DE RUTAS
+
+Inventario previo de rutas existentes. Antes de añadir cualquier archivo, justificarlo en este inventario y registrarlo en `GestionDocumental-Docuarchi.net.vbproj` cuando corresponda.
+
+| Responsabilidad | Rutas y símbolos | Tratamiento |
+| --- | --- | --- |
+| Bootstrap | `gestion/WebFormProducionDocumental.aspx`, `gestion/WebFormProducionDocumental.aspx.vb`: RenderImportacionCarpetas/RenderPerfilImportacion y sus PreRender | Integrar accesos y conservar contexto tras postback |
+| Menú administrativo | `js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js`: doc110-navigation; ProveedorAdminEditor.js y FuenteAdminEditor.js en el mismo directorio | Integrar operación sin depender de administración |
+| Cliente | `js/gestion/ImportacionCarpetas/ImportacionCarpetas.js`: montar, abrir, consultar, manual, verify, crearReferencias | Una instancia; destino explícito; filtros existentes si se reproduce brecha |
+| Vista | `js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js`, `ImportacionCarpetas.css` y `PerfilImportacionEditor.css` en el mismo directorio | Consulta/destino/avisos en interfaz existente |
+| Árbol/contextual | `js/gestion/WebFormProducionDocumental.js`: contextual de Paneltreview y Doc111ActualizarRama | Nivel pulsado frente a seleccionado; identidad por relación/ID |
+| Plugin compartido | `js/jquery.contextMenu.js`, `js/jquery.contextMenu.css` | Corrección tras reproducción e inventario de consumidores |
+| Endpoint/contrato | `webservice/WebServiceImportacionCarpetas.asmx.vb`: ConsultarLote, ConsultarRecursosLote, ExportarPaginaLote, ConsultarConfirmacionLote | Reutilizar DTO y dispatcher; sin endpoints nuevos |
+| Servicio/autoridad | `Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb`: ConsultarPagina/ExportarPagina/Autorizar; `Infrastructure/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasContextAdapter.vb`: ResolverDestino | Reutilizar; modificar solo ante defecto reproducido |
+| Persistencia | `Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consulta.vb`: ValidarFiltroConsulta/ConsultarRaices/ConsultarArchivos | SELECT parametrizado; sin esquema/repositorio paralelo |
+| Limpieza | `Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.Limpieza.vb`; `Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionLimpiezaOriginalImportacion.vb`: Crear | Sin cambios ni invocación; deshabilitada por defecto |
+| Pruebas locales | `tests/doc111-importacion-carpetas-client.test.cjs`, `tests/doc110-perfil-importacion-behavior.test.cjs`, `tests/ImportacionCarpetasBehaviorTests.cs` | Ampliar solo casos afectados |
+| E2E | `tools/e2e/scripts/run-doc111-importacion-carpetas.cjs`, `run-doc113-ventana-importacion.cjs` en el mismo directorio; `tools/e2e/tests/doc111-importacion-carpetas.spec.cjs` | Revisar modos antes de ejecutar; REC no equivale a lectura |
+| Documentación | `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/11-prompt-seguimiento-operacion.md`, `Diseno/02-contratos-operacion.md` y `Validacion/` bajo ese directorio; `Doc/Tecnica/Opsxj/doc-119-produccion-importacion-carga-carpeta-seguimiento/` | Navegación definitiva, contratos y evidencia con límites |
 
 ## Decisions
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-01 — Procedencia y aceptación por escenario (RQ-01)
 
+Separar inspección, prueba local con dobles y ejecución autenticada. Conservar archivo administrativo DOC-118; contrastar `doc118-integracion-completa-20261110.json` y el primer corte de `doc118-resultados-integracion.md` como cierre técnico posterior. Su 38/38 y sus lotes son antecedentes, no aceptación SEG-01/02. Registrar SHA/ambiente/resultado de cada prueba nueva.
+
+### D-02 — Lectura y CSV de una página (RQ-02, SEG-01)
+
+Reutilizar ConsultarLote/ConsultarRecursosLote/ExportarPaginaLote. Verificar filtros raíz/estado/recepción, límites, páginas y totales original/filtrado. Distinguir RECIBIDO de almacenamiento confirmado. CSV exporta exactamente página/filtros representados, neutraliza fórmulas y no reconcilia. Páginas sucesivas no prometen snapshot global. Si se reproduce la falta de filtros en cliente, transportar los campos vigentes y cubrir regresión antes de aceptar SEG-01.
+
+### D-03 — Recuperación por IDs y rama original (RQ-03, SEG-02)
+
+Conservar IDs de plan/lote bajo el espacio de recuperación como pistas, nunca autoridad. Consultar confirmación sin reenviar ConfirmarPlan; el lote recuperado fija su destino aunque cambie la selección visible. Reseleccionar por recursoId/raizId; metadatos no sustituyen validación de contenido en servidor. Actualizar rama original por relación/ID confirmado, sin duplicación, expansión ni cambio de selección.
+
+### D-04 — Limpieza condicionada (RQ-04, SEG-03)
+
+Conservar composición deshabilitada sin endpoint/job/botón/configuración nueva. Habilitar o ejecutar requiere política de retención, mecanismo interno concreto y autorización específica. Operar sin limpieza requiere decisión expresa del responsable y documentar consumo de disco: no se adopta por silencio. SEG-03 permanece condicionado/no ejecutado hasta resolución. No borrar temporales, .part, historial ni recursos de otras pruebas.
+
+### D-05 — Menú superior independiente de administración (RQ-05, UI-01)
+
+Integrar Importar carpetas… y Consultar importación… en Importación, disponible al importador sin administrar perfiles. Administración conserva permisos separados y separación visual. Reutilizar menú existente o construir acceso operativo sin elevar privilegios; evitar duplicación tras UpdatePanel. Retirar franja solo después de verificar equivalencia de referencia manual, último lote, verificación y avisos.
+
+### D-06 — Destino explícito según acceso (RQ-06, UI-02)
+
+Superior usa nivel seleccionado elegible; contextual usa explícitamente el nivel pulsado aunque difiera. Distinguir niveles de expedientes/documentos/fondo por formato e identidad actuales, nunca por nombre. Pasar únicamente referencia de nivel a AbrirImportacion con autorización actual; mostrar nivel/ruta canónica servidor. No permitir cambio silencioso de destino abierto. Consulta contextual respeta autoridad/contexto existentes y no reasigna destino de un lote ni crea historial por nivel.
+
+### D-07 — Asistente único y recuperación visible (RQ-07, UI-03)
+
+Reutilizar montar/asistente/servicios. Alojar consulta por referencia en diálogo/vista sin segundo coordinador. Mantener último lote, verificación de confirmación sin acuse, sessionStorage acotado, reselección y avisos visibles. Postback/reapertura no duplica listeners/instancias. Cerrar libera recursos de navegador sin prometer cancelar efectos servidor ni conservar File tras recarga.
+
+### D-08 — Viewport y teclado del contextual (RQ-08, UI-04)
+
+Reproducir recorte; medir menú visible y ajustar posición/altura con scroll al viewport. Soportar apertura por teclado, recorrido, Escape y retorno de foco al invocador. Si cambia plugin/CSS compartido, inventariar y comprobar consumidores afectados, incluidos árbol/documentos; mantener acción sobre recurso original.
+
+### D-09 — Secuencia y guía definitiva (RQ-09, UI-05)
+
+Orden: diagnóstico/corrección reproducida del seguimiento → aceptación integrada SEG-01/02 → UI-01–04 → regresión UI-05/guía → consolidación posterior DOC-120. Defectos de destino/autoridad/acceso/recuperación se corrigen en DOC-119. Cubrir niveles seleccionado/pulsado, homónimos, sin selección, permisos denegados/revocados, reapertura/postback/recarga, consulta/CSV/recuperación, foco y carga individual pertinente. No marcar tareas por existencia de archivos o resultados históricos.
+
+### D-10 — Autorizaciones y límites (RQ-10)
+
+Pruebas reales, carga, fallos inyectados, permisos y limpieza requieren autorización expresa de ambiente, cuentas, recursos y efectos. Controles RA/DA solo SELECT; secretos efímeros y evidencia saneada. Preservar SII/almacenamiento compartido, esquema, semántica operativa, PDF/rechazo TIFF, snapshot/inventario/efectos, EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA. Sin rollback global, workers, cuotas o aislamiento XML adicional.
 
 ## Risks / Trade-offs
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+- Mover accesos al menú administrativo sin resolver su ausencia para importadores perdería acceso operativo.
+- Capturar selección en vez del nodo pulsado puede abrir otro destino; servidor mantiene autoridad final.
+- Ocultar franja antes de equivalencia rompe recuperación/avisos.
+- Plugin compartido exige regresión de otros menús.
+- Timeout exige consulta/verificación y nunca reenvío automático.
+- Sin autorización real no hay aceptación SEG-01/02; sin decisión expresa SEG-03 sigue condicionado.
 
 ## Migration Plan
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+Sin migración, despliegue ni producto modificado en este refinamiento. Revisar design/spec y `plan-tareas-propuesto.md` antes de sustituir tareas genéricas. Refinamiento permanece borrador hasta revisión humana; después sincronizar trazabilidad OPSXJ y seguir D-09.
+
+Una reversa de navegación restaura accesos previos conservando pistas/datos/efectos; no revierte lotes ni elimina staging. Justificar y registrar archivos nuevos antes de compilar.
 
 ## Open Questions
 
-- TBD
+- Resolver expresamente SEG-03: operación sin limpieza con consumo documentado, o retención/mecanismo y autorización específica. No se ha decidido en esta sesión.
+- Identificar y autorizar ambiente/cuentas propias y ajenas/recursos adecuados para aceptación SEG-01/02; no heredar autorizaciones históricas.
+- Revisar este borrador y autorizar aplicación del mapa a tasks.md; generación no significa aprobación.

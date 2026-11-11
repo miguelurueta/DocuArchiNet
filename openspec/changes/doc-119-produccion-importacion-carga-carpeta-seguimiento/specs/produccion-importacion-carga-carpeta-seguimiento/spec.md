@@ -1,57 +1,152 @@
 ## ADDED Requirements
-### Requirement: PRODUCCION-IMPORTACION-CARGA-CARPETA-SEGUIMIENTO
-El sistema SHALL implementar el alcance definido para DOC-119.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
 
-#### Scenario: Reglas del ticket
-- Alcance refinado
-- Validación operativa del seguimiento existente: lectura/CSV, recuperación del cliente y árbol. Limpieza permanece condicionada a una decisión explícita de retención y habilitación. Incluye, como fase final posterior a la validación operativa, la reorganización acotada de accesos de importación y consulta en el menú superior y contextual de cada nivel, conservando el asistente y la recuperación existentes.
-- Base y procedencia
-- Revisión arquitectónica 2026-11-04 solicitada por el usuario frente a lo ya implementado. Base entregada: PR125 integrado en main, merge a3c7263763a89901ba78d05ccebc284a43a4cd76. DOC110–115 están Listo. Esta revisión es documental: no ejecuta nuevas pruebas ni certifica escenarios faltantes. Los resultados históricos conservan su SHA y ambiente; no equivalen a una nueva corrida del commit actual.
-- Implementación existente comprobada
-- Consulta autorizada, filtros/páginas, totales originales, CSV seguro por página, recuperación por IDs/sessionStorage, reselección y actualización por relación/ID sin cambiar selección. Consultar/exportar no ejecuta reconciliación. DOC113 acredita apertura, preparación, foco/teclado/postback/reapertura; no acredita todos los estados del seguimiento. Limpieza interna existe con diario y verificación; la composición actual usa por defecto política deshabilitada y permite inyección explícita. No hay endpoint, botón ni job de borrado. El informe local histórico menciona claves de configuración: no asumirlas instaladas ni añadirlas a Web.config.
-- Rutas que deben reutilizarse
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.Limpieza.vb
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionLimpiezaOriginalImportacion.vb
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/js/gestion/ImportacionCarpetas/ImportacionCarpetas.js
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/js/gestion/WebFormProducionDocumental.js
-- Evidencia existente y su alcance
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-consulta-exportacion-local-20261028.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-recuperacion-local-20261028.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-cliente-rama-local-20261030.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-limpieza-local-20261030.md
-- Escenarios y trabajo pendiente
-- SEG-01 — LOCAL + consultas reales REC: falta acreditar el recorrido integrado de filtros/paginación/descarga CSV y usuario ajeno con estados mixtos. Verificar lectura sin mutación con SELECT, totalOriginal separado de totalFiltrado, recibido frente a almacenado y fórmulas CSV neutralizadas. La exportación vigente es de una página; no presentarla como exportación total.
-- SEG-02 — COBERTURA PARCIAL: REC acredita reapertura por IDs; navegador local acredita reselección, homónimos y árbol con helper real/servicio sintético. Completar recarga autenticada con recepción pendiente y actualización deduplicada del nivel original, conservando selección. Metadatos no prueban igualdad: bytes/hash/autoridad se verifican en servidor.
-- SEG-03 — CONDICIONADO, NO_EJECUTADO REAL: limpieza local protege activos/inciertos/permanentes y solo retira el original .bin elegible, sin poda de .part/historial. Antes de ejecución real se requiere política de retención, mecanismo operativo interno concreto y autorización específica. Si se acuerda operación sin limpieza habilitada, documentar ese límite y consumo de disco; no marcar SEG03 ejecutado ni inventar plazo/borrado automático.
-- Guía operativa — actualizar pasos de consulta, CSV paginado, selección local pendiente, incertidumbre, detención y recuperación de DOC118. Separar comandos de lectura de efectos. No crear un segundo coordinador ni un planificador web.
-- Criterio de cierre
-- Cerrar SEG01/02 con evidencia integrada y resolver explícitamente el alcance/estado de SEG03. Registrar discrepancias documentales contra código actual. Mantener resultados y temporales de pruebas conservados; este ticket no autoriza su eliminación.
-- Reglas comunes de ejecución
-- Reutilizar modelos, repositorio operativo, tablas, ASMX/ASHX, adaptadores, coordinador y herramientas E2E existentes. Antes de programar, contrastar cada criterio con código y evidencia; modificar producto solo ante una brecha reproducida y cubrir su regresión. Leer AGENTS.md y tools/e2e/AGENT-RUNBOOK.md antes de autenticar. Pruebas reales, cambios de permisos, fallos inyectados, limpieza y carga requieren autorización específica de ambiente, cuentas y recursos; este ticket no la concede. Controles RA/DA exclusivamente SELECT, secretos efímeros, evidencia saneada. No repetir efectos inciertos ni cargas ya acreditadas sin motivo.
-- Decisiones vigentes que sustituyen exigencias históricas
-- No modificar AlmacenamientoDocumentoProduccionDocumental ni SII. Se conserva PDF como formato soportado por este adaptador; TIFF/Multi-TIFF deben rechazarse, no implementarse para satisfacer el prompt anterior. El aislamiento adicional del XML posterior al commit frente a otras cargas fue descartado expresamente por el usuario: queda fuera del alcance y no se afirma como garantía. No habilitar workers, migraciones, permisos, cuotas globales ni limpieza automática por inferencia. Preservar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, snapshot, inventario original y efectos confirmados. Sin rollback global.
-- Fuente transversal
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-matriz-final-20261102.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc115-verificacion-final-20261104.md
-- Acuerdo de alcance UI/UX — 2026-11-10
-- Actualización autorizada por el usuario tras revisar la grabación de Producción Documental. Secuencia: acreditar primero el seguimiento operativo de DOC-119; ejecutar al final de DOC-119 la reorganización de accesos descrita aquí; después consolidar y cerrar DOC-120 sobre la interfaz resultante. Esta fase queda dentro de DOC-119, sin crear otro ticket ni trasladar SEG01/02 a DOC-120.
-- La base a3c7263763a89901ba78d05ccebc284a43a4cd76 citada arriba conserva su carácter histórico. El punto de contraste actual es main 9faa8a35106d8f35ca1164f6d580596b36cd4c06, posterior al cierre de DOC-118 y al merge de PR128. Antes de ejecutar, registrar el SHA real y contrastar las evidencias de DOC116–118; no atribuir resultados históricos a una nueva corrida.
-- Fase final de DOC-119 — reorganización acotada de interfaz
-- UI-01 — Integrar los accesos operativos en el menú Importación existente: Importar carpetas… y Consultar importación…. Separar visualmente perfiles/proveedores/fuentes y respetar sus permisos actuales. Retirar la franja permanente de controles de importación cuando sus funciones tengan un acceso equivalente verificado. La consulta por referencia pasa a su diálogo o vista de consulta; no se elimina.
-- UI-02 — Ofrecer Importar carpetas aquí… y el acceso a consulta pertinente en el menú contextual de cada nivel elegible y autorizado. El menú superior toma el nivel seleccionado; el contextual toma explícitamente el nivel pulsado, aunque antes estuviera seleccionado otro. No aplicar la acción indiscriminadamente a expedientes, documentos o zonas vacías. Mostrar el nivel y la ruta canónica autorizada en el asistente; impedir cambios silenciosos de destino.
-- UI-03 — Reutilizar el mismo asistente, servicios, contratos y controles de autoridad. Conservar consulta por referencia, último lote y verificación de confirmación pendiente, además de recuperación por IDs/sessionStorage, reselección y actualización deduplicada del árbol sin perder selección. Los pendientes relevantes mantienen aviso visible. Esta reorganización no exige construir un historial nuevo ni ampliar el contrato de consulta; la consulta contextual debe respetar el contexto y la autoridad existentes.
-- UI-04 — Corregir el recorte del menú contextual dentro del área visible, con ajuste de posición y desplazamiento cuando su altura lo requiera. Permitir apertura por teclado, navegación, Escape y retorno del foco. Revisar los otros consumidores si se modifica jquery.contextMenu.js, porque es un componente compartido.
-- UI-05 — Verificar ambos accesos, nivel seleccionado frente a nivel pulsado, niveles homónimos, falta de selección, permisos denegados/revocados, reapertura/postback/recarga, consulta y recuperación de confirmación pendiente, foco/teclado y visibilidad del menú. Reutilizar las pruebas existentes y ampliar solo los casos afectados; comprobar también los menús compartidos y la carga individual pertinente. No repetir cargas ni efectos inciertos sin motivo. Registrar resultado, SHA, ambiente y límites reales.
-- Cierre y límites complementarios de DOC-119
-- Mantener SEG01/02 y resolver explícitamente SEG03 según el criterio original. Un defecto reproducible de destino, autoridad, acceso o recuperación se corrige y verifica durante DOC-119; no se difiere bajo la etiqueta de mejora visual. La reorganización UI01–05 se realiza después de la validación operativa y queda verificada antes del cierre final de DOC-120. Actualizar la guía operativa con la navegación definitiva.
-- No modificar AlmacenamientoDocumentoProduccionDocumental, SII, esquema de base de datos ni semántica de recepción/confirmación/recuperación para implementar esta reorganización. No habilitar limpieza ni jobs. Las reglas de autorización de pruebas reales, retención, SELECT y secretos siguen vigentes; esta edición de Jira no autoriza ejecutar cargas, fallos inyectados o borrados.
+### Requirement: RQ-01 — Procedencia de aceptación
+El expediente de DOC-119 SHALL distinguir evidencia histórica, inspección y pruebas nuevas con SHA, ambiente, escenario y límites según D-01.
+
+#### Scenario: Cierre técnico posterior al administrativo
+- **WHEN** se contrasta DOC-118 como antecedente
+- **THEN** se preserva su archivo administrativo y se registra el cierre técnico posterior del JSON de integración y reporte acumulado
+- **AND** ningún resultado histórico se presenta como aceptación SEG-01/02 de DOC-119
+
+#### Scenario: Cliente con servicios sintéticos
+- **WHEN** se ejecuta Chromium con dobles locales
+- **THEN** se informa alcance local sin acreditar autenticación, IIS, MySQL o efectos reales
+
+### Requirement: RQ-02 — Lectura y CSV por página
+El seguimiento SHALL consultar filtros/páginas autorizados y exportar una página con los mismos filtros, conservando totales y autoridad sin efectos según D-02.
+
+#### Scenario: Estados mixtos y filtros
+- **WHEN** el propietario autorizado filtra por raíz, estado o recepción y recorre páginas
+- **THEN** totalOriginal conserva inventario confirmado y totalFiltrado representa el filtro, manteniendo IDs y estados separados de recepción/efecto
+- **AND** rechazados/inciertos no desaparecen del inventario ni RECIBIDO se presenta como DOCUMENTO_ALMACENADO
+
+#### Scenario: Exportación representada
+- **WHEN** se descarga CSV de la página consultada con filtros vigentes
+- **THEN** se exportan solo sus filas, neutralizando fórmulas y preservando comillas, separadores y saltos de línea
+- **AND** no se anuncia exportación total, snapshot global ni se exponen campos privados
+
+#### Scenario: Lectura sin reconciliación
+- **WHEN** se consulta lote, recursos, confirmación o CSV
+- **THEN** no se avanza, reconcilia, confirma, recibe ni altera estado/auditoría de negocio
+- **AND** los controles reales autorizados usan únicamente SELECT y conservan huellas
+
+#### Scenario: Identidad ajena o permiso revocado
+- **WHEN** otra identidad consulta/exporta un lote o el propietario pierde autoridad vigente
+- **THEN** se rechaza la operación sin filas expuestas ni efectos
+
+### Requirement: RQ-03 — Recuperación por identidad
+El sistema SHALL recuperar referencias sin repetir efectos y actualizar la rama original por IDs confirmados, conservando destino/selección según D-03.
+
+#### Scenario: Recarga con confirmación sin acuse
+- **WHEN** se recarga tras perder respuesta de ConfirmarPlan
+- **THEN** se consultan pistas de plan/lote aisladas por contexto sin volver a confirmar
+- **AND** ausencia de resultado verificable mantiene bloqueo y un lote recuperado conserva destino original
+
+#### Scenario: Recepción incompleta y homónimos
+- **WHEN** se reselecciona archivo sin recibir entre raíces con nombres iguales
+- **THEN** se elige por recursoId/raizId y metadatos permitidos; bytes/hash/autoridad se validan en servidor
+- **AND** no se reemplazan recibidos, inciertos ni recursos en vuelo por coincidencia de nombre
+
+#### Scenario: Rama original con otra selección
+- **WHEN** la consulta retorna relaciones confirmadas y está seleccionado otro nodo
+- **THEN** se agregan solo IDs ausentes a la rama original disponible sin expandirla ni mover selección
+- **AND** identidades homónimas permanecen distintas y rama oculta/ausente no invalida el lote
+
+### Requirement: RQ-04 — Limpieza condicionada
+DOC-119 SHALL mantener limpieza deshabilitada y datos conservados sin resolución operativa expresa según D-04.
+
+#### Scenario: Sin decisión de retención
+- **WHEN** no hay política/mecanismo/autorización de limpieza acordados
+- **THEN** no se habilita borrado, plazo, endpoint o job ni se eliminan staging, partes o historial
+- **AND** SEG-03 continúa condicionado/no ejecutado
+
+#### Scenario: Operación acordada sin limpieza
+- **WHEN** el responsable decide expresamente operar sin limpieza
+- **THEN** se documentan límite y consumo de disco sin presentar SEG-03 como ejecución real de borrado
+
+### Requirement: RQ-05 — Menú superior y permisos independientes
+La interfaz SHALL ofrecer accesos operativos en Importación sin depender de administrar perfiles y mantener separación de permisos según D-05.
+
+#### Scenario: Importador sin administración
+- **WHEN** un actor autorizado para importar no puede administrar perfiles
+- **THEN** dispone de Importar carpetas… y Consultar importación… sin acceso administrativo concedido
+
+#### Scenario: Menú existente y postback
+- **WHEN** ya existe menú administrativo y se reinicializa por postback
+- **THEN** accesos operativos/administrativos se integran una sola vez con separación visual y permisos actuales
+
+### Requirement: RQ-06 — Destino explícito
+La interfaz SHALL diferenciar nivel seleccionado de pulsado y mostrar destino reautorizado por servidor según D-06.
+
+#### Scenario: Acceso superior
+- **WHEN** se invoca importar desde menú superior con nivel elegible seleccionado
+- **THEN** se solicita ese nivel y se muestran nivel/ruta canónica autorizados
+- **AND** ausencia de selección elegible impide iniciar
+
+#### Scenario: Contextual de otro nivel
+- **WHEN** está seleccionado A y se invoca Importar carpetas aquí… sobre B
+- **THEN** se solicita B incluso si sus nombres coinciden y se reautoriza en servidor
+- **AND** cambiar selección después de abrir no modifica silenciosamente destino
+
+#### Scenario: Nodo excluido o permiso revocado
+- **WHEN** el menú se abre en expediente, documento, fondo vacío o nivel sin autoridad vigente
+- **THEN** no se importa por fallback en otro nodo seleccionado
+- **AND** revocación posterior a mostrar acceso se rechaza en servidor
+
+#### Scenario: Consulta contextual
+- **WHEN** se consulta referencia de lote desde contexto de nivel
+- **THEN** se respeta autoridad/contexto existentes y destino propio del lote
+- **AND** no se añade historial nuevo ni contrato de búsqueda por nivel
+
+### Requirement: RQ-07 — Asistente y recuperación preservados
+La reorganización SHALL reutilizar asistente único y conservar referencia manual, último lote, verificación y avisos según D-07.
+
+#### Scenario: Retirada de franja
+- **WHEN** se retiran controles permanentes
+- **THEN** ya existe acceso equivalente verificado a consulta manual, último lote y verificación de confirmación sin acuse, manteniendo aviso visible
+
+#### Scenario: Cierre, recarga y UpdatePanel
+- **WHEN** se cierra, reabre, recarga o realiza postback
+- **THEN** no se duplican instancias/listeners y se preservan pistas y recuperación
+- **AND** cerrar no promete cancelar servidor ni conservar File tras recarga
+
+### Requirement: RQ-08 — Contextual visible y accesible
+El menú SHALL funcionar dentro del viewport y por teclado conservando consumidores compartidos según D-08.
+
+#### Scenario: Bordes y altura reducida
+- **WHEN** se abre cerca del borde o excede altura disponible
+- **THEN** posición/altura se ajustan al viewport y scroll permite alcanzar todas las opciones
+
+#### Scenario: Teclado y foco
+- **WHEN** se abre por teclado y se navega o se pulsa Escape
+- **THEN** opciones son accesibles y el cierre devuelve foco al invocador sin ejecutar otra acción
+
+#### Scenario: Plugin compartido modificado
+- **WHEN** cambia jquery.contextMenu.js o su CSS
+- **THEN** se inventarían y verifican consumidores afectados conservando apertura/cierre/acción sobre su recurso original
+
+### Requirement: RQ-09 — Secuencia y guía definitiva
+La entrega SHALL aceptar seguimiento antes de reorganizar y verificar regresión/guía definitiva según D-09.
+
+#### Scenario: Orden operativo y UI
+- **WHEN** se inicia UI-01–04
+- **THEN** SEG-01/02 tienen aceptación integrada documentada y brechas de seguimiento reproducidas están resueltas
+- **AND** UI-05 y guía se verifican en DOC-119 antes de consolidar DOC-120
+
+#### Scenario: Matriz de regresión
+- **WHEN** se evalúan accesos reorganizados
+- **THEN** se cubren seleccionado/pulsado, homónimos, sin selección, permisos denegados/revocados, reapertura/postback/recarga, consulta/CSV/recuperación y foco/teclado
+- **AND** guía distingue lecturas de efectos, incertidumbre y detención de DOC-118; carga individual pertinente sigue operativa
+
+### Requirement: RQ-10 — Autorización y límites
+La ejecución SHALL respetar autorizaciones específicas y límites de producto/datos según D-10.
+
+#### Scenario: Continuación de refinamiento
+- **WHEN** solo se ha autorizado continuar el refinamiento
+- **THEN** no se autentica ni ejecuta pruebas reales/carga/fallos/permisos/limpieza
+- **AND** no se sustituye aceptación integrada por antecedentes
+
+#### Scenario: Cambio acotado
+- **WHEN** se corrige brecha reproducida o reorganizan accesos
+- **THEN** se reutilizan contratos/servicios/coordinador sin cambiar SII/almacenamiento compartido/esquema/semántica operativa
+- **AND** se preservan PDF/rechazo TIFF, snapshot/inventario/efectos e integridad EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, sin rollback global, workers o aislamiento XML adicional

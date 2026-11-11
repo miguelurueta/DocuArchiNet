@@ -1,13 +1,14 @@
 ## Why
 
-PRODUCCION-IMPORTACION-CARGA-CARPETA-SEGUIMIENTO. Ver detalle funcional completo del ticket en la seccion Jira Details.
+El seguimiento existente permite consultar lotes, paginar, exportar CSV y recuperar referencias. DOC-119 debe acreditar su recorrido integrado antes de reorganizar accesos. El contextual actual abre usando el nivel seleccionado, sin capturar el nivel pulsado; esa diferencia debe corregirse conservando la autoridad servidor.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-119.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Acreditar SEG-01/02: filtros, paginación, CSV autorizado sin efectos, recuperación por IDs y actualización de la rama original sin duplicación ni cambio de selección.
+- Mantener SEG-03 condicionado a decisión expresa de retención y operación, sin habilitar limpieza ni borrar datos de pruebas.
+- Después de aceptar el seguimiento, integrar los accesos operativos en Importación y en el contextual del nivel pulsado autorizado, preservando permisos administrativos independientes.
+- Reutilizar asistente, consulta manual, último lote, verificación y avisos; corregir visibilidad y teclado del contextual con regresión compartida y guía definitiva.
+- Presentar decisiones y tareas para revisión; este refinamiento no acredita implementación ni aceptación operativa.
 
 ## Jira Details
 
@@ -65,13 +66,13 @@ PRODUCCION-IMPORTACION-CARGA-CARPETA-SEGUIMIENTO. Ver detalle funcional completo
 ## Capabilities
 
 ### New Capabilities
-- `produccion-importacion-carga-carpeta-seguimiento`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `produccion-importacion-carga-carpeta-seguimiento`: Aceptación del seguimiento y navegación con destino explícito y recuperación preservada.
 
 ### Modified Capabilities
-- 
+- Ninguna adicional: se reutilizan los contratos operativos de importación en esta capacidad.
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
+- WebForms VB, JavaScript y CSS de Producción Documental, pruebas y documentación. Inventario concreto en `design.md`.
+- Sin cambios de esquema, SII, almacenamiento compartido, permisos concedidos, workers o configuración de limpieza. Las pruebas reales requieren autorización específica.
 
