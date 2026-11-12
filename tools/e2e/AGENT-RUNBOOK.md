@@ -26,6 +26,10 @@ Con pocos archivos, SEG-01 puede comprobar filtros, CSV de la primera página fi
 
 Para una nueva consola manual se puede usar `--reuse-selection <runId-cerrado>` después de `--authorized-plan`: solo reutiliza el ID de importación elegido y la decisión de omitir recuperación, de una corrida local cerrada con esta revisión de autorización. No restaura claves, sesión, resultados, huellas ni consumos; los anteriores permanecen intactos. La importación debe aparecer entre los recursos de la cuenta recién autenticada y superar de nuevo los controles de autoridad/propiedad antes de consultarla. No se usa con una recuperación anterior que requiera PDF.
 
+Cuando el usuario solicita identificar una segunda cuenta, `inspect-doc119-second-accounts.cjs --run <32-hex> --source-run <runId-principal>` reutiliza consola y queryRows para **dos SELECT como máximo**, cero HTTP y cero aperturas de autenticación de aplicación. Resuelve propietario/empresa desde el lote de la corrida autorizada y lista hasta 30 cuentas activas de esa empresa con IMPORTAR_CARPETAS=1, identidad/perfil únicos y distintas del propietario; excluye consulta pública. Captura solo DSN y acceso MySQL de lectura por consola enmascarada, sin recuperar secretos de Web.config ni del proceso principal. No concede permisos ni prueba claves de aplicación.
+
+La consulta auxiliar conserva su propio consumo vinculado a la corrida principal; contabilizarlo aparte y sumarlo al informar lecturas totales del trabajo. `state.json` no conserva cuentas/claves; el inventario solicitado de IDs y logins, sin contraseñas ni otros campos personales, queda en `.tmp/doc119-account-lookup/<runId>/account-candidates.json`, excluido de Git. Las candidatas verificadas por SELECT todavía necesitan credenciales conocidas por el operador y autenticación real; no presentar un antecedente histórico como permiso vigente.
+
 Este runbook permite reutilizar las pruebas ASMX Workflow sin copiar credenciales, modificar datos sin autorización ni reactivar la política legacy.
 
 ## Límites obligatorios
