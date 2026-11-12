@@ -1,8 +1,10 @@
-# DOC-119 — evidencia del avance local
+# DOC-119 — evidencia de validación
 
 - Cambio: `doc-119-produccion-importacion-carga-carpeta-seguimiento`.
 - Clasificación: `cross_cutting`.
-- Base de implementación: 94ca9277ce234b337b73bdda9bbd881e037b3047, con cambios locales descritos.
+- Base del primer corte local: 94ca9277ce234b337b73bdda9bbd881e037b3047, con cambios locales descritos.
+
+Estado vigente al cierre real del 2026-11-12: **privacidad PASS**, SEG-01 **PASS_READONLY_WITH_LIMITS** y SEG-02 omitido. Propietario: consulta/filtros/CSV/vacío correctos; Carolina136/empresa2: lote y CSV ajenos denegados. Huellas de negocio antes/después iguales. Paginación pendiente por falta de filas; recuperación sin ejecutar por decisión0 del operador. No se acepta SEG-01/02 completo ni se abre la compuerta UI. [Evidencia saneada](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc119-privacidad-20261112.json). Las secciones anteriores al último cierre conservan sus estados históricos; progreso 4/24.
 
 ## Evidencia requerida
 
@@ -16,7 +18,7 @@ Las dos pruebas nuevas usan Chromium/cliente/vista reales y servicios sintético
 
 Informes: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc119-procedencia-20261111.md` y `doc119-filtros-local-20261111.md` en el mismo directorio. Los antecedentes DOC-111/116/117/118 conservan su código/runtime/ambiente y no se reetiquetan como DOC-119.
 
-## QA/E2E WebForms
+## QA/E2E WebForms — corte histórico anterior a la ejecución real
 
 No ejecutados por DOC-119: autenticación real, HTTP de aplicación, SELECT/MySQL reales, recepción/carga, almacenamiento, inyección de fallos, cambios de permisos, limpieza o despliegue. El plan de aceptación preparado aún requiere ambiente/cuentas/lotes y autorización específica.
 
@@ -109,3 +111,13 @@ Resultado final de f6e3fc02cdd940a0bef47a152a38ae67: STOPPED/DOC111_LOGIN_ACCOUN
 Corrección del ejecutor: reutilizar findSecondAccounts antes de la segunda sesión y usar el login canónico de una candidata actual; única se selecciona directamente, múltiples requieren elegir una opción. Se pide solo contraseña, sin recuperación/reset ni nuevas escrituras. Dos SELECT adicionales dentro del techo80; sin candidatas no se abre sesión. Estado registra activeRole y secondAccount con IDs/origen, sin login ni clave. El nuevo helper se incluye en evidencia de código.
 
 Verificación local: **32/32 PASS** (27 políticas y cinco de inventario/selección), sintaxis y --check PASS. Nuevos casos acreditan nombre canónico sin captura manual, selección entre candidatas actuales, rechazo de selección ajena y falta de candidatas antes de login. Cliente/producto sin cambios; no se repiten sus pruebas anteriores ni se suman cortes. Permanece 4/24, sin nuevo PASS integrado hasta ejecución manual revisada.
+
+## Privacidad real comprobada y cierre con límites — 2026-11-12
+
+Corrida `08e8608d0dd94331864ab958830f2808`, código `4677ae05d1a59f6813eaff47a1a0a44f1bc822df`, ambiente localhost del plan, lote5, segunda cuenta136/empresa2 resuelta por SELECT vigente. Finalizó a las **19:04:13 UTC**, **FINISHED_WITH_LIMITS**, sin failure ni violación de guardia; sesiones cerradas y claves eliminadas.
+
+**Privacidad PASS**: la cuenta ajena habilitada no pudo consultar el lote ni exportar su CSV (otherAccountDenied/otherCsvDenied=true; el helper exige ACCESO_DENEGADO y ausencia de datos de lote). El propietario comprobó consulta, filtros, descarga real de una fila de la página filtrada y filtro vacío sobre tres archivos originales. Controles RA y DA de expedientes conocidos invariantes: antes/después `0e2efb282feeb3cfcdccb1efc999552e0499c96abf58ea3825b77c67fd1a40bd`; noBusinessMutation=true, daScope=KNOWN_EXPEDITIONS. Esto no afirma invariancia de todos los datos del servidor ni ausencia de registros normales de acceso.
+
+Consumo de esta ventana: **378/600 HTTP, 18/80 SELECT y 2/2 sesiones**, incluidos inventario vigente de segunda cuenta, dos autenticaciones y controles posteriores. La activación administrativa anterior de Carolina conserva su autorización, diario y contadores separados; no se reetiqueta como lectura de esta corrida. Los intentos anteriores no se suman como casos nuevos ni se borran.
+
+SEG-01 queda **PASS_READONLY_WITH_LIMITS**: pagination=false/INSUFFICIENT_EXISTING_ROWS, sin segunda página acreditada; no se cambia política/tamaño de página ni se fabrican filas. SEG-02 queda **NOT_EXECUTED_RESOURCE_NOT_SELECTED** por omisión0. Tareas2.4/2.5 y compuerta2.7 permanecen pendientes de la aceptación restante; 4/24. Evidencia exportada por lista cerrada de campos a doc119-privacidad-20261112.json, sin nombres de cuenta, claves, cookies, tokens, cuerpos HTTP o CSV; diario original excluido en .tmp.

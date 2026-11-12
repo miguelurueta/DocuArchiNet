@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "runId": "08e8608d0dd94331864ab958830f2808",
+  "executionHead": "4677ae05d1a59f6813eaff47a1a0a44f1bc822df",
+  "executionScopeSha256": "7df440825e82535c511e989bdd4df9eababb130bbd04ba7cd58211b417072bf1",
+  "completedUtc": "2026-11-12T19:04:13.378Z",
+  "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "lotId": "5",
+  "secondAccount": {
+    "userRef": "136",
+    "companyRef": "2",
+    "source": "CURRENT_RA_SELECT"
+  },
+  "overallStatus": "FINISHED_WITH_LIMITS",
+  "privacyStatus": "PASS",
+  "seg01": {
+    "status": "PASS_READONLY_WITH_LIMITS",
+    "ownerRead": true,
+    "filters": true,
+    "csvDownload": true,
+    "emptyFilter": true,
+    "originalFiles": 3,
+    "csvRows": 1,
+    "otherAccountDenied": true,
+    "otherCsvDenied": true,
+    "pagination": false,
+    "paginationLimitation": "INSUFFICIENT_EXISTING_ROWS"
+  },
+  "businessControls": {
+    "noBusinessMutation": true,
+    "daScope": "KNOWN_EXPEDITIONS",
+    "beforeFingerprint": "0e2efb282feeb3cfcdccb1efc999552e0499c96abf58ea3825b77c67fd1a40bd",
+    "afterFingerprint": "0e2efb282feeb3cfcdccb1efc999552e0499c96abf58ea3825b77c67fd1a40bd"
+  },
+  "seg02": {
+    "status": "NOT_EXECUTED_RESOURCE_NOT_SELECTED"
+  },
+  "usage": {
+    "http": 378,
+    "select": 18,
+    "sessions": 2
+  },
+  "limits": {
+    "http": 600,
+    "select": 80,
+    "sessions": 2
+  },
+  "closed": true,
+  "credentialsCleared": true
+}
