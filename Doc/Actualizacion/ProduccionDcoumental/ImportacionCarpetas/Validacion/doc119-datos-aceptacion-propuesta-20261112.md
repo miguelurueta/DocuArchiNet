@@ -1,6 +1,6 @@
 # DOC-119 — datos para completar SEG-01/02
 
-Estado: **preparación local; efectos pendientes de autorización expresa**. No se ha creado ninguna importación, recibido archivos ni creado expedientes con esta preparación. La autorización anterior cubre lectura; D-10 exige autorización específica para efectos. D-09 mantiene cerrada la compuerta UI hasta aceptar SEG-01/02.
+Estado: **plan autorizado expresamente el 2026-11-12; ejecución pendiente**. El usuario solicitante respondió «autorizado debemos avanzar mas rapido en las tareas» a la solicitud que enumeró la preparación aquí descrita y la decisión de operar sin limpieza. No se ha creado ninguna importación, recibido archivos ni creado expedientes con esta preparación al registrar la autorización. D-09 mantiene cerrada la compuerta UI hasta aceptar SEG-01/02.
 
 ## Inspección real previa
 
@@ -29,7 +29,7 @@ El manifiesto incluye nombre, ruta relativa, tamaño y modificación efectiva de
 
 ## Ventana de efectos solicitada
 
-Una corrida nueva y manual, máximo **400 HTTP, 40 SELECT y 1 sesión de propietario** para preparar los datos. Los controles SQL siguen siendo exclusivamente SELECT. Las escrituras pasan por los servicios de la aplicación y quedan limitadas a:
+Una corrida nueva y manual, máximo **400 HTTP, 40 SELECT y 1 sesión de propietario** para preparar los datos. El ejecutor específico es `node tools/e2e/scripts/run-doc119-datos-aceptacion.cjs --run <32-hex-nuevo> --authorized-plan`; `--check` solo verifica originales locales, sin red ni secretos. Los controles SQL siguen siendo exclusivamente SELECT. Las escrituras pasan por los servicios de la aplicación y quedan limitadas a:
 
 1. Preparar un plan con las dos raíces y los 27 archivos anteriores. Revisar snapshot, integridad EXPEDIENTE, elegibilidad de ambas raíces y de los 27 archivos, valores resueltos y ausencia de conflictos. Si el perfil vigente no admite el manifiesto, detener antes de confirmar; no cambiar reglas ni improvisar otros recursos.
 2. Confirmar ese plan una sola vez: máximo un lote, dos raíces y 27 registros de archivo. Conservar las referencias devueltas para cualquier consulta posterior.

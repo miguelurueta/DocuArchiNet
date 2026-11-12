@@ -1,12 +1,12 @@
 # DOC-119 — propuesta de operación sin limpieza
 
-Estado: **propuesta pendiente de decisión expresa**. Origen: D-04/RQ-04 y tarea2.6. No acredita ejecución de SEG-03 ni habilita borrados.
+Estado: **decisión expresa aprobada el 2026-11-12**. El usuario solicitante respondió «autorizado debemos avanzar mas rapido en las tareas» a la solicitud que enumeró tanto esta decisión como la preparación de datos. Origen: D-04/RQ-04 y tarea2.6. No acredita ejecución de SEG-03 ni habilita borrados.
 
 ## Decisión preparada
 
 Operar DOC-119 manteniendo deshabilitada la limpieza de originales. Conservar originales, partes, copias de trabajo, diarios e historial. No añadir endpoint, botón, job, plazo ni configuración de limpieza. Una política y cualquier borrado futuros requieren una decisión separada con alcance y autorización propios.
 
-Responsable de la decisión: el usuario solicitante de esta sesión, si confirma expresamente esta propuesta. La ausencia de respuesta no se considera aceptación.
+Responsable de la decisión: el usuario solicitante de esta sesión. Alcance aceptado: operación sin limpieza automática y conservación de originales, partes, copias de trabajo, diarios e historial conforme a este documento.
 
 ## Consumo observado
 
@@ -18,4 +18,4 @@ La composición actual mantiene `PoliticaLimpiezaOriginalImportacion(False, Time
 
 ## Condiciones de cierre de esta decisión
 
-Con confirmación expresa se puede completar2.6 como decisión de operar sin limpieza, conservando SEG-03 como no ejecutado. Paginación y recuperación continúan pendientes por sus propios criterios; esta decisión no abre la compuerta2.7 ni aprueba reorganización UI.
+Se completa2.6 como decisión de operar sin limpieza, conservando SEG-03 como no ejecutado. Paginación y recuperación continúan pendientes por sus propios criterios; esta decisión no abre la compuerta2.7 ni aprueba reorganización UI.
