@@ -1,0 +1,89 @@
+{
+    "runId":  "4ffe5447744f4b1dab40546880f41d48",
+    "baseUrl":  "https://localhost/GestionDocumental-Docuarchi.net/",
+    "authorizationRevision":  "20261112-setup-approved",
+    "status":  "STOPPED",
+    "closed":  true,
+    "credentialsCleared":  true,
+    "finishedUtc":  "2026-11-12T19:42:57.976Z",
+    "resources":  {
+                      "level":  "7",
+                      "ownerRef":  "141",
+                      "companyRef":  "2",
+                      "versionId":  "40",
+                      "alternateLevel":  "169"
+                  },
+    "limits":  {
+                   "SETUP":  {
+                                 "http":  400,
+                                 "select":  40,
+                                 "sessions":  1
+                             },
+                   "SEG-01":  {
+                                  "http":  600,
+                                  "select":  80,
+                                  "sessions":  2
+                              },
+                   "SEG-02":  {
+                                  "http":  600,
+                                  "select":  60,
+                                  "sessions":  2
+                              }
+               },
+    "usage":  {
+                  "SETUP":  {
+                                "http":  186,
+                                "select":  3,
+                                "sessions":  1
+                            }
+              },
+    "operations":  {
+                       "AbrirImportacion":  1,
+                       "PrepararPlan":  1
+                   },
+    "failure":  {
+                    "code":  "DOC111_OPERATION_NOT_CONFIRMED",
+                    "operation":  "PrepararPlan",
+                    "httpStatus":  400,
+                    "serverCode":  "SOLICITUD_INVALIDA"
+                },
+    "results":  {
+
+                },
+    "code":  {
+                 "head":  "26c77530709546de0a7d59445b297448b641028f",
+                 "scopeSha256":  "e96e84e8fe611cdf260a268818cf6e40520f9060fa02c8ad04cba9ca7aefbb47",
+                 "files":  [
+                               {
+                                   "file":  "bin/GestionDocumental-Docuarchi.net.dll",
+                                   "sha256":  "67e3b823cad825c558c2d0ee06065a0b4c4143e92cd18c1861e1c03eaf98c90e"
+                               },
+                               {
+                                   "file":  "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css",
+                                   "sha256":  "2c79fa2e67495da55644a8e66206fe41c89e9744b6ba00f7556abc5291a6689c"
+                               },
+                               {
+                                   "file":  "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+                                   "sha256":  "23922f181b9fec5def299048df8e5c7da5e26bce883580fd80e2033775fbf58e"
+                               },
+                               {
+                                   "file":  "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+                                   "sha256":  "51491bcb439fd0b5721166df33bf027e7bebc894f1a11e6cb6d022c10bfdb3a8"
+                               },
+                               {
+                                   "file":  "tools/e2e/scripts/run-doc119-datos-aceptacion.cjs",
+                                   "sha256":  "130157dc821f08aa9f4f972600561216a1964087e96a4a3d1023e7c95f741112"
+                               },
+                               {
+                                   "file":  "tools/e2e/tests/support/doc119-acceptance-data.cjs",
+                                   "sha256":  "20e67098f7d4753884231d4b49c5ba2c6ac85bbe37e60afba9067aaee69a6f7e"
+                               },
+                               {
+                                   "file":  "tools/e2e/tests/support/doc119-seguimiento.cjs",
+                                   "sha256":  "e991f6752fb0faa86f33321bf25dd71f370c405c17f2606e7c45f67a6f5689e3"
+                               }
+                           ],
+                 "note":  "HEAD alone does not represent uncommitted files; hashes cover the explicit source/test scope."
+             },
+    "interpretation":  "PrepararPlan rechazado. Sin solicitudes ConfirmarPlan, recepcion o creacion. No acredita invariancia global ni aceptacion SEG-01/02."
+}

@@ -21,7 +21,18 @@ function readPrepared(root){
   }
   return {fixture,files};
 }
-function setupTransport(request,budget,manifest,refs,record=()=>{}){
+function failureCategory(message){
+  const known={
+    'La forma de la solicitud no es válida.':'REQUEST_ENVELOPE',
+    'El manifiesto esta incompleto o contiene rutas o correlaciones invalidas.':'MANIFEST',
+    'La preparación o solicitud no es válida.':'PLAN_REPRESENTATION',
+    'Solicitud de catálogo inválida.':'CATALOG',
+    'El inventario y sus referencias son obligatorios.':'INVENTORY',
+    'La configuración excede el límite permitido.':'JSON_SIZE'
+  };
+  return typeof message==='string'&&Object.hasOwn(known,message)?known[message]:'UNCLASSIFIED';
+}
+function setupTransport(request,budget,manifest,refs,record=()=>{},observe=()=>{}){
   const used=new Set();
   const once=key=>{check(!used.has(key),'SETUP_REPLAY_DENIED');used.add(key);};
   return {async post(url,options){
@@ -47,7 +58,12 @@ function setupTransport(request,budget,manifest,refs,record=()=>{}){
       else check(false,'SETUP_SCOPE_DENIED');
     }
     budget.take('http');record(operation);
-    return request.post(url,options);
+    const response=await request.post(url,options);
+    if(typeof response?.status==='function'&&response.status()>=400){
+      let category='UNCLASSIFIED';try{const raw=await response.json();category=failureCategory((raw?.d??raw)?.mensaje);}catch{}
+      observe({operation,httpStatus:response.status(),category});
+    }
+    return response;
   }};
 }
-module.exports={FIXTURE_DIRECTORY,readPrepared,setupTransport};
+module.exports={FIXTURE_DIRECTORY,readPrepared,setupTransport,failureCategory};

@@ -58,7 +58,7 @@ async function main(args=process.argv.slice(2)){
     const scope={lotId:null,level:'7',planId:null,allowTree:false,alternateLevel:null};
     const auth=await open('owner','SETUP',scope);
     const refs={};
-    const transport=setupTransport(auth.context.request,b,manifest,refs,operation=>{state.operations[operation]=(state.operations[operation]||0)+1;save({});});
+    const transport=setupTransport(auth.context.request,b,manifest,refs,operation=>{state.operations[operation]=(state.operations[operation]||0)+1;save({});},failure=>save({lastServiceFailure:failure}));
     const driver=createDriver({page:auth.page,context:{request:transport}},{...connection,nivelRef:'7'},{environment:true,account:true,effects:true,discardable:true,select:true},{onReference:reference=>{Object.assign(scope,reference);save({resources:{...state.resources,...reference}});}});
     await driver.refreshToken();const opened=await driver.request('AbrirImportacion',{nivelRef:'7'});check(opened.nivelRef==='7','DESTINATION_CHANGED');
     event('PREPARING_PLAN');

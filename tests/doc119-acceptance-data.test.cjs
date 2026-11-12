@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs');
-const {readPrepared,setupTransport}=require('../tools/e2e/tests/support/doc119-acceptance-data.cjs');
+const {readPrepared,setupTransport,failureCategory}=require('../tools/e2e/tests/support/doc119-acceptance-data.cjs');
 const {BASE_URL}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs');
 const manifest={nivelRef:'7',versionId:'40',raices:[],archivos:[{nombre:'DOC119-001.pdf'}]};
 function harness(){
@@ -47,4 +47,9 @@ test('external origins and redirect/retry settings are rejected before transport
 test('local prepared originals retain names, sizes, timestamps and content',()=>{
   const location=path.resolve('.tmp/doc119-next-preflight/eb09fc5981be453b936b2bf1714c43a3/fixture-manifest.json');
   if(!fs.existsSync(location))return;const prepared=readPrepared(path.resolve('.'));assert.equal(prepared.files.size,27);
+});
+test('service failure evidence retains only fixed categories, never unknown text',()=>{
+  assert.equal(failureCategory('La preparación o solicitud no es válida.'),'PLAN_REPRESENTATION');
+  assert.equal(failureCategory('private value from an unexpected response'),'UNCLASSIFIED');
+  assert.equal(failureCategory(null),'UNCLASSIFIED');
 });
