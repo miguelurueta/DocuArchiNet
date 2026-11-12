@@ -9,8 +9,8 @@ ImportacionCarpetasVista conserva el asistente. Resultados añade filtros de est
 
 La consulta invalida filas anteriores: si falla, no quedan datos/exportación obsoletos. CSV descarga una página con filtros/tamaño/página de la consulta representada.
 
-La reorganización de accesos UI-01–05 sigue sin implementar; conserva compuerta de aceptación integrada SEG-01/02. No se retiró franja ni se cambió plugin contextual.
+UI-01–05 implementada después de la aceptación operativa: Importación ofrece importar/consultar al importador sin administrar perfiles, con administración separada. La consulta manual, último lote y verificación pendiente permanecen accesibles y los avisos visibles. Se retiró la franja permanente. El contextual captura el nivel pulsado; el menú superior conserva la selección. El asistente fija su destino y muestra la ruta autorizada por servidor.
 
 ## Validacion visual
 
-18/18 pruebas cliente en el último corte, Chromium local y servicios sintéticos. Los dos casos nuevos incluyen descarga Blob, filtros independientes, limpieza, paginación, denegación y viewport de 390 px sin desbordamiento. La prueba del formulario detecta envíos implícitos: Enter no causa submit. Esto no certifica render/autenticación IIS ni interfaz reorganizada.
+99/99 pruebas de la batería final, con Chromium local y servicios sintéticos en los casos de navegador. Se revisó captura móvil390×640 de consulta. Se cubren reapertura/recarga/reinicialización y reemplazo de hosts, identidad, permisos denegados, referencia/último lote/confirmación incierta, filtros/CSV, viewport y foco. El plugin compartido tiene26 registros inventariados en22 archivos y prueba de contrato sobre cada selector; no se ejecutaron las operaciones de negocio reales de esos módulos. Compilación0errores/308advertencias previas. Detalle y huellas en `Validacion/doc119-ui-verificacion-20261112.md`; no certifica una nueva sesión autenticada de la UI final en IIS.

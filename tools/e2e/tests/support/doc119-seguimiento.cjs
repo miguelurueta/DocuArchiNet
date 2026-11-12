@@ -212,8 +212,12 @@ async function responseFor(page,operation,action,type){
 }
 async function consult(page,lotId,resume=false){
   const r=await responseFor(page,'ConsultarRecursosLote',async()=>{
-    if(resume)await page.locator('[data-doc111-resume]').click();
-    else{await page.locator('[data-doc111-lote]').fill(lotId);await page.locator('[data-doc111-consultar]').click();}
+    const access=resume?'[data-doc111-resume]':'[data-doc111-query-open]';
+    if(await page.locator(access).count()){
+      if(!await page.locator(access).isVisible()&&await page.locator('#doc110-navigation-toggle').count())await page.locator('#doc110-navigation-toggle').click();
+      await page.locator(access).click();
+    }
+    if(!resume){await page.locator('[data-doc111-lote]').fill(lotId);await page.locator('[data-doc111-consultar]').click();}
   },'ARCHIVOS');
   check(r.status===200&&r.body?.ok&&r.body.datos?.loteId===lotId,'QUERY_FAILED');
   await page.getByRole('button',{name:'Consultar estado',exact:true}).waitFor();

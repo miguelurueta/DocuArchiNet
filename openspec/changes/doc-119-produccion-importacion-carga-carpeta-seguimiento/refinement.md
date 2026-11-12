@@ -215,6 +215,8 @@ Búsqueda de código realizada con `rg -l '\.contextMenu\(' js -g '*.js' -g '!**
 
 ## Trazabilidad y resultado
 
+Estado vigente2026-11-12: SEG-01 real aceptado, SEG-02 con cobertura mixta aceptada expresamente por el usuario y SEG-03 resuelto como operación sin limpieza. Compuerta abierta antes de reorganización UI. Implementación24/24; ver `Validacion/doc119-ui-verificacion-20261112.md` para99/99 pruebas locales,33/33 de carga individual/contratos, build y límites. Ninguna prueba local se reclasifica como autenticada. Los párrafos siguientes conservan los cortes iniciales del refinamiento.
+
 Design/spec y este refinamiento desarrollan las mismas diez decisiones y requisitos. Este documento explicita situación comprobada, contrato/regla, aceptación, compatibilidad y entregable por decisión; no usa la tabla de IDs como sustituto del contenido. `tasks.md` contiene las 24 tareas con área/complejidad/origen/verificación y las referencias numéricas utilizadas aquí, aplicadas por indicación del usuario. `plan-tareas-propuesto.md` conserva la procedencia de la propuesta; el estado de ejecución se mantiene únicamente en `tasks.md`, con 4/24 completadas: 1.1, 2.1, 2.2 y 2.3. Procedencia/reproducción/corrección constan en los informes doc119 de Validacion; no acreditan aceptación integrada SEG-01/02.
 
 Decisiones abiertas identificadas, sin completar por inferencia: resolución operativa SEG-03 y autorización concreta de ambiente/cuentas/recursos para SEG-01/02 y casos UI reales. No impiden revisar este diseño, pero sí ejecutar efectos o declarar el cierre correspondiente. La corrección documental actual no aprueba automáticamente el refinamiento ni ejecuta su plan.

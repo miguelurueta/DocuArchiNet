@@ -1,6 +1,6 @@
 # DOC-119 — decisión preparada sobre cobertura de SEG-02
 
-Estado: **propuesta pendiente de decisión expresa del usuario responsable**. No modifica todavía diseño/spec/tareas ni abre la compuerta UI. Origen: D-01/D-03/D-09, RQ-01/RQ-03/RQ-09 y tareas2.5/2.7. El resultado original seguirá siendo PASS_READONLY_WITH_LIMITS cualquiera que sea la decisión.
+Estado: **ACEPTADO_CON_COBERTURA_MIXTA por decisión expresa del usuario responsable el2026-11-12**. El usuario respondió «aceptado» a la solicitud de cerrar SEG-02 con esta cobertura y avanzar a interfaz. Se completan2.5/2.7 y se abre la compuerta UI; progreso9/24 antes de implementarla. Origen: D-01/D-03/D-09, RQ-01/RQ-03/RQ-09. El resultado original permanece PASS_READONLY_WITH_LIMITS; no se modifica el JSON de ejecución.
 
 ## Cobertura disponible para revisar
 
@@ -25,4 +25,4 @@ Si el usuario confirma esta opción, registrar su decisión y esta matriz como c
 
 Mantener2.5/2.7 abiertas y preparar una ampliación concreta de recursos/efectos para revisión antes de ejecutar. No basta repetir el lote29: recargar conserva la relación ya existente y no cambia los nombres físicos de las raíces. Con el perfil40, raíces con el mismo nombre derivan el mismo código y se bloquean por coincidencia; resolver ese escenario exige un conjunto válido y una decisión de diseño/prueba, sin retirar esa protección ni fabricar una inserción eliminando nodos del DOM.
 
-La aprobación de esta propuesta es una decisión de suficiencia de cobertura. El silencio, continuar escribiendo documentación o un commit no la sustituyen. Hasta recibirla, progreso7/24 y compuerta UI cerrada.
+La decisión registrada acepta la primera opción y la suficiencia de cobertura descrita. Los dos casos no observados en IIS se conservan como límites reales; los requisitos funcionales y permisos siguen vigentes. Esta decisión no autoriza nuevas escrituras de prueba ni limpieza.

@@ -85,11 +85,42 @@
         }
         return actions;
     }
+    function asegurarMenu() {
+        var doc = env.document, bar = doc && doc.querySelector("#menu_var .navbar-nav");
+        if (!bar) { return null; }
+        var existing = doc.getElementById("doc110-navigation");
+        if (existing) { return existing.querySelector(".dropdown-menu"); }
+        var item = doc.createElement("li"), toggle = doc.createElement("a"), options = doc.createElement("div");
+        item.id = "doc110-navigation"; item.className = "nav-item dropdown ml-2";
+        toggle.id = "doc110-navigation-toggle"; toggle.href = "#"; toggle.className = "nav-link dropdown-toggle";
+        toggle.textContent = "Importación"; toggle.setAttribute("data-toggle", "dropdown"); toggle.setAttribute("aria-haspopup", "true"); toggle.setAttribute("aria-expanded", "false");
+        options.className = "dropdown-menu"; options.setAttribute("aria-labelledby", toggle.id);
+        item.appendChild(toggle); item.appendChild(options); bar.appendChild(item);
+        if (!(env.jQuery && env.jQuery.fn && env.jQuery.fn.dropdown)) { toggle.addEventListener("click", function (event) { event.preventDefault(); var expanded = item.classList.toggle("show"); options.classList.toggle("show", expanded); toggle.setAttribute("aria-expanded", String(expanded)); }); }
+        options.addEventListener("click", function (event) { if (event.target.closest("button")) { item.classList.remove("show"); options.classList.remove("show"); toggle.setAttribute("aria-expanded", "false"); toggle.focus(); } }, true);
+        return options;
+    }
     function montar(host, dependencies) {
-        if (host.doc111Instancia) { host.doc111Instancia.sincronizar(); return host.doc111Instancia; }
+        var incomingScope = host.getAttribute("data-recuperacion");
+        if (host.doc111Instancia && host.doc111Scope === incomingScope) { host.doc111Instancia.sincronizar(); return host.doc111Instancia; }
+        if (host.doc111Instancia) { host.doc111Instancia.destruir(); }
+        if (host.doc111Scope && host.doc111Scope !== incomingScope) { delete host.doc111UltimoLote; delete host.doc111ConfirmacionPendiente; }
+        host.doc111Scope = incomingScope;
         var deps = dependencies || env, active = null, opening = false, errorApertura = "", destroyed = false, verificationApi = null, storage = null;
         var openButton = host.querySelector("[data-doc111-open]"), resumeButton = host.querySelector("[data-doc111-resume]"), status = host.querySelector("[data-doc111-status]");
         var verifyButton = host.querySelector("[data-doc111-verificar]"), manualButton = host.querySelector("[data-doc111-consultar]"), manualInput = host.querySelector("[data-doc111-lote]");
+        var modern = host.getAttribute("data-navegacion") === "menu", queryOpen = null, navigation = null;
+        if (modern) {
+            navigation = asegurarMenu();
+            if (navigation) {
+                var section = host.ownerDocument.createElement("div"); section.setAttribute("data-doc119-operacion", "1");
+                section.className = "doc119-operation-menu";
+                [openButton, resumeButton, verifyButton].forEach(function (button) { if (button) { button.className = "dropdown-item"; section.appendChild(button); } });
+                openButton.hidden = false; openButton.textContent = "Importar carpetas…";
+                queryOpen = host.ownerDocument.createElement("button"); queryOpen.type = "button"; queryOpen.className = "dropdown-item"; queryOpen.textContent = "Consultar importación…"; queryOpen.setAttribute("data-doc111-query-open", "");
+                section.insertBefore(queryOpen, resumeButton); navigation.insertBefore(section, navigation.firstChild);
+            }
+        }
         try { storage = deps.sessionStorage; } catch (_) {}
         var references = crearReferencias(storage, host.getAttribute("data-recuperacion")), saved = references.leer();
         if (saved.loteId) { host.doc111UltimoLote = {loteId:saved.loteId}; }
@@ -125,12 +156,14 @@
         }
         function sync() {
             if (destroyed) { return; }
+            if (modern && queryOpen) { var currentMenu = asegurarMenu(); if (currentMenu && !currentMenu.contains(section)) { currentMenu.insertBefore(section, currentMenu.firstChild); navigation = currentMenu; } }
             openButton.disabled = opening || !!host.doc111ConfirmacionPendiente || !validId(host.getAttribute("data-nivel"));
             resumeButton.hidden = !host.doc111UltimoLote;
             if (host.doc111UltimoLote) { resumeButton.textContent = "Consultar lote " + host.doc111UltimoLote.loteId; }
             if (verifyButton) { verifyButton.hidden = !host.doc111ConfirmacionPendiente; verifyButton.disabled = opening; }
             status.textContent = host.doc111ConfirmacionPendiente ? "La confirmación del plan " + host.doc111ConfirmacionPendiente.planId + " requiere verificar su resultado antes de iniciar otra preparación. " + errorApertura : (opening ? "Validando el destino de la importación…" : errorApertura);
             if (!references.disponible() && (host.doc111UltimoLote || host.doc111ConfirmacionPendiente)) { status.textContent += " El navegador no permite guardar esta referencia; anota el lote o plan antes de recargar."; }
+            if (modern) { status.hidden = !status.textContent; if (queryOpen) { queryOpen.disabled = opening; queryOpen.textContent = host.doc111ConfirmacionPendiente ? "Consultar importación… · verificación pendiente" : "Consultar importación…"; } }
         }
         function message(error) {
             if (error && error.planPendiente) { return "No se pudo confirmar el resultado del plan " + error.planPendiente + ". Conserva esta referencia para su verificación. No se repetirá la confirmación automáticamente."; }
@@ -142,6 +175,7 @@
         function refresh(session) {
             if (active !== session) { return; }
             var model = session.model; model.manifiesto = session.inventory.manifiesto();
+            model.ultimoLoteId = host.doc111UltimoLote && host.doc111UltimoLote.loteId; model.planPendienteId = host.doc111ConfirmacionPendiente && host.doc111ConfirmacionPendiente.planId;
             model.paginaRaices = Math.min(model.paginaRaices, Math.max(1, Math.ceil(model.manifiesto.raices.length / 10)));
             model.paginaArchivos = Math.min(model.paginaArchivos, Math.max(1, Math.ceil(model.manifiesto.archivos.length / 20)));
             var files = model.resultados ? model.resultados.elementos : [];
@@ -206,6 +240,13 @@
             var model = session.model;
             if (name === "cerrar") { cerrar(); return; }
             if (active !== session || model.busy) { return; }
+            if (name === "consultar-referencia" || name === "consultar-ultimo") {
+                var reference = name === "consultar-ultimo" ? model.ultimoLoteId : String(value || "").trim();
+                if (!validId(reference)) { model.mensaje = "Escribe una referencia de lote válida."; refresh(session); return; }
+                model.referencia = reference; model.loteId = reference; model.contexto = null; model.estado = null; model.resultados = null; model.raices = null; model.filtrosArchivos = {}; model.filtrosRaices = {}; model.etapa = 3; model.mutacionIncierta = false; session.reselected = Object.create(null);
+                run(session, function () { return consultar(session, 1); }); return;
+            }
+            if (name === "verificar-referencia") { cerrar(true); verify(); return; }
             if (name === "etapa" && !model.confirmacionIncierta) { model.etapa = value; refresh(session); return; }
             if (name === "perfil") {
                 if (!validId(value)) { session.operation.limpiarPerfil(); model.perfil = null; }
@@ -319,18 +360,22 @@
                 }); });
             }
         }
-        function abrir(resume) {
-            if (active || opening || (!resume && (host.doc111ConfirmacionPendiente || !validId(host.getAttribute("data-nivel"))))) { return; }
-            var requestedLevel = host.getAttribute("data-nivel"), returnFocus = host.ownerDocument && host.ownerDocument.activeElement; errorApertura = ""; opening = true; sync();
+        function abrir(resume, explicitLevel) {
+            if (active || opening) { if (active && active.view.enfocar) { active.view.enfocar(); } return; }
+            var requestedLevel = explicitLevel === undefined ? host.getAttribute("data-nivel") : explicitLevel;
+            if (!resume && (host.doc111ConfirmacionPendiente || !validId(requestedLevel))) { errorApertura = host.doc111ConfirmacionPendiente ? "Verifica la confirmación pendiente antes de importar." : "Selecciona un nivel para importar carpetas."; sync(); return; }
+            var returnFocus = host.ownerDocument && host.ownerDocument.activeElement; errorApertura = ""; opening = true; sync();
             var session = {inventory:deps.InventarioImportacion.crear(), reselected:Object.create(null), urls:[], timers:[], confirming:null, scope:host.getAttribute("data-recuperacion"), returnFocus:returnFocus};
             try { session.api = deps.ImportacionCarpetasApi.crear({url:host.getAttribute("data-api"), uploadUrl:host.getAttribute("data-upload"), token:host.getAttribute("data-token")}); }
             catch (error) { opening = false; errorApertura = message(error); sync(); return; }
             session.operation = crear(session.inventory);
             session.model = {etapa:resume ? 3 : 0, busy:false, contexto:null, perfiles:[], perfil:null, paginaPerfiles:1, masPerfiles:false, paginaRaices:1, paginaArchivos:1, paginaIncidencias:1, paginaValores:1, confirmable:false, loteId:resume ? resume.loteId : null, manifiesto:{raices:[], archivos:[]}};
+            session.model.consulta = !!(modern && resume); session.model.referencia = resume && resume.loteId || "";
+            if (resume && resume.consulta) { session.model.etapa = -1; session.model.consulta = true; }
             // La ventana solo se monta tras resolver el destino autorizado.
             active = session; session.view = {render:function () {}, destruir:function () {}}; session.picker = {destruir:function () {}}; session.unsubscribe = function () {};
             run(session, function () {
-                if (resume) { return consultar(session, 1); }
+                if (resume) { return resume.consulta ? Promise.resolve() : consultar(session, 1); }
                 return session.api.invocar("AbrirImportacion", {nivelRef:requestedLevel}).then(function (result) {
                     if (active !== session) { return; }
                     if (!object(result) || result.nivelRef !== requestedLevel || typeof result.rutaCanonica !== "string" || !Array.isArray(result.perfiles) || !result.perfiles.every(profile) || (result.paginaPerfiles != null && (!object(result.paginaPerfiles) || typeof result.paginaPerfiles.puedeHaberMas !== "boolean"))) { throw new Error("RESPUESTA_INVALIDA"); }
@@ -340,7 +385,7 @@
                 if (active !== session) { return; }
                 opening = false;
                 if (active === session) {
-                    if (!session.model.contexto) { errorApertura = session.model.mensaje; cerrar(true); return; }
+                    if (!session.model.contexto && !session.model.consulta) { errorApertura = session.model.mensaje; cerrar(true); return; }
                     session.view = deps.ImportacionCarpetasVista.crear(host, function (name, value) { action(session, name, value); });
                     try { session.picker = deps.InventarioImportacion.vincularSelector(session.view.picker, session.inventory, function (error) { session.model.mensaje = message(error); refresh(session); }); session.model.selectorDisponible = true; }
                     catch (_) { session.model.selectorDisponible = false; session.model.mensaje = "Este navegador no permite seleccionar carpetas."; }
@@ -362,6 +407,7 @@
             });
         }
         function open() { abrir(null); } function resume() { if (host.doc111UltimoLote) { abrir(host.doc111UltimoLote); } }
+        function consulta() { abrir({consulta:true}); }
         function manual() {
             if (!validId(manualInput.value)) { errorApertura = "Escribe una referencia de lote válida."; sync(); return; }
             abrir({loteId:manualInput.value});
@@ -384,7 +430,8 @@
         }
         openButton.addEventListener("click", open); resumeButton.addEventListener("click", resume);
         if (verifyButton) { verifyButton.addEventListener("click", verify); } if (manualButton && manualInput) { manualButton.addEventListener("click", manual); }
-        var instance = {abrir:open, sincronizar:sync, cerrar:cerrar, destruir:function () { cerrar(true); destroyed = true; if (verificationApi) { verificationApi.cerrar(); } openButton.removeEventListener("click", open); resumeButton.removeEventListener("click", resume); if (verifyButton) { verifyButton.removeEventListener("click", verify); } if (manualButton) { manualButton.removeEventListener("click", manual); } delete host.doc111Instancia; }};
+        if (queryOpen) { queryOpen.addEventListener("click", consulta); }
+        var instance = {abrir:function (level) { abrir(null, level); }, consultar:consulta, sincronizar:sync, cerrar:cerrar, destruir:function () { cerrar(true); destroyed = true; if (verificationApi) { verificationApi.cerrar(); } openButton.removeEventListener("click", open); resumeButton.removeEventListener("click", resume); if (verifyButton) { verifyButton.removeEventListener("click", verify); } if (manualButton) { manualButton.removeEventListener("click", manual); } if (queryOpen) { queryOpen.removeEventListener("click", consulta); [openButton,resumeButton,verifyButton].forEach(function (button) { if (button) { button.hidden = true; host.appendChild(button); } }); queryOpen.parentNode.remove(); } delete host.doc111Instancia; }};
         host.doc111Instancia = instance; sync(); return instance;
     }
     var mountedHost = null;
@@ -398,5 +445,5 @@
         function install() { inicializar(); if (!installed && env.Sys && env.Sys.Application) { installed = true; env.Sys.Application.add_load(inicializar); } }
         if (env.document.readyState === "loading") { env.document.addEventListener("DOMContentLoaded", install, {once:true}); } else { install(); }
     }
-    return {crear:crear, crearReferencias:crearReferencias, validarReseleccion:validarReseleccion, accionesRecurso:accionesRecurso, montar:montar, inicializar:inicializar};
+    return {crear:crear, crearReferencias:crearReferencias, validarReseleccion:validarReseleccion, accionesRecurso:accionesRecurso, asegurarMenu:asegurarMenu, montar:montar, inicializar:inicializar};
 }));

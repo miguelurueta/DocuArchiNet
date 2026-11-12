@@ -50,6 +50,7 @@ Inventario previo de rutas existentes. Antes de añadir cualquier archivo, justi
 | E2E | `tools/e2e/scripts/run-doc111-importacion-carpetas.cjs`, `run-doc113-ventana-importacion.cjs` en el mismo directorio; `tools/e2e/tests/doc111-importacion-carpetas.spec.cjs` | Revisar modos antes de ejecutar; REC no equivale a lectura |
 | E2E de seguimiento | Nuevos `tools/e2e/scripts/run-doc119-seguimiento.cjs`, `tools/e2e/tests/support/doc119-seguimiento.cjs`, `tools/e2e/tests/doc119-seguimiento-policy.test.cjs` | Selector SEG-01/02 de lectura: reutiliza openSession, consola y queryRows existentes; sin login/puente/coordinador alternativo. Archivos Node de pruebas, sin Compile VB |
 | Documentación | `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/11-prompt-seguimiento-operacion.md`, `Diseno/02-contratos-operacion.md` y `Validacion/` bajo ese directorio; `Doc/Tecnica/Opsxj/doc-119-produccion-importacion-carga-carpeta-seguimiento/` | Navegación definitiva, contratos y evidencia con límites |
+| Regresión UI nueva | `tests/doc119-navigation.test.cjs`, `tests/doc119-context-menu.test.cjs` y `Validacion/doc119-contextuales-inventario-20261112.json` | Casos afectados de navegación y contrato compartido, Chromium instalado; archivos Node/datos de prueba sin Compile VB |
 
 ## Decisions
 
@@ -64,6 +65,8 @@ Reutilizar ConsultarLote/ConsultarRecursosLote/ExportarPaginaLote. Verificar fil
 ### D-03 — Recuperación por IDs y rama original (RQ-03, SEG-02)
 
 Conservar IDs de plan/lote bajo el espacio de recuperación como pistas, nunca autoridad. Consultar confirmación sin reenviar ConfirmarPlan; el lote recuperado fija su destino aunque cambie la selección visible. Reseleccionar por recursoId/raizId; metadatos no sustituyen validación de contenido en servidor. Actualizar rama original por relación/ID confirmado, sin duplicación, expansión ni cambio de selección.
+
+Criterio de aceptación por capas aprobado expresamente el2026-11-12: SEG-02 real29623218 verifica recarga/reselección sin envío, relación existente única, selección/expansión y huellas conservadas; inserción ausente y raíces físicas homónimas se complementan con regresión local del cliente real/servicios sintéticos. Decisión ACEPTADO_CON_COBERTURA_MIXTA documentada en `doc119-aceptacion-cobertura-mixta-propuesta-20261112.md` (estado formal ACEPTADO_CON_COBERTURA_MIXTA). Conservar PASS_READONLY_WITH_LIMITS del runtime y ambos casos no observados en IIS; no reclasificar pruebas locales como integración real.
 
 ### D-04 — Limpieza condicionada (RQ-04, SEG-03)
 
@@ -89,6 +92,8 @@ Reproducir recorte; medir menú visible y ajustar posición/altura con scroll al
 
 Orden: diagnóstico/corrección reproducida del seguimiento → aceptación integrada SEG-01/02 → UI-01–04 → regresión UI-05/guía → consolidación posterior DOC-120. Defectos de destino/autoridad/acceso/recuperación se corrigen en DOC-119. Cubrir niveles seleccionado/pulsado, homónimos, sin selección, permisos denegados/revocados, reapertura/postback/recarga, consulta/CSV/recuperación, foco y carga individual pertinente. No marcar tareas por existencia de archivos o resultados históricos.
 
+Compuerta operativa abierta por decisión responsable «aceptado» del2026-11-12: SEG-01 integrado completo ccb25ec9 y SEG-02 con cobertura mixta aprobada según D-03. Esto permite iniciar UI sin modificar los resultados ni ampliar efectos de prueba. La guía y la evidencia final mantienen separados los alcances real/local y los límites de inserción/homónimos.
+
 ### D-10 — Autorizaciones y límites (RQ-10)
 
 Pruebas reales, carga, fallos inyectados, permisos y limpieza requieren autorización expresa de ambiente, cuentas, recursos y efectos. Controles RA/DA solo SELECT; secretos efímeros y evidencia saneada. Preservar SII/almacenamiento compartido, esquema, semántica operativa, PDF/rechazo TIFF, snapshot/inventario/efectos, EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA. Sin rollback global, workers, cuotas o aislamiento XML adicional.
@@ -104,14 +109,14 @@ Pruebas reales, carga, fallos inyectados, permisos y limpieza requieren autoriza
 
 ## Migration Plan
 
-Sin migración ni despliegue autorizado. El mapa de `plan-tareas-propuesto.md` se aplicó a `tasks.md` por indicación del usuario. El usuario continuó tras revisar los artefactos de 94ca9277; aprobación local registrada en refinement.md y sincronización OPSXJ PASS. Avance: 4/24 tareas, incluida la corrección reproducida de filtros/CSV (2.1–2.3), sin cambiar backend ni reorganizar accesos. Las autorizaciones reales se resuelven por separado y la secuencia D-09 se conserva.
+Sin migración ni despliegue. El mapa de `plan-tareas-propuesto.md` se aplicó a `tasks.md` por indicación del usuario. El corte inicial de 4/24 sobre94ca9277 precede las autorizaciones y pruebas registradas posteriormente. El2026-11-12 se aceptó expresamente la cobertura mixta de SEG-02, después de SEG-01 real y resolución de SEG-03; entonces se implementó UI-01–05. Regresión final local99/99, carga individual/contratos33/33, navegación6/6 repetida tras ajustar el rótulo contextual y build0errores. Evidencia y revisión final en `Validacion/doc119-ui-verificacion-20261112.md`; no representan una nueva prueba UI autenticada en IIS.
 
 Evidencia nueva bajo `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/`: `doc119-procedencia-20261111.md`, `doc119-filtros-local-20261111.md` y `doc119-plan-aceptacion-20261111.md`. Son documentos de evidencia/plan, sin Compile de proyecto. Casos nuevos se incorporan al archivo de pruebas existente; recursos JS/CSS modificados renuevan caché en el ASPX existente.
 
 Una reversa de navegación restaura accesos previos conservando pistas/datos/efectos; no revierte lotes ni elimina staging. Justificar y registrar archivos nuevos antes de compilar.
 
-## Open Questions
+## Resoluciones y límites de entrega
 
-- Resolver expresamente SEG-03: operación sin limpieza con consumo documentado, o retención/mecanismo y autorización específica. No se ha decidido en esta sesión.
-- Identificar y autorizar ambiente/cuentas propias y ajenas/recursos adecuados para aceptación SEG-01/02; no heredar autorizaciones históricas.
-- Refinamiento aprobado para trabajo local por la continuación del usuario; la tarea 1.2 aún requiere concretar ambiente/cuentas/recursos antes de solicitar autorización de ejecución real.
+- SEG-03 resuelto expresamente como operación sin limpieza, datos conservados y sin cuota/plazo nuevo. La medición57archivos/24.371bytes pertenece al corte previo a la preparación posterior; no es inventario actual ni ejecución de borrado.
+- SEG-01 real ccb25ec9 y SEG-02 real29623218 mantienen sus SHA, presupuestos y ambiente localhost. Cobertura complementaria local de inserción/homónimos aceptada expresamente; resultado runtime intacto.
+- La reorganización final se verifica en Chromium local con servicios sintéticos y compilación Framework. No se atribuye autenticación/IIS/MySQL real a esas pruebas. Archivo, publicación, integración a main y validación autenticada posterior conservan sus acciones específicas.

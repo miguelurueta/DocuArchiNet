@@ -402,7 +402,8 @@ test('DOC-111: interfaz Chromium local con servicios sintéticos, foco y cierre 
     await page.getByRole('button', {name:'Cerrar', exact:true}).click();
     assert.equal(await page.getByRole('dialog').count(), 0);
     await page.locator('[data-doc111-resume]').click(); await page.getByRole('dialog').waitFor();
-    await page.waitForFunction(() => document.querySelector('.doc111-content').textContent.includes('Resultados persistidos'));
+    await page.getByRole('heading', {name:'4. Resultados', exact:true}).waitFor();
+    await page.waitForFunction(() => document.querySelector('.doc111-content').textContent.includes('RECIBIDO'));
     assert.equal(await page.getByRole('button', {name:'Enviar pendientes de esta página', exact:true}).isDisabled(), true);
     await page.getByRole('button', {name:'Cerrar', exact:true}).focus(); await page.keyboard.press('Shift+Tab');
     assert.equal(await page.evaluate(() => document.querySelector('[role=dialog]').contains(document.activeElement)), true);

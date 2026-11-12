@@ -26,6 +26,7 @@
             var target = event.target.closest("[data-doc111-action]");
             if (!target || !dialog.contains(target) || target.disabled) { return; }
             var name = target.getAttribute("data-doc111-action"), value = target.doc111Value;
+            if (name === "consultar-referencia") { value = content.querySelector("[data-doc111-reference]").value; }
             if (name === "filtrar-resultados" || name === "filtrar-raices") {
                 value = {};
                 Array.prototype.forEach.call(target.closest("[data-doc111-filtros]").querySelectorAll("[data-doc111-filter]"), function (field) {
@@ -36,6 +37,7 @@
         }
         function change(event) { if (event.target.getAttribute("data-doc111-profile") === "1") { action("perfil", event.target.value); } }
         function key(event) {
+            if (event.key === "Enter" && !event.isComposing && event.target.hasAttribute("data-doc111-reference")) { event.preventDefault(); event.stopPropagation(); action("consultar-referencia", event.target.value); return; }
             if (event.key === "Enter" && !event.isComposing && event.target.getAttribute("data-doc111-filter") === "raizId") {
                 event.preventDefault(); event.stopPropagation();
                 var apply = event.target.closest("[data-doc111-filtros]").querySelector('[data-doc111-action="filtrar-resultados"]');
@@ -84,14 +86,25 @@
             group.appendChild(button("Limpiar filtros de " + (roots ? "carpetas" : "archivos"), roots ? "limpiar-raices" : "limpiar-resultados", null, busy)); parent.appendChild(group);
         }
         function render(model) {
-            var focused = doc.activeElement, restore = content.contains(focused), focusAction = focused && focused.getAttribute("data-doc111-action"), focusValue = focused && focused.doc111Value;
-            destination.textContent = "Destino: " + (model.contexto ? model.contexto.rutaCanonica : "Validando nivel seleccionado…");
+            var focused = doc.activeElement, restore = content.contains(focused), referenceFocused = focused && focused.hasAttribute("data-doc111-reference"), focusAction = focused && focused.getAttribute("data-doc111-action"), focusValue = focused && focused.doc111Value;
+            title.textContent = model.consulta ? "Consultar importación" : "Importar carpetas";
+            steps.hidden = !!model.consulta;
+            destination.textContent = model.contexto ? "Destino: " + model.contexto.rutaCanonica : model.consulta ? "Consulta una referencia autorizada. El lote conserva su destino original." : "Validando nivel seleccionado…";
             notice.textContent = model.mensaje || ""; notice.hidden = !model.mensaje; dialog.setAttribute("aria-busy", model.busy ? "true" : "false");
             Array.prototype.forEach.call(steps.children, function (step, index) { if (index === model.etapa) { step.setAttribute("aria-current", "step"); } else { step.removeAttribute("aria-current"); } });
             content.textContent = ""; summary.textContent = "";
-            summary.appendChild(node("h3", "Configuración"));
+            if (model.consulta) {
+                var query = node("section", undefined, "doc111-query"), label = node("label", "Referencia del lote"), input = node("input");
+                input.type = "text"; input.inputMode = "numeric"; input.maxLength = 10; input.autocomplete = "off"; input.setAttribute("aria-label", "Referencia del lote"); input.setAttribute("data-doc111-reference", ""); input.setAttribute("data-doc111-lote", ""); input.value = model.referencia || ""; input.disabled = model.busy;
+                label.appendChild(input); query.appendChild(label); var submit = button("Consultar importación", "consultar-referencia", null, model.busy); submit.setAttribute("data-doc111-consultar", ""); query.appendChild(submit);
+                if (model.ultimoLoteId) { query.appendChild(button("Consultar último lote " + model.ultimoLoteId, "consultar-ultimo", null, model.busy)); }
+                if (model.planPendienteId) { query.appendChild(node("p", "La confirmación del plan " + model.planPendienteId + " requiere verificación. No se volverá a confirmar.")); query.appendChild(button("Verificar confirmación pendiente", "verificar-referencia", null, model.busy)); }
+                content.appendChild(query);
+                if (!model.loteId) { summary.appendChild(node("p", "Consulta y recuperación de referencias. La autorización se comprueba en el servidor.")); if (restore) { (input.disabled ? dialog : input).focus(); } return; }
+            }
+            summary.appendChild(node("h3", model.consulta ? "Seguimiento" : "Configuración"));
             var profile = model.perfil, config = profile && profile.Configuracion;
-            summary.appendChild(node("p", profile ? "Perfil " + profile.PerfilId + " · versión " + profile.NumeroVersion : "Selecciona una versión publicada."));
+            if (!model.consulta) { summary.appendChild(node("p", profile ? "Perfil " + profile.PerfilId + " · versión " + profile.NumeroVersion : "Selecciona una versión publicada.")); }
             if (config) {
                 summary.appendChild(node("p", "Gabinete: " + config.GabineteId));
                 summary.appendChild(node("p", "Integridad: " + (config.ModoIntegridad === "PARCIAL_PERMITIDO" ? "Se permiten resultados parciales" : (config.AmbitoIntegridad === "LOTE" ? "Completa por lote" : "Completa por expediente"))));
@@ -102,7 +115,8 @@
                 var r = inventory.raices.filter(function (item) { return item.idCliente === rootId; })[0], f = inventory.archivos.filter(function (item) { return item.idCliente === fileId; })[0];
                 return (r ? r.nombre + " (" + rootId + ")" : rootId || "Global") + (fileId ? " / " + (f ? f.nombre + " (" + fileId + ")" : fileId) : "");
             }
-            summary.appendChild(node("p", inventory.raices.length + " carpetas · " + inventory.archivos.length + " archivos seleccionados"));
+            if (!model.consulta) { summary.appendChild(node("p", inventory.raices.length + " carpetas · " + inventory.archivos.length + " archivos seleccionados")); }
+            else if (model.estado) { summary.appendChild(node("p", model.estado.totalRaices + " carpetas · " + model.estado.totalArchivos + " archivos del inventario original")); }
             if (model.loteId) { summary.appendChild(node("p", "Lote: " + model.loteId)); }
             summary.appendChild(node("p", "Cerrar conserva la referencia del lote confirmado. Los archivos locales pendientes pueden requerir una nueva selección."));
             if (model.etapa === 0) {
@@ -136,9 +150,9 @@
                 content.appendChild(button("Cambiar selección", "etapa", 1, model.busy || model.confirmacionIncierta));
                 content.appendChild(button("Confirmar plan", "confirmar", null, model.busy || !model.confirmable || model.confirmacionIncierta));
             } else {
-                content.appendChild(node("h3", "4. Resultados persistidos"));
+                content.appendChild(node("h3", model.consulta ? "Resultados de la importación" : "4. Resultados"));
                 content.appendChild(node("p", "Lote " + model.loteId + (model.estado ? " · " + model.estado.estado : "")));
-                content.appendChild(node("p", "La recepción de archivos es independiente del almacenamiento y de la incorporación documental. Cada acción avanza una fase y consulta su resultado."));
+                content.appendChild(node("p", "Consultar y descargar resultados no procesa archivos. La recepción y el almacenamiento se ejecutan con acciones explícitas."));
                 if (model.estado) { content.appendChild(node("p", "Inventario original: " + model.estado.totalRaices + " carpetas · " + model.estado.totalArchivos + " archivos · " + model.estado.totalBytes + " bytes.")); }
                 content.appendChild(button("Consultar estado", "consultar", null, model.busy));
                 if (model.estado) {
@@ -172,11 +186,11 @@
                 }
             }
             if (restore) {
-                var replacement = focusAction ? Array.prototype.filter.call(content.querySelectorAll("[data-doc111-action]"), function (b) { return b.getAttribute("data-doc111-action") === focusAction && b.doc111Value === focusValue && !b.disabled; })[0] : content.querySelector("[data-doc111-profile]");
+                var replacement = referenceFocused ? content.querySelector("[data-doc111-reference]:not(:disabled)") : focusAction ? Array.prototype.filter.call(content.querySelectorAll("[data-doc111-action]"), function (b) { return b.getAttribute("data-doc111-action") === focusAction && b.doc111Value === focusValue && !b.disabled; })[0] : content.querySelector("[data-doc111-profile]");
                 (replacement || dialog).focus();
             }
         }
-        return {render:render, picker:picker, reselector:reselector, destruir:function () { dialog.removeEventListener("click", click); dialog.removeEventListener("change", change); dialog.removeEventListener("keydown", key); overlay.remove(); doc.body.style.overflow = previousOverflow; if (previousFocus && previousFocus.isConnected) { previousFocus.focus(); } }};
+        return {render:render, picker:picker, reselector:reselector, enfocar:function () { dialog.focus(); }, destruir:function () { dialog.removeEventListener("click", click); dialog.removeEventListener("change", change); dialog.removeEventListener("keydown", key); overlay.remove(); doc.body.style.overflow = previousOverflow; if (previousFocus && previousFocus.isConnected) { previousFocus.focus(); } }};
     }
     return {crear:crear};
 }));

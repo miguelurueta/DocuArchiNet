@@ -13,6 +13,11 @@ El expediente de DOC-119 SHALL distinguir evidencia histórica, inspección y pr
 - **WHEN** se ejecuta Chromium con dobles locales
 - **THEN** se informa alcance local sin acreditar autenticación, IIS, MySQL o efectos reales
 
+#### Scenario: Aceptación responsable de cobertura mixta
+- **WHEN** el responsable acepta expresamente la matriz real/local de SEG-02 documentada el2026-11-12
+- **THEN** la compuerta UI reconoce esa aceptación conservando el resultado runtime PASS_READONLY_WITH_LIMITS
+- **AND** inserción nueva y raíces físicas homónimas mantienen su clasificación local sin anunciar observación real en IIS
+
 ### Requirement: RQ-02 — Lectura y CSV por página
 El seguimiento SHALL consultar filtros/páginas autorizados y exportar una página con los mismos filtros, conservando totales y autoridad sin efectos según D-02.
 
