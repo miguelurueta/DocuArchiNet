@@ -27,3 +27,9 @@ Tareas verificadas: 1.1, 2.1, 2.2, 2.3; 4/24. SEG-01/02 siguen sin aceptación i
 Ventanas de lectura del plan local autorizadas; cuentas/recursos se capturan por consola enmascarada antes de actuar. Selector específico preparado con sesión/SQL existentes y límites persistentes, sin habilitar efectos. `doc119-selector-lectura-20261111.md` detalla fuentes y límites.
 
 Regresión nueva: **34/34 PASS** (21 cliente/selector y 13 políticas), incluyendo los tres recorridos del selector con servicios simulados; `--check`, sintaxis Node, OpenSpec estricto y refinamiento PASS. No acredita todavía una ejecución real. Progreso permanece 4/24 hasta revisar preflight y resultados con referencias concretas. Estado de ejecución se conserva solo en .tmp, excluido de Git.
+
+## Selección comprensible — 2026-11-12
+
+El selector ahora muestra importaciones existentes de la cuenta autenticada por fecha, destino y estado, sin exigir IDs internos. Descubrimiento parametrizado y limitado a usuario/empresa/facultades actuales; sesión y consultas cuentan dentro de los presupuestos existentes. La captura anterior se reemplazó antes de cualquier sesión/HTTP/SELECT, conservando su estado local.
+
+Regresión actual: **39/39 PASS** (21 cliente/selector y 18 políticas), sin sumar corridas anteriores. Incluye selección por opción, guardia sin recurso elegido, descubrimiento acotado, cuenta ambigua y archivo pendiente. Sigue sin acreditar aceptación integrada real; avance 4/24. Detalle en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc119-seleccion-importaciones-20261112.md`.

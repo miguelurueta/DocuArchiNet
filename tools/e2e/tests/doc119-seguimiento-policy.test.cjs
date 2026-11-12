@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
-const {BASE_URL,LIMITS,READS,validateProfile,createBudget,permittedRequest,installGuard,makeControls,csvRows,hash}=require('./support/doc119-seguimiento.cjs');
+const {BASE_URL,LIMITS,READS,validateConnection,validateProfile,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,installGuard,makeControls,csvRows,hash}=require('./support/doc119-seguimiento.cjs');
 const {parseArgs,main}=require('../scripts/run-doc119-seguimiento.cjs');
 const profile=()=>({baseUrl:BASE_URL,module:'GESTOR',ignoreHttpsErrors:false,timeoutMilliseconds:60000,odbcDsn:'MembershipUsers',docuarchiOdbcDsn:'MembershipUsers',lotId:'5',recoveryLotId:null,alternateLevel:null});
 const scope={lotId:'5',level:'7',planId:'17'};
@@ -91,3 +91,46 @@ test('DOC119 recursos/contextos no validos fallan antes de continuar',async()=>{
   await assert.rejects(()=>controls.snapshot('5'),/DOC119_CONTEXT_INVALID/);await assert.rejects(()=>controls.snapshot('0'),/DOC119_LOT_INVALID/);
 });
 test('DOC119 --check no pide credenciales ni abre una sesion',async()=>{await main(['--check']);});
+
+test('DOC119 conexion y guardia sin importacion elegida no inventan referencias',()=>{
+  const p=profile();const {lotId,recoveryLotId,alternateLevel,...connection}=p;
+  assert.equal(validateConnection(connection).baseUrl,BASE_URL);assert.throws(()=>validateConnection({...connection,lotId:'5'}),/PROFILE_INVALID/);
+  const empty={lotId:null,planId:null,level:null};
+  for(const [operation,payload]of [['ConsultarLote',{loteId:null}],['ConsultarConfirmacionLote',{planId:null}],['AbrirImportacion',{nivelRef:null}]])assert.equal(permittedRequest('POST',url(operation),payload,empty),false);
+});
+test('DOC119 permite elegir una opcion por fecha/estado sin saber el ID interno',()=>{
+  const items=[{id:'105',createdAt:'2026-11-10 08:00',levelName:'Archivo',state:'PARCIAL',totalFiles:3,totalRoots:2,pendingFiles:1},{id:'210'}];
+  assert.equal(chooseItem(items,'1').id,'105');assert.equal(chooseItem(items,'2').id,'210');assert.equal(chooseItem(items,'0',true),null);
+  for(const value of ['105','3','0','01','1;other'])assert.throws(()=>chooseItem(items,value),/SELECTION_INVALID/);
+  const text=describeImport(items[0],0);assert.match(text,/2026-11-10 08:00 UTC/);assert.match(text,/resultado parcial/);assert.match(text,/3 archivos/);assert.doesNotMatch(text,/105/);
+});
+test('DOC119 descubrimiento usa cuenta y empresa parametrizadas, facultades vigentes y limite',async()=>{
+  const login="owner' OR 1=1 --",calls=[],budget=createBudget('SEG-01');
+  const result=await discoverImports(async(origin,sql,args)=>{
+    calls.push({origin,sql,args});
+    if(calls.length===1)return [{usuario_ref:'141',empresa_ref:'2'}];
+    return [{lote_id:'5',nivel_ref:'7',level_name:'Area\u001b[31mA',created_at:'2026-11-10 08:00',estado:'PARCIAL',total_archivos:'3',total_raices:'2',pending_files:'1',password:'synthetic-never-projected'}];
+  },budget,login);
+  assert.equal(budget.counts.select,2);assert.deepEqual(calls[0].args,[login]);assert.equal(calls[0].sql.includes(login),false);
+  assert.deepEqual(calls[1].args,['141','2','2','141','141']);assert.match(calls[1].sql,/l\.solicitante_ref=\?/);assert.match(calls[1].sql,/l\.ambito_ref=\?/);
+  assert.match(calls[1].sql,/p\.agregar_expediente=1 AND p\.carga_archivo=1/);assert.match(calls[1].sql,/LIMIT 30$/);
+  assert.equal(result.items[0].id,'5');assert.equal(result.items[0].pendingFiles,1);assert.doesNotMatch(describeImport(result.items[0],0),/\u001b/);
+  assert.equal(JSON.stringify(result).includes(login),false);assert.equal(JSON.stringify(result).includes('synthetic-never-projected'),false);
+  for(const call of calls){assert.match(call.sql,/^SELECT /);assert.doesNotMatch(call.sql,/\b(?:UPDATE|INSERT|DELETE|CALL|SET|DROP)\b/i);}
+});
+test('DOC119 descubrimiento rechaza cuentas ambiguas y no lista otra identidad',async()=>{
+  for(const users of [[],[{usuario_ref:'141',empresa_ref:'2'},{usuario_ref:'142',empresa_ref:'3'}],[{usuario_ref:'0',empresa_ref:'2'}]]){
+    let count=0;await assert.rejects(()=>discoverImports(async()=>{count++;return users;},createBudget('SEG-01'),'synthetic'),/ACCOUNT_AMBIGUOUS_OR_UNAVAILABLE/);assert.equal(count,1);
+  }
+  const empty=await discoverImports(async(_origin,sql)=>sql.includes('Login_Usuario')?[{usuario_ref:'141',empresa_ref:'2'}]:[],createBudget('SEG-01'),'synthetic');assert.deepEqual(empty.items,[]);
+});
+test('DOC119 destinos y archivo por recibir se descubren dentro de la cuenta elegida',async()=>{
+  const principal={userRef:'141',companyRef:'2'},budget=createBudget('SEG-02'),calls=[];
+  const query=async(origin,sql,args)=>{calls.push({origin,sql,args});return sql.includes('parent_name')?[{id_nivel:'8',nombre_nivel:'Archivo',parent_name:'Central'}]:[{archivo_id:'30',origen_doc:JSON.stringify({Nombre:'a.pdf',RutaRelativa:'Carpeta/a.pdf'}),bytes_previstos:'7'}];};
+  assert.deepEqual(await discoverLevels(query,budget,principal,'7'),[{id:'8',name:'Archivo',parent:'Central'}]);
+  assert.deepEqual(calls[0].args,['7','2','141','141']);assert.match(calls[0].sql,/n\.id_nivel<>\?/);
+  assert.deepEqual(await pendingFile(query,budget,principal,'5'),{id:'30',name:'a.pdf',relativePath:'Carpeta/a.pdf',bytes:'7'});
+  assert.deepEqual(calls[1].args,['5','141','2']);assert.match(calls[1].sql,/l\.solicitante_ref=\? AND l\.ambito_ref=\?/);assert.match(calls[1].sql,/LIMIT 1$/);
+  assert.equal(budget.counts.select,2);
+  await assert.rejects(()=>pendingFile(async()=>[{archivo_id:'30',origen_doc:JSON.stringify({Nombre:'a.pdf',RutaRelativa:'C:\\private\\a.pdf'}),bytes_previstos:'7'}],budget,principal,'5'),/FILE_METADATA_INVALID/);
+});

@@ -4,7 +4,7 @@ Preparación de tarea 1.2, D-10/RQ-10. El usuario indicó «autorizado» en resp
 
 ## Destino propuesto y datos que faltan
 
-Ambiente de estas ventanas autorizadas: `https://localhost/GestionDocumental-Docuarchi.net/`. Se capturan cuenta propietaria, cuenta ajena autorizada con permiso de importar y referencias de lotes para cada caso. No inferir esos datos de permisos/sesiones históricas. Una excepción para certificado local solo se activa si el operador elige expresamente SI en la consola; de lo contrario se valida TLS normalmente.
+Ambiente de estas ventanas autorizadas: `https://localhost/GestionDocumental-Docuarchi.net/`. Se autentica la cuenta propietaria y se muestran hasta 30 importaciones propias por fecha UTC, destino, estado y cantidades. El operador elige una opción de la lista; no necesita conocer IDs internos. La consulta se limita a usuario/empresa y facultades actuales, sin deducirlos de permisos/sesiones históricas. La cuenta ajena autorizada con permiso de importar se captura al llegar a la prueba de privacidad. Una excepción para certificado local solo se activa si el operador elige expresamente SI en la consola; de lo contrario se valida TLS normalmente.
 
 SEG-01 necesita lote del propietario con estados mixtos y suficientes filas para más de una página según política vigente; al menos un filtro con coincidencias y uno sin ellas. Lote5 histórico PARCIAL es una referencia candidata para revisar por SELECT si el responsable la elige; no se presupone propietario, disponibilidad o adecuación actuales. Lotes27/28 y restantes recursos protegidos se conservan; este plan no los modifica ni reejecuta.
 
@@ -22,7 +22,7 @@ Los techos propuestos cuentan reintentos y fallos de sesión; al agotarlos se de
 
 ## Controles y reutilización de herramientas
 
-Reutilizar sesión autenticada y puente ODBC `queryRows` existentes. Los DSN RA/DA y consultas SELECT parametrizadas se fijan tras identificar recursos y revisar las tablas vigentes; no se admiten cadenas de conexión o secretos en el perfil. Huellas antes/después de lote/raíces/archivos/intentos y relaciones documentales pertinentes; sin UPDATE/DELETE, FOR UPDATE ni funciones de espera.
+Reutilizar sesión autenticada y puente ODBC `queryRows` existentes. Los DSN RA/DA y credenciales SELECT se capturan en consola antes del descubrimiento parametrizado; no se admiten cadenas de conexión o secretos en el perfil. Huellas antes/después de lote/raíces/archivos/intentos y relaciones documentales pertinentes; sin UPDATE/DELETE, FOR UPDATE ni funciones de espera.
 
 `run-doc111-importacion-carpetas.cjs` predeterminado ejecuta REC con efectos. `--diagnose` solo diagnostica acceso y no acredita seguimiento; `--verify-lot` está restringido a lote COMPLETADO y no acredita filtro/CSV/negativo/recarga incompleta. Los modos de recuperación pueden cerrar reservas, reconciliar y continuar almacenamiento: quedan fuera de las ventanas de lectura.
 
@@ -34,7 +34,7 @@ Detener ante autoridad/identidad/destino discordantes, operación fuera de la li
 
 Conservar solo resultado saneado, SHA/hashes del cliente servido y ejecutor, ambiente, IDs autorizados, contadores, códigos y huellas. Capturar secretos por consola compartida y eliminarlos al cerrar; nunca guardarlos o imprimirlos. No borrar lotes, temporales o evidencia al terminar.
 
-La selección concreta de cuentas/lotes/nivel alterno/PDF se realiza antes de autenticación o SELECT. La autorización actual no permite crear recursos si no existen casos adecuados ni habilita recepción: la tercera ventana sigue sin concederse. La reorganización UI de la sección 3 permanece detrás de aceptación integrada SEG-01/02; preparar el selector o pasar pruebas locales no abre esa compuerta. SEG-03 requiere decisión propia y no habilita borrados.
+La selección concreta de importación/nivel alterno/PDF se realiza después de autenticar al propietario y consultar sus recursos existentes. Esa sesión y los SELECT de descubrimiento consumen los mismos presupuestos SEG-01/02, sin reiniciarlos; la sesión propietaria se reutiliza en SEG-01. Hasta elegir el recurso, la guardia no permite operaciones de importación. La autorización actual no permite crear recursos si no existen casos adecuados ni habilita recepción: la tercera ventana sigue sin concederse. La reorganización UI de la sección 3 permanece detrás de aceptación integrada SEG-01/02; preparar el selector o pasar pruebas locales no abre esa compuerta. SEG-03 requiere decisión propia y no habilita borrados.
 
 ## Selector preparado
 
@@ -42,4 +42,4 @@ La selección concreta de cuentas/lotes/nivel alterno/PDF se realiza antes de au
 
 Reutiliza openSession/consulta de diagnóstico, queryRows, createSelectControls, selectLevel y captura de evidencia existentes. La guardia bloquea cualquier ASMX fuera de la lista, todo ASHX y postbacks de negocio; en SEG-02 solo permite Button_inline_trevie con título de nivel original/alterno elegido. Cuenta todos los HTTP de aplicación permitidos, incluidos recursos estáticos y pruebas de origen servido; cuenta SELECT y sesiones antes de invocarlos y conserva consumos en `.tmp/doc119-seguimiento/<runId>/state.json`, excluido de Git. No reutilizar un runId ni reiniciar el presupuesto tras un fallo.
 
-Recursos inadecuados producen detención sin fabricar éxito: SEG-01 necesita un filtro cuyo resultado tenga segunda página real bajo el tamaño vigente; lote5 es solo candidato y puede ser insuficiente. SEG-02 necesita recepción por completar, raíz confirmada, rama original cargada y archivo correspondiente; se puede omitir con referencia 0 y queda NO_EJECUTADO. Homónimos o nuevas relaciones no observados se informan como límite, no como aceptación completa. Reselección solo acredita metadatos/identidad local; bytes/hash servidor no se verifican sin una recepción aparte.
+Recursos inadecuados producen detención sin fabricar éxito: SEG-01 necesita un filtro cuyo resultado tenga segunda página real bajo el tamaño vigente; lote5 es solo candidato y puede ser insuficiente. SEG-02 ofrece las importaciones con archivos por recibir y muestra el nombre/ruta relativa del archivo esperado; necesita además raíz confirmada, rama original cargada y archivo correspondiente. Se puede omitir con opción 0 y queda NO_EJECUTADO. Los destinos alternos se eligen por nombre entre los actualmente autorizados. Homónimos o nuevas relaciones no observados se informan como límite, no como aceptación completa. Reselección solo acredita metadatos/identidad local; bytes/hash servidor no se verifican sin una recepción aparte.
