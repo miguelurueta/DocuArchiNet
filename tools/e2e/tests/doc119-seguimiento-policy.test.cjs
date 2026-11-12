@@ -67,6 +67,19 @@ test('DOC119 guardia no deja pasar JSON roto o otro lote',async()=>{
     assert.equal(continued,false);assert.equal(aborted,true);
   }
 });
+
+test('DOC119 omite la fuente opcional del login sin red externa ni cerrar la guardia',async()=>{
+  let handler;const budget=createBudget('SEG-01'),outcomes=[];
+  const guard=await installGuard({route:async(_pattern,value)=>{handler=value;}},budget,scope);
+  const request=(method,url,type)=>({request:()=>({method:()=>method,url:()=>url,resourceType:()=>type}),abort:async()=>outcomes.push('abort'),continue:async()=>outcomes.push('continue')});
+  const font='https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,600,700,800';
+  await handler(request('GET',font,'stylesheet'));
+  assert.deepEqual(guard.omittedPresentation,['GOOGLE_LOGIN_FONT']);assert.deepEqual(guard.violations,[]);assert.equal(budget.counts.http,0);
+  await handler(request('GET',new URL('gestor.aspx',BASE_URL).href,'document'));
+  assert.deepEqual(outcomes,['abort','continue']);assert.equal(budget.counts.http,1);
+  await handler(request('POST',font,'stylesheet'));
+  assert.deepEqual(guard.violations,['DOC119_HTTP_SCOPE_DENIED']);assert.equal(budget.counts.http,1);
+});
 test('DOC119 CSV conserva comillas, saltos y pagina vacia sin guardarlo',()=>{
   assert.deepEqual(csvRows('"recursoId","nombre"\r\n"31","a,""b""\r\nc"\r\n'),[['recursoId','nombre'],['31','a,"b"\r\nc']]);
   assert.deepEqual(csvRows('"recursoId"\r\n'),[['recursoId']]);assert.throws(()=>csvRows('"unfinished'),/DOC119_CSV_INVALID/);

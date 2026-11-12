@@ -61,7 +61,7 @@ async function main(args=process.argv.slice(2)){
       const guardedBrowser={newContext:async contextOptions=>{const context=await browser.newContext(contextOptions);contexts.add(context);guard=await installGuard(context,budget,scope);return context;}};
       let auth;
       try{auth=await openSession(guardedBrowser,{...connection,nivelRef:scope.level},environment,{environment:true,account:true},{beforeDiagnosticPost(){check(id(scope.level)&&permittedRequest('POST',new URL('webservice/WebServiceImportacionCarpetas.asmx/AbrirImportacion',BASE_URL).href,{nivelRef:scope.level},scope),'HTTP_SCOPE_DENIED');budget.take('http');}});}
-      catch(error){save({guardViolation:guard?.violations[0]||null});throw error;}
+      catch(error){save({guardViolation:guard?.violations[0]||null});if(guard?.violations.length)throw Error(guard.violations[0]);throw error;}
       auth.page.setDefaultTimeout(30000);auth.guard=guard;auth.scope=scope;
       for(const resource of SOURCES){budget.take('http');const response=await auth.context.request.get(new URL(resource,BASE_URL).href,{maxRetries:0,maxRedirects:0,timeout:30000});check(response.status()===200&&hash(await response.body())===hash(fs.readFileSync(path.join(ROOT,resource))),'SERVED_SOURCE_MISMATCH');}
       check(guard.violations.length===0,'HTTP_SCOPE_DENIED');return auth;

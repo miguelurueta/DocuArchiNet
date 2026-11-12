@@ -95,11 +95,16 @@ function permittedRequest(method,url,payload,scope){
   return method==='GET'||method==='HEAD';
 }
 async function installGuard(context,budget,scope){
-  const calls=[],violations=[];
+  const calls=[],violations=[],omittedPresentation=[];
   await context.route('**/*',async route=>{
     const request=route.request();let payload;
     try{
       check(violations.length===0,'RUN_STOPPED');
+      // The login references this optional font. Abort it locally without
+      // making an external request or stopping the authorized application flow.
+      if(request.method()==='GET'&&request.resourceType?.()==='stylesheet'&&request.url()==='https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,600,700,800'){
+        omittedPresentation.push('GOOGLE_LOGIN_FONT');await route.abort('blockedbyclient');return;
+      }
       if(request.method()==='POST'&&/\/webservice\//i.test(request.url()))payload=JSON.parse(request.postData()).solicitud;
       else if(request.method()==='POST'&&/\/Gestion\/WebFormProducionDocumental\.aspx(?:\?|$)/i.test(request.url()))payload=Object.fromEntries(new URLSearchParams(request.postData()||''));
       check(permittedRequest(request.method(),request.url(),payload,scope),'HTTP_SCOPE_DENIED');
@@ -107,7 +112,7 @@ async function installGuard(context,budget,scope){
       if(payload&&/\/webservice\//i.test(request.url()))calls.push({operation:new URL(request.url()).pathname.split('/').pop(),request:payload});
       await route.continue();
     }catch(error){violations.push(/^DOC119_[A-Z_]+$/.test(error.message)?error.message:'DOC119_HTTP_SCOPE_DENIED');await route.abort('blockedbyclient');}
-  });return {calls,violations};
+  });return {calls,violations,omittedPresentation};
 }
 function makeControls(query,budget){
   const read=async(origin,sql,args)=>{budget.take('select');return query(origin,sql,args);};

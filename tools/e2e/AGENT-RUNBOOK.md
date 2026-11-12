@@ -10,6 +10,8 @@ Primero autentica al propietario y lista hasta 30 importaciones propias por fech
 
 La guardia permite únicamente los ASMX de lectura del lote/plan/nivel elegidos y postback de selección de nivel en SEG-02; bloquea todos los ASHX y botones de negocio. Consumos persistentes por ventana: SEG-01 120 HTTP/80 SELECT/2 sesiones; SEG-02 80 HTTP/60 SELECT/2 sesiones. Una violación/fallo detiene sin retry. Estado saneado en `.tmp/doc119-seguimiento/<runId>/state.json`, excluido de Git; jamás contiene formularios, CSV, cuentas, claves, cookies o tokens.
 
+La referencia exacta a la hoja de fuente Google del login se aborta localmente sin enviarla, sin consumir HTTP de aplicación y sin detener la guardia. No es una autorización de acceso externo: otras solicitudes externas y cualquier método distinto de GET siguen deteniendo la corrida. Tras un fallo no reiniciar automáticamente: una nueva ventana manual debe tener una instrucción expresa del usuario y conservar los consumos/resultados de la anterior.
+
 Preflight debe acreditar recursos adecuados. Falta de segunda página, recepción por completar, raíz confirmada, rama disponible o PDF correcto no permite simular aceptación ni crear recursos por inferencia. No marcar SEG-01/02 aprobados por `--check` o pruebas locales. Un resultado con límites conserva esos límites; la reorganización UI espera aceptación integrada documentada.
 
 Este runbook permite reutilizar las pruebas ASMX Workflow sin copiar credenciales, modificar datos sin autorización ni reactivar la política legacy.

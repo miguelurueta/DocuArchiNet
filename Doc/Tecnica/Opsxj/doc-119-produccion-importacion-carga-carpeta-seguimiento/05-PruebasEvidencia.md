@@ -33,3 +33,9 @@ Regresión nueva: **34/34 PASS** (21 cliente/selector y 13 políticas), incluyen
 El selector ahora muestra importaciones existentes de la cuenta autenticada por fecha, destino y estado, sin exigir IDs internos. Descubrimiento parametrizado y limitado a usuario/empresa/facultades actuales; sesión y consultas cuentan dentro de los presupuestos existentes. La captura anterior se reemplazó antes de cualquier sesión/HTTP/SELECT, conservando su estado local.
 
 Regresión actual: **39/39 PASS** (21 cliente/selector y 18 políticas), sin sumar corridas anteriores. Incluye selección por opción, guardia sin recurso elegido, descubrimiento acotado, cuenta ambigua y archivo pendiente. Sigue sin acreditar aceptación integrada real; avance 4/24. Detalle en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc119-seleccion-importaciones-20261112.md`.
+
+## Primer intento real y corrección del ejecutor — 2026-11-12
+
+Corrida `d09ca8a7cdc547cca79fb53d37af26af`: STOPPED, guardia `DOC119_HTTP_SCOPE_DENIED`, error exterior `DOC111_LOGIN_TRANSPORT_FAILED`. Consumo: 1 sesión, 1 HTTP, 0 SELECT; postback no observado, sin importación elegida ni aceptación SEG-01/02. Secretos eliminados al cerrar. Diagnóstico posterior sin credenciales: 1 GET, 0 sesiones/SELECT; primera solicitud bloqueada `GOOGLE_FONT_STYLESHEET`. Ambos registros se conservan excluidos de Git.
+
+Corrección: abortar localmente la hoja opcional exacta de Google Fonts sin enviar tráfico externo ni detener la guardia; el resto de los límites sigue vigente. Fallos de guardia se informan con su código propio. Regresión **40/40 PASS** (21 cliente/selector, 19 políticas), incluida omisión sin consumo de red y rechazo de POST a esa misma URL. No se suma a los cortes anteriores. El usuario pidió continuar la prueba real; se prepara nueva ventana manual conforme al plan, sin retry automático ni aceptación inferida. Progreso sigue 4/24.
