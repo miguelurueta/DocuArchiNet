@@ -1,7 +1,8 @@
 # DOC-119 — evidencia de validación
 
-- Cambio: `doc-119-produccion-importacion-carga-carpeta-seguimiento`.
-- Clasificación: `cross_cutting`.
+- Ticket: DOC-119
+- Cambio OpenSpec: doc-119-produccion-importacion-carga-carpeta-seguimiento
+- Clasificacion: cross_cutting
 - Base del primer corte local: 94ca9277ce234b337b73bdda9bbd881e037b3047, con cambios locales descritos.
 
 Estado vigente del2026-11-12: **24/24 tareas verificadas**, implementación de navegación definitiva terminada localmente tras aceptación expresa «aceptado» de la cobertura mixta SEG-02. SEG-01 ccb25ec9 PASS_READONLY real y SEG-0229623218 PASS_READONLY_WITH_LIMITS real conservan sus resultados/SHA/ambiente; inserción nueva y raíces físicas homónimas mantienen cobertura local. SEG-03 resuelto como operación sin limpieza, sin borrado. UI final:99/99 pruebas locales,33/33 de carga individual/contratos y compilación0errores/308advertencias, sin nueva sesión autenticada ni despliegue. [Revisión final y matriz](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc119-ui-verificacion-20261112.md), [huellas de fuentes](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc119-ui-fuentes-20261112.json), [aceptación mixta registrada](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc119-aceptacion-cobertura-mixta-propuesta-20261112.md).

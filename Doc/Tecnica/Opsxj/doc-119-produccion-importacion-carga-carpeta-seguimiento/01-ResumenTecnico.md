@@ -1,7 +1,8 @@
 # DOC-119 — seguimiento de importación
 
-- Cambio: `doc-119-produccion-importacion-carga-carpeta-seguimiento`.
-- Clasificación: `cross_cutting`.
+- Ticket: DOC-119
+- Cambio OpenSpec: doc-119-produccion-importacion-carga-carpeta-seguimiento
+- Clasificacion: cross_cutting
 - Progreso local: 24/24 tareas verificadas; implementación lista para revisión, sin archivo ni despliegue.
 
 ## Objetivo

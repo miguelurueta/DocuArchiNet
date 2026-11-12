@@ -1,7 +1,8 @@
 # DOC-119 — contratos de seguimiento
 
-- Cambio: `doc-119-produccion-importacion-carga-carpeta-seguimiento`.
-- Clasificación: `cross_cutting`.
+- Ticket: DOC-119
+- Cambio OpenSpec: doc-119-produccion-importacion-carga-carpeta-seguimiento
+- Clasificacion: cross_cutting
 
 ## Contratos e integraciones
 
