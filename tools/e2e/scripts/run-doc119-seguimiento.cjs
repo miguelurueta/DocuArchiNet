@@ -17,7 +17,7 @@ async function main(args=process.argv.slice(2)){
   if(options.check){for(const name of SOURCES)check(fs.statSync(path.join(ROOT,name)).isFile(),'SOURCE_MISSING');console.log('DOC119_CHECK=PASS; REAL_EXECUTION=false');return;}
   requireInteractiveConsole();
   const directory=path.join(ROOT,'.tmp','doc119-seguimiento',options.runId);fs.mkdirSync(directory,{recursive:true});
-  const statePath=path.join(directory,'state.json'),state={version:2,runId:options.runId,pid:process.pid,authorizedPlan:true,baseUrl:BASE_URL,status:'WAITING_ACCOUNT',stage:null,usage:{},results:{},events:[]};
+  const statePath=path.join(directory,'state.json'),state={version:3,runId:options.runId,pid:process.pid,authorizedPlan:true,authorizationRevision:'20261112-http600',limits:LIMITS,baseUrl:BASE_URL,status:'WAITING_ACCOUNT',stage:null,usage:{},results:{},events:[]};
   fs.writeFileSync(statePath,JSON.stringify(state),{flag:'wx'});
   const save=patch=>{Object.assign(state,patch);fs.writeFileSync(statePath,JSON.stringify(state,null,2));};
   const messages={AUTHENTICATING_OWNER:'Comprobando el acceso de la cuenta de pruebas...',DISCOVERING_IMPORTS:'Buscando sus importaciones de carpetas...',WAITING_IMPORT_SELECTION:'Elige una importacion de la lista.',WAITING_RECOVERY_SELECTION:'Elige si deseas comprobar la recuperacion de archivos por recibir.',PREFLIGHT:'Comprobando los datos actuales de la importacion elegida...',RUNNING:'Ejecutando las comprobaciones de consulta...',WAITING_SECOND_ACCOUNT:'Falta la segunda cuenta para comprobar la privacidad de la importacion.',STAGE_COMPLETE:'Esta parte de la comprobacion termino.',FINISHED:'La ejecucion termino; el informe queda listo para revision.',FINISHED_WITH_LIMITS:'La ejecucion termino con partes omitidas o limites que deben revisarse.',STOPPED:'La comprobacion se detuvo; no se repetira automaticamente.'};
@@ -40,6 +40,7 @@ async function main(args=process.argv.slice(2)){
     console.log('Comprobara consulta, filtros, descarga CSV y recuperacion al recargar. No crea carpetas ni envia archivos.');
     console.log('No necesitas conocer numeros internos: se mostraran las importaciones de la cuenta que ingreses.');
     console.log('Ambiente autorizado: '+BASE_URL);
+    console.log('Limites autorizados: 600 HTTP y 2 sesiones por prueba; 80 SELECT en filtros/CSV y 60 en recuperacion.');
     await collectValue(references,'odbcDsn','Conexion de consultas RA (Enter conserva el DSN de pruebas)',{defaultValue:'MembershipUsers'});
     await collectValue(references,'docuarchiOdbcDsn','Conexion de consultas DA (Enter conserva el DSN de pruebas)',{defaultValue:'MembershipUsers'});
     await collectValue(references,'tls','Aceptar certificado local de pruebas: SI o NO',{defaultValue:'NO'});check(['SI','NO'].includes(references.tls.toUpperCase()),'TLS_CHOICE_INVALID');

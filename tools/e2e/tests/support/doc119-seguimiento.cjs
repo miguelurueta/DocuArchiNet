@@ -5,7 +5,7 @@ const {selectLevel}=require('./doc113-ventana-importacion.cjs');
 const BASE_URL='https://localhost/GestionDocumental-Docuarchi.net/';
 const LOGIN_STATUS_PATH='webservice/webserviceloginsegundofactor.asmx/obtenerestado';
 const LOGIN_LANDING_PATH='defaul/webforminiciodocuarchigestion.aspx';
-const LIMITS=Object.freeze({'SEG-01':Object.freeze({http:120,select:80,sessions:2}),'SEG-02':Object.freeze({http:80,select:60,sessions:2})});
+const LIMITS=Object.freeze({'SEG-01':Object.freeze({http:600,select:80,sessions:2}),'SEG-02':Object.freeze({http:600,select:60,sessions:2})});
 const READS=Object.freeze(['AbrirImportacion','ListarPerfilesImportacion','ConsultarLote','ConsultarRecursosLote','ExportarPaginaLote','ConsultarConfirmacionLote']);
 const check=(ok,code)=>{if(!ok)throw Error('DOC119_'+code);};
 const id=value=>typeof value==='string'&&/^[1-9][0-9]{0,9}$/.test(value)&&BigInt(value)<=4294967295n;

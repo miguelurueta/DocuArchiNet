@@ -49,9 +49,9 @@ test('DOC119 postback solo permite seleccionar niveles concretos y no botones de
 test('DOC119 presupuestos incluyen sesiones y no autorizan superar el limite',()=>{
   const snapshots=[],budget=createBudget('SEG-01',v=>snapshots.push(v));
   for(const key of ['http','select','sessions']){for(let i=0;i<LIMITS['SEG-01'][key];i++)budget.take(key);assert.throws(()=>budget.take(key),/DOC119_BUDGET_EXHAUSTED/);}
-  assert.deepEqual(budget.counts,{http:120,select:80,sessions:2});assert.notEqual(snapshots[0],budget.counts);
+  assert.deepEqual(budget.counts,{http:600,select:80,sessions:2});assert.notEqual(snapshots[0],budget.counts);
   assert.throws(()=>budget.take('write'),/DOC119_BUDGET_KIND_INVALID/);assert.throws(()=>createBudget('other'),/DOC119_STAGE_INVALID/);
-  assert.deepEqual(LIMITS['SEG-02'],{http:80,select:60,sessions:2});
+  assert.deepEqual(LIMITS['SEG-02'],{http:600,select:60,sessions:2});
 });
 test('DOC119 guardia aborta y queda cerrada despues de una violacion',async()=>{
   let handler;const context={route:async(_pattern,value)=>{handler=value;}},budget=createBudget('SEG-01');

@@ -47,3 +47,7 @@ Corrida `42a55db64044453c8c6cbac63109702a`: STOPPED, 93 HTTP/1 apertura de auten
 Preflight real corregido sin credenciales: **PASS_LOGIN_PAGE_ONLY**, HTTP 200, controles presentes, una consulta ObtenerEstado y ninguna violación, con 95 HTTP/0 aperturas de autenticación/0 SELECT. Huella SHA-256 del helper de ese preflight: `53fccc5e80b84a04bea291b683afcf823f6934dbd37a825bce572ef93cda1e73`. Estado en `.tmp/doc119-seguimiento/42a55db64044453c8c6cbac63109702a/login-status-preflight.json`, excluido de Git. No acredita autenticación ni consulta de importaciones.
 
 El presupuesto HTTP original resulta insuficiente para el recorrido completo. El plan propone 600 HTTP por ventana con el resto de límites intactos; pendiente de autorización expresa, sin cambiar todavía los topes del código ni iniciar una nueva corrida. Regresión local actual: **42/42 PASS** (21 cliente/selector y 21 políticas), sin sumar cortes anteriores. Progreso 4/24.
+
+## Ampliación aprobada — 2026-11-12
+
+El usuario autorizó expresamente nueva corrida con 600 HTTP por ventana, 2 sesiones y 80/60 SELECT, sin ampliar efectos. Se configuran los nuevos topes y se registra su revisión en cada estado de ejecución. Los registros previos permanecen intactos. Política del ejecutor: **21/21 PASS**, incluida detención al agotar presupuesto; sintaxis Node, `--check`, diff y OpenSpec estricto PASS. No se repite la suite cliente sin cambios ni se suman corridas previas. No se atribuye resultado real a esta autorización. Progreso 4/24 hasta revisar la ejecución.
