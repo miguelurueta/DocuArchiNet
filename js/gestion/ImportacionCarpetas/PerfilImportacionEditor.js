@@ -30,21 +30,13 @@
         host.appendChild(open); host.appendChild(dialog);
         if(window.ProveedorAdminEditor){window.ProveedorAdminEditor.inicializar(host,api);}
         if(window.FuenteAdminEditor){window.FuenteAdminEditor.inicializar(host,api);}
-        // Integrar accesos en la barra existente sin trasladar los diálogos.
-        var menuBar=document.querySelector('#menu_var .navbar-nav');
-        if(menuBar && !document.getElementById('doc110-navigation')){
-            var menuItem=node('li',null,{'class':'nav-item dropdown active ml-2 mr-0 active_','id':'doc110-navigation'});
-            var toggle=node('a',null,{'class':'nav-link dropdown-toggle bot_hover_person',href:'#',id:'doc110-navigation-toggle','data-toggle':'dropdown','aria-haspopup':'true','aria-expanded':'false'});
-            toggle.style.color='#6d7fcc';
-            var icon=node('i',null,{'class':'fal fa-file-import','aria-hidden':'true'});icon.style.color='#0062cc';toggle.appendChild(icon);toggle.appendChild(document.createTextNode(' Importación'));
-            var options=node('div',null,{'class':'dropdown-menu','aria-labelledby':'doc110-navigation-toggle'});
-            menuItem.appendChild(toggle);menuItem.appendChild(options);menuBar.appendChild(menuItem);
-            [open,host.querySelector('[data-doc110=admin-proveedores]'),host.querySelector('[data-doc110=admin-fuentes]')].forEach(function(access,index){
-                if(!access)return;
-                access.className='dropdown-item';access.insertBefore(node('i',null,{'class':['fal fa-list-alt','fal fa-plug','fal fa-database'][index],'aria-hidden':'true'}),access.firstChild);access.insertBefore(document.createTextNode(' '),access.childNodes[1]);options.appendChild(access);
-            });
-            options.addEventListener('click',function(event){if(event.target.closest('button')){if(menuItem.classList.contains('show'))$(toggle).dropdown('toggle');toggle.focus();}},true);
-
+        var options=window.ImportacionCarpetas && window.ImportacionCarpetas.asegurarMenu();
+        if(options){
+            var prior=options.querySelector('[data-doc119-administracion]');if(prior){prior.remove();}
+            var administration=node('div',null,{'class':'doc119-administration-menu','data-doc119-administracion':'1'});
+            administration.appendChild(node('span','Administración',{'class':'dropdown-header'}));
+            [open,host.querySelector('[data-doc110=admin-proveedores]'),host.querySelector('[data-doc110=admin-fuentes]')].forEach(function(access){if(access){access.className='dropdown-item';administration.appendChild(access);}});
+            options.appendChild(administration);
         }
         var current = null, busy = false, listPage = 1, listCode = "", listTerm = "", searchWidget = null, searchEpoch = 0, controls = {}, ruleBody, editorArea, rulesArea;
         var indices = [], restoreFocus, selectedLevel = "", uncertain = false;

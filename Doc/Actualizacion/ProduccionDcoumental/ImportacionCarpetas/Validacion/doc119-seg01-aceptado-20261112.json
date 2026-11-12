@@ -1,0 +1,176 @@
+{
+  "runId": "ccb25ec9d37a4da083caccfbe80001b1",
+  "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "authorizationRevision": "20261112-readonly-existing",
+  "status": "STOPPED",
+  "closed": true,
+  "credentialsCleared": true,
+  "finishedUtc": "2026-11-12T20:20:11.942Z",
+  "resources": {
+    "level": "7",
+    "ownerRef": "141",
+    "companyRef": "2",
+    "versionId": "40",
+    "loteId": "29",
+    "planId": "45",
+    "alternateLevel": "169"
+  },
+  "fixtureRevision": 2,
+  "manifestHash": "bb2d252f9404f559a0792c847504560357ce4a4f3b89a09fd9d521c4be78a912",
+  "code": {
+    "head": "2a641b3f4726b9cc470f7e1ab78e7d6182eda361",
+    "scopeSha256": "777cdcb56115292120f1c1c8a0f11c4372c1414a1c4cee1385b465d39e2f0147",
+    "files": [
+      {
+        "file": "bin/GestionDocumental-Docuarchi.net.dll",
+        "sha256": "67e3b823cad825c558c2d0ee06065a0b4c4143e92cd18c1861e1c03eaf98c90e"
+      },
+      {
+        "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css",
+        "sha256": "2c79fa2e67495da55644a8e66206fe41c89e9744b6ba00f7556abc5291a6689c"
+      },
+      {
+        "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+        "sha256": "23922f181b9fec5def299048df8e5c7da5e26bce883580fd80e2033775fbf58e"
+      },
+      {
+        "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+        "sha256": "51491bcb439fd0b5721166df33bf027e7bebc894f1a11e6cb6d022c10bfdb3a8"
+      },
+      {
+        "file": "tools/e2e/scripts/run-doc119-datos-aceptacion.cjs",
+        "sha256": "095da28dff31407c8ec2f96c8ab9443463e1f9ef67c55fa96a5d2bb376cbcdab"
+      },
+      {
+        "file": "tools/e2e/tests/support/doc119-acceptance-data.cjs",
+        "sha256": "02ea98f55646cfe24ecd70da91f57f89bdc2a42b3a1aa204ee810d5003595211"
+      },
+      {
+        "file": "tools/e2e/tests/support/doc119-seguimiento.cjs",
+        "sha256": "9a9a40dead2b1fa6dfaa5b194b552c88c4fbc9e18e10bd72b46ebf17574cc5bf"
+      }
+    ],
+    "note": "HEAD alone does not represent uncommitted files; hashes cover the explicit source/test scope."
+  },
+  "results": {
+    "EXISTING_DATA": {
+      "status": "VERIFIED_EXISTING",
+      "checks": {
+        "owner": true,
+        "inventory": true,
+        "pending": true,
+        "receipt": true,
+        "noDocuments": true,
+        "attempts": true,
+        "roots": true
+      },
+      "passed": true,
+      "files": 27,
+      "roots": 2,
+      "pendingFiles": 26,
+      "receivedFiles": 1,
+      "receivedBytes": 677,
+      "createdExpeditions": 1,
+      "storedDocuments": 0,
+      "attemptPhases": [
+        "RECEPCION",
+        "CREAR_EXPEDIENTE"
+      ],
+      "fingerprint": "b6c564f13b168822728f35e09ec7f551dde0b1da9ad183c68d65223bf108b278",
+      "usage": {
+        "http": 0,
+        "select": 11,
+        "sessions": 0
+      }
+    },
+    "SEG-01": {
+      "status": "PASS_READONLY",
+      "ownerRead": true,
+      "filters": true,
+      "pagination": true,
+      "csvDownload": true,
+      "emptyFilter": true,
+      "originalFiles": 27,
+      "csvRows": 1,
+      "otherAccountDenied": true,
+      "otherCsvDenied": true,
+      "noBusinessMutation": true,
+      "daScope": "KNOWN_EXPEDITIONS",
+      "beforeFingerprint": "b6c564f13b168822728f35e09ec7f551dde0b1da9ad183c68d65223bf108b278",
+      "afterFingerprint": "b6c564f13b168822728f35e09ec7f551dde0b1da9ad183c68d65223bf108b278",
+      "usage": {
+        "http": 384,
+        "select": 29,
+        "sessions": 2
+      }
+    }
+  },
+  "limits": {
+    "SEG-01": {
+      "http": 600,
+      "select": 80,
+      "sessions": 2
+    },
+    "SEG-02": {
+      "http": 600,
+      "select": 60,
+      "sessions": 2
+    }
+  },
+  "usage": {
+    "SEG-01": {
+      "http": 384,
+      "select": 29,
+      "sessions": 2
+    },
+    "SEG-02": {
+      "http": 274,
+      "select": 8,
+      "sessions": 1
+    }
+  },
+  "failure": {
+    "code": "DOC119_ORIGINAL_BRANCH_REQUIRED"
+  },
+  "preparation": {
+    "runId": "accc9ae9f3344d7a96123ed7cd986a79",
+    "status": "STOPPED",
+    "closed": true,
+    "credentialsCleared": true,
+    "resources": {
+      "level": "7",
+      "ownerRef": "141",
+      "companyRef": "2",
+      "versionId": "40",
+      "alternateLevel": "169",
+      "planId": "45",
+      "loteId": "29"
+    },
+    "operations": {
+      "AbrirImportacion": 1,
+      "PrepararPlan": 1,
+      "ConfirmarPlan": 1,
+      "ConsultarLote": 3,
+      "ConsultarRecursosLote": 4,
+      "RecibirArchivo": 1,
+      "AvanzarLote": 1
+    },
+    "usage": {
+      "SETUP": {
+        "http": 196,
+        "select": 10,
+        "sessions": 1
+      }
+    },
+    "failure": {
+      "code": "DOC119_SETUP_POSTCONDITION_FAILED"
+    },
+    "verifiedByRunId": "ccb25ec9d37a4da083caccfbe80001b1"
+  },
+  "acceptance": {
+    "SEG01": true,
+    "SEG02": false,
+    "uiGate": false
+  },
+  "interpretation": "SEG01 aceptado con paginacion y privacidad reales. SEG02 detenido en precondicion de rama; sin reseleccion ni huella posterior de esa ventana. No repetir preparacion."
+}

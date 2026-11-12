@@ -1,4 +1,16 @@
 ﻿
+function Doc119NivelPulsado(target) {
+    var tree = document.getElementById('TreeViewArchivo'), node = target && target.closest && target.closest('a[title]');
+    if (!tree || !node || !tree.contains(node) || !/^TreeViewArchivot[0-9]+i?$/.test(node.id) || node.title.indexOf('|') !== -1 || node.title.indexOf('\\') === -1) { return null; }
+    var level = node.title.split('\\')[0];
+    return /^[1-9][0-9]{0,9}$/.test(level) && Number(level) <= 4294967295 ? level : null;
+}
+function Doc119InvocarImportacion(invocation, query) {
+    var host = document.getElementById('doc111-importacion'), level = invocation && invocation.data && invocation.data.nivelRef;
+    if (!host || typeof level !== 'string' || !/^[1-9][0-9]{0,9}$/.test(level) || !window.ImportacionCarpetas) { return; }
+    window.ImportacionCarpetas.inicializar();
+    if (host.doc111Instancia) { if (query) { host.doc111Instancia.consultar(); } else { host.doc111Instancia.abrir(level); } }
+}
 $(document).ready(function () {
     $.fn.inicio = function () {
         auto_zise_popup_lista_niveles_ocultos();
@@ -41,6 +53,7 @@ $(document).ready(function () {
         }
     });
 
+    function installContextMenus() {
     $('#Paneltreview').contextMenu('context-menu', {
 
         'Salir del menú': {
@@ -54,15 +67,15 @@ $(document).ready(function () {
             },
             klass: "fas fa-folder-plus"
         },
-        'Importar carpetas': {
-            click: function () {
-                var host = document.getElementById('doc111-importacion');
-                if (host && window.ImportacionCarpetas) {
-                    window.ImportacionCarpetas.inicializar();
-                    if (host.doc111Instancia) { host.doc111Instancia.abrir(); }
-                }
-            },
+        'Importar carpetas aquí…': {
+            click: function (element, invocation) { Doc119InvocarImportacion(invocation, false); },
+            enabled: function (element, invocation) { return !!document.getElementById('doc111-importacion') && !!invocation.data.nivelRef; },
             klass: "fas fa-folder-plus"
+        },
+        'Consultar importación': {
+            click: function (element, invocation) { Doc119InvocarImportacion(invocation, true); },
+            enabled: function (element, invocation) { return !!document.getElementById('doc111-importacion') && !!invocation.data.nivelRef; },
+            klass: "fal fa-search"
         },
         'Agrega Nivel ': {
         click: function (element) {
@@ -127,7 +140,7 @@ $(document).ready(function () {
             },
             klass: "fal fa-minus-square"
         }
-    });
+    }, {capture:function (target) { return {nivelRef:Doc119NivelPulsado(target)}; }});
 
     $('#Panel_unidad_treview_unidad').contextMenu('context-menu', {
 
@@ -182,6 +195,9 @@ $(document).ready(function () {
 
 
     });
+    }
+    installContextMenus();
+    if (window.Sys && window.Sys.Application) { window.Sys.Application.add_load(installContextMenus); }
 });
 var ITEMS_DATOS_TOKENIZE_2 = new Array();  //GUARDA LOS ITEM SELECIONANDO TOKENIZE  SELECTOR
 var NIVEL_JERARQUIA=0;
@@ -1050,14 +1066,16 @@ function Doc111ActualizarRama(contexto, raices) {
     var host = document.getElementById("doc111-importacion"), tree = document.getElementById("TreeViewArchivo");
     function id(value) { return typeof value === "string" && /^[1-9][0-9]*$/.test(value); }
     if (!host || !tree || !contexto || !id(contexto.nivelRef) || !/^[a-f0-9]{32}$/.test(contexto.referenciaContexto || "") || host.getAttribute("data-recuperacion") !== contexto.referenciaContexto || !Array.isArray(raices)) { return false; }
-    var parents = Array.prototype.filter.call(tree.querySelectorAll("a[title]"), function (a) { return a.title.split("\\\\")[0] === contexto.nivelRef && a.title.indexOf("\\\\") !== -1; });
+    // WebForms shares the title between the image link (t1i) and text link
+    // (t1). Only the text link identifies a logical tree node.
+    var parents = Array.prototype.filter.call(tree.querySelectorAll("a[id][title]"), function (a) { return /^TreeViewArchivot[0-9]+$/.test(a.id) && a.title.split("\\\\")[0] === contexto.nivelRef && a.title.indexOf("\\\\") !== -1; });
     if (parents.length !== 1 || !/^TreeViewArchivot[0-9]+$/.test(parents[0].id) || !parents[0].getClientRects().length) { return false; }
     var parent = parents[0], branch = document.getElementById(parent.id.replace("TreeViewArchivot", "TreeViewArchivon") + "Nodes");
     if (!branch || !tree.contains(branch)) { return false; }
     raices.forEach(function (r) {
         if (!r || r.tieneIntentoActivo || ["EXPEDIENTE_CONFIRMADO", "COMPLETADA", "PARCIAL"].indexOf(r.estado) === -1 || !id(r.expedienteId) || !id(r.relacionNivelId) || typeof r.nombreExpediente !== "string" || !r.nombreExpediente.trim()) { return; }
         var title = r.relacionNivelId + "|" + contexto.nivelRef + "|" + r.expedienteId + "|";
-        var existing = Array.prototype.some.call(tree.querySelectorAll("a[title]"), function (a) { return a.title.replace(/\|$/, "") === title.replace(/\|$/, ""); });
+        var existing = Array.prototype.some.call(tree.querySelectorAll("a[id][title]"), function (a) { return /^TreeViewArchivot[0-9]+$/.test(a.id) && a.title.replace(/\|$/, "") === title.replace(/\|$/, ""); });
         if (!existing) { create_trenode_treview(title, r.nombreExpediente, "trenode", "TreeViewArchivo", "../Gestion/imagenes/folder-regular.png", "0", parent.id); }
     });
     return true;

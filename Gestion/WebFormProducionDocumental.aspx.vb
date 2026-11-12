@@ -16,7 +16,7 @@ Public Class WebFormProducionDocumental
             Return "<div id=""doc111-importacion"" data-api=""" & HttpUtility.HtmlAttributeEncode(ResolveUrl("~/webservice/WebServiceImportacionCarpetas.asmx")) &
                 """ data-upload=""" & HttpUtility.HtmlAttributeEncode(ResolveUrl("~/generic_control/ImportacionCarpetasUpload.ashx")) &
                 """ data-token=""" & HttpUtility.HtmlAttributeEncode(token) & """ data-recuperacion=""" & recuperacion & """ data-nivel=""" & nivel &
-                """><button type=""button"" data-doc111-open disabled>Importar carpetas</button><button type=""button"" data-doc111-resume hidden>Consultar último lote</button><button type=""button"" data-doc111-verificar hidden>Verificar confirmación pendiente</button><label>Referencia del lote <input type=""text"" inputmode=""numeric"" data-doc111-lote autocomplete=""off"" /></label><button type=""button"" data-doc111-consultar>Consultar lote</button><span data-doc111-status role=""status""></span></div>"
+                """ data-navegacion=""menu""><button type=""button"" data-doc111-open hidden disabled>Importar carpetas</button><button type=""button"" data-doc111-resume hidden>Consultar último lote</button><button type=""button"" data-doc111-verificar hidden>Verificar confirmación pendiente</button><span data-doc111-status role=""status"" hidden></span></div>"
         Catch ex As Exception
             'La capacidad nueva no interrumpe Produccion ni la carga individual.
             Return String.Empty

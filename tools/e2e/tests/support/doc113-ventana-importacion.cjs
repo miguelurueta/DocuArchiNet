@@ -62,7 +62,7 @@ async function responseFor(page,operation,action){
   return {status:response.status(),body};
 }
 async function openWindow(page){
-  const result=await responseFor(page,'AbrirImportacion',()=>page.locator('[data-doc111-open]').click());
+  const result=await responseFor(page,'AbrirImportacion',async()=>{if(!await page.locator('[data-doc111-open]').isVisible()&&await page.locator('#doc110-navigation-toggle').count())await page.locator('#doc110-navigation-toggle').click();await page.locator('[data-doc111-open]').click();});
   check(result.status===200&&result.body?.ok,'OPENING_FAILED');await page.getByRole('dialog').waitFor();
   check(await page.getByRole('dialog').count()===1,'DUPLICATE_DIALOG');return result.body.datos;
 }
@@ -134,8 +134,8 @@ async function runUi(page,profile,options,auth,controls,fixtures,onReference=()=
       const partial=await selectLevel(page,options.alternateLevel);check(partial.asyncPost&&await page.getByRole('dialog').count()===1,'PARTIAL_UPDATE_NOT_VERIFIED');
       await page.getByRole('button',{name:'Cerrar',exact:true}).focus();await page.keyboard.press('Shift+Tab');check(await focusWithinDialog(page),'FOCUS_ESCAPED');
       await page.keyboard.press('Escape');await page.getByRole('dialog').waitFor({state:'detached'});
-      check(await page.evaluate(()=>document.activeElement?.hasAttribute('data-doc111-open')),'FOCUS_NOT_RESTORED');
-      guard.rejectNextOpening();const r=await responseFor(page,'AbrirImportacion',()=>page.locator('[data-doc111-open]').click());
+      check(await page.evaluate(()=>document.activeElement?.hasAttribute('data-doc111-open')||document.activeElement?.id==='doc110-navigation-toggle'),'FOCUS_NOT_RESTORED');
+      guard.rejectNextOpening();const r=await responseFor(page,'AbrirImportacion',async()=>{if(!await page.locator('[data-doc111-open]').isVisible()&&await page.locator('#doc110-navigation-toggle').count())await page.locator('#doc110-navigation-toggle').click();await page.locator('[data-doc111-open]').click();});
       check([400,403].includes(r.status)&&r.body?.ok===false,'REAL_ERROR_NOT_VERIFIED');await page.waitForFunction(()=>!document.querySelector('[data-doc111-open]').disabled);
       check(await page.getByRole('dialog').count()===0&&(await page.locator('[data-doc111-status]').textContent()).trim().length>0,'ERROR_NOT_VISIBLE');
       await openWindow(page);
@@ -147,4 +147,4 @@ async function runUi(page,profile,options,auth,controls,fixtures,onReference=()=
     return {scenario:options.scenario,status:'PASS',preparations,confirmations,opens,readOnlyControls:true,noDocumentEffects:true,domVerified:true};
   }finally{await guard.close();}
 }
-module.exports={CASES,validateOptions,assertAuthorization,allowedOperation,createFixtures,createUiControls,focusWithinDialog,runUi};
+module.exports={CASES,validateOptions,assertAuthorization,allowedOperation,createFixtures,createUiControls,focusWithinDialog,runUi,selectLevel};

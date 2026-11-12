@@ -1,5 +1,23 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+## Navegación operativa DOC-119, 2026-11-12
+
+En Producción Documental, el menú superior **Importación** ofrece **Importar carpetas…** y **Consultar importación…** a quien tiene permiso operativo, aunque no administre perfiles. La sección **Administración** conserva por separado los permisos existentes de perfiles/proveedores/fuentes. Los accesos ya no dependen de una franja permanente.
+
+Para importar desde arriba, selecciona un nivel y abre Importar carpetas. Desde el contextual, pulsa el nivel de destino: se usa ese nivel aunque otro esté seleccionado. Expedientes, documentos y fondo no se convierten en niveles por su nombre. El asistente muestra la ruta autorizada del servidor; una ventana abierta mantiene su destino. El servidor revalida permisos en cada operación.
+
+Para consultar, abre Consultar importación desde el menú superior (no requiere selección previa) o desde un nivel elegible del contextual. Introduce la referencia del lote y pulsa Consultar importación o Enter. El lote conserva su destino original; no se reasigna al nodo seleccionado ni se crea un historial por nivel. La vista permite consultar el último lote y verificar una confirmación pendiente. Recargar conserva únicamente pistas de IDs en el contexto de la sesión; no conserva los archivos locales. Una verificación sin resultado mantiene el aviso y no repite ConfirmarPlan.
+
+Los filtros de carpeta, efecto y recepción se conservan al paginar. El inventario original y el total filtrado se muestran separados. **Exportar esta página** descarga solo la página y los filtros representados; no anuncia exportación total ni un snapshot global entre páginas. Consultar, filtrar y descargar CSV son lecturas; RECIBIDO no significa documento almacenado.
+
+Para un archivo pendiente, usa Reseleccionar en su fila. La elección se vincula al recurso y raíz por IDs, y compara nombre/tamaño/fecha; no demuestra igualdad de contenido. Reseleccionar no envía el PDF. **Enviar pendientes de esta página** es una acción distinta y explícita, con validación de contenido y autoridad en servidor. Los recibidos, inciertos o recursos en vuelo no se reemplazan por coincidencia de nombre.
+
+Ante incertidumbre, consulta el estado o verifica la referencia pendiente antes de repetir una acción. Cerrar libera archivos/URLs del navegador y conserva pistas; no promete cancelar efectos del servidor. Solicitar detención depende del estado y de la capacidad vigente, no realiza rollback global. La operación sin limpieza fue aceptada expresamente: no hay nuevo botón/job/plazo de borrado y se conservan staging, partes e historial.
+
+El contextual cabe en el viewport y permite desplazarse hasta sus últimas opciones. Con foco en el recurso, usa Shift+F10 o la tecla de menú; navega con flechas/Inicio/Fin y cierra con Escape para devolver el foco al invocador. La acción conserva el recurso que abrió el menú.
+
+Evidencia operativa: SEG-01 real completo y SEG-02 real con límites, aceptado con cobertura mixta por el responsable. Inserción nueva y raíces físicas homónimas conservan cobertura local, sin anunciar observación en IIS. La UI definitiva se verifica con Chromium/cliente real y servicios sintéticos, compilación WebForms y regresiones de consumidores; ese alcance no sustituye una nueva prueba autenticada ni autoriza efectos adicionales.
+
 ## ROL ESPERADO
 
 Actúa como arquitecto y desarrollador senior en ASP.NET WebForms, VB.NET, JavaScript y MySQL 5.1, respetando las fronteras existentes y el alcance de esta entrega.

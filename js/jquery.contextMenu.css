@@ -30,6 +30,9 @@
         border-radius: .25rem; 
        
       }
+      .context-menu a { white-space: normal; overflow-wrap: anywhere; }
+      .context-menu [aria-disabled="true"] { opacity: .5; cursor: default; }
+      .context-menu a:focus-visible { outline: 3px solid #0869b4; outline-offset: -2px; background: #eef4fa; }
       /* second context menu */
       #context-menu-2 {
         border: 1px solid #333;

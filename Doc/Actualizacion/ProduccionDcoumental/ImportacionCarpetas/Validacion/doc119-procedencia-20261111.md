@@ -1,0 +1,25 @@
+# DOC-119 — matriz de procedencia
+
+Tarea 1.1, D-01/RQ-01. Contraste de archivos existentes sobre `94ca9277ce234b337b73bdda9bbd881e037b3047`, carpeta principal. Es revisión documental; no repite pruebas ni renueva autorizaciones reales.
+
+## Antecedentes y alcance conservado
+
+Las rutas de esta tabla son relativas a este directorio. SHA de código/runtime, SHA del documento de evidencia y commit que incorpora un documento son identificadores distintos; ninguno se presenta como SHA de ejecución de otro caso.
+
+| Antecedente | Fuente | Identificación preservada | Ambiente/clase de comprobación | Qué acredita y qué no |
+| --- | --- | --- | --- | --- |
+| DOC-111 consulta/CSV | `doc111-consulta-exportacion-local-20261028.md` | Base declarada b2e93b726f221868cf2b82d43200a8e568871117, con cambios locales de aquel corte | .NET Framework y SQL sintéticos; sin MySQL/IIS reales en ese corte | Autoridad, filtros, totales, página CSV y fórmulas a nivel local; no descarga autenticada integrada SEG-01 |
+| DOC-111 recuperación/rama | `doc111-recuperacion-local-20261028.md`, `doc111-cliente-rama-local-20261030.md` | Misma base histórica b2e93b726f221868cf2b82d43200a8e568871117, con cambios locales propios | Chromium local, HTTP/servicios interceptados; helper real de árbol | Recarga por IDs, reselección y homónimos, deduplicación/selección; no aceptación autenticada SEG-02 |
+| DOC-111 REC y cierre | `doc111-matriz-final-20261102.md`, `doc111-gobierno-final-20261102.json` | head del gobierno b2e93b726f221868cf2b82d43200a8e568871117; huella de código be095c78d774dc7f2d8b5fafb7f7dfb68c5eee0fe6623c8a9c8c94728e9a9a1e | Corridas REC autenticadas y controles RA/DA de laboratorio, distinguidas de pruebas locales en la matriz | REC EXPEDIENTE/LOTE/PARCIAL, lectura/reapertura y recursos existentes; no sustituye recorrido nuevo SEG-01/02 |
+| DOC-116 expedientes | `doc116-verificacion-final-20261105.md/.json`, `doc116-exp01-resultados.md`, `doc116-exp02-interno-resultados.md` | EXP01 código 78b8448db71e4d6581edb7b026f2e35c7a1f7bf33146b50f291abe3cca32ffcf; EXP02 interno candidata e26242b901043394bd1dc38063becfe399cd093738cfd10b7ebca24785d8944a; runtime original 4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5 | Creador/runtime del laboratorio principal y candidata interna específica restaurada, no binario ordinario equivalente a todas las pruebas | Conservar resolución autenticada posterior de DOC116-VERIFY-01; sus apartados bloqueados anteriores son historia. No traslada fallos/creaciones ni autorización a DOC-119 |
+| DOC-117 almacenamiento/coexistencia | `doc117-matriz-almacenamiento.md`, `doc117-alm03c-coexistencia-pass-20261106.json` | Candidata dc45234fb9ad479e3dc4313b3c06be6bd550d65d5731c5eff7a1acdcf07d95a5; ejecutor e67175461370fa1bfed66452cb6efd1ba2c3a39af6e7c2686c5997df94b036c0; runtime original 4134f57f66fc259b5f33a553577c9a07e6bf176b2da027aaeeb8576325c282c5 | Variante propia de laboratorio y readback documentados | Estado estructurado PASS_REAL_LABORATORY_VARIANT_VERIFIED; no atribuir a runtime ordinario ni afirmar XML/SII concurrente por esa variante |
+| DOC-118 cierre administrativo | `doc118-cierre-administrativo-20261110.md/.json` | baseCommit 292f132010ea7e3244b1527decb13cfd1f597589; documento SHA256 35ac51f173f63b8886e9bacae5ba9f73887f1a268309b96dab2df119c4a72449 | Resolución administrativa, sin ejecución de negocio en ese corte | Conserva 29/38 y salvedades históricas. No se reescribe para simular cierre técnico |
+| DOC-118 aceptación técnica posterior | `doc118-integracion-completa-20261110.json`, primer corte de `doc118-resultados-integracion.md` | Evidencia SHA256 653735c9394e17dd0ea200991aef6a3f9754c236bacac5e17e3b461879a142ca; reviewedUtc 2026-11-10T16:09:07.123Z | https://localhost/GestionDocumental-Docuarchi.net/, laboratorio IIS indicado por la fuente; enlace V2/driver específico | INTEGRATION_ACCEPTED, 38/38; COORD02 lote27 y COORD03 lote28 según sus evidencias. No es corrida de seguimiento DOC-119 ni permiso de reutilizar efectos |
+
+Los resúmenes DOC-116/117/118 no exponen un único HEAD Git de ejecución en su raíz. Se conservan las huellas específicas que sí declaran; no se inventa un commit común. Commits que incorporaron las fuentes consultadas: DOC-116 `7305920e8d947931a2204177162663e50c96830c`, DOC-117 ALM03C `10a90155cb11c565ba18cecb101b6b4bee650eb1`, DOC-118 técnico `9281706ef7b6588529b5c5c1b95b593dc962f4af`. Identifican entrega documental y no sustituyen las huellas de ejecución.
+
+## Nuevo corte DOC-119
+
+El refinamiento y las tareas se aprobaron para trabajo local al continuar sobre `94ca9277`. La reproducción y corrección de filtros se registra en `doc119-filtros-local-20261111.md`, separada de todos los antecedentes. Ninguna consulta real, autenticación, recepción, almacenamiento, limpieza o cambio de permisos se ha ejecutado por DOC-119 en este corte.
+
+SEG-01 y SEG-02 permanecen sin aceptación integrada. SEG-03 continúa condicionado a resolución expresa. Los archivos históricos y recursos conservados no se modificaron para obtener esta matriz.

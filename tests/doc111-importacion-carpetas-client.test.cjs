@@ -402,7 +402,8 @@ test('DOC-111: interfaz Chromium local con servicios sintéticos, foco y cierre 
     await page.getByRole('button', {name:'Cerrar', exact:true}).click();
     assert.equal(await page.getByRole('dialog').count(), 0);
     await page.locator('[data-doc111-resume]').click(); await page.getByRole('dialog').waitFor();
-    await page.waitForFunction(() => document.querySelector('.doc111-content').textContent.includes('Resultados persistidos'));
+    await page.getByRole('heading', {name:'4. Resultados', exact:true}).waitFor();
+    await page.waitForFunction(() => document.querySelector('.doc111-content').textContent.includes('RECIBIDO'));
     assert.equal(await page.getByRole('button', {name:'Enviar pendientes de esta página', exact:true}).isDisabled(), true);
     await page.getByRole('button', {name:'Cerrar', exact:true}).focus(); await page.keyboard.press('Shift+Tab');
     assert.equal(await page.evaluate(() => document.querySelector('[role=dialog]').contains(document.activeElement)), true);
@@ -428,6 +429,201 @@ test('DOC-111: interfaz Chromium local con servicios sintéticos, foco y cierre 
   } finally {
     await browser.close(); assert.equal(path.dirname(folder), parent); assert.ok(path.basename(folder).startsWith('doc111-ui-')); fs.rmSync(folder, {recursive:true,force:true});
   }
+});
+
+async function withDoc119Seguimiento(work) {
+  const path=require('node:path'),{chromium}=require('../tools/e2e/node_modules/playwright'),root=path.resolve(__dirname,'..');
+  const browser=await chromium.launch({headless:true});
+  try {
+    const page=await browser.newPage(),errors=[],network=[];page.setDefaultTimeout(5000);
+    page.on('pageerror',error=>errors.push(error.message));page.on('request',request=>{if(/^https?:/.test(request.url()))network.push(request.url());});
+    await page.setContent('<!doctype html><html><body><form id="doc119-form"><div id="doc111-importacion" data-api="/synthetic.asmx" data-upload="/synthetic.ashx" data-token="synthetic-only" data-recuperacion="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" data-nivel="7"><button type="button" data-doc111-open>Importar carpetas</button><button type="button" data-doc111-resume hidden>Consultar último lote</button><label>Referencia del lote<input data-doc111-lote></label><button type="button" data-doc111-consultar>Consultar lote</button><span data-doc111-status role="status"></span></div></form></body></html>');
+    await page.evaluate(()=>{
+      document.getElementById('doc111-importacion').doc111UltimoLote={loteId:'20'};
+      window.doc119Calls=[];window.doc119Deny=false;window.doc119Submits=0;
+      document.getElementById('doc119-form').addEventListener('submit',event=>{event.preventDefault();window.doc119Submits++;});
+      const files=[
+        {recursoId:'30',raizId:'40',nombre:'rechazado.pdf',estadoRecepcion:'RECHAZADO',estado:'RECHAZADO'},
+        {recursoId:'31',raizId:'40',nombre:'primero.pdf',estadoRecepcion:'RECIBIDO',estado:'INCIERTO'},
+        {recursoId:'32',raizId:'40',nombre:'segundo.pdf',estadoRecepcion:'RECIBIDO',estado:'INCIERTO'},
+        {recursoId:'33',raizId:'40',nombre:'tercero.pdf',estadoRecepcion:'RECIBIDO',estado:'INCIERTO'},
+        {recursoId:'34',raizId:'41',nombre:'completo.pdf',estadoRecepcion:'RECIBIDO',estado:'COMPLETADO'}
+      ],roots=[{recursoId:'40',nombre:'Carpeta repetida',estado:'EXPEDIENTE_CONFIRMADO'},{recursoId:'41',nombre:'Carpeta repetida',estado:'COMPLETADA'}];
+      window.doc119Dataset=files;
+      function rows(request) {
+        return (request.tipo==='RAICES'?roots:files).filter(row=>(!request.raizId||(row.raizId||row.recursoId)===request.raizId)&&(!request.estado||row.estado===request.estado)&&(!request.estadoRecepcion||row.estadoRecepcion===request.estadoRecepcion));
+      }
+      window.XMLHttpRequest=class {
+        open(_method,url){this.operation=url.split('/').pop();}setRequestHeader(){}abort(){if(this.onabort)this.onabort();}
+        send(body){
+          const request=JSON.parse(body).solicitud,operation=this.operation;window.doc119Calls.push({operation,request});
+          setTimeout(()=>{
+            let data;
+            if(window.doc119Expired&&operation==='ConsultarLote'){this.status=401;this.responseText=JSON.stringify({ok:false,codigo:'SESION_REQUERIDA',mensaje:'Sesion requerida',incidencias:[],datos:null});this.onload();return;}
+            if(window.doc119Deny){this.status=200;this.responseText=JSON.stringify({ok:false,codigo:'ACCESO_DENEGADO',mensaje:'Denegado',incidencias:[]});this.onload();return;}
+            if(operation==='ConsultarLote')data={loteId:'20',nivelRef:'7',rutaCanonica:'Destino original',estado:'PARCIAL',maximoTamanoPagina:window.doc119MaxPageSize||2,totalRaices:2,totalArchivos:5,totalBytes:'35',accionesPermitidas:['CONSULTAR','EXPORTAR_PAGINA','CONSULTAR_RAICES']};
+            else if(operation==='ConsultarRecursosLote'||operation==='ExportarPaginaLote'){
+              const filtered=rows(request),elements=filtered.slice((request.pagina-1)*request.tamanoPagina,request.pagina*request.tamanoPagina);
+              const pagination={loteId:'20',tipo:request.tipo,pagina:request.pagina,tamanoPagina:request.tamanoPagina,totalOriginal:request.tipo==='RAICES'?2:5,totalFiltrado:filtered.length,elementos:elements};
+              data=operation==='ConsultarRecursosLote'?pagination:{pagina:pagination,contenido:'recursoId\r\n'+elements.map(row=>row.recursoId).join('\r\n')+'\r\n'};
+            }else throw Error('Unexpected synthetic operation '+operation);
+            this.status=200;this.responseText=JSON.stringify({ok:true,codigo:'OK',mensaje:'OK',incidencias:[],datos:data});this.onload();
+          },0);
+        }
+      };
+    });
+    await page.addStyleTag({path:path.join(root,'js/gestion/ImportacionCarpetas/ImportacionCarpetas.css')});
+    for(const name of ['InventarioImportacion','ImportacionCarpetasApi','ImportacionCarpetasVista','ImportacionCarpetas'])await page.addScriptTag({path:path.join(root,`js/gestion/ImportacionCarpetas/${name}.js`)});
+    await page.getByRole('button',{name:'Consultar lote 20',exact:true}).click();await page.getByRole('button',{name:'Exportar esta página',exact:true}).waitFor();
+    await work(page);assert.deepEqual(errors,[]);assert.deepEqual(network,[]);assert.equal(await page.evaluate(()=>doc119Submits),0);
+    assert.equal(await page.evaluate(()=>doc119Calls.some(call=>!['ConsultarLote','ConsultarRecursosLote','ExportarPaginaLote'].includes(call.operation))),false);
+  }finally{await browser.close();}
+}
+
+test('DOC-119: filtros de archivos se conservan al paginar y descargar exactamente esa página',async()=>withDoc119Seguimiento(async page=>{
+  assert.equal(await page.getByLabel('Referencia de carpeta',{exact:true}).count(),1,'El seguimiento no ofrece el filtro raizId que admite el servidor');
+  await page.getByLabel('Referencia de carpeta',{exact:true}).fill('40');
+  await page.getByLabel('Efecto documental',{exact:true}).selectOption('INCIERTO');
+  await page.getByLabel('Recepción',{exact:true}).selectOption('RECIBIDO');
+  await page.getByLabel('Referencia de carpeta',{exact:true}).press('Enter');
+  await page.waitForFunction(()=>document.querySelector('.doc111-content').textContent.includes('primero.pdf')&&!document.querySelector('.doc111-content').textContent.includes('rechazado.pdf'));
+  await page.getByRole('button',{name:'Siguiente',exact:true}).last().click();
+  await page.waitForFunction(()=>document.querySelector('.doc111-content').textContent.includes('tercero.pdf')&&!document.querySelector('.doc111-content').textContent.includes('primero.pdf'));
+  const expected={loteId:'20',tipo:'ARCHIVOS',pagina:2,tamanoPagina:2,raizId:'40',estado:'INCIERTO',estadoRecepcion:'RECIBIDO'};
+  assert.deepEqual(await page.evaluate(()=>doc119Calls.filter(call=>call.operation==='ConsultarRecursosLote'&&call.request.tipo==='ARCHIVOS').at(-1).request),expected);
+  assert.equal(await page.getByLabel('Referencia de carpeta',{exact:true}).inputValue(),'40');
+  const downloading=page.waitForEvent('download');await page.getByRole('button',{name:'Exportar esta página',exact:true}).click();const download=await downloading;
+  const stream=await download.createReadStream(),chunks=[];for await(const chunk of stream)chunks.push(chunk);
+  assert.equal(Buffer.concat(chunks).toString('utf8'),'recursoId\r\n33\r\n');
+  assert.deepEqual(await page.evaluate(()=>doc119Calls.find(call=>call.operation==='ExportarPaginaLote').request),expected);
+  assert.equal(download.suggestedFilename(),'importacion-20-pagina-2.csv');
+  await page.getByRole('button',{name:'Limpiar filtros de archivos',exact:true}).click();
+  await page.waitForFunction(()=>document.querySelector('.doc111-content').textContent.includes('rechazado.pdf'));
+  assert.deepEqual(await page.evaluate(()=>doc119Calls.filter(call=>call.operation==='ConsultarRecursosLote'&&call.request.tipo==='ARCHIVOS').at(-1).request),{loteId:'20',tipo:'ARCHIVOS',pagina:1,tamanoPagina:2});
+  assert.equal(await page.getByLabel('Referencia de carpeta',{exact:true}).inputValue(),'');
+  await page.getByLabel('Estado de carpeta',{exact:true}).selectOption('COMPLETADA');await page.getByRole('button',{name:'Aplicar filtros de carpetas',exact:true}).click();
+  await page.waitForFunction(()=>doc119Calls.some(call=>call.operation==='ConsultarRecursosLote'&&call.request.tipo==='RAICES'&&call.request.estado==='COMPLETADA'));
+  assert.equal(await page.getByLabel('Efecto documental',{exact:true}).inputValue(),'');
+  await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+}));
+
+test('DOC-119: una consulta filtrada denegada no deja exportar la página anterior',async()=>withDoc119Seguimiento(async page=>{
+  assert.equal(await page.getByLabel('Referencia de carpeta',{exact:true}).count(),1,'Falta filtro de carpeta');
+  await page.getByLabel('Referencia de carpeta',{exact:true}).fill('41');await page.evaluate(()=>{window.doc119Deny=true;});
+  await page.getByRole('button',{name:'Aplicar filtros de archivos',exact:true}).click();
+  await page.waitForFunction(()=>document.querySelector('.doc111-notice').textContent.includes('autorización vigente'));
+  assert.equal(await page.getByRole('button',{name:'Exportar esta página',exact:true}).count(),0);
+  assert.equal(await page.locator('.doc111-content').getByText('rechazado.pdf',{exact:false}).count(),0);
+}));
+
+async function bridgeDoc119Responses(page){
+  // El backend de este archivo sustituye XHR y no emite eventos HTTP de
+  // Playwright. Adaptar solo esos eventos; DOM, cliente, descarga y selectores
+  // siguen siendo reales. Nunca se usa este adaptador en la corrida autenticada.
+  const calls=[],waiters=[];
+  await page.exposeFunction('__doc119Observe',call=>calls.push(call));
+  await page.exposeFunction('__doc119Response',async data=>{
+    const response={status:()=>data.status,url:()=>`https://synthetic.invalid/synthetic.asmx/${data.operation}`,json:async()=>data.body,request:()=>({method:()=> 'POST',postData:()=>data.requestBody})};
+    for(const waiter of [...waiters])if(await waiter.predicate(response)){clearTimeout(waiter.timer);waiters.splice(waiters.indexOf(waiter),1);waiter.resolve(response);}
+  });
+  await page.evaluate(()=>{
+    const original=XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.send=function(body){
+      const onload=this.onload;
+      this.onload=()=>window.__doc119Response({operation:this.operation,requestBody:body,status:this.status,body:JSON.parse(this.responseText)}).then(()=>onload());
+      window.__doc119Observe({operation:this.operation,request:JSON.parse(body).solicitud}).then(()=>original.call(this,body));
+    };
+  });
+  const adapted=new Proxy(page,{get(target,key){
+    if(key==='waitForResponse')return predicate=>new Promise((resolve,reject)=>{const waiter={predicate,resolve};waiter.timer=setTimeout(()=>{waiters.splice(waiters.indexOf(waiter),1);reject(Error('Synthetic response timeout'));},5000);waiters.push(waiter);});
+    const value=Reflect.get(target,key,target);return typeof value==='function'?value.bind(target):value;
+  }});
+  return {page:adapted,calls};
+}
+
+test('DOC-119: driver SEG-01 recorre filtros, segunda página, CSV y vacío con el cliente real',async()=>withDoc119Seguimiento(async page=>{
+  const {runSeg01Owner}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs');
+  await page.getByRole('button',{name:'Cerrar',exact:true}).click();
+  const bridge=await bridgeDoc119Responses(page);
+  const baseline=await page.evaluate(()=>({data:{lot:{total_archivos:5},files:doc119Dataset.map(f=>({raiz_id:f.raizId,estado_recepcion:f.estadoRecepcion,estado_efecto:f.estado}))}}));
+  const result=await runSeg01Owner(bridge.page,'20',baseline,{calls:bridge.calls});
+  assert.deepEqual(result,{ownerRead:true,filters:true,pagination:true,csvDownload:true,emptyFilter:true,originalFiles:5,csvRows:2});
+}));
+
+test('DOC-119: driver de cuenta ajena exige denegación de lote y de CSV',async()=>withDoc119Seguimiento(async page=>{
+  const {runSeg01Other}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs');
+  await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.evaluate(()=>{window.doc119Deny=true;});
+  const bridge=await bridgeDoc119Responses(page);
+  assert.deepEqual(await runSeg01Other(bridge.page,'20'),{otherAccountDenied:true,otherCsvDenied:true});
+}));
+
+test('DOC-119: sesion caducada se identifica en ConsultarLote sin esperar archivos inexistentes',async()=>withDoc119Seguimiento(async page=>{
+  const {runSeg01Owner}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs');
+  await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.evaluate(()=>{window.doc119Expired=true;});
+  const bridge=await bridgeDoc119Responses(page);
+  await assert.rejects(()=>runSeg01Owner(bridge.page,'20',{}, {calls:bridge.calls}),/DOC119_SESSION_REQUIRED/);
+  assert.deepEqual(bridge.calls.map(call=>call.operation),['ConsultarLote']);
+}));
+
+test('DOC-119: rechazo 200 de ConsultarLote se informa antes de esperar recursos',async()=>withDoc119Seguimiento(async page=>{
+  const {runSeg01Owner}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs');
+  await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.evaluate(()=>{window.doc119Deny=true;});
+  const bridge=await bridgeDoc119Responses(page);
+  await assert.rejects(()=>runSeg01Owner(bridge.page,'20',{}, {calls:bridge.calls}),/DOC119_RESOURCE_ACCESS_DENIED/);
+  assert.deepEqual(bridge.calls.map(call=>call.operation),['ConsultarLote']);
+}));
+
+test('DOC-119: pocos recursos permiten filtros y CSV sin acreditar una segunda pagina',async()=>withDoc119Seguimiento(async page=>{
+  const {runSeg01Owner}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs');
+  await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.evaluate(()=>{window.doc119MaxPageSize=25;});
+  const bridge=await bridgeDoc119Responses(page);
+  const baseline=await page.evaluate(()=>({data:{lot:{total_archivos:5},files:doc119Dataset.map(f=>({raiz_id:f.raizId,estado_recepcion:f.estadoRecepcion,estado_efecto:f.estado}))}}));
+  const result=await runSeg01Owner(bridge.page,'20',baseline,{calls:bridge.calls});
+  assert.deepEqual(result,{ownerRead:true,filters:true,pagination:false,csvDownload:true,emptyFilter:true,originalFiles:5,csvRows:1,paginationLimitation:'INSUFFICIENT_EXISTING_ROWS'});
+  const exports=bridge.calls.filter(call=>call.operation==='ExportarPaginaLote');
+  assert.equal(exports.length,1);assert.equal(exports[0].request.pagina,1);
+  assert.equal(bridge.calls.some(call=>call.request.pagina===2),false);
+}));
+
+for(const scenario of [
+  {name:'disponible',branchAvailable:true},
+  {name:'oculta',branchAvailable:false},
+  {name:'WebForms con icono y nueva relacion',branchAvailable:true,webForms:true},
+  {name:'WebForms con icono y relacion existente',branchAvailable:true,webForms:true,existing:true},
+  {name:'WebForms con duplicado logico real',branchAvailable:true,webForms:true,existing:true,duplicate:true}
+])test('DOC-119: driver SEG-02 recarga y reselecciona sin envio con rama '+scenario.name,async()=>{
+  const {branchAvailable,webForms,existing,duplicate}=scenario;
+  const fs=require('node:fs'),path=require('node:path'),{chromium}=require('../tools/e2e/node_modules/playwright');
+  const {runSeg02}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs'),root=path.resolve(__dirname,'..'),parent=path.join(root,'.tmp');fs.mkdirSync(parent,{recursive:true});
+  const folder=fs.mkdtempSync(path.join(parent,'doc119-reselection-')),filePath=path.join(folder,'a.pdf');fs.writeFileSync(filePath,'%PDF-synthetic');const stat=fs.statSync(filePath);
+  const browser=await chromium.launch({headless:true});
+  try{
+    const page=await browser.newPage(),calls=[],errors=[];page.setDefaultTimeout(5000);page.on('pageerror',error=>errors.push(error.message));
+    const node=(id,title,text,icon)=>`${icon?`<a id="TreeViewArchivot${id}i" title="${title}" tabindex="-1"><img alt=""></a>`:''}<a id="TreeViewArchivot${id}" title="${title}">${text}</a>`;
+    const represented=existing?node(3,'70|7|60|','Nombre confirmado',true)+(duplicate?node(4,'70|7|60|','Duplicado real',true):''):'';
+    const html=`<!doctype html><html><body><div id="TreeViewArchivo"><table><tr><td></td><td></td><td>${node(1,'7\\\\Origen','Origen',webForms)}</td></tr></table><div id="TreeViewArchivon1Nodes" style="display:none">${represented}</div><table><tr><td></td><td></td><td>${node(2,'8\\\\Otro','Otro',webForms)}</td></tr></table><div id="TreeViewArchivon2Nodes"></div></div><div id="pit"></div><div id="doc111-importacion" data-api="/control.asmx" data-upload="/upload.ashx" data-token="synthetic-only" data-recuperacion="${'a'.repeat(32)}" data-nivel="7"><button type="button" data-doc111-open>Importar carpetas</button><button type="button" data-doc111-resume hidden>Consultar último lote</button><input data-doc111-lote><button type="button" data-doc111-consultar>Consultar lote</button><span data-doc111-status></span></div></body></html>`;
+    const initial='window.$=()=>({ready(){},on(){},autocomplete(){}});window.alert=message=>{throw Error(message);};\n';
+    const production=fs.readFileSync(path.join(root,'js/gestion/WebFormProducionDocumental.js'),'utf8')+'\nwindow.Doc111ActualizarRama=Doc111ActualizarRama;Object.defineProperty(window,"SELECCION_TREVIEW_ID",{configurable:true,get:function(){return SELECCION_TREVIEW_ID;},set:function(value){SELECCION_TREVIEW_ID=value;}});';
+    const sources=[production,...['InventarioImportacion','ImportacionCarpetasApi','ImportacionCarpetasVista','ImportacionCarpetas'].map(name=>fs.readFileSync(path.join(root,`js/gestion/ImportacionCarpetas/${name}.js`),'utf8'))].join('\n');
+    await page.addInitScript({content:initial+sources+`\nwindow.ITEMS_DATOS=[{id:'TreeViewArchivot1'},{id:'TreeViewArchivot2'}];window.SELECCION_TREVIEW_ID='TreeViewArchivot1';window.OnSearchClick=function(node){return fetch('/Gestion/WebFormProducionDocumental.aspx',{method:'POST',body:'__ASYNCPOST=true'}).then(function(){window.SELECCION_TREVIEW_ID=node;if(node==='TreeViewArchivot2'&&${!branchAvailable})document.getElementById('TreeViewArchivot1').closest('table').style.display='none';document.getElementById('doc111-importacion').setAttribute('data-nivel',node==='TreeViewArchivot1'?'7':'8');ImportacionCarpetas.inicializar();});};`});
+    await page.route('https://doc119.invalid/**',async route=>{
+      const request=route.request(),pathname=new URL(request.url()).pathname;
+      if(request.method()==='GET')return route.fulfill({status:200,contentType:'text/html',body:html});
+      if(pathname.endsWith('/WebFormProducionDocumental.aspx'))return route.fulfill({status:200,contentType:'text/plain',body:'ok'});
+      const operation=pathname.split('/').pop(),body=request.postDataJSON().solicitud;calls.push({operation,request:body});let data;
+      if(operation==='ConsultarLote')data={loteId:'20',nivelRef:'7',rutaCanonica:'Origen',estado:'PARCIAL',maximoTamanoPagina:25,totalRaices:2,totalArchivos:1,totalBytes:String(stat.size),accionesPermitidas:['CONSULTAR','CONSULTAR_RAICES']};
+      else if(operation==='ConsultarRecursosLote')data={loteId:'20',tipo:body.tipo,pagina:1,tamanoPagina:25,totalOriginal:body.tipo==='RAICES'?2:1,totalFiltrado:body.tipo==='RAICES'?2:1,puedeHaberMas:false,elementos:body.tipo==='RAICES'?[{recursoId:'40',nombre:'Homónima',estado:'EXPEDIENTE_CONFIRMADO',expedienteId:'60',relacionNivelId:'70',nombreExpediente:'Nombre confirmado'},{recursoId:'41',nombre:'Homónima',estado:'PENDIENTE'}]:[{recursoId:'30',raizId:'41',nombre:'a.pdf',estadoRecepcion:'PENDIENTE',estado:'NO_INICIADO',bytesPrevistos:String(stat.size),ultimaModificacionLocal:String(Math.floor(stat.mtimeMs)),tieneIntentoActivo:false}]};
+      else throw Error('Unexpected synthetic operation '+operation);
+      return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,codigo:'OK',mensaje:'OK',datos:data,incidencias:[]})});
+    });
+    await page.goto('https://doc119.invalid/Gestion/WebFormProducionDocumental.aspx');
+    const baseline={context:{NivelRef:'7'},data:{files:[{archivo_id:'30',estado_recepcion:'PENDIENTE',estado_efecto:'NO_INICIADO'}],roots:[{estado:'EXPEDIENTE_CONFIRMADO',identidad_expediente_doc:JSON.stringify({RelacionNivelId:'70',ExpedienteId:'60'}),datos_doc:JSON.stringify({NombreOriginal:'Homónima'})},{estado:'PENDIENTE',datos_doc:JSON.stringify({NombreOriginal:'Homónima'})}]}};
+    if(duplicate){await assert.rejects(()=>runSeg02(page,{recoveryLotId:'20',alternateLevel:'8'},baseline,filePath),error=>{assert.match(error.message,/TREE_RELATION_COUNT_INVALID/);assert.deepEqual(error.treeDiagnostic.after.counts,[2]);return true;});return;}
+    const result=await runSeg02(page,{recoveryLotId:'20',alternateLevel:'8'},baseline,filePath);
+    const availability=branchAvailable?'AVAILABLE':'PARENT_HIDDEN';
+    assert.deepEqual(result,{reload:true,reselectionMetadataOnly:true,noUpload:true,selectionPreserved:true,treeDeduplicated:branchAvailable,originalBranchAvailability:availability,...branchAvailable?{}:{originalBranchUntouched:true},newRelationsAdded:branchAvailable&&!existing,homonymousRootsObserved:true,confirmedRelations:1,treeDiagnostic:{before:{availability,counts:[existing?1:0]},after:{availability,counts:[branchAvailable?1:0]},selectionPreserved:true,expansionPreserved:true}});
+    assert.equal(calls.some(call=>!['ConsultarLote','ConsultarRecursosLote'].includes(call.operation)),false);assert.deepEqual(errors,[]);
+  }finally{await browser.close();} // Fixture sintético conservado en .tmp; no borrar datos de pruebas anteriores.
 });
 
 test('DOC-111: recarga real conserva referencias y recupera sin reconfirmar ni asociar homónimos', async () => {

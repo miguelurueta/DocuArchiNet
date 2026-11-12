@@ -1,0 +1,46 @@
+{
+    "parentRunId":  "4ffe5447744f4b1dab40546880f41d48",
+    "diagnostic":  {
+                       "parentRunId":  "4ffe5447744f4b1dab40546880f41d48",
+                       "status":  "INSPECTED",
+                       "http":  0,
+                       "sessions":  0,
+                       "select":  4,
+                       "maxSelect":  6,
+                       "profiles":  2,
+                       "rules":  10,
+                       "recentPlans":  0,
+                       "closed":  true,
+                       "credentialsCleared":  true
+                   },
+    "scope":  {
+                  "ownerRef":  "141",
+                  "companyRef":  "2",
+                  "level":  "7",
+                  "publishedVersions":  [
+                                            "40",
+                                            "42"
+                                        ]
+              },
+    "pureRules":  {
+                      "status":  "PASS_PURE_RULES_CURRENT_BIN",
+                      "versionId":  "40",
+                      "roots":  2,
+                      "files":  27,
+                      "distinctRootCodes":  true,
+                      "date":  "2026-11-12",
+                      "typologyRef":  "79",
+                      "previousRootIncidentCodes":  [
+
+                                                    ],
+                      "previousTypologyReferenceValid":  false,
+                      "http":  0,
+                      "select":  0,
+                      "limitation":  "No verifica catalogos, coincidencias vigentes, guard HTTP, persistencia o aceptacion integrada; no hay raices fisicas homonimas."
+                  },
+    "originalRunSelect":  3,
+    "diagnosticSelect":  4,
+    "totalSelect":  7,
+    "newExecution":  "NOT_STARTED",
+    "acceptance":  "SEG01_SEG02_PENDING"
+}

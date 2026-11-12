@@ -224,6 +224,14 @@ Estas capacidades permanecen internas sin endpoint nuevo ni invocación de adapt
 
 ## 8. Consulta y recuperación
 
+### Navegación DOC-119, 2026-11-12
+
+Importar y consultar se alojan en el menú superior Importación y en el contextual de niveles, independientemente de administrar perfiles. El acceso superior a importar fija el nivel seleccionado; el contextual captura el nivel pulsado por formato/ID del nodo, sin fallback a la selección global. Fondo/expediente/documento no son destinos de importación. La consulta por referencia se aloja en el mismo asistente, admite último lote/verificación pendiente y conserva el destino devuelto por ConsultarLote aunque la selección visible sea distinta.
+
+Las pistas de sessionStorage siguen aisladas por contexto de recuperación y contienen solo IDs; cambiar contexto destruye la instancia anterior y descarta pistas en memoria. No se añaden DTO, endpoints, roles o claves de activación. La administración mantiene sus guards y permisos separados. El menú compartido agrega solo metadatos de invocación/captura para las nuevas acciones; el primer argumento de callbacks legacy conserva su contrato.
+
+La aceptación responsable de SEG-02 usa cobertura real/local explícita (`Validacion/doc119-aceptacion-cobertura-mixta-propuesta-20261112.md`), sin modificar PASS_READONLY_WITH_LIMITS del runtime. La guía preserva las limitaciones de inserción nueva/homónimos observadas solo localmente. La composición de limpieza permanece deshabilitada por decisión expresa; no cambia recepción/almacenamiento, estados o auditoría de negocio.
+
 El contrato implementado usa páginas numeradas desde 1, conforme al puerto operativo existente, con orden ascendente por ID y límite configurado. Cada respuesta incluye revisión de lectura y totales originales/filtrados; páginas separadas tienen snapshots independientes. La propuesta inicial de cursor opaco queda como evolución futura. Consulta no ejecuta trabajo.
 
 `accionesPermitidas` se calcula con estado/autoridad: continuar, detener, reseleccionar pendientes, solicitar verificación. La UI no decide habilitación solo por color/etiqueta. Reconciliar requiere permiso distinto de consultar; si recupera un ID, debe probar el vínculo operación–efecto y destino. Ajustes manuales de resultado exigen evidencia auditada, no un parámetro `marcarExitoso=true`.

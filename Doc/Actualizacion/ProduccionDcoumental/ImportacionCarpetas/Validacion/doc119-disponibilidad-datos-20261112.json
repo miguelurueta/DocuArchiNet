@@ -1,0 +1,100 @@
+{
+  "runId": "eb09fc5981be453b936b2bf1714c43a3",
+  "sourceRunId": "08e8608d0dd94331864ab958830f2808",
+  "status": "INSPECTED",
+  "finishedUtc": "2026-11-12T19:25:52.198Z",
+  "closed": true,
+  "credentialsCleared": true,
+  "usage": {
+    "http": 0,
+    "select": 5,
+    "sessions": 0
+  },
+  "limits": {
+    "maxSelect": 6,
+    "maxLots": 30,
+    "maxPendingFiles": 200,
+    "maxRoots": 200
+  },
+  "scope": {
+    "lotId": "5",
+    "ownerRef": "141",
+    "companyRef": "2"
+  },
+  "observations": {
+    "clientPageSizeCap": 25,
+    "ownerLotCountInBound": 24,
+    "largestExistingLotFiles": 3,
+    "paginationCandidates": 0,
+    "recovery": [
+      {
+        "lotId": "1",
+        "level": "7",
+        "pendingFiles": 2,
+        "confirmedRoots": 0,
+        "localMetadataMatches": 0,
+        "recoveryReadCandidate": false
+      },
+      {
+        "lotId": "6",
+        "level": "7",
+        "pendingFiles": 1,
+        "confirmedRoots": 0,
+        "localMetadataMatches": 0,
+        "recoveryReadCandidate": false
+      },
+      {
+        "lotId": "8",
+        "level": "7",
+        "pendingFiles": 1,
+        "confirmedRoots": 0,
+        "localMetadataMatches": 0,
+        "recoveryReadCandidate": false
+      },
+      {
+        "lotId": "10",
+        "level": "7",
+        "pendingFiles": 1,
+        "confirmedRoots": 0,
+        "localMetadataMatches": 0,
+        "recoveryReadCandidate": false
+      },
+      {
+        "lotId": "11",
+        "level": "7",
+        "pendingFiles": 2,
+        "confirmedRoots": 0,
+        "localMetadataMatches": 0,
+        "recoveryReadCandidate": false
+      }
+    ],
+    "boundsReached": {
+      "lots": false,
+      "pendingFiles": false,
+      "roots": false
+    },
+    "workspacePdfsExamined": 3569,
+    "localSearchRoots": [
+      ".tmp",
+      "tools/e2e/artifacts",
+      "tools/e2e/fixtures"
+    ],
+    "staging": {
+      "files": 57,
+      "bytes": 24371,
+      "bins": 35,
+      "parts": 2
+    }
+  },
+  "productSourceSha256": "23922f181b9fec5def299048df8e5c7da5e26bce883580fd80e2033775fbf58e",
+  "inspectorSha256": "c414608e20fab32f68fde8aded567532b2b98caab9905bc1bd36b60a40fe97fa",
+  "localPreparation": {
+    "status": "LOCAL_ONLY_NOT_AUTHORIZED_FOR_EFFECTS",
+    "roots": 2,
+    "files": 27,
+    "bytes": 18279,
+    "received": 0,
+    "createdExpeditions": 0
+  },
+  "interpretation": "Sin recursos suficientes en el alcance inspeccionado. Preparacion local no autoriza ni acredita efectos, SEG-01/02 o compuerta UI."
+}

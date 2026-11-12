@@ -1,0 +1,135 @@
+{
+  "scope": "Consumidores del plugin compartido; llamadas literales inventariadas con rg y lectura local.",
+  "consumers": [
+    {
+      "file": "js/Docuarchi/WebFormDaConsultaDocumento.js",
+      "selector": "#contenido_datagrid_val_radicacion",
+      "menuName": "context-menu-2"
+    },
+    {
+      "file": "js/Docuarchi/WebFormDaIndiceDocuarhi.js",
+      "selector": "#Panel1-1",
+      "menuName": "context-menu-1"
+    },
+    {
+      "file": "js/gestion_correspondencia/WebForm_interface_gestion_tramite.js",
+      "selector": "#draggable",
+      "menuName": "context-menu-1"
+    },
+    {
+      "file": "js/gestion/FormGaHistorialRespuesta.js",
+      "selector": "#contenido_datagrid_val_radicacion",
+      "menuName": "context-menu-2"
+    },
+    {
+      "file": "js/gestion/WebFormDocumentoCompartidoOtrosUsuarios.js",
+      "selector": "#Contenedorgrid_listado_solicitud",
+      "menuName": "context-menu-1"
+    },
+    {
+      "file": "js/gestion/WebFormDocumentosCompartidosRevision.js",
+      "selector": "#Contenedorgrid_listado_solicitud",
+      "menuName": "context-menu-1"
+    },
+    {
+      "file": "js/gestion/WebFormGaadmonclasificacion.js",
+      "selector": "#Paneltreview",
+      "menuName": "context-menu"
+    },
+    {
+      "file": "js/gestion/WebFormGaGestionInstrumentos.js",
+      "selector": "#Paneltreview",
+      "menuName": "context-menu"
+    },
+    {
+      "file": "js/gestion/WebFormGaListaDocumentosColaboracion.js",
+      "selector": "#Panel_principal",
+      "menuName": "context-menu-1"
+    },
+    {
+      "file": "js/gestion/WebFormGatoponimica.js",
+      "selector": "#Panel_unidad_treview_unidad",
+      "menuName": "context-menu"
+    },
+    {
+      "file": "js/gestion/WebFormGatoponimica.js",
+      "selector": "#Paneltreview",
+      "menuName": "context-menu"
+    },
+    {
+      "file": "js/gestion/WebFormProducionDocumental.js",
+      "selector": "#Panel_unidad_treview_unidad",
+      "menuName": "context-menu"
+    },
+    {
+      "file": "js/gestion/WebFormProducionDocumental.js",
+      "selector": "#Paneltreview",
+      "menuName": "context-menu"
+    },
+    {
+      "file": "js/radicacion/WebFormConsultaRadicacion.js",
+      "selector": "#contenido_datagrid_val_radicacion",
+      "menuName": "context-menu-2"
+    },
+    {
+      "file": "js/radicacion/WebFormListaSolicitudesAprobacion.js",
+      "selector": "#Lista",
+      "menuName": "context-menu-1"
+    },
+    {
+      "file": "js/radicacion/WebFormListaSolicitudesPorMiAprobacion.js",
+      "selector": "#Contenedorgrid_listado_solicitud",
+      "menuName": "context-menu-1"
+    },
+    {
+      "file": "js/RadicadorSimplificado/Publico/WebFormConsultaRadicadoPublico.js",
+      "selector": "#contenido_datagrid_val_radicacion",
+      "menuName": "context-menu-2"
+    },
+    {
+      "file": "js/workflow/WebFormConsultaTareasWorkflow.js",
+      "selector": "#Contenedorgrid",
+      "menuName": "context-menu-1"
+    },
+    {
+      "file": "js/workflow/WebFormFreeImage.js",
+      "selector": "#draggable",
+      "menuName": "context-menu-1"
+    },
+    {
+      "file": "js/workflow/WebFormFreeImageVisorEmerge.js",
+      "selector": "#draggable",
+      "menuName": "context-menu-1"
+    },
+    {
+      "file": "js/workflow/WebFormindice.js",
+      "selector": "#Panel1-1",
+      "menuName": "context-menu-1"
+    },
+    {
+      "file": "js/workflow/WebFormPendientes.js",
+      "selector": "#Lista",
+      "menuName": "context-menu-1"
+    },
+    {
+      "file": "js/workflow/WebFormRecuperarTarea.js",
+      "selector": "#Contenedorgrid",
+      "menuName": "context-menu-1"
+    },
+    {
+      "file": "js/workflow/Webworkflow.js",
+      "selector": "#contenido_lista_tareas",
+      "menuName": "context-menu"
+    },
+    {
+      "file": "js/workflow/Webworkflow.js",
+      "selector": "#draggable",
+      "menuName": "context-menu-1"
+    },
+    {
+      "file": "js/workflow/Webworkflow.js",
+      "selector": "#seleccion",
+      "menuName": "context-menu"
+    }
+  ]
+}

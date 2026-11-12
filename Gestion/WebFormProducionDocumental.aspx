@@ -1,4 +1,4 @@
-﻿<%@ Page Language="vb" AutoEventWireup="false" CodeBehind="WebFormProducionDocumental.aspx.vb" Inherits="GestionDocumental_Docuarchi.net.WebFormProducionDocumental" %>
+<%@ Page Language="vb" AutoEventWireup="false" CodeBehind="WebFormProducionDocumental.aspx.vb" Inherits="GestionDocumental_Docuarchi.net.WebFormProducionDocumental" %>
 <%@ Register assembly="AjaxControlToolkit" namespace="AjaxControlToolkit" tagprefix="asp" %>
 <!DOCTYPE html>
 
@@ -13,14 +13,14 @@
     <link href="../Styles/bootra-person.css" rel="stylesheet" />
     <link href="../tokenzize2/tokenize2.min.css" rel="stylesheet" />
     <script src="../tokenzize2/tokenize2.1.min.js"></script>
-   <script src="../js/jquery.contextMenu.js" type="text/javascript"></script>
-    <link href="../js/jquery.contextMenu.css" rel="stylesheet" />
+   <script src="../js/jquery.contextMenu.js?v=doc119-ui-20261112-1" type="text/javascript"></script>
+    <link href="../js/jquery.contextMenu.css?v=doc119-ui-20261112-1" rel="stylesheet" />
      <link href="../Styles/Menu3.css" rel="stylesheet" />
     <link href="../Styles/styleMenu.css" rel="stylesheet" type="text/css" /> 
     <link href="../Styles/Aplicaction.css" rel="stylesheet" />
     <script src="../js/MyJavaScriptFile.js"></script> 
     <script src="../js/Reportes/JSEsportaReportes.js"></script>
-    <script src="../js/gestion/WebFormProducionDocumental.js?v=doc105-layout-1"></script>
+    <script src="../js/gestion/WebFormProducionDocumental.js?v=doc119-ui-20261112-1"></script>
     <script src="../js/validate_campos.js"></script>
     <script src="../generic_control/FileUploadHandler.js" type="text/javascript"></script>
     <script src="../js/java_general/JSProgresBar.js"></script>
@@ -65,16 +65,16 @@
     <form id="form1" runat="server" onkeypress="return caracter_especial(event,this)">
         <%= RenderPerfilImportacion() %>
         <%= RenderImportacionCarpetas() %>
-        <link href="../js/gestion/ImportacionCarpetas/ImportacionCarpetas.css?v=doc111-ui-20261028-1" rel="stylesheet" />
+        <link href="../js/gestion/ImportacionCarpetas/ImportacionCarpetas.css?v=doc119-ui-20261112-1" rel="stylesheet" />
         <script src="../js/gestion/ImportacionCarpetas/InventarioImportacion.js?v=doc111-ui-20261028-1"></script>
         <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js?v=doc111-ui-20261028-1"></script>
-        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js?v=doc111-ui-20261028-1"></script>
-        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetas.js?v=doc111-ui-20261028-1"></script>
+        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js?v=doc119-ui-20261112-1"></script>
+        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetas.js?v=doc119-ui-20261112-1"></script>
         <link href="../js/gestion/ImportacionCarpetas/PerfilImportacionEditor.css?v=doc110-menu-20261024-2" rel="stylesheet" />
         <script src="../js/gestion/ImportacionCarpetas/PerfilImportacionApi.js"></script>
         <script src="../js/gestion/ImportacionCarpetas/ProveedorAdminEditor.js?v=doc110-source-diagnostics-20261027-1"></script>
         <script src="../js/gestion/ImportacionCarpetas/FuenteAdminEditor.js"></script>
-        <script src="../js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js?v=doc110-ensayo-20261026-1"></script>
+        <script src="../js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js?v=doc119-ui-20261112-1"></script>
          <asp:ScriptManager ID="ScriptManager1" runat="server" AsyncPostBackTimeout="9900">
      </asp:ScriptManager>
         <script type="text/javascript" language="javascript">
