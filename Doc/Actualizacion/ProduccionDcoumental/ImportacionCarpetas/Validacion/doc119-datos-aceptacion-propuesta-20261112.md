@@ -2,6 +2,8 @@
 
 Estado: **plan autorizado expresamente el 2026-11-12; ejecución pendiente**. El usuario solicitante respondió «autorizado debemos avanzar mas rapido en las tareas» a la solicitud que enumeró la preparación aquí descrita y la decisión de operar sin limpieza. No se ha creado ninguna importación, recibido archivos ni creado expedientes con esta preparación al registrar la autorización. D-09 mantiene cerrada la compuerta UI hasta aceptar SEG-01/02.
 
+Actualización: ejecución4ffe5447 detenida en PrepararPlan400, sin confirmar/recibir/crear. La inspección posterior identificó incompatibilidad con las reglas publicadas y códigos repetidos. Se conserva esta propuesta como antecedente; el ejecutor prepara ahora la [revisión2 y sus límites](doc119-datos-revision2-20261112.md), pendiente de una nueva ventana manual. No equiparar los archivos homónimos de la revisión2 con raíces físicas homónimas.
+
 ## Inspección real previa
 
 Corrida de inspección `eb09fc5981be453b936b2bf1714c43a3`, cerrada el 2026-11-12T19:25:52.198Z: 5 SELECT de un máximo de 6, 0 HTTP y 0 sesiones de aplicación. Secretos eliminados al terminar. Alcance: propietario141/empresa2 de la corrida de privacidad `08e8608d0dd94331864ab958830f2808`; no se reutilizaron sus credenciales.

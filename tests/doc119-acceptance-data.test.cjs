@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs');
-const {readPrepared,setupTransport,failureCategory}=require('../tools/e2e/tests/support/doc119-acceptance-data.cjs');
+const {readPrepared,findPreparedFile,setupTransport,failureCategory}=require('../tools/e2e/tests/support/doc119-acceptance-data.cjs');
 const {BASE_URL}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs');
 const manifest={nivelRef:'7',versionId:'40',raices:[],archivos:[{nombre:'DOC119-001.pdf'}]};
 function harness(){
@@ -44,9 +44,16 @@ test('external origins and redirect/retry settings are rejected before transport
   const h=harness();for(const url of ['https://example.org/webservice/WebServiceImportacionCarpetas.asmx/PrepararPlan',BASE_URL+'../webservice/WebServiceImportacionCarpetas.asmx/PrepararPlan'])await assert.rejects(h.transport.post(url,{maxRedirects:0,maxRetries:0,data:{solicitud:manifest}}),/SETUP_SCOPE_DENIED/);
   await assert.rejects(h.transport.post(BASE_URL+'webservice/WebServiceImportacionCarpetas.asmx/PrepararPlan',{maxRedirects:1,maxRetries:0,data:{solicitud:manifest}}),/SETUP_SCOPE_DENIED/);assert.equal(h.sent.length,0);
 });
-test('local prepared originals retain names, sizes, timestamps and content',()=>{
-  const location=path.resolve('.tmp/doc119-next-preflight/eb09fc5981be453b936b2bf1714c43a3/fixture-manifest.json');
-  if(!fs.existsSync(location))return;const prepared=readPrepared(path.resolve('.'));assert.equal(prepared.files.size,27);
+test('local prepared originals retain names, sizes, timestamps and content',t=>{
+  const location=path.resolve('.tmp/doc119-next-preflight/eb09fc5981be453b936b2bf1714c43a3/fixture-manifest-v2.json');
+  if(!fs.existsSync(location)){t.skip('Originales locales excluidos de Git no disponibles');return;}const prepared=readPrepared(path.resolve('.'));assert.equal(prepared.files.size,27);
+});
+test('reselection chooses the original by relative path among equal PDF names',()=>{
+  const prepared={fixture:{request:{archivos:[{idCliente:'a1',nombre:'DOC119-79.pdf',rutaRelativa:'root-a/DOC119-79.pdf'},{idCliente:'a2',nombre:'DOC119-79.pdf',rutaRelativa:'root-b/pendiente-001/DOC119-79.pdf'}]}},files:new Map([['a1',{path:'first'}],['a2',{path:'second'}]])};
+  assert.equal(findPreparedFile(prepared,{Nombre:'DOC119-79.pdf',RutaRelativa:'root-b/pendiente-001/DOC119-79.pdf'}).path,'second');
+  assert.throws(()=>findPreparedFile(prepared,{Nombre:'DOC119-79.pdf',RutaRelativa:'unknown/DOC119-79.pdf'}),/FILE_CORRELATION_INVALID/);
+  prepared.fixture.request.archivos.push({...prepared.fixture.request.archivos[1]});
+  assert.throws(()=>findPreparedFile(prepared,{Nombre:'DOC119-79.pdf',RutaRelativa:'root-b/pendiente-001/DOC119-79.pdf'}),/FILE_CORRELATION_INVALID/);
 });
 test('service failure evidence retains only fixed categories, never unknown text',()=>{
   assert.equal(failureCategory('La preparación o solicitud no es válida.'),'PLAN_REPRESENTATION');
