@@ -4,10 +4,11 @@ const {collectValue,requireInteractiveConsole}=require('./support/interactive-e2
 const {openSession,loginObservation}=require('../tests/support/doc111-importacion-carpetas.cjs');
 const {captureCodeEvidence}=require('../tests/support/doc110-code-evidence.cjs');
 const {queryRows}=require('./support/doc32-e2e-odbc.cjs');
+const {selectSecondAccount}=require('../tests/support/doc119-second-accounts.cjs');
 const {BASE_URL,LIMITS,check,id,hash,assertSessionFresh,previousSelection,validateConnection,validateProfile,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,installGuard,makeControls,runSeg01Owner,runSeg01Other,runSeg02}=require('../tests/support/doc119-seguimiento.cjs');
 const ROOT=path.resolve(__dirname,'../../..');
 const SOURCES=['js/gestion/ImportacionCarpetas/ImportacionCarpetas.js','js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js','js/gestion/ImportacionCarpetas/ImportacionCarpetas.css'];
-const EVIDENCE_FILES=[...SOURCES,'Gestion/WebFormProducionDocumental.aspx','tools/e2e/scripts/run-doc119-seguimiento.cjs','tools/e2e/tests/support/doc119-seguimiento.cjs','tools/e2e/tests/support/doc111-importacion-carpetas.cjs','tools/e2e/tests/support/doc113-ventana-importacion.cjs','tools/e2e/tests/support/authenticated-workflow-session.cjs','tools/e2e/scripts/support/doc32-e2e-odbc.cjs','tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1','tools/e2e/scripts/support/interactive-e2e-console.cjs','tools/e2e/tests/support/doc110-code-evidence.cjs','bin/GestionDocumental-Docuarchi.net.dll'];
+const EVIDENCE_FILES=[...SOURCES,'Gestion/WebFormProducionDocumental.aspx','tools/e2e/scripts/run-doc119-seguimiento.cjs','tools/e2e/tests/support/doc119-seguimiento.cjs','tools/e2e/tests/support/doc119-second-accounts.cjs','tools/e2e/tests/support/doc111-importacion-carpetas.cjs','tools/e2e/tests/support/doc113-ventana-importacion.cjs','tools/e2e/tests/support/authenticated-workflow-session.cjs','tools/e2e/scripts/support/doc32-e2e-odbc.cjs','tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1','tools/e2e/scripts/support/interactive-e2e-console.cjs','tools/e2e/tests/support/doc110-code-evidence.cjs','bin/GestionDocumental-Docuarchi.net.dll'];
 function parseArgs(args){
   if(args.length===1&&args[0]==='--check')return {check:true};
   check([3,5].includes(args.length)&&args[0]==='--run'&&/^[a-f0-9]{32}$/.test(args[1])&&args[2]==='--authorized-plan','ARGUMENT_INVALID');
@@ -66,6 +67,7 @@ async function main(args=process.argv.slice(2)){
     browser=await require('../node_modules/playwright').chromium.launch({headless:true});
     const query=(origin,sql,parameters)=>queryRows(sql,parameters,environment,origin==='RA'?'DOC111_E2E':'DOC111_DA_E2E');
     const openRole=async(role,budget,scope)=>{
+      save({activeRole:role});
       budget.take('sessions');Object.assign(environment,{DOC111_E2E_USER:secrets[role+'User'],DOC111_E2E_PASSWORD:secrets[role+'Password']});
       let guard;
       const guardedBrowser={newContext:async contextOptions=>{const context=await browser.newContext(contextOptions);contexts.add(context);guard=await installGuard(context,budget,scope);return context;}};
@@ -149,7 +151,15 @@ async function main(args=process.argv.slice(2)){
       if(!result.pagination)console.log('Filtros, CSV de la pagina filtrada y filtro vacio comprobados. La segunda pagina queda sin verificar por falta de filas; falta cuenta ajena y control posterior.');
       event('WAITING_SECOND_ACCOUNT','SEG-01');
       console.log('Ahora se comprobara que otra cuenta de pruebas no pueda ver ni exportar esa importacion.');
-      await collectValue(secrets,'otherUser','Segunda cuenta de pruebas que use importacion (enmascarada)',{secret:true});await collectValue(secrets,'otherPassword','Clave de esa segunda cuenta',{secret:true});
+      const candidate=await selectSecondAccount(async(sql,parameters)=>{budgetFor('SEG-01').take('select');return query('RA',sql,parameters);},profile.lotId,async candidates=>{
+        console.log('Cuentas activas verificadas, distintas del propietario y habilitadas para importar:');
+        candidates.forEach((item,index)=>console.log((index+1)+'. '+item.login));
+        return menu(candidates,'Numero de la cuenta autorizada para esta prueba');
+      });
+      secrets.otherUser=candidate.login;
+      save({secondAccount:{userRef:candidate.userRef,companyRef:candidate.companyRef,source:'CURRENT_RA_SELECT'}});
+      console.log('Segunda cuenta verificada en el catalogo: '+candidate.login);
+      await collectValue(secrets,'otherPassword','Clave de aplicacion de esa cuenta (enmascarada)',{secret:true});
       check(secrets.ownerUser.toLowerCase()!==secrets.otherUser.toLowerCase(),'DISTINCT_ACCOUNTS_REQUIRED');
       const other=await open('other');setActive(other);const denial=await runSeg01Other(other.page,profile.lotId);await close(other);return {...result,...denial};
     });
@@ -162,6 +172,8 @@ async function main(args=process.argv.slice(2)){
     const code=/^(?:DOC119|DOC111|DOC113)_[A-Z0-9_]{3,100}$/.test(error?.message)?error.message:'DOC119_STOPPED';
     const explanations={DOC119_SESSION_IDLE_EXPIRED:'La sesion de pruebas supero el margen de 8 minutos durante la seleccion. No se continuara con una sesion caducada ni se renovara automaticamente.',DOC119_SESSION_REQUIRED:'El servicio rechazo la consulta porque no hay sesion vigente. No es un fallo causado por omitir recuperacion.',DOC119_RESOURCE_ACCESS_DENIED:'El servicio rechazo el acceso a la importacion elegida.',DOC119_LOT_QUERY_REJECTED:'ConsultarLote rechazo la lectura; no se esperaran recursos que el cliente no va a solicitar.',DOC119_READ_STEP_TIMEOUT:'El paso de lectura no se completo dentro del plazo. No se repetira automaticamente.',DOC119_NO_IMPORTS_FOR_ACCOUNT:'No se encontraron importaciones consultables de esta cuenta.',DOC119_MIXED_STATES_REQUIRED:'La importacion elegida no tiene los distintos estados necesarios para esta comprobacion.',DOC119_RESELECTION_METADATA_MISMATCH:'El archivo elegido no coincide en nombre, tamano o fecha con el archivo por recibir. No se envio.',DOC119_SERVED_SOURCE_MISMATCH:'Los archivos servidos no coinciden con los preparados para esta prueba.',DOC111_SELECT_FAILED:'No se pudo completar una consulta de control; revisa la cuenta de lectura y la conexion del ambiente.'};
     if(explanations[code])console.log(explanations[code]);
+    if(code==='DOC111_LOGIN_ACCOUNT_NOT_FOUND')console.log('El inicio de sesion no encontro la cuenta en el modulo GESTOR. No se repetira ni se probara otra identidad automaticamente.');
+    if(code==='DOC119_SECOND_ACCOUNT_UNAVAILABLE')console.log('No hay otra cuenta activa de esta empresa habilitada para importar. No se iniciara una segunda sesion.');
     const observation=loginObservation(error?.loginObservation);save({failure:{code,...observation?{loginObservation:observation}:{}}});event('STOPPED');process.exitCode=2;
   }finally{
     for(const context of contexts)await context.close().catch(()=>{});

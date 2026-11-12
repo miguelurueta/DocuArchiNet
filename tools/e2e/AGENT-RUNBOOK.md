@@ -30,6 +30,8 @@ Cuando el usuario solicita identificar una segunda cuenta, `inspect-doc119-secon
 
 La consulta auxiliar conserva su propio consumo vinculado a la corrida principal; contabilizarlo aparte y sumarlo al informar lecturas totales del trabajo. `state.json` no conserva cuentas/claves; el inventario solicitado de IDs y logins, sin contraseñas ni otros campos personales, queda en `.tmp/doc119-account-lookup/<runId>/account-candidates.json`, excluido de Git. Las candidatas verificadas por SELECT todavía necesitan credenciales conocidas por el operador y autenticación real; no presentar un antecedente histórico como permiso vigente.
 
+Antes de la segunda sesión, el ejecutor principal reutiliza ese mismo inventario mediante dos SELECT dentro de sus 80 permitidos. Si hay una candidata, usa directamente el login canónico de la base; si hay varias, el operador elige una opción de la lista verificada. Ya no solicita escribir el nombre de la segunda cuenta. Muestra al operador el identificador elegido y pide solo su contraseña, enmascarada; no registra el login ni la contraseña en el diario principal, únicamente userRef/companyRef y CURRENT_RA_SELECT. Sin candidatas detiene antes de abrir otra sesión. ACCOUNT_NOT_FOUND sigue siendo fallo de autenticación, no denegación por propiedad ni aprobación del caso negativo; no cambia contraseñas ni hace retry automático.
+
 Este runbook permite reutilizar las pruebas ASMX Workflow sin copiar credenciales, modificar datos sin autorización ni reactivar la política legacy.
 
 ## Límites obligatorios

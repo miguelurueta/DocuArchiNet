@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const {BASE_URL}=require('./support/doc119-seguimiento.cjs');
-const {sourceLot,findSecondAccounts}=require('./support/doc119-second-accounts.cjs');
+const {sourceLot,findSecondAccounts,selectSecondAccount}=require('./support/doc119-second-accounts.cjs');
 const {parseArgs}=require('../scripts/inspect-doc119-second-accounts.cjs');
 const runId='a'.repeat(32);
 test('DOC119 inventario vincula lote a la corrida sin aceptar rutas o destino ajenos',()=>{
@@ -27,4 +27,18 @@ test('DOC119 inventario informa cero candidatas y rechaza identidad/permiso disc
     await assert.rejects(()=>findSecondAccounts(async sql=>sql.includes('FROM ra_integracion_lote')?scope:[row],'5'),/RESULT_INVALID/);
   }
   let calls=0;await assert.rejects(()=>findSecondAccounts(async()=>{calls++;return [];},'5'),/SCOPE_INVALID/);assert.equal(calls,1);
+});
+
+test('DOC119 login usa nombre canonico de la unica candidata sin volver a solicitar usuario',async()=>{
+  let calls=0;
+  const candidate=await selectSecondAccount(async()=>++calls===1?[{owner_ref:'141',company_ref:'2'}]:[{user_ref:'136',login:' CAROLINA.CRUZ ',company_ref:'2',active:1,can_import:1}],'5',async()=>assert.fail('single candidate must not ask for an account name'));
+  assert.deepEqual(candidate,{userRef:'136',login:'CAROLINA.CRUZ',companyRef:'2'});assert.equal(calls,2);
+});
+
+test('DOC119 seleccion multiple solo acepta una cuenta del inventario vigente y cero candidatas no inicia login',async()=>{
+  const users=[{user_ref:'136',login:'CAROLINA.CRUZ',company_ref:'2',active:1,can_import:1},{user_ref:'142',login:'OTRA.PRUEBA',company_ref:'2',active:1,can_import:1}];
+  const query=async sql=>sql.includes('FROM ra_integracion_lote')?[{owner_ref:'141',company_ref:'2'}]:users;
+  assert.equal((await selectSecondAccount(query,'5',async items=>items[1])).login,'OTRA.PRUEBA');
+  await assert.rejects(()=>selectSecondAccount(query,'5',async()=>({userRef:'999',login:'FUERA'})),/SELECTION_INVALID/);
+  await assert.rejects(()=>selectSecondAccount(async sql=>sql.includes('FROM ra_integracion_lote')?[{owner_ref:'141',company_ref:'2'}]:[],'5',async()=>assert.fail('no candidates must stop')),/SECOND_ACCOUNT_UNAVAILABLE/);
 });

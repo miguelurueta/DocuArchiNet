@@ -23,4 +23,11 @@ async function findSecondAccounts(query,lotId){
   });
   return {lotId,ownerRef,companyRef,candidates};
 }
-module.exports={sourceLot,findSecondAccounts};
+async function selectSecondAccount(query,lotId,choose){
+  const catalog=await findSecondAccounts(query,lotId);
+  check(catalog.candidates.length>0,'SECOND_ACCOUNT_UNAVAILABLE');
+  const selected=catalog.candidates.length===1?catalog.candidates[0]:await choose(catalog.candidates);
+  check(catalog.candidates.includes(selected),'SECOND_ACCOUNT_SELECTION_INVALID');
+  return {userRef:selected.userRef,login:selected.login,companyRef:catalog.companyRef};
+}
+module.exports={sourceLot,findSecondAccounts,selectSecondAccount};
