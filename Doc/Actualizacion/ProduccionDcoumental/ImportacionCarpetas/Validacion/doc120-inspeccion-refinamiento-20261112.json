@@ -1,0 +1,176 @@
+{
+  "issueKey": "DOC-120",
+  "date": "2026-11-12",
+  "classification": "LOCAL_STATIC_REFINEMENT_NOT_ACCEPTANCE",
+  "baseFunctionalSha": "8c0773d4371aeb35543bf182c0abdd0319cababa",
+  "inspectionHead": "60e02ae78841f94d08619ac9d53982d4318871c3",
+  "environment": "Main workspace, source and tracked evidence only; no application/DB execution",
+  "technologyProfile": "legacy-webforms-vb",
+  "projectTargetFramework": "v4.6.1",
+  "productDiffSinceBase": [],
+  "doc119SourceChecks": [
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc119-contextuales-inventario-20261112.json",
+      "expectedSha256Lf": "2939c54a404fd35991ccc01a6207442139609e1c36a3944fa181de437e397f39",
+      "currentSha256Lf": "2939c54a404fd35991ccc01a6207442139609e1c36a3944fa181de437e397f39",
+      "matches": true
+    },
+    {
+      "file": "Gestion/WebFormProducionDocumental.aspx",
+      "expectedSha256Lf": "75d8ce9a09ca1d7654b03c76edef84ea64c0e4d9d6eee8014434ac4cea92d005",
+      "currentSha256Lf": "75d8ce9a09ca1d7654b03c76edef84ea64c0e4d9d6eee8014434ac4cea92d005",
+      "matches": true
+    },
+    {
+      "file": "Gestion/WebFormProducionDocumental.aspx.vb",
+      "expectedSha256Lf": "c48cdb064951fea242fc0e710901d7be4893782261819d6302d057cb97b2bd61",
+      "currentSha256Lf": "c48cdb064951fea242fc0e710901d7be4893782261819d6302d057cb97b2bd61",
+      "matches": true
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css",
+      "expectedSha256Lf": "00d200f0e3e85c1ffcb1bfd18e70138b13e2d5c941727bb6f2abeaacafa3af56",
+      "currentSha256Lf": "00d200f0e3e85c1ffcb1bfd18e70138b13e2d5c941727bb6f2abeaacafa3af56",
+      "matches": true
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "expectedSha256Lf": "457d1024dc306db94a82c538713cd7cff3516cc64cccfd11db9ef935b37ded80",
+      "currentSha256Lf": "457d1024dc306db94a82c538713cd7cff3516cc64cccfd11db9ef935b37ded80",
+      "matches": true
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "expectedSha256Lf": "8fd1caf2c872cc1d2e3acfbef421eb7c93dbad16ba424baa7cadfd710ae23718",
+      "currentSha256Lf": "8fd1caf2c872cc1d2e3acfbef421eb7c93dbad16ba424baa7cadfd710ae23718",
+      "matches": true
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+      "expectedSha256Lf": "a65c816388834a44cada4a4479d7c9f71d93aae822defc9fc8994c434187b166",
+      "currentSha256Lf": "a65c816388834a44cada4a4479d7c9f71d93aae822defc9fc8994c434187b166",
+      "matches": true
+    },
+    {
+      "file": "js/gestion/WebFormProducionDocumental.js",
+      "expectedSha256Lf": "c800184475732e48c8a478bd5afa340cb8c2acd7131010745f25ab823c4343e8",
+      "currentSha256Lf": "c800184475732e48c8a478bd5afa340cb8c2acd7131010745f25ab823c4343e8",
+      "matches": true
+    },
+    {
+      "file": "js/jquery.contextMenu.css",
+      "expectedSha256Lf": "1f4e6d45af8921372148a93b7351852868360fefe10ec35e1a4cd7aa32834c55",
+      "currentSha256Lf": "1f4e6d45af8921372148a93b7351852868360fefe10ec35e1a4cd7aa32834c55",
+      "matches": true
+    },
+    {
+      "file": "js/jquery.contextMenu.js",
+      "expectedSha256Lf": "98e1dad55ec6c66415699fbc91deaa68412206975218852fe2d8eec7d31b4df9",
+      "currentSha256Lf": "98e1dad55ec6c66415699fbc91deaa68412206975218852fe2d8eec7d31b4df9",
+      "matches": true
+    },
+    {
+      "file": "tests/doc111-importacion-carpetas-client.test.cjs",
+      "expectedSha256Lf": "bf74a593509f774fa7b87cc96df6c06c0d6936024453a017a4aa496d9c9e81b3",
+      "currentSha256Lf": "bf74a593509f774fa7b87cc96df6c06c0d6936024453a017a4aa496d9c9e81b3",
+      "matches": true
+    },
+    {
+      "file": "tests/doc119-context-menu.test.cjs",
+      "expectedSha256Lf": "c711ea5fd88e15adf7d122fff101e21e568727a494b6142052e4ba6408501b72",
+      "currentSha256Lf": "c711ea5fd88e15adf7d122fff101e21e568727a494b6142052e4ba6408501b72",
+      "matches": true
+    },
+    {
+      "file": "tests/doc119-navigation.test.cjs",
+      "expectedSha256Lf": "8937d1c52b79a94629dc457bf29b70d6417925320677aab5379b8a5a20973a6a",
+      "currentSha256Lf": "8937d1c52b79a94629dc457bf29b70d6417925320677aab5379b8a5a20973a6a",
+      "matches": true
+    },
+    {
+      "file": "tools/e2e/tests/support/doc113-ventana-importacion.cjs",
+      "expectedSha256Lf": "d6efb2763fbc262cde14d227e51376d64982b133e5f8e679ba7094ddbcfcf551",
+      "currentSha256Lf": "d6efb2763fbc262cde14d227e51376d64982b133e5f8e679ba7094ddbcfcf551",
+      "matches": true
+    },
+    {
+      "file": "tools/e2e/tests/support/doc119-seguimiento.cjs",
+      "expectedSha256Lf": "400afb0786b232b8c1a5003e8eada4d7bd833fc80ae28a463fac36b5e0bc3a30",
+      "currentSha256Lf": "400afb0786b232b8c1a5003e8eada4d7bd833fc80ae28a463fac36b5e0bc3a30",
+      "matches": true
+    }
+  ],
+  "evidenceInputs": [
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-matriz-final-20261102.md",
+      "sha256Lf": "4d61bce8ece1afa5bf75057978aae9c2741734c5052a5ada865848c41c7a627a"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-degradacion-individual-pass-20261102.md",
+      "sha256Lf": "ed6bc76085194b87c4bef15622df5ec7d371631e23c5b3fbd86b60d478dd275f"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc115-verificacion-final-20261104.md",
+      "sha256Lf": "962ab0999777d4af3cb14b9a5b76ede4fad5b4e3630caf781d86944c6795d640"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-entrega-20261105.json",
+      "sha256Lf": "b819154ac245576278dabd36b0917885485d40a545ed7ebfde8814dd6f0cdaf6"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-verificacion-final-20261105.json",
+      "sha256Lf": "e4b9feebead24a510cdd312b52fceee28589e292dbf698a25b5c20e842b6fdd3"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc117-matriz-almacenamiento.md",
+      "sha256Lf": "4e8625a579f2b970d7f05c6a5446f43fc5aefa32f02c0004e5028371db5cb0e2"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-integracion-completa-20261110.json",
+      "sha256Lf": "653735c9394e17dd0ea200991aef6a3f9754c236bacac5e17e3b461879a142ca"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc118-resultados-integracion.md",
+      "sha256Lf": "a0a72f948bb51f69bfa1022bf1dc48ff1680bb6abfb3365db3afad59b35aa09b"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc119-seg01-aceptado-20261112.json",
+      "sha256Lf": "fa32d979a9203bb939a02de98e3001f6ff26fe1f74f7434721426608443079cb"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc119-recuperacion-verificada-20261112.json",
+      "sha256Lf": "c1f8ed9f118bf1294115ca1f7ec65b2c307787bb72bdb91e9bf2519cfded2e65"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc119-aceptacion-cobertura-mixta-propuesta-20261112.md",
+      "sha256Lf": "9492b7897d7c7688a170acd63f68e2b8f2d444a39dbb0ed96cacff32543e42df"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc119-seg03-propuesta-sin-limpieza-20261112.md",
+      "sha256Lf": "992286c6530125d9d78ce94ef629cf53aad9dfcc38e5c02878553b3f70732451"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc119-ui-verificacion-20261112.md",
+      "sha256Lf": "90c3ce5fa9dd134f2c43bee2a48a7675f42a2dd0c2251696cf77c3642eda83ca"
+    }
+  ],
+  "missingIndexesAtInspection": [
+    "matriz-verificacion.md",
+    "resultados.md"
+  ],
+  "execution": {
+    "applicationHttp": 0,
+    "select": 0,
+    "sessions": 0,
+    "uploads": 0,
+    "businessEffects": 0
+  },
+  "capacity": "NO_EJECUTADO: lacks objective/thresholds/budget/environment/resources authorization; requester and environment operator must resolve",
+  "limits": [
+    "No new test suite or authenticated run",
+    "Source equality does not renew runtime/data or real acceptance",
+    "SEG-02 mixed historical coverage retained",
+    "No current disk capacity claim",
+    "SII and cleanup real not executed"
+  ]
+}

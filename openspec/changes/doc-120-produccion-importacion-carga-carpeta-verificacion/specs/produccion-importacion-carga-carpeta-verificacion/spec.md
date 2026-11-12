@@ -1,56 +1,135 @@
-## ADDED Requirements
-### Requirement: PRODUCCION-IMPORTACION-CARGA-CARPETA-VERIFICACION
-El sistema SHALL implementar el alcance definido para DOC-120.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
+## Purpose
 
-#### Scenario: Reglas del ticket
-- Alcance refinado
-- Consolidación de verificación integral y brechas transversales; no repetir desarrollo ni todas las cargas de DOC110–119. La consolidación final se realiza después de la reorganización de interfaz incluida en DOC-119 y verifica la versión resultante con regresión focal.
-- Base y procedencia
-- Revisión arquitectónica 2026-11-04 solicitada por el usuario frente a lo ya implementado. Base entregada: PR125 integrado en main, merge a3c7263763a89901ba78d05ccebc284a43a4cd76. DOC110–115 están Listo. Esta revisión es documental: no ejecuta nuevas pruebas ni certifica escenarios faltantes. Los resultados históricos conservan su SHA y ambiente; no equivalen a una nueva corrida del commit actual.
-- Implementación existente comprobada
-- DOC111: REC EXPEDIENTE/LOTE/PARCIAL, IDs/índices y replays, recuperación real del lote2, degradación de una tabla y carga individual. DOC113: UI01/02/03. DOC114: PLAN01/02/03 con permisos restaurados. DOC115: RECIB01/02/03 y 07A con conexiones independientes. Estas evidencias conservan su alcance: no acreditan capacidad máxima, limpieza real, SII real ni todos los escenarios de efectos en vuelo.
-- Rutas que deben reutilizarse
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-matriz-final-20261102.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc115-verificacion-final-20261104.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/tools/e2e/tests/doc111-importacion-carpetas.spec.cjs
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/tools/e2e/tests/doc113-ventana-importacion.spec.cjs
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/tools/e2e/tests/doc114-plan-importacion.spec.cjs
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/tools/e2e/tests/doc115-recepcion-importacion.spec.cjs
-- Evidencia existente y su alcance
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-matriz-final-20261102.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-cierre-tecnico-20261102.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc113-verificacion-final-20261103.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc114-final-report-20261103.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc115-verificacion-final-20261104.md
-- Escenarios y trabajo pendiente
-- INT-01 — consolidar matriz única requisito→caso→componente→prueba→SHA/ambiente→resultado real/local/estático/NO_EJECUTADO. Reutilizar evidencia verificada y consumir resultados de EXP/ALM/COORD/SEG; resolver faltantes críticos y contradicciones. No heredar PASS solo por pertenecer al mismo módulo ni ejecutar ciegamente todos los prompts.
-- INT-02 — REUTILIZABLE CON LÍMITE: degradación DOC111 probó ausencia de ra_integracion_evento, recuperación y carga individual. Cubrir solo variantes de incompatibilidad realmente exigidas sin extrapolar una tabla a todos los fallos de esquema. SQL manual y estado aplicado verificado; no reinstalar migraciones existentes.
-- INT-03 — PENDIENTE DE DEFINICIÓN/AUTORIZACIÓN: acordar cantidad/tamaño de archivos, navegadores, concurrencia, disco temporal y umbrales de tiempo/memoria antes de medir. Ejecutar únicamente presupuesto aprobado. Sin objetivo o ambiente, registrar pendiente y no prometer capacidad máxima.
-- Regresión focal — confirmar matriz completa/parcial, valores diferidos/fecha estable, revocación, detención e incertidumbre con las brechas de DOC116–119; revisar diff/SII y carga individual pertinente. SII real no ejecutado debe permanecer declarado. Mantener fuera el aislamiento XML adicional descartado y los formatos no soportados.
-- Actualidad de evidencia — comparar huellas de componentes; un cambio posterior invalida solo los casos afectados. CI opsxj/OpenSpec es complementario y no ejecuta todos los E2E/documentos. No atribuir las 93 pruebas Node ni 2 Framework de DOC115 a una corrida integral nueva.
-- Criterio de cierre
-- Mantener Validacion/matriz-verificacion.md y Validacion/resultados.md como índices de evidencia existente; evitar otra máquina o plataforma de pruebas. Cada no ejecutado debe tener motivo, responsable y efecto sobre la salida a operación. No declarar listo si quedan brechas críticas de autoridad/integridad/recuperación; los límites aceptados deben quedar explícitos.
-- Reglas comunes de ejecución
-- Reutilizar modelos, repositorio operativo, tablas, ASMX/ASHX, adaptadores, coordinador y herramientas E2E existentes. Antes de programar, contrastar cada criterio con código y evidencia; modificar producto solo ante una brecha reproducida y cubrir su regresión. Leer AGENTS.md y tools/e2e/AGENT-RUNBOOK.md antes de autenticar. Pruebas reales, cambios de permisos, fallos inyectados, limpieza y carga requieren autorización específica de ambiente, cuentas y recursos; este ticket no la concede. Controles RA/DA exclusivamente SELECT, secretos efímeros, evidencia saneada. No repetir efectos inciertos ni cargas ya acreditadas sin motivo.
-- Decisiones vigentes que sustituyen exigencias históricas
-- No modificar AlmacenamientoDocumentoProduccionDocumental ni SII. Se conserva PDF como formato soportado por este adaptador; TIFF/Multi-TIFF deben rechazarse, no implementarse para satisfacer el prompt anterior. El aislamiento adicional del XML posterior al commit frente a otras cargas fue descartado expresamente por el usuario: queda fuera del alcance y no se afirma como garantía. No habilitar workers, migraciones, permisos, cuotas globales ni limpieza automática por inferencia. Preservar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, snapshot, inventario original y efectos confirmados. Sin rollback global.
-- Fuente transversal
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc111-matriz-final-20261102.md
-- https://github.com/miguelurueta/DocuArchiNet/blob/a3c7263763a89901ba78d05ccebc284a43a4cd76/Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc115-verificacion-final-20261104.md
-- Secuencia de verificación final — acuerdo 2026-11-10
-- Orden acordado: seguimiento operativo de DOC-119 → reorganización de menús como fase final de DOC-119 (UI01–05) → consolidación y cierre final de DOC-120. Se puede preparar la matriz antes, pero la aprobación integral debe corresponder a la interfaz definitiva. No convertir DOC-120 en otro desarrollo de seguimiento ni cerrar la verificación antes del cambio visual previsto.
-- Actualizar la base de contraste: las referencias a a3c7263763a89901ba78d05ccebc284a43a4cd76 son históricas. main 9faa8a35106d8f35ca1164f6d580596b36cd4c06 incorpora el cierre técnico de DOC-118 y PR128; consumir también los resultados efectivos de DOC116–119, con su SHA y ambiente. La ejecución posterior registrará su propio SHA; ningún número histórico de pruebas se presenta como una nueva validación integral.
-- Regresión de la interfaz definitiva y vigencia de evidencia
-- Incluir en INT01 y en la regresión focal los casos UI01–05 de DOC-119: menú superior y contextual, destino seleccionado/pulsado y ruta canónica, permisos, consulta por referencia, avisos y recuperación de pendientes, recarga/reapertura/postback, conservación de selección y actualización del árbol, teclado/foco y menú completamente visible. Si cambió el componente contextual compartido, acreditar los consumidores afectados y la carga individual pertinente.
-- Comparar huellas/diff y mantener la evidencia que siga siendo aplicable. Reejecutar solo los casos afectados por cambios o brechas; no repetir todas las cargas DOC110–119. Si la interfaz cambia después de una corrida de DOC-120, registrar el nuevo SHA, revisar el impacto y actualizar los resultados afectados antes de declarar lista la versión resultante.
-- El cierre mantiene todos los criterios originales de INT01/02/03: matriz única y resultados trazables, incompatibilidades realmente exigidas, capacidad con presupuesto definido y límites explícitos. No declarar capacidad máxima, limpieza real o SII real sin evidencia. Las brechas críticas de destino/autoridad/integridad/recuperación impiden declarar lista la versión.
-- Límites del ajuste de alcance
-- La reorganización usa el asistente y los servicios existentes; no autoriza cambios de almacenamiento, SII, esquema, formatos soportados, jobs o limpieza automática. Mantener la decisión explícita sobre SEG03 de DOC-119. Conservar las reglas originales de autorización para pruebas reales, carga, permisos y fallos, controles exclusivamente SELECT y secretos efímeros.
+Consolidar la verificación trazable de importación de carpetas sobre la interfaz definitiva, diferenciando evidencia histórica, pruebas focales, límites operativos y autorización de cada ejecución.
+
+## ADDED Requirements
+
+### Requirement: RQ-01 — Base y vigencia por componente
+DOC-120 SHALL cumplir la decisión D-01: Fijar el merge de DOC-119 como base funcional. Cada caso conserva SHA/huellas de sus componentes, prueba, ambiente y resultado originales; la identidad de huellas permite reutilización local, no una ejecución real nueva. Un cambio invalida únicamente los casos dependientes; el mapa explicita esa dependencia.
+
+#### Scenario: Código vigente
+- **WHEN** se contrasta una evidencia con la versión final
+- **THEN** se comparan sus componentes y huellas, conservando SHA/runtime/ambiente de origen
+- **AND** solo los casos dependientes de un cambio se revisan o reejecutan
+
+#### Scenario: Cambio posterior
+- **WHEN** cambia la interfaz o un componente después de una corrida
+- **THEN** se registra el nuevo SHA y el impacto antes de aceptar la versión
+- **AND** igualdad de huellas no se presenta como una sesión real nueva
+
+### Requirement: RQ-02 — Matriz e índices únicos
+DOC-120 SHALL cumplir la decisión D-02: Crear matriz-verificacion.md y resultados.md en Validacion, ausentes en la base inspeccionada. La matriz relaciona requisito/caso, componente/símbolo, prueba, SHA/huella, ambiente, evidencia, resultado, vigencia y límites. Resultados mantiene cronología y enlaza fuentes primarias sin sobrescribirlas.
+
+#### Scenario: Índices con procedencia
+- **WHEN** se incorpora un caso a la matriz
+- **THEN** figuran requisito/caso/componente/prueba/SHA/ambiente/evidencia/resultado/vigencia/límite
+- **AND** resultados enlaza el primario y preserva su cronología
+
+#### Scenario: Clasificación y conteos
+- **WHEN** se reutilizan resultados históricos o locales
+- **THEN** se distinguen REAL_HISTORICO, LOCAL_HISTORICO_VIGENTE, LOCAL_DOC120, ESTATICO y NO_EJECUTADO
+- **AND** no se suman suites superpuestas ni se etiqueta CI como E2E integral
+
+### Requirement: RQ-03 — Consumo de EXP/ALM/COORD/SEG
+DOC-120 SHALL cumplir la decisión D-03: Usar resultados efectivos y sus cortes finales. DOC-116 resolvió su ventana interna mediante variante de laboratorio; DOC-117 acredita ALM-01/02/03C con límites; DOC-118 distingue archivo administrativo de cierre técnico38/38; DOC-119 conserva SEG-01 real y SEG-02 con cobertura mixta aceptada. No sumar suites de cortes distintos ni reproducir efectos inciertos retenidos.
+
+#### Scenario: Resoluciones posteriores
+- **WHEN** un informe contiene bloqueos históricos y una resolución posterior
+- **THEN** se identifica el corte efectivo con su fuente primaria y variante
+- **AND** el archivo administrativo DOC-118 no sustituye su cierre técnico38/38
+
+#### Scenario: Efecto incierto conservado
+- **WHEN** un intento permanece EN_CURSO/público INCIERTO
+- **THEN** se conserva con sus identidades y límites
+- **AND** no se repite almacenamiento ni se borra o edita su checkpoint para obtener PASS
+
+### Requirement: RQ-04 — Interfaz definitiva y regresión focal
+DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/contextual y asistente resultantes de DOC-119. Cubrir seleccionado/pulsado, homónimos, selección inválida, autoridad denegada/revocada, referencia/último lote/confirmación sin acuse, recarga/reapertura/UpdatePanel, árbol, foco y viewport. Reutilizar fuentes vigentes y ejecutar solo casos afectados o brechas documentadas.
+
+#### Scenario: Destino y autoridad
+- **WHEN** se valida acceso superior o contextual en la UI definitiva
+- **THEN** se conserva seleccionado frente a pulsado, ruta autorizada y destino fijo
+- **AND** nodos excluidos y autoridad denegada no provocan fallback
+
+#### Scenario: Recuperación y avisos
+- **WHEN** se consulta referencia/último lote o confirmación sin acuse tras recarga/postback
+- **THEN** se conserva identidad, acceso equivalente, avisos, árbol/selección y foco
+- **AND** no se reconfirma automáticamente ni se atribuye un caso sintético a IIS
+
+### Requirement: RQ-05 — Integridad, incertidumbre y consumidores
+DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, valores diferidos y fecha estable, revocación, stop e incertidumbre con casos del arnés existente. Comprobar contrato del plugin en sus26 registros/22archivos y carga individual pertinente. Un callback sintético no demuestra la acción de negocio real de cada módulo.
+
+#### Scenario: Integridad y valores
+- **WHEN** se evalúan escenarios completos/parciales, valores diferidos y fecha estable
+- **THEN** cada regla tiene caso y evidencia de las barreras/revisiones existentes
+- **AND** recepción y efecto permanecen separados y stop no promete rollback
+
+#### Scenario: Consumidores y carga individual
+- **WHEN** se consume la prueba del contextual compartido y la carga individual
+- **THEN** se conserva recurso invocador, teclado/viewport y alcance probado por consumidor
+- **AND** los26 contratos sintéticos no se anuncian como26 operaciones de negocio reales
+
+### Requirement: RQ-06 — INT-02 degradación acotada
+DOC-120 SHALL cumplir la decisión D-06: Conservar el caso real histórico de ausencia temporal de ra_integracion_evento con restauración y carga individual, sin extrapolar a cada incompatibilidad. Contrastar los verificadores/esquema y el guard de indisponibilidad actuales. Exigir variante nueva solo si un requisito concreto y una diferencia reproducida la hacen necesaria; registrar NO_NECESARIA con justificación en los demás casos.
+
+#### Scenario: Degradación histórica delimitada
+- **WHEN** se reutiliza la ausencia de ra_integracion_evento
+- **THEN** se conserva alcance de indisponibilidad/restauración/carga individual
+- **AND** no se extrapola a toda incompatibilidad ni se reinstala SQL
+
+#### Scenario: Necesidad de variante
+- **WHEN** se encuentra una incompatibilidad exigida sin evidencia suficiente
+- **THEN** se documenta reproducción, requisito, restauración y autorización para la variante concreta
+- **AND** si no es necesaria consta NO_NECESARIA justificada sin modificar el esquema
+
+### Requirement: RQ-07 — INT-03 capacidad con presupuesto definido
+DOC-120 SHALL cumplir la decisión D-07: Antes de medir acordar objetivo, cantidad/distribución/tamaño de archivos y raíces, navegadores/versiones, concurrencia, duración, ambiente, recursos, disco temporal/libre y umbrales de tiempo/memoria. Incluir topes HTTP/SELECT/sesiones/bytes/efectos y criterio de parada. Sin esos acuerdos, INT-03 queda NO_EJECUTADO por falta de definición/autorización.
+
+#### Scenario: Contrato previo
+- **WHEN** se propone medir INT-03
+- **THEN** existen objetivo, corpus, navegadores/versiones, concurrencia, disco, umbrales y topes de ejecución revisados
+- **AND** una medición solo afirma el presupuesto y ambiente observados
+
+#### Scenario: Sin definición o autorización
+- **WHEN** faltan objetivo, umbrales o autorización específica de capacidad
+- **THEN** INT-03 consta NO_EJECUTADO con motivo, responsable e impacto operativo
+- **AND** no se infiere capacidad máxima de páginas, lotes pequeños o pruebas locales
+
+### Requirement: RQ-08 — Autorización separada y herramientas existentes
+DOC-120 SHALL cumplir la decisión D-08: La continuación autoriza refinamiento/inspección y preparación local. Antes de ejecutar cada ventana real exigir ambiente, cuentas, recursos, operaciones, presupuestos y recuperación revisados. Reutilizar autenticación, runners y queryRows existentes; controles RA/DA exclusivamente SELECT y secretos efímeros. Autorizaciones DOC110–119 no se heredan.
+
+#### Scenario: Ventana real concreta
+- **WHEN** se pretende autenticar, consultar BD, cargar o inyectar fallos
+- **THEN** se exige autorización de ambiente/cuentas/recursos/operaciones/presupuestos/recuperación
+- **AND** los controles RA/DA usan solo SELECT y las credenciales permanecen efímeras
+
+#### Scenario: Resultado detenido
+- **WHEN** una ventana real falla o consume su presupuesto
+- **THEN** se conserva STOPPED y su consumo sin retry automático
+- **AND** no se reutiliza una autorización anterior para ampliar efectos
+
+### Requirement: RQ-09 — Fuentes y decisiones protegidas
+DOC-120 SHALL cumplir la decisión D-09: Conservar SII/Integracionccv, AlmacenamientoDocumentoProduccionDocumental, Web.config, esquema, semántica de recepción/efectos y PDF/rechazo TIFF. Mantener decisión expresa SEG-03 de operar sin limpieza y datos retenidos. No añadir jobs, cuotas, formatos, endpoints o aislamiento XML adicional.
+
+#### Scenario: Fuentes y formatos
+- **WHEN** se consolida o corrige una brecha de DOC-120
+- **THEN** se preservan SII/almacenamiento compartido/configuración/esquema y PDF con rechazo TIFF
+- **AND** no se habilitan jobs/cuotas/limpieza/aislamiento XML adicional
+
+#### Scenario: Decisión sin limpieza
+- **WHEN** se consume SEG-03 de DOC-119
+- **THEN** se conserva operación sin limpieza y datos retenidos
+- **AND** la medición histórica de disco no se anuncia como actual ni como borrado real
+
+### Requirement: RQ-10 — Defectos reproducidos y criterio de cierre
+DOC-120 SHALL cumplir la decisión D-10: Modificar producto solo ante una brecha reproducible vinculada a requisito, causa y prueba de regresión. Registrar cada no ejecutado con motivo, responsable e impacto operativo. Autoridad/destino/integridad/recuperación con fallo crítico bloquean salida. Límites necesitan aceptación expresa; archivo/CI/checklists no sustituyen aceptación integral.
+
+#### Scenario: Brecha reproducible
+- **WHEN** se detecta un defecto de autoridad, destino, integridad o recuperación
+- **THEN** se registra causa/caso/corrección/regresión y se bloquea salida mientras sea crítico
+- **AND** no se desarrolla producto por ausencia de un checklist genérico
+
+#### Scenario: Aceptación y cierre
+- **WHEN** se propone declarar lista la versión
+- **THEN** la matriz identifica cada no ejecutado y su motivo, responsable e impacto; los límites tienen aceptación expresa
+- **AND** archivo, CI y número de tareas no sustituyen aceptación operativa ni merge verificado

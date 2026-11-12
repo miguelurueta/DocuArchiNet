@@ -1,13 +1,13 @@
 ## Why
 
-PRODUCCION-IMPORTACION-CARGA-CARPETA-VERIFICACION. Ver detalle funcional completo del ticket en la seccion Jira Details.
+DOC-120 consolida la verificación de importación de carpetas sobre la interfaz definitiva integrada por PR130 en main 8c0773d4371aeb35543bf182c0abdd0319cababa. El cierre DOC-119 conserva evidencia real/local diferenciada; hace falta una matriz única de vigencia y límites que consuma EXP/ALM/COORD/SEG sin repetir cargas por cambiar de ticket. Los dos índices exigidos por Jira no existen en la base inspeccionada.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-120.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Consolidar índices y dependencias por requisito/caso, con SHA/ambiente y clasificación real/local/estática/no ejecutada.
+- Seleccionar regresión focal de interfaz, contratos compartidos, integridad y recuperación según huellas y brechas.
+- Delimitar INT-02 sin extrapolar el antecedente de una tabla ausente; preparar INT-03 con contrato de medición y autorización propios.
+- Corregir producto únicamente ante un fallo reproducido; conservar SII/almacenamiento/esquema, PDF y decisión de operar sin limpieza.
 
 ## Jira Details
 
@@ -55,22 +55,14 @@ PRODUCCION-IMPORTACION-CARGA-CARPETA-VERIFICACION. Ver detalle funcional complet
 > Límites del ajuste de alcance
 > La reorganización usa el asistente y los servicios existentes; no autoriza cambios de almacenamiento, SII, esquema, formatos soportados, jobs o limpieza automática. Mantener la decisión explícita sobre SEG03 de DOC-119. Conservar las reglas originales de autorización para pruebas reales, carga, permisos y fallos, controles exclusivamente SELECT y secretos efímeros.
 
-## Jira Metadata
-
-- Tipo: Tarea
-- Prioridad: Medium
-- Labels: CARGA, CARPETA, IMPORTACION, PRODUCION, VERIFICACION
-
 ## Capabilities
 
 ### New Capabilities
-- `produccion-importacion-carga-carpeta-verificacion`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- produccion-importacion-carga-carpeta-verificacion: consolidación trazable de aceptación, vigencia y regresión focal sobre la interfaz definitiva.
 
 ### Modified Capabilities
-- 
+Ninguna modificación funcional incondicional. Una brecha exige reproducción y tarea acotada antes de corregirla.
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
-
+Documentación de Validacion y dossier OPSXJ; pruebas existentes WebForms/VB/JavaScript seleccionadas por impacto. Sin endpoints/DTO/tablas/plataforma de pruebas nuevos, instalación o ejecución real en esta fase.
