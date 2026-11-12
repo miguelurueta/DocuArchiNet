@@ -1,0 +1,159 @@
+{
+  "runId": "29623218ea64414d96d14937cb5ffebc",
+  "status": "FINISHED_WITH_LIMITS",
+  "mode": "RECOVERY_ONLY",
+  "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "authorizationRevision": "20261112-readonly-existing",
+  "acceptedSeg01SourceRunId": "ccb25ec9d37a4da083caccfbe80001b1",
+  "fixtureRevision": 2,
+  "manifestHash": "bb2d252f9404f559a0792c847504560357ce4a4f3b89a09fd9d521c4be78a912",
+  "resources": {
+    "level": "7",
+    "ownerRef": "141",
+    "companyRef": "2",
+    "versionId": "40",
+    "loteId": "29",
+    "planId": "45",
+    "alternateLevel": "40"
+  },
+  "results": {
+    "EXISTING_DATA": {
+      "status": "VERIFIED_EXISTING",
+      "checks": {
+        "owner": true,
+        "inventory": true,
+        "pending": true,
+        "receipt": true,
+        "noDocuments": true,
+        "attempts": true,
+        "roots": true
+      },
+      "passed": true,
+      "files": 27,
+      "roots": 2,
+      "pendingFiles": 26,
+      "receivedFiles": 1,
+      "receivedBytes": 677,
+      "createdExpeditions": 1,
+      "storedDocuments": 0,
+      "attemptPhases": [
+        "RECEPCION",
+        "CREAR_EXPEDIENTE"
+      ],
+      "fingerprint": "b6c564f13b168822728f35e09ec7f551dde0b1da9ad183c68d65223bf108b278",
+      "usage": {
+        "http": 0,
+        "select": 11,
+        "sessions": 0
+      }
+    },
+    "SEG-02": {
+      "status": "PASS_READONLY_WITH_LIMITS",
+      "reload": true,
+      "reselectionMetadataOnly": true,
+      "noUpload": true,
+      "selectionPreserved": true,
+      "treeDeduplicated": true,
+      "originalBranchAvailability": "AVAILABLE",
+      "newRelationsAdded": false,
+      "homonymousRootsObserved": false,
+      "confirmedRelations": 1,
+      "treeDiagnostic": {
+        "before": {
+          "availability": "AVAILABLE",
+          "counts": [
+            1
+          ]
+        },
+        "after": {
+          "availability": "AVAILABLE",
+          "counts": [
+            1
+          ]
+        },
+        "selectionPreserved": true,
+        "expansionPreserved": true
+      },
+      "noBusinessMutation": true,
+      "daScope": "KNOWN_EXPEDITIONS",
+      "beforeFingerprint": "b6c564f13b168822728f35e09ec7f551dde0b1da9ad183c68d65223bf108b278",
+      "afterFingerprint": "b6c564f13b168822728f35e09ec7f551dde0b1da9ad183c68d65223bf108b278",
+      "usage": {
+        "http": 281,
+        "select": 27,
+        "sessions": 1
+      }
+    }
+  },
+  "usage": {
+    "SEG-02": {
+      "http": 281,
+      "select": 27,
+      "sessions": 1
+    }
+  },
+  "limits": {
+    "SEG-02": {
+      "http": 600,
+      "select": 60,
+      "sessions": 2
+    }
+  },
+  "code": {
+    "head": "74083c36eb4634ccc217cb2071d962c68a29d49d",
+    "scopeSha256": "9d3f3834c30db209d127071dcacf5ea59d0a78bb9282f64e53ffa2cff67908e9",
+    "files": [
+      {
+        "file": "Gestion/WebFormProducionDocumental.aspx",
+        "sha256": "c407231e36d0af9f5093b324ca49fcb0c293e64ed25d6b32773fe7d7f2471f5a"
+      },
+      {
+        "file": "bin/GestionDocumental-Docuarchi.net.dll",
+        "sha256": "67e3b823cad825c558c2d0ee06065a0b4c4143e92cd18c1861e1c03eaf98c90e"
+      },
+      {
+        "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css",
+        "sha256": "2c79fa2e67495da55644a8e66206fe41c89e9744b6ba00f7556abc5291a6689c"
+      },
+      {
+        "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+        "sha256": "23922f181b9fec5def299048df8e5c7da5e26bce883580fd80e2033775fbf58e"
+      },
+      {
+        "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+        "sha256": "51491bcb439fd0b5721166df33bf027e7bebc894f1a11e6cb6d022c10bfdb3a8"
+      },
+      {
+        "file": "js/gestion/WebFormProducionDocumental.js",
+        "sha256": "9d2c46add8fcc610785f74db472a5744d6f168762fc2dfcf11f346e3c75c47db"
+      },
+      {
+        "file": "tools/e2e/scripts/run-doc119-datos-aceptacion.cjs",
+        "sha256": "11ea37030563a3d7b30b78f35ccac258317e4a2f3f71449b11232aae463e839a"
+      },
+      {
+        "file": "tools/e2e/tests/support/doc119-acceptance-data.cjs",
+        "sha256": "88560f5bc94fc70f72fbf3e8ae90df3e2e62a59ecabc510b77e855bdebe97a07"
+      },
+      {
+        "file": "tools/e2e/tests/support/doc119-seguimiento.cjs",
+        "sha256": "83a7e9a80ffc4eb7e9226a08fda0e777ae6a816b32aa8bdf820902709bb36a4e"
+      }
+    ],
+    "note": "HEAD alone does not represent uncommitted files; hashes cover the explicit source/test scope."
+  },
+  "failure": null,
+  "closed": true,
+  "credentialsCleared": true,
+  "finishedUtc": "2026-11-12T21:00:07.726Z",
+  "acceptance": {
+    "realRecoveryChecksPassed": true,
+    "unobservedRealCases": [
+      "NEW_RELATION_INSERTION",
+      "HOMONYMOUS_PHYSICAL_ROOTS"
+    ],
+    "fullSeg02Decision": "PENDING",
+    "uiGate": false
+  },
+  "interpretation": "Recuperacion real con limites: reseleccion sin envio, relacion existente unica, seleccion/expansion y huellas conservadas. No transformar cobertura local en ejecucion integrada ni alterar el resultado original."
+}
