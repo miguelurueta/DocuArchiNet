@@ -458,8 +458,9 @@ async function withDoc119Seguimiento(work) {
           const request=JSON.parse(body).solicitud,operation=this.operation;window.doc119Calls.push({operation,request});
           setTimeout(()=>{
             let data;
+            if(window.doc119Expired&&operation==='ConsultarLote'){this.status=401;this.responseText=JSON.stringify({ok:false,codigo:'SESION_REQUERIDA',mensaje:'Sesion requerida',incidencias:[],datos:null});this.onload();return;}
             if(window.doc119Deny){this.status=200;this.responseText=JSON.stringify({ok:false,codigo:'ACCESO_DENEGADO',mensaje:'Denegado',incidencias:[]});this.onload();return;}
-            if(operation==='ConsultarLote')data={loteId:'20',nivelRef:'7',rutaCanonica:'Destino original',estado:'PARCIAL',maximoTamanoPagina:2,totalRaices:2,totalArchivos:5,totalBytes:'35',accionesPermitidas:['CONSULTAR','EXPORTAR_PAGINA','CONSULTAR_RAICES']};
+            if(operation==='ConsultarLote')data={loteId:'20',nivelRef:'7',rutaCanonica:'Destino original',estado:'PARCIAL',maximoTamanoPagina:window.doc119MaxPageSize||2,totalRaices:2,totalArchivos:5,totalBytes:'35',accionesPermitidas:['CONSULTAR','EXPORTAR_PAGINA','CONSULTAR_RAICES']};
             else if(operation==='ConsultarRecursosLote'||operation==='ExportarPaginaLote'){
               const filtered=rows(request),elements=filtered.slice((request.pagina-1)*request.tamanoPagina,request.pagina*request.tamanoPagina);
               const pagination={loteId:'20',tipo:request.tipo,pagina:request.pagina,tamanoPagina:request.tamanoPagina,totalOriginal:request.tipo==='RAICES'?2:5,totalFiltrado:filtered.length,elementos:elements};
@@ -520,9 +521,9 @@ async function bridgeDoc119Responses(page){
   // siguen siendo reales. Nunca se usa este adaptador en la corrida autenticada.
   const calls=[],waiters=[];
   await page.exposeFunction('__doc119Observe',call=>calls.push(call));
-  await page.exposeFunction('__doc119Response',data=>{
+  await page.exposeFunction('__doc119Response',async data=>{
     const response={status:()=>data.status,url:()=>`https://synthetic.invalid/synthetic.asmx/${data.operation}`,json:async()=>data.body,request:()=>({method:()=> 'POST',postData:()=>data.requestBody})};
-    for(const waiter of [...waiters])if(waiter.predicate(response)){clearTimeout(waiter.timer);waiters.splice(waiters.indexOf(waiter),1);waiter.resolve(response);}
+    for(const waiter of [...waiters])if(await waiter.predicate(response)){clearTimeout(waiter.timer);waiters.splice(waiters.indexOf(waiter),1);waiter.resolve(response);}
   });
   await page.evaluate(()=>{
     const original=XMLHttpRequest.prototype.send;
@@ -553,6 +554,34 @@ test('DOC-119: driver de cuenta ajena exige denegación de lote y de CSV',async(
   await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.evaluate(()=>{window.doc119Deny=true;});
   const bridge=await bridgeDoc119Responses(page);
   assert.deepEqual(await runSeg01Other(bridge.page,'20'),{otherAccountDenied:true,otherCsvDenied:true});
+}));
+
+test('DOC-119: sesion caducada se identifica en ConsultarLote sin esperar archivos inexistentes',async()=>withDoc119Seguimiento(async page=>{
+  const {runSeg01Owner}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs');
+  await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.evaluate(()=>{window.doc119Expired=true;});
+  const bridge=await bridgeDoc119Responses(page);
+  await assert.rejects(()=>runSeg01Owner(bridge.page,'20',{}, {calls:bridge.calls}),/DOC119_SESSION_REQUIRED/);
+  assert.deepEqual(bridge.calls.map(call=>call.operation),['ConsultarLote']);
+}));
+
+test('DOC-119: rechazo 200 de ConsultarLote se informa antes de esperar recursos',async()=>withDoc119Seguimiento(async page=>{
+  const {runSeg01Owner}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs');
+  await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.evaluate(()=>{window.doc119Deny=true;});
+  const bridge=await bridgeDoc119Responses(page);
+  await assert.rejects(()=>runSeg01Owner(bridge.page,'20',{}, {calls:bridge.calls}),/DOC119_RESOURCE_ACCESS_DENIED/);
+  assert.deepEqual(bridge.calls.map(call=>call.operation),['ConsultarLote']);
+}));
+
+test('DOC-119: pocos recursos permiten filtros y CSV sin acreditar una segunda pagina',async()=>withDoc119Seguimiento(async page=>{
+  const {runSeg01Owner}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs');
+  await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.evaluate(()=>{window.doc119MaxPageSize=25;});
+  const bridge=await bridgeDoc119Responses(page);
+  const baseline=await page.evaluate(()=>({data:{lot:{total_archivos:5},files:doc119Dataset.map(f=>({raiz_id:f.raizId,estado_recepcion:f.estadoRecepcion,estado_efecto:f.estado}))}}));
+  const result=await runSeg01Owner(bridge.page,'20',baseline,{calls:bridge.calls});
+  assert.deepEqual(result,{ownerRead:true,filters:true,pagination:false,csvDownload:true,emptyFilter:true,originalFiles:5,csvRows:1,paginationLimitation:'INSUFFICIENT_EXISTING_ROWS'});
+  const exports=bridge.calls.filter(call=>call.operation==='ExportarPaginaLote');
+  assert.equal(exports.length,1);assert.equal(exports[0].request.pagina,1);
+  assert.equal(bridge.calls.some(call=>call.request.pagina===2),false);
 }));
 
 test('DOC-119: driver SEG-02 recarga, reselecciona sin envío y deduplica la rama original',async()=>{

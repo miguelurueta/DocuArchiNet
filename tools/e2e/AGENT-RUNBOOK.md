@@ -20,6 +20,12 @@ El diagnóstico de guardia conserva únicamente categorías/métodos/operaciones
 
 Preflight debe acreditar recursos adecuados. Falta de segunda página, recepción por completar, raíz confirmada, rama disponible o PDF correcto no permite simular aceptación ni crear recursos por inferencia. No marcar SEG-01/02 aprobados por `--check` o pruebas locales. Un resultado con límites conserva esos límites; la reorganización UI espera aceptación integrada documentada.
 
+La sesión local caduca a los 10 minutos de inactividad. El ejecutor avisa al mostrar elecciones y rechaza reutilizar la sesión propietaria después de un margen de 8 minutos, antes de los controles SELECT y de usarla; no cambia Web.config ni hace keepalive/relogin automático. Un rechazo de ConsultarLote al esperar recursos se informa directamente (401 como SESSION_REQUIRED, acceso denegado como RESOURCE_ACCESS_DENIED), sin esperar recursos que el cliente no solicitará ni conservar el cuerpo.
+
+Con pocos archivos, SEG-01 puede comprobar filtros, CSV de la primera página filtrada, vacío, cuenta ajena y huellas. Si no existe segunda página, registra `pagination=false`, `INSUFFICIENT_EXISTING_ROWS` y `PASS_READONLY_WITH_LIMITS`, sin aceptar SEG-01 completo ni abrir la compuerta UI. Omitir recuperación con 0 queda registrado como NOT_EXECUTED incluso si SEG-01 falla después.
+
+Para una nueva consola manual se puede usar `--reuse-selection <runId-cerrado>` después de `--authorized-plan`: solo reutiliza el ID de importación elegido y la decisión de omitir recuperación, de una corrida local cerrada con esta revisión de autorización. No restaura claves, sesión, resultados, huellas ni consumos; los anteriores permanecen intactos. La importación debe aparecer entre los recursos de la cuenta recién autenticada y superar de nuevo los controles de autoridad/propiedad antes de consultarla. No se usa con una recuperación anterior que requiera PDF.
+
 Este runbook permite reutilizar las pruebas ASMX Workflow sin copiar credenciales, modificar datos sin autorización ni reactivar la política legacy.
 
 ## Límites obligatorios

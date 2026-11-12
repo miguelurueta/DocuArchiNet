@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
-const {BASE_URL,LIMITS,READS,STATIC_DEPENDENCIES,validateConnection,validateProfile,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,guardRequestSummary,installGuard,makeControls,csvRows,hash}=require('./support/doc119-seguimiento.cjs');
+const {BASE_URL,LIMITS,READS,STATIC_DEPENDENCIES,SESSION_IDLE_LIMIT_MS,assertSessionFresh,previousSelection,validateConnection,validateProfile,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,guardRequestSummary,installGuard,makeControls,responseFor,csvRows,hash}=require('./support/doc119-seguimiento.cjs');
 const {parseArgs,main}=require('../scripts/run-doc119-seguimiento.cjs');
 const profile=()=>({baseUrl:BASE_URL,module:'GESTOR',ignoreHttpsErrors:false,timeoutMilliseconds:60000,odbcDsn:'MembershipUsers',docuarchiOdbcDsn:'MembershipUsers',lotId:'5',recoveryLotId:null,alternateLevel:null});
 const scope={lotId:'5',level:'7',planId:'17'};
@@ -9,6 +9,8 @@ const url=operation=>new URL('webservice/WebServiceImportacionCarpetas.asmx/'+op
 test('DOC119 selector exige autorizacion del plan y runId sin texto ejecutable',()=>{
   assert.deepEqual(parseArgs(['--check']),{check:true});
   assert.deepEqual(parseArgs(['--run','a'.repeat(32),'--authorized-plan']),{runId:'a'.repeat(32)});
+  assert.deepEqual(parseArgs(['--run','a'.repeat(32),'--authorized-plan','--reuse-selection','b'.repeat(32)]),{runId:'a'.repeat(32),selectionRunId:'b'.repeat(32)});
+  for(const prior of ['../state','a'.repeat(32)])assert.throws(()=>parseArgs(['--run','a'.repeat(32),'--authorized-plan','--reuse-selection',prior]),/DOC119_ARGUMENT_INVALID/);
   for(const args of [[],['--run','a'.repeat(32)],['--run','a;whoami','--authorized-plan'],['--run','a'.repeat(32),'--effects'],['--check','--run']])assert.throws(()=>parseArgs(args),/DOC119_ARGUMENT_INVALID/);
 });
 test('DOC119 perfil no acepta secretos, autoridad o destino distintos del plan',()=>{
@@ -185,6 +187,24 @@ test('DOC119 recursos/contextos no validos fallan antes de continuar',async()=>{
   await assert.rejects(()=>controls.snapshot('5'),/DOC119_CONTEXT_INVALID/);await assert.rejects(()=>controls.snapshot('0'),/DOC119_LOT_INVALID/);
 });
 test('DOC119 --check no pide credenciales ni abre una sesion',async()=>{await main(['--check']);});
+
+test('DOC119 detecta seleccion demorada antes de reutilizar una sesion sin renovarla',()=>{
+  assert.equal(SESSION_IDLE_LIMIT_MS,8*60*1000);
+  assert.doesNotThrow(()=>assertSessionFresh(1000,1000+SESSION_IDLE_LIMIT_MS-1));
+  for(const now of [1000+SESSION_IDLE_LIMIT_MS,1000+64*60*1000,999,NaN])assert.throws(()=>assertSessionFresh(1000,now),/DOC119_SESSION_IDLE_EXPIRED/);
+});
+
+test('DOC119 reutiliza solo la eleccion de una corrida cerrada y no sus secretos, resultados o consumos',()=>{
+  const runId='b'.repeat(32),prior={runId,closed:true,authorizedPlan:true,baseUrl:BASE_URL,authorizationRevision:'20261112-http600',resources:{lotId:'5',recoveryLotId:null,alternateLevel:null},usage:{'SEG-01':{http:185}},results:{},password:'synthetic-private'};
+  assert.deepEqual(previousSelection(prior,runId),{lotId:'5'});
+  for(const patch of [{closed:false},{baseUrl:'https://elsewhere.invalid/'},{authorizationRevision:'old'},{runId:'a'.repeat(32)},{resources:{lotId:'0',recoveryLotId:null,alternateLevel:null}},{resources:{lotId:'5',recoveryLotId:'6',alternateLevel:'8'}}])assert.throws(()=>previousSelection({...prior,...patch},runId),/DOC119_PREVIOUS_SELECTION_INVALID/);
+});
+
+test('DOC119 timeout de lectura tiene codigo cerrado sin incluir mensaje privado',async()=>{
+  const error=Object.assign(new Error('synthetic-private-detail'),{name:'TimeoutError'});
+  const page={waitForResponse:()=>Promise.reject(error)};
+  await assert.rejects(()=>responseFor(page,'ConsultarRecursosLote',async()=>{},'ARCHIVOS'),error=>error.message==='DOC119_READ_STEP_TIMEOUT');
+});
 
 test('DOC119 conexion y guardia sin importacion elegida no inventan referencias',()=>{
   const p=profile();const {lotId,recoveryLotId,alternateLevel,...connection}=p;

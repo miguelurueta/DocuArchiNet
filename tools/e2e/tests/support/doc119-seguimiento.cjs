@@ -14,10 +14,19 @@ const STATIC_DEPENDENCIES=Object.freeze([
   Object.freeze({code:'BOOTSTRAP_TABLE_1_23_2_EXPORT',type:'script',url:'https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.2/dist/extensions/export/bootstrap-table-export.min.js'})
 ]);
 const LIMITS=Object.freeze({'SEG-01':Object.freeze({http:600,select:80,sessions:2}),'SEG-02':Object.freeze({http:600,select:60,sessions:2})});
+const SESSION_IDLE_LIMIT_MS=8*60*1000;
 const READS=Object.freeze(['AbrirImportacion','ListarPerfilesImportacion','ConsultarLote','ConsultarRecursosLote','ExportarPaginaLote','ConsultarConfirmacionLote']);
 const check=(ok,code)=>{if(!ok)throw Error('DOC119_'+code);};
 const id=value=>typeof value==='string'&&/^[1-9][0-9]{0,9}$/.test(value)&&BigInt(value)<=4294967295n;
 const hash=value=>crypto.createHash('sha256').update(typeof value==='string'||Buffer.isBuffer(value)?value:JSON.stringify(value)).digest('hex');
+function assertSessionFresh(verifiedAt,now=Date.now()){
+  check(Number.isFinite(verifiedAt)&&Number.isFinite(now)&&now>=verifiedAt&&now-verifiedAt<SESSION_IDLE_LIMIT_MS,'SESSION_IDLE_EXPIRED');
+}
+function previousSelection(p,runId){
+  check(typeof runId==='string'&&/^[a-f0-9]{32}$/.test(runId)&&p?.runId===runId&&p.closed===true&&p.authorizedPlan===true&&p.baseUrl===BASE_URL&&p.authorizationRevision==='20261112-http600','PREVIOUS_SELECTION_INVALID');
+  check(id(p.resources?.lotId)&&p.resources.recoveryLotId===null&&p.resources.alternateLevel===null,'PREVIOUS_SELECTION_INVALID');
+  return {lotId:p.resources.lotId};
+}
 const CONNECTION_FIELDS=['baseUrl','module','ignoreHttpsErrors','timeoutMilliseconds','odbcDsn','docuarchiOdbcDsn'];
 function validateConnection(p){
   check(p&&Object.keys(p).every(k=>CONNECTION_FIELDS.includes(k)),'PROFILE_INVALID');
@@ -175,12 +184,26 @@ function makeControls(query,budget){
   }};
 }
 async function responseFor(page,operation,action,type){
-  const response=page.waitForResponse(r=>{
-    if(r.request().method()!=='POST'||!new URL(r.url()).pathname.endsWith('/'+operation))return false;
+  const upstream=r=>operation==='ConsultarRecursosLote'&&new URL(r.url()).pathname.endsWith('/ConsultarLote');
+  const response=page.waitForResponse(async r=>{
+    if(r.request().method()!=='POST')return false;
+    if(upstream(r)){
+      if(r.status()>=300)return true;
+      try{const raw=await r.json();return (raw?.d??raw)?.ok!==true;}catch{return true;}
+    }
+    if(!new URL(r.url()).pathname.endsWith('/'+operation))return false;
     if(!type)return true;
     try{return JSON.parse(r.request().postData()).solicitud.tipo===type;}catch{return false;}
   });
-  const [r]=await Promise.all([response,Promise.resolve().then(action)]);let body;try{const raw=await r.json();body=raw?.d??raw;}catch{check(false,'RESPONSE_INVALID');}
+  let r;
+  try{[r]=await Promise.all([response,Promise.resolve().then(action)]);}
+  catch(error){if(error?.name==='TimeoutError')check(false,'READ_STEP_TIMEOUT');throw error;}
+  let body;try{const raw=await r.json();body=raw?.d??raw;}catch{check(!upstream(r)||!(r.status()===401||r.status()>=300&&r.status()<400),'SESSION_REQUIRED');check(false,'RESPONSE_INVALID');}
+  if(upstream(r)){
+    check(r.status()!==401&&!(r.status()>=300&&r.status()<400)&&body?.codigo!=='SESION_REQUERIDA','SESSION_REQUIRED');
+    check(r.status()!==403&&body?.codigo!=='ACCESO_DENEGADO','RESOURCE_ACCESS_DENIED');
+    check(false,'LOT_QUERY_REJECTED');
+  }
   return {status:r.status(),body};
 }
 async function consult(page,lotId,resume=false){
@@ -222,13 +245,15 @@ async function runSeg01Owner(page,lotId,baseline,guard){
     const groups=new Map();for(const f of baseline.data.files){const v=String(f[column]);groups.set(v,(groups.get(v)||0)+1);}
     for(const [value,total]of groups)if(total>size&&!pageable)pageable={[field]:value};
   }
-  check(pageable,'PAGEABLE_FILTER_RESOURCE_REQUIRED');
-  pageData=await applyFilter(page,pageable);
-  const second=await responseFor(page,'ConsultarRecursosLote',()=>page.getByRole('button',{name:'Siguiente',exact:true}).last().click(),'ARCHIVOS');
-  check(second.status===200&&second.body?.ok&&second.body.datos.pagina===2,'SECOND_PAGE_FAILED');pageData=second.body.datos;
-  check(pageData.totalOriginal===original&&pageData.elementos.length>0,'PAGE_TOTALS_INVALID');
+  let pagination=false;
+  if(pageable){
+    pageData=await applyFilter(page,pageable);
+    const second=await responseFor(page,'ConsultarRecursosLote',()=>page.getByRole('button',{name:'Siguiente',exact:true}).last().click(),'ARCHIVOS');
+    check(second.status===200&&second.body?.ok&&second.body.datos.pagina===2,'SECOND_PAGE_FAILED');pageData=second.body.datos;
+    check(pageData.totalOriginal===original&&pageData.elementos.length>0,'PAGE_TOTALS_INVALID');pagination=true;
+  }else pageData=narrowed;
   const expected=guard.calls.filter(c=>c.operation==='ConsultarRecursosLote'&&c.request.tipo==='ARCHIVOS').at(-1).request;
-  for(const [key,value]of Object.entries(pageable))check(expected[key]===value,'PAGE_FILTER_LOST');
+  for(const [key,value]of Object.entries(pageable||filters))check(expected[key]===value,'PAGE_FILTER_LOST');
   await page.waitForFunction(()=>!document.querySelector('[data-doc111-action="exportar"]')?.disabled);
   const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Exportar esta página',exact:true}).click()]);
   check(!(await download.failure()),'DOWNLOAD_FAILED');const stream=await download.createReadStream(),chunks=[];let bytes=0;
@@ -243,7 +268,7 @@ async function runSeg01Owner(page,lotId,baseline,guard){
   const emptyState=['NO_INICIADO','EN_CURSO','ALMACENADO','COMPLETADO','RECHAZADO','INCIERTO','CANCELADO'].find(s=>!baseline.data.files.some(f=>String(f.raiz_id)===first.raizId&&f.estado_efecto===s));
   check(emptyState,'EMPTY_FILTER_RESOURCE_REQUIRED');const empty=await applyFilter(page,{raizId:first.raizId,estado:emptyState});
   check(empty.totalFiltrado===0&&empty.elementos.length===0&&empty.totalOriginal===original,'EMPTY_FILTER_INVALID');
-  return {ownerRead:true,filters:true,pagination:true,csvDownload:true,emptyFilter:true,originalFiles:original,csvRows:csv.length-1};
+  return {ownerRead:true,filters:true,pagination,csvDownload:true,emptyFilter:true,originalFiles:original,csvRows:csv.length-1,...pagination?{}:{paginationLimitation:'INSUFFICIENT_EXISTING_ROWS'}};
 }
 async function runSeg01Other(page,lotId){
   const denied=await responseFor(page,'ConsultarLote',async()=>{await page.locator('[data-doc111-lote]').fill(lotId);await page.locator('[data-doc111-consultar]').click();});
@@ -299,4 +324,4 @@ async function runSeg02(page,profile,baseline,filePath){
   const names=baseline.data.roots.map(r=>{try{return JSON.parse(r.datos_doc).NombreOriginal;}catch{return null;}}).filter(Boolean);
   return {reload:true,reselectionMetadataOnly:true,noUpload:true,selectionPreserved:true,treeDeduplicated:true,newRelationsAdded:after.counts.some((n,i)=>n>before.counts[i]),homonymousRootsObserved:new Set(names).size<names.length,confirmedRelations:identities.length};
 }
-module.exports={BASE_URL,LIMITS,READS,STATIC_DEPENDENCIES,check,id,hash,validateConnection,validateProfile,displayText,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,guardRequestSummary,installGuard,makeControls,responseFor,consult,applyFilter,csvRows,runSeg01Owner,runSeg01Other,runSeg02};
+module.exports={BASE_URL,LIMITS,READS,STATIC_DEPENDENCIES,SESSION_IDLE_LIMIT_MS,check,id,hash,assertSessionFresh,previousSelection,validateConnection,validateProfile,displayText,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,guardRequestSummary,installGuard,makeControls,responseFor,consult,applyFilter,csvRows,runSeg01Owner,runSeg01Other,runSeg02};

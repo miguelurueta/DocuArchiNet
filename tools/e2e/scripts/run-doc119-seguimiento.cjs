@@ -4,13 +4,15 @@ const {collectValue,requireInteractiveConsole}=require('./support/interactive-e2
 const {openSession,loginObservation}=require('../tests/support/doc111-importacion-carpetas.cjs');
 const {captureCodeEvidence}=require('../tests/support/doc110-code-evidence.cjs');
 const {queryRows}=require('./support/doc32-e2e-odbc.cjs');
-const {BASE_URL,LIMITS,check,id,hash,validateConnection,validateProfile,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,installGuard,makeControls,runSeg01Owner,runSeg01Other,runSeg02}=require('../tests/support/doc119-seguimiento.cjs');
+const {BASE_URL,LIMITS,check,id,hash,assertSessionFresh,previousSelection,validateConnection,validateProfile,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,installGuard,makeControls,runSeg01Owner,runSeg01Other,runSeg02}=require('../tests/support/doc119-seguimiento.cjs');
 const ROOT=path.resolve(__dirname,'../../..');
 const SOURCES=['js/gestion/ImportacionCarpetas/ImportacionCarpetas.js','js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js','js/gestion/ImportacionCarpetas/ImportacionCarpetas.css'];
 const EVIDENCE_FILES=[...SOURCES,'Gestion/WebFormProducionDocumental.aspx','tools/e2e/scripts/run-doc119-seguimiento.cjs','tools/e2e/tests/support/doc119-seguimiento.cjs','tools/e2e/tests/support/doc111-importacion-carpetas.cjs','tools/e2e/tests/support/doc113-ventana-importacion.cjs','tools/e2e/tests/support/authenticated-workflow-session.cjs','tools/e2e/scripts/support/doc32-e2e-odbc.cjs','tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1','tools/e2e/scripts/support/interactive-e2e-console.cjs','tools/e2e/tests/support/doc110-code-evidence.cjs','bin/GestionDocumental-Docuarchi.net.dll'];
 function parseArgs(args){
   if(args.length===1&&args[0]==='--check')return {check:true};
-  check(args.length===3&&args[0]==='--run'&&/^[a-f0-9]{32}$/.test(args[1])&&args[2]==='--authorized-plan','ARGUMENT_INVALID');return {runId:args[1]};
+  check([3,5].includes(args.length)&&args[0]==='--run'&&/^[a-f0-9]{32}$/.test(args[1])&&args[2]==='--authorized-plan','ARGUMENT_INVALID');
+  if(args.length===5){check(args[3]==='--reuse-selection'&&/^[a-f0-9]{32}$/.test(args[4])&&args[4]!==args[1],'ARGUMENT_INVALID');return {runId:args[1],selectionRunId:args[4]};}
+  return {runId:args[1]};
 }
 async function main(args=process.argv.slice(2)){
   const options=parseArgs(args);
@@ -31,12 +33,18 @@ async function main(args=process.argv.slice(2)){
   async function menu(items,label,allowSkip=false){
     for(let attempt=0;attempt<3;attempt++){
       await collectValue(references,'choice',label,allowSkip?{defaultValue:'0'}:{});
+      if(preparedOwner)assertSessionFresh(preparedOwner.verifiedAt);
       try{return chooseItem(items,references.choice,allowSkip);}
       catch(error){if(error.message!=='DOC119_SELECTION_INVALID')throw error;console.log('Elige el numero de una opcion mostrada'+(allowSkip?' o 0 para omitir.':'.'));}
     }
     check(false,'SELECTION_INVALID');
   }
   try{
+    let previous;
+    if(options.selectionRunId){
+      let prior;try{prior=JSON.parse(fs.readFileSync(path.join(ROOT,'.tmp','doc119-seguimiento',options.selectionRunId,'state.json'),'utf8'));}catch{check(false,'PREVIOUS_SELECTION_INVALID');}
+      previous=previousSelection(prior,options.selectionRunId);save({selectionSourceRunId:options.selectionRunId});
+    }
     console.log('Esta prueba revisa importaciones de carpetas que ya existen en Produccion Documental.');
     console.log('Comprobara consulta, filtros, descarga CSV y recuperacion al recargar. No crea carpetas ni envia archivos.');
     console.log('No necesitas conocer numeros internos: se mostraran las importaciones de la cuenta que ingreses.');
@@ -67,24 +75,27 @@ async function main(args=process.argv.slice(2)){
       auth.page.setDefaultTimeout(30000);auth.guard=guard;auth.scope=scope;
       for(const resource of SOURCES){budget.take('http');const response=await auth.context.request.get(new URL(resource,BASE_URL).href,{maxRetries:0,maxRedirects:0,timeout:30000});check(response.status()===200&&hash(await response.body())===hash(fs.readFileSync(path.join(ROOT,resource))),'SERVED_SOURCE_MISMATCH');}
       save({access:{homeSkipped:guard.omittedPresentation.includes('HOME_LANDING'),externalAssets:guard.externalAssets}});
-      check(guard.violations.length===0,'HTTP_SCOPE_DENIED');return auth;
+      check(guard.violations.length===0,'HTTP_SCOPE_DENIED');auth.verifiedAt=Date.now();return auth;
     };
     // Authenticate before showing any account-owned import. Until selection,
     // no import ASMX operation has a bound lot/plan/level in the guard.
     event('AUTHENTICATING_OWNER','SEG-01');
     preparedOwner=await openRole('owner',budgetFor('SEG-01'),{lotId:null,level:null,planId:null,allowTree:false,alternateLevel:null});
+    if(!previous)console.log('Completa la eleccion de importacion y recuperacion en menos de 8 minutos; la sesion local caduca tras 10 minutos sin actividad.');
     event('DISCOVERING_IMPORTS','SEG-01');
     const catalog=await discoverImports(query,budgetFor('SEG-01'),secrets.ownerUser);
     save({discovery:{imports:catalog.items.length}});
     if(!catalog.items.length){console.log('Esta cuenta no tiene importaciones consultables. La prueba no creara una para forzar el resultado.');check(false,'NO_IMPORTS_FOR_ACCOUNT');}
     console.log('\nImportaciones de carpetas de esta cuenta (fecha UTC, destino, estado y cantidades):');
     catalog.items.forEach((item,index)=>console.log(describeImport(item,index)));
-    console.log('Elige una que tenga varios archivos y estados diferentes. La prueba verificara si alcanza para pasar a otra pagina.');
-    event('WAITING_IMPORT_SELECTION','SEG-01');
-    const selected=await menu(catalog.items,'Numero de la opcion para revisar filtros y CSV');
+    if(!previous){console.log('Elige una que tenga varios archivos y estados diferentes. La prueba verificara si alcanza para pasar a otra pagina.');event('WAITING_IMPORT_SELECTION','SEG-01');}
+    const selected=previous?catalog.items.find(item=>item.id===previous.lotId):await menu(catalog.items,'Numero de la opcion para revisar filtros y CSV');
+    check(selected,'PREVIOUS_SELECTION_UNAVAILABLE');
+    if(previous)console.log('Se conserva tu importacion elegida: '+describeImport(selected,catalog.items.indexOf(selected)));
     let recovery=null,alternate=null;
     const unfinished=catalog.items.filter(item=>item.pendingFiles>0);
-    if(unfinished.length){
+    if(previous)console.log('Se conserva tu decision de omitir recuperacion; esa parte seguira pendiente.');
+    else if(unfinished.length){
       console.log('\nPara comprobar la recuperacion, estas importaciones todavia tienen archivos por recibir:');
       unfinished.forEach((item,index)=>console.log(describeImport(item,index)));
       console.log('Solo elige una si conservas el archivo original en este equipo. No se enviara.');
@@ -94,6 +105,7 @@ async function main(args=process.argv.slice(2)){
         const file=await pendingFile(query,budgetFor('SEG-02'),catalog.principal,recovery.id);
         console.log('Archivo que debe reseleccionarse: '+file.name+' ('+file.relativePath+').');
         await collectValue(secrets,'reselectionPath','Ruta local de ese archivo; escribe 0 si no lo tienes (entrada enmascarada)',{secret:true});
+        assertSessionFresh(preparedOwner.verifiedAt);
         if(secrets.reselectionPath==='0'){recovery=null;delete secrets.reselectionPath;}
         else{
           check(!secrets.reselectionPath.startsWith('\\\\')&&/\.pdf$/i.test(secrets.reselectionPath),'LOCAL_FILE_REQUIRED');
@@ -109,8 +121,10 @@ async function main(args=process.argv.slice(2)){
       }
     }else console.log('No hay importaciones con archivos por recibir: la parte de recuperacion quedara sin ejecutar.');
     const profile=validateProfile({...connection,lotId:selected.id,recoveryLotId:recovery?.id||null,alternateLevel:alternate?.id||null});
+    if(!profile.recoveryLotId)state.results['SEG-02']={status:'NOT_EXECUTED_RESOURCE_NOT_SELECTED'};
     save({resources:{lotId:profile.lotId,recoveryLotId:profile.recoveryLotId,alternateLevel:profile.alternateLevel},selectionsResolved:true});
     const runStage=async(stage,lotId,work)=>{
+      if(preparedOwner)assertSessionFresh(preparedOwner.verifiedAt);
       event('PREFLIGHT',stage);const budget=budgetFor(stage),controls=makeControls(query,budget);
       const before=await controls.snapshot(lotId);
       check(before.context.UsuarioRef===catalog.principal.userRef&&before.context.AmbitoRef===catalog.principal.companyRef,'RESOURCE_OWNER_CHANGED');
@@ -118,7 +132,7 @@ async function main(args=process.argv.slice(2)){
       const open=async role=>{
         const scope={lotId,level:before.context.NivelRef,planId:before.planId,allowTree:stage==='SEG-02',alternateLevel:profile.alternateLevel};
         if(stage==='SEG-01'&&role==='owner'&&preparedOwner){
-          const auth=preparedOwner;preparedOwner=null;Object.assign(auth.scope,scope);check(auth.guard.violations.length===0,'HTTP_SCOPE_DENIED');return auth;
+          const auth=preparedOwner;assertSessionFresh(auth.verifiedAt);preparedOwner=null;Object.assign(auth.scope,scope);check(auth.guard.violations.length===0,'HTTP_SCOPE_DENIED');return auth;
         }
         return openRole(role,budget,scope);
       };
@@ -126,11 +140,13 @@ async function main(args=process.argv.slice(2)){
       try{result=await work({before,open,close:async auth=>{check(auth.guard.violations.length===0,'HTTP_SCOPE_DENIED');await auth.context.close();},setActive:auth=>{active=auth;}});}
       finally{if(active)await active.context.close().catch(()=>{});delete environment.DOC111_E2E_USER;delete environment.DOC111_E2E_PASSWORD;}
       const after=await controls.snapshot(lotId);check(before.fingerprint===after.fingerprint,'READ_CHANGED_BUSINESS_STATE');
-      const limited=stage==='SEG-02'&&(!result.homonymousRootsObserved||!result.newRelationsAdded);
+      const limited=stage==='SEG-01'?result.pagination!==true:!result.homonymousRootsObserved||!result.newRelationsAdded;
       state.results[stage]={status:limited?'PASS_READONLY_WITH_LIMITS':'PASS_READONLY',...result,noBusinessMutation:true,daScope:before.daScope,beforeFingerprint:before.fingerprint,afterFingerprint:after.fingerprint,usage:{...budget.counts}};event('STAGE_COMPLETE',stage);
     };
     await runStage('SEG-01',profile.lotId,async({before,open,close,setActive})=>{
       const owner=await open('owner');setActive(owner);const result=await runSeg01Owner(owner.page,profile.lotId,before,owner.guard);await close(owner);
+      save({ownerChecks:{status:'PENDING_NEGATIVE_AND_AFTER_CONTROLS',...result}});
+      if(!result.pagination)console.log('Filtros, CSV de la pagina filtrada y filtro vacio comprobados. La segunda pagina queda sin verificar por falta de filas; falta cuenta ajena y control posterior.');
       event('WAITING_SECOND_ACCOUNT','SEG-01');
       console.log('Ahora se comprobara que otra cuenta de pruebas no pueda ver ni exportar esa importacion.');
       await collectValue(secrets,'otherUser','Segunda cuenta de pruebas que use importacion (enmascarada)',{secret:true});await collectValue(secrets,'otherPassword','Clave de esa segunda cuenta',{secret:true});
@@ -144,7 +160,7 @@ async function main(args=process.argv.slice(2)){
     event(Object.values(state.results).every(r=>r.status==='PASS_READONLY')?'FINISHED':'FINISHED_WITH_LIMITS');
   }catch(error){
     const code=/^(?:DOC119|DOC111|DOC113)_[A-Z0-9_]{3,100}$/.test(error?.message)?error.message:'DOC119_STOPPED';
-    const explanations={DOC119_NO_IMPORTS_FOR_ACCOUNT:'No se encontraron importaciones consultables de esta cuenta.',DOC119_PAGEABLE_FILTER_RESOURCE_REQUIRED:'La importacion elegida no tiene suficientes coincidencias para comprobar una segunda pagina con el tamano actual.',DOC119_MIXED_STATES_REQUIRED:'La importacion elegida no tiene los distintos estados necesarios para esta comprobacion.',DOC119_RESELECTION_METADATA_MISMATCH:'El archivo elegido no coincide en nombre, tamano o fecha con el archivo por recibir. No se envio.',DOC119_SERVED_SOURCE_MISMATCH:'Los archivos servidos no coinciden con los preparados para esta prueba.',DOC111_SELECT_FAILED:'No se pudo completar una consulta de control; revisa la cuenta de lectura y la conexion del ambiente.'};
+    const explanations={DOC119_SESSION_IDLE_EXPIRED:'La sesion de pruebas supero el margen de 8 minutos durante la seleccion. No se continuara con una sesion caducada ni se renovara automaticamente.',DOC119_SESSION_REQUIRED:'El servicio rechazo la consulta porque no hay sesion vigente. No es un fallo causado por omitir recuperacion.',DOC119_RESOURCE_ACCESS_DENIED:'El servicio rechazo el acceso a la importacion elegida.',DOC119_LOT_QUERY_REJECTED:'ConsultarLote rechazo la lectura; no se esperaran recursos que el cliente no va a solicitar.',DOC119_READ_STEP_TIMEOUT:'El paso de lectura no se completo dentro del plazo. No se repetira automaticamente.',DOC119_NO_IMPORTS_FOR_ACCOUNT:'No se encontraron importaciones consultables de esta cuenta.',DOC119_MIXED_STATES_REQUIRED:'La importacion elegida no tiene los distintos estados necesarios para esta comprobacion.',DOC119_RESELECTION_METADATA_MISMATCH:'El archivo elegido no coincide en nombre, tamano o fecha con el archivo por recibir. No se envio.',DOC119_SERVED_SOURCE_MISMATCH:'Los archivos servidos no coinciden con los preparados para esta prueba.',DOC111_SELECT_FAILED:'No se pudo completar una consulta de control; revisa la cuenta de lectura y la conexion del ambiente.'};
     if(explanations[code])console.log(explanations[code]);
     const observation=loginObservation(error?.loginObservation);save({failure:{code,...observation?{loginObservation:observation}:{}}});event('STOPPED');process.exitCode=2;
   }finally{
