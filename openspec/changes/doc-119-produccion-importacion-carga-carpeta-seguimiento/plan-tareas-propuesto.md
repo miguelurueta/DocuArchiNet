@@ -1,6 +1,6 @@
-# Plan de tareas propuesto — DOC-119
+# Mapa de tareas aplicado — DOC-119
 
-Borrador para revisión; no sustituye `tasks.md` ni autoriza implementación o pruebas reales. Aplicación sujeta a aprobación explícita del mapa. Sustituiría las ocho tareas genéricas actuales; no hay tareas completadas que preservar.
+Copia de la propuesta aplicada a `tasks.md` tras la indicación del usuario sobre ese archivo. `tasks.md` es ahora la fuente del plan ejecutable y de su estado; esta copia conserva la procedencia del mapa. Se sustituyeron las ocho tareas genéricas sin tareas completadas que preservar. Aplicar el mapa no aprueba el refinamiento ni autoriza pruebas reales.
 
 Dependencias: diseño/especificación aún en revisión; ambiente/cuentas/recursos de aceptación requieren autorización específica. SEG-03 requiere decisión expresa. La sección 3 comienza solo tras la compuerta 2.7; cambios de seguimiento reproducidos en sección 2 sí pueden corregirse antes. Cada tarea condicional termina con corrección verificada o evidencia de que no aplica, nunca con éxito inferido.
 

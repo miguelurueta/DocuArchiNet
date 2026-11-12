@@ -1,20 +1,48 @@
-## 1. Refinement
+# Tareas — DOC-119
 
-- [ ] 1.1 Consolidar alcance final desde Jira + contexto de codigo.
-- [ ] 1.2 Ajustar design/spec con decisiones y riesgos definitivos.
+Plan aplicado desde el mapa propuesto. Cada tarea declara complejidad, área, origen D/RQ y verificación. Las 24 tareas permanecen sin ejecutar; aplicar este plan no aprueba automáticamente el refinamiento ni autoriza pruebas reales.
 
-## 2. Implementacion
+Dependencias: la implementación exige refinamiento aprobado; ambiente/cuentas/recursos de aceptación requieren autorización específica. SEG-03 requiere decisión expresa antes del cierre. La sección 3 comienza solo tras la compuerta 2.7; las correcciones reproducidas del seguimiento pertenecen a la sección 2. Cada tarea condicional se resuelve con corrección verificada o evidencia explícita de que no aplica, nunca por inferencia.
 
-- [ ] 2.1 Implementar cambios funcionales del ticket.
-- [ ] 2.2 Mantener compatibilidad y evitar regresiones.
+## 1. Procedencia y preparación
 
+- [ ] 1.1 [S] Consolidar la matriz de procedencia de DOC-111 y DOC-116–118 frente al SHA de DOC-119. Área/archivos: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/`. Origen: D-01, RQ-01. Verificación: cada antecedente conserva SHA/ambiente y cierre administrativo DOC-118 se distingue de su cierre técnico.
+- [ ] 1.2 [S] Preparar el plan de aceptación real con ambiente, cuentas, recursos, controles SELECT y presupuesto para autorización específica. Área/archivos: `tools/e2e/scripts/run-doc111-importacion-carpetas.cjs y tools/e2e/scripts/run-doc113-ventana-importacion.cjs`. Origen: D-10, RQ-10. Verificación: el plan identifica exactamente lecturas/efectos y ningún runner mutante se ejecuta como consulta.
 
-## 3. Pruebas
+## 2. Seguimiento operativo antes de reorganizar accesos
 
-- [ ] 3.1 Agregar/ajustar pruebas unitarias e integracion.
-- [ ] 3.2 Ejecutar suite afectada y registrar evidencia.
+- [ ] 2.1 [S] Reproducir el recorrido de filtros del seguimiento actual y documentar la brecha cliente/servidor. Área/archivos: `js/gestion/ImportacionCarpetas/ImportacionCarpetas.js y tests/doc111-importacion-carpetas-client.test.cjs`. Origen: D-02, RQ-02. Verificación: una selección de filtro genera la solicitud vigente esperada o registra su ausencia reproducible.
+- [ ] 2.2 [M] Transportar los filtros vigentes desde la vista a la consulta si la tarea 2.1 reproduce su ausencia. Área/archivos: `js/gestion/ImportacionCarpetas/ImportacionCarpetas.js y js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js`. Origen: D-02, RQ-02. Verificación: prueba afectada demuestra mismo filtro al paginar y totalOriginal separado de totalFiltrado, sin nuevos campos DTO.
+- [ ] 2.3 [M] Vincular la exportación a la página y filtros representados si se reproduce discrepancia. Área/archivos: `js/gestion/ImportacionCarpetas/ImportacionCarpetas.js y tests/doc111-importacion-carpetas-client.test.cjs`. Origen: D-02, RQ-02. Verificación: CSV contiene solo filas de la página filtrada y neutraliza fórmulas mediante el servicio existente.
+- [ ] 2.4 [M] Acreditar SEG-01 integrado con propietario y usuario ajeno autorizados. Área/archivos: `tools/e2e/tests/doc111-importacion-carpetas.spec.cjs y ServicioConsultaImportacion.vb`. Origen: D-02, RQ-02. Verificación: recorrido real autorizado de filtros/paginación/descarga/denegación conserva huellas SELECT y distingue recepción/almacenamiento; una brecha reproducida impide aceptar SEG-01 y debe tener una tarea concreta de corrección y regresión antes de repetir su aceptación.
+- [ ] 2.5 [M] Acreditar SEG-02 integrado con recarga y recepción sin completar. Área/archivos: `tests/doc111-importacion-carpetas-client.test.cjs y js/gestion/WebFormProducionDocumental.js:Doc111ActualizarRama`. Origen: D-03, RQ-03. Verificación: evidencia real autorizada conserva lote/destino, no reconfirma, reselecciona por ID y actualiza rama original sin duplicación ni mover selección; una brecha reproducida impide aceptar SEG-02 y debe descomponerse en corrección y regresión concretas antes de repetir su aceptación.
+- [ ] 2.6 [S] Registrar resolución expresa de SEG-03 con responsable y límites. Área/archivos: `ComposicionLimpiezaOriginalImportacion.vb y Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/`. Origen: D-04, RQ-04. Verificación: consta decisión de operar sin limpieza y consumo de disco, o política/mecanismo/autorización específica; no se marca borrado real sin ejecutarlo.
+- [ ] 2.7 [S] Registrar la compuerta de aceptación operativa previa a UI. Área/archivos: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/`. Origen: D-09, RQ-09. Verificación: SEG-01/02 aceptados y defectos de seguimiento resueltos antes de comenzar sección 3.
 
-## 4. Cierre
+## 3. Accesos sobre el asistente existente
 
-- [ ] 4.1 Validar OpenSpec.
-- [ ] 4.2 Documentar diff final y decisiones de arquitectura.
+- [ ] 3.1 [M] Hacer disponible el menú operativo al importador sin administrar perfiles. Área/archivos: `gestion/WebFormProducionDocumental.aspx.vb y js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js`. Origen: D-05, RQ-05. Verificación: actor importador sin administración tiene accesos operativos una sola vez tras postback.
+- [ ] 3.2 [S] Separar visualmente administración de perfiles/proveedores/fuentes y operación. Área/archivos: `js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js y js/gestion/ImportacionCarpetas/PerfilImportacionEditor.css`. Origen: D-05, RQ-05. Verificación: visibilidad y acciones administrativas conservan exactamente permisos existentes.
+- [ ] 3.3 [M] Fijar el nivel seleccionado elegible al abrir desde menú superior. Área/archivos: `js/gestion/ImportacionCarpetas/ImportacionCarpetas.js y js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js`. Origen: D-06, RQ-06. Verificación: solicitud AbrirImportacion usa nivel seleccionado y asistente muestra ruta servidor; sin selección no inicia.
+- [ ] 3.4 [M] Fijar el nivel pulsado elegible al abrir desde contextual. Área/archivos: `js/gestion/WebFormProducionDocumental.js y js/gestion/ImportacionCarpetas/ImportacionCarpetas.js`. Origen: D-06, RQ-06. Verificación: selección A/contextual B abre B incluso con homónimos; expediente/documento/fondo no importan por fallback y servidor rechaza autoridad revocada.
+- [ ] 3.5 [M] Alojar consulta por referencia en la vista de consulta accesible desde ambos menús. Área/archivos: `js/gestion/ImportacionCarpetas/ImportacionCarpetas.js y js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js`. Origen: D-07, RQ-07. Verificación: referencia manual abre lote autorizado con destino original sin historial ni contrato nuevo.
+- [ ] 3.6 [M] Conservar acceso a último lote y verificación con avisos visibles en navegación reorganizada. Área/archivos: `js/gestion/ImportacionCarpetas/ImportacionCarpetas.js y gestion/WebFormProducionDocumental.aspx.vb`. Origen: D-07, RQ-07. Verificación: postback/recarga/reapertura recuperan pistas sin reconfirmar y mantienen una instancia/listeners.
+- [ ] 3.7 [S] Retirar la franja permanente una vez verificada equivalencia de accesos y avisos. Área/archivos: `gestion/WebFormProducionDocumental.aspx.vb y js/gestion/ImportacionCarpetas/ImportacionCarpetas.css`. Origen: D-07, RQ-07. Verificación: ninguna función de consulta/último lote/verificación desaparece y estado relevante sigue visible.
+
+## 4. Contextual visible y teclado
+
+- [ ] 4.1 [S] Reproducir recorte/teclado e inventariar consumidores del plugin compartido. Área/archivos: `js/jquery.contextMenu.js y consumidores encontrados con rg`. Origen: D-08, RQ-08. Verificación: caso mínimo conserva viewport/posición e inventario exacto previo a editar plugin/CSS.
+- [ ] 4.2 [M] Ajustar posición y altura del contextual con scroll al viewport. Área/archivos: `js/jquery.contextMenu.js y js/jquery.contextMenu.css`. Origen: D-08, RQ-08. Verificación: casos reproducidos de bordes/altura reducida permiten alcanzar todas las opciones.
+- [ ] 4.3 [M] Añadir apertura/recorrido/cierre por teclado con devolución de foco. Área/archivos: `js/jquery.contextMenu.js y js/gestion/WebFormProducionDocumental.js`. Origen: D-08, RQ-08. Verificación: teclado abre sobre invocador correcto y Escape devuelve foco sin activar otra opción.
+- [ ] 4.4 [M] Verificar consumidores compartidos afectados. Área/archivos: `consumidores inventariados en tarea 4.1 y pruebas locales existentes`. Origen: D-08, RQ-08. Verificación: apertura/cierre/acción de cada consumidor mantienen recurso original sin interferir con otros menús.
+
+## 5. Regresión y documentación final
+
+- [ ] 5.1 [M] Acreditar la matriz UI-05 sobre navegación definitiva. Área/archivos: `tests/doc111-importacion-carpetas-client.test.cjs y tools/e2e/scripts/run-doc113-ventana-importacion.cjs`. Origen: D-09, RQ-09. Verificación: evidencia por SHA/ambiente cubre destinos/homónimos/permisos/reapertura/postback/recarga/consulta/recuperación/foco y carga individual pertinente.
+- [ ] 5.2 [S] Comprobar integridad de fuentes y límites protegidos. Área/archivos: `AlmacenamientoDocumentoProduccionDocumental, Integracionccv, Web.config y esquema vigente`. Origen: D-10, RQ-10. Verificación: diff/huellas no muestran cambios fuera de alcance ni limpieza/jobs/permisos habilitados.
+- [ ] 5.3 [M] Actualizar guía operativa con navegación definitiva y separación lectura/efectos. Área/archivos: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/11-prompt-seguimiento-operacion.md y Diseno/02-contratos-operacion.md`. Origen: D-09, RQ-09. Verificación: guía permite consulta/CSV paginado/reselección/incertidumbre/detención sin prometer replay ni limpieza.
+- [ ] 5.4 [S] Consolidar evidencia de aceptación y límites para cierre posterior. Área/archivos: `Doc/Tecnica/Opsxj/doc-119-produccion-importacion-carga-carpeta-seguimiento/ y artefactos OpenSpec`. Origen: D-01, RQ-01. Verificación: validación estricta y gobierno pasan con cada resultado real identificado; no cerrar con SEG-01/02 sin acreditar o SEG-03 sin resolución.
+
+## Cobertura
+
+Diez decisiones D-01–D-10 y diez requisitos RQ-01–RQ-10 cubiertos. 24 tareas: 10 S, 14 M, 0 L. La tabla de decisiones en refinement.md y los escenarios de spec.md son la referencia; no se añaden campos DTO, endpoints ni autorizaciones.

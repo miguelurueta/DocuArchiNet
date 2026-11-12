@@ -102,7 +102,7 @@ Pruebas reales, carga, fallos inyectados, permisos y limpieza requieren autoriza
 
 ## Migration Plan
 
-Sin migración, despliegue ni producto modificado en este refinamiento. Revisar design/spec y `plan-tareas-propuesto.md` antes de sustituir tareas genéricas. Refinamiento permanece borrador hasta revisión humana; después sincronizar trazabilidad OPSXJ y seguir D-09.
+Sin migración, despliegue ni producto modificado en este refinamiento. El mapa de `plan-tareas-propuesto.md` ya se aplicó a `tasks.md` por indicación del usuario: 24 tareas sin ejecutar, con complejidad, área, origen D/RQ y verificación. Refinamiento permanece borrador hasta revisión humana; después sincronizar trazabilidad OPSXJ y seguir D-09.
 
 Una reversa de navegación restaura accesos previos conservando pistas/datos/efectos; no revierte lotes ni elimina staging. Justificar y registrar archivos nuevos antes de compilar.
 
@@ -110,4 +110,4 @@ Una reversa de navegación restaura accesos previos conservando pistas/datos/efe
 
 - Resolver expresamente SEG-03: operación sin limpieza con consumo documentado, o retención/mecanismo y autorización específica. No se ha decidido en esta sesión.
 - Identificar y autorizar ambiente/cuentas propias y ajenas/recursos adecuados para aceptación SEG-01/02; no heredar autorizaciones históricas.
-- Revisar este borrador y autorizar aplicación del mapa a tasks.md; generación no significa aprobación.
+- Revisar y aprobar este borrador; el mapa ya está aplicado a tasks.md y su aplicación no aprueba automáticamente el refinamiento.
