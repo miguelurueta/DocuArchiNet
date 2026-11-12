@@ -12,6 +12,8 @@ La guardia permite únicamente los ASMX de lectura del lote/plan/nivel elegidos 
 
 La referencia exacta a la hoja de fuente Google del login se aborta localmente sin enviarla, sin consumir HTTP de aplicación y sin detener la guardia. No es una autorización de acceso externo: otras solicitudes externas y cualquier método distinto de GET siguen deteniendo la corrida. Tras un fallo no reiniciar automáticamente: una nueva ventana manual debe tener una instrucción expresa del usuario y conservar los consumos/resultados de la anterior.
 
+El acceso normal incluye POST `WebServiceLoginSegundoFactor.asmx/ObtenerEstado` con JSON exactamente `{}` y GET/HEAD al destino local fijo `Defaul/WebFormInicioDocuarchiGestion.aspx`. Se cuentan como HTTP de aplicación; no se permiten Verificar/Reenviar/Cancelar ni campos adicionales por esa excepción. No interpretar la consulta de estado como autenticación completada. El diagnóstico de guardia conserva únicamente categorías/métodos/operaciones de una lista fija, sin URL, parámetros, formularios ni valores privados. Antes de volver a solicitar secretos tras un bloqueo de carga, comprobar la página de acceso sin enviarlos.
+
 Preflight debe acreditar recursos adecuados. Falta de segunda página, recepción por completar, raíz confirmada, rama disponible o PDF correcto no permite simular aceptación ni crear recursos por inferencia. No marcar SEG-01/02 aprobados por `--check` o pruebas locales. Un resultado con límites conserva esos límites; la reorganización UI espera aceptación integrada documentada.
 
 Este runbook permite reutilizar las pruebas ASMX Workflow sin copiar credenciales, modificar datos sin autorización ni reactivar la política legacy.

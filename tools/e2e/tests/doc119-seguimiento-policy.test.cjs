@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
-const {BASE_URL,LIMITS,READS,validateConnection,validateProfile,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,installGuard,makeControls,csvRows,hash}=require('./support/doc119-seguimiento.cjs');
+const {BASE_URL,LIMITS,READS,validateConnection,validateProfile,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,guardRequestSummary,installGuard,makeControls,csvRows,hash}=require('./support/doc119-seguimiento.cjs');
 const {parseArgs,main}=require('../scripts/run-doc119-seguimiento.cjs');
 const profile=()=>({baseUrl:BASE_URL,module:'GESTOR',ignoreHttpsErrors:false,timeoutMilliseconds:60000,odbcDsn:'MembershipUsers',docuarchiOdbcDsn:'MembershipUsers',lotId:'5',recoveryLotId:null,alternateLevel:null});
 const scope={lotId:'5',level:'7',planId:'17'};
@@ -79,6 +79,32 @@ test('DOC119 omite la fuente opcional del login sin red externa ni cerrar la gua
   assert.deepEqual(outcomes,['abort','continue']);assert.equal(budget.counts.http,1);
   await handler(request('POST',font,'stylesheet'));
   assert.deepEqual(guard.violations,['DOC119_HTTP_SCOPE_DENIED']);assert.equal(budget.counts.http,1);
+});
+
+test('DOC119 permite estado 2FA vacio y destino normal de login sin autorizar mutaciones',async()=>{
+  const status=new URL('webservice/WebServiceLoginSegundoFactor.asmx/ObtenerEstado',BASE_URL).href;
+  const landing=new URL('Defaul/WebFormInicioDocuarchiGestion.aspx',BASE_URL).href;
+  const unbound={lotId:null,level:null,planId:null};
+  assert.equal(permittedRequest('POST',status,{},unbound),true);
+  for(const payload of [null,[],{codigo:'synthetic'},{solicitud:{}},{usuarioRef:'141'}])assert.equal(!!permittedRequest('POST',status,payload,unbound),false);
+  for(const operation of ['Verificar','Reenviar','Cancelar'])assert.equal(permittedRequest('POST',status.replace('ObtenerEstado',operation),{},unbound),false);
+  assert.equal(permittedRequest('POST',status+'?codigo=synthetic',{},unbound),false);
+  assert.equal(permittedRequest('GET',landing,null,unbound),true);assert.equal(permittedRequest('POST',landing,{},unbound),false);
+  let handler,continued=0;const budget=createBudget('SEG-01');
+  const guard=await installGuard({route:async(_p,value)=>{handler=value;}},budget,unbound);
+  await handler({request:()=>({method:()=> 'POST',url:()=>status,postData:()=> '{}'}),continue:async()=>continued++,abort:async()=>assert.fail('status read must be permitted')});
+  assert.equal(continued,1);assert.equal(budget.counts.http,1);assert.deepEqual(guard.violations,[]);
+  assert.deepEqual(guard.calls,[{operation:'ObtenerEstado',request:{}}]);
+});
+
+test('DOC119 diagnostico de guardia conserva solo categorias sin rutas, parametros ni formularios',async()=>{
+  const privateUrl='https://private-account.invalid/secret-path?password=synthetic';
+  const request={method:()=> 'POST',url:()=>privateUrl,postData:()=> 'password=synthetic'};
+  assert.deepEqual(guardRequestSummary(request),{resource:'OUTSIDE_ORIGIN',method:'POST',operation:null});
+  let handler;const guard=await installGuard({route:async(_p,value)=>{handler=value;}},createBudget('SEG-01'),scope);
+  await handler({request:()=>request,continue:async()=>assert.fail('must block'),abort:async()=>{}});
+  assert.deepEqual(guard.firstViolation,{resource:'OUTSIDE_ORIGIN',method:'POST',operation:null});
+  assert.doesNotMatch(JSON.stringify(guard.firstViolation),/private-account|secret-path|password|synthetic/);
 });
 test('DOC119 CSV conserva comillas, saltos y pagina vacia sin guardarlo',()=>{
   assert.deepEqual(csvRows('"recursoId","nombre"\r\n"31","a,""b""\r\nc"\r\n'),[['recursoId','nombre'],['31','a,"b"\r\nc']]);
