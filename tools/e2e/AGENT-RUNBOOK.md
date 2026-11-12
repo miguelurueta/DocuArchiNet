@@ -1,5 +1,15 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-119 — seguimiento de lectura autorizado
+
+El selector `node tools/e2e/scripts/run-doc119-seguimiento.cjs --check` valida preparación sin red ni secretos. Una corrida requiere plan explícito y consola visible con `--run <32-hex> --authorized-plan`; no reutilizar un runId. El plan DOC-119 vigente está en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc119-plan-aceptacion-20261111.md`.
+
+Reutiliza consola, openSession, queryRows y controles de lectura existentes. Captura cuentas/claves y ruta de reselección enmascaradas; no usar chat, `.env`, archivos de sesión o credenciales de Web.config. URL cerrada al localhost autorizado. Certificado local solo se acepta si el operador lo elige expresamente. Modo lectura no autoriza recepción, creación, almacenamiento, permisos, fallos inyectados o limpieza.
+
+La guardia permite únicamente los ASMX de lectura del lote/plan/nivel elegidos y postback de selección de nivel en SEG-02; bloquea todos los ASHX y botones de negocio. Consumos persistentes por ventana: SEG-01 120 HTTP/80 SELECT/2 sesiones; SEG-02 80 HTTP/60 SELECT/2 sesiones. Una violación/fallo detiene sin retry. Estado saneado en `.tmp/doc119-seguimiento/<runId>/state.json`, excluido de Git; jamás contiene formularios, CSV, cuentas, claves, cookies o tokens.
+
+Preflight debe acreditar recursos adecuados. Falta de segunda página, recepción por completar, raíz confirmada, rama disponible o PDF correcto no permite simular aceptación ni crear recursos por inferencia. No marcar SEG-01/02 aprobados por `--check` o pruebas locales. Un resultado con límites conserva esos límites; la reorganización UI espera aceptación integrada documentada.
+
 Este runbook permite reutilizar las pruebas ASMX Workflow sin copiar credenciales, modificar datos sin autorización ni reactivar la política legacy.
 
 ## Límites obligatorios

@@ -48,6 +48,7 @@ Inventario previo de rutas existentes. Antes de añadir cualquier archivo, justi
 | Limpieza | `Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.Limpieza.vb`; `Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionLimpiezaOriginalImportacion.vb`: Crear | Sin cambios ni invocación; deshabilitada por defecto |
 | Pruebas locales | `tests/doc111-importacion-carpetas-client.test.cjs`, `tests/doc110-perfil-importacion-behavior.test.cjs`, `tests/ImportacionCarpetasBehaviorTests.cs` | Ampliar solo casos afectados |
 | E2E | `tools/e2e/scripts/run-doc111-importacion-carpetas.cjs`, `run-doc113-ventana-importacion.cjs` en el mismo directorio; `tools/e2e/tests/doc111-importacion-carpetas.spec.cjs` | Revisar modos antes de ejecutar; REC no equivale a lectura |
+| E2E de seguimiento | Nuevos `tools/e2e/scripts/run-doc119-seguimiento.cjs`, `tools/e2e/tests/support/doc119-seguimiento.cjs`, `tools/e2e/tests/doc119-seguimiento-policy.test.cjs` | Selector SEG-01/02 de lectura: reutiliza openSession, consola y queryRows existentes; sin login/puente/coordinador alternativo. Archivos Node de pruebas, sin Compile VB |
 | Documentación | `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/11-prompt-seguimiento-operacion.md`, `Diseno/02-contratos-operacion.md` y `Validacion/` bajo ese directorio; `Doc/Tecnica/Opsxj/doc-119-produccion-importacion-carga-carpeta-seguimiento/` | Navegación definitiva, contratos y evidencia con límites |
 
 ## Decisions

@@ -219,4 +219,6 @@ Design/spec y este refinamiento desarrollan las mismas diez decisiones y requisi
 
 Decisiones abiertas identificadas, sin completar por inferencia: resolución operativa SEG-03 y autorización concreta de ambiente/cuentas/recursos para SEG-01/02 y casos UI reales. No impiden revisar este diseño, pero sí ejecutar efectos o declarar el cierre correspondiente. La corrección documental actual no aprueba automáticamente el refinamiento ni ejecuta su plan.
 
+El usuario autorizó posteriormente las ventanas de lectura SEG-01/02 del plan local presentado. El selector específico está preparado y probado localmente (34/34), con captura de cuentas/recursos en consola antes de actuar; sin crear recursos ni habilitar recepción/limpieza. Los resultados y consumos reales se revisan por separado antes de acreditar 2.4/2.5 o abrir la compuerta UI. SEG-03 continúa sin resolución.
+
 Estado: aprobado para ejecución del plan local por la indicación del usuario registrada arriba. Sincronizar con `npm.cmd --prefix tools/opsxj run opsxj:refine -- DOC-119 --sync` y actualizar progreso en tasks.md al verificar cada entregable. Autorizaciones reales y resolución SEG-03 se registran aparte antes de sus acciones o cierre; no se heredan de otros tickets.

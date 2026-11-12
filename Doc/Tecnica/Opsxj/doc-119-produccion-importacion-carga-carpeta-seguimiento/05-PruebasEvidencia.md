@@ -21,3 +21,9 @@ Informes: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion
 No ejecutados por DOC-119: autenticación real, HTTP de aplicación, SELECT/MySQL reales, recepción/carga, almacenamiento, inyección de fallos, cambios de permisos, limpieza o despliegue. El plan de aceptación preparado aún requiere ambiente/cuentas/lotes y autorización específica.
 
 Tareas verificadas: 1.1, 2.1, 2.2, 2.3; 4/24. SEG-01/02 siguen sin aceptación integrada; 1.2 abierta para concretar plan. SEG-03 sigue condicionado. No se reorganizan accesos antes de compuerta 2.7, no se solicita cierre ni se marca evidencia manual como aprobada.
+
+## Preparación posterior al «autorizado» del usuario
+
+Ventanas de lectura del plan local autorizadas; cuentas/recursos se capturan por consola enmascarada antes de actuar. Selector específico preparado con sesión/SQL existentes y límites persistentes, sin habilitar efectos. `doc119-selector-lectura-20261111.md` detalla fuentes y límites.
+
+Regresión nueva: **34/34 PASS** (21 cliente/selector y 13 políticas), incluyendo los tres recorridos del selector con servicios simulados; `--check`, sintaxis Node, OpenSpec estricto y refinamiento PASS. No acredita todavía una ejecución real. Progreso permanece 4/24 hasta revisar preflight y resultados con referencias concretas. Estado de ejecución se conserva solo en .tmp, excluido de Git.

@@ -147,4 +147,4 @@ async function runUi(page,profile,options,auth,controls,fixtures,onReference=()=
     return {scenario:options.scenario,status:'PASS',preparations,confirmations,opens,readOnlyControls:true,noDocumentEffects:true,domVerified:true};
   }finally{await guard.close();}
 }
-module.exports={CASES,validateOptions,assertAuthorization,allowedOperation,createFixtures,createUiControls,focusWithinDialog,runUi};
+module.exports={CASES,validateOptions,assertAuthorization,allowedOperation,createFixtures,createUiControls,focusWithinDialog,runUi,selectLevel};
