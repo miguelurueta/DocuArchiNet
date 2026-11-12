@@ -178,9 +178,24 @@ test('DOC119 controles reutilizan SELECT existente y detectan cambio de auditori
     return [];
   };
   const controls=makeControls(query,createBudget('SEG-01')),first=await controls.snapshot('5'),same=await controls.snapshot('5');
-  assert.equal(first.fingerprint,same.fingerprint);assert.equal(queries.length,14);assert.equal(queries.filter(q=>q.origin==='DA').length,2);
+  assert.equal(first.fingerprint,same.fingerprint);assert.equal(queries.length,16);assert.equal(queries.filter(q=>q.origin==='DA').length,2);
   assert.deepEqual(queries.find(q=>q.origin==='DA').args,['141','650']);revision++;
   assert.notEqual((await controls.snapshot('5')).fingerprint,first.fingerprint);
+});
+test('DOC119 controles correlacionan metadatos por ID y los incluyen en la huella',async()=>{
+  let changed=false,duplicate=false;
+  const query=async(origin,sql,args)=>{
+    assert.equal(origin,'RA');assert.deepEqual(args,['5']);
+    if(sql.includes('config_doc,contexto_doc'))return [{lote_id:'5',contexto_doc:JSON.stringify({UsuarioRef:'141',AmbitoRef:'2',NivelRef:'7'})}];
+    if(sql.startsWith('SELECT plan_id'))return [{plan_id:'17'}];
+    if(sql.startsWith('SELECT f.archivo_id,f.origen_doc'))return [{archivo_id:'32',origen_doc:JSON.stringify({Nombre:changed?'changed.pdf':'same.pdf',RutaRelativa:'b/same.pdf'}),bytes_recibidos:'0'},{archivo_id:duplicate?'32':'31',origen_doc:JSON.stringify({Nombre:'same.pdf',RutaRelativa:'a/same.pdf'}),bytes_recibidos:'677'}];
+    if(sql.startsWith('SELECT f.archivo_id'))return [{archivo_id:'31'},{archivo_id:'32'}];
+    return [];
+  };
+  const controls=makeControls(query,createBudget('SEG-01')),before=await controls.snapshot('5');
+  assert.equal(JSON.parse(before.data.files[0].origen_doc).RutaRelativa,'a/same.pdf');assert.equal(before.data.files[0].bytes_recibidos,'677');
+  changed=true;assert.notEqual((await controls.snapshot('5')).fingerprint,before.fingerprint);
+  duplicate=true;await assert.rejects(()=>controls.snapshot('5'),/FILE_METADATA_INVALID/);
 });
 test('DOC119 recursos/contextos no validos fallan antes de continuar',async()=>{
   const controls=makeControls(async(_origin,sql)=>sql.includes('config_doc,contexto_doc')?[{lote_id:'5',contexto_doc:'{}'}]:[],createBudget('SEG-02'));
@@ -242,7 +257,8 @@ test('DOC119 destinos y archivo por recibir se descubren dentro de la cuenta ele
   const principal={userRef:'141',companyRef:'2'},budget=createBudget('SEG-02'),calls=[];
   const query=async(origin,sql,args)=>{calls.push({origin,sql,args});return sql.includes('parent_name')?[{id_nivel:'8',nombre_nivel:'Archivo',parent_name:'Central'}]:[{archivo_id:'30',origen_doc:JSON.stringify({Nombre:'a.pdf',RutaRelativa:'Carpeta/a.pdf'}),bytes_previstos:'7'}];};
   assert.deepEqual(await discoverLevels(query,budget,principal,'7'),[{id:'8',name:'Archivo',parent:'Central'}]);
-  assert.deepEqual(calls[0].args,['7','2','141','141']);assert.match(calls[0].sql,/n\.id_nivel<>\?/);
+  assert.deepEqual(calls[0].args,['7','2','141','141','7','7']);assert.match(calls[0].sql,/n\.id_nivel<>\?/);
+  assert.match(calls[0].sql,/ORDER BY CASE WHEN n\.id_nivel_padre=\? THEN 0/);
   assert.deepEqual(await pendingFile(query,budget,principal,'5'),{id:'30',name:'a.pdf',relativePath:'Carpeta/a.pdf',bytes:'7'});
   assert.deepEqual(calls[1].args,['5','141','2']);assert.match(calls[1].sql,/l\.solicitante_ref=\? AND l\.ambito_ref=\?/);assert.match(calls[1].sql,/LIMIT 1$/);
   assert.equal(budget.counts.select,2);

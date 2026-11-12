@@ -66,7 +66,7 @@ async function discoverImports(query,budget,login){
 }
 async function discoverLevels(query,budget,principal,originalLevel){
   check(id(principal.userRef)&&id(principal.companyRef)&&id(originalLevel),'RESOURCE_INVALID');budget.take('select');
-  const rows=await query('RA','SELECT n.id_nivel,n.nombre_nivel,padre.nombre_nivel AS parent_name FROM ra_pro_niveles n INNER JOIN remit_dest_interno u ON u.id_Remit_Dest_Int=n.remit_dest_interno_id_Remit_Dest_Int LEFT JOIN ra_pro_niveles padre ON padre.id_nivel=n.id_nivel_padre WHERE n.id_nivel<>? AND n.estado_nivel=1 AND u.Empresa_Gestion_Documental_id_empresa=? AND (u.id_Remit_Dest_Int=? OR EXISTS(SELECT 1 FROM ra_pro_permisos_niveles p WHERE p.ra_pro_niveles_id_nivel=n.id_nivel AND p.remit_dest_interno_id_Remit_Dest_Int=? AND p.estado_permiso=1 AND p.agregar_expediente=1 AND p.carga_archivo=1)) ORDER BY n.nombre_nivel,n.id_nivel LIMIT 30',[originalLevel,principal.companyRef,principal.userRef,principal.userRef]);
+  const rows=await query('RA','SELECT n.id_nivel,n.nombre_nivel,padre.nombre_nivel AS parent_name FROM ra_pro_niveles n INNER JOIN remit_dest_interno u ON u.id_Remit_Dest_Int=n.remit_dest_interno_id_Remit_Dest_Int LEFT JOIN ra_pro_niveles padre ON padre.id_nivel=n.id_nivel_padre WHERE n.id_nivel<>? AND n.estado_nivel=1 AND u.Empresa_Gestion_Documental_id_empresa=? AND (u.id_Remit_Dest_Int=? OR EXISTS(SELECT 1 FROM ra_pro_permisos_niveles p WHERE p.ra_pro_niveles_id_nivel=n.id_nivel AND p.remit_dest_interno_id_Remit_Dest_Int=? AND p.estado_permiso=1 AND p.agregar_expediente=1 AND p.carga_archivo=1)) ORDER BY CASE WHEN n.id_nivel_padre=? THEN 0 WHEN n.id_nivel_padre=(SELECT original.id_nivel_padre FROM ra_pro_niveles original WHERE original.id_nivel=?) THEN 1 ELSE 2 END,n.nombre_nivel,n.id_nivel LIMIT 30',[originalLevel,principal.companyRef,principal.userRef,principal.userRef,originalLevel,originalLevel]);
   check(rows.length<=30&&rows.every(row=>id(String(row.id_nivel))&&String(row.id_nivel)!==originalLevel),'LEVEL_LIST_INVALID');
   return rows.map(row=>({id:String(row.id_nivel),name:displayText(row.nombre_nivel),parent:displayText(row.parent_name)}));
 }
@@ -176,6 +176,10 @@ function makeControls(query,budget){
     check(id(context.UsuarioRef)&&id(context.NivelRef)&&id(context.AmbitoRef),'CONTEXT_INVALID');
     const plans=await read('RA','SELECT plan_id FROM ra_integracion_lote WHERE lote_id=?',[lotId]);
     check(plans.length===1&&id(String(plans[0].plan_id)),'PLAN_INVALID');
+    const metadata=await read('RA','SELECT f.archivo_id,f.origen_doc,f.bytes_recibidos FROM ra_integracion_archivo f INNER JOIN ra_integracion_raiz r ON r.raiz_id=f.raiz_id WHERE r.lote_id=? ORDER BY f.archivo_id',[lotId]);
+    check(metadata.length===snapshot.files.length&&new Set(metadata.map(f=>String(f.archivo_id))).size===metadata.length,'FILE_METADATA_INVALID');
+    const byId=new Map(metadata.map(f=>[String(f.archivo_id),f]));
+    snapshot.files=snapshot.files.map(file=>{const item=byId.get(String(file.archivo_id));check(item&&typeof item.origen_doc==='string','FILE_METADATA_INVALID');return {...file,origen_doc:item.origen_doc,bytes_recibidos:item.bytes_recibidos};});
     const expeditions=[];
     for(const root of snapshot.roots){if(root.identidad_expediente_doc){let identity;try{identity=JSON.parse(root.identidad_expediente_doc);}catch{check(false,'RELATION_INVALID');}if(id(identity.ExpedienteId))expeditions.push(identity.ExpedienteId);}}
     const refs=[...new Set(expeditions)];check(refs.length<=100,'RESOURCE_TOO_LARGE');
@@ -280,6 +284,14 @@ async function runSeg01Other(page,lotId){
     catch(error){return error.codigo==='ACCESO_DENEGADO';}finally{api.cerrar();}
   },lotId);check(exported,'OTHER_CSV_NOT_DENIED');return {otherAccountDenied:true,otherCsvDenied:true};
 }
+function observeOriginalBranch({level,identities}){
+  const tree=document.getElementById('TreeViewArchivo');
+  const parents=Array.from(tree?.querySelectorAll('a[title]')||[]).filter(a=>a.title.split('\\')[0]===level&&a.title.includes('\\'));
+  const parent=parents.length===1?parents[0]:null;
+  const branch=parent?document.getElementById(parent.id.replace('TreeViewArchivot','TreeViewArchivon')+'Nodes'):null;
+  const reason=parents.length===0?'PARENT_ABSENT':parents.length!==1?'PARENT_AMBIGUOUS':!parent.getClientRects().length?'PARENT_HIDDEN':!branch?'BRANCH_ABSENT':'AVAILABLE';
+  return {available:reason==='AVAILABLE',reason,selection:window.SELECCION_TREVIEW_ID,display:branch?.style.display??null,counts:identities.map(key=>Array.from(tree?.querySelectorAll('a[title]')||[]).filter(a=>a.title.replace(/\|$/,'')===key.replace(/\|$/,'')).length)};
+}
 async function runSeg02(page,profile,baseline,filePath){
   const pending=baseline.data.files.find(f=>f.estado_recepcion==='PENDIENTE'&&f.estado_efecto==='NO_INICIADO'&&!f.intento_activo_id);
   check(pending,'PENDING_RECEPTION_RESOURCE_REQUIRED');
@@ -294,13 +306,7 @@ async function runSeg02(page,profile,baseline,filePath){
   await page.reload({waitUntil:'domcontentloaded'});
   await page.locator('[data-doc111-resume]').waitFor({state:'visible'});
   await selectLevel(page,profile.alternateLevel);
-  const before=await page.evaluate(({level,identities})=>{
-    const tree=document.getElementById('TreeViewArchivo'),parents=Array.from(tree?.querySelectorAll('a[title]')||[]).filter(a=>a.title.split('\\')[0]===level&&a.title.includes('\\'));
-    if(parents.length!==1||!parents[0].getClientRects().length)return null;
-    const branch=document.getElementById(parents[0].id.replace('TreeViewArchivot','TreeViewArchivon')+'Nodes');if(!branch)return null;
-    return {selection:window.SELECCION_TREVIEW_ID,display:branch.style.display,counts:identities.map(key=>Array.from(tree.querySelectorAll('a[title]')).filter(a=>a.title.replace(/\|$/,'')===key.replace(/\|$/,'')).length)};
-  },{level:baseline.context.NivelRef,identities});
-  check(before,'ORIGINAL_BRANCH_REQUIRED');
+  const before=await page.evaluate(observeOriginalBranch,{level:baseline.context.NivelRef,identities});
   let result=await consult(page,profile.recoveryLotId,true);
   while(!result.elementos.some(row=>row.recursoId===String(pending.archivo_id))&&result.puedeHaberMas){
     const next=await responseFor(page,'ConsultarRecursosLote',()=>page.getByRole('button',{name:'Siguiente',exact:true}).last().click(),'ARCHIVOS');
@@ -313,15 +319,11 @@ async function runSeg02(page,profile,baseline,filePath){
   check((await page.locator('.doc111-notice').textContent()).includes('Archivo vinculado'),'RESELECTION_METADATA_MISMATCH');
   const repeated=await responseFor(page,'ConsultarRecursosLote',()=>page.getByRole('button',{name:'Consultar estado',exact:true}).click(),'ARCHIVOS');
   check(repeated.body?.ok,'REQUERY_FAILED');await page.waitForFunction(()=>!document.querySelector('[data-doc111-action="consultar"]')?.disabled);
-  const after=await page.evaluate(({level,identities})=>{
-    const tree=document.getElementById('TreeViewArchivo'),parents=Array.from(tree.querySelectorAll('a[title]')).filter(a=>a.title.split('\\')[0]===level&&a.title.includes('\\'));
-    const branch=parents.length===1?document.getElementById(parents[0].id.replace('TreeViewArchivot','TreeViewArchivon')+'Nodes'):null;
-    return {selection:window.SELECCION_TREVIEW_ID,display:branch?.style.display,counts:identities.map(key=>Array.from(tree.querySelectorAll('a[title]')).filter(a=>a.title.replace(/\|$/,'')===key.replace(/\|$/,'')).length)};
-  },{level:baseline.context.NivelRef,identities});
+  const after=await page.evaluate(observeOriginalBranch,{level:baseline.context.NivelRef,identities});
   check(after.selection===before.selection,'TREE_SELECTION_CHANGED');
-  check(after.display===before.display,'TREE_EXPANSION_CHANGED');
-  check(after.counts.every(n=>n===1),'TREE_RELATION_COUNT_INVALID');
+  check(after.reason===before.reason&&after.display===before.display,'TREE_EXPANSION_CHANGED');
+  check(before.available?after.counts.every(n=>n===1):after.counts.every((n,i)=>n<=1&&n===before.counts[i]),'TREE_RELATION_COUNT_INVALID');
   const names=baseline.data.roots.map(r=>{try{return JSON.parse(r.datos_doc).NombreOriginal;}catch{return null;}}).filter(Boolean);
-  return {reload:true,reselectionMetadataOnly:true,noUpload:true,selectionPreserved:true,treeDeduplicated:true,newRelationsAdded:after.counts.some((n,i)=>n>before.counts[i]),homonymousRootsObserved:new Set(names).size<names.length,confirmedRelations:identities.length};
+  return {reload:true,reselectionMetadataOnly:true,noUpload:true,selectionPreserved:true,treeDeduplicated:before.available,originalBranchAvailability:before.reason,...before.available?{}:{originalBranchUntouched:true},newRelationsAdded:after.counts.some((n,i)=>n>before.counts[i]),homonymousRootsObserved:new Set(names).size<names.length,confirmedRelations:identities.length};
 }
 module.exports={BASE_URL,LIMITS,READS,STATIC_DEPENDENCIES,SESSION_IDLE_LIMIT_MS,check,id,hash,assertSessionFresh,previousSelection,validateConnection,validateProfile,displayText,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,guardRequestSummary,installGuard,makeControls,responseFor,consult,applyFilter,csvRows,runSeg01Owner,runSeg01Other,runSeg02};

@@ -29,6 +29,35 @@ function findPreparedFile(prepared,origin){
   check(matches.length===1&&prepared.files.has(matches[0].idCliente),'FILE_CORRELATION_INVALID');
   return prepared.files.get(matches[0].idCliente);
 }
+function resumeSource(source,runId){
+  check(/^[a-f0-9]{32}$/.test(runId)&&source?.runId===runId&&source.closed===true&&source.credentialsCleared===true&&source.authorizedPlan===true&&source.authorizationRevision==='20261112-setup-revision2'&&source.fixtureRevision===2&&source.baseUrl===BASE_URL,'RESUME_SOURCE_INVALID');
+  check(source.resources?.ownerRef==='141'&&source.resources.companyRef==='2'&&source.resources.level==='7'&&source.resources.versionId==='40'&&id(source.resources.loteId)&&id(source.resources.planId),'RESUME_SOURCE_INVALID');
+  check(source.operations?.ConfirmarPlan===1&&source.operations.RecibirArchivo===1&&source.operations.AvanzarLote===1&&source.failure?.code==='DOC119_SETUP_POSTCONDITION_FAILED','RESUME_SOURCE_INVALID');
+  return {lotId:source.resources.loteId,planId:source.resources.planId,manifestHash:source.manifestHash};
+}
+function recoverySource(source,runId){
+  check(/^[a-f0-9]{32}$/.test(runId)&&source?.runId===runId&&source.closed===true&&source.credentialsCleared===true&&source.authorizedPlan===true&&source.authorizationRevision==='20261112-readonly-existing'&&source.mode==='READONLY_EXISTING'&&source.fixtureRevision===2&&source.baseUrl===BASE_URL,'RECOVERY_SOURCE_INVALID');
+  const result=source.results?.['SEG-01'];
+  check(result?.status==='PASS_READONLY'&&['ownerRead','filters','pagination','csvDownload','emptyFilter','otherAccountDenied','otherCsvDenied','noBusinessMutation'].every(key=>result[key]===true)&&typeof result.beforeFingerprint==='string'&&/^[a-f0-9]{64}$/.test(result.beforeFingerprint)&&result.beforeFingerprint===result.afterFingerprint,'RECOVERY_SOURCE_INVALID');
+  check(source.resources?.ownerRef==='141'&&source.resources.companyRef==='2'&&source.resources.level==='7'&&source.resources.versionId==='40'&&id(source.resources.loteId)&&id(source.resources.planId)&&/^[a-f0-9]{32}$/.test(source.sourceRunId),'RECOVERY_SOURCE_INVALID');
+  return {setupSourceRunId:source.sourceRunId,lotId:source.resources.loteId,planId:source.resources.planId,manifestHash:source.manifestHash,acceptedFingerprint:result.afterFingerprint};
+}
+function preparedSummary(snapshot){
+  const files=snapshot.data.files,roots=snapshot.data.roots,attempts=snapshot.data.attempts;
+  const received=files.filter(f=>f.estado_recepcion==='RECIBIDO');
+  const reception=attempts.filter(a=>a.fase==='RECEPCION'),creation=attempts.filter(a=>a.fase==='CREAR_EXPEDIENTE');
+  const confirmed=roots.filter(r=>r.estado==='EXPEDIENTE_CONFIRMADO'&&!r.intento_activo_id&&r.identidad_expediente_doc);
+  const checks={
+    owner:snapshot.context.UsuarioRef==='141'&&snapshot.context.AmbitoRef==='2'&&snapshot.context.NivelRef==='7',
+    inventory:files.length===27&&roots.length===2&&String(snapshot.data.lot.total_archivos)==='27'&&String(snapshot.data.lot.total_raices)==='2'&&String(snapshot.data.lot.total_bytes)==='18279',
+    pending:files.filter(f=>f.estado_recepcion==='PENDIENTE'&&f.estado_efecto==='NO_INICIADO'&&!f.intento_activo_id).length===26,
+    receipt:received.length===1&&String(received[0].bytes_recibidos)==='677'&&received[0].estado_efecto==='NO_INICIADO'&&!received[0].intento_activo_id,
+    noDocuments:snapshot.documents===0,
+    attempts:attempts.length===2&&reception.length===1&&creation.length===1&&attempts.every(a=>a.estado==='CONFIRMADO'&&a.fin_utc)&&received.length===1&&String(reception[0]?.archivo_id)===String(received[0].archivo_id)&&String(creation[0]?.raiz_id)===String(received[0].raiz_id),
+    roots:confirmed.length===1&&received.length===1&&String(confirmed[0].raiz_id)===String(received[0].raiz_id)&&roots.every(r=>!r.intento_activo_id)
+  };
+  return {checks,passed:Object.values(checks).every(Boolean),files:files.length,roots:roots.length,pendingFiles:files.filter(f=>f.estado_recepcion==='PENDIENTE').length,receivedFiles:received.length,receivedBytes:received.reduce((n,f)=>n+Number(f.bytes_recibidos||0),0),createdExpeditions:confirmed.length,storedDocuments:snapshot.documents,attemptPhases:attempts.map(a=>a.fase)};
+}
 function failureCategory(message){
   const known={
     'La forma de la solicitud no es válida.':'REQUEST_ENVELOPE',
@@ -74,4 +103,4 @@ function setupTransport(request,budget,manifest,refs,record=()=>{},observe=()=>{
     return response;
   }};
 }
-module.exports={FIXTURE_DIRECTORY,readPrepared,findPreparedFile,setupTransport,failureCategory};
+module.exports={FIXTURE_DIRECTORY,readPrepared,findPreparedFile,resumeSource,recoverySource,preparedSummary,setupTransport,failureCategory};

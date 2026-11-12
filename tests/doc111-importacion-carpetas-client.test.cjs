@@ -584,7 +584,7 @@ test('DOC-119: pocos recursos permiten filtros y CSV sin acreditar una segunda p
   assert.equal(bridge.calls.some(call=>call.request.pagina===2),false);
 }));
 
-test('DOC-119: driver SEG-02 recarga, reselecciona sin envío y deduplica la rama original',async()=>{
+for(const branchAvailable of [true,false])test('DOC-119: driver SEG-02 recarga y reselecciona sin envio con rama '+(branchAvailable?'disponible':'oculta'),async()=>{
   const fs=require('node:fs'),path=require('node:path'),{chromium}=require('../tools/e2e/node_modules/playwright');
   const {runSeg02}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs'),root=path.resolve(__dirname,'..'),parent=path.join(root,'.tmp');fs.mkdirSync(parent,{recursive:true});
   const folder=fs.mkdtempSync(path.join(parent,'doc119-reselection-')),filePath=path.join(folder,'a.pdf');fs.writeFileSync(filePath,'%PDF-synthetic');const stat=fs.statSync(filePath);
@@ -595,7 +595,7 @@ test('DOC-119: driver SEG-02 recarga, reselecciona sin envío y deduplica la ram
     const initial='window.$=()=>({ready(){},on(){},autocomplete(){}});window.alert=message=>{throw Error(message);};\n';
     const production=fs.readFileSync(path.join(root,'js/gestion/WebFormProducionDocumental.js'),'utf8')+'\nwindow.Doc111ActualizarRama=Doc111ActualizarRama;Object.defineProperty(window,"SELECCION_TREVIEW_ID",{configurable:true,get:function(){return SELECCION_TREVIEW_ID;},set:function(value){SELECCION_TREVIEW_ID=value;}});';
     const sources=[production,...['InventarioImportacion','ImportacionCarpetasApi','ImportacionCarpetasVista','ImportacionCarpetas'].map(name=>fs.readFileSync(path.join(root,`js/gestion/ImportacionCarpetas/${name}.js`),'utf8'))].join('\n');
-    await page.addInitScript({content:initial+sources+`\nwindow.ITEMS_DATOS=[{id:'TreeViewArchivot1'},{id:'TreeViewArchivot2'}];window.SELECCION_TREVIEW_ID='TreeViewArchivot1';window.OnSearchClick=function(node){return fetch('/Gestion/WebFormProducionDocumental.aspx',{method:'POST',body:'__ASYNCPOST=true'}).then(function(){window.SELECCION_TREVIEW_ID=node;document.getElementById('doc111-importacion').setAttribute('data-nivel',node==='TreeViewArchivot1'?'7':'8');ImportacionCarpetas.inicializar();});};`});
+    await page.addInitScript({content:initial+sources+`\nwindow.ITEMS_DATOS=[{id:'TreeViewArchivot1'},{id:'TreeViewArchivot2'}];window.SELECCION_TREVIEW_ID='TreeViewArchivot1';window.OnSearchClick=function(node){return fetch('/Gestion/WebFormProducionDocumental.aspx',{method:'POST',body:'__ASYNCPOST=true'}).then(function(){window.SELECCION_TREVIEW_ID=node;if(node==='TreeViewArchivot2'&&${!branchAvailable})document.getElementById('TreeViewArchivot1').closest('table').style.display='none';document.getElementById('doc111-importacion').setAttribute('data-nivel',node==='TreeViewArchivot1'?'7':'8');ImportacionCarpetas.inicializar();});};`});
     await page.route('https://doc119.invalid/**',async route=>{
       const request=route.request(),pathname=new URL(request.url()).pathname;
       if(request.method()==='GET')return route.fulfill({status:200,contentType:'text/html',body:html});
@@ -609,7 +609,7 @@ test('DOC-119: driver SEG-02 recarga, reselecciona sin envío y deduplica la ram
     await page.goto('https://doc119.invalid/Gestion/WebFormProducionDocumental.aspx');
     const baseline={context:{NivelRef:'7'},data:{files:[{archivo_id:'30',estado_recepcion:'PENDIENTE',estado_efecto:'NO_INICIADO'}],roots:[{estado:'EXPEDIENTE_CONFIRMADO',identidad_expediente_doc:JSON.stringify({RelacionNivelId:'70',ExpedienteId:'60'}),datos_doc:JSON.stringify({NombreOriginal:'Homónima'})},{estado:'PENDIENTE',datos_doc:JSON.stringify({NombreOriginal:'Homónima'})}]}};
     const result=await runSeg02(page,{recoveryLotId:'20',alternateLevel:'8'},baseline,filePath);
-    assert.deepEqual(result,{reload:true,reselectionMetadataOnly:true,noUpload:true,selectionPreserved:true,treeDeduplicated:true,newRelationsAdded:true,homonymousRootsObserved:true,confirmedRelations:1});
+    assert.deepEqual(result,{reload:true,reselectionMetadataOnly:true,noUpload:true,selectionPreserved:true,treeDeduplicated:branchAvailable,originalBranchAvailability:branchAvailable?'AVAILABLE':'PARENT_HIDDEN',...branchAvailable?{}:{originalBranchUntouched:true},newRelationsAdded:branchAvailable,homonymousRootsObserved:true,confirmedRelations:1});
     assert.equal(calls.some(call=>!['ConsultarLote','ConsultarRecursosLote'].includes(call.operation)),false);assert.deepEqual(errors,[]);
   }finally{await browser.close();} // Fixture sintético conservado en .tmp; no borrar datos de pruebas anteriores.
 });

@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs');
-const {readPrepared,findPreparedFile,setupTransport,failureCategory}=require('../tools/e2e/tests/support/doc119-acceptance-data.cjs');
+const {readPrepared,findPreparedFile,resumeSource,recoverySource,preparedSummary,setupTransport,failureCategory}=require('../tools/e2e/tests/support/doc119-acceptance-data.cjs');
 const {BASE_URL}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs');
 const manifest={nivelRef:'7',versionId:'40',raices:[],archivos:[{nombre:'DOC119-001.pdf'}]};
 function harness(){
@@ -59,4 +59,30 @@ test('service failure evidence retains only fixed categories, never unknown text
   assert.equal(failureCategory('La preparación o solicitud no es válida.'),'PLAN_REPRESENTATION');
   assert.equal(failureCategory('private value from an unexpected response'),'UNCLASSIFIED');
   assert.equal(failureCategory(null),'UNCLASSIFIED');
+});
+function preparedSnapshot(){
+  return {context:{UsuarioRef:'141',AmbitoRef:'2',NivelRef:'7'},documents:0,data:{lot:{total_archivos:'27',total_raices:'2',total_bytes:'18279'},files:Array.from({length:27},(_,i)=>({archivo_id:String(i+1),raiz_id:i===0?'1':'2',estado_recepcion:i===0?'RECIBIDO':'PENDIENTE',estado_efecto:'NO_INICIADO',bytes_recibidos:i===0?'677':'0',intento_activo_id:null})),roots:[{raiz_id:'1',estado:'EXPEDIENTE_CONFIRMADO',identidad_expediente_doc:'{}',intento_activo_id:null},{raiz_id:'2',estado:'PENDIENTE',intento_activo_id:null}],attempts:[{fase:'RECEPCION',archivo_id:'1',raiz_id:'1',estado:'CONFIRMADO',fin_utc:'2026-11-12'},{fase:'CREAR_EXPEDIENTE',archivo_id:null,raiz_id:'1',estado:'CONFIRMADO',fin_utc:'2026-11-12'}]}};
+}
+test('prepared data includes a confirmed reception attempt and a separate creation attempt',()=>{
+  const result=preparedSummary(preparedSnapshot());assert.equal(result.passed,true);assert.equal(result.receivedBytes,677);assert.deepEqual(result.attemptPhases,['RECEPCION','CREAR_EXPEDIENTE']);
+});
+test('prepared data rejects missing receipt, extra effects, wrong identity or mutated inventory',()=>{
+  for(const mutate of [s=>s.data.attempts.shift(),s=>s.data.attempts.push({...s.data.attempts[1],fase:'ALMACENAR'}),s=>s.data.attempts[1].raiz_id='2',s=>s.context.UsuarioRef='136',s=>s.data.files[1].estado_recepcion='RECIBIDO',s=>s.data.files[0].bytes_recibidos='678',s=>s.documents=1]){
+    const snapshot=preparedSnapshot();mutate(snapshot);assert.equal(preparedSummary(snapshot).passed,false);
+  }
+});
+test('readonly continuation requires a closed source with the known effects and bound lot',()=>{
+  const runId='a'.repeat(32),source={runId,closed:true,credentialsCleared:true,authorizedPlan:true,authorizationRevision:'20261112-setup-revision2',fixtureRevision:2,baseUrl:BASE_URL,resources:{ownerRef:'141',companyRef:'2',level:'7',versionId:'40',loteId:'29',planId:'45'},operations:{ConfirmarPlan:1,RecibirArchivo:1,AvanzarLote:1},failure:{code:'DOC119_SETUP_POSTCONDITION_FAILED'},manifestHash:'manifest'};
+  assert.equal(resumeSource(source,runId).lotId,'29');
+  for(const mutate of [s=>s.closed=false,s=>s.operations.AvanzarLote=2,s=>s.resources.ownerRef='136',s=>s.resources.loteId=null,s=>s.failure.code='DIFFERENT_FAILURE']){
+    const invalid=structuredClone(source);mutate(invalid);assert.throws(()=>resumeSource(invalid,runId),/RESUME_SOURCE_INVALID/);
+  }
+});
+test('recovery-only continuation requires the real completed SEG-01 and identical fingerprints',()=>{
+  const runId='c'.repeat(32),fingerprint='d'.repeat(64);
+  const source={runId,sourceRunId:'a'.repeat(32),closed:true,credentialsCleared:true,authorizedPlan:true,authorizationRevision:'20261112-readonly-existing',fixtureRevision:2,mode:'READONLY_EXISTING',baseUrl:BASE_URL,manifestHash:'manifest',resources:{ownerRef:'141',companyRef:'2',level:'7',versionId:'40',loteId:'29',planId:'45'},results:{'SEG-01':{status:'PASS_READONLY',ownerRead:true,filters:true,pagination:true,csvDownload:true,emptyFilter:true,otherAccountDenied:true,otherCsvDenied:true,noBusinessMutation:true,beforeFingerprint:fingerprint,afterFingerprint:fingerprint}}};
+  assert.equal(recoverySource(source,runId).acceptedFingerprint,fingerprint);
+  for(const mutate of [s=>s.closed=false,s=>s.results['SEG-01'].status='PASS_READONLY_WITH_LIMITS',s=>s.results['SEG-01'].pagination=false,s=>s.results['SEG-01'].afterFingerprint='e'.repeat(64),s=>s.resources.loteId=null,s=>s.sourceRunId='../other']){
+    const invalid=structuredClone(source);mutate(invalid);assert.throws(()=>recoverySource(invalid,runId),/RECOVERY_SOURCE_INVALID/);
+  }
 });

@@ -5,7 +5,7 @@ const {queryRows}=require('./support/doc32-e2e-odbc.cjs');
 const {openSession,createDriver,loginObservation}=require('../tests/support/doc111-importacion-carpetas.cjs');
 const {captureCodeEvidence}=require('../tests/support/doc110-code-evidence.cjs');
 const {selectSecondAccount}=require('../tests/support/doc119-second-accounts.cjs');
-const {readPrepared,findPreparedFile,setupTransport}=require('../tests/support/doc119-acceptance-data.cjs');
+const {readPrepared,findPreparedFile,resumeSource,recoverySource,preparedSummary,setupTransport}=require('../tests/support/doc119-acceptance-data.cjs');
 const {BASE_URL,LIMITS,check,id,hash,validateConnection,installGuard,discoverImports,discoverLevels,makeControls,runSeg01Owner,runSeg01Other,runSeg02}=require('../tests/support/doc119-seguimiento.cjs');
 const ROOT=path.resolve(__dirname,'../../..');
 const SOURCES=['js/gestion/ImportacionCarpetas/ImportacionCarpetas.js','js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js','js/gestion/ImportacionCarpetas/ImportacionCarpetas.css'];
@@ -13,11 +13,19 @@ const SETUP_LIMITS={http:400,select:40,sessions:1};
 async function main(args=process.argv.slice(2)){
   const prepared=readPrepared(ROOT),manifest=prepared.fixture.request;
   if(args.length===1&&args[0]==='--check'){console.log('DOC119_DATA_CHECK=PASS; FILES=27; REAL_EXECUTION=false');return;}
-  check(args.length===3&&args[0]==='--run'&&/^[a-f0-9]{32}$/.test(args[1])&&args[2]==='--authorized-plan','ARGUMENT_INVALID');
+  check([3,5].includes(args.length)&&args[0]==='--run'&&/^[a-f0-9]{32}$/.test(args[1])&&args[2]==='--authorized-plan','ARGUMENT_INVALID');
+  let previous,sourceRunId,recoveryOnly=false,accepted;
+  const sourceState=runId=>JSON.parse(fs.readFileSync(path.join(ROOT,'.tmp/doc119-datos-aceptacion',runId,'state.json'),'utf8'));
+  if(args.length===5){
+    check(['--resume-readonly','--recovery-only'].includes(args[3])&&/^[a-f0-9]{32}$/.test(args[4])&&args[4]!==args[1],'ARGUMENT_INVALID');sourceRunId=args[4];recoveryOnly=args[3]==='--recovery-only';
+    if(recoveryOnly){accepted=recoverySource(sourceState(sourceRunId),sourceRunId);previous=resumeSource(sourceState(accepted.setupSourceRunId),accepted.setupSourceRunId);check(accepted.lotId===previous.lotId&&accepted.planId===previous.planId&&accepted.manifestHash===previous.manifestHash,'RECOVERY_SOURCE_INVALID');}
+    else previous=resumeSource(sourceState(sourceRunId),sourceRunId);
+    check(previous.manifestHash===hash(manifest),'RESUME_SOURCE_INVALID');
+  }
   requireInteractiveConsole();process.title='DOC-119 - datos y aceptacion - '+args[1].slice(0,8);
   const directory=path.join(ROOT,'.tmp','doc119-datos-aceptacion',args[1]);fs.mkdirSync(directory,{recursive:true});
   const statePath=path.join(directory,'state.json');
-  const state={runId:args[1],pid:process.pid,authorizedPlan:true,authorizationRevision:'20261112-setup-revision2',fixtureRevision:2,manifestHash:hash(manifest),baseUrl:BASE_URL,status:'WAITING_ACCOUNT',limits:{SETUP:SETUP_LIMITS,...LIMITS},usage:{},results:{},operations:{},resources:{level:'7',ownerRef:'141',companyRef:'2',versionId:'40'},events:[]};
+  const state={runId:args[1],pid:process.pid,authorizedPlan:true,authorizationRevision:previous?'20261112-readonly-existing':'20261112-setup-revision2',fixtureRevision:2,manifestHash:hash(manifest),...previous?{sourceRunId,mode:recoveryOnly?'RECOVERY_ONLY':'READONLY_EXISTING'}:{mode:'SETUP_AND_READ'},...recoveryOnly?{acceptedSeg01SourceRunId:sourceRunId}:{},baseUrl:BASE_URL,status:'WAITING_ACCOUNT',limits:recoveryOnly?{'SEG-02':LIMITS['SEG-02']}:{...previous?{}:{SETUP:SETUP_LIMITS},...LIMITS},usage:{},results:{},operations:{},resources:{level:'7',ownerRef:'141',companyRef:'2',versionId:'40',...previous?{loteId:previous.lotId,planId:previous.planId}:{}},events:[]};
   fs.writeFileSync(statePath,JSON.stringify(state),{flag:'wx'});
   const save=patch=>{Object.assign(state,patch);fs.writeFileSync(statePath,JSON.stringify(state,null,2));};
   const event=status=>{state.events.push({status,utc:new Date().toISOString()});save({status});console.log('DOC119_PROGRESS='+status);};
@@ -25,8 +33,8 @@ async function main(args=process.argv.slice(2)){
   const budget=stage=>budgets[stage]||(budgets[stage]={counts:{http:0,select:0,sessions:0},take(kind){check(Object.hasOwn(this.counts,kind)&&this.counts[kind]<state.limits[stage][kind],'BUDGET_EXHAUSTED');this.counts[kind]++;state.usage[stage]={...this.counts};save({});}});
   const secrets={},input={},contexts=new Set();let environment,browser,principal,alternate;
   try{
-    console.log('Preparacion AUTORIZADA: 1 lote, 27 archivos en 2 raices, recepcion de 1 PDF de 677 bytes y creacion de 1 expediente. Sin almacenar documentos ni borrar.');
-    console.log('Despues: pruebas de lectura, paginacion/CSV/privacidad y recuperacion sin enviar los 26 PDF restantes.');
+    console.log(previous?'Continuacion SOLO LECTURA de la importacion ya preparada. No confirma, recibe ni crea de nuevo.':'Preparacion AUTORIZADA: 1 lote, 27 archivos en 2 raices, recepcion de 1 PDF de 677 bytes y creacion de 1 expediente. Sin almacenar documentos ni borrar.');
+    console.log(recoveryOnly?'Solo recuperacion: SEG-01 ya fue aprobado en la corrida anterior. No se pedira la clave de Carolina.':'Despues: pruebas de lectura, paginacion/CSV/privacidad y recuperacion sin enviar los 26 PDF restantes.');
     console.log('Ambiente: '+BASE_URL);
     await collectValue(input,'ra','Conexion RA',{defaultValue:'MembershipUsers'});await collectValue(input,'da','Conexion DA',{defaultValue:'MembershipUsers'});
     await collectValue(input,'tls','Aceptar certificado local: SI o NO',{defaultValue:'NO'});check(['SI','NO'].includes(input.tls.toUpperCase()),'TLS_CHOICE_INVALID');
@@ -39,7 +47,7 @@ async function main(args=process.argv.slice(2)){
     delete process.env.DEBUG;delete process.env.PWDEBUG;delete environment.DEBUG;delete environment.PWDEBUG;
     save({code:captureCodeEvidence({files:[...SOURCES,'tools/e2e/scripts/run-doc119-datos-aceptacion.cjs','tools/e2e/tests/support/doc119-acceptance-data.cjs','tools/e2e/tests/support/doc119-seguimiento.cjs','bin/GestionDocumental-Docuarchi.net.dll']})});
     const query=(origin,sql,parameters)=>queryRows(sql,parameters,environment,origin==='RA'?'DOC111_E2E':'DOC111_DA_E2E');
-    event('PREFLIGHT_SETUP');const b=budget('SETUP');
+    event(previous?'VERIFYING_EXISTING_DATA':'PREFLIGHT_SETUP');const b=budget(recoveryOnly?'SEG-02':previous?'SEG-01':'SETUP');
     const catalog=await discoverImports(query,b,secrets.ownerUser);principal=catalog.principal;
     check(principal.userRef==='141'&&principal.companyRef==='2','RESOURCE_OWNER_CHANGED');
     const levels=await discoverLevels(query,b,principal,'7');check(levels.length>0,'ALTERNATE_LEVEL_REQUIRED');alternate=levels[0];save({resources:{...state.resources,alternateLevel:alternate.id}});
@@ -55,6 +63,9 @@ async function main(args=process.argv.slice(2)){
       for(const source of SOURCES){current.take('http');const response=await auth.context.request.get(new URL(source,BASE_URL).href,{maxRetries:0,maxRedirects:0,timeout:30000});check(response.status()===200&&hash(await response.body())===hash(fs.readFileSync(path.join(ROOT,source))),'SERVED_SOURCE_MISMATCH');}
       check(guard.violations.length===0,'HTTP_SCOPE_DENIED');return auth;
     };
+    let lot;
+    if(previous){lot={loteId:previous.lotId,nivelRef:'7'};}
+    else{
     const scope={lotId:null,level:'7',planId:null,allowTree:false,alternateLevel:null};
     const auth=await open('owner','SETUP',scope);
     const refs={};
@@ -70,7 +81,7 @@ async function main(args=process.argv.slice(2)){
     const rootValues=result.Elementos.filter(e=>e.Ambito==='RAIZ');
     check(rootValues.length===2&&rootValues.every(e=>{const expected=manifest.raices.find(r=>r.idCliente===e.RaizIdCliente);return expected&&e.Valores.filter(v=>v.DestinoRef==='CODIGO'&&v.Valor===expected.nombre.split('-')[0]).length===1&&e.Valores.filter(v=>v.DestinoRef==='NOMBRE'&&v.Valor===expected.nombre).length===1&&e.Valores.filter(v=>v.DestinoRef==='FECHA_INICIAL'&&v.Valor==='2026-11-12').length===1;}),'PLAN_VALUES_CHANGED');
     refs.confirmation={planId:plan.planId,revisionEsperada:plan.revision,planHashEsperado:plan.planHash,claveConfirmacion:crypto.randomBytes(16).toString('hex')};
-    event('CONFIRMING_ONE_LOT');const lot=await driver.request('ConfirmarPlan',refs.confirmation);check(id(lot.loteId)&&lot.nivelRef==='7','CONFIRMATION_INVALID');refs.lotId=lot.loteId;
+    event('CONFIRMING_ONE_LOT');lot=await driver.request('ConfirmarPlan',refs.confirmation);check(id(lot.loteId)&&lot.nivelRef==='7','CONFIRMATION_INVALID');refs.lotId=lot.loteId;
     let roots=await driver.pages(lot.loteId,'RAICES'),files=await driver.pages(lot.loteId,'ARCHIVOS');
     check(roots.length===2&&files.length===27&&new Set(roots.map(r=>r.idCliente)).size===2&&manifest.archivos.every(f=>files.filter(row=>row.idCliente===f.idCliente).length===1),'ORIGINAL_TOTALS_CHANGED');
     const receipt=files.find(f=>f.idCliente==='a1');check(receipt&&id(receipt.recursoId),'FILE_CORRELATION_INVALID');refs.receiptFileId=receipt.recursoId;
@@ -80,9 +91,12 @@ async function main(args=process.argv.slice(2)){
     event('CREATING_ONE_EXPEDITION');const created=await driver.request('AvanzarLote',refs.creation);
     check(created.estado==='CONFIRMADO'&&created.loteId===lot.loteId&&created.raizId===root.recursoId&&created.fase==='CREAR_EXPEDIENTE'&&id(created.expedienteId)&&id(created.relacionNivelId),'CREATION_NOT_CONFIRMED');
     check(auth.guard.violations.length===0,'HTTP_SCOPE_DENIED');await auth.context.close();
+    }
     const setup=await makeControls(query,b).snapshot(lot.loteId);
-    check(setup.context.UsuarioRef==='141'&&setup.context.AmbitoRef==='2'&&setup.context.NivelRef==='7'&&setup.data.files.length===27&&setup.data.roots.length===2&&setup.data.files.filter(f=>f.estado_recepcion==='PENDIENTE'&&f.estado_efecto==='NO_INICIADO'&&!f.intento_activo_id).length===26&&setup.data.files.filter(f=>f.estado_recepcion==='RECIBIDO').length===1&&setup.documents===0&&setup.data.attempts.length===1&&setup.data.attempts[0].fase==='CREAR_EXPEDIENTE'&&setup.data.attempts[0].estado==='CONFIRMADO','SETUP_POSTCONDITION_FAILED');
-    save({results:{SETUP:{status:'PASS',files:27,pendingFiles:26,receivedFiles:1,receivedBytes:677,createdExpeditions:1,storedDocuments:0,fingerprint:setup.fingerprint,usage:{...b.counts}}}});
+    const review=preparedSummary(setup);save({setupReview:review});
+    check(!previous||setup.planId===previous.planId,'RESUME_SOURCE_INVALID');check(review.passed,'SETUP_POSTCONDITION_FAILED');
+    check(!accepted||setup.fingerprint===accepted.acceptedFingerprint,'EXISTING_DATA_CHANGED');
+    save({results:{[previous?'EXISTING_DATA':'SETUP']:{status:previous?'VERIFIED_EXISTING':'PASS',...review,fingerprint:setup.fingerprint,usage:{...b.counts}}}});
     const profile={...connection,lotId:lot.loteId,recoveryLotId:lot.loteId,alternateLevel:alternate.id};
     const runStage=async(stage,work)=>{
       event('RUNNING_'+stage);const current=budget(stage),controls=makeControls(query,current),before=await controls.snapshot(lot.loteId);
@@ -94,7 +108,7 @@ async function main(args=process.argv.slice(2)){
       const limited=stage==='SEG-01'?!result.pagination:!result.homonymousRootsObserved||!result.newRelationsAdded;
       state.results[stage]={status:limited?'PASS_READONLY_WITH_LIMITS':'PASS_READONLY',...result,noBusinessMutation:true,daScope:before.daScope,beforeFingerprint:before.fingerprint,afterFingerprint:after.fingerprint,usage:{...current.counts}};save({});
     };
-    await runStage('SEG-01',async(before,stageOpen,current)=>{
+    if(!recoveryOnly)await runStage('SEG-01',async(before,stageOpen,current)=>{
       const owner=await stageOpen('owner');const result=await runSeg01Owner(owner.page,lot.loteId,before,owner.guard);check(owner.guard.violations.length===0,'HTTP_SCOPE_DENIED');await owner.context.close();save({ownerChecks:result});
       const candidate=await selectSecondAccount(async(sql,params)=>{current.take('select');return query('RA',sql,params);},lot.loteId,async candidates=>candidates.find(c=>c.userRef==='136'));
       check(candidate.userRef==='136'&&candidate.companyRef==='2','SECOND_ACCOUNT_SCOPE_CHANGED');secrets.otherUser=candidate.login;save({secondAccount:{userRef:'136',companyRef:'2',source:'CURRENT_RA_SELECT'}});
@@ -106,7 +120,7 @@ async function main(args=process.argv.slice(2)){
       const file=findPreparedFile(prepared,JSON.parse(pending.origen_doc));
       const owner=await stageOpen('owner');const result=await runSeg02(owner.page,profile,before,file.path);check(owner.guard.violations.length===0,'HTTP_SCOPE_DENIED');await owner.context.close();return result;
     });
-    event(['SEG-01','SEG-02'].every(stage=>state.results[stage].status==='PASS_READONLY')?'FINISHED':'FINISHED_WITH_LIMITS');
+    event((recoveryOnly?['SEG-02']:['SEG-01','SEG-02']).every(stage=>state.results[stage].status==='PASS_READONLY')?'FINISHED':'FINISHED_WITH_LIMITS');
   }catch(error){
     const code=/^(?:DOC119|DOC111|DOC113)_[A-Z0-9_]{3,100}$/.test(error?.message)?error.message:'DOC119_SETUP_STOPPED';
     const observation=loginObservation(error?.loginObservation);save({failure:{code,...observation?{loginObservation:observation}:{},...error?.operation?{operation:error.operation,httpStatus:error.httpStatus,serverCode:error.serverCode}:{}}});event('STOPPED');process.exitCode=2;
