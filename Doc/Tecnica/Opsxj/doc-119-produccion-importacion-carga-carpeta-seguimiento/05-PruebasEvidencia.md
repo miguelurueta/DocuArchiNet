@@ -51,3 +51,15 @@ El presupuesto HTTP original resulta insuficiente para el recorrido completo. El
 ## Ampliación aprobada — 2026-11-12
 
 El usuario autorizó expresamente nueva corrida con 600 HTTP por ventana, 2 sesiones y 80/60 SELECT, sin ampliar efectos. Se configuran los nuevos topes y se registra su revisión en cada estado de ejecución. Los registros previos permanecen intactos. Política del ejecutor: **21/21 PASS**, incluida detención al agotar presupuesto; sintaxis Node, `--check`, diff y OpenSpec estricto PASS. No se repite la suite cliente sin cambios ni se suman corridas previas. No se atribuye resultado real a esta autorización. Progreso 4/24 hasta revisar la ejecución.
+
+## Acceso posterior a ampliación — 2026-11-12
+
+Corrida `c10eeb796fd147ee9742712916622cd2`: STOPPED por servicio POST fuera de alcance durante la página de inicio; 137 HTTP, 1 apertura de autenticación, 0 SELECT. Postback 200/COMPLETE, campos MATCHED y cuerpo BODY_NOT_RETAINED; Producción no observada, sin importación elegida ni huellas de negocio. Secretos eliminados al cerrar. No acredita autenticación al módulo, invariancia documental o SEG-01/02.
+
+Corrección del ejecutor: conservar login compartido/cookie real y resolver localmente solo la página intermedia fija de inicio; abrir después Producción real. Se verifican las seis dependencias CDN exactas del ASPX y se cargan sin encabezados privados, contabilizadas en el mismo presupuesto. Se mantiene rechazo de servicios adicionales, efectos y variantes de las URLs. `access.homeSkipped` y códigos fijos de dependencias se conservan en el estado. El ASPX se incluye en evidencia de código local.
+
+Preflight externo sin credenciales: las seis dependencias responden 200, con SHA-256 en `.tmp/doc119-seguimiento/c10eeb796fd147ee9742712916622cd2/static-preflight-network.json`; 6 HTTP, 0 aperturas de autenticación/SELECT. Se conserva el fallo previo de transporte del sandbox en otro archivo (1 intento contabilizado). Son lecturas públicas estáticas, sin aceptación funcional.
+
+Regresión: **45/45 PASS** (21 cliente/selector y 24 políticas). Una nueva prueba Chromium en modo offline recorre el login compartido, espera la navegación intermedia, conserva la cookie sintética y abre la página sintética de Producción sin ejecutar el panel; otras dos comprueban dependencias exactas, eliminación de encabezados privados, conteo y variantes denegadas. Sintaxis Node, `--check`, diff y OpenSpec estricto PASS. Estas pruebas no se atribuyen al ambiente real.
+
+Preflight final del login real sin credenciales, con el helper corregido: HTTP 200, controles presentes, una consulta ObtenerEstado y ninguna violación; 95 HTTP/0 aperturas de autenticación/0 SELECT. Huella del helper: `2ae98826010297371dc4941a13382b42cdb157d9a3c6afbf07936a1335c0a01e`; registro `login-corrected-preflight.json` en el directorio local de la corrida. Sigue sin acreditar acceso autenticado a Producción o SEG-01/02. Progreso 4/24; nueva consola identificada por runId y bajo control manual del operador para capturar credenciales.

@@ -5,6 +5,14 @@ const {selectLevel}=require('./doc113-ventana-importacion.cjs');
 const BASE_URL='https://localhost/GestionDocumental-Docuarchi.net/';
 const LOGIN_STATUS_PATH='webservice/webserviceloginsegundofactor.asmx/obtenerestado';
 const LOGIN_LANDING_PATH='defaul/webforminiciodocuarchigestion.aspx';
+const STATIC_DEPENDENCIES=Object.freeze([
+  Object.freeze({code:'POPPER_1_11_0',type:'script',url:'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js'}),
+  Object.freeze({code:'BOOTSTRAP_TABLE_1_23_2_CSS',type:'stylesheet',url:'https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.2/dist/bootstrap-table.min.css'}),
+  Object.freeze({code:'BOOTSTRAP_TABLE_1_23_2_JS',type:'script',url:'https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.2/dist/bootstrap-table.min.js'}),
+  Object.freeze({code:'TABLE_EXPORT_1_29_0',type:'script',url:'https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.29.0/tableExport.min.js'}),
+  Object.freeze({code:'TABLE_EXPORT_1_29_0_JSPDF',type:'script',url:'https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.29.0/libs/jsPDF/jspdf.umd.min.js'}),
+  Object.freeze({code:'BOOTSTRAP_TABLE_1_23_2_EXPORT',type:'script',url:'https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.2/dist/extensions/export/bootstrap-table-export.min.js'})
+]);
 const LIMITS=Object.freeze({'SEG-01':Object.freeze({http:600,select:80,sessions:2}),'SEG-02':Object.freeze({http:600,select:60,sessions:2})});
 const READS=Object.freeze(['AbrirImportacion','ListarPerfilesImportacion','ConsultarLote','ConsultarRecursosLote','ExportarPaginaLote','ConsultarConfirmacionLote']);
 const check=(ok,code)=>{if(!ok)throw Error('DOC119_'+code);};
@@ -72,6 +80,7 @@ function permittedRequest(method,url,payload,scope){
   if(target.username||target.password||target.origin!==base.origin||!target.pathname.toLowerCase().startsWith(base.pathname.toLowerCase()))return false;
   const relative=target.pathname.slice(base.pathname.length).toLowerCase();
   if(/\.ashx(?:$|\/)/i.test(relative))return false;
+  if(relative===LOGIN_LANDING_PATH)return ['GET','HEAD'].includes(method)&&!target.search;
   if(relative===LOGIN_STATUS_PATH)return method==='POST'&&!target.search&&payload&&typeof payload==='object'&&!Array.isArray(payload)&&Object.keys(payload).length===0;
   if(relative.startsWith('webservice/')||/\.asmx(?:\/|$)/i.test(relative)){
     if(method!=='POST'||!relative.startsWith('webservice/webserviceimportacioncarpetas.asmx/'))return false;
@@ -114,7 +123,7 @@ function guardRequestSummary(request){
   return {resource,method:['GET','HEAD','POST'].includes(request.method())?request.method():'OTHER',operation};
 }
 async function installGuard(context,budget,scope){
-  const calls=[],violations=[],omittedPresentation=[];
+  const calls=[],violations=[],omittedPresentation=[],externalAssets=[];
   let firstViolation=null;
   await context.route('**/*',async route=>{
     const request=route.request();let payload;
@@ -125,17 +134,29 @@ async function installGuard(context,budget,scope){
       if(request.method()==='GET'&&request.resourceType?.()==='stylesheet'&&request.url()==='https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,600,700,800'){
         omittedPresentation.push('GOOGLE_LOGIN_FONT');await route.abort('blockedbyclient');return;
       }
+      const dependency=STATIC_DEPENDENCIES.find(item=>item.url===request.url()&&item.type===request.resourceType?.());
+      if(dependency&&request.method()==='GET'&&!request.postData?.()){
+        budget.take('http');
+        const headers=Object.fromEntries(Object.entries(await request.allHeaders()).filter(([key])=>!['cookie','authorization','proxy-authorization','referer','origin'].includes(key.toLowerCase())));
+        externalAssets.push(dependency.code);await route.continue({headers});return;
+      }
       if(request.method()==='POST'&&/\/webservice\//i.test(request.url())){
         const envelope=JSON.parse(request.postData());
         payload=new URL(request.url()).pathname.toLowerCase()===new URL(LOGIN_STATUS_PATH,BASE_URL).pathname.toLowerCase()?envelope:envelope?.solicitud;
       }
       else if(request.method()==='POST'&&/\/Gestion\/WebFormProducionDocumental\.aspx(?:\?|$)/i.test(request.url()))payload=Object.fromEntries(new URLSearchParams(request.postData()||''));
       check(permittedRequest(request.method(),request.url(),payload,scope),'HTTP_SCOPE_DENIED');
+      // The real login already issued its session cookie. The shared helper
+      // opens Production next; do not execute the unrelated home dashboard.
+      if(guardRequestSummary(request).resource==='LOGIN_LANDING'){
+        omittedPresentation.push('HOME_LANDING');
+        await route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:'<!doctype html><html><body></body></html>'});return;
+      }
       budget.take('http');
       if(payload&&/\/webservice\//i.test(request.url()))calls.push({operation:new URL(request.url()).pathname.split('/').pop(),request:payload});
       await route.continue();
     }catch(error){if(!firstViolation)firstViolation=guardRequestSummary(request);violations.push(/^DOC119_[A-Z_]+$/.test(error.message)?error.message:'DOC119_HTTP_SCOPE_DENIED');await route.abort('blockedbyclient');}
-  });return {calls,violations,omittedPresentation,get firstViolation(){return firstViolation;}};
+  });return {calls,violations,omittedPresentation,externalAssets,get firstViolation(){return firstViolation;}};
 }
 function makeControls(query,budget){
   const read=async(origin,sql,args)=>{budget.take('select');return query(origin,sql,args);};
@@ -278,4 +299,4 @@ async function runSeg02(page,profile,baseline,filePath){
   const names=baseline.data.roots.map(r=>{try{return JSON.parse(r.datos_doc).NombreOriginal;}catch{return null;}}).filter(Boolean);
   return {reload:true,reselectionMetadataOnly:true,noUpload:true,selectionPreserved:true,treeDeduplicated:true,newRelationsAdded:after.counts.some((n,i)=>n>before.counts[i]),homonymousRootsObserved:new Set(names).size<names.length,confirmedRelations:identities.length};
 }
-module.exports={BASE_URL,LIMITS,READS,check,id,hash,validateConnection,validateProfile,displayText,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,guardRequestSummary,installGuard,makeControls,responseFor,consult,applyFilter,csvRows,runSeg01Owner,runSeg01Other,runSeg02};
+module.exports={BASE_URL,LIMITS,READS,STATIC_DEPENDENCIES,check,id,hash,validateConnection,validateProfile,displayText,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,guardRequestSummary,installGuard,makeControls,responseFor,consult,applyFilter,csvRows,runSeg01Owner,runSeg01Other,runSeg02};

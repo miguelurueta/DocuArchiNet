@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
-const {BASE_URL,LIMITS,READS,validateConnection,validateProfile,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,guardRequestSummary,installGuard,makeControls,csvRows,hash}=require('./support/doc119-seguimiento.cjs');
+const {BASE_URL,LIMITS,READS,STATIC_DEPENDENCIES,validateConnection,validateProfile,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,guardRequestSummary,installGuard,makeControls,csvRows,hash}=require('./support/doc119-seguimiento.cjs');
 const {parseArgs,main}=require('../scripts/run-doc119-seguimiento.cjs');
 const profile=()=>({baseUrl:BASE_URL,module:'GESTOR',ignoreHttpsErrors:false,timeoutMilliseconds:60000,odbcDsn:'MembershipUsers',docuarchiOdbcDsn:'MembershipUsers',lotId:'5',recoveryLotId:null,alternateLevel:null});
 const scope={lotId:'5',level:'7',planId:'17'};
@@ -105,6 +105,61 @@ test('DOC119 diagnostico de guardia conserva solo categorias sin rutas, parametr
   await handler({request:()=>request,continue:async()=>assert.fail('must block'),abort:async()=>{}});
   assert.deepEqual(guard.firstViolation,{resource:'OUTSIDE_ORIGIN',method:'POST',operation:null});
   assert.doesNotMatch(JSON.stringify(guard.firstViolation),/private-account|secret-path|password|synthetic/);
+});
+
+test('DOC119 omite inicio y conserva el login compartido antes de abrir Produccion',async()=>{
+  const {chromium}=require('../node_modules/playwright');
+  const {openSession}=require('./support/doc111-importacion-carpetas.cjs');
+  const {createWorkflowLoginPageSession}=require('./support/authenticated-workflow-session.cjs');
+  const browser=await chromium.launch({headless:true});let guard,homeSent=0;
+  try{
+    const budget=createBudget('SEG-01');
+    const facade={newContext:async()=>{
+      const context=await browser.newContext({offline:true});
+      const adapter={route:async(pattern,handler)=>context.route(pattern,route=>handler({request:()=>route.request(),abort:code=>route.abort(code),fulfill:options=>route.fulfill(options),continue:async()=>{
+        const request=route.request(),relative=new URL(request.url()).pathname.toLowerCase();
+        if(relative.endsWith('/defaul/webforminiciodocuarchigestion.aspx')){homeSent++;return route.fulfill({contentType:'text/html',body:'<script>fetch("/forbidden-service",{method:"POST"})</script>'});}
+        if(relative.endsWith('/gestor.aspx')&&request.method()==='POST')return route.fulfill({status:200,headers:{'content-type':'text/html','set-cookie':'synthetic_session=valid; Path=/; Secure; HttpOnly'},body:'<script>location.replace('+JSON.stringify(new URL('Defaul/WebFormInicioDocuarchiGestion.aspx',BASE_URL).href)+')</script>'});
+        if(relative.endsWith('/gestor.aspx'))return route.fulfill({contentType:'text/html',body:'<form method="post"><select id="ContentPlacenter_DropDownListmodulos"><option value="GESTOR">Gestor</option></select><input id="ContentPlacenter_TextBoxuser" name="TextBoxuser"><input id="ContentPlacenter_TextBoxpasw" name="TextBoxpasw" type="password"><a class="da-login-submit" href="#" onclick="document.forms[0].requestSubmit();return false">Entrar</a></form>'});
+        if(relative.endsWith('/gestion/webformproduciondocumental.aspx'))return route.fulfill({contentType:'text/html',body:'<div id="doc111-importacion" data-token="synthetic-only"></div>'});
+        return route.abort();
+      }}))};
+      guard=await installGuard(adapter,budget,{lotId:null,level:null,planId:null});return context;
+    }};
+    // Let the native redirect finish before the helper opens Production. This
+    // reproduces the ordering that previously executed the home dashboard.
+    const runtime={createSession:(browser,options)=>createWorkflowLoginPageSession(browser,{...options,onPostbackCompleted:async(page,response)=>{await options.onPostbackCompleted(page,response);await page.waitForURL(new URL('Defaul/WebFormInicioDocuarchiGestion.aspx',BASE_URL).href,{waitUntil:'domcontentloaded',timeout:5000});}})};
+    const auth=await openSession(facade,{baseUrl:BASE_URL,ignoreHttpsErrors:false,timeoutMilliseconds:30000},{DOC111_E2E_MODULE:'GESTOR',DOC111_E2E_USER:'synthetic-owner',DOC111_E2E_PASSWORD:'synthetic-password'},{environment:true,account:true},runtime);
+    assert.equal(homeSent,0);assert.ok(guard.omittedPresentation.includes('HOME_LANDING'));assert.deepEqual(guard.violations,[]);
+    assert.match(auth.page.url(),/Gestion\/WebFormProducionDocumental\.aspx$/);
+    assert.ok((await auth.context.cookies()).some(cookie=>cookie.name==='synthetic_session'&&cookie.value==='valid'));
+    assert.equal(auth.loginObservation.postedFields,'MATCHED');await auth.context.close();
+  }finally{await browser.close();}
+});
+
+test('DOC119 carga solo dependencias CDN fijas sin enviar contexto privado y cuenta cada GET',async()=>{
+  const fs=require('node:fs'),path=require('node:path');
+  const markup=fs.readFileSync(path.resolve(__dirname,'../../../Gestion/WebFormProducionDocumental.aspx'),'utf8');
+  let handler;const budget=createBudget('SEG-01'),sent=[];
+  const guard=await installGuard({route:async(_p,value)=>{handler=value;}},budget,scope);
+  for(const asset of STATIC_DEPENDENCIES){
+    assert.ok(markup.includes(asset.url));
+    const request={method:()=> 'GET',url:()=>asset.url,resourceType:()=>asset.type,postData:()=>null,allHeaders:async()=>({Cookie:'synthetic',Authorization:'synthetic','proxy-authorization':'synthetic',Referer:'synthetic',Origin:'synthetic',accept:'*/*'})};
+    await handler({request:()=>request,continue:async options=>sent.push(options),abort:async()=>assert.fail('known public asset must load')});
+  }
+  assert.equal(budget.counts.http,6);assert.equal(sent.length,6);assert.deepEqual(guard.externalAssets,STATIC_DEPENDENCIES.map(a=>a.code));assert.deepEqual(guard.violations,[]);
+  for(const options of sent)assert.deepEqual(options.headers,{accept:'*/*'});
+});
+
+test('DOC119 excepciones de arranque rechazan landing con parametros y CDN alterado',async()=>{
+  const landing=new URL('Defaul/WebFormInicioDocuarchiGestion.aspx',BASE_URL).href;
+  assert.equal(permittedRequest('GET',landing+'?action=delete',null,scope),false);
+  const asset=STATIC_DEPENDENCIES[0];
+  for(const patch of [{method:'POST'},{type:'document'},{url:asset.url+'?private=synthetic'},{body:'synthetic'}]){
+    let handler;const budget=createBudget('SEG-01'),guard=await installGuard({route:async(_p,value)=>{handler=value;}},budget,scope);
+    await handler({request:()=>({method:()=>patch.method||'GET',url:()=>patch.url||asset.url,resourceType:()=>patch.type||asset.type,postData:()=>patch.body||null}),continue:async()=>assert.fail('must block'),abort:async()=>{}});
+    assert.equal(budget.counts.http,0);assert.equal(guard.violations[0],'DOC119_HTTP_SCOPE_DENIED');
+  }
 });
 test('DOC119 CSV conserva comillas, saltos y pagina vacia sin guardarlo',()=>{
   assert.deepEqual(csvRows('"recursoId","nombre"\r\n"31","a,""b""\r\nc"\r\n'),[['recursoId','nombre'],['31','a,"b"\r\nc']]);

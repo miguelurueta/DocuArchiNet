@@ -7,7 +7,7 @@ const {queryRows}=require('./support/doc32-e2e-odbc.cjs');
 const {BASE_URL,LIMITS,check,id,hash,validateConnection,validateProfile,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,installGuard,makeControls,runSeg01Owner,runSeg01Other,runSeg02}=require('../tests/support/doc119-seguimiento.cjs');
 const ROOT=path.resolve(__dirname,'../../..');
 const SOURCES=['js/gestion/ImportacionCarpetas/ImportacionCarpetas.js','js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js','js/gestion/ImportacionCarpetas/ImportacionCarpetas.css'];
-const EVIDENCE_FILES=[...SOURCES,'tools/e2e/scripts/run-doc119-seguimiento.cjs','tools/e2e/tests/support/doc119-seguimiento.cjs','tools/e2e/tests/support/doc111-importacion-carpetas.cjs','tools/e2e/tests/support/doc113-ventana-importacion.cjs','tools/e2e/tests/support/authenticated-workflow-session.cjs','tools/e2e/scripts/support/doc32-e2e-odbc.cjs','tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1','tools/e2e/scripts/support/interactive-e2e-console.cjs','tools/e2e/tests/support/doc110-code-evidence.cjs','bin/GestionDocumental-Docuarchi.net.dll'];
+const EVIDENCE_FILES=[...SOURCES,'Gestion/WebFormProducionDocumental.aspx','tools/e2e/scripts/run-doc119-seguimiento.cjs','tools/e2e/tests/support/doc119-seguimiento.cjs','tools/e2e/tests/support/doc111-importacion-carpetas.cjs','tools/e2e/tests/support/doc113-ventana-importacion.cjs','tools/e2e/tests/support/authenticated-workflow-session.cjs','tools/e2e/scripts/support/doc32-e2e-odbc.cjs','tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1','tools/e2e/scripts/support/interactive-e2e-console.cjs','tools/e2e/tests/support/doc110-code-evidence.cjs','bin/GestionDocumental-Docuarchi.net.dll'];
 function parseArgs(args){
   if(args.length===1&&args[0]==='--check')return {check:true};
   check(args.length===3&&args[0]==='--run'&&/^[a-f0-9]{32}$/.test(args[1])&&args[2]==='--authorized-plan','ARGUMENT_INVALID');return {runId:args[1]};
@@ -16,6 +16,7 @@ async function main(args=process.argv.slice(2)){
   const options=parseArgs(args);
   if(options.check){for(const name of SOURCES)check(fs.statSync(path.join(ROOT,name)).isFile(),'SOURCE_MISSING');console.log('DOC119_CHECK=PASS; REAL_EXECUTION=false');return;}
   requireInteractiveConsole();
+  process.title='DOC-119 - lectura real - '+options.runId.slice(0,8);
   const directory=path.join(ROOT,'.tmp','doc119-seguimiento',options.runId);fs.mkdirSync(directory,{recursive:true});
   const statePath=path.join(directory,'state.json'),state={version:3,runId:options.runId,pid:process.pid,authorizedPlan:true,authorizationRevision:'20261112-http600',limits:LIMITS,baseUrl:BASE_URL,status:'WAITING_ACCOUNT',stage:null,usage:{},results:{},events:[]};
   fs.writeFileSync(statePath,JSON.stringify(state),{flag:'wx'});
@@ -62,9 +63,10 @@ async function main(args=process.argv.slice(2)){
       const guardedBrowser={newContext:async contextOptions=>{const context=await browser.newContext(contextOptions);contexts.add(context);guard=await installGuard(context,budget,scope);return context;}};
       let auth;
       try{auth=await openSession(guardedBrowser,{...connection,nivelRef:scope.level},environment,{environment:true,account:true},{beforeDiagnosticPost(){check(id(scope.level)&&permittedRequest('POST',new URL('webservice/WebServiceImportacionCarpetas.asmx/AbrirImportacion',BASE_URL).href,{nivelRef:scope.level},scope),'HTTP_SCOPE_DENIED');budget.take('http');}});}
-      catch(error){save({guardViolation:guard?.violations[0]||null,guardRequest:guard?.firstViolation||null});if(guard?.violations.length){const blocked=Error(guard.violations[0]);blocked.loginObservation=error?.loginObservation;throw blocked;}throw error;}
+      catch(error){save({guardViolation:guard?.violations[0]||null,guardRequest:guard?.firstViolation||null,access:{homeSkipped:guard?.omittedPresentation.includes('HOME_LANDING')||false,externalAssets:guard?.externalAssets||[]}});if(guard?.violations.length){const blocked=Error(guard.violations[0]);blocked.loginObservation=error?.loginObservation;throw blocked;}throw error;}
       auth.page.setDefaultTimeout(30000);auth.guard=guard;auth.scope=scope;
       for(const resource of SOURCES){budget.take('http');const response=await auth.context.request.get(new URL(resource,BASE_URL).href,{maxRetries:0,maxRedirects:0,timeout:30000});check(response.status()===200&&hash(await response.body())===hash(fs.readFileSync(path.join(ROOT,resource))),'SERVED_SOURCE_MISMATCH');}
+      save({access:{homeSkipped:guard.omittedPresentation.includes('HOME_LANDING'),externalAssets:guard.externalAssets}});
       check(guard.violations.length===0,'HTTP_SCOPE_DENIED');return auth;
     };
     // Authenticate before showing any account-owned import. Until selection,

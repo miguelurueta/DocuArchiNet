@@ -61,3 +61,13 @@ La carga de esa página ya supera los 80 HTTP de SEG-02 y deja solo 25 de los 12
 ## Ampliación autorizada — 2026-11-12
 
 El usuario respondió «autorizado» a la solicitud expresa de nueva corrida con **600 HTTP por prueba**, 2 sesiones y 80/60 SELECT, solo lectura y sin cargas ni limpieza. Se aplica esa ampliación en el ejecutor y en la tabla vigente de este plan. Cada nueva corrida conserva `authorizationRevision=20261112-http600` y los topes exactos en su estado local; no modifica los registros ni consumos de corridas anteriores. Los datos de acceso se capturan nuevamente en consola enmascarada porque se eliminaron al finalizar las corridas fallidas. La aprobación de presupuesto no acredita aceptación SEG-01/02 ni completa tareas pendientes por sí sola.
+
+## Recorrido de acceso acotado
+
+La corrida `c10eeb796fd147ee9742712916622cd2` terminó STOPPED con 137 HTTP, 1 apertura de autenticación y 0 SELECT. El postback respondió 200 con campos coincidentes; la guardia detuvo un POST de otro servicio durante la carga del panel de inicio. No se tomaron huellas de negocio ni se acredita aceptación o invariancia de recursos.
+
+El ejecutor ahora resuelve localmente con HTML vacío el GET/HEAD sin parámetros del destino de inicio fijo, conservando la cookie que emitió el login real. El helper compartido abre después Producción Documental real. Así no se ejecutan el panel de inicio, su inicialización de temporales/firma ni sus servicios. No se sustituyen la página de Producción, respuestas de seguimiento o CSV.
+
+Para cargar el cliente real se contemplan sus seis dependencias públicas versionadas, referenciadas en el ASPX: Popper 1.11.0, Bootstrap Table 1.23.2 (CSS/JS/export) y TableExport 1.29.0 (JS/jsPDF). Solo GET y tipo script/stylesheet a las URLs exactas enumeradas en `STATIC_DEPENDENCIES`; sin Cookie/Authorization/Proxy-Authorization/Referer/Origin. Cada solicitud consume los 600 HTTP autorizados. No se habilitan otros orígenes dinámicos, métodos o APIs. Se preservan códigos de dependencias en evidencia, sin cuerpos ni valores privados.
+
+Preflight público de las seis dependencias: 6 HTTP, todas 200 y huellas SHA-256 conservadas localmente; sin autenticación ni SELECT. La sonda inicial dentro del sandbox falló al primer intento de transporte y se conserva por separado. No acredita el módulo autenticado. Una nueva consola queda bajo control del operador; no se relanza automáticamente ninguna corrida fallida ni se restauran credenciales eliminadas.
