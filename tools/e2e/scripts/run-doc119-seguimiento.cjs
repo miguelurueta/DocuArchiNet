@@ -5,9 +5,9 @@ const {openSession,loginObservation}=require('../tests/support/doc111-importacio
 const {captureCodeEvidence}=require('../tests/support/doc110-code-evidence.cjs');
 const {queryRows}=require('./support/doc32-e2e-odbc.cjs');
 const {selectSecondAccount}=require('../tests/support/doc119-second-accounts.cjs');
-const {BASE_URL,LIMITS,check,id,hash,assertSessionFresh,previousSelection,validateConnection,validateProfile,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,installGuard,makeControls,runSeg01Owner,runSeg01Other,runSeg02}=require('../tests/support/doc119-seguimiento.cjs');
+const {BASE_URL,LIMITS,check,id,hash,assertSessionFresh,previousSelection,validateConnection,validateProfile,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,installGuard,makeControls,safeTreeDiagnostic,runSeg01Owner,runSeg01Other,runSeg02}=require('../tests/support/doc119-seguimiento.cjs');
 const ROOT=path.resolve(__dirname,'../../..');
-const SOURCES=['js/gestion/ImportacionCarpetas/ImportacionCarpetas.js','js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js','js/gestion/ImportacionCarpetas/ImportacionCarpetas.css'];
+const SOURCES=['js/gestion/ImportacionCarpetas/ImportacionCarpetas.js','js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js','js/gestion/ImportacionCarpetas/ImportacionCarpetas.css','js/gestion/WebFormProducionDocumental.js'];
 const EVIDENCE_FILES=[...SOURCES,'Gestion/WebFormProducionDocumental.aspx','tools/e2e/scripts/run-doc119-seguimiento.cjs','tools/e2e/tests/support/doc119-seguimiento.cjs','tools/e2e/tests/support/doc119-second-accounts.cjs','tools/e2e/tests/support/doc111-importacion-carpetas.cjs','tools/e2e/tests/support/doc113-ventana-importacion.cjs','tools/e2e/tests/support/authenticated-workflow-session.cjs','tools/e2e/scripts/support/doc32-e2e-odbc.cjs','tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1','tools/e2e/scripts/support/interactive-e2e-console.cjs','tools/e2e/tests/support/doc110-code-evidence.cjs','bin/GestionDocumental-Docuarchi.net.dll'];
 function parseArgs(args){
   if(args.length===1&&args[0]==='--check')return {check:true};
@@ -174,7 +174,7 @@ async function main(args=process.argv.slice(2)){
     if(explanations[code])console.log(explanations[code]);
     if(code==='DOC111_LOGIN_ACCOUNT_NOT_FOUND')console.log('El inicio de sesion no encontro la cuenta en el modulo GESTOR. No se repetira ni se probara otra identidad automaticamente.');
     if(code==='DOC119_SECOND_ACCOUNT_UNAVAILABLE')console.log('No hay otra cuenta activa de esta empresa habilitada para importar. No se iniciara una segunda sesion.');
-    const observation=loginObservation(error?.loginObservation);save({failure:{code,...observation?{loginObservation:observation}:{}}});event('STOPPED');process.exitCode=2;
+    const observation=loginObservation(error?.loginObservation),treeDiagnostic=safeTreeDiagnostic(error?.treeDiagnostic);save({failure:{code,...observation?{loginObservation:observation}:{},...treeDiagnostic?{treeDiagnostic}:{}}});event('STOPPED');process.exitCode=2;
   }finally{
     for(const context of contexts)await context.close().catch(()=>{});
     if(browser)await browser.close().catch(()=>{});for(const key of Object.keys(secrets))delete secrets[key];

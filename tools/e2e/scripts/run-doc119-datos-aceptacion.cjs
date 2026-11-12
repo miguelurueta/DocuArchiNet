@@ -6,9 +6,9 @@ const {openSession,createDriver,loginObservation}=require('../tests/support/doc1
 const {captureCodeEvidence}=require('../tests/support/doc110-code-evidence.cjs');
 const {selectSecondAccount}=require('../tests/support/doc119-second-accounts.cjs');
 const {readPrepared,findPreparedFile,resumeSource,recoverySource,preparedSummary,setupTransport}=require('../tests/support/doc119-acceptance-data.cjs');
-const {BASE_URL,LIMITS,check,id,hash,validateConnection,installGuard,discoverImports,discoverLevels,makeControls,runSeg01Owner,runSeg01Other,runSeg02}=require('../tests/support/doc119-seguimiento.cjs');
+const {BASE_URL,LIMITS,check,id,hash,validateConnection,installGuard,discoverImports,discoverLevels,makeControls,safeTreeDiagnostic,runSeg01Owner,runSeg01Other,runSeg02}=require('../tests/support/doc119-seguimiento.cjs');
 const ROOT=path.resolve(__dirname,'../../..');
-const SOURCES=['js/gestion/ImportacionCarpetas/ImportacionCarpetas.js','js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js','js/gestion/ImportacionCarpetas/ImportacionCarpetas.css'];
+const SOURCES=['js/gestion/ImportacionCarpetas/ImportacionCarpetas.js','js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js','js/gestion/ImportacionCarpetas/ImportacionCarpetas.css','js/gestion/WebFormProducionDocumental.js'];
 const SETUP_LIMITS={http:400,select:40,sessions:1};
 async function main(args=process.argv.slice(2)){
   const prepared=readPrepared(ROOT),manifest=prepared.fixture.request;
@@ -45,7 +45,7 @@ async function main(args=process.argv.slice(2)){
     Object.assign(environment,{DOC111_E2E_MODULE:'GESTOR',DOC111_E2E_ODBC_DSN:connection.odbcDsn,DOC111_DA_E2E_ODBC_DSN:connection.docuarchiOdbcDsn});
     for(const prefix of ['DOC111_E2E','DOC111_DA_E2E'])Object.assign(environment,{[prefix+'_MYSQL_USER']:secrets.dbUser,[prefix+'_MYSQL_PASSWORD']:secrets.dbPassword});
     delete process.env.DEBUG;delete process.env.PWDEBUG;delete environment.DEBUG;delete environment.PWDEBUG;
-    save({code:captureCodeEvidence({files:[...SOURCES,'tools/e2e/scripts/run-doc119-datos-aceptacion.cjs','tools/e2e/tests/support/doc119-acceptance-data.cjs','tools/e2e/tests/support/doc119-seguimiento.cjs','bin/GestionDocumental-Docuarchi.net.dll']})});
+    save({code:captureCodeEvidence({files:[...SOURCES,'Gestion/WebFormProducionDocumental.aspx','tools/e2e/scripts/run-doc119-datos-aceptacion.cjs','tools/e2e/tests/support/doc119-acceptance-data.cjs','tools/e2e/tests/support/doc119-seguimiento.cjs','bin/GestionDocumental-Docuarchi.net.dll']})});
     const query=(origin,sql,parameters)=>queryRows(sql,parameters,environment,origin==='RA'?'DOC111_E2E':'DOC111_DA_E2E');
     event(previous?'VERIFYING_EXISTING_DATA':'PREFLIGHT_SETUP');const b=budget(recoveryOnly?'SEG-02':previous?'SEG-01':'SETUP');
     const catalog=await discoverImports(query,b,secrets.ownerUser);principal=catalog.principal;
@@ -123,7 +123,7 @@ async function main(args=process.argv.slice(2)){
     event((recoveryOnly?['SEG-02']:['SEG-01','SEG-02']).every(stage=>state.results[stage].status==='PASS_READONLY')?'FINISHED':'FINISHED_WITH_LIMITS');
   }catch(error){
     const code=/^(?:DOC119|DOC111|DOC113)_[A-Z0-9_]{3,100}$/.test(error?.message)?error.message:'DOC119_SETUP_STOPPED';
-    const observation=loginObservation(error?.loginObservation);save({failure:{code,...observation?{loginObservation:observation}:{},...error?.operation?{operation:error.operation,httpStatus:error.httpStatus,serverCode:error.serverCode}:{}}});event('STOPPED');process.exitCode=2;
+    const observation=loginObservation(error?.loginObservation),treeDiagnostic=safeTreeDiagnostic(error?.treeDiagnostic);save({failure:{code,...observation?{loginObservation:observation}:{},...treeDiagnostic?{treeDiagnostic}:{},...error?.operation?{operation:error.operation,httpStatus:error.httpStatus,serverCode:error.serverCode}:{}}});event('STOPPED');process.exitCode=2;
   }finally{
     for(const context of contexts)await context.close().catch(()=>{});if(browser)await browser.close().catch(()=>{});
     for(const key of Object.keys(secrets))delete secrets[key];if(environment)for(const key of Object.keys(environment))if(/^DOC\d+(?:_DA)?_E2E/.test(key))delete environment[key];

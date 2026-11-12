@@ -1,10 +1,16 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
-const {BASE_URL,LIMITS,READS,STATIC_DEPENDENCIES,SESSION_IDLE_LIMIT_MS,assertSessionFresh,previousSelection,validateConnection,validateProfile,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,guardRequestSummary,installGuard,makeControls,responseFor,csvRows,hash}=require('./support/doc119-seguimiento.cjs');
+const {BASE_URL,LIMITS,READS,STATIC_DEPENDENCIES,SESSION_IDLE_LIMIT_MS,assertSessionFresh,previousSelection,validateConnection,validateProfile,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,guardRequestSummary,installGuard,makeControls,responseFor,csvRows,hash,safeTreeDiagnostic}=require('./support/doc119-seguimiento.cjs');
 const {parseArgs,main}=require('../scripts/run-doc119-seguimiento.cjs');
 const profile=()=>({baseUrl:BASE_URL,module:'GESTOR',ignoreHttpsErrors:false,timeoutMilliseconds:60000,odbcDsn:'MembershipUsers',docuarchiOdbcDsn:'MembershipUsers',lotId:'5',recoveryLotId:null,alternateLevel:null});
 const scope={lotId:'5',level:'7',planId:'17'};
 const url=operation=>new URL('webservice/WebServiceImportacionCarpetas.asmx/'+operation,BASE_URL).href;
+test('DOC119 diagnostico de arbol conserva solo conteos y categorias, sin DOM ni secretos',()=>{
+  const input={before:{availability:'AVAILABLE',counts:[1],html:'private'},after:{availability:'AVAILABLE',counts:[2],headers:'private'},selectionPreserved:true,expansionPreserved:true,cookie:'private'};
+  assert.deepEqual(safeTreeDiagnostic(input),{before:{availability:'AVAILABLE',counts:[1]},after:{availability:'AVAILABLE',counts:[2]},selectionPreserved:true,expansionPreserved:true});
+  assert.equal(JSON.stringify(safeTreeDiagnostic(input)).includes('private'),false);
+  for(const change of [v=>v.before.availability='private',v=>v.after.counts=[NaN],v=>v.after.counts=[1,2],v=>v.before.counts=[-1],v=>v.selectionPreserved='private']){const value=structuredClone(input);change(value);assert.equal(safeTreeDiagnostic(value),null);}
+});
 
 test('DOC119 selector exige autorizacion del plan y runId sin texto ejecutable',()=>{
   assert.deepEqual(parseArgs(['--check']),{check:true});

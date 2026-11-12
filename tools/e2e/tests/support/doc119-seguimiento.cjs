@@ -286,11 +286,19 @@ async function runSeg01Other(page,lotId){
 }
 function observeOriginalBranch({level,identities}){
   const tree=document.getElementById('TreeViewArchivo');
-  const parents=Array.from(tree?.querySelectorAll('a[title]')||[]).filter(a=>a.title.split('\\')[0]===level&&a.title.includes('\\'));
+  const nodes=Array.from(tree?.querySelectorAll('a[id][title]')||[]).filter(a=>/^TreeViewArchivot[0-9]+$/.test(a.id));
+  const parents=nodes.filter(a=>a.title.split('\\')[0]===level&&a.title.includes('\\'));
   const parent=parents.length===1?parents[0]:null;
   const branch=parent?document.getElementById(parent.id.replace('TreeViewArchivot','TreeViewArchivon')+'Nodes'):null;
   const reason=parents.length===0?'PARENT_ABSENT':parents.length!==1?'PARENT_AMBIGUOUS':!parent.getClientRects().length?'PARENT_HIDDEN':!branch?'BRANCH_ABSENT':'AVAILABLE';
-  return {available:reason==='AVAILABLE',reason,selection:window.SELECCION_TREVIEW_ID,display:branch?.style.display??null,counts:identities.map(key=>Array.from(tree?.querySelectorAll('a[title]')||[]).filter(a=>a.title.replace(/\|$/,'')===key.replace(/\|$/,'')).length)};
+  return {available:reason==='AVAILABLE',reason,selection:window.SELECCION_TREVIEW_ID,display:branch?.style.display??null,counts:identities.map(key=>nodes.filter(a=>a.title.replace(/\|$/,'')===key.replace(/\|$/,'')).length)};
+}
+function safeTreeDiagnostic(value){
+  if(!value||typeof value!=='object'||typeof value.selectionPreserved!=='boolean'||typeof value.expansionPreserved!=='boolean')return null;
+  const reasons=['AVAILABLE','PARENT_ABSENT','PARENT_AMBIGUOUS','PARENT_HIDDEN','BRANCH_ABSENT'];
+  const valid=side=>side&&reasons.includes(side.availability)&&Array.isArray(side.counts)&&side.counts.length>0&&side.counts.length<=100&&side.counts.every(n=>Number.isSafeInteger(n)&&n>=0&&n<=10000);
+  if(!valid(value.before)||!valid(value.after)||value.before.counts.length!==value.after.counts.length)return null;
+  return {before:{availability:value.before.availability,counts:[...value.before.counts]},after:{availability:value.after.availability,counts:[...value.after.counts]},selectionPreserved:value.selectionPreserved,expansionPreserved:value.expansionPreserved};
 }
 async function runSeg02(page,profile,baseline,filePath){
   const pending=baseline.data.files.find(f=>f.estado_recepcion==='PENDIENTE'&&f.estado_efecto==='NO_INICIADO'&&!f.intento_activo_id);
@@ -320,10 +328,12 @@ async function runSeg02(page,profile,baseline,filePath){
   const repeated=await responseFor(page,'ConsultarRecursosLote',()=>page.getByRole('button',{name:'Consultar estado',exact:true}).click(),'ARCHIVOS');
   check(repeated.body?.ok,'REQUERY_FAILED');await page.waitForFunction(()=>!document.querySelector('[data-doc111-action="consultar"]')?.disabled);
   const after=await page.evaluate(observeOriginalBranch,{level:baseline.context.NivelRef,identities});
-  check(after.selection===before.selection,'TREE_SELECTION_CHANGED');
-  check(after.reason===before.reason&&after.display===before.display,'TREE_EXPANSION_CHANGED');
-  check(before.available?after.counts.every(n=>n===1):after.counts.every((n,i)=>n<=1&&n===before.counts[i]),'TREE_RELATION_COUNT_INVALID');
+  const treeDiagnostic=safeTreeDiagnostic({before:{availability:before.reason,counts:before.counts},after:{availability:after.reason,counts:after.counts},selectionPreserved:after.selection===before.selection,expansionPreserved:after.reason===before.reason&&after.display===before.display});
+  const treeCheck=(ok,code)=>{if(!ok){const error=Error('DOC119_'+code);error.treeDiagnostic=treeDiagnostic;throw error;}};
+  treeCheck(treeDiagnostic.selectionPreserved,'TREE_SELECTION_CHANGED');
+  treeCheck(treeDiagnostic.expansionPreserved,'TREE_EXPANSION_CHANGED');
+  treeCheck(before.available?after.counts.every(n=>n===1):after.counts.every((n,i)=>n<=1&&n===before.counts[i]),'TREE_RELATION_COUNT_INVALID');
   const names=baseline.data.roots.map(r=>{try{return JSON.parse(r.datos_doc).NombreOriginal;}catch{return null;}}).filter(Boolean);
-  return {reload:true,reselectionMetadataOnly:true,noUpload:true,selectionPreserved:true,treeDeduplicated:before.available,originalBranchAvailability:before.reason,...before.available?{}:{originalBranchUntouched:true},newRelationsAdded:after.counts.some((n,i)=>n>before.counts[i]),homonymousRootsObserved:new Set(names).size<names.length,confirmedRelations:identities.length};
+  return {reload:true,reselectionMetadataOnly:true,noUpload:true,selectionPreserved:true,treeDeduplicated:before.available,originalBranchAvailability:before.reason,...before.available?{}:{originalBranchUntouched:true},newRelationsAdded:after.counts.some((n,i)=>n>before.counts[i]),homonymousRootsObserved:new Set(names).size<names.length,confirmedRelations:identities.length,treeDiagnostic};
 }
-module.exports={BASE_URL,LIMITS,READS,STATIC_DEPENDENCIES,SESSION_IDLE_LIMIT_MS,check,id,hash,assertSessionFresh,previousSelection,validateConnection,validateProfile,displayText,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,guardRequestSummary,installGuard,makeControls,responseFor,consult,applyFilter,csvRows,runSeg01Owner,runSeg01Other,runSeg02};
+module.exports={BASE_URL,LIMITS,READS,STATIC_DEPENDENCIES,SESSION_IDLE_LIMIT_MS,check,id,hash,assertSessionFresh,previousSelection,validateConnection,validateProfile,displayText,chooseItem,describeImport,discoverImports,discoverLevels,pendingFile,createBudget,permittedRequest,guardRequestSummary,installGuard,makeControls,responseFor,consult,applyFilter,csvRows,safeTreeDiagnostic,runSeg01Owner,runSeg01Other,runSeg02};

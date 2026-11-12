@@ -584,14 +584,23 @@ test('DOC-119: pocos recursos permiten filtros y CSV sin acreditar una segunda p
   assert.equal(bridge.calls.some(call=>call.request.pagina===2),false);
 }));
 
-for(const branchAvailable of [true,false])test('DOC-119: driver SEG-02 recarga y reselecciona sin envio con rama '+(branchAvailable?'disponible':'oculta'),async()=>{
+for(const scenario of [
+  {name:'disponible',branchAvailable:true},
+  {name:'oculta',branchAvailable:false},
+  {name:'WebForms con icono y nueva relacion',branchAvailable:true,webForms:true},
+  {name:'WebForms con icono y relacion existente',branchAvailable:true,webForms:true,existing:true},
+  {name:'WebForms con duplicado logico real',branchAvailable:true,webForms:true,existing:true,duplicate:true}
+])test('DOC-119: driver SEG-02 recarga y reselecciona sin envio con rama '+scenario.name,async()=>{
+  const {branchAvailable,webForms,existing,duplicate}=scenario;
   const fs=require('node:fs'),path=require('node:path'),{chromium}=require('../tools/e2e/node_modules/playwright');
   const {runSeg02}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs'),root=path.resolve(__dirname,'..'),parent=path.join(root,'.tmp');fs.mkdirSync(parent,{recursive:true});
   const folder=fs.mkdtempSync(path.join(parent,'doc119-reselection-')),filePath=path.join(folder,'a.pdf');fs.writeFileSync(filePath,'%PDF-synthetic');const stat=fs.statSync(filePath);
   const browser=await chromium.launch({headless:true});
   try{
     const page=await browser.newPage(),calls=[],errors=[];page.setDefaultTimeout(5000);page.on('pageerror',error=>errors.push(error.message));
-    const html=`<!doctype html><html><body><div id="TreeViewArchivo"><table><tr><td></td><td></td><td><a id="TreeViewArchivot1" title="7\\\\Origen">Origen</a></td></tr></table><div id="TreeViewArchivon1Nodes" style="display:none"></div><table><tr><td></td><td></td><td><a id="TreeViewArchivot2" title="8\\\\Otro">Otro</a></td></tr></table><div id="TreeViewArchivon2Nodes"></div></div><div id="pit"></div><div id="doc111-importacion" data-api="/control.asmx" data-upload="/upload.ashx" data-token="synthetic-only" data-recuperacion="${'a'.repeat(32)}" data-nivel="7"><button type="button" data-doc111-open>Importar carpetas</button><button type="button" data-doc111-resume hidden>Consultar último lote</button><input data-doc111-lote><button type="button" data-doc111-consultar>Consultar lote</button><span data-doc111-status></span></div></body></html>`;
+    const node=(id,title,text,icon)=>`${icon?`<a id="TreeViewArchivot${id}i" title="${title}" tabindex="-1"><img alt=""></a>`:''}<a id="TreeViewArchivot${id}" title="${title}">${text}</a>`;
+    const represented=existing?node(3,'70|7|60|','Nombre confirmado',true)+(duplicate?node(4,'70|7|60|','Duplicado real',true):''):'';
+    const html=`<!doctype html><html><body><div id="TreeViewArchivo"><table><tr><td></td><td></td><td>${node(1,'7\\\\Origen','Origen',webForms)}</td></tr></table><div id="TreeViewArchivon1Nodes" style="display:none">${represented}</div><table><tr><td></td><td></td><td>${node(2,'8\\\\Otro','Otro',webForms)}</td></tr></table><div id="TreeViewArchivon2Nodes"></div></div><div id="pit"></div><div id="doc111-importacion" data-api="/control.asmx" data-upload="/upload.ashx" data-token="synthetic-only" data-recuperacion="${'a'.repeat(32)}" data-nivel="7"><button type="button" data-doc111-open>Importar carpetas</button><button type="button" data-doc111-resume hidden>Consultar último lote</button><input data-doc111-lote><button type="button" data-doc111-consultar>Consultar lote</button><span data-doc111-status></span></div></body></html>`;
     const initial='window.$=()=>({ready(){},on(){},autocomplete(){}});window.alert=message=>{throw Error(message);};\n';
     const production=fs.readFileSync(path.join(root,'js/gestion/WebFormProducionDocumental.js'),'utf8')+'\nwindow.Doc111ActualizarRama=Doc111ActualizarRama;Object.defineProperty(window,"SELECCION_TREVIEW_ID",{configurable:true,get:function(){return SELECCION_TREVIEW_ID;},set:function(value){SELECCION_TREVIEW_ID=value;}});';
     const sources=[production,...['InventarioImportacion','ImportacionCarpetasApi','ImportacionCarpetasVista','ImportacionCarpetas'].map(name=>fs.readFileSync(path.join(root,`js/gestion/ImportacionCarpetas/${name}.js`),'utf8'))].join('\n');
@@ -608,8 +617,10 @@ for(const branchAvailable of [true,false])test('DOC-119: driver SEG-02 recarga y
     });
     await page.goto('https://doc119.invalid/Gestion/WebFormProducionDocumental.aspx');
     const baseline={context:{NivelRef:'7'},data:{files:[{archivo_id:'30',estado_recepcion:'PENDIENTE',estado_efecto:'NO_INICIADO'}],roots:[{estado:'EXPEDIENTE_CONFIRMADO',identidad_expediente_doc:JSON.stringify({RelacionNivelId:'70',ExpedienteId:'60'}),datos_doc:JSON.stringify({NombreOriginal:'Homónima'})},{estado:'PENDIENTE',datos_doc:JSON.stringify({NombreOriginal:'Homónima'})}]}};
+    if(duplicate){await assert.rejects(()=>runSeg02(page,{recoveryLotId:'20',alternateLevel:'8'},baseline,filePath),error=>{assert.match(error.message,/TREE_RELATION_COUNT_INVALID/);assert.deepEqual(error.treeDiagnostic.after.counts,[2]);return true;});return;}
     const result=await runSeg02(page,{recoveryLotId:'20',alternateLevel:'8'},baseline,filePath);
-    assert.deepEqual(result,{reload:true,reselectionMetadataOnly:true,noUpload:true,selectionPreserved:true,treeDeduplicated:branchAvailable,originalBranchAvailability:branchAvailable?'AVAILABLE':'PARENT_HIDDEN',...branchAvailable?{}:{originalBranchUntouched:true},newRelationsAdded:branchAvailable,homonymousRootsObserved:true,confirmedRelations:1});
+    const availability=branchAvailable?'AVAILABLE':'PARENT_HIDDEN';
+    assert.deepEqual(result,{reload:true,reselectionMetadataOnly:true,noUpload:true,selectionPreserved:true,treeDeduplicated:branchAvailable,originalBranchAvailability:availability,...branchAvailable?{}:{originalBranchUntouched:true},newRelationsAdded:branchAvailable&&!existing,homonymousRootsObserved:true,confirmedRelations:1,treeDiagnostic:{before:{availability,counts:[existing?1:0]},after:{availability,counts:[branchAvailable?1:0]},selectionPreserved:true,expansionPreserved:true}});
     assert.equal(calls.some(call=>!['ConsultarLote','ConsultarRecursosLote'].includes(call.operation)),false);assert.deepEqual(errors,[]);
   }finally{await browser.close();} // Fixture sintético conservado en .tmp; no borrar datos de pruebas anteriores.
 });
