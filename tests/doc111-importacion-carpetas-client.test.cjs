@@ -430,6 +430,89 @@ test('DOC-111: interfaz Chromium local con servicios sintéticos, foco y cierre 
   }
 });
 
+async function withDoc119Seguimiento(work) {
+  const path=require('node:path'),{chromium}=require('../tools/e2e/node_modules/playwright'),root=path.resolve(__dirname,'..');
+  const browser=await chromium.launch({headless:true});
+  try {
+    const page=await browser.newPage(),errors=[],network=[];page.setDefaultTimeout(5000);
+    page.on('pageerror',error=>errors.push(error.message));page.on('request',request=>{if(/^https?:/.test(request.url()))network.push(request.url());});
+    await page.setContent('<!doctype html><html><body><form id="doc119-form"><div id="doc111-importacion" data-api="/synthetic.asmx" data-upload="/synthetic.ashx" data-token="synthetic-only" data-recuperacion="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" data-nivel="7"><button type="button" data-doc111-open>Importar carpetas</button><button type="button" data-doc111-resume hidden>Consultar último lote</button><span data-doc111-status role="status"></span></div></form></body></html>');
+    await page.evaluate(()=>{
+      document.getElementById('doc111-importacion').doc111UltimoLote={loteId:'20'};
+      window.doc119Calls=[];window.doc119Deny=false;window.doc119Submits=0;
+      document.getElementById('doc119-form').addEventListener('submit',event=>{event.preventDefault();window.doc119Submits++;});
+      const files=[
+        {recursoId:'30',raizId:'40',nombre:'rechazado.pdf',estadoRecepcion:'RECHAZADO',estado:'RECHAZADO'},
+        {recursoId:'31',raizId:'40',nombre:'primero.pdf',estadoRecepcion:'RECIBIDO',estado:'INCIERTO'},
+        {recursoId:'32',raizId:'40',nombre:'segundo.pdf',estadoRecepcion:'RECIBIDO',estado:'INCIERTO'},
+        {recursoId:'33',raizId:'40',nombre:'tercero.pdf',estadoRecepcion:'RECIBIDO',estado:'INCIERTO'},
+        {recursoId:'34',raizId:'41',nombre:'completo.pdf',estadoRecepcion:'RECIBIDO',estado:'COMPLETADO'}
+      ],roots=[{recursoId:'40',nombre:'Carpeta repetida',estado:'EXPEDIENTE_CONFIRMADO'},{recursoId:'41',nombre:'Carpeta repetida',estado:'COMPLETADA'}];
+      function rows(request) {
+        return (request.tipo==='RAICES'?roots:files).filter(row=>(!request.raizId||(row.raizId||row.recursoId)===request.raizId)&&(!request.estado||row.estado===request.estado)&&(!request.estadoRecepcion||row.estadoRecepcion===request.estadoRecepcion));
+      }
+      window.XMLHttpRequest=class {
+        open(_method,url){this.operation=url.split('/').pop();}setRequestHeader(){}abort(){if(this.onabort)this.onabort();}
+        send(body){
+          const request=JSON.parse(body).solicitud,operation=this.operation;window.doc119Calls.push({operation,request});
+          setTimeout(()=>{
+            let data;
+            if(window.doc119Deny){this.status=200;this.responseText=JSON.stringify({ok:false,codigo:'ACCESO_DENEGADO',mensaje:'Denegado',incidencias:[]});this.onload();return;}
+            if(operation==='ConsultarLote')data={loteId:'20',nivelRef:'7',rutaCanonica:'Destino original',estado:'PARCIAL',maximoTamanoPagina:2,totalRaices:2,totalArchivos:5,totalBytes:'35',accionesPermitidas:['CONSULTAR','EXPORTAR_PAGINA','CONSULTAR_RAICES']};
+            else if(operation==='ConsultarRecursosLote'||operation==='ExportarPaginaLote'){
+              const filtered=rows(request),elements=filtered.slice((request.pagina-1)*request.tamanoPagina,request.pagina*request.tamanoPagina);
+              const pagination={loteId:'20',tipo:request.tipo,pagina:request.pagina,tamanoPagina:request.tamanoPagina,totalOriginal:request.tipo==='RAICES'?2:5,totalFiltrado:filtered.length,elementos:elements};
+              data=operation==='ConsultarRecursosLote'?pagination:{pagina:pagination,contenido:'recursoId\r\n'+elements.map(row=>row.recursoId).join('\r\n')+'\r\n'};
+            }else throw Error('Unexpected synthetic operation '+operation);
+            this.status=200;this.responseText=JSON.stringify({ok:true,codigo:'OK',mensaje:'OK',incidencias:[],datos:data});this.onload();
+          },0);
+        }
+      };
+    });
+    await page.addStyleTag({path:path.join(root,'js/gestion/ImportacionCarpetas/ImportacionCarpetas.css')});
+    for(const name of ['InventarioImportacion','ImportacionCarpetasApi','ImportacionCarpetasVista','ImportacionCarpetas'])await page.addScriptTag({path:path.join(root,`js/gestion/ImportacionCarpetas/${name}.js`)});
+    await page.getByRole('button',{name:'Consultar lote 20',exact:true}).click();await page.getByRole('button',{name:'Exportar esta página',exact:true}).waitFor();
+    await work(page);assert.deepEqual(errors,[]);assert.deepEqual(network,[]);assert.equal(await page.evaluate(()=>doc119Submits),0);
+    assert.equal(await page.evaluate(()=>doc119Calls.some(call=>!['ConsultarLote','ConsultarRecursosLote','ExportarPaginaLote'].includes(call.operation))),false);
+  }finally{await browser.close();}
+}
+
+test('DOC-119: filtros de archivos se conservan al paginar y descargar exactamente esa página',async()=>withDoc119Seguimiento(async page=>{
+  assert.equal(await page.getByLabel('Referencia de carpeta',{exact:true}).count(),1,'El seguimiento no ofrece el filtro raizId que admite el servidor');
+  await page.getByLabel('Referencia de carpeta',{exact:true}).fill('40');
+  await page.getByLabel('Efecto documental',{exact:true}).selectOption('INCIERTO');
+  await page.getByLabel('Recepción',{exact:true}).selectOption('RECIBIDO');
+  await page.getByLabel('Referencia de carpeta',{exact:true}).press('Enter');
+  await page.waitForFunction(()=>document.querySelector('.doc111-content').textContent.includes('primero.pdf')&&!document.querySelector('.doc111-content').textContent.includes('rechazado.pdf'));
+  await page.getByRole('button',{name:'Siguiente',exact:true}).last().click();
+  await page.waitForFunction(()=>document.querySelector('.doc111-content').textContent.includes('tercero.pdf')&&!document.querySelector('.doc111-content').textContent.includes('primero.pdf'));
+  const expected={loteId:'20',tipo:'ARCHIVOS',pagina:2,tamanoPagina:2,raizId:'40',estado:'INCIERTO',estadoRecepcion:'RECIBIDO'};
+  assert.deepEqual(await page.evaluate(()=>doc119Calls.filter(call=>call.operation==='ConsultarRecursosLote'&&call.request.tipo==='ARCHIVOS').at(-1).request),expected);
+  assert.equal(await page.getByLabel('Referencia de carpeta',{exact:true}).inputValue(),'40');
+  const downloading=page.waitForEvent('download');await page.getByRole('button',{name:'Exportar esta página',exact:true}).click();const download=await downloading;
+  const stream=await download.createReadStream(),chunks=[];for await(const chunk of stream)chunks.push(chunk);
+  assert.equal(Buffer.concat(chunks).toString('utf8'),'recursoId\r\n33\r\n');
+  assert.deepEqual(await page.evaluate(()=>doc119Calls.find(call=>call.operation==='ExportarPaginaLote').request),expected);
+  assert.equal(download.suggestedFilename(),'importacion-20-pagina-2.csv');
+  await page.getByRole('button',{name:'Limpiar filtros de archivos',exact:true}).click();
+  await page.waitForFunction(()=>document.querySelector('.doc111-content').textContent.includes('rechazado.pdf'));
+  assert.deepEqual(await page.evaluate(()=>doc119Calls.filter(call=>call.operation==='ConsultarRecursosLote'&&call.request.tipo==='ARCHIVOS').at(-1).request),{loteId:'20',tipo:'ARCHIVOS',pagina:1,tamanoPagina:2});
+  assert.equal(await page.getByLabel('Referencia de carpeta',{exact:true}).inputValue(),'');
+  await page.getByLabel('Estado de carpeta',{exact:true}).selectOption('COMPLETADA');await page.getByRole('button',{name:'Aplicar filtros de carpetas',exact:true}).click();
+  await page.waitForFunction(()=>doc119Calls.some(call=>call.operation==='ConsultarRecursosLote'&&call.request.tipo==='RAICES'&&call.request.estado==='COMPLETADA'));
+  assert.equal(await page.getByLabel('Efecto documental',{exact:true}).inputValue(),'');
+  await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+}));
+
+test('DOC-119: una consulta filtrada denegada no deja exportar la página anterior',async()=>withDoc119Seguimiento(async page=>{
+  assert.equal(await page.getByLabel('Referencia de carpeta',{exact:true}).count(),1,'Falta filtro de carpeta');
+  await page.getByLabel('Referencia de carpeta',{exact:true}).fill('41');await page.evaluate(()=>{window.doc119Deny=true;});
+  await page.getByRole('button',{name:'Aplicar filtros de archivos',exact:true}).click();
+  await page.waitForFunction(()=>document.querySelector('.doc111-notice').textContent.includes('autorización vigente'));
+  assert.equal(await page.getByRole('button',{name:'Exportar esta página',exact:true}).count(),0);
+  assert.equal(await page.locator('.doc111-content').getByText('rechazado.pdf',{exact:false}).count(),0);
+}));
+
 test('DOC-111: recarga real conserva referencias y recupera sin reconfirmar ni asociar homónimos', async () => {
   const fs = require('node:fs'), path = require('node:path'), os = require('node:os');
   const {chromium} = require('../tools/e2e/node_modules/playwright');

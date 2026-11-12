@@ -156,21 +156,34 @@
                 if (active === session) { session.model.mensaje = message(error); }
             }).then(function () { if (active === session) { session.model.busy = false; refresh(session); } });
         }
+        function solicitudPagina(session, type, page) {
+            var model = session.model, filters = (type === "RAICES" ? model.filtrosRaices : model.filtrosArchivos) || {};
+            var request = {loteId:model.loteId, tipo:type, pagina:page || 1, tamanoPagina:model.tamanoResultados};
+            (type === "RAICES" ? ["estado"] : ["raizId", "estado", "estadoRecepcion"]).forEach(function (key) {
+                if (typeof filters[key] === "string" && filters[key].length) { request[key] = filters[key]; }
+            });
+            return request;
+        }
         function consultar(session, page) {
             if (active !== session) { return Promise.resolve(); }
+            session.consultaArchivos = null; session.model.resultados = null; session.model.raices = null;
             return session.api.invocar("ConsultarLote", {loteId:session.model.loteId}).then(function (state) {
                 if (active !== session) { return; }
                 if (!state || state.loteId !== session.model.loteId || !validId(state.nivelRef) || !Array.isArray(state.accionesPermitidas) || (session.model.contexto && state.nivelRef !== session.model.contexto.nivelRef)) { throw new Error("RESPUESTA_INVALIDA"); }
                 session.model.estado = state; session.model.contexto = {nivelRef:state.nivelRef, rutaCanonica:state.rutaCanonica};
                 host.doc111UltimoLote = {loteId:state.loteId}; save();
                 session.model.tamanoResultados = Math.min(25, state.maximoTamanoPagina || 1);
-                return session.api.invocar("ConsultarRecursosLote", {loteId:state.loteId, tipo:"ARCHIVOS", pagina:page || 1, tamanoPagina:session.model.tamanoResultados});
+                var request = solicitudPagina(session, "ARCHIVOS", page);
+                return session.api.invocar("ConsultarRecursosLote", request).then(function (result) {
+                    if (active === session && result && result.loteId === session.model.loteId && Array.isArray(result.elementos)) { session.consultaArchivos = request; }
+                    return result;
+                });
             }).then(function (result) {
                 if (active !== session || !result) { return; }
                 if (result.loteId !== session.model.loteId || !Array.isArray(result.elementos)) { throw new Error("RESPUESTA_INVALIDA"); }
                 session.model.resultados = result; session.model.raices = null;
                 if (session.model.estado.accionesPermitidas.indexOf("CONSULTAR_RAICES") === -1) { session.model.mutacionIncierta = false; return; }
-                return session.api.invocar("ConsultarRecursosLote", {loteId:session.model.loteId, tipo:"RAICES", pagina:session.model.paginaRaicesResultado || 1, tamanoPagina:session.model.tamanoResultados}).then(function (roots) {
+                return session.api.invocar("ConsultarRecursosLote", solicitudPagina(session, "RAICES", session.model.paginaRaicesResultado)).then(function (roots) {
                     if (active !== session) { return; }
                     if (!roots || roots.loteId !== session.model.loteId || roots.tipo !== "RAICES" || !Array.isArray(roots.elementos)) { throw new Error("RESPUESTA_INVALIDA"); }
                     session.model.raices = roots; session.model.mutacionIncierta = false;
@@ -247,6 +260,17 @@
                 }); return;
             }
             if (name === "consultar" || name === "pagina-resultados") { run(session, function () { return consultar(session, name === "consultar" ? (model.resultados ? model.resultados.pagina : 1) : value); }); return; }
+            if (["filtrar-resultados", "limpiar-resultados", "filtrar-raices", "limpiar-raices"].indexOf(name) !== -1) {
+                var rootsFilter = name === "filtrar-raices" || name === "limpiar-raices", filters = {}, currentPage = model.resultados ? model.resultados.pagina : 1;
+                if (name.indexOf("filtrar-") === 0 && value && typeof value === "object") {
+                    (rootsFilter ? ["estado"] : ["raizId", "estado", "estadoRecepcion"]).forEach(function (key) {
+                        if (typeof value[key] === "string" && value[key].trim().length) { filters[key] = value[key].trim(); }
+                    });
+                }
+                model[rootsFilter ? "filtrosRaices" : "filtrosArchivos"] = filters;
+                if (rootsFilter) { model.paginaRaicesResultado = 1; }
+                run(session, function () { return consultar(session, rootsFilter ? currentPage : 1); }); return;
+            }
             if (name === "pagina-raices-resultado") { model.paginaRaicesResultado = value; run(session, function () { return consultar(session, model.resultados.pagina); }); return; }
             if (name === "fase" || name === "reconciliar" || name === "detener") {
                 var row, phase, kind;
@@ -286,7 +310,8 @@
                 }); return;
             }
             if (name === "exportar") {
-                run(session, function () { return session.api.invocar("ExportarPaginaLote", {loteId:model.loteId, tipo:"ARCHIVOS", pagina:model.resultados.pagina, tamanoPagina:model.resultados.tamanoPagina}).then(function (result) {
+                if (!model.resultados || !session.consultaArchivos) { return; }
+                run(session, function () { return session.api.invocar("ExportarPaginaLote", Object.assign({}, session.consultaArchivos)).then(function (result) {
                     if (active !== session || !result || typeof result.contenido !== "string") { return; }
                     var url = deps.URL.createObjectURL(new deps.Blob([result.contenido], {type:"text/csv;charset=utf-8"})); session.urls.push(url);
                     var anchor = host.ownerDocument.createElement("a"); anchor.href = url; anchor.download = "importacion-" + model.loteId + "-pagina-" + model.resultados.pagina + ".csv"; host.appendChild(anchor); anchor.click(); anchor.remove();

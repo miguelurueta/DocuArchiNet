@@ -1,31 +1,23 @@
-# DOC-119 — PRODUCCION-IMPORTACION-CARGA-CARPETA-SEGUIMIENTO
+# DOC-119 — evidencia del avance local
 
 - Cambio: `doc-119-produccion-importacion-carga-carpeta-seguimiento`.
 - Clasificación: `cross_cutting`.
-- Estado de esta entrega: refinamiento propuesto; sin implementación ni aceptación operativa.
+- Base de implementación: 94ca9277ce234b337b73bdda9bbd881e037b3047, con cambios locales descritos.
 
 ## Evidencia requerida
 
-Corrida local de este refinamiento, 2026-11-11:
+1. Corte previo de refinamiento sobre d7dbf201: 16/16 pruebas cliente PASS, sin cambios de producto en aquel corte.
+2. Reproducción DOC-119: dos pruebas nuevas fallan por filtro inexistente antes de cambiar producto.
+3. Corrección de filtros/CSV: `node --test tests/doc111-importacion-carpetas-client.test.cjs tests/doc110-perfil-importacion-behavior.test.cjs`: 20/20 PASS (18 cliente y dos del arnés Framework/DDL).
+4. Después de añadir Enter sin submit implícito: `node --test tests/doc111-importacion-carpetas-client.test.cjs`: 18/18 PASS. Backend no se modificó y no se repitió; no se suman estas corridas como casos distintos.
+5. Auditoría de refinamiento y OpenSpec estricto PASS; comprobación de sintaxis JS y diff sin errores.
 
-- Base: d7dbf201338bbfef3f82e3521359f30b1824bf95.
-- Comando: node --test tests/doc111-importacion-carpetas-client.test.cjs.
-- Resultado: 16/16 PASS, sin fallos ni omitidas.
-- Alcance: cliente/Chromium local, servicios sintéticos; incluye recarga con sessionStorage y actualización de rama con helper real. No hay código productivo nuevo.
+Las dos pruebas nuevas usan Chromium/cliente/vista reales y servicios sintéticos; verifican filtros/página/CSV, limpieza, separación de filtros de carpetas/archivos, denegación sin exportación obsoleta, Enter sin postback y viewport de 390 px. El CSV sintético verifica transporte/selección; CeldaCsv productivo se comprueba en el arnés backend existente. No atribuir el CSV simulado a una ejecución real del servicio.
 
-DOC-111 y DOC-116–118 son antecedentes con sus propios SHA/ambientes. El cierre administrativo DOC-118 conservado (29/38) y su aceptación técnica posterior (38/38 en doc118-integracion-completa-20261110.json y reporte acumulado) son cortes distintos. No se reetiquetan como pruebas DOC-119.
+Informes: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc119-procedencia-20261111.md` y `doc119-filtros-local-20261111.md` en el mismo directorio. Los antecedentes DOC-111/116/117/118 conservan su código/runtime/ambiente y no se reetiquetan como DOC-119.
 
 ## QA/E2E WebForms
 
-No ejecutados en este refinamiento: autenticación real, HTTP de aplicación, MySQL/SELECT reales, carga, fallos inyectados, cambios de permisos, limpieza y despliegue. SEG-01/02 requieren plan y autorización específica antes de aceptación integrada. SEG-03 sigue condicionado/no ejecutado hasta resolución expresa.
+No ejecutados por DOC-119: autenticación real, HTTP de aplicación, SELECT/MySQL reales, recepción/carga, almacenamiento, inyección de fallos, cambios de permisos, limpieza o despliegue. El plan de aceptación preparado aún requiere ambiente/cuentas/lotes y autorización específica.
 
-Próximas verificaciones: filtros/páginas/CSV/denegación sin efectos; recarga/reselección/árbol; después UI-05 sobre navegación definitiva y menús compartidos/carga individual pertinente. Gobierno no debe aprobar por generación de archivos: refinement.md sigue draft; tasks.md ya contiene 24 tareas concretas sin ejecutar.
-
-## Verificación del borrador
-
-- `openspec.cmd validate doc-119-produccion-importacion-carga-carpeta-seguimiento --strict`: PASS.
-- `git diff --check`: PASS.
-- Auditoría actual `npm.cmd --prefix tools/opsxj run opsxj:refine -- DOC-119 --sync`: FAIL únicamente en `refinement:approved`. Decisiones y orígenes en tasks pasan; se resolvieron los dos bloqueos anteriores de trazabilidad aplicando el mapa. No se fuerza aprobación; con estado draft no se habilita implementación.
-- Plan aplicado en tasks.md: 24 tareas, 10 S y 14 M; cobertura D-01–D-10/RQ-01–RQ-10, 0/24 completadas. Validación estricta no certifica ejecución ni aprobación humana.
-
-Revisión documental posterior: refinement.md desarrolla cada D-01–D-10 con situación comprobada, regla concreta, aceptación, compatibilidad y tareas del mapa. Incluye doce referencias de evidencia con rutas/símbolos, contratos de consulta/CSV, recuperación/árbol, permisos separados, destino pulsado/seleccionado, equivalencia de accesos, viewport/teclado y 22 consumidores del menú compartido encontrados por inspección. Esta ampliación no añade una corrida autenticada, no modifica producto y conserva el estado draft.
+Tareas verificadas: 1.1, 2.1, 2.2, 2.3; 4/24. SEG-01/02 siguen sin aceptación integrada; 1.2 abierta para concretar plan. SEG-03 sigue condicionado. No se reorganizan accesos antes de compuerta 2.7, no se solicita cierre ni se marca evidencia manual como aprobada.

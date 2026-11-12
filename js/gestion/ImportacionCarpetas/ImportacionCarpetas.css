@@ -24,6 +24,9 @@
 #doc111-importacion th { background: #f0f4f8; overflow-wrap: normal; }
 #doc111-importacion .doc111-pager { display: flex; gap: 8px; align-items: center; justify-content: space-between; font-size: 12px; flex-wrap: wrap; }
 #doc111-importacion select { padding: 10px; width: 100%; border: 1px solid #aebfd0; border-radius: 6px; background: white; }
+#doc111-importacion .doc111-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; padding: 12px; border: 1px solid #d8e2ec; border-radius: 6px; min-width: 0; }
+#doc111-importacion .doc111-filters label { display: flex; flex-direction: column; flex: 1 1 150px; min-width: 0; }
+#doc111-importacion .doc111-filters input { font: inherit; padding: 10px; width: 100%; box-sizing: border-box; border: 1px solid #aebfd0; border-radius: 6px; }
 #doc111-importacion .doc111-cell-label { display: none; }
 @media(max-width: 720px) {
     #doc111-importacion .doc111-overlay { padding: 8px; }

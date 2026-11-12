@@ -1,13 +1,14 @@
-# DOC-119 — PRODUCCION-IMPORTACION-CARGA-CARPETA-SEGUIMIENTO
+# DOC-119 — servicios y reglas
 
 - Cambio: `doc-119-produccion-importacion-carga-carpeta-seguimiento`.
 - Clasificación: `cross_cutting`.
-- Estado de esta entrega: refinamiento propuesto; sin implementación ni aceptación operativa.
 
 ## Servicios y reglas
 
-Reutilizar ServicioConsultaImportacion y MySqlImportacionCarpetasRepository.Consulta: ConsultarLote/ConsultarRecursosLote/ExportarPaginaLote/ConsultarConfirmacionLote reautorizan propietario/ámbito/nivel/recursos. CSV es de una página; snapshot de lectura por página, sin reconciliación ni avance.
+ServicioConsultaImportacion y MySqlImportacionCarpetasRepository.Consulta permanecen sin cambios. ConsultarLote/ConsultarRecursosLote/ExportarPaginaLote/ConsultarConfirmacionLote reautorizan propietario/ámbito/nivel/recursos. CSV conserva CeldaCsv y snapshot por página, sin reconciliación ni avance.
 
-Separar recepción y efecto: RECIBIDO no prueba almacenamiento. Recuperar por IDs; metadatos de reselección no sustituyen bytes/hash/autoridad servidor. Doc111ActualizarRama agrega relaciones confirmadas por ID sin selección alterada.
+La corrección está en cliente: solicitudes incluyen filtros DTO existentes y CSV copia la solicitud de página consultada. Recepción y efecto siguen separados. Filtros no otorgan autoridad; un rechazo de consulta elimina resultados representados anteriores.
 
-Limpieza predeterminada deshabilitada. SEG-03 exige resolución explícita; no crear endpoint/job/plazo/configuración ni borrar temporales. Conservar PDF/rechazo TIFF, integridad y efectos existentes. No hay cambios de servicio ni autorización real en esta entrega.
+Recuperación por IDs y Doc111ActualizarRama se conservan; las pruebas previas de recarga/identidad/árbol pasan. Backend Framework/DDL: 2/2 PASS en la regresión combinada anterior al último ajuste de teclado, sin fuentes backend modificadas después. Sus casos internos no se suman otra vez.
+
+Limpieza continúa deshabilitada, sin invocación ni decisión SEG-03. PDF/rechazo TIFF, integridad, esquema y efectos existentes se preservan.

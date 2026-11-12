@@ -1,4 +1,4 @@
-<!-- opsxj:refinement version=1 state=draft -->
+<!-- opsxj:refinement version=1 state=approved -->
 
 # Refinamiento — DOC-119
 
@@ -7,6 +7,8 @@
 DOC-119: PRODUCCION-IMPORTACION-CARGA-CARPETA-SEGUIMIENTO. Contexto completo conservado en `specs/produccion-importacion-carga-carpeta-seguimiento/jira-context.md`. Tecnología observada: WebForms VB y JavaScript legacy, sin reglas React ni arquitectura nueva. Impacto transversal.
 
 Este artefacto es la compuerta entre el ticket y la implementacion. No se aprueba por generacion automatica: una persona responsable debe confirmar alcance, decisiones, compatibilidad y evidencia de codigo.
+
+Revisión aceptada en esta sesión: después de corregir el detalle del refinamiento y aplicar las 24 tareas, el usuario indicó «continua» sobre la entrega `94ca9277ce234b337b73bdda9bbd881e037b3047`. Se registra esa indicación como aprobación para ejecutar el plan local. No concede autorización de ambiente/cuentas/recursos para pruebas reales ni resuelve SEG-03.
 
 Propuesta sobre `d7dbf201338bbfef3f82e3521359f30b1824bf95`. No se ejecutó autenticación, HTTP de aplicación, SELECT real, carga, fallos inyectados, permisos o limpieza en este refinamiento.
 
@@ -213,8 +215,8 @@ Búsqueda de código realizada con `rg -l '\.contextMenu\(' js -g '*.js' -g '!**
 
 ## Trazabilidad y resultado
 
-Design/spec y este refinamiento desarrollan las mismas diez decisiones y requisitos. Este documento explicita situación comprobada, contrato/regla, aceptación, compatibilidad y entregable por decisión; no usa la tabla de IDs como sustituto del contenido. `tasks.md` contiene las 24 tareas con área/complejidad/origen/verificación y las referencias numéricas utilizadas aquí, aplicadas por indicación del usuario. `plan-tareas-propuesto.md` conserva la procedencia de la propuesta; el estado de ejecución se mantiene únicamente en `tasks.md`, con 0/24 completadas.
+Design/spec y este refinamiento desarrollan las mismas diez decisiones y requisitos. Este documento explicita situación comprobada, contrato/regla, aceptación, compatibilidad y entregable por decisión; no usa la tabla de IDs como sustituto del contenido. `tasks.md` contiene las 24 tareas con área/complejidad/origen/verificación y las referencias numéricas utilizadas aquí, aplicadas por indicación del usuario. `plan-tareas-propuesto.md` conserva la procedencia de la propuesta; el estado de ejecución se mantiene únicamente en `tasks.md`, con 4/24 completadas: 1.1, 2.1, 2.2 y 2.3. Procedencia/reproducción/corrección constan en los informes doc119 de Validacion; no acreditan aceptación integrada SEG-01/02.
 
 Decisiones abiertas identificadas, sin completar por inferencia: resolución operativa SEG-03 y autorización concreta de ambiente/cuentas/recursos para SEG-01/02 y casos UI reales. No impiden revisar este diseño, pero sí ejecutar efectos o declarar el cierre correspondiente. La corrección documental actual no aprueba automáticamente el refinamiento ni ejecuta su plan.
 
-Estado: borrador para revisión humana; mapa aplicado, sin tareas ejecutadas. La auditoría `npm.cmd --prefix tools/opsxj run opsxj:refine -- DOC-119 --sync` confirma decisiones y orígenes en tasks; solo falla `refinement:approved`. Tras aprobación del contenido, volver a sincronizar. No iniciar implementación por existencia de artefactos. Autorizaciones reales y resolución SEG-03 se registran aparte antes de acciones o cierre.
+Estado: aprobado para ejecución del plan local por la indicación del usuario registrada arriba. Sincronizar con `npm.cmd --prefix tools/opsxj run opsxj:refine -- DOC-119 --sync` y actualizar progreso en tasks.md al verificar cada entregable. Autorizaciones reales y resolución SEG-03 se registran aparte antes de sus acciones o cierre; no se heredan de otros tickets.

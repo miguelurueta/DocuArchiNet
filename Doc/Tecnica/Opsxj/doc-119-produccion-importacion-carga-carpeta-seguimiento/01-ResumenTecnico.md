@@ -1,17 +1,17 @@
-# DOC-119 — PRODUCCION-IMPORTACION-CARGA-CARPETA-SEGUIMIENTO
+# DOC-119 — seguimiento de importación
 
 - Cambio: `doc-119-produccion-importacion-carga-carpeta-seguimiento`.
 - Clasificación: `cross_cutting`.
-- Estado de esta entrega: refinamiento propuesto; sin implementación ni aceptación operativa.
+- Progreso local: 4/24 tareas verificadas; no aceptación integrada ni cierre.
 
 ## Objetivo
 
-Acreditar seguimiento existente SEG-01/02 antes de reorganizar UI-01–05. Mantener SEG-03 condicionado a una decisión expresa de operación/retención. Fuente Jira conservada en el cambio OpenSpec.
+Acreditar seguimiento SEG-01/02 antes de reorganizar UI-01–05. Mantener SEG-03 condicionado a decisión expresa. El usuario continuó tras revisar refinamiento/tareas de 94ca9277; aprobación local registrada en refinement.md y auditoría OPSXJ PASS, sin autorización de pruebas reales.
 
 ## Alcance y compatibilidad
 
-Diez decisiones y diez requisitos propuestos; inventario concreto en design.md. El mapa ya se aplicó a tasks.md: 24 tareas (10 S, 14 M), cada una con área, origen D/RQ y verificación, con 0/24 completadas. plan-tareas-propuesto.md conserva la procedencia; tasks.md es la fuente del plan y su ejecución. El refinamiento continúa en borrador.
+Verificadas 1.1 (matriz de procedencia), 2.1 (reproducción), 2.2 (filtros) y 2.3 (CSV). La vista ofrece filtros de estado de carpeta y referencia/efecto/recepción de archivos; paginación y exportación conservan parámetros. Denegación no conserva filas/exportación anteriores. Se renuevan recursos modificados en ASPX.
 
-Hallazgos de inspección: cliente no envía filtros admitidos por servicio; contextual usa selección en lugar de nodo pulsado; menú Importación nace del host administrativo. Reproducir antes de corregir producto. Mantener contratos/servicios/asistente, recuperación por IDs, autoridad y efectos confirmados. Sin esquema nuevo, SII, almacenamiento compartido, workers, limpieza ni despliegue.
+Se reutilizan DTO/servicios/repositorio/autoridad; no cambia backend, esquema, SII, almacenamiento compartido, permisos ni configuración. Accesos/menú no reorganizados: requieren antes aceptación integrada SEG-01/02. Plan real preparado para concretar ambiente/cuentas/lotes; 1.2 sigue abierta.
 
-La reversa futura de navegación conserva referencias/datos/efectos; nunca revierte lotes o elimina staging. Esta entrega solo modifica planificación/documentación.
+Reversa de este cambio de cliente: restaurar sus recursos/caché conservando datos/pistas/efectos; no borrar staging ni revertir lotes.

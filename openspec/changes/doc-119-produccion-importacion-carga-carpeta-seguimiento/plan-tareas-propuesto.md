@@ -2,7 +2,7 @@
 
 Copia de la propuesta aplicada a `tasks.md` tras la indicación del usuario sobre ese archivo. `tasks.md` es ahora la fuente del plan ejecutable y de su estado; esta copia conserva la procedencia del mapa. Se sustituyeron las ocho tareas genéricas sin tareas completadas que preservar. Aplicar el mapa no aprueba el refinamiento ni autoriza pruebas reales.
 
-Dependencias: diseño/especificación aún en revisión; ambiente/cuentas/recursos de aceptación requieren autorización específica. SEG-03 requiere decisión expresa. La sección 3 comienza solo tras la compuerta 2.7; cambios de seguimiento reproducidos en sección 2 sí pueden corregirse antes. Cada tarea condicional termina con corrección verificada o evidencia de que no aplica, nunca con éxito inferido.
+Dependencias actualizadas: refinamiento aprobado para trabajo local tras la continuación del usuario sobre 94ca9277; ambiente/cuentas/recursos de aceptación requieren autorización específica. SEG-03 requiere decisión expresa. La sección 3 comienza solo tras la compuerta 2.7; cambios de seguimiento reproducidos en sección 2 sí pueden corregirse antes. Cada tarea condicional termina con corrección verificada o evidencia de que no aplica, nunca con éxito inferido. Esta copia no actualiza checks: el progreso 4/24 se mantiene únicamente en tasks.md.
 
 ## 1. Procedencia y preparación
 

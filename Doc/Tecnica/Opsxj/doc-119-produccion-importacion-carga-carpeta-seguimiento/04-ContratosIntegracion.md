@@ -1,13 +1,12 @@
-# DOC-119 — PRODUCCION-IMPORTACION-CARGA-CARPETA-SEGUIMIENTO
+# DOC-119 — contratos de seguimiento
 
 - Cambio: `doc-119-produccion-importacion-carga-carpeta-seguimiento`.
 - Clasificación: `cross_cutting`.
-- Estado de esta entrega: refinamiento propuesto; sin implementación ni aceptación operativa.
 
 ## Contratos e integraciones
 
-ASMX/ASHX/DTO actuales se mantienen. AbrirImportacion recibe nivelRef; contexto/ruta se reautorizan en servidor. Consulta contextual no crea búsqueda por nivel ni historial nuevo, y un lote conserva destino original.
+Sin DTO/endpoint/ASMX/ASHX nuevos. El cliente usa ConsultarRecursosLote con loteId/tipo/pagina/tamanoPagina. ARCHIVOS incorpora raizId/estado/estadoRecepcion y RAICES estado, omitiendo filtros vacíos. Los códigos de opciones presentados corresponden a estados existentes; no se crea catálogo de negocio.
 
-ConsultarRecursosLote y ExportarPaginaLote reutilizan loteId/tipo/pagina/tamanoPagina y filtros raíz/estado/recepción ya admitidos por servicio. La ausencia de envío de filtros del cliente es hallazgo a reproducir antes de corregir. Confirmación sin acuse se consulta con planId; no autoriza reenviar ConfirmarPlan.
+ExportarPaginaLote copia la consulta efectiva de archivos: conserva parámetros y no extiende el CSV a todo el lote. No promete misma revisión global entre consultas concurrentes. La exportación no se ofrece después de una consulta rechazada.
 
-El runner REC actual puede tener efectos: revisar modos y autorizaciones antes de reutilizarlo. No se creará login, repositorio, coordinador ni esquema paralelo. SII y almacenamiento compartido permanecen fuera de alcance. Este documento describe propuesta y contrato inspeccionado, no una integración nueva certificada.
+No se cambia AbrirImportacion, autoridad/ruta/sello ni ConfirmarPlan/ConsultarConfirmacionLote. Los runners REC y DOC-113 no cubren automáticamente SEG-01/02; sus modos con efectos no se ejecutan por inferencia. Plan de aceptación real en doc119-plan-aceptacion-20261111.md, aún sin ambiente/cuentas/recursos autorizados.

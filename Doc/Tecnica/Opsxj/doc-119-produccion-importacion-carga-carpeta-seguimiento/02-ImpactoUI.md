@@ -1,15 +1,16 @@
-# DOC-119 — PRODUCCION-IMPORTACION-CARGA-CARPETA-SEGUIMIENTO
+# DOC-119 — interfaz de seguimiento
 
 - Cambio: `doc-119-produccion-importacion-carga-carpeta-seguimiento`.
 - Clasificación: `cross_cutting`.
-- Estado de esta entrega: refinamiento propuesto; sin implementación ni aceptación operativa.
 
 ## Superficies UI
 
-Propuesta UI-01: Importar carpetas…/Consultar importación… en menú superior, con operación disponible sin administrar perfiles. UI-02: contextual usa nivel pulsado elegible; superior usa nivel seleccionado. Ruta canónica y destino provienen del servidor. Expediente/documento/fondo vacío no importan por fallback.
+ImportacionCarpetasVista conserva el asistente. Resultados añade filtros de estado de carpeta y referencia de carpeta/efecto/recepción de archivos con rótulos accesibles, aplicar/limpiar y controles deshabilitados durante consulta. Aplicar reinicia la página del conjunto; los otros filtros se conservan. Enter en referencia aplica sin enviar el formulario WebForms.
 
-UI-03 conserva asistente, referencia manual, último lote, verificación de confirmación sin acuse y avisos visibles. La franja permanente solo se retira tras verificar equivalencia. UI-04 incluye viewport, scroll y teclado/foco del plugin compartido. No se ha modificado aún el producto.
+La consulta invalida filas anteriores: si falla, no quedan datos/exportación obsoletos. CSV descarga una página con filtros/tamaño/página de la consulta representada.
+
+La reorganización de accesos UI-01–05 sigue sin implementar; conserva compuerta de aceptación integrada SEG-01/02. No se retiró franja ni se cambió plugin contextual.
 
 ## Validacion visual
 
-No ejecutada sobre una interfaz reorganizada: la implementación no ha comenzado. UI-05 deberá cubrir seleccionado A/contextual B, homónimos, permisos, ausencia de selección, reapertura/postback/recarga, recuperación, teclado y consumidores compartidos. Las 16 pruebas actuales ejercitan interfaz existente con servicios sintéticos; no certifican la propuesta visual.
+18/18 pruebas cliente en el último corte, Chromium local y servicios sintéticos. Los dos casos nuevos incluyen descarga Blob, filtros independientes, limpieza, paginación, denegación y viewport de 390 px sin desbordamiento. La prueba del formulario detecta envíos implícitos: Enter no causa submit. Esto no certifica render/autenticación IIS ni interfaz reorganizada.

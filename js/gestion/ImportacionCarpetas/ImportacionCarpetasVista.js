@@ -22,9 +22,25 @@
         var picker = node("input"); picker.type = "file"; picker.hidden = true; picker.setAttribute("aria-label", "Agregar carpeta"); dialog.appendChild(picker);
         var reselector = node("input"); reselector.type = "file"; reselector.hidden = true; reselector.setAttribute("aria-label", "Reseleccionar archivo pendiente"); dialog.appendChild(reselector);
         overlay.appendChild(dialog); host.appendChild(overlay);
-        function click(event) { var target = event.target.closest("[data-doc111-action]"); if (target && dialog.contains(target) && !target.disabled) { action(target.getAttribute("data-doc111-action"), target.doc111Value); } }
+        function click(event) {
+            var target = event.target.closest("[data-doc111-action]");
+            if (!target || !dialog.contains(target) || target.disabled) { return; }
+            var name = target.getAttribute("data-doc111-action"), value = target.doc111Value;
+            if (name === "filtrar-resultados" || name === "filtrar-raices") {
+                value = {};
+                Array.prototype.forEach.call(target.closest("[data-doc111-filtros]").querySelectorAll("[data-doc111-filter]"), function (field) {
+                    value[field.getAttribute("data-doc111-filter")] = field.value.trim();
+                });
+            }
+            action(name, value);
+        }
         function change(event) { if (event.target.getAttribute("data-doc111-profile") === "1") { action("perfil", event.target.value); } }
         function key(event) {
+            if (event.key === "Enter" && !event.isComposing && event.target.getAttribute("data-doc111-filter") === "raizId") {
+                event.preventDefault(); event.stopPropagation();
+                var apply = event.target.closest("[data-doc111-filtros]").querySelector('[data-doc111-action="filtrar-resultados"]');
+                if (apply && !apply.disabled) { apply.click(); }
+            }
             if (event.key === "Escape") { event.preventDefault(); action("cerrar"); }
             if (event.key === "Tab") {
                 var controls = Array.prototype.filter.call(dialog.querySelectorAll("button,input,select,[tabindex]"), function (n) { return !n.disabled && !n.hidden && n.getClientRects().length > 0; });
@@ -44,6 +60,28 @@
             var bar = node("div", undefined, "doc111-pager"); bar.appendChild(button("Anterior", name, page - 1, busy || page <= 1));
             bar.appendChild(node("span", total ? "Página " + page + " · " + total + (total === 1 ? " elemento" : " elementos") : "Sin elementos"));
             bar.appendChild(button("Siguiente", name, page + 1, busy || page * size >= total)); parent.appendChild(bar);
+        }
+        function filters(parent, roots, values, busy) {
+            values = values || {};
+            var group = node("fieldset", undefined, "doc111-filters"); group.setAttribute("data-doc111-filtros", roots ? "RAICES" : "ARCHIVOS");
+            group.appendChild(node("legend", roots ? "Filtrar carpetas" : "Filtrar archivos"));
+            function field(label, name, options) {
+                var wrapper = node("label", label), control = node(options ? "select" : "input");
+                control.setAttribute("data-doc111-filter", name); control.setAttribute("aria-label", label); control.disabled = !!busy;
+                if (options) {
+                    options.forEach(function (item) { var option = node("option", item[1]); option.value = item[0]; control.appendChild(option); });
+                } else { control.type = "text"; control.inputMode = "numeric"; control.maxLength = 10; control.autocomplete = "off"; }
+                control.value = values[name] || ""; wrapper.appendChild(control); group.appendChild(wrapper);
+            }
+            if (roots) {
+                field("Estado de carpeta", "estado", [["", "Todos"], ["PENDIENTE", "Sin iniciar"], ["CREANDO", "Creando"], ["EXPEDIENTE_CONFIRMADO", "Expediente confirmado"], ["INCIERTO", "Por verificar"], ["BLOQUEADO", "Bloqueado"], ["COMPLETADA", "Completada"], ["PARCIAL", "Parcial"], ["CANCELADA", "Cancelada"]]);
+            } else {
+                field("Referencia de carpeta", "raizId");
+                field("Efecto documental", "estado", [["", "Todos"], ["NO_INICIADO", "Sin iniciar"], ["EN_CURSO", "En curso"], ["ALMACENADO", "Almacenado"], ["COMPLETADO", "Completado"], ["RECHAZADO", "Rechazado"], ["INCIERTO", "Por verificar"], ["CANCELADO", "Cancelado"]]);
+                field("Recepción", "estadoRecepcion", [["", "Todas"], ["PENDIENTE", "Sin recibir"], ["RECIBIENDO", "Recibiendo"], ["RECIBIDO", "Recibido"], ["RECHAZADO", "Rechazado"], ["INCIERTO", "Por verificar"], ["CANCELADO", "Cancelado"]]);
+            }
+            group.appendChild(button("Aplicar filtros de " + (roots ? "carpetas" : "archivos"), roots ? "filtrar-raices" : "filtrar-resultados", null, busy));
+            group.appendChild(button("Limpiar filtros de " + (roots ? "carpetas" : "archivos"), roots ? "limpiar-raices" : "limpiar-resultados", null, busy)); parent.appendChild(group);
         }
         function render(model) {
             var focused = doc.activeElement, restore = content.contains(focused), focusAction = focused && focused.getAttribute("data-doc111-action"), focusValue = focused && focused.doc111Value;
@@ -103,6 +141,10 @@
                 content.appendChild(node("p", "La recepción de archivos es independiente del almacenamiento y de la incorporación documental. Cada acción avanza una fase y consulta su resultado."));
                 if (model.estado) { content.appendChild(node("p", "Inventario original: " + model.estado.totalRaices + " carpetas · " + model.estado.totalArchivos + " archivos · " + model.estado.totalBytes + " bytes.")); }
                 content.appendChild(button("Consultar estado", "consultar", null, model.busy));
+                if (model.estado) {
+                    if (model.estado.accionesPermitidas.indexOf("CONSULTAR_RAICES") !== -1) { filters(content, true, model.filtrosRaices, model.busy); }
+                    filters(content, false, model.filtrosArchivos, model.busy);
+                }
                 if (model.estado && model.estado.accionesPermitidas.indexOf("SOLICITAR_DETENCION") !== -1) { content.appendChild(button("Solicitar detención", "detener", null, model.busy || model.mutacionIncierta)); }
                 function resourceActions(resource, raiz) {
                     var group = node("span"), labels = {CREAR_EXPEDIENTE:"Crear expediente", MATERIALIZAR_VALORES:"Preparar índices", ALMACENAR:"Almacenar archivo", RECONCILIAR:"Verificar intento"};

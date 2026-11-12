@@ -1,3 +1,4 @@
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10 -->
 ## Context
 
 DOC-119 — PRODUCCION-IMPORTACION-CARGA-CARPETA-SEGUIMIENTO. Fuente completa preservada en `specs/produccion-importacion-carga-carpeta-seguimiento/jira-context.md`, incluido el acuerdo UI/UX de 2026-11-10.
@@ -102,7 +103,9 @@ Pruebas reales, carga, fallos inyectados, permisos y limpieza requieren autoriza
 
 ## Migration Plan
 
-Sin migración, despliegue ni producto modificado en este refinamiento. El mapa de `plan-tareas-propuesto.md` ya se aplicó a `tasks.md` por indicación del usuario: 24 tareas sin ejecutar, con complejidad, área, origen D/RQ y verificación. Refinamiento permanece borrador hasta revisión humana; después sincronizar trazabilidad OPSXJ y seguir D-09.
+Sin migración ni despliegue autorizado. El mapa de `plan-tareas-propuesto.md` se aplicó a `tasks.md` por indicación del usuario. El usuario continuó tras revisar los artefactos de 94ca9277; aprobación local registrada en refinement.md y sincronización OPSXJ PASS. Avance: 4/24 tareas, incluida la corrección reproducida de filtros/CSV (2.1–2.3), sin cambiar backend ni reorganizar accesos. Las autorizaciones reales se resuelven por separado y la secuencia D-09 se conserva.
+
+Evidencia nueva bajo `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/`: `doc119-procedencia-20261111.md`, `doc119-filtros-local-20261111.md` y `doc119-plan-aceptacion-20261111.md`. Son documentos de evidencia/plan, sin Compile de proyecto. Casos nuevos se incorporan al archivo de pruebas existente; recursos JS/CSS modificados renuevan caché en el ASPX existente.
 
 Una reversa de navegación restaura accesos previos conservando pistas/datos/efectos; no revierte lotes ni elimina staging. Justificar y registrar archivos nuevos antes de compilar.
 
@@ -110,4 +113,4 @@ Una reversa de navegación restaura accesos previos conservando pistas/datos/efe
 
 - Resolver expresamente SEG-03: operación sin limpieza con consumo documentado, o retención/mecanismo y autorización específica. No se ha decidido en esta sesión.
 - Identificar y autorizar ambiente/cuentas propias y ajenas/recursos adecuados para aceptación SEG-01/02; no heredar autorizaciones históricas.
-- Revisar y aprobar este borrador; el mapa ya está aplicado a tasks.md y su aplicación no aprueba automáticamente el refinamiento.
+- Refinamiento aprobado para trabajo local por la continuación del usuario; la tarea 1.2 aún requiere concretar ambiente/cuentas/recursos antes de solicitar autorización de ejecución real.
