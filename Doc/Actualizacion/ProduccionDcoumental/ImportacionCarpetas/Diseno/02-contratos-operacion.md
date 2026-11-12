@@ -420,3 +420,7 @@ Ambas respuestas usan RespuestaPerfilImportacion y EstadoHttp vigentes. El repos
 claveIntento identifica la solicitud de recepción; la identidad de contenido se prueba con bytes y SHA-256 del retenido. Reenvío íntegro de RECIBIDO devuelve evidencia previa; contenido distinto produce CONTENIDO_DISTINTO sin sustitución. Un intento RECHAZADO no se reutiliza ciegamente. Una incertidumbre sin contenido íntegro no habilita otro escritor por antigüedad.
 
 ReconciliarRecepcion pertenece al servicio interno, no a una operación pública nueva. RECIBIDO no significa documento incorporado. Paths/stagingRef/token de reclamación no se publican. Errores de servidor anteriores al handler se registran como tales, sin atribuirles un envelope JSON de aplicación.
+
+## Consolidación DOC-120 sobre la interfaz definitiva
+
+Base8c0773d4; sin cambio de contratos de aplicación. [Matriz](../Validacion/matriz-verificacion.md) e [índice de resultados](../Validacion/resultados.md) distinguen la evidencia original y la regresión local focal. DOC120-SUP01 adapta únicamente el auxiliar de degradación al menú existente, sin DDL o nueva ejecución real. INT03 requiere contrato/autorización propios y la aceptación final conserva las limitaciones de UI autenticada, SII y limpieza.

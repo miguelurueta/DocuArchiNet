@@ -1,4 +1,4 @@
-<!-- opsxj:refinement version=1 state=draft -->
+<!-- opsxj:refinement version=1 state=approved -->
 
 # Refinamiento — DOC-120
 
@@ -6,7 +6,7 @@
 
 Fuente: Jira DOC-120, contexto completo en specs/produccion-importacion-carga-carpeta-verificacion/jira-context.md. Continuación solicitada por el usuario después de opsxj:new: autorización de refinamiento local. Base funcional 8c0773d4371aeb35543bf182c0abdd0319cababa, merge PR130 de DOC-119; inspección sobre 60e02ae78841f94d08619ac9d53982d4318871c3. Tecnología legacy-webforms-vb, proyecto .NET Framework4.6.1 y JavaScript legacy. No se ejecutaron autenticación, HTTP de aplicación, SQL real, cargas, permisos, fallos o limpieza.
 
-El contenido se presenta para revisión técnica y aplicación del mapa de tareas. La generación previa no aprueba decisiones; esta propuesta no concede aceptación integral ni un presupuesto real de capacidad. INT-03 permanece NO_EJECUTADO sin definición/autorización. El diseño y la especificación describen cómo resolverlo, sin inventar objetivos.
+Aprobación del plan local: después de aplicar el mapa24 en73106588, el usuario indicó «continua». Se registra autorización para la consolidación documental y comprobaciones locales del plan. No concede aceptación integral, prueba real ni presupuesto de capacidad. INT-03 permanece NO_EJECUTADO sin definición/autorización. El diseño y la especificación describen cómo resolverlo, sin inventar objetivos.
 
 ## Contexto inspeccionado
 
@@ -46,7 +46,7 @@ Fijar el merge de DOC-119 como base funcional. Cada caso conserva SHA/huellas de
 
 Criterio de aceptación: Una fila con código distinto exige evaluar impacto; igualdad de fuentes no renueva autenticación, datos o runtime.
 
-Entregable local: tareas 1.1/1.3 del mapa propuesto. La evidencia es Gestion/WebFormProducionDocumental.aspx; js/gestion/ImportacionCarpetas/ImportacionCarpetas.js; doc119-ui-fuentes-20261112.json; no modifica autorización o semántica de negocio.
+Entregable local: tareas 1.1/1.3 del mapa aplicado. La evidencia es Gestion/WebFormProducionDocumental.aspx; js/gestion/ImportacionCarpetas/ImportacionCarpetas.js; doc119-ui-fuentes-20261112.json; no modifica autorización o semántica de negocio.
 
 ### D-02 / RQ-02 — Matriz e índices únicos
 
@@ -54,7 +54,7 @@ Crear matriz-verificacion.md y resultados.md en Validacion, ausentes en la base 
 
 Criterio de aceptación: Cada caso se clasifica REAL_HISTORICO, LOCAL_HISTORICO_VIGENTE, LOCAL_DOC120, ESTATICO o NO_EJECUTADO; el resultado primario permanece separado de esa clasificación.
 
-Entregable local: tareas 2.1/2.2 del mapa propuesto. La evidencia es Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/; doc111-matriz-final-20261102.md; no modifica autorización o semántica de negocio.
+Entregable local: tareas 2.1/2.2 del mapa aplicado. La evidencia es Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/; doc111-matriz-final-20261102.md; no modifica autorización o semántica de negocio.
 
 ### D-03 / RQ-03 — Consumo de EXP/ALM/COORD/SEG
 
@@ -62,7 +62,7 @@ Usar resultados efectivos y sus cortes finales. DOC-116 resolvió su ventana int
 
 Criterio de aceptación: Resolver contradicciones editoriales por fuente primaria, fecha y alcance; preservar intentos41/53, documentos e historial. Los observadores de laboratorio no se atribuyen al runtime ordinario.
 
-Entregable local: tareas 1.2/2.3 del mapa propuesto. La evidencia es doc116-entrega-20261105.json; doc117-matriz-almacenamiento.md; doc118-integracion-completa-20261110.json; doc119-recuperacion-verificada-20261112.json; no modifica autorización o semántica de negocio.
+Entregable local: tareas 1.2/2.3 del mapa aplicado. La evidencia es doc116-entrega-20261105.json; doc117-matriz-almacenamiento.md; doc118-integracion-completa-20261110.json; doc119-recuperacion-verificada-20261112.json; no modifica autorización o semántica de negocio.
 
 ### D-04 / RQ-04 — Interfaz definitiva y regresión focal
 
@@ -70,7 +70,7 @@ Mapear UI01–05 al menú superior/contextual y asistente resultantes de DOC-119
 
 Criterio de aceptación: La UI final de DOC-119 es LOCAL con servicios sintéticos. El estado real SEG-02 conserva sus límites; no acredita inserción nueva ni raíces físicas homónimas observadas en IIS.
 
-Entregable local: tareas 3.1/3.2/3.3/6.3 del mapa propuesto. La evidencia es js/gestion/WebFormProducionDocumental.js:Doc119NivelPulsado/Doc111ActualizarRama; tests/doc119-navigation.test.cjs; tests/doc111-importacion-carpetas-client.test.cjs; no modifica autorización o semántica de negocio.
+Entregable local: tareas 3.1/3.2/3.3/6.3 del mapa aplicado. La evidencia es js/gestion/WebFormProducionDocumental.js:Doc119NivelPulsado/Doc111ActualizarRama; tests/doc119-navigation.test.cjs; tests/doc111-importacion-carpetas-client.test.cjs; no modifica autorización o semántica de negocio.
 
 ### D-05 / RQ-05 — Integridad, incertidumbre y consumidores
 
@@ -78,7 +78,7 @@ Relacionar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, valores diferidos y fe
 
 Criterio de aceptación: Consultar/exportar no procesa ni reconcilia; RECIBIDO no equivale a DOCUMENTO_ALMACENADO. Stop no revierte efectos y una salida INCIERTO no autoriza replay.
 
-Entregable local: tareas 3.4/3.5 del mapa propuesto. La evidencia es Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Barreras.vb; CoordinadorImportacionCarpetas.Valores.vb; tests/ImportacionCarpetasBehaviorTests.cs; tests/doc119-context-menu.test.cjs; no modifica autorización o semántica de negocio.
+Entregable local: tareas 3.4/3.5 del mapa aplicado. La evidencia es Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Barreras.vb; CoordinadorImportacionCarpetas.Valores.vb; tests/ImportacionCarpetasBehaviorTests.cs; tests/doc119-context-menu.test.cjs; no modifica autorización o semántica de negocio.
 
 ### D-06 / RQ-06 — INT-02 degradación acotada
 
@@ -86,7 +86,7 @@ Conservar el caso real histórico de ausencia temporal de ra_integracion_evento 
 
 Criterio de aceptación: DDL previo manual se conserva. No reinstalar migraciones ni degradar la base para refrescar un antecedente; cualquier DDL/fallo real necesita aprobación específica y restauración revisada.
 
-Entregable local: tareas 4.1/4.2/4.3 del mapa propuesto. La evidencia es Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/; tools/e2e/tests/doc111-degradation.test.cjs; doc111-degradacion-individual-pass-20261102.md; no modifica autorización o semántica de negocio.
+Entregable local: tareas 4.1/4.2/4.3/4.4 del mapa aplicado. La evidencia es Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/; tools/e2e/tests/doc111-degradation.test.cjs; doc111-degradacion-individual-pass-20261102.md; no modifica autorización o semántica de negocio.
 
 ### D-07 / RQ-07 — INT-03 capacidad con presupuesto definido
 
@@ -94,7 +94,7 @@ Antes de medir acordar objetivo, cantidad/distribución/tamaño de archivos y ra
 
 Criterio de aceptación: No inferir capacidad máxima de lotes pequeños, máximo de página, pruebas de contratos o solapamientos de laboratorio. Responsable: solicitante y operador del ambiente; efecto: sin garantía de capacidad ni cierre integral por inferencia.
 
-Entregable local: tareas 5.1/5.3 del mapa propuesto. La evidencia es Modelo/ProduccionDocumental/ImportacionCarpetas/; tools/e2e/scripts/run-doc111-importacion-carpetas.cjs; doc119-datos-aceptacion-propuesta-20261112.md; no modifica autorización o semántica de negocio.
+Entregable local: tareas 5.1/5.3 del mapa aplicado. La evidencia es Modelo/ProduccionDocumental/ImportacionCarpetas/; tools/e2e/scripts/run-doc111-importacion-carpetas.cjs; doc119-datos-aceptacion-propuesta-20261112.md; no modifica autorización o semántica de negocio.
 
 ### D-08 / RQ-08 — Autorización separada y herramientas existentes
 
@@ -102,7 +102,7 @@ La continuación autoriza refinamiento/inspección y preparación local. Antes d
 
 Criterio de aceptación: Lectura, recepción, creación, almacenamiento, fallos, DDL y permisos son alcances distintos. Un STOPPED no es PASS; no reintentar automáticamente ni extraer credenciales de archivos/procesos.
 
-Entregable local: tareas 5.2/6.6 del mapa propuesto. La evidencia es tools/e2e/AGENT-RUNBOOK.md; tools/e2e/tests/support/doc119-seguimiento.cjs; tools/e2e/tests/support/doc113-ventana-importacion.cjs; no modifica autorización o semántica de negocio.
+Entregable local: tareas 5.2/6.6 del mapa aplicado. La evidencia es tools/e2e/AGENT-RUNBOOK.md; tools/e2e/tests/support/doc119-seguimiento.cjs; tools/e2e/tests/support/doc113-ventana-importacion.cjs; no modifica autorización o semántica de negocio.
 
 ### D-09 / RQ-09 — Fuentes y decisiones protegidas
 
@@ -110,7 +110,7 @@ Conservar SII/Integracionccv, AlmacenamientoDocumentoProduccionDocumental, Web.c
 
 Criterio de aceptación: SII real y limpieza real siguen NO_EJECUTADO. La medición57archivos/24.371bytes es histórica previa a nuevos datos; no representa disco actual ni capacidad disponible.
 
-Entregable local: tareas 2.4/6.1 del mapa propuesto. La evidencia es Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionLimpiezaOriginalImportacion.vb:Crear; doc119-seg03-propuesta-sin-limpieza-20261112.md; no modifica autorización o semántica de negocio.
+Entregable local: tareas 2.4/6.1 del mapa aplicado. La evidencia es Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionLimpiezaOriginalImportacion.vb:Crear; doc119-seg03-propuesta-sin-limpieza-20261112.md; no modifica autorización o semántica de negocio.
 
 ### D-10 / RQ-10 — Defectos reproducidos y criterio de cierre
 
@@ -118,7 +118,7 @@ Modificar producto solo ante una brecha reproducible vinculada a requisito, caus
 
 Criterio de aceptación: Una diferencia de huella por sí sola no prueba defecto ni obliga a repetir efectos. La revisión final identifica SHA/ambiente y resolución; publicación, archivo, merge y cierre se ejecutan posteriormente con sus comprobaciones.
 
-Entregable local: tareas 6.2/6.4/6.5 del mapa propuesto. La evidencia es Validacion/matriz-verificacion.md; Validacion/resultados.md; Doc/Tecnica/Opsxj/doc-120-produccion-importacion-carga-carpeta-verificacion/; tools/opsxj/scripts/lib/legacyGovernanceService.js; no modifica autorización o semántica de negocio.
+Entregable local: tareas 6.2/6.4/6.5 del mapa aplicado. La evidencia es Validacion/matriz-verificacion.md; Validacion/resultados.md; Doc/Tecnica/Opsxj/doc-120-produccion-importacion-carga-carpeta-verificacion/; tools/opsxj/scripts/lib/legacyGovernanceService.js; no modifica autorización o semántica de negocio.
 
 ## Requisitos verificables
 
@@ -137,7 +137,7 @@ Entregable local: tareas 6.2/6.4/6.5 del mapa propuesto. La evidencia es Validac
 
 ## Trazabilidad y aplicación
 
-10 decisiones/10 requisitos/20 escenarios. plan-tareas-propuesto.md contiene24 tareas con área, origen, complejidad y verificación. tasks.md conserva sus8 entradas iniciales hasta que el usuario solicite aplicar el mapa. La revisión de esta propuesta no se contabiliza como ejecución de esas24 tareas. Tras aplicación, auditar y sincronizar con opsxj:refine -- DOC-120 --sync; no sobrescribe decisiones ni requisitos.
+10 decisiones/10 requisitos/20 escenarios. Durante INT-02 se reprodujo DOC120-SUP01 en el auxiliar de pruebas: botón oculto tras el nuevo menú. Se añade tarea4.4 D-06/RQ-06, corregida y verificada localmente; plan activo25 tareas, sin cambio de producto ni nueva ventana real. Mapa24 inicial aplicado a tasks.md en73106588; plan-tareas-propuesto.md conserva la procedencia. El usuario continuó sobre esa entrega: aprobación para trabajo local, sin efectos reales nuevos. Auditar y sincronizar con opsxj:refine -- DOC-120 --sync; la aprobación del plan no se contabiliza como ejecución de sus24 tareas.
 
 ## Condiciones operativas de salida
 

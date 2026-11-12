@@ -1,6 +1,6 @@
 # Mapa atómico propuesto — DOC-120
 
-24 tareas; sustituye las8 tareas genéricas iniciales. Aplicación sujeta a la elección explícita del usuario. Este mapa no autoriza cargas, permisos, DDL, fallos o limpieza.
+24 tareas; sustituye las8 tareas genéricas iniciales. Mapa aplicado en73106588 por indicación del usuario sobre tasks.md; la continuación posterior aprueba el plan local. Este archivo conserva la propuesta de origen; el progreso vigente está en tasks.md. Este mapa no autoriza cargas, permisos, DDL, fallos o limpieza.
 
 - [ ] 1.1 [S] Fijar la base funcional y las huellas actuales de componentes. Área/archivos: doc120-inspeccion-refinamiento-20261112.json; doc119-ui-fuentes-20261112.json. Origen: D-01, RQ-01. Verificación: Cada componente tiene SHA-256 LF y contraste con8c0773d4 y con la evidencia DOC-119.
 - [ ] 1.2 [M] Inventariar los resultados efectivos EXP/ALM/COORD/SEG. Área/archivos: Validacion/doc116-entrega-20261105.json; doc117-matriz-almacenamiento.md; doc118-integracion-completa-20261110.json; doc119-seg01-aceptado-20261112.json. Origen: D-03, RQ-03. Verificación: Cada familia conserva fuente primaria, SHA/ambiente, resultado y limitación; no se suman cortes.

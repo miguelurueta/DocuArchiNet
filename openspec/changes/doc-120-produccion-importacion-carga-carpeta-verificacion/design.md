@@ -1,3 +1,4 @@
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10 -->
 ## Context
 
 Fuente completa: specs/produccion-importacion-carga-carpeta-verificacion/jira-context.md. Base funcional main 8c0773d4371aeb35543bf182c0abdd0319cababa, merge PR130 de DOC-119. Inspección sobre 60e02ae78841f94d08619ac9d53982d4318871c3, rama feature/DOC-120, carpeta principal. El proyecto declara .NET Framework4.6.1 (GestionDocumental-Docuarchi.net.vbproj:16), WebForms VB y JavaScript legacy. Esta revisión no cambia framework ni fuentes de producto.
@@ -14,6 +15,7 @@ Fuente completa: specs/produccion-importacion-carga-carpeta-verificacion/jira-co
 | --- | --- | --- |
 | Base y evidencias | Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc116-entrega-20261105.json; doc117-matriz-almacenamiento.md; doc118-integracion-completa-20261110.json; doc119-ui-fuentes-20261112.json | Lectura y comparación, primarios inmutables |
 | Índices nuevos | Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/matriz-verificacion.md; Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/resultados.md | Ausentes: crear solo estos índices al ejecutar el plan; Markdown, sin Compile de proyecto |
+| Consolidación verificable | Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-consolidacion-20261112.json | Manifiesto de dependencias/huellas y decisiones de reutilización de los índices; datos saneados, sin Compile ni plataforma nueva |
 | Inspección de refinamiento | Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-inspeccion-refinamiento-20261112.json | Nuevo manifiesto saneado de fuentes/evidencias, sin credenciales ni efecto de aceptación real |
 | Operación y autoridad | Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb:Consultar/ConsultarConfirmacion/ConsultarPagina/ExportarPagina; Infrastructure/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasContextAdapter.vb:Resolver/ResolverDestino/AutorizarRecursos | Consultar y revisar; sin nuevos contratos ni reconciliación desde lectura |
 | Coordinación | Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Barreras.vb; CoordinadorImportacionCarpetas.Valores.vb; CoordinadorImportacionCarpetas.Operaciones.vb; CoordinadorImportacionCarpetas.RecuperacionV2.vb | Conservar fases, revisiones y barreras; corregir solo defecto reproducido |
@@ -73,6 +75,8 @@ Evidencia: Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/
 
 Criterio y compatibilidad: DDL previo manual se conserva. No reinstalar migraciones ni degradar la base para refrescar un antecedente; cualquier DDL/fallo real necesita aprobación específica y restauración revisada.
 
+Corrección focal DOC120-SUP01: el auxiliar tools/e2e/tests/support/doc111-degradation.cjs pulsaba el botón dentro del menú cerrado. Reproducido en Chromium con cliente actual y respuesta503 sintética; ahora abre el menú antes del click. La prueba se añade al archivo de políticas existente; tarea4.4 D-06/RQ-06. No se ejecuta DDL ni una nueva degradación real.
+
 ### D-07 — INT-03 capacidad con presupuesto definido (RQ-07)
 
 Antes de medir acordar objetivo, cantidad/distribución/tamaño de archivos y raíces, navegadores/versiones, concurrencia, duración, ambiente, recursos, disco temporal/libre y umbrales de tiempo/memoria. Incluir topes HTTP/SELECT/sesiones/bytes/efectos y criterio de parada. Sin esos acuerdos, INT-03 queda NO_EJECUTADO por falta de definición/autorización.
@@ -119,4 +123,4 @@ Sin migración de datos o despliegue. Primero revisar artefactos y aplicar mapa 
 
 ## Decisiones operativas externas
 
-INT-03 requiere del solicitante y operador: objetivo/umbrales, corpus, navegadores, concurrencia, disco, ambiente/cuentas/recursos, presupuestos y autorización específica. No se fijan cifras por inferencia. La aceptación de límites DOC-119 se conserva como antecedente; no equivale a aceptación integral de DOC-120. La autorización actual comprende refinamiento local.
+INT-03 requiere del solicitante y operador: objetivo/umbrales, corpus, navegadores, concurrencia, disco, ambiente/cuentas/recursos, presupuestos y autorización específica. No se fijan cifras por inferencia. La aceptación de límites DOC-119 se conserva como antecedente; no equivale a aceptación integral de DOC-120. La continuación posterior a73106588 aprueba consolidación documental y comprobaciones locales, sin nuevas ventanas reales.

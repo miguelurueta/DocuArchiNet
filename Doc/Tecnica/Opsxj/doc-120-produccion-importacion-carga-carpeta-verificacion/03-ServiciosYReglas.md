@@ -6,4 +6,8 @@
 
 ## Servicios y reglas
 
-ServicioConsultaImportacion reautoriza y exporta una página sin reconciliar. Coordinador/Barreras/Valores/RecuperacionV2 conservan fases, integridad, valores diferidos y revisiones; INCIERTO y stop no autorizan replay/rollback. Los adaptadores únicos y la limpieza deshabilitada se preservan. Ninguna fuente de producto cambia en este refinamiento.
+Producto/servicios/repositorio sin delta desde8c0773d4. Consultar/CSV reautorizan y no reconcilian; coordinador/Barreras/Valores/RecuperacionV2 conservan revisiones, integridad, valores diferidos, fecha estable y fases. INCIERTO no se repite; stop no revierte lo confirmado.
+
+Regresión actual del arnés Framework y contraste DDL:2 wrappers Node PASS dentro del corte5/5 inicial. Se compilan114 entradas fijadas, con disco temporal/dobles SQL/HTTP y sin BD real. Sus casos internos no se agregan al total Node.
+
+INT-02 reutiliza exclusivamente la ausencia histórica de ra_integracion_evento y restauración/carga individual. ValidarMetadatos tiene verificaciones de tablas/motor/columnas/índices/claves/reglas; la prueba local no acredita esquema instalado ni cada incompatibilidad real. No se requiere variante real adicional sin requisito/diferencia concreta; auxiliar compatible corregido por separado.

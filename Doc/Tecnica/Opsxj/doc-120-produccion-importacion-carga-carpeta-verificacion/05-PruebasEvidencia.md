@@ -6,10 +6,16 @@
 
 ## Evidencia requerida
 
-Inspección estática: Validacion/doc120-inspeccion-refinamiento-20261112.json. Evidencias primarias EXP/ALM/COORD/SEG conservadas;15 huellas del manifiesto DOC-119 se comparan y ninguna corrida histórica se presenta como DOC-120. El mapa y los artefactos se revisan antes de ejecutar tareas.
+Corte: consolidación local21/25, sin aceptación integral. Índices: Validacion/matriz-verificacion.md y resultados.md. Manifiesto: doc120-consolidacion-20261112.json, con32 casos,25 fuentes originales,11 componentes,15/15 huellas UI coincidentes,114 entradas del arnés y huellas de logs. La inspección inicial doc120-inspeccion-refinamiento-20261112.json se conserva como corte anterior.
 
-Resultado de refinamiento propuesto: OpenSpec estricto PASS;15/15 huellas coinciden y diff de producto vacío. Auditoría de refinamiento:12 controles PASS y3 FAIL esperados hasta aprobación/aplicación (estado draft y tasks.md aún conserva las8 entradas genéricas sin D/RQ). El mapa24 contiene12 tareas S/12 M, cubre10 D/RQ y no se presenta como aplicado ni ejecutado. No equivale a validación de gobierno o aceptación operativa de DOC-120.
+Plan local aprobado sobre73106588 y opsxj:refine -- DOC-120 --sync PASS15/15. El mapa activo tiene25 tareas (24 originales más4.4 por reproducción del auxiliar). UI/contratos99/33 de DOC119 se reutilizan por fuentes iguales; no son ejecuciones DOC120.
+
+Regresión nueva:5/5 inicial (2 wrappers Framework/DDL y3 políticas de degradación); reproducción del caso nuevo1fallo por botón oculto antes del arreglo; después4/4 (3 políticas repetidas y1 Chromium nuevo). Son6 Node únicos, no9 ni los casos internos Framework sumados. Logs locales excluidos: .tmp/doc120-backend-degradation-local.log, doc120-degradation-before-fix.log y doc120-degradation-after-fix.log. No se repite Framework después del cambio Node porque sus entradas permanecen intactas.
+
+Se resuelven contradicciones de cortes DOC116/117/118 y estado global/caso de SEG01; no se reescriben JSON primarios. El cierre técnico de un caso no borra incertidumbres41/53 ni convierte laboratorio en runtime ordinario.
 
 ## QA/E2E WebForms
 
-No ejecutados en DOC-120: autenticación, HTTP de aplicación, SELECT real, recepción, creación, almacenamiento, permisos, DDL, fallos o limpieza. INT-03 NO_EJECUTADO sin definición/autorización; responsable solicitante/operador, sin afirmación de capacidad. Nuevas ventanas reales exigen plan concreto y autorización separada; sin retry/replay automático.
+Ninguna nueva autenticación, HTTP de aplicación, SELECT real, recepción, creación, almacenamiento, DDL, permiso, fallo real o limpieza en DOC120. La prueba Chromium devuelve503 sintético local. El fichero DLL comparado es un artefacto de disco, no prueba de ensamblado cargado en IIS.
+
+Abiertas5.2 (autorización real),6.4 (aceptación explícita de límites),6.5 (gobierno final) y6.6 (entrega final).5.3 consta NO_EJECUTADO con motivo/responsable/impacto, no como medición aprobada. INT03 sin contrato/autorización no concede garantía de capacidad. SII/limpieza y UI definitiva autenticada conservan su límite; no hay archivo ni Jira Listo por inferencia.

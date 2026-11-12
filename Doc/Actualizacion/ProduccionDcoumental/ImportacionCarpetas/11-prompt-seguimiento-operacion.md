@@ -18,6 +18,10 @@ El contextual cabe en el viewport y permite desplazarse hasta sus últimas opcio
 
 Evidencia operativa: SEG-01 real completo y SEG-02 real con límites, aceptado con cobertura mixta por el responsable. Inserción nueva y raíces físicas homónimas conservan cobertura local, sin anunciar observación en IIS. La UI definitiva se verifica con Chromium/cliente real y servicios sintéticos, compilación WebForms y regresiones de consumidores; ese alcance no sustituye una nueva prueba autenticada ni autoriza efectos adicionales.
 
+## Consolidación de verificación DOC-120
+
+La interfaz descrita corresponde a la base8c0773d4 entregada por DOC-119; sus fuentes permanecen iguales en la consolidación local DOC-120. Consulta [matriz-verificacion.md](Validacion/matriz-verificacion.md) y [resultados.md](Validacion/resultados.md) para el alcance por caso. Las pruebas locales no equivalen a nueva sesión autenticada, medición de capacidad o ejecución SII. Los límites de capacidad/UI real y la aceptación de salida se revisan expresamente antes del cierre; se mantiene la operación sin limpieza y la conservación de datos.
+
 ## ROL ESPERADO
 
 Actúa como arquitecto y desarrollador senior en ASP.NET WebForms, VB.NET, JavaScript y MySQL 5.1, respetando las fronteras existentes y el alcance de esta entrega.

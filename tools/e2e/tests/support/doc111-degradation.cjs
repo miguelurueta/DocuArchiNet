@@ -6,6 +6,13 @@ const {verifyMissingSchema}=require('./doc110-missing-schema.cjs');
 const {startDatabaseBridge}=require('./doc110-permission-revocation.cjs');
 const {assertAuthorizations,createSelectControls}=require('./doc111-importacion-carpetas.cjs');
 function check(value,code){if(!value)throw new Error('DOC111_'+code);}
+async function checkUnavailableUI(page){
+  if(!await page.locator('[data-doc111-open]').isVisible()&&await page.locator('#doc110-navigation-toggle').count())await page.locator('#doc110-navigation-toggle').click();
+  const pending=page.waitForResponse(r=>r.url().endsWith('/AbrirImportacion')&&r.request().method()==='POST',{timeout:30000});
+  pending.catch(()=>{});
+  await page.locator('[data-doc111-open]').click();check((await pending).status()===503,'DEGRADATION_NOT_ENFORCED');
+  await expect(page.locator('[data-doc111-status]')).toContainText('La importación no está disponible con la configuración actual.');
+}
 function validateDegradationProfile(p,profile){
   const validated=require('../../scripts/support/workflow-e2e-platform-profile.cjs').validateProfile(p);
   check(profile.mode==='LOTE'&&validated.baseUrl===profile.baseUrl&&validated.module===profile.module&&validated.scenarioId==='production-document-upload-execution'&&validated.expedientId===467&&validated.documentTypeId===50&&validated.fixturePath==='doc111-carga-individual.pdf'&&validated.odbcDsn==='MembershipUsers'&&profile.nivelRef==='7','DEGRADATION_SCOPE_INVALID');
@@ -64,9 +71,7 @@ async function runDegradation(auth,profile,uploadProfile,authorization,query){
     result=await verifyMissingSchema({bridge:guarded,expectedMissingTables:1,listProfiles:opening,
       async checkUnavailableUI(){
         state.stage='UNAVAILABLE_UI';save();
-        const pending=page.waitForResponse(r=>r.url().endsWith('/AbrirImportacion')&&r.request().method()==='POST',{timeout:30000});
-        await page.locator('[data-doc111-open]').click();check((await pending).status()===503,'DEGRADATION_NOT_ENFORCED');
-        await expect(page.locator('[data-doc111-status]')).toContainText('La importación no está disponible con la configuración actual.');
+        await checkUnavailableUI(page);
       },
       async upload(){
         state.stage='INDIVIDUAL_UPLOAD';state.uploadEntered=true;save();
@@ -92,4 +97,4 @@ async function runDegradation(auth,profile,uploadProfile,authorization,query){
   state.status='PASS';state.documentId=documentId;state.inventoryId=inventoryId;save();
   return {mode:'LOTE',expedienteId:'467',documentoId:documentId,inventarioId:inventoryId,unavailableVerified:true,individualUploadVerified:true,schemaRestored:true,lotsUnchanged:true,documents:1};
 }
-module.exports={validateDegradationProfile,runDegradation};
+module.exports={validateDegradationProfile,runDegradation,checkUnavailableUI};

@@ -1,3 +1,4 @@
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10 -->
 ## Purpose
 
 Consolidar la verificación trazable de importación de carpetas sobre la interfaz definitiva, diferenciando evidencia histórica, pruebas focales, límites operativos y autorización de cada ejecución.
