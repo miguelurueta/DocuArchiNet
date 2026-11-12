@@ -8,6 +8,8 @@ Estado vigente al cierre real del 2026-11-12: **privacidad PASS**, SEG-01 **PASS
 
 ## Evidencia requerida
 
+Inspección posterior `eb09fc5981be453b936b2bf1714c43a3`: cerrada con 5 SELECT/0 HTTP/0 sesiones, credenciales eliminadas. Los 24 lotes propios inspeccionados tienen máximo3 archivos frente a página25; los cinco lotes con recepción pendiente no tienen raíces confirmadas para SEG-02 ni originales coincidentes en el alcance local examinado. Se preparó únicamente en disco local un inventario de27 PDF; los efectos de aplicación siguen pendientes de autorización. [Propuesta de datos y alcance](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc119-datos-aceptacion-propuesta-20261112.md). SEG-03 tiene una propuesta separada de operar sin limpieza, pendiente de decisión expresa; consumo observado57 archivos/24.371 bytes. Progreso4/24; compuerta2.7 cerrada.
+
 1. Corte previo de refinamiento sobre d7dbf201: 16/16 pruebas cliente PASS, sin cambios de producto en aquel corte.
 2. Reproducción DOC-119: dos pruebas nuevas fallan por filtro inexistente antes de cambiar producto.
 3. Corrección de filtros/CSV: `node --test tests/doc111-importacion-carpetas-client.test.cjs tests/doc110-perfil-importacion-behavior.test.cjs`: 20/20 PASS (18 cliente y dos del arnés Framework/DDL).
