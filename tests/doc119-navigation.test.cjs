@@ -2,17 +2,19 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium}=require('../tools/e2e/node_modules/playwright');
 const root=path.resolve(__dirname,'..');
-async function fixture(work,{admin=false,level='7',delayOpening=false,delayVerification=false}={}){
+async function fixture(work,{admin=false,adminCatalogs=false,level='7',delayOpening=false,delayVerification=false}={}){
   const browser=await chromium.launch({headless:true});
   try{
     const page=await browser.newPage({viewport:{width:1000,height:720}}),calls=[];page.setDefaultTimeout(5000);
     let releaseOpening,releaseVerification;
     const openingGate=delayOpening?new Promise(resolve=>{releaseOpening=resolve;}):null,verificationGate=delayVerification?new Promise(resolve=>{releaseVerification=resolve;}):null;
     const host='<div id="doc111-importacion" data-navegacion="menu" data-api="/control.asmx" data-upload="/upload.ashx" data-token="synthetic" data-recuperacion="'+ 'a'.repeat(32)+'" data-nivel="'+level+'"><button type="button" data-doc111-open hidden disabled>Importar carpetas</button><button type="button" data-doc111-resume hidden>Último lote</button><button type="button" data-doc111-verificar hidden>Verificar</button><span data-doc111-status hidden></span></div>';
-    const html='<html><body><form><nav id="menu_var"><ul class="navbar-nav"></ul></nav><div id="TreeViewArchivo"><a id="TreeViewArchivot1" title="7\\\\Homónima">Homónima</a><a id="TreeViewArchivot2i" title="8\\\\Homónima"><img alt=""></a><a id="TreeViewArchivot2" title="8\\\\Homónima">Homónima</a><a id="TreeViewArchivot3" title="70|7|60|">Expediente</a><a id="TreeViewArchivot4" title="FONDO">Fondo</a></div>'+host+'<div id="layout-probe">Contenido estable</div>'+(admin?'<div id="doc110-perfiles" data-api="/control.asmx" data-token="synthetic" data-proveedores="0" data-fuentes="0"></div>':'')+'</form></body></html>';
+    const reference='<li class="nav-item dropdown active ml-2 mr-0 active_"><a class="nav-link dropdown-toggle" style="color:#6d7fcc" href="#" id="reference-files"><i style="color:#0062cc" class="fas fa-file" aria-hidden="true"></i> Archivos</a><div class="dropdown-menu"><a class="dropdown-item" id="reference-item"><i class="fas fa-edit" aria-hidden="true"></i> Cambiar nombre</a></div></li>';
+    const html='<html><body><form><nav id="menu_var" class="navbar navbar-expand-sm nav_botota_person_gray"><ul class="navbar-nav">'+reference+'</ul></nav><div id="TreeViewArchivo"><a id="TreeViewArchivot1" title="7\\\\Homónima">Homónima</a><a id="TreeViewArchivot2i" title="8\\\\Homónima"><img alt=""></a><a id="TreeViewArchivot2" title="8\\\\Homónima">Homónima</a><a id="TreeViewArchivot3" title="70|7|60|">Expediente</a><a id="TreeViewArchivot4" title="FONDO">Fondo</a></div>'+host+'<div id="layout-probe">Contenido estable</div>'+(admin?'<div id="doc110-perfiles" data-api="/control.asmx" data-token="synthetic" data-proveedores="'+(adminCatalogs?'1':'0')+'" data-fuentes="'+(adminCatalogs?'1':'0')+'"></div>':'')+'</form></body></html>';
     const code=['InventarioImportacion','ImportacionCarpetasApi','ImportacionCarpetasVista','ImportacionCarpetas'].map(name=>fs.readFileSync(path.join(root,'js/gestion/ImportacionCarpetas/'+name+'.js'),'utf8')).join('\n');
     const legacy=fs.readFileSync(path.join(root,'js/gestion/WebFormProducionDocumental.js'),'utf8');
-    await page.addInitScript({content:'window.$=value=>{if(typeof value==="function")document.addEventListener("DOMContentLoaded",value,{once:true});return {ready(){},on(){},autocomplete(){}};};window.jQuery=window.$;window.PerfilImportacionApi={crear:()=>({})};\n'+legacy+'\nwindow.Doc119NivelPulsado=Doc119NivelPulsado;window.Doc119InvocarImportacion=Doc119InvocarImportacion;\n'+code+(admin?'\n'+fs.readFileSync(path.join(root,'js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js'),'utf8'):'')});
+    const adminCode=admin?['ProveedorAdminEditor','FuenteAdminEditor','PerfilImportacionEditor'].map(name=>fs.readFileSync(path.join(root,'js/gestion/ImportacionCarpetas/'+name+'.js'),'utf8')).join('\n'):'';
+    await page.addInitScript({content:'window.$=value=>{if(typeof value==="function")document.addEventListener("DOMContentLoaded",value,{once:true});return {ready(){},on(){},autocomplete(){}};};window.jQuery=window.$;window.PerfilImportacionApi={crear:()=>({})};\n'+legacy+'\nwindow.Doc119NivelPulsado=Doc119NivelPulsado;window.Doc119InvocarImportacion=Doc119InvocarImportacion;\n'+code+'\n'+adminCode});
     await page.route('https://doc119.invalid/**',async route=>{
       const request=route.request();if(request.method()==='GET')return route.fulfill({status:200,contentType:'text/html',body:html});
       const operation=new URL(request.url()).pathname.split('/').pop(),body=request.postDataJSON().solicitud;calls.push({operation,request:body});
@@ -29,6 +31,9 @@ async function fixture(work,{admin=false,level='7',delayOpening=false,delayVerif
     });
     await page.goto('https://doc119.invalid/production');
     await page.addStyleTag({content:fs.readFileSync(path.join(root,'bootstrap/css/bootstrap.min.css'),'utf8')});
+    await page.addStyleTag({content:fs.readFileSync(path.join(root,'Styles/bootra-person.css'),'utf8')});
+    const font=fs.readFileSync(path.join(root,'Awesome/webfonts/fa-solid-900.woff2')).toString('base64');
+    await page.addStyleTag({content:'@font-face{font-family:"Font Awesome 5 Pro";font-weight:900;src:url(data:font/woff2;base64,'+font+') format("woff2");}.fas{font-family:"Font Awesome 5 Pro";font-weight:900;}'+fs.readFileSync(path.join(root,'Awesome/css/fontawesome.css'),'utf8')});
     await page.addStyleTag({content:fs.readFileSync(path.join(root,'js/gestion/ImportacionCarpetas/ImportacionCarpetas.css'),'utf8')});
     await page.locator('[data-doc111-query-open]').waitFor({state:'attached'});
     await work(page,calls,{releaseOpening:()=>releaseOpening?.(),releaseVerification:()=>releaseVerification?.()});
@@ -120,3 +125,28 @@ test('DOC120 verificar confirmacion pendiente conserva el aviso visible durante 
   gate.releaseVerification();await page.waitForFunction(()=>document.querySelector('[data-doc111-status]').textContent.includes('Todavía no hay'));
   assert.equal(calls.some(c=>c.operation==='ConfirmarPlan'),false);assert.equal(await notice.isVisible(),true);
 },{delayVerification:true}));
+
+for(const admin of [false,true])test('DOC120 menu con iconos y colores de Archivos: '+(admin?'administracion autorizada':'solo operacion'),()=>fixture(async(page,calls)=>{
+  const color=selector=>page.locator(selector).evaluate(el=>getComputedStyle(el).color);
+  assert.equal(await color('#doc110-navigation-toggle'),await color('#reference-files'));
+  assert.equal(await color('#doc110-navigation-toggle .doc120-menu-icon'),await color('#reference-files i'));
+  await page.locator('#doc110-navigation-toggle').click();
+  const buttons=page.locator('#doc110-navigation .dropdown-item:visible');assert.equal(await buttons.count(),admin?5:2);
+  for(const button of await buttons.all()){
+    assert.equal(await button.evaluate(el=>getComputedStyle(el).color),await color('#reference-item'));
+    assert.equal(await button.locator('[aria-hidden="true"]').count(),1);
+    assert.equal(await button.locator('[data-doc120-menu-label]').count(),1);
+    assert.notEqual(await button.getAttribute('type'),'submit');
+  }
+  await page.evaluate(()=>{ImportacionCarpetas.inicializar();ImportacionCarpetas.inicializar();});
+  assert.equal(await page.locator('#doc110-navigation-toggle .doc120-menu-icon').count(),1);
+  assert.equal(await page.locator('[data-doc111-query-open] .doc120-menu-icon').count(),1);
+  assert.equal(calls.length,0);
+  await page.evaluate(()=>document.fonts.ready);
+  await page.screenshot({path:path.join(root,'.tmp/doc120-menu-'+(admin?'admin':'operacion')+'-20261113.png'),clip:{x:0,y:0,width:650,height:360}});
+  await page.evaluate(()=>{sessionStorage.setItem('DOC111_REF_'+'a'.repeat(32),JSON.stringify({v:1,loteId:'29',planId:'45'}));});await page.reload();
+  await page.locator('#doc110-navigation-toggle').click();
+  assert.equal(await page.getByRole('button',{name:'Consultar lote 29',exact:true}).locator('.doc120-menu-icon').count(),1);
+  assert.equal(await page.getByRole('button',{name:'Consultar importación… · verificación pendiente',exact:true}).locator('.doc120-menu-icon').count(),1);
+  assert.equal(await page.locator('[data-doc111-verificar] .doc120-menu-icon').count(),1);
+},{admin,adminCatalogs:admin}));

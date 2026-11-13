@@ -1,0 +1,162 @@
+{
+  "issueKey": "DOC-120",
+  "date": "2026-11-13",
+  "case": "DOC120-UI07",
+  "requirements": [
+    "RQ-04",
+    "RQ-10"
+  ],
+  "status": "PASS_LOCAL_SYNTHETIC_BROWSER",
+  "parentHead": "b6f665433d0651de11b405f56a1090cf510d7712",
+  "binding": "LF SHA256 pins tested working sources; parent commit contains the earlier loading fix only.",
+  "cause": "Importación lacked the navigation icon and active_ menu class; button options did not inherit the purple anchor color from the existing bar.",
+  "correction": [
+    "Navigation/file-import icon, blue header icon, purple labels matching Archivos.",
+    "Icons for operation, query, last lot, verification and all permitted administration entries.",
+    "Separate label spans preserve icons during synchronization and reference recovery.",
+    "Existing permissions, button types, handlers and loading/error notices preserved.",
+    "Stable caret/spinner width with actual page CSS; no loading layout shift."
+  ],
+  "cacheVersion": "doc120-menu-20261113-2",
+  "sources": [
+    {
+      "file": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Lf": "379de85ae0d1a8bb01dc9edd7838569bd24789a88ce0e1c0baad242b4bc2336d"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256Lf": "613d992d79b99ca860c4a1656c6745fcda57de6c4c8dc0e07f951bc57ad58ea6"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css",
+      "sha256Lf": "029517b0d167e4c1be5f27cea3f639812fb1e9c1c784d3eedbae2fd938d8c3be"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+      "sha256Lf": "3fdf8ff1606a47fc0d3e6801ce45172422ff053795118dd18660348b48f6e9c3"
+    },
+    {
+      "file": "tests/doc119-navigation.test.cjs",
+      "sha256Lf": "ea219ffce2e35d51fd0f9d25334da114b60f4460260856365650e6564e2314b9"
+    }
+  ],
+  "uiChecks": [
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc119-contextuales-inventario-20261112.json",
+      "currentSha256Lf": "2939c54a404fd35991ccc01a6207442139609e1c36a3944fa181de437e397f39",
+      "changedSince20261112": false
+    },
+    {
+      "file": "Gestion/WebFormProducionDocumental.aspx",
+      "currentSha256Lf": "379de85ae0d1a8bb01dc9edd7838569bd24789a88ce0e1c0baad242b4bc2336d",
+      "changedSince20261112": true
+    },
+    {
+      "file": "Gestion/WebFormProducionDocumental.aspx.vb",
+      "currentSha256Lf": "c48cdb064951fea242fc0e710901d7be4893782261819d6302d057cb97b2bd61",
+      "changedSince20261112": false
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css",
+      "currentSha256Lf": "029517b0d167e4c1be5f27cea3f639812fb1e9c1c784d3eedbae2fd938d8c3be",
+      "changedSince20261112": true
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "currentSha256Lf": "613d992d79b99ca860c4a1656c6745fcda57de6c4c8dc0e07f951bc57ad58ea6",
+      "changedSince20261112": true
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "currentSha256Lf": "8fd1caf2c872cc1d2e3acfbef421eb7c93dbad16ba424baa7cadfd710ae23718",
+      "changedSince20261112": false
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+      "currentSha256Lf": "3fdf8ff1606a47fc0d3e6801ce45172422ff053795118dd18660348b48f6e9c3",
+      "changedSince20261112": true
+    },
+    {
+      "file": "js/gestion/WebFormProducionDocumental.js",
+      "currentSha256Lf": "c800184475732e48c8a478bd5afa340cb8c2acd7131010745f25ab823c4343e8",
+      "changedSince20261112": false
+    },
+    {
+      "file": "js/jquery.contextMenu.css",
+      "currentSha256Lf": "1f4e6d45af8921372148a93b7351852868360fefe10ec35e1a4cd7aa32834c55",
+      "changedSince20261112": false
+    },
+    {
+      "file": "js/jquery.contextMenu.js",
+      "currentSha256Lf": "98e1dad55ec6c66415699fbc91deaa68412206975218852fe2d8eec7d31b4df9",
+      "changedSince20261112": false
+    },
+    {
+      "file": "tests/doc111-importacion-carpetas-client.test.cjs",
+      "currentSha256Lf": "bf74a593509f774fa7b87cc96df6c06c0d6936024453a017a4aa496d9c9e81b3",
+      "changedSince20261112": false
+    },
+    {
+      "file": "tests/doc119-context-menu.test.cjs",
+      "currentSha256Lf": "c711ea5fd88e15adf7d122fff101e21e568727a494b6142052e4ba6408501b72",
+      "changedSince20261112": false
+    },
+    {
+      "file": "tests/doc119-navigation.test.cjs",
+      "currentSha256Lf": "ea219ffce2e35d51fd0f9d25334da114b60f4460260856365650e6564e2314b9",
+      "changedSince20261112": true
+    },
+    {
+      "file": "tools/e2e/tests/support/doc113-ventana-importacion.cjs",
+      "currentSha256Lf": "d6efb2763fbc262cde14d227e51376d64982b133e5f8e679ba7094ddbcfcf551",
+      "changedSince20261112": false
+    },
+    {
+      "file": "tools/e2e/tests/support/doc119-seguimiento.cjs",
+      "currentSha256Lf": "400afb0786b232b8c1a5003e8eada4d7bd833fc80ae28a463fac36b5e0bc3a30",
+      "changedSince20261112": false
+    }
+  ],
+  "test": {
+    "command": "node --test --test-concurrency=2 tests/doc111-importacion-carpetas-client.test.cjs tests/doc119-navigation.test.cjs tests/doc110-perfil-importacion-editor.test.cjs tools/e2e/tests/doc111-degradation.test.cjs",
+    "passed": 55,
+    "failed": 0,
+    "breakdown": {
+      "client": 28,
+      "navigation": 11,
+      "profileEditor": 12,
+      "degradation": 4
+    },
+    "newMenuCases": 2,
+    "checks": [
+      "Computed header, icon and item colors match reference Archivos with actual Bootstrap/page CSS and local icon font.",
+      "Operator sees only operation entries; admin sees profile/provider/source entries allowed by host flags.",
+      "No duplicate menu/icons after reinitialization; reference labels preserve icons after reload.",
+      "Menu rendering makes no service requests; delayed opening still has stable layout and visible real errors."
+    ],
+    "log": {
+      "file": ".tmp/doc120-menu-suite-20261113.log",
+      "sha256": "34da1984a75beabc396a66e2c2186c28ee05a75bfa25514d2c788c7938f46ef9"
+    }
+  },
+  "visualReview": {
+    "syntheticScreenshots": [
+      ".tmp/doc120-menu-operacion-20261113.png",
+      ".tmp/doc120-menu-admin-20261113.png"
+    ],
+    "classification": "Local browser, synthetic content only; excluded from Git."
+  },
+  "realExecution": {
+    "applicationHttp": 0,
+    "select": 0,
+    "sessions": 0,
+    "uploads": 0,
+    "effects": 0
+  },
+  "limits": [
+    "No authenticated IIS validation; actual account permissions not modified.",
+    "Prior evidence manifests remain immutable historical cuts."
+  ],
+  "progress": "23/27",
+  "integralAcceptance": false
+}

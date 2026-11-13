@@ -1,5 +1,11 @@
 # DOC-120 — matriz única de verificación
 
+## Menú de Importación — corte posterior2026-11-13
+
+DOC120-UI07: cabecera y opciones con iconos; textos del mismo color que Archivos y cabecera con icono azul. Las etiquetas dinámicas de consulta/lote mantienen sus iconos al sincronizar y recargar. Se conservan las opciones según permisos y el indicador de carga sin desplazamiento. Recursos versionados doc120-menu-20261113-2.
+
+**55/55 pruebas locales**:28 cliente,11 navegación,12 editor de perfiles y4 degradación. Dos casos nuevos comparan colores calculados contra Archivos y verifican iconos, permisos y referencias. CSS Bootstrap/de página y fuente de iconos locales; respuestas sintéticas, sin autenticación IIS ni operaciones reales. [Huellas y resultados](doc120-menu-20261113.json). Avance23/27; las cuatro tareas abiertas permanecen. Los siguientes cortes conservan sus versiones históricas.
+
 ## Corrección de apertura — 2026-11-13
 
 DOC120-UI06 (D-04/D-10, RQ-04/RQ-10), solicitada con «corrige» tras revisar el video: la carga inicial usaba el aviso amarillo y desplazaba el contenido41px. Ahora muestra un indicador neutro en el menú y conserva el mensaje accesible sin ocupar una franja. Errores, indisponibilidad y confirmación sin acuse conservan sus avisos. CSS/JS usan versión doc120-apertura-20261113-1.

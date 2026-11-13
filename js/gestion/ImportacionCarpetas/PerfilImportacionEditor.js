@@ -35,7 +35,7 @@
             var prior=options.querySelector('[data-doc119-administracion]');if(prior){prior.remove();}
             var administration=node('div',null,{'class':'doc119-administration-menu','data-doc119-administracion':'1'});
             administration.appendChild(node('span','Administración',{'class':'dropdown-header'}));
-            [open,host.querySelector('[data-doc110=admin-proveedores]'),host.querySelector('[data-doc110=admin-fuentes]')].forEach(function(access){if(access){access.className='dropdown-item';administration.appendChild(access);}});
+            [open,host.querySelector('[data-doc110=admin-proveedores]'),host.querySelector('[data-doc110=admin-fuentes]')].forEach(function(access,index){if(access){access.className='dropdown-item';window.ImportacionCarpetas.rotularAccesoMenu(access,access.textContent,['fa-sliders-h','fa-server','fa-database'][index]);administration.appendChild(access);}});
             options.appendChild(administration);
         }
         var current = null, busy = false, listPage = 1, listCode = "", listTerm = "", searchWidget = null, searchEpoch = 0, controls = {}, ruleBody, editorArea, rulesArea;

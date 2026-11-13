@@ -85,15 +85,25 @@
         }
         return actions;
     }
+    function rotularAccesoMenu(button, text, icon) {
+        var label = button.querySelector("[data-doc120-menu-label]");
+        if (!label) {
+            var glyph = button.ownerDocument.createElement("i");
+            glyph.className = "fas " + icon + " doc120-menu-icon"; glyph.setAttribute("aria-hidden", "true");
+            label = button.ownerDocument.createElement("span"); label.setAttribute("data-doc120-menu-label", "");
+            button.textContent = ""; button.appendChild(glyph); button.appendChild(label);
+        }
+        label.textContent = text;
+    }
     function asegurarMenu() {
         var doc = env.document, bar = doc && doc.querySelector("#menu_var .navbar-nav");
         if (!bar) { return null; }
         var existing = doc.getElementById("doc110-navigation");
         if (existing) { return existing.querySelector(".dropdown-menu"); }
         var item = doc.createElement("li"), toggle = doc.createElement("a"), options = doc.createElement("div");
-        item.id = "doc110-navigation"; item.className = "nav-item dropdown ml-2";
+        item.id = "doc110-navigation"; item.className = "nav-item dropdown active ml-2 mr-0 active_";
         toggle.id = "doc110-navigation-toggle"; toggle.href = "#"; toggle.className = "nav-link dropdown-toggle";
-        toggle.textContent = "Importación"; toggle.setAttribute("data-toggle", "dropdown"); toggle.setAttribute("aria-haspopup", "true"); toggle.setAttribute("aria-expanded", "false");
+        rotularAccesoMenu(toggle, "Importación", "fa-file-import"); toggle.setAttribute("data-toggle", "dropdown"); toggle.setAttribute("aria-haspopup", "true"); toggle.setAttribute("aria-expanded", "false");
         options.className = "dropdown-menu"; options.setAttribute("aria-labelledby", toggle.id);
         item.appendChild(toggle); item.appendChild(options); bar.appendChild(item);
         if (!(env.jQuery && env.jQuery.fn && env.jQuery.fn.dropdown)) { toggle.addEventListener("click", function (event) { event.preventDefault(); var expanded = item.classList.toggle("show"); options.classList.toggle("show", expanded); toggle.setAttribute("aria-expanded", String(expanded)); }); }
@@ -116,8 +126,10 @@
                 var section = host.ownerDocument.createElement("div"); section.setAttribute("data-doc119-operacion", "1");
                 section.className = "doc119-operation-menu";
                 [openButton, resumeButton, verifyButton].forEach(function (button) { if (button) { button.className = "dropdown-item"; section.appendChild(button); } });
-                openButton.hidden = false; openButton.textContent = "Importar carpetas…";
-                queryOpen = host.ownerDocument.createElement("button"); queryOpen.type = "button"; queryOpen.className = "dropdown-item"; queryOpen.textContent = "Consultar importación…"; queryOpen.setAttribute("data-doc111-query-open", "");
+                openButton.hidden = false; rotularAccesoMenu(openButton, "Importar carpetas…", "fa-folder-open");
+                rotularAccesoMenu(resumeButton, resumeButton.textContent, "fa-history");
+                if (verifyButton) { rotularAccesoMenu(verifyButton, verifyButton.textContent, "fa-check-circle"); }
+                queryOpen = host.ownerDocument.createElement("button"); queryOpen.type = "button"; queryOpen.className = "dropdown-item"; rotularAccesoMenu(queryOpen, "Consultar importación…", "fa-search"); queryOpen.setAttribute("data-doc111-query-open", "");
                 section.insertBefore(queryOpen, resumeButton); navigation.insertBefore(section, navigation.firstChild);
             }
         }
@@ -159,7 +171,7 @@
             if (modern && queryOpen) { var currentMenu = asegurarMenu(); if (currentMenu && !currentMenu.contains(section)) { currentMenu.insertBefore(section, currentMenu.firstChild); navigation = currentMenu; } }
             openButton.disabled = opening || !!host.doc111ConfirmacionPendiente || !validId(host.getAttribute("data-nivel"));
             resumeButton.hidden = !host.doc111UltimoLote;
-            if (host.doc111UltimoLote) { resumeButton.textContent = "Consultar lote " + host.doc111UltimoLote.loteId; }
+            if (host.doc111UltimoLote) { if (modern) { rotularAccesoMenu(resumeButton, "Consultar lote " + host.doc111UltimoLote.loteId, "fa-history"); } else { resumeButton.textContent = "Consultar lote " + host.doc111UltimoLote.loteId; } }
             if (verifyButton) { verifyButton.hidden = !host.doc111ConfirmacionPendiente; verifyButton.disabled = opening; }
             status.textContent = host.doc111ConfirmacionPendiente ? "La confirmación del plan " + host.doc111ConfirmacionPendiente.planId + " requiere verificar su resultado antes de iniciar otra preparación. " + errorApertura : (opening ? "Validando el destino de la importación…" : errorApertura);
             var storageWarning = !references.disponible() && (host.doc111UltimoLote || host.doc111ConfirmacionPendiente);
@@ -169,7 +181,7 @@
                 status.hidden = !status.textContent;
                 var menu = host.ownerDocument.getElementById("doc110-navigation");
                 if (menu) { menu.setAttribute("aria-busy", opening ? "true" : "false"); }
-                if (queryOpen) { queryOpen.disabled = opening; queryOpen.textContent = host.doc111ConfirmacionPendiente ? "Consultar importación… · verificación pendiente" : "Consultar importación…"; }
+                if (queryOpen) { queryOpen.disabled = opening; rotularAccesoMenu(queryOpen, host.doc111ConfirmacionPendiente ? "Consultar importación… · verificación pendiente" : "Consultar importación…", "fa-search"); }
             }
         }
         function message(error) {
@@ -452,5 +464,5 @@
         function install() { inicializar(); if (!installed && env.Sys && env.Sys.Application) { installed = true; env.Sys.Application.add_load(inicializar); } }
         if (env.document.readyState === "loading") { env.document.addEventListener("DOMContentLoaded", install, {once:true}); } else { install(); }
     }
-    return {crear:crear, crearReferencias:crearReferencias, validarReseleccion:validarReseleccion, accionesRecurso:accionesRecurso, asegurarMenu:asegurarMenu, montar:montar, inicializar:inicializar};
+    return {crear:crear, crearReferencias:crearReferencias, validarReseleccion:validarReseleccion, accionesRecurso:accionesRecurso, asegurarMenu:asegurarMenu, rotularAccesoMenu:rotularAccesoMenu, montar:montar, inicializar:inicializar};
 }));
