@@ -1,0 +1,895 @@
+{
+  "auditedSha": "f3bb9e1698fc35fda60a0655e1cc43838492d915",
+  "date": "2026-11-13",
+  "scope": "Standalone mockup versus current repository; no archive or integral acceptance",
+  "status": "PARTIAL_COMPATIBILITY_WITH_DIVERGENCES",
+  "sources": [
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Prototipo/propuesta-importacion-guiada-doc120.html",
+      "sha256Lf": "65ed0cf32d996950ccaa9a942180987f329c6ab8e02a73ddf5f702807a1b9027"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256Lf": "a669fe01a15cac627e5493e8436f171d0a4455a8c73ddf2a2829d253e0094ed8"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js",
+      "sha256Lf": "c2f06b7b944b0fac244bee29e4c98438083e4c2698533367208e453a0962c7a1"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256Lf": "cefb54353d0e13248017a0bb114189843c8c7f96b86b25a1686f2d2795d7e37e"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/InventarioImportacion.js",
+      "sha256Lf": "3ae16d908ca21b35279bf2feabf63ba26c4a21cfbf273773c01ecee1d5fa16db"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb",
+      "sha256Lf": "5e3eb94d7884c434f0eebde4952f35e33dfd39823bc71913ced5b9d99a92c5a0"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioPreparacionImportacion.vb",
+      "sha256Lf": "6667879e8281949ead01f076a2c99057898301fb7b1d09727a3a7cab84f5b1d5"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/LimitesImportacionCarpetas.vb",
+      "sha256Lf": "ad3bf7894a4481a665883735897c3cf781d08e442806d84fa074a8ade7d3f666"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Reconciliacion.vb",
+      "sha256Lf": "b02bf718b51c663336b372672054601b41630271a8e1455c2c6014005f3962ba"
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consulta.vb",
+      "sha256Lf": "ab692254c13c2ca274d4d9105e52e112f11fa4d71eac59dd5116b242a7c15871"
+    }
+  ],
+  "actionCount": 42,
+  "actions": [
+    {
+      "id": "add",
+      "line": 124
+    },
+    {
+      "id": "remove",
+      "line": 125
+    },
+    {
+      "id": "review",
+      "line": 126
+    },
+    {
+      "id": "back",
+      "line": 127
+    },
+    {
+      "id": "confirm",
+      "line": 128
+    },
+    {
+      "id": "select-folder",
+      "line": 129
+    },
+    {
+      "id": "send",
+      "line": 130
+    },
+    {
+      "id": "create",
+      "line": 131
+    },
+    {
+      "id": "prepare",
+      "line": 132
+    },
+    {
+      "id": "store",
+      "line": 133
+    },
+    {
+      "id": "reselect",
+      "line": 134
+    },
+    {
+      "id": "consult",
+      "line": 135
+    },
+    {
+      "id": "verify",
+      "line": 136
+    },
+    {
+      "id": "filters",
+      "line": 137
+    },
+    {
+      "id": "clear-filter",
+      "line": 138
+    },
+    {
+      "id": "export",
+      "line": 139
+    },
+    {
+      "id": "stop",
+      "line": 140
+    },
+    {
+      "id": "confirm-stop",
+      "line": 141
+    },
+    {
+      "id": "close",
+      "line": 142
+    },
+    {
+      "id": "confirm-close",
+      "line": 143
+    },
+    {
+      "id": "reopen",
+      "line": 144
+    },
+    {
+      "id": "dismiss",
+      "line": 145
+    },
+    {
+      "id": "help",
+      "line": 146
+    },
+    {
+      "id": "reload-demo",
+      "line": 147
+    },
+    {
+      "id": "uncertain-demo",
+      "line": 148
+    },
+    {
+      "id": "attempt-demo",
+      "line": 149
+    },
+    {
+      "id": "reset-demo",
+      "line": 150
+    },
+    {
+      "id": "confirm-reset",
+      "line": 151
+    },
+    {
+      "id": "apply-roots",
+      "line": 152
+    },
+    {
+      "id": "apply-files",
+      "line": 153
+    },
+    {
+      "id": "clear-roots",
+      "line": 154
+    },
+    {
+      "id": "clear-files",
+      "line": 155
+    },
+    {
+      "id": "page-roots",
+      "line": 156
+    },
+    {
+      "id": "page-files",
+      "line": 157
+    },
+    {
+      "id": "show-root",
+      "line": 158
+    },
+    {
+      "id": "show-file",
+      "line": 159
+    },
+    {
+      "id": "open-query",
+      "line": 160
+    },
+    {
+      "id": "query-reference",
+      "line": 161
+    },
+    {
+      "id": "last-query",
+      "line": 162
+    },
+    {
+      "id": "new-selection",
+      "line": 163
+    },
+    {
+      "id": "plan-demo",
+      "line": 164
+    },
+    {
+      "id": "verify-plan",
+      "line": 165
+    }
+  ],
+  "probes": [
+    {
+      "case": "C-01",
+      "mockRootRows": 0,
+      "mockAction": "Preparar índices",
+      "implementedActions": [],
+      "result": "DIVERGENCE_REPRODUCED"
+    },
+    {
+      "case": "C-01b",
+      "mockAction": "Almacenar archivo",
+      "implementedActions": [],
+      "result": "DIVERGENCE_REPRODUCED"
+    },
+    {
+      "case": "C-02",
+      "mockDelimiter": ";",
+      "implementedDelimiter": ",",
+      "mockColumns": [
+        "Carpeta",
+        "ReferenciaCarpeta",
+        "Archivo",
+        "Recepcion",
+        "EfectoDocumental"
+      ],
+      "implementedColumns": [
+        "recursoId",
+        "raizId",
+        "idCliente",
+        "nombre",
+        "estado",
+        "estadoRecepcion",
+        "bytesPrevistos",
+        "bytesRecibidos",
+        "expedienteId",
+        "relacionNivelId",
+        "gabineteId",
+        "documentoId",
+        "codigoResultado"
+      ],
+      "result": "DIVERGENCE_REPRODUCED"
+    },
+    {
+      "case": "C-03",
+      "scenario": "Filtered total shrinks from 26 to 25 while viewing page 2",
+      "mock": {
+        "page": 1,
+        "rows": 25
+      },
+      "implemented": {
+        "page": 2,
+        "rows": 0,
+        "basis": "ServicioConsultaImportacion preserves filtro.Pagina; repository LIMIT/OFFSET does not clamp"
+      },
+      "result": "DIVERGENCE_REPRODUCED_WITH_SOURCE_CONTRAST"
+    },
+    {
+      "case": "L-04",
+      "mock": "Real page reload loses newly confirmed mock lot34",
+      "implemented": "Server-persisted lot and IDs in scoped sessionStorage, or manual lookup after login",
+      "result": "DOCUMENTED_SIMULATION_LIMIT_REPRODUCED"
+    },
+    {
+      "case": "L-05",
+      "mock": "Verify always confirms the example attempt",
+      "implemented": "Can remain unresolved when evidence does not confirm the effect",
+      "result": "DOCUMENTED_SIMULATION_LIMIT_WITH_SOURCE_CONTRAST"
+    },
+    {
+      "case": "L-06",
+      "mock": "Only Egresos; up to3 generated roots; exactly1 PDF per root; fixed metadata and positive preflight",
+      "implemented": "Published profile catalog; actual browser folder selection; multiple PDFs per root; configurable limits and validation results",
+      "result": "STATIC_SCOPE_LIMIT_CONFIRMED"
+    },
+    {
+      "case": "L-07",
+      "mock": "canMutate uses local booleans, no server actions/revisions/active claims; receipt flag implies root readiness",
+      "implemented": "accionesPermitidas, recepcionListaParaCrear, revisionEsperada, intentoActivo and authority/integrity/staging checks",
+      "result": "STATIC_AUTHORITY_AND_POLICY_LIMIT_CONFIRMED"
+    }
+  ],
+  "realApplicationHttp": 0,
+  "realBusinessEffects": 0,
+  "pageErrors": 0,
+  "remoteRequests": 0,
+  "divergenceGroups": [
+    "C-01",
+    "C-02",
+    "C-03"
+  ],
+  "simulationLimits": [
+    "L-04",
+    "L-05",
+    "L-06",
+    "L-07"
+  ],
+  "prototypeModified": false,
+  "applicationModified": false,
+  "actionMatrix": [
+    {
+      "id": "add",
+      "line": 124,
+      "label": "Agregar carpeta de ejemplo",
+      "implementation": "agregar / selector webkitdirectory",
+      "status": "PARCIAL",
+      "notes": "Genera un PDF por raíz y limita a3 ejemplos; no inventaría un directorio real.",
+      "findings": [
+        "L-06"
+      ]
+    },
+    {
+      "id": "remove",
+      "line": 125,
+      "label": "Quitar carpeta",
+      "implementation": "quitar-raiz",
+      "status": "CORRESPONDENCIA",
+      "notes": "Elimina la raíz y sus archivos de la selección sin confirmar.",
+      "findings": []
+    },
+    {
+      "id": "review",
+      "line": 126,
+      "label": "Preparar revisión",
+      "implementation": "PrepararPlan",
+      "status": "PARCIAL",
+      "notes": "La revisión real valida reglas, catálogos, coincidencias y límites; la maqueta siempre usa datos positivos.",
+      "findings": [
+        "L-06",
+        "L-07"
+      ]
+    },
+    {
+      "id": "back",
+      "line": 127,
+      "label": "Cambiar selección",
+      "implementation": "etapa / invalidación de preparación",
+      "status": "CORRESPONDENCIA",
+      "notes": "Disponible antes de confirmar; no permite editar el lote confirmado.",
+      "findings": []
+    },
+    {
+      "id": "confirm",
+      "line": 128,
+      "label": "Confirmar plan",
+      "implementation": "ConfirmarPlan",
+      "status": "PARCIAL",
+      "notes": "Semántica separada correcta; no reproduce hash, revisión, vencimiento ni validaciones servidor.",
+      "findings": [
+        "L-07"
+      ]
+    },
+    {
+      "id": "select-folder",
+      "line": 129,
+      "label": "Ver acciones de carpeta",
+      "implementation": "Selección visual sobre referencia de raíz",
+      "status": "PRESENTACION",
+      "notes": "Agrupa la acción contextual; no representa un endpoint nuevo.",
+      "findings": []
+    },
+    {
+      "id": "send",
+      "line": 130,
+      "label": "Enviar archivo / Enviar N archivos",
+      "implementation": "enviarCola / recepción ASHX",
+      "status": "PARCIAL",
+      "notes": "Respeta página y filtro, pero no transfiere bytes ni valida contenido, intento o progreso.",
+      "findings": [
+        "L-06",
+        "L-07"
+      ]
+    },
+    {
+      "id": "create",
+      "line": 131,
+      "label": "Crear expediente",
+      "implementation": "AvanzarLote / CREAR_EXPEDIENTE",
+      "status": "PARCIAL",
+      "notes": "La disponibilidad real exige recepcionListaParaCrear y ámbito completo; la maqueta equivale a un PDF por expediente.",
+      "findings": [
+        "L-06",
+        "L-07"
+      ]
+    },
+    {
+      "id": "prepare",
+      "line": 132,
+      "label": "Preparar índices",
+      "implementation": "AvanzarLote / MATERIALIZAR_VALORES",
+      "status": "DIVERGENCIA",
+      "notes": "La maqueta permite la acción con carpeta padre filtrada fuera de la página; el cliente real no.",
+      "findings": [
+        "C-01"
+      ]
+    },
+    {
+      "id": "store",
+      "line": 133,
+      "label": "Almacenar archivo",
+      "implementation": "AvanzarLote / ALMACENAR",
+      "status": "DIVERGENCIA",
+      "notes": "Misma diferencia de guarda de carpeta padre; el guardado real conserva intentos y evidencias.",
+      "findings": [
+        "C-01",
+        "L-07"
+      ]
+    },
+    {
+      "id": "reselect",
+      "line": 134,
+      "label": "Reseleccionar archivo",
+      "implementation": "reseleccionar / validarReseleccion",
+      "status": "PARCIAL",
+      "notes": "La maqueta vincula el ejemplo automáticamente; la implementación compara recurso, nombre, tamaño y fecha y luego valida contenido al recibir.",
+      "findings": [
+        "L-06"
+      ]
+    },
+    {
+      "id": "consult",
+      "line": 135,
+      "label": "Actualizar estado",
+      "implementation": "ConsultarLote / ConsultarRecursosLote",
+      "status": "CORRESPONDENCIA",
+      "notes": "Misma semántica de consulta; el rótulo, hora y confirmación visible son propuestas de presentación.",
+      "findings": []
+    },
+    {
+      "id": "verify",
+      "line": 136,
+      "label": "Verificar intento",
+      "implementation": "ReconciliarRecurso",
+      "status": "PARCIAL",
+      "notes": "La demostración siempre confirma; el resultado real también puede permanecer sin resolver.",
+      "findings": [
+        "L-05",
+        "L-07"
+      ]
+    },
+    {
+      "id": "filters",
+      "line": 137,
+      "label": "Manejador genérico antiguo",
+      "implementation": "Sin botón visible en la versión actual",
+      "status": "NO_EXPUESTO",
+      "notes": "Código residual; no contar como una opción visible ni como un filtro adicional.",
+      "findings": []
+    },
+    {
+      "id": "clear-filter",
+      "line": 138,
+      "label": "Limpiar filtros (alias contextual)",
+      "implementation": "limpiar-resultados",
+      "status": "CORRESPONDENCIA",
+      "notes": "Limpia únicamente los filtros de archivos.",
+      "findings": []
+    },
+    {
+      "id": "export",
+      "line": 139,
+      "label": "Exportar esta página",
+      "implementation": "ExportarPaginaLote",
+      "status": "DIVERGENCIA",
+      "notes": "Página y filtro correctos; formato diferente:5 columnas con punto y coma frente a13 con coma.",
+      "findings": [
+        "C-02"
+      ]
+    },
+    {
+      "id": "stop",
+      "line": 140,
+      "label": "Solicitar detención",
+      "implementation": "SolicitarDetencion",
+      "status": "CORRESPONDENCIA",
+      "notes": "Conserva efectos confirmados y no ofrece Pausar/Reanudar. El diálogo es una propuesta visual.",
+      "findings": [
+        "L-07"
+      ]
+    },
+    {
+      "id": "confirm-stop",
+      "line": 141,
+      "label": "Confirmar solicitud de detención",
+      "implementation": "SolicitarDetencion",
+      "status": "PRESENTACION",
+      "notes": "Confirmación del diálogo local; no es una operación distinta en servidor.",
+      "findings": []
+    },
+    {
+      "id": "close",
+      "line": 142,
+      "label": "Cerrar asistente",
+      "implementation": "cerrar",
+      "status": "PARCIAL",
+      "notes": "La maqueta siempre muestra diálogo; el cliente real lo exige en preparaciones o confirmaciones inciertas.",
+      "findings": [
+        "L-04"
+      ]
+    },
+    {
+      "id": "confirm-close",
+      "line": 143,
+      "label": "Confirmar cierre",
+      "implementation": "cerrar / liberación de File y URLs",
+      "status": "PARCIAL",
+      "notes": "Referencia simulada en memoria; no reproduce sesión, cancelación de transporte ni efecto en vuelo.",
+      "findings": [
+        "L-04"
+      ]
+    },
+    {
+      "id": "reopen",
+      "line": 144,
+      "label": "Consultar importación de ejemplo",
+      "implementation": "Consulta del lote conocido",
+      "status": "PARCIAL",
+      "notes": "Funciona dentro de esta página; una recarga real pierde el lote nuevo de la maqueta.",
+      "findings": [
+        "L-04"
+      ]
+    },
+    {
+      "id": "dismiss",
+      "line": 145,
+      "label": "Cerrar diálogo / Escape",
+      "implementation": "Interacción local",
+      "status": "PRESENTACION",
+      "notes": "No llama a servicios.",
+      "findings": []
+    },
+    {
+      "id": "help",
+      "line": 146,
+      "label": "Cómo funciona",
+      "implementation": "Ayuda de presentación",
+      "status": "PRESENTACION",
+      "notes": "No llama a servicios ni habilita fases nuevas.",
+      "findings": []
+    },
+    {
+      "id": "reload-demo",
+      "line": 147,
+      "label": "Simular recarga",
+      "implementation": "Control exclusivo de demostración",
+      "status": "SOLO_DEMO",
+      "notes": "No demuestra recuperación real con recarga del navegador.",
+      "findings": [
+        "L-04"
+      ]
+    },
+    {
+      "id": "uncertain-demo",
+      "line": 148,
+      "label": "Simular respuesta perdida",
+      "implementation": "Control exclusivo de demostración",
+      "status": "SOLO_DEMO",
+      "notes": "No se envía una operación real ni se pierde un acuse real.",
+      "findings": [
+        "L-05"
+      ]
+    },
+    {
+      "id": "attempt-demo",
+      "line": 149,
+      "label": "Simular intento incierto",
+      "implementation": "Control exclusivo de demostración",
+      "status": "SOLO_DEMO",
+      "notes": "Solo ejemplifica creación/almacenamiento y resolución positiva.",
+      "findings": [
+        "L-05"
+      ]
+    },
+    {
+      "id": "reset-demo",
+      "line": 150,
+      "label": "Volver al inicio de la maqueta",
+      "implementation": "Control exclusivo de demostración",
+      "status": "SOLO_DEMO",
+      "notes": "No existe una limpieza o rollback del lote productivo equivalente.",
+      "findings": []
+    },
+    {
+      "id": "confirm-reset",
+      "line": 151,
+      "label": "Reiniciar ejemplo",
+      "implementation": "Control exclusivo de demostración",
+      "status": "SOLO_DEMO",
+      "notes": "Borra solo el estado ficticio de esta página.",
+      "findings": []
+    },
+    {
+      "id": "apply-roots",
+      "line": 152,
+      "label": "Aplicar filtros de carpetas",
+      "implementation": "ConsultarRecursosLote / RAICES",
+      "status": "CORRESPONDENCIA",
+      "notes": "Opciones de Estado de carpeta exactas; aplicar reinicia su página y conserva archivos.",
+      "findings": []
+    },
+    {
+      "id": "apply-files",
+      "line": 153,
+      "label": "Aplicar filtros de archivos",
+      "implementation": "ConsultarRecursosLote / ARCHIVOS",
+      "status": "CORRESPONDENCIA",
+      "notes": "Referencia de carpeta, efecto y recepción se combinan; aplicación explícita e independiente.",
+      "findings": []
+    },
+    {
+      "id": "clear-roots",
+      "line": 154,
+      "label": "Limpiar filtros de carpetas",
+      "implementation": "limpiar-raices",
+      "status": "CORRESPONDENCIA",
+      "notes": "No borra filtros de archivos.",
+      "findings": []
+    },
+    {
+      "id": "clear-files",
+      "line": 155,
+      "label": "Limpiar filtros de archivos",
+      "implementation": "limpiar-resultados",
+      "status": "CORRESPONDENCIA",
+      "notes": "No borra filtros de carpetas.",
+      "findings": []
+    },
+    {
+      "id": "page-roots",
+      "line": 156,
+      "label": "Anterior/Siguiente de carpetas",
+      "implementation": "ConsultarRecursosLote / página RAICES",
+      "status": "DIVERGENCIA",
+      "notes": "El ajuste automático al máximo disponible difiere del contrato real cuando el total disminuye.",
+      "findings": [
+        "C-03"
+      ]
+    },
+    {
+      "id": "page-files",
+      "line": 157,
+      "label": "Anterior/Siguiente de archivos",
+      "implementation": "ConsultarRecursosLote / página ARCHIVOS",
+      "status": "DIVERGENCIA",
+      "notes": "Misma normalización automática; además usa25 fijos y no el máximo de página anunciado por el servidor.",
+      "findings": [
+        "C-03"
+      ]
+    },
+    {
+      "id": "show-root",
+      "line": 158,
+      "label": "Mostrar carpeta seleccionada",
+      "implementation": "Navegación visual y consulta de página",
+      "status": "PRESENTACION",
+      "notes": "Atajo visual; debe conservar filtro y referencia al integrarse.",
+      "findings": [
+        "C-03"
+      ]
+    },
+    {
+      "id": "show-file",
+      "line": 159,
+      "label": "Mostrar archivo seleccionado",
+      "implementation": "Navegación visual y consulta de página",
+      "status": "PRESENTACION",
+      "notes": "Atajo visual; debe respetar las guardas de padre y recurso del cliente real.",
+      "findings": [
+        "C-01",
+        "C-03"
+      ]
+    },
+    {
+      "id": "open-query",
+      "line": 160,
+      "label": "Consultar importación",
+      "implementation": "Abrir consulta por referencia",
+      "status": "CORRESPONDENCIA",
+      "notes": "Acceso sin preparar una nueva importación. Datos y autorización son ficticios.",
+      "findings": [
+        "L-07"
+      ]
+    },
+    {
+      "id": "query-reference",
+      "line": 161,
+      "label": "Consultar referencia / Enter",
+      "implementation": "ConsultarLote / ConsultarRecursosLote",
+      "status": "CORRESPONDENCIA",
+      "notes": "Destino original y rechazo sin fallback representados; no valida identidad o permisos reales.",
+      "findings": [
+        "L-07"
+      ]
+    },
+    {
+      "id": "last-query",
+      "line": 162,
+      "label": "Consultar último lote",
+      "implementation": "Referencia conocida / consulta del lote",
+      "status": "PARCIAL",
+      "notes": "La maqueta comienza con101 ficticio; el cliente usa la referencia del contexto de sesión.",
+      "findings": [
+        "L-04"
+      ]
+    },
+    {
+      "id": "new-selection",
+      "line": 163,
+      "label": "Importar carpetas desde consulta",
+      "implementation": "Acceso existente a nueva importación",
+      "status": "PRESENTACION",
+      "notes": "La maqueta usa un nivel fijo; la implementación debe conservar el nivel seleccionado/pulsado autorizado.",
+      "findings": [
+        "L-06",
+        "L-07"
+      ]
+    },
+    {
+      "id": "plan-demo",
+      "line": 164,
+      "label": "Simular confirmación sin respuesta",
+      "implementation": "Control exclusivo de demostración",
+      "status": "SOLO_DEMO",
+      "notes": "Crea un ejemplo local, no ejecuta ConfirmarPlan real.",
+      "findings": [
+        "L-07"
+      ]
+    },
+    {
+      "id": "verify-plan",
+      "line": 165,
+      "label": "Verificar confirmación pendiente",
+      "implementation": "ConsultarConfirmacionLote",
+      "status": "CORRESPONDENCIA",
+      "notes": "Representa la consulta sin repetir confirmación; no modela todas las respuestas negativas o inciertas.",
+      "findings": [
+        "L-05"
+      ]
+    }
+  ],
+  "counts": {
+    "PARCIAL": 11,
+    "CORRESPONDENCIA": 12,
+    "PRESENTACION": 7,
+    "DIVERGENCIA": 5,
+    "NO_EXPUESTO": 1,
+    "SOLO_DEMO": 6
+  },
+  "baseline": {
+    "checks": 63,
+    "status": "PASS_LOCAL_VISIBLE_STATUS_MOCKUP",
+    "reference": ".tmp/doc120-compatibility-baseline63.log",
+    "meaning": "Positive-path UI checks, not full implementation parity"
+  },
+  "findings": [
+    {
+      "id": "C-01",
+      "priority": "ALTA",
+      "kind": "DIVERGENCIA",
+      "title": "Acciones de archivo con padre fuera del resultado visible",
+      "observed": "Después de recibir y crear, filtrar carpetas por PENDIENTE oculta el padre. La maqueta sigue ofreciendo Preparar índices y, luego, Almacenar archivo. accionesRecurso del cliente real devuelve[] en ambos casos.",
+      "recommendation": "Reutilizar o reproducir la guarda completa de accionesRecurso, incluida la carpeta padre visible, su estado e intento activo. Ajustar la maqueta al cliente construido; no relajar las guardas del producto para igualar el ejemplo.",
+      "sources": [
+        {
+          "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Prototipo/propuesta-importacion-guiada-doc120.html",
+          "symbol": "next / canMutate / perform"
+        },
+        {
+          "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+          "symbol": "accionesRecurso"
+        }
+      ]
+    },
+    {
+      "id": "C-02",
+      "priority": "MEDIA",
+      "kind": "DIVERGENCIA",
+      "title": "Formato CSV diferente",
+      "observed": "La maqueta genera5 columnas separadas por punto y coma. ExportarPaginaLote genera13 columnas separadas por coma y aplica CeldaCsv. El alcance por página/filtro coincide; el contrato del archivo no.",
+      "recommendation": "Reproducir las13 columnas, delimitador, escapado y protección de fórmulas del servicio si el HTML se usa como referencia del CSV. El prefijo DEMO puede conservarse para identificar datos ficticios.",
+      "sources": [
+        {
+          "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Prototipo/propuesta-importacion-guiada-doc120.html",
+          "symbol": "download"
+        },
+        {
+          "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb",
+          "symbol": "ExportarPagina / CeldaCsv"
+        }
+      ]
+    },
+    {
+      "id": "C-03",
+      "priority": "MEDIA",
+      "kind": "DIVERGENCIA",
+      "title": "Normalización automática de paginación y tamaño fijo",
+      "observed": "pageOf cambia página2 a1 al quedar25 filas. El servicio conserva filtro.Pagina y LIMIT/OFFSET devuelve vacía la página2. El cliente real ajusta tamaño con Math.min(25,maximoTamanoPagina); la maqueta fija25.",
+      "recommendation": "Conservar la página solicitada y mostrar vacío cuando corresponda; reiniciar únicamente donde el cliente lo hace (Aplicar/Limpiar). Tomar el tamaño de la política de consulta al integrar.",
+      "sources": [
+        {
+          "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Prototipo/propuesta-importacion-guiada-doc120.html",
+          "symbol": "pageOf / PAGE_SIZE"
+        },
+        {
+          "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb",
+          "symbol": "ConsultarPagina"
+        },
+        {
+          "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consulta.vb",
+          "symbol": "LeerPaginaConsulta"
+        },
+        {
+          "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+          "symbol": "consultar"
+        }
+      ]
+    },
+    {
+      "id": "L-04",
+      "priority": "MEDIA",
+      "kind": "LIMITE_SIMULACION",
+      "title": "Recuperación real no representada",
+      "observed": "Una recarga real elimina los nuevos lotes de la maqueta; Simular recarga conserva objetos en memoria. La aplicación usa lotes persistidos y pistas de IDs en sessionStorage o consulta manual con autorización vigente.",
+      "recommendation": "Mantener el límite visible y no presentar Simular recarga como prueba de recuperación real. Conservar el número de lote y el comportamiento del producto al integrar."
+    },
+    {
+      "id": "L-05",
+      "priority": "MEDIA",
+      "kind": "LIMITE_SIMULACION",
+      "title": "Verificación siempre positiva en el ejemplo",
+      "observed": "Verificar intento siempre termina confirmado en la maqueta; la reconciliación real puede devolver sin resolver. También faltan acuses inválidos, errores de transporte y confirmación todavía no verificable.",
+      "recommendation": "Añadir estados de ejemplo sin resolución, manteniendo el bloqueo y la referencia del intento; no prometer que verificar siempre libera el flujo."
+    },
+    {
+      "id": "L-06",
+      "priority": "MEDIA",
+      "kind": "LIMITE_SIMULACION",
+      "title": "Perfiles, selección y cardinalidad limitados",
+      "observed": "Un perfil Egresos fijo, hasta3 carpetas generadas y exactamente1 PDF por carpeta. No hay selección real, Más perfiles, quitar archivo individual, carpeta con varios PDF, integridad LOTE/PARCIAL ni incidencias reales.",
+      "recommendation": "Antes de integrar el diseño, conservar catálogo y selector existentes y separar raíces de archivos en el modelo de vista; incluir ejemplos de varias páginas y varios PDF por expediente sin convertir3 en límite productivo."
+    },
+    {
+      "id": "L-07",
+      "priority": "ALTA",
+      "kind": "LIMITE_SIMULACION",
+      "title": "Autoridad, revisiones e integridad solo simuladas",
+      "observed": "El HTML no aplica sesión/CSRF, propietario/empresa, accionesPermitidas, revisión, hash/vigencia del plan, intentos activos o disponibilidad autoritativa de creación. Sus banderas positivas no sustituyen esos contratos.",
+      "recommendation": "Integrar como capa de presentación consumiendo los DTO y servicios actuales; conservar la reautorización y las barreras de servidor. No se requiere ni se autoriza ejecutar pruebas reales mediante este informe."
+    }
+  ],
+  "controls": [
+    {
+      "id": "profile",
+      "scope": "Egresos fijo; catálogo publicado y Más perfiles no simulados"
+    },
+    {
+      "id": "root-state",
+      "scope": "Estado de carpeta: opciones exactas"
+    },
+    {
+      "id": "file-root",
+      "scope": "Referencia numérica de carpeta"
+    },
+    {
+      "id": "file-effect",
+      "scope": "Efecto documental: opciones exactas"
+    },
+    {
+      "id": "file-receipt",
+      "scope": "Recepción: opciones exactas"
+    },
+    {
+      "id": "lot-reference",
+      "scope": "Consulta de referencias ficticias; no sustituye autorización real"
+    }
+  ],
+  "assessment": "Las opciones de negocio tienen correspondencia conceptual, pero la maqueta no es funcionalmente equivalente en todos los estados. Resolver C-01/C-02/C-03 y mantener visibles L-04 a L-07 antes de usarla como contrato de implementación."
+}
