@@ -1,0 +1,199 @@
+{
+  "issueKey": "DOC-120",
+  "date": "2026-11-13",
+  "case": "DOC120-UI06",
+  "requirements": [
+    "RQ-04",
+    "RQ-10"
+  ],
+  "decisions": [
+    "D-04",
+    "D-10"
+  ],
+  "status": "PASS_LOCAL_SYNTHETIC_BROWSER",
+  "inspectionHead": "11441dcde09c1a661f38a9a3a74b84a0bcf616cb",
+  "binding": "Per-file SHA256 LF identifies tested working sources; this parent HEAD alone does not contain the fix.",
+  "observation": {
+    "videoTime": "00:08.30–00:08.40",
+    "text": "Validando el destino de la importación…",
+    "cause": "Loading shared the yellow notice style and entered normal document flow.",
+    "reproducedShiftPixels": 41
+  },
+  "correction": {
+    "loading": "Neutral menu spinner, aria-busy and clipped accessible status text; stable page/menu geometry.",
+    "notices": "Authorization, unavailability, pending confirmation and reference-storage notices remain visible.",
+    "cacheVersion": "doc120-apertura-20261113-1"
+  },
+  "sources": [
+    {
+      "file": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Lf": "e6d78137ce45c30220fa6431fdb36200b97f9a3efb451ab835896b5b7c335720"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256Lf": "9836cc3d50cdfc4cd36f4d17d9260443317fbfd8d0221b0b0a29578a5588ee6a"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css",
+      "sha256Lf": "ce576c57be110480396ebc405a3630fe853cacabae1dd372924414cde9d01991"
+    },
+    {
+      "file": "tests/doc119-navigation.test.cjs",
+      "sha256Lf": "33844a9e00d417b2194cd062c9be687285338bdbf2a29f0bbdde9a0b1241320a"
+    }
+  ],
+  "uiChecks": [
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc119-contextuales-inventario-20261112.json",
+      "priorSha256Lf": "2939c54a404fd35991ccc01a6207442139609e1c36a3944fa181de437e397f39",
+      "currentSha256Lf": "2939c54a404fd35991ccc01a6207442139609e1c36a3944fa181de437e397f39",
+      "changed": false
+    },
+    {
+      "file": "Gestion/WebFormProducionDocumental.aspx",
+      "priorSha256Lf": "75d8ce9a09ca1d7654b03c76edef84ea64c0e4d9d6eee8014434ac4cea92d005",
+      "currentSha256Lf": "e6d78137ce45c30220fa6431fdb36200b97f9a3efb451ab835896b5b7c335720",
+      "changed": true
+    },
+    {
+      "file": "Gestion/WebFormProducionDocumental.aspx.vb",
+      "priorSha256Lf": "c48cdb064951fea242fc0e710901d7be4893782261819d6302d057cb97b2bd61",
+      "currentSha256Lf": "c48cdb064951fea242fc0e710901d7be4893782261819d6302d057cb97b2bd61",
+      "changed": false
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css",
+      "priorSha256Lf": "00d200f0e3e85c1ffcb1bfd18e70138b13e2d5c941727bb6f2abeaacafa3af56",
+      "currentSha256Lf": "ce576c57be110480396ebc405a3630fe853cacabae1dd372924414cde9d01991",
+      "changed": true
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "priorSha256Lf": "457d1024dc306db94a82c538713cd7cff3516cc64cccfd11db9ef935b37ded80",
+      "currentSha256Lf": "9836cc3d50cdfc4cd36f4d17d9260443317fbfd8d0221b0b0a29578a5588ee6a",
+      "changed": true
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "priorSha256Lf": "8fd1caf2c872cc1d2e3acfbef421eb7c93dbad16ba424baa7cadfd710ae23718",
+      "currentSha256Lf": "8fd1caf2c872cc1d2e3acfbef421eb7c93dbad16ba424baa7cadfd710ae23718",
+      "changed": false
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+      "priorSha256Lf": "a65c816388834a44cada4a4479d7c9f71d93aae822defc9fc8994c434187b166",
+      "currentSha256Lf": "a65c816388834a44cada4a4479d7c9f71d93aae822defc9fc8994c434187b166",
+      "changed": false
+    },
+    {
+      "file": "js/gestion/WebFormProducionDocumental.js",
+      "priorSha256Lf": "c800184475732e48c8a478bd5afa340cb8c2acd7131010745f25ab823c4343e8",
+      "currentSha256Lf": "c800184475732e48c8a478bd5afa340cb8c2acd7131010745f25ab823c4343e8",
+      "changed": false
+    },
+    {
+      "file": "js/jquery.contextMenu.css",
+      "priorSha256Lf": "1f4e6d45af8921372148a93b7351852868360fefe10ec35e1a4cd7aa32834c55",
+      "currentSha256Lf": "1f4e6d45af8921372148a93b7351852868360fefe10ec35e1a4cd7aa32834c55",
+      "changed": false
+    },
+    {
+      "file": "js/jquery.contextMenu.js",
+      "priorSha256Lf": "98e1dad55ec6c66415699fbc91deaa68412206975218852fe2d8eec7d31b4df9",
+      "currentSha256Lf": "98e1dad55ec6c66415699fbc91deaa68412206975218852fe2d8eec7d31b4df9",
+      "changed": false
+    },
+    {
+      "file": "tests/doc111-importacion-carpetas-client.test.cjs",
+      "priorSha256Lf": "bf74a593509f774fa7b87cc96df6c06c0d6936024453a017a4aa496d9c9e81b3",
+      "currentSha256Lf": "bf74a593509f774fa7b87cc96df6c06c0d6936024453a017a4aa496d9c9e81b3",
+      "changed": false
+    },
+    {
+      "file": "tests/doc119-context-menu.test.cjs",
+      "priorSha256Lf": "c711ea5fd88e15adf7d122fff101e21e568727a494b6142052e4ba6408501b72",
+      "currentSha256Lf": "c711ea5fd88e15adf7d122fff101e21e568727a494b6142052e4ba6408501b72",
+      "changed": false
+    },
+    {
+      "file": "tests/doc119-navigation.test.cjs",
+      "priorSha256Lf": "8937d1c52b79a94629dc457bf29b70d6417925320677aab5379b8a5a20973a6a",
+      "currentSha256Lf": "33844a9e00d417b2194cd062c9be687285338bdbf2a29f0bbdde9a0b1241320a",
+      "changed": true
+    },
+    {
+      "file": "tools/e2e/tests/support/doc113-ventana-importacion.cjs",
+      "priorSha256Lf": "d6efb2763fbc262cde14d227e51376d64982b133e5f8e679ba7094ddbcfcf551",
+      "currentSha256Lf": "d6efb2763fbc262cde14d227e51376d64982b133e5f8e679ba7094ddbcfcf551",
+      "changed": false
+    },
+    {
+      "file": "tools/e2e/tests/support/doc119-seguimiento.cjs",
+      "priorSha256Lf": "400afb0786b232b8c1a5003e8eada4d7bd833fc80ae28a463fac36b5e0bc3a30",
+      "currentSha256Lf": "400afb0786b232b8c1a5003e8eada4d7bd833fc80ae28a463fac36b5e0bc3a30",
+      "changed": false
+    }
+  ],
+  "componentChanges": [
+    {
+      "component": "C-UI",
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256Lf": "9836cc3d50cdfc4cd36f4d17d9260443317fbfd8d0221b0b0a29578a5588ee6a"
+    },
+    {
+      "component": "C-UI",
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css",
+      "sha256Lf": "ce576c57be110480396ebc405a3630fe853cacabae1dd372924414cde9d01991"
+    },
+    {
+      "component": "C-UI",
+      "file": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Lf": "e6d78137ce45c30220fa6431fdb36200b97f9a3efb451ab835896b5b7c335720"
+    }
+  ],
+  "priorEvidence": "doc120-consolidacion-20261112.json (immutable historical cut)",
+  "test": {
+    "command": "node --test --test-concurrency=2 tests/doc111-importacion-carpetas-client.test.cjs tests/doc119-navigation.test.cjs tools/e2e/tests/doc111-degradation.test.cjs",
+    "passed": 41,
+    "failed": 0,
+    "breakdown": {
+      "client": 28,
+      "navigation": 9,
+      "degradation": 4
+    },
+    "newCases": 3,
+    "checks": [
+      "Delayed successful opening: no yellow banner or content/menu shift; one request after reinitialization.",
+      "Delayed denied opening: real authorization notice stays visible, no dialog.",
+      "Pending confirmation: notice stays visible while verifying; no reconfirmation.",
+      "Existing unavailable configuration notice still visible."
+    ],
+    "before": {
+      "file": ".tmp/doc120-apertura-before-20261113.log",
+      "sha256": "b49e1206c25f5c3a58e35097521be13636667127ae7eeb56f2dcb2d5ac0f21b0"
+    },
+    "after": {
+      "file": ".tmp/doc120-apertura-suite-20261113.log",
+      "sha256": "1210bc87b6475879792ed4f86e96dd54f67d4b85585ee541bc10bbc06212c38d"
+    }
+  },
+  "realExecution": {
+    "applicationHttp": 0,
+    "select": 0,
+    "sessions": 0,
+    "uploads": 0,
+    "documentEffects": 0
+  },
+  "limits": [
+    "Chromium with local assets and intercepted synthetic service responses; no authenticated IIS run.",
+    "Historical 15/15 pin equality describes only the 2026-11-12 cut; affected UI cases use this fresh local regression.",
+    "INT-03 and integral acceptance remain open."
+  ],
+  "progress": "22/26",
+  "remainingTasks": [
+    "5.2",
+    "6.4",
+    "6.5",
+    "6.6"
+  ]
+}

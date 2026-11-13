@@ -162,8 +162,15 @@
             if (host.doc111UltimoLote) { resumeButton.textContent = "Consultar lote " + host.doc111UltimoLote.loteId; }
             if (verifyButton) { verifyButton.hidden = !host.doc111ConfirmacionPendiente; verifyButton.disabled = opening; }
             status.textContent = host.doc111ConfirmacionPendiente ? "La confirmación del plan " + host.doc111ConfirmacionPendiente.planId + " requiere verificar su resultado antes de iniciar otra preparación. " + errorApertura : (opening ? "Validando el destino de la importación…" : errorApertura);
-            if (!references.disponible() && (host.doc111UltimoLote || host.doc111ConfirmacionPendiente)) { status.textContent += " El navegador no permite guardar esta referencia; anota el lote o plan antes de recargar."; }
-            if (modern) { status.hidden = !status.textContent; if (queryOpen) { queryOpen.disabled = opening; queryOpen.textContent = host.doc111ConfirmacionPendiente ? "Consultar importación… · verificación pendiente" : "Consultar importación…"; } }
+            var storageWarning = !references.disponible() && (host.doc111UltimoLote || host.doc111ConfirmacionPendiente);
+            if (storageWarning) { status.textContent += " El navegador no permite guardar esta referencia; anota el lote o plan antes de recargar."; }
+            if (modern) {
+                status.setAttribute("data-doc111-state", opening && !host.doc111ConfirmacionPendiente && !errorApertura && !storageWarning ? "loading" : "notice");
+                status.hidden = !status.textContent;
+                var menu = host.ownerDocument.getElementById("doc110-navigation");
+                if (menu) { menu.setAttribute("aria-busy", opening ? "true" : "false"); }
+                if (queryOpen) { queryOpen.disabled = opening; queryOpen.textContent = host.doc111ConfirmacionPendiente ? "Consultar importación… · verificación pendiente" : "Consultar importación…"; }
+            }
         }
         function message(error) {
             if (error && error.planPendiente) { return "No se pudo confirmar el resultado del plan " + error.planPendiente + ". Conserva esta referencia para su verificación. No se repetirá la confirmación automáticamente."; }

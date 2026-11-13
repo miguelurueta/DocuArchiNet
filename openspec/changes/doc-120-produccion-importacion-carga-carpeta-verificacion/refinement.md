@@ -142,3 +142,7 @@ Entregable local: tareas 6.2/6.4/6.5 del mapa aplicado. La evidencia es Validaci
 ## Condiciones operativas de salida
 
 Solicitante y operador deben definir y autorizar INT-03 antes de medir. Responsable del ambiente revisa cada ventana real necesaria. SII real/limpieza real NO_EJECUTADO; SEG-02 mantiene cobertura mixta histórica aceptada y UI final local. Los fallos críticos bloquean la salida; cada limitación necesita decisión explícita sobre su impacto, sin aceptación de DOC-120 por herencia.
+
+## Ajuste focal autorizado2026-11-13
+
+Solicitud «corrige» sobre el aviso amarillo de apertura del video: D-04/D-10 y RQ-04/RQ-10 amparan la corrección de producto reproducida41px y su regresión. Tarea3.6 y Validacion/doc120-apertura-20261113.json fijan fuentes y41/41 casos locales. Se conserva el aviso de confirmación sin acuse y errores reales. La frase inicial sin cambios de producto corresponde a la inspección original; este corte sí modifica JS/CSS y versiones de recursos ASPX. No cambia contratos, backend, fuentes protegidas ni autorización de pruebas reales.

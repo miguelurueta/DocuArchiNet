@@ -1,5 +1,15 @@
 # DOC-120 — índice cronológico de resultados
 
+## Corrección de apertura — 2026-11-13
+
+DOC120-UI06 (D-04/D-10, RQ-04/RQ-10), solicitada con «corrige» tras revisar el video: la carga inicial usaba el aviso amarillo y desplazaba el contenido41px. Ahora muestra un indicador neutro en el menú y conserva el mensaje accesible sin ocupar una franja. Errores, indisponibilidad y confirmación sin acuse conservan sus avisos. CSS/JS usan versión doc120-apertura-20261113-1.
+
+Regresión local nueva: **41/41** (28 cliente,9 navegación,4 degradación), con3 casos nuevos de apertura demorada autorizada/denegada y verificación con aviso conservado. Respuestas sintéticas interceptadas en Chromium; ninguna autenticación, HTTP de aplicación, SELECT ni carga real. [Evidencia y huellas](doc120-apertura-20261113.json). Avance22/26; abiertas5.2,6.4,6.5 y6.6.
+
+El manifiesto del2026-11-12 permanece histórico: sus15/15 huellas y diff de producto vacío no describen esta corrección. La vigencia UI se reevalúa con las huellas nuevas; backend, plugin contextual y carga individual no cambian. La prueba local actual no renueva SEG01/02 ni acredita una sesión IIS.
+
+## Corte histórico de consolidación — 2026-11-12
+
 Estado: **consolidación y regresión local; aceptación integral sin completar**. Base funcional8c0773d4, inspección 7310658894305bb203a489f2fb7b9077767dbe2c. [Matriz única](matriz-verificacion.md) y [manifiesto de huellas/primarios](doc120-consolidacion-20261112.json). Ningún resultado real anterior se atribuye a esta versión como corrida nueva.
 
 ## Cortes históricos consumidos

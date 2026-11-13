@@ -4,6 +4,12 @@
 - Cambio OpenSpec: doc-120-produccion-importacion-carga-carpeta-verificacion
 - Clasificacion: cross_cutting
 
+## Corte vigente2026-11-13
+
+Avance22/26. Corrección DOC120-UI06: carga inicial con indicador neutro accesible en el menú, sin franja amarilla ni desplazamiento41px; errores y confirmación sin acuse siguen visibles. Cambian JS/CSS y las URLs ASPX de esos recursos. Regresión focal41/41 en Chromium/cliente local con respuestas sintéticas (28 cliente,9 navegación,4 degradación); sin IIS autenticado ni cambios de negocio. Huellas nuevas: Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-apertura-20261113.json. Las afirmaciones15/15/sin delta siguientes corresponden al corte histórico2026-11-12. Se conservan las cuatro tareas abiertas y los límites de capacidad/aceptación.
+
+## Antecedente2026-11-12
+
 ## Superficies UI
 
 La UI de producto no cambia. Menú superior/contextual, destino fijo, consulta/referencia/último lote/verificación y árbol por IDs conservan15 huellas DOC119. El diff de las fuentes y pruebas UI/carga individual respecto a94d57979 está vacío.

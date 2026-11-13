@@ -1,5 +1,19 @@
 # DOC-120 — matriz única de verificación
 
+## Corrección de apertura — 2026-11-13
+
+DOC120-UI06 (D-04/D-10, RQ-04/RQ-10), solicitada con «corrige» tras revisar el video: la carga inicial usaba el aviso amarillo y desplazaba el contenido41px. Ahora muestra un indicador neutro en el menú y conserva el mensaje accesible sin ocupar una franja. Errores, indisponibilidad y confirmación sin acuse conservan sus avisos. CSS/JS usan versión doc120-apertura-20261113-1.
+
+Regresión local nueva: **41/41** (28 cliente,9 navegación,4 degradación), con3 casos nuevos de apertura demorada autorizada/denegada y verificación con aviso conservado. Respuestas sintéticas interceptadas en Chromium; ninguna autenticación, HTTP de aplicación, SELECT ni carga real. [Evidencia y huellas](doc120-apertura-20261113.json). Avance22/26; abiertas5.2,6.4,6.5 y6.6.
+
+El manifiesto del2026-11-12 permanece histórico: sus15/15 huellas y diff de producto vacío no describen esta corrección. La vigencia UI se reevalúa con las huellas nuevas; backend, plugin contextual y carga individual no cambian. La prueba local actual no renueva SEG01/02 ni acredita una sesión IIS. UI01/02/03 se complementan con la regresión actual de navegación/cliente; UI04/05 conservan fuentes sin cambios.
+
+| Caso nuevo | RQ | Componente / prueba | Evidencia / resultado | Vigencia y límites |
+| --- | --- | --- | --- | --- |
+| DOC120-UI06 | RQ-04/RQ-10 | C-UI; ImportacionCarpetas.js/css; tests/doc119-navigation.test.cjs | [Huellas y regresión2026-11-13](doc120-apertura-20261113.json); LOCAL_DOC120; PASS41/41 con3 casos nuevos | Carga demorada sin franja ni desplazamiento; avisos reales conservados. Servicios sintéticos, sin nueva UI IIS autenticada. |
+
+## Corte histórico de consolidación — 2026-11-12
+
 Corte local2026-11-12 sobre 7310658894305bb203a489f2fb7b9077767dbe2c; base funcional 8c0773d4371aeb35543bf182c0abdd0319cababa (merge PR130). Estado: **consolidación local, sin aceptación integral ni cierre DOC120**. La continuación del usuario aprueba el plan local; no hereda autorizaciones reales.
 
 Manifiesto verificable: [doc120-consolidacion-20261112.json](doc120-consolidacion-20261112.json). Contiene huellas de componentes/entradas, primarios y clasificación por caso. Las filas históricas no son corridas de este SHA.

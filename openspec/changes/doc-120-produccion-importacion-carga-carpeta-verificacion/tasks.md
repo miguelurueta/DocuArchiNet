@@ -28,6 +28,8 @@ Dependencias: refinamiento aprobado para trabajo local; seleccionar regresión p
 - [x] 3.4 [M] Acreditar el contrato de consumidores del contextual y la carga individual pertinente. Área/archivos: doc119-contextuales-inventario-20261112.json; tests/doc119-context-menu.test.cjs; tests/doc88-produccion-upload-contract.test.cjs; tests/doc117-alm03-individual-ui.test.cjs. Origen: D-05, RQ-05. Verificación: Se registra contrato de26 invocadores y alcance de la carga individual; no se afirman26 flujos reales.
 - [x] 3.5 [M] Consolidar la cobertura de integridad, valores, revocación, stop e incertidumbre. Área/archivos: tests/ImportacionCarpetasBehaviorTests.cs; CoordinadorImportacionCarpetas.Barreras/Valores/RecuperacionV2.vb; evidencias DOC114–118. Origen: D-05, RQ-05. Verificación: Matriz completa/parcial y fecha estable tienen caso/fuente; incertidumbres retenidas no se reenvían.
 
+- [x] 3.6 [M] Corregir la franja amarilla de carga al abrir la importación. Área/archivos: ImportacionCarpetas.js/css; Gestion/WebFormProducionDocumental.aspx; tests/doc119-navigation.test.cjs; Validacion/doc120-apertura-20261113.json. Origen: D-04, RQ-04. Relación adicional: D-10, RQ-10. Verificación: reproducción previa del desplazamiento41px; apertura demorada sin franja ni movimiento, error real y confirmación sin acuse visibles, indicador accesible y recursos versionados;41/41 locales con respuestas sintéticas, sin operación real.
+
 ## 4. Degradación acotada — INT-02
 
 - [x] 4.1 [S] Delimitar el antecedente de degradación y su compatibilidad actual. Área/archivos: doc111-degradacion-individual-pass-20261102.md; tools/e2e/tests/doc111-degradation.test.cjs; repositorio MySQL vigente. Origen: D-06, RQ-06. Verificación: Se identifica exactamente ra_integracion_evento ausente y restauración; no se extrapola a otro fallo de esquema.
@@ -53,10 +55,14 @@ Dependencias: refinamiento aprobado para trabajo local; seleccionar regresión p
 
 ## Cobertura y límites
 
-Diez decisiones D-01–D-10 y diez requisitos RQ-01–RQ-10 cubiertos por25 tareas (mapa inicial24 más corrección focal4.4). El diseño y los20 escenarios de la especificación conservan su contenido. Los resultados de origen mantienen SHA/ambiente/clasificación y sus límites real/local/estático. No se autorizan pruebas reales, cargas, cambios de permisos, DDL, fallos ni limpieza mediante este mapa.
+Diez decisiones D-01–D-10 y diez requisitos RQ-01–RQ-10 cubiertos por26 tareas (mapa inicial24 más correcciones focales4.4 y3.6). El diseño y los20 escenarios de la especificación conservan su contenido. Los resultados de origen mantienen SHA/ambiente/clasificación y sus límites real/local/estático. No se autorizan pruebas reales, cargas, cambios de permisos, DDL, fallos ni limpieza mediante este mapa.
 
-## Evidencia de este corte local
+## Evidencia del corte local2026-11-12
 
 matriz-verificacion.md y resultados.md consolidan32 casos/clasificaciones con25 fuentes primarias y dependencias de11 componentes. doc120-consolidacion-20261112.json fija15/15 huellas UI,114 entradas del arnés, resultados locales y diff de producto vacío. La regresión local inicial5/5 contiene2 wrappers Framework/DDL y3 políticas; después4/4 incluye esas3 políticas y un nuevo caso Chromium, sin sumarlos como9 pruebas distintas. UI99/33 de DOC119 se reutiliza por huellas/diff, sin nueva sesión real.
 
 5.3 se verifica como NO_EJECUTADO con motivo/responsable/impacto, no como medición aprobada. Permanecen abiertas5.2 (autorización de ventana real),6.4 (decisión de aceptación de límites),6.5 (gobierno de entrega) y6.6 (entrega final). No hay carga/DDL/permisos/fallos/limpieza reales nuevos. La aprobación del plan local no cierra la aceptación integral.
+
+## Corrección local2026-11-13
+
+Tarea3.6 completada; avance22/26. doc120-apertura-20261113.json fija las fuentes cambiadas y41/41 pruebas locales actuales. La igualdad15/15 anterior y el diff de producto vacío son históricos; las fuentes de producto JS/CSS y sus URLs ASPX cambian solo por este defecto reproducido. Sin nueva ejecución real ni aceptación integral; permanecen las mismas cuatro tareas abiertas.

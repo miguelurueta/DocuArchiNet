@@ -124,3 +124,7 @@ Sin migración de datos o despliegue. Primero revisar artefactos y aplicar mapa 
 ## Decisiones operativas externas
 
 INT-03 requiere del solicitante y operador: objetivo/umbrales, corpus, navegadores, concurrencia, disco, ambiente/cuentas/recursos, presupuestos y autorización específica. No se fijan cifras por inferencia. La aceptación de límites DOC-119 se conserva como antecedente; no equivale a aceptación integral de DOC-120. La continuación posterior a73106588 aprueba consolidación documental y comprobaciones locales, sin nuevas ventanas reales.
+
+## Ajuste focal autorizado2026-11-13
+
+Solicitud «corrige» sobre el aviso amarillo de apertura del video: D-04/D-10 y RQ-04/RQ-10 amparan la corrección de producto reproducida41px y su regresión. Tarea3.6 y Validacion/doc120-apertura-20261113.json fijan fuentes y41/41 casos locales. Se conserva el aviso de confirmación sin acuse y errores reales. La frase inicial sin cambios de producto corresponde a la inspección original; este corte sí modifica JS/CSS y versiones de recursos ASPX. No cambia contratos, backend, fuentes protegidas ni autorización de pruebas reales.
