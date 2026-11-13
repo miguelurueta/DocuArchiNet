@@ -15,10 +15,12 @@
         head.appendChild(title); head.appendChild(button("Cerrar", "cerrar")); dialog.appendChild(head);
         var destination = node("p", "", "doc111-destino"); dialog.appendChild(destination);
         var steps = node("ol", undefined, "doc111-steps"); steps.setAttribute("aria-label", "Etapas de importación");
-        ["Perfil", "Carpetas", "Revisión", "Resultados"].forEach(function (text) { steps.appendChild(node("li", text)); }); dialog.appendChild(steps);
+        ["Seleccionar", "Revisar", "Seguimiento"].forEach(function (text) { steps.appendChild(node("li", text)); }); dialog.appendChild(steps);
         var notice = node("p", "", "doc111-notice"); notice.setAttribute("role", "status"); notice.setAttribute("aria-live", "polite"); dialog.appendChild(notice);
+        var panelState = {}, filterDrafts = {}, lastLot = null, pendingFocus = null;
         var layout = node("div", undefined, "doc111-layout"), content = node("div", undefined, "doc111-content"), summary = node("aside", undefined, "doc111-summary");
-        summary.setAttribute("aria-label", "Configuración e inventario"); layout.appendChild(content); layout.appendChild(summary); dialog.appendChild(layout);
+        var configuration = node("details", undefined, "doc111-configuration"); configuration.setAttribute("data-doc111-panel", "configuracion"); configuration.appendChild(node("summary", "Configuración e inventario")); configuration.appendChild(summary); summary.setAttribute("aria-label", "Configuración e inventario"); layout.appendChild(configuration); layout.appendChild(content); dialog.appendChild(layout);
+        var footer = node("footer", undefined, "doc111-actionbar"), feedback = node("p", "", "doc111-feedback"); feedback.setAttribute("role", "status"); feedback.setAttribute("aria-live", "polite"); dialog.appendChild(feedback); dialog.appendChild(footer);
         var picker = node("input"); picker.type = "file"; picker.hidden = true; picker.setAttribute("aria-label", "Agregar carpeta"); dialog.appendChild(picker);
         var reselector = node("input"); reselector.type = "file"; reselector.hidden = true; reselector.setAttribute("aria-label", "Reseleccionar archivo pendiente"); dialog.appendChild(reselector);
         overlay.appendChild(dialog); host.appendChild(overlay);
@@ -26,6 +28,8 @@
             var target = event.target.closest("[data-doc111-action]");
             if (!target || !dialog.contains(target) || target.disabled) { return; }
             var name = target.getAttribute("data-doc111-action"), value = target.doc111Value;
+            if (name === "ver-accion") { var primary = footer.querySelector(".doc111-primary:not(:disabled)"); if (primary) { primary.focus(); primary.scrollIntoView({block:"nearest"}); } return; }
+            if (/^(filtrar|limpiar)-/.test(name)) { delete filterDrafts[name.indexOf("raices") !== -1 ? "RAICES" : "ARCHIVOS"]; }
             if (name === "consultar-referencia") { value = content.querySelector("[data-doc111-reference]").value; }
             if (name === "filtrar-resultados" || name === "filtrar-raices") {
                 value = {};
@@ -35,7 +39,9 @@
             }
             action(name, value);
         }
-        function change(event) { if (event.target.getAttribute("data-doc111-profile") === "1") { action("perfil", event.target.value); } }
+        function change(event) { if (event.type === "change" && event.target.getAttribute("data-doc111-profile") === "1") { action("perfil", event.target.value); }
+            if (event.target.hasAttribute("data-doc111-filter")) { var group = event.target.closest("[data-doc111-filtros]"), key = group.getAttribute("data-doc111-filtros"); filterDrafts[key] = filterDrafts[key] || {}; Array.prototype.forEach.call(group.querySelectorAll("[data-doc111-filter]"), function (field) { filterDrafts[key][field.getAttribute("data-doc111-filter")] = field.value; }); }
+        }
         function key(event) {
             if (event.key === "Enter" && !event.isComposing && event.target.hasAttribute("data-doc111-reference")) { event.preventDefault(); event.stopPropagation(); action("consultar-referencia", event.target.value); return; }
             if (event.key === "Enter" && !event.isComposing && event.target.getAttribute("data-doc111-filter") === "raizId") {
@@ -45,13 +51,13 @@
             }
             if (event.key === "Escape") { event.preventDefault(); action("cerrar"); }
             if (event.key === "Tab") {
-                var controls = Array.prototype.filter.call(dialog.querySelectorAll("button,input,select,[tabindex]"), function (n) { return !n.disabled && !n.hidden && n.getClientRects().length > 0; });
+                var controls = Array.prototype.filter.call(dialog.querySelectorAll("button,input,select,summary,[tabindex]"), function (n) { return !n.disabled && !n.hidden && n.getClientRects().length > 0; });
                 var first = controls[0], last = controls[controls.length - 1];
                 if (event.shiftKey && (doc.activeElement === first || doc.activeElement === dialog)) { event.preventDefault(); if (last) { last.focus(); } }
                 else if (!event.shiftKey && doc.activeElement === last) { event.preventDefault(); if (first) { first.focus(); } }
             }
         }
-        dialog.addEventListener("click", click); dialog.addEventListener("change", change); dialog.addEventListener("keydown", key); dialog.focus();
+        dialog.addEventListener("click", click); dialog.addEventListener("change", change); dialog.addEventListener("input", change); dialog.addEventListener("keydown", key); dialog.focus();
         function table(labels, rows, cards) {
             var scroll = node("div", undefined, "doc111-table"), t = node("table"), tr = node("tr");
             if (cards) { scroll.className += " doc111-resultados"; }
@@ -65,7 +71,11 @@
         }
         function filters(parent, roots, values, busy) {
             values = values || {};
-            var group = node("fieldset", undefined, "doc111-filters"); group.setAttribute("data-doc111-filtros", roots ? "RAICES" : "ARCHIVOS");
+            var panelKey = roots ? "RAICES" : "ARCHIVOS", panel = node("details", undefined, "doc111-filter-panel"), activeCount = Object.keys(values).filter(function (key) { return !!values[key]; }).length;
+            panel.setAttribute("data-doc111-panel", panelKey); panel.open = !!panelState[panelKey];
+            panel.appendChild(node("summary", "Filtrar " + (roots ? "carpetas" : "archivos") + " · " + (activeCount ? activeCount + " filtros activos" : "Sin filtros")));
+            values = filterDrafts[panelKey] || values;
+            var group = node("fieldset", undefined, "doc111-filters"); group.setAttribute("data-doc111-filtros", panelKey);
             group.appendChild(node("legend", roots ? "Filtrar carpetas" : "Filtrar archivos"));
             function field(label, name, options) {
                 var wrapper = node("label", label), control = node(options ? "select" : "input");
@@ -83,16 +93,21 @@
                 field("Recepción", "estadoRecepcion", [["", "Todas"], ["PENDIENTE", "Sin recibir"], ["RECIBIENDO", "Recibiendo"], ["RECIBIDO", "Recibido"], ["RECHAZADO", "Rechazado"], ["INCIERTO", "Por verificar"], ["CANCELADO", "Cancelado"]]);
             }
             group.appendChild(button("Aplicar filtros de " + (roots ? "carpetas" : "archivos"), roots ? "filtrar-raices" : "filtrar-resultados", null, busy));
-            group.appendChild(button("Limpiar filtros de " + (roots ? "carpetas" : "archivos"), roots ? "limpiar-raices" : "limpiar-resultados", null, busy)); parent.appendChild(group);
+            group.appendChild(button("Limpiar filtros de " + (roots ? "carpetas" : "archivos"), roots ? "limpiar-raices" : "limpiar-resultados", null, busy)); panel.appendChild(group); parent.appendChild(panel);
         }
         function render(model) {
-            var focused = doc.activeElement, restore = content.contains(focused), referenceFocused = focused && focused.hasAttribute("data-doc111-reference"), focusAction = focused && focused.getAttribute("data-doc111-action"), focusValue = focused && focused.doc111Value;
+            var focused = doc.activeElement, restore = content.contains(focused) || footer.contains(focused), referenceFocused = focused && focused.hasAttribute("data-doc111-reference"), focusAction = focused && focused.getAttribute("data-doc111-action"), focusValue = focused && JSON.stringify(focused.doc111Value), focusFilter = focused && focused.getAttribute("data-doc111-filter"), focusPanel = focused && focused.closest("[data-doc111-filtros]"), focusPanelKey = focusPanel && focusPanel.getAttribute("data-doc111-filtros");
+            if (lastLot !== model.loteId) { filterDrafts = {}; lastLot = model.loteId; }
+            if (restore) { pendingFocus = {reference:referenceFocused, action:focusAction, value:focusValue, filter:focusFilter, panel:focusPanelKey}; }
+            else if (focused !== dialog) { pendingFocus = null; }
+            if (pendingFocus) { restore = true; referenceFocused = pendingFocus.reference; focusAction = pendingFocus.action; focusValue = pendingFocus.value; focusFilter = pendingFocus.filter; focusPanelKey = pendingFocus.panel; }
+            Array.prototype.forEach.call(content.querySelectorAll("details[data-doc111-panel]"), function (panel) { panelState[panel.getAttribute("data-doc111-panel")] = panel.open; });
             title.textContent = model.consulta ? "Consultar importación" : "Importar carpetas";
             steps.hidden = !!model.consulta;
             destination.textContent = model.contexto ? "Destino: " + model.contexto.rutaCanonica : model.consulta ? "Consulta una referencia autorizada. El lote conserva su destino original." : "Validando nivel seleccionado…";
             notice.textContent = model.mensaje || ""; notice.hidden = !model.mensaje; dialog.setAttribute("aria-busy", model.busy ? "true" : "false");
-            Array.prototype.forEach.call(steps.children, function (step, index) { if (index === model.etapa) { step.setAttribute("aria-current", "step"); } else { step.removeAttribute("aria-current"); } });
-            content.textContent = ""; summary.textContent = "";
+            Array.prototype.forEach.call(steps.children, function (step, index) { if (index === (model.etapa < 2 ? 0 : model.etapa - 1)) { step.setAttribute("aria-current", "step"); } else { step.removeAttribute("aria-current"); } });
+            content.textContent = ""; summary.textContent = ""; footer.textContent = ""; feedback.textContent = model.ultimaConsulta ? "Estado actualizado " + new Date(model.ultimaConsulta).toLocaleTimeString() + " · consulta " + model.consultasCompletadas : "";
             if (model.consulta) {
                 var query = node("section", undefined, "doc111-query"), label = node("label", "Referencia del lote"), input = node("input");
                 input.type = "text"; input.inputMode = "numeric"; input.maxLength = 10; input.autocomplete = "off"; input.setAttribute("aria-label", "Referencia del lote"); input.setAttribute("data-doc111-reference", ""); input.setAttribute("data-doc111-lote", ""); input.value = model.referencia || ""; input.disabled = model.busy;
@@ -119,23 +134,21 @@
             else if (model.estado) { summary.appendChild(node("p", model.estado.totalRaices + " carpetas · " + model.estado.totalArchivos + " archivos del inventario original")); }
             if (model.loteId) { summary.appendChild(node("p", "Lote: " + model.loteId)); }
             summary.appendChild(node("p", "Cerrar conserva la referencia del lote confirmado. Los archivos locales pendientes pueden requerir una nueva selección."));
-            if (model.etapa === 0) {
-                content.appendChild(node("h3", "1. Perfil publicado")); var select = node("select"); select.setAttribute("data-doc111-profile", "1"); select.setAttribute("aria-label", "Perfil publicado"); select.disabled = model.busy;
+            if (model.etapa === 0 || model.etapa === 1) {
+                content.appendChild(node("h3", "Seleccionar perfil y carpetas")); var select = node("select"); select.setAttribute("data-doc111-profile", "1"); select.setAttribute("aria-label", "Perfil publicado"); select.disabled = model.busy;
                 var empty = node("option", "Selecciona un perfil"); empty.value = ""; select.appendChild(empty);
                 model.perfiles.forEach(function (p) { var option = node("option", (p.Configuracion.NombreVisible || "Perfil " + p.PerfilId) + " · versión " + p.NumeroVersion); option.value = p.VersionId; option.selected = profile && profile.VersionId === p.VersionId; select.appendChild(option); }); content.appendChild(select);
                 if (model.masPerfiles) { content.appendChild(button("Más perfiles", "mas-perfiles", null, model.busy)); }
                 content.appendChild(node("p", "El destino permanece fijado al nivel desde el que abriste esta ventana."));
-                content.appendChild(button("Agregar carpetas", "etapa", 1, model.busy || !profile));
-            } else if (model.etapa === 1) {
-                content.appendChild(node("h3", "2. Carpetas y archivos")); content.appendChild(button("Agregar carpeta", "agregar", null, model.busy || !model.selectorDisponible));
+                content.appendChild(node("h4", "Carpetas y archivos")); content.appendChild(button("Agregar carpetas", "agregar", null, model.busy || !profile || !model.selectorDisponible));
                 content.appendChild(node("p", "Agrega una carpeta cada vez. Las carpetas vacías no están representadas por el selector."));
                 content.appendChild(table(["Carpeta", "Identidad", "Acción"], inventory.raices.slice((model.paginaRaices - 1) * 10, model.paginaRaices * 10).map(function (r) { return [r.nombre, r.idCliente, button("Quitar", "quitar-raiz", r.idCliente, model.busy)]; })));
                 pager(content, model.paginaRaices, inventory.raices.length, 10, "pagina-raices", model.busy);
                 content.appendChild(table(["Archivo", "Ruta relativa", "Bytes", "Acción"], inventory.archivos.slice((model.paginaArchivos - 1) * 20, model.paginaArchivos * 20).map(function (f) { return [f.nombre, f.rutaRelativa, f.bytes, button("Quitar", "quitar-archivo", f.idCliente, model.busy)]; })));
                 pager(content, model.paginaArchivos, inventory.archivos.length, 20, "pagina-archivos", model.busy);
-                content.appendChild(button("Perfil", "etapa", 0, model.busy)); content.appendChild(button("Preparar revisión", "preparar", null, model.busy || !inventory.archivos.length));
+                footer.appendChild(node("p", "Prepara la revisión antes de confirmar. Aún no se envían archivos.")); footer.appendChild(button("Preparar revisión", "preparar", null, model.busy || !profile || !inventory.archivos.length));
             } else if (model.etapa === 2) {
-                content.appendChild(node("h3", "3. Revisión del servidor")); var result = model.plan && model.plan.resultado;
+                content.appendChild(node("h3", "Revisar antes de confirmar")); var result = model.plan && model.plan.resultado;
                 if (result) {
                     content.appendChild(node("p", "Referencia del plan: " + model.plan.planId));
                     content.appendChild(node("p", "Unidades elegibles: " + result.UnidadesElegibles.length + " de " + inventory.raices.length + ". Total original: " + inventory.archivos.length + " archivos."));
@@ -147,27 +160,30 @@
                     content.appendChild(table(["Raíz / archivo", "Valores resueltos o diferidos"], values.slice((model.paginaValores - 1) * 10, model.paginaValores * 10).map(function (item) { return [identity(item.RaizIdCliente, item.ArchivoIdCliente), item.Valores.map(function (v) { return v.DestinoRef + ": " + (v.Diferido ? "Pendiente: " + v.PropiedadPendiente : v.Valor); }).join(" · ")]; })));
                     pager(content, model.paginaValores, values.length, 10, "pagina-valores", model.busy);
                 }
-                content.appendChild(button("Cambiar selección", "etapa", 1, model.busy || model.confirmacionIncierta));
-                content.appendChild(button("Confirmar plan", "confirmar", null, model.busy || !model.confirmable || model.confirmacionIncierta));
+                footer.appendChild(node("p", "Confirmar registra el plan. El envío y los efectos se solicitan después.")); footer.appendChild(button("Cambiar selección", "etapa", 1, model.busy || model.confirmacionIncierta));
+                footer.appendChild(button("Confirmar plan", "confirmar", null, model.busy || !model.confirmable || model.confirmacionIncierta));
             } else {
-                content.appendChild(node("h3", model.consulta ? "Resultados de la importación" : "4. Resultados"));
+                content.appendChild(node("h3", "Seguimiento de la importación"));
                 content.appendChild(node("p", "Lote " + model.loteId + (model.estado ? " · " + model.estado.estado : "")));
                 content.appendChild(node("p", "Consultar y descargar resultados no procesa archivos. La recepción y el almacenamiento se ejecutan con acciones explícitas."));
                 if (model.estado) { content.appendChild(node("p", "Inventario original: " + model.estado.totalRaices + " carpetas · " + model.estado.totalArchivos + " archivos · " + model.estado.totalBytes + " bytes.")); }
-                content.appendChild(button("Consultar estado", "consultar", null, model.busy));
+                var statusButton = button("Actualizar estado", "consultar", null, model.busy); content.appendChild(statusButton);
                 if (model.resultados) {
                     content.appendChild(node("p", "Orden de la importación: enviar los archivos, crear el expediente, preparar los índices y almacenar. Recibir un archivo no lo almacena."));
-                    content.appendChild(button("Enviar pendientes de esta página", "enviar", null, model.busy || !model.puedeEnviar));
+                    var send = button("Enviar archivos de esta página (" + (model.archivosParaEnviar || 0) + ")", "enviar", null, model.busy || !model.puedeEnviar); content.appendChild(send);
+                    content.appendChild(node("p", "Solo envía los archivos pendientes de esta página que están seleccionados en este equipo. No almacena documentos. Para retomar, reselecciona el original de cada archivo pendiente."));
                 }
                 if (model.estado) {
                     if (model.estado.accionesPermitidas.indexOf("CONSULTAR_RAICES") !== -1) { filters(content, true, model.filtrosRaices, model.busy); }
                     filters(content, false, model.filtrosArchivos, model.busy);
                 }
                 if (model.estado && model.estado.accionesPermitidas.indexOf("SOLICITAR_DETENCION") !== -1) { content.appendChild(button("Solicitar detención", "detener", null, model.busy || model.mutacionIncierta)); }
+                var candidate = null;
                 function resourceActions(resource, raiz) {
                     var group = node("span"), labels = {CREAR_EXPEDIENTE:"Crear expediente", MATERIALIZAR_VALORES:"Preparar índices", ALMACENAR:"Almacenar archivo", RECONCILIAR:"Verificar intento"};
                     (model.accionesRecurso ? model.accionesRecurso(resource, raiz) : []).forEach(function (phase) {
-                        group.appendChild(button(labels[phase] + " " + resource.recursoId, phase === "RECONCILIAR" ? "reconciliar" : "fase", {tipo:raiz ? "RAICES" : "ARCHIVOS", id:resource.recursoId, fase:phase}, model.busy));
+                        var operationButton = button(labels[phase] + " " + resource.recursoId, phase === "RECONCILIAR" ? "reconciliar" : "fase", {tipo:raiz ? "RAICES" : "ARCHIVOS", id:resource.recursoId, fase:phase}, model.busy); group.appendChild(operationButton);
+                        if (!candidate) { candidate = {button:operationButton, group:group, resource:resource, title:labels[phase]}; }
                     });
                     if (raiz && resource.estado === "PENDIENTE" && !resource.expedienteId && !resource.tieneIntentoActivo && resource.recepcionListaParaCrear !== true) {
                         var scope = model.estado && model.estado.ambitoIntegridad === "LOTE" ? "del lote" : "de esta carpeta";
@@ -191,15 +207,28 @@
                     }), true));
                     content.appendChild(node("p", "Elige explícitamente el archivo pendiente. Se comprueban nombre, tamaño y fecha; los ya recibidos o inciertos no se sustituyen."));
                     pager(content, page.pagina, page.totalFiltrado, page.tamanoPagina, "pagina-resultados", model.busy);
-                    if (model.estado && model.estado.accionesPermitidas.indexOf("EXPORTAR_PAGINA") !== -1) { content.appendChild(button("Exportar esta página", "exportar", null, model.busy)); }
+                    if (model.estado && model.estado.accionesPermitidas.indexOf("EXPORTAR_PAGINA") !== -1) { footer.appendChild(button("Exportar esta página", "exportar", null, model.busy)); }
                 }
             }
+            if (model.etapa === 3 && model.loteId) {
+                var guide = node("section", undefined, "doc111-next"); guide.setAttribute("aria-label", "Siguiente acción disponible");
+                var promote = candidate && candidate.button;
+                if (model.puedeEnviar && !model.busy) { promote = send; }
+                guide.appendChild(node("h4", promote ? "Siguiente acción disponible: " + (promote === send ? "Enviar archivos" : candidate.title) : "Consulta los resultados y los requisitos pendientes"));
+                guide.appendChild(node("p", promote && promote === send ? "Archivos elegibles para envío en esta página: " + model.archivosParaEnviar : candidate ? (candidate.resource.nombre || candidate.resource.rutaRelativa || "Recurso") + " · referencia " + candidate.resource.recursoId : "Revisa la recepción, los intentos y las acciones disponibles por recurso. Actualizar estado solo consulta."));
+                content.insertBefore(guide, content.querySelector(".doc111-filter-panel"));
+                if (promote) { if (promote !== send) { candidate.group.appendChild(button("Ver acción disponible", "ver-accion", null, model.busy)); } promote.className = "doc111-primary"; footer.appendChild(promote); }
+                else { footer.appendChild(statusButton); }
+                footer.insertBefore(node("p", "Cada operación requiere su botón. Recibir no equivale a almacenar."), footer.firstChild);
+            }
+            Array.prototype.forEach.call(footer.querySelectorAll("button"), function (b) { if (["preparar", "confirmar"].indexOf(b.getAttribute("data-doc111-action")) !== -1) { b.className = "doc111-primary"; } });
             if (restore) {
-                var replacement = referenceFocused ? content.querySelector("[data-doc111-reference]:not(:disabled)") : focusAction ? Array.prototype.filter.call(content.querySelectorAll("[data-doc111-action]"), function (b) { return b.getAttribute("data-doc111-action") === focusAction && b.doc111Value === focusValue && !b.disabled; })[0] : content.querySelector("[data-doc111-profile]");
-                (replacement || dialog).focus();
+                var replacement = referenceFocused ? content.querySelector("[data-doc111-reference]:not(:disabled)") : focusFilter ? content.querySelector('[data-doc111-filtros="' + focusPanelKey + '"] [data-doc111-filter="' + focusFilter + '"]') : focusAction ? Array.prototype.filter.call(dialog.querySelectorAll("[data-doc111-action]"), function (b) { return b.getAttribute("data-doc111-action") === focusAction && JSON.stringify(b.doc111Value) === focusValue && !b.disabled; })[0] : content.querySelector("[data-doc111-profile]");
+                (replacement && !replacement.disabled ? replacement : dialog).focus();
+                if (!model.busy) { pendingFocus = null; }
             }
         }
-        return {render:render, picker:picker, reselector:reselector, enfocar:function () { dialog.focus(); }, destruir:function () { dialog.removeEventListener("click", click); dialog.removeEventListener("change", change); dialog.removeEventListener("keydown", key); overlay.remove(); doc.body.style.overflow = previousOverflow; if (previousFocus && previousFocus.isConnected) { previousFocus.focus(); } }};
+        return {render:render, picker:picker, reselector:reselector, enfocar:function () { dialog.focus(); }, destruir:function () { dialog.removeEventListener("click", click); dialog.removeEventListener("change", change); dialog.removeEventListener("input", change); dialog.removeEventListener("keydown", key); overlay.remove(); doc.body.style.overflow = previousOverflow; if (previousFocus && previousFocus.isConnected) { previousFocus.focus(); } }};
     }
     return {crear:crear};
 }));

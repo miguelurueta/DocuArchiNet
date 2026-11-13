@@ -199,7 +199,8 @@
             model.paginaArchivos = Math.min(model.paginaArchivos, Math.max(1, Math.ceil(model.manifiesto.archivos.length / 20)));
             var files = model.resultados ? model.resultados.elementos : [];
             model.accionesRecurso = function (resource, raiz) { return accionesRecurso(model, resource, raiz); };
-            model.puedeEnviar = !model.mutacionIncierta && files.some(function (f) { return f.estadoRecepcion === "PENDIENTE" && f.estado === "NO_INICIADO" && !f.tieneIntentoActivo && (session.reselected[f.recursoId] || session.inventory.obtenerFile(f.idCliente)); });
+            model.archivosParaEnviar = model.mutacionIncierta ? 0 : files.filter(function (f) { return f.estadoRecepcion === "PENDIENTE" && f.estado === "NO_INICIADO" && !f.tieneIntentoActivo && (session.reselected[f.recursoId] || session.inventory.obtenerFile(f.idCliente)); }).length;
+            model.puedeEnviar = model.archivosParaEnviar > 0;
             session.view.render(model);
         }
         function run(session, work) {
@@ -219,6 +220,8 @@
         }
         function consultar(session, page) {
             if (active !== session) { return Promise.resolve(); }
+            session.model.ultimaConsulta = null;
+            function consultaCompleta() { session.model.ultimaConsulta = Date.now(); session.model.consultasCompletadas = (session.model.consultasCompletadas || 0) + 1; }
             session.consultaArchivos = null; session.model.resultados = null; session.model.raices = null;
             return session.api.invocar("ConsultarLote", {loteId:session.model.loteId}).then(function (state) {
                 if (active !== session) { return; }
@@ -235,11 +238,11 @@
                 if (active !== session || !result) { return; }
                 if (result.loteId !== session.model.loteId || !Array.isArray(result.elementos)) { throw new Error("RESPUESTA_INVALIDA"); }
                 session.model.resultados = result; session.model.raices = null;
-                if (session.model.estado.accionesPermitidas.indexOf("CONSULTAR_RAICES") === -1) { session.model.mutacionIncierta = false; return; }
+                if (session.model.estado.accionesPermitidas.indexOf("CONSULTAR_RAICES") === -1) { session.model.mutacionIncierta = false; consultaCompleta(); return; }
                 return session.api.invocar("ConsultarRecursosLote", solicitudPagina(session, "RAICES", session.model.paginaRaicesResultado)).then(function (roots) {
                     if (active !== session) { return; }
                     if (!roots || roots.loteId !== session.model.loteId || roots.tipo !== "RAICES" || !Array.isArray(roots.elementos)) { throw new Error("RESPUESTA_INVALIDA"); }
-                    session.model.raices = roots; session.model.mutacionIncierta = false;
+                    session.model.raices = roots; session.model.mutacionIncierta = false; consultaCompleta();
                     if (typeof deps.Doc111ActualizarRama === "function") {
                         try { deps.Doc111ActualizarRama({nivelRef:session.model.contexto.nivelRef, referenciaContexto:session.scope}, roots.elementos); } catch (_) { /* La vista del arbol no invalida resultados persistidos. */ }
                     }
@@ -366,7 +369,7 @@
                         if (file.name !== f.nombre || String(file.size) !== f.bytesPrevistos) { throw new Error("CONTENIDO_DISTINTO"); }
                         return {file:file, solicitud:{loteId:model.loteId, archivoId:f.recursoId, claveIntento:key()}};
                     });
-                    return session.api.enviarCola(items, function (_, progress) { if (active === session) { model.mensaje = "Transferencia: " + progress.enviados + " de " + progress.total + " bytes de solicitud enviados."; refresh(session); } }).then(function () { return consultar(session, model.resultados.pagina); }).catch(function (error) { model.mutacionIncierta = true; throw error; });
+                    return session.api.enviarCola(items, function (item, progress) { if (active === session) { model.mensaje = "Enviando archivo " + (items.indexOf(item) + 1) + " de " + items.length + ": " + item.file.name + ". Transferencia: " + progress.enviados + " de " + progress.total + " bytes de solicitud enviados. La recepción no implica almacenamiento documental."; refresh(session); } }).then(function () { return consultar(session, model.resultados.pagina); }).then(function () { if (active === session) { model.mensaje = "Recepción confirmada para " + items.length + " archivos. Continúa con las acciones disponibles; todavía no implica almacenamiento documental."; } }).catch(function (error) { model.mutacionIncierta = true; throw error; });
                 }); return;
             }
             if (name === "exportar") {

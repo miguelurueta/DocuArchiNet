@@ -4,6 +4,8 @@ DOC-120 consolida la verificación de importación de carpetas sobre la interfaz
 
 ## What Changes
 
+Ampliación autorizada2026-11-13: implementar la organización de interfaz contrastada con el repositorio (Seleccionar/Revisar/Seguimiento), corrigiendo C01/C02/C03 de la maqueta y conservando contratos, fases explícitas, filtros, consultas, CSV y recuperación. El mapa atómico3.10–3.18 y los escenarios añadidos en RQ-04 delimitan esta presentación; no incorporan unión/separación PDF ni alteran servidor, esquema, SII o almacenamiento. La evidencia local posterior conserva los cortes históricos y no concede aceptación integral.
+
 - Consolidar índices y dependencias por requisito/caso, con SHA/ambiente y clasificación real/local/estática/no ejecutada.
 - Seleccionar regresión focal de interfaz, contratos compartidos, integridad y recuperación según huellas y brechas.
 - Delimitar INT-02 sin extrapolar el antecedente de una tabla ausente; preparar INT-03 con contrato de medición y autorización propios.

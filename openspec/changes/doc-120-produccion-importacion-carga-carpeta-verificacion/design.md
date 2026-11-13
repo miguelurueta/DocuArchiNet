@@ -53,6 +53,10 @@ Criterio y compatibilidad: Resolver contradicciones editoriales por fuente prima
 
 ### D-04 — Interfaz definitiva y regresión focal (RQ-04)
 
+Ampliación autorizada2026-11-13: reorganizar el asistente existente en Seleccionar (perfil y carpetas juntos), Revisar y Seguimiento. Reutilizar modelo, eventos, selector, inventario, accionesRecurso y servicios actuales. Configuración y filtros se despliegan sin eliminar consultas, páginas independientes ni exportación. La siguiente acción se destaca con su recurso y las otras permanecen en sus filas; cada clic conserva una sola operación. Actualizar estado muestra fecha/contador solamente después de completar lecturas válidas. El envío expresa cantidad de archivos elegibles de la página, sin confundir bytes de transporte con documentos almacenados. Foco, borradores de filtros y paneles abiertos se conservan durante renderizados. CSS limitado al asistente; barra superior/búsqueda y backend sin cambios.
+
+La maqueta corrige C01 (padre confirmado visible para índices/almacenamiento), C02 (CSV13 columnas/coma/escape) y C03 (página solicitada vacía sin ajuste automático; capacidad de página simulada explícita). Se mantienen sus límites de simulación: no acredita autenticación, persistencia real, políticas del servidor ni reconciliación real. La auditoría previa se conserva como corte histórico.
+
 Mapear UI01–05 al menú superior/contextual y asistente resultantes de DOC-119. Cubrir seleccionado/pulsado, homónimos, selección inválida, autoridad denegada/revocada, referencia/último lote/confirmación sin acuse, recarga/reapertura/UpdatePanel, árbol, foco y viewport. Reutilizar fuentes vigentes y ejecutar solo casos afectados o brechas documentadas.
 
 Evidencia: js/gestion/WebFormProducionDocumental.js:Doc119NivelPulsado/Doc111ActualizarRama; tests/doc119-navigation.test.cjs; tests/doc111-importacion-carpetas-client.test.cjs.

@@ -68,6 +68,21 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **THEN** la UI explica cómo enviar los pendientes y no ofrece Crear expediente hasta consultar la disponibilidad calculada por el servidor
 - **AND** esa disponibilidad evalúa el ámbito completo EXPEDIENTE/LOTE/PARCIAL, aunque los archivos estén en otra página o fuera del filtro, sin ejecutar efectos; la creación revalida su autoridad, revisión y staging
 
+#### Scenario: Selección reunida sin perder controles
+- **WHEN** el usuario abre el asistente reorganizado
+- **THEN** elige perfil/versiones y carpetas en Seleccionar, conserva más perfiles, eliminación por archivo/carpeta y páginas del inventario; Revisar precede a confirmar
+- **AND** Seguimiento conserva consulta por referencia/último lote/plan pendiente, CSV y paginación independiente
+
+#### Scenario: Seguimiento explícito con filtros y foco conservados
+- **WHEN** se actualiza el estado o se usa una operación disponible
+- **THEN** la presentación destaca el recurso y una operación autorizada por accionesRecurso, sin encadenar fases; filtros aplicados/borradores, paneles y foco permanecen identificables
+- **AND** la actualización válida muestra fecha/contador, los fallos no anuncian éxito y el envío indica cantidad elegible de la página sin atribuir recepción a almacenamiento
+
+#### Scenario: Maqueta coherente con el contrato de consulta
+- **WHEN** filtros ocultan la carpeta confirmada, una página se queda vacía o se exporta una página filtrada
+- **THEN** la maqueta bloquea índices/almacenamiento sin padre visible, conserva página vacía y usa CSV de trece columnas con coma/escape y protección de fórmulas
+- **AND** sus datos y capacidad de página se identifican como simulados y no prueban autenticación ni recuperación real
+
 ### Requirement: RQ-05 — Integridad, incertidumbre y consumidores
 DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, valores diferidos y fecha estable, revocación, stop e incertidumbre con casos del arnés existente. Comprobar contrato del plugin en sus26 registros/22archivos y carga individual pertinente. Un callback sintético no demuestra la acción de negocio real de cada módulo.
 

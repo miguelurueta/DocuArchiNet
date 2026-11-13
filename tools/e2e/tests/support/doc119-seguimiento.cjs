@@ -220,7 +220,7 @@ async function consult(page,lotId,resume=false){
     if(!resume){await page.locator('[data-doc111-lote]').fill(lotId);await page.locator('[data-doc111-consultar]').click();}
   },'ARCHIVOS');
   check(r.status===200&&r.body?.ok&&r.body.datos?.loteId===lotId,'QUERY_FAILED');
-  await page.getByRole('button',{name:'Consultar estado',exact:true}).waitFor();
+  await page.getByRole('button',{name:'Actualizar estado',exact:true}).waitFor();
   await page.waitForFunction(()=>{const b=document.querySelector('[data-doc111-action="consultar"]');return b&&!b.disabled;});return r.body.datos;
 }
 function csvRows(text){
@@ -234,6 +234,8 @@ function csvRows(text){
   check(!quoted,'CSV_INVALID');if(value.length||row.length){row.push(value);rows.push(row);}return rows;
 }
 async function applyFilter(page,values){
+  const filterPanel=page.locator('details[data-doc111-panel="ARCHIVOS"]');
+  if(await filterPanel.count()&&!await filterPanel.evaluate(panel=>panel.open))await filterPanel.locator('summary').click();
   await page.getByLabel('Referencia de carpeta',{exact:true}).fill(values.raizId||'');
   await page.getByLabel('Efecto documental',{exact:true}).selectOption(values.estado||'');
   await page.getByLabel('Recepción',{exact:true}).selectOption(values.estadoRecepcion||'');
@@ -329,7 +331,7 @@ async function runSeg02(page,profile,baseline,filePath){
   const [chooser]=await Promise.all([page.waitForEvent('filechooser'),page.getByRole('button',{name:'Reseleccionar archivo '+pending.archivo_id,exact:true}).click()]);await chooser.setFiles(filePath);
   await page.waitForFunction(()=>document.querySelector('.doc111-notice')?.textContent.includes('Archivo vinculado')||document.querySelector('.doc111-notice')?.textContent.includes('no coincide'));
   check((await page.locator('.doc111-notice').textContent()).includes('Archivo vinculado'),'RESELECTION_METADATA_MISMATCH');
-  const repeated=await responseFor(page,'ConsultarRecursosLote',()=>page.getByRole('button',{name:'Consultar estado',exact:true}).click(),'ARCHIVOS');
+  const repeated=await responseFor(page,'ConsultarRecursosLote',()=>page.getByRole('button',{name:'Actualizar estado',exact:true}).click(),'ARCHIVOS');
   check(repeated.body?.ok,'REQUERY_FAILED');await page.waitForFunction(()=>!document.querySelector('[data-doc111-action="consultar"]')?.disabled);
   const after=await page.evaluate(observeOriginalBranch,{level:baseline.context.NivelRef,identities});
   const treeDiagnostic=safeTreeDiagnostic({before:{availability:before.reason,counts:before.counts},after:{availability:after.reason,counts:after.counts},selectionPreserved:after.selection===before.selection,expansionPreserved:after.reason===before.reason&&after.display===before.display});

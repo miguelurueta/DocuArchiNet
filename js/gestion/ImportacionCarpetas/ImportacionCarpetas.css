@@ -9,13 +9,22 @@
 #doc111-importacion h2 { margin: 0; font-size: 24px; }
 #doc111-importacion h3 { font-size: 18px; margin-top: 0; }
 #doc111-importacion .doc111-destino { background: #eaf1f8; padding: 12px; border-radius: 6px; overflow-wrap: anywhere; }
-#doc111-importacion .doc111-steps { list-style: none; display: grid; grid-template-columns: repeat(4,1fr); padding: 0; margin: 20px 0; gap: 8px; counter-reset: doc111-step; }
+#doc111-importacion .doc111-steps { list-style: none; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); padding: 0; margin: 20px 0; gap: 8px; counter-reset: doc111-step; }
 #doc111-importacion .doc111-steps li { border-bottom: 3px solid #ced9e4; padding: 10px 4px; color: #546576; counter-increment: doc111-step; }
 #doc111-importacion .doc111-steps li::before { content: counter(doc111-step) ". "; }
 #doc111-importacion .doc111-steps [aria-current] { border-color: #096aad; color: #07548d; font-weight: bold; }
-#doc111-importacion .doc111-layout { display: grid; grid-template-columns: minmax(0,1fr) 250px; gap: 20px; }
+#doc111-importacion .doc111-layout { display: grid; grid-template-columns: minmax(0,1fr); gap: 16px; }
 #doc111-importacion .doc111-content, #doc111-importacion .doc111-summary { min-width: 0; padding: 18px; border: 1px solid #d8e2ec; border-radius: 8px; background: white; overflow-wrap: anywhere; }
 #doc111-importacion .doc111-summary { background: #eef4fa; }
+#doc111-importacion .doc111-configuration > summary, #doc111-importacion .doc111-filter-panel > summary { cursor: pointer; padding: 12px; border: 1px solid #d8e2ec; border-radius: 6px; background: #eef4fa; color: #174c78; }
+#doc111-importacion .doc111-filter-panel { margin: 12px 0; }
+#doc111-importacion .doc111-next { margin: 16px 0; padding: 16px; background: #eaf3fc; border-left: 4px solid #0869b4; border-radius: 6px; }
+#doc111-importacion .doc111-next h4 { margin: 0 0 8px; }
+#doc111-importacion .doc111-actionbar { position: sticky; bottom: -24px; display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; padding: 12px 0; margin-top: 12px; background: #f7f9fc; border-top: 1px solid #ced9e4; z-index: 2; }
+#doc111-importacion .doc111-actionbar p { flex: 1 1 220px; margin: 0; }
+#doc111-importacion .doc111-primary { color: white; background: #075b97; border-color: #075b97; font-weight: bold; }
+#doc111-importacion .doc111-feedback { color: #245f42; min-height: 1.5em; margin: 12px 0 0; }
+#doc111-importacion .doc111-table:empty { display: none; }
 #doc111-importacion .doc111-notice { border-left: 4px solid #986400; background: #fff5d9; padding: 12px; overflow-wrap: anywhere; }
 #doc111-importacion .doc111-notice[hidden], #doc111-importacion input[hidden] { display: none; }
 #doc111-importacion .doc111-table { overflow-x: auto; max-width: 100%; margin: 16px 0 8px; }
@@ -47,7 +56,9 @@
     #doc111-importacion .doc111-overlay { padding: 8px; }
     #doc111-importacion .doc111-dialog { padding: 14px; max-height: calc(100vh - 16px); }
     #doc111-importacion .doc111-layout { grid-template-columns: minmax(0,1fr); }
-    #doc111-importacion .doc111-steps { grid-template-columns: repeat(2,1fr); gap: 4px; }
+    #doc111-importacion .doc111-steps { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 4px; font-size: 12px; }
+    #doc111-importacion .doc111-actionbar { bottom: -14px; }
+    #doc111-importacion .doc111-actionbar button { flex: 1 1 130px; margin: 0; }
     #doc111-importacion .doc111-content, #doc111-importacion .doc111-summary { padding: 12px; }
     #doc111-importacion .doc111-resultados table, #doc111-importacion .doc111-resultados tbody, #doc111-importacion .doc111-resultados tr, #doc111-importacion .doc111-resultados td { display: block; width: auto; }
     #doc111-importacion .doc111-resultados thead { position: absolute; clip: rect(0,0,0,0); width: 1px; height: 1px; overflow: hidden; }

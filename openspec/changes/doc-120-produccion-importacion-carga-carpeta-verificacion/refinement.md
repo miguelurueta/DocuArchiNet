@@ -137,6 +137,8 @@ Entregable local: tareas 6.2/6.4/6.5 del mapa aplicado. La evidencia es Validaci
 
 ## Trazabilidad y aplicación
 
+Ampliación expresamente autorizada2026-11-13: «agrega las tareas al task y realiza la implmentacion». El contraste de la maqueta registra C01/C02/C03;3.10–3.12 corrigen sus diferencias sin relajar el servidor.3.13–3.17 reúnen perfil/carpetas, destacan acciones existentes, despliegan filtros/configuración y conservan consulta/recuperación/foco, con conteos de envío y actualización visible.3.18 registra regresión y huellas. Origen D-04/RQ-04 (presentación y consulta), D-05/RQ-05 (acciones/barreras) y D-10/RQ-10 (evidencia/aceptación). El diseño y RQ-04 incorporan tres escenarios;25 escenarios y38 tareas en total. Se trata de una ampliación de presentación autorizada, no de nueva arquitectura, automatización de fases o edición PDF. Las cuatro tareas de aceptación/autorización integral permanecen abiertas.
+
 10 decisiones/10 requisitos/20 escenarios. Durante INT-02 se reprodujo DOC120-SUP01 en el auxiliar de pruebas: botón oculto tras el nuevo menú. Se añade tarea4.4 D-06/RQ-06, corregida y verificada localmente; plan activo25 tareas, sin cambio de producto ni nueva ventana real. Mapa24 inicial aplicado a tasks.md en73106588; plan-tareas-propuesto.md conserva la procedencia. El usuario continuó sobre esa entrega: aprobación para trabajo local, sin efectos reales nuevos. Auditar y sincronizar con opsxj:refine -- DOC-120 --sync; la aprobación del plan no se contabiliza como ejecución de sus24 tareas.
 
 ## Condiciones operativas de salida

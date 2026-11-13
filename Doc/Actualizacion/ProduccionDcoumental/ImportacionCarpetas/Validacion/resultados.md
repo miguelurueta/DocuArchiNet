@@ -1,5 +1,12 @@
 # DOC-120 — índice cronológico de resultados
 
+## Asistente guiado — corte vigente2026-11-13
+
+Tareas3.10–3.18 completadas: **Seleccionar → Revisar → Seguimiento** sobre el asistente real. Perfil/carpetas juntos; una acción existente destacada con recurso, sin duplicación ni fases automáticas. Configuración/filtros desplegables con borradores y foco; consultas por referencia/último lote/plan pendiente, páginas independientes y CSV conservados. Actualizar estado muestra fecha/contador al completar lecturas válidas; envío muestra cantidad elegible de la página y archivo actual/total de cola, diferenciando transporte, recepción y almacenamiento. C01/C02/C03 de la maqueta corregidas; auditoría anterior y sus límites se conservan como antecedentes.
+
+**Validación local:68/68 Node**, incluidos2 wrappers Framework/DDL cuyos casos internos no se suman; Chromium con servicios sintéticos y compilación Debug incremental0 errores/1 advertencia. Evidencia: Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-asistente-guiado-20261113.json. Avance**34/38**; siguen abiertas5.2,6.4,6.5 y6.6. Sin ejecución IIS autenticada nueva ni aceptación integral. Los cortes siguientes mantienen su SHA, conteos y ámbito histórico.
+
+
 ## Recepción previa a creación — tarea3.9,2026-11-13
 
 DOC120-REC01: el video de Egresos reproduce creación ofrecida con PDF pendiente en lote31/plan49; cinco SELECT de diagnóstico confirman ausencia de intentos. La consulta proyecta disponibilidad calculada con la barrera existente sobre el ámbito completo EXPEDIENTE/LOTE/PARCIAL, independiente de filtros o páginas. Una lectura de plan y dos SELECT agrupados de metadatos por página; sin reservas ni efectos. El cliente exige true estricto, explica el requisito y muestra Enviar pendientes antes de filtros. La operación conserva su validación inmediata de autoridad, revisión y staging.

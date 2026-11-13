@@ -1,5 +1,16 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+## Interfaz guiada vigente2026-11-13
+
+1. **Seleccionar**: elige una versión publicada del perfil y agrega una carpeta por selección. Puedes agregar varias, quitar carpetas o archivos y recorrer su inventario. Preparar revisión no envía archivos.
+2. **Revisar**: consulta incidencias/valores y confirma el plan cuando el servidor lo permita. Cambiar selección exige preparar de nuevo.
+3. **Seguimiento**: el panel destaca una acción disponible y su recurso; el botón aparece en el pie. Las otras acciones permanecen en sus filas. Se solicita por separado envío, creación, índices y almacenamiento; recepción no equivale a documento almacenado. El envío abarca solo los pendientes seleccionados en este equipo y visibles en la página filtrada; muestra cantidad y archivo actual/total, además de bytes.
+
+Actualizar estado conserva filtros/páginas y muestra fecha/contador tras completar las lecturas. Filtros de carpetas y archivos y configuración se despliegan por separado. Exportar esta página descarga únicamente la página de archivos con sus filtros. Las consultas por referencia, último lote y confirmación pendiente conservan destino/autorización originales. Cerrar antes de confirmar descarta la selección; después conserva referencia y puede exigir reseleccionar originales pendientes, sin reenviar recibidos o inciertos automáticamente. Una detención conserva efectos ya confirmados.
+
+Implementación verificada localmente68/68; evidencia Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-asistente-guiado-20261113.json. Sin nueva aceptación IIS ni cambios de perfil Egresos/datos.
+
+
 ## Recepción previa a creación — DOC-120, 2026-11-13
 
 En Resultados, Enviar pendientes de esta página aparece antes de los filtros. Primero recibe los archivos requeridos por el perfil: todos los de la carpeta para EXPEDIENTE, todos los del lote para LOTE, o al menos un archivo elegible por carpeta en PARCIAL. Crear expediente aparece tras consultar la disponibilidad de recepción calculada por servidor; los filtros y la página visible no reducen el ámbito exigido. La creación vuelve a verificar autoridad, revisión y staging. Continúa con Preparar índices y Almacenar archivo. Tras recargar debes reseleccionar el PDF pendiente antes de enviarlo; conserva el lote existente, sin volver a confirmar el plan. Esta corrección no recibe archivos automáticamente ni resuelve intentos inciertos.

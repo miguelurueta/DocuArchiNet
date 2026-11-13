@@ -355,7 +355,7 @@ test('DOC-111: interfaz Chromium local con servicios sintéticos, foco y cierre 
             } else if (operation === 'ConsultarRecursosLote') {
               data = {loteId:'20', pagina:request.pagina, tamanoPagina:request.tamanoPagina, totalOriginal:2, totalFiltrado:2, elementos:manifest.archivos.map((f, i) => ({recursoId:String(30+i), raizId:String(40+i), idCliente:f.idCliente, nombre:f.nombre, bytesPrevistos:f.bytes, estadoRecepcion:i===1?'RECHAZADO':window.doc111Received?'RECIBIDO':'PENDIENTE', estado:i===1?'RECHAZADO':'NO_INICIADO'}))};
             } else if (operation === 'upload.ashx') {
-              if (this.upload.onprogress) this.upload.onprogress({lengthComputable:true, loaded:80, total:100});
+              if (this.upload.onprogress) { this.upload.onprogress({lengthComputable:true, loaded:80, total:100}); window.doc111Progress=document.querySelector('.doc111-notice').textContent; }
               window.doc111Received = true;
               data = {loteId:request.loteId, archivoId:request.archivoId, estadoRecepcion:'RECIBIDO', estadoEfecto:'NO_INICIADO'};
             } else if (operation === 'ExportarPaginaLote') {
@@ -387,14 +387,16 @@ test('DOC-111: interfaz Chromium local con servicios sintéticos, foco y cierre 
     await page.evaluate(() => { document.getElementById('doc111-importacion').setAttribute('data-nivel','8'); ImportacionCarpetas.inicializar(); ImportacionCarpetas.inicializar(); });
     assert.match(await page.locator('.doc111-destino').innerText(), /Compras \/ Órdenes/);
     await page.getByRole('button', {name:'Confirmar plan', exact:true}).click();
-    await page.getByRole('button', {name:'Enviar pendientes de esta página', exact:true}).waitFor();
-    await page.getByRole('button', {name:'Enviar pendientes de esta página', exact:true}).click();
+    await page.getByRole('button', {name:/^Enviar archivos de esta página \(/, exact:true}).waitFor();
+    await page.getByRole('button', {name:/^Enviar archivos de esta página \(/, exact:true}).click();
     await page.waitForFunction(() => window.doc111Received && document.querySelector('.doc111-content').textContent.includes('RECIBIDO'));
     assert.match(await page.locator('.doc111-content').innerText(), /NO_INICIADO/);
     assert.match(await page.locator('.doc111-content').innerText(), /RECHAZADO/);
     const calls = await page.evaluate(() => window.doc111Requests.map(r => ({operation:r.operation, request:r.operation==='upload.ashx'?{loteId:r.request.loteId,archivoId:r.request.archivoId}:r.request})));
     assert.equal(calls.filter(r => r.operation==='ConfirmarPlan').length, 1);
     assert.equal(calls.filter(r => r.operation==='upload.ashx').length, 1);
+    assert.match(await page.evaluate(()=>doc111Progress),/Enviando archivo 1 de 1:.*80 de 100 bytes/);
+    assert.match(await page.locator('.doc111-notice').textContent(),/Recepción confirmada para 1 archivos/);
     assert.equal(calls.find(r => r.operation==='PrepararPlan').request.nivelRef, '7');
     assert.deepEqual(Object.keys(calls.find(r => r.operation==='ConfirmarPlan').request).sort(), ['claveConfirmacion','planHashEsperado','planId','revisionEsperada']);
     const download = page.waitForEvent('download'); await page.getByRole('button', {name:'Exportar esta página'}).click();
@@ -402,9 +404,9 @@ test('DOC-111: interfaz Chromium local con servicios sintéticos, foco y cierre 
     await page.getByRole('button', {name:'Cerrar', exact:true}).click();
     assert.equal(await page.getByRole('dialog').count(), 0);
     await page.locator('[data-doc111-resume]').click(); await page.getByRole('dialog').waitFor();
-    await page.getByRole('heading', {name:'4. Resultados', exact:true}).waitFor();
+    await page.getByRole('heading', {name:'Seguimiento de la importación', exact:true}).waitFor();
     await page.waitForFunction(() => document.querySelector('.doc111-content').textContent.includes('RECIBIDO'));
-    assert.equal(await page.getByRole('button', {name:'Enviar pendientes de esta página', exact:true}).isDisabled(), true);
+    assert.equal(await page.getByRole('button', {name:/^Enviar archivos de esta página \(/, exact:true}).isDisabled(), true);
     await page.getByRole('button', {name:'Cerrar', exact:true}).focus(); await page.keyboard.press('Shift+Tab');
     assert.equal(await page.evaluate(() => document.querySelector('[role=dialog]').contains(document.activeElement)), true);
     await page.keyboard.press('Escape'); assert.equal(await page.getByRole('dialog').count(), 0);
@@ -482,6 +484,7 @@ async function withDoc119Seguimiento(work) {
 
 test('DOC-119: filtros de archivos se conservan al paginar y descargar exactamente esa página',async()=>withDoc119Seguimiento(async page=>{
   assert.equal(await page.getByLabel('Referencia de carpeta',{exact:true}).count(),1,'El seguimiento no ofrece el filtro raizId que admite el servidor');
+  await page.locator('details[data-doc111-panel="ARCHIVOS"] > summary').click();
   await page.getByLabel('Referencia de carpeta',{exact:true}).fill('40');
   await page.getByLabel('Efecto documental',{exact:true}).selectOption('INCIERTO');
   await page.getByLabel('Recepción',{exact:true}).selectOption('RECIBIDO');
@@ -501,6 +504,7 @@ test('DOC-119: filtros de archivos se conservan al paginar y descargar exactamen
   await page.waitForFunction(()=>document.querySelector('.doc111-content').textContent.includes('rechazado.pdf'));
   assert.deepEqual(await page.evaluate(()=>doc119Calls.filter(call=>call.operation==='ConsultarRecursosLote'&&call.request.tipo==='ARCHIVOS').at(-1).request),{loteId:'20',tipo:'ARCHIVOS',pagina:1,tamanoPagina:2});
   assert.equal(await page.getByLabel('Referencia de carpeta',{exact:true}).inputValue(),'');
+  await page.locator('details[data-doc111-panel="RAICES"] > summary').click();
   await page.getByLabel('Estado de carpeta',{exact:true}).selectOption('COMPLETADA');await page.getByRole('button',{name:'Aplicar filtros de carpetas',exact:true}).click();
   await page.waitForFunction(()=>doc119Calls.some(call=>call.operation==='ConsultarRecursosLote'&&call.request.tipo==='RAICES'&&call.request.estado==='COMPLETADA'));
   assert.equal(await page.getByLabel('Efecto documental',{exact:true}).inputValue(),'');
@@ -508,10 +512,15 @@ test('DOC-119: filtros de archivos se conservan al paginar y descargar exactamen
 }));
 
 test('DOC-119: una consulta filtrada denegada no deja exportar la página anterior',async()=>withDoc119Seguimiento(async page=>{
+  assert.match(await page.locator('.doc111-feedback').textContent(),/Estado actualizado.*consulta 1/);
+  await page.getByRole('button',{name:'Actualizar estado',exact:true}).click();
+  await page.waitForFunction(()=>document.querySelector('.doc111-feedback').textContent.includes('consulta 2'));
   assert.equal(await page.getByLabel('Referencia de carpeta',{exact:true}).count(),1,'Falta filtro de carpeta');
+  await page.locator('details[data-doc111-panel="ARCHIVOS"] > summary').click();
   await page.getByLabel('Referencia de carpeta',{exact:true}).fill('41');await page.evaluate(()=>{window.doc119Deny=true;});
   await page.getByRole('button',{name:'Aplicar filtros de archivos',exact:true}).click();
   await page.waitForFunction(()=>document.querySelector('.doc111-notice').textContent.includes('autorización vigente'));
+  assert.equal(await page.locator('.doc111-feedback').textContent(),'','Una consulta fallida no anuncia estado actualizado');
   assert.equal(await page.getByRole('button',{name:'Exportar esta página',exact:true}).count(),0);
   assert.equal(await page.locator('.doc111-content').getByText('rechazado.pdf',{exact:false}).count(),0);
 }));
@@ -676,7 +685,7 @@ test('DOC-111: recarga real conserva referencias y recupera sin reconfirmar ni a
     await page.goto('https://doc111.invalid/');
     await page.locator('[data-doc111-open]').click();await page.getByRole('dialog').waitFor();await page.getByLabel('Perfil publicado').selectOption('5');await page.getByRole('button',{name:'Agregar carpetas',exact:true}).click();
     for(let i=0;i<2;i++)await page.locator('input[webkitdirectory]').setInputFiles(selected);
-    assert.deepEqual(errors,[]);assert.match(await page.locator('.doc111-content').innerText(),/Preparar revisión/);
+    assert.deepEqual(errors,[]);assert.equal(await page.getByRole('button',{name:'Preparar revisión',exact:true}).isEnabled(),true);
     await page.getByRole('button',{name:'Preparar revisión'}).click();await page.getByRole('button',{name:'Confirmar plan',exact:true}).click();
     await page.waitForFunction(()=>document.querySelector('.doc111-notice').textContent.includes('No se pudo confirmar'));
     assert.deepEqual(await page.evaluate(()=>JSON.parse(sessionStorage.getItem('DOC111_REF_'+'a'.repeat(32)))),{v:1,planId:'17'});
@@ -688,7 +697,7 @@ test('DOC-111: recarga real conserva referencias y recupera sin reconfirmar ni a
     visible=true;await page.evaluate(()=>{document.getElementById('doc111-importacion').setAttribute('data-nivel','8');ImportacionCarpetas.inicializar();});
     await page.locator('[data-doc111-verificar]').click();await page.getByRole('dialog').waitFor();
     assert.match(await page.locator('.doc111-destino').innerText(),/Destino original/);
-    assert.equal(await page.getByRole('button',{name:'Enviar pendientes de esta página'}).isDisabled(),true);
+    assert.equal(await page.getByRole('button',{name:/^Enviar archivos de esta página \(/}).isDisabled(),true);
     assert.equal(await page.getByRole('button',{name:'Reseleccionar archivo 30',exact:true}).count(),0);
     await page.setViewportSize({width:390,height:844});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
@@ -696,16 +705,16 @@ test('DOC-111: recarga real conserva referencias y recupera sin reconfirmar ni a
     await page.setViewportSize({width:1280,height:800});
     const badChoice=page.waitForEvent('filechooser');await page.getByRole('button',{name:'Reseleccionar archivo 31',exact:true}).click();await(await badChoice).setFiles({name:'otro.pdf',mimeType:'application/pdf',buffer:Buffer.from('fixture')});
     await page.waitForFunction(()=>document.querySelector('.doc111-notice').textContent.includes('no coincide'));
-    assert.equal(await page.getByRole('button',{name:'Enviar pendientes de esta página'}).isDisabled(),true);
+    assert.equal(await page.getByRole('button',{name:/^Enviar archivos de esta página \(/}).isDisabled(),true);
     const goodChoice=page.waitForEvent('filechooser');await page.getByRole('button',{name:'Reseleccionar archivo 31',exact:true}).click();await(await goodChoice).setFiles(path.join(selected,'a.pdf'));
     await page.waitForFunction(()=>document.querySelector('.doc111-notice').textContent.includes('Archivo vinculado'));
-    await page.getByRole('button',{name:'Enviar pendientes de esta página'}).click();
+    await page.getByRole('button',{name:/^Enviar archivos de esta página \(/}).click();
     await page.waitForFunction(()=>document.querySelector('[data-doc111-action=enviar]').disabled);
     assert.deepEqual(calls.filter(c=>c.operation==='upload.ashx').map(c=>c.request.archivoId),['31']);
     assert.equal(calls.filter(c=>c.operation==='ConfirmarPlan').length,1);
     assert.deepEqual(await page.evaluate(()=>JSON.parse(sessionStorage.getItem('DOC111_REF_'+'a'.repeat(32)))),{v:1,loteId:'20'});
     await page.reload();await page.locator('[data-doc111-resume]').click();await page.getByRole('dialog').waitFor();
-    assert.equal(await page.getByRole('button',{name:'Enviar pendientes de esta página'}).isDisabled(),true);
+    assert.equal(await page.getByRole('button',{name:/^Enviar archivos de esta página \(/}).isDisabled(),true);
     assert.equal(calls.filter(c=>c.operation==='upload.ashx').length,1);
     scope='b'.repeat(32);await page.reload();assert.equal(await page.locator('[data-doc111-resume]').isHidden(),true);assert.equal(await page.locator('[data-doc111-verificar]').isHidden(),true);
     assert.deepEqual(errors,[]);assert.deepEqual(exterior,[]);
@@ -769,7 +778,7 @@ test('DOC-111: fases explícitas y rama original usan relaciones confirmadas sin
     await page.getByRole('button',{name:'Almacenar archivo 30',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.doc111-notice').textContent.includes('Consulta el estado'));
     assert.equal(await page.locator('[data-doc111-action="fase"]').count(),0);
     assert.equal(await page.evaluate(()=>phaseCalls.filter(c=>c.operation==='AvanzarLote'&&c.request.fase==='ALMACENAR').length),1);
-    await page.getByRole('button',{name:'Consultar estado',exact:true}).click();await page.getByRole('button',{name:'Verificar intento 30',exact:true}).waitFor();
+    await page.getByRole('button',{name:'Actualizar estado',exact:true}).click();await page.getByRole('button',{name:'Verificar intento 30',exact:true}).waitFor();
     await page.getByRole('button',{name:'Verificar intento 30',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.doc111-content').textContent.includes('COMPLETADA'));
     assert.equal(await page.locator('#TreeViewArchivon1Nodes a[title="70|7|60|"]').count(),1);
     assert.equal(await page.evaluate(()=>phaseCalls.filter(c=>c.operation==='AvanzarLote'&&c.request.fase==='ALMACENAR').length),1);

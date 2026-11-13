@@ -1,5 +1,12 @@
 # Base gráfica de importación por carpetas
 
+## Correcciones de compatibilidad implementadas2026-11-13
+
+La aplicación ahora incorpora la organización de tres grupos en sus controles existentes. C01: la maqueta exige la carpeta confirmada en la página visible para índices/almacenamiento, igual que accionesRecurso. C02: descarga13 columnas con coma y escape/protección de fórmulas; nombre DEMO-importacion-N-archivos-pagina-P.csv y datos sintéticos. C03: conserva la página solicitada aunque quede vacía y declara capacidad simulada de página. Pruebas GUI03/GUI04 en tests/doc120-importacion-guiada.test.cjs.
+
+El informe compatibilidad-maqueta-doc120-20261113.json conserva la auditoría original sobre f3bb9e16, registrada en0325a579 y **no describe el estado posterior** de sus fuentes modificadas. La resolución vigente y las huellas posteriores están en ../Validacion/doc120-asistente-guiado-20261113.json. Persisten los límites L04–L07: autenticación/persistencia/reconciliación/políticas simuladas no son prueba del servidor. Los apartados siguientes son antecedentes del prototipo y su auditoría inicial.
+
+
 ## Propuesta guiada DOC-120 — 2026-11-13
 
 Abre [propuesta-importacion-guiada-doc120.html](propuesta-importacion-guiada-doc120.html) en el navegador. Es un único HTML con estilos, iconos y JavaScript incluidos, sin dependencias ni conexión a servicios. Representa la organización solicitada después de revisar el video seleccion-vista-plan; no modifica la aplicación desplegada ni sus reglas.

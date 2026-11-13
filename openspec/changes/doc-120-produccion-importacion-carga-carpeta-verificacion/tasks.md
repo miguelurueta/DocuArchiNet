@@ -3,7 +3,7 @@
 
 Mapa aplicado a este archivo activo desde plan-tareas-propuesto.md por la indicación del usuario sobre tasks.md. Sustituye las ocho entradas genéricas iniciales.
 
-Progreso: **25/29 tareas verificadas en el alcance documental/local**. Complejidad:12 S,17 M,0 L. Se añaden3.6/3.7 por correcciones de interfaz,3.8 por la solicitud expresa de alinear únicamente la barra superior y4.4 por la brecha DOC120-SUP01 reproducida durante INT-02. Cada tarea declara área, origen D/RQ y verificación. El usuario indicó «continua» sobre73106588: plan aprobado para consolidación y comprobaciones locales, sin aceptación operativa ni autorización de pruebas reales.
+Progreso: **34/38 tareas verificadas en el alcance documental/local**. Complejidad:15 S,23 M,0 L. El corte actual añade3.10–3.18 para la reorganización expresamente solicitada y la corrección de C01/C02/C03 de la maqueta. Se añaden3.6/3.7 por correcciones de interfaz,3.8 por la solicitud expresa de alinear únicamente la barra superior y4.4 por la brecha DOC120-SUP01 reproducida durante INT-02. Cada tarea declara área, origen D/RQ y verificación. El usuario indicó «continua» sobre73106588: plan aprobado para consolidación y comprobaciones locales, sin aceptación operativa ni autorización de pruebas reales.
 
 Dependencias: refinamiento aprobado para trabajo local; seleccionar regresión por vigencia y brechas; definir y autorizar cada ventana real antes de usar ambiente/cuentas/recursos. INT-03 requiere objetivo, umbrales y presupuesto explícitos; sin ellos se registra NO_EJECUTADO según D-07/RQ-07. Las autorizaciones de DOC110–119 no se heredan.
 
@@ -38,6 +38,20 @@ Condición obligatoria de aceptación de3.8, ratificada por el usuario: el ajust
 
 - [x] 3.9 [M] Corregir creación ofrecida antes de recibir los archivos (DOC120-REC01). Área/archivos: consulta de raíces del repositorio/servicio/DTO, ImportacionCarpetas.js/Vista.js y pruebas Framework/Chromium existentes. Origen: D-04, RQ-04; D-05, RQ-05; D-10, RQ-10. Reproducción: video recorrido-error, lote31/plan49, raíz52 pendiente y archivo78 sin recepción; la UI ofrece Crear expediente y responde con aviso genérico. Verificación: disponibilidad de creación proyectada con la barrera existente sobre el ámbito completo, sin depender de página/filtros ni agregar efectos; EXPEDIENTE/LOTE/PARCIAL conservados; acción de envío visible antes de filtros, instrucción del requisito y creación habilitada tras recepción/consulta; incertidumbre y detención bloquean acciones; regresión local, sin repetir operaciones del lote real.
 
+## 3 bis. Asistente guiado autorizado — 2026-11-13
+
+Solicitud expresa: «agrega las tareas al task y realiza la implmentacion», posterior al contraste de compatibilidad de la maqueta. Se conservan las operaciones y contratos existentes; la reorganización no agrega automatismos ni capacidades de edición PDF.
+
+- [x] 3.10 [M] Corregir C01 en la maqueta para exigir la carpeta confirmada visible antes de preparar índices o almacenar. Área/archivos: Prototipo/propuesta-importacion-guiada-doc120.html. Origen: D-05, RQ-05. Verificación: ocultar la raíz por filtro/página impide ambas acciones igual que accionesRecurso; no se relajan los guards productivos.
+- [x] 3.11 [S] Corregir C02 en el CSV simulado con las trece columnas y escape del contrato vigente. Área/archivos: Prototipo/propuesta-importacion-guiada-doc120.html. Origen: D-04, RQ-04. Verificación: descarga de página filtrada con coma, comillas y protección de fórmulas equivalente a CeldaCsv; datos identificados como sintéticos.
+- [x] 3.12 [S] Corregir C03 conservando la página solicitada cuando desaparecen sus filas. Área/archivos: Prototipo/propuesta-importacion-guiada-doc120.html. Origen: D-04, RQ-04. Verificación: página dos vacía conserva referencia y permite Anterior; tamaño limitado por capacidad simulada declarada.
+- [x] 3.13 [M] Reunir perfil y selección de carpetas en el primer grupo del asistente real. Área/archivos: ImportacionCarpetasVista.js. Origen: D-04, RQ-04. Verificación: tres grupos visibles y perfil/versiones, más perfiles, selector nativo, eliminación de carpeta/archivo y paginación conservados; revisar no confirma ni envía.
+- [x] 3.14 [M] Mostrar la siguiente operación disponible y una barra de acciones en seguimiento. Área/archivos: ImportacionCarpetasVista.js. Origen: D-05, RQ-05. Verificación: botones delegan únicamente a accionesRecurso y eventos existentes; recepción, creación, índices, almacenamiento y verificación permanecen explícitos, sin encadenarse; incertidumbre bloquea reenvío.
+- [x] 3.15 [M] Organizar filtros y configuración en paneles desplegables independientes. Área/archivos: ImportacionCarpetasVista.js. Origen: D-04, RQ-04. Verificación: consulta por referencia/último lote/plan pendiente, páginas de raíces/archivos y CSV permanecen disponibles; filtros aplicados, borradores y apertura se conservan al renderizar.
+- [x] 3.16 [S] Hacer visible el resultado de actualizar estado y el alcance del envío. Área/archivos: ImportacionCarpetas.js/Vista.js. Origen: D-04, RQ-04. Verificación: consulta completada muestra fecha y contador, fallo no anuncia éxito; envío indica cantidad elegible de página y progreso diferencia recepción de almacenamiento.
+- [x] 3.17 [M] Adaptar el asistente a pantalla estrecha y conservar foco y teclado. Área/archivos: ImportacionCarpetasVista.js/css; Gestion/WebFormProducionDocumental.aspx. Origen: D-04, RQ-04. Verificación: Chromium390/768/1280px, paneles y barra sin desbordamiento; foco restaurado por identidad, Tab/Escape/Enter y recursos versionados.
+- [x] 3.18 [M] Registrar regresión y evidencia vigente del asistente guiado. Área/archivos: tests/doc120-importacion-guiada.test.cjs; suites existentes; Validacion/; guía operativa y dossier DOC-120. Origen: D-10, RQ-10. Verificación: pruebas locales y compilación aprobadas, huellas y límites explícitos sin sobrescribir auditoría histórica ni afirmar aceptación IIS.
+
 ## 4. Degradación acotada — INT-02
 
 - [x] 4.1 [S] Delimitar el antecedente de degradación y su compatibilidad actual. Área/archivos: doc111-degradacion-individual-pass-20261102.md; tools/e2e/tests/doc111-degradation.test.cjs; repositorio MySQL vigente. Origen: D-06, RQ-06. Verificación: Se identifica exactamente ra_integracion_evento ausente y restauración; no se extrapola a otro fallo de esquema.
@@ -63,7 +77,7 @@ Condición obligatoria de aceptación de3.8, ratificada por el usuario: el ajust
 
 ## Cobertura y límites
 
-Diez decisiones D-01–D-10 y diez requisitos RQ-01–RQ-10 cubiertos por29 tareas (mapa inicial24 más correcciones focales4.4,3.6,3.7,3.9 y tarea de barra superior3.8). Las diez decisiones y veinte escenarios originales se conservan; se añade a RQ-04 un escenario de barra adaptable sin regresión funcional y otro de recepción previa a creación (22 escenarios). Los resultados de origen mantienen SHA/ambiente/clasificación y sus límites real/local/estático. No se autorizan pruebas reales, cargas, cambios de permisos, DDL, fallos ni limpieza mediante este mapa.
+Diez decisiones D-01–D-10 y diez requisitos RQ-01–RQ-10 cubiertos por38 tareas (29 previas más3.10–3.18 del asistente guiado). Las diez decisiones y veinte escenarios originales se conservan; se añade a RQ-04 un escenario de barra adaptable sin regresión funcional y otro de recepción previa a creación (22 escenarios anteriores más tres del asistente guiado:25 escenarios). Los resultados de origen mantienen SHA/ambiente/clasificación y sus límites real/local/estático. No se autorizan pruebas reales, cargas, cambios de permisos, DDL, fallos ni limpieza mediante este mapa.
 
 ## Evidencia del corte local2026-11-12
 
@@ -88,3 +102,7 @@ Solicitud «implementa»: barra alineada y adaptable, acciones/búsqueda origina
 ## Corrección de recepción antes de creación — 2026-11-13
 
 Tarea3.9 completada por «corrige» tras el video recorrido-error. DOC120-REC01: disponibilidad de creación calculada con la barrera vigente sobre todo el ámbito exigido; lectura de plan y dos SELECT agrupados por página, sin filtros de archivos ni efectos. Cliente con true estricto, envío antes de filtros e instrucciones. Regresión64/64 Node (incluye2 wrappers Framework/DDL; sus casos internos no se suman) y compilación local0 errores. Evidencia Validacion/doc120-recepcion-creacion-20261113.json. Avance25/29; permanecen abiertas5.2,6.4,6.5 y6.6. No se repiten recepción/creación del lote31 ni se renuevan ejecuciones históricas.
+
+## Implementación guiada — 2026-11-13
+
+Tareas3.10–3.18 completadas. Seleccionar reúne perfil y carpetas; Revisar conserva validaciones y confirmación explícita; Seguimiento destaca una operación existente y su recurso, con filtros/configuración desplegables, consulta visible y conteo de envío. No cambia contratos ni guards de negocio. Maqueta C01/C02/C03 corregida; los límites de autenticación, persistencia y reconciliación simuladas permanecen. Evidencia vigente: Validacion/doc120-asistente-guiado-20261113.json;68/68 Node locales y compilación0 errores. Avance34/38;5.2,6.4,6.5,6.6 siguen abiertas. Sin importación real nueva ni aceptación integral.
