@@ -8,7 +8,18 @@ Rótulo de envío aclarado: **Archivo listo para enviar** y botón **Enviar arch
 
 La simplificación es de presentación: **Seleccionar → Revisar → Seguimiento**. La primera pantalla agrupa perfil y carpetas; filtros y configuración están plegados y la acción disponible se destaca en el pie. Se conserva la operativa construida: **Preparar revisión → Confirmar plan → Enviar pendientes de esta página → Crear expediente → Preparar índices → Almacenar archivo**. Cada acción es explícita; confirmar no recibe archivos, recibir no crea expedientes y preparar índices no almacena. Se retira el encadenamiento automático de la versión anterior de la maqueta. La unión/separación de PDF queda fuera.
 
-**Exportar esta página** está disponible desde la confirmación y respeta el filtro. El envío incluye únicamente los pendientes vinculados de la página visible. Las carpetas se seleccionan por identidad para ejecutar sus acciones, sin crear otra de forma automática. Esta demostración contiene hasta tres archivos en una sola página; sus contadores son ilustrativos y no agregados globales obtenidos de nuevas consultas.
+**Exportar esta página** está disponible desde la confirmación y respeta el filtro. El envío incluye únicamente los pendientes vinculados de la página de archivos visible. Las carpetas se seleccionan por referencia mediante Ver acciones, sin crear otra de forma automática. La selección permite hasta tres carpetas de ejemplo; las consultas incluyen lotes ficticios mayores para mostrar paginación. Las tarjetas muestran únicamente inventario original (carpetas, archivos y tamaño), como el contrato actual; no anuncian un contador global nuevo de documentos almacenados.
+
+Los controles construidos se representan en dos bloques independientes:
+
+- **Carpetas del lote:** Estado de carpeta, Aplicar/Limpiar filtros de carpetas, tabla y paginación propia.
+- **Archivos del lote:** Referencia de carpeta, Efecto documental y Recepción, Aplicar/Limpiar filtros de archivos, tabla y paginación propia. Los tres criterios se combinan; cambiar los controles no consulta hasta pulsar Aplicar.
+
+Las opciones de estado coinciden con ImportacionCarpetasVista.js. Los filtros empiezan plegados, mantienen un indicador de filtros activos y se conservan al paginar; limpiar un bloque no borra los filtros del otro. Ambas páginas usan 25 filas, como el cliente construido. El CSV contiene solo la página de archivos y sus filtros, incluidos resultados vacíos.
+
+**Consultas sin preparar otra importación:** el acceso Consultar importación abre Referencia del lote y permite consultar también el último lote. Prueba **101**, con27 carpetas en ARCHIVO-DEMO, para recorrer dos páginas; o **102**, con2 carpetas en OTRO-NIVEL-DEMO, para comprobar otro destino y estados bloqueados/cancelados. Una referencia no disponible conserva la consulta previa. Los lotes que confirmes en la demostración reciben referencias desde34 y también pueden consultarse sin volver a confirmar. Los datos se mantienen solo en memoria de este HTML; no se consulta el ambiente, ni se validan permisos reales.
+
+**Verificar confirmación pendiente:** selecciona una carpeta, prepara la revisión y despliega Explorar otros estados de la maqueta. Simular confirmación sin respuesta muestra la referencia del plan y bloquea otra confirmación. Verificar confirmación pendiente consulta su resultado y abre el lote registrado, sin repetir confirmación, recepción ni creación.
 
 La recuperación representa **Consultar estado**, **Reseleccionar archivo** pendiente y **Verificar intento** cuando la consulta identifica un intento incierto conocido. Una respuesta perdida bloquea nuevos efectos hasta consultar. La verificación recupera el resultado de ese intento y no dispara la fase siguiente. **Solicitar detención** conserva los avances y bloquea nuevas operaciones; no se presenta como Pausar/Continuar. Cerrar conserva la referencia y desvincula archivos pendientes; reabrir consulta esa referencia. Recargar realmente este HTML reinicia los datos ficticios. No se seleccionan, leen ni envían archivos reales.
 
@@ -19,6 +30,9 @@ Correspondencia con los servicios existentes, usados únicamente como referencia
 | Preparar revisión | PrepararPlan |
 | Confirmar plan | ConfirmarPlan |
 | Consultar estado | ConsultarLote / ConsultarRecursosLote |
+| Consultar importación por referencia / Consultar último lote | ConsultarLote / ConsultarRecursosLote, con el destino original del lote |
+| Verificar confirmación pendiente | ConsultarConfirmacionLote |
+| Aplicar/Limpiar filtros y paginar carpetas o archivos | ConsultarRecursosLote, manteniendo tipo, filtros y página correspondientes |
 | Enviar archivo / Enviar N archivos | Misma función de Enviar pendientes de esta página: recepción ASHX, un archivo por solicitud |
 | Crear expediente | AvanzarLote / CREAR_EXPEDIENTE |
 | Preparar índices | AvanzarLote / MATERIALIZAR_VALORES |
@@ -29,7 +43,7 @@ Correspondencia con los servicios existentes, usados únicamente como referencia
 
 Referencias: [acciones y guardas del cliente](../../../../../js/gestion/ImportacionCarpetas/ImportacionCarpetas.js), [fachada de fases](../../../../../Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Operaciones.vb) y [acciones permitidas por consulta](../../../../../Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb). La maqueta no invoca esos servicios ni introduce endpoints, persistencia o capacidades nuevas.
 
-Verificación local con el rótulo actualizado: **35 comprobaciones** en Chromium y contra `accionesRecurso` del cliente construido: confirmación sin recepción, operaciones sin encadenar, recuperación sin repetir efectos, selección por recurso, envío y CSV limitados a la página/filtro, detención sin reanudación inventada, cierre/reapertura y distribución a390/768/1280/1554px. Cero errores y peticiones remotas. Capturas e informe excluidos de Git: `.tmp/doc120-propuesta-rotulo/`. Los cortes de `.tmp/doc120-propuesta-alineada/`, `.tmp/doc120-propuesta-simple/` y `.tmp/doc120-propuesta-guiada/` son antecedentes. Solo cambia la maqueta; no constituye una nueva prueba autenticada de la aplicación.
+Verificación local de filtros y consultas: **54 comprobaciones**. Comparación exacta de los tres catálogos de estados contra los controles del repositorio; consulta por referencia/último lote y destino original; confirmación sin respuesta; filtros aplicados explícitamente, combinados e independientes; paginación separada; CSV de la página filtrada; recuperación sin repetir efectos; cierre/detención; acciones por identidad y distribución a390/768/1280/1554px, con acción principal y exportación visibles en móvil. Cero errores y peticiones remotas. Capturas e informe excluidos de Git: `.tmp/doc120-propuesta-filtros-consultas/`. Los cortes de `.tmp/doc120-propuesta-rotulo/`, `.tmp/doc120-propuesta-alineada/`, `.tmp/doc120-propuesta-simple/` y `.tmp/doc120-propuesta-guiada/` son antecedentes. Solo cambia la maqueta; no constituye una nueva prueba autenticada de la aplicación.
 
 Los apartados siguientes describen el prototipo anterior `importacion-carpetas.html`, conservado como antecedente.
 
