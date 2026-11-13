@@ -32,14 +32,27 @@ Public Partial Class MySqlImportacionCarpetasRepository
         Return CoordinadorImportacionCarpetas.EvaluarBarreraCreacion(vista.Lote, vista.Plan, vista.Raiz, vista.Raices, vista.Archivos)
     End Function
 
-    Private Shared Function LeerVistaBarreraCreacion(lote As LoteImportacionCarpetas, plan As PlanImportacionCarpetas, raiz As RaizImportacionCarpetas, consultar As Func(Of String, Object(), DataTable)) As VistaBarreraCreacionImportacion
+    Private Shared Function LeerVistaBarreraCreacion(lote As LoteImportacionCarpetas, plan As PlanImportacionCarpetas, raiz As RaizImportacionCarpetas, consultar As Func(Of String, Object(), DataTable), Optional raicesConsulta As List(Of String) = Nothing) As VistaBarreraCreacionImportacion
         If lote Is Nothing OrElse raiz Is Nothing OrElse plan Is Nothing OrElse plan.Manifiesto Is Nothing OrElse plan.Manifiesto.Raices Is Nothing OrElse plan.Manifiesto.Archivos Is Nothing OrElse plan.Snapshot Is Nothing OrElse plan.Snapshot.Configuracion Is Nothing OrElse consultar Is Nothing Then Throw NoDisponible()
         Dim c = plan.Snapshot.Configuracion
         Dim ambitoLote = c.ModoIntegridad = "COMPLETO_OBLIGATORIO" AndAlso c.AmbitoIntegridad = "LOTE"
         Dim filtro = If(ambitoLote, "", " AND r.raiz_id=@raiz")
-        Dim parametros = New Object() {"@lote", IdOperacion(lote.LoteId), "@raiz", IdOperacion(raiz.RaizId), "@limite", plan.Manifiesto.Raices.Count + 1}
-        Dim datosRaices = consultar("SELECT r.raiz_id,r.lote_id,r.cliente_raiz_id,r.estado FROM ra_integracion_raiz r WHERE r.lote_id=@lote" & filtro & " ORDER BY r.raiz_id LIMIT @limite", parametros)
-        Dim datosArchivos = consultar("SELECT f.archivo_id,f.raiz_id,f.cliente_archivo_id,f.bytes_previstos,f.bytes_recibidos,f.contenido_hash,f.staging_ref,f.estado_recepcion,f.estado_efecto,f.intento_activo_id,f.revision FROM ra_integracion_archivo f INNER JOIN ra_integracion_raiz r ON r.raiz_id=f.raiz_id WHERE r.lote_id=@lote" & filtro & " ORDER BY f.archivo_id LIMIT @limite", New Object() {"@lote", IdOperacion(lote.LoteId), "@raiz", IdOperacion(raiz.RaizId), "@limite", plan.Manifiesto.Archivos.Count + 1})
+        Dim parametros As New List(Of Object) From {"@lote", IdOperacion(lote.LoteId), "@raiz", IdOperacion(raiz.RaizId)}
+        'La consulta de una pagina agrupa sus raices en dos SELECT. El efecto
+        'conserva su filtro original por raiz; LOTE siempre revisa todo el lote.
+        If Not ambitoLote AndAlso raicesConsulta IsNot Nothing Then
+            If raicesConsulta.Count = 0 OrElse raicesConsulta.Count > ServicioConsultaImportacion.MaximoPagina Then Throw NoDisponible()
+            Dim nombres As New List(Of String)()
+            For Each id In raicesConsulta.Distinct(StringComparer.Ordinal)
+                Dim nombre = "@consulta" & nombres.Count.ToString(Globalization.CultureInfo.InvariantCulture)
+                nombres.Add(nombre) : parametros.AddRange(New Object() {nombre, IdOperacion(id)})
+            Next
+            filtro = " AND r.raiz_id IN (" & String.Join(",", nombres) & ")"
+        End If
+        Dim parametrosRaices = parametros.Concat(New Object() {"@limite", plan.Manifiesto.Raices.Count + 1}).ToArray()
+        Dim parametrosArchivos = parametros.Concat(New Object() {"@limite", plan.Manifiesto.Archivos.Count + 1}).ToArray()
+        Dim datosRaices = consultar("SELECT r.raiz_id,r.lote_id,r.cliente_raiz_id,r.estado FROM ra_integracion_raiz r WHERE r.lote_id=@lote" & filtro & " ORDER BY r.raiz_id LIMIT @limite", parametrosRaices)
+        Dim datosArchivos = consultar("SELECT f.archivo_id,f.raiz_id,f.cliente_archivo_id,f.bytes_previstos,f.bytes_recibidos,f.contenido_hash,f.staging_ref,f.estado_recepcion,f.estado_efecto,f.intento_activo_id,f.revision FROM ra_integracion_archivo f INNER JOIN ra_integracion_raiz r ON r.raiz_id=f.raiz_id WHERE r.lote_id=@lote" & filtro & " ORDER BY f.archivo_id LIMIT @limite", parametrosArchivos)
         If datosRaices Is Nothing OrElse datosArchivos Is Nothing Then Throw NoDisponible()
         For Each campo In {"raiz_id", "lote_id", "cliente_raiz_id", "estado"}
             If Not datosRaices.Columns.Contains(campo) Then Throw NoDisponible()

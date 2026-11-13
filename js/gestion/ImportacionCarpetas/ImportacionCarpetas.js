@@ -76,7 +76,7 @@
         if (allowed.indexOf("SOLICITAR_VERIFICACION") !== -1 && resource.estado === "INCIERTO" && /^[1-9][0-9]*$/.test(resource.intentoActivoId || "")) { actions.push("RECONCILIAR"); }
         if (allowed.indexOf("SOLICITAR_AVANCE") === -1 || resource.tieneIntentoActivo) { return actions; }
         if (raiz) {
-            if (resource.estado === "PENDIENTE" && !resource.expedienteId) { actions.push("CREAR_EXPEDIENTE"); }
+            if (resource.estado === "PENDIENTE" && !resource.expedienteId && resource.recepcionListaParaCrear === true) { actions.push("CREAR_EXPEDIENTE"); }
         } else {
             var parent = model.raices && model.raices.elementos.filter(function (r) { return r.recursoId === resource.raizId; })[0];
             if (parent && parent.estado === "EXPEDIENTE_CONFIRMADO" && !parent.tieneIntentoActivo && resource.estadoRecepcion === "RECIBIDO" && resource.estado === "NO_INICIADO") {

@@ -229,6 +229,8 @@ Public Class EstadoLoteImportacionResultado
 End Class
 
 Public Class RecursoConsultaImportacionResultado
+    'Solo metadatos: el efecto vuelve a comprobar permisos, revision y staging.
+    Public Property recepcionListaParaCrear As Boolean
     Public Property rutaRelativa As String
     Public Property ultimaModificacionLocal As String
     Public Property recursoId As String

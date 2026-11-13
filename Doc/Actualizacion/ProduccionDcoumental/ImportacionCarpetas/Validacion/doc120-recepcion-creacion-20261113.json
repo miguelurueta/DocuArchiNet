@@ -1,0 +1,139 @@
+{
+  "case": "DOC120-REC01",
+  "date": "2026-11-13",
+  "classification": "LOCAL_DOC120",
+  "status": "PASS_LOCAL_CORRECTION",
+  "baseSha": "d1e28a039f26d8edaf5b6e9be9a71fbe579813d9",
+  "task": "3.9",
+  "decisions": [
+    "D-04",
+    "D-05",
+    "D-10"
+  ],
+  "requirements": [
+    "RQ-04",
+    "RQ-05",
+    "RQ-10"
+  ],
+  "reproduction": {
+    "video": "Grabación 2026-11-13 141552-recorrido-error.mp4",
+    "durationSeconds": 68.2,
+    "videoSha256": "0209458f27cd5cde8bc1905612176a77ac0a9f2a24c4fd3d5f85057af62c55ec",
+    "lotId": "31",
+    "planId": "49",
+    "rootId": "52",
+    "fileId": "78",
+    "observed": "Create offered while receipt pending; generic uncertain-result notice",
+    "diagnostic": "Five SELECTs: root pending; file pending/NO_INICIADO; zero receipt or creation attempts; confirmation event only",
+    "diagnosticIsNewAuthenticatedE2E": false
+  },
+  "change": {
+    "readiness": "Existing metadata receipt barrier, scoped over full policy inventory",
+    "queryBudget": "One plan read plus two metadata SELECTs per nonempty pending-root page, not per root; no FOR UPDATE",
+    "projection": "Strict boolean recepcionListaParaCrear, false by default; internal hint excluded from persisted JSON",
+    "ui": "Send button before filters, receipt prerequisite per scope, no creation action until server readiness",
+    "writeBarrier": "Unchanged immediate authority/revision/staging checks"
+  },
+  "test": {
+    "command": "node --test --test-concurrency=2 tests/doc120-recepcion-creacion.test.cjs tests/doc110-perfil-importacion-behavior.test.cjs tests/doc120-produccion-barra.test.cjs tests/doc111-importacion-carpetas-client.test.cjs tests/doc119-navigation.test.cjs tests/doc110-perfil-importacion-editor.test.cjs tools/e2e/tests/doc111-degradation.test.cjs",
+    "nodeTests": 64,
+    "passed": 64,
+    "failed": 0,
+    "groups": {
+      "receiptRegression": 2,
+      "frameworkAndDdlWrappers": 2,
+      "bar": 5,
+      "client": 28,
+      "navigation": 11,
+      "editor": 12,
+      "degradation": 4
+    },
+    "log": {
+      "file": ".tmp/doc120-recepcion-final.log",
+      "sha256": "aa833a453b28163b8eb90eeb2dc3c74440888b3f6cdf272d2970f8427b2a7922"
+    },
+    "coverage": [
+      "Missing/false/nonboolean readiness cannot offer creation",
+      "EXPEDIENTE and LOTE require complete receipt; PARCIAL accepts one eligible received file",
+      "Pending outside visible root or file page respects policy scope",
+      "Two SELECTs for multi-root page, including homonymous roots",
+      "Stopped, active and uncertain resources cannot create",
+      "Hint excluded from persisted root JSON",
+      "Explicit reselect/receipt/create/materialize/store with synthetic transport, once each and zero confirm replay",
+      "390px and 1280px without horizontal document overflow",
+      "Existing menu/search/toolbar and acknowledgement-loss regression"
+    ],
+    "realApplicationHttp": 0,
+    "realBusinessEffects": 0
+  },
+  "build": {
+    "status": "PASS",
+    "errors": 0,
+    "warnings": 308,
+    "output": "bin/GestionDocumental-Docuarchi.net.dll",
+    "sha256": "4e7e692294856056776b8f33fbc0b36b14eb123452f288e00fefcd0f362e2ee6",
+    "log": {
+      "file": ".tmp/doc120-recepcion-build.log",
+      "sha256": "3f06d23ff224242c748afe0c380ff0f0dba46876b15eddbeca79eea3ce303245"
+    }
+  },
+  "sources": [
+    {
+      "file": "DTOs/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasDtos.vb",
+      "sha256Lf": "dc1fd0f01ee6bba15af56098367f6f1839e73da4bbdc7fd16db78f815ca761dc"
+    },
+    {
+      "file": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Lf": "d983c920969112b7b9f11561a82c5937bbd4dd353777ebd80eaed1652af7f0f8"
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Barreras.vb",
+      "sha256Lf": "3c9c4a5bdbd7793f1f400ace85a97c2fc944757cd74eabb1a06ac7f02a2f9537"
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consulta.vb",
+      "sha256Lf": "ab692254c13c2ca274d4d9105e52e112f11fa4d71eac59dd5116b242a7c15871"
+    },
+    {
+      "file": "Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasModels.vb",
+      "sha256Lf": "f11d0e1d74c7aab5538f2089d5c3bdbedf276b6bd67c668752940a54f57a5abb"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb",
+      "sha256Lf": "5e3eb94d7884c434f0eebde4952f35e33dfd39823bc71913ced5b9d99a92c5a0"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256Lf": "a669fe01a15cac627e5493e8436f171d0a4455a8c73ddf2a2829d253e0094ed8"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256Lf": "cefb54353d0e13248017a0bb114189843c8c7f96b86b25a1686f2d2795d7e37e"
+    },
+    {
+      "file": "tests/doc120-recepcion-creacion.test.cjs",
+      "sha256Lf": "5a3a06e87ffab8771ac23bd04dae0d98bfc879c70c9fd16a20df6b2d8657fc9b"
+    },
+    {
+      "file": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "sha256Lf": "6d408c43db9a708c2d1caa1d0deed3c1ef12c7177594d95268a6c26794d4846f"
+    },
+    {
+      "file": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "sha256Lf": "0ce36e136f8e50b8f1ba2487c38a8fb42470e1dd524573765320afe09577be7d"
+    },
+    {
+      "file": "tests/doc111-importacion-carpetas-client.test.cjs",
+      "sha256Lf": "06451a26b5491d0005b0bf43bd7bf7686733184d07758e08c165feba63531bba"
+    }
+  ],
+  "limits": [
+    "No new authenticated IIS test; synthetic UI and Framework SQL/HTTP doubles",
+    "Local compilation does not certify real receipt/storage for Egresos",
+    "No profile, source, staging or lot31 mutations performed",
+    "Capacity, SII and cleanup remain unexecuted with prior limits",
+    "Integral acceptance remains pending"
+  ],
+  "progress": "25/29",
+  "integralAcceptance": false
+}

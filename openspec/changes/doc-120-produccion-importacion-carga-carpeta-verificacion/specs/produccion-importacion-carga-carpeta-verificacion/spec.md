@@ -63,6 +63,11 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **AND** se conservan las36 acciones estáticas, destinos, permisos, contexto, búsqueda por clic/Enter y restauración; el montaje dinámico no duplica acciones y las alturas del árbol/listado siguen a la barra
 - **AND** la paridad local usa las funciones de enrutamiento originales con fronteras de negocio sintéticas y no se atribuye a una prueba IIS autenticada
 
+#### Scenario: Recepción requerida antes de ofrecer creación
+- **WHEN** una carpeta confirmada todavía no cumple la recepción exigida por la política del perfil
+- **THEN** la UI explica cómo enviar los pendientes y no ofrece Crear expediente hasta consultar la disponibilidad calculada por el servidor
+- **AND** esa disponibilidad evalúa el ámbito completo EXPEDIENTE/LOTE/PARCIAL, aunque los archivos estén en otra página o fuera del filtro, sin ejecutar efectos; la creación revalida su autoridad, revisión y staging
+
 ### Requirement: RQ-05 — Integridad, incertidumbre y consumidores
 DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, valores diferidos y fecha estable, revocación, stop e incertidumbre con casos del arnés existente. Comprobar contrato del plugin en sus26 registros/22archivos y carga individual pertinente. Un callback sintético no demuestra la acción de negocio real de cada módulo.
 

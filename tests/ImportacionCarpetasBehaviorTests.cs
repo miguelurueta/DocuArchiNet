@@ -664,11 +664,14 @@ public static partial class ImportacionCarpetasBehaviorTests {
         List<RaizImportacionCarpetas> ScopedRoots(){return GlobalScope()?Roots:Roots.Where(r=>r.RaizId==Roots[Target].RaizId).ToList();}
         List<ArchivoImportacionCarpetas> ScopedFiles(){return GlobalScope()?Files:Files.Where(f=>f.RaizId==Roots[Target].RaizId).ToList();}
         public bool Check(){var method=typeof(CoordinadorImportacionCarpetas).GetMethod("EvaluarBarreraCreacion",BindingFlags.Static|BindingFlags.NonPublic);try{return (bool)method.Invoke(null,new object[]{Lot,Plan,Roots[Target],ScopedRoots(),ScopedFiles()});}catch(TargetInvocationException e){throw e.InnerException;}}
-        public bool ReadCheck(){
-            var roots=new DataTable();foreach(var col in new[]{"raiz_id","lote_id","cliente_raiz_id","estado"})roots.Columns.Add(col,typeof(object));foreach(var r in ScopedRoots())roots.Rows.Add(r.RaizId,r.LoteId,r.ClienteRaizId,r.Estado);
-            var files=new DataTable();foreach(var col in new[]{"archivo_id","raiz_id","cliente_archivo_id","bytes_previstos","bytes_recibidos","contenido_hash","staging_ref","estado_recepcion","estado_efecto","intento_activo_id","revision"})files.Columns.Add(col,typeof(object));foreach(var f in ScopedFiles())files.Rows.Add(f.ArchivoId,f.RaizId,f.ClienteArchivoId,f.BytesPrevistos,f.BytesRecibidos==null?DBNull.Value:(object)f.BytesRecibidos,f.ContenidoHash==null?DBNull.Value:(object)Unhex(f.ContenidoHash),f.StagingRef==null?DBNull.Value:(object)f.StagingRef,f.EstadoRecepcion,f.EstadoEfecto,f.IntentoActivoId==null?DBNull.Value:(object)f.IntentoActivoId,f.Revision);
-            Func<string,object[],DataTable> query=(sql,args)=>{Queries++;ImportacionCarpetasBehaviorTests.Check(sql.StartsWith("SELECT ")&&sql.Contains("r.lote_id=@lote")&&sql.EndsWith("LIMIT @limite")&&!sql.Contains("FOR UPDATE")&&!sql.Contains("origen_doc")&&!sql.Contains("datos_doc"),"DOC111 barrier query unscoped, unbounded or loads payload");ImportacionCarpetasBehaviorTests.Check(sql.Contains("r.raiz_id=@raiz")==!GlobalScope(),"DOC111 barrier query uses wrong integrity scope");bool rootQuery=sql.Contains("FROM ra_integracion_raiz r WHERE");ImportacionCarpetasBehaviorTests.Check((int)args[Array.IndexOf(args,"@limite")+1]==(rootQuery?Plan.Manifiesto.Raices.Count:Plan.Manifiesto.Archivos.Count)+1,"DOC111 barrier query lost original inventory bound");return rootQuery?roots:files;};
-            return (bool)RepositoryHelper("LeerBarreraCreacion",Lot,Plan,Roots[Target],query);
+        public bool ReadCheck(bool consultation=false,bool wholePage=false){
+            var roots=new DataTable();foreach(var col in new[]{"raiz_id","lote_id","cliente_raiz_id","estado"})roots.Columns.Add(col,typeof(object));foreach(var r in wholePage?Roots:ScopedRoots())roots.Rows.Add(r.RaizId,r.LoteId,r.ClienteRaizId,r.Estado);
+            var files=new DataTable();foreach(var col in new[]{"archivo_id","raiz_id","cliente_archivo_id","bytes_previstos","bytes_recibidos","contenido_hash","staging_ref","estado_recepcion","estado_efecto","intento_activo_id","revision"})files.Columns.Add(col,typeof(object));foreach(var f in wholePage?Files:ScopedFiles())files.Rows.Add(f.ArchivoId,f.RaizId,f.ClienteArchivoId,f.BytesPrevistos,f.BytesRecibidos==null?DBNull.Value:(object)f.BytesRecibidos,f.ContenidoHash==null?DBNull.Value:(object)Unhex(f.ContenidoHash),f.StagingRef==null?DBNull.Value:(object)f.StagingRef,f.EstadoRecepcion,f.EstadoEfecto,f.IntentoActivoId==null?DBNull.Value:(object)f.IntentoActivoId,f.Revision);
+            Func<string,object[],DataTable> query=(sql,args)=>{Queries++;ImportacionCarpetasBehaviorTests.Check(sql.StartsWith("SELECT ")&&sql.Contains("r.lote_id=@lote")&&sql.EndsWith("LIMIT @limite")&&!sql.Contains("FOR UPDATE")&&!sql.Contains("origen_doc")&&!sql.Contains("datos_doc"),"DOC111 barrier query unscoped, unbounded or loads payload");ImportacionCarpetasBehaviorTests.Check(sql.Contains(consultation?"r.raiz_id IN (@consulta0":"r.raiz_id=@raiz")==!GlobalScope(),"DOC111 barrier query uses wrong integrity scope");if(consultation&&!GlobalScope())ImportacionCarpetasBehaviorTests.Check((uint)args[Array.IndexOf(args,"@consulta0")+1]==uint.Parse(Roots[Target].RaizId),"DOC120 page root parameter not bound");bool rootQuery=sql.Contains("FROM ra_integracion_raiz r WHERE");ImportacionCarpetasBehaviorTests.Check((int)args[Array.IndexOf(args,"@limite")+1]==(rootQuery?Plan.Manifiesto.Raices.Count:Plan.Manifiesto.Archivos.Count)+1,"DOC111 barrier query lost original inventory bound");return rootQuery?roots:files;};
+            if(!consultation)return (bool)RepositoryHelper("LeerBarreraCreacion",Lot,Plan,Roots[Target],query);
+            var page=new PaginaRecursosImportacion<RaizImportacionCarpetas>{Elementos=wholePage?Roots:new List<RaizImportacionCarpetas>{Roots[Target]}};
+            RepositoryHelper("CompletarRecepcionCreacionConsulta",Lot,Plan,page,query);
+            return Roots[Target].RecepcionListaParaCrear;
         }
         public void AnotherFile(){Plan.Manifiesto.Archivos.Add(new ArchivoManifiestoImportacion{RaizIdCliente="r1",IdCliente="a2",Nombre="other.pdf",RutaRelativa="Órdenes/other.pdf",Bytes="7"});var file=ReceiptClone(Files[0]);file.ArchivoId="32";file.ClienteArchivoId="a2";Files.Add(file);Lot.TotalArchivos=3;Lot.TotalBytes="21";}
     }
@@ -682,6 +685,25 @@ public static partial class ImportacionCarpetasBehaviorTests {
         f=new CreationBarrierFixture();f.Policy("PARCIAL_PERMITIDO","LOTE");Rejected("CONFIGURACION_INVALIDA",()=>f.Check());
         f=new CreationBarrierFixture();f.Roots[1].Estado="EXPEDIENTE_CONFIRMADO";f.Files[1].EstadoEfecto="COMPLETADO";Check(f.Check(),"DOC111 already confirmed other root invalidates original full-lot receipt barrier");
         Console.WriteLine("DOC-111 creation receipt barriers preserve inventory for EXPEDIENTE LOTE and partial (synthetic metadata): passed");
+    }
+
+    static void CreationReadinessQueryCases() {
+        foreach(var policy in new[]{new[]{"COMPLETO_OBLIGATORIO","EXPEDIENTE"},new[]{"COMPLETO_OBLIGATORIO","LOTE"},new[]{"PARCIAL_PERMITIDO","NO_APLICA"}}){
+            var f=new CreationBarrierFixture();f.Policy(policy[0],policy[1]);Check(f.ReadCheck(true),"DOC120 receipt query hides ready root");Check(f.Queries==2,"DOC120 readiness does not use bounded metadata SELECTs");
+            f.Files[0].EstadoRecepcion="PENDIENTE";Check(!f.ReadCheck(true),"DOC120 pending receipt offers creation");
+            f=new CreationBarrierFixture();f.Policy(policy[0],policy[1]);f.Files[1].EstadoRecepcion="PENDIENTE";Check(f.ReadCheck(true)==(policy[1]!="LOTE"),"DOC120 readiness uses visible page instead of integrity scope");
+            f=new CreationBarrierFixture();f.Policy(policy[0],policy[1]);f.AnotherFile();f.Files[2].EstadoRecepcion="PENDIENTE";Check(f.ReadCheck(true)==(policy[0]=="PARCIAL_PERMITIDO"),"DOC120 partial/full receipt policy changed");
+            foreach(var change in new Action<CreationBarrierFixture>[] {x=>x.Files[0].EstadoRecepcion="INCIERTO",x=>x.Files[0].IntentoActivoId="50",x=>x.Files[0].BytesRecibidos="6",x=>x.Files[0].ContenidoHash=null,x=>x.Files[0].StagingRef=null}){
+                f=new CreationBarrierFixture();f.Policy(policy[0],policy[1]);change(f);Check(!f.ReadCheck(true),"DOC120 invalid receipt enables creation");
+            }
+        }
+        var global=new CreationBarrierFixture();global.Policy("COMPLETO_OBLIGATORIO","LOTE");Check(global.ReadCheck(true,true)&&global.Roots.All(r=>r.RecepcionListaParaCrear)&&global.Queries==2,"DOC120 full-lot page repeats scope queries for each root");
+        var pageFixture=new CreationBarrierFixture();pageFixture.Policy("COMPLETO_OBLIGATORIO","EXPEDIENTE");pageFixture.Files[1].EstadoRecepcion="PENDIENTE";Check(pageFixture.ReadCheck(true,true)&&!pageFixture.Roots[1].RecepcionListaParaCrear&&pageFixture.Queries==2,"DOC120 page does not batch root reads or mixes homonymous roots");
+        foreach(var change in new Action<CreationBarrierFixture>[] {x=>x.Lot.DetencionSolicitada=true,x=>x.Roots[0].IntentoActivoId="50",x=>x.Roots[0].Estado="INCIERTO"}){
+            var f=new CreationBarrierFixture();f.Roots[0].RecepcionListaParaCrear=true;change(f);Check(!f.ReadCheck(true)&&f.Queries==0,"DOC120 stopped/active root retains stale readiness or reads inventory");
+        }
+        Check(!PerfilImportacionJson.Escribir(global.Roots[0]).Contains("RecepcionListaParaCrear"),"DOC120 query hint contaminates persisted root JSON");
+        Console.WriteLine("DOC-120 creation readiness: full scope, partial policy, SELECT only and no effects: passed");
     }
 
     sealed class CreationStagingFixture : IDisposable {
@@ -2778,7 +2800,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
         BindingV2Cases();
         AckLossV2Cases();
         Doc115RepositoryGuardCases();
-        QueryCases();QuerySqlCases();QueryDispatcherCases();RetentionDiagnosisCases();KnownExpedientRelationCases();KnownExpedientClassificationCases();CreationCommandCases();CreationCatalogCases();CreationLegacyCompatibilityCases();LegacyCreationAuthorityCases();ProductionArchiveCycleCases();CreationAdapterCases();CreationResultSqlCases();CreationCheckpointCases();CreationBarrierCases();PhysicalCreationStagingCases();CoordinatedCreationCases();DeferredValuesCases();
+        QueryCases();QuerySqlCases();QueryDispatcherCases();RetentionDiagnosisCases();KnownExpedientRelationCases();KnownExpedientClassificationCases();CreationCommandCases();CreationCatalogCases();CreationLegacyCompatibilityCases();LegacyCreationAuthorityCases();ProductionArchiveCycleCases();CreationAdapterCases();CreationResultSqlCases();CreationCheckpointCases();CreationBarrierCases();CreationReadinessQueryCases();PhysicalCreationStagingCases();CoordinatedCreationCases();DeferredValuesCases();
         ControlCases();
         TransitionCases();
         ReceiptRecordCases();

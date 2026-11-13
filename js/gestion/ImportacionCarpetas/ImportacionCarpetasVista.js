@@ -155,6 +155,10 @@
                 content.appendChild(node("p", "Consultar y descargar resultados no procesa archivos. La recepción y el almacenamiento se ejecutan con acciones explícitas."));
                 if (model.estado) { content.appendChild(node("p", "Inventario original: " + model.estado.totalRaices + " carpetas · " + model.estado.totalArchivos + " archivos · " + model.estado.totalBytes + " bytes.")); }
                 content.appendChild(button("Consultar estado", "consultar", null, model.busy));
+                if (model.resultados) {
+                    content.appendChild(node("p", "Orden de la importación: enviar los archivos, crear el expediente, preparar los índices y almacenar. Recibir un archivo no lo almacena."));
+                    content.appendChild(button("Enviar pendientes de esta página", "enviar", null, model.busy || !model.puedeEnviar));
+                }
                 if (model.estado) {
                     if (model.estado.accionesPermitidas.indexOf("CONSULTAR_RAICES") !== -1) { filters(content, true, model.filtrosRaices, model.busy); }
                     filters(content, false, model.filtrosArchivos, model.busy);
@@ -164,7 +168,13 @@
                     var group = node("span"), labels = {CREAR_EXPEDIENTE:"Crear expediente", MATERIALIZAR_VALORES:"Preparar índices", ALMACENAR:"Almacenar archivo", RECONCILIAR:"Verificar intento"};
                     (model.accionesRecurso ? model.accionesRecurso(resource, raiz) : []).forEach(function (phase) {
                         group.appendChild(button(labels[phase] + " " + resource.recursoId, phase === "RECONCILIAR" ? "reconciliar" : "fase", {tipo:raiz ? "RAICES" : "ARCHIVOS", id:resource.recursoId, fase:phase}, model.busy));
-                    }); return group;
+                    });
+                    if (raiz && resource.estado === "PENDIENTE" && !resource.expedienteId && !resource.tieneIntentoActivo && resource.recepcionListaParaCrear !== true) {
+                        var scope = model.estado && model.estado.ambitoIntegridad === "LOTE" ? "del lote" : "de esta carpeta";
+                        var partial = model.estado && model.estado.modoIntegridad === "PARCIAL_PERMITIDO";
+                        group.appendChild(node("span", partial ? "Recibe al menos un archivo elegible de esta carpeta y consulta el estado para crear el expediente." : "Completa la recepción de los archivos " + scope + " y consulta el estado para crear el expediente."));
+                    }
+                    return group;
                 }
                 if (model.raices) {
                     content.appendChild(node("h4", "Carpetas del lote"));
@@ -181,7 +191,6 @@
                     }), true));
                     content.appendChild(node("p", "Elige explícitamente el archivo pendiente. Se comprueban nombre, tamaño y fecha; los ya recibidos o inciertos no se sustituyen."));
                     pager(content, page.pagina, page.totalFiltrado, page.tamanoPagina, "pagina-resultados", model.busy);
-                    content.appendChild(button("Enviar pendientes de esta página", "enviar", null, model.busy || !model.puedeEnviar));
                     if (model.estado && model.estado.accionesPermitidas.indexOf("EXPORTAR_PAGINA") !== -1) { content.appendChild(button("Exportar esta página", "exportar", null, model.busy)); }
                 }
             }

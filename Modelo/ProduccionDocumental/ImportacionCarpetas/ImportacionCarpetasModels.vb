@@ -115,6 +115,9 @@ Public Class LoteImportacionCarpetas
 End Class
 
 Public Class RaizImportacionCarpetas
+    'Pista de consulta, nunca persistida ni sustituto de la barrera de escritura.
+    <Newtonsoft.Json.JsonIgnore>
+    Public Property RecepcionListaParaCrear As Boolean
     Public Property RaizId As String
     Public Property LoteId As String
     Public Property ClienteRaizId As String

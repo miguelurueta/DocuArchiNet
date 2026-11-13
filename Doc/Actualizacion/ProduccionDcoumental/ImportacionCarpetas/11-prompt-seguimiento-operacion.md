@@ -1,5 +1,9 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+## Recepción previa a creación — DOC-120, 2026-11-13
+
+En Resultados, Enviar pendientes de esta página aparece antes de los filtros. Primero recibe los archivos requeridos por el perfil: todos los de la carpeta para EXPEDIENTE, todos los del lote para LOTE, o al menos un archivo elegible por carpeta en PARCIAL. Crear expediente aparece tras consultar la disponibilidad de recepción calculada por servidor; los filtros y la página visible no reducen el ámbito exigido. La creación vuelve a verificar autoridad, revisión y staging. Continúa con Preparar índices y Almacenar archivo. Tras recargar debes reseleccionar el PDF pendiente antes de enviarlo; conserva el lote existente, sin volver a confirmar el plan. Esta corrección no recibe archivos automáticamente ni resuelve intentos inciertos.
+
 ## Navegación operativa DOC-119, 2026-11-12
 
 En Producción Documental, el menú superior **Importación** ofrece **Importar carpetas…** y **Consultar importación…** a quien tiene permiso operativo, aunque no administre perfiles. La sección **Administración** conserva por separado los permisos existentes de perfiles/proveedores/fuentes. Los accesos ya no dependen de una franja permanente.

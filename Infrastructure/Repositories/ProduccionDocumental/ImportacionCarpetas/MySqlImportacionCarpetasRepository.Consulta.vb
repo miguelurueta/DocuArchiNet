@@ -4,6 +4,7 @@ Imports System
 Imports System.Collections.Generic
 Imports System.Data
 Imports System.Globalization
+Imports System.Linq
 Imports MySql.Data.MySqlClient
 
 'Parte de la misma clase/repositorio. Consultas SELECT sin FOR UPDATE;
@@ -34,8 +35,36 @@ Public Partial Class MySqlImportacionCarpetasRepository
 
     Public Function ConsultarRaices(contexto As ContextoImportacionCarpetas, loteId As String, filtro As FiltroConsultaImportacion) As PaginaRecursosImportacion(Of RaizImportacionCarpetas) Implements IConsultaImportacionRepository.ConsultarRaices
         AutorizarOperacion(contexto) : IdOperacion(loteId) : ValidarFiltroConsulta("RAICES", filtro)
-        Return Operar(Function(conexion, tx) LeerRaicesConsulta(LoteConsulta(conexion, tx, contexto, loteId), filtro, Function(sql, parametros) LeerTablaConsulta(conexion, tx, sql, parametros)), IsolationLevel.RepeatableRead)
+        Return Operar(Function(conexion, tx)
+                          Dim lote = LoteConsulta(conexion, tx, contexto, loteId)
+                          Dim consultar As Func(Of String, Object(), DataTable) = Function(sql, parametros) LeerTablaConsulta(conexion, tx, sql, parametros)
+                          Dim pagina = LeerRaicesConsulta(lote, filtro, consultar)
+                          If Not lote.DetencionSolicitada AndAlso pagina.Elementos.Any(Function(r) r.Estado = "PENDIENTE" AndAlso r.IntentoActivoId Is Nothing AndAlso r.IdentidadExpediente Is Nothing) Then
+                              Dim plan = CargarPlan(conexion, tx, contexto, IdOperacion(lote.PlanId), False)
+                              CompletarRecepcionCreacionConsulta(lote, plan, pagina, consultar)
+                          End If
+                          Return pagina
+                      End Function, IsolationLevel.RepeatableRead)
     End Function
+
+    'Mismo snapshot de lectura, sin filtros de archivos ni FOR UPDATE. La pista
+    'reutiliza la barrera vigente; no verifica disco, reserva ni ejecuta efectos.
+    Friend Shared Sub CompletarRecepcionCreacionConsulta(lote As LoteImportacionCarpetas, plan As PlanImportacionCarpetas, pagina As PaginaRecursosImportacion(Of RaizImportacionCarpetas), consultar As Func(Of String, Object(), DataTable))
+        If lote Is Nothing OrElse plan Is Nothing OrElse pagina Is Nothing OrElse consultar Is Nothing Then Throw NoDisponible()
+        For Each raiz In pagina.Elementos
+            raiz.RecepcionListaParaCrear = False
+        Next
+        If lote.DetencionSolicitada Then Return
+        Dim pendientes = pagina.Elementos.Where(Function(r) r.Estado = "PENDIENTE" AndAlso r.IntentoActivoId Is Nothing AndAlso r.IdentidadExpediente Is Nothing).ToList()
+        If pendientes.Count = 0 Then Return
+        Dim ambitoLote = lote.Snapshot.Configuracion.ModoIntegridad = "COMPLETO_OBLIGATORIO" AndAlso lote.Snapshot.Configuracion.AmbitoIntegridad = "LOTE"
+        Dim vista = LeerVistaBarreraCreacion(lote, plan, pendientes(0), consultar, pendientes.Select(Function(r) r.RaizId).ToList())
+        For Each raiz In pendientes
+            Dim raices = If(ambitoLote, vista.Raices, vista.Raices.Where(Function(r) r.RaizId = raiz.RaizId).ToList())
+            Dim archivos = If(ambitoLote, vista.Archivos, vista.Archivos.Where(Function(a) a.RaizId = raiz.RaizId).ToList())
+            raiz.RecepcionListaParaCrear = CoordinadorImportacionCarpetas.EvaluarBarreraCreacion(lote, plan, raiz, raices, archivos)
+        Next
+    End Sub
 
     Public Function ConsultarArchivos(contexto As ContextoImportacionCarpetas, loteId As String, filtro As FiltroConsultaImportacion) As PaginaRecursosImportacion(Of ArchivoImportacionCarpetas) Implements IConsultaImportacionRepository.ConsultarArchivos
         AutorizarOperacion(contexto) : IdOperacion(loteId) : ValidarFiltroConsulta("ARCHIVOS", filtro)

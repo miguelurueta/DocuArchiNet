@@ -79,7 +79,7 @@ Public Partial Class ServicioConsultaImportacion
             For Each raiz In pagina.Elementos
                 If raiz Is Nothing OrElse raiz.LoteId <> lote.LoteId OrElse Not EstadosImportacionCarpetas.EsRaiz(raiz.Estado) Then Throw NoDisponible()
                 salida.elementos.Add(New RecursoConsultaImportacionResultado With {.recursoId = Referencia(raiz.RaizId), .raizId = Referencia(raiz.RaizId), .idCliente = raiz.ClienteRaizId, .nombre = raiz.NombreOriginal, .estado = raiz.Estado, .revision = raiz.Revision,
-                    .tieneIntentoActivo = Not String.IsNullOrEmpty(raiz.IntentoActivoId), .intentoActivoId = IntentoPublico(raiz.IntentoActivoId), .nombreExpediente = NombreExpedientePublico(raiz), .expedienteId = If(raiz.IdentidadExpediente Is Nothing, Nothing, Referencia(raiz.IdentidadExpediente.ExpedienteId)), .relacionNivelId = If(raiz.IdentidadExpediente Is Nothing, Nothing, Referencia(raiz.IdentidadExpediente.RelacionNivelId))})
+                    .recepcionListaParaCrear = raiz.RecepcionListaParaCrear, .tieneIntentoActivo = Not String.IsNullOrEmpty(raiz.IntentoActivoId), .intentoActivoId = IntentoPublico(raiz.IntentoActivoId), .nombreExpediente = NombreExpedientePublico(raiz), .expedienteId = If(raiz.IdentidadExpediente Is Nothing, Nothing, Referencia(raiz.IdentidadExpediente.ExpedienteId)), .relacionNivelId = If(raiz.IdentidadExpediente Is Nothing, Nothing, Referencia(raiz.IdentidadExpediente.RelacionNivelId))})
             Next
         Else
             Dim pagina = _repositorio.ConsultarArchivos(lote.Contexto, lote.LoteId, filtro)

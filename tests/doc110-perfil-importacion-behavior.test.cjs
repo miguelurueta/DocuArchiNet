@@ -149,6 +149,7 @@ if (require.main === module) test('DOC-110: reglas y configuración ejecutadas e
     assert.match(output, /DOC-111 exhaustive state dimensions and forbidden replay: passed/);
     assert.match(output, /DOC-111 documentary claim guards and stop signal \(local persistence double\): passed/);
     assert.match(output, /DOC-111 authorized read-only pages, private projection and CSV: passed/);
+    assert.match(output, /DOC-120 creation readiness: full scope, partial policy, SELECT only and no effects: passed/);
     assert.match(output, /DOC-111 retention diagnosis preserves uncertain evidence \(read-only double\): passed/);
     assert.match(output, /DOC-111 known expedition relation rejects wrong scope \(synthetic SELECT records\): passed/);
     assert.match(output, /DOC-111 known expedition classification and optional subseries \(synthetic SELECT records\): passed/);

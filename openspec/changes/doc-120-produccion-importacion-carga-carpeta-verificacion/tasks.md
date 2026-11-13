@@ -3,7 +3,7 @@
 
 Mapa aplicado a este archivo activo desde plan-tareas-propuesto.md por la indicación del usuario sobre tasks.md. Sustituye las ocho entradas genéricas iniciales.
 
-Progreso: **24/28 tareas verificadas en el alcance documental/local**. Complejidad:12 S,16 M,0 L. Se añaden3.6/3.7 por correcciones de interfaz,3.8 por la solicitud expresa de alinear únicamente la barra superior y4.4 por la brecha DOC120-SUP01 reproducida durante INT-02. Cada tarea declara área, origen D/RQ y verificación. El usuario indicó «continua» sobre73106588: plan aprobado para consolidación y comprobaciones locales, sin aceptación operativa ni autorización de pruebas reales.
+Progreso: **25/29 tareas verificadas en el alcance documental/local**. Complejidad:12 S,17 M,0 L. Se añaden3.6/3.7 por correcciones de interfaz,3.8 por la solicitud expresa de alinear únicamente la barra superior y4.4 por la brecha DOC120-SUP01 reproducida durante INT-02. Cada tarea declara área, origen D/RQ y verificación. El usuario indicó «continua» sobre73106588: plan aprobado para consolidación y comprobaciones locales, sin aceptación operativa ni autorización de pruebas reales.
 
 Dependencias: refinamiento aprobado para trabajo local; seleccionar regresión por vigencia y brechas; definir y autorizar cada ventana real antes de usar ambiente/cuentas/recursos. INT-03 requiere objetivo, umbrales y presupuesto explícitos; sin ellos se registra NO_EJECUTADO según D-07/RQ-07. Las autorizaciones de DOC110–119 no se heredan.
 
@@ -36,6 +36,8 @@ Dependencias: refinamiento aprobado para trabajo local; seleccionar regresión p
 
 Condición obligatoria de aceptación de3.8, ratificada por el usuario: el ajuste modifica únicamente la presentación/distribución de la barra y no debe afectar el funcionamiento de ningún menú ni de la búsqueda. Conservar opciones/submenús, destinos, selección/contexto, permisos, identificadores y manejadores originales; búsqueda por clic y Enter y restauración de búsqueda mantienen sus controles y resultados. No cambiar lógica de negocio, peticiones, parámetros ni eventos de postback; no clonar controles ni registrar manejadores duplicados. Comparar la paridad funcional antes/después, incluyendo Importación dinámica y reinicialización/postback: cada acción invoca una sola vez su destino original y buscar/restaurar conserva término y selección según el contrato vigente. Si se observa cualquier regresión funcional en menús o búsqueda,3.8 no se acepta aunque la alineación sea correcta. Condición comprobada en el alcance local con fronteras de negocio sintéticas y60/60 pruebas; no acredita una ejecución IIS autenticada.
 
+- [x] 3.9 [M] Corregir creación ofrecida antes de recibir los archivos (DOC120-REC01). Área/archivos: consulta de raíces del repositorio/servicio/DTO, ImportacionCarpetas.js/Vista.js y pruebas Framework/Chromium existentes. Origen: D-04, RQ-04; D-05, RQ-05; D-10, RQ-10. Reproducción: video recorrido-error, lote31/plan49, raíz52 pendiente y archivo78 sin recepción; la UI ofrece Crear expediente y responde con aviso genérico. Verificación: disponibilidad de creación proyectada con la barrera existente sobre el ámbito completo, sin depender de página/filtros ni agregar efectos; EXPEDIENTE/LOTE/PARCIAL conservados; acción de envío visible antes de filtros, instrucción del requisito y creación habilitada tras recepción/consulta; incertidumbre y detención bloquean acciones; regresión local, sin repetir operaciones del lote real.
+
 ## 4. Degradación acotada — INT-02
 
 - [x] 4.1 [S] Delimitar el antecedente de degradación y su compatibilidad actual. Área/archivos: doc111-degradacion-individual-pass-20261102.md; tools/e2e/tests/doc111-degradation.test.cjs; repositorio MySQL vigente. Origen: D-06, RQ-06. Verificación: Se identifica exactamente ra_integracion_evento ausente y restauración; no se extrapola a otro fallo de esquema.
@@ -61,7 +63,7 @@ Condición obligatoria de aceptación de3.8, ratificada por el usuario: el ajust
 
 ## Cobertura y límites
 
-Diez decisiones D-01–D-10 y diez requisitos RQ-01–RQ-10 cubiertos por28 tareas (mapa inicial24 más correcciones focales4.4,3.6,3.7 y tarea de barra superior3.8). Las diez decisiones y veinte escenarios originales se conservan; se añade a RQ-04 un escenario de barra adaptable sin regresión funcional (21 escenarios). Los resultados de origen mantienen SHA/ambiente/clasificación y sus límites real/local/estático. No se autorizan pruebas reales, cargas, cambios de permisos, DDL, fallos ni limpieza mediante este mapa.
+Diez decisiones D-01–D-10 y diez requisitos RQ-01–RQ-10 cubiertos por29 tareas (mapa inicial24 más correcciones focales4.4,3.6,3.7,3.9 y tarea de barra superior3.8). Las diez decisiones y veinte escenarios originales se conservan; se añade a RQ-04 un escenario de barra adaptable sin regresión funcional y otro de recepción previa a creación (22 escenarios). Los resultados de origen mantienen SHA/ambiente/clasificación y sus límites real/local/estático. No se autorizan pruebas reales, cargas, cambios de permisos, DDL, fallos ni limpieza mediante este mapa.
 
 ## Evidencia del corte local2026-11-12
 
@@ -82,3 +84,7 @@ El usuario acota la solicitud a la imagen adjunta barra-superior.png y pide regi
 ## Implementación de3.8 — 2026-11-13
 
 Solicitud «implementa»: barra alineada y adaptable, acciones/búsqueda originales conservadas y altura ligada al panel. Baseline funcional36 rutas aprobado; distribución original falla; regresión final60/60 local con servicios/fronteras sintéticos. Recursos incluidos como Content y versionados; evidencia doc120-barra-20261113.json. Avance24/28; permanecen abiertas5.2,6.4,6.5 y6.6. Sin nueva sesión IIS autenticada, cambios de permisos o efectos de negocio.
+
+## Corrección de recepción antes de creación — 2026-11-13
+
+Tarea3.9 completada por «corrige» tras el video recorrido-error. DOC120-REC01: disponibilidad de creación calculada con la barrera vigente sobre todo el ámbito exigido; lectura de plan y dos SELECT agrupados por página, sin filtros de archivos ni efectos. Cliente con true estricto, envío antes de filtros e instrucciones. Regresión64/64 Node (incluye2 wrappers Framework/DDL; sus casos internos no se suman) y compilación local0 errores. Evidencia Validacion/doc120-recepcion-creacion-20261113.json. Avance25/29; permanecen abiertas5.2,6.4,6.5 y6.6. No se repiten recepción/creación del lote31 ni se renuevan ejecuciones históricas.

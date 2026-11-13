@@ -63,6 +63,8 @@ Ampliación solicitada por el usuario para3.8: alinear exclusivamente la barra s
 
 ### D-05 — Integridad, incertidumbre y consumidores (RQ-05)
 
+Corrección autorizada DOC120-REC01, tarea3.9: el video recorrido-error muestra Crear expediente antes de recibir el PDF. La consulta de raíces proyecta `recepcionListaParaCrear`, calculada con EvaluarBarreraCreacion y los metadatos completos del ámbito confirmado, sin filtros de archivos ni dependencia de su página visible. Las raíces pendientes de una página se agrupan en dos SELECT de metadatos más una lectura del plan, dentro de la transacción de consulta; EXPEDIENTE/PARCIAL se evalúan por identidad de raíz y LOTE sobre todo el lote. La pista interna se excluye del JSON persistido y por defecto es falsa. No verifica disco ni reserva intentos: la operación mantiene su comprobación inmediata de autoridad, revisión, barrera y staging. El cliente exige true estricto, muestra la instrucción de recepción y sitúa Enviar pendientes antes de filtros; mantiene incertidumbre, detención y acciones explícitas. Sin cambios de esquema, perfil Egresos, SII, almacenamiento ni efectos sobre el lote31.
+
 Relacionar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, valores diferidos y fecha estable, revocación, stop e incertidumbre con casos del arnés existente. Comprobar contrato del plugin en sus26 registros/22archivos y carga individual pertinente. Un callback sintético no demuestra la acción de negocio real de cada módulo.
 
 Evidencia: Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Barreras.vb; CoordinadorImportacionCarpetas.Valores.vb; tests/ImportacionCarpetasBehaviorTests.cs; tests/doc119-context-menu.test.cjs.

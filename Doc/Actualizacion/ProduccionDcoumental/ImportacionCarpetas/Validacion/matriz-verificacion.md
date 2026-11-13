@@ -1,5 +1,11 @@
 # DOC-120 — matriz única de verificación
 
+## Recepción previa a creación — tarea3.9,2026-11-13
+
+DOC120-REC01: el video de Egresos reproduce creación ofrecida con PDF pendiente en lote31/plan49; cinco SELECT de diagnóstico confirman ausencia de intentos. La consulta proyecta disponibilidad calculada con la barrera existente sobre el ámbito completo EXPEDIENTE/LOTE/PARCIAL, independiente de filtros o páginas. Una lectura de plan y dos SELECT agrupados de metadatos por página; sin reservas ni efectos. El cliente exige true estricto, explica el requisito y muestra Enviar pendientes antes de filtros. La operación conserva su validación inmediata de autoridad, revisión y staging.
+
+**64/64 pruebas Node locales**, incluidos2 wrappers Framework/DDL sin sumar sus casos internos:2 focales de recepción,5 barra,28 cliente,11 navegación,12 editor y4 degradación. Chromium y SQL/HTTP sintéticos, también390px; compilación del proyecto local con0 errores. [Huellas y resultados](doc120-recepcion-creacion-20261113.json). Avance25/29; abiertas5.2,6.4,6.5 y6.6. Sin nueva sesión IIS autenticada ni repetición de recepción/creación/almacenamiento del lote31; aceptación integral pendiente. Los cortes siguientes son históricos; sus huellas anteriores de consulta/UI/arnés no describen esta corrección.
+
 ## Barra superior adaptable — implementación3.8,2026-11-13
 
 DOC120-UI08: barra existente con cabeceras indivisibles y búsqueda flexible; colapso Bootstrap bajo1200px y panel estrecho con desplazamiento interno. Se conservan controles,36 manejadores y funciones de enrutamiento originales. Un observador de altura llama a auto_zise sin cambiar su cálculo ni la lógica de negocio; recursos versionados e incluidos en el proyecto.
