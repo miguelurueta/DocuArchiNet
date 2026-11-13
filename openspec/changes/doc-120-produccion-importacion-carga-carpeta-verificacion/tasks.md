@@ -3,7 +3,7 @@
 
 Mapa aplicado a este archivo activo desde plan-tareas-propuesto.md por la indicación del usuario sobre tasks.md. Sustituye las ocho entradas genéricas iniciales.
 
-Progreso: **23/27 tareas verificadas en el alcance documental/local**. Complejidad:12 S,15 M,0 L. Se añaden3.6/3.7 por correcciones de interfaz y4.4 por la brecha DOC120-SUP01 reproducida durante INT-02. Cada tarea declara área, origen D/RQ y verificación. El usuario indicó «continua» sobre73106588: plan aprobado para consolidación y comprobaciones locales, sin aceptación operativa ni autorización de pruebas reales.
+Progreso: **23/28 tareas verificadas en el alcance documental/local**. Complejidad:12 S,16 M,0 L. Se añaden3.6/3.7 por correcciones de interfaz,3.8 por la solicitud expresa de alinear únicamente la barra superior y4.4 por la brecha DOC120-SUP01 reproducida durante INT-02. Cada tarea declara área, origen D/RQ y verificación. El usuario indicó «continua» sobre73106588: plan aprobado para consolidación y comprobaciones locales, sin aceptación operativa ni autorización de pruebas reales.
 
 Dependencias: refinamiento aprobado para trabajo local; seleccionar regresión por vigencia y brechas; definir y autorizar cada ventana real antes de usar ambiente/cuentas/recursos. INT-03 requiere objetivo, umbrales y presupuesto explícitos; sin ellos se registra NO_EJECUTADO según D-07/RQ-07. Las autorizaciones de DOC110–119 no se heredan.
 
@@ -32,6 +32,8 @@ Dependencias: refinamiento aprobado para trabajo local; seleccionar regresión p
 
 - [x] 3.7 [M] Unificar el menú de Importación con la barra existente. Área/archivos: ImportacionCarpetas.js/css; PerfilImportacionEditor.js; Gestion/WebFormProducionDocumental.aspx; tests/doc119-navigation.test.cjs. Origen: D-04, RQ-04. Relación adicional: D-10, RQ-10. Verificación: colores calculados iguales a Archivos e iconos en cabecera/opciones; permisos, referencias y reinicialización conservados;55/55 pruebas locales con CSS/fuente reales y servicios sintéticos. Evidencia: Validacion/doc120-menu-20261113.json.
 
+- [ ] 3.8 [M] Alinear y adaptar la distribución de la barra superior de Producción Documental mostrada en barra-superior.png. Área/archivos: Gestion/WebFormProducionDocumental.aspx (#menu_var, #navbarNavDropdown y búsqueda); estilos limitados a #menu_var; js/gestion/WebFormProducionDocumental.js (cálculo de altura si resulta afectado); js/gestion/ImportacionCarpetas/ImportacionCarpetas.js (montaje del menú dinámico); tests/doc119-navigation.test.cjs. Origen: D-04, RQ-04. Relación adicional: D-10, RQ-10. Verificación: en Chromium local, a390/768/1024/1280/1554px y con texto aumentado, icono/texto/flecha de cada cabecera permanecen juntos y alineados; la distribución o colapso mantiene accesibles Expedientes, Cargar, Descargar, Documentos, Compartir, Archivos, Importación y búsqueda sin desbordamiento horizontal ni superposición; se conservan identificadores, manejadores, permisos, búsqueda con Enter, foco/teclado y acceso tras reinicialización/postback, sin duplicar acciones y con alturas del árbol/listado coherentes con la barra, sin recortes. Registrar comparación visual y regresión local de paridad de los manejadores, con servicios sintéticos y sin ejecutar efectos de negocio. Alcance exclusivo de la franja adjunta: conservar contenido y comportamiento de los desplegables; no rediseñar submenús, contextual, árbol, listado, asistentes, backend ni otros módulos. Estado: planificada por solicitud del usuario, sin implementación en este corte.
+
 ## 4. Degradación acotada — INT-02
 
 - [x] 4.1 [S] Delimitar el antecedente de degradación y su compatibilidad actual. Área/archivos: doc111-degradacion-individual-pass-20261102.md; tools/e2e/tests/doc111-degradation.test.cjs; repositorio MySQL vigente. Origen: D-06, RQ-06. Verificación: Se identifica exactamente ra_integracion_evento ausente y restauración; no se extrapola a otro fallo de esquema.
@@ -57,7 +59,7 @@ Dependencias: refinamiento aprobado para trabajo local; seleccionar regresión p
 
 ## Cobertura y límites
 
-Diez decisiones D-01–D-10 y diez requisitos RQ-01–RQ-10 cubiertos por27 tareas (mapa inicial24 más correcciones focales4.4,3.6 y3.7). El diseño y los20 escenarios de la especificación conservan su contenido. Los resultados de origen mantienen SHA/ambiente/clasificación y sus límites real/local/estático. No se autorizan pruebas reales, cargas, cambios de permisos, DDL, fallos ni limpieza mediante este mapa.
+Diez decisiones D-01–D-10 y diez requisitos RQ-01–RQ-10 cubiertos por28 tareas (mapa inicial24 más correcciones focales4.4,3.6,3.7 y tarea de barra superior3.8). El diseño y los20 escenarios de la especificación conservan su contenido. Los resultados de origen mantienen SHA/ambiente/clasificación y sus límites real/local/estático. No se autorizan pruebas reales, cargas, cambios de permisos, DDL, fallos ni limpieza mediante este mapa.
 
 ## Evidencia del corte local2026-11-12
 
@@ -70,3 +72,7 @@ matriz-verificacion.md y resultados.md consolidan32 casos/clasificaciones con25 
 Tarea3.6 completada; avance22/26. doc120-apertura-20261113.json fija las fuentes cambiadas y41/41 pruebas locales actuales. La igualdad15/15 anterior y el diff de producto vacío son históricos; las fuentes de producto JS/CSS y sus URLs ASPX cambian solo por este defecto reproducido. Sin nueva ejecución real ni aceptación integral; permanecen las mismas cuatro tareas abiertas.
 
 Corte posterior de menú: tarea3.7 completada;23/27. Iconos/colores y regresión55/55 fijados en doc120-menu-20261113.json. Las cuatro tareas de autorización/aceptación/gobierno/entrega integral siguen abiertas.
+
+## Incorporación de la barra superior2026-11-13
+
+El usuario acota la solicitud a la imagen adjunta barra-superior.png y pide registrarla como tarea de DOC-120. Se incorpora3.8 sin implementar código ni ampliar la modernización a los desplegables u otras superficies. Avance actual23/28; abiertas3.8,5.2,6.4,6.5 y6.6. Los cortes anteriores y sus conteos/resultados se conservan como antecedentes; el análisis local de distribución no constituye aprobación de la futura implementación.
