@@ -1,5 +1,17 @@
 # Base gráfica de importación por carpetas
 
+## Propuesta guiada DOC-120 — 2026-11-13
+
+Abre [propuesta-importacion-guiada-doc120.html](propuesta-importacion-guiada-doc120.html) en el navegador. Es un único HTML con estilos, iconos y JavaScript incluidos, sin dependencias ni conexión a servicios. Representa la organización solicitada después de revisar el video seleccion-vista-plan; no modifica la aplicación desplegada ni sus reglas.
+
+Recorrido: selecciona **Egresos**, agrega una o hasta tres carpetas de ejemplo, pulsa **Revisar selección** y **Confirmar selección**. La etapa **Importar** presenta una acción principal a la vez: **Enviar 1 archivo → Crear expediente → Preparar datos del documento → Guardar documento**. Cada operación es simulada y requiere un clic propio. Continúa con las demás carpetas y abre el **Resumen**.
+
+El CSV de la vista queda disponible desde la confirmación y respeta el filtro activo. La configuración está plegada. Los controles al pie permiten simular recarga y resultado sin confirmar; la detención conserva los avances simulados. Cerrar/reabrir mantiene el estado en memoria de esta página; recargar realmente el HTML reinicia la maqueta. No se seleccionan ni leen archivos reales.
+
+Verificación local en Chromium: 26 comprobaciones de recorrido, CSV, estados, teclado/modal, ausencia de errores y tráfico remoto, y distribución a390/768/1280/1554px. Capturas e informe de ejecución permanecen excluidos de Git en `.tmp/doc120-propuesta-guiada/`. No constituye prueba de importación real ni aceptación de la implementación futura.
+
+Los apartados siguientes describen el prototipo anterior `importacion-carpetas.html`, conservado como antecedente.
+
 Abre [importacion-carpetas.html](importacion-carpetas.html) directamente en un navegador de escritorio. Conserva los archivos HTML, CSS y JavaScript en este mismo directorio. No requiere instalación, servidor, conexión a internet ni autenticación.
 
 ## Qué representa
