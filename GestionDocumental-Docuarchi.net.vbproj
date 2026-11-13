@@ -7736,6 +7736,8 @@
     <Content Include="js\gestion\WebFormGaVisorDocumentoExterno.js" />
     <Content Include="js\gestion\WebFormGestionOrganigrama.js" />
     <Content Include="js\gestion\WebFormProducionDocumental.js" />
+    <Content Include="js\gestion\ProduccionDocumentalBarra.js" />
+    <Content Include="Styles\produccion-documental-barra.css" />
     <Content Include="js\jquery-ui-1.12.1.custom\AUTHORS.txt" />
     <Content Include="js\jquery-ui-1.12.1.custom\external\jquery\jquery.js" />
     <Content Include="js\jquery-ui-1.12.1.custom\images\ui-icons_444444_256x240.png" />

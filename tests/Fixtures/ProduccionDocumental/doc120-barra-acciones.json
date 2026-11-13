@@ -1,0 +1,273 @@
+{
+  "sourceHead": "ffec1838ad40c598e915b82e0a9c18eb9e0abc34",
+  "pageSha256Lf": "379de85ae0d1a8bb01dc9edd7838569bd24789a88ce0e1c0baad242b4bc2336d",
+  "scope": "36 static inline actions including search; original routing with business/postback boundaries replaced by recording doubles.",
+  "handlers": [
+    "activa_menu('n_c_e_007')",
+    "activa_menu('n_n_o_009')",
+    "activa_menu('e_l_c_008')",
+    "activa_menu('a_c_e_009')",
+    "activa_menu('e_l_x_008')",
+    "activa_menu('e_l_p_008')",
+    "activa_menu('n_n_c_009')",
+    "activa_menu('n_n_u_009')",
+    "activa_menu('n_l_n_010')",
+    "activa_boton_client_server('Button_archivar_expediente_gestion')",
+    "activa_boton_client_server('Button_desachivar_expediente_gestion')",
+    "activa_boton_client_server('Button_ubicacio_expediente_gestion')",
+    "activa_boton_client_server('ButtonRotulo')",
+    "activa_boton_client_server('Button_rotulo_expediente_gestion')",
+    "activa_boton_client_server('Button_configura_rotulo')",
+    "activa_boton_client_server('Button_Editar_expediente_gestion')",
+    "activa_boton_client_server('Button_estado_expediente_gestion')",
+    "activa_boton_client_server('Button_general_indice_expediente')",
+    "activa_boton_client_server('Button_indice_expediente')",
+    "activa_boton_client_server('Button_ocultar_nivel')",
+    "activa_boton_client_server('Button_activa_listar_niveles_ocultos')",
+    "activa_menu('a_d_d_004')",
+    "activa_menu('w_f_m_p_012')",
+    "activa_menu('a_d_p_012')",
+    "activa_menu('a_c_d_006')",
+    "activa_menu('a_c_f_500')",
+    "activa_menu('c_c_e_012')",
+    "activa_menu('c_n_a_005')",
+    "activa_menu('e_l_i_001')",
+    "activa_menu('r_d_i_002')",
+    "activa_menu('v_d_s_010')",
+    "activa_menu('c_a_s_010')",
+    "activa_menu('p_a_s_010')",
+    "activa_menu('m_g_m_011')",
+    "preven_event_restor_search(event,this)",
+    "preven_event_search(event,this)"
+  ],
+  "searchKeypress": "preven_event_search_keypres_enter(event,this);",
+  "expected": [
+    [
+      {
+        "kind": "postback",
+        "id": "Button_nueva_carpeta"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_activa_nuevo_nivel"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_eliminar_carpeta"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_activa_actualizar_carpeta"
+      }
+    ],
+    [
+      {
+        "kind": "function",
+        "name": "Get_cortar_expediente"
+      }
+    ],
+    [
+      {
+        "kind": "function",
+        "name": "Get_pegar_expediente"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_activa_compartir_nivel"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_activa_lista_permiso_compartidos_nivel"
+      }
+    ],
+    [
+      {
+        "kind": "function",
+        "name": "clear_seleccion_treview"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_archivar_expediente_gestion"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_desachivar_expediente_gestion"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_ubicacio_expediente_gestion"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "ButtonRotulo"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_rotulo_expediente_gestion"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_configura_rotulo"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_Editar_expediente_gestion"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_estado_expediente_gestion"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_general_indice_expediente"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_indice_expediente"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_ocultar_nivel"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_activa_listar_niveles_ocultos"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_Digitaliza"
+      }
+    ],
+    [
+      {
+        "kind": "multiple",
+        "grid": "data_grid",
+        "operation": "dowload_produccion_file_exp",
+        "eventType": "click"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_activa_descarga_dcoumento_plantila"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_activa_compartir_documento"
+      }
+    ],
+    [
+      {
+        "kind": "function",
+        "name": "ShowInterfazSolicitudFirma"
+      }
+    ],
+    [
+      {
+        "kind": "selection",
+        "grid": "data_grid",
+        "hidden": "Hidden_sele_docu"
+      },
+      {
+        "kind": "postback",
+        "id": "Button_notificar_envio"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "ButtonButtonEditar"
+      }
+    ],
+    [
+      {
+        "kind": "multiple",
+        "grid": "data_grid",
+        "operation": "el_service",
+        "eventType": "click"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "ButtonRadicar"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "ButtonVerDocumento"
+      }
+    ],
+    [
+      {
+        "kind": "copy",
+        "grid": "data_grid"
+      }
+    ],
+    [
+      {
+        "kind": "multiple",
+        "grid": "data_grid",
+        "operation": "cop_file_service",
+        "eventType": "click"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_activa_gestion_meta_dato"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_Restaura_busqueda"
+      }
+    ],
+    [
+      {
+        "kind": "postback",
+        "id": "Button_busca_general_archivo"
+      }
+    ]
+  ]
+}

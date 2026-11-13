@@ -1,5 +1,11 @@
 # DOC-120 — índice cronológico de resultados
 
+## Barra superior adaptable — implementación3.8,2026-11-13
+
+DOC120-UI08: barra existente con cabeceras indivisibles y búsqueda flexible; colapso Bootstrap bajo1200px y panel estrecho con desplazamiento interno. Se conservan controles,36 manejadores y funciones de enrutamiento originales. Un observador de altura llama a auto_zise sin cambiar su cálculo ni la lógica de negocio; recursos versionados e incluidos en el proyecto.
+
+**60/60 pruebas locales**:5 barra,28 cliente,11 navegación,12 editor y4 degradación. La misma comprobación funcional pasa sobre el HTML original y el nuevo (36 rutas en escritorio/móvil, clic/Enter/restauración); el original falla alineación. Cobertura de10 combinaciones de ancho/texto, foco, altura, Importación y postback sintético. [Huellas y resultados](doc120-barra-20261113.json). Avance24/28; abiertas5.2,6.4,6.5 y6.6. Sin servicios reales, SELECT ni efectos de negocio; no sustituye QA IIS autenticada. Los cortes siguientes permanecen históricos.
+
 ## Menú de Importación — corte posterior2026-11-13
 
 DOC120-UI07: cabecera y opciones con iconos; textos del mismo color que Archivos y cabecera con icono azul. Las etiquetas dinámicas de consulta/lote mantienen sus iconos al sincronizar y recargar. Se conservan las opciones según permisos y el indicador de carga sin desplazamiento. Recursos versionados doc120-menu-20261113-2.

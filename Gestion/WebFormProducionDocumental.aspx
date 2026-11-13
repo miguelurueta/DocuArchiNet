@@ -18,9 +18,11 @@
      <link href="../Styles/Menu3.css" rel="stylesheet" />
     <link href="../Styles/styleMenu.css" rel="stylesheet" type="text/css" /> 
     <link href="../Styles/Aplicaction.css" rel="stylesheet" />
+    <link href="../Styles/produccion-documental-barra.css?v=doc120-barra-20261113-1" rel="stylesheet" />
     <script src="../js/MyJavaScriptFile.js"></script> 
     <script src="../js/Reportes/JSEsportaReportes.js"></script>
     <script src="../js/gestion/WebFormProducionDocumental.js?v=doc119-ui-20261112-1"></script>
+    <script src="../js/gestion/ProduccionDocumentalBarra.js?v=doc120-barra-20261113-1" defer></script>
     <script src="../js/validate_campos.js"></script>
     <script src="../generic_control/FileUploadHandler.js" type="text/javascript"></script>
     <script src="../js/java_general/JSProgresBar.js"></script>
@@ -260,13 +262,14 @@
 
             </script>
           <div id="div_error_content_rad" style="position: relative; width: 100%"></div>
-         <nav id="menu_var" class="navbar navbar-expand-sm nav_botota_person_gray  modal_content_no_back_inferior"   > 
-               <button id="nav_togle_display" class="navbar-toggler" type="button" style=" background-color:#6d7fcc" data-toggle="collapse" data-target="#navbarNavDropdown">
+         <nav id="menu_var" class="navbar navbar-expand-xl nav_botota_person_gray  modal_content_no_back_inferior"   >
+               <button id="nav_togle_display" class="navbar-toggler" type="button" style=" background-color:#6d7fcc" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Mostrar u ocultar menús">
                    <span class="navbar-toggler-icon_"><i style="color:white" class="fad fa-th-list"></i></span>
+                   <span>Menús</span>
                </button>
               
-               <div class="collapse navbar-collapse row" id="navbarNavDropdown">  
-                   <ul class="navbar-nav col-md-8"> 
+               <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                   <ul class="navbar-nav doc120-barra-menu">
                        <li class="nav-item dropdown active ml-2 active_">                  
                             <a class="nav-link dropdown-toggle bot_hover_person" style="color:#6d7fcc" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i style="color:#0062cc" class="fad fa-folders"></i> Expedientes
                             </a>
@@ -365,7 +368,7 @@
                            </div>
                         </li>           
                    </ul>
-                   <div class=" float-md-right col-md-4 float-sm-left">
+                   <div class="doc120-barra-search">
                         <div class="input-group ">
                             <button id="td-boton" class="btn btn-outline-secondary border-right-2 " style="border-top-right-radius: 0px; border-bottom-right-radius: 0px" onclick="preven_event_restor_search(event,this)" type="button">
                                 <i class="fal fa-long-arrow-left"></i>

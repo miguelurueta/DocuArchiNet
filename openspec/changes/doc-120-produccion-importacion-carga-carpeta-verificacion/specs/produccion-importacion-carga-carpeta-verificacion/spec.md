@@ -57,6 +57,12 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **THEN** se conserva identidad, acceso equivalente, avisos, árbol/selección y foco
 - **AND** no se reconfirma automáticamente ni se atribuye un caso sintético a IIS
 
+#### Scenario: Barra superior adaptable sin regresión funcional
+- **WHEN** se ajusta la barra de Producción Documental y búsqueda a390/768/1024/1280/1554px y con texto aumentado
+- **THEN** cada cabecera mantiene juntos icono, texto y flecha; los grupos y búsqueda permanecen accesibles sin desbordamiento horizontal y los desplegables largos pueden recorrerse dentro del panel
+- **AND** se conservan las36 acciones estáticas, destinos, permisos, contexto, búsqueda por clic/Enter y restauración; el montaje dinámico no duplica acciones y las alturas del árbol/listado siguen a la barra
+- **AND** la paridad local usa las funciones de enrutamiento originales con fronteras de negocio sintéticas y no se atribuye a una prueba IIS autenticada
+
 ### Requirement: RQ-05 — Integridad, incertidumbre y consumidores
 DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, valores diferidos y fecha estable, revocación, stop e incertidumbre con casos del arnés existente. Comprobar contrato del plugin en sus26 registros/22archivos y carga individual pertinente. Un callback sintético no demuestra la acción de negocio real de cada módulo.
 

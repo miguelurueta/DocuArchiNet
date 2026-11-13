@@ -59,6 +59,8 @@ Evidencia: js/gestion/WebFormProducionDocumental.js:Doc119NivelPulsado/Doc111Act
 
 Criterio y compatibilidad: La UI final de DOC-119 es LOCAL con servicios sintéticos. El estado real SEG-02 conserva sus límites; no acredita inserción nueva ni raíces físicas homónimas observadas en IIS.
 
+Ampliación solicitada por el usuario para3.8: alinear exclusivamente la barra superior existente y su búsqueda. Se conserva el DOM de acciones, IDs, onclick/onkeypress, permisos y controles WebForms. La distribución usa navbar-expand-xl y estilos aislados a #menu_var: cabeceras indivisibles, búsqueda flexible y colapso Bootstrap existente; en pantallas estrechas el panel tiene altura acotada y desplazamiento interno, conservando opciones/submenús y sus eventos. Un observador de altura llama al auto_zise existente sin modificar su lógica, peticiones o selección. Los dos recursos se incluyen como Content del proyecto. Se compara el inventario y resultado de36 manejadores originales con dobles de fronteras de negocio, más búsqueda/Enter/restauración, foco, montaje dinámico y postback sintético. La prueba local no certifica una sesión IIS autenticada.
+
 ### D-05 — Integridad, incertidumbre y consumidores (RQ-05)
 
 Relacionar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, valores diferidos y fecha estable, revocación, stop e incertidumbre con casos del arnés existente. Comprobar contrato del plugin en sus26 registros/22archivos y carga individual pertinente. Un callback sintético no demuestra la acción de negocio real de cada módulo.
