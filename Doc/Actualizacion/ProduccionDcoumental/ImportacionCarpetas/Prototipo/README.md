@@ -4,11 +4,30 @@
 
 Abre [propuesta-importacion-guiada-doc120.html](propuesta-importacion-guiada-doc120.html) en el navegador. Es un único HTML con estilos, iconos y JavaScript incluidos, sin dependencias ni conexión a servicios. Representa la organización solicitada después de revisar el video seleccion-vista-plan; no modifica la aplicación desplegada ni sus reglas.
 
-Simplificación solicitada: **Seleccionar → Revisar → Importar**. Selecciona **Egresos**, agrega una o hasta tres carpetas de ejemplo y pulsa **Revisar selección**. Tras comprobar el destino y las cantidades, pulsa **Importar N carpetas y N archivos**. Ese clic inicia una secuencia simulada de recepción, creación, preparación y guardado para toda la selección, sin botones separados por fase ni elección manual de la siguiente carpeta. El resultado aparece dentro de la tercera etapa; se elimina el paso adicional Resumen. La unión/separación de PDF permanece fuera de esta maqueta.
+La simplificación es de presentación: **Seleccionar → Revisar → Seguimiento**. La primera pantalla agrupa perfil y carpetas; filtros y configuración están plegados y la acción disponible se destaca en el pie. Se conserva la operativa construida: **Preparar revisión → Confirmar plan → Enviar pendientes de esta página → Crear expediente → Preparar índices → Almacenar archivo**. Cada acción es explícita; confirmar no recibe archivos, recibir no crea expedientes y preparar índices no almacena. Se retira el encadenamiento automático de la versión anterior de la maqueta. La unión/separación de PDF queda fuera.
 
-El CSV queda disponible durante la ejecución y respeta el filtro activo; filtrar no cambia el conjunto confirmado que se importa. Configuración y detalle de fases permanecen plegados. Solo las interrupciones requieren intervención: la recarga simulada pausa y desvincula los archivos pendientes; un resultado sin confirmar bloquea la secuencia hasta verificar su estado. Verificar no repite la operación ni reanuda automáticamente; después se pulsa Continuar importación cuando quedan pendientes. Detener conserva los avances y bloquea nuevas operaciones. Cerrar pausa la simulación y reabrir permite continuar desde lo pendiente. Recargar realmente el HTML reinicia la maqueta. No se seleccionan, leen ni envían archivos reales.
+**Exportar esta página** está disponible desde la confirmación y respeta el filtro. El envío incluye únicamente los pendientes vinculados de la página visible. Las carpetas se seleccionan por identidad para ejecutar sus acciones, sin crear otra de forma automática. Esta demostración contiene hasta tres archivos en una sola página; sus contadores son ilustrativos y no agregados globales obtenidos de nuevas consultas.
 
-Verificación local de esta simplificación en Chromium: **35 comprobaciones**, incluidas tres etapas, inicio con un solo clic, ejecución de varias carpetas aun con filtros activos, CSV de la vista, recarga, resultado sin confirmar, fases confirmadas sin repetición, detención con avances conservados, cierre/reapertura y distribución a390/768/1280/1554px; cero errores de página y cero peticiones remotas. Capturas e informe permanecen excluidos de Git en `.tmp/doc120-propuesta-simple/`. La comprobación anterior26 corresponde a la versión de cuatro etapas y se conserva en `.tmp/doc120-propuesta-guiada/`. Esta simulación no modifica la aplicación ni acredita la coordinación automática en producción: esa implementación requiere su diseño y regresión propios.
+La recuperación representa **Consultar estado**, **Reseleccionar archivo** pendiente y **Verificar intento** cuando la consulta identifica un intento incierto conocido. Una respuesta perdida bloquea nuevos efectos hasta consultar. La verificación recupera el resultado de ese intento y no dispara la fase siguiente. **Solicitar detención** conserva los avances y bloquea nuevas operaciones; no se presenta como Pausar/Continuar. Cerrar conserva la referencia y desvincula archivos pendientes; reabrir consulta esa referencia. Recargar realmente este HTML reinicia los datos ficticios. No se seleccionan, leen ni envían archivos reales.
+
+Correspondencia con los servicios existentes, usados únicamente como referencia de esta simulación:
+
+| Acción de la maqueta | Operación construida |
+| --- | --- |
+| Preparar revisión | PrepararPlan |
+| Confirmar plan | ConfirmarPlan |
+| Consultar estado | ConsultarLote / ConsultarRecursosLote |
+| Enviar pendientes de esta página | Recepción ASHX, un archivo por solicitud |
+| Crear expediente | AvanzarLote / CREAR_EXPEDIENTE |
+| Preparar índices | AvanzarLote / MATERIALIZAR_VALORES |
+| Almacenar archivo | AvanzarLote / ALMACENAR |
+| Verificar intento | ReconciliarRecurso, ligado al intento conocido |
+| Solicitar detención | SolicitarDetencion |
+| Exportar esta página | ExportarPaginaLote |
+
+Referencias: [acciones y guardas del cliente](../../../../../js/gestion/ImportacionCarpetas/ImportacionCarpetas.js), [fachada de fases](../../../../../Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Operaciones.vb) y [acciones permitidas por consulta](../../../../../Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb). La maqueta no invoca esos servicios ni introduce endpoints, persistencia o capacidades nuevas.
+
+Verificación local de alineación: **35 comprobaciones** en Chromium y contra `accionesRecurso` del cliente construido: confirmación sin recepción, operaciones sin encadenar, recuperación sin repetir efectos, selección por recurso, envío y CSV limitados a la página/filtro, detención sin reanudación inventada, cierre/reapertura y distribución a390/768/1280/1554px. Cero errores y peticiones remotas. Capturas e informe excluidos de Git: `.tmp/doc120-propuesta-alineada/`. Los cortes de `.tmp/doc120-propuesta-simple/` y `.tmp/doc120-propuesta-guiada/` son antecedentes, no evidencia de esta versión. Solo cambia la maqueta; no constituye una nueva prueba autenticada de la aplicación.
 
 Los apartados siguientes describen el prototipo anterior `importacion-carpetas.html`, conservado como antecedente.
 
