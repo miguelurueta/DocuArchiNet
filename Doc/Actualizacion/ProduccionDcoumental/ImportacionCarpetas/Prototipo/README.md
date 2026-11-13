@@ -4,6 +4,8 @@
 
 Abre [propuesta-importacion-guiada-doc120.html](propuesta-importacion-guiada-doc120.html) en el navegador. Es un único HTML con estilos, iconos y JavaScript incluidos, sin dependencias ni conexión a servicios. Representa la organización solicitada después de revisar el video seleccion-vista-plan; no modifica la aplicación desplegada ni sus reglas.
 
+Rótulo de envío aclarado: **Archivo listo para enviar** y botón **Enviar archivo** cuando hay uno; **Archivos listos para enviar** y **Enviar N archivos** cuando hay varios. El texto explica el archivo o la cantidad que se enviará. Se conserva la función existente: solo los pendientes vinculados de la página visible, con el filtro aplicado.
+
 La simplificación es de presentación: **Seleccionar → Revisar → Seguimiento**. La primera pantalla agrupa perfil y carpetas; filtros y configuración están plegados y la acción disponible se destaca en el pie. Se conserva la operativa construida: **Preparar revisión → Confirmar plan → Enviar pendientes de esta página → Crear expediente → Preparar índices → Almacenar archivo**. Cada acción es explícita; confirmar no recibe archivos, recibir no crea expedientes y preparar índices no almacena. Se retira el encadenamiento automático de la versión anterior de la maqueta. La unión/separación de PDF queda fuera.
 
 **Exportar esta página** está disponible desde la confirmación y respeta el filtro. El envío incluye únicamente los pendientes vinculados de la página visible. Las carpetas se seleccionan por identidad para ejecutar sus acciones, sin crear otra de forma automática. Esta demostración contiene hasta tres archivos en una sola página; sus contadores son ilustrativos y no agregados globales obtenidos de nuevas consultas.
@@ -17,7 +19,7 @@ Correspondencia con los servicios existentes, usados únicamente como referencia
 | Preparar revisión | PrepararPlan |
 | Confirmar plan | ConfirmarPlan |
 | Consultar estado | ConsultarLote / ConsultarRecursosLote |
-| Enviar pendientes de esta página | Recepción ASHX, un archivo por solicitud |
+| Enviar archivo / Enviar N archivos | Misma función de Enviar pendientes de esta página: recepción ASHX, un archivo por solicitud |
 | Crear expediente | AvanzarLote / CREAR_EXPEDIENTE |
 | Preparar índices | AvanzarLote / MATERIALIZAR_VALORES |
 | Almacenar archivo | AvanzarLote / ALMACENAR |
@@ -27,7 +29,7 @@ Correspondencia con los servicios existentes, usados únicamente como referencia
 
 Referencias: [acciones y guardas del cliente](../../../../../js/gestion/ImportacionCarpetas/ImportacionCarpetas.js), [fachada de fases](../../../../../Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Operaciones.vb) y [acciones permitidas por consulta](../../../../../Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb). La maqueta no invoca esos servicios ni introduce endpoints, persistencia o capacidades nuevas.
 
-Verificación local de alineación: **35 comprobaciones** en Chromium y contra `accionesRecurso` del cliente construido: confirmación sin recepción, operaciones sin encadenar, recuperación sin repetir efectos, selección por recurso, envío y CSV limitados a la página/filtro, detención sin reanudación inventada, cierre/reapertura y distribución a390/768/1280/1554px. Cero errores y peticiones remotas. Capturas e informe excluidos de Git: `.tmp/doc120-propuesta-alineada/`. Los cortes de `.tmp/doc120-propuesta-simple/` y `.tmp/doc120-propuesta-guiada/` son antecedentes, no evidencia de esta versión. Solo cambia la maqueta; no constituye una nueva prueba autenticada de la aplicación.
+Verificación local con el rótulo actualizado: **35 comprobaciones** en Chromium y contra `accionesRecurso` del cliente construido: confirmación sin recepción, operaciones sin encadenar, recuperación sin repetir efectos, selección por recurso, envío y CSV limitados a la página/filtro, detención sin reanudación inventada, cierre/reapertura y distribución a390/768/1280/1554px. Cero errores y peticiones remotas. Capturas e informe excluidos de Git: `.tmp/doc120-propuesta-rotulo/`. Los cortes de `.tmp/doc120-propuesta-alineada/`, `.tmp/doc120-propuesta-simple/` y `.tmp/doc120-propuesta-guiada/` son antecedentes. Solo cambia la maqueta; no constituye una nueva prueba autenticada de la aplicación.
 
 Los apartados siguientes describen el prototipo anterior `importacion-carpetas.html`, conservado como antecedente.
 
