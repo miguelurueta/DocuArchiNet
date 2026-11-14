@@ -1,0 +1,232 @@
+{
+  "schema": 1,
+  "status": "PASS_LOCAL",
+  "createdUtc": "2026-11-14T18:18:53.312Z",
+  "baseSha": "d582cbfdc3ff74a8a69b1cae91c1b2f09ed54429",
+  "branch": "feature/DOC-120",
+  "tasks": [
+    "3.42",
+    "3.43",
+    "3.44",
+    "3.45",
+    "3.46",
+    "3.47",
+    "3.48",
+    "3.49",
+    "3.50",
+    "3.51",
+    "3.52",
+    "3.53",
+    "3.54",
+    "3.55",
+    "3.56",
+    "3.57",
+    "3.58",
+    "3.59",
+    "3.60",
+    "3.61",
+    "3.62",
+    "3.63",
+    "3.64",
+    "3.65",
+    "3.66"
+  ],
+  "scope": [
+    "PREPARACION",
+    "CONFIRMACION",
+    "RECEPCION",
+    "CREACION_Y_REANUDACION",
+    "MATERIALIZACION_Y_ALMACENAMIENTO"
+  ],
+  "sources": [
+    {
+      "file": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Lf": "85548dbc14fa34a588cf204ec621b474f7446aab24376cc5dce848586e1fbbbc"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.vb",
+      "sha256Lf": "88d4f4e666ee496494b567fc6e2c6fdf159c00113b16414c8ceb8f467c6cd2e5"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorExpedienteImportacion.vb",
+      "sha256Lf": "504cad8fb3934089732f8b52b7cd8b0491284e51c52bc4a7d94fb4ad5e2cc6bc"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.vb",
+      "sha256Lf": "6a0f4377532c3daa9df16b288121f04a344f5b853d1509cc72e6d86cbd4429f4"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoAlmacenamientoCarpetas.vb",
+      "sha256Lf": "82c423e8d9488d9b82fd124df3fddc23eba5c88720c81cbcb717cf2a691de19e"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoCreacionExpedienteImportacion.vb",
+      "sha256Lf": "d61922578a7dbd04b7ea5d5770cea098741dd1ab216456509223974e6e4d39f1"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.Creacion.vb",
+      "sha256Lf": "c9b0d1857f452176c54d1f9d41684f754f0356b6353ad408476f9d6d51082146"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Creacion.vb",
+      "sha256Lf": "ab9263b70ecaaa7d821214b15bf7af8e0f00d4a7cb7242a2cb78a5f5fdb5eb77"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Documento.vb",
+      "sha256Lf": "c861178318df2811d7b30b392aa32a84918391e38f7bbd4ec23b78a0156da9dc"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Reanudacion.vb",
+      "sha256Lf": "16b63a6265974fe75ec487f2239638ee6ec7d5becfdde200a395691e811fc94c"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Staging.vb",
+      "sha256Lf": "afa1400b2d6ec3a88209b317d056dc7e6bbffd0aadd83dafb7ec066d7f7e3a86"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Valores.vb",
+      "sha256Lf": "51d00e0ffdf37e5df664bf439679a9ffb46653da6bff1660381f2ae71be2dd15"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ResolvedorReglasPerfilImportacion.vb",
+      "sha256Lf": "53c1ad30d72bac753aaee9eb65151eb72bb0f25463b40500debd88bc93eb562c"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioPerfilImportacion.vb",
+      "sha256Lf": "c41239e43631e82474d9d175340638faf2b416544898750529c8ea7d49161856"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioRecepcionImportacion.vb",
+      "sha256Lf": "619cc331e1cc5ec3920a437f3df45eaf5b5ece64f2a30916ac2e384769c49550"
+    },
+    {
+      "file": "generic_control/ImportacionCarpetasUpload.ashx.vb",
+      "sha256Lf": "56f4c33713283491236a250f5cfd11a3086c1b2f712ff8e9c75f16f177a4a088"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256Lf": "ed9dac4dafcb5d00d49332fdd16f5cb3190f1e0fdf5931dc431fd51ac92e4159"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js",
+      "sha256Lf": "03a4141b2c91df3d18f03f421a8326be6414d4ba10bc0762c72c9991d8c68b82"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256Lf": "59b50d7e0f06e2fdd7a842f9c15e2f2e99f65a667b4d6390650e9191dd95eaf2"
+    },
+    {
+      "file": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "sha256Lf": "2d76baecac97a4eade1b30d3f8ba2f6bafdd95638f412b07d1be5407a9bfa42a"
+    },
+    {
+      "file": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "sha256Lf": "30d975d4f0e3967f52bfb17daecfee39db43796a3b4482e96559fa8305b41a4b"
+    },
+    {
+      "file": "tests/doc111-importacion-carpetas-client.test.cjs",
+      "sha256Lf": "971737d59b4a6173e05d383d22e2e2741f488ebfbc99794ec78005803361db65"
+    },
+    {
+      "file": "webservice/WebServiceImportacionCarpetas.asmx.vb",
+      "sha256Lf": "cdbd4813681f8d996bdb7555c75abe784699c7df8f70f777a411118f06d5f73d"
+    },
+    {
+      "file": "tests/ImportacionCarpetasMensajesBehaviorTests.cs",
+      "sha256Lf": "9ee0a41e1f09f14356c4d5fc94fb188430efe46d2306a6be89a0e232bdbe3bb3"
+    },
+    {
+      "file": "tests/doc120-importacion-mensajes.test.cjs",
+      "sha256Lf": "7cb9969846805aaf9cdacd4ddf7f5aba02c7344aebe4ce882b438c799d43ddfa"
+    }
+  ],
+  "coverage": {
+    "mapFile": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-mensajes-mapa-20261114.json",
+    "sha256": "9a89fbc4ad6e607b556203179ec7ceda2468c3062d353f0f9e57fcd19262303c",
+    "textos": 577,
+    "codigosAuditados": 118,
+    "codigosTraducidos": 148,
+    "sitios": 684,
+    "note": "Clasificación por texto/sitio y cobertura por familia; no son577 casos de prueba independientes."
+  },
+  "tests": {
+    "command": "node --test tests/doc120-importacion-mensajes.test.cjs tests/doc110-perfil-importacion-behavior.test.cjs tests/doc111-importacion-carpetas-client.test.cjs tests/doc120-importacion-flujo-final.test.cjs tests/doc120-recepcion-creacion.test.cjs tests/doc120-retomar-creacion.test.cjs tests/doc120-importacion-arbol.test.cjs tests/doc120-importacion-guiada.test.cjs tests/doc120-importacion-fidelidad.test.cjs tests/doc119-navigation.test.cjs tests/doc119-context-menu.test.cjs tests/doc88-produccion-upload-contract.test.cjs tests/doc117-alm03-individual-ui.test.cjs",
+    "nodeTests": 119,
+    "passed": 119,
+    "failed": 0,
+    "newMessageNodeTests": 19,
+    "frameworkAndDdlWrappersIncluded": true,
+    "internalFrameworkCasesAddedToTotal": false,
+    "realMySql": false,
+    "writer": "DOUBLES",
+    "staging": "LOCAL_TEMPORARY_FILES",
+    "log": {
+      "file": ".tmp/doc120-mensajes-regresion-entrega.log",
+      "sha256": "7a0b6b0f5b70446b373249bcff6057763c0c2134384b8e6ffe338ab3a23fba47"
+    },
+    "screenshots": [
+      {
+        "file": ".tmp/doc120-mensajes-capturas/aviso-1.png",
+        "sha256": "d889cb0c5cb872344c7ae211c36b7d81a08948cf1ae6ccf6ffa7702ae0f067e3"
+      },
+      {
+        "file": ".tmp/doc120-mensajes-capturas/aviso-2.png",
+        "sha256": "3ec6c10cb4d6447b2eb4ca56ca41561e50736cb5082b5b0f2c1f507f8d2e9dd4"
+      },
+      {
+        "file": ".tmp/doc120-mensajes-capturas/aviso-3.png",
+        "sha256": "7a4f2c1cfac70ac1cd342900ea9802310e8280ac8816bda2b0e41d80036d2207"
+      }
+    ]
+  },
+  "build": {
+    "command": "MSBuild GestionDocumental-Docuarchi.net.vbproj /t:Build /p:Configuration=Debug",
+    "status": "PASS",
+    "errors": 0,
+    "log": {
+      "file": ".tmp/doc120-mensajes-build.log",
+      "sha256": "2d9f310fb8372cf127d56df4c77ccfe9329d3027529aee442f9002bbed2eb02d"
+    }
+  },
+  "contract": {
+    "newTransportFields": false,
+    "newEndpoints": false,
+    "newSchema": false,
+    "knownPublicCodesAndHttpPreserved": true,
+    "unknownCodesSafelyRejected": true,
+    "rawExceptionMessagesPublished": false,
+    "confirmedAckSurvivesReadFailure": true,
+    "queuePreservesConfirmedAndNotAttempted": true,
+    "noAutomaticReplay": true
+  },
+  "trace": {
+    "localListenerVerified": true,
+    "mechanism": "Existing System.Diagnostics.Trace listeners",
+    "closedPhaseAndCheckpoint": true,
+    "driverCodeOnly": true,
+    "rawExceptionMessage": false,
+    "iisTargetVerified": false
+  },
+  "realOperations": {
+    "http": 0,
+    "select": 0,
+    "sessions": 0,
+    "confirmations": 0,
+    "receipts": 0,
+    "expeditions": 0,
+    "documents": 0,
+    "deletions": 0
+  },
+  "limits": [
+    "No nueva sesión IIS autenticada ni importación real; no afirma que el ensamblado servido por IIS se haya observado.",
+    "No verifica destino de traza configurado en cada ambiente; acredita listener local.",
+    "Conserva límites históricos de capacidad, SII y limpieza.",
+    "Administración, nuevas capacidades V2, política de nombres duplicados y edición/clasificación PDF futura fuera de esta ampliación."
+  ],
+  "openTasks": [
+    "5.2",
+    "6.4",
+    "6.5",
+    "6.6"
+  ]
+}

@@ -106,7 +106,7 @@ Public Class ResolvedorReglasPerfilImportacion
                 If regla.Extraccion = "SEGMENTO" Then
                     Dim partes = valor.Split(New String() {regla.Separador}, StringSplitOptions.None)
                     If regla.Posicion >= partes.Length Then
-                        Agregar(resultado.Incidencias, campo, "SEGMENTO_AUSENTE")
+                        resultado.Incidencias.Add(DiagnosticoOperacionImportacion.Incidencia(campo, "SEGMENTO_AUSENTE", posicion:=regla.Posicion))
                         Continue For
                     End If
                     valor = partes(regla.Posicion)
@@ -116,7 +116,7 @@ Public Class ResolvedorReglasPerfilImportacion
             Dim convertido As String = Nothing
             Dim errorValor = Convertir(regla, valor, convertido)
             If errorValor IsNot Nothing Then
-                Agregar(resultado.Incidencias, campo, errorValor)
+                resultado.Incidencias.Add(DiagnosticoOperacionImportacion.Incidencia(campo, errorValor, Longitud(valor), regla.LongitudMaxima, formato:=If(regla.TipoValor = "FECHA", regla.FormatoFecha, Nothing)))
             Else
                 salida.Valor = convertido
                 resultado.Valores.Add(salida)
@@ -182,6 +182,6 @@ Public Class ResolvedorReglasPerfilImportacion
     End Function
 
     Private Shared Sub Agregar(errores As List(Of IncidenciaPerfilImportacion), campo As String, codigo As String)
-        errores.Add(New IncidenciaPerfilImportacion(campo, codigo, "Revise la regla y el valor del campo indicado."))
+        errores.Add(DiagnosticoOperacionImportacion.Incidencia(campo, codigo))
     End Sub
 End Class

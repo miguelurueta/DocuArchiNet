@@ -178,8 +178,212 @@ End Class
 Public Class ConfiguracionPerfilImportacionException
     Inherits PerfilImportacionException
     Public ReadOnly Property Incidencias As List(Of IncidenciaPerfilImportacion)
-    Public Sub New(incidencias As List(Of IncidenciaPerfilImportacion))
-        MyBase.New("CONFIGURACION_INVALIDA", "La configuración contiene errores.")
+    Public Sub New(incidencias As List(Of IncidenciaPerfilImportacion), Optional codigo As String = "CONFIGURACION_INVALIDA")
+        MyBase.New(codigo, "La configuración contiene errores.")
         Me.Incidencias = incidencias
+    End Sub
+End Class
+
+'Diagnostico cerrado del recorrido operativo. No lee negocio ni crea auditoria.
+'Reutiliza Campo/Codigo/Mensaje del contrato; nunca publica Exception.Message.
+Public NotInheritable Class DiagnosticoOperacionImportacion
+    Private Sub New()
+    End Sub
+    Public Shared Function Texto(codigo As String) As String
+        Select Case codigo
+            Case "SEGMENTO_INVALIDO" : Return "La posición o el separador de extracción no cumple la regla configurada."
+            Case "LONGITUD_INVALIDA", "LIMITE_INVALIDO" : Return "El límite configurado no está dentro del intervalo admitido."
+            Case "LONGITUD_CODIGO_EXCEDIDA", "CODIGO_NO_REPRESENTABLE" : Return "El código del expediente excede la longitud o representación admitida por el destino."
+            Case "LONGITUD_NOMBRE_EXCEDIDA" : Return "El nombre del expediente supera la longitud admitida por el destino."
+            Case "EJEMPLO_INVALIDO" : Return "La entrada de comprobación no contiene los metadatos necesarios o excede su límite."
+            Case "FUENTE_REQUERIDA" : Return "Falta seleccionar una fuente para resolver el campo."
+            Case "FUENTE_CIRCULAR_O_AMBIGUA" : Return "La regla del expediente depende de un archivo o del propio expediente todavía no creado."
+            Case "TIPO_DEPENDENCIA_INVALIDO" : Return "El tipo del campo no es compatible con la propiedad del expediente de la que depende."
+            Case "ETAPA_INVALIDA" : Return "La etapa de resolución no corresponde a la fuente de la regla."
+            Case "EXTRACCION_INVALIDA" : Return "La forma de extraer el valor no está admitida por la regla."
+            Case "EXTENSION_INVALIDA" : Return "Quitar la extensión solo está permitido sobre el nombre de un archivo."
+            Case "PROVEEDOR_INVALIDO", "PROVEEDOR_INCOMPATIBLE" : Return "El proveedor no es compatible con la regla y versión seleccionadas."
+            Case "PROVEEDOR_NO_APLICA" : Return "La regla incluye un proveedor aunque utiliza otra fuente de datos."
+            Case "REFERENCIA_INVALIDA", "REFERENCIA_REQUERIDA" : Return "Falta una referencia válida requerida por la configuración."
+            Case "REFERENCIA_NO_AUTORIZADA", "RESPONSABLE_NO_AUTORIZADO", "GABINETE_NO_AUTORIZADO" : Return "Una referencia configurada no tiene autorización vigente para esta operación."
+            Case "TIPOLOGIA_NO_UNIVOCA" : Return "La tipología documental no tiene una coincidencia única en la clasificación autorizada."
+            Case "ORIGEN_INVALIDO", "ORIGEN_CAMBIADO", "ORIGEN_NO_DISPONIBLE" : Return "El origen configurado no pudo verificarse o ya no coincide con el confirmado."
+            Case "GABINETE_REQUERIDO" : Return "Seleccione el gabinete de destino requerido por el perfil."
+            Case "INDICE_REQUERIDO" : Return "Falta una regla para un índice obligatorio del gabinete."
+            Case "INDICE_INCOMPATIBLE", "VALOR_INDICE_INVALIDO" : Return "El índice o su valor no cumple el tipo y formato del gabinete confirmado."
+            Case "ESQUEMA_INVALIDO", "ESQUEMA_FUENTES_INCOMPLETO" : Return "El esquema requerido por la importación no está disponible con la estructura esperada."
+            Case "NOMBRE_INVALIDO" : Return "El nombre indicado no cumple las restricciones de la configuración."
+            Case "POLITICA_INVALIDA", "AMBITO_INVALIDO", "AMBITO_REQUERIDO", "MODO_INVALIDO" : Return "La política, modo o ámbito de integridad no forman una combinación admitida."
+            Case "EXTENSIONES_INVALIDAS", "EXTENSION_NO_PERMITIDA" : Return "La extensión no está incluida en los formatos permitidos por el perfil."
+            Case "OPCION_REQUERIDA", "OPCION_INVALIDA", "CONFIGURACION_REQUERIDA" : Return "Falta una opción requerida o su valor no está permitido por la configuración."
+            Case "CODIGO_REPETIDO_INVENTARIO" : Return "La revisión contiene más de una carpeta que resuelve al mismo código de expediente."
+            Case "COINCIDENCIA_AMBIGUA", "AMBIGUO" : Return "La consulta devolvió varias coincidencias donde se exige una sola."
+            Case "CODIGO_EXPEDIENTE_EXISTENTE" : Return "La comprobación del destino encontró un expediente con el código resuelto para esta carpeta."
+            Case "REUTILIZACION_NO_DISPONIBLE" : Return "No se pudo comprobar una reutilización compatible con la política del perfil."
+            Case "IDENTIDAD_INMUTABLE" : Return "La identidad confirmada no se puede sustituir mediante esta operación."
+            Case "SIN_COINCIDENCIA" : Return "La consulta de datos no encontró una coincidencia para la clave de esta regla."
+            Case "CLAVE_INVALIDA" : Return "La clave de consulta no cumple el tipo o formato exigido por el proveedor."
+            Case "PROPIEDAD_AUSENTE" : Return "La fuente no devolvió la propiedad requerida por el campo."
+            Case "SUBCARPETA_NO_PERMITIDA" : Return "El perfil no admite subcarpetas dentro de la raíz seleccionada."
+            Case "IMPORTACION_CERRADA" : Return "Esta vista de importación está cerrada. Abra el módulo y consulte su referencia."
+            Case "PREPARACION_REQUERIDA" : Return "Prepare y revise el plan antes de confirmar la importación."
+            Case "RESPUESTA_NO_CONFIRMADA", "RECEPCION_NO_CONFIRMADA" : Return "No hay un acuse válido para confirmar el resultado; consulte la misma referencia."
+            Case "CONTEXTO_INVALIDO" : Return "No se pudo validar el contexto de acceso al módulo. Recargue la página."
+            Case "RUTA_RELATIVA_INVALIDA", "METADATOS_ARCHIVO_INVALIDOS" : Return "El archivo no tiene una ruta relativa, tamaño o fecha local válidos para la selección."
+            Case "SELECCION_MULTIPLES_RAICES" : Return "La selección contiene varias raíces. Agregue cada carpeta mediante una selección independiente."
+            Case "RUTA_DUPLICADA" : Return "La misma raíz contiene más de un archivo con la misma ruta relativa."
+            Case "CODIGO_PERFIL_EXISTENTE" : Return "Ya existe un perfil con ese código en el ámbito autorizado."
+            Case "EVIDENCIA_DOCUMENTAL_V2_INVALIDA", "EVIDENCIA_NO_VERIFICABLE" : Return "La evidencia retenida no permite confirmar este resultado documental."
+            Case "NO_SOPORTADO" : Return "La capacidad solicitada no está habilitada en este recorrido."
+            Case "DEPENDENCIA_NO_RESUELTA" : Return "Todavía falta resolver una propiedad del expediente o de su clasificación."
+            Case "ORIGINAL_NO_VERIFICABLE" : Return "El original retenido no pudo comprobarse para esta operación."
+            Case "LIMPIEZA_NO_CONFIRMADA" : Return "La limpieza no tiene un resultado confirmado; se conserva la evidencia retenida."
+            Case "RETENCION_NO_CONFIGURADA" : Return "No hay una política de retención configurada para esa capacidad."
+            Case "FECHA_NO_VERIFICABLE" : Return "No se pudo comprobar la fecha requerida por la operación."
+            Case "RESULTADO_REGISTRADO" : Return "El intento ya tiene un resultado registrado; consulte su evidencia sin repetir el efecto."
+            Case "LIMITE_PERFIL_EXCEDIDO" : Return "El archivo supera el límite configurado en el perfil confirmado."
+            Case "RESELECCION_NO_COINCIDE" : Return "El archivo no coincide con el nombre, tamaño y fecha del pendiente elegido. Seleccione el original correspondiente."
+            Case "NAVEGADOR_NO_COMPATIBLE" : Return "El navegador no dispone de las capacidades necesarias para este selector de carpetas."
+            Case "VALOR_REQUERIDO" : Return "Falta un valor obligatorio. Revise la regla del campo."
+            Case "VALOR_VACIO" : Return "La fuente produjo un valor vacío. Revise la selección y la regla."
+            Case "SEGMENTO_AUSENTE" : Return "El nombre no contiene el segmento que exige la regla. Revise la estructura del nombre."
+            Case "LONGITUD_EXCEDIDA", "ENTRADA_EXCEDIDA", "CODIGO_EXCEDE_45" : Return "El texto supera la longitud permitida para el campo."
+            Case "FECHA_INVALIDA", "FECHA_CONSTANTE_NO_CANONICA" : Return "La fecha no coincide con el formato de la regla o no es válida."
+            Case "RANGO_FECHAS_INVALIDO" : Return "La fecha final es anterior a la fecha inicial. Corrija la regla o el origen."
+            Case "ENTERO_INVALIDO" : Return "El campo requiere un número entero representable, sin separadores."
+            Case "DECIMAL_INVALIDO" : Return "El campo requiere un número decimal representable con punto decimal."
+            Case "CARACTER_NO_REPRESENTABLE", "TEXTO_LEGACY_INVALIDO" : Return "El texto contiene caracteres que el destino no admite. No se modificó ni truncó el valor."
+            Case "VALOR_NO_CANONICO" : Return "El valor guardado no coincide con la representación canónica exigida."
+            Case "FUENTE_NO_RESUELTA", "FUENTE_NO_DISPONIBLE" : Return "No se pudo resolver la fuente del campo. Revise su disponibilidad y configuración."
+            Case "REGLA_INVALIDA", "DESTINO_INVALIDO", "CAMPO_INVALIDO", "TIPO_INVALIDO", "FORMATO_FECHA_INVALIDO", "DEPENDENCIA_INVALIDA", "FUENTE_INVALIDA" : Return "La regla del campo no es compatible con el destino o tipo configurado."
+            Case "DESTINO_DUPLICADO" : Return "Hay más de una regla para el mismo campo de destino."
+            Case "VALORES_NO_COINCIDEN" : Return "Los valores no coinciden con las reglas del perfil confirmado."
+            Case "SNAPSHOT_NO_COINCIDE" : Return "La configuración no coincide con el perfil confirmado. Consulte la importación sin sustituir su plan."
+            Case "REFERENCIA_LEGACY_INVALIDA" : Return "Una referencia no cabe en el identificador admitido por el destino."
+            Case "RECEPCION_INCOMPLETA" : Return "Todavía falta recepción verificada en el ámbito exigido por el perfil."
+            Case "BARRERA_CREACION_NO_DISPONIBLE" : Return "La reserva, estado o recepción del ámbito exigido ya no permite crear el expediente. Consulte las acciones actuales."
+            Case "CONTEXTO_DOCUMENTAL_NO_COINCIDE" : Return "El contexto, archivo o intento no coincide con los datos confirmados exigidos para almacenar."
+            Case "CONTEXTO_EXPEDIENTE_NO_DISPONIBLE" : Return "El expediente de destino no tiene identidad y contexto disponibles o mantiene un intento activo."
+            Case "REFERENCIAS_EVIDENCIA_INVALIDAS" : Return "Las referencias de la reserva o las huellas de recepción no cumplen el contrato de evidencia exigido."
+            Case "LIMITES_PERFIL_INCOMPATIBLES" : Return "La extensión o el tamaño del archivo no cumple las restricciones del perfil confirmado."
+            Case "RESERVA_NO_DISPONIBLE" : Return "La reserva o sus revisiones ya no permiten esta operación. Consulte el estado actual."
+            Case "PLAN_NO_REVISABLE" : Return "El plan ya no está revisable, cambió de revisión o conserva incidencias que impiden confirmarlo."
+            Case "PLAN_EXPIRADO" : Return "La vigencia del plan no permite confirmarlo. Prepare una revisión nueva tras verificar que no exista confirmación pendiente."
+            Case "PERFIL_CAMBIADO" : Return "La publicación del perfil cambió desde la revisión. Prepare un plan con la versión vigente."
+            Case "COINCIDENCIA_DETECTADA" : Return "La comprobación del destino detectó una coincidencia que bloquea esta unidad. Revise el detalle del plan."
+            Case "DESTINO_CAMBIADO" : Return "La ruta o el sello del destino ya no coincide con la referencia consultada."
+            Case "DETENCION_SOLICITADA" : Return "La importación tiene una detención solicitada. Consulte las acciones permitidas antes de continuar."
+            Case "CATALOGO_NO_DISPONIBLE" : Return "No se pudo comprobar el catálogo requerido por esta fase."
+            Case "INDICES_PENDIENTES" : Return "Primero debe preparar los índices del archivo en el expediente confirmado."
+            Case "EXPEDIENTE_NO_CONFIRMADO" : Return "No hay una identidad de expediente confirmada disponible para almacenar este archivo."
+            Case "GABINETE_INCOMPATIBLE" : Return "El gabinete confirmado no es compatible con el destino de almacenamiento."
+            Case "TIPOLOGIA_INCOMPATIBLE" : Return "No hay una única tipología documental válida para el archivo."
+            Case "ORIGINAL_NO_COMPROBADO" : Return "El original recibido no coincide con la evidencia de recepción exigida."
+            Case "NOMBRE_ARCHIVO_INVALIDO" : Return "El nombre del archivo no es compatible con el destino. Revise su nombre y extensión."
+            Case "PDF_INVALIDO" : Return "El contenido no cumple la validación del PDF admitido."
+            Case "PDF_FIRMA_INVALIDA" : Return "El contenido recibido no tiene la cabecera PDF admitida."
+            Case "PDF_CIERRE_INVALIDO" : Return "El contenido recibido no tiene un cierre PDF completo."
+            Case "PDF_ESTRUCTURA_INVALIDA" : Return "El PDF está cifrado, requiere reconstrucción o supera los límites de páginas u objetos admitidos."
+            Case "BYTES_NO_COINCIDEN" : Return "Los bytes recibidos no coinciden con el tamaño previsto para el archivo."
+            Case "RESPUESTA_INVALIDA" : Return "La respuesta del servidor no es válida para esta fase."
+            Case "ERROR_RED", "ERROR_TRANSPORTE" : Return "Se interrumpió la comunicación con el servidor."
+            Case "TIEMPO_AGOTADO" : Return "El servidor no devolvió una respuesta dentro del tiempo de espera."
+            Case "SOLICITUD_CANCELADA" : Return "Se canceló la espera de la solicitud; esto no revierte efectos ya iniciados."
+            Case "CONTENIDO_DISTINTO" : Return "El archivo seleccionado no coincide con el contenido retenido; no se sustituyó el original."
+            Case "PERFIL_REQUERIDO", "VERSION_INVALIDA" : Return "Seleccione una versión publicada del perfil antes de preparar la revisión."
+            Case "SELECCION_DIRECTORIOS_NO_DISPONIBLE" : Return "Este navegador no permite seleccionar carpetas. Use un navegador compatible."
+            Case "FORMATO_NO_SOPORTADO" : Return "Esta importación admite PDF; TIFF y otros formatos no están habilitados."
+            Case "LIMITE_EXCEDIDO" : Return "La selección o el archivo supera un límite configurado para esta importación."
+            Case "RECEPCION_OCUPADA" : Return "La recepción está ocupada por otro intento. Consulte el archivo antes de volver a enviarlo."
+            Case "CONFLICTO_REVISION" : Return "La revisión o el estado consultado cambió. Actualice la misma referencia antes de continuar."
+            Case "ACCESO_DENEGADO" : Return "No tiene autorización vigente para esta operación."
+            Case "SESION_REQUERIDA" : Return "La sesión no está vigente. Inicie sesión y consulte la referencia conservada."
+            Case "SOLICITUD_NO_VERIFICADA" : Return "El contexto de seguridad no pudo verificarse. Recargue la página."
+            Case "SOLICITUD_INVALIDA" : Return "La solicitud no cumple el contrato de esta operación. Revise los datos y la selección."
+            Case "CONFIGURACION_INVALIDA" : Return "La configuración no cumple una comprobación de esta fase. Revise las incidencias disponibles."
+            Case "CAPACIDAD_NO_DISPONIBLE" : Return "No se pudo comprobar una dependencia necesaria para esta fase."
+            Case "OPERACION_EN_CURSO" : Return "Hay un intento sin resultado final confirmado. Consulte su estado; no repita el efecto."
+            Case "RESULTADO_INCIERTO", "ERROR_INTERNO" : Return "No se recibió un resultado comprobable de esta operación. Conserve su referencia."
+            Case "ARCHIVO_RECHAZADO" : Return "El archivo fue rechazado por una comprobación de la fase. Revise sus incidencias antes de continuar."
+            Case Else : Return "La comprobación no pudo completarse con los datos disponibles."
+        End Select
+    End Function
+    Public Shared Function Incidencia(campo As String, codigo As String, Optional longitud As Integer = -1, Optional maximo As Integer = -1, Optional posicion As Integer = -1, Optional formato As String = Nothing) As IncidenciaPerfilImportacion
+        Dim mensaje = Texto(codigo)
+        If longitud >= 0 AndAlso maximo >= 0 Then mensaje &= " Longitud observada: " & longitud.ToString(Globalization.CultureInfo.InvariantCulture) & ". Máximo permitido: " & maximo.ToString(Globalization.CultureInfo.InvariantCulture) & "."
+        If posicion >= 0 AndAlso posicion < 128 Then mensaje &= " Segmento requerido: " & (posicion + 1).ToString(Globalization.CultureInfo.InvariantCulture) & " (desde 1)."
+        If {"yyyy-MM-dd", "yyyyMMdd", "dd-MM-yyyy", "dd_MM_yyyy", "dd/MM/yyyy H:mm:ss"}.Contains(formato) Then mensaje &= " Formato requerido: " & formato & "."
+        Return New IncidenciaPerfilImportacion(campo, codigo, mensaje)
+    End Function
+    Public Shared Function Fallo(codigo As String, campo As String, motivo As String, Optional longitud As Integer = -1, Optional maximo As Integer = -1) As PerfilImportacionException
+        If codigo = "ACCESO_DENEGADO" Then Return New PerfilImportacionException(codigo, Texto(codigo))
+        Return New ConfiguracionPerfilImportacionException(New List(Of IncidenciaPerfilImportacion) From {Incidencia(campo, motivo, longitud, maximo)}, codigo)
+    End Function
+    Public Shared Function CampoSeguro(campo As String) As String
+        If campo IsNot Nothing AndAlso System.Text.RegularExpressions.Regex.IsMatch(campo, "\A(?:(?:CAMPO_EXPEDIENTE:)?(?:CODIGO|NOMBRE|FECHA_INICIAL|FECHA_FINAL|RESPONSABLE)|INDICE_GABINETE:[A-Za-z0-9_]{1,64}|TIPOLOGIA:TIPO_DOCUMENTAL|reglas|seleccion|recepcion|creacion|almacenamiento|confirmacion)\z") Then Return campo
+        Return "seleccion"
+    End Function
+    Public Shared Sub Publicar(salida As RespuestaPerfilImportacion, ex As PerfilImportacionException)
+        salida.ok = False
+        salida.codigo = If(Texto(ex.Codigo) = Texto(Nothing), "ERROR_INTERNO", ex.Codigo)
+        salida.mensaje = Texto(ex.Codigo)
+        salida.incidencias.Clear()
+        If ex.Codigo = "ACCESO_DENEGADO" OrElse ex.Codigo = "SESION_REQUERIDA" Then Return
+        Dim detalle = TryCast(ex, ConfiguracionPerfilImportacionException)
+        If detalle Is Nothing OrElse detalle.Incidencias Is Nothing Then Return
+        For Each item In detalle.Incidencias.Take(128)
+            If item Is Nothing Then Continue For
+            'Solo frases fabricadas por este catalogo pueden viajar como detalle.
+            Dim segura = Incidencia(item.Campo, item.Codigo)
+            segura.Campo = CampoSeguro(item.Campo)
+            If Texto(item.Codigo) = Texto(Nothing) Then segura.Codigo = "COMPROBACION_NO_COMPLETADA"
+            If item.Mensaje IsNot Nothing AndAlso item.Mensaje.StartsWith(segura.Mensaje, StringComparison.Ordinal) Then
+                Dim resto = item.Mensaje.Substring(segura.Mensaje.Length)
+                If System.Text.RegularExpressions.Regex.IsMatch(resto, "\A(?: Longitud observada: [0-9]{1,10}\. Máximo permitido: [0-9]{1,10}\.)?(?: Segmento requerido: [0-9]{1,3} \(desde 1\)\.)?(?: Formato requerido: (?:yyyy-MM-dd|yyyyMMdd|dd-MM-yyyy|dd_MM_yyyy|dd/MM/yyyy H:mm:ss)\.)?\z") Then segura.Mensaje = item.Mensaje
+            End If
+            salida.incidencias.Add(segura)
+        Next
+    End Sub
+    Public Shared Sub Registrar(ex As Exception, fase As String, Optional operacionId As String = Nothing, Optional punto As String = "ENTRADA")
+        Try
+            If operacionId Is Nothing AndAlso System.Web.HttpContext.Current IsNot Nothing Then operacionId = TryCast(System.Web.HttpContext.Current.Items("DOC120_OPERACION"), String)
+            If operacionId Is Nothing OrElse Not System.Text.RegularExpressions.Regex.IsMatch(operacionId, "\A[0-9a-f]{32}\z") Then Return
+            If Not {"PREPARACION", "CONFIRMACION", "RECEPCION", "CREACION", "ALMACENAMIENTO", "OPERATIVA"}.Contains(fase) Then fase = "OPERATIVA"
+            If Not {"ENTRADA", "COORDINACION_CREACION", "COORDINACION_DOCUMENTO", "ESCRITOR_CREACION", "VERIFICACION_CREACION", "CHECKPOINT_CREACION", "ESCRITOR_DOCUMENTO", "VERIFICACION_DOCUMENTO", "CHECKPOINT_DOCUMENTO"}.Contains(punto) Then punto = "ENTRADA"
+            Dim tipo = If(TypeOf ex Is PerfilImportacionException, "RECHAZO_CONTROLADO", If(TypeOf ex Is IO.IOException, "IO_EXCEPTION", "EXCEPTION"))
+            Dim registro = "DOC120 operacion=" & operacionId & " fase=" & fase & " punto=" & punto & " captura=" & tipo
+            registro &= " version=" & GetType(DiagnosticoOperacionImportacion).Assembly.GetName().Version.ToString()
+            Dim odbc = TryCast(ex, System.Data.Odbc.OdbcException)
+            Dim mysql = TryCast(ex, MySql.Data.MySqlClient.MySqlException)
+            If mysql IsNot Nothing Then registro &= " driver=" & mysql.Number.ToString(Globalization.CultureInfo.InvariantCulture)
+            If odbc IsNot Nothing AndAlso odbc.Errors.Count > 0 Then
+                Dim estado = odbc.Errors(0).SQLState
+                If estado IsNot Nothing AndAlso System.Text.RegularExpressions.Regex.IsMatch(estado, "\A[A-Z0-9]{5}\z") Then registro &= " sqlstate=" & estado
+                registro &= " driver=" & odbc.Errors(0).NativeError.ToString(Globalization.CultureInfo.InvariantCulture)
+            End If
+            Dim detalle = TryCast(ex, ConfiguracionPerfilImportacionException)
+            If detalle IsNot Nothing AndAlso System.Web.HttpContext.Current IsNot Nothing Then
+                Dim publica As New RespuestaPerfilImportacion()
+                Publicar(publica, detalle)
+                System.Web.HttpContext.Current.Items("DOC120_INCIDENCIAS") = publica.incidencias
+                For Each item In publica.incidencias.Take(5)
+                    If Texto(item.Codigo) <> Texto(Nothing) Then registro &= " causa=" & item.Codigo
+                Next
+            End If
+            For Each listener As System.Diagnostics.TraceListener In System.Diagnostics.Trace.Listeners
+                Try
+                    listener.TraceEvent(New System.Diagnostics.TraceEventCache(), "ImportacionCarpetas", System.Diagnostics.TraceEventType.Warning, 120, registro)
+                Catch
+                    'Un destino de traza caido no cambia el resultado de negocio.
+                End Try
+            Next
+        Catch
+        End Try
+    End Sub
+    Public Shared Sub Adjuntar(salida As RespuestaPerfilImportacion)
+        Dim http = System.Web.HttpContext.Current
+        If http Is Nothing OrElse salida.ok OrElse salida.codigo = "ACCESO_DENEGADO" OrElse salida.codigo = "SESION_REQUERIDA" Then Return
+        Dim incidencias = TryCast(http.Items("DOC120_INCIDENCIAS"), List(Of IncidenciaPerfilImportacion))
+        If incidencias IsNot Nothing Then salida.incidencias = incidencias
     End Sub
 End Class

@@ -71,6 +71,7 @@ Public Partial Class CoordinadorImportacionCarpetas
             If adaptador Is Nothing Then Throw NoPermitida()
             observado = adaptador.Almacenar(contexto, actual.Raiz, fresco, actual.Lote.Snapshot, reserva)
         Catch ex As Exception
+            DiagnosticoOperacionImportacion.Registrar(ex, "ALMACENAMIENTO", punto:="COORDINACION_DOCUMENTO")
             'La reserva o el efecto pueden haber quedado persistidos. Consultar
             'el checkpoint; no repetir el escritor para reparar una respuesta.
         Finally

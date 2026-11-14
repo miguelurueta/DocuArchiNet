@@ -2796,6 +2796,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
     }
 
     public static void Run() {
+        MessageDiagnosticCases();
         DocumentProtocolV2Cases();
         StagingV2Cases();
         AdapterV2Cases();

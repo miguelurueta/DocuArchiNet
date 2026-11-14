@@ -135,11 +135,18 @@ Public Partial Class WebServiceImportacionCarpetas
     Private Function EjecutarEntradaOperativa(Of T As Class)(solicitud As T, accion As Func(Of HttpContext, LimitesImportacionCarpetas, T, Object)) As RespuestaPerfilImportacion
         Dim salida As New RespuestaPerfilImportacion With {.operacionId = Guid.NewGuid().ToString("N")}
         Dim http = HttpContext.Current
+        If http IsNot Nothing Then
+            http.Items("DOC120_OPERACION") = salida.operacionId
+            http.Items.Remove("DOC120_INCIDENCIAS")
+        End If
+        Dim faseDiagnostico = If(TypeOf solicitud Is PrepararPlanImportacionSolicitud, "PREPARACION", If(TypeOf solicitud Is ConfirmarPlanImportacionSolicitud, "CONFIRMACION", "OPERATIVA"))
         Try
             'No comparte Resolver, guard ni Ejecutar de administracion DOC-110.
             Dim contexto = _autoridadOperativa.Resolver(http)
             Dim limites = _politicaOperativa()
             Dim entrada = ImportacionCarpetasRequestGuard.LeerJson(Of T)(http, contexto, limites)
+            Dim avanceDiagnostico = TryCast(entrada, AvanzarLoteImportacionSolicitud)
+            If avanceDiagnostico IsNot Nothing Then faseDiagnostico = If({"CREAR_EXPEDIENTE", "RETOMAR_CREACION"}.Contains(avanceDiagnostico.fase), "CREACION", "ALMACENAMIENTO")
             If solicitud Is Nothing Then Throw New PerfilImportacionException("SOLICITUD_INVALIDA", "La solicitud es obligatoria.")
             salida.datos = accion(http, limites, entrada)
             Dim fase = TryCast(salida.datos, AvanceLoteImportacionResultado)
@@ -155,13 +162,17 @@ Public Partial Class WebServiceImportacionCarpetas
                 salida.ok = True : salida.codigo = "OK" : salida.mensaje = "Operación completada."
             End If
         Catch ex As ConfiguracionPerfilImportacionException
-            salida.codigo = ex.Codigo : salida.mensaje = ex.Message : salida.incidencias = ex.Incidencias
+            DiagnosticoOperacionImportacion.Publicar(salida, ex)
+            DiagnosticoOperacionImportacion.Registrar(ex, faseDiagnostico, salida.operacionId)
         Catch ex As PerfilImportacionException
-            salida.codigo = ex.Codigo : salida.mensaje = ex.Message
+            DiagnosticoOperacionImportacion.Publicar(salida, ex)
+            DiagnosticoOperacionImportacion.Registrar(ex, faseDiagnostico, salida.operacionId)
         Catch ex As Exception
             salida.codigo = "ERROR_INTERNO"
             salida.mensaje = "No se confirmó la operación. Consulte su estado antes de repetir."
+            DiagnosticoOperacionImportacion.Registrar(ex, faseDiagnostico, salida.operacionId)
         End Try
+        DiagnosticoOperacionImportacion.Adjuntar(salida)
         If http IsNot Nothing Then
             http.Response.TrySkipIisCustomErrors = True
             http.Response.SuppressFormsAuthenticationRedirect = True

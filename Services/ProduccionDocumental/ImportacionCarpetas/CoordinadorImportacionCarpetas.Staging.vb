@@ -90,10 +90,10 @@ Public Partial Class CoordinadorImportacionCarpetas
     End Function
 
     Private Shared Function StagingCreacionOcupado() As PerfilImportacionException
-        Return New PerfilImportacionException("OPERACION_EN_CURSO", "La raíz no tiene una recepción disponible para reservar creación.")
+        Return DiagnosticoOperacionImportacion.Fallo("OPERACION_EN_CURSO", "creacion", "BARRERA_CREACION_NO_DISPONIBLE")
     End Function
     Private Shared Function StagingCreacionIncierto() As PerfilImportacionException
-        Return New PerfilImportacionException("RESULTADO_INCIERTO", "El staging no pudo comprobarse; no se autoriza reservar creación.")
+        Return DiagnosticoOperacionImportacion.Fallo("RESULTADO_INCIERTO", "recepcion", "ORIGINAL_NO_COMPROBADO")
     End Function
 End Class
 

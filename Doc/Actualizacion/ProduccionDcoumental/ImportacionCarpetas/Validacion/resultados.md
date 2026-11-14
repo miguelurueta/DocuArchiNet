@@ -152,3 +152,9 @@ No se infiere capacidad máxima de MaximoBytesLote=ULong.MaxValue, de un lote de
 ## Estado de aceptación
 
 Los límites de SII real, limpieza real y UI final autenticada se detallan con responsables/impacto en la matriz. No hay carga ni ventana real DOC120 autorizada en este corte. La autorización de capacidad y la revisión final de límites siguen abiertas. Los resultados locales y el avance documental no equivalen a Jira Listo, archivo ni aprobación de salida operativa.
+
+## Mensajes de las cinco fases — implementación local2026-11-14
+
+Preparación, confirmación, recepción, creación/reanudación e índices/almacenamiento muestran causas verificadas y acciones vigentes, con contrato público conservado. El catálogo cerrado cubre148 códigos, incluidos los118 auditados. El mapa clasifica577 textos y684 sitios, conservando etiquetas y excluyendo administración/legacy/V2 sin ampliación. Un acuse confirmado no se pierde por una consulta o proyección fallida; la cola conserva confirmados, archivo actual y no intentados. Sin replay ni cambios de autoridad, reservas, política de nombres o escritores compartidos. Avisos accesibles con Tab en390/768/1280px. **119/119 pruebas locales únicas**, incluidos19 nuevos casos Node y wrappers Framework/DDL; casos internos no sumados. Compilación0 errores. Avance**82/86**,36 escenarios; siguen abiertas5.2/6.4/6.5/6.6. Fuentes, comandos, logs y huellas en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-mensajes-20261114.json`; mapa compañero `doc120-mensajes-mapa-20261114.json`. No hubo nuevas operaciones reales ni comprobación del runtime o destino de trazas de IIS.
+
+La nueva evidencia es LOCAL_DOC120; los resultados históricos conservan sus fuentes, SHA y límites. No acredita locking/commit MySQL real, sesión autenticada, capacidad máxima ni aceptación operativa.

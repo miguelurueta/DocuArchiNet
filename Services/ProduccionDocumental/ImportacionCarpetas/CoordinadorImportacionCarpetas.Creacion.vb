@@ -68,6 +68,7 @@ Public Partial Class CoordinadorImportacionCarpetas
             If adaptador Is Nothing Then Throw New PerfilImportacionException("CAPACIDAD_NO_DISPONIBLE", "No se pudo componer el adaptador de creación.")
             resultado = adaptador.Crear(contexto, actual.Lote, actual.Raiz, reserva.Intento)
         Catch ex As Exception
+            DiagnosticoOperacionImportacion.Registrar(ex, "CREACION", punto:="COORDINACION_CREACION")
             'La reserva puede estar activa o el efecto confirmado sin respuesta.
             'No repetir ni transmitir mensajes privados; consultar el checkpoint.
         Finally

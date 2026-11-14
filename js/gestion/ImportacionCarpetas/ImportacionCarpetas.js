@@ -198,6 +198,7 @@
             }
         }
         function message(error) {
+            if (active && active.api.describirError && !(error && error.message === "RESELECCION_NO_COINCIDE")) { return active.api.describirError(error, {fase:active.model.faseSolicitud,loteId:active.model.loteId}); }
             if (error && error.planPendiente) { return "No se pudo confirmar el resultado del plan " + error.planPendiente + ". Conserva esta referencia para su verificación. No se repetirá la confirmación automáticamente."; }
             if (error && error.resultadoIncierto) { return ["CREAR_EXPEDIENTE","RETOMAR_CREACION"].indexOf(error.fase) !== -1 ? "No se confirmó la creación del expediente. Conserva la referencia del lote y consulta su estado; no repitas la creación." : "No se pudo confirmar el resultado. Consulta el estado antes de repetir la operación."; }
             var texts = {SESION_REQUERIDA:"La sesión expiró. Recarga la página.", ACCESO_DENEGADO:"No tienes autorización vigente para esta operación.", CAPACIDAD_NO_DISPONIBLE:"La importación no está disponible con la configuración actual.", SOLICITUD_NO_VERIFICADA:"Recarga la página para renovar el contexto de la operación.", SELECCION_DIRECTORIOS_NO_DISPONIBLE:"Este navegador no permite seleccionar carpetas.", CONFLICTO_REVISION:"Los datos cambiaron. Consulta el estado o prepara una nueva revisión.", RESPUESTA_INVALIDA:"La respuesta del servidor no es válida. Revisa la selección o vuelve a preparar."};
@@ -207,6 +208,7 @@
         function refresh(session) {
             if (active !== session) { return; }
             var model = session.model; model.manifiesto = model.consulta ? {raices:[], archivos:[]} : session.inventory.manifiesto();
+            model.describirIncidencia = session.api.detalleIncidencia;
             model.ultimoLoteId = host.doc111UltimoLote && host.doc111UltimoLote.loteId; model.planPendienteId = host.doc111ConfirmacionPendiente && host.doc111ConfirmacionPendiente.planId;
             model.paginaRaices = Math.min(model.paginaRaices, Math.max(1, Math.ceil(model.manifiesto.raices.length / 10)));
             model.paginaArchivos = Math.min(model.paginaArchivos, Math.max(1, Math.ceil(model.manifiesto.archivos.length / 20)));
@@ -219,9 +221,9 @@
         }
         function run(session, work) {
             if (active !== session || session.model.busy) { return Promise.resolve(); }
-            session.model.busy = true; session.model.mensaje = ""; refresh(session);
+            session.model.busy = true; session.model.mensaje = ""; session.model.tipoMensaje = null; refresh(session);
             return Promise.resolve().then(work).catch(function (error) {
-                if (active === session) { session.model.mensaje = message(error); }
+                if (active === session) { error = error && typeof error === "object" ? error : new Error("RESPUESTA_INVALIDA"); session.model.tipoMensaje = "ERROR"; session.model.mensaje = message(error); if (error.recepcionParcial && ["ACCESO_DENEGADO","SESION_REQUERIDA"].indexOf(error.codigo) === -1) { var partial = error.recepcionParcial; session.model.mensaje += " Cola de esta página: " + partial.confirmados.length + " de " + partial.total + " recepciones confirmadas, " + partial.noIntentados + " archivos sin intentar." + (partial.archivoActual ? " Archivo " + partial.archivoActual + (partial.resultadoActual === "SIN_CONFIRMAR" ? " sin recepción confirmada; consulta antes de reenviar." : " interrumpió la cola; revisa la incidencia.") : ""); } }
             }).then(function () { if (active === session) { session.model.busy = false; refresh(session); } });
         }
         function solicitudPagina(session, type, page) {
@@ -281,6 +283,7 @@
         }
         function action(session, name, value) {
             var model = session.model;
+            model.faseSolicitud = "CONSULTAR";
             if (name === "cerrar") { cerrar(); return; }
             if (active !== session || model.busy) { return; }
             if (name === "volver-importacion") {
@@ -325,6 +328,7 @@
                 }); }); return;
             }
             if (name === "preparar") {
+                model.faseSolicitud = "PrepararPlan";
                 run(session, function () {
                     model.plan = null; model.confirmable = false;
                     var ticket = session.operation.iniciarPreparacion(), request = ticket.manifiesto;
@@ -333,10 +337,13 @@
                         if (active !== session || !session.operation.vigente(ticket)) { return; }
                         if (!preparation(plan, model.contexto.nivelRef)) { throw new Error("RESPUESTA_INVALIDA"); }
                         model.confirmable = session.operation.registrarPreparacion(ticket, plan); model.plan = plan; model.etapa = 2; model.paginaIncidencias = model.paginaValores = 1;
+                        model.tipoMensaje = model.confirmable ? "EXITO" : "AVISO";
+                        model.mensaje = "Revisión guardada como plan " + plan.planId + (model.confirmable ? ". Revisa los datos antes de confirmar." : ". Hay incidencias que impiden confirmar; revisa su detalle.") + " Todavía no se enviaron archivos ni se crearon expedientes.";
                     });
                 }); return;
             }
             if (name === "confirmar") {
+                model.faseSolicitud = "ConfirmarPlan";
                 if (!model.confirmable || model.confirmacionIncierta) { return; }
                 run(session, function () {
                     var request = session.operation.referenciaConfirmacion(); request.claveConfirmacion = key();
@@ -345,7 +352,7 @@
                     return session.api.invocar("ConfirmarPlan", request).then(function (result) {
                         if (!result || !validId(result.loteId) || result.planId !== expectedPlan || result.nivelRef !== expectedLevel) { var bad = new Error("RESPUESTA_INVALIDA"); bad.resultadoIncierto = true; throw bad; }
                         host.doc111UltimoLote = {loteId:result.loteId, nivelRef:result.nivelRef}; host.doc111ConfirmacionPendiente = null; session.confirming = null; save(); sync();
-                        if (active !== session) { return; } model.loteId = result.loteId; model.etapa = 3; return consultar(session, 1);
+                        if (active !== session) { return; } model.loteId = result.loteId; model.etapa = 3; model.mensaje = "Plan confirmado en el lote " + result.loteId + ". Envía los archivos pendientes antes de crear los expedientes."; return consultar(session, 1).catch(function (error) { error.lecturaPosterior = true; error.fase = "ConfirmarPlan"; throw error; });
                     }).catch(function (error) {
                         if (session.confirming && error.resultadoIncierto) { host.doc111ConfirmacionPendiente = session.confirming; model.confirmacionIncierta = true; error.planPendiente = session.confirming.planId; }
                         else if (session.confirming) { host.doc111ConfirmacionPendiente = null; }
@@ -380,6 +387,7 @@
                     if (phase === "RETOMAR_CREACION" && !deps.confirm("Se retomará la creación del expediente en esta importación, conservando los archivos recibidos." + (model.estado.detencionSolicitada === true ? " También se levantará la detención que acabas de consultar." : "") + " ¿Retomar creación?")) { return; }
                 }
                 model.ultimaOperacion = {loteId:model.loteId,tipo:kind ? "RAICES" : "ARCHIVOS",recursoId:row && row.recursoId || null,fase:name === "detener" ? "DETENCION" : phase,estado:"SOLICITANDO"};
+                model.faseSolicitud = phase || "DETENCION";
                 run(session, function () {
                     var operation = name === "detener" ? "SolicitarDetencion" : name === "reconciliar" ? "ReconciliarRecurso" : "AvanzarLote";
                     var request = {loteId:model.loteId, revisionEsperada:name === "fase" ? row.revision : model.estado.revision};
@@ -393,11 +401,15 @@
                             var invalid = new Error("RESPUESTA_INVALIDA"); invalid.resultadoIncierto = true; throw invalid;
                         }
                         model.ultimaOperacion.estado = "CONFIRMADA";
+                        model.ultimaOperacion.resultadoConfirmado = {};
+                        ["intentoId","expedienteId","relacionNivelId","documentoId","inventarioId","gabineteId"].forEach(function (field) { if (validId(String(result[field]))) { model.ultimaOperacion.resultadoConfirmado[field] = String(result[field]); } });
+                        model.mensaje = phase === "MATERIALIZAR_VALORES" ? "Índices preparados para el archivo " + row.recursoId + ". Todavía falta almacenar el documento; utiliza Almacenar archivo cuando esté disponible." : phase === "ALMACENAR" ? "Almacenamiento confirmado para el archivo " + row.recursoId + ". Consulta el estado de la carpeta y del lote para revisar sus pendientes." : ["CREAR_EXPEDIENTE","RETOMAR_CREACION"].indexOf(phase) !== -1 ? "Creación confirmada para la carpeta " + row.recursoId + ". Continúa con Preparar índices en los archivos disponibles; no se almacenan automáticamente." : "Operación confirmada. Consulta el estado actualizado.";
                         return consultar(session, model.resultados.pagina);
-                    }).catch(function (error) { model.mutacionIncierta = true; model.ultimaOperacion.estado = "SIN_CONFIRMAR"; model.ultimaOperacion.codigo = /^[A-Z][A-Z0-9_]{0,63}$/.test(error.codigo || "") ? error.codigo : "RESPUESTA_NO_CONFIRMADA"; model.ultimaOperacion.operacionId = error.operacionId || null; model.ultimaOperacion.intentoId = error.intentoId || row && row.intentoActivoId || null; error.fase = phase; throw error; });
+                    }).catch(function (error) { error.fase = phase; if (["CONFIRMADA","SIN_RESOLVER"].indexOf(model.ultimaOperacion.estado) !== -1) { error.lecturaPosterior = model.ultimaOperacion.estado === "CONFIRMADA"; model.mutacionIncierta = true; throw error; } model.mutacionIncierta = true; model.ultimaOperacion.estado = "SIN_CONFIRMAR"; model.ultimaOperacion.codigo = /^[A-Z][A-Z0-9_]{0,63}$/.test(error.codigo || "") ? error.codigo : "RESPUESTA_NO_CONFIRMADA"; model.ultimaOperacion.operacionId = error.operacionId || null; model.ultimaOperacion.intentoId = error.intentoId || row && row.intentoActivoId || null; throw error; });
                 }); return;
             }
             if (name === "enviar") {
+                model.faseSolicitud = "RECEPCION";
                 if (!model.puedeEnviar) { return; }
                 run(session, function () {
                     var items = model.resultados.elementos.filter(function (f) { return f.estadoRecepcion === "PENDIENTE" && f.estado === "NO_INICIADO" && !f.tieneIntentoActivo && (session.reselected[f.recursoId] || (!model.consulta && session.inventory.obtenerFile(f.idCliente))); }).map(function (f) {
@@ -406,7 +418,7 @@
                         if (file.name !== f.nombre || String(file.size) !== f.bytesPrevistos) { throw new Error("CONTENIDO_DISTINTO"); }
                         return {file:file, solicitud:{loteId:model.loteId, archivoId:f.recursoId, claveIntento:key()}};
                     });
-                    return session.api.enviarCola(items, function (item, progress) { if (active === session) { model.mensaje = "Enviando archivo " + (items.indexOf(item) + 1) + " de " + items.length + ": " + item.file.name + ". Transferencia: " + progress.enviados + " de " + progress.total + " bytes de solicitud enviados. La recepción no implica almacenamiento documental."; refresh(session); } }).then(function () { return consultar(session, model.resultados.pagina); }).then(function () { if (active === session) { model.mensaje = "Recepción confirmada para " + items.length + " archivos. Continúa con las acciones disponibles; todavía no implica almacenamiento documental."; } }).catch(function (error) { model.mutacionIncierta = true; throw error; });
+                    return session.api.enviarCola(items, function (item, progress) { if (active === session) { model.mensaje = "Enviando archivo " + (items.indexOf(item) + 1) + " de " + items.length + " de esta página filtrada: " + item.file.name + ". Transferencia: " + progress.enviados + " de " + progress.total + " bytes de solicitud enviados. La recepción no implica almacenamiento documental."; refresh(session); } }).then(function (receipts) { model.recepcionesConfirmadas = receipts; return consultar(session, model.resultados.pagina).catch(function (error) { error.lecturaPosterior = true; error.totalRecibidos = receipts ? receipts.length : items.length; error.fase = "RECEPCION"; throw error; }); }).then(function () { if (active === session) { model.mensaje = "Recepción confirmada para " + items.length + " archivos de esta página filtrada. Continúa con las acciones disponibles; todavía no implica almacenamiento documental."; } }).catch(function (error) { model.mutacionIncierta = true; throw error; });
                 }); return;
             }
             if (name === "exportar") {

@@ -129,8 +129,9 @@ Public Partial Class CoordinadorImportacionCarpetas
                 If valor.PropiedadPendiente IsNot Nothing Then Throw NoPermitida()
                 If regla.DestinoTipo = "TIPOLOGIA" Then
                     If Not ValidadorPerfilImportacion.ReferenciaValida(valor.Valor) Then Throw NoPermitida()
-                ElseIf ResolvedorReglasPerfilImportacion.ValidarValorResuelto(regla, valor.Valor) IsNot Nothing Then
-                    Throw NoPermitida()
+                Else
+                    Dim causa = ResolvedorReglasPerfilImportacion.ValidarValorResuelto(regla, valor.Valor)
+                    If causa IsNot Nothing Then Throw DiagnosticoOperacionImportacion.Fallo("CONFLICTO_REVISION", ClaveRegla(regla), causa, If(valor.Valor Is Nothing, 0, valor.Valor.Length), If(regla.TipoValor = "FECHA", 10, regla.LongitudMaxima))
                 End If
             End If
         Next

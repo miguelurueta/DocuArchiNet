@@ -396,7 +396,7 @@ test('DOC-111: interfaz Chromium local con servicios sintéticos, foco y cierre 
     const calls = await page.evaluate(() => window.doc111Requests.map(r => ({operation:r.operation, request:r.operation==='upload.ashx'?{loteId:r.request.loteId,archivoId:r.request.archivoId}:r.request})));
     assert.equal(calls.filter(r => r.operation==='ConfirmarPlan').length, 1);
     assert.equal(calls.filter(r => r.operation==='upload.ashx').length, 1);
-    assert.match(await page.evaluate(()=>doc111Progress),/Enviando archivo 1 de 1:.*80 de 100 bytes/);
+    assert.match(await page.evaluate(()=>doc111Progress),/Enviando archivo 1 de 1 de esta página filtrada:.*80 de 100 bytes/);
     assert.match(await page.locator('.doc111-notice').textContent(),/Recepción confirmada para 1 archivos/);
     assert.equal(calls.find(r => r.operation==='PrepararPlan').request.nivelRef, '7');
     assert.deepEqual(Object.keys(calls.find(r => r.operation==='ConfirmarPlan').request).sort(), ['claveConfirmacion','planHashEsperado','planId','revisionEsperada']);

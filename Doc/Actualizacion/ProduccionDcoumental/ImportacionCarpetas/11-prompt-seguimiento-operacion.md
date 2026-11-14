@@ -1,5 +1,21 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+## Mensajes del recorrido operativo — DOC-120,2026-11-14
+
+El aviso identifica la fase, el motivo comprobado y la siguiente acción permitida. Las incidencias muestran el campo y, cuando se conoce, formato, segmento desde1 o longitud observada/máxima; no muestran el valor documental. Una referencia de diagnóstico aparece solo si llegó del servidor. No se deduce del tiempo transcurrido que una operación haya fallado o pueda repetirse.
+
+| Fase | Resultado que puede mostrar | Cómo continuar |
+| --- | --- | --- |
+| Preparar revisión | Revisión guardada o bloqueada, con incidencias por carpeta/archivo. Por ejemplo: FECHA_INICIAL requiere el segmento3 del nombre. | Corregir selección/regla y preparar otra revisión explícitamente. No se han recibido archivos ni creado expedientes por preparar. Si se pierde la respuesta, la revisión puede haberse guardado; se conserva la selección, sin inventar una referencia de lote. |
+| Confirmar plan | Rechazo comprobado; confirmación pendiente de verificar; o lote confirmado cuya consulta falló. | Si no hubo acuse, usar Verificar confirmación pendiente con el plan conservado. Si llegó lote confirmado, consultar ese mismo lote, sin reconfirmar por el fallo de lectura. |
+| Enviar archivos | Archivo actual y bytes transferidos; recibos confirmados; archivo que interrumpió la cola y archivos sin intentar. El alcance es la cola seleccionada de la página filtrada. | La cola se detiene ante un fallo. Consultar antes de reenviar una recepción sin confirmar; reseleccionar solo pendientes elegibles. Los recibos confirmados se conservan aunque falle la consulta posterior. |
+| Crear/retomar expediente | Incidencia de comando, catálogo, revisión o reserva; creación sin confirmación; o creación confirmada con siguiente acción de índices. | Usar solo las acciones que ofrezca la consulta. Retomar conserva su confirmación y consentimiento. Si únicamente falla el árbol, actualizar la vista: no crear otra vez. |
+| Preparar índices/almacenar | Índices preparados, documento confirmado, rechazo comprobado o resultado incierto; archivo, carpeta y lote mantienen estados separados. | Índices preparados todavía requiere Almacenar archivo. Un acuse de almacenamiento no se pierde por un error de consulta. Resultado incierto requiere consulta y verificación permitida, sin repetir el escritor. |
+
+Los bytes de la solicitud no prueban recepción; RECIBIDO no prueba almacenamiento. Un resultado parcial no convierte los archivos sin intentar en rechazados. Tras recargar se conservan referencias de consulta, pero el navegador exige volver a seleccionar los originales pendientes: no se restaura un objeto File desde el servidor. El detalle del aviso se puede enfocar con Tab y recorrer si es largo; consultas, filtros, páginas y CSV siguen disponibles según autoridad.
+
+El catálogo público reutiliza código/mensaje/incidencias del sobre vigente, con alternativa segura para respuestas antiguas o desconocidas. No se muestran SQL, contraseñas, tokens, rutas físicas ni excepciones libres. La traza usa los listeners existentes; la prueba local acredita un listener de prueba, sin garantizar dónde está configurado el destino de traza de cada IIS. Mapa: `Validacion/doc120-mensajes-mapa-20261114.json`. Evidencia de ejecución local: `Validacion/doc120-mensajes-20261114.json`.
+
 ## Mostrar un expediente ya confirmado en el árbol
 
 Después de terminar o recuperar una importación, Ctrl+F5 y Consultar importación/Consultar último lote → Actualizar estado vuelven a proyectar los expedientes confirmados de la página consultada en su destino original. Si el nivel estaba vacío se añade el primer hijo con su expansor y búsqueda; los ya representados no se duplican. No vuelvas a confirmar el plan ni enviar archivos. Si el destino no está visible, localízalo y actualiza; el asistente avisa si la vista no puede mostrarlos. Ver Validacion/doc120-primer-expediente-arbol-20261114.md.
