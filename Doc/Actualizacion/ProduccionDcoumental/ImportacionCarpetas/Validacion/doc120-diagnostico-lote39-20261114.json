@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "date": "2026-11-14",
+  "status": "PASS_READONLY_DIAGNOSTIC_RECOVERY_UNRESOLVED",
+  "sourceSha": "508030739f3e93f7641aa97f35897a1361e20341",
+  "authorization": {
+    "instruction": "autorizado",
+    "scope": "New read-only window for lot39/root60, DSN MembershipUsers, at most5 SELECT,0 HTTP/application sessions/business effects.",
+    "credentials": "Masked interactive console, cleared on close; no credentials retained."
+  },
+  "run": {
+    "runId": "933961f94ea6c12ff2aed7605e7528d5",
+    "status": "FINISHED",
+    "selectAttempts": 5,
+    "completedSelect": 5,
+    "maxSelect": 5,
+    "http": 0,
+    "applicationSessions": 0,
+    "closed": true,
+    "credentialsCleared": true,
+    "finishedUtc": "2026-11-14T10:39:42.801Z",
+    "artifacts": [
+      {
+        "file": ".tmp/doc120-final-state/933961f94ea6c12ff2aed7605e7528d5/state.json",
+        "sha256": "a6c827878a5a5602b7b18a6d2c9ae84ecf00ebf28d3308099e43c0af44513013"
+      },
+      {
+        "file": ".tmp/doc120-final-state/933961f94ea6c12ff2aed7605e7528d5/diagnostic.json",
+        "sha256": "a37153f969ac663914d7106ab48d056bae7d1b79cb2c843e775cbbe4d5acea24"
+      }
+    ]
+  },
+  "cumulative": {
+    "priorRun": "64c70664b91a9d778ff78190a365c012",
+    "priorStatus": "STOPPED",
+    "priorSelectAttempts": 1,
+    "selectAttempts": 6,
+    "completedSelectKnown": 5,
+    "priorCompletion": "UNKNOWN",
+    "http": 0,
+    "applicationSessions": 0
+  },
+  "observed": {
+    "lotId": "39",
+    "planId": "57",
+    "lotState": "EN_CURSO",
+    "lotRevision": "5",
+    "stopRequested": true,
+    "rootId": "60",
+    "rootState": "CREANDO",
+    "rootRevision": "2",
+    "activeAttemptId": "96",
+    "registeredExpeditionIdentity": false,
+    "fileId": "86",
+    "fileReceptionState": "RECIBIDO",
+    "fileEffectState": "NO_INICIADO",
+    "receiptAttemptId": "95",
+    "receiptAttemptState": "CONFIRMADO",
+    "creationAttemptId": "96",
+    "creationAttemptState": "RESERVADO",
+    "creationAttemptFinished": false,
+    "creationProofPresent": false,
+    "startCreationEventPresent": false,
+    "reservationUtc": "2026-11-14 00:39:26",
+    "stopRequestUtc": "2026-11-14 00:43:02",
+    "stopAfterReservation": true
+  },
+  "analysis": {
+    "confirmed": "Creation is blocked by the active reservation96; no start checkpoint or creation identity is recorded. Receipt95 is confirmed; storage has not started in the file control.",
+    "sourceInference": "Current source commits EN_CURSO/CREACION_PREPARADA before invoking the legacy writer. The observed reservation localizes investigation to prerequisites or the start transaction, but does not identify the failing guard.",
+    "exceptionCause": "UNKNOWN_NOT_RETAINED",
+    "candidateStages": [
+      "Post-reservation view/authority validation",
+      "Adapter/command/session connection compatibility",
+      "Catalog validation",
+      "Start guard/barrier/transaction"
+    ],
+    "stopExplainsInitialFailure": false,
+    "servedRuntimeProvenance": "NOT_REVERIFIED_IN_THIS_WINDOW",
+    "expeditionAbsentInBusinessTables": "NOT_ESTABLISHED",
+    "noLeaseOrTimeoutInference": true
+  },
+  "effects": {
+    "httpIssued": 0,
+    "mutatingSqlIssued": 0,
+    "reconciliationIssued": 0,
+    "creationIssued": 0,
+    "receiptIssued": 0,
+    "storageIssued": 0,
+    "reservationReleased": false,
+    "recovered": false
+  },
+  "sources": [
+    {
+      "file": "tools/e2e/scripts/inspect-doc120-final-state.cjs",
+      "sha256Lf": "1e1228af02d8ca46f61bb0bd0a302f3935d3d878c9681b937d23252335dd1e3a"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Creacion.vb",
+      "sha256Lf": "2aeb517ba56eb1ad330c2e0f1c34363ce61a080c9b8577c982323e8f4a22580d"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Reconciliacion.vb",
+      "sha256Lf": "b02bf718b51c663336b372672054601b41630271a8e1455c2c6014005f3962ba"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorExpedienteImportacion.vb",
+      "sha256Lf": "d45cbe7722222453f203984f76279694de5335b93a60eb6f06c85d8450bd1499"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoCreacionExpedienteImportacion.vb",
+      "sha256Lf": "473d623a512cc7b9a383e1573ddfcf55e1cf51c21da2e751a47363e3c9dce59a"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasContextAdapter.vb",
+      "sha256Lf": "7289a08734512a2f834502223ee838a4ffebe1b36ce7f02989c001e0f4754072"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.Creacion.vb",
+      "sha256Lf": "7219f128ac3ba636eb00c1b69223ddf25ee246c04c07542a68df997c46ba0b42"
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Control.vb",
+      "sha256Lf": "073ac42f728bc9b3acf567532781d00286929922cecba259015d5250e6bb66d4"
+    }
+  ],
+  "verification": {
+    "classification": "REAL_READONLY_DIAGNOSTIC",
+    "noNewProductCode": true,
+    "historicalLocalReportTests": 12,
+    "newProductTestsExecuted": 0,
+    "progress": "44/48",
+    "task327": "COMPLETE_STATE_DIAGNOSIS_ONLY",
+    "integralAcceptance": false,
+    "criticalRecoveryStillOpen": true
+  },
+  "nextStep": {
+    "purpose": "Identify the specific prerequisite/start failure before proposing recovery.",
+    "authorizationForMoreRealReads": false,
+    "authorizationForEffects": false,
+    "doNotRepeatCreation": true
+  }
+}

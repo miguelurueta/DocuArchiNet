@@ -54,6 +54,8 @@ Reutiliza queryRows y el guard de SELECT. Limita la lectura a lote/raíz/archivo
 
 Corrección del reporte2026-11-14: conserva únicamente categorías cerradas del puente como `DOC120_DIAGNOSTIC_DB_AUTHENTICATION_FAILED`, `DSN_UNAVAILABLE`, `COLUMN_UNAVAILABLE` o sus otras categorías aprobadas, nunca el mensaje del controlador. `query` identifica la lectura del libro fijo; `select` contabiliza intentos antes de abrir ODBC y `completedSelect` las respuestas de filas recibidas. Un intento no demuestra que el servidor haya ejecutado SQL. La corrida64c70664 quedó STOPPED con1 intento contabilizado y error genérico; no se puede reconstruir retrospectivamente su causa. Otra ventana necesita instrucción expresa y conserva ese consumo, sin restaurar credenciales.
 
+Diagnóstico933961f9,2026-11-14, autorizado expresamente después de STOPPED: FINISHED con5 SELECT concluidos,0 HTTP/0 sesiones;6 intentos presupuestados acumulados con64c70664. Lote39/carpeta60 conserva intento96 RESERVADO, sin checkpoint de inicio, y señal de detención posterior. El diagnóstico no libera intentos ni prueba ausencia del efecto;3.27 acredita estado persistido, no recuperación. Ventana cerrada y credenciales eliminadas. No abrir más lecturas o efectos por inferencia; evidencia saneada doc120-diagnostico-lote39-20261114.json.
+
 No activar, editar ni limitar el gate fuera del runner aprobado y de una autorización explícita.
 
 - Ejecutar solo contra un ambiente de pruebas autorizado; nunca inferir autorización para producción.
