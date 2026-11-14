@@ -4,6 +4,8 @@ DOC-120 consolida la verificación de importación de carpetas sobre la interfaz
 
 ## What Changes
 
+La ventana autorizada704fde28 reproduce CONFIGURACION_INVALIDA en COMMAND tras1 SELECT, antes de catálogos, sin efectos. Se afina únicamente el auxiliar para clasificar el guard y se prepara un modo de una SELECT RA;26/26 locales. Nueva autorización solicitada, todavía sin respuesta;3.30/3.31 y recuperación siguen abiertas.
+
 Continuación posterior al diagnóstico933961f9: preparar un auxiliar de prerrequisitos que reutiliza comando/catálogo reales y queryRows, con IPC efímero, etapas/códigos públicos y ningún escritor. Copia contrafactual explícita anterior a la detención; no prueba sesión/transacción ni permite replay.23/23 locales; nueva ventana propuesta de hasta30 SELECT RA/DA requiere autorización propia y conserva6 anteriores. Tareas3.29–3.31; causa histórica y recuperación siguen abiertas.
 
 Video194059,2026-11-14: conservar el contexto de creación sin confirmación, priorizar el recurso que bloquea el lote, mantener visible el aviso y reemplazar el ciclo principal de actualización por Revisar bloqueo. Conservar autoridad de reconciliación existente y distinguir ejecución activa de resultado incierto verificable. Continuación y fin solo por confirmaciones del servidor. La primera ventana64c70664 quedó STOPPED; el auxiliar corrigió el reporte seguro con12/12 locales. La nueva ventana autorizada933961f9 concluyó5 SELECT,0 HTTP/efectos: creación96 RESERVADO, sin checkpoint de inicio ni identidad registrada; recepción95 confirmada y detención posterior. Diagnóstico de estado3.27 completo,44/48; causa precisa y recuperación del lote real siguen sin resolver. No se repite creación ni se liberan reclamaciones por inferencia.

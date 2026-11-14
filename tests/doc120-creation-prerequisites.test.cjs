@@ -70,3 +70,28 @@ test('DOC120-PRE11: rechazo ODBC conserva intento fallido sin filas ni SQL priva
  const read=diagnostic.createReader(state,()=>{},async(sql,parameters,e)=>{environment=e;throw Error('DOC111_SELECT_OPEN_FAILED');},{ra:'private-dsn'},{DOC120_E2E_MYSQL_PASSWORD:'PRIVATE_PASSWORD'});
  await assert.rejects(read({origin:'RA',kind:'METADATA',sql:diagnostic.metadataSql,parameters:['39','60','96']}),/OPEN_FAILED/);assert.equal(state.select,1);assert.equal(state.completedSelect,0);assert.equal(state.queries[0].completed,false);assert.equal(environment.DOC120_E2E_MYSQL_PASSWORD,undefined);assert.doesNotMatch(JSON.stringify(state),/PRIVATE_|contexto_doc|token_reclamacion/);
 });
+test('DOC120-PRE12: clasifica el predicado del comando rechazado con validadores reales y sin valores privados',async()=>{
+ const cases=[
+  ['SNAPSHOT_SHAPE',input=>input.lot.Snapshot.PerfilId='0'],
+  ['PROFILE_VALIDATION',input=>input.lot.Snapshot.Configuracion.Esquema=2],
+  ['CONFIGURATION_NORMALIZED',input=>input.lot.Snapshot.Configuracion.ModoIntegridad='PARCIAL_PERMITIDO'],
+  ['SNAPSHOT_FINGERPRINT',input=>input.lot.Snapshot.Huella='0'.repeat(64)],
+  ['ROOT_FIELD_COUNT',input=>input.root.ValoresPlan.pop()],
+  ['ROOT_FIELD_SHAPE',input=>input.root.ValoresPlan[0].PropiedadPendiente='PRIVATE_VALUE'],
+  ['ROOT_FIELD_DUPLICATE',input=>input.root.ValoresPlan[1].DestinoRef='CODIGO'],
+  ['ROOT_FIELD_RULE',input=>input.root.ValoresPlan[0].FuenteTipo='CONSTANTE'],
+  ['ROOT_FIELD_RULE',input=>input.root.ValoresPlan[0].TipoValor='ENTERO'],
+  ['ROOT_FIELD_RULE',input=>input.root.ValoresPlan.find(v=>v.DestinoRef==='NOMBRE').Valor=null],
+  ['RESPONSIBLE_REFERENCE',input=>input.root.ValoresPlan.find(v=>v.DestinoRef==='RESPONSABLE').Valor='0008'],
+  ['DATE_RANGE',input=>input.root.ValoresPlan.find(v=>v.DestinoRef==='FECHA_FINAL').Valor='2020-01-01']
+ ];
+ for(const [guard,edit] of cases){const input=data();edit(input);let reads=0;const output=await diagnostic.inspect(input,async()=>{reads++;return[];},exe);assert.equal(output.stage,'COMMAND');assert.equal(output.code,'CONFIGURACION_INVALIDA');assert.equal(output.detail.guard,guard);assert.equal(reads,0);assert.doesNotMatch(JSON.stringify(output),/PRIVATE_VALUE|synthetic-private|0008|2020-01-01/);}
+});
+test('DOC120-PRE13: modo de comando termina antes de consultar catálogos aun cuando el comando sea compatible',async()=>{
+ const input=data();input.commandOnly=true;let reads=0;const output=await diagnostic.inspect(input,async()=>{reads++;return[];},exe);assert.equal(output.status,'PASS');assert.equal(output.code,'COMMAND_COMPATIBLE');assert.equal(reads,0);assert.equal(output.recoveryAuthorized,false);
+});
+test('DOC120-PRE14: detalle contiene solo categorías/campos públicos y conteos válidos',()=>{
+ const safe={type:'RESULT',status:'STOPPED',stage:'COMMAND',code:'CONFIGURACION_INVALIDA',counterfactual:true,sessionAuthorityChecked:false,sessionConnectionCompatibilityChecked:false,startTransactionChecked:false,recoveryAuthorized:false,detail:{guard:'ROOT_FIELD_RULE',field:'PRIVATE_FIELD',issue:'PRIVATE_CODE',message:'PRIVATE_MESSAGE',value:'PRIVATE_VALUE',sourceMatches:false,typeMatches:true,valueValid:false,valueLength:15,incidenceCount:Infinity}};
+ const output=diagnostic.result(safe);assert.equal(output.detail.field,'OTHER');assert.equal(output.detail.issue,'OTHER');assert.equal(output.detail.valueLength,15);assert.equal(output.detail.incidenceCount,undefined);assert.doesNotMatch(JSON.stringify(output),/PRIVATE_/);
+ assert.throws(()=>diagnostic.result({...safe,detail:{guard:'PRIVATE_GUARD'}}),/PROTOCOL_INVALID/);
+});

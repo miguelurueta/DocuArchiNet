@@ -1,0 +1,138 @@
+{
+  "version": 1,
+  "date": "2026-11-14",
+  "status": "REAL_COMMAND_REJECTION_REPRODUCED_PRECISE_GUARD_UNRESOLVED",
+  "sourceSha": "9d64595a6692fdc7953841f17c7c1853d3b86f18",
+  "realRun": {
+    "runId": "704fde28a9bcbc9a131a1eee4ba808f2",
+    "scope": {
+      "lot": "39",
+      "root": "60",
+      "attempt": "96"
+    },
+    "status": "STOPPED",
+    "select": 1,
+    "completedSelect": 1,
+    "maxSelect": 30,
+    "priorAttempts": 6,
+    "cumulativeAttempts": 7,
+    "http": 0,
+    "sessions": 0,
+    "result": {
+      "status": "STOPPED",
+      "stage": "COMMAND",
+      "code": "CONFIGURACION_INVALIDA",
+      "counterfactual": true,
+      "sessionAuthorityChecked": false,
+      "sessionConnectionCompatibilityChecked": false,
+      "startTransactionChecked": false,
+      "recoveryAuthorized": false
+    },
+    "binaryStable": true,
+    "binaryBefore": [
+      {
+        "file": "bin/GestionDocumental-Docuarchi.net.dll",
+        "sha256": "4e7e692294856056776b8f33fbc0b36b14eb123452f288e00fefcd0f362e2ee6"
+      },
+      {
+        "file": "bin/Newtonsoft.Json.dll",
+        "sha256": "e1e27af7b07eeedf5ce71a9255f0422816a6fc5849a483c6714e1b472044fa9d"
+      },
+      {
+        "file": "tools/e2e/scripts/support/Doc120CreationPrerequisites.cs",
+        "sha256": "a034563608ad3a686264448803c3577831fd3342a339859f259df142d38fe844"
+      },
+      {
+        "file": ".tmp/doc120-prerequisite-host/Doc120CreationPrerequisites.exe",
+        "sha256": "d49fa01b268fd7fa735feddf56dbd7d31d3f6c24c6a3a92c2f36e5d687c7d00d"
+      }
+    ],
+    "closed": true,
+    "credentialsCleared": true,
+    "finishedUtc": "2026-11-14T11:18:41.437Z",
+    "artifact": {
+      "file": ".tmp/doc120-prerequisites/704fde28a9bcbc9a131a1eee4ba808f2/state.json",
+      "sha256": "61880eddc6fe4896c63982b78365fff29b78fd55fb9abbb798f3e164988344c6"
+    }
+  },
+  "finding": {
+    "confirmed": "Actual command composition rejects the projected copy of confirmed lot/root metadata with CONFIGURACION_INVALIDA, before any catalog query.",
+    "preciseGuard": "UNKNOWN_IN_THIS_RUN",
+    "catalogCause": "NOT_TESTED_AND_NOT_REACHED",
+    "historicalExceptionCause": "NOT_PROVEN",
+    "counterfactual": true,
+    "liveReservationEdited": false,
+    "writerComposed": false,
+    "effects": 0,
+    "recovered": false
+  },
+  "localRefinement": {
+    "mode": "--command-only",
+    "maxSelect": 1,
+    "origin": "RA",
+    "catalogReads": 0,
+    "guardClassification": "Only after actual command rejection; uses existing profile validator, fingerprint and resolved-value validator, with diagnostic predicates matching command source.",
+    "privateValuesRetained": false,
+    "publicFieldsAndIssuesWhitelisted": true,
+    "grantsAuthorityOrReplay": false,
+    "productChanged": false,
+    "tests": 26,
+    "focusedPrerequisiteTests": 14,
+    "log": {
+      "file": ".tmp/doc120-command-detail-tests-20261114.log",
+      "sha256": "04ea5aca3f373c2e2837435b2e6c4e1d12095936dfa571c3f9cff668baef5b90"
+    }
+  },
+  "nextWindow": {
+    "status": "AUTHORIZATION_REQUESTED_NO_REPLY",
+    "lotId": "39",
+    "rootId": "60",
+    "attemptId": "96",
+    "dsnRA": "MembershipUsers",
+    "maxSelect": 1,
+    "priorAttempts": 7,
+    "maxCumulativeAttempts": 8,
+    "http": 0,
+    "sessions": 0,
+    "effects": 0,
+    "automaticRetry": false,
+    "plan": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-comando-detalle-plan-20261114.md"
+  },
+  "sources": [
+    {
+      "file": "tools/e2e/scripts/inspect-doc120-creation-prerequisites.cjs",
+      "sha256Lf": "8c453e598b91dffc4cc532e0715e51642960d231416b540fe7ff046265978fa9"
+    },
+    {
+      "file": "tools/e2e/scripts/support/Doc120CreationPrerequisites.cs",
+      "sha256Lf": "160b6560539dc3aff56240d3105bb76ac2e7538a2e4c3d86a3d19150088bd2b5"
+    },
+    {
+      "file": "tests/doc120-creation-prerequisites.test.cjs",
+      "sha256Lf": "fe3239a6c17823f634b15b5c369eee99ea56aca4693c381ce652ad60247fc801"
+    },
+    {
+      "file": "tests/support/Doc120PrerequisiteFixture.cs",
+      "sha256Lf": "a70d5b07efbde67b21057295a2d4588266cfdd07ab1b14fde506ad86a84143e7"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoCreacionExpedienteImportacion.vb",
+      "sha256Lf": "473d623a512cc7b9a383e1573ddfcf55e1cf51c21da2e751a47363e3c9dce59a"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ValidadorPerfilImportacion.vb",
+      "sha256Lf": "007ae58483b225021958b6b1842e0ae9900070dc248fcad5bec5deed8a1bf160"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ResolvedorReglasPerfilImportacion.vb",
+      "sha256Lf": "b5511516657c1fad4cbe72fa2c259e99e036709607d0967f43de56ff7928f011"
+    }
+  ],
+  "progress": {
+    "complete": 45,
+    "total": 51,
+    "task330": "OPEN_PRECISE_CAUSE_NOT_YET_CLASSIFIED",
+    "task331": "OPEN_NO_PRODUCT_CORRECTION_BY_HYPOTHESIS"
+  },
+  "integralAcceptance": false
+}

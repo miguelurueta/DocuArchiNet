@@ -142,3 +142,5 @@ INT-03 requiere del solicitante y operador: objetivo/umbrales, corpus, navegador
 ## Ajuste focal autorizado2026-11-13
 
 Solicitud «corrige» sobre el aviso amarillo de apertura del video: D-04/D-10 y RQ-04/RQ-10 amparan la corrección de producto reproducida41px y su regresión. Tarea3.6 y Validacion/doc120-apertura-20261113.json fijan fuentes y41/41 casos locales. Se conserva el aviso de confirmación sin acuse y errores reales. La frase inicial sin cambios de producto corresponde a la inspección original; este corte sí modifica JS/CSS y versiones de recursos ASPX. No cambia contratos, backend, fuentes protegidas ni autorización de pruebas reales.
+
+Refinamiento tras704fde28: rechazo de configuración en COMMAND anterior a catálogos. El modo `--command-only` limita una nueva ventana autorizada a1 SELECT RA y termina sin catálogos;7 intentos previos conservados. Clasificar el guard después del rechazo real mediante validadores/huella existentes y comparaciones diagnósticas del mismo comando; informar exclusivamente campos/códigos cerrados y conteos/booleanos. No cambiar producto, reinterpretar el rechazo como permiso ni afirmar causa histórica por inferencia.

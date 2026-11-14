@@ -1,5 +1,12 @@
 # DOC-120 — matriz única de verificación
 
+## Rechazo del comando confirmado — ventana704fde28,2026-11-14
+
+Ventana autorizada por «continua» sobre9d64595a: **STOPPED**,1 SELECT de metadatos concluido,0 HTTP/sesiones/efectos y huellas estables; credenciales eliminadas. El comando real rechaza la copia contrafactual con **CONFIGURACION_INVALIDA en COMMAND**, antes de consultar catálogos. Esto acota el problema a snapshot/reglas/valores de creación; no identifica aún el predicado ni acredita la excepción histórica.7 intentos acumulados (6 lecturas concluidas conocidas y1 de resultado anterior desconocido). La reserva96 permanece intacta.
+
+Refinamiento local: clasificación del guard posterior al rechazo real, campos/códigos de lista cerrada y modo `--command-only` de **una SELECT RA**, sin catálogos. **26/26 pruebas locales**,14 focales; sin cambios de producto ni nueva lectura real. Propuesta de una lectura adicional, máximo8 acumulados, pendiente de autorización; no se ejecuta automáticamente. Evidencia: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-rechazo-comando-20261114.json`; plan `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-comando-detalle-plan-20261114.md`. Avance**45/51**;3.30/3.31 siguen abiertas y no hay recuperación ni aceptación integral. Los cortes siguientes son históricos.
+
+
 ## Preparación del diagnóstico de prerrequisitos — 2026-11-14
 
 3.29 completada; se añaden3.30/3.31 para diagnóstico real específico y corrección de causa comprobada. Auxiliar de lectura reutiliza comando/catálogo reales y queryRows; distingue etapas, protege SQL/tablas/parámetros, conserva presupuesto y elimina credenciales. La copia contrafactual previa a la detención no demuestra sesión, conexión legacy ni transacción, ni permite liberar/repetir96. **23/23 pruebas locales**, sin leer negocio ni modificar producto. Plan de hasta30 SELECT RA/DA,0 HTTP/efectos;6 intentos previos conservados, máximo36 acumulados. Autorización solicitada sin respuesta; no se ejecuta. Evidencia: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-prerrequisitos-preparacion-20261114.json`; plan `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-prerrequisitos-plan-20261114.md`. Avance**45/51**; abiertas3.30,3.31,5.2,6.4,6.5,6.6. El lote real permanece sin recuperación; cortes siguientes históricos.
