@@ -1,5 +1,9 @@
 # Base gráfica de importación por carpetas
 
+## Bloqueo real no simulado en la maqueta — 2026-11-14
+
+El video194059 muestra CREANDO/EN_CURSO sin confirmación, un caso distinto del intento INCIERTO de la demostración. La aplicación ahora conserva la operación bloqueada y un aviso visible al desplazar; **Revisar bloqueo** lleva al detalle sin peticiones, mientras Actualizar solo consulta. Verificar se ofrece únicamente bajo la autoridad del servidor y puede no resolver el intento. La maqueta mantiene sus límites offline; no se usa para habilitar replay ni inferir creación. Evidencia local79/79: ../Validacion/doc120-flujo-final-20261114.json. La causa y recuperación del lote39 requieren diagnóstico real autorizado, todavía no ejecutado.
+
 ## Fidelidad aplicada al asistente — 2026-11-13
 
 El corte posterior a2642e604 traslada los estilos del HTML al asistente real con alcance CSS limitado. Consultar importación / último lote permanecen visibles; pasos circulares, formulario, filas de carpetas, estados, contadores, panel de acción y pie siguen la maqueta. Se comparan116 propiedades calculadas y capturas en390/768/1280px, además de71/71 pruebas locales. Fuente vigente: ../Validacion/doc120-fidelidad-maqueta-20261113.json; capturas y comparación en .tmp/doc120-fidelidad, excluidas de Git.

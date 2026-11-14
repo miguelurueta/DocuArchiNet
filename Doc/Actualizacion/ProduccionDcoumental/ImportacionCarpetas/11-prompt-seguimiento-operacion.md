@@ -1,5 +1,14 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+## Continuación y bloqueo de la parte final — vigente2026-11-14
+
+Después de enviar los pendientes, **Crear expediente** solicita una creación para la carpeta indicada. Solo al confirmarse aparece **Preparar índices** para su archivo; después, **Almacenar archivo**. Son operaciones distintas. **Importación completada** depende del estado confirmado del lote; recibir el PDF no lo almacena.
+
+Si la creación no devuelve confirmación, el aviso permanece visible aunque estés al final de las tablas. Consulta el resultado una vez. Si el servidor conserva **CREANDO/EN_CURSO**, el flujo queda detenido para ese intento: **Revisar bloqueo** lleva al detalle con lote, carpeta e intento sin ejecutar peticiones; **Actualizar estado** solo vuelve a consultar, no reanuda. No se ofrece otra creación ni se habilita Verificar intento por tiempo. Si el servidor publica un INCIERTO verificable, **Verificar intento** comprueba su evidencia sin repetir efectos y puede conservar el bloqueo.
+
+El video194059 muestra este bloqueo en lote39/carpeta60; no consta todavía la causa ni si el escritor llegó a crear el expediente. Diagnóstico preparado: `node tools/e2e/scripts/inspect-doc120-final-state.cjs --lot 39 --root 60 --authorized`. **Ejecutar únicamente después de autorización específica**, con DSN RA del ambiente local autorizado y cuenta MySQL SELECT en consola enmascarada:5 SELECT máximos,0 HTTP,0 modificaciones. La salida saneada queda en .tmp/doc120-final-state, excluida de Git; nunca introducir claves en el chat. La prueba local79/79 no sustituye esa lectura ni acredita recuperación real. Evidencia: Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-flujo-final-20261114.json.
+
+
 ## Controles de la maqueta — interfaz vigente2026-11-13
 
 Consultar importación y Consultar último lote permanecen en la barra superior del asistente, visibles al desplazar cualquier etapa. Sin referencia guardada, último lote aparece deshabilitado con explicación. Consultar una referencia abre su seguimiento sin enviar ni confirmar. **Volver a mi importación** recupera la preparación original en memoria; si ya tenía un lote confirmado, relee sus datos antes de habilitar acciones. La consulta requiere reseleccionar sus propios pendientes: no toma los archivos locales de otra preparación por coincidencias de identificación. Cerrar una consulta con preparación sin confirmar mantiene la advertencia de descarte; recargar la página todavía exige reseleccionar Files porque no se guardan en el navegador.

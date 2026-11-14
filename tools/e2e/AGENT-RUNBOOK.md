@@ -46,6 +46,12 @@ Este runbook permite reutilizar las pruebas ASMX Workflow sin copiar credenciale
 
 ## Límites obligatorios
 
+### DOC-120: diagnóstico de creación sin confirmación
+
+`node tools/e2e/scripts/inspect-doc120-final-state.cjs --lot <id> --root <id> --authorized` prepara una ventana específica de máximo5 SELECT en RA, cero HTTP/sesiones de aplicación y cero efectos. Exigir autorización explícita del ambiente/DSN, lote y raíz antes de ejecutarla; `--authorized` declara esa autorización, no la sustituye ni hereda otra corrida. El operador introduce DSN y credenciales MySQL exclusivamente SELECT en consola interactiva enmascarada. No recuperar secretos de Web.config, cookies o procesos anteriores. Sin autorización no lanzar ni consultar.
+
+Reutiliza queryRows y el guard de SELECT. Limita la lectura a lote/raíz/archivos/intentos/eventos autorizados, elimina JSON/mensajes privados y conserva solo referencias, estados y fechas necesarios en `.tmp/doc120-final-state/<runId>/`, excluido de Git. STOPPED no se reintenta automáticamente. No libera intentos, reconcilia, crea ni reenvía; CREANDO/EN_CURSO y la antigüedad no permiten inferir ausencia del efecto. Un diagnóstico terminado no equivale a recuperación del lote ni a una prueba E2E de importación.
+
 No activar, editar ni limitar el gate fuera del runner aprobado y de una autorización explícita.
 
 - Ejecutar solo contra un ambiente de pruebas autorizado; nunca inferir autorización para producción.

@@ -85,6 +85,17 @@
         }
         return actions;
     }
+    function bloqueoFlujo(model) {
+        if (!model || !model.estado) { return null; }
+        var resources = (model.raices ? model.raices.elementos : []).map(function (r) { return {tipo:"RAICES", recurso:r, fase:"CREAR_EXPEDIENTE"}; }).concat((model.resultados ? model.resultados.elementos : []).map(function (f) { return {tipo:"ARCHIVOS", recurso:f, fase:["RECIBIENDO","INCIERTO"].indexOf(f.estadoRecepcion) !== -1 ? "RECEPCION" : "ALMACENAR"}; }));
+        var active = resources.filter(function (item) { var r = item.recurso; return r.tieneIntentoActivo === true || ["CREANDO","EN_CURSO","INCIERTO"].indexOf(r.estado) !== -1 || ["RECIBIENDO","INCIERTO"].indexOf(r.estadoRecepcion) !== -1; });
+        var last = model.ultimaOperacion && model.ultimaOperacion.loteId === model.loteId ? model.ultimaOperacion : null, needsRead = !!(last && model.mutacionIncierta && last.estado === "SIN_CONFIRMAR"), pending = last && (last.estado === "SOLICITANDO" || needsRead) && resources.filter(function (item) { return last.tipo === item.tipo && last.recursoId === item.recurso.recursoId; })[0], blocked = active.filter(function (item) { return last && last.tipo === item.tipo && last.recursoId === item.recurso.recursoId; })[0] || pending || active[0];
+        if (!blocked) { return model.estado.hayIntentosActivos || model.estado.hayIncertidumbre || needsRead ? {tipo:"LOTE", fase:needsRead ? last.fase : null, fueraDePagina:true, verificable:false, requiereConsulta:needsRead} : null; }
+        blocked.verificable = accionesRecurso(model, blocked.recurso, blocked.tipo === "RAICES").indexOf("RECONCILIAR") !== -1;
+        blocked.solicitando = !!pending && last.estado === "SOLICITANDO";
+        blocked.requiereConsulta = needsRead && active.indexOf(blocked) === -1;
+        return blocked;
+    }
     function rotularAccesoMenu(button, text, icon) {
         var label = button.querySelector("[data-doc120-menu-label]");
         if (!label) {
@@ -186,7 +197,7 @@
         }
         function message(error) {
             if (error && error.planPendiente) { return "No se pudo confirmar el resultado del plan " + error.planPendiente + ". Conserva esta referencia para su verificación. No se repetirá la confirmación automáticamente."; }
-            if (error && error.resultadoIncierto) { return "No se pudo confirmar el resultado. Consulta el estado antes de volver a enviar."; }
+            if (error && error.resultadoIncierto) { return error.fase === "CREAR_EXPEDIENTE" ? "No se confirmó la creación del expediente. Conserva la referencia del lote y consulta su estado; no repitas la creación." : "No se pudo confirmar el resultado. Consulta el estado antes de repetir la operación."; }
             var texts = {SESION_REQUERIDA:"La sesión expiró. Recarga la página.", ACCESO_DENEGADO:"No tienes autorización vigente para esta operación.", CAPACIDAD_NO_DISPONIBLE:"La importación no está disponible con la configuración actual.", SOLICITUD_NO_VERIFICADA:"Recarga la página para renovar el contexto de la operación.", SELECCION_DIRECTORIOS_NO_DISPONIBLE:"Este navegador no permite seleccionar carpetas.", CONFLICTO_REVISION:"Los datos cambiaron. Consulta el estado o prepara una nueva revisión.", RESPUESTA_INVALIDA:"La respuesta del servidor no es válida. Revisa la selección o vuelve a preparar."};
             if (error && error.message === "RESELECCION_NO_COINCIDE") { return "El archivo no coincide con el nombre, tamaño y fecha del archivo pendiente seleccionado. El lote permanece sin cambios."; }
             return texts[error && (error.codigo || error.message)] || "No se pudo completar la solicitud. Revisa la selección y consulta el estado antes de repetir.";
@@ -199,6 +210,7 @@
             model.paginaArchivos = Math.min(model.paginaArchivos, Math.max(1, Math.ceil(model.manifiesto.archivos.length / 20)));
             var files = model.resultados ? model.resultados.elementos : [];
             model.accionesRecurso = function (resource, raiz) { return accionesRecurso(model, resource, raiz); };
+            model.bloqueoFlujo = bloqueoFlujo(model);
             model.archivosParaEnviar = model.mutacionIncierta ? 0 : files.filter(function (f) { return f.estadoRecepcion === "PENDIENTE" && f.estado === "NO_INICIADO" && !f.tieneIntentoActivo && (session.reselected[f.recursoId] || (!model.consulta && session.inventory.obtenerFile(f.idCliente))); }).length;
             model.puedeEnviar = model.archivosParaEnviar > 0;
             session.view.render(model);
@@ -277,7 +289,7 @@
                     session.importacionGuardada = {model:model, reselected:session.reselected, consultaArchivos:session.consultaArchivos};
                     session.model = Object.assign({}, model, {consulta:true, perfil:null, plan:null, confirmable:false, puedeVolverImportacion:true}); model = session.model;
                 }
-                model.referencia = reference; model.loteId = reference; model.contexto = null; model.estado = null; model.resultados = null; model.raices = null; model.filtrosArchivos = {}; model.filtrosRaices = {}; model.etapa = 3; model.mutacionIncierta = false; session.reselected = Object.create(null);
+                model.referencia = reference; model.loteId = reference; model.contexto = null; model.estado = null; model.resultados = null; model.raices = null; model.filtrosArchivos = {}; model.filtrosRaices = {}; model.etapa = 3; model.mutacionIncierta = false; model.ultimaOperacion = null; session.reselected = Object.create(null);
                 run(session, function () { return consultar(session, 1); }); return;
             }
             if (name === "verificar-referencia") { cerrar(true); verify(); return; }
@@ -358,6 +370,7 @@
                     row = resourcePage && resourcePage.elementos.filter(function (r) { return r.recursoId === value.id; })[0];
                     if (accionesRecurso(model, row, kind).indexOf(phase) === -1) { return; }
                 }
+                model.ultimaOperacion = {loteId:model.loteId,tipo:kind ? "RAICES" : "ARCHIVOS",recursoId:row && row.recursoId || null,fase:name === "detener" ? "DETENCION" : phase,estado:"SOLICITANDO"};
                 run(session, function () {
                     var operation = name === "detener" ? "SolicitarDetencion" : name === "reconciliar" ? "ReconciliarRecurso" : "AvanzarLote";
                     var request = {loteId:model.loteId, revisionEsperada:name === "fase" ? row.revision : model.estado.revision};
@@ -365,11 +378,13 @@
                     if (name === "reconciliar") { request.intentoId = row.intentoActivoId; }
                     return session.api.invocar(operation, request).then(function (result) {
                         if (active !== session) { return; }
+                        if (name === "reconciliar" && result && result.loteId === model.loteId && result.intentoId === row.intentoActivoId && result.resuelta === false && result.estado === "INCIERTO") { model.ultimaOperacion.estado = "SIN_RESOLVER"; model.mensaje = "La verificación no pudo confirmar el resultado del intento. Se conserva el bloqueo sin repetir efectos."; return consultar(session, model.resultados.pagina); }
                         if (!result || result.loteId !== model.loteId || (name === "fase" && (result.fase !== phase || result.estado !== "CONFIRMADO" || (kind ? result.raizId : result.archivoId) !== row.recursoId)) || (name === "reconciliar" && (result.intentoId !== row.intentoActivoId || result.resuelta !== true || result.estado !== "CONFIRMADO")) || (name === "detener" && result.detencionSolicitada !== true && ["COMPLETADO", "FALLIDO"].indexOf(result.estado) === -1)) {
                             var invalid = new Error("RESPUESTA_INVALIDA"); invalid.resultadoIncierto = true; throw invalid;
                         }
+                        model.ultimaOperacion.estado = "CONFIRMADA";
                         return consultar(session, model.resultados.pagina);
-                    }).catch(function (error) { model.mutacionIncierta = true; throw error; });
+                    }).catch(function (error) { model.mutacionIncierta = true; model.ultimaOperacion.estado = "SIN_CONFIRMAR"; model.ultimaOperacion.codigo = /^[A-Z][A-Z0-9_]{0,63}$/.test(error.codigo || "") ? error.codigo : "RESPUESTA_NO_CONFIRMADA"; model.ultimaOperacion.operacionId = error.operacionId || null; model.ultimaOperacion.intentoId = error.intentoId || row && row.intentoActivoId || null; error.fase = phase; throw error; });
                 }); return;
             }
             if (name === "enviar") {
@@ -479,5 +494,5 @@
         function install() { inicializar(); if (!installed && env.Sys && env.Sys.Application) { installed = true; env.Sys.Application.add_load(inicializar); } }
         if (env.document.readyState === "loading") { env.document.addEventListener("DOMContentLoaded", install, {once:true}); } else { install(); }
     }
-    return {crear:crear, crearReferencias:crearReferencias, validarReseleccion:validarReseleccion, accionesRecurso:accionesRecurso, asegurarMenu:asegurarMenu, rotularAccesoMenu:rotularAccesoMenu, montar:montar, inicializar:inicializar};
+    return {crear:crear, crearReferencias:crearReferencias, validarReseleccion:validarReseleccion, accionesRecurso:accionesRecurso, bloqueoFlujo:bloqueoFlujo, asegurarMenu:asegurarMenu, rotularAccesoMenu:rotularAccesoMenu, montar:montar, inicializar:inicializar};
 }));

@@ -42,6 +42,8 @@
                         if (!response.ok || xhr.status < 200 || xhr.status >= 300) {
                             var error = fallo(response.codigo, xhr.status, mutation && (xhr.status >= 500 || response.codigo === "RESULTADO_INCIERTO" || response.codigo === "OPERACION_EN_CURSO"));
                             error.incidencias = response.incidencias;
+                            if (typeof response.operacionId === "string" && /^[a-f0-9]{32}$/i.test(response.operacionId)) { error.operacionId = response.operacionId.toLowerCase(); }
+                            if (response.datos && typeof response.datos.intentoId === "string" && /^[1-9][0-9]{0,9}$/.test(response.datos.intentoId) && Number(response.datos.intentoId) <= 4294967295) { error.intentoId = response.datos.intentoId; }
                             finish(error); return;
                         }
                         finish(null, response.datos);

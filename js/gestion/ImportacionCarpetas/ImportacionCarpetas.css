@@ -345,3 +345,7 @@
 #doc111-importacion .doc111-dialog .doc111-content{padding-bottom:0}
 #doc111-importacion .doc111-dialog details.doc111-configuration{margin:15px 28px 28px}
 @media(max-width:720px){#doc111-importacion .doc111-dialog details.doc111-configuration{margin:15px 17px 24px}}
+/* El resultado de una operación permanece fuera del área desplazable. */
+#doc111-importacion .doc111-dialog .doc111-sheet>.doc111-notice:not([hidden]){flex-shrink:0;margin:8px 28px 0;overflow-wrap:anywhere;font-size:12px;padding:10px 12px;max-height:18vh;overflow:auto}
+#doc111-importacion .doc111-dialog .doc111-next .small{font-size:11px;margin-top:9px;overflow-wrap:anywhere}
+@media(max-width:720px){#doc111-importacion .doc111-dialog .doc111-sheet>.doc111-notice:not([hidden]){margin:6px 17px 0;font-size:11px}}

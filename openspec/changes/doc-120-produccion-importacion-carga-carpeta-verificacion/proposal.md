@@ -4,6 +4,8 @@ DOC-120 consolida la verificación de importación de carpetas sobre la interfaz
 
 ## What Changes
 
+Video194059,2026-11-14: conservar el contexto de creación sin confirmación, priorizar el recurso que bloquea el lote, mantener visible el aviso y reemplazar el ciclo principal de actualización por Revisar bloqueo. Conservar autoridad de reconciliación existente y distinguir ejecución activa de resultado incierto verificable. Continuación y fin solo por confirmaciones del servidor. Diagnóstico del lote39 preparado con máximo5 SELECT, cero HTTP/efectos y autorización propia todavía pendiente; no se afirma recuperar el lote real mediante el ajuste de UI.
+
 Corrección de fidelidad tras2642e604: sustituir el aspecto anterior del asistente por los controles y distribución del HTML de referencia; Consultar importación y Consultar último lote permanecen visibles en todas las etapas. Consulta secundaria con preparación conservada y File aislados por contexto, selección de recurso sin efectos y comparación visual automatizada. Tareas3.19–3.23 y dos escenarios RQ-04 adicionales delimitan esta solicitud, sin ampliar backend, datos o capacidades de negocio.
 
 Ampliación autorizada2026-11-13: implementar la organización de interfaz contrastada con el repositorio (Seleccionar/Revisar/Seguimiento), corrigiendo C01/C02/C03 de la maqueta y conservando contratos, fases explícitas, filtros, consultas, CSV y recuperación. El mapa atómico3.10–3.18 y los escenarios añadidos en RQ-04 delimitan esta presentación; no incorporan unión/separación PDF ni alteran servidor, esquema, SII o almacenamiento. La evidencia local posterior conserva los cortes históricos y no concede aceptación integral.
