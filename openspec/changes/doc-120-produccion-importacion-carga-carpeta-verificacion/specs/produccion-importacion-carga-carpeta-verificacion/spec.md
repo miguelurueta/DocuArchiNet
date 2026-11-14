@@ -155,6 +155,11 @@ DOC-120 SHALL cumplir la decisión D-08: La continuación autoriza refinamiento/
 - **THEN** se conserva STOPPED y su consumo sin retry automático
 - **AND** no se reutiliza una autorización anterior para ampliar efectos
 
+#### Scenario: Diagnóstico de prerrequisitos sin efectos
+- **WHEN** se investiga una creación reservada sin checkpoint de inicio
+- **THEN** las validaciones de comando y catálogo se reutilizan mediante lecturas acotadas y autorización propia, sin componer escritores
+- **AND** una proyección local de la situación previa se identifica como contrafactual, no acredita sesión/transacción ni autoriza replay o liberación de la reserva
+
 ### Requirement: RQ-09 — Fuentes y decisiones protegidas
 DOC-120 SHALL cumplir la decisión D-09: Conservar SII/Integracionccv, AlmacenamientoDocumentoProduccionDocumental, Web.config, esquema, semántica de recepción/efectos y PDF/rechazo TIFF. Mantener decisión expresa SEG-03 de operar sin limpieza y datos retenidos. No añadir jobs, cuotas, formatos, endpoints o aislamiento XML adicional.
 

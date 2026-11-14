@@ -56,6 +56,8 @@ Corrección del reporte2026-11-14: conserva únicamente categorías cerradas del
 
 Diagnóstico933961f9,2026-11-14, autorizado expresamente después de STOPPED: FINISHED con5 SELECT concluidos,0 HTTP/0 sesiones;6 intentos presupuestados acumulados con64c70664. Lote39/carpeta60 conserva intento96 RESERVADO, sin checkpoint de inicio, y señal de detención posterior. El diagnóstico no libera intentos ni prueba ausencia del efecto;3.27 acredita estado persistido, no recuperación. Ventana cerrada y credenciales eliminadas. No abrir más lecturas o efectos por inferencia; evidencia saneada doc120-diagnostico-lote39-20261114.json.
 
+Auxiliar de prerrequisitos DOC-120: `inspect-doc120-creation-prerequisites.cjs --lot 39 --root 60 --attempt 96 --authorized`, preparación3.29 local23/23. Nueva ventana propuesta, todavía sin autorización: hasta30 SELECT RA/DA incluyendo metadatos y catálogos;0 HTTP/sesiones/efectos,6 intentos anteriores conservados (máximo36 acumulados). Reutiliza las clases reales con delegado a queryRows y lista cerrada de tablas; compila solo el auxiliar excluido. Snapshot/valores/token viajan efímeros por IPC, no se guardan. La proyección previa a la detención es contrafactual: no acredita la sesión/conexión legacy ni la transacción real, no libera/reconcilia ni crea. Credenciales de lectura enmascaradas y huellas de DLL/auxiliar antes/después. Ver `Validacion/doc120-prerrequisitos-plan-20261114.md`; STOPPED sin retry automático.
+
 No activar, editar ni limitar el gate fuera del runner aprobado y de una autorización explícita.
 
 - Ejecutar solo contra un ambiente de pruebas autorizado; nunca inferir autorización para producción.

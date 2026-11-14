@@ -1,5 +1,10 @@
 # DOC-120 — PruebasEvidencia
 
+## Preparación del diagnóstico de prerrequisitos — 2026-11-14
+
+3.29 completada; se añaden3.30/3.31 para diagnóstico real específico y corrección de causa comprobada. Auxiliar de lectura reutiliza comando/catálogo reales y queryRows; distingue etapas, protege SQL/tablas/parámetros, conserva presupuesto y elimina credenciales. La copia contrafactual previa a la detención no demuestra sesión, conexión legacy ni transacción, ni permite liberar/repetir96. **23/23 pruebas locales**, sin leer negocio ni modificar producto. Plan de hasta30 SELECT RA/DA,0 HTTP/efectos;6 intentos previos conservados, máximo36 acumulados. Autorización solicitada sin respuesta; no se ejecuta. Evidencia: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-prerrequisitos-preparacion-20261114.json`; plan `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-prerrequisitos-plan-20261114.md`. Avance**45/51**; abiertas3.30,3.31,5.2,6.4,6.5,6.6. El lote real permanece sin recuperación; cortes siguientes históricos.
+
+
 ## Estado real del lote39 — diagnóstico933961f9,2026-11-14
 
 **Diagnóstico de estado completado; recuperación sin resolver.** Ventana autorizada expresamente sobre50803073:5 SELECT concluidos,0 HTTP/0 sesiones, credenciales eliminadas. Con el intento64c70664 anterior:6 intentos presupuestados y5 lecturas concluidas conocidas; no se reconstruye el resultado fallido anterior. Lote39/plan57 EN_CURSO, carpeta60 CREANDO e intento96 **RESERVADO**, sin evidencia CREACION_PREPARADA ni identidad de expediente registrada. Archivo86 RECIBIDO/NO_INICIADO, recepción95 CONFIRMADA. La detención se solicitó después (00:43:02 UTC frente a la reserva00:39:26), por lo que no explica el rechazo inicial.

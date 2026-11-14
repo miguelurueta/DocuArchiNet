@@ -105,6 +105,8 @@ Evidencia: tools/e2e/AGENT-RUNBOOK.md; tools/e2e/tests/support/doc119-seguimient
 
 Criterio y compatibilidad: Lectura, recepción, creación, almacenamiento, fallos, DDL y permisos son alcances distintos. Un STOPPED no es PASS; no reintentar automáticamente ni extraer credenciales de archivos/procesos.
 
+Diagnóstico de prerrequisitos posterior a933961f9: reutilizar ComandoCreacionExpedienteImportacion y PerfilImportacionCatalogAdapter con un delegado SELECT a queryRows. El proceso auxiliar no compone escritores ni repositorios mutantes. Metadatos, tokens y valores se transmiten solo por IPC y se eliminan al cerrar; evidencia limitada a etapa/código/conteos/huellas. Una copia local proyecta exclusivamente la situación previa a la detención y EsNuevaReserva para validar el comando; se declara contrafactual, nunca autoridad, lease o permiso para repetir. La sesión HTTP y la transacción real de inicio no se prueban mediante este auxiliar. Ventana nueva de hasta30 SELECT en RA/DA, cero HTTP/efectos, requiere autorización propia; los6 intentos anteriores se conservan. Aun con catálogos compatibles, no se libera el intento96 ni se declara recuperado. Si no se reproduce una causa concreta se conserva esa incertidumbre.
+
 ### D-09 — Fuentes y decisiones protegidas (RQ-09)
 
 Conservar SII/Integracionccv, AlmacenamientoDocumentoProduccionDocumental, Web.config, esquema, semántica de recepción/efectos y PDF/rechazo TIFF. Mantener decisión expresa SEG-03 de operar sin limpieza y datos retenidos. No añadir jobs, cuotas, formatos, endpoints o aislamiento XML adicional.
