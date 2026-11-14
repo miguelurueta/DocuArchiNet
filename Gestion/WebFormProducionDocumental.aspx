@@ -69,8 +69,8 @@
         <%= RenderImportacionCarpetas() %>
         <link href="../js/gestion/ImportacionCarpetas/ImportacionCarpetas.css?v=doc120-flujo-final-20261114-1" rel="stylesheet" />
         <script src="../js/gestion/ImportacionCarpetas/InventarioImportacion.js?v=doc111-ui-20261028-1"></script>
-        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js?v=doc120-mensajes-20261114-1"></script>
-        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js?v=doc120-mensajes-20261114-1"></script>
+        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js?v=doc120-coincidencia-20261114-1"></script>
+        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js?v=doc120-coincidencia-20261114-1"></script>
         <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetas.js?v=doc120-mensajes-20261114-1"></script>
         <link href="../js/gestion/ImportacionCarpetas/PerfilImportacionEditor.css?v=doc110-menu-20261024-2" rel="stylesheet" />
         <script src="../js/gestion/ImportacionCarpetas/PerfilImportacionApi.js"></script>

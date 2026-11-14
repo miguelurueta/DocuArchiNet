@@ -218,7 +218,7 @@ Public NotInheritable Class DiagnosticoOperacionImportacion
             Case "OPCION_REQUERIDA", "OPCION_INVALIDA", "CONFIGURACION_REQUERIDA" : Return "Falta una opción requerida o su valor no está permitido por la configuración."
             Case "CODIGO_REPETIDO_INVENTARIO" : Return "La revisión contiene más de una carpeta que resuelve al mismo código de expediente."
             Case "COINCIDENCIA_AMBIGUA", "AMBIGUO" : Return "La consulta devolvió varias coincidencias donde se exige una sola."
-            Case "CODIGO_EXPEDIENTE_EXISTENTE" : Return "La comprobación del destino encontró un expediente con el código resuelto para esta carpeta."
+            Case "CODIGO_EXPEDIENTE_EXISTENTE" : Return "Ya existe un expediente con este código en la misma empresa y área. Este perfil impide crear otro expediente con el mismo código. Revisa los datos previstos del expediente y la regla que obtiene el código; corrige la selección o la regla y prepara una nueva revisión."
             Case "REUTILIZACION_NO_DISPONIBLE" : Return "No se pudo comprobar una reutilización compatible con la política del perfil."
             Case "IDENTIDAD_INMUTABLE" : Return "La identidad confirmada no se puede sustituir mediante esta operación."
             Case "SIN_COINCIDENCIA" : Return "La consulta de datos no encontró una coincidencia para la clave de esta regla."

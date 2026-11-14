@@ -54,7 +54,7 @@
     "CODIGO_REPETIDO_INVENTARIO": "La revisión contiene más de una carpeta que resuelve al mismo código de expediente.",
     "COINCIDENCIA_AMBIGUA": "La consulta devolvió varias coincidencias donde se exige una sola.",
     "AMBIGUO": "La consulta devolvió varias coincidencias donde se exige una sola.",
-    "CODIGO_EXPEDIENTE_EXISTENTE": "La comprobación del destino encontró un expediente con el código resuelto para esta carpeta.",
+    "CODIGO_EXPEDIENTE_EXISTENTE": "Ya existe un expediente con este código en la misma empresa y área. Este perfil impide crear otro expediente con el mismo código. Revisa los datos previstos del expediente y la regla que obtiene el código; corrige la selección o la regla y prepara una nueva revisión.",
     "REUTILIZACION_NO_DISPONIBLE": "No se pudo comprobar una reutilización compatible con la política del perfil.",
     "IDENTIDAD_INMUTABLE": "La identidad confirmada no se puede sustituir mediante esta operación.",
     "SIN_COINCIDENCIA": "La consulta de datos no encontró una coincidencia para la clave de esta regla.",

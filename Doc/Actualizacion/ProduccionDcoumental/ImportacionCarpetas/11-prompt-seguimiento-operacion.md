@@ -2,7 +2,9 @@
 
 ## Mensajes del recorrido operativo — DOC-120,2026-11-14
 
-El aviso identifica la fase, el motivo comprobado y la siguiente acción permitida. Las incidencias muestran el campo y, cuando se conoce, formato, segmento desde1 o longitud observada/máxima; no muestran el valor documental. Una referencia de diagnóstico aparece solo si llegó del servidor. No se deduce del tiempo transcurrido que una operación haya fallado o pueda repetirse.
+El aviso identifica la fase, el motivo comprobado y la siguiente acción permitida. Las incidencias muestran el campo y, cuando se conoce, formato, segmento desde1 o longitud observada/máxima; no vuelcan valores documentales privados. En una coincidencia de código se puede mostrar el código que ya figura en los datos previstos de esa misma carpeta. Una referencia de diagnóstico aparece solo si llegó del servidor. No se deduce del tiempo transcurrido que una operación haya fallado o pueda repetirse.
+
+Si aparece **Código del expediente** con el aviso de que ya existe, el control encontró ese código en la misma empresa y área configuradas en el perfil. No demuestra que el expediente esté en el mismo nivel del árbol ni que esa carpeta física ya se haya importado. El perfil con política BLOQUEAR impide confirmar esa unidad. Revisa Ver datos previstos de los expedientes y la regla del código; corrige la selección o la regla y prepara otra revisión explícitamente. El módulo muestra el código solo si hay un único valor resuelto de la misma raíz; no agrega consultas ni expone la identidad de un expediente coincidente cuyos permisos no se hayan comprobado.
 
 | Fase | Resultado que puede mostrar | Cómo continuar |
 | --- | --- | --- |
