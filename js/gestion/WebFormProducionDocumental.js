@@ -1061,7 +1061,8 @@ function auto_zise_popup_adjunta_documento_workflow() {
 }
 //TERMINA ZONA LOAD FILE
 // Importacion por carpetas: agrega solo relaciones confirmadas a una rama ya
-// cargada, conservando seleccion, expansion y el recorrido de carga individual.
+// visible, incluyendo el primer hijo de un nivel vacío. Conserva selección y
+// expansión de ramas existentes y reutiliza la inserción/carga individual.
 function Doc111ActualizarRama(contexto, raices) {
     var host = document.getElementById("doc111-importacion"), tree = document.getElementById("TreeViewArchivo");
     function id(value) { return typeof value === "string" && /^[1-9][0-9]*$/.test(value); }
@@ -1071,14 +1072,25 @@ function Doc111ActualizarRama(contexto, raices) {
     var parents = Array.prototype.filter.call(tree.querySelectorAll("a[id][title]"), function (a) { return /^TreeViewArchivot[0-9]+$/.test(a.id) && a.title.split("\\\\")[0] === contexto.nivelRef && a.title.indexOf("\\\\") !== -1; });
     if (parents.length !== 1 || !/^TreeViewArchivot[0-9]+$/.test(parents[0].id) || !parents[0].getClientRects().length) { return false; }
     var parent = parents[0], branch = document.getElementById(parent.id.replace("TreeViewArchivot", "TreeViewArchivon") + "Nodes");
-    if (!branch || !tree.contains(branch)) { return false; }
+    if (branch && !tree.contains(branch)) { return false; }
+    // WebForms omite nXNodes cuando el nivel no tiene hijos. El insertor
+    // existente crea ese contenedor y el expansor al agregar el primer nodo.
+    // No confundirlo con un destino ausente ni inventar otro nivel.
+    if (!branch) {
+        var table = parent.closest("table");
+        if (!table || !tree.contains(table) || !table.querySelector("img") || !Array.prototype.some.call(table.rows, function (row) { return row.cells.length > 2; })) { return false; }
+    }
+    var updated = true;
     raices.forEach(function (r) {
         if (!r || r.tieneIntentoActivo || ["EXPEDIENTE_CONFIRMADO", "COMPLETADA", "PARCIAL"].indexOf(r.estado) === -1 || !id(r.expedienteId) || !id(r.relacionNivelId) || typeof r.nombreExpediente !== "string" || !r.nombreExpediente.trim()) { return; }
         var title = r.relacionNivelId + "|" + contexto.nivelRef + "|" + r.expedienteId + "|";
         var existing = Array.prototype.some.call(tree.querySelectorAll("a[id][title]"), function (a) { return /^TreeViewArchivot[0-9]+$/.test(a.id) && a.title.replace(/\|$/, "") === title.replace(/\|$/, ""); });
         if (!existing) { create_trenode_treview(title, r.nombreExpediente, "trenode", "TreeViewArchivo", "../Gestion/imagenes/folder-regular.png", "0", parent.id); }
+        branch = document.getElementById(parent.id.replace("TreeViewArchivot", "TreeViewArchivon") + "Nodes");
+        var matches = Array.prototype.filter.call(tree.querySelectorAll("a[id][title]"), function (a) { return /^TreeViewArchivot[0-9]+$/.test(a.id) && a.title.replace(/\|$/, "") === title.replace(/\|$/, ""); });
+        if (!branch || matches.length !== 1 || !branch.contains(matches[0])) { updated = false; }
     });
-    return true;
+    return updated;
 }
 
 function create_trenode_treview(title, texto, tipo_node, nombre_tree, ur_img_node, move, node_parent_id) {

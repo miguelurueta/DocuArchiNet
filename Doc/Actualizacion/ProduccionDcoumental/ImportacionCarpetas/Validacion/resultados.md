@@ -1,5 +1,10 @@
 # DOC-120 — índice cronológico de resultados
 
+## Primer expediente del nivel — corrección2026-11-14
+
+El usuario reporta que recuperó el lote y terminó la importación, con expediente ausente del árbol. Reproducción local: Doc111ActualizarRama exige un contenedor que WebForms omite en niveles vacíos y el asistente ignora el fallo. Se reutiliza el insertor del primer hijo, se verifica la relación y se conserva selección/expansión existente, búsqueda y contador. Si no se puede mostrar, hay aviso y Actualizar reintenta solo la proyección. **74/74 pruebas locales únicas**, incluidos cinco focales superpuestos y expansor nativo System.Web; sin operaciones reales ni delta backend. Avance**57/61**,36 escenarios. La actualización en IIS queda sin observar; abiertas5.2/6.4/6.5/6.6. Evidencia: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-primer-expediente-arbol-20261114.json`; instrucciones `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-primer-expediente-arbol-20261114.md`. Cortes siguientes históricos.
+
+
 ## Reanudación permanente implementada — 2026-11-14
 
 **Retomar creación** queda incorporado al seguimiento de cualquier importación elegible, sin configuración por cuenta. La consulta comprueba una reserva de creación activa, sin inicio ni evidencia de resultado y con diario coherente. Confirmar vuelve a validar permisos, destino, catálogos, recepción y staging; rota la reclamación del mismo intento bajo bloqueos/CAS y conserva su identidad, hash, inicio, recibo, valores y snapshot. Solo levanta la detención observada con consentimiento; una revisión nueva o intento ya iniciado se rechazan.

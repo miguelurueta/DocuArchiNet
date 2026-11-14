@@ -21,7 +21,7 @@
     <link href="../Styles/produccion-documental-barra.css?v=doc120-barra-20261113-1" rel="stylesheet" />
     <script src="../js/MyJavaScriptFile.js"></script> 
     <script src="../js/Reportes/JSEsportaReportes.js"></script>
-    <script src="../js/gestion/WebFormProducionDocumental.js?v=doc119-ui-20261112-1"></script>
+    <script src="../js/gestion/WebFormProducionDocumental.js?v=doc120-arbol-20261114-1"></script>
     <script src="../js/gestion/ProduccionDocumentalBarra.js?v=doc120-barra-20261113-1" defer></script>
     <script src="../js/validate_campos.js"></script>
     <script src="../generic_control/FileUploadHandler.js" type="text/javascript"></script>
@@ -70,8 +70,8 @@
         <link href="../js/gestion/ImportacionCarpetas/ImportacionCarpetas.css?v=doc120-flujo-final-20261114-1" rel="stylesheet" />
         <script src="../js/gestion/ImportacionCarpetas/InventarioImportacion.js?v=doc111-ui-20261028-1"></script>
         <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js?v=doc120-flujo-final-20261114-1"></script>
-        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js?v=doc120-retomar-20261114-1"></script>
-        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetas.js?v=doc120-retomar-20261114-1"></script>
+        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js?v=doc120-arbol-20261114-1"></script>
+        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetas.js?v=doc120-arbol-20261114-1"></script>
         <link href="../js/gestion/ImportacionCarpetas/PerfilImportacionEditor.css?v=doc110-menu-20261024-2" rel="stylesheet" />
         <script src="../js/gestion/ImportacionCarpetas/PerfilImportacionApi.js"></script>
         <script src="../js/gestion/ImportacionCarpetas/ProveedorAdminEditor.js?v=doc110-source-diagnostics-20261027-1"></script>

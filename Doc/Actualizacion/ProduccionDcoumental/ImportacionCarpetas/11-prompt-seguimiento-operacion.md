@@ -1,5 +1,9 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+## Mostrar un expediente ya confirmado en el árbol
+
+Después de terminar o recuperar una importación, Ctrl+F5 y Consultar importación/Consultar último lote → Actualizar estado vuelven a proyectar los expedientes confirmados de la página consultada en su destino original. Si el nivel estaba vacío se añade el primer hijo con su expansor y búsqueda; los ya representados no se duplican. No vuelvas a confirmar el plan ni enviar archivos. Si el destino no está visible, localízalo y actualiza; el asistente avisa si la vista no puede mostrarlos. Ver Validacion/doc120-primer-expediente-arbol-20261114.md.
+
 ## Retomar una creación reservada — opción permanente
 
 1. Abre Consultar importación o Consultar último lote y actualiza el estado.

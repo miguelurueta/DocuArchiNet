@@ -234,6 +234,7 @@
         }
         function consultar(session, page) {
             if (active !== session) { return Promise.resolve(); }
+            session.model.avisoArbol = null;
             session.model.ultimaConsulta = null;
             function consultaCompleta() { session.model.ultimaConsulta = Date.now(); session.model.consultasCompletadas = (session.model.consultasCompletadas || 0) + 1; }
             session.consultaArchivos = null; session.model.resultados = null; session.model.raices = null;
@@ -257,8 +258,13 @@
                     if (active !== session) { return; }
                     if (!roots || roots.loteId !== session.model.loteId || roots.tipo !== "RAICES" || !Array.isArray(roots.elementos)) { throw new Error("RESPUESTA_INVALIDA"); }
                     session.model.raices = roots; session.model.mutacionIncierta = false; consultaCompleta();
+                    session.model.avisoArbol = null;
                     if (typeof deps.Doc111ActualizarRama === "function") {
-                        try { deps.Doc111ActualizarRama({nivelRef:session.model.contexto.nivelRef, referenciaContexto:session.scope}, roots.elementos); } catch (_) { /* La vista del arbol no invalida resultados persistidos. */ }
+                        var confirmedRoots = roots.elementos.filter(function (root) { return root && !root.tieneIntentoActivo && ["EXPEDIENTE_CONFIRMADO", "COMPLETADA", "PARCIAL"].indexOf(root.estado) !== -1 && validId(root.expedienteId) && validId(root.relacionNivelId) && typeof root.nombreExpediente === "string" && root.nombreExpediente.trim(); });
+                        if (confirmedRoots.length) {
+                            try { if (deps.Doc111ActualizarRama({nivelRef:session.model.contexto.nivelRef, referenciaContexto:session.scope}, confirmedRoots) !== true) { session.model.avisoArbol = "El expediente está confirmado, pero no se pudo mostrar en el árbol. Localiza el destino original y pulsa Actualizar estado; no repitas la importación."; } }
+                            catch (_) { session.model.avisoArbol = "El expediente está confirmado, pero no se pudo mostrar en el árbol. Localiza el destino original y pulsa Actualizar estado; no repitas la importación."; }
+                        }
                     }
                 });
             });

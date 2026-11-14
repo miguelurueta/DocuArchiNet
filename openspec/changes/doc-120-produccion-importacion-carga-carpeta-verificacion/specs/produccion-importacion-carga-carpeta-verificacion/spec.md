@@ -57,6 +57,11 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **THEN** se conserva identidad, acceso equivalente, avisos, árbol/selección y foco
 - **AND** no se reconfirma automáticamente ni se atribuye un caso sintético a IIS
 
+#### Scenario: Primer expediente confirmado en nivel vacío
+- **WHEN** una consulta posterior a la importación informa un expediente confirmado y el nivel original visible todavía no tiene contenedor de hijos
+- **THEN** se agrega su relación al árbol mediante el insertor existente, con expansor, búsqueda y contador, una sola vez
+- **AND** se conservan selección/expansión existentes; una rama ausente/oculta/ambigua o un fallo de inserción produce aviso sin repetir efectos, y Actualizar vuelve a intentar únicamente la proyección
+
 #### Scenario: Barra superior adaptable sin regresión funcional
 - **WHEN** se ajusta la barra de Producción Documental y búsqueda a390/768/1024/1280/1554px y con texto aumentado
 - **THEN** cada cabecera mantiene juntos icono, texto y flecha; los grupos y búsqueda permanecen accesibles sin desbordamiento horizontal y los desplegables largos pueden recorrerse dentro del panel
