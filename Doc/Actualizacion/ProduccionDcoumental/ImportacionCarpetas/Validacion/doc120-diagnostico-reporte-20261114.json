@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "date": "2026-11-14",
+  "status": "PASS_LOCAL_REPORT_FIX_REAL_DIAGNOSIS_UNRESOLVED",
+  "baseSha": "3010eef750cd0c6711f0b47695dc30e022743ab5",
+  "realRun": {
+    "runId": "64c70664b91a9d778ff78190a365c012",
+    "lotId": "39",
+    "rootId": "60",
+    "status": "STOPPED",
+    "selectAttemptsCharged": 1,
+    "maxSelect": 5,
+    "http": 0,
+    "sessions": 0,
+    "failure": "DOC120_DIAGNOSTIC_STOPPED",
+    "closed": true,
+    "credentialsCleared": true,
+    "finishedUtc": "2026-11-14T10:29:30.089Z",
+    "completedSelect": "UNKNOWN_LEGACY_COUNTER_NOT_RECORDED",
+    "statementReachedServer": "UNKNOWN",
+    "resultArtifactPresent": false,
+    "sourceRevision": "3010eef750cd0c6711f0b47695dc30e022743ab5",
+    "sourceStateHash": "fff8ae3a3e61d97ddc4130f5d215797106d890b7d2bf67243fd995cf5265a45f"
+  },
+  "finding": {
+    "component": "tools/e2e/scripts/inspect-doc120-final-state.cjs",
+    "cause": "Closed DOC111_SELECT categories were replaced by the generic diagnostic failure.",
+    "businessCause": "UNKNOWN",
+    "realLotRecovered": false,
+    "repeatPerformed": false,
+    "rawErrorRecovered": false
+  },
+  "correction": {
+    "closedFailureCategories": true,
+    "privateMessagesRetained": false,
+    "queryNameFromFixedBook": true,
+    "attemptedAndCompletedSelectSeparated": true,
+    "queryBookUnchanged": true,
+    "automaticRetry": false,
+    "maxSelect": 5
+  },
+  "tests": {
+    "classification": "LOCAL_ONLY",
+    "baselineObserved": {
+      "passed": 0,
+      "failed": 4
+    },
+    "passed": 12,
+    "failed": 0,
+    "command": "node --test --test-name-pattern=\"DOC120-DIAG|DOC120-FIN03|DOC120-FIN04|ODBC filas\" tests/doc120-final-state-diagnostic.test.cjs tests/doc120-importacion-flujo-final.test.cjs tools/e2e/tests/odbc-select-rows.test.cjs",
+    "log": {
+      "file": ".tmp/doc120-diagnostic-report-tests-20261114.log",
+      "sha256": "fe8f9560977f292089276b2694ec15e1748539a79dbffe0c84ea34e782daf3b5"
+    },
+    "databaseScope": "Synthetic rows/errors; real PowerShell only with deliberately absent test DSN; no business database access."
+  },
+  "sources": [
+    {
+      "file": "tools/e2e/scripts/inspect-doc120-final-state.cjs",
+      "sha256Lf": "1e1228af02d8ca46f61bb0bd0a302f3935d3d878c9681b937d23252335dd1e3a"
+    },
+    {
+      "file": "tests/doc120-final-state-diagnostic.test.cjs",
+      "sha256Lf": "3ea0677b05b2138e6388772446228cf08cd259397df6fcb83c17a6b14cf228fd"
+    },
+    {
+      "file": "tools/e2e/scripts/support/doc32-e2e-odbc.cjs",
+      "sha256Lf": "4e103b5a42dc1d74dc192405958818136195b2c895d57f9d6d23b61e938afde5"
+    },
+    {
+      "file": "tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1",
+      "sha256Lf": "30eea8c560fa6a707346da7e4310aed3214ee468041fede6a4d2214c34e37e67"
+    },
+    {
+      "file": "tools/e2e/tests/odbc-select-rows.test.cjs",
+      "sha256Lf": "e8476335c2bfcd2fafe7762e5e92650607fda900935f6ef0c34bacb2c093b3a3"
+    }
+  ],
+  "progress": {
+    "complete": 43,
+    "total": 48,
+    "diagnosticTask": "3.27 OPEN",
+    "integralAcceptance": false
+  },
+  "nextWindow": {
+    "status": "AWAITING_EXPLICIT_INSTRUCTION",
+    "lotId": "39",
+    "rootId": "60",
+    "dsn": "MembershipUsers",
+    "maxSelect": 5,
+    "maxCumulativeAttempts": 6,
+    "http": 0,
+    "sessions": 0,
+    "businessEffects": 0
+  }
+}

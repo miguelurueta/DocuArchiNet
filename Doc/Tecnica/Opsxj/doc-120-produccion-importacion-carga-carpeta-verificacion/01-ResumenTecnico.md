@@ -1,5 +1,10 @@
 # DOC-120 — ResumenTecnico
 
+## Diagnóstico detenido y corrección del reporte — 2026-11-14
+
+Ventana autorizada64c70664, sobre3010eef7: lote39/carpeta60, STOPPED en el primer intento contabilizado,0 HTTP/0 sesiones y credenciales eliminadas. No hay archivo de resultados; el contador anterior no distingue apertura fallida de SQL ejecutado. La causa del lote y la existencia del expediente siguen desconocidas. El ejecutor descartaba las categorías seguras DOC111_SELECT del puente: corrección local conserva solo la lista cerrada y agrega lectura actual/intentos/respuestas concluidas. **12/12 pruebas locales**, sin consultar datos de negocio ni repetir la corrida real. Evidencia: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-diagnostico-reporte-20261114.json`. El corte79/79 de UI permanece histórico; esta corrección solo cambia el auxiliar. Avance43/48;3.27 sigue abierta. Otra ventana de hasta5 SELECT exige instrucción expresa; se conserva1 intento previo (máximo6 acumulado), sin HTTP ni efectos. Los cortes siguientes conservan su alcance histórico.
+
+
 ## Flujo final tras creación sin confirmación — corte2026-11-14
 
 Video194059: lote39/plan57, carpeta60 y archivo86. La recepción se muestra confirmada, pero la creación deja la carpeta CREANDO y el lote EN_CURSO durante las consultas de la grabación. La columna Expediente pendiente **no demuestra ausencia del expediente real**; no se conoce su resultado sin diagnóstico.

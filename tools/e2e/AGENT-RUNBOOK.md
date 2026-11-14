@@ -52,6 +52,8 @@ Este runbook permite reutilizar las pruebas ASMX Workflow sin copiar credenciale
 
 Reutiliza queryRows y el guard de SELECT. Limita la lectura a lote/raíz/archivos/intentos/eventos autorizados, elimina JSON/mensajes privados y conserva solo referencias, estados y fechas necesarios en `.tmp/doc120-final-state/<runId>/`, excluido de Git. STOPPED no se reintenta automáticamente. No libera intentos, reconcilia, crea ni reenvía; CREANDO/EN_CURSO y la antigüedad no permiten inferir ausencia del efecto. Un diagnóstico terminado no equivale a recuperación del lote ni a una prueba E2E de importación.
 
+Corrección del reporte2026-11-14: conserva únicamente categorías cerradas del puente como `DOC120_DIAGNOSTIC_DB_AUTHENTICATION_FAILED`, `DSN_UNAVAILABLE`, `COLUMN_UNAVAILABLE` o sus otras categorías aprobadas, nunca el mensaje del controlador. `query` identifica la lectura del libro fijo; `select` contabiliza intentos antes de abrir ODBC y `completedSelect` las respuestas de filas recibidas. Un intento no demuestra que el servidor haya ejecutado SQL. La corrida64c70664 quedó STOPPED con1 intento contabilizado y error genérico; no se puede reconstruir retrospectivamente su causa. Otra ventana necesita instrucción expresa y conserva ese consumo, sin restaurar credenciales.
+
 No activar, editar ni limitar el gate fuera del runner aprobado y de una autorización explícita.
 
 - Ejecutar solo contra un ambiente de pruebas autorizado; nunca inferir autorización para producción.
