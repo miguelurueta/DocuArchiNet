@@ -9,7 +9,7 @@ Imports MySql.Data.MySqlClient
 'reconcilia efectos. El mismo repositorio conserva raiz, intento y evento.
 Public Partial Class MySqlImportacionCarpetasRepository
     Public Function RegistrarResultadoCreacion(comando As ComandoCreacionExpedienteImportacion, resultado As ResultadoEfectoImportacion) As ResultadoEfectoImportacion
-        If comando Is Nothing OrElse comando.EsVerificacion Then Throw SolicitudInvalida()
+        If comando Is Nothing OrElse comando.EsVerificacion OrElse comando.EsPreflightReanudacion Then Throw SolicitudInvalida()
         Dim normal = NormalizarResultadoCreacion(comando, resultado)
         Dim contexto = comando.Contexto
         AutorizarOperacion(contexto)
@@ -43,7 +43,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
     End Function
 
     Friend Shared Function NormalizarResultadoCreacion(comando As ComandoCreacionExpedienteImportacion, original As ResultadoEfectoImportacion) As ResultadoEfectoImportacion
-        If comando Is Nothing OrElse original Is Nothing OrElse Not {"CONFIRMADO", "INCIERTO"}.Contains(original.Estado) OrElse original.Creacion Is Nothing OrElse original.Creacion.IntentoId <> comando.IntentoId OrElse Not ValidadorPerfilImportacion.ReferenciaValida(original.Creacion.CicloArchivoId) OrElse original.Creacion.CicloArchivoNombre <> comando.CicloArchivoNombre Then Throw SolicitudInvalida()
+        If comando Is Nothing OrElse comando.EsPreflightReanudacion OrElse original Is Nothing OrElse Not {"CONFIRMADO", "INCIERTO"}.Contains(original.Estado) OrElse original.Creacion Is Nothing OrElse original.Creacion.IntentoId <> comando.IntentoId OrElse Not ValidadorPerfilImportacion.ReferenciaValida(original.Creacion.CicloArchivoId) OrElse original.Creacion.CicloArchivoNombre <> comando.CicloArchivoNombre Then Throw SolicitudInvalida()
         If original.Recepcion IsNot Nothing OrElse original.DocumentoId IsNot Nothing OrElse original.InventarioId IsNot Nothing OrElse original.GabineteId IsNot Nothing OrElse original.OrigenGabinete IsNot Nothing OrElse original.ValoresEfectivos Is Nothing OrElse original.ValoresEfectivos.Count <> 0 Then Throw SolicitudInvalida()
         Dim identidad = original.Expediente
         If identidad IsNot Nothing Then

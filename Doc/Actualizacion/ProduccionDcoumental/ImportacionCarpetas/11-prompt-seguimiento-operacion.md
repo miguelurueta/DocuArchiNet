@@ -1,5 +1,16 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+## Retomar una creación reservada — opción permanente
+
+1. Abre Consultar importación o Consultar último lote y actualiza el estado.
+2. Si el servidor reconoce una reserva de creación que puede retomarse, selecciona su carpeta y pulsa **Retomar creación**. El aviso indica si también se levantará la detención consultada. Cancelar no envía la solicitud.
+3. Confirma una vez. Se conservan la importación y los archivos ya recibidos. Los permisos, catálogos y archivos temporales se comprueban de nuevo.
+4. Cuando el expediente quede confirmado, continúa con **Preparar índices** y después con el almacenamiento mediante sus acciones separadas.
+
+Si no se confirma la respuesta, usa Actualizar estado. Una creación iniciada o incierta no se reinicia; Verificar intento solo aparece cuando el servidor lo permite. Si falta staging o cambia una revisión, la reanudación se bloquea. No crees otra importación ni reenvíes archivos recibidos para eludir ese bloqueo. Filtros y exportación conservan su funcionamiento.
+
+Implementación verificada localmente con108/108 pruebas y compilación; recuperación autenticada del lote39 pendiente. Ver Validacion/doc120-retomar-creacion-permanente-20261114.md. Los cortes siguientes son históricos.
+
 ## Corrección de fechas de origen cortas — 2026-11-14
 
 Una fecha de origen compacta se conserva resuelta en yyyy-MM-dd. La validación de esa salida ya usa sus diez caracteres, sin cambiar el formato/límite de entrada ni editar el perfil. La corrección no reanuda intentos que quedaron reservados: Actualizar solo consulta y Verificar no convierte RESERVADO en verificable. Lote39/intento96 sigue conservado con su detención; la propuesta técnica de recuperación todavía necesita implementación y autorización específicas. No crear otro lote ni reenviar su PDF para sustituir la recuperación. Ver Validacion/doc120-fecha-canonica-corregida-20261114.json.

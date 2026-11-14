@@ -25,6 +25,7 @@ Public NotInheritable Class ComandoCreacionExpedienteImportacion
     Public ReadOnly Property ResponsableRef As String
     Public ReadOnly Property CicloArchivoNombre As String
     Public ReadOnly Property EsVerificacion As Boolean
+    Public ReadOnly Property EsPreflightReanudacion As Boolean
 
     Public ReadOnly Property Contexto As ContextoImportacionCarpetas
         Get
@@ -42,8 +43,9 @@ Public NotInheritable Class ComandoCreacionExpedienteImportacion
         End Get
     End Property
 
-    Private Sub New(contexto As ContextoImportacionCarpetas, lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas, intento As IntentoImportacionCarpetas, campos As Dictionary(Of String, ValorReglaPerfilImportacion), verificacion As Boolean)
+    Private Sub New(contexto As ContextoImportacionCarpetas, lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas, intento As IntentoImportacionCarpetas, campos As Dictionary(Of String, ValorReglaPerfilImportacion), verificacion As Boolean, reanudacion As Boolean)
         EsVerificacion = verificacion
+        EsPreflightReanudacion = reanudacion
         _contextoDoc = PerfilImportacionJson.Escribir(contexto)
         _snapshotDoc = PerfilImportacionJson.Escribir(lote.Snapshot)
         _valoresDoc = PerfilImportacionJson.Escribir(raiz.ValoresPlan)
@@ -62,7 +64,10 @@ Public NotInheritable Class ComandoCreacionExpedienteImportacion
     Public Shared Function PrepararVerificacion(contextoActual As ContextoImportacionCarpetas, lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas, intento As IntentoImportacionCarpetas) As ComandoCreacionExpedienteImportacion
         Return Componer(contextoActual, lote, raiz, intento, True)
     End Function
-    Private Shared Function Componer(contextoActual As ContextoImportacionCarpetas, lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas, intento As IntentoImportacionCarpetas, verificacion As Boolean) As ComandoCreacionExpedienteImportacion
+    Public Shared Function PrepararReanudacion(contextoActual As ContextoImportacionCarpetas, lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas, intento As IntentoImportacionCarpetas) As ComandoCreacionExpedienteImportacion
+        Return Componer(contextoActual, lote, raiz, intento, False, True)
+    End Function
+    Private Shared Function Componer(contextoActual As ContextoImportacionCarpetas, lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas, intento As IntentoImportacionCarpetas, verificacion As Boolean, Optional reanudacion As Boolean = False) As ComandoCreacionExpedienteImportacion
         If contextoActual Is Nothing OrElse Not contextoActual.PuedeImportar OrElse Not Referencia(contextoActual.UsuarioRef) OrElse Not Referencia(contextoActual.AmbitoRef) OrElse Not Referencia(contextoActual.NivelRef) OrElse String.IsNullOrWhiteSpace(contextoActual.SelloDestino) OrElse String.IsNullOrWhiteSpace(contextoActual.RutaCanonica) Then Throw Fallo("ACCESO_DENEGADO")
         If lote Is Nothing OrElse lote.Contexto Is Nothing OrElse Not lote.Contexto.PuedeImportar OrElse contextoActual.UsuarioRef <> lote.Contexto.UsuarioRef OrElse contextoActual.AmbitoRef <> lote.Contexto.AmbitoRef OrElse contextoActual.NivelRef <> lote.Contexto.NivelRef OrElse contextoActual.SelloDestino <> lote.Contexto.SelloDestino OrElse contextoActual.RutaCanonica <> lote.Contexto.RutaCanonica Then Throw Fallo("ACCESO_DENEGADO")
         If Not Referencia(lote.LoteId) OrElse lote.Revision = 0 OrElse lote.Revision = UInteger.MaxValue Then Throw Fallo("CONFLICTO_REVISION")
@@ -70,7 +75,7 @@ Public NotInheritable Class ComandoCreacionExpedienteImportacion
         If intento Is Nothing OrElse Not Referencia(intento.IntentoId) OrElse intento.LoteId <> lote.LoteId OrElse intento.RaizId <> raiz.RaizId OrElse Not String.IsNullOrEmpty(intento.ArchivoId) OrElse intento.Fase <> "CREAR_EXPEDIENTE" OrElse Not String.IsNullOrEmpty(intento.FinUtc) OrElse raiz.IntentoActivoId <> intento.IntentoId OrElse Not Hexadecimal(intento.TokenReclamacion, 32) OrElse Not Hexadecimal(intento.SolicitudHash, 64) Then Throw Fallo("CONFLICTO_REVISION")
         If verificacion Then
             If raiz.Estado <> "INCIERTO" OrElse raiz.IdentidadExpediente IsNot Nothing OrElse intento.Estado <> "INCIERTO" OrElse intento.EsNuevaReserva OrElse intento.Resultado Is Nothing OrElse intento.Resultado.Estado <> "INCIERTO" OrElse intento.Resultado.Expediente Is Nothing OrElse Not Referencia(intento.Resultado.Expediente.ExpedienteId) OrElse Not Referencia(intento.Resultado.Expediente.RelacionNivelId) OrElse intento.Resultado.Expediente.OrigenLogico <> "RA" OrElse intento.Resultado.Expediente.NivelRef <> contextoActual.NivelRef OrElse intento.Resultado.Creacion Is Nothing OrElse intento.Resultado.Creacion.IntentoId <> intento.IntentoId OrElse intento.Resultado.Creacion.CicloArchivoNombre <> "Archivo Gestión" OrElse Not Referencia(intento.Resultado.Creacion.CicloArchivoId) OrElse {"COMPLETADO", "FALLIDO"}.Contains(lote.Estado) Then Throw Fallo("RESULTADO_INCIERTO")
-        ElseIf lote.DetencionSolicitada OrElse lote.Estado <> "EN_CURSO" OrElse raiz.Estado <> "CREANDO" OrElse raiz.IdentidadExpediente IsNot Nothing OrElse intento.Estado <> "RESERVADO" OrElse Not intento.EsNuevaReserva OrElse intento.Resultado IsNot Nothing Then
+        ElseIf (lote.DetencionSolicitada AndAlso Not reanudacion) OrElse lote.Estado <> "EN_CURSO" OrElse raiz.Estado <> "CREANDO" OrElse raiz.IdentidadExpediente IsNot Nothing OrElse intento.Estado <> "RESERVADO" OrElse intento.EsNuevaReserva = reanudacion OrElse intento.Resultado IsNot Nothing Then
             Throw Fallo("CONFLICTO_REVISION")
         End If
         Dim snapshot = lote.Snapshot
@@ -92,7 +97,7 @@ Public NotInheritable Class ComandoCreacionExpedienteImportacion
             campos.Add(valor.DestinoRef, valor)
         Next
         If campos.ContainsKey("FECHA_FINAL") AndAlso String.CompareOrdinal(campos("FECHA_INICIAL").Valor, campos("FECHA_FINAL").Valor) > 0 Then Throw Fallo("CONFIGURACION_INVALIDA")
-        Return New ComandoCreacionExpedienteImportacion(contextoActual, lote, raiz, intento, campos, verificacion)
+        Return New ComandoCreacionExpedienteImportacion(contextoActual, lote, raiz, intento, campos, verificacion, reanudacion)
     End Function
 
     'Subconjunto compatible con los argumentos Integer y el SQL concatenado

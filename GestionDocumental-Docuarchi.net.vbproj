@@ -8722,6 +8722,7 @@
     <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\AdaptadorDocumentoImportacion.ProtocoloV2.vb" />
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.vb" />
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.Control.vb" />
+    <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.Reanudacion.vb" />
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.Consulta.vb" />
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.Verificacion.vb" />
     <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\ImportacionCarpetasContextAdapter.vb" />
@@ -8743,6 +8744,7 @@
     <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\CoordinadorImportacionCarpetas.Barreras.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\CoordinadorImportacionCarpetas.Staging.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\CoordinadorImportacionCarpetas.Creacion.vb" />
+    <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\CoordinadorImportacionCarpetas.Reanudacion.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\CoordinadorImportacionCarpetas.Documento.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\CoordinadorImportacionCarpetas.Consolidacion.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\CoordinadorImportacionCarpetas.Reconciliacion.vb" />

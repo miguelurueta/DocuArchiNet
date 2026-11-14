@@ -1,12 +1,12 @@
 # DOC-120 — propuesta para retomar la reserva96
 
-Estado: PROPUESTA_TECNICA_NO_IMPLEMENTADA_NO_AUTORIZADA. La corrección de fecha está compilada y probada localmente; **no recupera por sí sola el lote39**. El flujo actual no ofrece una reanudación de RESERVADO: Crear exige una reserva nueva, Verificar exige INCIERTO con evidencia, y Actualizar solo lee. No invocar ninguna de esas rutas como sustituto.
+Estado actualizado: MECANISMO_PERMANENTE_IMPLEMENTADO_LOCALMENTE; VENTANA_REAL_NO_EJECUTADA_NO_AUTORIZADA. «implementa» autoriza la capacidad genérica Retomar creación, verificada con108/108 pruebas locales y compilación correcta. **No recupera por sí sola el lote39**. La acción está en AvanzarLote; la consulta y la verificación conservan sus funciones. Detalle: doc120-retomar-creacion-permanente-20261114.md. La propuesta original siguiente conserva los recursos y límites, sin autorizar su ejecución.
 
 ## Recursos conservados
 
 Lote39/plan57, carpeta60, intento96 CREAR_EXPEDIENTE/RESERVADO, recepción95 CONFIRMADA y archivo86 RECIBIDO/NO_INICIADO. Detención solicitada posteriormente. Referencias observadas, no una autorización de efectos ni garantía de estado futuro. Mantener inventario, valores, reglas/snapshot y recibo; no crear otro lote, reenviar el PDF, almacenar documentos ni borrar staging. Las8 lecturas presupuestadas previas se conservan.
 
-## Mecanismo propuesto para revisar e implementar
+## Mecanismo implementado y verificado localmente
 
 1. Añadir una acción explícita de reanudación mediante la fachada existente AvanzarLote, sin otro endpoint. La operación debe verificar actor/empresa/destino/permisos vigentes, lote/raíz/intento exactos y revisiones de lote y raíz mostradas al usuario. Pedir consentimiento explícito para levantar la detención y crear como máximo un expediente y su relación, conservando96. El servidor determina el intento activo; ninguna referencia del cliente concede autoridad.
 2. Verificar antes de mutar el comando corregido, los catálogos actuales, barrera completa EXPEDIENTE/LOTE/parcial y staging recibido. Si aparece otra incompatibilidad, no levantar la detención ni tocar la reclamación. No inferir efecto ausente por antigüedad, lease o RESERVADO. Comprobar la procedencia del backend revisado y su orden durable de inicio antes del escritor.
@@ -16,7 +16,7 @@ Lote39/plan57, carpeta60, intento96 CREAR_EXPEDIENTE/RESERVADO, recepción95 CON
 
 ## Regresión previa a cualquier ejecución
 
-Casos de usuario ajeno, permiso/destino cambiado, stop nuevo concurrente, revisión obsoleta, snapshot distinto, falta de staging, otro intento activo,96 ya EN_CURSO/CONFIRMADO/INCIERTO y dos solicitudes concurrentes. Probar que solo un token inicia una vez y que una respuesta perdida no duplica expediente/relación. Comprobar controles SELECT antes/después, recibo95/archivo86/reglas intactos y eventos de reanudación compatibles con la lectura/reconciliación existente. Este mecanismo necesita su desglose y revisión de implementación; el diseño no lo convierte en disponible.
+Casos de usuario ajeno, permiso/destino cambiado, stop nuevo concurrente, revisión obsoleta, snapshot distinto, falta de staging, otro intento activo,96 ya EN_CURSO/CONFIRMADO/INCIERTO y dos solicitudes concurrentes. Probar que solo un token inicia una vez y que una respuesta perdida no duplica expediente/relación. Comprobar controles SELECT antes/después, recibo95/archivo86/reglas intactos y eventos de reanudación compatibles con la lectura/reconciliación existente. Desglose3.32–3.39 verificado localmente. SQL/transacción/escritor con dobles; staging físico temporal real. La concurrencia real y el recorrido autenticado siguen pendientes.
 
 ## Ventana real propuesta tras implementar y revisar
 

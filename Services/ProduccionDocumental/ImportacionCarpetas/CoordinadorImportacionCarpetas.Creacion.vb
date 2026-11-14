@@ -14,10 +14,11 @@ Public Partial Class CoordinadorImportacionCarpetas
     Private ReadOnly _stagingDocumental As Func(Of LoteImportacionCarpetas, ArchivoImportacionCarpetas, IAlmacenStagingImportacion)
     Private ReadOnly _creador As Func(Of Func(Of IDisposable), ICreacionExpedienteImportacion)
 
-    Public Sub New(identidad As Func(Of ContextoImportacionCarpetas), repositorio As IControlLoteImportacionRepository, destino As Func(Of String, ContextoImportacionCarpetas), autorizar As Action(Of ContextoImportacionCarpetas, ConfiguracionPerfilImportacion), vista As Func(Of ContextoImportacionCarpetas, String, String, VistaBarreraCreacionImportacion), archivo As Func(Of ContextoImportacionCarpetas, String, String, ArchivoImportacionCarpetas), historico As Func(Of ContextoImportacionCarpetas, ReclamacionImportacionCarpetas, IntentoImportacionCarpetas), staging As Func(Of LoteImportacionCarpetas, ArchivoImportacionCarpetas, IAlmacenStagingImportacion), creador As Func(Of Func(Of IDisposable), ICreacionExpedienteImportacion))
+    Public Sub New(identidad As Func(Of ContextoImportacionCarpetas), repositorio As IControlLoteImportacionRepository, destino As Func(Of String, ContextoImportacionCarpetas), autorizar As Action(Of ContextoImportacionCarpetas, ConfiguracionPerfilImportacion), vista As Func(Of ContextoImportacionCarpetas, String, String, VistaBarreraCreacionImportacion), archivo As Func(Of ContextoImportacionCarpetas, String, String, ArchivoImportacionCarpetas), historico As Func(Of ContextoImportacionCarpetas, ReclamacionImportacionCarpetas, IntentoImportacionCarpetas), staging As Func(Of LoteImportacionCarpetas, ArchivoImportacionCarpetas, IAlmacenStagingImportacion), creador As Func(Of Func(Of IDisposable), ICreacionExpedienteImportacion), Optional vistaRetomar As Func(Of ContextoImportacionCarpetas, String, String, VistaReconciliacionImportacion) = Nothing, Optional reclamarRetomar As Func(Of VistaReconciliacionImportacion, String, IntentoImportacionCarpetas) = Nothing, Optional preflightRetomar As Action(Of ComandoCreacionExpedienteImportacion) = Nothing)
         Me.New(identidad, repositorio, destino, autorizar)
         If vista Is Nothing OrElse archivo Is Nothing OrElse historico Is Nothing OrElse staging Is Nothing OrElse creador Is Nothing Then Throw New ArgumentNullException()
         _vistaDocumental = vista : _archivoDocumental = archivo : _historicoDocumental = historico : _stagingDocumental = staging : _creador = creador
+        _vistaRetomar = vistaRetomar : _reclamarRetomar = reclamarRetomar : _preflightRetomar = preflightRetomar
     End Sub
 
     'Una raiz/una fase; no hay bucle de efectos, background o endpoint nuevo.
@@ -42,6 +43,11 @@ Public Partial Class CoordinadorImportacionCarpetas
         If vista.Raiz.Revision <> revisionEsperada Then Throw NoPermitida()
         Dim reserva = ReservarCreacionConStaging(vista, solicitud, _archivoDocumental, _stagingDocumental, _autorizar, AddressOf _repositorio.ReservarIntento)
         If Not reserva.Intento.EsNuevaReserva Then Return ProyectarCreacion(vista, solicitud, reserva.Intento, Nothing, True)
+        Return EjecutarCreacionReservada(contexto, vista, solicitud, reserva, revisionEsperada)
+    End Function
+
+    Private Function EjecutarCreacionReservada(contexto As ContextoImportacionCarpetas, vista As VistaBarreraCreacionImportacion, solicitud As ReclamacionImportacionCarpetas, reserva As ReservaCreacionVerificadaImportacion, revisionEsperada As UInteger) As ResultadoFaseCreacionImportacion
+        Dim loteId = solicitud.LoteId, raizId = solicitud.RecursoId
         Dim resultado As ResultadoEfectoImportacion = Nothing
         Dim retenciones As RetencionesStagingCreacionImportacion = Nothing
         Try

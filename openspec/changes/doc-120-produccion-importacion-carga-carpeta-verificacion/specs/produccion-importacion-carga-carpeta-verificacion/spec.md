@@ -93,6 +93,11 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **THEN** el panel destaca ese recurso y un único botón derivado de sus acciones vigentes, con avance basado en datos confirmados
 - **AND** la selección no envía, crea, almacena ni reconcilia, y los originales/estados reales sustituyen los datos simulados de la maqueta
 
+#### Scenario: Retomar creación permanente con confirmación
+- **WHEN** la consulta del servidor identifica una reserva de creación retomable en la página vigente
+- **THEN** el módulo ofrece Retomar creación y pide confirmar la continuación y el levantamiento de la detención observada
+- **AND** cancelar no solicita efectos y confirmar envía una sola fase con referencias/revisiones actuales, sin lotes ni recepciones nuevos
+
 ### Requirement: RQ-05 — Integridad, incertidumbre y consumidores
 DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, valores diferidos y fecha estable, revocación, stop e incertidumbre con casos del arnés existente. Comprobar contrato del plugin en sus26 registros/22archivos y carga individual pertinente. Un callback sintético no demuestra la acción de negocio real de cada módulo.
 
@@ -120,6 +125,21 @@ DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PE
 - **WHEN** una regla válida convierte una fecha de origen corta a la fecha canónica yyyy-MM-dd
 - **THEN** creación y validación de valores aceptan los diez caracteres canónicos sobre una copia de la regla
 - **AND** la entrada original conserva su límite, las fechas inválidas/no canónicas siguen rechazadas y la regla, snapshot y reserva no cambian
+
+#### Scenario: Reclamación de la misma reserva sin doble escritor
+- **WHEN** se solicita retomar una creación reservada sin checkpoint de inicio
+- **THEN** se validan autoridad, comando, catálogos, staging, revisiones, diario y ausencia de otras reclamaciones antes de rotar atómicamente el token del mismo intento
+- **AND** solo un token puede pasar RESERVADO a EN_CURSO; se conservan recibo, valores, snapshot e identidad del intento y se rechaza al ejecutor anterior
+
+#### Scenario: Detención o revisión concurrente
+- **WHEN** cambia la detención o cualquiera de las revisiones entre la consulta y la reclamación
+- **THEN** la reanudación se rechaza sin levantar la nueva detención ni iniciar efectos
+- **AND** permisos revocados, destino cambiado o staging no comprobado también impiden mutar la reserva
+
+#### Scenario: Intento ya iniciado o respuesta perdida
+- **WHEN** un intento ya está EN_CURSO, INCIERTO o CONFIRMADO, o no se confirma la respuesta de reanudación
+- **THEN** no se adquiere otra reclamación ni se repite el escritor
+- **AND** se consulta el estado y la verificación de resultados inciertos mantiene sus guardas, sin deducir permiso de tiempo o antigüedad
 
 ### Requirement: RQ-06 — INT-02 degradación acotada
 DOC-120 SHALL cumplir la decisión D-06: Conservar el caso real histórico de ausencia temporal de ra_integracion_evento con restauración y carga individual, sin extrapolar a cada incompatibilidad. Contrastar los verificadores/esquema y el guard de indisponibilidad actuales. Exigir variante nueva solo si un requisito concreto y una diferencia reproducida la hacen necesaria; registrar NO_NECESARIA con justificación en los demás casos.

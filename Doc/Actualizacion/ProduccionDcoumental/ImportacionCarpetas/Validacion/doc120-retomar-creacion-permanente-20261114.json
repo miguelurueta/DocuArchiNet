@@ -1,0 +1,227 @@
+{
+  "version": 1,
+  "date": "2026-11-14",
+  "status": "PASS_LOCAL_PERMANENT_RESUME_REAL_RECOVERY_PENDING",
+  "baseSha": "efbb03fe7bd8a97292267d43d36f5c0128aea688",
+  "feature": {
+    "label": "Retomar creación",
+    "phase": "RETOMAR_CREACION",
+    "endpoint": "AvanzarLote",
+    "genericPermanent": true,
+    "noAccountFlag": true,
+    "sameAttempt": true,
+    "preserve": [
+      "attempt ID",
+      "request hash",
+      "original start",
+      "confirmed receipt",
+      "inventory",
+      "snapshot",
+      "values"
+    ],
+    "preflightBeforeHandoff": true,
+    "locks": [
+      "lot",
+      "root",
+      "attempt"
+    ],
+    "oldTokenFenced": true,
+    "noAutomaticRetry": true,
+    "noAutomaticNextPhase": true,
+    "noSchemaChange": true
+  },
+  "tests": {
+    "classification": "LOCAL_SYNTHETIC_BUSINESS_AND_REAL_TEMPORARY_STAGING",
+    "uniqueNodeTests": 108,
+    "passed": 108,
+    "failed": 0,
+    "frameworkWrappers": 1,
+    "ddlWrappers": 1,
+    "internalFrameworkCasesNotAdded": true,
+    "suites": [
+      {
+        "file": ".tmp/doc120-retomar-regression.log",
+        "count": 83,
+        "sha256": "508b4b3ec88e5e50a2ae8b58e6c68acf2852debfef75cad6a58be00d53ac100f"
+      },
+      {
+        "file": ".tmp/doc120-retomar-diagnostics.log",
+        "count": 25,
+        "sha256": "f1f793a5b5a71017dd888f49d78aa38f9c0e539d39ead38dddfd5dc72574f476"
+      }
+    ],
+    "commands": [
+      "node --test --test-concurrency=2 tests/doc120-retomar-creacion.test.cjs tests/doc120-importacion-flujo-final.test.cjs tests/doc120-importacion-fidelidad.test.cjs tests/doc120-importacion-guiada.test.cjs tests/doc120-recepcion-creacion.test.cjs tests/doc110-perfil-importacion-behavior.test.cjs tests/doc120-produccion-barra.test.cjs tests/doc111-importacion-carpetas-client.test.cjs tests/doc119-navigation.test.cjs tests/doc110-perfil-importacion-editor.test.cjs tools/e2e/tests/doc111-degradation.test.cjs",
+      "node --test --test-concurrency=2 tests/doc120-creation-prerequisites.test.cjs tests/doc120-final-state-diagnostic.test.cjs tools/e2e/tests/odbc-select-rows.test.cjs"
+    ],
+    "cases": [
+      "same attempt/hash/start/receipt/snapshot",
+      "preflight cannot start or checkpoint",
+      "concurrent contenders and stale token",
+      "obsolete revisions and stop consent",
+      "catalog/permission/staging rejection",
+      "journal/other claims",
+      "CAS failures without model commit",
+      "handoff and checkpoint response loss",
+      "strict scoped read hint",
+      "cancel zero calls; confirm one phase",
+      "filters and no replay on reopen",
+      "next indices step only after confirmation"
+    ],
+    "sqlTransactions": "MODEL_AND_SQL_EXECUTOR_DOUBLES_NOT_REAL_MYSQL",
+    "writer": "DOUBLE",
+    "browser": "Chromium local static fixture; synthetic XHR; no real HTTP"
+  },
+  "build": {
+    "status": "PASS",
+    "errors": 0,
+    "warnings": 1,
+    "incremental": true,
+    "log": {
+      "file": ".tmp/doc120-retomar-build.log",
+      "sha256": "51755f9b25021670b80799e8b9537bf6735de76333a6438599da67160c5ccd2d"
+    },
+    "assembly": {
+      "file": "bin/GestionDocumental-Docuarchi.net.dll",
+      "sha256": "0bdc8ae7e3abe3fd1260da603d709ac9e8a689c1e4ede5023ba1246393f879bf"
+    },
+    "servedIisAssembly": "NOT_CHECKED"
+  },
+  "captures": [
+    {
+      "width": 390,
+      "file": ".tmp/doc120-retomar/retomar-390.png",
+      "sha256": "0631841f79b8354195a56df8300c09305b7db0028efb16ccf31e77d74b2576b3",
+      "synthetic": true
+    },
+    {
+      "width": 1280,
+      "file": ".tmp/doc120-retomar/retomar-1280.png",
+      "sha256": "e3217dacd92a86f3a06d787d39dc4a96ecd2ca027f9784ecc74e5253410f84de",
+      "synthetic": true
+    }
+  ],
+  "sources": [
+    {
+      "file": "DTOs/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasDtos.vb",
+      "sha256Lf": "90885f361f69eb26450226c351fee4c7a3573293529d4cd917b919c427cfaa98"
+    },
+    {
+      "file": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Lf": "17db02fc52df59153fb41a5f7c8234afd3f79ebd85292f6bbf6847617cb9dd6c"
+    },
+    {
+      "file": "GestionDocumental-Docuarchi.net.vbproj",
+      "sha256Lf": "681d110eea14f63c465821552b656255964a6e6670ae62643fe6b8bc50ff198f"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorExpedienteImportacion.Legacy.vb",
+      "sha256Lf": "3b65c2de5b0d7aae2c9a6a1fb2c8876ffb9bc675213a40e9cfad84d55ffbb045"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoCreacionExpedienteImportacion.vb",
+      "sha256Lf": "8112c690278ed66da03e8f12711f137ab8f71ba543f3d5ba7ae71bdef6a4673b"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionCreacionImportacion.vb",
+      "sha256Lf": "271246a06e1e46e53c63f0f4203d13232d2be28210015b80dec61869745f190e"
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consulta.vb",
+      "sha256Lf": "0dd2dc30d9756310c605ab98bb56415ba14571245b1c08cbc2007a65ff3a6080"
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Control.vb",
+      "sha256Lf": "4927b4083209b355ca401fde8d31884c0c73a97532e42e40ea249f6b6d1bb788"
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ResultadoCreacion.vb",
+      "sha256Lf": "2ed13bc65c81ac03fa9ff6545bb0b00a34b2758eb97f234ad39a5fa898daf07c"
+    },
+    {
+      "file": "Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasModels.vb",
+      "sha256Lf": "7451df9499febd1903230b82b26751b61554ab639f39287c88a1698c3ec2e541"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Creacion.vb",
+      "sha256Lf": "9ee71e3ca0e0612c6bd670a62ab94c06d6b3bc099f8fe85b52bcd4e9eab4d94f"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Operaciones.vb",
+      "sha256Lf": "f3e83695b9b6a04e0af3bdfdc87896c0d777d46394706ea48a85d01624bfcbb8"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb",
+      "sha256Lf": "1d03b788d89e8d6e5ef8ff43f191b6f295348a8e48f52ddbe21601e25d4409ac"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256Lf": "ae38fe39addaf14f65bd6f3a3a23d0fd4e8b7f562d3010d84cbbc972472337d6"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256Lf": "f14f4d74a51063e1bbfdc75372950cebbf3dabbd4460235774b2dc22664db166"
+    },
+    {
+      "file": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "sha256Lf": "f5eca610a79a99cb8c0d97b6441ccfa7670072ecc46e4ae2bbc07c51f23eadd4"
+    },
+    {
+      "file": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "sha256Lf": "66ff2b8f92623c7899401fb0c976ce2629ac55b2ece02a457fad2546968a2015"
+    },
+    {
+      "file": "webservice/WebServiceImportacionCarpetas.Composicion.vb",
+      "sha256Lf": "54bcd87fba3a74098f59a1d25200cbc88e8b78c2eacc9e6684bf6235c59f7221"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Reanudacion.vb",
+      "sha256Lf": "34c62f448707ccd348d0d523251743abdfc09eee0569a5cb506aaa75fef19999"
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Reanudacion.vb",
+      "sha256Lf": "74ccc77ebf88c54da358cfe62d9fc5b87c3c53426d7e2517a11eeccdbe05031b"
+    },
+    {
+      "file": "tests/ImportacionCarpetasReanudacionBehaviorTests.cs",
+      "sha256Lf": "eb2a7fb039eb28343f5b9fe15a6e83bdd6e15297ecfb79ec8c29bf11cd2b18fb"
+    },
+    {
+      "file": "tests/doc120-retomar-creacion.test.cjs",
+      "sha256Lf": "5a55ad55188ef5e96f7e29fae39fc8db2127d94f8c8bcc0a13d01ebb3cc9aef2"
+    }
+  ],
+  "realExecution": {
+    "http": 0,
+    "select": 0,
+    "sessions": 0,
+    "creations": 0,
+    "receipts": 0,
+    "storedDocuments": 0,
+    "priorAttemptedSelect": 8,
+    "lot39Recovered": false
+  },
+  "progress": {
+    "complete": 55,
+    "total": 59,
+    "scenarios": 35,
+    "requirements": 10,
+    "remaining": [
+      "5.2",
+      "6.4",
+      "6.5",
+      "6.6"
+    ]
+  },
+  "historicalEvidenceNote": "The ignored canonical-date build log was accidentally reused by the first resume compile. Its former bytes are no longer retained. Historical committed JSON/hash remains unchanged and is not claimed to match that overwritten path. This cut uses dedicated resume build/test logs.",
+  "validation": {
+    "openspecStrict": "PASS",
+    "sourceAndArtifactHashes": "PASS",
+    "javascriptSyntax": "PASS",
+    "integralGovernance": "FAIL_EXPECTED_OPEN_DELIVERY",
+    "passedChecks": 69,
+    "totalChecks": 72,
+    "openChecks": ["openspec_tasks", "openspec_review", "evidence:manual_qa"]
+  },
+  "integralAcceptance": false
+}

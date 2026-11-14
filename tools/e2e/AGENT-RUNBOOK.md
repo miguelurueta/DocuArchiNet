@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — reanudación permanente, corte local2026-11-14
+
+Retomar creación está implementado como fase explícita de AvanzarLote, con preflight, fencing del token y conservación de la misma reserva.108/108 locales y compilación; evidencia doc120-retomar-creacion-permanente-20261114.json. Este corte no autoriza ni ejecuta recuperación autenticada: lote39/intento96/recibo95 siguen sin operaciones nuevas;8 intentos SELECT anteriores conservados. No editar token/estado/stop por SQL manual ni repetir preparación/recepción. La ventana de600 HTTP/2 sesiones/60 SELECT y una creación sigue siendo una propuesta que exige autorización propia. Los cortes posteriores en este archivo son antecedentes.
+
 ## DOC-119 — seguimiento de lectura autorizado
 
 Estado vigente2026-11-12: el usuario aceptó expresamente la cobertura mixta preparada de SEG-02; tareas2.5/2.7 completas antes de UI. La reorganización final tiene regresión local99/99 y carga individual/contratos33/33, sin nueva sesión autenticada. Accesos en menú Importación, consulta manual/último lote/verificación dentro del asistente y contextual del nivel pulsado. Ver `Validacion/doc119-ui-verificacion-20261112.md` y guía11. Corte real29623218 sobre74083c36: recuperación FINISHED_WITH_LIMITS,281HTTP/27SELECT/1sesión, sin fallo; mantiene límites de inserción nueva y raíces físicas homónimas, complementados localmente por decisión expresa. No repetir automáticamente pruebas pasadas ni recrear lote29/plan45; la aceptación no amplía efectos.

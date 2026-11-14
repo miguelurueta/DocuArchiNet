@@ -74,6 +74,7 @@
         if (!model || !model.estado || !resource || model.busy || model.mutacionIncierta) { return []; }
         var allowed = model.estado.accionesPermitidas || [], actions = [];
         if (allowed.indexOf("SOLICITAR_VERIFICACION") !== -1 && resource.estado === "INCIERTO" && /^[1-9][0-9]*$/.test(resource.intentoActivoId || "")) { actions.push("RECONCILIAR"); }
+        if (raiz && allowed.indexOf("SOLICITAR_REANUDACION") !== -1 && model.estado.loteId === model.loteId && model.estado.estado === "EN_CURSO" && model.estado.hayIncertidumbre === false && model.estado.revision > 0 && model.raices && model.raices.loteId === model.loteId && model.raices.tipo === "RAICES" && model.raices.revisionLectura === model.estado.revision && resource.revision > 0 && resource.estado === "CREANDO" && resource.tieneIntentoActivo === true && resource.puedeRetomarCreacion === true && !resource.expedienteId && !resource.relacionNivelId && typeof resource.intentoActivoId === "string" && /^[1-9][0-9]{0,9}$/.test(resource.intentoActivoId) && Number(resource.intentoActivoId) <= 4294967295) { actions.push("RETOMAR_CREACION"); }
         if (allowed.indexOf("SOLICITAR_AVANCE") === -1 || resource.tieneIntentoActivo) { return actions; }
         if (raiz) {
             if (resource.estado === "PENDIENTE" && !resource.expedienteId && resource.recepcionListaParaCrear === true) { actions.push("CREAR_EXPEDIENTE"); }
@@ -92,6 +93,7 @@
         var last = model.ultimaOperacion && model.ultimaOperacion.loteId === model.loteId ? model.ultimaOperacion : null, needsRead = !!(last && model.mutacionIncierta && last.estado === "SIN_CONFIRMAR"), pending = last && (last.estado === "SOLICITANDO" || needsRead) && resources.filter(function (item) { return last.tipo === item.tipo && last.recursoId === item.recurso.recursoId; })[0], blocked = active.filter(function (item) { return last && last.tipo === item.tipo && last.recursoId === item.recurso.recursoId; })[0] || pending || active[0];
         if (!blocked) { return model.estado.hayIntentosActivos || model.estado.hayIncertidumbre || needsRead ? {tipo:"LOTE", fase:needsRead ? last.fase : null, fueraDePagina:true, verificable:false, requiereConsulta:needsRead} : null; }
         blocked.verificable = accionesRecurso(model, blocked.recurso, blocked.tipo === "RAICES").indexOf("RECONCILIAR") !== -1;
+        blocked.retomable = accionesRecurso(model, blocked.recurso, blocked.tipo === "RAICES").indexOf("RETOMAR_CREACION") !== -1;
         blocked.solicitando = !!pending && last.estado === "SOLICITANDO";
         blocked.requiereConsulta = needsRead && active.indexOf(blocked) === -1;
         return blocked;
@@ -197,7 +199,7 @@
         }
         function message(error) {
             if (error && error.planPendiente) { return "No se pudo confirmar el resultado del plan " + error.planPendiente + ". Conserva esta referencia para su verificación. No se repetirá la confirmación automáticamente."; }
-            if (error && error.resultadoIncierto) { return error.fase === "CREAR_EXPEDIENTE" ? "No se confirmó la creación del expediente. Conserva la referencia del lote y consulta su estado; no repitas la creación." : "No se pudo confirmar el resultado. Consulta el estado antes de repetir la operación."; }
+            if (error && error.resultadoIncierto) { return ["CREAR_EXPEDIENTE","RETOMAR_CREACION"].indexOf(error.fase) !== -1 ? "No se confirmó la creación del expediente. Conserva la referencia del lote y consulta su estado; no repitas la creación." : "No se pudo confirmar el resultado. Consulta el estado antes de repetir la operación."; }
             var texts = {SESION_REQUERIDA:"La sesión expiró. Recarga la página.", ACCESO_DENEGADO:"No tienes autorización vigente para esta operación.", CAPACIDAD_NO_DISPONIBLE:"La importación no está disponible con la configuración actual.", SOLICITUD_NO_VERIFICADA:"Recarga la página para renovar el contexto de la operación.", SELECCION_DIRECTORIOS_NO_DISPONIBLE:"Este navegador no permite seleccionar carpetas.", CONFLICTO_REVISION:"Los datos cambiaron. Consulta el estado o prepara una nueva revisión.", RESPUESTA_INVALIDA:"La respuesta del servidor no es válida. Revisa la selección o vuelve a preparar."};
             if (error && error.message === "RESELECCION_NO_COINCIDE") { return "El archivo no coincide con el nombre, tamaño y fecha del archivo pendiente seleccionado. El lote permanece sin cambios."; }
             return texts[error && (error.codigo || error.message)] || "No se pudo completar la solicitud. Revisa la selección y consulta el estado antes de repetir.";
@@ -369,12 +371,14 @@
                     var resourcePage = kind ? model.raices : model.resultados;
                     row = resourcePage && resourcePage.elementos.filter(function (r) { return r.recursoId === value.id; })[0];
                     if (accionesRecurso(model, row, kind).indexOf(phase) === -1) { return; }
+                    if (phase === "RETOMAR_CREACION" && !deps.confirm("Se retomará la creación del expediente en esta importación, conservando los archivos recibidos." + (model.estado.detencionSolicitada === true ? " También se levantará la detención que acabas de consultar." : "") + " ¿Retomar creación?")) { return; }
                 }
                 model.ultimaOperacion = {loteId:model.loteId,tipo:kind ? "RAICES" : "ARCHIVOS",recursoId:row && row.recursoId || null,fase:name === "detener" ? "DETENCION" : phase,estado:"SOLICITANDO"};
                 run(session, function () {
                     var operation = name === "detener" ? "SolicitarDetencion" : name === "reconciliar" ? "ReconciliarRecurso" : "AvanzarLote";
                     var request = {loteId:model.loteId, revisionEsperada:name === "fase" ? row.revision : model.estado.revision};
                     if (name === "fase") { request.recursoId = row.recursoId; request.fase = phase; request.claveOperacion = key(); }
+                    if (phase === "RETOMAR_CREACION") { request.intentoId = row.intentoActivoId; request.revisionLoteEsperada = model.estado.revision; request.levantarDetencion = model.estado.detencionSolicitada === true; }
                     if (name === "reconciliar") { request.intentoId = row.intentoActivoId; }
                     return session.api.invocar(operation, request).then(function (result) {
                         if (active !== session) { return; }

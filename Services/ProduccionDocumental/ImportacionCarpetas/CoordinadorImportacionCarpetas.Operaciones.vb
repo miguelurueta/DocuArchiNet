@@ -9,14 +9,17 @@ Public Partial Class CoordinadorImportacionCarpetas
         If solicitud Is Nothing OrElse componer Is Nothing OrElse Not ValidadorPerfilImportacion.ReferenciaValida(solicitud.loteId) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(solicitud.recursoId) OrElse solicitud.revisionEsperada = 0 OrElse solicitud.revisionEsperada >= UInteger.MaxValue - 1UI OrElse Not Regex.IsMatch(If(solicitud.claveOperacion, ""), "\A[A-Za-z0-9_-]{1,64}\z", RegexOptions.CultureInvariant) Then Throw EntradaOperacionInvalida()
         Select Case solicitud.fase
             Case "CREAR_EXPEDIENTE", "MATERIALIZAR_VALORES", "ALMACENAR"
+                If solicitud.intentoId IsNot Nothing OrElse solicitud.revisionLoteEsperada <> 0 OrElse solicitud.levantarDetencion Then Throw EntradaOperacionInvalida()
+            Case "RETOMAR_CREACION"
+                If Not ValidadorPerfilImportacion.ReferenciaValida(solicitud.intentoId) OrElse solicitud.revisionLoteEsperada = 0 OrElse solicitud.revisionLoteEsperada >= UInteger.MaxValue - 1UI Then Throw EntradaOperacionInvalida()
             Case Else : Throw EntradaOperacionInvalida()
         End Select
         Dim coordinador = componer(solicitud.fase)
         If coordinador Is Nothing Then Throw New PerfilImportacionException("CAPACIDAD_NO_DISPONIBLE", "La fase no esta disponible.")
         Dim salida As AvanceLoteImportacionResultado
         Select Case solicitud.fase
-            Case "CREAR_EXPEDIENTE"
-                Dim r = coordinador.CrearExpediente(solicitud.loteId, solicitud.recursoId, solicitud.revisionEsperada, solicitud.claveOperacion)
+            Case "CREAR_EXPEDIENTE", "RETOMAR_CREACION"
+                Dim r = If(solicitud.fase = "RETOMAR_CREACION", coordinador.RetomarCreacion(solicitud), coordinador.CrearExpediente(solicitud.loteId, solicitud.recursoId, solicitud.revisionEsperada, solicitud.claveOperacion))
                 salida = ProyectarEfectoPublico(r.Resultado)
                 salida.raizId = r.RaizId : salida.intentoId = r.IntentoId : salida.repeticion = r.Repeticion
             Case "ALMACENAR"

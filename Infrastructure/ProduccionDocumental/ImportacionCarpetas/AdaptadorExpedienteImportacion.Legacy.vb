@@ -24,7 +24,7 @@ Public Partial Class AdaptadorExpedienteImportacion
     End Sub
 
     Private Shared Sub InvocarConservacion(comando As ComandoCreacionExpedienteImportacion, datos As Dictionary(Of String, String), salida As SalidaCreacionExpedienteLegacy)
-        If comando.EsVerificacion Then Throw New PerfilImportacionException("SOLICITUD_INVALIDA", "Un comando de verificacion no puede ejecutar creacion.")
+        If comando.EsVerificacion OrElse comando.EsPreflightReanudacion Then Throw New PerfilImportacionException("SOLICITUD_INVALIDA", "Un comando de comprobacion no puede ejecutar creacion.")
         Dim contexto = comando.Contexto, c = comando.Snapshot.Configuracion
         Dim expedienteId As Integer = 0, relacionId As Integer = 0
         Try

@@ -1,5 +1,14 @@
 # DOC-120 — ResumenTecnico
 
+## Reanudación permanente implementada — 2026-11-14
+
+**Retomar creación** queda incorporado al seguimiento de cualquier importación elegible, sin configuración por cuenta. La consulta comprueba una reserva de creación activa, sin inicio ni evidencia de resultado y con diario coherente. Confirmar vuelve a validar permisos, destino, catálogos, recepción y staging; rota la reclamación del mismo intento bajo bloqueos/CAS y conserva su identidad, hash, inicio, recibo, valores y snapshot. Solo levanta la detención observada con consentimiento; una revisión nueva o intento ya iniciado se rechazan.
+
+La interfaz mantiene consulta/último lote, filtros, CSV y árbol. Cancelar no envía; confirmar solicita una fase. Tras la creación confirmada aparece Preparar índices; no recibe ni almacena automáticamente. Una respuesta perdida exige consultar y no produce replay. **108/108 pruebas locales únicas**, incluidos dos wrappers Framework/DDL cuyos casos internos no se suman, y compilación local0 errores; Chromium sintético390/1280px. Las pruebas de SQL/transacciones/escritor usan dobles y staging temporal real; no prueban concurrencia en MySQL real ni sesión autenticada de IIS.
+
+Avance**55/59**,35 escenarios. El lote39 no se recuperó en este corte:0 HTTP de aplicación,0 SELECT de negocio,0 sesiones y0 efectos reales nuevos. Las8 lecturas intentadas previas se conservan. Abiertas5.2,6.4,6.5,6.6 y aceptación integral pendiente. Evidencia: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-retomar-creacion-permanente-20261114.json`; detalle `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-retomar-creacion-permanente-20261114.md`. Los cortes siguientes son antecedentes históricos y no se renuevan sus resultados.
+
+
 ## Fecha canónica corregida — diagnósticof23baf65,2026-11-14
 
 La ventana autorizada de1 SELECT RA terminó STOPPED reproduciendo **ROOT_FIELD_RULE / FECHA_INICIAL / LONGITUD_EXCEDIDA**: fuente/tipo coinciden y el valor resuelto ocupa10 caracteres. El validador resuelto conservaba el límite menor de la entrada original.8 intentos acumulados,7 lecturas concluidas conocidas y1 anterior de resultado desconocido;0 HTTP/sesiones/efectos y credenciales eliminadas. No se guardó el valor real ni se presume la longitud exacta de la regla.

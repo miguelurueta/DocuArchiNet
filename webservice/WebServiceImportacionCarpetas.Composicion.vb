@@ -7,7 +7,7 @@ Public Partial Class WebServiceImportacionCarpetas
     'Binding productivo separado del arnes: este si compila con los bindings legacy.
     Private Shared Function CrearCoordinacionOperativa(http As HttpContext, autoridad As ImportacionCarpetasContextAdapter, accion As String) As CoordinadorImportacionCarpetas
         Select Case accion
-            Case "CREAR_EXPEDIENTE" : Return ComposicionCreacionImportacion.Crear(http)
+            Case "CREAR_EXPEDIENTE", "RETOMAR_CREACION" : Return ComposicionCreacionImportacion.Crear(http)
             Case "MATERIALIZAR_VALORES" : Return ComposicionPerfilImportacionOperativa.CrearMaterializacion(http)
             Case "ALMACENAR" : Return ComposicionDocumentoImportacion.Crear(http)
             Case "RECONCILIAR" : Return ComposicionReconciliacionImportacion.Crear(http)

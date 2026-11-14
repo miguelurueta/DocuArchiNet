@@ -22,7 +22,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
 
     Public Function IniciarCreacionExpediente(comando As ComandoCreacionExpedienteImportacion, datos As Collections.Generic.Dictionary(Of String, String)) As Boolean
         If comando Is Nothing Then Throw SolicitudInvalida()
-        If comando.EsVerificacion Then Throw SolicitudInvalida()
+        If comando.EsVerificacion OrElse comando.EsPreflightReanudacion Then Throw SolicitudInvalida()
         comando.ValidarEntradasLegacy() : comando.ValidarDatosLegacy(datos)
         Dim contexto = comando.Contexto
         AutorizarOperacion(contexto)
@@ -48,6 +48,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
     End Function
 
     Friend Shared Sub ValidarInicioCreacion(comando As ComandoCreacionExpedienteImportacion, lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas)
+        If comando IsNot Nothing AndAlso comando.EsPreflightReanudacion Then Throw SolicitudInvalida()
         If comando Is Nothing OrElse lote Is Nothing OrElse raiz Is Nothing OrElse lote.Contexto Is Nothing OrElse lote.LoteId <> comando.LoteId OrElse lote.DetencionSolicitada OrElse lote.Estado <> "EN_CURSO" OrElse lote.Revision = 0 OrElse lote.Revision >= UInteger.MaxValue - 1UI OrElse raiz.Revision >= UInteger.MaxValue - 1UI Then Throw ConflictoOperacion()
         If raiz.LoteId <> lote.LoteId OrElse raiz.RaizId <> comando.RaizId OrElse raiz.Revision <> comando.RevisionRaiz OrElse raiz.Estado <> "CREANDO" OrElse raiz.IntentoActivoId <> comando.IntentoId OrElse raiz.IdentidadExpediente IsNot Nothing OrElse raiz.ValoresEfectivos Is Nothing OrElse raiz.ValoresEfectivos.Count <> 0 Then Throw ConflictoOperacion()
         If PerfilImportacionJson.Escribir(lote.Contexto) <> PerfilImportacionJson.Escribir(comando.Contexto) OrElse PerfilImportacionJson.Escribir(lote.Snapshot) <> PerfilImportacionJson.Escribir(comando.Snapshot) OrElse PerfilImportacionJson.Escribir(raiz.ValoresPlan) <> PerfilImportacionJson.Escribir(comando.Valores) Then Throw ConflictoOperacion()

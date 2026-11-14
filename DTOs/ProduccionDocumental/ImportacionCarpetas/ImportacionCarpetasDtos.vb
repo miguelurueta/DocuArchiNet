@@ -91,6 +91,10 @@ Public Class AvanzarLoteImportacionSolicitud
     Public Property fase As String
     Public Property revisionEsperada As UInteger
     Public Property claveOperacion As String
+    'Exclusivos de RETOMAR_CREACION; nunca contienen token ni evidencia.
+    Public Property intentoId As String
+    Public Property revisionLoteEsperada As UInteger
+    Public Property levantarDetencion As Boolean
 End Class
 
 Public Class ReconciliarRecursoImportacionSolicitud
@@ -231,6 +235,7 @@ End Class
 Public Class RecursoConsultaImportacionResultado
     'Solo metadatos: el efecto vuelve a comprobar permisos, revision y staging.
     Public Property recepcionListaParaCrear As Boolean
+    Public Property puedeRetomarCreacion As Boolean
     Public Property rutaRelativa As String
     Public Property ultimaModificacionLocal As String
     Public Property recursoId As String

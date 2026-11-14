@@ -780,7 +780,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
         public Func<ContextoImportacionCarpetas,LoteImportacionCarpetas,RaizImportacionCarpetas,IntentoImportacionCarpetas,ResultadoEfectoImportacion> Run;
         public ResultadoEfectoImportacion Crear(ContextoImportacionCarpetas c,LoteImportacionCarpetas l,RaizImportacionCarpetas r,IntentoImportacionCarpetas i){return Run(c,l,r,i);}
     }
-    sealed class CreationPhaseFixture : IControlLoteImportacionRepository,IDisposable {
+    sealed partial class CreationPhaseFixture : IControlLoteImportacionRepository,IDisposable {
         public CreationStagingFixture Stage=new CreationStagingFixture();public IntentoImportacionCarpetas Attempt;public int Reserves,Writers,Checkpoints,Factories,StageFactories,Leases;public bool StopAfterReserve,CorruptAfterReserve,ThrowWriter,LoseCommitResponse,FailCheckpoint,RevokeAfterReserve;
         public CoordinadorImportacionCarpetas Coordinator;
         public CreationPhaseFixture(){
@@ -1193,7 +1193,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
 
     static object RepositoryHelper(string method,params object[] args) {
         try { return typeof(MySqlImportacionCarpetasRepository).GetMethod(method,BindingFlags.NonPublic|BindingFlags.Static).Invoke(null,args); }
-        catch(TargetInvocationException e) { if(e.InnerException is PerfilImportacionException)throw e.InnerException;throw; }
+        catch(TargetInvocationException e) { throw e.InnerException ?? e; }
     }
     static string Hex(byte[] value) { return BitConverter.ToString(value).Replace("-","").ToLowerInvariant(); }
     static byte[] Unhex(string value) { return Enumerable.Range(0,32).Select(i=>Convert.ToByte(value.Substring(i*2,2),16)).ToArray(); }
@@ -2806,7 +2806,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
         BindingV2Cases();
         AckLossV2Cases();
         Doc115RepositoryGuardCases();
-        QueryCases();QuerySqlCases();QueryDispatcherCases();RetentionDiagnosisCases();KnownExpedientRelationCases();KnownExpedientClassificationCases();CreationCommandCases();CreationCatalogCases();CreationLegacyCompatibilityCases();LegacyCreationAuthorityCases();ProductionArchiveCycleCases();CreationAdapterCases();CreationResultSqlCases();CreationCheckpointCases();CreationBarrierCases();CreationReadinessQueryCases();PhysicalCreationStagingCases();CoordinatedCreationCases();DeferredValuesCases();
+        QueryCases();QuerySqlCases();QueryDispatcherCases();RetentionDiagnosisCases();KnownExpedientRelationCases();KnownExpedientClassificationCases();CreationCommandCases();CreationCatalogCases();CreationLegacyCompatibilityCases();LegacyCreationAuthorityCases();ProductionArchiveCycleCases();CreationAdapterCases();CreationResultSqlCases();CreationCheckpointCases();CreationBarrierCases();CreationReadinessQueryCases();PhysicalCreationStagingCases();CoordinatedCreationCases();ReanudacionCreacionCases();DeferredValuesCases();
         ControlCases();
         TransitionCases();
         ReceiptRecordCases();

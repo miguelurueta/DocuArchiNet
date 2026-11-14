@@ -39,6 +39,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
                           Dim lote = LoteConsulta(conexion, tx, contexto, loteId)
                           Dim consultar As Func(Of String, Object(), DataTable) = Function(sql, parametros) LeerTablaConsulta(conexion, tx, sql, parametros)
                           Dim pagina = LeerRaicesConsulta(lote, filtro, consultar)
+                          CompletarRetomarCreacionConsulta(lote, pagina, consultar)
                           If Not lote.DetencionSolicitada AndAlso pagina.Elementos.Any(Function(r) r.Estado = "PENDIENTE" AndAlso r.IntentoActivoId Is Nothing AndAlso r.IdentidadExpediente Is Nothing) Then
                               Dim plan = CargarPlan(conexion, tx, contexto, IdOperacion(lote.PlanId), False)
                               CompletarRecepcionCreacionConsulta(lote, plan, pagina, consultar)

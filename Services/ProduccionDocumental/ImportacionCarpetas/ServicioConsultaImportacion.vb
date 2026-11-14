@@ -36,6 +36,7 @@ Public Partial Class ServicioConsultaImportacion
         If Not {"COMPLETADO", "FALLIDO"}.Contains(lote.Estado) Then
             If Not lote.DetencionSolicitada Then acciones.Add("SOLICITAR_DETENCION")
             If lectura.HayIncertidumbre Then acciones.Add("SOLICITAR_VERIFICACION")
+            If lote.Estado = "EN_CURSO" AndAlso lectura.HayIntentosActivos AndAlso Not lectura.HayIncertidumbre Then acciones.Add("SOLICITAR_REANUDACION")
             If Not lote.DetencionSolicitada AndAlso Not lectura.HayIncertidumbre AndAlso Not lectura.HayIntentosActivos AndAlso Not {"DETENIDO", "PENDIENTE_VERIFICACION"}.Contains(lote.Estado) Then acciones.Add("SOLICITAR_AVANCE")
         End If
         Return New EstadoLoteImportacionResultado With {.maximoTamanoPagina = _maximoPagina, .loteId = lote.LoteId, .nivelRef = lote.Contexto.NivelRef, .rutaCanonica = lote.Contexto.RutaCanonica,
@@ -79,7 +80,7 @@ Public Partial Class ServicioConsultaImportacion
             For Each raiz In pagina.Elementos
                 If raiz Is Nothing OrElse raiz.LoteId <> lote.LoteId OrElse Not EstadosImportacionCarpetas.EsRaiz(raiz.Estado) Then Throw NoDisponible()
                 salida.elementos.Add(New RecursoConsultaImportacionResultado With {.recursoId = Referencia(raiz.RaizId), .raizId = Referencia(raiz.RaizId), .idCliente = raiz.ClienteRaizId, .nombre = raiz.NombreOriginal, .estado = raiz.Estado, .revision = raiz.Revision,
-                    .recepcionListaParaCrear = raiz.RecepcionListaParaCrear, .tieneIntentoActivo = Not String.IsNullOrEmpty(raiz.IntentoActivoId), .intentoActivoId = IntentoPublico(raiz.IntentoActivoId), .nombreExpediente = NombreExpedientePublico(raiz), .expedienteId = If(raiz.IdentidadExpediente Is Nothing, Nothing, Referencia(raiz.IdentidadExpediente.ExpedienteId)), .relacionNivelId = If(raiz.IdentidadExpediente Is Nothing, Nothing, Referencia(raiz.IdentidadExpediente.RelacionNivelId))})
+                    .recepcionListaParaCrear = raiz.RecepcionListaParaCrear, .puedeRetomarCreacion = raiz.PuedeRetomarCreacion, .tieneIntentoActivo = Not String.IsNullOrEmpty(raiz.IntentoActivoId), .intentoActivoId = IntentoPublico(raiz.IntentoActivoId), .nombreExpediente = NombreExpedientePublico(raiz), .expedienteId = If(raiz.IdentidadExpediente Is Nothing, Nothing, Referencia(raiz.IdentidadExpediente.ExpedienteId)), .relacionNivelId = If(raiz.IdentidadExpediente Is Nothing, Nothing, Referencia(raiz.IdentidadExpediente.RelacionNivelId))})
             Next
         Else
             Dim pagina = _repositorio.ConsultarArchivos(lote.Contexto, lote.LoteId, filtro)
