@@ -1,5 +1,14 @@
 # DOC-120 — ServiciosYReglas
 
+## Fecha canónica corregida — diagnósticof23baf65,2026-11-14
+
+La ventana autorizada de1 SELECT RA terminó STOPPED reproduciendo **ROOT_FIELD_RULE / FECHA_INICIAL / LONGITUD_EXCEDIDA**: fuente/tipo coinciden y el valor resuelto ocupa10 caracteres. El validador resuelto conservaba el límite menor de la entrada original.8 intentos acumulados,7 lecturas concluidas conocidas y1 anterior de resultado desconocido;0 HTTP/sesiones/efectos y credenciales eliminadas. No se guardó el valor real ni se presume la longitud exacta de la regla.
+
+Corrección acotada en ValidarValorResuelto: sobre copia, FECHA se valida como yyyy-MM-dd con longitud10. La entrada original sigue respetando formato/límite del perfil; fechas inválidas/no canónicas y tipos no fecha siguen rechazados. No cambian reglas publicadas, snapshot, permisos, barreras ni reserva96. Reproducción fallida antes en la DLL anterior con el mismo detalle del caso real; **29/29 pruebas locales** después, incluidos1 wrapper Framework y1 DDL cuyos casos internos no se suman, y compilación local0 errores. La DLL compilada acepta el caso sintético compacto sin mutar recursos.
+
+3.30/3.31 completadas en diagnóstico de causa, corrección y propuesta de recuperación; avance**47/51**. **El lote39 no fue recuperado ni probado de nuevo con efectos.** La reserva y detención permanecen; la acción de retomar una reserva requiere implementación revisada y autorización propia. Propuesta técnica, todavía no disponible: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-recuperacion-reserva96-propuesta-20261114.md`. Evidencia: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-fecha-canonica-corregida-20261114.json`. Sin aceptación integral; los cortes siguientes conservan su alcance histórico.
+
+
 ## Estado real del lote39 — diagnóstico933961f9,2026-11-14
 
 **Diagnóstico de estado completado; recuperación sin resolver.** Ventana autorizada expresamente sobre50803073:5 SELECT concluidos,0 HTTP/0 sesiones, credenciales eliminadas. Con el intento64c70664 anterior:6 intentos presupuestados y5 lecturas concluidas conocidas; no se reconstruye el resultado fallido anterior. Lote39/plan57 EN_CURSO, carpeta60 CREANDO e intento96 **RESERVADO**, sin evidencia CREACION_PREPARADA ni identidad de expediente registrada. Archivo86 RECIBIDO/NO_INICIADO, recepción95 CONFIRMADA. La detención se solicitó después (00:43:02 UTC frente a la reserva00:39:26), por lo que no explica el rechazo inicial.

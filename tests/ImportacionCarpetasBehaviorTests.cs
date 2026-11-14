@@ -870,6 +870,12 @@ public static partial class ImportacionCarpetasBehaviorTests {
         invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan.RemoveAt(0));invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[0].Diferido=true);invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[0].PropiedadPendiente="ID");invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[0].TipoValor="ENTERO");invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[0].FuenteTipo="ARCHIVO");
         invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[0].Valor=new string('0',46));invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[1].Valor=" ");invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[2].Valor="29/10/2026");invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[2].Valor="2026-02-30");invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[3].Valor="2026-10-28");invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[4].Valor="08");
         f=new CreationCommandFixture();f.Lot.Snapshot.Reglas.RemoveAll(r=>r.DestinoRef=="FECHA_FINAL"||r.DestinoRef=="RESPONSABLE");f.Root.ValoresPlan.RemoveAll(v=>v.DestinoRef=="FECHA_FINAL"||v.DestinoRef=="RESPONSABLE");f.Rehash();command=f.Prepare();Check(command.FechaFinal==null&&command.ResponsableRef==null,"DOC111 optional values fabricated");
+        f=new CreationCommandFixture();foreach(var r in f.Lot.Snapshot.Reglas.Where(r=>r.TipoValor=="FECHA")){r.FormatoFecha="yyyyMMdd";r.LongitudMaxima=8;}f.Rehash();
+        before=PerfilImportacionJson.Escribir(new{f.Context,f.Lot,f.Root,f.Attempt});command=f.Prepare();
+        Check(command.FechaInicial=="2026-10-29"&&command.FechaFinal=="2026-10-30"&&command.Snapshot.Reglas.Single(r=>r.DestinoRef=="FECHA_INICIAL").LongitudMaxima==8,"DOC120 creation rejects normalized date or changes source rule");
+        Check(PerfilImportacionJson.Escribir(new{f.Context,f.Lot,f.Root,f.Attempt})==before,"DOC120 creation date fix changes confirmed values/reservation");
+        f.Root.ValoresPlan.Single(v=>v.DestinoRef=="FECHA_INICIAL").Valor="2026-02-30";Rejected("CONFIGURACION_INVALIDA",()=>f.Prepare());
+        Console.WriteLine("DOC-120 creation accepts canonical dates from compact input without mutating confirmed resources: passed");
         Console.WriteLine("DOC-111 immutable creation command from confirmed root values (no effects): passed");
     }
 

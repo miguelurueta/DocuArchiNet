@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 public static class PerfilImportacionReglasBehaviorTests
 {
@@ -14,6 +15,7 @@ public static class PerfilImportacionReglasBehaviorTests
     }
     public static void Run() {
         var resolver = new ResolvedorReglasPerfilImportacion();
+        CanonicalDateLengthCases();
         foreach(var property in ResolvedorReglasPerfilImportacion.PropiedadesClasificacion) {
             var inherited=new ReglaPerfilImportacion {DestinoTipo="INDICE_GABINETE",DestinoRef="99",FuenteTipo="EXPEDIENTE",PropiedadExpediente=property,EtapaResolucion="TRAS_EXPEDIENTE",TipoValor="TEXTO",Obligatoria=true};
             var sample=new EjemploPerfilImportacion();
@@ -90,5 +92,24 @@ public static class PerfilImportacionReglasBehaviorTests
             try { PerfilImportacionJson.Leer<ConfiguracionPerfilImportacion>(invalid); } catch(PerfilImportacionException) { rejected=true; }
             Check(rejected,"closed JSON schema");
         }
+    }
+    static void CanonicalDateLengthCases() {
+        var method=typeof(ResolvedorReglasPerfilImportacion).GetMethod("ValidarValorResuelto",BindingFlags.Static|BindingFlags.NonPublic);
+        Func<ReglaPerfilImportacion,string,string> validate=(rule,value)=>(string)method.Invoke(null,new object[]{rule,value});
+        var ruleDate=new ReglaPerfilImportacion{DestinoTipo="CAMPO_EXPEDIENTE",DestinoRef="FECHA_INICIAL",FuenteTipo="CARPETA",TipoValor="FECHA",FormatoFecha="yyyyMMdd",LongitudMaxima=8};
+        var before=PerfilImportacionJson.Escribir(ruleDate);var resolver=new ResolvedorReglasPerfilImportacion();
+        var resolved=resolver.Resolver(new List<ReglaPerfilImportacion>{ruleDate},new EjemploPerfilImportacion{NombreCarpeta="20091219"});
+        Check(resolved.Incidencias.Count==0&&resolved.Valores.Single().Valor=="2009-12-19","DOC120 compact source date must resolve to canonical date");
+        Check(validate(ruleDate,resolved.Valores.Single().Valor)==null,"DOC120 canonical date must not inherit compact source length8");
+        foreach(var value in new[]{"200912190","2009-12-19"})Check(resolver.Resolver(new List<ReglaPerfilImportacion>{ruleDate},new EjemploPerfilImportacion{NombreCarpeta=value}).Incidencias.Any(e=>e.Codigo=="LONGITUD_EXCEDIDA"),"DOC120 original source length guard was relaxed");
+        foreach(var value in new[]{"20091219","2009/12/19","2009-2-19","2023-02-29","0001-01-01"})Check(validate(ruleDate,value)=="FECHA_INVALIDA","DOC120 invalid/noncanonical resolved date accepted");
+        Check(validate(ruleDate,"2009-12-19x")=="LONGITUD_EXCEDIDA","DOC120 resolved date must be exactly canonical length");
+        Check(validate(ruleDate,null)=="VALOR_REQUERIDO","DOC120 required canonical date accepts null");
+        Check(validate(ruleDate,"2024-02-29")==null,"DOC120 canonical leap day rejected");
+        Check(PerfilImportacionJson.Escribir(ruleDate)==before&&ruleDate.LongitudMaxima==8&&ruleDate.FormatoFecha=="yyyyMMdd","DOC120 validation changes published input rule");
+        var text=new ReglaPerfilImportacion{DestinoTipo="CAMPO_EXPEDIENTE",DestinoRef="NOMBRE",FuenteTipo="CARPETA",TipoValor="TEXTO",LongitudMaxima=8};
+        Check(validate(text,"123456789")=="LONGITUD_EXCEDIDA","DOC120 date fix relaxes non-date limits");
+        ruleDate.FuenteTipo="PROVEEDOR";Check(validate(ruleDate,"2009-12-19")==null,"DOC120 resolved provider date rejected by input length");
+        Console.WriteLine("DOC-120 canonical resolved dates preserve input length and immutable rules: passed");
     }
 }

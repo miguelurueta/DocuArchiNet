@@ -1,5 +1,14 @@
 # DOC-120 — PruebasEvidencia
 
+## Fecha canónica corregida — diagnósticof23baf65,2026-11-14
+
+La ventana autorizada de1 SELECT RA terminó STOPPED reproduciendo **ROOT_FIELD_RULE / FECHA_INICIAL / LONGITUD_EXCEDIDA**: fuente/tipo coinciden y el valor resuelto ocupa10 caracteres. El validador resuelto conservaba el límite menor de la entrada original.8 intentos acumulados,7 lecturas concluidas conocidas y1 anterior de resultado desconocido;0 HTTP/sesiones/efectos y credenciales eliminadas. No se guardó el valor real ni se presume la longitud exacta de la regla.
+
+Corrección acotada en ValidarValorResuelto: sobre copia, FECHA se valida como yyyy-MM-dd con longitud10. La entrada original sigue respetando formato/límite del perfil; fechas inválidas/no canónicas y tipos no fecha siguen rechazados. No cambian reglas publicadas, snapshot, permisos, barreras ni reserva96. Reproducción fallida antes en la DLL anterior con el mismo detalle del caso real; **29/29 pruebas locales** después, incluidos1 wrapper Framework y1 DDL cuyos casos internos no se suman, y compilación local0 errores. La DLL compilada acepta el caso sintético compacto sin mutar recursos.
+
+3.30/3.31 completadas en diagnóstico de causa, corrección y propuesta de recuperación; avance**47/51**. **El lote39 no fue recuperado ni probado de nuevo con efectos.** La reserva y detención permanecen; la acción de retomar una reserva requiere implementación revisada y autorización propia. Propuesta técnica, todavía no disponible: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-recuperacion-reserva96-propuesta-20261114.md`. Evidencia: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-fecha-canonica-corregida-20261114.json`. Sin aceptación integral; los cortes siguientes conservan su alcance histórico.
+
+
 ## Rechazo del comando confirmado — ventana704fde28,2026-11-14
 
 Ventana autorizada por «continua» sobre9d64595a: **STOPPED**,1 SELECT de metadatos concluido,0 HTTP/sesiones/efectos y huellas estables; credenciales eliminadas. El comando real rechaza la copia contrafactual con **CONFIGURACION_INVALIDA en COMMAND**, antes de consultar catálogos. Esto acota el problema a snapshot/reglas/valores de creación; no identifica aún el predicado ni acredita la excepción histórica.7 intentos acumulados (6 lecturas concluidas conocidas y1 de resultado anterior desconocido). La reserva96 permanece intacta.

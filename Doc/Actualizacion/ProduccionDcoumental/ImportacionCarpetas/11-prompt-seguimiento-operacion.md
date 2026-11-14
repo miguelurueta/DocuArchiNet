@@ -1,5 +1,9 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+## Corrección de fechas de origen cortas — 2026-11-14
+
+Una fecha de origen compacta se conserva resuelta en yyyy-MM-dd. La validación de esa salida ya usa sus diez caracteres, sin cambiar el formato/límite de entrada ni editar el perfil. La corrección no reanuda intentos que quedaron reservados: Actualizar solo consulta y Verificar no convierte RESERVADO en verificable. Lote39/intento96 sigue conservado con su detención; la propuesta técnica de recuperación todavía necesita implementación y autorización específicas. No crear otro lote ni reenviar su PDF para sustituir la recuperación. Ver Validacion/doc120-fecha-canonica-corregida-20261114.json.
+
 ## Continuación y bloqueo de la parte final — vigente2026-11-14
 
 Después de enviar los pendientes, **Crear expediente** solicita una creación para la carpeta indicada. Solo al confirmarse aparece **Preparar índices** para su archivo; después, **Almacenar archivo**. Son operaciones distintas. **Importación completada** depende del estado confirmado del lote; recibir el PDF no lo almacena.

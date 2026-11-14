@@ -4,6 +4,8 @@ DOC-120 consolida la verificación de importación de carpetas sobre la interfaz
 
 ## What Changes
 
+Diagnósticof23baf65 autorizado: FECHA_INICIAL canónica de10 caracteres rechazada por límite de origen menor. Corregir únicamente ValidarValorResuelto sobre copia (FECHA yyyy-MM-dd/longitud10), preservando entrada original y snapshot. Regresión local29/29 y compilación0 errores.3.30/3.31 completas por diagnóstico/corrección/propuesta;47/51. Lote39 e intento96 no se modifican; recuperación propuesta necesita implementación revisada y autorización separada, sin replay por inferencia.
+
 La ventana autorizada704fde28 reproduce CONFIGURACION_INVALIDA en COMMAND tras1 SELECT, antes de catálogos, sin efectos. Se afina únicamente el auxiliar para clasificar el guard y se prepara un modo de una SELECT RA;26/26 locales. Nueva autorización solicitada, todavía sin respuesta;3.30/3.31 y recuperación siguen abiertas.
 
 Continuación posterior al diagnóstico933961f9: preparar un auxiliar de prerrequisitos que reutiliza comando/catálogo reales y queryRows, con IPC efímero, etapas/códigos públicos y ningún escritor. Copia contrafactual explícita anterior a la detención; no prueba sesión/transacción ni permite replay.23/23 locales; nueva ventana propuesta de hasta30 SELECT RA/DA requiere autorización propia y conserva6 anteriores. Tareas3.29–3.31; causa histórica y recuperación siguen abiertas.

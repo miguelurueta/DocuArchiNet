@@ -116,6 +116,11 @@ DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PE
 - **THEN** el panel señala la siguiente acción explícita o el resultado confirmado del archivo/lote
 - **AND** una raíz completada conserva su expediente confirmado en el indicador; recepción sola no cuenta como documento guardado y filtros no relajan la autoridad del padre
 
+#### Scenario: Fecha resuelta con longitud distinta del origen
+- **WHEN** una regla válida convierte una fecha de origen corta a la fecha canónica yyyy-MM-dd
+- **THEN** creación y validación de valores aceptan los diez caracteres canónicos sobre una copia de la regla
+- **AND** la entrada original conserva su límite, las fechas inválidas/no canónicas siguen rechazadas y la regla, snapshot y reserva no cambian
+
 ### Requirement: RQ-06 — INT-02 degradación acotada
 DOC-120 SHALL cumplir la decisión D-06: Conservar el caso real histórico de ausencia temporal de ra_integracion_evento con restauración y carga individual, sin extrapolar a cada incompatibilidad. Contrastar los verificadores/esquema y el guard de indisponibilidad actuales. Exigir variante nueva solo si un requisito concreto y una diferencia reproducida la hacen necesaria; registrar NO_NECESARIA con justificación en los demás casos.
 

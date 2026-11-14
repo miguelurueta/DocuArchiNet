@@ -132,6 +132,8 @@ if (require.main === module) test('DOC-110: reglas y configuración ejecutadas e
     const { exe } = compileBehaviorHarness(directory);
     const output=run(exe, [], directory);
     assert.match(output, /DOC-110 behavior tests: passed/);
+    assert.match(output, /DOC-120 canonical resolved dates preserve input length and immutable rules: passed/);
+    assert.match(output, /DOC-120 creation accepts canonical dates from compact input without mutating confirmed resources: passed/);
     assert.match(output, /DOC-118 V2 internal document behavior cases: 19 passed; no execution capability/);
     assert.match(output, /DOC-118 V2 real staging behavior cases: 21 passed; synthetic child processes: 3 closed; no recovery activated/);
     assert.match(output, /DOC-118 V2 adapter behavior cases: 20 passed; persistence and writer doubles; no public activation/);

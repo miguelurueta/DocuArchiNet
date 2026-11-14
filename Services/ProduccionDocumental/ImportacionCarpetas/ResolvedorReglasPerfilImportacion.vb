@@ -134,7 +134,12 @@ Public Class ResolvedorReglasPerfilImportacion
     Friend Shared Function ValidarValorResuelto(regla As ReglaPerfilImportacion, valor As String) As String
         If regla Is Nothing Then Return "REGLA_INVALIDA"
         Dim copia = PerfilImportacionJson.Leer(Of ReglaPerfilImportacion)(PerfilImportacionJson.Escribir(regla))
-        If copia.TipoValor = "FECHA" Then copia.FormatoFecha = "yyyy-MM-dd"
+        If copia.TipoValor = "FECHA" Then
+            copia.FormatoFecha = "yyyy-MM-dd"
+            'El limite original se aplica antes de resolver (p.ej. yyyyMMdd).
+            'La fecha ya resuelta ocupa siempre diez caracteres canonicos.
+            copia.LongitudMaxima = 10
+        End If
         Dim convertido As String = Nothing
         Dim errorValor = Convertir(copia, valor, convertido)
         If errorValor IsNot Nothing Then Return errorValor

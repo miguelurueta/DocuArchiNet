@@ -1,0 +1,182 @@
+{
+  "version": 1,
+  "date": "2026-11-14",
+  "status": "PASS_LOCAL_CANONICAL_DATE_FIX_REAL_RESERVATION_NOT_RECOVERED",
+  "baseSha": "4329c7b0612cf4b83db59dd5275f5449aa15558e",
+  "realDiagnosis": {
+    "runId": "f23baf65f1d32dc10ef12c854a76b904",
+    "status": "STOPPED",
+    "scope": {
+      "lot": "39",
+      "root": "60",
+      "attempt": "96"
+    },
+    "select": 1,
+    "completedSelect": 1,
+    "maxSelect": 1,
+    "priorAttempts": 7,
+    "cumulativeAttempts": 8,
+    "knownCompletedTotal": 7,
+    "earlierCompletionUnknown": 1,
+    "http": 0,
+    "sessions": 0,
+    "result": {
+      "status": "STOPPED",
+      "stage": "COMMAND",
+      "code": "CONFIGURACION_INVALIDA",
+      "detail": {
+        "guard": "ROOT_FIELD_RULE",
+        "field": "FECHA_INICIAL",
+        "issue": "LONGITUD_EXCEDIDA",
+        "sourceMatches": true,
+        "typeMatches": true,
+        "valueValid": false,
+        "valueLength": 10
+      },
+      "counterfactual": true,
+      "sessionAuthorityChecked": false,
+      "sessionConnectionCompatibilityChecked": false,
+      "startTransactionChecked": false,
+      "recoveryAuthorized": false
+    },
+    "binaryStable": true,
+    "oldAssemblySha256": "4e7e692294856056776b8f33fbc0b36b14eb123452f288e00fefcd0f362e2ee6",
+    "credentialsCleared": true,
+    "finishedUtc": "2026-11-14T11:29:07.206Z",
+    "artifact": {
+      "file": ".tmp/doc120-prerequisites/f23baf65f1d32dc10ef12c854a76b904/state.json",
+      "sha256": "1a06bd105c25f57b30e12506ecd87cf1147c7b2143ba9ccf9c9f266f479c4ac8"
+    }
+  },
+  "cause": {
+    "component": "ResolvedorReglasPerfilImportacion.ValidarValorResuelto",
+    "reproduced": "A canonical FECHA_INICIAL of10 characters is checked against the shorter source-input length and rejected before creation.",
+    "actualSourceLimit": "LESS_THAN_10; exact configured length not retained",
+    "actualDateValue": "NOT_RETAINED",
+    "historicalHttpException": "NOT_CAPTURED; persistent-data rejection reproduced with the pre-fix local assembly."
+  },
+  "fix": {
+    "canonicalDateFormat": "yyyy-MM-dd",
+    "canonicalDateLength": 10,
+    "onlyRuleCopyChanged": true,
+    "originalInputLimitPreserved": true,
+    "publishedRulesOrSnapshotsChanged": false,
+    "nonDateLimitsPreserved": true,
+    "authorityOrReplayGuardsChanged": false,
+    "callersCovered": [
+      "Creation command composition",
+      "Confirmed document value validation"
+    ],
+    "originalReservationEdited": false
+  },
+  "tests": {
+    "classification": "LOCAL_ONLY",
+    "passed": 29,
+    "failed": 0,
+    "frameworkWrappers": 1,
+    "ddlWrapper": 1,
+    "internalFrameworkCasesNotAddedToCount": true,
+    "command": "node --test --test-concurrency=2 --test-name-pattern=\"DOC-110: reglas|DOC-111: columnas|DOC120-PRE|DOC120-DIAG|DOC120-FIN03|DOC120-FIN04|ODBC filas\" tests/doc110-perfil-importacion-behavior.test.cjs tests/doc120-creation-prerequisites.test.cjs tests/doc120-final-state-diagnostic.test.cjs tests/doc120-importacion-flujo-final.test.cjs tools/e2e/tests/odbc-select-rows.test.cjs",
+    "log": {
+      "file": ".tmp/doc120-canonical-date-tests-20261114.log",
+      "sha256": "954ea3ef2293dd9528403734b2c39176b26e67b1b9c8966521cad370254812fb"
+    },
+    "baseline": {
+      "file": ".tmp/doc120-canonical-date-baseline-20261114.log",
+      "sha256": "224a3251b22b39dbdc7edaa6aee5b47ffd0678e5486de881d21696a54f4baa84",
+      "expectedFailure": "ROOT_FIELD_RULE/FECHA_INICIAL/LONGITUD_EXCEDIDA in the pre-fix DLL, identical to real diagnosis."
+    },
+    "newBusinessReadsAfterDiagnosis": 0
+  },
+  "build": {
+    "status": "PASS",
+    "errors": 0,
+    "warnings": 308,
+    "warningCodes": [
+      "MSB3247",
+      "BC40004",
+      "BC42104",
+      "BC42024",
+      "BC40000",
+      "BC42030",
+      "BC42108",
+      "BC42105",
+      "BC42109"
+    ],
+    "warningInChangedResolver": false,
+    "log": {
+      "file": ".tmp/doc120-canonical-date-build.log",
+      "sha256": "39d6395756c796ae9c58eaee0d59ff48d1a2cd141e7645787b6e011e2dae7f68"
+    },
+    "assembly": {
+      "file": "bin/GestionDocumental-Docuarchi.net.dll",
+      "sha256": "f68db61d196aa4f22551e75ccf6ffc7237a8f9ccd6f10d8d91a18487fd2b49bc"
+    },
+    "claim": "Local build and synthetic host verification; no authenticated IIS acceptance or served-memory provenance claim."
+  },
+  "sources": [
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ResolvedorReglasPerfilImportacion.vb",
+      "sha256Lf": "bd2a293b36ee41d57faa026975c5de1d1921ba2853d76ccef9a08f5717cf066f"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoCreacionExpedienteImportacion.vb",
+      "sha256Lf": "473d623a512cc7b9a383e1573ddfcf55e1cf51c21da2e751a47363e3c9dce59a"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Valores.vb",
+      "sha256Lf": "cee808a58137b3a6de8c91321523744671e7de7d13093e3eec60aecc8837f002"
+    },
+    {
+      "file": "tests/PerfilImportacionReglasBehaviorTests.cs",
+      "sha256Lf": "17dfaddefbea387b6f22733e17c39e3327d3669963ba63f21ff3bd16015fcb7a"
+    },
+    {
+      "file": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "sha256Lf": "0aca29f88bd46d115c88bf411658c863f68553d2dff822063cd0b0d420286b07"
+    },
+    {
+      "file": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "sha256Lf": "fb00a2e13ff72c2f07cf9bb1e5607d1eacbef7ba2fc21ba6dd1ea427e37d6811"
+    },
+    {
+      "file": "tests/doc120-creation-prerequisites.test.cjs",
+      "sha256Lf": "d0f13c636774215b7e2ae2d64f1500e0d1daef7f242872c32b4ad0366b5cc4a5"
+    },
+    {
+      "file": "tests/support/Doc120PrerequisiteFixture.cs",
+      "sha256Lf": "949646077bc92828f42d1fd9c48100e6852d51276ea70820c15b1c22d5e6324c"
+    }
+  ],
+  "recovery": {
+    "status": "PROPOSED_NOT_IMPLEMENTED_OR_AUTHORIZED",
+    "plan": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-recuperacion-reserva96-propuesta-20261114.md",
+    "lotId": "39",
+    "rootId": "60",
+    "attemptId": "96",
+    "receiptId": "95",
+    "fileId": "86",
+    "noNewLot": true,
+    "noNewReceipt": true,
+    "noStoredDocument": true,
+    "noEffectsIssued": true,
+    "noAutomaticRetry": true
+  },
+  "progress": {
+    "complete": 47,
+    "total": 51,
+    "doneThisCut": [
+      "3.30",
+      "3.31"
+    ],
+    "remaining": [
+      "5.2",
+      "6.4",
+      "6.5",
+      "6.6"
+    ],
+    "scenarios": 31,
+    "requirements": 10
+  },
+  "integralAcceptance": false
+}

@@ -60,6 +60,8 @@ Auxiliar de prerrequisitos DOC-120: `inspect-doc120-creation-prerequisites.cjs -
 
 Ventana704fde28 autorizada por «continua», cerrada STOPPED:1 SELECT de metadatos concluido, rechazo CONFIGURACION_INVALIDA en COMMAND antes de catálogos,0 HTTP/sesiones/efectos, huellas estables y secretos eliminados.7 intentos acumulados; no repetir automáticamente. Refinamiento local26/26 prepara `--command-only --authorized` (opciones finales tras --attempt 96): nueva ventana de **1 SELECT RA**,0 catálogos/HTTP/efectos, máximo8 acumulados. Solicitud de autorización sin respuesta al registrar este corte. El diagnóstico del guard reutiliza validadores reales y conserva solo campos/códigos cerrados y conteos; no valores ni snapshot/huellas privadas. Ver `Validacion/doc120-comando-detalle-plan-20261114.md`.
 
+Ventanaf23baf65 autorizada expresamente, cerrada STOPPED tras1 SELECT RA: ROOT_FIELD_RULE/FECHA_INICIAL/LONGITUD_EXCEDIDA, valor canónico de10 caracteres.8 intentos acumulados,0 HTTP/sesiones/efectos; secretos eliminados. ValidarValorResuelto corregido sobre copia y29/29 locales, sin nueva lectura real. El lote39/reserva96 no se modifica; no repetir ahora el selector ni crear otro lote. La propuesta doc120-recuperacion-reserva96-propuesta-20261114.md no está implementada ni autoriza efectos. Cualquier reanudación necesita mecanismo revisado y ventana explícita; no liberar ni alterar tokens/stop por SQL manual.
+
 No activar, editar ni limitar el gate fuera del runner aprobado y de una autorización explícita.
 
 - Ejecutar solo contra un ambiente de pruebas autorizado; nunca inferir autorización para producción.

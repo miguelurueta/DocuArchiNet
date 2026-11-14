@@ -1,9 +1,9 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),cp=require('node:child_process'),path=require('node:path'),fs=require('node:fs');
 const diagnostic=require('../tools/e2e/scripts/inspect-doc120-creation-prerequisites.cjs');
-const root=path.resolve(__dirname,'..'),bin=path.join(root,'bin');let exe,rows;
+const root=path.resolve(__dirname,'..'),bin=path.join(root,'bin');let exe,rows,fixtureExe;
 test.before(()=>{
- exe=diagnostic.compile();const fixture=path.join(path.dirname(exe),'Doc120PrerequisiteFixture.exe');
+ exe=diagnostic.compile();const fixture=path.join(path.dirname(exe),'Doc120PrerequisiteFixture.exe');fixtureExe=fixture;
  cp.execFileSync(path.join(process.env.WINDIR,'Microsoft.NET/Framework64/v4.0.30319/csc.exe'),['/nologo','/target:exe','/out:'+fixture,'/r:System.Core.dll','/r:'+path.join(bin,'Newtonsoft.Json.dll'),'/r:'+path.join(bin,'GestionDocumental-Docuarchi.net.dll'),path.join(__dirname,'support/Doc120PrerequisiteFixture.cs')],{windowsHide:true,stdio:'pipe'});
  rows=JSON.parse(cp.execFileSync(fixture,[bin],{encoding:'utf8',windowsHide:true}));
 });
@@ -94,4 +94,9 @@ test('DOC120-PRE14: detalle contiene solo categorías/campos públicos y conteos
  const safe={type:'RESULT',status:'STOPPED',stage:'COMMAND',code:'CONFIGURACION_INVALIDA',counterfactual:true,sessionAuthorityChecked:false,sessionConnectionCompatibilityChecked:false,startTransactionChecked:false,recoveryAuthorized:false,detail:{guard:'ROOT_FIELD_RULE',field:'PRIVATE_FIELD',issue:'PRIVATE_CODE',message:'PRIVATE_MESSAGE',value:'PRIVATE_VALUE',sourceMatches:false,typeMatches:true,valueValid:false,valueLength:15,incidenceCount:Infinity}};
  const output=diagnostic.result(safe);assert.equal(output.detail.field,'OTHER');assert.equal(output.detail.issue,'OTHER');assert.equal(output.detail.valueLength,15);assert.equal(output.detail.incidenceCount,undefined);assert.doesNotMatch(JSON.stringify(output),/PRIVATE_/);
  assert.throws(()=>diagnostic.result({...safe,detail:{guard:'PRIVATE_GUARD'}}),/PROTOCOL_INVALID/);
+});
+test('DOC120-PRE15: DLL compilada acepta fechas canónicas de origen compacto sin alterar el snapshot',async()=>{
+ const compactRows=JSON.parse(cp.execFileSync(fixtureExe,[bin,'SHORT_DATE'],{encoding:'utf8',windowsHide:true}));
+ const input=diagnostic.payload(compactRows,scope);input.commandOnly=true;const before=JSON.stringify(input);let reads=0;
+ const output=await diagnostic.inspect(input,async()=>{reads++;return[];},exe);assert.equal(output.status,'PASS',JSON.stringify(output));assert.equal(output.code,'COMMAND_COMPATIBLE');assert.equal(reads,0);assert.equal(JSON.stringify(input),before);assert.equal(input.lot.Snapshot.Reglas.find(r=>r.DestinoRef==='FECHA_INICIAL').LongitudMaxima,8);
 });

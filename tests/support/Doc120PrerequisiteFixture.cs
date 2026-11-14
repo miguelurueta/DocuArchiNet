@@ -13,18 +13,18 @@ public static class Doc120PrerequisiteFixture {
         Console.OutputEncoding=new UTF8Encoding(false);
         var bin=Path.GetFullPath(args[0]);
         AppDomain.CurrentDomain.AssemblyResolve+=(sender,e)=>Assembly.LoadFrom(Path.Combine(bin,new AssemblyName(e.Name).Name+".dll"));
-        Emit();
+        Emit(args.Length>1&&args[1]=="SHORT_DATE");
     }
     static string Hash(byte[] value){using(var sha=SHA256.Create())return BitConverter.ToString(sha.ComputeHash(value)).Replace("-","").ToLowerInvariant();}
     [MethodImpl(MethodImplOptions.NoInlining)]
-    static void Emit() {
+    static void Emit(bool shortDate) {
         var context=new ContextoImportacionCarpetas{UsuarioRef="1",AmbitoRef="2",NivelRef="7",RutaCanonica="synthetic-private-route",SelloDestino="synthetic-seal",PuedeImportar=true};
         var config=new ConfiguracionPerfilImportacion{NombreVisible="Synthetic",GabineteId=7,HuellaOrigenGabinete=Hash(Encoding.UTF8.GetBytes(PerfilImportacionJson.Escribir(new[]{"host-DA","3306","1","base-DA"}))),FondoRef="1",InstrumentoRef="2",AreaRef="3",SerieRef="4",TipoExpedienteRef="5",UnidadDocumentalRef="6",ModoIntegridad="COMPLETO_OBLIGATORIO",AmbitoIntegridad="EXPEDIENTE",EstrategiaCarpetas="RAIZ_EXPEDIENTE",PoliticaSubcarpetas="INCLUIR",PoliticaCarpetasVacias="RECHAZAR",PoliticaArchivosSueltos="RECHAZAR",Extensiones=new List<string>{"pdf"}};
         var rules=new List<ReglaPerfilImportacion>();var values=new List<ValorReglaPerfilImportacion>();
         foreach(var field in new[]{"CODIGO","NOMBRE","FECHA_INICIAL","FECHA_FINAL","RESPONSABLE"}) {
             var type=field.StartsWith("FECHA")?"FECHA":field=="RESPONSABLE"?"REFERENCIA":"TEXTO";
             var value=field=="CODIGO"?"000123":field=="NOMBRE"?"Órdenes 2026":field=="FECHA_INICIAL"?"2026-10-29":field=="FECHA_FINAL"?"2026-10-30":"8";
-            rules.Add(new ReglaPerfilImportacion{DestinoTipo="CAMPO_EXPEDIENTE",DestinoRef=field,TipoValor=type,FuenteTipo="CARPETA",FormatoFecha=type=="FECHA"?"dd-MM-yyyy":null,LongitudMaxima=160});
+            rules.Add(new ReglaPerfilImportacion{DestinoTipo="CAMPO_EXPEDIENTE",DestinoRef=field,TipoValor=type,FuenteTipo="CARPETA",FormatoFecha=type=="FECHA"?(shortDate?"yyyyMMdd":"dd-MM-yyyy"):null,LongitudMaxima=shortDate&&type=="FECHA"?8:160});
             values.Add(new ValorReglaPerfilImportacion{DestinoTipo="CAMPO_EXPEDIENTE",DestinoRef=field,TipoValor=type,FuenteTipo="CARPETA",Valor=value,Procedencia="synthetic-private-marker"});
         }
         rules.Add(new ReglaPerfilImportacion{DestinoTipo="TIPOLOGIA",DestinoRef="TIPO_DOCUMENTAL",TipoValor="REFERENCIA",FuenteTipo="CONSTANTE",ValorConstante="9"});
