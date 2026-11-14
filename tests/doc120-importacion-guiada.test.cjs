@@ -5,11 +5,12 @@ const mockFile=path.join(root,'Doc/Actualizacion/ProduccionDcoumental/Importacio
 async function withView(work){const browser=await chromium.launch({headless:true});try{const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[],requests=[];page.setDefaultTimeout(5000);page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(/^https?:/.test(r.url()))requests.push(r.url());});await page.setContent('<html lang="es"><body><button id="before">Abrir</button><div id="guiada-fixture"></div></body></html>');await page.addStyleTag({path:path.join(root,'js/gestion/ImportacionCarpetas/ImportacionCarpetas.css')});await page.addScriptTag({path:path.join(root,'js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js')});await page.addScriptTag({path:path.join(root,'js/gestion/ImportacionCarpetas/ImportacionCarpetas.js')});await page.evaluate(()=>{document.getElementById('guiada-fixture').id='doc111-importacion';document.getElementById('before').focus();window.calls=[];window.model={etapa:0,contexto:{rutaCanonica:'Destino sintético'},perfiles:[{VersionId:'43',PerfilId:'28',NumeroVersion:1,Configuracion:{NombreVisible:'Egresos',GabineteId:'10'}}],perfil:null,masPerfiles:true,selectorDisponible:true,paginaRaices:1,paginaArchivos:1,manifiesto:{raices:[{idCliente:'r1',nombre:'Egreso'}],archivos:[{idCliente:'a1',nombre:'1.pdf',rutaRelativa:'Egreso/1.pdf',bytes:7}]}};window.view=ImportacionCarpetasVista.crear(document.getElementById('doc111-importacion'),(name,value)=>calls.push({name,value}));view.render(model);});await work(page);assert.deepEqual(errors,[]);assert.deepEqual(requests,[]);}finally{await browser.close();}}
 
 test('DOC120-GUI01: selección reunida conserva inventario, versiones y callbacks; revisión no encadena',async()=>withView(async page=>{
-  assert.deepEqual(await page.locator('.doc111-steps li').allTextContents(),['Seleccionar','Revisar','Seguimiento']);
+  assert.deepEqual(await page.locator('.doc111-steps .step > span:last-child').allTextContents(),['Seleccionar','Revisar','Seguimiento']);
   assert.equal(await page.getByRole('button',{name:'Preparar revisión',exact:true}).isDisabled(),true);
   await page.getByLabel('Perfil publicado').selectOption('43');assert.deepEqual(await page.evaluate(()=>calls.pop()),{name:'perfil',value:'43'});
   await page.evaluate(()=>{model.perfil=model.perfiles[0];view.render(model);});
-  for(const name of ['Más perfiles','Agregar carpetas','Preparar revisión'])await page.getByRole('button',{name,exact:true}).click();
+  for(const name of ['Más perfiles','Agregar carpeta','Preparar revisión'])await page.getByRole('button',{name,exact:true}).click();
+  await page.locator('[data-doc111-panel="inventario-archivos"] > summary').click();
   const removes=page.getByRole('button',{name:'Quitar',exact:true});assert.equal(await removes.count(),2);await removes.nth(0).click();await removes.nth(1).click();
   assert.deepEqual(await page.evaluate(()=>calls.map(c=>c.name)),['mas-perfiles','agregar','preparar','quitar-raiz','quitar-archivo']);
   await page.evaluate(()=>{model.etapa=2;model.confirmable=true;model.plan={planId:'45',resultado:{PuedeConfirmar:true,UnidadesElegibles:['r1'],Incidencias:[],Elementos:[]}};view.render(model);});
@@ -26,7 +27,7 @@ test('DOC120-GUI02: seguimiento conserva borradores, paneles, foco, páginas y b
   const field=page.getByLabel('Referencia de carpeta',{exact:true});await field.fill('52');await field.focus();await page.evaluate(()=>view.render(model));assert.equal(await field.inputValue(),'52');assert.equal(await field.evaluate(e=>document.activeElement===e),true);assert.equal(await filePanel.evaluate(e=>e.open),true);
   await page.getByRole('button',{name:'Aplicar filtros de archivos',exact:true}).click();assert.deepEqual(await page.evaluate(()=>calls.pop()),{name:'filtrar-resultados',value:{raizId:'52',estado:'',estadoRecepcion:''}});
   await page.evaluate(()=>{model.filtrosArchivos={raizId:'52'};model.busy=true;view.render(model);model.busy=false;view.render(model);});
-  assert.equal(await field.inputValue(),'52');assert.match(await filePanel.locator('summary').textContent(),/1 filtros activos/);
+  assert.equal(await field.inputValue(),'52');assert.match(await filePanel.locator('..').locator('.filters-title').textContent(),/1 filtro activo/);
   await page.getByRole('button',{name:'Exportar esta página',exact:true}).click();assert.equal(await page.evaluate(()=>calls.pop().name),'exportar');
   await page.evaluate(()=>{model.raices.elementos=[];model.filtrosRaices={estado:'PENDIENTE'};view.render(model);});assert.equal(await page.locator('[data-doc111-action="fase"]').count(),0);
   assert.equal(await page.getByRole('button',{name:'Actualizar estado',exact:true}).count(),1);

@@ -83,6 +83,16 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **THEN** la maqueta bloquea índices/almacenamiento sin padre visible, conserva página vacía y usa CSV de trece columnas con coma/escape y protección de fórmulas
 - **AND** sus datos y capacidad de página se identifican como simulados y no prueban autenticación ni recuperación real
 
+#### Scenario: Fidelidad visual y consultas siempre visibles
+- **WHEN** el usuario recorre selección, revisión o seguimiento en390/768/1280px o desplaza el contenido
+- **THEN** la interfaz reproduce los controles y distribución de la maqueta y mantiene visibles Consultar importación, Consultar último lote y el pie de acciones, sin solaparlos
+- **AND** la consulta secundaria conserva la preparación y permite volver; no toma archivos locales de esa preparación por coincidencias de idCliente, y relee un lote confirmado al regresar
+
+#### Scenario: Recurso destacado sin efectos implícitos
+- **WHEN** el usuario pulsa Ver acciones en una carpeta o archivo
+- **THEN** el panel destaca ese recurso y un único botón derivado de sus acciones vigentes, con avance basado en datos confirmados
+- **AND** la selección no envía, crea, almacena ni reconcilia, y los originales/estados reales sustituyen los datos simulados de la maqueta
+
 ### Requirement: RQ-05 — Integridad, incertidumbre y consumidores
 DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, valores diferidos y fecha estable, revocación, stop e incertidumbre con casos del arnés existente. Comprobar contrato del plugin en sus26 registros/22archivos y carga individual pertinente. Un callback sintético no demuestra la acción de negocio real de cada módulo.
 

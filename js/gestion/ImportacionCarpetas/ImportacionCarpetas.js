@@ -193,13 +193,13 @@
         }
         function refresh(session) {
             if (active !== session) { return; }
-            var model = session.model; model.manifiesto = session.inventory.manifiesto();
+            var model = session.model; model.manifiesto = model.consulta ? {raices:[], archivos:[]} : session.inventory.manifiesto();
             model.ultimoLoteId = host.doc111UltimoLote && host.doc111UltimoLote.loteId; model.planPendienteId = host.doc111ConfirmacionPendiente && host.doc111ConfirmacionPendiente.planId;
             model.paginaRaices = Math.min(model.paginaRaices, Math.max(1, Math.ceil(model.manifiesto.raices.length / 10)));
             model.paginaArchivos = Math.min(model.paginaArchivos, Math.max(1, Math.ceil(model.manifiesto.archivos.length / 20)));
             var files = model.resultados ? model.resultados.elementos : [];
             model.accionesRecurso = function (resource, raiz) { return accionesRecurso(model, resource, raiz); };
-            model.archivosParaEnviar = model.mutacionIncierta ? 0 : files.filter(function (f) { return f.estadoRecepcion === "PENDIENTE" && f.estado === "NO_INICIADO" && !f.tieneIntentoActivo && (session.reselected[f.recursoId] || session.inventory.obtenerFile(f.idCliente)); }).length;
+            model.archivosParaEnviar = model.mutacionIncierta ? 0 : files.filter(function (f) { return f.estadoRecepcion === "PENDIENTE" && f.estado === "NO_INICIADO" && !f.tieneIntentoActivo && (session.reselected[f.recursoId] || (!model.consulta && session.inventory.obtenerFile(f.idCliente))); }).length;
             model.puedeEnviar = model.archivosParaEnviar > 0;
             session.view.render(model);
         }
@@ -251,8 +251,9 @@
         }
         function cerrar(force) {
             var session = active; if (!session) { return; }
-            if (!force && (session.confirming || session.model.confirmacionIncierta) && !deps.confirm("La confirmación puede seguir en el servidor. Cerrar liberará los archivos locales y conservará la referencia del plan para verificarla. ¿Cerrar?")) { return; }
-            if (!force && !session.model.loteId && !session.confirming && !session.model.confirmacionIncierta && session.inventory.manifiesto().archivos.length && !deps.confirm("Se descartará esta preparación sin confirmar. ¿Cerrar?")) { return; }
+            var preparation = session.importacionGuardada ? session.importacionGuardada.model : session.model;
+            if (!force && (session.confirming || preparation.confirmacionIncierta) && !deps.confirm("La confirmación puede seguir en el servidor. Cerrar liberará los archivos locales y conservará la referencia del plan para verificarla. ¿Cerrar?")) { return; }
+            if (!force && !preparation.loteId && !session.confirming && !preparation.confirmacionIncierta && session.inventory.manifiesto().archivos.length && !deps.confirm("Se descartará esta preparación sin confirmar. ¿Cerrar?")) { return; }
             if (session.confirming) { host.doc111ConfirmacionPendiente = session.confirming; }
             save(); active = null; opening = false; session.api.cerrar(); session.picker.destruir(); session.unsubscribe(); session.operation.destruir(); session.view.destruir();
             session.urls.forEach(function (url) { deps.URL.revokeObjectURL(url); }); session.timers.forEach(function (id) { deps.clearTimeout(id); }); sync();
@@ -262,9 +263,20 @@
             var model = session.model;
             if (name === "cerrar") { cerrar(); return; }
             if (active !== session || model.busy) { return; }
+            if (name === "volver-importacion") {
+                if (!session.importacionGuardada) { return; }
+                var saved = session.importacionGuardada; session.importacionGuardada = null; session.model = saved.model; session.reselected = saved.reselected; session.consultaArchivos = saved.consultaArchivos; session.expected = null;
+                if (session.model.loteId) { run(session, function () { return consultar(session, session.model.resultados ? session.model.resultados.pagina : 1); }); }
+                else { refresh(session); }
+                return;
+            }
             if (name === "consultar-referencia" || name === "consultar-ultimo") {
                 var reference = name === "consultar-ultimo" ? model.ultimoLoteId : String(value || "").trim();
                 if (!validId(reference)) { model.mensaje = "Escribe una referencia de lote válida."; refresh(session); return; }
+                if (!model.consulta) {
+                    session.importacionGuardada = {model:model, reselected:session.reselected, consultaArchivos:session.consultaArchivos};
+                    session.model = Object.assign({}, model, {consulta:true, perfil:null, plan:null, confirmable:false, puedeVolverImportacion:true}); model = session.model;
+                }
                 model.referencia = reference; model.loteId = reference; model.contexto = null; model.estado = null; model.resultados = null; model.raices = null; model.filtrosArchivos = {}; model.filtrosRaices = {}; model.etapa = 3; model.mutacionIncierta = false; session.reselected = Object.create(null);
                 run(session, function () { return consultar(session, 1); }); return;
             }
@@ -363,8 +375,8 @@
             if (name === "enviar") {
                 if (!model.puedeEnviar) { return; }
                 run(session, function () {
-                    var items = model.resultados.elementos.filter(function (f) { return f.estadoRecepcion === "PENDIENTE" && f.estado === "NO_INICIADO" && !f.tieneIntentoActivo && (session.reselected[f.recursoId] || session.inventory.obtenerFile(f.idCliente)); }).map(function (f) {
-                        var file = session.reselected[f.recursoId] || session.inventory.obtenerFile(f.idCliente);
+                    var items = model.resultados.elementos.filter(function (f) { return f.estadoRecepcion === "PENDIENTE" && f.estado === "NO_INICIADO" && !f.tieneIntentoActivo && (session.reselected[f.recursoId] || (!model.consulta && session.inventory.obtenerFile(f.idCliente))); }).map(function (f) {
+                        var file = session.reselected[f.recursoId] || (!model.consulta && session.inventory.obtenerFile(f.idCliente));
                         if (session.reselected[f.recursoId]) { validarReseleccion(f, file); }
                         if (file.name !== f.nombre || String(file.size) !== f.bytesPrevistos) { throw new Error("CONTENIDO_DISTINTO"); }
                         return {file:file, solicitud:{loteId:model.loteId, archivoId:f.recursoId, claveIntento:key()}};

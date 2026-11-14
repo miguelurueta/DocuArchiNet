@@ -1,5 +1,12 @@
 # Base gráfica de importación por carpetas
 
+## Fidelidad aplicada al asistente — 2026-11-13
+
+El corte posterior a2642e604 traslada los estilos del HTML al asistente real con alcance CSS limitado. Consultar importación / último lote permanecen visibles; pasos circulares, formulario, filas de carpetas, estados, contadores, panel de acción y pie siguen la maqueta. Se comparan116 propiedades calculadas y capturas en390/768/1280px, además de71/71 pruebas locales. Fuente vigente: ../Validacion/doc120-fidelidad-maqueta-20261113.json; capturas y comparación en .tmp/doc120-fidelidad, excluidas de Git.
+
+El HTML conserva los datos/controles DEMO. La aplicación conserva su marco modal, más perfiles, eliminación individual, incidencias/paginación y datos de sus servicios; esos controles operativos no se sustituyen por la simulación. La consulta secundaria conserva preparación en memoria y exige reselección propia; no se promete persistir Files al recargar. Los cortes siguientes mantienen su alcance histórico.
+
+
 ## Correcciones de compatibilidad implementadas2026-11-13
 
 La aplicación ahora incorpora la organización de tres grupos en sus controles existentes. C01: la maqueta exige la carpeta confirmada en la página visible para índices/almacenamiento, igual que accionesRecurso. C02: descarga13 columnas con coma y escape/protección de fórmulas; nombre DEMO-importacion-N-archivos-pagina-P.csv y datos sintéticos. C03: conserva la página solicitada aunque quede vacía y declara capacidad simulada de página. Pruebas GUI03/GUI04 en tests/doc120-importacion-guiada.test.cjs.

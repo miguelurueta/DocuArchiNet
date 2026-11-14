@@ -1,5 +1,14 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+## Controles de la maqueta — interfaz vigente2026-11-13
+
+Consultar importación y Consultar último lote permanecen en la barra superior del asistente, visibles al desplazar cualquier etapa. Sin referencia guardada, último lote aparece deshabilitado con explicación. Consultar una referencia abre su seguimiento sin enviar ni confirmar. **Volver a mi importación** recupera la preparación original en memoria; si ya tenía un lote confirmado, relee sus datos antes de habilitar acciones. La consulta requiere reseleccionar sus propios pendientes: no toma los archivos locales de otra preparación por coincidencias de identificación. Cerrar una consulta con preparación sin confirmar mantiene la advertencia de descarte; recargar la página todavía exige reseleccionar Files porque no se guardan en el navegador.
+
+**Ver acciones** en una carpeta o archivo destaca su recurso, sin efectos. El botón del pie solicita únicamente la operación indicada. **Enviar archivo / Enviar N archivos** se limita a pendientes seleccionados en este equipo de la página filtrada; las fases restantes son explícitas. Referencias y estados aparecen en el contexto y en los nombres accesibles, mientras los rótulos visibles de las acciones son breves. Filtros, configuración, incidencias y datos previstos se despliegan; más perfiles, eliminación de archivos y paginación permanecen disponibles.
+
+Verificación local71/71, comparación visual116 propiedades, sin nueva sesión real. Evidencia: Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-fidelidad-maqueta-20261113.json.
+
+
 ## Interfaz guiada vigente2026-11-13
 
 1. **Seleccionar**: elige una versión publicada del perfil y agrega una carpeta por selección. Puedes agregar varias, quitar carpetas o archivos y recorrer su inventario. Preparar revisión no envía archivos.

@@ -1,42 +1,269 @@
-#doc111-importacion { font: 14px/1.5 Arial, sans-serif; color: #203044; }
-#doc111-importacion button, #doc111-importacion select { font: inherit; max-width: 100%; }
-#doc111-importacion button { background: #fff; color: #174c78; border: 1px solid #b7cadb; border-radius: 6px; padding: 8px 12px; margin: 4px; cursor: pointer; }
-#doc111-importacion button:disabled { color: #586777; background: #edf1f5; cursor: default; }
-#doc111-importacion :focus-visible { outline: 3px solid #0869b4; outline-offset: 3px; }
-#doc111-importacion .doc111-overlay { position: fixed; inset: 0; z-index: 100500; background: rgba(13,30,46,.6); padding: 24px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
-#doc111-importacion .doc111-dialog { background: #f7f9fc; width: 1120px; max-width: 100%; max-height: calc(100vh - 48px); overflow: auto; border-radius: 12px; box-shadow: 0 20px 60px #122d4655; padding: 24px; box-sizing: border-box; }
-#doc111-importacion .doc111-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-#doc111-importacion h2 { margin: 0; font-size: 24px; }
-#doc111-importacion h3 { font-size: 18px; margin-top: 0; }
-#doc111-importacion .doc111-destino { background: #eaf1f8; padding: 12px; border-radius: 6px; overflow-wrap: anywhere; }
-#doc111-importacion .doc111-steps { list-style: none; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); padding: 0; margin: 20px 0; gap: 8px; counter-reset: doc111-step; }
-#doc111-importacion .doc111-steps li { border-bottom: 3px solid #ced9e4; padding: 10px 4px; color: #546576; counter-increment: doc111-step; }
-#doc111-importacion .doc111-steps li::before { content: counter(doc111-step) ". "; }
-#doc111-importacion .doc111-steps [aria-current] { border-color: #096aad; color: #07548d; font-weight: bold; }
-#doc111-importacion .doc111-layout { display: grid; grid-template-columns: minmax(0,1fr); gap: 16px; }
-#doc111-importacion .doc111-content, #doc111-importacion .doc111-summary { min-width: 0; padding: 18px; border: 1px solid #d8e2ec; border-radius: 8px; background: white; overflow-wrap: anywhere; }
-#doc111-importacion .doc111-summary { background: #eef4fa; }
-#doc111-importacion .doc111-configuration > summary, #doc111-importacion .doc111-filter-panel > summary { cursor: pointer; padding: 12px; border: 1px solid #d8e2ec; border-radius: 6px; background: #eef4fa; color: #174c78; }
-#doc111-importacion .doc111-filter-panel { margin: 12px 0; }
-#doc111-importacion .doc111-next { margin: 16px 0; padding: 16px; background: #eaf3fc; border-left: 4px solid #0869b4; border-radius: 6px; }
-#doc111-importacion .doc111-next h4 { margin: 0 0 8px; }
-#doc111-importacion .doc111-actionbar { position: sticky; bottom: -24px; display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; padding: 12px 0; margin-top: 12px; background: #f7f9fc; border-top: 1px solid #ced9e4; z-index: 2; }
-#doc111-importacion .doc111-actionbar p { flex: 1 1 220px; margin: 0; }
-#doc111-importacion .doc111-primary { color: white; background: #075b97; border-color: #075b97; font-weight: bold; }
-#doc111-importacion .doc111-feedback { color: #245f42; min-height: 1.5em; margin: 12px 0 0; }
-#doc111-importacion .doc111-table:empty { display: none; }
-#doc111-importacion .doc111-notice { border-left: 4px solid #986400; background: #fff5d9; padding: 12px; overflow-wrap: anywhere; }
-#doc111-importacion .doc111-notice[hidden], #doc111-importacion input[hidden] { display: none; }
-#doc111-importacion .doc111-table { overflow-x: auto; max-width: 100%; margin: 16px 0 8px; }
-#doc111-importacion table { border-collapse: collapse; width: 100%; font-size: 13px; }
-#doc111-importacion th, #doc111-importacion td { padding: 10px; text-align: left; border-bottom: 1px solid #dbe4ed; overflow-wrap: anywhere; vertical-align: top; }
-#doc111-importacion th { background: #f0f4f8; overflow-wrap: normal; }
-#doc111-importacion .doc111-pager { display: flex; gap: 8px; align-items: center; justify-content: space-between; font-size: 12px; flex-wrap: wrap; }
-#doc111-importacion select { padding: 10px; width: 100%; border: 1px solid #aebfd0; border-radius: 6px; background: white; }
-#doc111-importacion .doc111-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; padding: 12px; border: 1px solid #d8e2ec; border-radius: 6px; min-width: 0; }
-#doc111-importacion .doc111-filters label { display: flex; flex-direction: column; flex: 1 1 150px; min-width: 0; }
-#doc111-importacion .doc111-filters input { font: inherit; padding: 10px; width: 100%; box-sizing: border-box; border: 1px solid #aebfd0; border-radius: 6px; }
-#doc111-importacion .doc111-cell-label { display: none; }
+/* DOC120: estilos de la maqueta, limitados al asistente real. */
+#doc111-importacion .doc111-dialog { --ink: #152b44; --muted: #586a7c; --blue: #185ad4; --blue-dark: #1246a5; --blue-soft: #eef4ff; --line: #dce4ed; --bg: #f3f6fa; --green: #15714e; --green-soft: #edf8f2; --amber: #865512; --amber-soft: #fff7e7; --red: #b12c35; --radius: 14px; --shadow: 0 12px 44px #182c4610; }
+#doc111-importacion .doc111-dialog * { box-sizing: border-box; }
+#doc111-importacion .doc111-dialog { margin: 0px; background: var(--bg); font: 14px / 1.55 "Segoe UI", Arial, sans-serif; color: var(--ink); }
+#doc111-importacion .doc111-dialog button,#doc111-importacion .doc111-dialog input,#doc111-importacion .doc111-dialog select { font: inherit; }
+#doc111-importacion .doc111-dialog button,#doc111-importacion .doc111-dialog summary,#doc111-importacion .doc111-dialog select { cursor: pointer; }
+#doc111-importacion .doc111-dialog button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 9px 15px; border: 1px solid var(--line); border-radius: 9px; background: rgb(255, 255, 255); color: var(--ink); font-weight: 600; transition: background 0.15s, box-shadow 0.15s; }
+#doc111-importacion .doc111-dialog button:hover:not(:disabled) { background: rgb(244, 247, 251); border-color: rgb(183, 200, 221); }
+#doc111-importacion .doc111-dialog button:disabled { cursor: not-allowed; color: rgb(124, 137, 152); background: rgb(240, 243, 247); border-color: rgb(224, 230, 238); }
+#doc111-importacion .doc111-dialog button:focus-visible,#doc111-importacion .doc111-dialog summary:focus-visible,#doc111-importacion .doc111-dialog select:focus-visible,#doc111-importacion .doc111-dialog a:focus-visible { outline: rgb(81, 138, 250) solid 3px; outline-offset: 3px; }
+#doc111-importacion .doc111-dialog .primary { background: var(--blue); border-color: var(--blue); color: rgb(255, 255, 255); box-shadow: rgba(24, 90, 212, 0.1) 0px 3px 8px; }
+#doc111-importacion .doc111-dialog .primary:hover:not(:disabled) { background: var(--blue-dark); border-color: var(--blue-dark); }
+#doc111-importacion .doc111-dialog .subtle { border-color: transparent; background: transparent; color: var(--muted); }
+#doc111-importacion .doc111-dialog .danger { color: var(--red); }
+#doc111-importacion .doc111-dialog .icon { width: 19px; height: 19px; flex: 0 0 auto; display: inline-block; vertical-align: middle; }
+#doc111-importacion .doc111-dialog h1,#doc111-importacion .doc111-dialog h2,#doc111-importacion .doc111-dialog h3,#doc111-importacion .doc111-dialog p { margin-top: 0px; }
+#doc111-importacion .doc111-dialog h1 { font-size: 27px; line-height: 1.2; letter-spacing: -0.6px; margin-bottom: 8px; }
+#doc111-importacion .doc111-dialog h2 { font-size: 21px; letter-spacing: -0.35px; margin-bottom: 7px; }
+#doc111-importacion .doc111-dialog h3 { font-size: 15px; margin-bottom: 8px; }
+#doc111-importacion .doc111-dialog p { margin-bottom: 12px; }
+#doc111-importacion .doc111-dialog .muted { color: var(--muted); }
+#doc111-importacion .doc111-dialog .small { font-size: 12px; }
+#doc111-importacion .doc111-dialog .sr-only { position: absolute; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; }
+#doc111-importacion .doc111-dialog .brandbar { height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0px max(24px, -580px + 50vw); background: rgb(255, 255, 255); border-bottom: 1px solid var(--line); }
+#doc111-importacion .doc111-dialog .brand { display: flex; align-items: center; gap: 10px; font-weight: 750; font-size: 18px; letter-spacing: -0.7px; }
+#doc111-importacion .doc111-dialog .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 9px; background: var(--blue); color: rgb(255, 255, 255); font-size: 19px; }
+#doc111-importacion .doc111-dialog .prototype { border: 1px solid rgb(204, 217, 236); background: rgb(244, 247, 252); color: rgb(82, 100, 123); border-radius: 30px; padding: 5px 10px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+#doc111-importacion .doc111-dialog .workspace { max-width: 1160px; margin: 24px auto 36px; padding: 0px 24px; }
+#doc111-importacion .doc111-dialog .breadcrumb { font-size: 12px; color: var(--muted); display: flex; gap: 9px; align-items: center; margin-bottom: 17px; }
+#doc111-importacion .doc111-dialog .sheet { border: 1px solid var(--line); background: rgb(255, 255, 255); border-radius: 18px; box-shadow: var(--shadow); isolation: isolate; }
+#doc111-importacion .doc111-dialog .sheet-head { padding: 24px 28px 0px; }
+#doc111-importacion .doc111-dialog .heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+#doc111-importacion .doc111-dialog .heading p { color: var(--muted); margin-bottom: 16px; }
+#doc111-importacion .doc111-dialog .heading-tools { display: flex; gap: 4px; flex-shrink: 0; }
+#doc111-importacion .doc111-dialog .contextbar { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 20px; font-size: 12px; padding-bottom: 19px; color: var(--muted); }
+#doc111-importacion .doc111-dialog .context-item { display: inline-flex; gap: 6px; align-items: center; }
+#doc111-importacion .doc111-dialog .context-item b { color: var(--ink); font-weight: 650; }
+#doc111-importacion .doc111-dialog .context-item svg { width: 15px; height: 15px; }
+#doc111-importacion .doc111-dialog .steps { padding: 0px; margin: 0px; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0px, 1fr)); border-bottom: 1px solid var(--line); gap: 16px; }
+#doc111-importacion .doc111-dialog .steps li { min-width: 0px; }
+#doc111-importacion .doc111-dialog .step { position: relative; width: 100%; justify-content: flex-start; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; border-radius: 0px; background: transparent; padding: 15px 0px; gap: 9px; color: var(--muted); font-weight: 600; }
+#doc111-importacion .doc111-dialog .step:hover:not(:disabled) { background: transparent; border-color: transparent; }
+#doc111-importacion .doc111-dialog .step:disabled { background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; color: rgb(101, 116, 135); cursor: default; }
+#doc111-importacion .doc111-dialog .step[aria-current] { color: var(--blue); }
+#doc111-importacion .doc111-dialog .step[aria-current]::after { content: ""; height: 3px; background: var(--blue); position: absolute; bottom: -1px; left: 0px; right: 0px; border-radius: 3px; }
+#doc111-importacion .doc111-dialog .step.done { color: var(--green); }
+#doc111-importacion .doc111-dialog .step-num { width: 25px; height: 25px; border: 1px solid var(--line); border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; font-size: 12px; }
+#doc111-importacion .doc111-dialog .step[aria-current] .step-num { color: rgb(255, 255, 255); background: var(--blue); border-color: var(--blue); }
+#doc111-importacion .doc111-dialog .step.done .step-num { background: var(--green-soft); border-color: rgb(192, 228, 209); }
+#doc111-importacion .doc111-dialog .sheet-body { padding: 25px 28px 28px; min-height: 420px; }
+#doc111-importacion .doc111-dialog .section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 20px; }
+#doc111-importacion .doc111-dialog .section-head p { color: var(--muted); margin-bottom: 0px; }
+#doc111-importacion .doc111-dialog .tag { display: inline-flex; align-items: center; gap: 5px; border-radius: 30px; font-size: 11px; padding: 4px 9px; font-weight: 650; white-space: nowrap; background: rgb(238, 242, 247); color: rgb(82, 100, 123); }
+#doc111-importacion .doc111-dialog .tag.blue { color: rgb(24, 76, 170); background: var(--blue-soft); }
+#doc111-importacion .doc111-dialog .tag.green { color: var(--green); background: var(--green-soft); }
+#doc111-importacion .doc111-dialog .tag.amber { color: var(--amber); background: var(--amber-soft); }
+#doc111-importacion .doc111-dialog .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 22px 0px; }
+#doc111-importacion .doc111-dialog .field { display: flex; flex-direction: column; gap: 7px; font-weight: 600; }
+#doc111-importacion .doc111-dialog .field small { font-weight: 400; color: var(--muted); line-height: 1.5; }
+#doc111-importacion .doc111-dialog select { background: rgb(255, 255, 255); border: 1px solid rgb(191, 205, 221); border-radius: 8px; color: var(--ink); min-height: 43px; width: 100%; padding: 9px 12px; }
+#doc111-importacion .doc111-dialog .read-value { min-height: 43px; padding: 10px 12px; background: rgb(246, 248, 251); border: 1px solid var(--line); border-radius: 8px; font-weight: 400; }
+#doc111-importacion .doc111-dialog .selection { border: 1px solid var(--line); border-radius: var(--radius); padding: 21px; margin-top: 24px; }
+#doc111-importacion .doc111-dialog .selection-title { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 15px; }
+#doc111-importacion .doc111-dialog .selection-title h3 { margin: 0px; }
+#doc111-importacion .doc111-dialog .empty { padding: 27px 15px 31px; text-align: center; background: rgb(248, 250, 254); border: 1px dashed rgb(200, 215, 234); border-radius: 10px; color: var(--muted); }
+#doc111-importacion .doc111-dialog .empty svg { width: 32px; height: 32px; color: rgb(117, 150, 196); display: block; margin: 0px auto 12px; }
+#doc111-importacion .doc111-dialog .empty strong { display: block; font-size: 15px; color: var(--ink); margin-bottom: 5px; }
+#doc111-importacion .doc111-dialog .empty p { font-size: 13px; margin: 0px; }
+#doc111-importacion .doc111-dialog .folder-row { display: flex; align-items: center; gap: 13px; padding: 15px 0px; border-top: 1px solid rgb(237, 241, 246); }
+#doc111-importacion .doc111-dialog .folder-row:first-child { border-top: 0px; }
+#doc111-importacion .doc111-dialog .folder-glyph { background: var(--blue-soft); border-radius: 10px; width: 42px; height: 42px; display: grid; place-items: center; color: var(--blue); flex: 0 0 auto; }
+#doc111-importacion .doc111-dialog .folder-info { min-width: 0px; flex: 1 1 0%; }
+#doc111-importacion .doc111-dialog .folder-name { display: block; font-weight: 600; overflow-wrap: anywhere; }
+#doc111-importacion .doc111-dialog .folder-sub { font-size: 12px; color: var(--muted); }
+#doc111-importacion .doc111-dialog .notice { display: flex; align-items: flex-start; gap: 10px; padding: 13px 15px; border: 1px solid rgb(217, 229, 248); background: rgb(243, 247, 255); border-radius: 10px; color: rgb(54, 84, 121); font-size: 13px; }
+#doc111-importacion .doc111-dialog .notice svg { flex: 0 0 auto; margin-top: 1px; }
+#doc111-importacion .doc111-dialog .notice.success { color: rgb(33, 96, 68); border-color: rgb(205, 232, 217); background: rgb(242, 250, 245); }
+#doc111-importacion .doc111-dialog .notice.warn { color: rgb(121, 81, 28); border-color: rgb(240, 222, 184); background: rgb(255, 250, 238); }
+#doc111-importacion .doc111-dialog .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 22px 0px; }
+#doc111-importacion .doc111-dialog .stat { border: 1px solid var(--line); border-radius: 11px; padding: 17px 18px; background: rgb(255, 255, 255); }
+#doc111-importacion .doc111-dialog .stat strong { display: block; font-size: 27px; line-height: 1.2; letter-spacing: -0.7px; margin-bottom: 5px; }
+#doc111-importacion .doc111-dialog .stat span { font-size: 12px; color: var(--muted); }
+#doc111-importacion .doc111-dialog details.disclosure { border: 1px solid var(--line); border-radius: 10px; margin-top: 15px; background: rgb(255, 255, 255); }
+#doc111-importacion .doc111-dialog details.disclosure > summary { list-style: none; display: flex; align-items: center; justify-content: space-between; padding: 13px 15px; font-size: 13px; font-weight: 600; gap: 10px; }
+#doc111-importacion .doc111-dialog details.disclosure > summary::-webkit-details-marker { display: none; }
+#doc111-importacion .doc111-dialog details.disclosure > summary::after { content: "+"; color: var(--muted); font-size: 19px; font-weight: 400; }
+#doc111-importacion .doc111-dialog details.disclosure[open] > summary::after { content: "−"; }
+#doc111-importacion .doc111-dialog .detail-body { padding: 0px 15px 15px; }
+#doc111-importacion .doc111-dialog .kv { display: grid; grid-template-columns: 150px minmax(0px, 1fr); gap: 8px 15px; font-size: 13px; }
+#doc111-importacion .doc111-dialog .kv dt { color: var(--muted); }
+#doc111-importacion .doc111-dialog .kv dd { margin: 0px; overflow-wrap: anywhere; }
+#doc111-importacion .doc111-dialog .action-panel { padding: 22px 24px; border: 1px solid rgb(203, 220, 248); border-radius: 14px; background: linear-gradient(110deg, rgb(240, 246, 255), rgb(250, 252, 255)); display: flex; gap: 17px; align-items: flex-start; margin-bottom: 18px; }
+#doc111-importacion .doc111-dialog .action-panel.complete { border-color: rgb(199, 229, 213); background: rgb(242, 250, 246); }
+#doc111-importacion .doc111-dialog .action-panel.warn { border-color: rgb(234, 215, 176); background: rgb(255, 250, 240); }
+#doc111-importacion .doc111-dialog .action-glyph { width: 44px; height: 44px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 12px; background: rgb(255, 255, 255); border: 1px solid rgb(220, 230, 247); color: var(--blue); }
+#doc111-importacion .doc111-dialog .action-glyph svg { width: 22px; height: 22px; }
+#doc111-importacion .doc111-dialog .eyebrow { font-size: 10px; text-transform: uppercase; font-weight: 750; letter-spacing: 1.2px; color: var(--blue); margin-bottom: 7px; }
+#doc111-importacion .doc111-dialog .action-panel h2 { font-size: 22px; margin-bottom: 6px; }
+#doc111-importacion .doc111-dialog .action-panel p { margin: 0px; color: rgb(78, 102, 129); font-size: 13px; }
+#doc111-importacion .doc111-dialog .phase-list { display: flex; flex-wrap: wrap; gap: 7px 18px; list-style: none; margin: 17px 0px 0px; padding: 0px; font-size: 11px; color: rgb(100, 117, 138); }
+#doc111-importacion .doc111-dialog .phase-list li { display: flex; align-items: center; gap: 5px; }
+#doc111-importacion .doc111-dialog .phase-list .phase-done { color: var(--green); }
+#doc111-importacion .doc111-dialog .phase-list .phase-current { font-weight: 700; color: var(--blue); }
+#doc111-importacion .doc111-dialog .phase-dot { width: 15px; height: 15px; display: inline-grid; place-items: center; border-radius: 50%; background: rgb(230, 237, 247); font-size: 9px; }
+#doc111-importacion .doc111-dialog .phase-done .phase-dot { background: rgb(216, 238, 227); }
+#doc111-importacion .doc111-dialog .phase-current .phase-dot { background: var(--blue); color: white; }
+#doc111-importacion .doc111-dialog .folder-tabs { display: flex; flex-wrap: wrap; gap: 9px; margin: 15px 0px 20px; }
+#doc111-importacion .doc111-dialog .folder-tab { padding: 10px 12px; text-align: left; min-width: 0px; justify-content: flex-start; font-size: 12px; max-width: 100%; font-weight: 400; }
+#doc111-importacion .doc111-dialog .folder-tab[aria-pressed="true"] { border-color: rgb(139, 174, 232); background: var(--blue-soft); box-shadow: rgb(169, 195, 237) 0px 0px 0px 1px; }
+#doc111-importacion .doc111-dialog .folder-tab .label { overflow-wrap: anywhere; }
+#doc111-importacion .doc111-dialog .table-head { display: flex; gap: 15px; justify-content: space-between; align-items: center; margin: 22px 0px 12px; }
+#doc111-importacion .doc111-dialog .table-head h3 { margin: 0px; }
+#doc111-importacion .doc111-dialog .table-wrap { border: 1px solid var(--line); border-radius: 11px; overflow: hidden; }
+#doc111-importacion .doc111-dialog table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px; }
+#doc111-importacion .doc111-dialog th { text-align: left; font-size: 11px; letter-spacing: 0.2px; font-weight: 650; color: rgb(88, 107, 129); padding: 12px 15px; background: rgb(246, 248, 252); border-bottom: 1px solid var(--line); }
+#doc111-importacion .doc111-dialog td { padding: 15px; vertical-align: middle; border-bottom: 1px solid rgb(235, 239, 245); overflow-wrap: anywhere; }
+#doc111-importacion .doc111-dialog tr:last-child td { border-bottom-width: medium; border-bottom-style: none; border-bottom-color: currentcolor; }
+#doc111-importacion .doc111-dialog td strong { font-weight: 600; display: block; }
+#doc111-importacion .doc111-dialog td .small { display: block; margin-top: 3px; color: var(--muted); }
+#doc111-importacion .doc111-dialog .file-name { display: flex; gap: 10px; align-items: center; }
+#doc111-importacion .doc111-dialog .pdf { font-size: 9px; font-weight: 750; color: rgb(186, 67, 72); padding: 6px 4px; border: 1px solid rgb(239, 213, 215); border-radius: 4px; background: rgb(255, 246, 246); flex: 0 0 auto; }
+#doc111-importacion .doc111-dialog .empty-table { text-align: center; padding: 25px; color: var(--muted); }
+#doc111-importacion .doc111-dialog .filter-panel { padding: 15px; border: 1px solid var(--line); border-radius: 10px; background: rgb(249, 251, 254); margin-bottom: 12px; display: flex; gap: 12px; align-items: flex-end; }
+#doc111-importacion .doc111-dialog .filter-panel label { max-width: 260px; flex: 1 1 0%; font-size: 12px; font-weight: 600; }
+#doc111-importacion .doc111-dialog .filter-panel select { margin-top: 5px; }
+#doc111-importacion .doc111-dialog .table-note { font-size: 11px; color: var(--muted); margin-top: 9px; }
+#doc111-importacion .doc111-dialog .bottom-tools { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-top: 18px; }
+#doc111-importacion .doc111-dialog .actionbar { position: sticky; bottom: 0px; z-index: 3; border-top: 1px solid var(--line); padding: 15px 28px; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(10px); border-radius: 0px 0px 18px 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px; box-shadow: rgba(26, 53, 85, 0.02) 0px -5px 20px; }
+#doc111-importacion .doc111-dialog .footer-left,#doc111-importacion .doc111-dialog .footer-right { display: flex; align-items: center; gap: 10px; }
+#doc111-importacion .doc111-dialog .footer-hint { font-size: 11px; color: var(--muted); max-width: 270px; }
+#doc111-importacion .doc111-dialog .footer-right .primary { min-width: 180px; }
+#doc111-importacion .doc111-dialog .footnote { padding: 15px 4px 0px; display: flex; justify-content: space-between; gap: 15px; color: rgb(101, 117, 138); font-size: 11px; }
+#doc111-importacion .doc111-dialog .demo-controls { max-width: 1160px; margin: 20px auto 0px; border-top: 1px solid var(--line); padding-top: 15px; }
+#doc111-importacion .doc111-dialog .demo-controls summary { font-size: 12px; color: var(--muted); font-weight: 600; }
+#doc111-importacion .doc111-dialog .demo-options { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 12px; }
+#doc111-importacion .doc111-dialog .demo-options button { font-size: 12px; min-height: 36px; }
+#doc111-importacion .doc111-dialog .demo-options p { flex-basis: 100%; margin: 0px; font-size: 11px; color: var(--muted); }
+#doc111-importacion .doc111-dialog dialog { border: 1px solid var(--line); border-radius: 16px; padding: 0px; max-width: 520px; width: calc(100% - 36px); color: var(--ink); box-shadow: rgba(20, 44, 68, 0.22) 0px 24px 100px; }
+#doc111-importacion .doc111-dialog dialog::backdrop { background: rgba(18, 40, 65, 0.4); backdrop-filter: blur(2px); }
+#doc111-importacion .doc111-dialog .modal-head { padding: 22px 24px 12px; display: flex; justify-content: space-between; gap: 20px; align-items: center; }
+#doc111-importacion .doc111-dialog .modal-head h2 { font-size: 20px; margin: 0px; }
+#doc111-importacion .doc111-dialog .modal-body { padding: 0px 24px 20px; color: var(--muted); font-size: 13px; }
+#doc111-importacion .doc111-dialog .modal-actions { padding: 15px 24px; border-top: 1px solid var(--line); display: flex; justify-content: flex-end; gap: 9px; }
+#doc111-importacion .doc111-dialog .closed-card { padding: 70px 25px; text-align: center; }
+#doc111-importacion .doc111-dialog .closed-card button { margin-top: 12px; }
+#doc111-importacion .doc111-dialog .spin { width: 15px; height: 15px; border-width: 2px; border-style: solid; border-color: currentcolor transparent currentcolor currentcolor; border-image: none; border-radius: 50%; animation: 0.7s linear 0s infinite normal none running spin; }
+@keyframes doc120-spin {
+  100% { transform: rotate(360deg); }
+}
+@media (min-width: 1500px) {
+#doc111-importacion .doc111-dialog .workspace { margin-top: 35px; }
+#doc111-importacion .doc111-dialog .sheet-body { min-height: 450px; }
+}
+@media (max-width: 720px) {
+#doc111-importacion .doc111-dialog .brandbar { padding: 0px 16px; height: 55px; }
+#doc111-importacion .doc111-dialog .brand { font-size: 16px; }
+#doc111-importacion .doc111-dialog .workspace { padding: 0px 12px; margin: 16px auto 24px; }
+#doc111-importacion .doc111-dialog .breadcrumb { font-size: 11px; margin: 0px 3px 12px; }
+#doc111-importacion .doc111-dialog .sheet { border-radius: 13px; }
+#doc111-importacion .doc111-dialog .sheet-head { padding: 19px 17px 0px; }
+#doc111-importacion .doc111-dialog .heading { gap: 9px; }
+#doc111-importacion .doc111-dialog h1 { font-size: 23px; }
+#doc111-importacion .doc111-dialog .heading p { font-size: 12px; }
+#doc111-importacion .doc111-dialog .heading-tools .help-label { display: none; }
+#doc111-importacion .doc111-dialog .heading-tools button { padding: 7px; min-height: 35px; }
+#doc111-importacion .doc111-dialog .contextbar { font-size: 11px; gap: 6px 14px; padding-bottom: 12px; }
+#doc111-importacion .doc111-dialog .steps { gap: 9px; }
+#doc111-importacion .doc111-dialog .step { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px 0px; font-size: 11px; white-space: nowrap; }
+#doc111-importacion .doc111-dialog .step-num { width: 22px; height: 22px; font-size: 11px; }
+#doc111-importacion .doc111-dialog .sheet-body { padding: 20px 17px 24px; min-height: 390px; }
+#doc111-importacion .doc111-dialog .section-head { gap: 10px; }
+#doc111-importacion .doc111-dialog .section-head h2 { font-size: 19px; }
+#doc111-importacion .doc111-dialog .section-head p { font-size: 12px; }
+#doc111-importacion .doc111-dialog .form-row { grid-template-columns: 1fr; gap: 16px; }
+#doc111-importacion .doc111-dialog .selection { padding: 15px; margin-top: 20px; }
+#doc111-importacion .doc111-dialog .selection-title { align-items: flex-start; flex-wrap: wrap; }
+#doc111-importacion .doc111-dialog .selection-title button { font-size: 12px; }
+#doc111-importacion .doc111-dialog .folder-glyph { width: 33px; height: 33px; }
+#doc111-importacion .doc111-dialog .folder-row { gap: 9px; }
+#doc111-importacion .doc111-dialog .folder-row .subtle { padding: 8px; font-size: 12px; }
+#doc111-importacion .doc111-dialog .folder-name { font-size: 12px; }
+#doc111-importacion .doc111-dialog .stats { gap: 8px; margin: 18px 0px; }
+#doc111-importacion .doc111-dialog .stat { padding: 13px 10px; }
+#doc111-importacion .doc111-dialog .stat strong { font-size: 23px; }
+#doc111-importacion .doc111-dialog .stat span { font-size: 11px; }
+#doc111-importacion .doc111-dialog .action-panel { padding: 17px 14px; gap: 11px; }
+#doc111-importacion .doc111-dialog .action-glyph { width: 34px; height: 34px; border-radius: 9px; }
+#doc111-importacion .doc111-dialog .action-panel h2 { font-size: 19px; }
+#doc111-importacion .doc111-dialog .action-panel p { font-size: 12px; }
+#doc111-importacion .doc111-dialog .eyebrow { font-size: 9px; }
+#doc111-importacion .doc111-dialog .phase-list { gap: 7px 12px; font-size: 10px; }
+#doc111-importacion .doc111-dialog .kv { grid-template-columns: 1fr; gap: 3px; }
+#doc111-importacion .doc111-dialog .kv dd { margin-bottom: 7px; }
+#doc111-importacion .doc111-dialog .table-head { align-items: flex-start; gap: 8px; }
+#doc111-importacion .doc111-dialog .table-head h3 { font-size: 14px; }
+#doc111-importacion .doc111-dialog .table-head button { font-size: 11px; padding: 7px 9px; min-height: 35px; }
+#doc111-importacion .doc111-dialog .table-wrap { border-radius: 9px; }
+#doc111-importacion .doc111-dialog table,#doc111-importacion .doc111-dialog tbody,#doc111-importacion .doc111-dialog tr,#doc111-importacion .doc111-dialog td { display: block; }
+#doc111-importacion .doc111-dialog thead { display: none; }
+#doc111-importacion .doc111-dialog tr { padding: 10px 13px; border-bottom: 1px solid var(--line); }
+#doc111-importacion .doc111-dialog tr:last-child { border-bottom: 0px; }
+#doc111-importacion .doc111-dialog td { padding: 6px 0px; border: 0px; display: grid; grid-template-columns: 80px minmax(0px, 1fr); gap: 8px; font-size: 12px; }
+#doc111-importacion .doc111-dialog td::before { content: attr(data-label); color: var(--muted); font-size: 11px; align-self: center; }
+#doc111-importacion .doc111-dialog .empty-table { display: block; }
+#doc111-importacion .doc111-dialog .empty-table::before { display: none; }
+#doc111-importacion .doc111-dialog .filter-panel { flex-wrap: wrap; padding: 12px; }
+#doc111-importacion .doc111-dialog .filter-panel label { max-width: none; flex-basis: 100%; }
+#doc111-importacion .doc111-dialog .actionbar { padding: 12px 16px; flex-direction: column-reverse; gap: 10px; border-radius: 0px 0px 13px 13px; }
+#doc111-importacion .doc111-dialog .footer-right { width: 100%; gap: 8px; }
+#doc111-importacion .doc111-dialog .footer-right .primary { flex: 1 1 0%; min-width: 0px; }
+#doc111-importacion .doc111-dialog .footer-left { width: 100%; justify-content: space-between; }
+#doc111-importacion .doc111-dialog .footer-hint { max-width: 190px; font-size: 10px; }
+#doc111-importacion .doc111-dialog .footer-left button { font-size: 11px; padding: 7px 10px; min-height: 34px; }
+#doc111-importacion .doc111-dialog .footnote { flex-direction: column; gap: 3px; padding: 12px 4px 0px; }
+#doc111-importacion .doc111-dialog .bottom-tools { align-items: flex-start; }
+#doc111-importacion .doc111-dialog .bottom-tools button { font-size: 11px; }
+#doc111-importacion .doc111-dialog .prototype { font-size: 10px; padding: 4px 8px; }
+#doc111-importacion .doc111-dialog .folder-tab { width: 100%; }
+#doc111-importacion .doc111-dialog .notice { font-size: 12px; }
+#doc111-importacion .doc111-dialog .demo-options { flex-direction: column; align-items: stretch; }
+}
+@media (prefers-reduced-motion: reduce) {
+#doc111-importacion .doc111-dialog *,#doc111-importacion .doc111-dialog ::before,#doc111-importacion .doc111-dialog ::after { animation: auto ease 0s 1 normal none running none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+#doc111-importacion .doc111-dialog .execution-message { min-width: 0px; flex: 1 1 0%; }
+#doc111-importacion .doc111-dialog .current-folder { overflow-wrap: anywhere; margin-top: 12px !important; font-size: 12px !important; }
+#doc111-importacion .doc111-dialog .execution-message progress { display: block; width: 100%; height: 7px; margin: 17px 0px 7px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; border-radius: 10px; overflow: hidden; appearance: none; background: rgb(223, 233, 248); }
+#doc111-importacion .doc111-dialog .execution-message progress::-webkit-progress-bar { background: rgb(223, 233, 248); }
+#doc111-importacion .doc111-dialog .execution-message progress::-webkit-progress-value { background: var(--blue); border-radius: 10px; }
+#doc111-importacion .doc111-dialog .query-shortcuts { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; padding: 12px 15px; background: rgb(255, 255, 255); border: 1px solid var(--line); border-radius: 11px; }
+#doc111-importacion .doc111-dialog .query-shortcuts > div { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+#doc111-importacion .doc111-dialog .query-shortcuts > div:first-child { display: block; }
+#doc111-importacion .doc111-dialog .query-shortcuts .small { display: block; }
+#doc111-importacion .doc111-dialog .query-shortcuts button { font-size: 12px; }
+#doc111-importacion .doc111-dialog .filter-fields { display: grid; grid-template-columns: repeat(3, minmax(0px, 1fr)); gap: 12px; }
+#doc111-importacion .doc111-dialog .filter-fields label { font-size: 12px; font-weight: 600; }
+#doc111-importacion .doc111-dialog .filter-fields input,#doc111-importacion .doc111-dialog .filter-fields select,#doc111-importacion .doc111-dialog .field input { display: block; margin-top: 5px; padding: 10px 12px; width: 100%; min-height: 43px; border: 1px solid rgb(191, 205, 221); border-radius: 8px; background: rgb(255, 255, 255); color: var(--ink); }
+#doc111-importacion .doc111-dialog .filter-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 13px; }
+#doc111-importacion .doc111-dialog .filters-title { display: flex; justify-content: flex-end; margin: 6px 0px; }
+#doc111-importacion .doc111-dialog .filter-disclosure { margin-bottom: 14px !important; margin-top: 6px !important; }
+#doc111-importacion .doc111-dialog .resource-section { margin-top: 26px; }
+#doc111-importacion .doc111-dialog .mock-pager { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 0px; flex-wrap: wrap; }
+#doc111-importacion .doc111-dialog .mock-pager span { font-size: 11px; color: var(--muted); }
+#doc111-importacion .doc111-dialog .mock-pager button { font-size: 12px; min-height: 35px; }
+#doc111-importacion .doc111-dialog .query-shortcuts strong { font-size: 13px; }
+#doc111-importacion .doc111-dialog .filter-actions button { font-size: 12px; }
+@media (max-width: 720px) {
+#doc111-importacion .doc111-dialog .filter-fields { grid-template-columns: 1fr; }
+#doc111-importacion .doc111-dialog .query-shortcuts { padding: 12px; }
+#doc111-importacion .doc111-dialog .query-shortcuts > div { width: 100%; }
+#doc111-importacion .doc111-dialog .query-shortcuts button { flex: 1 1 0%; min-width: 0px; font-size: 11px; }
+#doc111-importacion .doc111-dialog .mock-pager span { order: 3; width: 100%; text-align: center; }
+#doc111-importacion .doc111-dialog .filter-actions button { flex: 1 1 0%; }
+#doc111-importacion .doc111-dialog .filters-title { justify-content: flex-start; }
+}
+#doc111-importacion .doc111-dialog .query-control { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; min-width: 0px; max-width: 245px; }
+#doc111-importacion .doc111-dialog .query-feedback { display: flex; gap: 5px; align-items: center; color: var(--green); font-size: 11px; line-height: 1.4; overflow-wrap: anywhere; }
+#doc111-importacion .doc111-dialog .query-feedback .icon { width: 14px; height: 14px; }
+#doc111-importacion .doc111-dialog .footer-right.has-query-feedback { flex-direction: column; align-items: stretch; gap: 6px; }
+#doc111-importacion .doc111-dialog .has-query-feedback .query-feedback { justify-content: flex-end; }
+@media (max-width: 720px) {
+#doc111-importacion .doc111-dialog .query-control { max-width: 145px; }
+#doc111-importacion .doc111-dialog .query-feedback { font-size: 10px; }
+#doc111-importacion .doc111-dialog .has-query-feedback .query-feedback { justify-content: center; }
+#doc111-importacion .doc111-dialog .has-query-feedback .primary { width: 100%; }
+}
 #doc110-navigation [hidden], #doc111-importacion .doc111-steps[hidden] { display: none !important; }
 #doc110-navigation .doc119-administration-menu { border-top: 1px solid #d8e2ec; margin-top: 6px; padding-top: 6px; }
 #doc110-navigation > .nav-link, #doc110-navigation .dropdown-item { color: #6d7fcc; font-weight: 400; }
@@ -49,20 +276,72 @@
 #doc110-navigation[aria-busy="true"] > .dropdown-toggle::after { width: .6em; height: .6em; box-sizing: border-box; border: 2px solid #b7cadb; border-top-color: #174c78; border-radius: 50%; animation: doc111-loading .8s linear infinite; }
 @keyframes doc111-loading { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { #doc110-navigation[aria-busy="true"] > .dropdown-toggle::after { animation: none; } }
-#doc111-importacion .doc111-query { display: flex; align-items: end; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #d8e2ec; padding-bottom: 12px; margin-bottom: 16px; }
-#doc111-importacion .doc111-query label { display: flex; flex-direction: column; gap: 4px; }
-#doc111-importacion .doc111-query input { font: inherit; padding: 8px; max-width: 100%; border: 1px solid #aebfd0; border-radius: 6px; }
-@media(max-width: 720px) {
-    #doc111-importacion .doc111-overlay { padding: 8px; }
-    #doc111-importacion .doc111-dialog { padding: 14px; max-height: calc(100vh - 16px); }
-    #doc111-importacion .doc111-layout { grid-template-columns: minmax(0,1fr); }
-    #doc111-importacion .doc111-steps { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 4px; font-size: 12px; }
-    #doc111-importacion .doc111-actionbar { bottom: -14px; }
-    #doc111-importacion .doc111-actionbar button { flex: 1 1 130px; margin: 0; }
-    #doc111-importacion .doc111-content, #doc111-importacion .doc111-summary { padding: 12px; }
-    #doc111-importacion .doc111-resultados table, #doc111-importacion .doc111-resultados tbody, #doc111-importacion .doc111-resultados tr, #doc111-importacion .doc111-resultados td { display: block; width: auto; }
-    #doc111-importacion .doc111-resultados thead { position: absolute; clip: rect(0,0,0,0); width: 1px; height: 1px; overflow: hidden; }
-    #doc111-importacion .doc111-resultados tr { margin-bottom: 14px; border: 1px solid #dbe4ed; border-radius: 6px; }
-    #doc111-importacion .doc111-resultados td { border: 0; padding: 8px 12px; }
-    #doc111-importacion .doc111-resultados .doc111-cell-label { display: block; font-weight: bold; color: #546576; }
+
+#doc111-importacion .doc111-overlay{position:fixed;inset:0;z-index:100500;background:#12284166;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box}
+#doc111-importacion .doc111-dialog{font:14px/1.55 "Segoe UI",Arial,sans-serif;color:var(--ink);width:1112px;max-width:100%;max-height:calc(100dvh - 48px);display:flex;flex-direction:column;gap:16px;outline:none;min-width:0}
+#doc111-importacion .doc111-dialog[aria-busy=true]{cursor:progress}
+#doc111-importacion .doc111-shortcuts{margin:0;flex-shrink:0}
+#doc111-importacion .doc111-sheet{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+#doc111-importacion .doc111-scroll{overflow:auto;min-height:0;overscroll-behavior:contain;scrollbar-gutter:stable}
+#doc111-importacion .doc111-head{flex-shrink:0}
+#doc111-importacion .doc111-dialog .doc111-title{font-size:27px;line-height:1.2;letter-spacing:-.6px;margin:0 0 8px;font-weight:700}
+#doc111-importacion .doc111-content{padding:25px 28px 28px;min-width:0;overflow-wrap:anywhere}
+#doc111-importacion .doc111-content h3{font-size:21px;letter-spacing:-.35px;margin:0 0 7px;font-weight:700}
+#doc111-importacion .doc111-content h4{font-size:15px;font-weight:600;margin:0 0 8px}
+#doc111-importacion .doc111-content .action-panel h4{font-size:22px;margin-bottom:6px;letter-spacing:-.35px}
+#doc111-importacion .doc111-actionbar{position:static;flex-shrink:0}
+#doc111-importacion .doc111-actionbar p{margin:0}
+#doc111-importacion .doc111-dialog [hidden]{display:none!important}
+#doc111-importacion .doc111-query{display:grid;gap:12px;max-width:480px}
+#doc111-importacion .doc111-query label{display:flex;flex-direction:column;gap:7px;font-weight:600}
+#doc111-importacion .doc111-query input{padding:10px 12px;border:1px solid #bfcddd;border-radius:8px;min-height:43px;max-width:100%;width:100%;color:var(--ink);background:#fff}
+#doc111-importacion .doc111-query-modal{background:white}
+#doc111-importacion .doc111-filters{border:0;padding:0;margin:0;min-width:0}
+#doc111-importacion .doc111-filters legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+#doc111-importacion .doc111-table{margin:12px 0 8px;max-width:100%;overflow:hidden}
+#doc111-importacion .doc111-resultados button{font-size:12px;min-height:35px;padding:7px 10px}
+#doc111-importacion .doc111-resource-actions{display:flex;flex-direction:column;gap:7px}
+#doc111-importacion .doc111-resource-actions .small{font-size:11px}
+#doc111-importacion .doc111-dialog .step{display:flex;align-items:center;min-height:55px}
+#doc111-importacion .doc111-dialog .step-num{line-height:1}
+#doc111-importacion .doc111-dialog .read-value{display:flex;align-items:center;gap:7px;overflow-wrap:anywhere;min-width:0}
+#doc111-importacion .doc111-dialog .field{min-width:0}
+#doc111-importacion .doc111-dialog .doc111-profile-more{align-self:flex-start;font-size:12px;min-height:32px;padding:5px 0}
+#doc111-importacion .doc111-dialog .doc111-next-title{margin:0 0 6px}
+#doc111-importacion .doc111-dialog :focus-visible{outline:3px solid #518afa;outline-offset:3px}
+@media(max-width:720px){
+ #doc111-importacion .doc111-overlay{padding:8px}
+ #doc111-importacion .doc111-dialog{max-height:calc(100dvh - 16px);gap:10px}
+ #doc111-importacion .doc111-head{padding:19px 17px 0}
+ #doc111-importacion .doc111-dialog .doc111-title{font-size:23px}
+ #doc111-importacion .doc111-content{padding:20px 17px 24px}
+ #doc111-importacion .doc111-dialog .step{align-items:flex-start}
+ #doc111-importacion .doc111-dialog .doc111-next h4{font-size:19px}
+ #doc111-importacion .doc111-dialog .doc111-shortcuts{padding:10px 12px;gap:7px}
+ #doc111-importacion .doc111-dialog .doc111-shortcuts>div:first-child .small{display:none}
+ #doc111-importacion .doc111-dialog .doc111-shortcuts button{padding:7px 9px;min-height:35px}
+ #doc111-importacion .doc111-dialog .heading-tools .doc111-help-text{display:none}
+ #doc111-importacion .doc111-dialog .footer-right button{min-width:0}
+ #doc111-importacion .doc111-dialog .footer-right{flex-wrap:wrap}
+ #doc111-importacion .doc111-dialog .footer-hint{max-width:none}
+ #doc111-importacion .doc111-dialog .doc111-resultados td{display:grid;width:auto;grid-template-columns:80px minmax(0,1fr)}
+ #doc111-importacion .doc111-dialog .doc111-resultados td .doc111-cell-label{display:none}
 }
+#doc111-importacion .doc111-dialog .doc111-shortcuts{margin:0}
+#doc111-importacion .doc111-dialog .doc111-configuration{margin:0 28px 28px}
+#doc111-importacion .doc111-dialog .doc111-notice:not([hidden]){margin:20px 28px 0}
+#doc111-importacion .doc111-dialog .doc111-content .section-head h3{font-size:21px;letter-spacing:-.35px}
+@media(max-width:720px){#doc111-importacion .doc111-dialog .doc111-configuration{margin:0 17px 24px}#doc111-importacion .doc111-dialog .doc111-notice:not([hidden]){margin:16px 17px 0}#doc111-importacion .doc111-dialog .doc111-content .section-head h3{font-size:19px}}
+#doc111-importacion .doc111-dialog .doc111-cell-label{display:none}
+#doc111-importacion .doc111-dialog .section-head h3{font-weight:700}
+#doc111-importacion .doc111-dialog .selection-title h4,#doc111-importacion .doc111-dialog .table-head h4{font-weight:600}
+#doc111-importacion .doc111-dialog .doc111-configuration .doc111-summary h3{font-size:15px}
+#doc111-importacion .doc111-dialog .doc111-query-modal:not([open]){display:none!important}
+#doc111-importacion .doc111-dialog h2,#doc111-importacion .doc111-dialog h3,#doc111-importacion .doc111-dialog h4{line-height:1.55}
+#doc111-importacion .doc111-dialog .doc111-title{line-height:1.2}
+#doc111-importacion .doc111-dialog .action-panel h4{font-weight:700}
+@media(max-width:720px){#doc111-importacion .doc111-dialog .doc111-shortcuts button{padding:9px 15px;min-height:42px}#doc111-importacion .doc111-dialog .doc111-shortcuts>div:first-child .small{display:block}}
+#doc111-importacion .doc111-dialog .table-head h4,#doc111-importacion .doc111-dialog .selection-title h4{margin:0}
+#doc111-importacion .doc111-dialog .doc111-content{padding-bottom:0}
+#doc111-importacion .doc111-dialog details.doc111-configuration{margin:15px 28px 28px}
+@media(max-width:720px){#doc111-importacion .doc111-dialog details.doc111-configuration{margin:15px 17px 24px}}

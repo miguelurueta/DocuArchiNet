@@ -64,7 +64,7 @@ test('DOC-113: respuestas anidadas inválidas dejan error y revisión utilizable
     await page.getByRole('button',{name:'Más perfiles',exact:true}).click();
     await page.waitForFunction(()=>document.querySelector('.doc111-notice').textContent.includes('respuesta del servidor'));
     assert.equal(await page.getByLabel('Perfil publicado').locator('option').count(),2);
-    await page.getByLabel('Perfil publicado').selectOption('38');await page.getByRole('button',{name:'Agregar carpetas',exact:true}).click();
+    await page.getByLabel('Perfil publicado').selectOption('38');await page.getByRole('button',{name:'Agregar carpeta',exact:true}).click();
     await page.locator('input[webkitdirectory]').setInputFiles(folder);
     for(const bad of ['incident-null','incident-field','element-null','value-null','value-field']){
       await page.evaluate(value=>window.doc113Bad=value,bad);await page.getByRole('button',{name:'Preparar revisión',exact:true}).click();
@@ -371,13 +371,14 @@ test('DOC-111: interfaz Chromium local con servicios sintéticos, foco y cierre 
     await page.evaluate(() => { document.getElementById('doc111-importacion').setAttribute('data-nivel','7'); ImportacionCarpetas.inicializar(); });
     await page.locator('[data-doc111-open]').click(); await page.getByRole('dialog').waitFor();
     await page.getByLabel('Perfil publicado').selectOption('5');
-    await page.getByRole('button', {name:'Agregar carpetas', exact:true}).click();
+    await page.getByRole('button', {name:'Agregar carpeta', exact:true}).click();
     for (let i=0;i<2;i++) await page.locator('input[type=file][webkitdirectory]').setInputFiles(selected);
     await page.getByRole('button', {name:'Preparar revisión', exact:true}).click();
     await page.getByRole('button', {name:'Confirmar plan', exact:true}).waitFor();
     assert.equal(await page.getByRole('button', {name:'Confirmar plan', exact:true}).isEnabled(), true);
     assert.equal(await page.locator('.doc111-content img').count(), 0);
     assert.match(await page.locator('.doc111-content').innerText(), /Unidades elegibles: 1 de 2/);
+    await page.locator('[data-doc111-panel="valores"] > summary').click();
     assert.match(await page.locator('.doc111-content').innerText(), /Pendiente: ID/);
     await page.screenshot({path:path.join(root,'.tmp/doc111-ui-revision-desktop.png')});
     await page.setViewportSize({width:390,height:844});
@@ -387,8 +388,8 @@ test('DOC-111: interfaz Chromium local con servicios sintéticos, foco y cierre 
     await page.evaluate(() => { document.getElementById('doc111-importacion').setAttribute('data-nivel','8'); ImportacionCarpetas.inicializar(); ImportacionCarpetas.inicializar(); });
     assert.match(await page.locator('.doc111-destino').innerText(), /Compras \/ Órdenes/);
     await page.getByRole('button', {name:'Confirmar plan', exact:true}).click();
-    await page.getByRole('button', {name:/^Enviar archivos de esta página \(/, exact:true}).waitFor();
-    await page.getByRole('button', {name:/^Enviar archivos de esta página \(/, exact:true}).click();
+    await page.locator('[data-doc111-action="enviar"]').waitFor();
+    await page.locator('[data-doc111-action="enviar"]').click();
     await page.waitForFunction(() => window.doc111Received && document.querySelector('.doc111-content').textContent.includes('RECIBIDO'));
     assert.match(await page.locator('.doc111-content').innerText(), /NO_INICIADO/);
     assert.match(await page.locator('.doc111-content').innerText(), /RECHAZADO/);
@@ -406,7 +407,7 @@ test('DOC-111: interfaz Chromium local con servicios sintéticos, foco y cierre 
     await page.locator('[data-doc111-resume]').click(); await page.getByRole('dialog').waitFor();
     await page.getByRole('heading', {name:'Seguimiento de la importación', exact:true}).waitFor();
     await page.waitForFunction(() => document.querySelector('.doc111-content').textContent.includes('RECIBIDO'));
-    assert.equal(await page.getByRole('button', {name:/^Enviar archivos de esta página \(/, exact:true}).isDisabled(), true);
+    assert.equal(await page.locator('[data-doc111-action="enviar"]').isDisabled(), true);
     await page.getByRole('button', {name:'Cerrar', exact:true}).focus(); await page.keyboard.press('Shift+Tab');
     assert.equal(await page.evaluate(() => document.querySelector('[role=dialog]').contains(document.activeElement)), true);
     await page.keyboard.press('Escape'); assert.equal(await page.getByRole('dialog').count(), 0);
@@ -416,7 +417,7 @@ test('DOC-111: interfaz Chromium local con servicios sintéticos, foco y cierre 
     assert.equal(await page.getByRole('dialog').count(), 0);
     await page.evaluate(() => { window.denyOpening=false; window.lostConfirmation=true; });
     await page.locator('[data-doc111-open]').click(); await page.getByRole('dialog').waitFor();
-    await page.getByLabel('Perfil publicado').selectOption('5'); await page.getByRole('button', {name:'Agregar carpetas', exact:true}).click();
+    await page.getByLabel('Perfil publicado').selectOption('5'); await page.getByRole('button', {name:'Agregar carpeta', exact:true}).click();
     for (let i=0;i<2;i++) await page.locator('input[type=file][webkitdirectory]').setInputFiles(selected);
     await page.getByRole('button', {name:'Preparar revisión', exact:true}).click(); await page.getByRole('button', {name:'Confirmar plan', exact:true}).click();
     await page.waitForFunction(() => document.querySelector('.doc111-notice').textContent.includes('No se pudo confirmar'));
@@ -683,7 +684,7 @@ test('DOC-111: recarga real conserva referencias y recupera sin reconfirmar ni a
     });
     page.on('pageerror',error=>errors.push(error.message));
     await page.goto('https://doc111.invalid/');
-    await page.locator('[data-doc111-open]').click();await page.getByRole('dialog').waitFor();await page.getByLabel('Perfil publicado').selectOption('5');await page.getByRole('button',{name:'Agregar carpetas',exact:true}).click();
+    await page.locator('[data-doc111-open]').click();await page.getByRole('dialog').waitFor();await page.getByLabel('Perfil publicado').selectOption('5');await page.getByRole('button',{name:'Agregar carpeta',exact:true}).click();
     for(let i=0;i<2;i++)await page.locator('input[webkitdirectory]').setInputFiles(selected);
     assert.deepEqual(errors,[]);assert.equal(await page.getByRole('button',{name:'Preparar revisión',exact:true}).isEnabled(),true);
     await page.getByRole('button',{name:'Preparar revisión'}).click();await page.getByRole('button',{name:'Confirmar plan',exact:true}).click();
@@ -697,7 +698,7 @@ test('DOC-111: recarga real conserva referencias y recupera sin reconfirmar ni a
     visible=true;await page.evaluate(()=>{document.getElementById('doc111-importacion').setAttribute('data-nivel','8');ImportacionCarpetas.inicializar();});
     await page.locator('[data-doc111-verificar]').click();await page.getByRole('dialog').waitFor();
     assert.match(await page.locator('.doc111-destino').innerText(),/Destino original/);
-    assert.equal(await page.getByRole('button',{name:/^Enviar archivos de esta página \(/}).isDisabled(),true);
+    assert.equal(await page.locator('[data-doc111-action="enviar"]').isDisabled(),true);
     assert.equal(await page.getByRole('button',{name:'Reseleccionar archivo 30',exact:true}).count(),0);
     await page.setViewportSize({width:390,height:844});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
@@ -705,16 +706,16 @@ test('DOC-111: recarga real conserva referencias y recupera sin reconfirmar ni a
     await page.setViewportSize({width:1280,height:800});
     const badChoice=page.waitForEvent('filechooser');await page.getByRole('button',{name:'Reseleccionar archivo 31',exact:true}).click();await(await badChoice).setFiles({name:'otro.pdf',mimeType:'application/pdf',buffer:Buffer.from('fixture')});
     await page.waitForFunction(()=>document.querySelector('.doc111-notice').textContent.includes('no coincide'));
-    assert.equal(await page.getByRole('button',{name:/^Enviar archivos de esta página \(/}).isDisabled(),true);
+    assert.equal(await page.locator('[data-doc111-action="enviar"]').isDisabled(),true);
     const goodChoice=page.waitForEvent('filechooser');await page.getByRole('button',{name:'Reseleccionar archivo 31',exact:true}).click();await(await goodChoice).setFiles(path.join(selected,'a.pdf'));
     await page.waitForFunction(()=>document.querySelector('.doc111-notice').textContent.includes('Archivo vinculado'));
-    await page.getByRole('button',{name:/^Enviar archivos de esta página \(/}).click();
+    await page.locator('[data-doc111-action="enviar"]').click();
     await page.waitForFunction(()=>document.querySelector('[data-doc111-action=enviar]').disabled);
     assert.deepEqual(calls.filter(c=>c.operation==='upload.ashx').map(c=>c.request.archivoId),['31']);
     assert.equal(calls.filter(c=>c.operation==='ConfirmarPlan').length,1);
     assert.deepEqual(await page.evaluate(()=>JSON.parse(sessionStorage.getItem('DOC111_REF_'+'a'.repeat(32)))),{v:1,loteId:'20'});
     await page.reload();await page.locator('[data-doc111-resume]').click();await page.getByRole('dialog').waitFor();
-    assert.equal(await page.getByRole('button',{name:/^Enviar archivos de esta página \(/}).isDisabled(),true);
+    assert.equal(await page.locator('[data-doc111-action="enviar"]').isDisabled(),true);
     assert.equal(calls.filter(c=>c.operation==='upload.ashx').length,1);
     scope='b'.repeat(32);await page.reload();assert.equal(await page.locator('[data-doc111-resume]').isHidden(),true);assert.equal(await page.locator('[data-doc111-verificar]').isHidden(),true);
     assert.deepEqual(errors,[]);assert.deepEqual(exterior,[]);

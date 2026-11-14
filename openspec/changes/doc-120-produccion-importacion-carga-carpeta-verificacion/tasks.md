@@ -3,7 +3,7 @@
 
 Mapa aplicado a este archivo activo desde plan-tareas-propuesto.md por la indicación del usuario sobre tasks.md. Sustituye las ocho entradas genéricas iniciales.
 
-Progreso: **34/38 tareas verificadas en el alcance documental/local**. Complejidad:15 S,23 M,0 L. El corte actual añade3.10–3.18 para la reorganización expresamente solicitada y la corrección de C01/C02/C03 de la maqueta. Se añaden3.6/3.7 por correcciones de interfaz,3.8 por la solicitud expresa de alinear únicamente la barra superior y4.4 por la brecha DOC120-SUP01 reproducida durante INT-02. Cada tarea declara área, origen D/RQ y verificación. El usuario indicó «continua» sobre73106588: plan aprobado para consolidación y comprobaciones locales, sin aceptación operativa ni autorización de pruebas reales.
+Progreso: **39/43 tareas verificadas en el alcance documental/local**. Complejidad:15 S,28 M,0 L. El corte de fidelidad añade3.19–3.23 tras la corrección expresa del usuario sobre2642e604. El corte actual añade3.10–3.18 para la reorganización expresamente solicitada y la corrección de C01/C02/C03 de la maqueta. Se añaden3.6/3.7 por correcciones de interfaz,3.8 por la solicitud expresa de alinear únicamente la barra superior y4.4 por la brecha DOC120-SUP01 reproducida durante INT-02. Cada tarea declara área, origen D/RQ y verificación. El usuario indicó «continua» sobre73106588: plan aprobado para consolidación y comprobaciones locales, sin aceptación operativa ni autorización de pruebas reales.
 
 Dependencias: refinamiento aprobado para trabajo local; seleccionar regresión por vigencia y brechas; definir y autorizar cada ventana real antes de usar ambiente/cuentas/recursos. INT-03 requiere objetivo, umbrales y presupuesto explícitos; sin ellos se registra NO_EJECUTADO según D-07/RQ-07. Las autorizaciones de DOC110–119 no se heredan.
 
@@ -52,6 +52,16 @@ Solicitud expresa: «agrega las tareas al task y realiza la implmentacion», pos
 - [x] 3.17 [M] Adaptar el asistente a pantalla estrecha y conservar foco y teclado. Área/archivos: ImportacionCarpetasVista.js/css; Gestion/WebFormProducionDocumental.aspx. Origen: D-04, RQ-04. Verificación: Chromium390/768/1280px, paneles y barra sin desbordamiento; foco restaurado por identidad, Tab/Escape/Enter y recursos versionados.
 - [x] 3.18 [M] Registrar regresión y evidencia vigente del asistente guiado. Área/archivos: tests/doc120-importacion-guiada.test.cjs; suites existentes; Validacion/; guía operativa y dossier DOC-120. Origen: D-10, RQ-10. Verificación: pruebas locales y compilación aprobadas, huellas y límites explícitos sin sobrescribir auditoría histórica ni afirmar aceptación IIS.
 
+## 3 ter. Fidelidad a la maqueta — corrección solicitada2026-11-13
+
+La agrupación anterior no acredita igualdad visual con la maqueta. El usuario pide expresamente igualar controles y mantener siempre visibles Consultar importación / Consultar último lote. Se añaden estas tareas sin alterar los resultados históricos de3.10–3.18.
+
+- [x] 3.19 [M] Mantener la barra de consultas visible en todos los pasos y preservar la preparación al consultar otro lote. Área/archivos: ImportacionCarpetas.js/Vista.js. Origen: D-04, RQ-04. Verificación: accesos visibles al desplazar y en móvil; consulta por referencia/último lote/plan pendiente; regreso conserva perfil, inventario y revisión; no se asocian File locales de otra preparación por idCliente coincidente.
+- [x] 3.20 [M] Reproducir cabecera, pasos, selección y revisión con la distribución de la maqueta. Área/archivos: ImportacionCarpetasVista.js. Origen: D-04, RQ-04. Verificación: controles reales con iconos, formulario en dos columnas, lista de carpetas, vacío, contadores y configuración inferior; incidencias, valores, más perfiles y eliminación individual siguen accesibles.
+- [x] 3.21 [M] Reproducir seguimiento y elección del recurso con el panel de acción y avance de la maqueta. Área/archivos: ImportacionCarpetasVista.js. Origen: D-05, RQ-05. Verificación: Ver acciones cambia el recurso destacado sin emitir efectos; fase, reselección, CSV y stop conservan sus eventos y guards; no se inventan conteos globales ni se infiere almacenamiento de recepción.
+- [x] 3.22 [M] Igualar los estilos y el comportamiento adaptable de controles, tablas y pie. Área/archivos: ImportacionCarpetas.css; Gestion/WebFormProducionDocumental.aspx. Origen: D-04, RQ-04. Verificación: comparación de propiedades calculadas con el HTML de referencia y capturas390/768/1280px; barra de consultas y pie visibles sin solapamiento; teclado y foco sin regresiones, CSS aislado y recursos versionados.
+- [x] 3.23 [M] Registrar comparación visual y regresión funcional de la corrección de fidelidad. Área/archivos: tests/doc120-importacion-fidelidad.test.cjs; suites existentes; Validacion/; guía y dossier DOC-120. Origen: D-10, RQ-10. Verificación: diferencias visuales resueltas con fuente/capturas, regresión y compilación aprobadas, alcance sintético declarado; backend, permisos, SII, perfil Egresos y datos sin cambios.
+
 ## 4. Degradación acotada — INT-02
 
 - [x] 4.1 [S] Delimitar el antecedente de degradación y su compatibilidad actual. Área/archivos: doc111-degradacion-individual-pass-20261102.md; tools/e2e/tests/doc111-degradation.test.cjs; repositorio MySQL vigente. Origen: D-06, RQ-06. Verificación: Se identifica exactamente ra_integracion_evento ausente y restauración; no se extrapola a otro fallo de esquema.
@@ -77,7 +87,7 @@ Solicitud expresa: «agrega las tareas al task y realiza la implmentacion», pos
 
 ## Cobertura y límites
 
-Diez decisiones D-01–D-10 y diez requisitos RQ-01–RQ-10 cubiertos por38 tareas (29 previas más3.10–3.18 del asistente guiado). Las diez decisiones y veinte escenarios originales se conservan; se añade a RQ-04 un escenario de barra adaptable sin regresión funcional y otro de recepción previa a creación (22 escenarios anteriores más tres del asistente guiado:25 escenarios). Los resultados de origen mantienen SHA/ambiente/clasificación y sus límites real/local/estático. No se autorizan pruebas reales, cargas, cambios de permisos, DDL, fallos ni limpieza mediante este mapa.
+Diez decisiones D-01–D-10 y diez requisitos RQ-01–RQ-10 cubiertos por43 tareas (38 del corte guiado más3.19–3.23 de fidelidad). Las diez decisiones y veinte escenarios originales se conservan; se añade a RQ-04 un escenario de barra adaptable sin regresión funcional y otro de recepción previa a creación (22 escenarios anteriores más tres del asistente guiado:25 escenarios anteriores más dos de fidelidad:27 escenarios). Los resultados de origen mantienen SHA/ambiente/clasificación y sus límites real/local/estático. No se autorizan pruebas reales, cargas, cambios de permisos, DDL, fallos ni limpieza mediante este mapa.
 
 ## Evidencia del corte local2026-11-12
 
@@ -106,3 +116,7 @@ Tarea3.9 completada por «corrige» tras el video recorrido-error. DOC120-REC01:
 ## Implementación guiada — 2026-11-13
 
 Tareas3.10–3.18 completadas. Seleccionar reúne perfil y carpetas; Revisar conserva validaciones y confirmación explícita; Seguimiento destaca una operación existente y su recurso, con filtros/configuración desplegables, consulta visible y conteo de envío. No cambia contratos ni guards de negocio. Maqueta C01/C02/C03 corregida; los límites de autenticación, persistencia y reconciliación simuladas permanecen. Evidencia vigente: Validacion/doc120-asistente-guiado-20261113.json;68/68 Node locales y compilación0 errores. Avance34/38;5.2,6.4,6.5,6.6 siguen abiertas. Sin importación real nueva ni aceptación integral.
+
+## Corrección de fidelidad a la maqueta — 2026-11-13
+
+3.19–3.23 completadas sobre la petición de igualar la maqueta y mantener Consultar importación / Consultar último lote siempre visibles. Barra superior de consultas y pie separados del contenido desplazable; controles y estilos trasladados desde el HTML de referencia y aislados al asistente. Selección, revisión y seguimiento con pasos circulares, tarjetas, iconos, contadores, estados, filtros y selección de recurso. Rótulos visibles sin IDs internos; identidad accesible y datos conservados. Consulta secundaria preserva perfil/inventario/revisión, evita reutilizar File por idCliente coincidente y relee al volver a lote confirmado. Comparación116 propiedades calculadas y capturas en390/768/1280px con CSS real y Bootstrap;71/71 Node,0 errores de compilación. Evidencia: Validacion/doc120-fidelidad-maqueta-20261113.json. Avance39/43; siguen abiertas5.2,6.4,6.5,6.6. Sin sesión IIS autenticada, nueva importación real ni aceptación integral.
