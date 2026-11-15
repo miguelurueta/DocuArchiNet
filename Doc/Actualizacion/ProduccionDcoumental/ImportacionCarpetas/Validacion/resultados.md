@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Etiqueta por código — 2026-11-15
+
+Petición «debe ser codigo unico»:3.69–3.71 verificadas localmente. Nuevas creaciones guardan código como alias; consulta y proyección del árbol separan código/nombre y conservan identidad por ID, búsqueda y expansión. **75/75 pruebas locales únicas**, wrappers Framework/DDL incluidos sin sumar casos internos; compilación aislada0 errores. Sin migrar filas históricas, cambiar políticas de coincidencia, activar IIS ni ejecutar efectos reales. Avance**87/91**,37 escenarios; abiertas5.2/6.4/6.5/6.6. [Detalle, fuentes y límites](doc120-etiqueta-codigo-20261115.md), con huellas en el JSON compañero. No renueva los resultados históricos siguientes ni concede aceptación integral.
+
 ## Primer expediente del nivel — corrección2026-11-14
 
 El usuario reporta que recuperó el lote y terminó la importación, con expediente ausente del árbol. Reproducción local: Doc111ActualizarRama exige un contenedor que WebForms omite en niveles vacíos y el asistente ignora el fallo. Se reutiliza el insertor del primer hijo, se verifica la relación y se conserva selección/expansión existente, búsqueda y contador. Si no se puede mostrar, hay aviso y Actualizar reintenta solo la proyección. **74/74 pruebas locales únicas**, incluidos cinco focales superpuestos y expansor nativo System.Web; sin operaciones reales ni delta backend. Avance**57/61**,36 escenarios. La actualización en IIS queda sin observar; abiertas5.2/6.4/6.5/6.6. Evidencia: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-primer-expediente-arbol-20261114.json`; instrucciones `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-primer-expediente-arbol-20261114.md`. Cortes siguientes históricos.

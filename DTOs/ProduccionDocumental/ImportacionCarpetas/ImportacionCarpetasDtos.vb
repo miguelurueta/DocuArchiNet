@@ -253,6 +253,8 @@ Public Class RecursoConsultaImportacionResultado
     Public Property intentoActivoId As String
     Public Property valoresEfectivosFijados As Boolean
     Public Property nombreExpediente As String
+    'Etiqueta del arbol; el codigo de negocio no sustituye expedienteId.
+    Public Property codigoExpediente As String
     Public Property expedienteId As String
     Public Property relacionNivelId As String
     Public Property gabineteId As String

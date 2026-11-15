@@ -26,7 +26,10 @@ Public Partial Class MySqlImportacionCarpetasRepository
                 Return leidos
             End Function)
         If Not estructura Then Return False
-        Dim esperados As New Dictionary(Of String, String)(StringComparer.Ordinal) From {{"codigo", comando.Codigo}, {"nombre", comando.Nombre}, {"alias_visible", comando.Nombre}, {"fecha_inicial", comando.FechaInicial}, {"fecha_final", comando.FechaFinal}, {"ciclo_id", datos("CICLO_ARCHIVO_ID")}, {"ciclo_nombre", comando.CicloArchivoNombre}, {"gabinete", datos("GABINETE_NOMBRE")}, {"responsable_nombre", datos("RESPONSABLE_NOMBRE")}, {"responsable_identificacion", datos("RESPONSABLE_IDENTIFICACION")}, {"volumen", "1"}}
+        Dim esperados As New Dictionary(Of String, String)(StringComparer.Ordinal) From {{"codigo", comando.Codigo}, {"nombre", comando.Nombre}, {"alias_visible", comando.Codigo}, {"fecha_inicial", comando.FechaInicial}, {"fecha_final", comando.FechaFinal}, {"ciclo_id", datos("CICLO_ARCHIVO_ID")}, {"ciclo_nombre", comando.CicloArchivoNombre}, {"gabinete", datos("GABINETE_NOMBRE")}, {"responsable_nombre", datos("RESPONSABLE_NOMBRE")}, {"responsable_identificacion", datos("RESPONSABLE_IDENTIFICACION")}, {"volumen", "1"}}
+        'Solo la verificacion de IDs ya conocidos admite el alias historico.
+        'No busca por etiqueta ni cambia el expediente o su resultado guardado.
+        If comando.EsVerificacion AndAlso leidos.Columns.Contains("alias_visible") AndAlso Not leidos.Rows(0).IsNull("alias_visible") AndAlso String.Equals(Convert.ToString(leidos.Rows(0)("alias_visible"), CultureInfo.InvariantCulture), comando.Nombre, StringComparison.Ordinal) Then esperados("alias_visible") = comando.Nombre
         For Each par In esperados
             If Not leidos.Columns.Contains(par.Key) Then Throw NoDisponible()
             If par.Value Is Nothing Then

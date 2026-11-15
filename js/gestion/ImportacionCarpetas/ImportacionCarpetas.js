@@ -262,7 +262,7 @@
                     session.model.raices = roots; session.model.mutacionIncierta = false; consultaCompleta();
                     session.model.avisoArbol = null;
                     if (typeof deps.Doc111ActualizarRama === "function") {
-                        var confirmedRoots = roots.elementos.filter(function (root) { return root && !root.tieneIntentoActivo && ["EXPEDIENTE_CONFIRMADO", "COMPLETADA", "PARCIAL"].indexOf(root.estado) !== -1 && validId(root.expedienteId) && validId(root.relacionNivelId) && typeof root.nombreExpediente === "string" && root.nombreExpediente.trim(); });
+                        var confirmedRoots = roots.elementos.filter(function (root) { return root && !root.tieneIntentoActivo && ["EXPEDIENTE_CONFIRMADO", "COMPLETADA", "PARCIAL"].indexOf(root.estado) !== -1 && validId(root.expedienteId) && validId(root.relacionNivelId) && typeof root.codigoExpediente === "string" && root.codigoExpediente.trim(); });
                         if (confirmedRoots.length) {
                             try { if (deps.Doc111ActualizarRama({nivelRef:session.model.contexto.nivelRef, referenciaContexto:session.scope}, confirmedRoots) !== true) { session.model.avisoArbol = "El expediente está confirmado, pero no se pudo mostrar en el árbol. Localiza el destino original y pulsa Actualizar estado; no repitas la importación."; } }
                             catch (_) { session.model.avisoArbol = "El expediente está confirmado, pero no se pudo mostrar en el árbol. Localiza el destino original y pulsa Actualizar estado; no repitas la importación."; }

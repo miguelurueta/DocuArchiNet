@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const {validateSession,assertLevelGrant,createLevelControls,createCreationClient,safeFailureCode,assertRunnable,assertInitialSnapshot,runCreationScenario}=require('../tools/e2e/tests/support/doc116-expedientes-importacion.cjs');
-const profile={baseUrl:'https://test.invalid/app/',module:'GESTOR',ignoreHttpsErrors:false,timeoutMilliseconds:90000,odbcDsn:'MembershipUsers',docuarchiOdbcDsn:'MembershipUsers',nivelRef:'7',versionId:'38',mode:'LOTE',pdfFixture:'doc111-carga-individual.pdf',rootNames:['DOC116-SYNTHETIC-01','DOC116-SYNTHETIC-02'],expectations:[0,1].map(i=>({codigo:'synthetic-'+i,nombre:'synthetic-'+i,tipologiaId:'1',indices:[{referencia:'1',tipo:'TEXTO',valor:'synthetic'}]}))};
+const profile={baseUrl:'https://test.invalid/app/',module:'GESTOR',ignoreHttpsErrors:false,timeoutMilliseconds:90000,odbcDsn:'MembershipUsers',docuarchiOdbcDsn:'MembershipUsers',nivelRef:'7',versionId:'38',mode:'LOTE',pdfFixture:'doc111-carga-individual.pdf',rootNames:['DOC116-SYNTHETIC-01','DOC116-SYNTHETIC-02'],expectations:[0,1].map(i=>({codigo:'synthetic-'+i,nombre:'Informativo '+i,tipologiaId:'1',indices:[{referencia:'1',tipo:'TEXTO',valor:'synthetic'}]}))};
 const session=scenario=>({scenario:scenario||'EXP-01',profile:structuredClone(profile),identity:{userRef:'141',ambitoRef:'2'},levelB:'8',lotId:'1',roots:[{rootId:'2',revision:1,key:'root-two'},{rootId:'3',revision:1,key:'root-three'}]});
 const a={environment:true,account:true,select:true,effects:true,discardable:true};
 const grant=()=>({nivel:'7',actor:'141',empresa:'2',propietario:'142',nivel_activo:'1',estado_permiso:'1',agregar_expediente:'1'});
@@ -85,7 +85,7 @@ function integratedFixture(scenario,options={}){
   if(sql.startsWith('SELECT evento_id,'))return structuredClone(v.events);
   if(sql.includes('COUNT(*) AS total FROM ra_pro_niveles_has_expediente_archivo'))return [{total:args[0]==='7'?10+createdRoots.size:20}];
   if(sql.startsWith('SELECT e.*')){
-   const n=Number(args[0])-60;return [{nivel:options.wrongLevel?'8':'7',ID_USUARIO_GESTION:'141',ID_EMPRESA_EXPEDIENTE:'2',CODIGO_UNICO:profile.expectations[n].codigo,ALEAS_EXPEDIENTE:profile.expectations[n].nombre,TEMA_EXPEDIENTE:profile.expectations[n].nombre,Id_tipos_ciclo_archivo:'13',ID_FONDO:'1',id_instrumento:'2',CODIGO_AREA_TRD:'3',CODIGO_SERIE_TRD:'4',CODIGO_SUB_SERIE_TRD:null,RA_TIP_EXPE_ID_TIPO_EXPEDIENTE:'5',ID_TIPO_UNIDAD_DOCUMENTAL:'6'}];
+   const n=Number(args[0])-60;return [{nivel:options.wrongLevel?'8':'7',ID_USUARIO_GESTION:'141',ID_EMPRESA_EXPEDIENTE:'2',CODIGO_UNICO:profile.expectations[n].codigo,ALEAS_EXPEDIENTE:profile.expectations[n].codigo,TEMA_EXPEDIENTE:profile.expectations[n].nombre,Id_tipos_ciclo_archivo:'13',ID_FONDO:'1',id_instrumento:'2',CODIGO_AREA_TRD:'3',CODIGO_SERIE_TRD:'4',CODIGO_SUB_SERIE_TRD:null,RA_TIP_EXPE_ID_TIPO_EXPEDIENTE:'5',ID_TIPO_UNIDAD_DOCUMENTAL:'6'}];
   }
   if(sql.startsWith('SELECT Nombre_Tipo_ciclo_archivo'))return [{nombre:'Archivo Gestión'}];
   if(sql.startsWith('SELECT NOMBRE FROM system1')){assert.equal(origin,'DA');return [{NOMBRE:'synthetic_cabinet'}];}

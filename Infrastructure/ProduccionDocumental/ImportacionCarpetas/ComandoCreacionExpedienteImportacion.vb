@@ -112,8 +112,8 @@ Public NotInheritable Class ComandoCreacionExpedienteImportacion
         Next
         If Not String.IsNullOrEmpty(c.SubserieRef) Then EnteroLegacy(c.SubserieRef)
         TextoLegacy(Codigo, True) : TextoLegacy(Nombre, True)
-        'El arbol de Produccion presenta ALEAS_EXPEDIENTE. Conservacion limita
-        'ese argumento a 120; no truncar el nombre confirmado para rellenarlo.
+        'Conservar el limite vigente del nombre informativo confirmado.
+        'El alias del arbol se rellena con Codigo, sin truncar ninguno.
         If Nombre.Length > 120 Then Throw DiagnosticoOperacionImportacion.Fallo("CONFIGURACION_INVALIDA", "NOMBRE", "LONGITUD_EXCEDIDA", Nombre.Length, 120)
         TextoLegacy(FechaInicial, True) : TextoLegacy(FechaFinal, False)
     End Sub

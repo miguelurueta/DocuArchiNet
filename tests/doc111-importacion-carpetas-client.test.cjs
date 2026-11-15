@@ -622,7 +622,7 @@ for(const scenario of [
       if(pathname.endsWith('/WebFormProducionDocumental.aspx'))return route.fulfill({status:200,contentType:'text/plain',body:'ok'});
       const operation=pathname.split('/').pop(),body=request.postDataJSON().solicitud;calls.push({operation,request:body});let data;
       if(operation==='ConsultarLote')data={loteId:'20',nivelRef:'7',rutaCanonica:'Origen',estado:'PARCIAL',maximoTamanoPagina:25,totalRaices:2,totalArchivos:1,totalBytes:String(stat.size),accionesPermitidas:['CONSULTAR','CONSULTAR_RAICES']};
-      else if(operation==='ConsultarRecursosLote')data={loteId:'20',tipo:body.tipo,pagina:1,tamanoPagina:25,totalOriginal:body.tipo==='RAICES'?2:1,totalFiltrado:body.tipo==='RAICES'?2:1,puedeHaberMas:false,elementos:body.tipo==='RAICES'?[{recursoId:'40',nombre:'Homónima',estado:'EXPEDIENTE_CONFIRMADO',expedienteId:'60',relacionNivelId:'70',nombreExpediente:'Nombre confirmado'},{recursoId:'41',nombre:'Homónima',estado:'PENDIENTE'}]:[{recursoId:'30',raizId:'41',nombre:'a.pdf',estadoRecepcion:'PENDIENTE',estado:'NO_INICIADO',bytesPrevistos:String(stat.size),ultimaModificacionLocal:String(Math.floor(stat.mtimeMs)),tieneIntentoActivo:false}]};
+      else if(operation==='ConsultarRecursosLote')data={loteId:'20',tipo:body.tipo,pagina:1,tamanoPagina:25,totalOriginal:body.tipo==='RAICES'?2:1,totalFiltrado:body.tipo==='RAICES'?2:1,puedeHaberMas:false,elementos:body.tipo==='RAICES'?[{recursoId:'40',nombre:'Homónima',estado:'EXPEDIENTE_CONFIRMADO',expedienteId:'60',relacionNivelId:'70',nombreExpediente:'Nombre confirmado',codigoExpediente:'COD-00029'},{recursoId:'41',nombre:'Homónima',estado:'PENDIENTE'}]:[{recursoId:'30',raizId:'41',nombre:'a.pdf',estadoRecepcion:'PENDIENTE',estado:'NO_INICIADO',bytesPrevistos:String(stat.size),ultimaModificacionLocal:String(Math.floor(stat.mtimeMs)),tieneIntentoActivo:false}]};
       else throw Error('Unexpected synthetic operation '+operation);
       return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,codigo:'OK',mensaje:'OK',datos:data,incidencias:[]})});
     });
@@ -746,7 +746,7 @@ test('DOC-111: fases explícitas y rama original usan relaciones confirmadas sin
             if(operation==='ConsultarLote')data={loteId:'20',nivelRef:'7',rutaCanonica:'Origen fijado',estado:uncertain?'PENDIENTE_VERIFICACION':window.stopped?'DETENIDO':'EN_CURSO',revision:window.lotRevision,maximoTamanoPagina:25,totalRaices:2,totalArchivos:1,totalBytes:'7',accionesPermitidas:['CONSULTAR','EXPORTAR_PAGINA','CONSULTAR_RAICES',...(!window.stopped?['SOLICITAR_DETENCION']:[]),...(uncertain?['SOLICITAR_VERIFICACION']:window.stopped?[]:['SOLICITAR_AVANCE'])]};
             else if(operation==='ConsultarRecursosLote'){
               const roots=request.tipo==='RAICES';data={loteId:'20',tipo:request.tipo,pagina:1,tamanoPagina:25,totalOriginal:roots?2:1,totalFiltrado:roots?2:1,elementos:roots?[
-                {recursoId:'40',nombre:'Carpeta homónima',estado:window.rootState,recepcionListaParaCrear:true,revision:window.lotRevision,tieneIntentoActivo:false,...(window.rootState!=='PENDIENTE'?{expedienteId:'60',relacionNivelId:'70',nombreExpediente:'Nombre final <img src=x onerror=alert(1)>'}:{})},
+                {recursoId:'40',nombre:'Carpeta homónima',estado:window.rootState,recepcionListaParaCrear:true,revision:window.lotRevision,tieneIntentoActivo:false,...(window.rootState!=='PENDIENTE'?{expedienteId:'60',relacionNivelId:'70',nombreExpediente:'Nombre informativo',codigoExpediente:'COD-00029 <img src=x onerror=alert(1)>'}:{})},
                 {recursoId:'41',nombre:'Carpeta homónima',estado:'PENDIENTE',revision:1,tieneIntentoActivo:false}
               ]:[{recursoId:'30',raizId:'40',nombre:'a.pdf',estadoRecepcion:'RECIBIDO',estado:window.documentState,revision:window.lotRevision,valoresEfectivosFijados:window.fixedValues,tieneIntentoActivo:uncertain,intentoActivoId:uncertain?'50':null,documentoId:window.documentState==='COMPLETADO'?'90':null}]};
             }else if(operation==='AvanzarLote'){
@@ -786,7 +786,7 @@ test('DOC-111: fases explícitas y rama original usan relaciones confirmadas sin
     await page.getByRole('button',{name:'Solicitar detención',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.doc111-content').textContent.includes('DETENIDO'));
     assert.equal(await page.locator('[data-doc111-action="fase"]').count(),0);
     const outcome=await page.evaluate(()=>{
-      const context={nivelRef:'7',referenciaContexto:'a'.repeat(32)},row={estado:'EXPEDIENTE_CONFIRMADO',expedienteId:'61',relacionNivelId:'71',nombreExpediente:'Nombre final <img src=x onerror=alert(1)>'};
+      const context={nivelRef:'7',referenciaContexto:'a'.repeat(32)},row={estado:'EXPEDIENTE_CONFIRMADO',expedienteId:'61',relacionNivelId:'71',nombreExpediente:'Nombre informativo',codigoExpediente:'COD-00029 <img src=x onerror=alert(1)>'};
       Doc111ActualizarRama(context,[row,row]);Doc111ActualizarRama(context,[row]);
       const before=document.querySelectorAll('#TreeViewArchivon1Nodes a[title]').length;
       document.getElementById('TreeViewArchivot1').style.display='none';const hidden=Doc111ActualizarRama(context,[{...row,expedienteId:'62',relacionNivelId:'72'}]);document.getElementById('TreeViewArchivot1').style.display='';

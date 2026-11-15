@@ -1082,13 +1082,19 @@ function Doc111ActualizarRama(contexto, raices) {
     }
     var updated = true;
     raices.forEach(function (r) {
-        if (!r || r.tieneIntentoActivo || ["EXPEDIENTE_CONFIRMADO", "COMPLETADA", "PARCIAL"].indexOf(r.estado) === -1 || !id(r.expedienteId) || !id(r.relacionNivelId) || typeof r.nombreExpediente !== "string" || !r.nombreExpediente.trim()) { return; }
+        if (!r || r.tieneIntentoActivo || ["EXPEDIENTE_CONFIRMADO", "COMPLETADA", "PARCIAL"].indexOf(r.estado) === -1 || !id(r.expedienteId) || !id(r.relacionNivelId) || typeof r.codigoExpediente !== "string" || !r.codigoExpediente.trim()) { return; }
         var title = r.relacionNivelId + "|" + contexto.nivelRef + "|" + r.expedienteId + "|";
         var existing = Array.prototype.some.call(tree.querySelectorAll("a[id][title]"), function (a) { return /^TreeViewArchivot[0-9]+$/.test(a.id) && a.title.replace(/\|$/, "") === title.replace(/\|$/, ""); });
-        if (!existing) { create_trenode_treview(title, r.nombreExpediente, "trenode", "TreeViewArchivo", "../Gestion/imagenes/folder-regular.png", "0", parent.id); }
+        if (!existing) { create_trenode_treview(title, r.codigoExpediente, "trenode", "TreeViewArchivo", "../Gestion/imagenes/folder-regular.png", "0", parent.id); }
         branch = document.getElementById(parent.id.replace("TreeViewArchivot", "TreeViewArchivon") + "Nodes");
         var matches = Array.prototype.filter.call(tree.querySelectorAll("a[id][title]"), function (a) { return /^TreeViewArchivot[0-9]+$/.test(a.id) && a.title.replace(/\|$/, "") === title.replace(/\|$/, ""); });
         if (!branch || matches.length !== 1 || !branch.contains(matches[0])) { updated = false; }
+        else if (matches[0].textContent !== r.codigoExpediente) {
+            var node = matches[0];
+            node.textContent = r.codigoExpediente;
+            ITEMS_DATOS.forEach(function (item) { if (item.id === node.id) { item.text = r.codigoExpediente; item.value = r.codigoExpediente; } });
+            precarga_datos_busqueda();
+        }
     });
     return updated;
 }

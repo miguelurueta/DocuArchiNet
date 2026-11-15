@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Etiqueta por código — corrección2026-11-15
+
+RQ-04/RQ-05/RQ-10, tareas3.69–3.71: alias de nuevas creaciones y etiqueta/búsqueda del árbol usan código, con nombre informativo e identidad por ID conservados. Compatibilidad histórica acotada de verificación, sin migración ni cambio de política de coincidencias. **75/75 locales**, incluidos wrappers Framework/DDL sin sumar casos internos; compilación aislada0 errores. Avance**87/91**,37 escenarios. Fuentes/huellas, logs y límites: [doc120-etiqueta-codigo-20261115.md](doc120-etiqueta-codigo-20261115.md) y JSON compañero. Sin activar runtime ni ejecutar negocio real; cuatro tareas finales abiertas. Los cortes siguientes conservan su procedencia.
+
 ## Primer expediente del nivel — corrección2026-11-14
 
 El usuario reporta que recuperó el lote y terminó la importación, con expediente ausente del árbol. Reproducción local: Doc111ActualizarRama exige un contenedor que WebForms omite en niveles vacíos y el asistente ignora el fallo. Se reutiliza el insertor del primer hijo, se verifica la relación y se conserva selección/expansión existente, búsqueda y contador. Si no se puede mostrar, hay aviso y Actualizar reintenta solo la proyección. **74/74 pruebas locales únicas**, incluidos cinco focales superpuestos y expansor nativo System.Web; sin operaciones reales ni delta backend. Avance**57/61**,36 escenarios. La actualización en IIS queda sin observar; abiertas5.2/6.4/6.5/6.6. Evidencia: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-primer-expediente-arbol-20261114.json`; instrucciones `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-primer-expediente-arbol-20261114.md`. Cortes siguientes históricos.

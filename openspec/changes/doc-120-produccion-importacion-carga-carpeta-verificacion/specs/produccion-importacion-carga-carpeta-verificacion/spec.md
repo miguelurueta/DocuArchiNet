@@ -62,6 +62,12 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **THEN** se agrega su relación al árbol mediante el insertor existente, con expansor, búsqueda y contador, una sola vez
 - **AND** se conservan selección/expansión existentes; una rama ausente/oculta/ambigua o un fallo de inserción produce aviso sin repetir efectos, y Actualizar vuelve a intentar únicamente la proyección
 
+#### Scenario: Etiqueta por código independiente del nombre informativo
+- **WHEN** se crea y consulta un expediente importado cuyo código es distinto de su nombre
+- **THEN** la creación guarda el código como ALEAS_EXPEDIENTE y el nombre como TEMA_EXPEDIENTE; la consulta conserva nombreExpediente y publica codigoExpediente solo desde el valor CODIGO confirmado no diferido de esa raíz
+- **AND** el árbol y su búsqueda presentan el código como texto sin fallback al nombre/carpeta; relaciones con códigos iguales permanecen diferenciadas por sus IDs y actualizar una relación existente no repite efectos ni incrementa el contador
+- **AND** una verificación de intento incierto con IDs conocidos conserva compatibilidad con el alias histórico igual al nombre confirmado, sin relajar código, clasificación, permisos o destino ni modificar evidencias anteriores
+
 #### Scenario: Barra superior adaptable sin regresión funcional
 - **WHEN** se ajusta la barra de Producción Documental y búsqueda a390/768/1024/1280/1554px y con texto aumentado
 - **THEN** cada cabecera mantiene juntos icono, texto y flecha; los grupos y búsqueda permanecen accesibles sin desbordamiento horizontal y los desplegables largos pueden recorrerse dentro del panel

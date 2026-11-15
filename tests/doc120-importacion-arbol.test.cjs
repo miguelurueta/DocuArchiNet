@@ -2,7 +2,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {fixture,consult}=require('./support/doc120-importacion-browser.cjs');
 const production=path.resolve(__dirname,'../js/gestion/WebFormProducionDocumental.js');
-const output=path.resolve(__dirname,'../.tmp/doc120-arbol');fs.mkdirSync(output,{recursive:true});
+const output=path.resolve(__dirname,'../.tmp/doc120-arbol-codigo-20261115');fs.mkdirSync(output,{recursive:true});
 async function tree(page,{branch=false}={}){
  await page.getByRole('button',{name:'Cerrar',exact:true}).click();
  await page.evaluate(branch=>{
@@ -12,16 +12,16 @@ async function tree(page,{branch=false}={}){
  },branch);
  await page.addScriptTag({path:production});
  await page.evaluate(()=>{SELECCION_TREVIEW_ID='TreeViewArchivot2';ITEMS_DATOS=[{id:'TreeViewArchivot1',text:'Origen',value:'Origen'},{id:'TreeViewArchivot2',text:'Origen',value:'Origen'}];window.clicks=[];window.OnTreeNodeClicked=id=>clicks.push(id);window.OnSearchClick=id=>clicks.push(id);
-  const original=XMLHttpRequest.prototype.send;XMLHttpRequest.prototype.send=function(body){const request=JSON.parse(body).solicitud,op=this.operation;if(op==='ConsultarLote'||op==='ConsultarRecursosLote'){const callback=this.onload;this.onload=()=>{const response=JSON.parse(this.responseText),data=response.datos;if(op==='ConsultarLote')Object.assign(data,{estado:'COMPLETADO',revision:9,accionesPermitidas:['CONSULTAR','CONSULTAR_RAICES','EXPORTAR_PAGINA']});else if(request.tipo==='RAICES')for(const r of data.elementos)Object.assign(r,{estado:'COMPLETADA',expedienteId:'60',relacionNivelId:'70',nombreExpediente:'Egreso confirmado <b>texto</b>',tieneIntentoActivo:false});this.responseText=JSON.stringify(response);callback();};}original.call(this,body);};
+  const original=XMLHttpRequest.prototype.send;XMLHttpRequest.prototype.send=function(body){const request=JSON.parse(body).solicitud,op=this.operation;if(op==='ConsultarLote'||op==='ConsultarRecursosLote'){const callback=this.onload;this.onload=()=>{const response=JSON.parse(this.responseText),data=response.datos;if(op==='ConsultarLote')Object.assign(data,{estado:'COMPLETADO',revision:9,accionesPermitidas:['CONSULTAR','CONSULTAR_RAICES','EXPORTAR_PAGINA']});else if(request.tipo==='RAICES')for(const r of data.elementos)Object.assign(r,{estado:'COMPLETADA',expedienteId:'60',relacionNivelId:'70',nombreExpediente:'Egreso confirmado distinto del código',codigoExpediente:'EGR-00029 <b>texto</b>',tieneIntentoActivo:false});this.responseText=JSON.stringify(response);callback();};}original.call(this,body);};
  });
  await page.locator('[data-doc111-open]').click();await page.getByLabel('Perfil publicado').waitFor();
 }
-const context={nivelRef:'7',referenciaContexto:'a'.repeat(32)},row={estado:'COMPLETADA',expedienteId:'60',relacionNivelId:'70',nombreExpediente:'Egreso confirmado <b>texto</b>',tieneIntentoActivo:false};
+const context={nivelRef:'7',referenciaContexto:'a'.repeat(32)},row={estado:'COMPLETADA',expedienteId:'60',relacionNivelId:'70',codigoExpediente:'EGR-00029 <b>texto</b>',nombreExpediente:'Egreso confirmado distinto del código',tieneIntentoActivo:false};
 test('DOC120-TREE01: cierre confirmado agrega el primer expediente, expansor y búsqueda sin repetir importación',()=>fixture(async page=>{
  await tree(page);await consult(page,'39');
- const link=page.locator('#TreeViewArchivon1Nodes a[title="70|7|60|"]');assert.equal(await link.count(),1);assert.equal(await link.textContent(),row.nombreExpediente);assert.equal(await page.locator('#TreeViewArchivon1Nodes b').count(),0);
+ const link=page.locator('#TreeViewArchivon1Nodes a[title="70|7|60|"]');assert.equal(await link.count(),1);assert.equal(await link.textContent(),row.codigoExpediente);assert.equal(await page.locator('#TreeViewArchivon1Nodes b').count(),0);
  assert.equal(await page.evaluate(()=>SELECCION_TREVIEW_ID),'TreeViewArchivot2');assert.equal(await page.locator('#TreeViewArchivon2Nodes a').count(),0);
- assert.equal(await page.evaluate(()=>ITEMS_DATOS.filter(i=>i.text.startsWith('Egreso confirmado')).length),1);assert.equal(await page.evaluate(()=>EXPDIENTE_JERARQUIA),1);assert.match(await page.locator('#pit').textContent(),/Expedientes 1/);
+ assert.equal(await page.evaluate(()=>ITEMS_DATOS.filter(i=>i.text.startsWith('EGR-00029')).length),1);assert.equal(await page.evaluate(()=>EXPDIENTE_JERARQUIA),1);assert.match(await page.locator('#pit').textContent(),/Expedientes 1/);
  const expander=page.locator('#TreeViewArchivon1');await expander.waitFor({state:'attached'});assert.match(await expander.getAttribute('href'),/TreeView_ToggleNode/);
  const node=await link.getAttribute('id');await link.evaluate(el=>el.click());await page.evaluate(id=>searchOptions.select(null,{item:{id}}),node);assert.deepEqual(await page.evaluate(()=>clicks),[node.replace('TreeViewArchivot',''),node]);
  await page.getByRole('button',{name:'Actualizar estado',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.doc111-feedback')?.textContent.includes('consulta 2'));assert.equal(await link.count(),1);assert.equal(await page.evaluate(()=>EXPDIENTE_JERARQUIA),1);
@@ -50,4 +50,16 @@ test('DOC120-TREE04: destino ambiguo/ajeno y resultados inciertos no insertan no
 }));
 test('DOC120-TREE05: insertor sin nodo no se anuncia como actualización exitosa',()=>fixture(async page=>{
  await tree(page);await page.evaluate(()=>create_trenode_treview=()=>true);await consult(page,'39');await page.getByRole('alert').filter({hasText:'no se pudo mostrar en el árbol'}).waitFor();assert.equal(await page.locator('#TreeViewArchivo a[title="70|7|60|"]').count(),0);
+}));
+
+test('DOC120-TREE06: códigos iguales conservan dos expedientes por sus IDs y actualizan la etiqueta sin duplicar',()=>fixture(async page=>{
+ await tree(page);const result=await page.evaluate(({context,row})=>{
+  const rows=[row,{...row,expedienteId:'61',relacionNivelId:'71'}];Doc111ActualizarRama(context,rows);
+  const first=document.querySelector('a[title="70|7|60|"]');first.textContent='Alias anterior';ITEMS_DATOS.find(i=>i.id===first.id).text='Alias anterior';
+  Doc111ActualizarRama(context,rows);return{labels:rows.map(r=>document.querySelector('a[title="'+r.relacionNivelId+'|7|'+r.expedienteId+'|"]').textContent),search:ITEMS_DATOS.filter(i=>i.text===row.codigoExpediente).length,count:EXPDIENTE_JERARQUIA};
+ },{context,row});assert.deepEqual(result,{labels:[row.codigoExpediente,row.codigoExpediente],search:2,count:2});
+}));
+
+test('DOC120-TREE07: código ausente no usa nombre ni carpeta como etiqueta de reemplazo',()=>fixture(async page=>{
+ await tree(page);await page.evaluate(({context,row})=>{for(const code of [null,undefined,'','   '])Doc111ActualizarRama(context,[{...row,codigoExpediente:code}]);},{context,row});assert.equal(await page.locator('#TreeViewArchivo a[title="70|7|60|"]').count(),0);
 }));

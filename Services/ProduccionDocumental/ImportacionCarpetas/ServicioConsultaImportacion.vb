@@ -80,7 +80,7 @@ Public Partial Class ServicioConsultaImportacion
             For Each raiz In pagina.Elementos
                 If raiz Is Nothing OrElse raiz.LoteId <> lote.LoteId OrElse Not EstadosImportacionCarpetas.EsRaiz(raiz.Estado) Then Throw NoDisponible()
                 salida.elementos.Add(New RecursoConsultaImportacionResultado With {.recursoId = Referencia(raiz.RaizId), .raizId = Referencia(raiz.RaizId), .idCliente = raiz.ClienteRaizId, .nombre = raiz.NombreOriginal, .estado = raiz.Estado, .revision = raiz.Revision,
-                    .recepcionListaParaCrear = raiz.RecepcionListaParaCrear, .puedeRetomarCreacion = raiz.PuedeRetomarCreacion, .tieneIntentoActivo = Not String.IsNullOrEmpty(raiz.IntentoActivoId), .intentoActivoId = IntentoPublico(raiz.IntentoActivoId), .nombreExpediente = NombreExpedientePublico(raiz), .expedienteId = If(raiz.IdentidadExpediente Is Nothing, Nothing, Referencia(raiz.IdentidadExpediente.ExpedienteId)), .relacionNivelId = If(raiz.IdentidadExpediente Is Nothing, Nothing, Referencia(raiz.IdentidadExpediente.RelacionNivelId))})
+                    .recepcionListaParaCrear = raiz.RecepcionListaParaCrear, .puedeRetomarCreacion = raiz.PuedeRetomarCreacion, .tieneIntentoActivo = Not String.IsNullOrEmpty(raiz.IntentoActivoId), .intentoActivoId = IntentoPublico(raiz.IntentoActivoId), .nombreExpediente = NombreExpedientePublico(raiz), .codigoExpediente = ValorExpedientePublico(raiz, "CODIGO"), .expedienteId = If(raiz.IdentidadExpediente Is Nothing, Nothing, Referencia(raiz.IdentidadExpediente.ExpedienteId)), .relacionNivelId = If(raiz.IdentidadExpediente Is Nothing, Nothing, Referencia(raiz.IdentidadExpediente.RelacionNivelId))})
             Next
         Else
             Dim pagina = _repositorio.ConsultarArchivos(lote.Contexto, lote.LoteId, filtro)
@@ -208,9 +208,13 @@ Public Partial Class ServicioConsultaImportacion
     End Function
 
     Private Shared Function NombreExpedientePublico(raiz As RaizImportacionCarpetas) As String
+        Return ValorExpedientePublico(raiz, "NOMBRE")
+    End Function
+
+    Private Shared Function ValorExpedientePublico(raiz As RaizImportacionCarpetas, campo As String) As String
         If raiz.IdentidadExpediente Is Nothing OrElse raiz.ValoresPlan Is Nothing OrElse Not {"EXPEDIENTE_CONFIRMADO", "COMPLETADA", "PARCIAL"}.Contains(raiz.Estado) Then Return Nothing
-        Dim nombres = raiz.ValoresPlan.Where(Function(v) v IsNot Nothing AndAlso v.DestinoTipo = "CAMPO_EXPEDIENTE" AndAlso v.DestinoRef = "NOMBRE" AndAlso Not v.Diferido).ToList()
-        Return If(nombres.Count = 1, nombres(0).Valor, Nothing)
+        Dim valores = raiz.ValoresPlan.Where(Function(v) v IsNot Nothing AndAlso v.DestinoTipo = "CAMPO_EXPEDIENTE" AndAlso v.DestinoRef = campo).ToList()
+        Return If(valores.Count = 1 AndAlso Not valores(0).Diferido, valores(0).Valor, Nothing)
     End Function
 
     Friend Shared Function CeldaCsv(valor As String) As String

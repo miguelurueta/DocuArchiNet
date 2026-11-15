@@ -1,0 +1,134 @@
+{
+  "classification": "LOCAL_DOC120",
+  "date": "2026-11-15",
+  "base": "99a0fd78879bbb092242fa8dbe7f7a8f160efcd1",
+  "tasks": [
+    "3.69",
+    "3.70",
+    "3.71"
+  ],
+  "result": "PASS_LOCAL",
+  "tests": 75,
+  "runs": [
+    {
+      "file": ".tmp/doc120-arbol-codigo-regresion.log",
+      "tests": 35,
+      "passed": 35,
+      "sha256Raw": "4f27f8c9cec8eaa5412613ec757a7c428f3ef63bb4093d67f0b1726ff6306feb"
+    },
+    {
+      "file": ".tmp/doc120-arbol-codigo-auxiliares.log",
+      "tests": 38,
+      "passed": 38,
+      "sha256Raw": "aa5e619888cc4cc991ab8bcd7fe61578c8861e9341b97d79bdd77e062709f49c"
+    },
+    {
+      "file": ".tmp/doc120-arbol-codigo-framework.log",
+      "tests": 2,
+      "passed": 2,
+      "sha256Raw": "cfd21fe91b559e228c2d54bbaa69c5f125dca5fbed7b4d6e007e9fe8c85fa093"
+    }
+  ],
+  "build": {
+    "result": "PASS_ISOLATED",
+    "errors": 0,
+    "log": ".tmp/doc120-arbol-codigo-build/output.log",
+    "sha256Raw": "a75d8b2191f4f7f27d572bf9c07ba87f165ee05ca9eb225e828f8dcb60c38c18",
+    "runtimeActivated": false
+  },
+  "real": {
+    "http": 0,
+    "select": 0,
+    "sessions": 0,
+    "effects": 0
+  },
+  "sources": [
+    {
+      "file": "DTOs/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasDtos.vb",
+      "sha256LF": "d4a80fcb4cbcd27c88f4eb499751bc95953d96c37e4e50ec4b9623698ea7fcbd"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/matriz-verificacion.md",
+      "sha256LF": "55dc0be769faa17f1e73689984c1c733232f9fceb13667bde618f52f922e3936"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/resultados.md",
+      "sha256LF": "358e6a48e19a07a8ec75507778e70284827891d5193eff7f68f18f410f8d287d"
+    },
+    {
+      "file": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256LF": "2e4dd34075acb97f1227e8710af179429a350646b1dcf5ec717fe07530012b53"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorExpedienteImportacion.Legacy.vb",
+      "sha256LF": "011136ea0ac249ccb80d2b83ddabd01f654556d89d73d9fee2545e4c23bd5083"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoCreacionExpedienteImportacion.vb",
+      "sha256LF": "036f4fb0a8fc3de8682d5b363d0ec3ecaffb63524655526d3e0aa0a042ad19f6"
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Verificacion.vb",
+      "sha256LF": "972f2735b8b94e829e84979b30309d1c71b039a5f94f20ed95d0d77491f58aba"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb",
+      "sha256LF": "9d394651adc2ab5a75957c1165cc8deece7517824087716b462c1e869b89c7c6"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256LF": "f89e44f5751ec3e6bacff1d527d9f9efe3509abf056934e3b913ef604dd713fa"
+    },
+    {
+      "file": "js/gestion/WebFormProducionDocumental.js",
+      "sha256LF": "156d41a450d6f6f8eec2d52e60f0b0053f46354b03bfd49ab8047e91a49e85cd"
+    },
+    {
+      "file": "openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/design.md",
+      "sha256LF": "b83a0084ff087f1703b9e9e4df40d51fa8938d6be9d5857dd97362176e00514a"
+    },
+    {
+      "file": "openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/specs/produccion-importacion-carga-carpeta-verificacion/spec.md",
+      "sha256LF": "b99f688ea007a294a2c8649f04197c1ec109cd729b068322b1f5f48fe180be36"
+    },
+    {
+      "file": "openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/tasks.md",
+      "sha256LF": "0598086fe2243fcf3573b5e3ba565733cda0a197fe12e7d98e63f9859d549bd2"
+    },
+    {
+      "file": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "sha256LF": "8a046e2cbb12e23c8d5787212fd5e5c3e0c4071b24ad8a5a51e81a5adf87ab4f"
+    },
+    {
+      "file": "tests/doc111-importacion-carpetas-client.test.cjs",
+      "sha256LF": "d6a785e012a1d7ec3a05855745c64d529a930b09d495cc4bf3f525293a31b7c7"
+    },
+    {
+      "file": "tests/doc116-expedientes-contracts.test.cjs",
+      "sha256LF": "be0b06a72ffc890d46b96191cdac222e6793095ad2a9fc4d148f73c1fbcd549a"
+    },
+    {
+      "file": "tests/doc116-internal-fault.test.cjs",
+      "sha256LF": "cbd4ab6ac3fda0bd8d413994b40002f0a68c87cfab3251aa2a34793a93f31ccf"
+    },
+    {
+      "file": "tests/doc120-importacion-arbol.test.cjs",
+      "sha256LF": "058a9f1d944fdbbdc9fc3d734466add1b3126f8786e82af6592751ce9b479cb7"
+    },
+    {
+      "file": "tools/e2e/tests/support/doc116-expedientes-importacion.cjs",
+      "sha256LF": "dea07503621155138a18abe14a0f2cd696686852c1255b914361a690014109e3"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-etiqueta-codigo-20261115.md",
+      "sha256LF": "185222ce12867ce7bc1b3489b3cc4c5eb30978178b58132087267d6b98ff92da"
+    }
+  ],
+  "limits": [
+    "No migration of historical rows",
+    "No change to duplicate-code policy",
+    "No authenticated IIS verification",
+    "SQL and writer doubles; synthetic browser responses",
+    "No operational acceptance or archive"
+  ]
+}
