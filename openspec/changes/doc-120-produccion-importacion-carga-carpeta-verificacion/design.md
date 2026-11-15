@@ -39,6 +39,8 @@ CODIGO_UNICO es código de negocio/etiqueta repetible, ID_EXPEDIENTE identifica 
 
 UI: Seleccionar/Revisar/Importar, botón de inicio con alcance claro, pausa, recurso/fase/progreso confirmados y recuperación explícita. El cierre muestra Resultado de la importación, código e ID de los expedientes y acceso al árbol por identidad conocida, conservando selección/expansión/consulta/CSV; no navega a una rama oculta o ambigua. La prueba real3.87 permanece pendiente hasta autorización de ambiente/cuentas/recursos/efectos/topes de3.86; esta aprobación de implementación no la sustituye.
 
+Ampliación visual aprobada tras video121039: conservar el selector webkitdirectory y su consentimiento nativo, con ayuda previa asociada al botón Agregar carpeta; no añadir otro diálogo ni una API de selección diferente. La revisión usa un resumen de cantidades y fichas legibles por carpeta con código/nombre completos como texto. Referencia del plan y detalles técnicos quedan disponibles en el desplegable de configuración; incidencias y datos previstos conservan sus controles. Se mantienen las guardas y el consentimiento de inicio único. Este ajuste de presentación no sustituye la aceptación real.
+
 ### D-01 — Base y vigencia por componente (RQ-01)
 
 Fijar el merge de DOC-119 como base funcional. Cada caso conserva SHA/huellas de sus componentes, prueba, ambiente y resultado originales; la identidad de huellas permite reutilización local, no una ejecución real nueva. Un cambio invalida únicamente los casos dependientes; el mapa explicita esa dependencia.

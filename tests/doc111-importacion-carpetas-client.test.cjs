@@ -377,7 +377,7 @@ test('DOC-111: interfaz Chromium local con servicios sintéticos, foco y cierre 
     await page.getByRole('button', {name:'Confirmar e importar', exact:true}).waitFor();
     assert.equal(await page.getByRole('button', {name:'Confirmar e importar', exact:true}).isEnabled(), true);
     assert.equal(await page.locator('.doc111-content img').count(), 0);
-    assert.match(await page.locator('.doc111-content').innerText(), /Unidades elegibles: 1 de 2/);
+    assert.match(await page.locator('.doc111-content').innerText(), /1 \/ 2\s+carpetas listas/);
     await page.locator('[data-doc111-panel="valores"] > summary').click();
     assert.match(await page.locator('.doc111-content').innerText(), /Pendiente: ID/);
     await page.screenshot({path:path.join(root,'.tmp/doc111-ui-revision-desktop.png')});

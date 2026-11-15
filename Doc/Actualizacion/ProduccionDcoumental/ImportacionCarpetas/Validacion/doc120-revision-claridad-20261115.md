@@ -1,0 +1,13 @@
+# DOC-120 — selección y revisión comprensibles
+
+Solicitud posterior al video `Grabación 2026-11-15 121039-prueba.mp4`: mejorar el aviso de selección y simplificar la revisión. Baseab67994cdc01c1ba513460565a57f8c27a1c8393, carpeta principal y rama feature/DOC-120. Tareas3.93/3.94 implementadas localmente.
+
+El permiso mostrado al seleccionar una carpeta pertenece al navegador y no puede sustituirse por HTML con el selector webkitdirectory conservado. Se mantiene el selector actual, con ayuda previa visible y vinculada por aria-describedby a Agregar carpeta; no se añade otra confirmación ni se cambia la API de selección. La explicación distingue permiso para leer la carpeta y envío del contenido PDF al confirmar la importación.
+
+Revisar muestra un resumen único de carpetas listas, PDF seleccionados e incidencias. Las fichas presentan carpeta, código y nombre informativo por separado, con valores completos y adaptación a móvil. Se eliminan las repeticiones de cantidades, la referencia técnica del cuerpo principal y el segundo aviso de éxito. La referencia del plan queda en Detalles de configuración. Incidencias, datos previstos, elegibilidad, Cambio de selección y Confirmar e importar conservan sus acciones/guardas. El mensaje de revisión preparada no elimina los avisos de errores ni sus detalles.
+
+Verificación: **110/110 pruebas locales** de selección/revisión, cliente, mensajes, fidelidad, coordinación y navegación. Incluye6 casos nuevos de ayuda/selector, revisión adaptable, valores ausentes/ajenos/ambiguos/diferidos y HTML como texto. Los104 restantes se superponen con la regresión anterior; no se suman a los207 históricos como317. El navegador usa los JS/CSS reales y XHR sintético: cero HTTP de aplicación, autenticaciones, SELECT y efectos de negocio reales. Código y nombre largos se comprobaron en390/768/1280px, con foco y botón de confirmación visible; seleccionar/preparar no dispara confirmación, recepción o almacenamiento.
+
+Log: `.tmp/doc120-revision-regresion-final.log`. Capturas: `.tmp/doc120-revision-claridad/revision-390.png`, `revision-768.png`, `revision-1280.png`. Sintaxis de ambos JS, OpenSpec estricto y diff comprobados. No se repite compilación VB: el diff no cambia fuentes del servidor/proyecto; el ASPX solo versiona los tres recursos existentes. No se activa IIS ni se ejecutan operaciones autenticadas.
+
+Fuentes y huellas en el JSON compañero. Avance **108/114 tareas**,40 escenarios,18 S/96 M. Continúan3.86/3.87/5.2/6.4/6.5/6.6 pendientes. El video aportado muestra un caso visual de una carpeta/un PDF, sin sustituir la ventana completa de aceptación real ni demostrar carga masiva, recuperación, privacidad o códigos repetidos.

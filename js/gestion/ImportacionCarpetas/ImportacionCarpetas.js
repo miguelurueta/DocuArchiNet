@@ -544,7 +544,7 @@
                         if (!preparation(plan, model.contexto.nivelRef)) { throw new Error("RESPUESTA_INVALIDA"); }
                         model.confirmable = session.operation.registrarPreparacion(ticket, plan); model.plan = plan; model.etapa = 2; model.paginaIncidencias = model.paginaValores = 1;
                         model.tipoMensaje = model.confirmable ? "EXITO" : "AVISO";
-                        model.mensaje = "Revisión guardada como plan " + plan.planId + (model.confirmable ? ". Revisa los datos antes de confirmar." : ". Hay incidencias que impiden confirmar; revisa su detalle.") + " Todavía no se enviaron archivos ni se crearon expedientes.";
+                        model.mensaje = (model.confirmable ? "Revisión preparada. Comprueba las carpetas y sus datos antes de importar." : "La revisión necesita correcciones. Consulta las incidencias de cada carpeta o archivo.") + " Todavía no se enviaron archivos ni se crearon expedientes.";
                     });
                 }); return;
             }

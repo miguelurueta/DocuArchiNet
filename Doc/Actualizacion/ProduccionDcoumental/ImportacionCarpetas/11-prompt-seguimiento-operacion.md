@@ -2,6 +2,8 @@
 
 ## Recorrido vigente — DOC-120, 2026-11-15
 
+Claridad tras video121039: junto a Agregar carpeta se explica que el permiso «Subir» pertenece al navegador y permite leer la selección; el contenido PDF se envía al confirmar la importación. No se agrega otro diálogo. Revisar presenta cantidades una sola vez y fichas por carpeta con código y nombre informativo completos. La referencia de revisión sigue disponible en Detalles de configuración; incidencias y datos previstos conservan sus controles. Ver [corte de presentación](Validacion/doc120-revision-claridad-20261115.md).
+
 1. **Seleccionar**: elegir perfil publicado y agregar carpetas. Cada selección agrega una raíz con su identidad, aunque se repita el nombre.
 2. **Revisar**: preparar y comprobar carpeta, código previsto, nombre informativo e incidencias. **Confirmar e importar** registra el plan y coordina recepción, creación, preparación de datos y almacenamiento con las operaciones existentes.
 3. **Importar**: recorre los recursos elegibles de todo el lote, independientemente de filtros y páginas. Cada siguiente efecto exige acuse válido y lectura coherente. Se distinguen PDF recibidos, expedientes creados y documentos guardados; los bytes de transporte no equivalen a documentos almacenados.

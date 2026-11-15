@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Claridad de selección/revisión — video121039
+
+D-04/RQ-04 y D-05/RQ-05: tareas3.93/3.94 verificadas con **110/110 locales**,6 nuevas sin sumar casos superpuestos. Ayuda del selector nativo, revisión compacta por carpeta, datos completos/seguros y referencia técnica accesible; incidencia, consentimiento y recorrido coordinado conservados en390/768/1280px. **108/114 tareas**,40 escenarios. [Fuentes, capturas y límites](doc120-revision-claridad-20261115.md) y JSON compañero. Sin compilación/backend nuevos, IIS o ejecución real. Se mantienen las seis tareas de autorización/aceptación/cierre pendientes; antecedentes siguientes históricos.
+
 ## Coordinación y códigos repetidos — 2026-11-15
 
 D-04/D-05, RQ-04/RQ-05/RQ-10: inicio único consentido sobre el lote elegible completo; operación serial, acuse y lectura compatible; pausa/cierre/reapertura y consulta sin efectos. Códigos repetidos permitidos, identidad por ID, validación técnica e idempotencia conservadas. **207/207 locales**, incluidos2 wrappers Framework/DDL sin sumar internos; compilación aislada0 errores,390/768/1280px y OpenSpec estricto. **106/112 tareas**,40 escenarios. [Fuentes, casos y límites](doc120-coordinacion-20261115.md) y JSON compañero. El esquema versionado contiene PRIMARY compuesto ID_EXPEDIENTE/CODIGO_UNICO; no se afirma estado actual del destino.3.86 tiene [plan concreto](doc120-coordinacion-plan-real-20261115.md) pero falta autorización específica;3.87 no ejecutada. Permanecen5.2/6.4/6.5/6.6; sin IIS/negocio real ni aceptación integral. Cortes siguientes históricos.

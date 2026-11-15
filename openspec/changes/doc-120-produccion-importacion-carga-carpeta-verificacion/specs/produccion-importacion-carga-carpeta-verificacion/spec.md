@@ -83,6 +83,7 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **WHEN** el usuario abre el asistente reorganizado
 - **THEN** elige perfil/versiones y carpetas en Seleccionar, conserva más perfiles, eliminación por archivo/carpeta y páginas del inventario; Revisar precede a confirmar
 - **AND** Seguimiento conserva consulta por referencia/último lote/plan pendiente, CSV y paginación independiente
+- **AND** el permiso nativo del selector se conserva con explicación previa accesible; Revisar muestra un resumen único y fichas con carpeta, código y nombre completos como texto, mantiene incidencias y datos previstos y ofrece la referencia del plan en detalles sin ejecutar efectos
 
 #### Scenario: Seguimiento explícito con filtros y foco conservados
 - **WHEN** se actualiza el estado o se usa una operación disponible

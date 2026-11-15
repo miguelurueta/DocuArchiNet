@@ -1,0 +1,140 @@
+{
+  "change": "DOC-120",
+  "date": "2026-11-15",
+  "baseCommit": "ab67994cdc01c1ba513460565a57f8c27a1c8393",
+  "branch": "feature/DOC-120",
+  "status": "PASS_LOCAL",
+  "scope": "Ayuda del permiso nativo y revisión compacta; sin sustituir selector o consentimiento del navegador",
+  "tasks": {
+    "complete": 108,
+    "total": 114,
+    "completed": [
+      "3.93",
+      "3.94"
+    ],
+    "pending": [
+      "3.86",
+      "3.87",
+      "5.2",
+      "6.4",
+      "6.5",
+      "6.6"
+    ],
+    "scenarios": 40
+  },
+  "tests": {
+    "unique": 110,
+    "pass": 110,
+    "fail": 0,
+    "new": 6,
+    "overlapWithPreviousDelivery": 104,
+    "previous207Added": 0,
+    "applicationHttp": 0,
+    "authenticatedSessions": 0,
+    "businessSelect": 0,
+    "realEffects": 0,
+    "log": {
+      "path": ".tmp/doc120-revision-regresion-final.log",
+      "sha256": "807a69846a2a9af7284adf2dfd3077c050a82fadfd2d75da2469bb9485a4886e"
+    }
+  },
+  "verification": {
+    "javascriptSyntax": "PASS",
+    "openSpecStrict": "PASS",
+    "openSpecLog": {
+      "path": ".tmp/doc120-revision-openspec-final.log",
+      "sha256": "5a4bc14e8e14e3e419b4d762db239fd691b6bba109cab90a539bd8dc86577c2f"
+    },
+    "diffCheck": "PASS",
+    "browserWidths": [
+      390,
+      768,
+      1280
+    ],
+    "pickerUnchanged": {
+      "path": "js/gestion/ImportacionCarpetas/InventarioImportacion.js",
+      "sha256Lf": "3ae16d908ca21b35279bf2feabf63ba26c4a21cfbf273773c01ecee1d5fa16db"
+    },
+    "backendDiff": [],
+    "vbBuild": "NOT_REPEATED_NO_SERVER_CHANGE",
+    "iisActivated": false
+  },
+  "captures": [
+    {
+      "path": ".tmp/doc120-revision-claridad/revision-390.png",
+      "sha256": "3bc31a6cd11340199c283921e36dfcfec7c8821b75db0129a1f23e7831647c88"
+    },
+    {
+      "path": ".tmp/doc120-revision-claridad/revision-768.png",
+      "sha256": "58612f3e0264534dabd9156318492102c091d1a9ae13854bca25faa4d9a2e64d"
+    },
+    {
+      "path": ".tmp/doc120-revision-claridad/revision-1280.png",
+      "sha256": "83bf51af01386651b97c1ae341fa473084a7fcb7b902917da77aca4fc6d871a8"
+    }
+  ],
+  "limitations": [
+    "El permiso nativo pertenece al navegador y permanece visible; no se reemplaza mediante HTML.",
+    "El video aportado muestra una carpeta/un PDF y no cierra la aceptación real.",
+    "Sin nueva autenticación, HTTP de aplicación o efectos reales.",
+    "La referencia técnica sigue en detalles; incidencias y datos previstos se mantienen."
+  ],
+  "sources": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/11-prompt-seguimiento-operacion.md",
+      "sha256Lf": "ac9adf24558ae6de078a4d0567bbc1af4c3fc1c89258c0b3bf0c8eb7e79ce967"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-revision-claridad-20261115.md",
+      "sha256Lf": "dd804de5500fd6df23d1cecf704457820c8220529ad61531411200c7f0414710"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/matriz-verificacion.md",
+      "sha256Lf": "b8fd76d549c63714b13101f4fbcf7804ad342e3de2513237909d05b0b7319b11"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/resultados.md",
+      "sha256Lf": "767bc43797b44adfad897d07cc711a7e9a434343424e0284c5c1011ad030a997"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Lf": "be3e699f47cc7ea49e7c93a544dfd70ef607516226099405584982c75b5d7622"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css",
+      "sha256Lf": "22340de14b0b16725754ec1d4adaaa0bbadd077a6be1fcf3923be5a873db59c7"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256Lf": "1f0336bec5325f74d521c7fcd4afdd4f41215c99448ec42ec739cd1b84812a15"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256Lf": "f53828c060e600311e9f838aa08242326c18fb08e770a014d8ff6db8a946c6e8"
+    },
+    {
+      "path": "openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/design.md",
+      "sha256Lf": "db4be862d80fb53ec6797be519648387b633bcc339e2cda32a870fe184b54693"
+    },
+    {
+      "path": "openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/specs/produccion-importacion-carga-carpeta-verificacion/spec.md",
+      "sha256Lf": "0360c98446735287faa59c7f8816a08ce317d41fe0897c8b3bec49b1d745a035"
+    },
+    {
+      "path": "openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/tasks.md",
+      "sha256Lf": "c4acc6b2971b854d44d8b2554c7c76b0ff9f1dcde23dde289b3caf17c01cc05e"
+    },
+    {
+      "path": "tests/doc111-importacion-carpetas-client.test.cjs",
+      "sha256Lf": "7cb35ccf409576e81367e09b08a2e72b4d56e28f341606d8bfc652e6bb4432b6"
+    },
+    {
+      "path": "tests/doc120-importacion-mensajes.test.cjs",
+      "sha256Lf": "3d9a5754fa45a0b684acb09cf8974ffdc5a4c959e38b077d97e757ac268aa88f"
+    },
+    {
+      "path": "tests/doc120-revision-claridad.test.cjs",
+      "sha256Lf": "645a5822bf53f1c74fda61d51666b286c74234ca6cb9a103f1963253f620ba23"
+    }
+  ]
+}

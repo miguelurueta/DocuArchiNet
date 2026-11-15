@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Selección y revisión comprensibles — video121039
+
+3.93/3.94 implementadas: explicación del permiso nativo sin otro diálogo, resumen único, fichas con código/nombre completos y referencia del plan en detalles. Incidencias, datos previstos y operaciones conservados. **110/110 locales**,6 nuevas y104 superpuestas al corte previo; no se suman a los207 históricos. Sin backend nuevo, HTTP/SELECT/efectos reales ni activación IIS. **108/114 tareas**,40 escenarios. [Evidencia y límites](doc120-revision-claridad-20261115.md) y JSON compañero.3.86/3.87/5.2/6.4/6.5/6.6 permanecen abiertas. Cortes siguientes históricos.
+
 ## Inicio único y códigos repetidos — 2026-11-15
 
 3.72–3.85/3.88–3.92 verificadas localmente: Confirmar e importar coordina el lote completo, con acuse y lectura por fase, pausa, recuperación explícita y acceso por ID. Se retiran las restricciones de códigos repetidos conservando comprobaciones técnicas, permisos, integridad e idempotencia. **207/207 pruebas Node únicas**, incluidos2 wrappers Framework/DDL sin sumar internos; compilación aislada0 errores. **106/112 tareas**,40 escenarios. [Detalle y límites](doc120-coordinacion-20261115.md), JSON compañero y [ventana real propuesta](doc120-coordinacion-plan-real-20261115.md).3.86/3.87 pendientes de autorización/ejecución específica, además de5.2/6.4/6.5/6.6. Sin activar IIS, HTTP/SELECT/efectos reales ni aceptación integral. Los cortes siguientes conservan su fecha y alcance.
