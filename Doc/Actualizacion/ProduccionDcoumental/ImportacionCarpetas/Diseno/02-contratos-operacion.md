@@ -1,5 +1,19 @@
 # Diseño 02 — Contratos de operación
 
+## Extensión vigente DOC-120 — 2026-11-15
+
+Las tareas3.72–3.92 y el diseño OpenSpec actualizan el consentimiento de interfaz: **Confirmar e importar** coordina las fases existentes después de recibir un lote confirmado. Cada endpoint sigue ejecutando una sola fase; las cláusulas posteriores de separación de operaciones conservan ese contrato del servidor y las acciones individuales avanzadas. No impiden la coordinación secuencial consentida desde el cliente.
+
+La coordinación enumera raíces y archivos sin filtros, comprueba revisión común entre páginas y relectura final, y fija ámbito e identidades del inventario. Cada siguiente efecto exige acuse válido y lectura compatible con los IDs/valores confirmados. Solo recibe pendientes vinculados al original correcto; creación usa la barrera publicada, índices y almacenamiento requieren padre confirmado. Nunca ejecuta automáticamente RETOMAR_CREACION o RECONCILIAR.
+
+Límites del cliente por continuación explícita:10000 recursos entre raíces y archivos,400 páginas por tipo/enumeración,10000 consultas y10000 efectos. La página interna tiene como máximo25 filas y respeta el máximo del servidor. Agotar un tope, cambiar revisión/ámbito, perder una respuesta o fallar una lectura detiene la cola. Son límites de interfaz, no cuotas del servidor ni medición INT-03. Una respuesta incierta permite una única lectura del resultado, sin repetir su operación.
+
+El consentimiento es efímero y se invalida al cerrar, destruir o cambiar de importación; no se persiste una cola ni hay trabajo en segundo plano. Pausar deja concluir la petición iniciada. Consultar/exportar/verificar no reinicia efectos. Continuar importación reconstruye los pendientes del mismo lote, conserva IDs confirmados y solicita únicamente originales faltantes. Ver acciones mantiene las fases individuales y Ver avance del lote devuelve al recorrido coordinado.
+
+El importador deja de consultar candidatos para imponer exclusividad de CODIGO_UNICO o rechazar raíces con el mismo código. Se conservan comprobaciones técnicas de tipo, longitud y representabilidad; permisos, snapshot, integridad e idempotencia siguen vigentes. Nuevas configuraciones usan PERMITIR; BLOQUEAR/REUTILIZAR_VALIDADO históricos permanecen legibles sin imponer bloqueo ni reutilización implícita. Los planes anteriores bloqueados requieren una nueva revisión. El delegado interno existente permite una futura evaluación explícita, todavía sin configuración operativa, endpoints o tablas nuevos.
+
+La identidad sigue siendo ID_EXPEDIENTE y la etiqueta usa el código. El esquema versionado observado contiene PRIMARY compuesto por ID_EXPEDIENTE y CODIGO_UNICO, compatible con repetir el código al cambiar el ID; no prueba el esquema actualmente servido. No se modifican índices, SII, limpieza, almacenamiento compartido ni permisos. [Evidencia y límites del corte](../Validacion/doc120-coordinacion-20261115.md).
+
 Estado vigente: revisión DOC-112 del 2026-11-02 del contrato ya implementado en WebForms/ASMX/ASHX. Secciones 1/2/5 y referencias vigentes siguientes prevalecen sobre cortes locales anteriores; estos conservan fecha y procedencia. La [matriz final DOC-111](../Validacion/doc111-matriz-final-20261102.md) delimita evidencia real/local/no ejecutada. Esta revisión no ejecuta el producto.
 
 ## 1. Transporte, autoridad y respuesta vigentes

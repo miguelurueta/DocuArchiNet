@@ -86,7 +86,7 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 
 #### Scenario: Seguimiento explícito con filtros y foco conservados
 - **WHEN** se actualiza el estado o se usa una operación disponible
-- **THEN** la presentación destaca el recurso y una operación autorizada por accionesRecurso, sin encadenar fases; filtros aplicados/borradores, paneles y foco permanecen identificables
+- **THEN** la presentación destaca el recurso y cada operación autorizada por accionesRecurso; el inicio explícito puede coordinar las fases confirmadas según la ampliación aprobada, conservando filtros aplicados/borradores, paneles y foco
 - **AND** la actualización válida muestra fecha/contador, los fallos no anuncian éxito y el envío indica cantidad elegible de la página sin atribuir recepción a almacenamiento
 
 #### Scenario: Maqueta coherente con el contrato de consulta
@@ -129,7 +129,7 @@ DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PE
 
 #### Scenario: Continuación y fin del recurso confirmado
 - **WHEN** la creación, los valores o el almacenamiento quedan confirmados en consultas posteriores
-- **THEN** el panel señala la siguiente acción explícita o el resultado confirmado del archivo/lote
+- **THEN** el panel señala la fase coordinada bajo consentimiento vigente, la siguiente acción explícita al pausar o el resultado confirmado del archivo/lote
 - **AND** una raíz completada conserva su expediente confirmado en el indicador; recepción sola no cuenta como documento guardado y filtros no relajan la autoridad del padre
 
 #### Scenario: Fecha resuelta con longitud distinta del origen
@@ -151,6 +151,24 @@ DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PE
 - **WHEN** un intento ya está EN_CURSO, INCIERTO o CONFIRMADO, o no se confirma la respuesta de reanudación
 - **THEN** no se adquiere otra reclamación ni se repite el escritor
 - **AND** se consulta el estado y la verificación de resultados inciertos mantiene sus guardas, sin deducir permiso de tiempo o antigüedad
+
+#### Scenario: Inicio único y cola completa independiente de filtros
+- **WHEN** el usuario revisa y pulsa Confirmar e importar
+- **THEN** se confirma el plan una vez y solo tras lote y lectura válidos se coordinan las operaciones existentes con una mutación en vuelo y acuse/lectura posterior por fase
+- **AND** el alcance elegible incluye todas las páginas autorizadas sin cambiar filtros visibles y respeta integridad EXPEDIENTE/LOTE/PARCIAL; File se vincula solo al contexto original o reselección validada
+- **AND** la revisión debe permanecer coherente durante la enumeración; topes10000 recursos/consultas/efectos y400 páginas por tipo pausan antes de excederse, sin polling o retry automático
+
+#### Scenario: Pausa, incertidumbre y recuperación explícita
+- **WHEN** se pausa, se cierra, falta un original, cambia una revisión o falla una respuesta/lectura posterior
+- **THEN** no se solicita el siguiente efecto; los resultados e identidades confirmados se conservan y las respuestas tardías de una generación cerrada no continúan la cola
+- **AND** una respuesta perdida exige consulta sin replay ni reanudación automática; una lectura fallida tras acuse conserva su confirmación; Continuar, Retomar creación y Verificar intento mantienen consentimiento explícito
+- **AND** consultar, exportar, recargar o recuperar una confirmación pendiente no inicia operaciones; el cierre y conteos proceden de resultados confirmados, con acceso por ID a los expedientes
+
+#### Scenario: Código de negocio repetido sin exclusividad implícita
+- **WHEN** una o varias raíces resuelven a un código ya existente o repetido dentro del inventario
+- **THEN** preparación y confirmación no rechazan por esa coincidencia; una raíz nueva crea un expediente con ID propio, sin reutilizar ni alterar el anterior
+- **AND** el delegado existente conserva un punto de extensión futuro, hoy limitado a validaciones técnicas; permisos, integridad, representabilidad e idempotencia del mismo intento permanecen obligatorios
+- **AND** configuraciones anteriores BLOQUEAR/REUTILIZAR_VALIDADO siguen legibles sin mutar snapshots, sin bloqueo o reutilización implícitos; nuevas ediciones usan PERMITIR y un plan bloqueado requiere nueva revisión
 
 ### Requirement: RQ-06 — INT-02 degradación acotada
 DOC-120 SHALL cumplir la decisión D-06: Conservar el caso real histórico de ausencia temporal de ra_integracion_evento con restauración y carga individual, sin extrapolar a cada incompatibilidad. Contrastar los verificadores/esquema y el guard de indisponibilidad actuales. Exigir variante nueva solo si un requisito concreto y una diferencia reproducida la hacen necesaria; registrar NO_NECESARIA con justificación en los demás casos.

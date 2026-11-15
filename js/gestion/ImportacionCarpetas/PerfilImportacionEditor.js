@@ -317,7 +317,7 @@
             controls.PoliticaSubcarpetas=select(editorArea,"Subcarpetas",[["","Seleccione…"],["INCLUIR","Incluir documentos en el expediente raíz"],["RECHAZAR","Rechazar subcarpetas"]],c.PoliticaSubcarpetas);
             controls.PoliticaCarpetasVacias=select(editorArea,"Carpetas vacías",[["","Seleccione…"],["RECHAZAR","Rechazar"]],c.PoliticaCarpetasVacias);
             controls.PoliticaArchivosSueltos=select(editorArea,"Archivos fuera de carpetas",[["","Seleccione…"],["RECHAZAR","Rechazar"]],c.PoliticaArchivosSueltos);
-            controls.PoliticaCoincidencias=select(editorArea,"Expediente coincidente",[["BLOQUEAR","Reportar conflicto"],["REUTILIZAR_VALIDADO","Reutilizar tras validar identidad y permisos"]],c.PoliticaCoincidencias);
+            controls.PoliticaCoincidencias=select(editorArea,"Código del expediente",[["PERMITIR","Permitir códigos repetidos; cada expediente tiene su ID"]],"PERMITIR");
             controls.Extensiones=input(editorArea,"Extensiones permitidas, separadas por coma",(c.Extensiones || []).join(","));
             controls.MaximoBytesArchivo=input(editorArea,"Límite de bytes por archivo (opcional)",c.MaximoBytesArchivo,"number");
             controls.MaximoBytesArchivo.min="1";controls.MaximoBytesArchivo.step="1";

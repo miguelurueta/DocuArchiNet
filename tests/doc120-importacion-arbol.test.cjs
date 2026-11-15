@@ -29,7 +29,7 @@ test('DOC120-TREE01: cierre confirmado agrega el primer expediente, expansor y b
  if(process.platform==='win32'){
   const native=require('node:child_process').execFileSync('powershell.exe',['-NoProfile','-Command',"$assembly=[Reflection.Assembly]::Load('System.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'); $reader=New-Object IO.StreamReader($assembly.GetManifestResourceStream('TreeView.js')); try { [Console]::Write($reader.ReadToEnd()) } finally { $reader.Dispose() }"],{encoding:'utf8',windowsHide:true});
   await page.addScriptTag({content:native});await page.evaluate(()=>{TreeViewArchivo_Data={images:Array(19).fill('data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='),expandToolTip:'Expandir {0}',collapseToolTip:'Contraer {0}',expandState:{value:'eee'}};});
-  await page.getByRole('button',{name:'Cerrar',exact:true}).click();await expander.click();await page.waitForFunction(()=>document.getElementById('TreeViewArchivon1Nodes').style.display==='none');await expander.click();await page.waitForFunction(()=>document.getElementById('TreeViewArchivon1Nodes').style.display==='block');assert.equal(await page.evaluate(()=>SELECCION_TREVIEW_ID),'TreeViewArchivot2');
+  await page.getByRole('button',{name:'Cerrar',exact:true}).first().click();await expander.click();await page.waitForFunction(()=>document.getElementById('TreeViewArchivon1Nodes').style.display==='none');await expander.click();await page.waitForFunction(()=>document.getElementById('TreeViewArchivon1Nodes').style.display==='block');assert.equal(await page.evaluate(()=>SELECCION_TREVIEW_ID),'TreeViewArchivot2');
  }
  await page.screenshot({path:path.join(output,'primer-expediente.png')});
 }));
@@ -62,4 +62,7 @@ test('DOC120-TREE06: códigos iguales conservan dos expedientes por sus IDs y ac
 
 test('DOC120-TREE07: código ausente no usa nombre ni carpeta como etiqueta de reemplazo',()=>fixture(async page=>{
  await tree(page);await page.evaluate(({context,row})=>{for(const code of [null,undefined,'','   '])Doc111ActualizarRama(context,[{...row,codigoExpediente:code}]);},{context,row});assert.equal(await page.locator('#TreeViewArchivo a[title="70|7|60|"]').count(),0);
+}));
+test('DOC120-TREE08: acceso usa ID exacto y rechaza nodos ocultos o ambiguos sin llamadas adicionales',()=>fixture(async page=>{
+ await tree(page);const result=await page.evaluate(({context,row})=>{Doc111ActualizarRama(context,[row,{...row,expedienteId:'61',relacionNivelId:'71'}]);const branch=document.getElementById('TreeViewArchivon1Nodes');branch.style.display='block';const exact=Doc120MostrarExpediente({...row,expedienteId:'61',relacionNivelId:'71'},context);const target=document.querySelector('a[title="71|7|61|"]');const duplicate=target.cloneNode(true);duplicate.id='TreeViewArchivot999';target.parentElement.appendChild(duplicate);const ambiguous=Doc120MostrarExpediente({...row,expedienteId:'61',relacionNivelId:'71'},context);duplicate.remove();branch.style.display='none';const hidden=Doc120MostrarExpediente(row,context);return{exact,ambiguous,hidden,clicks:clicks.length,selected:clicks[0],expected:target.id};},{context,row});assert.deepEqual(result,{exact:true,ambiguous:false,hidden:false,clicks:1,selected:result.expected,expected:result.expected});
 }));

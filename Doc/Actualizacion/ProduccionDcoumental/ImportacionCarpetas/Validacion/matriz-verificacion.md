@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Coordinación y códigos repetidos — 2026-11-15
+
+D-04/D-05, RQ-04/RQ-05/RQ-10: inicio único consentido sobre el lote elegible completo; operación serial, acuse y lectura compatible; pausa/cierre/reapertura y consulta sin efectos. Códigos repetidos permitidos, identidad por ID, validación técnica e idempotencia conservadas. **207/207 locales**, incluidos2 wrappers Framework/DDL sin sumar internos; compilación aislada0 errores,390/768/1280px y OpenSpec estricto. **106/112 tareas**,40 escenarios. [Fuentes, casos y límites](doc120-coordinacion-20261115.md) y JSON compañero. El esquema versionado contiene PRIMARY compuesto ID_EXPEDIENTE/CODIGO_UNICO; no se afirma estado actual del destino.3.86 tiene [plan concreto](doc120-coordinacion-plan-real-20261115.md) pero falta autorización específica;3.87 no ejecutada. Permanecen5.2/6.4/6.5/6.6; sin IIS/negocio real ni aceptación integral. Cortes siguientes históricos.
+
 ## Etiqueta por código — corrección2026-11-15
 
 RQ-04/RQ-05/RQ-10, tareas3.69–3.71: alias de nuevas creaciones y etiqueta/búsqueda del árbol usan código, con nombre informativo e identidad por ID conservados. Compatibilidad histórica acotada de verificación, sin migración ni cambio de política de coincidencias. **75/75 locales**, incluidos wrappers Framework/DDL sin sumar casos internos; compilación aislada0 errores. Avance**87/91**,37 escenarios. Fuentes/huellas, logs y límites: [doc120-etiqueta-codigo-20261115.md](doc120-etiqueta-codigo-20261115.md) y JSON compañero. Sin activar runtime ni ejecutar negocio real; cuatro tareas finales abiertas. Los cortes siguientes conservan su procedencia.

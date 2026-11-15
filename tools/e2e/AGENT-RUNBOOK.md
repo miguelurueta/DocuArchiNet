@@ -1,5 +1,11 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — inicio único, corte local2026-11-15
+
+Confirmar e importar coordina las fases existentes con acuse/lectura antes del siguiente efecto; pausa/cierre invalidan la continuación y consultar/exportar no reanuda. Continuar importación usa los IDs/estado del mismo lote y pide originales faltantes. Códigos repetidos permitidos, snapshots históricos intactos y política configurable futura todavía fuera de alcance.207/207 locales y compilación aislada;106/112 tareas,40 escenarios. Evidencia: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-coordinacion-20261115.md` y JSON compañero. Sin despliegue/activación IIS ni nueva ejecución autenticada o de negocio real.
+
+Ventana concreta preparada en `Validacion/doc120-coordinacion-plan-real-20261115.md`: falta autorización específica de ambiente, cuentas, recursos y efectos;3.86/3.87 pendientes. Los permisos de corridas anteriores no autorizan esta prueba ni27 almacenamientos. No usar el runner DOC119 de preparación como sustituto, porque su permiso excluía almacenar documentos. No ejecutar carga, DDL, limpieza, SII ni modificar cuentas por inferencia. Las secciones siguientes conservan su fecha y alcance histórico.
+
 ## DOC-120 — reanudación permanente, corte local2026-11-14
 
 Retomar creación está implementado como fase explícita de AvanzarLote, con preflight, fencing del token y conservación de la misma reserva.108/108 locales y compilación; evidencia doc120-retomar-creacion-permanente-20261114.json. Este corte no autoriza ni ejecuta recuperación autenticada: lote39/intento96/recibo95 siguen sin operaciones nuevas;8 intentos SELECT anteriores conservados. No editar token/estado/stop por SQL manual ni repetir preparación/recepción. La ventana de600 HTTP/2 sesiones/60 SELECT y una creación sigue siendo una propuesta que exige autorización propia. Los cortes posteriores en este archivo son antecedentes.

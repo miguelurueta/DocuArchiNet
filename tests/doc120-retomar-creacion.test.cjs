@@ -26,7 +26,7 @@ async function install(page,outcome='CONFIRMED'){
     this.responseText=JSON.stringify(response);callback();};
   }original.call(this,body);
  };
- },outcome);await consult(page,'39');await page.getByRole('button',{name:'Retomar creación 60',exact:true}).waitFor();
+ },outcome);await consult(page,'39');await page.getByRole('button',{name:'Ver acciones de carpeta 60',exact:true}).click();await page.getByRole('button',{name:'Retomar creación 60',exact:true}).waitFor();
 }
 test('DOC120-RSM02: cancelar no envía; confirmar por teclado retoma una fase y muestra índices sin encadenar',async()=>fixture(async page=>{
  await install(page);assert.match(await page.locator('.doc111-next').textContent(),/Puedes retomar/);

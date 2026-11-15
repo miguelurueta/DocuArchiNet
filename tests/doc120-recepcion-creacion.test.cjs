@@ -63,10 +63,10 @@ test('DOC120-REC01: guía visible y recepción explícita habilitan creación si
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
       await page.setViewportSize({width:1280,height:900});
       assert.equal(await page.evaluate(()=>calls.some(c=>c.operation==='AvanzarLote'||c.operation==='synthetic.ashx')),false);
-      await page.getByRole('button',{name:'Reseleccionar archivo 78',exact:true}).click();
+      await page.getByRole('button',{name:'Ver acciones de archivo 78',exact:true}).click();await page.getByRole('button',{name:'Reseleccionar archivo 78',exact:true}).click();
       await page.evaluate(()=>{const transfer=new DataTransfer();transfer.items.add(new File(['example'],'10.pdf',{type:'application/pdf',lastModified:0}));const input=document.querySelector('input[aria-label="Reseleccionar archivo pendiente"]');input.files=transfer.files;input.dispatchEvent(new Event('change',{bubbles:true}));});
       assert.equal(await send.isEnabled(),true);assert.equal(await send.getAttribute('data-doc111-send-count'),'1');await send.click();
-      const create=page.getByRole('button',{name:'Crear expediente 52',exact:true});await create.waitFor();
+      await page.getByRole('button',{name:'Ver acciones de carpeta 52',exact:true}).click();const create=page.getByRole('button',{name:'Crear expediente 52',exact:true});await create.waitFor();
       assert.equal(await send.isDisabled(),true);await create.click();
       await page.getByRole('button',{name:'Preparar índices 78',exact:true}).click();
       await page.getByRole('button',{name:'Almacenar archivo 78',exact:true}).click();

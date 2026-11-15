@@ -2,6 +2,8 @@
 
 # Refinamiento — DOC-120
 
+Ampliación aprobada2026-11-15: la maqueta563160db y la instrucción «aprobado implementa las tareas» autorizan inicio único coordinado y retiro de exclusividad implícita por CODIGO_UNICO. D-04/D-05 y RQ-04/RQ-05 incorporan consentimiento, topes, lecturas coherentes, pausa y recuperación sin replay. El delegado de evaluación sigue como extensión futura sin activar criterios nuevos. Se preservan ID_EXPEDIENTE, snapshots, autoridad y demás controles. La ampliación vigente de design.md prevalece sobre las descripciones históricas de clics separados. No hay autorización heredada de ventana real o capacidad.
+
 ## Fuente y alcance
 
 Fuente: Jira DOC-120, contexto completo en specs/produccion-importacion-carga-carpeta-verificacion/jira-context.md. Continuación solicitada por el usuario después de opsxj:new: autorización de refinamiento local. Base funcional 8c0773d4371aeb35543bf182c0abdd0319cababa, merge PR130 de DOC-119; inspección sobre 60e02ae78841f94d08619ac9d53982d4318871c3. Tecnología legacy-webforms-vb, proyecto .NET Framework4.6.1 y JavaScript legacy. No se ejecutaron autenticación, HTTP de aplicación, SQL real, cargas, permisos, fallos o limpieza.

@@ -126,9 +126,8 @@ Public Partial Class MySqlImportacionCarpetasRepository
     Private Const ColumnasPlan As String = "plan_id,ambito_ref,usuario_ref,nivel_ref,version_id,estado,revision,esquema_doc,contexto_doc,config_doc,manifiesto_doc,resultado_doc,plan_hash,creado_utc,expira_utc"
     Private Const ColumnasLote As String = "lote_id,plan_id,ambito_ref,solicitante_ref,nivel_ref,clave_confirmacion,solicitud_hash,version_id,modo_integridad,ambito_integridad,contexto_doc,config_doc,estado,detencion_solicitada,total_raices,total_archivos,total_bytes,revision,creado_utc,actualizado_utc"
 
-    'Consulta preventiva: no reserva codigo ni sustituye la revalidacion al
-    'ejecutar frente a escritores legacy. Incluye todos los volumenes para no
-    'inventar el volumen que Conservacion omite en su INSERT.
+    'Validacion tecnica del codigo. El delegado conserva su contrato como
+    'extension para una futura politica explicita; hoy no consulta candidatos.
     Public Function ComprobarCoincidencias(contexto As ContextoImportacionCarpetas, snapshot As SnapshotPerfilImportacionOperativa, manifiesto As ManifiestoImportacionCarpetas, resultado As ResultadoPreparacionImportacion) As List(Of IncidenciaImportacionCarpetas)
         AutorizarOperacion(contexto)
         Try
@@ -160,7 +159,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
         AutorizarOperacion(contexto)
         If snapshot Is Nothing OrElse snapshot.Configuracion Is Nothing OrElse manifiesto Is Nothing OrElse resultado Is Nothing OrElse leer Is Nothing Then Throw SolicitudInvalida()
         Dim configuracion = snapshot.Configuracion
-        If Not ValidadorPerfilImportacion.ReferenciaValida(configuracion.AreaRef) OrElse Not {"BLOQUEAR", "REUTILIZAR_VALIDADO"}.Contains(configuracion.PoliticaCoincidencias) Then Throw SolicitudInvalida()
+        If Not ValidadorPerfilImportacion.ReferenciaValida(configuracion.AreaRef) OrElse Not {"PERMITIR", "BLOQUEAR", "REUTILIZAR_VALIDADO"}.Contains(configuracion.PoliticaCoincidencias) Then Throw SolicitudInvalida()
         Dim metadatos = leer("SELECT COLUMN_NAME,DATA_TYPE,CHARACTER_SET_NAME,COLLATION_NAME,CHARACTER_MAXIMUM_LENGTH FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='expediente_archivo' AND COLUMN_NAME IN ('CODIGO_UNICO','ID_EMPRESA_EXPEDIENTE','CODIGO_AREA_TRD','ID_EXPEDIENTE')", New Object() {})
         If metadatos Is Nothing OrElse metadatos.Rows.Count <> 4 Then Throw NoDisponible()
         Dim codigo = metadatos.Rows.Cast(Of DataRow)().Where(Function(r) Texto(r, "COLUMN_NAME") = "CODIGO_UNICO").ToList()
@@ -184,12 +183,11 @@ Public Partial Class MySqlImportacionCarpetasRepository
             codigos.Add(raiz.IdCliente, valores(0).Valor)
         Next
         If codigos.Count = 0 Then Return salida
-        Dim parametrosComparacion As New List(Of Object)(), seleccion As New List(Of String)(), representaciones As New List(Of String)()
+        Dim parametrosComparacion As New List(Of Object)(), representaciones As New List(Of String)()
         Dim indice = 0
         For Each par In codigos
             Dim r = "@raiz" & indice.ToString(CultureInfo.InvariantCulture), c = "@codigo" & indice.ToString(CultureInfo.InvariantCulture)
             parametrosComparacion.AddRange(New Object() {r, par.Key, c, par.Value})
-            seleccion.Add("SELECT CONVERT(" & r & " USING ascii) COLLATE ascii_bin AS raiz,CONVERT(" & c & " USING " & charset & ") COLLATE " & collation & " AS codigo")
             representaciones.Add("SELECT " & r & " AS raiz,(HEX(CONVERT(" & c & " USING utf8))=HEX(CONVERT(CONVERT(" & c & " USING " & charset & ") USING utf8))) AS representable")
             indice += 1
         Next
@@ -201,30 +199,9 @@ Public Partial Class MySqlImportacionCarpetasRepository
             If Not codigos.ContainsKey(raiz) OrElse Not vistas.Add(raiz) Then Throw NoDisponible()
             If Texto(fila, "representable") <> "1" Then salida.Add(ConflictoRaiz(raiz, "CODIGO_NO_REPRESENTABLE", "El código no es representable en el origen documental."))
         Next
-        If codigos.Count > 1 Then
-            Dim consulta = String.Join(" UNION ALL ", seleccion)
-            Dim duplicados = leer("SELECT a.raiz FROM (" & consulta & ") a INNER JOIN (" & consulta & ") b ON a.raiz<>b.raiz AND a.codigo=b.codigo GROUP BY a.raiz", parametrosComparacion.ToArray())
-            If duplicados Is Nothing OrElse duplicados.Rows.Count > codigos.Count Then Throw NoDisponible()
-            For Each fila In duplicados.Rows.Cast(Of DataRow)()
-                Dim raiz = Texto(fila, "raiz")
-                If Not codigos.ContainsKey(raiz) Then Throw NoDisponible()
-                salida.Add(ConflictoRaiz(raiz, "CODIGO_REPETIDO_INVENTARIO", "Otra raíz propone el mismo código según la comparación del origen documental."))
-            Next
-        End If
-        For Each par In codigos
-            If salida.Any(Function(i) i.RaizIdCliente = par.Key) Then Continue For
-            Dim candidatos = leer("SELECT e.ID_EXPEDIENTE FROM expediente_archivo e WHERE e.ID_EMPRESA_EXPEDIENTE=@empresa AND e.CODIGO_AREA_TRD=@area AND e.CODIGO_UNICO=@codigo LIMIT 2", New Object() {"@empresa", contexto.AmbitoRef, "@area", configuracion.AreaRef, "@codigo", par.Value})
-            If candidatos Is Nothing OrElse candidatos.Rows.Count > 2 Then Throw NoDisponible()
-            If candidatos.Rows.Count > 1 Then
-                salida.Add(ConflictoRaiz(par.Key, "COINCIDENCIA_AMBIGUA", "Hay varios candidatos documentales; revise la raíz."))
-            ElseIf candidatos.Rows.Count = 1 Then
-                If configuracion.PoliticaCoincidencias = "BLOQUEAR" Then
-                    salida.Add(ConflictoRaiz(par.Key, "CODIGO_EXPEDIENTE_EXISTENTE", "Existe un candidato para el código en la empresa y área; revise la raíz."))
-                Else
-                    salida.Add(ConflictoRaiz(par.Key, "REUTILIZACION_NO_DISPONIBLE", "La reutilización requiere verificar identidad, destino, clasificación, estado y permisos del candidato."))
-                End If
-            End If
-        Next
+        'Punto de extension: el delegado de evaluacion existente se conserva.
+        'Actualmente solo valida el codigo resuelto; no busca candidatos ni
+        'impone exclusividad. Politicas historicas no reescriben el snapshot.
         Return salida
     End Function
 

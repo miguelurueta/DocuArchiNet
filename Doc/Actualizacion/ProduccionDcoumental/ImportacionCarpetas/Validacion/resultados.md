@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Inicio único y códigos repetidos — 2026-11-15
+
+3.72–3.85/3.88–3.92 verificadas localmente: Confirmar e importar coordina el lote completo, con acuse y lectura por fase, pausa, recuperación explícita y acceso por ID. Se retiran las restricciones de códigos repetidos conservando comprobaciones técnicas, permisos, integridad e idempotencia. **207/207 pruebas Node únicas**, incluidos2 wrappers Framework/DDL sin sumar internos; compilación aislada0 errores. **106/112 tareas**,40 escenarios. [Detalle y límites](doc120-coordinacion-20261115.md), JSON compañero y [ventana real propuesta](doc120-coordinacion-plan-real-20261115.md).3.86/3.87 pendientes de autorización/ejecución específica, además de5.2/6.4/6.5/6.6. Sin activar IIS, HTTP/SELECT/efectos reales ni aceptación integral. Los cortes siguientes conservan su fecha y alcance.
+
 ## Etiqueta por código — 2026-11-15
 
 Petición «debe ser codigo unico»:3.69–3.71 verificadas localmente. Nuevas creaciones guardan código como alias; consulta y proyección del árbol separan código/nombre y conservan identidad por ID, búsqueda y expansión. **75/75 pruebas locales únicas**, wrappers Framework/DDL incluidos sin sumar casos internos; compilación aislada0 errores. Sin migrar filas históricas, cambiar políticas de coincidencia, activar IIS ni ejecutar efectos reales. Avance**87/91**,37 escenarios; abiertas5.2/6.4/6.5/6.6. [Detalle, fuentes y límites](doc120-etiqueta-codigo-20261115.md), con huellas en el JSON compañero. No renueva los resultados históricos siguientes ni concede aceptación integral.

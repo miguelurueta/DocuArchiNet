@@ -328,6 +328,7 @@ async function runSeg02(page,profile,baseline,filePath){
     await page.waitForFunction(()=>!document.querySelector('[data-doc111-action="consultar"]')?.disabled);
   }
   check(result.elementos.some(row=>row.recursoId===String(pending.archivo_id)),'PENDING_RECEPTION_NOT_VISIBLE');
+  await page.getByRole('button',{name:'Ver acciones de archivo '+pending.archivo_id,exact:true}).click();
   const [chooser]=await Promise.all([page.waitForEvent('filechooser'),page.getByRole('button',{name:'Reseleccionar archivo '+pending.archivo_id,exact:true}).click()]);await chooser.setFiles(filePath);
   await page.waitForFunction(()=>document.querySelector('.doc111-notice')?.textContent.includes('Archivo vinculado')||document.querySelector('.doc111-notice')?.textContent.includes('no coincide'));
   check((await page.locator('.doc111-notice').textContent()).includes('Archivo vinculado'),'RESELECTION_METADATA_MISMATCH');

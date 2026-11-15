@@ -1338,12 +1338,12 @@ public static partial class ImportacionCarpetasBehaviorTests {
         foreach(var root in plan.Manifiesto.Raices)plan.Resultado.Elementos.Add(new ValoresElementoImportacion{Ambito="RAIZ",RaizIdCliente=root.IdCliente,Valores=new List<ValorReglaPerfilImportacion>{new ValorReglaPerfilImportacion{DestinoTipo="CAMPO_EXPEDIENTE",DestinoRef="CODIGO",Valor="000123'OR'1"}}});
         var fixture=new CoincidenceQueryFixture();
         Func<List<IncidenciaImportacionCarpetas>> read=()=> (List<IncidenciaImportacionCarpetas>)RepositoryHelper("LeerCoincidencias",plan.Contexto,plan.Snapshot,plan.Manifiesto,plan.Resultado,(Func<string,object[],DataTable>)fixture.Query);
-        Check(read().Count==0 && fixture.BusinessReads==2,"DOC111 no-candidate plan not checked for every root");
+        Check(read().Count==0 && fixture.BusinessReads==0,"DOC120 technical validation performs business candidate lookups");
         Check(fixture.Sql.All(sql=>!sql.Contains("000123'OR'1")),"DOC111 code interpolated into query");
-        fixture.Candidates=1;Check(read().All(i=>i.Codigo=="CODIGO_EXPEDIENTE_EXISTENTE" && i.Ambito=="RAIZ" && i.BloqueaUnidad),"DOC111 BLOQUEAR ignores existing candidate");
-        plan.Snapshot.Configuracion.PoliticaCoincidencias="REUTILIZAR_VALIDADO";Check(read().All(i=>i.Codigo=="REUTILIZACION_NO_DISPONIBLE"),"DOC111 unverified candidate reused or silently downgraded");
-        fixture.Candidates=2;Check(read().All(i=>i.Codigo=="COINCIDENCIA_AMBIGUA"),"DOC111 chooses first ambiguous candidate");fixture.Candidates=0;
-        fixture.Duplicate=true;var before=fixture.BusinessReads;Check(read().Count==2 && fixture.BusinessReads==before,"DOC111 collation duplicate roots not both blocked");fixture.Duplicate=false;
+        fixture.Candidates=1;plan.Snapshot.Configuracion.PoliticaCoincidencias="BLOQUEAR";Check(read().Count==0 && fixture.BusinessReads==0,"DOC120 legacy policy blocks repeated business code");
+        plan.Snapshot.Configuracion.PoliticaCoincidencias="REUTILIZAR_VALIDADO";Check(read().Count==0 && fixture.BusinessReads==0,"DOC120 legacy reuse policy performs implicit matching");
+        fixture.Candidates=2;Check(read().Count==0 && fixture.BusinessReads==0,"DOC120 multiple prior candidates block creation");fixture.Candidates=0;
+        fixture.Duplicate=true;var before=fixture.BusinessReads;Check(read().Count==0 && fixture.BusinessReads==before,"DOC120 repeated codes within inventory are blocked");fixture.Duplicate=false;
         fixture.Unrepresentable=true;Check(read().All(i=>i.Codigo=="CODIGO_NO_REPRESENTABLE") && fixture.BusinessReads==before,"DOC111 lossy code used for candidates");fixture.Unrepresentable=false;
         fixture.Collation="latin1_swedish_ci;DROP_TABLE";Unavailable(()=>read());fixture.Collation="latin1_swedish_ci";
         fixture.MissingMetadata=true;Unavailable(()=>read());fixture.MissingMetadata=false;
@@ -1357,8 +1357,11 @@ public static partial class ImportacionCarpetasBehaviorTests {
         var fixture=new ResourceFixture();var plan=PlanFixture();plan.Contexto=fixture.Adapter.ResolverDestino(fixture.Http,"7");
         foreach(var file in plan.Manifiesto.Archivos)file.UltimaModificacionLocal="0";
         plan.Snapshot.Configuracion=fixture.Configuration();
+        plan.Snapshot.Configuracion.AreaRef="3";
         plan.Snapshot.Configuracion.ModoIntegridad="COMPLETO_OBLIGATORIO";plan.Snapshot.Configuracion.AmbitoIntegridad="EXPEDIENTE";
         plan.Snapshot.Reglas.Insert(0,new ReglaPerfilImportacion{ReglaId="7",DestinoTipo="CAMPO_EXPEDIENTE",DestinoRef="NOMBRE",FuenteTipo="CONSTANTE",ValorConstante="Órdenes"});
+        plan.Resultado.Elementos.Clear();
+        foreach(var root in plan.Manifiesto.Raices)plan.Resultado.Elementos.Add(new ValoresElementoImportacion{Ambito="RAIZ",RaizIdCliente=root.IdCliente,Valores=new List<ValorReglaPerfilImportacion>{new ValorReglaPerfilImportacion{DestinoTipo="CAMPO_EXPEDIENTE",DestinoRef="CODIGO",Valor="MISMO-CODIGO"}}});
         plan.Snapshot.Huella=Hex(PerfilImportacionJson.Huella(new VersionPerfilImportacion{Configuracion=plan.Snapshot.Configuracion,Reglas=plan.Snapshot.Reglas}));
         var stored=Prepare(plan);stored.PlanId="12";var now=new DateTime(2026,10,27,20,5,0,DateTimeKind.Utc);
         var publication=new PublicationPort{Value=plan.Snapshot};var catalog=new OperativeCatalogPort();
@@ -1369,7 +1372,8 @@ public static partial class ImportacionCarpetasBehaviorTests {
             var changed=PerfilImportacionJson.Leer<SnapshotPerfilImportacionOperativa>(originalPublication);change(changed);Check(!PerfilImportacionJson.MismaPublicacion(changed,stored.Snapshot),"DOC111 publication comparison ignores real changes");
         }
         var calls=0;var matchingCalls=0;var newConflict=false;
-        Func<ContextoImportacionCarpetas,SnapshotPerfilImportacionOperativa,ManifiestoImportacionCarpetas,ResultadoPreparacionImportacion,List<IncidenciaImportacionCarpetas>> matching=(c,s,m,r)=>{matchingCalls++;return newConflict?new List<IncidenciaImportacionCarpetas>{new IncidenciaImportacionCarpetas{RaizIdCliente="r1",BloqueaUnidad=true}}:new List<IncidenciaImportacionCarpetas>();};
+        var technicalCodes=new CoincidenceQueryFixture();
+        Func<ContextoImportacionCarpetas,SnapshotPerfilImportacionOperativa,ManifiestoImportacionCarpetas,ResultadoPreparacionImportacion,List<IncidenciaImportacionCarpetas>> matching=(c,s,m,r)=>{matchingCalls++;return newConflict?new List<IncidenciaImportacionCarpetas>{new IncidenciaImportacionCarpetas{RaizIdCliente="r1",BloqueaUnidad=true}}:(List<IncidenciaImportacionCarpetas>)RepositoryHelper("LeerCoincidencias",c,s,m,r,(Func<string,object[],DataTable>)technicalCodes.Query);};
         var service=new ServicioRecepcionImportacion(()=>fixture.Adapter.Resolver(fixture.Http),(c,id)=>{Check(c.UsuarioRef=="1" && c.AmbitoRef=="2" && id=="12","DOC111 plan reference lookup not tied to actor");return stored.Contexto;},
             level=>fixture.Adapter.ResolverDestino(fixture.Http,level,"CONFIRMAR"),(c,id)=>stored,
             (c,config)=>fixture.Adapter.AutorizarRecursos(fixture.Http,c,config,"CONFIRMAR"),new AdaptadorPerfilImportacionOperativa(publication,catalog,null),matching,
@@ -1386,7 +1390,8 @@ public static partial class ImportacionCarpetasBehaviorTests {
         catalog.Incompatible=true;Rejected("CONFIGURACION_INVALIDA",()=>service.Confirmar(request));catalog.Incompatible=false;
         publication.Substitute=true;Rejected("ACCESO_DENEGADO",()=>service.Confirmar(request));publication.Substitute=false;
         Check(calls==0,"DOC111 failed validation reaches confirmation transaction");
-        var confirmed=service.Confirmar(request);Check(confirmed.loteId=="20" && confirmed.nivelRef=="7" && confirmed.totalArchivos==2 && calls==1,"DOC111 valid confirmation loses result");
+        technicalCodes.Candidates=2;technicalCodes.Duplicate=true;
+        var confirmed=service.Confirmar(request);Check(confirmed.loteId=="20" && confirmed.nivelRef=="7" && confirmed.totalArchivos==2 && calls==1 && technicalCodes.BusinessReads==0,"DOC120 confirmation blocks new matching codes or loses result");
         var matched=matchingCalls;now=now.AddDays(1);catalog.Unavailable=true;
         var replay=service.Confirmar(request);Check(replay.loteId==confirmed.loteId && matchingCalls==matched && calls==2,"DOC111 replay revalidates expired plan or inactive publication as new confirmation");
         request.revisionEsperada=2;Rejected("CONFLICTO_REVISION",()=>service.Confirmar(request));request.revisionEsperada=1;
@@ -2024,6 +2029,8 @@ public static partial class ImportacionCarpetasBehaviorTests {
         request.archivos.Add(new ArchivoManifiestoImportacionSolicitud{idCliente="a3",raizIdCliente="r2",nombre="000457-125.pdf",rutaRelativa="000457#29-02-2024/000457-125.pdf",bytes="7",ultimaModificacionLocal="0"});
         var partial=configured.Preparar(request);Check(partial.resultado.PuedeConfirmar && partial.resultado.UnidadesElegibles.Count==2 && storedPlans.Last().Manifiesto.Archivos.Count==3 && partial.resultado.Incidencias.Any(i=>i.ArchivoIdCliente=="a2"),"DOC111 integrated partial preparation drops rejected inventory or blocks valid file");
         request.archivos.RemoveAt(2);read.Value.Configuracion.ModoIntegridad="COMPLETO_OBLIGATORIO";read.Value.Configuracion.AmbitoIntegridad="EXPEDIENTE";seal();
+        var repeated=PerfilImportacionJson.Leer<PrepararPlanImportacionSolicitud>(PerfilImportacionJson.Escribir(request));repeated.raices[1].nombre=repeated.raices[0].nombre;repeated.archivos[1].nombre=repeated.archivos[0].nombre;repeated.archivos[1].rutaRelativa=repeated.archivos[0].rutaRelativa;coincidences.Candidates=2;
+        var allowedRepeated=configured.Preparar(repeated);Check(allowedRepeated.resultado.PuedeConfirmar && allowedRepeated.resultado.UnidadesElegibles.Count==2 && allowedRepeated.resultado.Elementos.Where(e=>e.Ambito=="RAIZ").Select(e=>e.Valores.Single(v=>v.DestinoRef=="CODIGO").Valor).Distinct().Count()==1 && coincidences.BusinessReads==0,"DOC120 preparation rejects repeated codes or queries business candidates");
         coincidences.MissingMetadata=true;var blocked=configured.Preparar(request);Check(!blocked.resultado.PuedeConfirmar && blocked.resultado.Incidencias.Any(i=>i.Ambito=="GLOBAL"),"DOC111 missing comparison metadata advertised as confirmable");coincidences.MissingMetadata=false;
         var previousHttp=HttpContext.Current;
         try {

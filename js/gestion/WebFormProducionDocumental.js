@@ -1063,6 +1063,14 @@ function auto_zise_popup_adjunta_documento_workflow() {
 // Importacion por carpetas: agrega solo relaciones confirmadas a una rama ya
 // visible, incluyendo el primer hijo de un nivel vacío. Conserva selección y
 // expansión de ramas existentes y reutiliza la inserción/carga individual.
+function Doc120MostrarExpediente(raiz, contexto) {
+    var tree = document.getElementById("TreeViewArchivo");
+    if (!tree || !raiz || !contexto || ![raiz.expedienteId, raiz.relacionNivelId, contexto.nivelRef].every(function (id) { return typeof id === "string" && /^[1-9][0-9]*$/.test(id); })) { return false; }
+    var title = raiz.relacionNivelId + "|" + contexto.nivelRef + "|" + raiz.expedienteId;
+    var matches = Array.prototype.filter.call(tree.querySelectorAll("a[id][title]"), function (node) { return /^TreeViewArchivot[0-9]+$/.test(node.id) && node.title.replace(/\|$/, "") === title; });
+    if (matches.length !== 1 || !matches[0].getClientRects().length || typeof OnSearchClick !== "function") { return false; }
+    try { OnSearchClick(matches[0].id); return true; } catch (_) { return false; }
+}
 function Doc111ActualizarRama(contexto, raices) {
     var host = document.getElementById("doc111-importacion"), tree = document.getElementById("TreeViewArchivo");
     function id(value) { return typeof value === "string" && /^[1-9][0-9]*$/.test(value); }

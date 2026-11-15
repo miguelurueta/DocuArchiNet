@@ -1,10 +1,26 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+## Recorrido vigente — DOC-120, 2026-11-15
+
+1. **Seleccionar**: elegir perfil publicado y agregar carpetas. Cada selección agrega una raíz con su identidad, aunque se repita el nombre.
+2. **Revisar**: preparar y comprobar carpeta, código previsto, nombre informativo e incidencias. **Confirmar e importar** registra el plan y coordina recepción, creación, preparación de datos y almacenamiento con las operaciones existentes.
+3. **Importar**: recorre los recursos elegibles de todo el lote, independientemente de filtros y páginas. Cada siguiente efecto exige acuse válido y lectura coherente. Se distinguen PDF recibidos, expedientes creados y documentos guardados; los bytes de transporte no equivalen a documentos almacenados.
+
+**Pausar importación** espera la solicitud iniciada e impide enviar la siguiente; no revierte su efecto. Cerrar o recargar no deja una cola ejecutándose en segundo plano. **Consultar importación**, **Consultar último lote**, filtros, páginas y CSV se conservan. Abrir una consulta durante la ejecución primero aplica la pausa; consultar y exportar no reanudan operaciones.
+
+Para recuperar: consultar el mismo lote y pulsar **Continuar importación**. Se reconstruyen los pendientes por IDs y estado del servidor, sin reconfirmar ni repetir resultados confirmados. Tras recargar, **Vincular PDF pendiente** solicita el original que falte; seleccionarlo no lo envía. Una respuesta perdida exige **Consultar resultado**. Los intentos activos, inciertos y reservas retomables conservan su verificación/reanudación explícita; el tiempo transcurrido no permite replay.
+
+El cierre muestra **Resultado de la importación**, **Ver expediente** o **Ver expedientes creados**, y **Cerrar**. El acceso distingue IDs con códigos iguales. Ante nodo oculto o ambiguo, conserva el resultado y avisa para abrir el destino original sin repetir la importación.
+
+El código puede repetirse frente a expedientes anteriores y entre carpetas del lote; el nombre es informativo y cada creación recibe su ID. El editor muestra **Permitir códigos repetidos**. Las versiones históricas se leen sin reescribir snapshots; los planes bloqueados por la comprobación anterior requieren nueva revisión. La política configurable futura todavía no está disponible.
+
+**Ver acciones** conserva operaciones individuales avanzadas; **Ver avance del lote** vuelve al recorrido coordinado. Las descripciones siguientes del envío individual mantienen su alcance de página, sin limitar el nuevo inicio único. Evidencia: [doc120-coordinacion-20261115.md](Validacion/doc120-coordinacion-20261115.md).
+
 ## Mensajes del recorrido operativo — DOC-120,2026-11-14
 
 El aviso identifica la fase, el motivo comprobado y la siguiente acción permitida. Las incidencias muestran el campo y, cuando se conoce, formato, segmento desde1 o longitud observada/máxima; no vuelcan valores documentales privados. En una coincidencia de código se puede mostrar el código que ya figura en los datos previstos de esa misma carpeta. Una referencia de diagnóstico aparece solo si llegó del servidor. No se deduce del tiempo transcurrido que una operación haya fallado o pueda repetirse.
 
-Si aparece **Código del expediente** con el aviso de que ya existe, el control encontró ese código en la misma empresa y área configuradas en el perfil. No demuestra que el expediente esté en el mismo nivel del árbol ni que esa carpeta física ya se haya importado. El perfil con política BLOQUEAR impide confirmar esa unidad. Revisa Ver datos previstos de los expedientes y la regla del código; corrige la selección o la regla y prepara otra revisión explícitamente. El módulo muestra el código solo si hay un único valor resuelto de la misma raíz; no agrega consultas ni expone la identidad de un expediente coincidente cuyos permisos no se hayan comprobado.
+Un plan histórico puede conservar la incidencia **Código del expediente** existente o repetido. La comprobación anterior ya no se aplica a nuevas revisiones: prepara otra revisión explícitamente. Se muestra el código solo con un único valor resuelto de la misma raíz; no se consultan ni exponen expedientes anteriores por coincidencia de código.
 
 | Fase | Resultado que puede mostrar | Cómo continuar |
 | --- | --- | --- |
@@ -59,7 +75,7 @@ Verificación local71/71, comparación visual116 propiedades, sin nueva sesión 
 
 1. **Seleccionar**: elige una versión publicada del perfil y agrega una carpeta por selección. Puedes agregar varias, quitar carpetas o archivos y recorrer su inventario. Preparar revisión no envía archivos.
 2. **Revisar**: consulta incidencias/valores y confirma el plan cuando el servidor lo permita. Cambiar selección exige preparar de nuevo.
-3. **Seguimiento**: el panel destaca una acción disponible y su recurso; el botón aparece en el pie. Las otras acciones permanecen en sus filas. Se solicita por separado envío, creación, índices y almacenamiento; recepción no equivale a documento almacenado. El envío abarca solo los pendientes seleccionados en este equipo y visibles en la página filtrada; muestra cantidad y archivo actual/total, además de bytes.
+3. **Importar**: destaca fase y recurso actuales, con pausa y continuación explícitas. Confirmar e importar recorre el lote elegible completo; Ver acciones conserva la operación individual. Recepción no equivale a documento almacenado.
 
 Actualizar estado conserva filtros/páginas y muestra fecha/contador tras completar las lecturas. Filtros de carpetas y archivos y configuración se despliegan por separado. Exportar esta página descarga únicamente la página de archivos con sus filtros. Las consultas por referencia, último lote y confirmación pendiente conservan destino/autorización originales. Cerrar antes de confirmar descarta la selección; después conserva referencia y puede exigir reseleccionar originales pendientes, sin reenviar recibidos o inciertos automáticamente. Una detención conserva efectos ya confirmados.
 

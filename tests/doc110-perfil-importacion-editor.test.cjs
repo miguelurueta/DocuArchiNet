@@ -22,6 +22,19 @@ function open(s,p) {
   s.w.document.querySelector('tbody button').click();s.respond(p);
 }
 
+test('DOC120: editor permite repetir códigos y conserva intactas las versiones históricas leídas',()=>{
+  for(const policy of ['BLOQUEAR','REUTILIZAR_VALIDADO','PERMITIR']){
+    const s=setup();try{const p=profile('PUBLICADA');p.Version.Configuracion.PoliticaCoincidencias=policy;const before=JSON.stringify(p);open(s,p);
+      const options=Array.from(s.w.document.querySelectorAll('select option')).filter(o=>['BLOQUEAR','REUTILIZAR_VALIDADO','PERMITIR'].includes(o.value));
+      assert.deepEqual(options.map(o=>o.value),['PERMITIR']);assert.match(options[0].textContent,/códigos repetidos.*ID/);assert.equal(JSON.stringify(p),before);assert.equal(s.calls.some(c=>['GuardarBorrador','PublicarVersion'].includes(c.operation)),false);
+    }finally{s.dom.window.close();}
+  }
+});
+test('DOC120: fixture administrativo prepara PERMITIR usando únicamente su catálogo sintético',async()=>{
+  const calls=[];const fixture=await require('../tools/e2e/tests/support/doc110-publication-fixture.cjs').discoverFixture(async(operation,request)=>{calls.push(operation);return{datos:[{value:'1',Tipo:'TEXTO',Longitud:20,Requerida:true}]};});
+  assert.equal(fixture.configuracion.PoliticaCoincidencias,'PERMITIR');assert.ok(calls.length>0&&calls.length<=120);assert.ok(calls.every(op=>op==='ConsultarCatalogo'));
+});
+
 test('DOC-110 ensayo: un error posterior no conserva resultados previos ni repite solicitudes',()=>{
   for(const code of ['SESION_REQUERIDA','ACCESO_DENEGADO','CONFLICTO_REVISION','CAPACIDAD_NO_DISPONIBLE','RESPUESTA_INVALIDA','TRANSPORTE_NO_DISPONIBLE']){
     const s=setup();try{

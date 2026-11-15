@@ -72,7 +72,7 @@ public static class PerfilImportacionReglasBehaviorTests
         Check(partial.AmbitoIntegridad=="NO_APLICA","partial normalization");
         partial.PoliticaCoincidencias="SOBRESCRIBIR";
         Check(validator.Validar(partial,new List<ReglaPerfilImportacion>(),false).Any(x=>x.Campo=="PoliticaCoincidencias"),"unknown matching policy");
-        Check(new ConfiguracionPerfilImportacion().PoliticaCoincidencias=="BLOQUEAR","matching default");
+        Check(new ConfiguracionPerfilImportacion().PoliticaCoincidencias=="PERMITIR","matching default");
         partial.ModoIntegridad="OTRO";
         Check(validator.Validar(partial,new List<ReglaPerfilImportacion>(),false).Any(x=>x.Campo=="ModoIntegridad"),"unknown integrity mode");
         var validExample=PerfilImportacionJson.Leer<EjemploPerfilImportacion>("{\"NombreCarpeta\":\"00125\",\"Expediente\":{}}");
