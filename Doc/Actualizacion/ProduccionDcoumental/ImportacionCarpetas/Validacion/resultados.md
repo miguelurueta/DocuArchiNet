@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Línea base de capacidad y contrato propuesto — 2026-11-16
+
+3.98 verificada con inventario/API/motor reales y transporte/efectos sintéticos: cuerpo de1.000 metadatos172.409 caracteres; preflight sin XHR; casos de1/100 archivos completan y1.000 se bloquea con COORDINACION_LIMITE tras232 recepciones sintéticas y10.000 lecturas modeladas. No se alcanza creación/almacenamiento. [Resultado, reproducción y límites](doc120-capacidad-base-20261116.md), JSON compañero y [contrato propuesto](../Diseno/08-preparacion-segmentada-capacidad.md).111/148 tareas,41 escenarios vigentes;12 casos nuevos aún propuestos.3.97 requiere aprobación del contrato antes de producto. Cero HTTP/SELECT/efectos reales, migraciones o activación IIS. Cortes siguientes históricos.
+
 ## Mensaje de preparación grande — 2026-11-16
 
 3.95/3.96 verificadas: límite efectivo como metadato, preflight del cuerpo sin POST al excederlo, aviso de cantidad/tamaño/máximo y señales ASMX/HTTP413 cerradas; errores desconocidos conservan incertidumbre y privacidad. **122/122 locales**,10 nuevas e incluidos2 wrappers Framework/DDL sin sumar internos; compilación aislada0 errores. **110/116 tareas**,41 escenarios. [Fuentes y límites](doc120-mensaje-tamano-20261116.md) y JSON compañero. Sin activar IIS, ampliar capacidad o ejecutar importaciones reales. Seis tareas finales pendientes. Cortes siguientes históricos.

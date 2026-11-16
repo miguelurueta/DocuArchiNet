@@ -5,6 +5,8 @@ Fuente completa: specs/produccion-importacion-carga-carpeta-verificacion/jira-co
 
 ## Goals / Non-Goals
 
+Propuesta2026-11-16 pendiente de3.97: [contrato de capacidad](../../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/08-preparacion-segmentada-capacidad.md). Explicita siete operaciones sobre el ASMX existente, tres entidades aditivas de preparación, plan esquema2, lectores compatibles1/2 y consulta focal. La propuesta todavía no sustituye los Non-Goals/D-09 vigentes ni autoriza producto o DDL; la aprobación del contrato es el prerrequisito del mapa. Los objetivos locales de3.98 se distinguen de INT-03 operativo, aún sin ventana autorizada.
+
 **Goals**: matriz única con vigencia por componente; consumo correcto de EXP/ALM/COORD/SEG; regresión focal de la interfaz definitiva; resolución justificada INT-02 y preparación medible INT-03; cierre sin brechas críticas ocultas.
 
 **Non-Goals**: rehacer seguimiento, repetir cada carga, nueva arquitectura/plataforma, SII o limpieza reales sin autorización, modificar almacenamiento compartido/esquema/formatos o activar jobs/cuotas/aislamiento XML adicional.

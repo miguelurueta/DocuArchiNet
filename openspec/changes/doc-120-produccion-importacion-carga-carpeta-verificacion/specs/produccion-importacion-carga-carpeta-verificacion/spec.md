@@ -245,3 +245,16 @@ DOC-120 SHALL cumplir la decisión D-10: Modificar producto solo ante una brecha
 - **WHEN** se propone declarar lista la versión
 - **THEN** la matriz identifica cada no ejecutado y su motivo, responsable e impacto; los límites tienen aceptación expresa
 - **AND** archivo, CI y número de tareas no sustituyen aceptación operativa ni merge verificado
+
+## Ampliación de capacidad propuesta — pendiente de3.97
+
+Los41 escenarios normativos anteriores siguen vigentes. La continuación2026-11-16 permite concretar el [contrato propuesto](../../../../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/08-preparacion-segmentada-capacidad.md), pero no se incorporan sus contratos/persistencia como obligaciones aprobadas antes de3.97. La siguiente matriz identifica los casos que pasarán a escenarios normativos tras esa aprobación; no constituye implementación ni resultado PASS.
+
+| Origen | Casos propuestos del contrato08 | Condición observable |
+| --- | --- | --- |
+| D-04/RQ-04 | CAP-01, CAP-06, CAP-09, CAP-10 | Preparación automática por partes, revisión acotada, progreso global y carpeta completa para recuperar pendientes con consentimiento |
+| D-05/RQ-05 | CAP-02–CAP-10 | Un inventario lógico, partes idempotentes, cierre global, confirmación única y siguiente efecto solo con lectura focal coherente |
+| D-07/RQ-07 | CAP-01, CAP-06, CAP-08, CAP-12 | Tamaños medidos por operación; <=6.045 lecturas para el recorrido ordinario simulado de1.000 archivos/una raíz, sin elevar el tope vigente |
+| D-08/RQ-08 | CAP-11 | Autoridad por solicitud y privacidad de preparaciones/recursos; pruebas reales con ventana propia |
+| D-09/RQ-09 | CAP-12 | Excepción aditiva de preparación/consulta pendiente de aprobación; configuración, escritores compartidos, formato y ausencia de limpieza preservados |
+| D-01/RQ-01, D-10/RQ-10 | CAP-01–CAP-12 | Fuentes/huellas y resultados locales separados de capacidad/aceptación real |

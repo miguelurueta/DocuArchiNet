@@ -1,5 +1,7 @@
 # Diseño 02 — Contratos de operación
 
+Propuesta pendiente2026-11-16: [preparación segmentada y lectura focal](08-preparacion-segmentada-capacidad.md), prerrequisito3.97 de DOC-120. Ese documento concreta contratos/persistencia nuevos para revisión; aún no sustituye las operaciones vigentes descritas a continuación.
+
 ## Extensión vigente DOC-120 — 2026-11-15
 
 Las tareas3.72–3.92 y el diseño OpenSpec actualizan el consentimiento de interfaz: **Confirmar e importar** coordina las fases existentes después de recibir un lote confirmado. Cada endpoint sigue ejecutando una sola fase; las cláusulas posteriores de separación de operaciones conservan ese contrato del servidor y las acciones individuales avanzadas. No impiden la coordinación secuencial consentida desde el cliente.

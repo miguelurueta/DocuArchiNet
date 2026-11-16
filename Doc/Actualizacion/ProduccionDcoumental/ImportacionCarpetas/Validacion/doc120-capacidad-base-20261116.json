@@ -1,0 +1,148 @@
+{
+  "change": "DOC-120",
+  "date": "2026-11-16",
+  "baseCommit": "875403f550a72820f9841f38f93991ecde9fbfe5",
+  "status": "PASS_LOCAL_DIAGNOSTIC_CAPACITY_NOT_ACCEPTED",
+  "completedTask": "3.98",
+  "contractTask397": "PROPOSED_PENDING_EXPLICIT_APPROVAL",
+  "runtimeProductChanged": false,
+  "schemaApplied": false,
+  "iisActivated": false,
+  "baseline": {
+    "kind": "DOC120_OFFLINE_CAPACITY_BASELINE",
+    "generatedUtc": "2026-11-16T18:54:43.778Z",
+    "node": "v24.12.0",
+    "platform": "win32",
+    "metadata": {
+      "source": "EXISTING_LOCAL_CORPUS_METADATA_ONLY",
+      "roots": 1,
+      "files": 1000,
+      "bytes": 44859102,
+      "requestUtf16Characters": 172409,
+      "requestUtf8Bytes": 172409,
+      "exampleAsmxLimit": 102400,
+      "effectiveIisConfiguration": "NOT_INSPECTED",
+      "preflight": "REVISION_TAMANO_EXCEDIDO",
+      "xhrCreated": 0
+    },
+    "sourceHashes": {
+      "js/gestion/ImportacionCarpetas/InventarioImportacion.js": "3ae16d908ca21b35279bf2feabf63ba26c4a21cfbf273773c01ecee1d5fa16db",
+      "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js": "68afc25746f97c211c50b5a1c484a0a316a8834b452eec850db631cdfe706569",
+      "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js": "71b5403747fac778f3b2939ea9a5984531395282a4799bbb0df5a5432bd6bd9c",
+      "Services/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionJson.vb": "0d623b1667e280e3005e2055a27abec3b8fdae44cde5a9463f50f6145b8ce9d3",
+      "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.vb": "5b9dbb9d201f85d6dc97a54f03270ec85f003762f05844609bd59c864ab36aba",
+      "tools/e2e/scripts/measure-doc120-client-capacity.cjs": "bd620f692882ce6da34e19f7aa9fc3106b884866abe2ab4b011c3c8a88dc5189"
+    },
+    "scenarios": [
+      {
+        "files": 1,
+        "roots": 1,
+        "readsPerSnapshot": 4,
+        "derivedEffectsForCompleteRun": 4,
+        "derivedReadsForCompleteRun": 20,
+        "observed": {
+          "status": "complete",
+          "code": null,
+          "syntheticEffects": 4,
+          "simulatedAcceptedReads": 20,
+          "completedSnapshots": 5,
+          "receivedInLastSnapshot": 1,
+          "simulatedServerReceipts": 1,
+          "stored": 1,
+          "elapsedMs": 2,
+          "sampledHeapIncreaseBytes": 117344
+        },
+        "limits": {
+          "resources": 10000,
+          "pages": 400,
+          "reads": 10000,
+          "effects": 10000
+        }
+      },
+      {
+        "files": 100,
+        "roots": 1,
+        "readsPerSnapshot": 7,
+        "derivedEffectsForCompleteRun": 301,
+        "derivedReadsForCompleteRun": 2114,
+        "observed": {
+          "status": "complete",
+          "code": null,
+          "syntheticEffects": 301,
+          "simulatedAcceptedReads": 2114,
+          "completedSnapshots": 302,
+          "receivedInLastSnapshot": 100,
+          "simulatedServerReceipts": 100,
+          "stored": 100,
+          "elapsedMs": 77,
+          "sampledHeapIncreaseBytes": 2754688
+        },
+        "limits": {
+          "resources": 10000,
+          "pages": 400,
+          "reads": 10000,
+          "effects": 10000
+        }
+      },
+      {
+        "files": 1000,
+        "roots": 1,
+        "readsPerSnapshot": 43,
+        "derivedEffectsForCompleteRun": 3001,
+        "derivedReadsForCompleteRun": 129086,
+        "observed": {
+          "status": "blocked",
+          "code": "COORDINACION_LIMITE",
+          "syntheticEffects": 232,
+          "simulatedAcceptedReads": 10000,
+          "completedSnapshots": 232,
+          "receivedInLastSnapshot": 231,
+          "simulatedServerReceipts": 232,
+          "stored": 0,
+          "elapsedMs": 440,
+          "sampledHeapIncreaseBytes": 14617320
+        },
+        "limits": {
+          "resources": 10000,
+          "pages": 400,
+          "reads": 10000,
+          "effects": 10000
+        }
+      }
+    ],
+    "applicationHttp": 0,
+    "databaseSelect": 0,
+    "authenticatedSessions": 0,
+    "realEffects": 0,
+    "limitations": [
+      "El coste HTTP de readAll se modela; no se ejecuta su transporte.",
+      "Tiempos y memoria corresponden a Node con dobles; no a navegador, IIS, SQL ni PDF.",
+      "Heap muestreado no es pico exacto ni presupuesto de memoria del servidor.",
+      "102400 es el limite ASMX de referencia, no una inspeccion de IIS."
+    ]
+  },
+  "syntheticFallback": {
+    "passed": true,
+    "source": "SYNTHETIC_METADATA",
+    "scenarios": 3,
+    "applicationHttp": 0,
+    "databaseSelect": 0,
+    "realEffects": 0
+  },
+  "proposedLocalBudgets": {
+    "maxEntriesPerPart": 100,
+    "maxRequestCharacters": 65536,
+    "maxResponseCharacters": 65536,
+    "maxCanonicalFragmentCharacters": 262144,
+    "detailPageRows": 25,
+    "maxReadRequestsPerEffect": 2,
+    "maxCompleteRunReadsFor1000FilesOneRoot": 6045,
+    "expectedEffectsFor1000FilesOneRoot": 3001,
+    "nodeCompleteSyntheticRunMaxMs": 10000,
+    "nodeSampledHeapIncreaseMaxBytes": 134217728,
+    "chromiumAssistantMaxDomNodes": 2000,
+    "chromiumProgressP95MaxMs": 100,
+    "chromiumHeapIncreaseMaxBytes": 134217728,
+    "liveSqlHttpDiskTimeBudgets": "REQUIRE_PLAN_3.125_AND_AUTHORIZATION_5.2"
+  }
+}

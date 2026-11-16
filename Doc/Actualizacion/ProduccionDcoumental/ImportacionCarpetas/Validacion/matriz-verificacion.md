@@ -1,5 +1,15 @@
 # DOC-120 — matriz única de verificación
 
+## Preparación segmentada — diagnóstico local2026-11-16
+
+| Origen/caso | Fuente | Resultado y límite |
+| --- | --- | --- |
+| D-07/RQ-07,3.98: tamaño/preflight | [Evidencia local](doc120-capacidad-base-20261116.md) y JSON compañero |1.000 metadatos reales de44.859.102 bytes de PDF producen172.409 caracteres; rechazo con límite ASMX de referencia102.400, sin crear XHR. No inspecciona límite IIS ni recibe PDF |
+| D-05/RQ-05, D-07/RQ-07,3.98: coste de coordinación | Mismo corte; motor real y dobles locales | Casos1/100 completan;1.000 se bloquea tras232 recepciones sintéticas y10.000 lecturas modeladas. Derivación de recorrido completo129.086 lecturas; no medición de HTTP/BD ni PASS de capacidad |
+| D-04/RQ-04, D-05/RQ-05, D-09/RQ-09,3.97 | [Contrato propuesto08](../Diseno/08-preparacion-segmentada-capacidad.md) | Pendiente de aprobación; siete operaciones/tres tablas/plan2 y12 casos propuestos, sin activar excepciones de esquema/endpoints |
+
+Estado111/148 tareas y41 escenarios vigentes. Las fuentes siguientes son históricas; ningún diagnóstico local renueva aceptación operativa o autoriza DDL/carga real.
+
 ## Aviso claro de capacidad de revisión — 2026-11-16
 
 D-04/RQ-04 y D-05/RQ-05:3.95/3.96 verificadas con **122/122 locales**,10 nuevas,2 wrappers Framework/DDL y compilación aislada0 errores. Límite publicado y comparación exacta del cuerpo; señales cerradas ASMX/HTTP413, privacidad, incertidumbre y selección/perfil conservados.390/768/1280px y teclado/foco. **110/116 tareas**,41 escenarios. [Detalle, fuentes y límites](doc120-mensaje-tamano-20261116.md); preflight requiere DLL actualizada en IIS, sin activación en este corte. No se declara causa HTTP exacta de la corrida filmada ni capacidad de1.000 documentos. Cortes siguientes históricos.
