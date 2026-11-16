@@ -307,6 +307,7 @@ Public NotInheritable Class DiagnosticoOperacionImportacion
             Case "RESULTADO_PENDIENTE_LECTURA" : Return "La consulta todavía no refleja el resultado de la última operación. Consulta el mismo lote; no repitas esa operación."
             Case "ORIGINAL_REQUERIDO" : Return "Falta el PDF original de un archivo pendiente. Vincúlalo al mismo archivo y pulsa Continuar importación; seleccionarlo no lo envía."
             Case "SIN_AVANCE_DISPONIBLE" : Return "El estado consultado no permite iniciar otra fase. Revisa los pendientes y sus requisitos en el mismo lote."
+            Case "REVISION_TAMANO_EXCEDIDO" : Return "Los datos necesarios para preparar esta revisión superan el tamaño que admite el servicio de importación."
             Case "RESULTADO_INCIERTO", "ERROR_INTERNO" : Return "No se recibió un resultado comprobable de esta operación. Conserve su referencia."
             Case "ARCHIVO_RECHAZADO" : Return "El archivo fue rechazado por una comprobación de la fase. Revise sus incidencias antes de continuar."
             Case Else : Return "La comprobación no pudo completarse con los datos disponibles."

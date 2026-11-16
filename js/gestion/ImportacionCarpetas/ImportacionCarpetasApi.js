@@ -159,6 +159,7 @@
     "RESULTADO_PENDIENTE_LECTURA": "La consulta todavía no refleja el resultado de la última operación. Consulta el mismo lote; no repitas esa operación.",
     "ORIGINAL_REQUERIDO": "Falta el PDF original de un archivo pendiente. Vincúlalo al mismo archivo y pulsa Continuar importación; seleccionarlo no lo envía.",
     "SIN_AVANCE_DISPONIBLE": "El estado consultado no permite iniciar otra fase. Revisa los pendientes y sus requisitos en el mismo lote.",
+    "REVISION_TAMANO_EXCEDIDO": "Los datos necesarios para preparar esta revisión superan el tamaño que admite el servicio de importación.",
     "RESULTADO_INCIERTO": "No se recibió un resultado comprobable de esta operación. Conserve su referencia.",
     "ERROR_INTERNO": "No se recibió un resultado comprobable de esta operación. Conserve su referencia.",
     "ARCHIVO_RECHAZADO": "El archivo fue rechazado por una comprobación de la fase. Revise sus incidencias antes de continuar."
@@ -177,8 +178,15 @@
             text = Object.prototype.hasOwnProperty.call(diagnosticos, code) ? diagnosticos[code] : "No se pudo completar la solicitud de esta fase.",
             id = function (value) { return typeof value === "string" && /^[1-9][0-9]{0,9}$/.test(value) && Number(value) <= 4294967295; };
         if (["ACCESO_DENEGADO","SESION_REQUERIDA","SOLICITUD_NO_VERIFICADA"].indexOf(code) !== -1) { return text; }
+        var selection = Number.isSafeInteger(error.cantidadArchivos) && error.cantidadArchivos > 0 && error.cantidadArchivos <= 262144 ? " de " + error.cantidadArchivos.toLocaleString("es-CO") + " PDF" : "";
         if (error.lecturaPosterior) { text = "La operación quedó confirmada, pero no se pudo actualizar su vista. Consulta el mismo lote; no repitas la operación."; if (phase === "RECEPCION" && Number.isSafeInteger(error.totalRecibidos) && error.totalRecibidos >= 0) { text += " Recepciones confirmadas de esta cola: " + error.totalRecibidos + "."; } }
-        else if (phase === "PrepararPlan" && error.resultadoIncierto) { text += " No se recibió el resultado de la revisión; puede haber quedado guardada. Se conserva tu selección y perfil. Todavía no hay un lote confirmado con esta respuesta. Puedes preparar otra revisión manualmente cuando no haya una confirmación pendiente."; }
+        else if (phase === "PrepararPlan" && code === "REVISION_TAMANO_EXCEDIDO") {
+            text = "La revisión" + selection + " supera el tamaño de datos que admite esta importación.";
+            if(Number.isSafeInteger(error.caracteresSolicitud) && Number.isSafeInteger(error.limiteCaracteres) && error.limiteCaracteres > 0 && error.limiteCaracteres <= 262144 && error.caracteresSolicitud > error.limiteCaracteres){text += " Datos de revisión: " + error.caracteresSolicitud.toLocaleString("es-CO") + " caracteres. Máximo permitido: " + error.limiteCaracteres.toLocaleString("es-CO") + ".";}
+            text += error.solicitudNoEnviada === true ? " La solicitud se detuvo antes de enviarla; no se guardó una revisión con este intento." : " No se recibió la revisión y no se pudo comprobar si quedó guardada.";
+            text += " Se conserva tu selección y perfil. Todavía no se enviaron los PDF ni se crearon expedientes. Para procesar esta cantidad es necesario ajustar la capacidad del importador; repetir la misma revisión no resuelve el límite.";
+        }
+        else if (phase === "PrepararPlan" && error.resultadoIncierto) { if(code === "RESPUESTA_INVALIDA"){text = "No se pudo obtener la revisión" + selection + ": el servidor devolvió una respuesta no reconocida. No se pudo identificar la causa con esa respuesta.";} text += " No se recibió el resultado de la revisión; puede haber quedado guardada. Se conserva tu selección y perfil. Todavía no hay un lote confirmado con esta respuesta. Puedes preparar otra revisión manualmente cuando no haya una confirmación pendiente."; }
         else if (error.planPendiente && id(error.planPendiente)) { text = "No se pudo confirmar el resultado del plan " + error.planPendiente + ". Usa Verificar confirmación pendiente antes de confirmar otra vez."; }
         else if (error.resultadoIncierto) { text = ["CREAR_EXPEDIENTE","RETOMAR_CREACION"].indexOf(phase) !== -1 ? "No se confirmó la creación del expediente. Consulta el estado del lote; no repitas la creación." : "No se confirmó el resultado de esta fase. Consulta el estado del lote antes de repetir cualquier efecto."; }
         else if (phase === "PrepararPlan") { text += " Corrige la selección o la regla indicada y prepara una nueva revisión; esta acción no envía ni crea expedientes."; }
@@ -195,10 +203,15 @@
             typeof value.codigo === "string" && typeof value.mensaje === "string" && Array.isArray(value.incidencias) ? value : null;
     }
     function ruta(value) { return typeof value === "string" && /^\/(?!\/)/.test(value) && !/[?#\\\x00-\x20]/.test(value); }
+    function rechazoTamanoAsmx(raw, status) {
+        return status >= 500 && status < 600 && raw && !Array.isArray(raw) &&
+            ["System.ArgumentException","System.InvalidOperationException"].indexOf(raw.ExceptionType) !== -1 &&
+            typeof raw.Message === "string" && raw.Message.length <= 4096 && /\bmaxJsonLength\b/i.test(raw.Message) && /(?:length|longitud)[\s\S]{0,512}(?:exceed|supera|exced)/i.test(raw.Message);
+    }
     function crear(options) {
         if (!options || !ruta(options.url) || !ruta(options.uploadUrl) || typeof options.token !== "string" || !options.token) { throw fallo("CONTEXTO_INVALIDO"); }
         var closed = false, pending = [], token = options.token;
-        function send(url, body, multipart, mutation, progress) {
+        function send(url, body, multipart, mutation, progress, operation) {
             var xhr, finished = false, cancel;
             var promise = new Promise(function (resolve, reject) {
                 function finish(error, value) {
@@ -216,10 +229,11 @@
                     xhr.setRequestHeader("X-Importacion-Carpetas-CSRF", token);
                     if (!multipart) { xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8"); }
                     xhr.onload = function () {
-                        var response = null;
-                        try { response = sobre(JSON.parse(xhr.responseText)); } catch (_) {}
+                        var response = null, raw = null;
+                        try { raw = JSON.parse(xhr.responseText); response = sobre(raw); } catch (_) {}
                         if (xhr.status === 401 || xhr.status === 403) { closed = true; token = ""; }
-                        if (!response) { finish(fallo("RESPUESTA_INVALIDA", xhr.status, mutation)); return; }
+                        if (!response && (xhr.status === 401 || xhr.status === 403)) { finish(fallo(xhr.status === 401 ? "SESION_REQUERIDA" : "ACCESO_DENEGADO",xhr.status,false));return; }
+                        if (!response) { finish(fallo(operation === "PrepararPlan" && (xhr.status === 413 || rechazoTamanoAsmx(raw,xhr.status)) ? "REVISION_TAMANO_EXCEDIDO" : "RESPUESTA_INVALIDA", xhr.status, mutation)); return; }
                         if (!response.ok || xhr.status < 200 || xhr.status >= 300) {
                             var error = fallo(response.codigo, xhr.status, mutation && (xhr.status >= 500 || response.codigo === "RESULTADO_INCIERTO" || response.codigo === "OPERACION_EN_CURSO"));
                             error.incidencias = ["ACCESO_DENEGADO","SESION_REQUERIDA"].indexOf(response.codigo) === -1 ? response.incidencias.slice(0, 128).map(function (item) { return {Campo:item && item.Campo, Codigo:item && item.Codigo, Mensaje:detalleIncidencia({Codigo:item && item.Codigo,Mensaje:item && item.Mensaje})}; }) : [];
@@ -247,8 +261,18 @@
             if (operations.indexOf(operation) === -1 || !request || typeof request !== "object" || Array.isArray(request)) { return Promise.reject(fallo("SOLICITUD_INVALIDA")); }
             var body;
             try { body = JSON.stringify({solicitud:request}); } catch (_) { return Promise.reject(fallo("SOLICITUD_INVALIDA")); }
-            var transport = send(options.url.replace(/\/$/, "") + "/" + operation, body, false, ["ConfirmarPlan", "PrepararPlan", "AvanzarLote", "SolicitarDetencion", "ReconciliarRecurso"].indexOf(operation) !== -1);
-            var result = transport.catch(function (error) { error.operacion = operation; error.fase = request.fase || operation; throw error; });
+            function contextoError(error) {
+                error.operacion = operation; error.fase = request.fase || operation;
+                if(operation === "PrepararPlan" && ["ACCESO_DENEGADO","SESION_REQUERIDA","SOLICITUD_NO_VERIFICADA"].indexOf(error.codigo) === -1 && Array.isArray(request.archivos)) { error.cantidadArchivos = request.archivos.length; }
+                return error;
+            }
+            var limit=options.maximoJsonSolicitud;
+            if(!closed && operation === "PrepararPlan" && Number.isSafeInteger(limit) && limit > 0 && limit <= 262144 && body.length > limit) {
+                var oversized=fallo("REVISION_TAMANO_EXCEDIDO",0,false);oversized.solicitudNoEnviada=true;oversized.caracteresSolicitud=body.length;oversized.limiteCaracteres=limit;
+                return Promise.reject(contextoError(oversized));
+            }
+            var transport = send(options.url.replace(/\/$/, "") + "/" + operation, body, false, ["ConfirmarPlan", "PrepararPlan", "AvanzarLote", "SolicitarDetencion", "ReconciliarRecurso"].indexOf(operation) !== -1,null,operation);
+            var result = transport.catch(function (error) { throw contextoError(error); });
             result.cancelar = transport.cancelar; return result;
         }
         function recibir(request, file, progress) {

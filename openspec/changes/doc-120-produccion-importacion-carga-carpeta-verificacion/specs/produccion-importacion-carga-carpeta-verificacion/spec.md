@@ -57,6 +57,11 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **THEN** se conserva identidad, acceso equivalente, avisos, árbol/selección y foco
 - **AND** no se reconfirma automáticamente ni se atribuye un caso sintético a IIS
 
+#### Scenario: Revisión que supera un límite JSON comprobado
+- **WHEN** el usuario prepara una selección cuyo cuerpo JSON excede el límite publicado por el servidor
+- **THEN** el cliente detiene esa solicitud antes de enviarla, explica cantidad/tamaño/máximo y conserva selección/perfil, sin afirmar que se creó una revisión o un lote
+- **AND** sin ese metadato solo HTTP413 o un error ASMX estructurado y reconocido justifican el aviso de tamaño; las respuestas desconocidas mantienen incertidumbre sin exponer Message/StackTrace ni atribuir automáticamente el fallo a la cantidad de PDF
+
 #### Scenario: Primer expediente confirmado en nivel vacío
 - **WHEN** una consulta posterior a la importación informa un expediente confirmado y el nivel original visible todavía no tiene contenedor de hijos
 - **THEN** se agrega su relación al árbol mediante el insertor existente, con expansor, búsqueda y contador, una sola vez

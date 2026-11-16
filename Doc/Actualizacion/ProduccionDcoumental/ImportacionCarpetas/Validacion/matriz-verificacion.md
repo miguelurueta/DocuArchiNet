@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Aviso claro de capacidad de revisión — 2026-11-16
+
+D-04/RQ-04 y D-05/RQ-05:3.95/3.96 verificadas con **122/122 locales**,10 nuevas,2 wrappers Framework/DDL y compilación aislada0 errores. Límite publicado y comparación exacta del cuerpo; señales cerradas ASMX/HTTP413, privacidad, incertidumbre y selección/perfil conservados.390/768/1280px y teclado/foco. **110/116 tareas**,41 escenarios. [Detalle, fuentes y límites](doc120-mensaje-tamano-20261116.md); preflight requiere DLL actualizada en IIS, sin activación en este corte. No se declara causa HTTP exacta de la corrida filmada ni capacidad de1.000 documentos. Cortes siguientes históricos.
+
 ## Claridad de selección/revisión — video121039
 
 D-04/RQ-04 y D-05/RQ-05: tareas3.93/3.94 verificadas con **110/110 locales**,6 nuevas sin sumar casos superpuestos. Ayuda del selector nativo, revisión compacta por carpeta, datos completos/seguros y referencia técnica accesible; incidencia, consentimiento y recorrido coordinado conservados en390/768/1280px. **108/114 tareas**,40 escenarios. [Fuentes, capturas y límites](doc120-revision-claridad-20261115.md) y JSON compañero. Sin compilación/backend nuevos, IIS o ejecución real. Se mantienen las seis tareas de autorización/aceptación/cierre pendientes; antecedentes siguientes históricos.

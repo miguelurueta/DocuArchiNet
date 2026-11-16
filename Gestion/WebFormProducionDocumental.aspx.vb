@@ -13,10 +13,13 @@ Public Class WebFormProducionDocumental
             Dim recuperacion = ImportacionCarpetasRequestGuard.ReferenciaRecuperacion(HttpContext.Current, contexto)
             Dim nivel = Convert.ToString(Session("PG_SELECCION_TREVIEEW_PRODUCCION"))
             If Not ValidadorPerfilImportacion.ReferenciaValida(nivel) Then nivel = ""
+            Dim jsonSettings = TryCast(System.Configuration.ConfigurationManager.GetSection("system.web.extensions/scripting/webServices/jsonSerialization"), System.Web.Configuration.ScriptingJsonSerializationSection)
+            Dim maximoJson = If(jsonSettings IsNot Nothing AndAlso jsonSettings.MaxJsonLength > 0,
+                Math.Min(jsonSettings.MaxJsonLength, PerfilImportacionJson.MaximoCaracteres).ToString(System.Globalization.CultureInfo.InvariantCulture), "")
             Return "<div id=""doc111-importacion"" data-api=""" & HttpUtility.HtmlAttributeEncode(ResolveUrl("~/webservice/WebServiceImportacionCarpetas.asmx")) &
                 """ data-upload=""" & HttpUtility.HtmlAttributeEncode(ResolveUrl("~/generic_control/ImportacionCarpetasUpload.ashx")) &
                 """ data-token=""" & HttpUtility.HtmlAttributeEncode(token) & """ data-recuperacion=""" & recuperacion & """ data-nivel=""" & nivel &
-                """ data-navegacion=""menu""><button type=""button"" data-doc111-open hidden disabled>Importar carpetas</button><button type=""button"" data-doc111-resume hidden>Consultar último lote</button><button type=""button"" data-doc111-verificar hidden>Verificar confirmación pendiente</button><span data-doc111-status role=""status"" hidden></span></div>"
+                """ data-maximo-json=""" & maximoJson & """ data-navegacion=""menu""><button type=""button"" data-doc111-open hidden disabled>Importar carpetas</button><button type=""button"" data-doc111-resume hidden>Consultar último lote</button><button type=""button"" data-doc111-verificar hidden>Verificar confirmación pendiente</button><span data-doc111-status role=""status"" hidden></span></div>"
         Catch ex As Exception
             'La capacidad nueva no interrumpe Produccion ni la carga individual.
             Return String.Empty

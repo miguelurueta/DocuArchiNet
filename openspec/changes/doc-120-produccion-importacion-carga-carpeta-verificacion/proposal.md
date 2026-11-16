@@ -4,6 +4,8 @@ DOC-120 consolida la verificación de importación de carpetas sobre la interfaz
 
 ## What Changes
 
+Solicitud2026-11-16 tras video123321: aclarar el error de preparación de selecciones grandes. Publicar el límite JSON vigente como metadato de interfaz, impedir localmente una solicitud que lo exceda y reconocer únicamente señales cerradas ASMX/HTTP413; preservar incertidumbre y privacidad en otras respuestas. No amplía capacidad, límites, contratos de negocio ni autoriza una nueva corrida real o activación IIS.
+
 Aprobación2026-11-15 sobre maqueta563160db: implementar coordinación con Confirmar e importar, pausa y recuperación explícita, con una solicitud por fase y consultas posteriores coherentes; permitir códigos de negocio repetidos sin reutilizar expedientes ni debilitar la idempotencia. Alcance3.72–3.85/3.88–3.92 y preparación3.86; no autoriza prueba real3.87, despliegue, DDL ni configuración futura de políticas. La ampliación de D-04/D-05 sustituye el requisito anterior de un clic por fase para este recorrido.
 
 Diagnósticof23baf65 autorizado: FECHA_INICIAL canónica de10 caracteres rechazada por límite de origen menor. Corregir únicamente ValidarValorResuelto sobre copia (FECHA yyyy-MM-dd/longitud10), preservando entrada original y snapshot. Regresión local29/29 y compilación0 errores.3.30/3.31 completas por diagnóstico/corrección/propuesta;47/51. Lote39 e intento96 no se modifican; recuperación propuesta necesita implementación revisada y autorización separada, sin replay por inferencia.

@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Mensaje de preparación grande — 2026-11-16
+
+3.95/3.96 verificadas: límite efectivo como metadato, preflight del cuerpo sin POST al excederlo, aviso de cantidad/tamaño/máximo y señales ASMX/HTTP413 cerradas; errores desconocidos conservan incertidumbre y privacidad. **122/122 locales**,10 nuevas e incluidos2 wrappers Framework/DDL sin sumar internos; compilación aislada0 errores. **110/116 tareas**,41 escenarios. [Fuentes y límites](doc120-mensaje-tamano-20261116.md) y JSON compañero. Sin activar IIS, ampliar capacidad o ejecutar importaciones reales. Seis tareas finales pendientes. Cortes siguientes históricos.
+
 ## Selección y revisión comprensibles — video121039
 
 3.93/3.94 implementadas: explicación del permiso nativo sin otro diálogo, resumen único, fichas con código/nombre completos y referencia del plan en detalles. Incidencias, datos previstos y operaciones conservados. **110/110 locales**,6 nuevas y104 superpuestas al corte previo; no se suman a los207 históricos. Sin backend nuevo, HTTP/SELECT/efectos reales ni activación IIS. **108/114 tareas**,40 escenarios. [Evidencia y límites](doc120-revision-claridad-20261115.md) y JSON compañero.3.86/3.87/5.2/6.4/6.5/6.6 permanecen abiertas. Cortes siguientes históricos.

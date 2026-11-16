@@ -1,5 +1,11 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+## Aviso de tamaño de revisión — 2026-11-16
+
+Si la lista seleccionada supera el límite JSON publicado por el servidor, Preparar revisión detiene la solicitud antes de enviarla. El aviso indica cantidad de PDF, caracteres observados y máximo permitido, confirma que se conserva selección/perfil y explica que hace falta ajustar la capacidad para esa cantidad. No envía los PDF ni afirma haber guardado una revisión. Ese control previo requiere desplegar la DLL actualizada del host; esta entrega solo compila en una ubicación aislada.
+
+Un servidor anterior sin ese metadato sigue pudiendo devolver un error ASMX reconocible de tamaño o HTTP413: el aviso explica el tamaño, pero conserva incertidumbre sobre si la revisión se guardó. Una respuesta HTML/genérica o un error desconocido no se atribuye a capacidad por tener muchos archivos; se informa que no se pudo identificar la causa. Ningún Message/StackTrace se muestra ni se repite la petición automáticamente. [Evidencia y alcance](Validacion/doc120-mensaje-tamano-20261116.md).
+
 ## Recorrido vigente — DOC-120, 2026-11-15
 
 Claridad tras video121039: junto a Agregar carpeta se explica que el permiso «Subir» pertenece al navegador y permite leer la selección; el contenido PDF se envía al confirmar la importación. No se agrega otro diálogo. Revisar presenta cantidades una sola vez y fichas por carpeta con código y nombre informativo completos. La referencia de revisión sigue disponible en Detalles de configuración; incidencias y datos previstos conservan sus controles. Ver [corte de presentación](Validacion/doc120-revision-claridad-20261115.md).
