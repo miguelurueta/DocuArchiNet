@@ -2,6 +2,7 @@ Option Strict On
 Imports System
 Imports System.Collections.Generic
 Imports System.Globalization
+Imports System.Linq
 Imports MySql.Data.MySqlClient
 
 Public Partial Class MySqlImportacionCarpetasRepository
@@ -40,11 +41,20 @@ Public Partial Class MySqlImportacionCarpetasRepository
                 End While
             End Using
         End Using
+        ReconstruirPlanSegmentadoPersistido(plan, fragmentos)
+    End Sub
+
+    Friend Shared Sub ReconstruirPlanSegmentadoPersistido(plan As PlanImportacionCarpetas, fragmentos As List(Of FragmentoPlanImportacion))
         Try
             PlanSegmentadoImportacionJson.Reconstruir(plan, fragmentos)
             If plan.Manifiesto.Raices.Count + plan.Manifiesto.Archivos.Count <> plan.ReferenciaManifiestoSegmentado.Cantidad OrElse
                 plan.Resultado.Elementos.Count + plan.Resultado.Incidencias.Count + plan.Resultado.UnidadesElegibles.Count + 1 <> plan.ReferenciaResultadoSegmentado.Cantidad Then Throw NoDisponible()
             ValidarInventarioPersistible(plan)
+            If plan.Snapshot Is Nothing OrElse plan.Snapshot.Reglas Is Nothing OrElse plan.Snapshot.Reglas.Any(Function(r) r Is Nothing) Then Throw NoDisponible()
+            'El sellado canoniza las reglas antes de calcular la huella. Los
+            'primeros planes2 guardaron el orden original de la publicacion;
+            'normalizar solo ese orden permite leerlos sin reescribir datos.
+            plan.Snapshot.Reglas = plan.Snapshot.Reglas.OrderBy(Function(r) r.DestinoTipo, StringComparer.Ordinal).ThenBy(Function(r) r.DestinoRef, StringComparer.Ordinal).ToList()
             If Not Iguales(HuellaPlanPersistido(plan), BytesHuella(plan.Huella)) Then Throw NoDisponible()
         Catch ex As PerfilImportacionException
             Throw NoDisponible()

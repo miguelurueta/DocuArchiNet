@@ -76,6 +76,15 @@ test('DOC120-SEGCLIENT06: más de cien raíces se registran antes de validar las
 test('DOC120-SEGCLIENT07: datos de otro contexto, filas repetidas o páginas incompletas impiden revisar',async()=>{
  for(const mode of ['context','duplicate','missing']){const f=fixture(request(4),{alter:(op,value)=>{if(op==='ConsultarRevisionPlan'&&value.tipo==='VALORES'){if(mode==='context')value.nivelRef='99';if(mode==='duplicate')value.valores[1]=value.valores[0];if(mode==='missing')value.valores.pop();}return value;}});await assert.rejects(f.engine.iniciar(),/RESPUESTA_INVALIDA/);}
 });
+test('DOC120-SEGCLIENT08: continuar despues de fallar la lectura conserva el plan sellado sin repetir metadatos',async()=>{
+ let failed=false;const f=fixture(request(),{alter:(op,value)=>{
+  if(op==='ConsultarRevisionPlan'&&value.tipo==='VALORES'&&!failed){failed=true;throw Object.assign(Error('CAPACIDAD_NO_DISPONIBLE'),{codigo:'CAPACIDAD_NO_DISPONIBLE'});}return value;
+ }});
+ await assert.rejects(f.engine.iniciar(),/CAPACIDAD_NO_DISPONIBLE/);const before=f.calls.length;
+ const result=await f.engine.iniciar();assert.equal(result.planId,'11');assert.equal(result.resultado.Elementos.length,1001);
+ assert.ok(f.calls.slice(before).every(c=>['ConsultarPreparacionPlan','ConsultarRevisionPlan'].includes(c.op)));
+ assert.equal(f.calls.filter(c=>c.op==='IniciarPreparacionPlan').length,1);assert.equal(f.calls.filter(c=>c.op==='SellarPreparacionPlan').length,1);
+});
 test('DOC120-ORIG01: carpeta completa vincula solo pendientes y separa modificados/recibidos/homónimos',()=>{
  const root={recursoId:'52'},rows=[{recursoId:'78',raizId:'52',nombre:'a.pdf',rutaRelativa:'Original/sub/a.pdf',bytesPrevistos:'677',ultimaModificacionLocal:'1234',estadoRecepcion:'PENDIENTE',estado:'NO_INICIADO'},
  {recursoId:'79',raizId:'52',nombre:'b.pdf',rutaRelativa:'Original/b.pdf',bytesPrevistos:'677',ultimaModificacionLocal:'1234',estadoRecepcion:'PENDIENTE',estado:'NO_INICIADO'},

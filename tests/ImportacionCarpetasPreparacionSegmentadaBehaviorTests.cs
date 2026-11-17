@@ -167,11 +167,31 @@ public static partial class ImportacionCarpetasBehaviorTests {
     }
     static void SegmentedPlanCases() {
         var source=LargeSegmentedPlan();
+        // Persisted plan headers must tolerate the publication's original rule order.
+        // The preparation header and canonical sealed plan can legitimately differ there.
+        source.Snapshot.Reglas.Insert(0,new ReglaPerfilImportacion{ReglaId="7",DestinoTipo="CAMPO_EXPEDIENTE",DestinoRef="NOMBRE",FuenteTipo="CONSTANTE",ValorConstante="Informative name"});
+        source.Snapshot.Huella=Hex(PerfilImportacionJson.Huella(new VersionPerfilImportacion{Configuracion=source.Snapshot.Configuracion,Reglas=source.Snapshot.Reglas}));
         Rejected("SOLICITUD_INVALIDA",()=>PerfilImportacionJson.Escribir(source));
         var p=Prepare(source);
         Check(p.EsquemaDoc==2 && p.PreparacionId=="77" && p.Manifiesto.Archivos.Count==1000,"DOC120 plan2 clone loses identity/inventory");
         Check(!Object.ReferenceEquals(p.Manifiesto.Archivos[0],source.Manifiesto.Archivos[0]),"DOC120 plan2 shares mutable input");
         var parts=PlanSegmentadoImportacionJson.Fragmentar(p);
+        var persistedHeader=PlanSegmentadoImportacionJson.ClonarPlan(p);
+        persistedHeader.Manifiesto=new ManifiestoImportacionCarpetas();persistedHeader.Resultado=new ResultadoPreparacionImportacion();
+        persistedHeader.Snapshot=ReceiptClone(source.Snapshot);
+        var stored=StoredPlan(persistedHeader);
+        stored.Rows[0]["manifiesto_doc"]=PerfilImportacionJson.Escribir(new ReferenciaPlanSegmentadoImportacion{Esquema=2,PreparacionId="77",Huella=p.Huella,Cantidad=p.Manifiesto.Raices.Count+p.Manifiesto.Archivos.Count});
+        stored.Rows[0]["resultado_doc"]=PerfilImportacionJson.Escribir(new ReferenciaPlanSegmentadoImportacion{Esquema=2,PreparacionId="77",Huella=p.Huella,Cantidad=p.Resultado.Elementos.Count+p.Resultado.Incidencias.Count+p.Resultado.UnidadesElegibles.Count+1});
+        var restoredHeader=ReadStored(stored);
+        RepositoryHelper("ReconstruirPlanSegmentadoPersistido",restoredHeader,parts);
+        Check(restoredHeader.Huella==p.Huella&&restoredHeader.Manifiesto.Archivos.Count==1000,"DOC120 cannot reload a sealed plan whose publication rules have another order");
+        Check(persistedHeader.Snapshot.Reglas[0].DestinoRef=="NOMBRE","DOC120 read normalization mutated original publication");
+        var changed=stored.Copy();var changedSnapshot=ReceiptClone(persistedHeader.Snapshot);changedSnapshot.Reglas[0].ValorConstante="Tampered value";
+        changed.Rows[0]["config_doc"]=PerfilImportacionJson.Escribir(changedSnapshot);
+        Unavailable(()=>RepositoryHelper("ReconstruirPlanSegmentadoPersistido",ReadStored(changed),parts));
+        persistedHeader.Snapshot=ReceiptClone(p.Snapshot);var canonicalStored=StoredPlan(persistedHeader);
+        canonicalStored.Rows[0]["manifiesto_doc"]=stored.Rows[0]["manifiesto_doc"];canonicalStored.Rows[0]["resultado_doc"]=stored.Rows[0]["resultado_doc"];
+        RepositoryHelper("ReconstruirPlanSegmentadoPersistido",ReadStored(canonicalStored),parts);
         Check(PlanSegmentadoImportacionJson.DocumentoRecuperacion(p).Length<1024,"DOC120 recovery serializes the aggregate plan2");
         var recoveryFingerprint=PlanSegmentadoImportacionJson.DocumentoRecuperacion(p);
         var recoveryChanged=PlanSegmentadoImportacionJson.ClonarPlan(p);recoveryChanged.Manifiesto.Archivos[0].Bytes="678";
