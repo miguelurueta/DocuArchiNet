@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Detención persistente del lote50 — 2026-11-17, diagnóstico real posterior
+
+Ventana autorizada8803b6f4:5/5 SELECT RA,0 HTTP/sesiones/efectos; cerrada y secretos eliminados. DETENIDO/señal1/revisión3026;1.000 recibidos,1 creación confirmada,4 documentos completados y996 sin iniciar almacenamiento, todos con valores efectivos.0 intentos activos/inciertos y0 marcadores. Detención3544 registrada bajo cuenta propietaria a14:58:35 Bogotá; revisión/último evento estables. [Fuente y límites](doc120-detencion-lote50-20261117.md), JSON compañero.3.135 verificada;144/155 tareas. No se levantó la detención ni se reanudó/importó; no se inspeccionaron documentos físicos o DA.
+
 ## Parada identificada por archivo — 2026-11-17, corte posterior
 
 Solicitud de mensaje claro tras video PARADA:3.132–3.134 completas con89/89 locales. El panel conserva causa/espera real del cliente, archivo/ruta/posición, último avance confirmado y siguiente acción. Publica la parada antes de esperar la consulta posterior; distingue consulta fallida, intento activo y guardado confirmado sin replay ni continuación automática.4 GET estáticos200 coinciden con las fuentes principales;0 autenticaciones/SELECT/efectos. [Evidencia y límites](doc120-parada-diagnostico-20261117.md), JSON compañero.143/154 tareas; capacidad real y pendientes anteriores continúan abiertos.

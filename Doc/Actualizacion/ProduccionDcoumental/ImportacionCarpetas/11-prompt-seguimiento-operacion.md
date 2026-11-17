@@ -1,5 +1,9 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+## Lote50 — condición real comprobada2026-11-17
+
+Diagnóstico8803b6f4 de5 SELECT confirmó detención persistente,1.000 recibidos, expediente confirmado y4 documentos completados;996 tienen almacenamiento NO_INICIADO y valores efectivos registrados. No hay intentos activos/inciertos. La interfaz vigente todavía carece de reanudación general para DETENIDO: repetir Continuar/Consultar no levanta la señal. Conservar el lote50/plan90/versión45 y sus resultados; esta lectura no ejecutó una recuperación ni autorizó editar estados por SQL. [Evidencia y límites físicos/operativos](Validacion/doc120-detencion-lote50-20261117.md). La implementación de reanudación permanece por desarrollar.
+
 ## Aviso de parada por archivo — 2026-11-17, corte posterior
 
 Recargar con Ctrl+F5 para cargar recursos `doc120-parada-20261117-1`. Una parada muestra causa comprobada, fase, archivo/ruta, posición dentro del inventario y último avance confirmado; tiempo agotado no significa guardado fallido. Consultando resultado es una lectura distinta del almacenamiento. La confirmación observada se conserva; intento activo y fallo de consulta mantienen la pausa, sin repetir el efecto. Datos para soporte conserva códigos/referencias seguros. Consultar el mismo lote antes de usar únicamente sus acciones disponibles; no crear otra importación para resolver una espera sin respuesta. [Verificación local y límites](Validacion/doc120-parada-diagnostico-20261117.md):89/89 y4 GET estáticos200, sin autenticación o recuperación nueva del lote50.

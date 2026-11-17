@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Lote50 detenido — diagnóstico real2026-11-17
+
+D-04/RQ-04; D-05/RQ-05; D-08/RQ-08; D-10/RQ-10;3.135: [evidencia](doc120-detencion-lote50-20261117.md)/JSON, run8803b6f4.5 SELECT/0 HTTP/0 efectos, DETENIDO/señal1 estable,1.000 recibidos/4 completados/996 sin iniciar,1 creación y0 intentos activos/inciertos. Cuenta propietaria registra detención3544; secretos eliminados. Confirmada la condición real de bloqueo y la brecha de reanudación general; no equivale a recuperación, verificación física de PDF o causa histórica de lentitud.8/8 guardas locales;144/155 tareas.
+
 ## Diagnóstico de parada — 2026-11-17, corte posterior
 
 D-04/RQ-04; D-05/RQ-05; D-07/RQ-07; D-10/RQ-10;3.132–3.134:89/89 pruebas locales de causa/recurso/posición, publicación inmediata del bloqueo, lectura demorada/fallida, confirmación observada, privacidad y390/768/1280px. [Fuente](doc120-parada-diagnostico-20261117.md), JSON compañero.4 GET técnicos200 de recursos estáticos, sin credenciales ni efectos. No se ejecutó lote50 ni se comprobó el resultado real de1098.pdf.143/154 tareas; pendiente aceptación operativa/capacidad y ajuste Egresos de su corte separado.

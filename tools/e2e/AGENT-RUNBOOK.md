@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — diagnóstico real lote50, corte2026-11-17
+
+Usuario «autorizado» habilitó como máximo5 SELECT RA/0 HTTP/0 cambios para certificar detención del lote50. Run8803b6f4f2c44b028bc279fbe42f4250 cerrado:5/5 completados, credenciales eliminadas; DETENIDO/señal1/revisión3026, evento de detención3544, inventario1.000 recibido/4 completado/996 NO_INICIADO con valores, creación confirmada y0 intentos activos/inciertos. Lecturas antes/después estables. Fuente `Validacion/doc120-detencion-lote50-20261117.md`/JSON. No repetir automáticamente, no convertir esta ventana en permiso de ReanudarLote/almacenamiento/SQL correctivo ni inspección de DA/disco. `inspect-doc120-stopped-lot.cjs` está fijado a lote50/propietario141/empresa2 y conserva solo estados/referencias/conteos;8/8 locales. La brecha de reanudación general sigue pendiente de implementación.
+
 ## DOC-120 — diagnóstico visible de parada, corte2026-11-17
 
 Tras video PARADA, cliente actualizado con causa pública/timeout real, contexto y posición del recurso, último avance confirmado y bloqueo publicado antes de la consulta posterior.89/89 locales con módulos/Chromium y transporte sintético;4 GET técnicos estáticos200 coinciden con fuentes principales.0 sesiones autenticadas/SELECT/efectos reales. No repetir lote50/archivo98 por el video ni asumir su guardado final. Fuente `Validacion/doc120-parada-diagnostico-20261117.md` y JSON. Sin cambios a tiempo de espera, esquema, DLL, integridad, almacenamiento, SII o permisos. Las otras ventanas, incluida ampliación de BENEFICIARIO detenida antes de escribir, conservan su alcance separado.
