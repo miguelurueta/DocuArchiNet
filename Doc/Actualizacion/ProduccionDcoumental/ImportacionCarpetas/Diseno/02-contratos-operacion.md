@@ -1,5 +1,7 @@
 # Diseño 02 — Contratos de operación
 
+Ampliación aprobada2026-11-16: la continuación del usuario aprueba [contrato08](08-preparacion-segmentada-capacidad.md) para implementación local. Sus apartados de preparación segmentada, plan2 y lectura focal sustituyen únicamente las restricciones anteriores que impedían esos cambios; fases de recepción/efectos, compatibilidad y autoridad se conservan. Aplicación DDL/despliegue/prueba real no autorizados por esta aprobación.
+
 Propuesta pendiente2026-11-16: [preparación segmentada y lectura focal](08-preparacion-segmentada-capacidad.md), prerrequisito3.97 de DOC-120. Ese documento concreta contratos/persistencia nuevos para revisión; aún no sustituye las operaciones vigentes descritas a continuación.
 
 ## Extensión vigente DOC-120 — 2026-11-15

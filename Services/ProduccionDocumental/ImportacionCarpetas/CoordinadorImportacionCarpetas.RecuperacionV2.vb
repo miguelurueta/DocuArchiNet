@@ -80,7 +80,7 @@ Public Partial Class CoordinadorImportacionCarpetas
     Friend Shared Function CopiarVistaRecuperacionV2(vista As VistaRecuperacionDocumentoV2Importacion) As VistaRecuperacionDocumentoV2Importacion
         If vista Is Nothing OrElse vista.Operacion Is Nothing OrElse vista.Operacion.Diario Is Nothing Then Throw Denegado()
         Dim o = vista.Operacion
-        Return New VistaRecuperacionDocumentoV2Importacion With {.Plan = PerfilImportacionJson.Leer(Of PlanImportacionCarpetas)(PerfilImportacionJson.Escribir(vista.Plan)), .Operacion = New VistaPersistenciaDocumentoV2Importacion With {
+        Return New VistaRecuperacionDocumentoV2Importacion With {.Plan = PlanSegmentadoImportacionJson.ClonarCompatible(vista.Plan), .Operacion = New VistaPersistenciaDocumentoV2Importacion With {
             .Lote = PerfilImportacionJson.Leer(Of LoteImportacionCarpetas)(PerfilImportacionJson.Escribir(o.Lote)), .Raiz = PerfilImportacionJson.Leer(Of RaizImportacionCarpetas)(PerfilImportacionJson.Escribir(o.Raiz)), .Archivo = PerfilImportacionJson.Leer(Of ArchivoImportacionCarpetas)(PerfilImportacionJson.Escribir(o.Archivo)), .Intento = PerfilImportacionJson.Leer(Of IntentoImportacionCarpetas)(PerfilImportacionJson.Escribir(o.Intento)), .Evidencia = o.Evidencia, .Diario = o.Diario.Copy()}}
     End Function
     Friend Shared Function HuellaVistaRecuperacionV2(vista As VistaRecuperacionDocumentoV2Importacion) As String
@@ -90,7 +90,7 @@ Public Partial Class CoordinadorImportacionCarpetas
             .accion = Convert.ToString(r("accion"), CultureInfo.InvariantCulture), .codigo = Convert.ToString(r("codigo"), CultureInfo.InvariantCulture), .actor = Convert.ToString(r("actor_ref"), CultureInfo.InvariantCulture), .tipo = Convert.ToString(r("recurso_tipo"), CultureInfo.InvariantCulture), .recurso = Convert.ToString(r("recurso_id"), CultureInfo.InvariantCulture), .lote = Convert.ToString(r("lote_id"), CultureInfo.InvariantCulture), .intento = Convert.ToString(r("intento_id"), CultureInfo.InvariantCulture), .detalle = Convert.ToString(r("detalle_doc"), CultureInfo.InvariantCulture)}).ToArray()
         'Cada documento conserva su límite individual; no duplicar un plan
         'grande en un JSON agregado que exceda el límite del serializador.
-        Dim partes = New String() {PerfilImportacionJson.Escribir(o.Lote), PerfilImportacionJson.Escribir(o.Raiz), PerfilImportacionJson.Escribir(o.Archivo), PerfilImportacionJson.Escribir(o.Intento), If(o.Evidencia, "null"), PerfilImportacionJson.Escribir(vista.Plan), PerfilImportacionJson.Escribir(eventos)}
+        Dim partes = New String() {PerfilImportacionJson.Escribir(o.Lote), PerfilImportacionJson.Escribir(o.Raiz), PerfilImportacionJson.Escribir(o.Archivo), PerfilImportacionJson.Escribir(o.Intento), If(o.Evidencia, "null"), PlanSegmentadoImportacionJson.DocumentoRecuperacion(vista.Plan), PerfilImportacionJson.Escribir(eventos)}
         Return HuellaTextoRecuperacionV2(String.Join(":", partes.Select(Function(p) HuellaTextoRecuperacionV2(p))))
     End Function
     Private Shared Function HuellaTextoRecuperacionV2(texto As String) As String

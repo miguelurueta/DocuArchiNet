@@ -8710,6 +8710,17 @@
     <Content Include="App_Code\MyUtils.vb" />
     <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\PerfilImportacionModels.vb" />
     <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\ImportacionCarpetasModels.vb" />
+    <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\PreparacionSegmentadaImportacion.vb" />
+    <Compile Include="DTOs\ProduccionDocumental\ImportacionCarpetas\PreparacionSegmentadaDtos.vb" />
+    <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.Preparacion.vb" />
+    <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\PlanSegmentadoImportacionJson.vb" />
+    <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\ServicioPreparacionSegmentadaImportacion.vb" />
+    <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\PerfilImportacionCatalogAdapter.Preparacion.vb" />
+    <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.ConsultaFocal.vb" />
+    <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\ServicioConsultaImportacion.Focal.vb" />
+    <Compile Include="webservice\WebServiceImportacionCarpetas.PreparacionSegmentada.vb" />
+    <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.PreparacionEsquema.vb" />
+    <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.PlanSegmentado.vb" />
     <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\DocumentosAlmacenamientoV2Importacion.vb" />
     <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\ImportacionCarpetasStagingV2Interfaces.vb" />
     <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\AlmacenStagingImportacion.Recuperacion.vb" />
@@ -8800,6 +8811,7 @@
     <Content Include="js\gestion\ImportacionCarpetas\InventarioImportacion.js" />
     <Content Include="js\gestion\ImportacionCarpetas\ImportacionCarpetas.js" />
     <Content Include="js\gestion\ImportacionCarpetas\ImportacionCarpetasApi.js" />
+    <Content Include="js\gestion\ImportacionCarpetas\PreparacionSegmentadaImportacion.js" />
     <Content Include="js\gestion\ImportacionCarpetas\ImportacionCarpetasVista.js" />
     <Content Include="js\gestion\ImportacionCarpetas\ImportacionCarpetas.css" />
     <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\PerfilImportacionCatalogAdapter.vb" />

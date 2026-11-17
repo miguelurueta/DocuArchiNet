@@ -56,7 +56,7 @@ Public Class ServicioRecepcionImportacion
             Dim vencimiento As DateTime
             Dim ahora = _ahora()
             If Not DateTime.TryParseExact(plan.ExpiraUtc, "yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal Or DateTimeStyles.AdjustToUniversal, vencimiento) OrElse ahora.Kind <> DateTimeKind.Utc OrElse vencimiento <= ahora Then Throw Conflicto("PLAN_EXPIRADO")
-            CanonizadorManifiestoImportacion.Canonizar(plan.Manifiesto, _limites)
+            CanonizadorManifiestoImportacion.Canonizar(plan.Manifiesto, _limites, plan.EsquemaDoc)
             Dim actual = _perfiles.Seleccionar(contexto, plan.Snapshot.VersionId)
             If Not PerfilImportacionJson.MismaPublicacion(actual, plan.Snapshot) Then Throw Conflicto("PERFIL_CAMBIADO")
             Dim incidencias = _coincidencias(contexto, actual, plan.Manifiesto, plan.Resultado)

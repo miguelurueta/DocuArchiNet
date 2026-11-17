@@ -30,12 +30,12 @@ Public Partial Class CoordinadorImportacionCarpetas
         If PerfilImportacionJson.Escribir(vista.Lote) <> PerfilImportacionJson.Escribir(esperada.Lote) OrElse PerfilImportacionJson.Escribir(vista.Raiz) <> PerfilImportacionJson.Escribir(esperada.Raiz) Then Throw DiagnosticoOperacionImportacion.Fallo("CONFLICTO_REVISION", "creacion", "RESERVA_NO_DISPONIBLE")
         'Solo el preflight explícito tolera la detención observada. La copia
         'no concede reclamación: el repositorio vuelve a comprobarla bajo locks.
-        Dim previa = PerfilImportacionJson.Leer(Of VistaBarreraCreacionImportacion)(PerfilImportacionJson.Escribir(vista))
+        Dim previa = PlanSegmentadoImportacionJson.ClonarBarrera(vista)
         previa.Lote.DetencionSolicitada = False
         Dim pruebas = VerificarStagingCreacion(previa, _archivoDocumental, _stagingDocumental, _autorizar, Nothing)
         ReautorizarFase(contexto, esperada.Lote.Snapshot.Configuracion)
         Dim token = Guid.NewGuid().ToString("N")
-        Dim intento = _reclamarRetomar(PerfilImportacionJson.Leer(Of VistaReconciliacionImportacion)(PerfilImportacionJson.Escribir(esperada)), token)
+        Dim intento = _reclamarRetomar(PlanSegmentadoImportacionJson.ClonarReconciliacion(esperada), token)
         If intento Is Nothing OrElse Not intento.EsNuevaReserva OrElse intento.IntentoId <> esperada.Intento.IntentoId OrElse intento.LoteId <> solicitud.loteId OrElse intento.RaizId <> solicitud.recursoId OrElse intento.ArchivoId IsNot Nothing OrElse intento.Fase <> "CREAR_EXPEDIENTE" OrElse intento.Estado <> "RESERVADO" OrElse intento.TokenReclamacion <> token OrElse intento.SolicitudHash <> esperada.Intento.SolicitudHash OrElse intento.InicioUtc <> esperada.Intento.InicioUtc OrElse intento.Resultado IsNot Nothing OrElse intento.FinUtc IsNot Nothing Then Throw DiagnosticoOperacionImportacion.Fallo("CONFLICTO_REVISION", "creacion", "RESERVA_NO_DISPONIBLE")
         pruebas.Intento = intento
         Dim reclamacion As New ReclamacionImportacionCarpetas With {.LoteId = solicitud.loteId, .RecursoId = solicitud.recursoId, .RecursoTipo = "RAIZ", .Fase = "CREAR_EXPEDIENTE", .RevisionEsperada = solicitud.revisionEsperada, .TokenReclamacion = token, .SolicitudHash = intento.SolicitudHash, .EjecutorRef = intento.EjecutorRef}

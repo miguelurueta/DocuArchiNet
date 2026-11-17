@@ -1,0 +1,580 @@
+{
+  "Tablas": [
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "ENGINE": "InnoDB",
+      "TABLE_COLLATION": "ascii_bin"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_parte",
+      "ENGINE": "InnoDB",
+      "TABLE_COLLATION": "ascii_bin"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_resultado",
+      "ENGINE": "InnoDB",
+      "TABLE_COLLATION": "ascii_bin"
+    }
+  ],
+  "Columnas": [
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "preparacion_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "auto_increment",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "ambito_ref",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar",
+      "CHARACTER_MAXIMUM_LENGTH": 128,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "usuario_ref",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar",
+      "CHARACTER_MAXIMUM_LENGTH": 128,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "nivel_ref",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar",
+      "CHARACTER_MAXIMUM_LENGTH": 128,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "version_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "clave",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar",
+      "CHARACTER_MAXIMUM_LENGTH": 32,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "cabecera_hash",
+      "DATA_TYPE": "binary",
+      "COLUMN_TYPE": "binary",
+      "CHARACTER_MAXIMUM_LENGTH": 32,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "contexto_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "config_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "total_raices",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "total_archivos",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "total_bytes",
+      "DATA_TYPE": "bigint",
+      "COLUMN_TYPE": "bigint unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "partes_raices",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "partes_archivos",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "estado",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar",
+      "CHARACTER_MAXIMUM_LENGTH": 40,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "revision",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "plan_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "YES",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "creado_utc",
+      "DATA_TYPE": "datetime",
+      "COLUMN_TYPE": "datetime",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "COLUMN_NAME": "expira_utc",
+      "DATA_TYPE": "datetime",
+      "COLUMN_TYPE": "datetime",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_parte",
+      "COLUMN_NAME": "preparacion_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_parte",
+      "COLUMN_NAME": "tipo",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar",
+      "CHARACTER_MAXIMUM_LENGTH": 16,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_parte",
+      "COLUMN_NAME": "numero",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_parte",
+      "COLUMN_NAME": "contenido_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_parte",
+      "COLUMN_NAME": "contenido_hash",
+      "DATA_TYPE": "binary",
+      "COLUMN_TYPE": "binary",
+      "CHARACTER_MAXIMUM_LENGTH": 32,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_parte",
+      "COLUMN_NAME": "estado",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar",
+      "CHARACTER_MAXIMUM_LENGTH": 40,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_parte",
+      "COLUMN_NAME": "sello_catalogos",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar",
+      "CHARACTER_MAXIMUM_LENGTH": 64,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "YES",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_resultado",
+      "COLUMN_NAME": "preparacion_id",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_resultado",
+      "COLUMN_NAME": "tipo",
+      "DATA_TYPE": "varchar",
+      "COLUMN_TYPE": "varchar",
+      "CHARACTER_MAXIMUM_LENGTH": 24,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_resultado",
+      "COLUMN_NAME": "numero",
+      "DATA_TYPE": "int",
+      "COLUMN_TYPE": "int unsigned",
+      "CHARACTER_MAXIMUM_LENGTH": null,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_resultado",
+      "COLUMN_NAME": "contenido_doc",
+      "DATA_TYPE": "longtext",
+      "COLUMN_TYPE": "longtext",
+      "CHARACTER_MAXIMUM_LENGTH": 4294967295,
+      "COLLATION_NAME": "ascii_bin",
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_resultado",
+      "COLUMN_NAME": "contenido_hash",
+      "DATA_TYPE": "binary",
+      "COLUMN_TYPE": "binary",
+      "CHARACTER_MAXIMUM_LENGTH": 32,
+      "COLLATION_NAME": null,
+      "IS_NULLABLE": "NO",
+      "EXTRA": "",
+      "COLUMN_DEFAULT": null
+    }
+  ],
+  "Indices": [
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "INDEX_NAME": "PRIMARY",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "preparacion_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "INDEX_NAME": "uq_preparacion_clave",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "ambito_ref",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "INDEX_NAME": "uq_preparacion_clave",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "usuario_ref",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "INDEX_NAME": "uq_preparacion_clave",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 3,
+      "COLUMN_NAME": "clave",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "INDEX_NAME": "uq_preparacion_plan",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "plan_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "INDEX_NAME": "ix_preparacion_contexto",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "ambito_ref",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "INDEX_NAME": "ix_preparacion_contexto",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "usuario_ref",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "INDEX_NAME": "ix_preparacion_contexto",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 3,
+      "COLUMN_NAME": "creado_utc",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "INDEX_NAME": "ix_preparacion_estado",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "estado",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "INDEX_NAME": "ix_preparacion_estado",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "expira_utc",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "INDEX_NAME": "ix_preparacion_version",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "version_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_parte",
+      "INDEX_NAME": "PRIMARY",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "preparacion_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_parte",
+      "INDEX_NAME": "PRIMARY",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "tipo",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_parte",
+      "INDEX_NAME": "PRIMARY",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 3,
+      "COLUMN_NAME": "numero",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_parte",
+      "INDEX_NAME": "ix_preparacion_parte_estado",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "preparacion_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_parte",
+      "INDEX_NAME": "ix_preparacion_parte_estado",
+      "NON_UNIQUE": 1,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "estado",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_resultado",
+      "INDEX_NAME": "PRIMARY",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "preparacion_id",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_resultado",
+      "INDEX_NAME": "PRIMARY",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 2,
+      "COLUMN_NAME": "tipo",
+      "SUB_PART": null
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_resultado",
+      "INDEX_NAME": "PRIMARY",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 3,
+      "COLUMN_NAME": "numero",
+      "SUB_PART": null
+    }
+  ],
+  "Claves": [
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "CONSTRAINT_NAME": "fk_preparacion_version",
+      "COLUMN_NAME": "version_id",
+      "ORDINAL_POSITION": 1,
+      "REFERENCED_TABLE_NAME": "ra_integracion_perfil_version",
+      "REFERENCED_COLUMN_NAME": "version_id",
+      "MISMO_ESQUEMA": 1
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "CONSTRAINT_NAME": "fk_preparacion_plan",
+      "COLUMN_NAME": "plan_id",
+      "ORDINAL_POSITION": 1,
+      "REFERENCED_TABLE_NAME": "ra_integracion_plan",
+      "REFERENCED_COLUMN_NAME": "plan_id",
+      "MISMO_ESQUEMA": 1
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_parte",
+      "CONSTRAINT_NAME": "fk_preparacion_parte",
+      "COLUMN_NAME": "preparacion_id",
+      "ORDINAL_POSITION": 1,
+      "REFERENCED_TABLE_NAME": "ra_integracion_preparacion",
+      "REFERENCED_COLUMN_NAME": "preparacion_id",
+      "MISMO_ESQUEMA": 1
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_resultado",
+      "CONSTRAINT_NAME": "fk_preparacion_resultado",
+      "COLUMN_NAME": "preparacion_id",
+      "ORDINAL_POSITION": 1,
+      "REFERENCED_TABLE_NAME": "ra_integracion_preparacion",
+      "REFERENCED_COLUMN_NAME": "preparacion_id",
+      "MISMO_ESQUEMA": 1
+    }
+  ],
+  "Reglas": [
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "CONSTRAINT_NAME": "fk_preparacion_version",
+      "UPDATE_RULE": "RESTRICT",
+      "DELETE_RULE": "RESTRICT"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion",
+      "CONSTRAINT_NAME": "fk_preparacion_plan",
+      "UPDATE_RULE": "RESTRICT",
+      "DELETE_RULE": "RESTRICT"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_parte",
+      "CONSTRAINT_NAME": "fk_preparacion_parte",
+      "UPDATE_RULE": "RESTRICT",
+      "DELETE_RULE": "RESTRICT"
+    },
+    {
+      "TABLE_NAME": "ra_integracion_preparacion_resultado",
+      "CONSTRAINT_NAME": "fk_preparacion_resultado",
+      "UPDATE_RULE": "RESTRICT",
+      "DELETE_RULE": "RESTRICT"
+    }
+  ]
+}

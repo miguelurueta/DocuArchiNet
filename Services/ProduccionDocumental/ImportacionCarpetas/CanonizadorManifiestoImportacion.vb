@@ -25,8 +25,9 @@ Public NotInheritable Class CanonizadorManifiestoImportacion
         End Try
     End Function
 
-    Public Shared Function Canonizar(original As ManifiestoImportacionCarpetas, limites As LimitesImportacionCarpetas) As ManifiestoImportacionCarpetas
+    Public Shared Function Canonizar(original As ManifiestoImportacionCarpetas, limites As LimitesImportacionCarpetas, Optional esquemaDoc As UShort = 1US) As ManifiestoImportacionCarpetas
         LimitesImportacionCarpetas.Exigir(limites)
+        If esquemaDoc <> 1US AndAlso esquemaDoc <> 2US Then Throw Invalido()
         If original Is Nothing OrElse original.Raices Is Nothing OrElse original.Archivos Is Nothing OrElse original.Raices.Count = 0 OrElse original.Archivos.Count = 0 Then Throw Invalido()
         If original.Raices.Count > limites.MaximoRaices OrElse original.Archivos.Count > limites.MaximoArchivos Then Throw Excedido()
         Dim raices As New Dictionary(Of String, RaizManifiestoImportacion)(StringComparer.Ordinal)
@@ -57,9 +58,27 @@ Public NotInheritable Class CanonizadorManifiestoImportacion
         Next
         If pobladas.Count <> raices.Count OrElse rutas.Overlaps(directorios) Then Throw Invalido()
         'El guard limita también el sobre de solicitud real. Aquí se acota su documento persistible.
-        Dim json = PerfilImportacionJson.Escribir(original)
-        If Encoding.UTF8.GetByteCount(json) > limites.MaximoBytesManifiesto Then Throw Excedido()
-        Dim copia = PerfilImportacionJson.Leer(Of ManifiestoImportacionCarpetas)(json)
+        Dim copia As ManifiestoImportacionCarpetas
+        If esquemaDoc = 1US Then
+            Dim json = PerfilImportacionJson.Escribir(original)
+            If Encoding.UTF8.GetByteCount(json) > limites.MaximoBytesManifiesto Then Throw Excedido()
+            copia = PerfilImportacionJson.Leer(Of ManifiestoImportacionCarpetas)(json)
+        Else
+            copia = New ManifiestoImportacionCarpetas()
+            Dim caracteres As Long = "{""Archivos"":[],""Raices"":[]}".Length
+            For Each raiz In original.Raices
+                Dim documento = PerfilImportacionJson.Escribir(raiz)
+                caracteres += documento.Length + If(copia.Raices.Count = 0, 0, 1)
+                If caracteres > limites.MaximoBytesManifiesto Then Throw Excedido()
+                copia.Raices.Add(PerfilImportacionJson.Leer(Of RaizManifiestoImportacion)(documento))
+            Next
+            For Each archivo In original.Archivos
+                Dim documento = PerfilImportacionJson.Escribir(archivo)
+                caracteres += documento.Length + If(copia.Archivos.Count = 0, 0, 1)
+                If caracteres > limites.MaximoBytesManifiesto Then Throw Excedido()
+                copia.Archivos.Add(PerfilImportacionJson.Leer(Of ArchivoManifiestoImportacion)(documento))
+            Next
+        End If
         copia.Raices = copia.Raices.OrderBy(Function(r) r.IdCliente, StringComparer.Ordinal).ToList()
         copia.Archivos = copia.Archivos.OrderBy(Function(a) a.RaizIdCliente, StringComparer.Ordinal).ThenBy(Function(a) a.IdCliente, StringComparer.Ordinal).ToList()
         'Se conservan los nombres originales; NFC solo determina la clave de colisión.

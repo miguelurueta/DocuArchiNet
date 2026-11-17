@@ -139,7 +139,7 @@ Public Partial Class WebServiceImportacionCarpetas
             http.Items("DOC120_OPERACION") = salida.operacionId
             http.Items.Remove("DOC120_INCIDENCIAS")
         End If
-        Dim faseDiagnostico = If(TypeOf solicitud Is PrepararPlanImportacionSolicitud, "PREPARACION", If(TypeOf solicitud Is ConfirmarPlanImportacionSolicitud, "CONFIRMACION", "OPERATIVA"))
+        Dim faseDiagnostico = If(TypeOf solicitud Is PrepararPlanImportacionSolicitud OrElse TypeOf solicitud Is ISolicitudPreparacionSegmentada, "PREPARACION", If(TypeOf solicitud Is ConfirmarPlanImportacionSolicitud, "CONFIRMACION", "OPERATIVA"))
         Try
             'No comparte Resolver, guard ni Ejecutar de administracion DOC-110.
             Dim contexto = _autoridadOperativa.Resolver(http)

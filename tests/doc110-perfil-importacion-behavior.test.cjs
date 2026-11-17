@@ -19,6 +19,17 @@ function compileBehaviorHarness(directory) {
     const source = [
       'Modelo/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionModels.vb',
       'Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasModels.vb',
+      'Modelo/ProduccionDocumental/ImportacionCarpetas/PreparacionSegmentadaImportacion.vb',
+      'DTOs/ProduccionDocumental/ImportacionCarpetas/PreparacionSegmentadaDtos.vb',
+      'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Preparacion.vb',
+      'Services/ProduccionDocumental/ImportacionCarpetas/PlanSegmentadoImportacionJson.vb',
+      'Services/ProduccionDocumental/ImportacionCarpetas/ServicioPreparacionSegmentadaImportacion.vb',
+      'Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.Preparacion.vb',
+      'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ConsultaFocal.vb',
+      'Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.Focal.vb',
+      'webservice/WebServiceImportacionCarpetas.PreparacionSegmentada.vb',
+      'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.PreparacionEsquema.vb',
+      'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.PlanSegmentado.vb',
       'Modelo/ProduccionDocumental/ImportacionCarpetas/DocumentosAlmacenamientoV2Importacion.vb',
       'Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasStagingV2Interfaces.vb',
       'Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.Recuperacion.vb',
@@ -121,7 +132,8 @@ function compileBehaviorHarness(directory) {
       'tests/PerfilImportacionRequestGuardBehaviorTests.cs','tests/PerfilImportacionCatalogBehaviorTests.cs',
       'tests/PerfilImportacionMigrationBehaviorTests.cs','tests/ProveedorIndicesBehaviorTests.cs','tests/ProveedorIndicesReglasBehaviorTests.cs','tests/PoliticaFuentesProveedorBehaviorTests.cs',
       'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Sql/Doc110MigrationJson.cs',
-      'tests/FuenteImportacionBehaviorTests.cs','tests/AdministracionProveedorBehaviorTests.cs','tests/ImportacionCarpetasBehaviorTests.cs','tests/ImportacionCarpetasMensajesBehaviorTests.cs','tests/ImportacionCarpetasReanudacionBehaviorTests.cs','tests/ImportacionCarpetasDocumentosV2BehaviorTests.cs','tests/ImportacionCarpetasStagingV2BehaviorTests.cs','tests/ImportacionCarpetasAdaptadorV2BehaviorTests.cs','tests/ImportacionCarpetasPersistenciaV2BehaviorTests.cs','tests/ImportacionCarpetasRecuperacionV2BehaviorTests.cs','tests/ImportacionCarpetasRecuperacionHttpV2BehaviorTests.cs','tests/ImportacionCarpetasMatrizV2BehaviorTests.cs','tests/ImportacionCarpetasEnlaceV2BehaviorTests.cs','tests/ImportacionCarpetasPerdidaAcuseV2BehaviorTests.cs','tests/ImportacionCarpetasRepositoryIntegrationTests.cs','tests/PerfilImportacionBehaviorTestRunner.cs']);
+      'tests/FuenteImportacionBehaviorTests.cs','tests/AdministracionProveedorBehaviorTests.cs','tests/ImportacionCarpetasBehaviorTests.cs','tests/ImportacionCarpetasPreparacionSegmentadaBehaviorTests.cs','tests/ImportacionCarpetasMensajesBehaviorTests.cs','tests/ImportacionCarpetasReanudacionBehaviorTests.cs','tests/ImportacionCarpetasDocumentosV2BehaviorTests.cs','tests/ImportacionCarpetasStagingV2BehaviorTests.cs','tests/ImportacionCarpetasAdaptadorV2BehaviorTests.cs','tests/ImportacionCarpetasPersistenciaV2BehaviorTests.cs','tests/ImportacionCarpetasRecuperacionV2BehaviorTests.cs','tests/ImportacionCarpetasRecuperacionHttpV2BehaviorTests.cs','tests/ImportacionCarpetasMatrizV2BehaviorTests.cs','tests/ImportacionCarpetasEnlaceV2BehaviorTests.cs','tests/ImportacionCarpetasPerdidaAcuseV2BehaviorTests.cs','tests/ImportacionCarpetasRepositoryIntegrationTests.cs','tests/PerfilImportacionBehaviorTestRunner.cs']);
+    fs.copyFileSync(path.join(root,'tests/Fixtures/ProduccionDocumental/doc120-preparacion-esquema-sintetico.json'),path.join(directory,'doc120-preparacion-esquema-sintetico.json'));
     fs.copyFileSync(path.join(root,'tests/Fixtures/ProduccionDocumental/doc110-perfil-antes-proveedor.json'),path.join(directory,'doc110-perfil-antes-proveedor.json'));
     fs.copyFileSync(path.join(root,'tests/Fixtures/ProduccionDocumental/doc111-esquema-instalado-mysql51.json'),path.join(directory,'doc111-esquema-instalado-mysql51.json'));
     return { exe };

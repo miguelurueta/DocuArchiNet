@@ -24,13 +24,15 @@ Public Partial Class MySqlImportacionCarpetasRepository
 
     Public Function ConsultarEstado(contexto As ContextoImportacionCarpetas, loteId As String) As EstadoLecturaImportacion Implements IConsultaImportacionRepository.ConsultarEstado
         AutorizarOperacion(contexto) : IdOperacion(loteId)
-        Return Operar(Function(conexion, tx)
-                          Dim lote = LoteConsulta(conexion, tx, contexto, loteId)
-                          Dim sql = "SELECT (EXISTS(SELECT 1 FROM ra_integracion_intento WHERE lote_id=@lote AND estado IN ('RESERVADO','EN_CURSO')) OR EXISTS(SELECT 1 FROM ra_integracion_raiz WHERE lote_id=@lote AND (intento_activo_id IS NOT NULL OR estado='CREANDO')) OR EXISTS(SELECT 1 FROM ra_integracion_archivo f INNER JOIN ra_integracion_raiz r ON r.raiz_id=f.raiz_id WHERE r.lote_id=@lote AND (f.intento_activo_id IS NOT NULL OR f.estado_recepcion='RECIBIENDO' OR f.estado_efecto='EN_CURSO'))) AS activos,(EXISTS(SELECT 1 FROM ra_integracion_intento WHERE lote_id=@lote AND estado='INCIERTO') OR EXISTS(SELECT 1 FROM ra_integracion_raiz WHERE lote_id=@lote AND estado='INCIERTO') OR EXISTS(SELECT 1 FROM ra_integracion_archivo f INNER JOIN ra_integracion_raiz r ON r.raiz_id=f.raiz_id WHERE r.lote_id=@lote AND (f.estado_recepcion='INCIERTO' OR f.estado_efecto='INCIERTO'))) AS inciertos"
-                          Dim datos = LeerTablaConsulta(conexion, tx, sql, New Object() {"@lote", IdOperacion(loteId)})
-                          If datos.Rows.Count <> 1 Then Throw NoDisponible()
-                          Return New EstadoLecturaImportacion With {.Lote = lote, .HayIntentosActivos = Convert.ToBoolean(datos.Rows(0)("activos"), CultureInfo.InvariantCulture), .HayIncertidumbre = lote.Estado = "PENDIENTE_VERIFICACION" OrElse Convert.ToBoolean(datos.Rows(0)("inciertos"), CultureInfo.InvariantCulture)}
-                      End Function, IsolationLevel.RepeatableRead)
+        Return Operar(Function(conexion, tx) LeerEstadoConsulta(conexion, tx, contexto, loteId), IsolationLevel.RepeatableRead)
+    End Function
+
+    Private Shared Function LeerEstadoConsulta(conexion As MySqlConnection, tx As MySqlTransaction, contexto As ContextoImportacionCarpetas, loteId As String) As EstadoLecturaImportacion
+        Dim lote = LoteConsulta(conexion, tx, contexto, loteId)
+        Dim sql = "SELECT (EXISTS(SELECT 1 FROM ra_integracion_intento WHERE lote_id=@lote AND estado IN ('RESERVADO','EN_CURSO')) OR EXISTS(SELECT 1 FROM ra_integracion_raiz WHERE lote_id=@lote AND (intento_activo_id IS NOT NULL OR estado='CREANDO')) OR EXISTS(SELECT 1 FROM ra_integracion_archivo f INNER JOIN ra_integracion_raiz r ON r.raiz_id=f.raiz_id WHERE r.lote_id=@lote AND (f.intento_activo_id IS NOT NULL OR f.estado_recepcion='RECIBIENDO' OR f.estado_efecto='EN_CURSO'))) AS activos,(EXISTS(SELECT 1 FROM ra_integracion_intento WHERE lote_id=@lote AND estado='INCIERTO') OR EXISTS(SELECT 1 FROM ra_integracion_raiz WHERE lote_id=@lote AND estado='INCIERTO') OR EXISTS(SELECT 1 FROM ra_integracion_archivo f INNER JOIN ra_integracion_raiz r ON r.raiz_id=f.raiz_id WHERE r.lote_id=@lote AND (f.estado_recepcion='INCIERTO' OR f.estado_efecto='INCIERTO'))) AS inciertos"
+        Dim datos = LeerTablaConsulta(conexion, tx, sql, New Object() {"@lote", IdOperacion(loteId)})
+        If datos.Rows.Count <> 1 Then Throw NoDisponible()
+        Return New EstadoLecturaImportacion With {.Lote = lote, .HayIntentosActivos = Convert.ToBoolean(datos.Rows(0)("activos"), CultureInfo.InvariantCulture), .HayIncertidumbre = lote.Estado = "PENDIENTE_VERIFICACION" OrElse Convert.ToBoolean(datos.Rows(0)("inciertos"), CultureInfo.InvariantCulture)}
     End Function
 
     Public Function ConsultarRaices(contexto As ContextoImportacionCarpetas, loteId As String, filtro As FiltroConsultaImportacion) As PaginaRecursosImportacion(Of RaizImportacionCarpetas) Implements IConsultaImportacionRepository.ConsultarRaices

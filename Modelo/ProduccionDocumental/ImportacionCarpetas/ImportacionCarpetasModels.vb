@@ -84,6 +84,10 @@ Public Class ResultadoPreparacionImportacion
 End Class
 
 Public Class PlanImportacionCarpetas
+    <Newtonsoft.Json.JsonIgnore>
+    Public Property PreparacionId As String
+    Friend Property ReferenciaManifiestoSegmentado As ReferenciaPlanSegmentadoImportacion
+    Friend Property ReferenciaResultadoSegmentado As ReferenciaPlanSegmentadoImportacion
     Public Property PlanId As String
     Public Property Contexto As ContextoImportacionCarpetas
     Public Property Snapshot As SnapshotPerfilImportacionOperativa

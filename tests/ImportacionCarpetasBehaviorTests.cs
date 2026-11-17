@@ -332,7 +332,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
     }
 
     // Doble de SOLO lectura. No contiene metodos de mutacion o efectos.
-    sealed class QueryRepository : IConsultaImportacionRepository {
+    sealed partial class QueryRepository : IConsultaImportacionRepository {
         public bool HasConfirmation=true;public int ConfirmationReads;
         public ContextoImportacionCarpetas ObtenerContextoPlan(ContextoImportacionCarpetas c,string id){if(id!="17")throw new PerfilImportacionException("ACCESO_DENEGADO","Fixture");Owner(c,Lot.LoteId);return ReceiptClone(Lot.Contexto);}
         public ConfirmacionLecturaImportacion ConsultarConfirmacion(ContextoImportacionCarpetas c,string id){ObtenerContextoPlan(c,id);ConfirmationReads++;var plan=PlanFixture();plan.PlanId="17";plan.Contexto=ReceiptClone(Lot.Contexto);plan.Snapshot=ReceiptClone(Lot.Snapshot);plan.Estado=HasConfirmation?"CONFIRMADO":"REVISABLE";var lot=ReceiptClone(Lot);lot.PlanId="17";return new ConfirmacionLecturaImportacion{Plan=plan,Lote=HasConfirmation?lot:null};}
@@ -1822,7 +1822,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
             Check(endpoint.ConsultarLote(new ConsultarLoteImportacionSolicitud{loteId="20"}).ok,"Revocation fixture has no previously authorized request");
             var savedLot=PerfilImportacionJson.Escribir(repository.Lot);var token=firstWorker.Token;var factoryCount=factories;var policyCount=policyReads;var resourceReads=fixture.Reads;
             fixture.ImportAllowed=false;
-            var operations=new[]{"AbrirImportacion","ListarPerfilesImportacion","PrepararPlan","ConfirmarPlan","ConsultarLote","ConsultarConfirmacionLote","ConsultarRecursosLote","ExportarPaginaLote","AvanzarLote","SolicitarDetencion","ReconciliarRecurso","CerrarReservaSinInicio","RecuperarDocumentoV2"};
+            var operations=new[]{"AbrirImportacion","ListarPerfilesImportacion","PrepararPlan","ConfirmarPlan","ConsultarLote","ConsultarConfirmacionLote","ConsultarRecursosLote","ExportarPaginaLote","AvanzarLote","SolicitarDetencion","ReconciliarRecurso","CerrarReservaSinInicio","RecuperarDocumentoV2","IniciarPreparacionPlan","RegistrarPartePreparacion","ConsultarPreparacionPlan","ValidarPartePreparacion","SellarPreparacionPlan","ConsultarRevisionPlan","ConsultarRecursoLote"};
             foreach(var operation in operations){
                 var method=typeof(WebServiceImportacionCarpetas).GetMethod(operation);var request=Activator.CreateInstance(method.GetParameters().Single().ParameterType);
                 var worker=new ImportRequest{Body=System.Text.Encoding.UTF8.GetBytes(PerfilImportacionJson.Escribir(new{solicitud=request})),Token=token};var next=SessionFixture(worker:worker,sessionId:first.Session.SessionID);
@@ -1838,7 +1838,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
             upload.ProcessRequest(uploadHttp);uploadHttp.Response.Flush();
             Check(uploadHttp.Response.StatusCode==403&&uploadWorker.ResponseText.Contains("ACCESO_DENEGADO")&&factories==factoryCount&&policyReads==policyCount&&uploadWorker.BodyReads==0,"Revoked multipart enters staging/receipt");
             Check(PerfilImportacionJson.Escribir(repository.Lot)==savedLot,"Revocation changes persisted fixture lot");
-            Console.WriteLine("DOC111 5.9 authenticated stale session/token rejected across 12 ASMX operations and upload (synthetic HTTP/authority): passed");
+            Console.WriteLine("DOC111/DOC120 authenticated stale session/token rejected across 20 ASMX operations and upload (synthetic HTTP/authority): passed");
         }finally{HttpContext.Current=previous;}
     }
     static void AdminOperativeCompatibilityCases(){
@@ -2815,6 +2815,12 @@ public static partial class ImportacionCarpetasBehaviorTests {
     }
 
     public static void Run() {
+        SegmentedPlanCases();
+        SegmentedSchemaCases();
+        SegmentedServiceCases();
+        SegmentedCatalogCacheCases();
+        SegmentedFocalServiceCases();
+        FocalVersionCases();
         MessageDiagnosticCases();
         DocumentProtocolV2Cases();
         StagingV2Cases();

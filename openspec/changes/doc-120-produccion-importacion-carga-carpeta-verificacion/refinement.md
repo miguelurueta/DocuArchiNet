@@ -2,6 +2,8 @@
 
 # Refinamiento — DOC-120
 
+Aprobación expresa por continuación2026-11-16 sobre la pregunta concreta del contrato08: D-04/D-05/D-07/D-09 y RQ-04/RQ-05/RQ-07/RQ-09 amplían el alcance local a preparación persistente segmentada, plan2, siete operaciones y consulta focal.3.97 completa; el apartado anterior de propuesta pendiente queda histórico. No amplía autorización operativa: DDL real, despliegue y carga requieren su ventana específica. Controles, compatibilidad y presupuestos son los del contrato08.
+
 Continuación2026-11-16: el contrato propuesto para3.97 está concretado en Diseno/08-preparacion-segmentada-capacidad.md. D-04/D-05/D-07/D-09 y RQ-04/RQ-05/RQ-07/RQ-09 proponen transporte por partes, preparación persistente, plan2 y lectura focal; no se consideran aprobados los nombres/operaciones o la excepción a esquema/endpoints hasta revisar esa propuesta.3.98 reproduce el límite con el motor real y dobles locales, fija presupuestos locales y conserva autorización separada3.125/5.2. El estado aprobado de este refinamiento sigue correspondiendo al alcance vigente previo; la ampliación se identifica como propuesta pendiente, no aprobación implícita.
 
 Ampliación aprobada2026-11-15: la maqueta563160db y la instrucción «aprobado implementa las tareas» autorizan inicio único coordinado y retiro de exclusividad implícita por CODIGO_UNICO. D-04/D-05 y RQ-04/RQ-05 incorporan consentimiento, topes, lecturas coherentes, pausa y recuperación sin replay. El delegado de evaluación sigue como extensión futura sin activar criterios nuevos. Se preservan ID_EXPEDIENTE, snapshots, autoridad y demás controles. La ampliación vigente de design.md prevalece sobre las descripciones históricas de clics separados. No hay autorización heredada de ventana real o capacidad.

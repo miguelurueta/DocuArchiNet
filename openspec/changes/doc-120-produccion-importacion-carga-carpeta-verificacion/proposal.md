@@ -4,6 +4,8 @@ DOC-120 consolida la verificación de importación de carpetas sobre la interfaz
 
 ## What Changes
 
+Aprobación2026-11-16: «continua» responde a la solicitud de aprobar el contrato08. Autoriza su implementación local, incluidos scripts aditivos, operaciones segmentadas y lector de plan2; no aplicar migración ni probar negocio real. Esta aprobación sustituye el estado pendiente de la propuesta inmediatamente anterior y completa3.97.
+
 Continuación2026-11-16 sobre el mapa3.97–3.128: preparar el contrato concreto de capacidad y su línea base local. [Propuesta de preparación segmentada](../../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/08-preparacion-segmentada-capacidad.md) define borrador versionado, partes idempotentes, sellado, revisión paginada, lectura focal y recuperación por carpeta. Estado PROPUESTO:3.97 exige aprobación de los nuevos contratos y persistencia antes de implementarlos; no modifica aún las restricciones vigentes ni concede DDL, despliegue o ventana real.3.98 registra reproducción local y objetivos de verificación, sin declarar capacidad operativa.
 
 Solicitud2026-11-16 tras video123321: aclarar el error de preparación de selecciones grandes. Publicar el límite JSON vigente como metadato de interfaz, impedir localmente una solicitud que lo exceda y reconocer únicamente señales cerradas ASMX/HTTP413; preservar incertidumbre y privacidad en otras respuestas. No amplía capacidad, límites, contratos de negocio ni autoriza una nueva corrida real o activación IIS.

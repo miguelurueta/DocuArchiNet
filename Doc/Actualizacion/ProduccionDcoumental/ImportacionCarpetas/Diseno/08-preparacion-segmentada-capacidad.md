@@ -1,6 +1,6 @@
 # DOC-120 — Contrato propuesto de preparación segmentada y lectura focal
 
-Estado2026-11-16: **PROPUESTO PARA REVISIÓN, pendiente de aprobación de3.97**. Este documento concreta la dependencia del mapa3.97–3.128; todavía no sustituye los contratos vigentes ni habilita endpoints, esquema, cuotas o escrituras nuevas. La continuación del usuario autoriza preparar esta propuesta y medir localmente3.98. [Contrato vigente](02-contratos-operacion.md), [tareas](../../../../../openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/tasks.md).
+Estado2026-11-16: **APROBADO PARA IMPLEMENTACION LOCAL** por la respuesta del usuario continua a la solicitud concreta de aprobar este contrato. Se completa3.97 y se habilita3.99–3.124 localmente. No autoriza aplicar DDL al ambiente, desplegar IIS o ejecutar cargas reales;3.125/5.2 siguen siendo obligatorias. El contrato vigente02 conserva sus fases y guardas salvo las ampliaciones expresas de este documento.
 
 ## Resultado visible y alcance
 
@@ -37,7 +37,7 @@ El hash de plan2 usa dominio/versionado explícito y registros canónicos ordena
 
 ## Operaciones propuestas sobre el ASMX existente
 
-Todas conservan RespuestaPerfilImportacion, guardas HTTP/sesión y diagnóstico seguro. Los nombres siguientes son el contrato concreto que se somete a aprobación; no están implementados. La autoridad se reconstruye por solicitud. Ninguna clave/hash o referencia del cliente sustituye permisos actuales.
+Todas conservan RespuestaPerfilImportacion, guardas HTTP/sesión y diagnóstico seguro. Los nombres siguientes son el contrato aprobado para implementación local; la aprobación no acredita que estén implementados. La autoridad se reconstruye por solicitud. Ninguna clave/hash o referencia del cliente sustituye permisos actuales.
 
 | Operación | Entrada esencial | Salida acotada y semántica |
 | --- | --- | --- |
@@ -109,7 +109,7 @@ Antes de emitir planes2 debe existir una versión compatible de lectores/confirm
 
 Sin jobs o limpieza nueva, borradores expirados se retienen conforme a la decisión existente; la operación debe presupuestar disco y registrar el límite. Diseñar una limpieza futura es otro alcance.
 
-## Casos de aceptación propuestos para incorporar tras aprobación
+## Casos de aceptación aprobados para implementación local
 
 | Caso | Resultado exigido |
 | --- | --- |

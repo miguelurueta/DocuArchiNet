@@ -176,6 +176,68 @@ DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PE
 - **AND** el delegado existente conserva un punto de extensión futuro, hoy limitado a validaciones técnicas; permisos, integridad, representabilidad e idempotencia del mismo intento permanecen obligatorios
 - **AND** configuraciones anteriores BLOQUEAR/REUTILIZAR_VALIDADO siguen legibles sin mutar snapshots, sin bloqueo o reutilización implícitos; nuevas ediciones usan PERMITIR y un plan bloqueado requiere nueva revisión
 
+Los escenarios CAP siguientes amplían RQ-05 con trazabilidad adicional RQ-04/RQ-07/RQ-09 según contrato08 aprobado para implementación local2026-11-16; no representan una corrida real.
+
+#### Scenario: CAP-01 Preparación automática por tamaño y cantidad
+- **WHEN** se prepara una selección de1.000 PDF
+- **THEN** los metadatos se segmentan automáticamente dentro de los límites efectivos, sin enviar contenido PDF ni añadir confirmaciones por segmento
+- **AND** la revisión queda lista únicamente tras completar el inventario coherente
+
+#### Scenario: CAP-02 Identidad del inventario independiente de segmentos
+- **WHEN** una raíz ocupa varias partes o existen raíces homónimas y códigos repetidos
+- **THEN** se conserva un plan/lote y un expediente por raíz elegible, con identidad por ID_EXPEDIENTE
+- **AND** los segmentos no generan lotes o expedientes adicionales
+
+#### Scenario: CAP-03 Partes idempotentes y acuse perdido
+- **WHEN** se repite una parte o no se recibe su acuse
+- **THEN** misma identidad/contenido conserva la parte y contenido distinto se rechaza
+- **AND** una consulta acotada determina lo persistido sin crear otra preparación o repetir efectos de negocio
+
+#### Scenario: CAP-04 Cierre incompleto o incompatible
+- **WHEN** faltan partes, hay duplicados globales o cambia el contexto/publicación/sello relevante
+- **THEN** no se sella ni confirma una revisión parcial o incompatible
+- **AND** se informa la causa y la necesidad de continuar o preparar una nueva revisión según corresponda
+
+#### Scenario: CAP-05 Equivalencia global de reglas e integridad
+- **WHEN** cambia el orden de llegada o la frontera entre partes del mismo inventario
+- **THEN** valores, incidencias, elegibilidad y hash canónicos son equivalentes
+- **AND** EXPEDIENTE/LOTE/PARCIAL se aplican al inventario global y no a segmentos aislados
+
+#### Scenario: CAP-06 Revisión y persistencia acotadas
+- **WHEN** valores o incidencias de1.000 archivos superan el tamaño de un documento
+- **THEN** se conservan en fragmentos y se consultan mediante resumen/páginas sin serializar el agregado por PerfilImportacionJson
+- **AND** los límites y las huellas de perfiles/planes esquema1 permanecen intactos
+
+#### Scenario: CAP-07 Confirmación única de plan segmentado
+- **WHEN** se confirma o recupera una confirmación de plan esquema2
+- **THEN** hash/revisión/autoridad vigentes y transacción generan o devuelven un lote con su inventario íntegro
+- **AND** concurrencia o pérdida de acuse no publican inventario parcial ni otro lote
+
+#### Scenario: CAP-08 Lectura focal antes del siguiente efecto
+- **WHEN** termina una operación de la coordinación grande
+- **THEN** acuse y lectura autoritativa del recurso/padre/barreras permiten continuar con hasta dos solicitudes de lectura por efecto ordinario
+- **AND** detención, revocación, conflicto o incertidumbre impiden el siguiente efecto, sin reenumerar todo el lote ni elevar los topes para ocultar consumo
+
+#### Scenario: CAP-09 Recuperación de originales por carpeta
+- **WHEN** se reselecciona una carpeta para una raíz confirmada del lote
+- **THEN** se vinculan los pendientes por identidad contextual, ruta y metadatos, informando faltantes/modificados/ambiguos sin enviar
+- **AND** solo un nuevo consentimiento Continuar importación inicia la cola
+
+#### Scenario: CAP-10 Pausa y recarga sin replay
+- **WHEN** se pausa, cierra o recarga durante preparación/recepción/creación/valores/almacenamiento
+- **THEN** se conservan los resultados confirmados y se invalida el consentimiento automático
+- **AND** consulta y recuperación no repiten un efecto incierto ni agregan inventario al lote confirmado
+
+#### Scenario: CAP-11 Privacidad de preparaciones y recursos focales
+- **WHEN** otra cuenta o ámbito conoce IDs de preparación/parte/plan/recurso
+- **THEN** se deniega lectura/completar/sellado/confirmación sin revelar existencia ajena
+- **AND** autoridad y permisos se reconstruyen por solicitud
+
+#### Scenario: CAP-12 Compatibilidad y capacidad verificadas por alcance
+- **WHEN** se verifica la versión con preparación segmentada
+- **THEN** lectores1/2, reversión compatible y UI390/768/1280 conservan sus controles y presupuesto local del contrato08
+- **AND** simulación local no acredita capacidad IIS/SQL ni autoriza DDL, carga, SII o limpieza reales
+
 ### Requirement: RQ-06 — INT-02 degradación acotada
 DOC-120 SHALL cumplir la decisión D-06: Conservar el caso real histórico de ausencia temporal de ra_integracion_evento con restauración y carga individual, sin extrapolar a cada incompatibilidad. Contrastar los verificadores/esquema y el guard de indisponibilidad actuales. Exigir variante nueva solo si un requisito concreto y una diferencia reproducida la hacen necesaria; registrar NO_NECESARIA con justificación en los demás casos.
 
@@ -221,11 +283,11 @@ DOC-120 SHALL cumplir la decisión D-08: La continuación autoriza refinamiento/
 - **AND** una proyección local de la situación previa se identifica como contrafactual, no acredita sesión/transacción ni autoriza replay o liberación de la reserva
 
 ### Requirement: RQ-09 — Fuentes y decisiones protegidas
-DOC-120 SHALL cumplir la decisión D-09: Conservar SII/Integracionccv, AlmacenamientoDocumentoProduccionDocumental, Web.config, esquema, semántica de recepción/efectos y PDF/rechazo TIFF. Mantener decisión expresa SEG-03 de operar sin limpieza y datos retenidos. No añadir jobs, cuotas, formatos, endpoints o aislamiento XML adicional.
+DOC-120 SHALL cumplir la decisión D-09: Conservar SII/Integracionccv, AlmacenamientoDocumentoProduccionDocumental, Web.config, semántica de recepción/efectos y PDF/rechazo TIFF. La excepción aprobada del contrato08 permite exclusivamente tres tablas aditivas de preparación, siete operaciones de metadatos/consulta en el ASMX existente y planes esquema2 con lectores compatibles1/2. Mantener decisión expresa SEG-03 de operar sin limpieza y datos retenidos. No añadir otros endpoints, jobs, cuotas, formatos o aislamiento XML adicional; aplicar DDL o desplegar requiere autorización propia.
 
 #### Scenario: Fuentes y formatos
 - **WHEN** se consolida o corrige una brecha de DOC-120
-- **THEN** se preservan SII/almacenamiento compartido/configuración/esquema y PDF con rechazo TIFF
+- **THEN** se preservan SII/almacenamiento compartido/configuración y PDF con rechazo TIFF, y el cambio aditivo de preparación se limita al contrato08 aprobado
 - **AND** no se habilitan jobs/cuotas/limpieza/aislamiento XML adicional
 
 #### Scenario: Decisión sin limpieza
@@ -246,15 +308,15 @@ DOC-120 SHALL cumplir la decisión D-10: Modificar producto solo ante una brecha
 - **THEN** la matriz identifica cada no ejecutado y su motivo, responsable e impacto; los límites tienen aceptación expresa
 - **AND** archivo, CI y número de tareas no sustituyen aceptación operativa ni merge verificado
 
-## Ampliación de capacidad propuesta — pendiente de3.97
+## Trazabilidad de capacidad — contrato08 aprobado para implementación local
 
-Los41 escenarios normativos anteriores siguen vigentes. La continuación2026-11-16 permite concretar el [contrato propuesto](../../../../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/08-preparacion-segmentada-capacidad.md), pero no se incorporan sus contratos/persistencia como obligaciones aprobadas antes de3.97. La siguiente matriz identifica los casos que pasarán a escenarios normativos tras esa aprobación; no constituye implementación ni resultado PASS.
+Los41 escenarios anteriores y los12 escenarios CAP incorporados a RQ-05 forman53 escenarios normativos. La respuesta «continua» aprobó el [contrato08](../../../../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/08-preparacion-segmentada-capacidad.md) para implementación y pruebas locales. Esta matriz expresa su trazabilidad; no concede autorización de DDL, despliegue o ejecución real ni equivale a resultado PASS.
 
-| Origen | Casos propuestos del contrato08 | Condición observable |
+| Origen | Casos del contrato08 | Condición observable |
 | --- | --- | --- |
 | D-04/RQ-04 | CAP-01, CAP-06, CAP-09, CAP-10 | Preparación automática por partes, revisión acotada, progreso global y carpeta completa para recuperar pendientes con consentimiento |
 | D-05/RQ-05 | CAP-02–CAP-10 | Un inventario lógico, partes idempotentes, cierre global, confirmación única y siguiente efecto solo con lectura focal coherente |
 | D-07/RQ-07 | CAP-01, CAP-06, CAP-08, CAP-12 | Tamaños medidos por operación; <=6.045 lecturas para el recorrido ordinario simulado de1.000 archivos/una raíz, sin elevar el tope vigente |
 | D-08/RQ-08 | CAP-11 | Autoridad por solicitud y privacidad de preparaciones/recursos; pruebas reales con ventana propia |
-| D-09/RQ-09 | CAP-12 | Excepción aditiva de preparación/consulta pendiente de aprobación; configuración, escritores compartidos, formato y ausencia de limpieza preservados |
+| D-09/RQ-09 | CAP-12 | Excepción aditiva de preparación/consulta aprobada para código local; configuración, escritores compartidos, formato y ausencia de limpieza preservados |
 | D-01/RQ-01, D-10/RQ-10 | CAP-01–CAP-12 | Fuentes/huellas y resultados locales separados de capacidad/aceptación real |

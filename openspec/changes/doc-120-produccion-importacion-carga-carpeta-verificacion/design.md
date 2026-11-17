@@ -5,11 +5,13 @@ Fuente completa: specs/produccion-importacion-carga-carpeta-verificacion/jira-co
 
 ## Goals / Non-Goals
 
+Ampliación aprobada2026-11-16: la respuesta «continua» a la solicitud concreta de aprobar el contrato08 completa3.97 y autoriza implementación local3.99–3.124. Prevalece sobre las menciones de propuesta pendiente de este corte. Excepción acotada a D-04/D-05/D-07/D-09: siete operaciones de metadatos/consulta en el ASMX existente, tres tablas aditivas de preparación, plan esquema2 con lectores1/2 y lectura focal. Se mantienen las fases de negocio, una mutación activa, Web.config, serialización de perfiles, escritores compartidos, PDF, SII y ausencia de jobs/limpieza. Crear scripts/compilar/probar localmente no autoriza aplicar DDL, desplegar IIS o ejecutar una ventana real.
+
 Propuesta2026-11-16 pendiente de3.97: [contrato de capacidad](../../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/08-preparacion-segmentada-capacidad.md). Explicita siete operaciones sobre el ASMX existente, tres entidades aditivas de preparación, plan esquema2, lectores compatibles1/2 y consulta focal. La propuesta todavía no sustituye los Non-Goals/D-09 vigentes ni autoriza producto o DDL; la aprobación del contrato es el prerrequisito del mapa. Los objetivos locales de3.98 se distinguen de INT-03 operativo, aún sin ventana autorizada.
 
 **Goals**: matriz única con vigencia por componente; consumo correcto de EXP/ALM/COORD/SEG; regresión focal de la interfaz definitiva; resolución justificada INT-02 y preparación medible INT-03; cierre sin brechas críticas ocultas.
 
-**Non-Goals**: rehacer seguimiento, repetir cada carga, nueva arquitectura/plataforma, SII o limpieza reales sin autorización, modificar almacenamiento compartido/esquema/formatos o activar jobs/cuotas/aislamiento XML adicional.
+**Non-Goals**: rehacer seguimiento, repetir cada carga, nueva arquitectura/plataforma, SII o limpieza reales sin autorización, modificar almacenamiento compartido/formatos o activar jobs/cuotas/aislamiento XML adicional. El único cambio de esquema/endpoints permitido es el contrato08 aprobado para preparación y lectura focal; DDL y despliegue reales conservan autorización separada.
 
 ## PRECONDICIONES DE RUTAS
 
@@ -139,7 +141,7 @@ Diagnóstico de prerrequisitos posterior a933961f9: reutilizar ComandoCreacionEx
 
 ### D-09 — Fuentes y decisiones protegidas (RQ-09)
 
-Conservar SII/Integracionccv, AlmacenamientoDocumentoProduccionDocumental, Web.config, esquema, semántica de recepción/efectos y PDF/rechazo TIFF. Mantener decisión expresa SEG-03 de operar sin limpieza y datos retenidos. No añadir jobs, cuotas, formatos, endpoints o aislamiento XML adicional.
+Conservar SII/Integracionccv, AlmacenamientoDocumentoProduccionDocumental, Web.config, semántica de recepción/efectos y PDF/rechazo TIFF. Excepción local aprobada: tres tablas aditivas, siete operaciones de preparación/consulta y lectores1/2 según contrato08. Mantener decisión expresa SEG-03 de operar sin limpieza y datos retenidos. No añadir otros endpoints, jobs, cuotas, formatos o aislamiento XML adicional. Aplicar DDL o desplegar no forma parte de esta autorización local.
 
 Evidencia: Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionLimpiezaOriginalImportacion.vb:Crear; doc119-seg03-propuesta-sin-limpieza-20261112.md.
 
