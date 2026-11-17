@@ -1,5 +1,11 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — medición solicitada de tres archivos,2026-11-17
+
+Usuario solicita prueba real de tiempos de tres archivos del lote50. [Ventana concreta](../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-medicion-tres-plan-real-20261117.md): propietario141/empresa2/nivel223;3 ALMACENAR de originales ya recibidos y con valores fijados,600 HTTP/60 SELECT de control/1 sesión/45min para nuevas operaciones. Cero preparación, recepción, creación, materialización, reanudación, reconciliación, SII o borrado. Señal de detención, actividad o incertidumbre detienen; no liberar por SQL ni inferir abandono.
+
+Instalación de DLL instrumentada pendiente de aprobación separada; no iniciar con la DLL anterior porque falta la captura Server-Timing. `measure-doc120-three-files.cjs --run <32hex> --authorized-three --binary <64hex-instrumentado>` exige consola privada, sella binario/runner y bloquea una segunda ventana sin revisar la anterior. No usar safePost genérico para ALMACENAR: su timeout30s no sirve para esta medición; el ejecutor espera respuesta con timeout0 y maxRetries0. Los controles son SELECT y el resto de operaciones no están permitidas. No copiar credenciales/cookies/cuerpos, ni convertir esta ventana de tres archivos en carga completa o aceptación final.
+
 ## DOC-120 — espera y reanudación general, implementación local2026-11-17
 
 3.136–3.158 implementan espera de acuse en recepción/ALMACENAR y ReanudarLote con revisión/evento transaccionales; prueba de carrera/rollback solo en un modelo local. Fuentes y límites: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-espera-reanudacion-20261117.md`. No hay nuevo despliegue ni operaciones reales en esta entrega. La autorización cerrada del diagnóstico inferior no habilita reanudar el lote50.

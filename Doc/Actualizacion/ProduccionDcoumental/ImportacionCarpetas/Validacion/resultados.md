@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Medición de tres documentos — preparación2026-11-17
+
+Solicitud real del usuario delimitada en [plan de tres archivos](doc120-medicion-tres-plan-real-20261117.md). Captura Server-Timing por solicitud y runner con guardias preparados;8/8 locales y compilación aislada. Estado **PREPARADO; NO EJECUTADO**: requiere aprobación de instalación y credenciales privadas. No hay tiempos reales nuevos ni escrituras de esta ventana;3.169 sigue abierta. No se aplicó la optimización propuesta.
+
 ## Consulta del último lote — corrección2026-11-17
 
 Video170531 muestra el acceso deshabilitado sin ID local, incluso eligiendo Egresosv3. [Causa y resultado local](doc120-consulta-ultimo-20261117.md)/JSON:70/70 Node únicas, compilación aislada y consulta de último lote propio sin perfil/referencia guardada. Búsqueda y lectura no ejecutan importación. Nueva DLL todavía requiere despliegue autorizado; los once pendientes previos continúan abiertos.

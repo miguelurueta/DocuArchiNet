@@ -24,6 +24,20 @@ public static partial class ImportacionCarpetasBehaviorTests {
         public string CrearCopiaTrabajo(ContextoImportacionCarpetas c,string r,string n){throw new Exception("Unexpected copy");}
     }
     static void MedicionAlmacenamientoCases(){
+        var previous=System.Web.HttpContext.Current;
+        try {
+            var worker=new ImportRequest{TimingRef=new string('a',32)};var http=SessionFixture(worker:worker);System.Web.HttpContext.Current=http;
+            var input=new AvanzarLoteImportacionSolicitud{loteId="20",recursoId="30",fase="ALMACENAR"};
+            MedicionAlmacenamientoImportacion.Preparar(http,input);
+            Check(MedicionAlmacenamientoImportacion.Medir("TOTAL","20","30",()=>MedicionAlmacenamientoImportacion.MedirParte("prev_meta",()=>42))==42,"Request measurement changes result");
+            MedicionAlmacenamientoImportacion.MedirParte("prev_meta",()=>true);
+            string header=(string)typeof(MedicionAlmacenamientoImportacion).GetMethod("Cabecera",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null);
+            Check(header.Contains("doc120_total;dur=")&&header.Contains("doc120_prev_meta;dur=")&&header.Contains("n=2")&&!header.Contains(worker.TimingRef)&&!header.Contains("lote="),"Request timing is not aggregated/private");
+            MedicionAlmacenamientoImportacion.Adjuntar(http);http.Response.Flush();Check(worker.ServerTiming==header,"Server timing header was not emitted");
+            bool failed=false;try{MedicionAlmacenamientoImportacion.MedirParte<int>("prev_io",()=>{throw new IOException("synthetic original");});}catch(IOException){failed=true;}Check(failed,"Measurement swallowed original failure");
+            System.Web.HttpContext.Current=SessionFixture();Check(typeof(MedicionAlmacenamientoImportacion).GetMethod("Cabecera",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null)==null,"Request timing crosses contexts");
+            System.Web.HttpContext.Current=http;input.fase="CREAR_EXPEDIENTE";MedicionAlmacenamientoImportacion.Preparar(http,input);Check(typeof(MedicionAlmacenamientoImportacion).GetMethod("Cabecera",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null)==null,"Timing persists into another phase");
+        }finally{System.Web.HttpContext.Current=previous;}
         var listener=new TimingListener();Trace.Listeners.Add(listener);
         try {
             using(var f=new DocumentPhaseFixture()){f.Run();Check(listener.Lines.Any(l=>l.Contains("etapa=ORIGINALES_PREVIOS"))&&listener.Lines.Any(l=>l.Contains("etapa=ORIGINALES_RETENIDOS"))&&listener.Lines.Any(l=>l.Contains("etapa=TOTAL")),"Timing stages not observed");}

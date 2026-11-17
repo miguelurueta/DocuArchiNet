@@ -310,6 +310,16 @@ DOC-120 SHALL cumplir la decisión D-06: Conservar el caso real histórico de au
 ### Requirement: RQ-07 — INT-03 capacidad con presupuesto definido
 DOC-120 SHALL cumplir la decisión D-07: Antes de medir acordar objetivo, cantidad/distribución/tamaño de archivos y raíces, navegadores/versiones, concurrencia, duración, ambiente, recursos, disco temporal/libre y umbrales de tiempo/memoria. Incluir topes HTTP/SELECT/sesiones/bytes/efectos y criterio de parada. Sin esos acuerdos, INT-03 queda NO_EJECUTADO por falta de definición/autorización.
 
+#### Scenario: Medición por etapas sin modificar el efecto
+- **WHEN** una solicitud ALMACENAR autenticada y verificada solicita la captura optativa por cabecera
+- **THEN** devuelve duraciones/conteos de categorías cerradas en Server-Timing y conserva el JSON, las comprobaciones, el retorno y las excepciones de negocio
+- **AND** los acumuladores no cruzan solicitudes ni publican PDF, SQL, valores, conexiones o tokens; los subintervalos no se suman como etapas independientes
+
+#### Scenario: Prueba real acotada a tres documentos existentes
+- **WHEN** se ejecuta la ventana solicitada para tres archivos del lote50 con versión instrumentada aprobada y credenciales efímeras
+- **THEN** solicita como máximo tres almacenamientos secuenciales, espera cada respuesta sin retry y comprueba los resultados y la conservación del inventario restante
+- **AND** la falta de versión, autoridad, original listo, acuse o medición detiene sin inventar tiempos ni ejecutar otros efectos; la preparación local no satisface esta prueba real
+
 #### Scenario: Contrato previo
 - **WHEN** se propone medir INT-03
 - **THEN** existen objetivo, corpus, navegadores/versiones, concurrencia, disco, umbrales y topes de ejecución revisados

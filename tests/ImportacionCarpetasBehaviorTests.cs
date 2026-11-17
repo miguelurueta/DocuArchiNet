@@ -1719,9 +1719,11 @@ public static partial class ImportacionCarpetasBehaviorTests {
     sealed class ImportRequest : SimpleWorkerRequest {
         readonly MemoryStream response=new MemoryStream();
         public string ResponseText{get{return System.Text.Encoding.UTF8.GetString(response.ToArray());}}
+        public string ServerTiming;
+        public override void SendUnknownResponseHeader(string name,string value){if(name=="Server-Timing")ServerTiming=value;}
         public override void SendResponseFromMemory(byte[] data,int length){response.Write(data,0,length);}
         public byte[] Body=System.Text.Encoding.UTF8.GetBytes("{\"solicitud\":{\"nivelRef\":\"7\"}}");
-        public string Mime="application/json; charset=utf-8",Verb="POST",Token,AdminToken,Origin,FetchSite;
+        public string Mime="application/json; charset=utf-8",Verb="POST",Token,AdminToken,Origin,FetchSite,TimingRef;
         public int BodyReads;
         public ImportRequest():base("/",Path.GetTempPath(),"doc111.asmx","",new StringWriter()){}
         public override string GetHttpVerbName(){return Verb;}
@@ -1739,6 +1741,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
             if(AdminToken!=null)headers.Add(new[]{"X-Importacion-Perfil-CSRF",AdminToken});
             if(Origin!=null)headers.Add(new[]{"Origin",Origin});
             if(FetchSite!=null)headers.Add(new[]{"Sec-Fetch-Site",FetchSite});
+            if(TimingRef!=null)headers.Add(new[]{"X-DOC120-Medicion",TimingRef});
             return headers.ToArray();
         }
         public override byte[] GetPreloadedEntityBody(){BodyReads++;return Body;}

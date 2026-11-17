@@ -1,5 +1,7 @@
 <!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10 -->
 
+Solicitud de medición real2026-11-17: D-07/D-08/D-09 y RQ-07/RQ-08/RQ-09 incorporan captura por solicitud mediante cabecera Server-Timing y X-DOC120-Medicion, solo tras guardas existentes y para ALMACENAR; JSON, escrituras y política conservados. Autoriza medir3 documentos existentes del lote50, sin heredar ventanas cerradas. Instalación instrumentada requiere aprobación separada; plan concreto en Validacion/doc120-medicion-tres-plan-real-20261117.md. Las métricas solo contienen categorías cerradas, duraciones y conteos; no nuevos endpoints/tablas/listeners globales ni optimización.
+
 Corrección solicitada2026-11-17 por consulta bloqueada y video170531: D-04/D-08/D-09 y RQ-04/RQ-08/RQ-09 adoptan [consulta de último lote sin referencia local](../../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/consulta-ultimo-lote-doc120.md). Se admite exclusivamente ConsultarUltimoLote como lectura adicional en el ASMX existente, sin esquema nuevo; identidad de sesión, SELECT limitado y reautorización del destino antes de publicar ID. El botón no depende de elegir perfil ni conservar sessionStorage. Despliegue y cualquier ventana real mantienen autorización separada.
 ## Context
 

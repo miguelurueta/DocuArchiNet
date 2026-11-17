@@ -128,6 +128,12 @@ Public NotInheritable Partial Class AlmacenStagingImportacion
             End SyncLock
         End Sub
         Private Sub Comprobar()
+            MedicionAlmacenamientoImportacion.MedirParte("v2_hash", Function()
+                                                                      ComprobarMedido()
+                                                                      Return True
+                                                                  End Function)
+        End Sub
+        Private Sub ComprobarMedido()
             If _entrada Is Nothing OrElse _directorios Is Nothing Then Throw Conflicto()
             Try
                 For Each handle In _directorios

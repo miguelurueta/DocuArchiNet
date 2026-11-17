@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Medición por etapas de tres archivos — preparación2026-11-17
+
+3.165–3.168 locales,3.169 abierta. [Plan y límites](doc120-medicion-tres-plan-real-20261117.md):8/8 pruebas Node únicas y compilación aislada; instrumentación por solicitud y ejecutor privado preparados. No hay medición real nueva, instalación ni guardados ejecutados por esta preparación. La solicitud del usuario cubre tres almacenamientos del lote existente; instalación y captura de credenciales pendientes. Los tiempos del video o de los dobles no certifican la distribución real de costo.
+
 ## Último lote sin referencia — video170531,2026-11-17
 
 3.159–3.164; D-04/RQ-04, D-08/RQ-08, D-09/RQ-09, D-10/RQ-10. [Evidencia](doc120-consulta-ultimo-20261117.md)/JSON: botón sin referencia/perfil, búsqueda SELECT propia, autoridad actual, resultado vacío, servidor anterior y cierre/consulta sin efectos.70/70 locales; compilación aislada. Despliegue sujeto a autorización propia; no nueva aceptación autenticada ni reanudación del lote50.

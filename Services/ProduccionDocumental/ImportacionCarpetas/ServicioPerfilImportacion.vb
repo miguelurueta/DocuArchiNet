@@ -177,7 +177,67 @@ End Class
 
 'Mediciones del importador: no modifica Trace.Listeners ni registra datos de negocio.
 Public NotInheritable Class MedicionAlmacenamientoImportacion
+    Private Const ClaveCaptura As String = "DOC120_TIEMPOS_SOLICITUD"
+    Private Shared ReadOnly Partes As String() = {"prev_auth", "prev_meta", "prev_io", "ret_auth", "ret_meta", "ret_io", "v2_hash"}
+    Private NotInheritable Class Acumulado
+        Public Milisegundos As Double
+        Public Llamadas As Integer
+    End Class
     Private Sub New()
+    End Sub
+    Public Shared Sub Preparar(http As System.Web.HttpContext, entrada As AvanzarLoteImportacionSolicitud)
+        Try
+            If http Is Nothing OrElse Not Object.ReferenceEquals(http, System.Web.HttpContext.Current) Then Return
+            http.Items.Remove(ClaveCaptura)
+            If entrada Is Nothing OrElse entrada.fase <> "ALMACENAR" Then Return
+            Dim referencia = http.Request.Headers("X-DOC120-Medicion")
+            If referencia Is Nothing OrElse Not System.Text.RegularExpressions.Regex.IsMatch(referencia, "\A[0-9a-f]{32}\z") Then Return
+            http.Items(ClaveCaptura) = New Dictionary(Of String, Acumulado)(StringComparer.Ordinal)
+        Catch
+        End Try
+    End Sub
+    Private Shared Function Captura() As Dictionary(Of String, Acumulado)
+        Try
+            Dim http = System.Web.HttpContext.Current
+            Return If(http Is Nothing, Nothing, TryCast(http.Items(ClaveCaptura), Dictionary(Of String, Acumulado)))
+        Catch
+            Return Nothing
+        End Try
+    End Function
+    Private Shared Sub Acumular(nombre As String, milisegundos As Double)
+        Try
+            Dim datos = Captura()
+            If datos Is Nothing Then Return
+            Dim item As Acumulado = Nothing
+            If Not datos.TryGetValue(nombre, item) Then
+                item = New Acumulado() : datos.Add(nombre, item)
+            End If
+            item.Milisegundos += milisegundos : item.Llamadas += 1
+        Catch
+        End Try
+    End Sub
+    Public Shared Function MedirParte(Of T)(nombre As String, trabajo As Func(Of T)) As T
+        If Captura() Is Nothing OrElse Not Partes.Contains(nombre) Then Return trabajo()
+        Dim reloj = System.Diagnostics.Stopwatch.StartNew()
+        Try
+            Return trabajo()
+        Finally
+            Acumular(nombre, reloj.Elapsed.TotalMilliseconds)
+        End Try
+    End Function
+    Friend Shared Function Cabecera() As String
+        Dim datos = Captura()
+        If datos Is Nothing OrElse datos.Count = 0 Then Return Nothing
+        Return String.Join(", ", datos.OrderBy(Function(p) p.Key, StringComparer.Ordinal).Select(Function(p) "doc120_" & p.Key & ";dur=" & p.Value.Milisegundos.ToString("F3", Globalization.CultureInfo.InvariantCulture) & ";desc=""n=" & p.Value.Llamadas.ToString(Globalization.CultureInfo.InvariantCulture) & """"))
+    End Function
+    Public Shared Sub Adjuntar(http As System.Web.HttpContext)
+        Try
+            If http Is Nothing OrElse Not Object.ReferenceEquals(http, System.Web.HttpContext.Current) Then Return
+            Dim valor = Cabecera()
+            If http IsNot Nothing AndAlso valor IsNot Nothing Then http.Response.AppendHeader("Server-Timing", valor)
+        Catch
+            'Una medicion no cambia el resultado de negocio.
+        End Try
     End Sub
     Public Shared Function Medir(Of T)(etapa As String, loteId As String, archivoId As String, trabajo As Func(Of T)) As T
         Dim reloj = System.Diagnostics.Stopwatch.StartNew(), confirmado As Boolean = False
@@ -192,8 +252,9 @@ Public NotInheritable Class MedicionAlmacenamientoImportacion
     End Function
     Private Shared Sub Registrar(etapa As String, loteId As String, archivoId As String, milisegundos As Double, finalizo As Boolean)
         Try
-            If Not {"TOTAL", "CONSULTA_PREFLIGHT", "ORIGINALES_PREVIOS", "RESERVA", "ORIGINALES_RETENIDOS", "ADAPTADOR", "DATOS_DOCUMENTALES", "ESCRITOR_LEGACY", "COMPROBACION_POSTERIOR", "CHECKPOINT", "LECTURA_FINAL"}.Contains(etapa) Then Return
+            If Not {"TOTAL", "CONSULTA_PREFLIGHT", "ORIGINALES_PREVIOS", "RESERVA", "ORIGINALES_RETENIDOS", "ADAPTADOR", "DATOS_DOCUMENTALES", "ESCRITOR_LEGACY", "COMPROBACION_POSTERIOR", "CHECKPOINT", "LECTURA_FINAL", "ORIGINAL_V2", "COPIA_TRABAJO", "V2_INICIO", "V2_AUTORIZACION", "V2_RETORNO"}.Contains(etapa) Then Return
             If Not ValidadorPerfilImportacion.ReferenciaValida(loteId) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(archivoId) Then Return
+            Acumular(etapa.ToLowerInvariant(), milisegundos)
             Dim registro = "DOC120_MEDICION etapa=" & etapa & " lote=" & loteId & " archivo=" & archivoId & " ms=" & milisegundos.ToString("F3", Globalization.CultureInfo.InvariantCulture) & " finalizo=" & If(finalizo, "1", "0")
             Dim http = System.Web.HttpContext.Current
             Dim operacion = If(http Is Nothing, Nothing, TryCast(http.Items("DOC120_OPERACION"), String))

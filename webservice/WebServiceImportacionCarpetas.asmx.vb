@@ -156,6 +156,7 @@ Public Partial Class WebServiceImportacionCarpetas
             Dim limites = _politicaOperativa()
             Dim entrada = ImportacionCarpetasRequestGuard.LeerJson(Of T)(http, contexto, limites)
             Dim avanceDiagnostico = TryCast(entrada, AvanzarLoteImportacionSolicitud)
+            MedicionAlmacenamientoImportacion.Preparar(http, avanceDiagnostico)
             If avanceDiagnostico IsNot Nothing Then faseDiagnostico = If({"CREAR_EXPEDIENTE", "RETOMAR_CREACION"}.Contains(avanceDiagnostico.fase), "CREACION", "ALMACENAMIENTO")
             If solicitud Is Nothing Then Throw New PerfilImportacionException("SOLICITUD_INVALIDA", "La solicitud es obligatoria.")
             salida.datos = accion(http, limites, entrada)
@@ -183,6 +184,7 @@ Public Partial Class WebServiceImportacionCarpetas
             DiagnosticoOperacionImportacion.Registrar(ex, faseDiagnostico, salida.operacionId)
         End Try
         DiagnosticoOperacionImportacion.Adjuntar(salida)
+        MedicionAlmacenamientoImportacion.Adjuntar(http)
         If http IsNot Nothing Then
             http.Response.TrySkipIisCustomErrors = True
             http.Response.SuppressFormsAuthenticationRedirect = True
