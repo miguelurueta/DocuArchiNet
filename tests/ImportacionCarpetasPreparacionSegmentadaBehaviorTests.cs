@@ -222,6 +222,11 @@ public static partial class ImportacionCarpetasBehaviorTests {
         // Fixture sintetico derivado del DDL08; no captura o DDL real.
         var data=JsonConvert.DeserializeObject<DataSet>(File.ReadAllText("doc120-preparacion-esquema-sintetico.json"));
         Action<DataSet> validate=s=>RepositoryHelper("ValidarMetadatosPreparacion",s);
+        // The production metadata reader also includes the parent version index.
+        // It must not be mistaken for an unexpected index on preparation tables.
+        var withParent=data.Copy();var parent=withParent.Tables["Indices"].NewRow();parent.ItemArray=withParent.Tables["Indices"].Rows[0].ItemArray;
+        parent["TABLE_NAME"]="ra_integracion_perfil_version";parent["INDEX_NAME"]="PRIMARY";parent["COLUMN_NAME"]="version_id";parent["NON_UNIQUE"]=0;parent["SEQ_IN_INDEX"]=1;parent["SUB_PART"]=DBNull.Value;
+        withParent.Tables["Indices"].Rows.Add(parent);validate(withParent);
         validate(data);
         Action<Action<DataSet>> reject=change=>{var broken=data.Copy();change(broken);Unavailable(()=>validate(broken));};
         reject(s=>s.Tables["Tablas"].Rows[0]["ENGINE"]="MyISAM");

@@ -28,7 +28,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
     Friend Shared Sub ValidarMetadatosPreparacion(datos As DataSet)
         ValidarContratoMetadatos(datos, ColumnasPreparacion, IndicesPreparacion, ClavesPreparacion)
         Dim unicos = New HashSet(Of String)(IndicesPreparacion.Where(Function(i) i.Split("|"c)(2) = "0").Select(Function(i) i.Split("|"c)(0) & ":" & i.Split("|"c)(1)), StringComparer.Ordinal)
-        If Filas(datos, "Indices").Any(Function(r) Texto(r, "NON_UNIQUE") = "0" AndAlso Not unicos.Contains(Texto(r, "TABLE_NAME") & ":" & Texto(r, "INDEX_NAME"))) Then Throw NoDisponible()
+        If Filas(datos, "Indices").Where(Function(r) ColumnasPreparacion.ContainsKey(Texto(r, "TABLE_NAME"))).Any(Function(r) Texto(r, "NON_UNIQUE") = "0" AndAlso Not unicos.Contains(Texto(r, "TABLE_NAME") & ":" & Texto(r, "INDEX_NAME"))) Then Throw NoDisponible()
         Dim claves = New HashSet(Of String)(ClavesPreparacion.Select(Function(i) i.Split("|"c)(0) & ":" & i.Split("|"c)(1)), StringComparer.Ordinal)
         If Filas(datos, "Claves").Any(Function(r) Not claves.Contains(Texto(r, "TABLE_NAME") & ":" & Texto(r, "CONSTRAINT_NAME"))) Then Throw NoDisponible()
     End Sub
