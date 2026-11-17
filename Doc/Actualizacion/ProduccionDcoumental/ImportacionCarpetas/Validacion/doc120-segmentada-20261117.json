@@ -1,0 +1,249 @@
+{
+  "change": "DOC-120",
+  "date": "2026-11-17",
+  "generatedUtc": "2026-11-17T13:08:27.935026+00:00",
+  "status": "PASS_LOCAL_WITH_MYSQL_TRANSACTION_AND_REAL_ACCEPTANCE_PENDING",
+  "baseCommit": "2d959f58aa0abc4aa02e69f8074b99276bc72788",
+  "minimumCompatibleReaderCommit": "d5bae4640082f7a53fcd5522891715e7d876b0dc",
+  "deliveryIdentification": "Commit containing this evidence; LF source hashes identify verified contents",
+  "tasks": {
+    "complete": 139,
+    "total": 148,
+    "pending": [
+      "3.86",
+      "3.87",
+      "3.118",
+      "3.126",
+      "3.127",
+      "5.2",
+      "6.4",
+      "6.5",
+      "6.6"
+    ]
+  },
+  "normativeScenarios": 53,
+  "runtime": {
+    "node": "v24.12.0",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "playwright": "1.62.1",
+    "chromium": "151.0.7922.34",
+    "framework": "Repository .NET Framework4.6.1 target; isolated MSBuild18 compilation"
+  },
+  "validation": {
+    "uniqueNodeCases": 200,
+    "mainCut": {
+      "pass": 199,
+      "fail": 0,
+      "suiteFiles": [
+        "tests/doc110-perfil-importacion-behavior.test.cjs",
+        "tests/doc111-importacion-carpetas-client.test.cjs",
+        "tests/doc119-navigation.test.cjs",
+        "tests/doc119-context-menu.test.cjs",
+        "tests/doc120-coordinacion-core.test.cjs",
+        "tests/doc120-coordinacion-browser.test.cjs",
+        "tests/doc120-preparacion-tamano.test.cjs",
+        "tests/doc120-revision-claridad.test.cjs",
+        "tests/doc120-preparacion-segmentada.test.cjs",
+        "tests/doc120-segmentada-browser.test.cjs",
+        "tests/doc120-importacion-fidelidad.test.cjs",
+        "tests/doc120-importacion-arbol.test.cjs",
+        "tests/doc120-importacion-mensajes.test.cjs",
+        "tests/doc120-retomar-creacion.test.cjs",
+        "tests/doc120-recepcion-creacion.test.cjs",
+        "tests/doc120-importacion-guiada.test.cjs",
+        "tests/doc120-importacion-flujo-final.test.cjs",
+        "tests/doc120-produccion-barra.test.cjs",
+        "tests/doc88-produccion-upload-contract.test.cjs",
+        "tests/doc117-alm03-individual-ui.test.cjs"
+      ]
+    },
+    "clientFinal": {
+      "pass": 15,
+      "overlapMain": 14,
+      "newCase": "DOC120-PREPREF01"
+    },
+    "frameworkFinal": {
+      "pass": 2,
+      "overlapMain": 2,
+      "internalCasesNotAdded": true
+    },
+    "compiledReaderRoundtrip": {
+      "result": ".tmp/doc120-plan-compatibility-1794920453744/result.json",
+      "status": "PASS_OFFLINE_COMPILED_READERS",
+      "readerCommit": "d5bae4640082f7a53fcd5522891715e7d876b0dc",
+      "files": 1000,
+      "checks": [
+        {
+          "binary": "B",
+          "output": "PASS_SYNTHETIC_PLAN1_PLAN2_COMPATIBILITY files=1000 schema1Hash=a5b428db36130bae6dc0a1f07a745d58c3a5915026e7b368fb2d01d0378a8263 schema2Hash=893e7bd07e91b2a51946a9565e5999507bdd0a3d8f90ac8eb251efefb958b9c5"
+        },
+        {
+          "binary": "A",
+          "output": "PASS_SYNTHETIC_PLAN1_PLAN2_COMPATIBILITY files=1000 schema1Hash=a5b428db36130bae6dc0a1f07a745d58c3a5915026e7b368fb2d01d0378a8263 schema2Hash=893e7bd07e91b2a51946a9565e5999507bdd0a3d8f90ac8eb251efefb958b9c5"
+        },
+        {
+          "binary": "B",
+          "output": "PASS_SYNTHETIC_PLAN1_PLAN2_COMPATIBILITY files=1000 schema1Hash=a5b428db36130bae6dc0a1f07a745d58c3a5915026e7b368fb2d01d0378a8263 schema2Hash=893e7bd07e91b2a51946a9565e5999507bdd0a3d8f90ac8eb251efefb958b9c5"
+        }
+      ],
+      "outputs": {
+        "A": {
+          "dllSha256": "f02427c2ed1f76c50b208b05b5eb1f77d6f80edea8929e6f29b9ee87dc6e8340",
+          "buildLog": ".tmp/doc120-plan-compatibility-1794920453744/A/build.log"
+        },
+        "B": {
+          "dllSha256": "b6fa2e649a292cbc9427dfeea815d0e0342dcea7cd8f836ed3377a921d2c27ca",
+          "buildLog": ".tmp/doc120-plan-compatibility-1794920453744/B/build.log"
+        }
+      },
+      "realSql": false,
+      "iisDeployment": false
+    },
+    "nodeSynthetic1000": {
+      "files": 1000,
+      "reads": 3044,
+      "effects": 3001,
+      "elapsedMs": 6665,
+      "sampledHeapIncrease": 30785680
+    },
+    "chromiumSynthetic1000": {
+      "files": 1000,
+      "expeditions": 1,
+      "receipts": 1000,
+      "creates": 1,
+      "reads": 3047,
+      "metrics": {
+        "renders": 2473,
+        "p95": 7.300000011920929,
+        "maxDom": 766,
+        "heapIncrease": 39148505
+      }
+    },
+    "recoveryUi": {
+      "files": 127,
+      "receivedBeforeReload": 1,
+      "pendingBoundAfterReload": 126,
+      "realPageReload": true,
+      "sameSyntheticLot": true,
+      "automaticUploadOnBinding": false
+    },
+    "scopes": [
+      "Closed transport and canonical fragments",
+      "Expiry/publication/owner/context guards",
+      "Legacy versus segmented resolved values and eligibility",
+      "Catalog request-local cache and fresh fence",
+      "Revoked identity across20 ASMX operations before body/factory",
+      "Focal parent/global revision consistency",
+      "Bounded DOM and viewport390/768/1280",
+      "Compiled reader B-A-B synthetic file roundtrip"
+    ],
+    "notProved": [
+      "New tables real MySQL locks, concurrency or rollback after failure (3.118)",
+      "DDL installation or IIS deployment",
+      "Authenticated privacy or control SELECT",
+      "Actual1000-PDF receipt/storage and IIS/SQL/disk capacity",
+      "Actual interruption/recovery of1000-file batch"
+    ],
+    "realHttp": 0,
+    "realControlSelect": 0,
+    "realBusinessEffects": 0,
+    "schemaApplied": false,
+    "iisDeployed": false
+  },
+  "corpusReadOnlyVerification": {
+    "files": 1000,
+    "bytes": 44859102,
+    "allContentsMatchExistingManifest": true,
+    "sourceManifestSha256": "3d9ffe543db6cafb7215ba149c3e3df3048be79e022a908f5ac1fd108771079c",
+    "root": "EGRPRUEBA_00004523_20060120",
+    "corpusMutated": false
+  },
+  "logs": {
+    ".tmp/doc120-segmentada-regresion-final-20261117.log": "cb92c6623044f77275ca5344d0727412dd8d14598e8969f503df9ed2481172a5",
+    ".tmp/doc120-segmentada-cliente-cierre-20261117.log": "427522136e632a6bbedde83435ddf9d12e548ddbaef26f697d00da51c82c6861",
+    ".tmp/doc120-segmentada-framework-cierre-20261117.log": "db3d31ba37d6dfe769bc539690d2e0ae66fe69e8a476ded6ac95467896937833",
+    ".tmp/doc120-compatible-readers-proof-20261117.log": "5094863d1ad1a48f558a2bf3b98d582dcc1d079b101308d4ff4b0bbe657b87ff",
+    ".tmp/doc120-segmentada-build-20261117.log": "f106d0ae5a17fb9144b1e27b0664a0fa98411176c43af624419ec60042063474"
+  },
+  "sourceSha256Lf": {
+    "DTOs/ProduccionDocumental/ImportacionCarpetas/PreparacionSegmentadaDtos.vb": "b9002667db6d771efd2843081866656a483abe7a35d11ceb7a4a18484b10d166",
+    "Gestion/WebFormProducionDocumental.aspx": "1997a3d2373655104d6ba1c786ace46deed3c4adaa49b1f8fbad4ed521888869",
+    "Gestion/WebFormProducionDocumental.aspx.vb": "20bfeb20172f5906a2a4eb34bf91dbae299f49f29ff0b6130fc09c5f41809f79",
+    "GestionDocumental-Docuarchi.net.vbproj": "c3650fd1469788f4b5610ab7e7ebfda6aa125ba160120a4d234883d10ddd07c2",
+    "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasRequestGuard.vb": "5f9dcc3addf19e810df0f5a138c673321c0d846fb4bf3e57984824a159cbc414",
+    "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.Preparacion.vb": "6dbb4b3b04de168237ac2fbf0b7b017aa02a18b0d04c90781686a02356abc8b8",
+    "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.vb": "d7d1aafa9d9ca87d5b9dc76e44bb491dd96a6f5f7e139a3dacd7cbda79b936b2",
+    "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consulta.vb": "ebdadbe1a050fb96f53071e7b6348ccdd62cffd17682cb40e459e4120357b6df",
+    "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ConsultaFocal.vb": "d39acc4e8e140bb3e4c66200f4000d99d3db545bcb0a0d2baa076c2998b16f54",
+    "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.PlanSegmentado.vb": "c39924a37150fd97fe1df6fefff410df96929fbe47bff0b3264c98e86d1a63ba",
+    "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Preparacion.vb": "4836117bcf1d5c59401f0f29c626b29c01eaf528c53fbbdf8e7423ed7f2bae3f",
+    "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.PreparacionEsquema.vb": "b13166a9e73b26247d056102481d966f2e252db10d5ce5b62ad484a316181ccc",
+    "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.vb": "270a8e1f054b486faf97554d18777fc85e2fec69506836f1b1fa14a7f5d560bf",
+    "Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasModels.vb": "12cfcb4951513331776b479ee4fe7bc94992dff1df927b5fb95706d24468219c",
+    "Modelo/ProduccionDocumental/ImportacionCarpetas/PreparacionSegmentadaImportacion.vb": "1f7552a795f9140a1490f22dc344db5f2c11789c32a8bf99e9ce1d4e7cce8a5a",
+    "Services/ProduccionDocumental/ImportacionCarpetas/CanonizadorManifiestoImportacion.vb": "db954bd0052782b9b95438659eac9bb8855ab699713f3fc1d13d89bcdc97db5d",
+    "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Reanudacion.vb": "2e6f8f735a69796cd0e53be0e2235fc7f9ca45d7c7873d8ff8f24fa9dd82b098",
+    "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.RecuperacionV2.vb": "d9ce36fcc6a2fe268636f1473cd37628b03ac2390acdb7ffcbc54069366bc357",
+    "Services/ProduccionDocumental/ImportacionCarpetas/PlanSegmentadoImportacionJson.vb": "d65d3375a2e8ebc7bf9247c6631bb4e12c570b6561b944171f59580efd008d40",
+    "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.Focal.vb": "99eecbdbf15631f211604a1e0ef2ff137d075fb9448ab3c35fd9726585e756c1",
+    "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb": "1aa74c58d19748a4b0be027fb302f1aff341eb872c5789db1ed806716252243b",
+    "Services/ProduccionDocumental/ImportacionCarpetas/ServicioPreparacionImportacion.vb": "4a2fa02780eaa22c00423bc4588f77a11fd8992a0579ade0196de54a8b2e03ab",
+    "Services/ProduccionDocumental/ImportacionCarpetas/ServicioPreparacionSegmentadaImportacion.vb": "696a75ffe062359785ddb27fe49b318d29b914d19782f699f90c22ee83a2e90f",
+    "Services/ProduccionDocumental/ImportacionCarpetas/ServicioRecepcionImportacion.vb": "35cfc17bd5e0d8f1d7b351c2a4dc66069ce0d4ac67be9a22b38c84e325c0dd00",
+    "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css": "b7f4e83191107fc2fa9ebd1bfef173844fe9e6c67262545aedb2f8be66dc1956",
+    "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js": "512f4f943af9a60f798c419a91bc0c3cd141ed537604d4d49ee3a9fd7a80ecee",
+    "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js": "d1ec3739f49cecb2a74d9ba500619802d2383ae8d1576f9e8e20ebf953f55059",
+    "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js": "325bd76706dc71fe20076b8e7285cd4219eee743327a5079a9d28f1b364b1ea3",
+    "js/gestion/ImportacionCarpetas/PreparacionSegmentadaImportacion.js": "8cd2417764d7817521a84a6e8d3c6a177af75879804cd5ca7e0a5fa231dda90f",
+    "tests/Fixtures/ProduccionDocumental/doc120-preparacion-esquema-sintetico.json": "8a014fd5453a836d79dea67c565d50b817f2c5ebc7724a9a60435d5b71596e7e",
+    "tests/ImportacionCarpetasBehaviorTests.cs": "186f8b5a338e46cd9c09407bb3b3bcbdccd7e563ddb8a9627bb1ff6c11b68db9",
+    "tests/ImportacionCarpetasPlanCompatibilityProbe.cs": "3c1bb1ff480fb1714ef040257e5ec20d064fb6f0528f8d2d29bd4913ece5e6f3",
+    "tests/ImportacionCarpetasPreparacionSegmentadaBehaviorTests.cs": "cc89504b5387701bfb609e5cadf30627b2dd7d53260c6ccd933e530478bc05f3",
+    "tests/doc110-perfil-importacion-behavior.test.cjs": "3c888a2d137f8b7793c793e5babb546284a58a0a21c202b24b73cc2677bac204",
+    "tests/doc120-preparacion-segmentada.test.cjs": "75efbe5d6484e7b8c194cc18ea64dea06216ea5fadee2b2aea95c099faf7c4d9",
+    "tests/doc120-segmentada-browser.test.cjs": "35921d52025d4e5334773fc9b8b49e80fc05f8788fe5650ea180b6398a8f3404",
+    "tests/support/doc120-coordinacion-browser.cjs": "c11cc53a64560b24f5941f29c2da424a78f9ebf499fb7a686e743d4da0992ce3",
+    "tests/support/doc120-segmentada-browser.cjs": "913aa50b8ac164f4066b5705bd4ee634b00c574cdba0309a34ee55e41d443953",
+    "tools/e2e/scripts/check-doc120-plan-compatibility.cjs": "dc021c4528385f981d2d33dcc52bdbafbf407b0ec40488baf6a4a9b90d308f51",
+    "webservice/WebServiceImportacionCarpetas.PreparacionSegmentada.vb": "83f097483c3e4dd53bc741e6d2c9c5f984a343b1b1eda7a40c426f964e36bbac",
+    "webservice/WebServiceImportacionCarpetas.asmx.vb": "2cd03a6971cb81adfc099dc2219c5a0fc496009eddf3793b7731dd5ddff97dca"
+  },
+  "protectedSourceSha256Lf": {
+    "Web.config": "acf4cd164f0bd7b1186b32950c532151d88806cee58aa2b9e4692e52ba6e3b37",
+    "Services/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionJson.vb": "0d623b1667e280e3005e2055a27abec3b8fdae44cde5a9463f50f6145b8ce9d3",
+    "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741",
+    "Integracionccv/ClassConsultaExpedienteSII.vb": "89c1f51a5e34a0330e41e0f10356fc0944cac089c9ac64d2d2d84256256c0bdf",
+    "Integracionccv/ClassListaAnexosSII.vb": "5c724df7a5caba4ae5d96042398a6e58e8152e83821766a090ddceb33a6cd653",
+    "Integracionccv/ClassRaSIICacheActualizaIndice.vb": "c45772c438daefb4526fd82a5f4cebf22e9bcb8896e7ee326976cc7364500994",
+    "Integracionccv/ClassRaSIiCacheExpediente.vb": "33dec82606f6fd247d1cae915612e3727a56002897d2c4766302969a2f874df9",
+    "Integracionccv/ClassRaSiiCacheVinculacion.vb": "4db22500124a7a561f556d66bf9712b79a6f9b223ecd09c24d09ab288f92ef53",
+    "Integracionccv/ClassRaSiiCahcheInscripcion.vb": "5b892dafb436a4bd5be87c561c5c3f8ad1ba2a9e20246cd4416e306be234331b",
+    "Integracionccv/ClassReasignaTareaWorkflowSII.vb": "17487355dbc70a1d017298075751766e7d130b51b8b5dff1b29f4918d9a9be42",
+    "Integracionccv/Class_CambiaEstadoSii.vb": "766324b2a9a4ca395c9e0479da355a13ab6f6fe34a0c3461a191d07a51a1f829",
+    "Integracionccv/Class_ClassResfull.vb": "d8b679fb6c7506e72f7bab7956c3192ea167f9e1e4400067675c7e2ea25afa27",
+    "Integracionccv/Class_ConSultaRecibo.vb": "09ac68dcf2345a59b36b57a17b3affed60116860c082d22d4fee1f2ff95355a8",
+    "Integracionccv/Class_ConsultarRadicado_sii.vb": "9a129059640bc97cdf51bac15856dac2cbed7e43b01c5b63fafc6c15be330f8d",
+    "Integracionccv/Class_Desserializacion.vb": "9e7ab26db817e567dca8533253a385e1d7407a68f94a0bb2b0a7f7cbf18927dc",
+    "Integracionccv/Class_Entero_Romano.vb": "63f0e161606b7d5b77e23e9c1533a1b29edfe742bbb02120c73990f89077257d",
+    "Integracionccv/Class_Integracion_SII.vb": "26be92da68c52d4ca3903503d8b1741fbd584de595ed8432e9a9824d938327aa",
+    "Integracionccv/Class_consultarInformacionSello.vb": "08f9dc36d530155d38c138886091f6d961a82b02ffad64e8403c3dfcf8bc028f",
+    "Integracionccv/Class_file_byte.vb": "949bb3846b856adbd767faf1dbcad58abd6faaade9182d9b168898d30be27586",
+    "Integracionccv/Class_imp_02_MIGRA_SII_FECHA.vb": "fb259b41cf6b16166556f658a8fc585625adf13b88544388de8964773693d3a0",
+    "Integracionccv/Class_lista_imagenes_sii.vb": "d8f12dbe5b45531ca9b73c98ae551a558102a22413b2b27fb269fcc45c86cdde",
+    "Integracionccv/Class_parram_consultarInformacionSello.vb": "c287892512cf557d3626857cecfd786bd020a59cef0ed23c05e86c64f8bfc50b",
+    "Integracionccv/Class_parram_consultarRadicado.vb": "ab1baee7a2627d8346c9fcf65bad61a2dde8a7681427b58f4c74ccb2226e47e9",
+    "Integracionccv/Class_parram_consultarRecibo.vb": "7b0a177c695f28082259360dfcefe3e85c92ead998a7a96a305e97fd80348396",
+    "Integracionccv/Class_parram_firma_digitalvb.vb": "6a67b86f78a541e2d2a6d9da0b76cca6b9b1c2217ffddb8953db2040460b3162",
+    "Integracionccv/Class_parram_token.vb": "9a91b4ed27ce0c206135bfd383be130fd4927b854baf60d1bc6e9e0eac076e27",
+    "Integracionccv/Class_ra_sii_migra_imagenes.vb": "0c9d3a90df68eee2cfb05164006eef4f71e7dbbe9e6ce62876c3b7ef919a72aa",
+    "Integracionccv/Class_resfull_sii.vb": "51a2941dea0aad30be16469978c2b4e49c79a1de1748722be164841fb4b4facc",
+    "Integracionccv/Class_sii_migra_registro.vb": "a6989f94890c384234a93b5cb1ec4bea927b2a95946c2667954a2739be576a06",
+    "Integracionccv/Class_wf_int_sii_registro_tarea_rue_virtual.vb": "d1be4654acc3025c3c9404e539208e1a5fcf4490fdc296e7148ea9b6241fa489",
+    "Integracionccv/Class_ws_tipotramitesii_determina_gabinete.vb": "24a29886f576ce85a7b3ebb3c94d523cd18afa7d1e924c3ae4f597e76e389dd1",
+    "Integracionccv/Class_ws_usuarioworkflowsii.vb": "e64253ebe5945cf0d2d5f9e5a032a248e58d4721c14bf08ef9e1e18a151b3be9",
+    "Integracionccv/WebForm_migra_tramite_sii.aspx": "c3ccdf0703e2c77c1a51a3624ec4cf26a89a811c3fca59db7267fa9f159146be",
+    "Integracionccv/WebForm_migra_tramite_sii.aspx.designer.vb": "f280ca7884b6fc5e4ee9796d7580b05b3418145e2888eeaaa1d2dbe9250feb54",
+    "Integracionccv/WebForm_migra_tramite_sii.aspx.vb": "1f6bdb8acd9c36bf55cfd83b570e3f8b765ac2cd9d6a4dace1bdd823ddb0aa54",
+    "js/Integracionccv/WebForm_migra_tramite_sii.js": "a120383d75d315e690cd0dfd86dda1b9ecf9272d908c781aa9f418569d4732bf"
+  }
+}

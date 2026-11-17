@@ -1,5 +1,17 @@
 # DOC-120 — matriz única de verificación
 
+## Preparación segmentada — implementación local2026-11-17
+
+| Origen/casos | Fuente | Resultado y límite |
+| --- | --- | --- |
+| D-04/D-05/RQ-04/RQ-05, CAP-01–07 | [Corte y huellas](doc120-segmentada-20261117.md), JSON compañero; suites cliente/Framework | Una preparación de1.000 metadatos, partes acotadas, un plan, huella canónica, revisión paginada y confirmación coordinada. Persistencia en memoria/resultados SQL sintéticos: rollback y carreras MySQL nuevos pendientes3.118 |
+| D-04/D-05/D-07, CAP-08–10 | Mismo corte; Node/Chromium |1.000 completan con3.001 efectos y3.044 lecturas de motor;3.047 en UI. Recarga/reselección UI127 archivos; modificados/homónimos en helper. No recuperación ni recepción real |
+| D-08/RQ-08, CAP-11 | Servicios/guard Framework, mismos resultados | Cuenta/empresa/contexto ajenos y revocación en20 ASMX rechazados localmente; no autenticación nueva ni privacidad real |
+| D-09/RQ-09, CAP-12 | Compilaciones compatibles A/B y auxiliar B→A→B | Plan1/2 conserva huellas; perfiles/Web.config/SII/almacenamiento sin cambios. Ensayo de archivos sintéticos, sin migración/despliegue/rollback de negocio |
+| D-07/D-08/D-10,3.125–3.127 | [Ventana concreta](doc120-capacidad-plan-real-20261117.md) | PREPARADA; autorización5.2, ejecutor adaptado, DDL/despliegue y ejecución/aceptación real pendientes |
+
+Estado vigente: **139/148 tareas**,53 escenarios y200 casos locales únicos; sin sumar reejecuciones o casos internos de wrappers. Pendientes:3.86/3.87/3.118/3.126/3.127/5.2/6.4–6.6. Los cortes siguientes conservan su fecha, SHA y resultado histórico; su estado pendiente de3.97 fue sustituido por la aprobación expresa del contrato08.
+
 ## Preparación segmentada — diagnóstico local2026-11-16
 
 | Origen/caso | Fuente | Resultado y límite |

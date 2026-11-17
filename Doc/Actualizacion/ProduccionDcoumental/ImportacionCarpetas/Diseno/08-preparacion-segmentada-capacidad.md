@@ -103,6 +103,8 @@ Pausar espera la solicitud en curso. Cerrar/recargar invalida callbacks y consen
 
 ## Compatibilidad, despliegue y reversión
 
+Implementación local2026-11-17: lectores compatibles conservados en `d5bae4640082f7a53fcd5522891715e7d876b0dc`. El ensayo aislado de dos DLL compiladas B→A→B conserva huellas de plan1 y plan2 de1.000 recursos en archivos sintéticos; [evidencia y límites](../Validacion/doc120-segmentada-20261117.md). No acredita DDL, transacciones/rollback MySQL o retorno de objetos de negocio reales. SQL08 y binarios permanecen sin aplicar al sitio.
+
 El esquema1 conserva lectores, huellas y ConfirmarPlan. La migración propuesta es aditiva y manual; el detector de capacidad segmentada es independiente para no romper consultas de lotes antiguos por faltar tablas nuevas. No se aplica DDL, no se repiten migraciones, no se habilita producción ni se elimina ningún borrador mediante esta propuesta.
 
 Antes de emitir planes2 debe existir una versión compatible de lectores/confirmación que permita regresar la aplicación conservando el soporte2. La reversión soportada vuelve a esa versión compatible y conserva las tablas/datos; no permite instalar un binario anterior que desconozca planes2 mientras haya datos que deba gestionar. El despliegue debe comprobar esta compatibilidad en laboratorio y documentar la versión mínima. No se ofrece downgrade destructivo ni rollback de expedientes/documentos reales.

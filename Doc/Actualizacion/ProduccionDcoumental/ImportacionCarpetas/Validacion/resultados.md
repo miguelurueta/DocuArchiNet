@@ -1,5 +1,11 @@
 # DOC-120 — índice cronológico de resultados
 
+## Preparación segmentada, lectura focal y recuperación masiva — 2026-11-17
+
+Implementación local del contrato08 aprobado:1.000 metadatos en partes automáticas, un plan/lote, lecturas focales y vinculación de carpeta para pendientes. **200 casos locales únicos**:199 del corte principal y1 caso nuevo de referencia, con reejecución15/15 de cliente y2/2 wrappers sin sumarlos otra vez. Dos compilaciones completas y compatibilidad B→A→B de planes1/2; retorno mínimo `d5bae464`. Node:3.044 lecturas/3.001 efectos sintéticos/6.665ms; Chromium:3.047 lecturas/766 nodos/p95=7,3ms. [Evidencia, fuentes y límites](doc120-segmentada-20261117.md), JSON compañero y [ventana real propuesta](doc120-capacidad-plan-real-20261117.md).
+
+**139/148 tareas**,53 escenarios.3.118 queda abierta por fallo/rollback y carrera real MySQL no ensayados;3.126/3.127 por carga/continuación sin autorización. Las seis pendientes anteriores conservan sus condiciones. Cero HTTP de aplicación, SELECT o efectos reales; SQL08/DLL sin aplicar a IIS. Los cortes siguientes son históricos y no describen el estado vigente del contrato08.
+
 ## Línea base de capacidad y contrato propuesto — 2026-11-16
 
 3.98 verificada con inventario/API/motor reales y transporte/efectos sintéticos: cuerpo de1.000 metadatos172.409 caracteres; preflight sin XHR; casos de1/100 archivos completan y1.000 se bloquea con COORDINACION_LIMITE tras232 recepciones sintéticas y10.000 lecturas modeladas. No se alcanza creación/almacenamiento. [Resultado, reproducción y límites](doc120-capacidad-base-20261116.md), JSON compañero y [contrato propuesto](../Diseno/08-preparacion-segmentada-capacidad.md).111/148 tareas,41 escenarios vigentes;12 casos nuevos aún propuestos.3.97 requiere aprobación del contrato antes de producto. Cero HTTP/SELECT/efectos reales, migraciones o activación IIS. Cortes siguientes históricos.

@@ -1,5 +1,15 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+## Preparación segmentada — entrega local2026-11-17
+
+Con la DLL/SQL08 desplegados y compatibles, el usuario puede seleccionar la carpeta completa de1.000 PDF y pulsar **Preparar revisión** una vez. El módulo divide automáticamente los metadatos por cantidad/tamaño; muestra revisados/total y permite **Pausar revisión** y **Continuar revisión**. No envía contenido PDF en esa fase ni crea un plan por parte. Las fichas por carpeta, valores e incidencias se paginan conservando totales globales.
+
+Tras revisar, **Confirmar e importar** mantiene un lote y un expediente por raíz, con envío y efectos secuenciales. Los contadores distinguen recibidos, expedientes y documentos guardados. **Pausar** deja concluir la solicitud en curso; cerrar o recargar cancela la continuación automática. Consultar importación, último lote, filtros y CSV permanecen disponibles y no ejecutan efectos.
+
+Para retomar un lote confirmado: consultarlo, elegir la raíz pendiente y **Vincular carpeta de originales**. El módulo informa vinculados/faltantes/modificados/ambiguos/sobrantes y omite recibidos. Solo **Continuar importación** empieza los pendientes; no vuelve a confirmar ni agrega archivos nuevos al lote. Si la selección original sigue en memoria, no obliga a reseleccionar. En un borrador sin IDs de selección recuperables después de recarga, consultar es posible, pero continuar requiere preparar otra revisión: no se asocian originales por orden o nombre solo.
+
+[Verificación local y límites](Validacion/doc120-segmentada-20261117.md):200 casos únicos, compilaciones aisladas y lectores compatibles. SQL/DLL **sin aplicar al sitio**; capacidad real y rollback transaccional pendientes. [Ventana propuesta](Validacion/doc120-capacidad-plan-real-20261117.md). El apartado siguiente describe el aviso anterior, que sigue aplicando a servidores sin el nuevo contrato o a un elemento indivisible que exceda el límite.
+
 ## Aviso de tamaño de revisión — 2026-11-16
 
 Si la lista seleccionada supera el límite JSON publicado por el servidor, Preparar revisión detiene la solicitud antes de enviarla. El aviso indica cantidad de PDF, caracteres observados y máximo permitido, confirma que se conserva selección/perfil y explica que hace falta ajustar la capacidad para esa cantidad. No envía los PDF ni afirma haber guardado una revisión. Ese control previo requiere desplegar la DLL actualizada del host; esta entrega solo compila en una ubicación aislada.

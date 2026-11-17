@@ -1,5 +1,11 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — preparación segmentada, corte local2026-11-17
+
+Contrato08 implementado localmente: partes de metadatos, plan2, consulta focal y reselección de carpeta.200 casos únicos y compilaciones/lectores A→B/retorno compatibles, sin autenticación nueva, SQL real, despliegue o recepción. Evidencia `Validacion/doc120-segmentada-20261117.md`. `check-doc120-plan-compatibility.cjs --reader d5bae4640082f7a53fcd5522891715e7d876b0dc` solo compila en `.tmp/` y prueba archivos sintéticos.
+
+Ventana de1.000 PDF preparada en `Validacion/doc120-capacidad-plan-real-20261117.md`: **NO AUTORIZADA NI EJECUTADA**. SQL08 y DLL sin aplicar; retorno mínimo compatible `d5bae464`, conservando tablas/planes2. No instalar binarios anteriores que desconozcan2 cuando haya esos planes. La prueba real propone un lote/una raíz/1.000 documentos y continuación con pausa/recarga; exige autorización específica y revisión del ejecutor adaptado. El runner DOC119 y su allowlist antigua no habilitan estas operaciones ni almacenamiento. No heredar las ventanas históricas de27 archivos ni ejecutar rollback/fallos/DDL por inferencia.3.118 conserva pendiente el ensayo transaccional MySQL.
+
 ## DOC-120 — inicio único, corte local2026-11-15
 
 Confirmar e importar coordina las fases existentes con acuse/lectura antes del siguiente efecto; pausa/cierre invalidan la continuación y consultar/exportar no reanuda. Continuar importación usa los IDs/estado del mismo lote y pide originales faltantes. Códigos repetidos permitidos, snapshots históricos intactos y política configurable futura todavía fuera de alcance.207/207 locales y compilación aislada;106/112 tareas,40 escenarios. Evidencia: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-coordinacion-20261115.md` y JSON compañero. Sin despliegue/activación IIS ni nueva ejecución autenticada o de negocio real.

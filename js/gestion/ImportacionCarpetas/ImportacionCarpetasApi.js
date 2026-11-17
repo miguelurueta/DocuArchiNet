@@ -4,7 +4,7 @@
     else { root.ImportacionCarpetasApi = factory(root); }
 }(typeof window !== "undefined" ? window : this, function (env) {
     "use strict";
-    var operations = ["AbrirImportacion", "ListarPerfilesImportacion", "PrepararPlan", "ConfirmarPlan", "ConsultarConfirmacionLote", "ConsultarLote", "ConsultarRecursosLote", "ExportarPaginaLote", "AvanzarLote", "SolicitarDetencion", "ReconciliarRecurso"];
+    var operations = ["AbrirImportacion", "ListarPerfilesImportacion", "PrepararPlan", "ConfirmarPlan", "ConsultarConfirmacionLote", "ConsultarLote", "ConsultarRecursosLote", "ExportarPaginaLote", "AvanzarLote", "SolicitarDetencion", "ReconciliarRecurso", "IniciarPreparacionPlan", "RegistrarPartePreparacion", "ConsultarPreparacionPlan", "ValidarPartePreparacion", "SellarPreparacionPlan", "ConsultarRevisionPlan", "ConsultarRecursoLote"];
     function fallo(code, status, uncertain) {
         var e = new Error(code); e.codigo = code; e.httpStatus = status || 0; e.resultadoIncierto = !!uncertain; return e;
     }
@@ -267,11 +267,13 @@
                 return error;
             }
             var limit=options.maximoJsonSolicitud;
-            if(!closed && operation === "PrepararPlan" && Number.isSafeInteger(limit) && limit > 0 && limit <= 262144 && body.length > limit) {
+            var segmented = ["IniciarPreparacionPlan","RegistrarPartePreparacion","ConsultarPreparacionPlan","ValidarPartePreparacion","SellarPreparacionPlan","ConsultarRevisionPlan"].indexOf(operation) !== -1;
+            if (segmented) { limit = Math.min(65536,Number.isSafeInteger(limit) && limit > 0 ? limit : 65536); }
+            if(!closed && (operation === "PrepararPlan" || segmented) && Number.isSafeInteger(limit) && limit > 0 && limit <= 262144 && body.length > limit) {
                 var oversized=fallo("REVISION_TAMANO_EXCEDIDO",0,false);oversized.solicitudNoEnviada=true;oversized.caracteresSolicitud=body.length;oversized.limiteCaracteres=limit;
                 return Promise.reject(contextoError(oversized));
             }
-            var transport = send(options.url.replace(/\/$/, "") + "/" + operation, body, false, ["ConfirmarPlan", "PrepararPlan", "AvanzarLote", "SolicitarDetencion", "ReconciliarRecurso"].indexOf(operation) !== -1,null,operation);
+            var transport = send(options.url.replace(/\/$/, "") + "/" + operation, body, false, ["ConfirmarPlan", "PrepararPlan", "AvanzarLote", "SolicitarDetencion", "ReconciliarRecurso", "IniciarPreparacionPlan", "RegistrarPartePreparacion", "ValidarPartePreparacion", "SellarPreparacionPlan"].indexOf(operation) !== -1,null,operation);
             var result = transport.catch(function (error) { throw contextoError(error); });
             result.cancelar = transport.cancelar; return result;
         }
