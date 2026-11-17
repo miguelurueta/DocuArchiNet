@@ -1,5 +1,7 @@
 # DOC-120 — ventana propuesta para aceptar la coordinación
 
+Ampliación documental2026-11-17: [espera y reanudación general](doc120-reanudacion-plan-real-20261117.md) propone una ventana separada de un control/un documento del lote existente. No amplía los efectos ni autorizaciones de este plan; no se ejecutó.
+
 Estado: **PREPARADA, SIN AUTORIZACIÓN NI EJECUCIÓN**. Tareas3.86/3.87 pendientes. La aprobación de implementación habilitó código y pruebas locales; no identifica las cuentas ni autoriza los efectos siguientes. Aplicar [AGENT-RUNBOOK.md](../../../../../tools/e2e/AGENT-RUNBOOK.md): «No crear `.env` ni mostrar secretos, cookies o cadenas de conexión» y autorización específica del ambiente/cuentas/recursos antes de E2E.
 
 ## Alcance que debe aprobarse

@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Espera, reanudación y medición — corte local2026-11-17
+
+D-04/RQ-04; D-05/RQ-05; D-07/RQ-07; D-08/RQ-08; D-09/RQ-09; D-10/RQ-10;3.136–3.158. [Evidencia](doc120-espera-reanudacion-20261117.md)/JSON: transporte demorado, pausa/cierre, control con revisión/autoridad, acuse perdido/lectura anterior/nueva detención/servidor anterior y1.000 recibidos/4 guardados. Preserva identidad y resultados; filtros/CSV/árbol y recuperación V2 conservan regresión local. La carrera/rollback usa un modelo transaccional, no MySQL real. [Línea base y propuesta](../Diseno/medicion-optimizacion-almacenamiento-doc120.md) separan llamadas sintéticas y tiempos locales de bytes físicos/costo IIS. [Ventana preparada](doc120-reanudacion-plan-real-20261117.md), sin ejecutar. Los once pendientes previos se conservan; no aceptación, despliegue o archivo de DOC-120.
+
 ## Lote50 detenido — diagnóstico real2026-11-17
 
 D-04/RQ-04; D-05/RQ-05; D-08/RQ-08; D-10/RQ-10;3.135: [evidencia](doc120-detencion-lote50-20261117.md)/JSON, run8803b6f4.5 SELECT/0 HTTP/0 efectos, DETENIDO/señal1 estable,1.000 recibidos/4 completados/996 sin iniciar,1 creación y0 intentos activos/inciertos. Cuenta propietaria registra detención3544; secretos eliminados. Confirmada la condición real de bloqueo y la brecha de reanudación general; no equivale a recuperación, verificación física de PDF o causa histórica de lentitud.8/8 guardas locales;144/155 tareas.

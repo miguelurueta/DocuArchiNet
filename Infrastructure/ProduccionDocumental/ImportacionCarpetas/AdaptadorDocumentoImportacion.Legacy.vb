@@ -21,11 +21,17 @@ Public Partial Class AdaptadorDocumentoImportacion
                          autoridad.AutorizarRecursos(http, comando.Contexto, comando.Snapshot.Configuracion, "ALMACENAR_DOCUMENTO")
                          If Not repositorio.ComprobarClasificacionExpedienteConocido(comando.Contexto, comando.Raiz.IdentidadExpediente, comando.Snapshot.Configuracion) Then Throw New PerfilImportacionException("ACCESO_DENEGADO", "La relacion del expediente ha cambiado.")
                      End Sub
-        _datos = AddressOf catalogos.PrepararDatosAlmacenamiento
+        _datos = Function(comando) MedicionAlmacenamientoImportacion.Medir("DATOS_DOCUMENTALES", comando.Intento.LoteId, comando.Archivo.ArchivoId, Function() catalogos.PrepararDatosAlmacenamiento(comando))
         _iniciar = AddressOf repositorio.IniciarAlmacenamientoDocumento
-        _invocar = AddressOf InvocarAlmacenamiento
-        _verificar = AddressOf catalogos.ComprobarAlmacenamiento
-        _registrar = AddressOf repositorio.RegistrarResultadoDocumento
+        _invocar = Sub(comando, datos, copia, salida)
+                       MedicionAlmacenamientoImportacion.Medir("ESCRITOR_LEGACY", comando.Intento.LoteId, comando.Archivo.ArchivoId,
+                           Function()
+                               InvocarAlmacenamiento(comando, datos, copia, salida)
+                               Return True
+                           End Function)
+                   End Sub
+        _verificar = Function(comando, datos, resultado) MedicionAlmacenamientoImportacion.Medir("COMPROBACION_POSTERIOR", comando.Intento.LoteId, comando.Archivo.ArchivoId, Function() catalogos.ComprobarAlmacenamiento(comando, datos, resultado))
+        _registrar = Function(comando, resultado) MedicionAlmacenamientoImportacion.Medir("CHECKPOINT", comando.Intento.LoteId, comando.Archivo.ArchivoId, Function() repositorio.RegistrarResultadoDocumento(comando, resultado))
     End Sub
     Private Shared Sub InvocarAlmacenamiento(comando As ComandoAlmacenamientoCarpetas, datos As DatosAlmacenamientoImportacion, copia As String, salida As SalidaAlmacenamientoLegacy)
         If comando.EsVerificacion Then Throw New PerfilImportacionException("SOLICITUD_INVALIDA", "Un comando de verificacion no puede ejecutar almacenamiento.")

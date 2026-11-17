@@ -4,11 +4,11 @@ const api=require('../js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js')
 const {fixture,select,click,out}=require('./support/doc120-coordinacion-browser.cjs');
 const reference={tipo:'ARCHIVOS',id:'98',fase:'ALMACENAR',nombre:'1098.pdf',rutaRelativa:'Egreso/1098.pdf',posicion:2,total:1000};
 
-test('DOC120-STOP01: timeout conserva espera configurada y certeza sin ocultar la causa',async()=>{
+test('DOC120-STOP01: timeout de consulta conserva espera configurada y certeza sin ocultar la causa',async()=>{
  for(const timeout of [undefined,45000]){
   let xhr;const client=api.crear({url:'/synthetic.asmx',uploadUrl:'/synthetic.ashx',token:'synthetic',timeout,xhrFactory:()=>xhr={open(){},setRequestHeader(){},send(){}}});
-  const pending=client.invocar('AvanzarLote',{loteId:'50',recursoId:'98',fase:'ALMACENAR'});
-  const caught=assert.rejects(pending,error=>{assert.equal(error.esperaSegundos,(timeout||30000)/1000);const detail=client.detalleOperacion(error,reference);assert.match(detail.causa,new RegExp(error.esperaSegundos+' segundos'));assert.match(detail.certeza,/no se sabe/);assert.match(client.describirError(error,{fase:'ALMACENAR',loteId:'50'}),/segundos de espera/);return true;});
+  const pending=client.invocar('ConsultarLote',{loteId:'50'});
+  const caught=assert.rejects(pending,error=>{assert.equal(error.esperaSegundos,(timeout||30000)/1000);const detail=client.detalleOperacion(error,reference);assert.match(detail.causa,new RegExp(error.esperaSegundos+' segundos'));assert.equal(error.resultadoIncierto,false);assert.match(detail.certeza,/no obtuvo una confirmación/);assert.match(client.describirError(error,{fase:'ALMACENAR',loteId:'50'}),/tiempo de espera/);return true;});
   xhr.ontimeout();await caught;
  }
 });
@@ -34,18 +34,18 @@ test('DOC120-STOP05: segundo archivo detenido identifica causa y avance antes de
   XMLHttpRequest.prototype.send=function(body){
    const request=body instanceof FormData?null:JSON.parse(body).solicitud;
    if(this.operation==='AvanzarLote'&&request.fase==='ALMACENAR'&&request.recursoId==='79'){
-    calls.push({operation:this.operation,request});window.waitingDiagnostic=true;queueMicrotask(()=>this.ontimeout());return;
+    calls.push({operation:this.operation,request});window.waitingDiagnostic=true;queueMicrotask(()=>this.onerror());return;
    }
    if(this.operation==='ConsultarLote'&&window.waitingDiagnostic){window.releaseDiagnostic=()=>{window.waitingDiagnostic=false;base.call(this,body);};return;}
    base.call(this,body);
   };
  });
  await click(page,'confirmar-importar');await page.waitForFunction(()=>!!window.releaseDiagnostic);
- const panel=page.locator('.doc111-next');await panel.getByRole('heading',{name:'Se agotó el tiempo de espera',exact:true}).waitFor();
- assert.match(await panel.textContent(),/30 segundos/);assert.match(await panel.textContent(),/1\.pdf/);assert.match(await panel.textContent(),/2 de 3/);assert.match(await panel.textContent(),/Carpeta-0\/1\.pdf/);
+ const panel=page.locator('.doc111-next');await panel.getByRole('heading',{name:'Se interrumpió la comunicación',exact:true}).waitFor();
+ assert.doesNotMatch(await panel.textContent(),/30 segundos/);assert.match(await panel.textContent(),/1\.pdf/);assert.match(await panel.textContent(),/2 de 3/);assert.match(await panel.textContent(),/Carpeta-0\/1\.pdf/);
  assert.match(await panel.textContent(),/Último avance confirmado: 1 de 3 documentos guardados/);
  assert.doesNotMatch(await panel.textContent(),/Guardando documento|Operación en curso/);
- assert.equal(await panel.getByText('Código: TIEMPO_AGOTADO · lote 34 · archivo 79',{exact:true}).count(),1);
+ assert.equal(await panel.getByText('Código: ERROR_RED · lote 34 · archivo 79',{exact:true}).count(),1);
  assert.equal(await page.getByRole('button',{name:'Consultando resultado…',exact:true}).isDisabled(),true);
  assert.equal(await page.locator('.doc111-sheet>.doc111-notice').evaluate(el=>el.classList.contains('warn')),true);
  for(const width of [390,768,1280]){await page.setViewportSize({width,height:1000});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);await page.screenshot({path:path.join(out,'parada-'+width+'.png')});}
@@ -71,11 +71,11 @@ test('DOC120-STOP08: intento activo consultado conserva motivo y recurso sin ofr
   XMLHttpRequest.prototype.send=function(body){
    const request=body instanceof FormData?null:JSON.parse(body).solicitud;
    if(this.operation==='AvanzarLote'&&request.fase==='ALMACENAR'){
-    calls.push({operation:this.operation,request});Object.assign(files[0],{estado:'EN_CURSO',tieneIntentoActivo:true,intentoActivoId:'250'});files[0].revision++;rev++;queueMicrotask(()=>this.ontimeout());return;
+    calls.push({operation:this.operation,request});Object.assign(files[0],{estado:'EN_CURSO',tieneIntentoActivo:true,intentoActivoId:'250'});files[0].revision++;rev++;queueMicrotask(()=>this.onerror());return;
    }base.call(this,body);
   };
  });await click(page,'confirmar-importar');await page.getByRole('button',{name:'Consultar resultado',exact:true}).waitFor();
- const panel=page.locator('.doc111-next');assert.match(await panel.textContent(),/Se agotó el tiempo de espera/);assert.match(await panel.textContent(),/0\.pdf/);assert.match(await panel.textContent(),/1 de 2/);assert.match(await panel.textContent(),/30 segundos/);assert.match(await panel.textContent(),/Intento activo; guardado todavía sin confirmar/);assert.match(await panel.textContent(),/intento 250/);
+ const panel=page.locator('.doc111-next');assert.match(await panel.textContent(),/Se interrumpió la comunicación/);assert.match(await panel.textContent(),/0\.pdf/);assert.match(await panel.textContent(),/1 de 2/);assert.doesNotMatch(await panel.textContent(),/30 segundos/);assert.match(await panel.textContent(),/Intento activo; guardado todavía sin confirmar/);assert.match(await panel.textContent(),/intento 250/);
  assert.equal(await page.locator('[data-doc111-action="fase"]:visible').count(),0);
  assert.equal(await page.evaluate(()=>calls.filter(c=>c.operation==='AvanzarLote'&&c.request.fase==='ALMACENAR').length),1);
 }));

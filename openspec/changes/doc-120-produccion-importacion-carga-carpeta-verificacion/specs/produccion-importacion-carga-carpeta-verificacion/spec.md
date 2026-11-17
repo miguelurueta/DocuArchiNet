@@ -126,7 +126,38 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **AND** la denegación no añade detalle de recurso desde la respuesta; cierre invalida lecturas tardías y no inicia otro archivo
 
 ### Requirement: RQ-05 — Integridad, incertidumbre y consumidores
+Ampliación aprobada2026-11-17: D-04/D-05/D-09 autorizan el control ReanudarLote y la espera de respuesta según Diseno/espera-respuesta-reanudacion-lote-doc120.md. Sin nuevas tablas, escritores o efectos reales autorizados por la implementación local.
 DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, valores diferidos y fecha estable, revocación, stop e incertidumbre con casos del arnés existente. Comprobar contrato del plugin en sus26 registros/22archivos y carga individual pertinente. Un callback sintético no demuestra la acción de negocio real de cada módulo.
+
+#### Scenario: Recepción y almacenamiento esperan el acuse del servidor
+- **WHEN** una recepción multipart o ALMACENAR permanece sin respuesta más de30 segundos
+- **THEN** el cliente mantiene una sola solicitud sin abortarla por timeout genérico y espera el acuse real antes de contar éxito y consultar para la siguiente fase
+- **AND** bytes100% no equivalen a recepción/guardado confirmado; pausa espera el acuse y cierre invalida respuestas tardías sin afirmar rollback
+
+#### Scenario: Interfaz diferenciada por capacidad de lote
+- **WHEN** se consulta un lote detenido, pausado localmente, activo, incierto o terminal
+- **THEN** el asistente ofrece reanudar solo con la capacidad del servidor, continuar solo con avance autorizado y consultar/verificar cuando no hay permiso de ejecución
+- **AND** no clasifica una detención sin actividad como OPERACION_EN_CURSO ni promete reanudación sobre servidor anterior
+
+#### Scenario: Levantamiento atómico de detención sin efectos documentales
+- **WHEN** el propietario autorizado solicita ReanudarLote para DETENIDO/señal1 con su revisión vigente y sin actividad/incertidumbre
+- **THEN** el repositorio deriva el estado desde inventario/evidencia, levanta la señal e incrementa revisión con evento en una transacción
+- **AND** conserva plan/snapshot/valores/identidades/confirmados y la consolidación ordinaria no levanta una detención
+
+#### Scenario: Reanudación concurrente o revisión antigua
+- **WHEN** dos solicitudes comparten revisión o una detención nueva precede a una solicitud vieja
+- **THEN** solo una revisión válida puede levantar la señal y registrar el evento; el conflicto o fallo de transacción no deja cambios parciales
+- **AND** actividad, incertidumbre, terminales, contexto ajeno o permisos revocados rechazan el control sin liberar intentos
+
+#### Scenario: Continuación tras reanudación y respuesta perdida
+- **WHEN** el usuario pulsa Reanudar importación
+- **THEN** un acuse válido y lectura posterior coherente son requisitos antes de iniciar la cola existente sobre el mismo lote
+- **AND** una respuesta perdida/inválida o consulta fallida impide encadenamiento y solo permite consultar con nueva decisión explícita, sin retry automático
+
+#### Scenario: Medición sin alterar integridad
+- **WHEN** se diagnostica el costo de comprobaciones repetidas en1/100/1.000 archivos
+- **THEN** las etapas publican únicamente tiempos/categorías/referencias seguros y el laboratorio permanece separado de capacidad real
+- **AND** una propuesta de optimización conserva originales/retenciones/permisos/revisiones y no cambia integridad completa a parcial por rendimiento
 
 #### Scenario: Integridad y valores
 - **WHEN** se evalúan escenarios completos/parciales, valores diferidos y fecha estable
@@ -295,6 +326,8 @@ DOC-120 SHALL cumplir la decisión D-08: La continuación autoriza refinamiento/
 ### Requirement: RQ-09 — Fuentes y decisiones protegidas
 
 DOC-120 SHALL cumplir la decisión D-09: Conservar SII/Integracionccv, AlmacenamientoDocumentoProduccionDocumental, Web.config, semántica de recepción/efectos y PDF/rechazo TIFF. La excepción aprobada del contrato08 permite exclusivamente tres tablas aditivas de preparación, siete operaciones de metadatos/consulta en el ASMX existente y planes esquema2 con lectores compatibles1/2. Mantener decisión expresa SEG-03 de operar sin limpieza y datos retenidos. No añadir otros endpoints, jobs, cuotas, formatos o aislamiento XML adicional; aplicar DDL o desplegar requiere autorización propia.
+
+Excepción de implementación aprobada2026-11-17: ReanudarLote es el único control adicional de esta ampliación en el ASMX existente; usa lote/revisión y tablas actuales, sin recibir PDF ni ejecutar efectos documentales. La medición se limita a fronteras del importador y no cambia el escritor compartido. Despliegue y prueba real conservan su autorización separada.
 
 Excepción adicional autorizada2026-11-17: el ajuste del índice17 de Egresos puede ampliar CONTABIL.BENEFICIARIO/metadato legacy de60 a250 y publicar una versión nueva que cambie solo esa longitud. Debe verificar antes contexto/origen/capacidad/índice y después definición/contenido agregado/publicación anterior; no permite recortar datos, modificar el origen u otros campos ni iniciar importaciones.
 

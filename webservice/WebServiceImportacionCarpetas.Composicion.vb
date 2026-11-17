@@ -12,15 +12,15 @@ Public Partial Class WebServiceImportacionCarpetas
             Case "ALMACENAR" : Return ComposicionDocumentoImportacion.Crear(http)
             Case "RECONCILIAR" : Return ComposicionReconciliacionImportacion.Crear(http)
             Case "RECUPERAR_DOCUMENTO_V2" : Return ComposicionReconciliacionImportacion.CrearRecuperacionV2(http)
-            Case "DETENER_LOTE"
+            Case "DETENER_LOTE", "REANUDAR_LOTE"
                 If http Is Nothing OrElse http.Session Is Nothing OrElse Not Object.ReferenceEquals(http, HttpContext.Current) Then Throw New PerfilImportacionException("SESION_REQUERIDA", "Se requiere una sesion vigente.")
                 Dim ra = ModuleSessionConnectionStringResolver.Resolve(http, "RA_"), da = ModuleSessionConnectionStringResolver.Resolve(http, "DA_")
                 Dim repositorio As New MySqlImportacionCarpetasRepository(ra)
                 Return New CoordinadorImportacionCarpetas(Function() autoridad.Resolver(http), repositorio,
-                    Function(nivel) autoridad.ResolverDestino(http, nivel, "DETENER_LOTE"),
+                    Function(nivel) autoridad.ResolverDestino(http, nivel, accion),
                     Sub(contexto, configuracion)
                         If Not Object.ReferenceEquals(http, HttpContext.Current) OrElse ra <> ModuleSessionConnectionStringResolver.Resolve(http, "RA_") OrElse da <> ModuleSessionConnectionStringResolver.Resolve(http, "DA_") Then Throw New PerfilImportacionException("ACCESO_DENEGADO", "El origen documental ha cambiado.")
-                        autoridad.AutorizarRecursos(http, contexto, configuracion, "DETENER_LOTE")
+                        autoridad.AutorizarRecursos(http, contexto, configuracion, accion)
                     End Sub)
             Case Else : Throw New PerfilImportacionException("SOLICITUD_INVALIDA", "La operacion no esta disponible.")
         End Select

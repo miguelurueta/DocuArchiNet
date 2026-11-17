@@ -1,5 +1,11 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — espera y reanudación general, implementación local2026-11-17
+
+3.136–3.158 implementan espera de acuse en recepción/ALMACENAR y ReanudarLote con revisión/evento transaccionales; prueba de carrera/rollback solo en un modelo local. Fuentes y límites: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-espera-reanudacion-20261117.md`. No hay nuevo despliegue ni operaciones reales en esta entrega. La autorización cerrada del diagnóstico inferior no habilita reanudar el lote50.
+
+Ventana adicional preparada en `Validacion/doc120-reanudacion-plan-real-20261117.md`: propone un control y un solo documento existente, cero recepciones/creaciones,600 HTTP/120 SELECT de control/2 sesiones, máximo45min y64MiB de crecimiento. Requiere aprobación específica de recursos/topes, versión desplegada compatible y runner revisado con guardia de un almacenamiento/pausa al iniciarlo; no lanzar un ejecutor previo que carezca de ese control. Las carreras reales/inyección de fallo MySQL necesitan lote y ventana de laboratorio propios. La ventana de1.000 PDF anterior no se amplía por esta preparación.
+
 ## DOC-120 — diagnóstico real lote50, corte2026-11-17
 
 Usuario «autorizado» habilitó como máximo5 SELECT RA/0 HTTP/0 cambios para certificar detención del lote50. Run8803b6f4f2c44b028bc279fbe42f4250 cerrado:5/5 completados, credenciales eliminadas; DETENIDO/señal1/revisión3026, evento de detención3544, inventario1.000 recibido/4 completado/996 NO_INICIADO con valores, creación confirmada y0 intentos activos/inciertos. Lecturas antes/después estables. Fuente `Validacion/doc120-detencion-lote50-20261117.md`/JSON. No repetir automáticamente, no convertir esta ventana en permiso de ReanudarLote/almacenamiento/SQL correctivo ni inspección de DA/disco. `inspect-doc120-stopped-lot.cjs` está fijado a lote50/propietario141/empresa2 y conserva solo estados/referencias/conteos;8/8 locales. La brecha de reanudación general sigue pendiente de implementación.

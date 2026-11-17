@@ -164,7 +164,7 @@
         function cycle(token,snapshot) {
             if (!live(token) || stopped) { return; }
             if (snapshot.estado.estado === "COMPLETADO") { status = "complete"; current = null; publish(); return; }
-            if (blocked(snapshot)) { status = "blocked"; code = "OPERACION_EN_CURSO"; publish(); return; }
+            if (blocked(snapshot)) { status = "blocked"; code = snapshot.estado.hayIncertidumbre || snapshot.estado.estado==='PENDIENTE_VERIFICACION' ? 'RESULTADO_INCIERTO' : snapshot.estado.hayIntentosActivos ? 'OPERACION_EN_CURSO' : snapshot.estado.detencionSolicitada || snapshot.estado.estado==='DETENIDO' ? 'DETENCION_SOLICITADA' : snapshot.estado.estado==='FALLIDO' ? 'LOTE_TERMINAL' : 'OPERACION_EN_CURSO'; publish(); return; }
             current = choose(snapshot);
             if (!current) { status = "paused"; code = "SIN_AVANCE_DISPONIBLE"; publish(); return; }
             if (completed[current.key] || failed[current.key]) { status = "blocked"; code = "RESULTADO_PENDIENTE_LECTURA"; publish(); return; }
@@ -494,7 +494,7 @@
                     if(op.fase==='RECEPCION'){
                         var original=originalCoordinado(session,model,op.row,snapshot.raices);
                         if(!original){return Promise.reject(fail('ORIGINAL_REQUERIDO'));}
-                        return session.api.enviarCola([{file:original,solicitud:{loteId:lot,archivoId:op.row.recursoId,claveIntento:key()}}],function(item,progress){if(live()){model.transferencia={enviados:progress.enviados,total:progress.total};renderAvance();}}).then(function(receipts){return receipts[0];});
+                        return session.api.enviarCola([{file:original,solicitud:{loteId:lot,archivoId:op.row.recursoId,claveIntento:key()}}],function(item,progress){if(live()){model.transferencia={enviados:progress.enviados,total:progress.total};if(progress.total>0&&progress.enviados>=progress.total){model.mensaje='Archivo enviado: '+op.row.nombre+'. Esperando confirmación del servidor; todavía no se confirma su recepción.';}renderAvance();}}).then(function(receipts){return receipts[0];});
                     }
                     return session.api.invocar('AvanzarLote',{loteId:lot,recursoId:op.row.recursoId,fase:op.fase,revisionEsperada:op.row.revision,claveOperacion:key()});
                 },
@@ -565,6 +565,22 @@
                 session.expectedRootId=value;session.view.reselectorCarpeta.setAttribute('webkitdirectory','');session.view.reselectorCarpeta.setAttribute('multiple','');session.view.reselectorCarpeta.value='';session.view.reselectorCarpeta.click();return;
             }
             if (name === "continuar-importacion") { iniciarCoordinacion(session);return; }
+            if (name === 'reanudar-importacion') {
+                var previous=model.estado;
+                if(!previous || previous.loteId!==model.loteId || previous.estado!=='DETENIDO' || previous.detencionSolicitada!==true || previous.hayIntentosActivos!==false || previous.hayIncertidumbre!==false || previous.accionesPermitidas.indexOf('REANUDAR_LOTE')===-1 || model.mutacionIncierta){return;}
+                invalidarCoordinacion(session);model.detalleErrorOperacion=null;model.faseSolicitud='REANUDAR_LOTE';
+                var acknowledged=false,lot=model.loteId,revision=previous.revision;
+                run(session,function(){return session.api.invocar('ReanudarLote',{loteId:lot,revisionEsperada:revision}).then(function(result){
+                    if(active!==session){return;}
+                    if(!result || result.loteId!==lot || result.revision!==revision+1 || result.detencionSolicitada!==false || ['RECIBIENDO','LISTO','EN_CURSO','PARCIAL','COMPLETADO','FALLIDO'].indexOf(result.estado)===-1){var invalid=new Error('RESPUESTA_INVALIDA');invalid.codigo='RESPUESTA_INVALIDA';invalid.resultadoIncierto=true;throw invalid;}
+                    acknowledged=true;return consultar(session,1).then(function(){
+                        if(active!==session){return;}
+                        if(!model.estado || model.estado.loteId!==lot || model.estado.revision<result.revision){var stale=new Error('RESPUESTA_INVALIDA');stale.codigo='RESPUESTA_INVALIDA';stale.resultadoIncierto=true;throw stale;}
+                    });
+                }).catch(function(error){error.fase='REANUDAR_LOTE';if(active===session){model.mutacionIncierta=true;}if(acknowledged){error.lecturaPosterior=true;}throw error;});}).then(function(ok){
+                    if(ok && active===session && model.loteId===lot && model.estado && model.estado.detencionSolicitada===false && model.estado.hayIntentosActivos===false && model.estado.hayIncertidumbre===false && model.estado.accionesPermitidas.indexOf('SOLICITAR_AVANCE')!==-1){return iniciarCoordinacion(session);}
+                });return;
+            }
             if (name === "ver-expedientes") { if(typeof deps.Doc120MostrarExpediente==='function'&&value){var known=(model.expedientesConfirmados||model.raices&&model.raices.elementos||[]).filter(function(r){return r.recursoId===value;})[0];if(known&&validId(known.expedienteId)&&validId(known.relacionNivelId)){if(deps.Doc120MostrarExpediente(known,model.contexto)===true){cerrar();}else{model.mensaje="El expediente está confirmado, pero su nodo no está visible o es ambiguo. Abre el destino original en la estructura y consulta de nuevo; no repitas la importación.";model.tipoMensaje="AVISO";refresh(session);}}}return; }
             if (name === "volver-importacion") {
                 if (!session.importacionGuardada) { return; }

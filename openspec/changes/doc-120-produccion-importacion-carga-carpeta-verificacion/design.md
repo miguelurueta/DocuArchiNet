@@ -5,6 +5,8 @@ Fuente completa: specs/produccion-importacion-carga-carpeta-verificacion/jira-co
 
 ## Goals / Non-Goals
 
+Ampliación aprobada2026-11-17 por «continua con la implementacion» sobre6ae46470: implementar3.136–3.158 localmente conforme a [espera y reanudación](../../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/espera-respuesta-reanudacion-lote-doc120.md). D-04/D-05/RQ-04/RQ-05 adoptan espera de respuesta sin timeout del cliente para recepción/ALMACENAR, control ReanudarLote sobre lote/revisión y capacidades de consulta coherentes; D-09/RQ-09 admite únicamente ese control adicional en el ASMX existente, sin nuevas tablas/columnas ni cambios al escritor compartido. D-07/RQ-07 incluye medición saneada/propuesta de optimización sin inferir tiempos de IIS ni eliminar integridad. Esta aprobación sustituye la dependencia contractual de3.136; no concede despliegue, reanudación/almacenamiento del lote50 ni otra ventana real. Se conservan las autorizaciones operativas separadas.
+
 Ajuste de datos de prueba autorizado2026-11-17 por «hazlo por mi»: identificar índice17 de Egresos, medir imp_02_egresos y alinear únicamente CONTABIL.BENEFICIARIO/metadato legacy a250 y una versión nueva del perfil. D-09 admite esta excepción acotada al campo existente, preservando contenido/charset/null/default/índices y publicaciones previas. No cambia escritores compartidos, permisos, origen, otros campos o snapshots; no autoriza importar documentos.3.129–3.131 y doc120-egresos-longitud-20261117.md distinguen medición real, preparación y aplicación pendiente de credenciales.
 
 Continuación operativa2026-11-17: el usuario reportó SQL08 aplicado manualmente y luego «continua» ante verificar tres tablas y desplegar la DLL. Alcance técnico ejecutado:10 SELECT de metadatos del RA elegido en consola, DLL/PDB en el IIS local ya identificado y3 comprobaciones HTTP anónimas,0 efectos/0 sesiones autenticadas. Corrección del detector de índices padre bajo D-05/D-09/D-10, sin cambiar SQL. Retorno compatible mínimo `af1ff073` sustituye `d5bae464`. Esta continuación no habilita la ventana de1.000 PDF ni inyección de fallo/rollback; evidencia y límites en doc120-despliegue-esquema-20261117.md.
@@ -15,7 +17,7 @@ Propuesta2026-11-16 pendiente de3.97: [contrato de capacidad](../../../Doc/Actua
 
 **Goals**: matriz única con vigencia por componente; consumo correcto de EXP/ALM/COORD/SEG; regresión focal de la interfaz definitiva; resolución justificada INT-02 y preparación medible INT-03; cierre sin brechas críticas ocultas.
 
-**Non-Goals**: rehacer seguimiento, repetir cada carga, nueva arquitectura/plataforma, SII o limpieza reales sin autorización, modificar almacenamiento compartido/formatos o activar jobs/cuotas/aislamiento XML adicional. El único cambio de esquema/endpoints permitido es el contrato08 aprobado para preparación y lectura focal; DDL y despliegue reales conservan autorización separada.
+**Non-Goals**: rehacer seguimiento, repetir cada carga, nueva arquitectura/plataforma, SII o limpieza reales sin autorización, modificar almacenamiento compartido/formatos o activar jobs/cuotas/aislamiento XML adicional. Los cambios de esquema/endpoints permitidos son el contrato08 aprobado para preparación y lectura focal y el control adicional ReanudarLote aprobado arriba; DDL y despliegue reales conservan autorización separada.
 
 ## PRECONDICIONES DE RUTAS
 

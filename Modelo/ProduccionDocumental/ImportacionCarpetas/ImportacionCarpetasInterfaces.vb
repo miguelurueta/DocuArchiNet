@@ -55,6 +55,11 @@ Public Interface IRecepcionArchivosImportacionRepository
 End Interface
 
 'Capacidad del mismo repositorio; no invoca operaciones legacy.
+'Capacidad aditiva: conserva consumidores anteriores del control de lotes.
+Public Interface IReanudacionLoteImportacionRepository
+    Function ReanudarLote(contexto As ContextoImportacionCarpetas, loteId As String, revisionEsperada As UInteger) As LoteImportacionCarpetas
+End Interface
+
 Public Interface IControlLoteImportacionRepository
     Function ObtenerContextoLote(identidad As ContextoImportacionCarpetas, loteId As String) As ContextoImportacionCarpetas
     Function ObtenerLote(contexto As ContextoImportacionCarpetas, loteId As String) As LoteImportacionCarpetas

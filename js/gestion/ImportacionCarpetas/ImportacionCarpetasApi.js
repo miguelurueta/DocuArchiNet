@@ -4,7 +4,7 @@
     else { root.ImportacionCarpetasApi = factory(root); }
 }(typeof window !== "undefined" ? window : this, function (env) {
     "use strict";
-    var operations = ["AbrirImportacion", "ListarPerfilesImportacion", "PrepararPlan", "ConfirmarPlan", "ConsultarConfirmacionLote", "ConsultarLote", "ConsultarRecursosLote", "ExportarPaginaLote", "AvanzarLote", "SolicitarDetencion", "ReconciliarRecurso", "IniciarPreparacionPlan", "RegistrarPartePreparacion", "ConsultarPreparacionPlan", "ValidarPartePreparacion", "SellarPreparacionPlan", "ConsultarRevisionPlan", "ConsultarRecursoLote"];
+    var operations = ["AbrirImportacion", "ListarPerfilesImportacion", "PrepararPlan", "ConfirmarPlan", "ConsultarConfirmacionLote", "ConsultarLote", "ConsultarRecursosLote", "ExportarPaginaLote", "AvanzarLote", "SolicitarDetencion", "ReanudarLote", "ReconciliarRecurso", "IniciarPreparacionPlan", "RegistrarPartePreparacion", "ConsultarPreparacionPlan", "ValidarPartePreparacion", "SellarPreparacionPlan", "ConsultarRevisionPlan", "ConsultarRecursoLote"];
     function fallo(code, status, uncertain) {
         var e = new Error(code); e.codigo = code; e.httpStatus = status || 0; e.resultadoIncierto = !!uncertain; return e;
     }
@@ -174,7 +174,7 @@
     function describirError(error, context) {
         error = error || {}; context = context || {};
         var code = error.codigo || error.message, phase = error.fase || context.fase || error.operacion,
-            labels = {PrepararPlan:"Preparación de la revisión",ConfirmarPlan:"Confirmación del plan",RECEPCION:"Recepción de archivos",CREAR_EXPEDIENTE:"Creación del expediente",RETOMAR_CREACION:"Reanudación de la creación",MATERIALIZAR_VALORES:"Preparación de índices",ALMACENAR:"Almacenamiento documental"},
+            labels = {PrepararPlan:"Preparación de la revisión",ConfirmarPlan:"Confirmación del plan",RECEPCION:"Recepción de archivos",CREAR_EXPEDIENTE:"Creación del expediente",RETOMAR_CREACION:"Reanudación de la creación",MATERIALIZAR_VALORES:"Preparación de índices",ALMACENAR:"Almacenamiento documental",REANUDAR_LOTE:"Reanudación de la importación",ReanudarLote:"Reanudación de la importación"},
             text = Object.prototype.hasOwnProperty.call(diagnosticos, code) ? diagnosticos[code] : "No se pudo completar la solicitud de esta fase.",
             id = function (value) { return typeof value === "string" && /^[1-9][0-9]{0,9}$/.test(value) && Number(value) <= 4294967295; };
         if (["ACCESO_DENEGADO","SESION_REQUERIDA","SOLICITUD_NO_VERIFICADA"].indexOf(code) !== -1) { return text; }
@@ -234,7 +234,7 @@
     function crear(options) {
         if (!options || !ruta(options.url) || !ruta(options.uploadUrl) || typeof options.token !== "string" || !options.token) { throw fallo("CONTEXTO_INVALIDO"); }
         var closed = false, pending = [], token = options.token;
-        function send(url, body, multipart, mutation, progress, operation) {
+        function send(url, body, multipart, mutation, progress, operation, phase) {
             var xhr, finished = false, cancel;
             var promise = new Promise(function (resolve, reject) {
                 function finish(error, value) {
@@ -248,7 +248,10 @@
                 pending.push(cancel);
                 try {
                     xhr = options.xhrFactory ? options.xhrFactory() : new env.XMLHttpRequest();
-                    xhr.open("POST", url, true); xhr.timeout = options.timeout || 30000;
+                    xhr.open("POST", url, true);
+                    // Recepcion y guardado esperan el acuse real del servidor.
+                    // El cierre puede cancelar la espera, nunca revierte el efecto.
+                    xhr.timeout = multipart || operation === 'AvanzarLote' && phase === 'ALMACENAR' ? 0 : options.timeout || 30000;
                     xhr.setRequestHeader("X-Importacion-Carpetas-CSRF", token);
                     if (!multipart) { xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8"); }
                     xhr.onload = function () {
@@ -296,7 +299,7 @@
                 var oversized=fallo("REVISION_TAMANO_EXCEDIDO",0,false);oversized.solicitudNoEnviada=true;oversized.caracteresSolicitud=body.length;oversized.limiteCaracteres=limit;
                 return Promise.reject(contextoError(oversized));
             }
-            var transport = send(options.url.replace(/\/$/, "") + "/" + operation, body, false, ["ConfirmarPlan", "PrepararPlan", "AvanzarLote", "SolicitarDetencion", "ReconciliarRecurso", "IniciarPreparacionPlan", "RegistrarPartePreparacion", "ValidarPartePreparacion", "SellarPreparacionPlan"].indexOf(operation) !== -1,null,operation);
+            var transport = send(options.url.replace(/\/$/, "") + "/" + operation, body, false, ["ConfirmarPlan", "PrepararPlan", "AvanzarLote", "SolicitarDetencion", "ReanudarLote", "ReconciliarRecurso", "IniciarPreparacionPlan", "RegistrarPartePreparacion", "ValidarPartePreparacion", "SellarPreparacionPlan"].indexOf(operation) !== -1,null,operation,request.fase);
             var result = transport.catch(function (error) { throw contextoError(error); });
             result.cancelar = transport.cancelar; return result;
         }

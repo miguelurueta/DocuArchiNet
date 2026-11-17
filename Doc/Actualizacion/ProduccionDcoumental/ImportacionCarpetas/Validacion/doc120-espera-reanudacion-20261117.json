@@ -1,0 +1,436 @@
+{
+  "status": "PASS_LOCAL_NOT_DEPLOYED",
+  "date": "2026-11-17",
+  "baseCommit": "6ae46470d78ca92da0c11919503cafae4c468fb5",
+  "completedTasks": [
+    "3.136",
+    "3.137",
+    "3.138",
+    "3.139",
+    "3.140",
+    "3.141",
+    "3.142",
+    "3.143",
+    "3.144",
+    "3.145",
+    "3.146",
+    "3.147",
+    "3.148",
+    "3.149",
+    "3.150",
+    "3.151",
+    "3.152",
+    "3.153",
+    "3.154",
+    "3.155",
+    "3.156",
+    "3.157",
+    "3.158"
+  ],
+  "progress": {
+    "done": 167,
+    "total": 178,
+    "pending": [
+      "3.86",
+      "3.87",
+      "3.118",
+      "3.126",
+      "3.127",
+      "3.130",
+      "3.131",
+      "5.2",
+      "6.4",
+      "6.5",
+      "6.6"
+    ]
+  },
+  "tests": [
+    {
+      "suite": "node",
+      "tests": 132,
+      "pass": 132,
+      "fail": 0,
+      "log": ".tmp/doc120-reanudacion-node.log"
+    },
+    {
+      "suite": "framework",
+      "tests": 2,
+      "pass": 2,
+      "fail": 0,
+      "log": ".tmp/doc120-reanudacion-framework.log"
+    }
+  ],
+  "uniqueNodeTests": 134,
+  "internalCasesAddedToTotal": false,
+  "build": {
+    "target": "Compile",
+    "exitCode": 0,
+    "log": ".tmp/doc120-reanudacion-build.log",
+    "isolatedAssembly": ".tmp/doc120-espera-reanudacion-build/obj/GestionDocumental-Docuarchi.net.dll",
+    "sha256": "c74f759871fa4b6899ced0bdd36c09c9128590b7c1ea6358cb8f50a5244e427c",
+    "activeAssemblySha256": "5b821504cf0cb583d4cc5dbd155e8eafad50a2a21196bc06b2749c312b77fff4",
+    "deployed": false
+  },
+  "governance": {
+    "strictOpenSpec": "PASS",
+    "normativeScenarios": 62,
+    "refinement": [
+      {
+        "name": "refinement:exists",
+        "status": "PASS",
+        "details": {
+          "path": "openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/refinement.md"
+        }
+      },
+      {
+        "name": "refinement:approved",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:no_placeholders",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:decisions",
+        "status": "PASS",
+        "details": {
+          "decisionIds": [
+            "D-01",
+            "D-02",
+            "D-03",
+            "D-04",
+            "D-05",
+            "D-06",
+            "D-07",
+            "D-08",
+            "D-09",
+            "D-10"
+          ],
+          "malformedDecisionRows": []
+        }
+      },
+      {
+        "name": "refinement:requirements",
+        "status": "PASS",
+        "details": {
+          "requirementIds": [
+            "RQ-01",
+            "RQ-02",
+            "RQ-03",
+            "RQ-04",
+            "RQ-05",
+            "RQ-06",
+            "RQ-07",
+            "RQ-08",
+            "RQ-09",
+            "RQ-10"
+          ]
+        }
+      },
+      {
+        "name": "refinement:design:exists",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:design:decisions",
+        "status": "PASS",
+        "details": {
+          "missingDecisionIds": []
+        }
+      },
+      {
+        "name": "refinement:spec:exists",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:spec:decisions",
+        "status": "PASS",
+        "details": {
+          "missingDecisionIds": []
+        }
+      },
+      {
+        "name": "refinement:tasks:exists",
+        "status": "PASS"
+      },
+      {
+        "name": "refinement:tasks:decisions",
+        "status": "PASS",
+        "details": {
+          "missingDecisionIds": []
+        }
+      },
+      {
+        "name": "refinement:tasks:origins",
+        "status": "PASS",
+        "details": {
+          "missingOrigins": []
+        }
+      },
+      {
+        "name": "refinement:profile:design:frontend_policy",
+        "status": "PASS",
+        "details": {
+          "technologyProfile": "legacy-webforms-vb",
+          "forbidden": []
+        }
+      },
+      {
+        "name": "refinement:profile:spec:frontend_policy",
+        "status": "PASS",
+        "details": {
+          "technologyProfile": "legacy-webforms-vb",
+          "forbidden": []
+        }
+      },
+      {
+        "name": "refinement:profile:tasks:frontend_policy",
+        "status": "PASS",
+        "details": {
+          "technologyProfile": "legacy-webforms-vb",
+          "forbidden": []
+        }
+      }
+    ]
+  },
+  "baseline": {
+    "kind": "PRODUCTION_BARRIER_WITH_SYNTHETIC_PORTS",
+    "roots": 1,
+    "physicalBytesMeasured": 0,
+    "realSelect": 0,
+    "realWriter": 0,
+    "rows": [
+      {
+        "authorities": 6,
+        "files": 1,
+        "localMilliseconds": 1.8652000000000002,
+        "metadataLoads": 2,
+        "physicalBytesMeasured": 0,
+        "policy": "EXPEDIENTE",
+        "realSelect": 0,
+        "realWriter": 0,
+        "representedBytes": 1854,
+        "stagingPortChecks": 2
+      },
+      {
+        "authorities": 6,
+        "files": 1,
+        "localMilliseconds": 1.8387,
+        "metadataLoads": 2,
+        "physicalBytesMeasured": 0,
+        "policy": "LOTE",
+        "realSelect": 0,
+        "realWriter": 0,
+        "representedBytes": 1854,
+        "stagingPortChecks": 2
+      },
+      {
+        "authorities": 6,
+        "files": 1,
+        "localMilliseconds": 1.3482,
+        "metadataLoads": 2,
+        "physicalBytesMeasured": 0,
+        "policy": "NO_APLICA",
+        "realSelect": 0,
+        "realWriter": 0,
+        "representedBytes": 1854,
+        "stagingPortChecks": 2
+      },
+      {
+        "authorities": 204,
+        "files": 100,
+        "localMilliseconds": 21.0972,
+        "metadataLoads": 200,
+        "physicalBytesMeasured": 0,
+        "policy": "EXPEDIENTE",
+        "realSelect": 0,
+        "realWriter": 0,
+        "representedBytes": 185400,
+        "stagingPortChecks": 200
+      },
+      {
+        "authorities": 204,
+        "files": 100,
+        "localMilliseconds": 20.7517,
+        "metadataLoads": 200,
+        "physicalBytesMeasured": 0,
+        "policy": "LOTE",
+        "realSelect": 0,
+        "realWriter": 0,
+        "representedBytes": 185400,
+        "stagingPortChecks": 200
+      },
+      {
+        "authorities": 6,
+        "files": 100,
+        "localMilliseconds": 1.7505000000000002,
+        "metadataLoads": 2,
+        "physicalBytesMeasured": 0,
+        "policy": "NO_APLICA",
+        "realSelect": 0,
+        "realWriter": 0,
+        "representedBytes": 1854,
+        "stagingPortChecks": 2
+      },
+      {
+        "authorities": 2004,
+        "files": 1000,
+        "localMilliseconds": 215.01500000000001,
+        "metadataLoads": 2000,
+        "physicalBytesMeasured": 0,
+        "policy": "EXPEDIENTE",
+        "realSelect": 0,
+        "realWriter": 0,
+        "representedBytes": 1854000,
+        "stagingPortChecks": 2000
+      },
+      {
+        "authorities": 2004,
+        "files": 1000,
+        "localMilliseconds": 220.73610000000002,
+        "metadataLoads": 2000,
+        "physicalBytesMeasured": 0,
+        "policy": "LOTE",
+        "realSelect": 0,
+        "realWriter": 0,
+        "representedBytes": 1854000,
+        "stagingPortChecks": 2000
+      },
+      {
+        "authorities": 6,
+        "files": 1000,
+        "localMilliseconds": 6.3222000000000005,
+        "metadataLoads": 2,
+        "physicalBytesMeasured": 0,
+        "policy": "NO_APLICA",
+        "realSelect": 0,
+        "realWriter": 0,
+        "representedBytes": 1854,
+        "stagingPortChecks": 2
+      }
+    ]
+  },
+  "boundaries": {
+    "realHttp": 0,
+    "realSelect": 0,
+    "authenticatedSessions": 0,
+    "realMutations": 0,
+    "newTables": 0,
+    "newColumns": 0,
+    "lot50Resumed": false,
+    "sharedStorageWriterChanged": false,
+    "optimizationApplied": false,
+    "mysqlConcurrencyProved": false
+  },
+  "clientVersion": "doc120-reanudacion-20261117-1",
+  "screenshots": [
+    ".tmp/doc120-coordinacion-ui/espera-RECEPCION-390.png",
+    ".tmp/doc120-coordinacion-ui/espera-RECEPCION-768.png",
+    ".tmp/doc120-coordinacion-ui/espera-RECEPCION-1280.png",
+    ".tmp/doc120-coordinacion-ui/espera-ALMACENAR-390.png",
+    ".tmp/doc120-coordinacion-ui/espera-ALMACENAR-768.png",
+    ".tmp/doc120-coordinacion-ui/espera-ALMACENAR-1280.png"
+  ],
+  "sources": [
+    {
+      "path": "DTOs/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasDtos.vb",
+      "sha256LF": "bef9a5fda46d7e8ef377243b88bb59eae303ad6b18513829a8936a6bb8bf3543"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256LF": "183f7cc386bf8c73a9e928dfbf93ff07f5d42a8dbe13f4faa2dcf566c3499992"
+    },
+    {
+      "path": "GestionDocumental-Docuarchi.net.vbproj",
+      "sha256LF": "915ae041cca80e49870faedc019e10abc2338c6bad3345ae3e7b0955e71da1fa"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+      "sha256LF": "ad9a13e8219bb812f48ef87a0fd192b85c9242c48215d2b4d0ee78104106b0d1"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.ProtocoloV2.vb",
+      "sha256LF": "f6e547ac39a9807d03dd05297569e4d7eec50a7a84fb514583cc40101eb9b0cd"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasContextAdapter.vb",
+      "sha256LF": "f0b0e28b900cb056dfe9f60a0c801378c17da77f27d4dc32cf60d280970fadc3"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ReanudacionLote.vb",
+      "sha256LF": "eb568a0cb33e5425e127c0f6094f9635c0e0c9e436ae95af7a5aaa90a7872f77"
+    },
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasInterfaces.vb",
+      "sha256LF": "862333fcc2ade17a50aa857ec861829bf99dce0ac1b142cbdd23bbe8583a5ab5"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Consolidacion.vb",
+      "sha256LF": "80123972108ba5a0c5542ffdba004a9da4b402d1bb5422eeac2827019185207b"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Documento.vb",
+      "sha256LF": "85d8ca2ad924b139d839d44e831486295fab16bf2c06403dc21533c73fd31098"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.ReanudacionLote.vb",
+      "sha256LF": "50a374d22c2c4eadc01793812495f89d8e0631a744d45f6456863a7a86313aca"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.vb",
+      "sha256LF": "8a2d0643574f3edc8953ead33ac2ab2996d958aeb2c255633884938303075600"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb",
+      "sha256LF": "545eaae183531e8a26b1065af3a9a896580d6bd72549aa8e39a5f5efdd801420"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioPerfilImportacion.vb",
+      "sha256LF": "b765801302e72b4a72c3af6eb20d9ea3e5185ffac05300de532b92598af6083a"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256LF": "7ae4a663bf414697be84b0087ec24e34bfb4d37499b9027a79206db135b7f9e1"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js",
+      "sha256LF": "95b6c3333565103d145858add72c079a03f925d4d71f6250c29f6951c2a181fb"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256LF": "b24e3767cf497d6f70d4fd388d3405397073ac0f2bcb99f933d554c09e132823"
+    },
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "sha256LF": "16d5f135f18339b11da1b20bf2d29dc7f61a18f918268417dfa766d80bcfcbdb"
+    },
+    {
+      "path": "tests/ImportacionCarpetasMedicionBehaviorTests.cs",
+      "sha256LF": "d5c93f080e665dab28a6596e418752063b51122f97d6af93f8e28af8f6409c0a"
+    },
+    {
+      "path": "tests/ImportacionCarpetasReanudacionLoteBehaviorTests.cs",
+      "sha256LF": "2a6838c7dabcb999430c6c0275d59f2f94d1b6bbc78df2fa73a902b63bd6e5bc"
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "sha256LF": "04963ad2a36bb3410c7bad275290f080600b83c80eb0cb0fb1721022054c9b9e"
+    },
+    {
+      "path": "tests/doc120-espera-reanudacion.test.cjs",
+      "sha256LF": "c3b1d41a3bff272be6db2560c25ddd9a3c5f5c1b39c9e27bfbdb571762025fb2"
+    },
+    {
+      "path": "tests/doc120-parada-diagnostico.test.cjs",
+      "sha256LF": "e6529140d1ae3cd0c1781f0838ccd855af5a1b819afb839d2e52b03496914936"
+    },
+    {
+      "path": "webservice/WebServiceImportacionCarpetas.Composicion.vb",
+      "sha256LF": "c4938631916ba8a8903db0079f4cf8d7412df55d19ef7077aa4a812b753b9d73"
+    },
+    {
+      "path": "webservice/WebServiceImportacionCarpetas.asmx.vb",
+      "sha256LF": "2ffe16ca4d6c04f6bc96b9f912f1a1f2bf2c19c807f77b50c66a4ab94bc18382"
+    }
+  ]
+}

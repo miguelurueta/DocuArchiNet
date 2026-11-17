@@ -80,6 +80,11 @@ Public Partial Class WebServiceImportacionCarpetas
     End Function
 
     <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function ReanudarLote(solicitud As ReanudarLoteImportacionSolicitud) As RespuestaPerfilImportacion
+        Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) _coordinacionOperativa(http, _autoridadOperativa, "REANUDAR_LOTE").ReanudarLote(r))
+    End Function
+
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
     Public Function ReconciliarRecurso(solicitud As ReconciliarRecursoImportacionSolicitud) As RespuestaPerfilImportacion
         Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) _coordinacionOperativa(http, _autoridadOperativa, "RECONCILIAR").ReconciliarRecurso(r))
     End Function

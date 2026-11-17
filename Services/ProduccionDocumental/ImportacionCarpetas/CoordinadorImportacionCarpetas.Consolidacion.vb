@@ -9,6 +9,14 @@ Public Partial Class CoordinadorImportacionCarpetas
     'Calculo puro, sin fuentes, disco, catalogos o efectos. Nunca reconcilia
     'un INCIERTO ni deduce ausencia de efecto por tiempo o falta de respuesta.
     Friend Shared Function EvaluarConsolidacion(vista As VistaConsolidacionImportacion) As ConsolidacionImportacion
+        Return EvaluarConsolidacionNucleo(vista, False)
+    End Function
+
+    Friend Shared Function EvaluarReanudacionLote(vista As VistaConsolidacionImportacion) As ConsolidacionImportacion
+        Return EvaluarConsolidacionNucleo(vista, True)
+    End Function
+
+    Private Shared Function EvaluarConsolidacionNucleo(vista As VistaConsolidacionImportacion, reanudarDetenido As Boolean) As ConsolidacionImportacion
         If vista Is Nothing OrElse vista.Lote Is Nothing OrElse vista.Plan Is Nothing OrElse vista.Raices Is Nothing OrElse vista.Archivos Is Nothing OrElse vista.Intentos Is Nothing Then Throw BarreraInvalida()
         Dim lote = vista.Lote, plan = vista.Plan
         If lote.Contexto Is Nothing OrElse lote.Snapshot Is Nothing OrElse lote.Snapshot.Configuracion Is Nothing OrElse plan.Manifiesto Is Nothing OrElse plan.Manifiesto.Raices Is Nothing OrElse plan.Manifiesto.Archivos Is Nothing OrElse plan.Resultado Is Nothing OrElse plan.Resultado.Elementos Is Nothing OrElse plan.Resultado.UnidadesElegibles Is Nothing OrElse plan.Resultado.Incidencias Is Nothing Then Throw BarreraInvalida()
@@ -130,6 +138,7 @@ Public Partial Class CoordinadorImportacionCarpetas
             salida.Raices.Add(New EstadoRaizConsolidadaImportacion With {.RaizId = raiz.RaizId, .Revision = raiz.Revision, .EstadoOriginal = raiz.Estado, .Estado = estado})
         Next
         Dim completo = salida.ArchivosConfirmados = lote.TotalArchivos AndAlso salida.Raices.All(Function(r) r.Estado = "COMPLETADA")
+        If reanudarDetenido AndAlso MotivoControlLote(lote, salida.HayIntentosActivos, salida.HayIncertidumbre) <> "REANUDACION_DISPONIBLE" Then Throw NoPermitida()
         If lote.Estado = "PENDIENTE_VERIFICACION" AndAlso Not completo Then salida.HayIncertidumbre = True
         If salida.HayIncertidumbre Then
             salida.Estado = "PENDIENTE_VERIFICACION"
@@ -137,7 +146,7 @@ Public Partial Class CoordinadorImportacionCarpetas
             salida.Estado = "EN_CURSO"
         ElseIf completo Then
             salida.Estado = "COMPLETADO"
-        ElseIf lote.DetencionSolicitada OrElse lote.Estado = "DETENIDO" Then
+        ElseIf Not reanudarDetenido AndAlso (lote.DetencionSolicitada OrElse lote.Estado = "DETENIDO") Then
             salida.Estado = "DETENIDO"
         ElseIf lote.Estado = "PENDIENTE_VERIFICACION" Then
             salida.Estado = lote.Estado

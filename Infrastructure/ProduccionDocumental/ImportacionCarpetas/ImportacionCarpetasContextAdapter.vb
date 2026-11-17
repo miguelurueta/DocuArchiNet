@@ -53,7 +53,7 @@ Public Class ImportacionCarpetasContextAdapter
         If Not ValidadorPerfilImportacion.ReferenciaValida(nivelRef) Then Throw SolicitudInvalida()
         Dim permiso As String
         Select Case accion
-            Case "ABRIR", "PREPARAR", "CONFIRMAR", "CONSULTAR", "DETENER_LOTE", "RECONCILIAR", "LIMPIAR_STAGING"
+            Case "ABRIR", "PREPARAR", "CONFIRMAR", "CONSULTAR", "DETENER_LOTE", "REANUDAR_LOTE", "RECONCILIAR", "LIMPIAR_STAGING"
                 permiso = "p.agregar_expediente=1 AND p.carga_archivo=1"
             Case "CREAR_EXPEDIENTE"
                 permiso = "p.agregar_expediente=1"

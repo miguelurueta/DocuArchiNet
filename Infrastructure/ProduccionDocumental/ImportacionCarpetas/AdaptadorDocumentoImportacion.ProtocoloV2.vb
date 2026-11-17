@@ -113,7 +113,7 @@ Public Partial Class AdaptadorDocumentoImportacion
             Try
                 retenido.Validar()
                 _autorizar(comando)
-                Dim guardado = persistencia.RegistrarResultado(comando, Copiar(retorno), Copiar(resultado))
+                Dim guardado = MedicionAlmacenamientoImportacion.Medir("CHECKPOINT", comando.Intento.LoteId, comando.Archivo.ArchivoId, Function() persistencia.RegistrarResultado(comando, Copiar(retorno), Copiar(resultado)))
                 If guardado IsNot Nothing AndAlso PerfilImportacionJson.Escribir(guardado) = PerfilImportacionJson.Escribir(resultado) Then Return Copiar(guardado)
             Catch ex As Exception When Not EsInterrupcionV2(ex)
                 'El checkpoint pudo confirmar aunque su respuesta se perdiera.

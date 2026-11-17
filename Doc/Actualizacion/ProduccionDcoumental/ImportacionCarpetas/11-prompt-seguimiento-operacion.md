@@ -1,5 +1,19 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+## Espera y reanudación general — implementación local2026-11-17
+
+Recursos del cliente: `doc120-reanudacion-20261117-1`. Recepción y guardado esperan la respuesta del servidor sin el timeout genérico del navegador a30s. Al terminar de transmitir bytes se muestra **Esperando confirmación del servidor**; todavía no significa archivo recibido o documento guardado. Se conserva archivo/ruta, posición y último avance confirmado. Un fallo de red, respuesta inválida o error HTTP sigue obligando a consultar; esperar no impide que IIS u otra dependencia cierre su solicitud.
+
+**Pausar importación** deja terminar la solicitud iniciada y no comienza otra. Después, **Continuar importación** revisa los pendientes del mismo lote. Cerrar/recargar detiene la continuación automática; una respuesta perdida no revierte un guardado ni habilita repetirlo.
+
+Con la nueva DLL desplegada, consultar un lote DETENIDO sin actividad ni incertidumbre ofrece **Reanudar importación**. Ese clic autoriza levantar la detención con su revisión vigente; espera acuse, consulta de nuevo y continúa mediante la cola existente. No crea otro plan/lote, no repite recibidos, expedientes o documentos confirmados. Solo se pide vincular originales que realmente falten por recibir. Si aparece una nueva detención, actividad o incertidumbre, no se continúa automáticamente.
+
+Una solicitud de reanudación sin respuesta permite **Consultar resultado** y una nueva decisión; no se reenvía sola. Un servidor que no anuncie esta capacidad muestra **Importación detenida** con consulta disponible. La reanudación especial de creación conserva su control anterior y no sirve para levantar una detención general.
+
+Consultar importación, último lote, filtros y CSV conservan su función de lectura. La selección de pendientes usa IDs/estados del inventario completo, no el orden o la página visible. [Contrato](Diseno/espera-respuesta-reanudacion-lote-doc120.md), [evidencia local](Validacion/doc120-espera-reanudacion-20261117.md) y [ventana real propuesta](Validacion/doc120-reanudacion-plan-real-20261117.md).
+
+**Estado de entrega:** código compilado y probado localmente; esta continuación no instala la nueva DLL ni recupera el lote50. Los párrafos siguientes conservan sus cortes históricos; la nueva reanudación requiere el servidor compatible. No hay script SQL nuevo en esta ampliación.
+
 ## Lote50 — condición real comprobada2026-11-17
 
 Diagnóstico8803b6f4 de5 SELECT confirmó detención persistente,1.000 recibidos, expediente confirmado y4 documentos completados;996 tienen almacenamiento NO_INICIADO y valores efectivos registrados. No hay intentos activos/inciertos. La interfaz vigente todavía carece de reanudación general para DETENIDO: repetir Continuar/Consultar no levanta la señal. Conservar el lote50/plan90/versión45 y sus resultados; esta lectura no ejecutó una recuperación ni autorizó editar estados por SQL. [Evidencia y límites físicos/operativos](Validacion/doc120-detencion-lote50-20261117.md). La implementación de reanudación permanece por desarrollar.

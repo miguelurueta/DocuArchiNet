@@ -84,6 +84,11 @@ Public Class DetenerLoteImportacionSolicitud
     Public Property revisionEsperada As UInteger
 End Class
 
+Public Class ReanudarLoteImportacionSolicitud
+    Public Property loteId As String
+    Public Property revisionEsperada As UInteger
+End Class
+
 'Cada llamada avanza solo la fase indicada del recurso persistido.
 Public Class AvanzarLoteImportacionSolicitud
     Public Property loteId As String
@@ -213,6 +218,7 @@ Public Class ConsultarRecursosImportacionSolicitud
 End Class
 
 Public Class EstadoLoteImportacionResultado
+    Public Property motivoBloqueo As String
     Public Property maximoTamanoPagina As Integer
     Public Property loteId As String
     Public Property nivelRef As String

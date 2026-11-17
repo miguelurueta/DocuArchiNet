@@ -175,6 +175,41 @@ Public Class ServicioPerfilImportacion
     End Function
 End Class
 
+'Mediciones del importador: no modifica Trace.Listeners ni registra datos de negocio.
+Public NotInheritable Class MedicionAlmacenamientoImportacion
+    Private Sub New()
+    End Sub
+    Public Shared Function Medir(Of T)(etapa As String, loteId As String, archivoId As String, trabajo As Func(Of T)) As T
+        Dim reloj = System.Diagnostics.Stopwatch.StartNew(), confirmado As Boolean = False
+        Try
+            Dim resultado = trabajo()
+            confirmado = True
+            Return resultado
+        Finally
+            reloj.Stop()
+            Registrar(etapa, loteId, archivoId, reloj.Elapsed.TotalMilliseconds, confirmado)
+        End Try
+    End Function
+    Private Shared Sub Registrar(etapa As String, loteId As String, archivoId As String, milisegundos As Double, finalizo As Boolean)
+        Try
+            If Not {"TOTAL", "CONSULTA_PREFLIGHT", "ORIGINALES_PREVIOS", "RESERVA", "ORIGINALES_RETENIDOS", "ADAPTADOR", "DATOS_DOCUMENTALES", "ESCRITOR_LEGACY", "COMPROBACION_POSTERIOR", "CHECKPOINT", "LECTURA_FINAL"}.Contains(etapa) Then Return
+            If Not ValidadorPerfilImportacion.ReferenciaValida(loteId) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(archivoId) Then Return
+            Dim registro = "DOC120_MEDICION etapa=" & etapa & " lote=" & loteId & " archivo=" & archivoId & " ms=" & milisegundos.ToString("F3", Globalization.CultureInfo.InvariantCulture) & " finalizo=" & If(finalizo, "1", "0")
+            Dim http = System.Web.HttpContext.Current
+            Dim operacion = If(http Is Nothing, Nothing, TryCast(http.Items("DOC120_OPERACION"), String))
+            If operacion IsNot Nothing AndAlso System.Text.RegularExpressions.Regex.IsMatch(operacion, "\A[0-9a-f]{32}\z") Then registro &= " operacion=" & operacion
+            For Each listener As System.Diagnostics.TraceListener In System.Diagnostics.Trace.Listeners
+                Try
+                    listener.TraceEvent(New System.Diagnostics.TraceEventCache(), "ImportacionCarpetas", System.Diagnostics.TraceEventType.Information, 121, registro)
+                Catch
+                    'El observador no puede cambiar el resultado ni disparar otro efecto.
+                End Try
+            Next
+        Catch
+        End Try
+    End Sub
+End Class
+
 Public Class ConfiguracionPerfilImportacionException
     Inherits PerfilImportacionException
     Public ReadOnly Property Incidencias As List(Of IncidenciaPerfilImportacion)

@@ -1,5 +1,7 @@
 # DOC-120 — ventana propuesta de 1.000 PDF y continuación
 
+Ampliación documental2026-11-17: [espera y reanudación general](doc120-reanudacion-plan-real-20261117.md) propone una ventana separada de un control/un documento del lote existente. No amplía los efectos ni autorizaciones de este plan; no se ejecutó.
+
 Corrección técnica posterior2026-11-17: retorno recomendado `beae0afc`, que conserva el detector y corrige la relectura de planes2 con reglas en orden de publicación. DLL actualizada;0 SELECT/efectos y1 comprobación JSON anónima en ese corte. [Pruebas y límites](doc120-lectura-plan-sellado-20261117.md). Sustituye `af1ff073` como recomendación; no aprueba la importación ni requiere SQL adicional.
 
 Actualización técnica2026-11-17: el usuario ya aplicó SQL08;10 SELECT validaron el esquema y se desplegaron DLL/PDB, con denegación anónima JSON comprobada. No repetir DDL/despliegue por este plan. El mínimo de retorno es ahora `af1ff073`, sustituyendo `d5bae464` por su defecto del detector real de índices. [Evidencia](doc120-despliegue-esquema-20261117.md). La ventana de importación siguiente permanece **NO AUTORIZADA NI EJECUTADA**; sus efectos/topes no se aprobaron al continuar la preparación técnica.

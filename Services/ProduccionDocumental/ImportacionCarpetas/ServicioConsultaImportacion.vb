@@ -36,13 +36,15 @@ Public Partial Class ServicioConsultaImportacion
         'Autoridad vigente ya comprobada. Son solicitudes disponibles: cada
         'fase vuelve a validar recurso, revision, barrera y permisos inmediatos.
         Dim acciones As New List(Of String) From {"CONSULTAR", "EXPORTAR_PAGINA", "CONSULTAR_RAICES"}
+        Dim motivo = CoordinadorImportacionCarpetas.MotivoControlLote(lote, lectura.HayIntentosActivos, lectura.HayIncertidumbre)
+        If motivo = "REANUDACION_DISPONIBLE" Then acciones.Add("REANUDAR_LOTE")
         If Not {"COMPLETADO", "FALLIDO"}.Contains(lote.Estado) Then
             If Not lote.DetencionSolicitada Then acciones.Add("SOLICITAR_DETENCION")
             If lectura.HayIncertidumbre Then acciones.Add("SOLICITAR_VERIFICACION")
             If lote.Estado = "EN_CURSO" AndAlso lectura.HayIntentosActivos AndAlso Not lectura.HayIncertidumbre Then acciones.Add("SOLICITAR_REANUDACION")
             If Not lote.DetencionSolicitada AndAlso Not lectura.HayIncertidumbre AndAlso Not lectura.HayIntentosActivos AndAlso Not {"DETENIDO", "PENDIENTE_VERIFICACION"}.Contains(lote.Estado) Then acciones.Add("SOLICITAR_AVANCE")
         End If
-        Return New EstadoLoteImportacionResultado With {.maximoTamanoPagina = _maximoPagina, .loteId = lote.LoteId, .nivelRef = lote.Contexto.NivelRef, .rutaCanonica = lote.Contexto.RutaCanonica,
+        Return New EstadoLoteImportacionResultado With {.motivoBloqueo = motivo, .maximoTamanoPagina = _maximoPagina, .loteId = lote.LoteId, .nivelRef = lote.Contexto.NivelRef, .rutaCanonica = lote.Contexto.RutaCanonica,
             .perfilId = lote.Snapshot.PerfilId, .versionId = lote.Snapshot.VersionId, .estado = lote.Estado, .revision = lote.Revision,
             .detencionSolicitada = lote.DetencionSolicitada, .hayIntentosActivos = lectura.HayIntentosActivos, .hayIncertidumbre = lectura.HayIncertidumbre,
             .totalRaices = lote.TotalRaices, .totalArchivos = lote.TotalArchivos, .totalBytes = lote.TotalBytes,

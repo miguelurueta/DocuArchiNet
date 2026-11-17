@@ -19,6 +19,10 @@ Public Partial Class CoordinadorImportacionCarpetas
 
     'No crea expedientes ni materializa otra fase dentro de esta solicitud.
     Public Function AlmacenarArchivo(loteId As String, archivoId As String, revisionEsperada As UInteger, claveOperacion As String) As ResultadoFaseDocumentoImportacion
+        Return MedicionAlmacenamientoImportacion.Medir("TOTAL", loteId, archivoId, Function() AlmacenarArchivoMedido(loteId, archivoId, revisionEsperada, claveOperacion))
+    End Function
+
+    Private Function AlmacenarArchivoMedido(loteId As String, archivoId As String, revisionEsperada As UInteger, claveOperacion As String) As ResultadoFaseDocumentoImportacion
         If _almacenador Is Nothing Then Throw New PerfilImportacionException("CAPACIDAD_NO_DISPONIBLE", "La fase documental no esta compuesta.")
         If Not ValidadorPerfilImportacion.ReferenciaValida(loteId) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(archivoId) OrElse revisionEsperada = 0 OrElse revisionEsperada >= UInteger.MaxValue - 1UI OrElse claveOperacion Is Nothing OrElse Not Regex.IsMatch(claveOperacion, "\A[A-Za-z0-9_-]{1,64}\z", RegexOptions.CultureInvariant) Then Throw New PerfilImportacionException("SOLICITUD_INVALIDA", "La referencia documental no es valida.")
         Dim identidad = _identidad()
@@ -27,9 +31,9 @@ Public Partial Class CoordinadorImportacionCarpetas
         If referencia Is Nothing OrElse referencia.UsuarioRef <> identidad.UsuarioRef OrElse referencia.AmbitoRef <> identidad.AmbitoRef Then Throw Denegado()
         Dim contexto = _destino(referencia.NivelRef)
         If Not MismoContextoControl(contexto, referencia) OrElse Not contexto.PuedeImportar Then Throw Denegado()
-        Dim archivo = _archivoDocumental(contexto, loteId, archivoId)
+        Dim archivo = MedicionAlmacenamientoImportacion.Medir("CONSULTA_PREFLIGHT", loteId, archivoId, Function() _archivoDocumental(contexto, loteId, archivoId))
         If archivo Is Nothing OrElse archivo.ArchivoId <> archivoId Then Throw Denegado()
-        Dim vista = _vistaDocumental(contexto, loteId, archivo.RaizId)
+        Dim vista = MedicionAlmacenamientoImportacion.Medir("CONSULTA_PREFLIGHT", loteId, archivoId, Function() _vistaDocumental(contexto, loteId, archivo.RaizId))
         ExigirVistaDocumental(vista, contexto, loteId, archivo.RaizId)
         ValidarVistaValores(contexto, New VistaValoresImportacion With {.Lote = vista.Lote, .Raiz = vista.Raiz, .Archivo = archivo})
         ReautorizarFase(contexto, vista.Lote.Snapshot.Configuracion)
@@ -41,9 +45,9 @@ Public Partial Class CoordinadorImportacionCarpetas
         If previo IsNot Nothing Then Return ProyectarDocumento(vista, archivo, solicitud, previo, Nothing, True)
         If archivo.Revision <> revisionEsperada OrElse Not EvaluarBarreraAlmacenamiento(vista, archivo) Then Throw NoPermitida()
         'Comprobar los originales exigidos antes de reclamar un efecto.
-        VerificarStagingCreacion(vista, _archivoDocumental, _stagingDocumental, _autorizar, Nothing, archivo)
+        MedicionAlmacenamientoImportacion.Medir("ORIGINALES_PREVIOS", loteId, archivoId, Function() VerificarStagingCreacion(vista, _archivoDocumental, _stagingDocumental, _autorizar, Nothing, archivo))
         ReautorizarFase(contexto, vista.Lote.Snapshot.Configuracion)
-        Dim reserva = _repositorio.ReservarIntento(contexto, solicitud)
+        Dim reserva = MedicionAlmacenamientoImportacion.Medir("RESERVA", loteId, archivoId, Function() _repositorio.ReservarIntento(contexto, solicitud))
         ExigirIntentoDocumento(solicitud, vista.Raiz.RaizId, reserva)
         If Not reserva.EsNuevaReserva Then Return ProyectarDocumento(vista, archivo, solicitud, reserva, Nothing, True)
         If reserva.Estado <> "RESERVADO" OrElse reserva.TokenReclamacion <> solicitud.TokenReclamacion OrElse reserva.FinUtc IsNot Nothing OrElse reserva.Resultado IsNot Nothing Then Throw NoPermitida()
@@ -57,7 +61,7 @@ Public Partial Class CoordinadorImportacionCarpetas
             ReautorizarFase(contexto, actual.Lote.Snapshot.Configuracion)
             Dim guardias As New List(Of IRetencionVerificadaImportacion)()
             Try
-                Dim pruebas = VerificarStagingCreacion(actual, _archivoDocumental, _stagingDocumental, _autorizar, guardias, fresco, reserva.IntentoId)
+                Dim pruebas = MedicionAlmacenamientoImportacion.Medir("ORIGINALES_RETENIDOS", loteId, archivoId, Function() VerificarStagingCreacion(actual, _archivoDocumental, _stagingDocumental, _autorizar, guardias, fresco, reserva.IntentoId))
                 retenciones = New RetencionesStagingCreacionImportacion(guardias, pruebas)
             Catch
                 Dim cierre As New RetencionesStagingCreacionImportacion(guardias, Nothing)
@@ -69,7 +73,7 @@ Public Partial Class CoordinadorImportacionCarpetas
             If almacen Is Nothing Then Throw NoPermitida()
             Dim adaptador = _almacenador(almacen)
             If adaptador Is Nothing Then Throw NoPermitida()
-            observado = adaptador.Almacenar(contexto, actual.Raiz, fresco, actual.Lote.Snapshot, reserva)
+            observado = MedicionAlmacenamientoImportacion.Medir("ADAPTADOR", loteId, archivoId, Function() adaptador.Almacenar(contexto, actual.Raiz, fresco, actual.Lote.Snapshot, reserva))
         Catch ex As Exception
             DiagnosticoOperacionImportacion.Registrar(ex, "ALMACENAMIENTO", punto:="COORDINACION_DOCUMENTO")
             'La reserva o el efecto pueden haber quedado persistidos. Consultar
@@ -85,7 +89,7 @@ Public Partial Class CoordinadorImportacionCarpetas
         End Try
         Dim salida As ResultadoFaseDocumentoImportacion
         Try
-            Dim ultima = _vistaDocumental(contexto, loteId, archivo.RaizId)
+            Dim ultima = MedicionAlmacenamientoImportacion.Medir("LECTURA_FINAL", loteId, archivoId, Function() _vistaDocumental(contexto, loteId, archivo.RaizId))
             ExigirVistaDocumental(ultima, contexto, loteId, archivo.RaizId)
             Dim ultimoArchivo = _archivoDocumental(contexto, loteId, archivoId)
             Dim guardado = _historicoDocumental(contexto, solicitud)
