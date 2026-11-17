@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Longitud de BENEFICIARIO — 2026-11-17, medición y ajuste preparado
+
+3.129 verificada con9 SELECT:25.153 filas, máximo77,230 valores mayores a60; origen250 frente a CONTABIL.BENEFICIARIO/regla60. Ajuste a250 preparado,14/14 locales. Intento d605ad7e cerrado en login con96 HTTP/1 sesión; guardia de presentación corregida. Continuación fa226614 autenticó y se detuvo por PUBLICATION_CHANGED antes de escribir:98 HTTP/1 sesión/0 SELECT de control/0 mutaciones. Ambas cerradas, secretos eliminados.3.130/3.131 pendientes de observar publicación/revisiones actuales; no se amplió ni publicó por estas corridas. [Evidencia y límites](doc120-egresos-longitud-20261117.md), JSON compañero. No se ejecutaron importaciones.
+
 ## Relectura de plan sellado — 2026-11-17, corte posterior
 
 Reporte de fallo tras1.000/1.000 revisados, referencia62232125f0f64fdfb1537b2251288a35: se reproduce localmente inconsistencia entre snapshot original persistido y huella del snapshot canónico. `beae0afc` corrige escritura y lectura compatible sin actualizar datos.18/18 locales del corte, Build completo y DLL/PDB instalados;1 HTTP anónimo401,0 SELECT/efectos. [Fuente, huellas y límites](doc120-lectura-plan-sellado-20261117.md), JSON compañero. La instancia real reportada no se leyó con cuenta autenticada; confirmación pendiente. Retorno recomendado vigente `beae0afc`;139/148 tareas y aceptación de1.000 PDF pendientes.

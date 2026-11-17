@@ -283,7 +283,15 @@ DOC-120 SHALL cumplir la decisión D-08: La continuación autoriza refinamiento/
 - **AND** una proyección local de la situación previa se identifica como contrafactual, no acredita sesión/transacción ni autoriza replay o liberación de la reserva
 
 ### Requirement: RQ-09 — Fuentes y decisiones protegidas
+
 DOC-120 SHALL cumplir la decisión D-09: Conservar SII/Integracionccv, AlmacenamientoDocumentoProduccionDocumental, Web.config, semántica de recepción/efectos y PDF/rechazo TIFF. La excepción aprobada del contrato08 permite exclusivamente tres tablas aditivas de preparación, siete operaciones de metadatos/consulta en el ASMX existente y planes esquema2 con lectores compatibles1/2. Mantener decisión expresa SEG-03 de operar sin limpieza y datos retenidos. No añadir otros endpoints, jobs, cuotas, formatos o aislamiento XML adicional; aplicar DDL o desplegar requiere autorización propia.
+
+Excepción adicional autorizada2026-11-17: el ajuste del índice17 de Egresos puede ampliar CONTABIL.BENEFICIARIO/metadato legacy de60 a250 y publicar una versión nueva que cambie solo esa longitud. Debe verificar antes contexto/origen/capacidad/índice y después definición/contenido agregado/publicación anterior; no permite recortar datos, modificar el origen u otros campos ni iniciar importaciones.
+
+#### Scenario: Capacidad del índice Egresos alineada sin pérdida de datos
+- **WHEN** se ajusta el índice17 tras medir el origen y recibir autorización específica
+- **THEN** columna y metadato coherentes preceden a la publicación de una versión nueva del perfil, conservando charset, null/default, contenido y publicación anterior
+- **AND** los efectos parciales se conservan sin replay o reducción destructiva; una consola esperando credenciales no acredita aplicación ni publicación
 
 #### Scenario: Fuentes y formatos
 - **WHEN** se consolida o corrige una brecha de DOC-120

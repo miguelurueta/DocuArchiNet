@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Egresos, capacidad del índice17 — 2026-11-17
+
+3.129 verificada con9 SELECT:25.153 filas, máximo77,230 valores mayores a60; origen250 frente a CONTABIL.BENEFICIARIO/regla60. Ajuste a250 preparado,14/14 locales. Intento d605ad7e cerrado en login con96 HTTP/1 sesión; guardia de presentación corregida. Continuación fa226614 autenticó y se detuvo por PUBLICATION_CHANGED antes de escribir:98 HTTP/1 sesión/0 SELECT de control/0 mutaciones. Ambas cerradas, secretos eliminados.3.130/3.131 pendientes de observar publicación/revisiones actuales; no se amplió ni publicó por estas corridas. [Evidencia y límites](doc120-egresos-longitud-20261117.md), JSON compañero. No se ejecutaron importaciones.
+
 ## Lectura compatible del plan sellado — 2026-11-17, corte posterior
 
 D-05/RQ-05, D-09/RQ-09, D-10/RQ-10;3.100/3.105/3.106/3.117/3.119/3.124: [evidencia](doc120-lectura-plan-sellado-20261117.md) y JSON compañero. Cabecera persistida con orden de publicación reproduce rechazo de huella tras sellar1.000 archivos; escritura canónica y normalización de orden al leer pasan18/18 locales, rechazando valores alterados. DLL/PDB desplegados,1 HTTP anónimo401/0 SELECT/0 efectos. No se ha verificado la lectura autenticada de la preparación reportada. Retorno recomendado `beae0afc`, sustituye `af1ff073`;139/148 tareas sin cierre operativo ni carga real aceptada.

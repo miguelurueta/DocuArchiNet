@@ -1,0 +1,165 @@
+{
+  "recordedUtc": "2026-11-17T16:41:08.701302+00:00",
+  "status": "MEASURED_APPLY_STOPPED_PRECONDITION",
+  "authorization": "User: hazlo por mi; index17/cabinet10 CONTABIL.BENEFICIARIO 60->250, legacy metadata, one new Egresos publication",
+  "measurement": {
+    "runId": "0bca49d4e3f441418cceff0267df2be6",
+    "status": "MEASURED",
+    "select": 9,
+    "completedSelect": 9,
+    "maxSelect": 10,
+    "http": 0,
+    "sessions": 0,
+    "businessEffects": 0,
+    "closed": true,
+    "result": {
+      "ownerRef": "141",
+      "companyRef": "2",
+      "profileId": "28",
+      "versionId": "43",
+      "profileRevision": 2,
+      "versionRevision": 3,
+      "versionNumber": 1,
+      "indexId": "17",
+      "cabinetId": "10",
+      "physical": {
+        "id_gabinete": "10",
+        "tabla": "CONTABIL",
+        "columna": "BENEFICIARIO",
+        "alias_campo": "NOMBRE BENEFICARIO",
+        "DATA_TYPE": "varchar",
+        "COLUMN_TYPE": "varchar(60)",
+        "CHARACTER_MAXIMUM_LENGTH": "60",
+        "CHARACTER_SET_NAME": "latin1",
+        "COLLATION_NAME": "latin1_swedish_ci",
+        "IS_NULLABLE": "YES",
+        "COLUMN_DEFAULT": null,
+        "EXTRA": ""
+      },
+      "source": {
+        "table": "imp_02_egresos",
+        "column": "BENEFICIARIO",
+        "declaredCapacity": 250,
+        "maximum": 77,
+        "maximumTrimmed": 77,
+        "records": 25153,
+        "exceedingCurrentRule": 230
+      },
+      "ruleLimit": 60,
+      "physicalCapacity": 60,
+      "requiredForExistingData": 77,
+      "metadataColumns": [
+        "GABINETE",
+        "IDENTI",
+        "TIPO",
+        "CAMPO",
+        "VISIBLE",
+        "SISTEMA",
+        "ESTADO",
+        "INFOCAMPO",
+        "CAMPO_PUBLICO",
+        "CAMPO_UNICO",
+        "id_detalle_gabinete",
+        "id_gabinete",
+        "CAMPO_RADICADO",
+        "ALEAS_CAMPO",
+        "CAMPO_ENABLE_DISABLE",
+        "INDETI_CAMPO_VALOR",
+        "IS_REQUIRED_BACKEND"
+      ],
+      "physicalIndexes": [
+        {
+          "INDEX_NAME": "IDl_02",
+          "NON_UNIQUE": "1",
+          "SEQ_IN_INDEX": "1",
+          "COLUMN_NAME": "BENEFICIARIO",
+          "SUB_PART": null
+        }
+      ],
+      "profileOnlyPossible": false
+    },
+    "credentialsCleared": true,
+    "finishedUtc": "2026-11-17T15:58:35.387Z"
+  },
+  "firstAttempt": {
+    "runId": "d605ad7e452342adabb3682de351fd06",
+    "measurementRunId": "0bca49d4e3f441418cceff0267df2be6",
+    "status": "STOPPED",
+    "http": 96,
+    "maxHttp": 600,
+    "sessions": 1,
+    "maxSessions": 1,
+    "controlSelect": 0,
+    "maxControlSelect": 12,
+    "mutations": {},
+    "importEffects": 0,
+    "closed": true,
+    "deniedRequest": true,
+    "failure": "DOC120_LENGTH_CHANGE_LOGIN_FAILED",
+    "credentialsCleared": true,
+    "finishedUtc": "2026-11-17T16:33:36.154Z"
+  },
+  "localVerification": {
+    "tests": 14,
+    "passed": 14,
+    "failed": 0,
+    "realDatabaseMutationProven": false,
+    "logSha256": "8480c792a49eb793c19e4f773d186f20a0dde6bc5f31b1303f865e59aef111d1"
+  },
+  "effectsExcluded": [
+    "source-row updates",
+    "document upload",
+    "import creation",
+    "expedition creation",
+    "permission changes",
+    "other columns"
+  ],
+  "sources": [
+    {
+      "path": "tools/e2e/scripts/inspect-doc120-egresos-length.cjs",
+      "sha256": "eb29809134f8a7f43107cd9f43a8cb8d159172400f545941dbec7b77ad6bc853"
+    },
+    {
+      "path": "tools/e2e/scripts/apply-doc120-egresos-length.cjs",
+      "sha256": "4fb6858dbf13e03fa8f136fda77835b59329d2927f8307ff7380383e5cdf52f1"
+    },
+    {
+      "path": "tools/e2e/scripts/support/apply-doc120-beneficiario-capacity.ps1",
+      "sha256": "c89171773f25a6277165ce594ef1d3683030ed6c200c219f66e6a04e47902ccc"
+    },
+    {
+      "path": "tests/doc120-egresos-length.test.cjs",
+      "sha256": "eb3f125d50e7658b2d1e25929f52800e65ba6826d89bb1c164f8d25bb1c098e7"
+    },
+    {
+      "path": "tests/doc120-egresos-length-change.test.cjs",
+      "sha256": "399d93a96cc7c1db03e4842a06f23b8e780c16871cd5d3578f9f751f241e8ec1"
+    }
+  ],
+  "limitations": [
+    "First attempt denied an optional login stylesheet; no column, metadata or profile writes attempted.",
+    "Continuation authenticated but stopped: publication/version/revisions did not match measurement. No ALTER, metadata UPDATE or profile mutation attempted; credentials cleared. Exact mismatching field was not retained by that runner version.",
+    "DDL implicit commit; no automatic shrink or replay after uncertain mutation.",
+    "Aggregate CRC controls are not a backup or cryptographic proof.",
+    "Real 1000-file import and original pending acceptance remain open."
+  ],
+  "continuation": {
+    "runId": "fa22661470ec4f8c940204ea383365a2",
+    "measurementRunId": "0bca49d4e3f441418cceff0267df2be6",
+    "status": "STOPPED",
+    "http": 98,
+    "maxHttp": 600,
+    "sessions": 1,
+    "maxSessions": 1,
+    "controlSelect": 0,
+    "maxControlSelect": 12,
+    "mutations": {},
+    "importEffects": 0,
+    "closed": true,
+    "omittedFont": true,
+    "omittedLanding": true,
+    "failure": "DOC120_LENGTH_CHANGE_PUBLICATION_CHANGED",
+    "credentialsCleared": true,
+    "finishedUtc": "2026-11-17T16:38:57.646Z"
+  }
+}
