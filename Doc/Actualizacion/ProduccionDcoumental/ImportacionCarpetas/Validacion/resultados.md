@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## SQL manual verificado y DLL desplegada — 2026-11-17, corte posterior
+
+Por confirmación del SQL manual y continuación expresa:10 SELECT reales de metadatos,3 tablas compatibles y DLL/PDB actualizados solo en el sitio local. Corrección del falso rechazo de índices padre reproducida antes y validada después;11/11 locales y Build completo. Retorno mínimo `af1ff073`; la recomendación anterior `d5bae464` queda sustituida. Dos GET WSDL500 reproducen un defecto SOAP anterior; la nueva consulta JSON anónima devuelve401/SESION_REQUERIDA, sin datos. Consumo técnico3 HTTP/10 SELECT/0 sesiones autenticadas/0 efectos. [Fuentes y límites](doc120-despliegue-esquema-20261117.md), JSON compañero.139/148 tareas; aceptación de1.000 PDF y rollback/carrera MySQL pendientes.
+
 ## Preparación segmentada, lectura focal y recuperación masiva — 2026-11-17
 
 Implementación local del contrato08 aprobado:1.000 metadatos en partes automáticas, un plan/lote, lecturas focales y vinculación de carpeta para pendientes. **200 casos locales únicos**:199 del corte principal y1 caso nuevo de referencia, con reejecución15/15 de cliente y2/2 wrappers sin sumarlos otra vez. Dos compilaciones completas y compatibilidad B→A→B de planes1/2; retorno mínimo `d5bae464`. Node:3.044 lecturas/3.001 efectos sintéticos/6.665ms; Chromium:3.047 lecturas/766 nodos/p95=7,3ms. [Evidencia, fuentes y límites](doc120-segmentada-20261117.md), JSON compañero y [ventana real propuesta](doc120-capacidad-plan-real-20261117.md).

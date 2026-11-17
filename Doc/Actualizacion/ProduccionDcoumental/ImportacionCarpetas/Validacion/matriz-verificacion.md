@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Despliegue y esquema real — 2026-11-17, corte posterior
+
+3.99/3.117/3.123/3.124 complementadas: [fuente primaria](doc120-despliegue-esquema-20261117.md) y JSON compañero. SQL08 aplicado por el usuario,10 SELECT reales completados y detector compatible tras corregir el falso índice extra de la tabla padre;11/11 locales de este corte y compilación. DLL/PDB instalados en IIS local, sin reiniciar el grupo compartido.3 HTTP técnicos:2 WSDL500 por incompatibilidad SOAP preexistente y1 POST JSON anónimo401/SESION_REQUERIDA. Sin sesión autenticada ni efectos de importación. Retorno mínimo vigente `af1ff073`, sustituye `d5bae464`;139/148 tareas, sin cerrar3.118/3.126/3.127/5.2. Las fuentes inferiores describen sus cortes históricos anteriores.
+
 ## Preparación segmentada — implementación local2026-11-17
 
 | Origen/casos | Fuente | Resultado y límite |

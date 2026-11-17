@@ -1,5 +1,9 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+## Despliegue local confirmado — 2026-11-17
+
+SQL08 aplicado manualmente por el usuario; esquema real aceptado con10 SELECT de metadatos. DLL/PDB actualizados en IIS local, canal JSON de nueva consulta rechaza correctamente el acceso anónimo; sin importar archivos. **Recargar con Ctrl+F5**. El retorno compatible requiere `af1ff073` o posterior; sustituye el mínimo `d5bae464` por la corrección del detector de índices. [Resultado, huellas y límites](Validacion/doc120-despliegue-esquema-20261117.md). Los apartados inferiores conservan su corte previo al despliegue; la aceptación autenticada de1.000 PDF continúa pendiente.
+
 ## Preparación segmentada — entrega local2026-11-17
 
 Con la DLL/SQL08 desplegados y compatibles, el usuario puede seleccionar la carpeta completa de1.000 PDF y pulsar **Preparar revisión** una vez. El módulo divide automáticamente los metadatos por cantidad/tamaño; muestra revisados/total y permite **Pausar revisión** y **Continuar revisión**. No envía contenido PDF en esa fase ni crea un plan por parte. Las fichas por carpeta, valores e incidencias se paginan conservando totales globales.

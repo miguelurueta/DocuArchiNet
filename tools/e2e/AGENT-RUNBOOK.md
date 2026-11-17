@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — esquema y despliegue, corte posterior2026-11-17
+
+El usuario informó aplicación manual de SQL08 y continuó la verificación/despliegue local. Run25b3cd1989384452b39a70282782d9b9 cerrado:10 SELECT de metadatos completados, esquema anterior/nuevo aceptados, credenciales eliminadas. DLL/PDB instalados en IIS local y3 HTTP técnicos sin autenticación/efectos: WSDL500 preexistente comprobado con DLL anterior/nueva, JSON de nueva consulta401/SESION_REQUERIDA. No repetir SQL ni esta ventana automáticamente. Evidencia `Validacion/doc120-despliegue-esquema-20261117.md`. **Retorno mínimo vigente `af1ff073`**, sustituye `d5bae464` por la corrección del detector de índices padre. No inferir autorización de importación, almacenamiento, carga o fallo/rollback transaccional;3.118/3.126/3.127 y5.2 continúan pendientes. Los cortes inferiores conservan su alcance histórico.
+
 ## DOC-120 — preparación segmentada, corte local2026-11-17
 
 Contrato08 implementado localmente: partes de metadatos, plan2, consulta focal y reselección de carpeta.200 casos únicos y compilaciones/lectores A→B/retorno compatibles, sin autenticación nueva, SQL real, despliegue o recepción. Evidencia `Validacion/doc120-segmentada-20261117.md`. `check-doc120-plan-compatibility.cjs --reader d5bae4640082f7a53fcd5522891715e7d876b0dc` solo compila en `.tmp/` y prueba archivos sintéticos.

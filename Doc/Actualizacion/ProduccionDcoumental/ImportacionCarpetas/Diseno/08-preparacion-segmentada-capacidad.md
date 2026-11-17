@@ -103,6 +103,8 @@ Pausar espera la solicitud en curso. Cerrar/recargar invalida callbacks y consen
 
 ## Compatibilidad, despliegue y reversión
 
+Corte posterior2026-11-17: SQL08 aplicado manualmente por el usuario y esquema verificado mediante10 SELECT; DLL actualizada en IIS local, sin importar. **Mínimo compatible vigente `af1ff0733a3ed123d8fb198b26a8f665fe799a8f`**, que corrige el rechazo del índice de la tabla padre incluido por el lector real. Sustituye la recomendación anterior `d5bae464`; esta última no es un retorno operativo válido para la preparación con esos metadatos. [Resultado técnico y límites](../Validacion/doc120-despliegue-esquema-20261117.md). Carga/rollback transaccional reales siguen pendientes.
+
 Implementación local2026-11-17: lectores compatibles conservados en `d5bae4640082f7a53fcd5522891715e7d876b0dc`. El ensayo aislado de dos DLL compiladas B→A→B conserva huellas de plan1 y plan2 de1.000 recursos en archivos sintéticos; [evidencia y límites](../Validacion/doc120-segmentada-20261117.md). No acredita DDL, transacciones/rollback MySQL o retorno de objetos de negocio reales. SQL08 y binarios permanecen sin aplicar al sitio.
 
 El esquema1 conserva lectores, huellas y ConfirmarPlan. La migración propuesta es aditiva y manual; el detector de capacidad segmentada es independiente para no romper consultas de lotes antiguos por faltar tablas nuevas. No se aplica DDL, no se repiten migraciones, no se habilita producción ni se elimina ningún borrador mediante esta propuesta.
