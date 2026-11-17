@@ -10,6 +10,23 @@ Imports MySql.Data.MySqlClient
 'Parte de la misma clase/repositorio. Consultas SELECT sin FOR UPDATE;
 'cada pagina tiene snapshot propio, no un snapshot global de varias peticiones.
 Public Partial Class MySqlImportacionCarpetasRepository
+    Implements IConsultaUltimoLoteImportacionRepository
+
+    Public Function ObtenerUltimoLoteId(identidad As ContextoImportacionCarpetas) As String Implements IConsultaUltimoLoteImportacionRepository.ObtenerUltimoLoteId
+        If identidad Is Nothing OrElse Not identidad.PuedeImportar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(identidad.UsuarioRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(identidad.AmbitoRef) Then Throw AccesoDenegado()
+        Return Operar(Function(conexion, tx) LeerUltimoLoteId(identidad, Function(sql, parametros) LeerTablaConsulta(conexion, tx, sql, parametros)), IsolationLevel.RepeatableRead)
+    End Function
+
+    Friend Shared Function LeerUltimoLoteId(identidad As ContextoImportacionCarpetas, consultar As Func(Of String, Object(), DataTable)) As String
+        If identidad Is Nothing OrElse Not identidad.PuedeImportar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(identidad.UsuarioRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(identidad.AmbitoRef) Then Throw AccesoDenegado()
+        Dim datos = consultar("SELECT lote_id FROM ra_integracion_lote WHERE solicitante_ref=@usuario AND ambito_ref=@ambito ORDER BY lote_id DESC LIMIT 1", New Object() {"@usuario", identidad.UsuarioRef, "@ambito", identidad.AmbitoRef})
+        If datos Is Nothing OrElse datos.Rows.Count > 1 Then Throw NoDisponible()
+        If datos.Rows.Count = 0 Then Return Nothing
+        Dim id = Convert.ToString(datos.Rows(0)("lote_id"), CultureInfo.InvariantCulture)
+        If Not ValidadorPerfilImportacion.ReferenciaValida(id) Then Throw NoDisponible()
+        Return id
+    End Function
+
     'Solo consulta. No confirma, libera ni toma control de una llamada incierta.
     Public Function ConsultarConfirmacion(contexto As ContextoImportacionCarpetas, planId As String) As ConfirmacionLecturaImportacion Implements IConsultaImportacionRepository.ConsultarConfirmacion
         AutorizarOperacion(contexto) : IdOperacion(planId)

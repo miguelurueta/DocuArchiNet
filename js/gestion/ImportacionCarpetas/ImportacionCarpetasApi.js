@@ -4,7 +4,7 @@
     else { root.ImportacionCarpetasApi = factory(root); }
 }(typeof window !== "undefined" ? window : this, function (env) {
     "use strict";
-    var operations = ["AbrirImportacion", "ListarPerfilesImportacion", "PrepararPlan", "ConfirmarPlan", "ConsultarConfirmacionLote", "ConsultarLote", "ConsultarRecursosLote", "ExportarPaginaLote", "AvanzarLote", "SolicitarDetencion", "ReanudarLote", "ReconciliarRecurso", "IniciarPreparacionPlan", "RegistrarPartePreparacion", "ConsultarPreparacionPlan", "ValidarPartePreparacion", "SellarPreparacionPlan", "ConsultarRevisionPlan", "ConsultarRecursoLote"];
+    var operations = ["AbrirImportacion", "ListarPerfilesImportacion", "PrepararPlan", "ConfirmarPlan", "ConsultarConfirmacionLote", "ConsultarLote", "ConsultarUltimoLote", "ConsultarRecursosLote", "ExportarPaginaLote", "AvanzarLote", "SolicitarDetencion", "ReanudarLote", "ReconciliarRecurso", "IniciarPreparacionPlan", "RegistrarPartePreparacion", "ConsultarPreparacionPlan", "ValidarPartePreparacion", "SellarPreparacionPlan", "ConsultarRevisionPlan", "ConsultarRecursoLote"];
     function fallo(code, status, uncertain) {
         var e = new Error(code); e.codigo = code; e.httpStatus = status || 0; e.resultadoIncierto = !!uncertain; return e;
     }

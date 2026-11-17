@@ -27,6 +27,20 @@ Public Partial Class ServicioConsultaImportacion
 
     Public Const MaximoPagina As Integer = 200
 
+    Public Function ConsultarUltimo(solicitud As ConsultarUltimoLoteImportacionSolicitud) As ConsultaUltimoLoteImportacionResultado
+        If solicitud Is Nothing Then Throw Invalida()
+        Dim identidad = _identidad()
+        If identidad Is Nothing OrElse Not identidad.PuedeImportar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(identidad.UsuarioRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(identidad.AmbitoRef) Then Throw Denegado()
+        Dim puerto = TryCast(_repositorio, IConsultaUltimoLoteImportacionRepository)
+        If puerto Is Nothing Then Throw NoDisponible()
+        Dim id = puerto.ObtenerUltimoLoteId(identidad)
+        If id Is Nothing Then Return New ConsultaUltimoLoteImportacionResultado With {.encontrado = False}
+        If Not ValidadorPerfilImportacion.ReferenciaValida(id) Then Throw NoDisponible()
+        'La referencia no se publica hasta comprobar propietario, destino y recursos vigentes.
+        Dim lectura = Autorizar(New ConsultarLoteImportacionSolicitud With {.loteId = id})
+        Return New ConsultaUltimoLoteImportacionResultado With {.encontrado = True, .loteId = lectura.Lote.LoteId}
+    End Function
+
     Public Function Consultar(solicitud As ConsultarLoteImportacionSolicitud) As EstadoLoteImportacionResultado
         Return ProyectarEstado(Autorizar(solicitud))
     End Function

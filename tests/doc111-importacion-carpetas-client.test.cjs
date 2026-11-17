@@ -719,7 +719,7 @@ test('DOC-111: recarga real conserva referencias y recupera sin reconfirmar ni a
     await page.reload();await page.locator('[data-doc111-resume]').click();await page.getByRole('dialog').waitFor();
     assert.equal(await page.locator('[data-doc111-action="enviar"]').isDisabled(),true);
     assert.equal(calls.filter(c=>c.operation==='upload.ashx').length,1);
-    scope='b'.repeat(32);await page.reload();assert.equal(await page.locator('[data-doc111-resume]').isHidden(),true);assert.equal(await page.locator('[data-doc111-verificar]').isHidden(),true);
+    scope='b'.repeat(32);await page.reload();await page.locator('[data-doc111-resume]').waitFor();assert.equal(await page.locator('[data-doc111-resume]').isEnabled(),true);assert.doesNotMatch(await page.locator('[data-doc111-resume]').textContent(),/20/);assert.equal(await page.evaluate(()=>sessionStorage.getItem('DOC111_REF_'+'b'.repeat(32))),null);assert.equal(await page.locator('[data-doc111-verificar]').isHidden(),true);
     assert.deepEqual(errors,[]);assert.deepEqual(exterior,[]);
   }finally{await browser.close();assert.equal(path.dirname(folder),parent);assert.ok(path.basename(folder).startsWith('doc111-reload-'));fs.rmSync(folder,{recursive:true,force:true});}
 });

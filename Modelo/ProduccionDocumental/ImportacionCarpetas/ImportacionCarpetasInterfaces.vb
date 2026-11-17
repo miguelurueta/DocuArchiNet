@@ -68,6 +68,10 @@ Public Interface IControlLoteImportacionRepository
 End Interface
 
 'Lecturas del mismo repositorio, sin capacidad de mutar/reconciliar recursos.
+Public Interface IConsultaUltimoLoteImportacionRepository
+    Function ObtenerUltimoLoteId(identidad As ContextoImportacionCarpetas) As String
+End Interface
+
 Public Interface IConsultaImportacionRepository
     Function ObtenerContextoPlan(identidad As ContextoImportacionCarpetas, planId As String) As ContextoImportacionCarpetas
     Function ConsultarConfirmacion(contexto As ContextoImportacionCarpetas, planId As String) As ConfirmacionLecturaImportacion

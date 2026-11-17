@@ -1,5 +1,7 @@
 <!-- opsxj:refinement version=1 state=approved -->
 
+Corrección solicitada2026-11-17 por consulta bloqueada y video170531: D-04/D-08/D-09 y RQ-04/RQ-08/RQ-09 adoptan [consulta de último lote sin referencia local](../../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/consulta-ultimo-lote-doc120.md). Se admite exclusivamente ConsultarUltimoLote como lectura adicional en el ASMX existente, sin esquema nuevo; identidad de sesión, SELECT limitado y reautorización del destino antes de publicar ID. El botón no depende de elegir perfil ni conservar sessionStorage. Despliegue y cualquier ventana real mantienen autorización separada.
+
 # Refinamiento — DOC-120
 
 Ampliación aprobada2026-11-17 por «continua con la implementacion» sobre6ae46470: D-04/D-05/D-07/D-09 y RQ-04/RQ-05/RQ-07/RQ-09 incorporan espera del acuse para recepción/ALMACENAR, control ReanudarLote en el ASMX existente con revisión/evento atómicos, capacidad consultable y medición saneada por etapa. Contrato concreto: Diseno/espera-respuesta-reanudacion-lote-doc120.md. Sin tablas/columnas nuevas; escritor compartido y barreras de integridad conservados. La optimización queda como propuesta evaluable. Esta aprobación habilita desarrollo/pruebas locales; despliegue y cualquier operación real sobre lote50 requieren ventana propia.

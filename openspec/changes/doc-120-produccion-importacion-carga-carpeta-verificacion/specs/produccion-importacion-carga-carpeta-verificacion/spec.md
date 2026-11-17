@@ -47,6 +47,21 @@ DOC-120 SHALL cumplir la decisión D-03: Usar resultados efectivos y sus cortes 
 ### Requirement: RQ-04 — Interfaz definitiva y regresión focal
 DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/contextual y asistente resultantes de DOC-119. Cubrir seleccionado/pulsado, homónimos, selección inválida, autoridad denegada/revocada, referencia/último lote/confirmación sin acuse, recarga/reapertura/UpdatePanel, árbol, foco y viewport. Reutilizar fuentes vigentes y ejecutar solo casos afectados o brechas documentadas.
 
+#### Scenario: Consultar último lote sin referencia local ni perfil
+- **WHEN** la cuenta abre el asistente sin referencia guardada y pulsa Consultar último lote
+- **THEN** el botón está disponible sin elegir perfil y consulta la última importación confirmada propia de la empresa mediante ConsultarUltimoLote
+- **AND** abrir el resultado conserva la selección previa y no confirma ni reanuda importaciones
+
+#### Scenario: Consulta del último lote con identidad y destino autorizados
+- **WHEN** se solicita la búsqueda sin enviar usuario, empresa, perfil o nivel
+- **THEN** el servidor limita su SELECT al solicitante y empresa de sesión, ordena por lote descendente y devuelve como máximo un candidato
+- **AND** antes de publicar su referencia revalida propietario, destino original, snapshot y permisos; la denegación no revela un lote ajeno
+
+#### Scenario: Ausencia y fallo de búsqueda conservan la consulta manual
+- **WHEN** no existen lotes propios o el servidor no responde a la búsqueda
+- **THEN** informa ausencia o fallo según evidencia y mantiene Consultar importación por referencia, sin inventar IDs ni reutilizar otro contexto
+- **AND** cerrar antes de la respuesta impide iniciar otra consulta; no hay envíos, creaciones o cambios de estado
+
 #### Scenario: Destino y autoridad
 - **WHEN** se valida acceso superior o contextual en la UI definitiva
 - **THEN** se conserva seleccionado frente a pulsado, ruta autorizada y destino fijo
@@ -326,6 +341,8 @@ DOC-120 SHALL cumplir la decisión D-08: La continuación autoriza refinamiento/
 ### Requirement: RQ-09 — Fuentes y decisiones protegidas
 
 DOC-120 SHALL cumplir la decisión D-09: Conservar SII/Integracionccv, AlmacenamientoDocumentoProduccionDocumental, Web.config, semántica de recepción/efectos y PDF/rechazo TIFF. La excepción aprobada del contrato08 permite exclusivamente tres tablas aditivas de preparación, siete operaciones de metadatos/consulta en el ASMX existente y planes esquema2 con lectores compatibles1/2. Mantener decisión expresa SEG-03 de operar sin limpieza y datos retenidos. No añadir otros endpoints, jobs, cuotas, formatos o aislamiento XML adicional; aplicar DDL o desplegar requiere autorización propia.
+
+Corrección adicional solicitada2026-11-17 por video170531: ConsultarUltimoLote es una lectura en el ASMX existente con solicitud vacía, sesión/CSRF, scope de propietario/empresa y reautorización del destino. No requiere cambios de esquema ni ejecuta fases de negocio.
 
 Excepción de implementación aprobada2026-11-17: ReanudarLote es el único control adicional de esta ampliación en el ASMX existente; usa lote/revisión y tablas actuales, sin recibir PDF ni ejecutar efectos documentales. La medición se limita a fronteras del importador y no cambia el escritor compartido. Despliegue y prueba real conservan su autorización separada.
 

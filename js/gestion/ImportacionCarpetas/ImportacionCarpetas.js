@@ -290,7 +290,7 @@
             if (destroyed) { return; }
             if (modern && queryOpen) { var currentMenu = asegurarMenu(); if (currentMenu && !currentMenu.contains(section)) { currentMenu.insertBefore(section, currentMenu.firstChild); navigation = currentMenu; } }
             openButton.disabled = opening || !!host.doc111ConfirmacionPendiente || !validId(host.getAttribute("data-nivel"));
-            resumeButton.hidden = !host.doc111UltimoLote;
+            resumeButton.hidden = false; resumeButton.disabled = opening;
             if (host.doc111UltimoLote) { if (modern) { rotularAccesoMenu(resumeButton, "Consultar lote " + host.doc111UltimoLote.loteId, "fa-history"); } else { resumeButton.textContent = "Consultar lote " + host.doc111UltimoLote.loteId; } }
             if (verifyButton) { verifyButton.hidden = !host.doc111ConfirmacionPendiente; verifyButton.disabled = opening; }
             status.textContent = host.doc111ConfirmacionPendiente ? "La confirmación del plan " + host.doc111ConfirmacionPendiente.planId + " requiere verificar su resultado antes de iniciar otra preparación. " + errorApertura : (opening ? "Validando el destino de la importación…" : errorApertura);
@@ -305,6 +305,7 @@
             }
         }
         function message(error) {
+            if(error && error.operacion === "ConsultarUltimoLote" && ["ACCESO_DENEGADO","SESION_REQUERIDA","SOLICITUD_NO_VERIFICADA"].indexOf(error.codigo)===-1){return "No se pudo buscar la última importación de tu cuenta. Usa Consultar importación para consultar una referencia conocida; no necesitas preparar otra importación.";}
             if(error && error.elementoMetadatos){return 'Los datos de «'+error.elementoMetadatos+'» no caben en una solicitud de revisión. Revisa su nombre y ruta. La preparación se detuvo antes de enviar metadatos o PDF; la selección y el perfil se conservan.';}
             if(error && error.codigo === "PREPARACION_PAUSADA"){return "Revisión en pausa. Continúa la preparación para revisar los metadatos pendientes; todavía no se enviaron PDF.";}
             if(active && active.model.progresoPreparacion && error && ['ACCESO_DENEGADO','SESION_REQUERIDA','SOLICITUD_NO_VERIFICADA'].indexOf(error.codigo)===-1){
@@ -353,6 +354,14 @@
                 if (typeof filters[key] === "string" && filters[key].length) { request[key] = filters[key]; }
             });
             return request;
+        }
+        function buscarUltimo(session) {
+            return session.api.invocar("ConsultarUltimoLote",{}).then(function(result){
+                if(active!==session){return null;}
+                if(!result || typeof result.encontrado!=="boolean" || result.encontrado && !validId(result.loteId) || !result.encontrado && result.loteId!=null){throw new Error("RESPUESTA_INVALIDA");}
+                if(!result.encontrado){session.model.mensaje="No hay importaciones confirmadas de tu cuenta en esta empresa.";return null;}
+                host.doc111UltimoLote={loteId:result.loteId};save();sync();return result.loteId;
+            }).catch(function(error){error.operacion="ConsultarUltimoLote";throw error;});
         }
         function consultar(session, page) {
             if (active !== session) { return Promise.resolve(); }
@@ -591,6 +600,9 @@
             }
             if (name === "consultar-referencia" || name === "consultar-ultimo") {
                 var reference = name === "consultar-ultimo" ? model.ultimoLoteId : String(value || "").trim();
+                if(name === "consultar-ultimo" && !validId(reference)){
+                    var found=null;run(session,function(){return buscarUltimo(session).then(function(id){found=id;});}).then(function(ok){if(ok && active===session && found){action(session,"consultar-referencia",found);}});return;
+                }
                 if (!validId(reference)) { model.mensaje = "Escribe una referencia de lote válida."; refresh(session); return; }
                 invalidarCoordinacion(session);
                 if (!model.consulta) {
@@ -749,7 +761,10 @@
             // La ventana solo se monta tras resolver el destino autorizado.
             active = session; session.view = {render:function () {}, destruir:function () {}}; session.picker = {destruir:function () {}}; session.unsubscribe = function () {};
             run(session, function () {
-                if (resume) { return resume.consulta ? Promise.resolve() : consultar(session, 1); }
+                if (resume) {
+                    if(resume.buscarUltimo){return buscarUltimo(session).then(function(id){if(active!==session||!id){return;}session.model.loteId=id;session.model.referencia=id;session.model.etapa=3;return consultar(session,1);});}
+                    return resume.consulta ? Promise.resolve() : consultar(session, 1);
+                }
                 return session.api.invocar("AbrirImportacion", {nivelRef:requestedLevel}).then(function (result) {
                     if (active !== session) { return; }
                     if (!object(result) || result.nivelRef !== requestedLevel || typeof result.rutaCanonica !== "string" || !Array.isArray(result.perfiles) || !result.perfiles.every(profile) || (result.paginaPerfiles != null && (!object(result.paginaPerfiles) || typeof result.paginaPerfiles.puedeHaberMas !== "boolean"))) { throw new Error("RESPUESTA_INVALIDA"); }
@@ -796,7 +811,7 @@
                 sync();
             });
         }
-        function open() { abrir(null); } function resume() { if (host.doc111UltimoLote) { abrir(host.doc111UltimoLote); } }
+        function open() { abrir(null); } function resume() { if(active){action(active,"consultar-ultimo");return;} abrir(host.doc111UltimoLote || {consulta:true,buscarUltimo:true}); }
         function consulta() { abrir({consulta:true}); }
         function manual() {
             if (!validId(manualInput.value)) { errorApertura = "Escribe una referencia de lote válida."; sync(); return; }

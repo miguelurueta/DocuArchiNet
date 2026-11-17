@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Consulta del último lote — corrección2026-11-17
+
+Video170531 muestra el acceso deshabilitado sin ID local, incluso eligiendo Egresosv3. [Causa y resultado local](doc120-consulta-ultimo-20261117.md)/JSON:70/70 Node únicas, compilación aislada y consulta de último lote propio sin perfil/referencia guardada. Búsqueda y lectura no ejecutan importación. Nueva DLL todavía requiere despliegue autorizado; los once pendientes previos continúan abiertos.
+
 ## Espera y reanudación general — implementación local2026-11-17
 
 [Evidencia local](doc120-espera-reanudacion-20261117.md) y JSON compañero documentan3.136–3.158: espera del acuse, pausa/cierre sin duplicados, reanudación explícita con revisión/evento, recuperación visual del inventario y medición por etapa. Compilación aislada y pruebas locales; sin instalación de DLL, HTTP/SELECT reales, ni recuperación del lote50. El modelo transaccional no prueba rollback MySQL real. [Propuesta de optimización](../Diseno/medicion-optimizacion-almacenamiento-doc120.md) conserva integridad; [ventana preparada](doc120-reanudacion-plan-real-20261117.md) todavía sin ejecutar. Los cortes inferiores mantienen sus resultados y autorizaciones originales.

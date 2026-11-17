@@ -55,6 +55,11 @@ Public Partial Class WebServiceImportacionCarpetas
     End Function
 
     <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function ConsultarUltimoLote(solicitud As ConsultarUltimoLoteImportacionSolicitud) As RespuestaPerfilImportacion
+        Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) _consultaOperativa(http, _autoridadOperativa).ConsultarUltimo(r))
+    End Function
+
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
     Public Function ConsultarConfirmacionLote(solicitud As ConsultarConfirmacionImportacionSolicitud) As RespuestaPerfilImportacion
         Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) _consultaOperativa(http, _autoridadOperativa).ConsultarConfirmacion(r))
     End Function

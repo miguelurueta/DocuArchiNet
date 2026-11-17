@@ -1,4 +1,6 @@
 <!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10 -->
+
+Corrección solicitada2026-11-17 por consulta bloqueada y video170531: D-04/D-08/D-09 y RQ-04/RQ-08/RQ-09 adoptan [consulta de último lote sin referencia local](../../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/consulta-ultimo-lote-doc120.md). Se admite exclusivamente ConsultarUltimoLote como lectura adicional en el ASMX existente, sin esquema nuevo; identidad de sesión, SELECT limitado y reautorización del destino antes de publicar ID. El botón no depende de elegir perfil ni conservar sessionStorage. Despliegue y cualquier ventana real mantienen autorización separada.
 ## Context
 
 Fuente completa: specs/produccion-importacion-carga-carpeta-verificacion/jira-context.md. Base funcional main 8c0773d4371aeb35543bf182c0abdd0319cababa, merge PR130 de DOC-119. Inspección sobre 60e02ae78841f94d08619ac9d53982d4318871c3, rama feature/DOC-120, carpeta principal. El proyecto declara .NET Framework4.6.1 (GestionDocumental-Docuarchi.net.vbproj:16), WebForms VB y JavaScript legacy. Esta revisión no cambia framework ni fuentes de producto.

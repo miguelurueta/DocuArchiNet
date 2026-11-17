@@ -1,5 +1,11 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+## Consulta sin referencia local — corrección2026-11-17
+
+El botón **Consultar último lote** ya no exige elegir perfil ni tener una referencia en sessionStorage. Cuando falta, busca la última importación confirmada de la cuenta/empresa en el servidor compatible; valida el acceso al destino original y abre su seguimiento. Consultar no reanuda ni ejecuta efectos. Si hay una referencia guardada, conserva su consulta directa. Puedes volver a tu selección sin perder sus archivos o perfil.
+
+Si la cuenta no tiene importaciones, lo indica. Si el servidor todavía no admite la búsqueda, mantiene **Consultar importación** para ingresar una referencia conocida; no necesitas preparar otra importación. La búsqueda automática requiere instalar la DLL de esta corrección, con autorización separada. Cache token `doc120-ultimo-20261117-1`. [Diagnóstico, pruebas y estado de despliegue](Validacion/doc120-consulta-ultimo-20261117.md).
+
 ## Espera y reanudación general — implementación local2026-11-17
 
 Recursos del cliente: `doc120-reanudacion-20261117-1`. Recepción y guardado esperan la respuesta del servidor sin el timeout genérico del navegador a30s. Al terminar de transmitir bytes se muestra **Esperando confirmación del servidor**; todavía no significa archivo recibido o documento guardado. Se conserva archivo/ruta, posición y último avance confirmado. Un fallo de red, respuesta inválida o error HTTP sigue obligando a consultar; esperar no impide que IIS u otra dependencia cierre su solicitud.

@@ -196,6 +196,14 @@ Public Class ConsultarLoteImportacionSolicitud
     Public Property loteId As String
 End Class
 
+Public Class ConsultarUltimoLoteImportacionSolicitud
+End Class
+
+Public Class ConsultaUltimoLoteImportacionResultado
+    Public Property encontrado As Boolean
+    Public Property loteId As String
+End Class
+
 Public Class ConsultarConfirmacionImportacionSolicitud
     Public Property planId As String
 End Class

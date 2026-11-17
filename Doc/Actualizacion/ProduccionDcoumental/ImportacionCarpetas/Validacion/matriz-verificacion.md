@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Último lote sin referencia — video170531,2026-11-17
+
+3.159–3.164; D-04/RQ-04, D-08/RQ-08, D-09/RQ-09, D-10/RQ-10. [Evidencia](doc120-consulta-ultimo-20261117.md)/JSON: botón sin referencia/perfil, búsqueda SELECT propia, autoridad actual, resultado vacío, servidor anterior y cierre/consulta sin efectos.70/70 locales; compilación aislada. Despliegue sujeto a autorización propia; no nueva aceptación autenticada ni reanudación del lote50.
+
 ## Espera, reanudación y medición — corte local2026-11-17
 
 D-04/RQ-04; D-05/RQ-05; D-07/RQ-07; D-08/RQ-08; D-09/RQ-09; D-10/RQ-10;3.136–3.158. [Evidencia](doc120-espera-reanudacion-20261117.md)/JSON: transporte demorado, pausa/cierre, control con revisión/autoridad, acuse perdido/lectura anterior/nueva detención/servidor anterior y1.000 recibidos/4 guardados. Preserva identidad y resultados; filtros/CSV/árbol y recuperación V2 conservan regresión local. La carrera/rollback usa un modelo transaccional, no MySQL real. [Línea base y propuesta](../Diseno/medicion-optimizacion-almacenamiento-doc120.md) separan llamadas sintéticas y tiempos locales de bytes físicos/costo IIS. [Ventana preparada](doc120-reanudacion-plan-real-20261117.md), sin ejecutar. Los once pendientes previos se conservan; no aceptación, despliegue o archivo de DOC-120.
