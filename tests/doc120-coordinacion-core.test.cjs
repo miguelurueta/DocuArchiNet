@@ -61,6 +61,16 @@ for(const [mode,scope] of [['COMPLETO_OBLIGATORIO','EXPEDIENTE'],['COMPLETO_OBLI
 test('DOC120-COORD14: dos vistas con revisión compartida detienen la perdedora sin duplicar efectos',async()=>{
  const f=fixture(1),execute=f.options.ejecutar;let attempts=0;f.options.ejecutar=async(op,...args)=>{attempts++;const row=(op.tipo==='RAICES'?f.roots:f.files).find(r=>r.recursoId===op.row.recursoId);if(row.revision!==op.row.revision)throw Object.assign(Error('CONFLICTO_REVISION'),{codigo:'CONFLICTO_REVISION'});return execute(op,...args);};const a=core.crearCoordinacion(f.options),b=core.crearCoordinacion(f.options);await Promise.all([a.iniciar(),b.iniciar()]);assert.deepEqual([a.estado().estado,b.estado().estado].sort(),['blocked','complete']);assert.equal(f.calls.filter(c=>c.phase==='CREAR_EXPEDIENTE').length,1);assert.equal(f.calls.filter(c=>c.phase==='ALMACENAR').length,1);assert.equal(attempts,5);
 });
+test('DOC120-COORD16: publica bloqueo y recurso antes de esperar una consulta incierta demorada',async()=>{
+ const f=fixture(1);f.lostPhase='ALMACENAR';const base=f.options.leer;let release;
+ f.options.leer=async consume=>f.errors.length?new Promise(resolve=>{release=async()=>resolve(await base(consume));}):base(consume);
+ const engine=f.create(),pending=engine.iniciar();await new Promise(setImmediate);
+ assert.equal(f.updates.at(-1).estado,'blocked');assert.equal(f.updates.at(-1).activa,false);assert.equal(f.updates.at(-1).consultandoResultado,true);
+ assert.equal(f.updates.at(-1).actual.id,'78');assert.equal(f.updates.at(-1).actual.posicion,1);assert.equal(f.updates.at(-1).actual.total,1);
+ assert.equal(f.calls.filter(c=>c.phase==='ALMACENAR').length,1);await release();await pending;
+ assert.equal(f.updates.at(-1).consultandoResultado,false);assert.equal(f.calls.filter(c=>c.phase==='ALMACENAR').length,1);
+});
+
 test('DOC120-COORD15: lectura incompatible con un acuse conserva identidad confirmada y no continúa',async()=>{
  const f=fixture(1),execute=f.options.ejecutar;f.options.ejecutar=async(op,...args)=>{const result=await execute(op,...args);if(op.fase==='CREAR_EXPEDIENTE')f.roots[0].expedienteId='999';return result;};await f.create().iniciar();assert.equal(f.calls.length,2);assert.equal(f.errors.at(-1).confirmed,true);assert.equal(f.engine.estado().codigo,'RESULTADO_PENDIENTE_LECTURA');
 });

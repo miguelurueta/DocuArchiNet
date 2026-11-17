@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Parada identificada por archivo — 2026-11-17, corte posterior
+
+Solicitud de mensaje claro tras video PARADA:3.132–3.134 completas con89/89 locales. El panel conserva causa/espera real del cliente, archivo/ruta/posición, último avance confirmado y siguiente acción. Publica la parada antes de esperar la consulta posterior; distingue consulta fallida, intento activo y guardado confirmado sin replay ni continuación automática.4 GET estáticos200 coinciden con las fuentes principales;0 autenticaciones/SELECT/efectos. [Evidencia y límites](doc120-parada-diagnostico-20261117.md), JSON compañero.143/154 tareas; capacidad real y pendientes anteriores continúan abiertos.
+
 ## Longitud de BENEFICIARIO — 2026-11-17, medición y ajuste preparado
 
 3.129 verificada con9 SELECT:25.153 filas, máximo77,230 valores mayores a60; origen250 frente a CONTABIL.BENEFICIARIO/regla60. Ajuste a250 preparado,14/14 locales. Intento d605ad7e cerrado en login con96 HTTP/1 sesión; guardia de presentación corregida. Continuación fa226614 autenticó y se detuvo por PUBLICATION_CHANGED antes de escribir:98 HTTP/1 sesión/0 SELECT de control/0 mutaciones. Ambas cerradas, secretos eliminados.3.130/3.131 pendientes de observar publicación/revisiones actuales; no se amplió ni publicó por estas corridas. [Evidencia y límites](doc120-egresos-longitud-20261117.md), JSON compañero. No se ejecutaron importaciones.

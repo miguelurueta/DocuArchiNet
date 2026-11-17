@@ -102,7 +102,7 @@
     function crearCoordinacion(options) {
         if (!options || typeof options.leer !== "function" || typeof options.ejecutar !== "function" || typeof options.vigente !== "function") { throw new Error("SOLICITUD_INVALIDA"); }
         var running = null, stopped = true, disposed = false, generation = 0, reads = 0, effects = 0, members = null, scope = null;
-        var completed = Object.create(null), confirmedRows = Object.create(null), failed = Object.create(null), current = null, status = "paused", code = null, latest = null, acknowledged = false;
+        var completed = Object.create(null), confirmedRows = Object.create(null), failed = Object.create(null), current = null, status = "paused", code = null, latest = null, acknowledged = false, consultingResult = false;
         var limits = {resources:10000,pages:400,reads:10000,effects:10000};
         function id(value) { return typeof value === "string" && /^[1-9][0-9]{0,9}$/.test(value) && Number(value) <= 4294967295; }
         function integer(value) { return Number.isInteger(value) && value >= 0; }
@@ -110,7 +110,8 @@
         function live(token) { return !disposed && token === generation && options.vigente(); }
         function summary() {
             var roots = latest ? latest.raices : [], files = latest ? latest.archivos : [];
-            return {activa:status === "running" || status === "pausing",estado:status,codigo:code,actual:current ? {tipo:current.tipo,id:current.row.recursoId,nombre:current.row.nombre,fase:current.fase} : null,
+            var rows=current&&current.tipo==='RAICES'?roots:files, position=current?rows.findIndex(function(row){return row.recursoId===current.row.recursoId;})+1:0;
+            return {activa:status === "running" || status === "pausing",consultandoResultado:consultingResult,estado:status,codigo:code,actual:current ? {tipo:current.tipo,id:current.row.recursoId,nombre:current.row.nombre,rutaRelativa:current.row.rutaRelativa,fase:current.fase,posicion:position,total:rows.length} : null,
                 totalRaices:roots.length,totalArchivos:files.length,recibidos:files.filter(function (f) { return f.estadoRecepcion === "RECIBIDO"; }).length,
                 expedientes:roots.filter(function (r) { return id(r.expedienteId) && id(r.relacionNivelId); }).length,
                 guardados:files.filter(function (f) { return id(f.documentoId) && ["ALMACENADO","COMPLETADO"].indexOf(f.estado) !== -1; }).length,
@@ -189,10 +190,12 @@
                 if (!live(token)) { return; }
                 if (current && !acknowledged) { failed[current.key] = true; }
                 error.fase = current ? current.fase : error.fase; status = "blocked"; code = /^[A-Z][A-Z0-9_]{0,63}$/.test(error.codigo || "") ? error.codigo : "RESPUESTA_INVALIDA";
+                consultingResult = !!error.resultadoIncierto && !error.lecturaPosterior;
                 if (options.fallar) { options.fallar(error,current,acknowledged); }
+                publish();
                 // Una sola consulta del resultado incierto; nunca replay o polling.
-                if (error.resultadoIncierto && !error.lecturaPosterior) { return read(token).catch(function () {}); }
-            }).then(function () { if (live(token)) { if (status === "running" || status === "pausing") { status = "paused"; } publish(); } running = null; });
+                if (consultingResult) { return read(token).catch(function (readError) { if(live(token)&&options.falloConsulta){options.falloConsulta(readError);} }); }
+            }).then(function () { consultingResult = false; if (live(token)) { if (status === "running" || status === "pausing") { status = "paused"; } publish(); } running = null; });
             return running;
         }
         return {iniciar:start,pausar:function () { stopped = true; if (running) { status = "pausing"; publish(); } return running || Promise.resolve(); },estado:summary,
@@ -470,8 +473,14 @@
                 original:function (row) { return originalCoordinado(session,model,row,session.lecturaCoordinada.raices); },
                 ceder:function () { return new Promise(function (resolve) { (deps.setTimeout || env.setTimeout)(resolve,0); }); },
                 cambiar:function (value,snapshot) {
-                    if (!live()) { return; } model.coordinacion=value; model.busy=value.activa;
+                    if (!live()) { return; } model.coordinacion=value; model.busy=value.activa || value.consultandoResultado;
                     if (snapshot) { session.lecturaCoordinada=snapshot; model.contexto={nivelRef:snapshot.estado.nivelRef,rutaCanonica:snapshot.estado.rutaCanonica}; host.doc111UltimoLote={loteId:lot}; save(); proyectarCoordinacion(session,model,snapshot); }
+                    if(snapshot && value.estado==='blocked' && model.detalleErrorOperacion && model.ultimaOperacion && model.ultimaOperacion.fase==='ALMACENAR'){
+                        var observed=snapshot.archivos.filter(function(row){return row.recursoId===model.ultimaOperacion.recursoId;})[0];
+                        var stored=observed && !observed.tieneIntentoActivo && validId(observed.documentoId) && ['ALMACENADO','COMPLETADO'].indexOf(observed.estado)!==-1?observed:null;
+                        if(stored){model.detalleErrorOperacion.titulo='Documento guardado; importación en pausa';model.detalleErrorOperacion.certeza='La consulta confirmó que este documento quedó guardado. Su resultado se conserva.';model.detalleErrorOperacion.siguiente='Pulsa «Consultar resultado» para actualizar las acciones disponibles y continuar con los demás archivos. Este documento no debe guardarse de nuevo.';model.mensaje='La consulta confirmó el guardado de «'+stored.nombre+'». La importación permanece en pausa en el mismo lote; consulta el resultado para continuar con los demás archivos.';model.tipoMensaje='AVISO';}
+                        else if(observed && observed.tieneIntentoActivo){model.detalleErrorOperacion.estadoConsultado='Intento activo; guardado todavía sin confirmar';if(validId(observed.intentoActivoId)){model.detalleErrorOperacion.intentoId=observed.intentoActivoId;}}
+                    }
                     if (value.estado==='needs-original') { model.mensaje="Falta el original del archivo pendiente. Vincúlalo y pulsa Continuar importación; los resultados confirmados se conservan."; model.tipoMensaje="AVISO"; }
                     if (value.estado==='paused' && !model.mutacionIncierta) { model.mensaje="Importación en pausa. La siguiente operación requiere Continuar importación."; }
                     if (value.completo) { model.mensaje="Importación completada. Revisa los expedientes y documentos confirmados o cierra el asistente."; model.tipoMensaje="EXITO"; }
@@ -479,7 +488,8 @@
                 },
                 ejecutar:function (op,snapshot) {
                     model.faseSolicitud=op.fase; model.tipoMensaje=null;model.transferencia=null;
-                    model.ultimaOperacion={loteId:lot,tipo:op.tipo,recursoId:op.row.recursoId,fase:op.fase,estado:"SOLICITANDO"};
+                    model.detalleErrorOperacion=null;
+                    model.ultimaOperacion={loteId:lot,tipo:op.tipo,recursoId:op.row.recursoId,nombre:op.row.nombre,rutaRelativa:op.row.rutaRelativa,fase:op.fase,estado:"SOLICITANDO"};
                     model.mensaje={RECEPCION:"Enviando PDF",CREAR_EXPEDIENTE:"Creando expediente",MATERIALIZAR_VALORES:"Preparando datos",ALMACENAR:"Guardando documento"}[op.fase]+": "+op.row.nombre+". Espera la confirmación de esta fase."; renderAvance();
                     if(op.fase==='RECEPCION'){
                         var original=originalCoordinado(session,model,op.row,snapshot.raices);
@@ -492,7 +502,16 @@
                 fallar:function(error,op,confirmed){
                     if(!live()){return;}model.mutacionIncierta=!!op;model.tipoMensaje='ERROR';
                     if(op&&model.ultimaOperacion){model.ultimaOperacion.estado=confirmed?'CONFIRMADA':'SIN_CONFIRMAR';model.ultimaOperacion.codigo=/^[A-Z][A-Z0-9_]{0,63}$/.test(error.codigo||'')?error.codigo:'RESPUESTA_NO_CONFIRMADA';model.ultimaOperacion.intentoId=error.intentoId||op.row.intentoActivoId||null;}
-                    model.mensaje=message(error);renderAvance();
+                    model.detalleErrorOperacion=session.api.detalleOperacion?session.api.detalleOperacion(error,session.coordinator.estado().actual):null;
+                    model.mensaje=message(error);
+                    if(model.detalleErrorOperacion){var detail=model.detalleErrorOperacion;model.mensaje+=' '+(op.tipo==='RAICES'?'Carpeta':'Archivo')+': «'+detail.nombre+'»'+(detail.posicion?' ('+detail.posicion+' de '+detail.total+')':'')+'. Referencia '+detail.id+'.';}
+                    renderAvance();
+                },
+                falloConsulta:function(error){
+                    if(!live()){return;}
+                    if(['ACCESO_DENEGADO','SESION_REQUERIDA','SOLICITUD_NO_VERIFICADA'].indexOf(error.codigo)!==-1){model.detalleErrorOperacion=null;model.mensaje=message(error);}
+                    else if(model.detalleErrorOperacion){model.detalleErrorOperacion.consultaPosterior='La consulta posterior también falló. '+session.api.describirError(error,{fase:'CONSULTA'});}
+                    renderAvance();
                 }
             });
             session.coordinator.consultarInventario=function(){var count=0;return readAll(function(){if(++count>session.coordinator.limites.reads){throw fail('COORDINACION_LIMITE');}},session.coordinator.limites).then(function(snapshot){if(!live()){throw fail('SOLICITUD_CANCELADA');}session.lecturaCoordinada=snapshot;return snapshot;});};

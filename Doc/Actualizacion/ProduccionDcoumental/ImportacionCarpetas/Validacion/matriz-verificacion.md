@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Diagnóstico de parada — 2026-11-17, corte posterior
+
+D-04/RQ-04; D-05/RQ-05; D-07/RQ-07; D-10/RQ-10;3.132–3.134:89/89 pruebas locales de causa/recurso/posición, publicación inmediata del bloqueo, lectura demorada/fallida, confirmación observada, privacidad y390/768/1280px. [Fuente](doc120-parada-diagnostico-20261117.md), JSON compañero.4 GET técnicos200 de recursos estáticos, sin credenciales ni efectos. No se ejecutó lote50 ni se comprobó el resultado real de1098.pdf.143/154 tareas; pendiente aceptación operativa/capacidad y ajuste Egresos de su corte separado.
+
 ## Egresos, capacidad del índice17 — 2026-11-17
 
 3.129 verificada con9 SELECT:25.153 filas, máximo77,230 valores mayores a60; origen250 frente a CONTABIL.BENEFICIARIO/regla60. Ajuste a250 preparado,14/14 locales. Intento d605ad7e cerrado en login con96 HTTP/1 sesión; guardia de presentación corregida. Continuación fa226614 autenticó y se detuvo por PUBLICATION_CHANGED antes de escribir:98 HTTP/1 sesión/0 SELECT de control/0 mutaciones. Ambas cerradas, secretos eliminados.3.130/3.131 pendientes de observar publicación/revisiones actuales; no se amplió ni publicó por estas corridas. [Evidencia y límites](doc120-egresos-longitud-20261117.md), JSON compañero. No se ejecutaron importaciones.

@@ -115,6 +115,16 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **THEN** el módulo ofrece Retomar creación y pide confirmar la continuación y el levantamiento de la detención observada
 - **AND** cancelar no solicita efectos y confirmar envía una sola fase con referencias/revisiones actuales, sin lotes ni recepciones nuevos
 
+#### Scenario: Parada identificada antes de esperar la consulta posterior
+- **WHEN** una operación de recepción, creación, índices o almacenamiento de la coordinación no obtiene confirmación, o su lectura posterior falla
+- **THEN** la interfaz muestra inmediatamente la causa comprobada, fase y recurso con nombre/ruta relativa, posición en el inventario cuando se conoce y último avance confirmado; distingue espera de consulta y operación activa
+- **AND** timeout conserva los segundos configurados del cliente, respuesta desconocida no inventa causa, acuse confirmado se conserva y consultar no repite ni encadena efectos
+
+#### Scenario: Diagnóstico de parada legible y privado
+- **WHEN** el recurso tiene nombre/ruta largos, hay una denegación o el servidor envía texto desconocido
+- **THEN** el panel se adapta a390/768/1280px, usa texto seguro y un catálogo cerrado; los datos para soporte permanecen disponibles sin errores internos, rutas absolutas ni secretos
+- **AND** la denegación no añade detalle de recurso desde la respuesta; cierre invalida lecturas tardías y no inicia otro archivo
+
 ### Requirement: RQ-05 — Integridad, incertidumbre y consumidores
 DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, valores diferidos y fecha estable, revocación, stop e incertidumbre con casos del arnés existente. Comprobar contrato del plugin en sus26 registros/22archivos y carga individual pertinente. Un callback sintético no demuestra la acción de negocio real de cada módulo.
 

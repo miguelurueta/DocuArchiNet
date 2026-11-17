@@ -1,5 +1,9 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+## Aviso de parada por archivo — 2026-11-17, corte posterior
+
+Recargar con Ctrl+F5 para cargar recursos `doc120-parada-20261117-1`. Una parada muestra causa comprobada, fase, archivo/ruta, posición dentro del inventario y último avance confirmado; tiempo agotado no significa guardado fallido. Consultando resultado es una lectura distinta del almacenamiento. La confirmación observada se conserva; intento activo y fallo de consulta mantienen la pausa, sin repetir el efecto. Datos para soporte conserva códigos/referencias seguros. Consultar el mismo lote antes de usar únicamente sus acciones disponibles; no crear otra importación para resolver una espera sin respuesta. [Verificación local y límites](Validacion/doc120-parada-diagnostico-20261117.md):89/89 y4 GET estáticos200, sin autenticación o recuperación nueva del lote50.
+
 ## Corrección de consulta tras revisar1.000 archivos — 2026-11-17, corte posterior
 
 DLL actualizada con `beae0afc`: sellado guarda el snapshot canónico y lector acepta revisiones anteriores cuyas reglas tengan otro orden, manteniendo la huella y el rechazo de valores alterados. Sin SQL ni importaciones nuevas. **Continuar revisión** usa el mismo plan si la ventana conserva sesión/selección; si el reinicio de la aplicación obliga a ingresar o recargar, puede hacer falta reselección/nueva revisión por pérdida de referencias en memoria. [Pruebas y límites](Validacion/doc120-lectura-plan-sellado-20261117.md). Retorno recomendado vigente `beae0afc`, sustituye `af1ff073`; los cortes inferiores son históricos.

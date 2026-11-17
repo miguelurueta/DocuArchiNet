@@ -188,7 +188,10 @@
         }
         else if (phase === "PrepararPlan" && error.resultadoIncierto) { if(code === "RESPUESTA_INVALIDA"){text = "No se pudo obtener la revisión" + selection + ": el servidor devolvió una respuesta no reconocida. No se pudo identificar la causa con esa respuesta.";} text += " No se recibió el resultado de la revisión; puede haber quedado guardada. Se conserva tu selección y perfil. Todavía no hay un lote confirmado con esta respuesta. Puedes preparar otra revisión manualmente cuando no haya una confirmación pendiente."; }
         else if (error.planPendiente && id(error.planPendiente)) { text = "No se pudo confirmar el resultado del plan " + error.planPendiente + ". Usa Verificar confirmación pendiente antes de confirmar otra vez."; }
-        else if (error.resultadoIncierto) { text = ["CREAR_EXPEDIENTE","RETOMAR_CREACION"].indexOf(phase) !== -1 ? "No se confirmó la creación del expediente. Consulta el estado del lote; no repitas la creación." : "No se confirmó el resultado de esta fase. Consulta el estado del lote antes de repetir cualquier efecto."; }
+        else if (error.resultadoIncierto) {
+            if (code === "TIEMPO_AGOTADO" && Number.isFinite(error.esperaSegundos) && error.esperaSegundos > 0) { text = "El servidor no respondió dentro de los " + error.esperaSegundos + " segundos de espera de esta solicitud."; }
+            text += ["CREAR_EXPEDIENTE","RETOMAR_CREACION"].indexOf(phase) !== -1 ? " No se confirmó la creación del expediente. Consulta el estado del lote; no repitas la creación." : " No se confirmó el resultado de esta fase. El servidor puede seguir procesándola. Consulta el estado del lote antes de repetir cualquier efecto.";
+        }
         else if (phase === "PrepararPlan") { text += " Corrige la selección o la regla indicada y prepara una nueva revisión; esta acción no envía ni crea expedientes."; }
         else if (phase === "ConfirmarPlan") { text += " Conserva el plan y verifica su confirmación antes de decidir cómo continuar."; }
         else { text += " Actualiza el estado y utiliza únicamente las acciones disponibles para el recurso."; }
@@ -196,6 +199,26 @@
         if (id(context.loteId)) { text += " Lote " + context.loteId + "."; }
         if (typeof error.operacionId === "string" && /^[a-f0-9]{32}$/i.test(error.operacionId)) { text += " Referencia de diagnóstico: " + error.operacionId.toLowerCase() + "."; }
         return (labels[phase] ? labels[phase] + ". " : "") + text;
+    }
+    function detalleOperacion(error, reference) {
+        if (!error || !reference || ["ACCESO_DENEGADO","SESION_REQUERIDA","SOLICITUD_NO_VERIFICADA"].indexOf(error.codigo) !== -1) { return null; }
+        var phases={RECEPCION:"Recepción del PDF",CREAR_EXPEDIENTE:"Creación del expediente",RETOMAR_CREACION:"Reanudación del expediente",MATERIALIZAR_VALORES:"Preparación de índices",ALMACENAR:"Guardado del documento"};
+        if (!Object.prototype.hasOwnProperty.call(phases,reference.fase)) { return null; }
+        var known=Object.prototype.hasOwnProperty.call(diagnosticos,error.codigo), code=known?error.codigo:"RESPUESTA_INVALIDA";
+        var cause=known?diagnosticos[code]:"No se pudo identificar la causa con la respuesta recibida.";
+        if(known&&code==='RESPUESTA_INVALIDA'){cause='El servidor devolvió una respuesta no reconocida. No se pudo identificar la causa con esa respuesta.';}
+        if(code === "TIEMPO_AGOTADO" && Number.isFinite(error.esperaSegundos) && error.esperaSegundos > 0 && error.esperaSegundos <= 3600){cause="El servidor no respondió dentro de los "+error.esperaSegundos+" segundos de espera de esta solicitud.";}
+        var text=function(value,maximum){return typeof value==='string'?value.replace(/[\u0000-\u001f\u007f]/g,' ').slice(0,maximum):'';};
+        var relative=text(reference.rutaRelativa,1024);if(/^(?:[A-Za-z]:|[\\/])/.test(relative)){relative='';}
+        var confirmed=error.lecturaPosterior===true;
+        return {titulo:confirmed?"Operación confirmada; consulta pendiente":code==='TIEMPO_AGOTADO'?"Se agotó el tiempo de espera":code==='ERROR_RED'||code==='ERROR_TRANSPORTE'?"Se interrumpió la comunicación":"No se pudo completar la fase",
+            causa:cause,codigo:code,fase:phases[reference.fase],tipo:reference.tipo,nombre:text(reference.nombre,255),rutaRelativa:relative,
+            id:/^[1-9][0-9]{0,9}$/.test(reference.recursoId||reference.id||'')&&Number(reference.recursoId||reference.id)<=4294967295?reference.recursoId||reference.id:null,
+            posicion:Number.isInteger(reference.posicion)&&reference.posicion>0&&Number.isInteger(reference.total)&&reference.posicion<=reference.total?reference.posicion:null,total:reference.total,
+            certeza:confirmed?"La operación quedó confirmada. Falló la consulta posterior; el resultado confirmado se conserva.":error.resultadoIncierto?"Todavía no se sabe si esta operación terminó. El servidor puede seguir procesándola.":"Esta solicitud no obtuvo una confirmación válida. Revisa el estado registrado del recurso.",
+            siguiente:"Pulsa «Consultar resultado» para actualizar este lote y revisar el recurso indicado. La consulta no repite la operación.",
+            operacionId:/^[a-f0-9]{32}$/i.test(error.operacionId||'')?error.operacionId.toLowerCase():null,
+            intentoId:/^[1-9][0-9]{0,9}$/.test(error.intentoId||'')&&Number(error.intentoId)<=4294967295?error.intentoId:null};
     }
     function sobre(raw) {
         var value = raw && Object.prototype.hasOwnProperty.call(raw, "d") ? raw.d : raw;
@@ -244,7 +267,7 @@
                         finish(null, response.datos);
                     };
                     xhr.onerror = function () { finish(fallo("ERROR_RED", xhr.status, mutation)); };
-                    xhr.ontimeout = function () { finish(fallo("TIEMPO_AGOTADO", xhr.status, mutation)); };
+                    xhr.ontimeout = function () { var error=fallo("TIEMPO_AGOTADO", xhr.status, mutation); error.esperaSegundos=xhr.timeout/1000; finish(error); };
                     xhr.onabort = function () { finish(fallo("SOLICITUD_CANCELADA", xhr.status, mutation)); };
                     if (xhr.upload && progress) {
                         xhr.upload.onprogress = function (event) {
@@ -306,7 +329,7 @@
             });
             promise.cancelar = function () { cancelled = true; if (current) { current.cancelar(); } }; return promise;
         }
-        return {invocar:invocar, recibir:recibir, enviarCola:enviarCola, detalleIncidencia:detalleIncidencia, describirError:describirError, cerrar:function () { closed = true; token = ""; pending.slice().forEach(function (cancel) { cancel(); }); }};
+        return {invocar:invocar, recibir:recibir, enviarCola:enviarCola, detalleIncidencia:detalleIncidencia, describirError:describirError, detalleOperacion:detalleOperacion, cerrar:function () { closed = true; token = ""; pending.slice().forEach(function (cancel) { cancel(); }); }};
     }
-    return {crear:crear, detalleIncidencia:detalleIncidencia, describirError:describirError, diagnosticos:diagnosticos};
+    return {crear:crear, detalleIncidencia:detalleIncidencia, describirError:describirError, detalleOperacion:detalleOperacion, diagnosticos:diagnosticos};
 }));

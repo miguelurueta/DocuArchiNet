@@ -362,3 +362,9 @@
 #doc111-importacion .doc111-dialog .doc120-review-values dd { margin:0; font-size:14px; line-height:1.5; overflow-wrap:anywhere; }
 @media(max-width:720px){#doc111-importacion .doc111-dialog .doc120-review-values{grid-template-columns:1fr;gap:12px}#doc111-importacion .doc111-dialog .doc120-review-heading{flex-direction:column}}
 #doc111-importacion .doc120-preparation-progress progress { display:block; width:100%; height:10px; margin:12px 0; accent-color:#2563eb; }
+#doc111-importacion .doc120-operation-detail { display:grid; grid-template-columns:minmax(110px,auto) minmax(0,1fr); gap:6px 16px; margin:14px 0; font-size:13px; }
+#doc111-importacion .doc120-operation-detail dt { font-weight:600; }
+#doc111-importacion .doc120-operation-detail dd { margin:0; overflow-wrap:anywhere; }
+#doc111-importacion .doc120-operation-next { font-weight:600; }
+#doc111-importacion .doc120-operation-support { margin-top:12px; font-size:12px; }
+@media(max-width:720px){#doc111-importacion .doc120-operation-detail{grid-template-columns:minmax(0,1fr);gap:3px}#doc111-importacion .doc120-operation-detail dd{margin-bottom:7px}}
