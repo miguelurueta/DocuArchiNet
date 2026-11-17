@@ -1,5 +1,9 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+## Corrección de consulta tras revisar1.000 archivos — 2026-11-17, corte posterior
+
+DLL actualizada con `beae0afc`: sellado guarda el snapshot canónico y lector acepta revisiones anteriores cuyas reglas tengan otro orden, manteniendo la huella y el rechazo de valores alterados. Sin SQL ni importaciones nuevas. **Continuar revisión** usa el mismo plan si la ventana conserva sesión/selección; si el reinicio de la aplicación obliga a ingresar o recargar, puede hacer falta reselección/nueva revisión por pérdida de referencias en memoria. [Pruebas y límites](Validacion/doc120-lectura-plan-sellado-20261117.md). Retorno recomendado vigente `beae0afc`, sustituye `af1ff073`; los cortes inferiores son históricos.
+
 ## Despliegue local confirmado — 2026-11-17
 
 SQL08 aplicado manualmente por el usuario; esquema real aceptado con10 SELECT de metadatos. DLL/PDB actualizados en IIS local, canal JSON de nueva consulta rechaza correctamente el acceso anónimo; sin importar archivos. **Recargar con Ctrl+F5**. El retorno compatible requiere `af1ff073` o posterior; sustituye el mínimo `d5bae464` por la corrección del detector de índices. [Resultado, huellas y límites](Validacion/doc120-despliegue-esquema-20261117.md). Los apartados inferiores conservan su corte previo al despliegue; la aceptación autenticada de1.000 PDF continúa pendiente.

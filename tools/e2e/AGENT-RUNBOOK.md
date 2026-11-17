@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — relectura de plan sellado, corte posterior2026-11-17
+
+`beae0afc` corrige snapshot original guardado frente a snapshot canónico de la huella, y lee planes2 anteriores normalizando solo el orden en memoria. Reproducción local con cabecera persistida/1.000 archivos y rechazo de valor alterado;18/18 locales y Build. DLL/PDB instalados preservando una recompilación intermedia;1 POST JSON anónimo401/SESION_REQUERIDA,0 SELECT/efectos. No repetir preparación ni consultar datos reales sin la ventana pertinente. Referencia62232125f0f64fdfb1537b2251288a35 reportada por usuario; lectura autenticada del caso pendiente. Retorno recomendado vigente `beae0afc`, sustituye `af1ff073`; fuente `Validacion/doc120-lectura-plan-sellado-20261117.md`. Reinicio ASP.NET puede perder sesión InProc/referencias; no prometer continuar el borrador tras recarga sin reconstruir su correspondencia. Sin cambios de SQL, perfiles, límites, SII o escritores de negocio.
+
 ## DOC-120 — esquema y despliegue, corte posterior2026-11-17
 
 El usuario informó aplicación manual de SQL08 y continuó la verificación/despliegue local. Run25b3cd1989384452b39a70282782d9b9 cerrado:10 SELECT de metadatos completados, esquema anterior/nuevo aceptados, credenciales eliminadas. DLL/PDB instalados en IIS local y3 HTTP técnicos sin autenticación/efectos: WSDL500 preexistente comprobado con DLL anterior/nueva, JSON de nueva consulta401/SESION_REQUERIDA. No repetir SQL ni esta ventana automáticamente. Evidencia `Validacion/doc120-despliegue-esquema-20261117.md`. **Retorno mínimo vigente `af1ff073`**, sustituye `d5bae464` por la corrección del detector de índices padre. No inferir autorización de importación, almacenamiento, carga o fallo/rollback transaccional;3.118/3.126/3.127 y5.2 continúan pendientes. Los cortes inferiores conservan su alcance histórico.

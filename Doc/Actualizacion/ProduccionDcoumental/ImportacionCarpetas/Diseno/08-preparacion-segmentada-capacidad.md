@@ -103,6 +103,8 @@ Pausar espera la solicitud en curso. Cerrar/recargar invalida callbacks y consen
 
 ## Compatibilidad, despliegue y reversión
 
+Corte posterior de lectura2026-11-17: mínimo recomendado **`beae0afc194d061db76ca9e4c9d3a2ea522490b4`**, conserva el detector corregido y permite reconstruir planes2 guardados con el orden original de reglas de publicación. Sellado escribe el snapshot canónico; lectura solo ordena reglas en memoria y conserva todas las comprobaciones de contenido/huella. [Defecto reproducido, despliegue y límites](../Validacion/doc120-lectura-plan-sellado-20261117.md). Sustituye la recomendación `af1ff073` de los párrafos históricos siguientes.
+
 Corte posterior2026-11-17: SQL08 aplicado manualmente por el usuario y esquema verificado mediante10 SELECT; DLL actualizada en IIS local, sin importar. **Mínimo compatible vigente `af1ff0733a3ed123d8fb198b26a8f665fe799a8f`**, que corrige el rechazo del índice de la tabla padre incluido por el lector real. Sustituye la recomendación anterior `d5bae464`; esta última no es un retorno operativo válido para la preparación con esos metadatos. [Resultado técnico y límites](../Validacion/doc120-despliegue-esquema-20261117.md). Carga/rollback transaccional reales siguen pendientes.
 
 Implementación local2026-11-17: lectores compatibles conservados en `d5bae4640082f7a53fcd5522891715e7d876b0dc`. El ensayo aislado de dos DLL compiladas B→A→B conserva huellas de plan1 y plan2 de1.000 recursos en archivos sintéticos; [evidencia y límites](../Validacion/doc120-segmentada-20261117.md). No acredita DDL, transacciones/rollback MySQL o retorno de objetos de negocio reales. SQL08 y binarios permanecen sin aplicar al sitio.

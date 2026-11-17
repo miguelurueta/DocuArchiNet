@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Relectura de plan sellado — 2026-11-17, corte posterior
+
+Reporte de fallo tras1.000/1.000 revisados, referencia62232125f0f64fdfb1537b2251288a35: se reproduce localmente inconsistencia entre snapshot original persistido y huella del snapshot canónico. `beae0afc` corrige escritura y lectura compatible sin actualizar datos.18/18 locales del corte, Build completo y DLL/PDB instalados;1 HTTP anónimo401,0 SELECT/efectos. [Fuente, huellas y límites](doc120-lectura-plan-sellado-20261117.md), JSON compañero. La instancia real reportada no se leyó con cuenta autenticada; confirmación pendiente. Retorno recomendado vigente `beae0afc`;139/148 tareas y aceptación de1.000 PDF pendientes.
+
 ## SQL manual verificado y DLL desplegada — 2026-11-17, corte posterior
 
 Por confirmación del SQL manual y continuación expresa:10 SELECT reales de metadatos,3 tablas compatibles y DLL/PDB actualizados solo en el sitio local. Corrección del falso rechazo de índices padre reproducida antes y validada después;11/11 locales y Build completo. Retorno mínimo `af1ff073`; la recomendación anterior `d5bae464` queda sustituida. Dos GET WSDL500 reproducen un defecto SOAP anterior; la nueva consulta JSON anónima devuelve401/SESION_REQUERIDA, sin datos. Consumo técnico3 HTTP/10 SELECT/0 sesiones autenticadas/0 efectos. [Fuentes y límites](doc120-despliegue-esquema-20261117.md), JSON compañero.139/148 tareas; aceptación de1.000 PDF y rollback/carrera MySQL pendientes.

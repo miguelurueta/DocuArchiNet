@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Lectura compatible del plan sellado — 2026-11-17, corte posterior
+
+D-05/RQ-05, D-09/RQ-09, D-10/RQ-10;3.100/3.105/3.106/3.117/3.119/3.124: [evidencia](doc120-lectura-plan-sellado-20261117.md) y JSON compañero. Cabecera persistida con orden de publicación reproduce rechazo de huella tras sellar1.000 archivos; escritura canónica y normalización de orden al leer pasan18/18 locales, rechazando valores alterados. DLL/PDB desplegados,1 HTTP anónimo401/0 SELECT/0 efectos. No se ha verificado la lectura autenticada de la preparación reportada. Retorno recomendado `beae0afc`, sustituye `af1ff073`;139/148 tareas sin cierre operativo ni carga real aceptada.
+
 ## Despliegue y esquema real — 2026-11-17, corte posterior
 
 3.99/3.117/3.123/3.124 complementadas: [fuente primaria](doc120-despliegue-esquema-20261117.md) y JSON compañero. SQL08 aplicado por el usuario,10 SELECT reales completados y detector compatible tras corregir el falso índice extra de la tabla padre;11/11 locales de este corte y compilación. DLL/PDB instalados en IIS local, sin reiniciar el grupo compartido.3 HTTP técnicos:2 WSDL500 por incompatibilidad SOAP preexistente y1 POST JSON anónimo401/SESION_REQUERIDA. Sin sesión autenticada ni efectos de importación. Retorno mínimo vigente `af1ff073`, sustituye `d5bae464`;139/148 tareas, sin cerrar3.118/3.126/3.127/5.2. Las fuentes inferiores describen sus cortes históricos anteriores.

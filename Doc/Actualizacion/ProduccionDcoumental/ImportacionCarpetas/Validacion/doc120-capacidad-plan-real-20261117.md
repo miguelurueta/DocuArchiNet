@@ -1,5 +1,7 @@
 # DOC-120 — ventana propuesta de 1.000 PDF y continuación
 
+Corrección técnica posterior2026-11-17: retorno recomendado `beae0afc`, que conserva el detector y corrige la relectura de planes2 con reglas en orden de publicación. DLL actualizada;0 SELECT/efectos y1 comprobación JSON anónima en ese corte. [Pruebas y límites](doc120-lectura-plan-sellado-20261117.md). Sustituye `af1ff073` como recomendación; no aprueba la importación ni requiere SQL adicional.
+
 Actualización técnica2026-11-17: el usuario ya aplicó SQL08;10 SELECT validaron el esquema y se desplegaron DLL/PDB, con denegación anónima JSON comprobada. No repetir DDL/despliegue por este plan. El mínimo de retorno es ahora `af1ff073`, sustituyendo `d5bae464` por su defecto del detector real de índices. [Evidencia](doc120-despliegue-esquema-20261117.md). La ventana de importación siguiente permanece **NO AUTORIZADA NI EJECUTADA**; sus efectos/topes no se aprobaron al continuar la preparación técnica.
 
 Estado: **PREPARADA, NO AUTORIZADA NI EJECUTADA**. La aprobación del contrato08 permite implementar y probar localmente; no permite aplicar el SQL08, reemplazar la DLL de IIS ni crear estos documentos. Esta ventana sustituiría únicamente la prueba de capacidad propuesta; conserva las evidencias y consumos de ventanas anteriores. Tareas3.125/3.126/3.127 y5.2.
