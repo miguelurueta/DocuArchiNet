@@ -1,0 +1,843 @@
+DOC-120 | FLUJO TECNICO DE IMPORTACION DE CARPETAS
+================================================
+Estado: implementacion existente; corte de codigo 1a45b891.
+Formato: texto UTF-8. Las cajas, flechas y decisiones no requieren Mermaid.
+
+LECTURA Y ALCANCE
+----------------
+Este documento describe el codigo actual, incluida la preparacion segmentada,
+la coordinacion del navegador, persistencia documental V2 y recuperacion.
+No describe como implementadas las optimizaciones de metadatos propuestas.
+RA y DA son origenes logicos resueltos desde la sesion, no nombres de bases.
+HTTP indicado = estado que asigna EstadoHttp al sobre de la aplicacion.
+IIS/ASP.NET puede rechazar antes de entrar; ver [15].
+
+  [CAJA]       = clase/metodo real o conjunto explicitamente identificado.
+  <decision?> = condicion; SI/NO indican sus salidas.
+  -->         = llamada o siguiente paso.
+  <--         = respuesta; no significa rollback del efecto anterior.
+  E(codigo)   = salida por el traductor comun [15], salvo captura local indicada.
+  CAS         = escritura condicionada por revision/estado/identidad de intento.
+
+Para no ocultar condiciones extensas bajo frases como "validar todo", se entrega
+el anexo flujo-tecnico-importacion-carpetas-doc120-anexo.txt. Contiene contratos,
+despacho real, firmas, condiciones y filtros literales con archivo/linea.
+Las ramas SI/NO del mapa deben leerse junto con esos predicados, no sustituirlos.
+El anexo incluye tambien capacidades internas y administrativas: su presencia
+en codigo no significa que sean botones o pasos del asistente operativo.
+
+Fuentes: js/gestion/ImportacionCarpetas/; webservice/WebServiceImportacionCarpetas*;
+generic_control/ImportacionCarpetasUpload.ashx.vb; Services/ProduccionDocumental/
+ImportacionCarpetas/; Infrastructure/ProduccionDocumental/ImportacionCarpetas/;
+Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/; DTOs y
+Modelo/ProduccionDocumental/ImportacionCarpetas/. Detalle/huellas en el anexo.
+
+0. RECORRIDO GENERAL Y LIMITES ENTRE CAPAS
+---------------------------------------
++ CLIENTE ---------------------------------------------------------------+
+| WebFormProducionDocumental + ImportacionCarpetas.montar/abrir/action      |
+| InventarioImportacion.crear + ImportacionCarpetasVista.crear             |
+| ImportacionCarpetasApi.crear: invocar / recibir / enviarCola             |
++------------------------------------------------------------------------+
+    | JSON POST {solicitud: DTO}           | multipart POST de UN archivo
+    v                                      v
++ ENTRADA HTTP (equivalente al bloque Controller solicitado) --------------+
+| WebServiceImportacionCarpetas [ASMX]     ImportacionCarpetasUpload [ASHX] |
+| EjecutarEntradaOperativa<T>             ProcessRequest                  |
+| Session -> autoridad actual -> guard JSON/multipart -> composicion      |
+| No existe un Controller MVC/Web API para esta operacion.                |
++------------------------------------------------------------------------+
+    |
+    v
++ SERVICE / REGLAS -------------------------------------------------------+
+| ServicioPreparacionImportacion / ServicioPreparacionSegmentadaImportacion|
+| ServicioRecepcionImportacion / ServicioConsultaImportacion               |
+| CoordinadorImportacionCarpetas (clase parcial por fase)                  |
++------------------------------------------------------------------------+
+    | puertos tipados                       | adaptadores de efectos
+    v                                       v
++ REPOSITORY --------------------+  + INTEGRACIONES EXISTENTES -----------+
+| MySqlImportacionCarpetasRepository| | AlmacenStagingImportacion           |
+| MySqlPerfilImportacionRepository | | AdaptadorExpedienteImportacion      |
+| catalogos/proveedores autorizados| | AdaptadorDocumentoImportacion (V2)  |
+| RA: plan/lote/raiz/archivo/       | | ClassGaExpediente / ClassAlmacenamiento|
+| intento/evento/preparacion       | | RA/DA + disco segun escritor        |
++---------------------------------+ +-------------------------------------+
+    | resultados/checkpoints/IDs             |
+    +-------------------+--------------------+
+                        v
++ RESPUESTA --------------------------------------------------------------+
+| RespuestaPerfilImportacion: ok,codigo,mensaje,datos,incidencias,operacionId|
+| ASMX: sobre ASP.NET "d"; ASHX: JSON directo. EstadoHttp -> HTTP.          |
+| Cliente comprueba sobre, IDs, fase, estado y lectura posterior.          |
++------------------------------------------------------------------------+
+
+Seleccionar -> Preparar revision -> <PuedeConfirmar?>
+    NO -> mostrar incidencias/corregir/nueva revision; no PDF ni expedientes.
+    SI -> ConfirmarPlan -> lote persistido -> <consentimiento de importar?>
+          NO -> seguimiento/consultas sin avanzar efectos.
+          SI -> coordinacion SECUENCIAL del navegador [7]:
+                recibir pendientes -> crear raices -> fijar valores -> guardar
+                -> comprobar resultado -> elegir siguiente accion permitida.
+          Cada flecha es una solicitud/fase separada. No es un job servidor.
+
+1. APERTURA, IDENTIDAD Y RAMAS POR FACULTAD
+----------------------------------------
++ PAGINA: WebFormProducionDocumental.RenderImportacionCarpetas() -----------+
+| ImportacionCarpetasContextAdapter.Resolver(HttpContext.Current)          |
+| ImportacionCarpetasRequestGuard.Emitir / ReferenciaRecuperacion          |
+| HTML: data-api,data-upload,data-token,data-recuperacion,data-nivel,      |
+| data-maximo-json,data-preparacion-segmentada=2,data-consulta-focal=1.      |
++------------------------------------------------------------------------+
+    <se resuelve autoridad y contexto?>
+    NO -> captura Exception -> devuelve String.Empty; no monta importador.
+          Esta salida HTML NO es una respuesta HTTP 403 del ASMX.
+    SI -> ImportacionCarpetas.inicializar/montar; reinicializacion tras Sys.load.
+          PreRender actualiza data-nivel desde seleccion numerica vigente.
+
++ SEGURIDAD OPERATIVA: ImportacionCarpetasContextAdapter.Resolver(http) ----+
+| Session: GA_IDUSUARIOGESTION, GA_IDEMPRESA, GA_LOGINUSUARIOGESTION.        |
+| Login ausente/CONSULTAPUBLICO o usuario invalido -> SESION_REQUERIDA.     |
+| Empresa invalida o datos RA no coincidentes -> ACCESO_DENEGADO.          |
+| SELECT actual: remit_dest_interno + empresa_gestion_documental +         |
+| remit_dest_interno_perfil_produccion. Exige una fila, usuario activo,     |
+| misma empresa y IMPORTAR_CARPETAS=1. No usa flag confiable de cliente.    |
++------------------------------------------------------------------------+
+    <facultad operativa vigente?>
+    NO -> E(ACCESO_DENEGADO) HTTP403; sin sesion -> HTTP401.
+    Dependencia/lectura incompatible -> E(CAPACIDAD_NO_DISPONIBLE) HTTP503.
+    SI -> ContextoImportacionCarpetas {UsuarioRef,AmbitoRef,PuedeImportar}.
+
++ DESTINO: ResolverDestino(http,nivelRef,accion) --------------------------+
+| Nivel activo y propietario dentro de la empresa.                       |
+| <usuario es propietario del nivel?> SI -> admite esa rama de acceso.    |
+| NO -> exige ra_pro_permisos_niveles vigente para usuario/nivel:          |
+|   ABRIR/PREPARAR/CONFIRMAR/CONSULTAR/DETENER_LOTE/REANUDAR_LOTE/           |
+|   RECONCILIAR/LIMPIAR_STAGING: agregar_expediente=1 Y carga_archivo=1.    |
+|   CREAR_EXPEDIENTE: agregar_expediente=1.                                |
+|   RECIBIR_ARCHIVO/ALMACENAR_DOCUMENTO: carga_archivo=1.                   |
+| Accion desconocida o nivel mal formado -> SOLICITUD_INVALIDA.           |
+| Recorre padres activos de misma empresa: sin ciclos, maximo128 niveles; |
+| nombres validos y propietario numerico. Construye RutaCanonica.         |
+| SelloDestino SHA256 incluye empresa, identidad de origen RA y cadena.   |
++------------------------------------------------------------------------+
+    NO autorizado -> HTTP403. No concede acceso por conocer un loteId.
+    SI -> AutorizarRecursos revalida destino/usuario/empresa/sello/ruta y
+          PerfilImportacionCatalogAdapter.AutorizarGabineteImportacion.
+          Cambio de destino -> CONFLICTO_REVISION HTTP409.
+
+RAMAL ADMINISTRATIVO (no es prerrequisito para importar):
+  RenderPerfilImportacion -> PerfilImportacionContextAdapter.Resolver
+  -> ADMINISTRAR_PERFILES_IMPORTACION -> editor/servicio de perfiles.
+  Proveedores: AutorizarProveedores exige permiso adicional.
+  Fuentes: AutorizarFuentes exige permiso adicional.
+  No se eleva PuedeImportar a PuedeAdministrar ni al contrario. Los WebMethods
+  administrativos comparten archivo ASMX, pero usan Ejecutar y su propio guard.
+  Sus contratos/despachos y condiciones estan separados en el anexo.
+
+2. GUARDAS COMUNES ANTES DEL SERVICE
+----------------------------------
++ ASMX: EjecutarEntradaOperativa<T>(solicitud,accion) ----------------------+
+| operacionId nuevo; limpia diagnostico de esta peticion.                  |
+| _autoridadOperativa.Resolver -> _politicaOperativa() ->                   |
+| ImportacionCarpetasRequestGuard.LeerJson<T>(http,contexto,limites).       |
+| Usa DTO releido del stream; no acepta autoridad desde solicitud.        |
++------------------------------------------------------------------------+
+    |
+    v
++ ImportacionCarpetasRequestGuard.ValidarBase -----------------------------+
+| ExigirContexto: sesion/usuario/empresa/PuedeImportar coinciden.           |
+| POST con ContentLength>0; token X-Importacion-Carpetas-CSRF valido        |
+| vinculado a SessionID:usuario:empresa:DOC111_OPERACION.                  |
+| Si Origin existe: mismo esquema/host/puerto, ruta /, sin query/fragmento. |
+| Sec-Fetch-Site=cross-site se rechaza. Content-Type parseable.            |
++------------------------------------------------------------------------+
+    <falla cualquiera?> SI -> SOLICITUD_NO_VERIFICADA HTTP403.
+    NO -> <JSON o multipart?>
+      JSON: application/json; charset ausente o utf-8; limite de bytes,
+        stream legible/seekable, longitud real coincide, UTF8 estricto.
+        PerfilImportacionJson.Leer<SobreSolicitudPerfil<T>>:
+        MaxDepth16,262144 caracteres, sin claves duplicadas/desconocidas,
+        tipos exactos, sin TypeNameHandling, sin JSON adicional al final.
+        Solicitud nula/invalida ->400; exceso de transporte ->413.
+        ISolicitudPreparacionSegmentada: transporte <=65536 caracteres
+        y limite adicional de bytes. No se reciben PDF en este JSON.
+      MULTIPART: multipart/form-data, boundary unico y valido; limites
+        antes de Form/Files; exactamente loteId,archivoId,claveIntento;
+        una ocurrencia no vacia de cada campo y exactamente un archivo.
+        IDs canonicos; clave [A-Za-z0-9_-]{1,64}; exceso ->413.
+
+LimitesImportacionCarpetas.DesdeContexto -> DesdeTransporte:
+  deriva bytes de httpRuntime.MaxRequestLength y vigencia de Session.Timeout.
+  No es una promesa de capacidad maxima ni de duracion por PDF.
+  No se fija aqui un cupo acumulado funcional de lote (ULong.MaxValue).
+  Capacidad indeterminable -> CAPACIDAD_NO_DISPONIBLE HTTP503.
+
+3. CLIENTE: SELECCION DE PERFIL Y CARPETAS
+---------------------------------------
++ ImportacionCarpetas.abrir -> API.AbrirImportacion({nivelRef}) ------------+
+| ServicioPreparacionImportacion.Abrir: resolver destino PREPARAR, esquema, |
+| _perfiles.ListarPagina(contexto,1,50). Respuesta AperturaImportacionResultado|
+| {nivelRef,rutaCanonica,selloDestino,limites,perfiles,paginaPerfiles}.       |
++------------------------------------------------------------------------+
+    -> AdaptadorPerfilImportacionOperativa.ListarPagina / ValidarSnapshot
+    -> MySqlPerfilImportacionRepository.ListarPublicaciones/ObtenerPublicacion.
+       Solo publicaciones del ambito; validar compatibilidad de nivel,
+       catalogos, reglas, proveedores y huella. Publicaciones denegadas o con
+       CONFIGURACION_INVALIDA se omiten; dependencia caida NO es pagina vacia.
+       Pagina1..1000000; tamano1..50; puedeHaberMas depende de pagina origen.
+       ListarPerfilesImportacion({nivelRef,pagina,tamanoPagina}) permite seguir.
+    <usuario elige version?> NO -> no puede preparar.
+    SI -> operation.seleccionarPerfil(versionId), invalida revision anterior.
+
++ InventarioImportacion.crear().agregarSeleccion(FileList) ----------------+
+| webkitdirectory; una seleccion corresponde a UNA raiz local; puede       |
+| agregar otras mediante selecciones independientes con IDs distintos.   |
+| Conserva File solo en memoria. manifiesto() contiene metadatos, no PDF.  |
+| Valida ruta relativa/nombre/tamano/lastModified/duplicados por seleccion. |
+| Una carpeta contenedora seleccionada sigue siendo una raiz: no convierte |
+| automaticamente cada subcarpeta en expediente. Agrupacion segun perfil. |
++------------------------------------------------------------------------+
+    <cambia perfil/inventario durante revision?> SI -> epoch/revision cambian;
+      se descarta respuesta tardia y se exige nueva preparacion vigente.
+    NO -> iniciarPreparacion guarda ticket {epoch,revision,versionId,manifiesto}.
+
+4. PREPARACION TRADICIONAL Y REGLAS
+---------------------------------
++ CLIENTE action("preparar") ---------------------------------------------+
+| request={nivelRef,versionId,raices[],archivos[]}.                          |
+| <segmentado disponible, data-preparacion-segmentada=2 Y                  |
+|   (archivos>100 O cuerpo supera data-maximo-json)?>                       |
+| SI -> [5]. NO -> API.invocar("PrepararPlan",request).                   |
++------------------------------------------------------------------------+
+    -> ASMX.PrepararPlan -> EjecutarOperativo -> ServicioPreparacionImportacion
+       .Preparar -> CalcularPlan(solicitud,esquemaDoc=1).
+    -> CanonizadorManifiestoImportacion.Canonizar:
+       IDs cliente/seleccion, pertenencia, nombre/rutas, normalizacion,
+       bytes/fecha decimal, duplicados y limites; inventario inmutable.
+    -> AdaptadorPerfilImportacionOperativa.Seleccionar(contexto,versionId)
+       -> publicacion vigente y hash; ValidadorPerfilImportacion.Validar.
+    -> CanonizadorManifiestoImportacion.EvaluarAgrupacion:
+       EstrategiaCarpetas=RAIZ_EXPEDIENTE; PoliticaSubcarpetas=INCLUIR|RECHAZAR.
+       INCLUIR incorpora archivos descendientes a esa misma raiz/expediente;
+       RECHAZAR genera SUBCARPETA_NO_PERMITIDA si ruta tiene mas de2 segmentos.
+       No crea expedientes intermedios por cada subdirectorio.
+    -> PerfilImportacionCatalogAdapter.ClasificacionOperativa.
+    -> CoordinadorProveedorIndices.ResolverOperativo:
+       reglas de CAMPO_EXPEDIENTE por raiz; demas reglas por archivo.
+       ResolvedorReglasPerfilImportacion: constantes, nombres/extraccion,
+       propiedades de expediente y proveedor segun regla publicada.
+       Dependencia TRAS_EXPEDIENTE queda tipada como Diferido; no inventa ID.
+       Proveedor solo lectura, publicacion/clave/propiedad autorizadas;
+       misma version/clave puede compartirse en esa llamada, no cache global.
+       MySqlProveedorDatosIndices.ConsultarOperativo -> ConsultarDatos:
+       ConexionRef RA|DA segun politica autorizada, tabla/columnas cerradas y
+       compatibles con information_schema; clave parametrizada, columna de
+       empresa solo si esta configurada, LIMIT2. Cero filas SIN_COINCIDENCIA;
+       varias AMBIGUO; tipos/clave invalidos o dependencia caida -> incidencia.
+       No afirmar filtro empresarial de datos si el proveedor no lo configura;
+       la autorizacion de la fuente sigue siendo obligatoria.
+    -> ValidarValoresOperativos: tipos, obligatorios, longitudes, fechas,
+       representacion destino, gabinete/indices/tipologia y clasificacion.
+       CODIGO <=45 y NOMBRE <=120 en este recorrido; no truncar silenciosamente.
+       Extension y MaximoBytesArchivo del perfil generan incidencias.
+    -> MySqlImportacionCarpetasRepository.ComprobarCoincidencias:
+       actualmente comprobacion TECNICA del codigo/esquema, sin buscar
+       candidatos por nombre o CODIGO_UNICO para impedir duplicados.
+       PoliticaCoincidencias conserva contrato/valores historicos, pero NO
+       activa hoy exclusividad ni reutilizacion de expedientes. ID_EXPEDIENTE
+       es la identidad; no se deduce identidad de un texto repetido.
+       Fallo de dependencia capturado -> incidencia GLOBAL bloqueante.
+    -> EvaluarElegibilidad:
+       <incidencia global bloqueante?> SI -> PuedeConfirmar=False.
+       <COMPLETO_OBLIGATORIO / LOTE y alguna incidencia bloqueante?>
+           SI -> ninguna unidad elegible.
+       <COMPLETO_OBLIGATORIO / EXPEDIENTE?>
+           cada raiz exige sus archivos sin incidencias bloqueantes.
+       <PARCIAL_PERMITIDO / NO_APLICA?>
+           raiz sin bloqueo propio y al menos un archivo elegible.
+       Otra combinacion -> CONFIGURACION_INVALIDA HTTP400.
+    -> Preparar exige reloj UTC; CreadoUtc/ExpiraUtc; GuardarPlan(contexto,plan)
+       -> ra_integracion_plan, hash del contenido y revision persistida.
+    <-- HTTP200 {planId,revision,planHash,expiraUtc,nivelRef,snapshot,resultado}.
+        Puede ser plan BLOQUEADO con incidencias: HTTP200 NO significa elegible.
+        No crea lote, expediente ni documento y no recibe bytes PDF.
+
+5. PREPARACION SEGMENTADA (METADATOS, NO SUBIDA DE PDF)
+----------------------------------------------------
++ CLIENTE PreparacionSegmentadaImportacion.particionar / crear ------------+
+| RAICES y ARCHIVOS por separado, hasta100 entradas/parte; transporte      |
+| <=65536 caracteres y control de representacion escapada<=262144.         |
+| Elemento indivisible demasiado grande -> error LOCAL REVISION_TAMANO_EXCEDIDO|
+| sin enviar. Etapas: INICIO -> REGISTRAR -> VALIDAR -> SELLAR -> REVISION. |
++------------------------------------------------------------------------+
+    -> Cada metodo ASMX aplica [2], compone CrearPreparacionSegmentada y llama
+       ServicioPreparacionSegmentadaImportacion:
+    + IniciarPreparacionPlan -> Iniciar(s): totales>0/limites/partes/clave32hex,
+      identidad,destino,esquema de preparacion,perfil/recursos,UTC.
+      _repo.IniciarPreparacion: cabecera BORRADOR/idempotencia por clave/hash.
+    + RegistrarPartePreparacion -> Registrar(s): tipo RAICES|ARCHIVOS,
+      numero>0, lista correspondiente no vacia y otra vacia,<=100 entradas,
+      correlaciones/bytes; AutorizarPreparacion(escritura=True), vigencia y
+      publicacion. RegistrarParte con revision/numero/hash/contenido.
+      Repeticion compatible conserva parte; contenido distinto/conflicto ->409.
+    + ConsultarPreparacionPlan -> Consultar(s): por preparacionId O
+      nivelRef+clavePreparacion; combinacion excluyente, RESUMEN|PARTES.
+      No hallada por clave ->200 existe=False,estado=NO_ENCONTRADA.
+      Estado publica contadores; PARTES25/pagina; puede mostrar EXPIRADA.
+    + ValidarPartePreparacion -> Validar(s): parte existe y revision coincide;
+      si ya VALIDADA devuelve estado. Exige todas las partes RAICES ordenadas.
+      RAICES -> CalcularRaicesSegmentadas; ARCHIVOS -> CalcularPlan(...,2).
+      IniciarLecturasPreparacion; sello catalogos antes/despues debe coincidir;
+      contexto/publicacion iguales; elemento<=55000. GuardarValidacionParte
+      persiste fragmentos y sello bajo revision.
+    + SellarPreparacionPlan -> Sellar(s): claveCierre coincide; SELLADA devuelve
+      revision existente, no otro plan. Si BORRADOR: vigencia, partes completas
+      VALIDADA, sellos actuales, canonizacion global, reconstruir fragmentos,
+      deduplicar incidencias y evaluar elegibilidad global. SellarPreparacion
+      persiste plan esquema2 y vinculo a preparacion con CAS.
+    + ConsultarRevisionPlan -> Revision(s): planId,revision exacta,tipo
+      RESUMEN|VALORES|INCIDENCIAS,pagina>=1,ambito opcional RAIZ|ARCHIVO.
+      Siempre propietario/destino/recursos; paginas hasta25 filas y presupuesto
+     61440 caracteres (elemento<=55000). No exporta el plan entero por JSON.
+    <-- Cliente readRevision/revisionPages recompone revision, comprueba
+        cantidades,identidades,hash,unidades y vigencia del ticket local.
+        Fallo incierto -> pausa + consulta del mismo borrador; sin retry ciego.
+        Continuar revision no confirma lote ni ejecuta efectos documentales.
+
+6. CONFIRMACION DEL PLAN Y CREACION DEL LOTE
+-----------------------------------------
++ Cliente action("confirmar" | "confirmar-importar") ----------------------+
+| operation.referenciaConfirmacion -> {planId,revisionEsperada,             |
+| planHashEsperado,claveConfirmacion}; recuerda plan pendiente antes de POST.|
++------------------------------------------------------------------------+
+    -> ASMX.ConfirmarPlan -> ServicioRecepcionImportacion.Confirmar(s)
+       IDs/revision/hash64hex/clave validos; identidad actual ->
+       ObtenerContextoPlan(identidad,planId) -> propietario/empresa ->
+       ResolverDestino(CONFIRMAR) -> sello/ruta -> ObtenerPlan -> hash ->
+       AutorizarRecursos(snapshot confirmado).
+    <plan.Estado=CONFIRMADO?>
+    SI -> no vuelve a seleccionar perfil ni aplicar expiracion; repositorio
+          determina idempotencia/conflicto bajo transaccion.
+    NO -> exige REVISABLE,revision exacta,PuedeConfirmar,UTC no vencido;
+          canoniza inventario; misma publicacion; comprueba incidencias actuales
+          para unidades elegibles. Fallo ->409 con causa segura del diagnostico.
+    -> MySqlImportacionCarpetasRepository.ConfirmarPlan(...):
+       transaccion, bloquear plan, unicidad/idempotencia por plan/clave/hash,
+       insertar lote RECIBIENDO, raices y archivos del inventario ORIGINAL,
+       estados de recursos segun elegibilidad, valores previstos, referencias
+       y evento; confirmar plan. VerificarPublicacion se reejecuta bajo tx.
+       Incluye recursos rechazados; no desaparecen del total original.
+    <-- HTTP200 ConfirmacionImportacionResultado {loteId,planId,nivelRef,
+        estado,revision,totalRaices,totalArchivos,totalBytes}.
+    <se pierde respuesta?>
+    SI -> confirmacionIncierta; ConsultarConfirmacionLote({planId}) [12].
+          No reenviar confirmacion con otra clave para adivinar el resultado.
+    NO -> conserva ultimo lote; consulta seguimiento.
+          Si accion fue confirmar-importar y la consulta termina bien -> [7].
+
+7. COORDINACION CLIENTE: UNA OPERACION EN VUELO
+--------------------------------------------
++ ImportacionCarpetas.crearCoordinacion(options) --------------------------+
+| Consentimiento efimero; no cola ejecutable persistida ni worker servidor.|
+| limites:10000 recursos,400 paginas por enumeracion,10000 lecturas/efectos.|
+| readAll: ConsultarLote -> TODAS paginas RAICES/ARCHIVOS sin filtros,25     |
+| filas (o menor maximo servidor) -> ConsultarLote final misma revision.    |
+| Valida IDs,cantidades,pertenencia,ambito y resultados ya confirmados.      |
++------------------------------------------------------------------------+
+    -> cycle(token,snapshot)
+       <cerrado,token/contexto cambio o pausa?> SI -> no despachar siguiente.
+       <lote COMPLETADO?> SI -> estado cliente complete.
+       <detencion,activo,incertidumbre,DETENIDO/FALLIDO/PENDIENTE_VERIFICACION
+         o recursos CREANDO/EN_CURSO/INCIERTO/RECIBIENDO?>
+           SI -> blocked; no elige efecto ni reanuda automaticamente.
+       NO -> choose(snapshot), en este ORDEN:
+         1) primer archivo elegible PENDIENTE/NO_INICIADO -> RECEPCION [8].
+         2) primera raiz PENDIENTE con recepcionListaParaCrear -> CREAR [9].
+         3) archivo recibido con padre confirmado y valores sin fijar -> [10].
+         4) archivo recibido con valores fijados y padre confirmado -> [11].
+       <no hay accion?> -> paused/SIN_AVANCE_DISPONIBLE.
+       <operacion ya confirmada o fallida en esta coordinacion?>
+           -> blocked/RESULTADO_PENDIENTE_LECTURA; no replay.
+       <RECEPCION sin File original valido?> -> needs-original/ORIGINAL_REQUERIDO.
+       -> ejecutar UNA solicitud -> confirm(op,result,snapshot).
+       <acuse no corresponde al lote/recurso/fase/IDs/estado?>
+           -> error RESPUESTA_INVALIDA, resultadoIncierto=True; detener.
+       SI corresponde -> guarda resultado confirmado -> lectura posterior:
+         readFocal si data-consulta-focal=1 y hay snapshot previo:
+           ConsultarRecursoLote -> reemplazar recurso/padre, revisiones no
+           retroceden; huellaRecursos del servidor igual a SHA256 cliente;
+           comprobar progreso. Otro recurso cambiado -> conflicto, no ignorarlo.
+         Si no capacidad focal -> readAll con revision consistente.
+       <lectura posterior falla?> -> conservar acuse, marcar consulta pendiente;
+         no declarar fallido lo ya confirmado ni repetir escritor.
+       -> ceder al navegador -> elegir siguiente. No almacenar en paralelo.
+
+Pausar: no despacha otra accion; espera la respuesta en vuelo.
+Cerrar: invalida generacion, descarta File/estado/URLs; cerrar API puede abortar
+espera HTTP, pero NO revierte lo ya ejecutado en servidor.
+Continuar: relee estado y exige consentimiento; no infiere exito por tiempo.
+Contadores: recibidos / expedientes / datos fijados / guardados, por estado e ID
+confirmados. Bytes de xhr.upload NO equivalen a recepcion ni guardado.
+Filtros de pantalla no reducen la enumeracion completa de la coordinacion.
+
+8. RECEPCION DEL PDF (NO ES ALMACENAMIENTO DEFINITIVO)
+--------------------------------------------------
++ API.recibir(request,file,progress) / enviarCola(items,progress) ----------+
+| Multipart {loteId,archivoId,claveIntento,file}; un archivo por solicitud.  |
+| Cola manual: pendientes de la PAGINA FILTRADA visible, con File disponible.|
+| Coordinacion: pendientes del inventario completo enumerado en [7].       |
+| Ambos usan envio secuencial; no reintentar al fallar.                    |
++------------------------------------------------------------------------+
+    -> ImportacionCarpetasUpload.ProcessRequest -> autoridad/guard [2]
+    -> ServicioRecepcionImportacion.Recibir(s,InputStream)
+       ObtenerRecepcion: identidad -> contexto lote propio -> destino
+       RECIBIR_ARCHIVO -> snapshot/recursos -> archivo no cancelado/rechazado,
+       estado compatible, bytes previstos>0 y dentro de limites.
+    <archivo ya RECIBIDO?>
+    SI -> ObtenerIntentoRecepcion -> AlmacenStagingImportacion.VerificarReenvio
+          compara contenido reenviado con completo inmutable; no lo sobrescribe.
+    NO -> ReservarIntento fase RECEPCION con hash de solicitud/token servidor.
+          <reserva RECHAZADA?> -> ARCHIVO_RECHAZADO HTTP422.
+          <token es propio?>
+          SI -> intento EN_CURSO y activo del archivo -> staging.Recibir.
+          NO -> solo VerificarReenvio; lease vencida no permite otra escritura.
+
++ STAGING: AlmacenStagingImportacion --------------------------------------+
+| Base privada App_Data/ImportacionCarpetas; rutas derivadas de IDs/token.  |
+| Contencion de rutas, sin enlaces/reparse points; bloqueos y espacio.     |
+| Recibir: CreateNew .part -> CopiarAcotado(bytes exactos,SHA256) -> flush  |
+| durable -> ValidarFormato PDF -> rename a .bin inmutable.                |
+| Extension PDF admitida y contenido PDF legible; TIFF no habilitado aqui. |
+| Verificar: bytes/hash/PDF coinciden; no publica ruta fisica.              |
++------------------------------------------------------------------------+
+    -> reautorizar -> Repository.ConfirmarRecepcion CAS/token/evidencia.
+    <-- HTTP200 {loteId,archivoId,estadoRecepcion=RECIBIDO,estadoEfecto,
+        bytesRecibidos,contenidoHash,revision}.
+    <fallo despues de completo?> -> registrar incertidumbre; HTTP409
+      RESULTADO_INCIERTO (salvo denegacion propagada). Conservar completo.
+    <fallo antes de completo?> -> registrar rechazo/codigo permitido si propio;
+      propagar error controlado. Fallo inesperado -> incertidumbre.
+    ReconciliarRecepcion existe como metodo interno; no es WebMethod del
+    asistente. Consultar no lo llama automaticamente.
+
+9. CREACION DE UN EXPEDIENTE POR RAIZ
+----------------------------------
++ ASMX.AvanzarLote(solicitud As AvanzarLoteImportacionSolicitud) ------------+
+| {loteId,recursoId=raizId,fase=CREAR_EXPEDIENTE,revisionEsperada,            |
+| claveOperacion}; no admite intento/revisionLote/levantarDetencion aqui.  |
+| CoordinadorImportacionCarpetas.AvanzarLote valida fase/IDs/revision/clave. |
+| ComposicionCreacionImportacion.Crear -> CrearExpediente(...).             |
++------------------------------------------------------------------------+
+    -> identidad/destino CREAR_EXPEDIENTE -> ObtenerBarreraCreacion
+       (delega a ObtenerBarreraDocumental)
+       -> ExigirVistaDocumental -> AutorizarRecursos.
+    -> ObtenerIntentoCreacion por hash de solicitud:
+       <existe historico?> SI -> ProyectarCreacion; no vuelve a crear.
+    -> revision raiz exacta -> ReservarCreacionConStaging:
+       EvaluarBarreraCreacion [9a] -> VerificarStagingCreacion [11a] ->
+       reautorizar -> ReservarIntento(CREAR_EXPEDIENTE) con CAS.
+       <reserva ya existente?> -> proyectar; no ejecutar otra vez.
+    -> EjecutarCreacionReservada: vista fresca/ExigirReservaCreacion,
+       reautorizar; AdaptadorExpedienteImportacion.Crear:
+       ComandoCreacionExpedienteImportacion.Preparar,ValidarEntradasLegacy,
+       PrepararDatosCreacionLegacy,ValidarDatosLegacy,IniciarCreacionExpediente.
+       -> callback ConservarStagingCreacion, reautoriza y retiene originales.
+       -> InvocarConservacion llama UNA vez:
+          ClassGaExpediente.Registrar_Expediente_Conservacion(...).
+          codigo_unico=comando.Codigo; tema_unidad_conservacion=comando.Nombre;
+          aleas_expediente=comando.Codigo; empresa/usuario/nivel desde contexto;
+          tipo/clasificacion/gabinete/responsable desde snapshot/catalogos;
+          id_expediente y id_registro_relacion por referencia.
+          expediente_archivo.CODIGO_UNICO=comando.Codigo;
+          TEMA_EXPEDIENTE=comando.Nombre; ALEAS_EXPEDIENTE=comando.Codigo.
+          Relacion: ra_pro_niveles_has_expediente_archivo y su ID propio.
+          No recibir PDF aqui. Las condiciones/calls del escritor compartido
+          (catalogos,fechas,ruta,consecutivos,transaccion) figuran en el anexo;
+          sus textos de retorno no se publican directamente al navegador.
+       <YES e IDs expediente/relacion>0 y ComprobarResultadoCreacion?>
+          SI -> resultado CONFIRMADO/EXPEDIENTE_CONFIRMADO.
+          NO/excepcion -> INCIERTO, conserva IDs observados; no replay.
+       -> RegistrarResultadoCreacion -> checkpoint -> consolidar [14].
+       -> lectura final y ProyectarCreacion exigen evidencia persistida
+          concordante con raiz/intento/IDs/ciclo Archivo Gestion.
+    <-- [15]: HTTP200 confirmado o HTTP409 RESULTADO_INCIERTO.
+
+9a. DECISION DE INTEGRIDAD (COMPARTIDA POR CREACION Y ALMACENAMIENTO)
+----------------------------------------------------------------
+EvaluarBarreraCreacion / EvaluarBarreraAlmacenamiento -> EvaluarBarreraRecepcion:
+  plan CONFIRMADO, mismo contexto/snapshot, sin detencion; lote en estado
+  permitido, cantidades/bytes corresponden al inventario ORIGINAL sin duplicados.
+  Raiz elegible y sin incidencia global; pertenencia/estados/recepciones validos.
+  CREAR: raiz PENDIENTE/CREANDO sin identidad; archivos con efecto compatible.
+  ALMACENAR: raiz EXPEDIENTE_CONFIRMADO; archivo objetivo con valores fijados;
+    NO_INICIADO sin intento, o EN_CURSO con intento propio durante reserva.
+  <COMPLETO_OBLIGATORIO / EXPEDIENTE?> -> exige todo el original de esa raiz.
+  <COMPLETO_OBLIGATORIO / LOTE?> -> exige todo el original de todas las raices.
+  <PARCIAL_PERMITIDO / NO_APLICA?> -> admite unidades elegibles y recepciones
+    validas; al almacenar la comprobacion fisica se concentra en el objetivo.
+  Combinacion distinta -> CONFIGURACION_INVALIDA HTTP400.
+  RecepcionRegistradaValida: RECIBIDO,bytes exactos no cero,SHA64,staging32,
+    sin otro intento activo/estado incierto; excepcion limitada al intento propio.
+  False impide el efecto; no se reemplaza por una decision de filtros de pantalla.
+  Los predicados completos, incluida cada salida False, figuran en el anexo.
+
+10. MATERIALIZACION DE INDICES Y TIPOLOGIA
+---------------------------------------
++ AvanzarLote {fase=MATERIALIZAR_VALORES,recursoId=archivoId,...} ------------+
+| ComposicionPerfilImportacionOperativa.CrearMaterializacion ->             |
+| CoordinadorImportacionCarpetas.MaterializarArchivo -> ObtenerVistaValores |
+| -> ValidarVistaValores -> MaterializarValoresArchivo.                    |
++------------------------------------------------------------------------+
+    <valores ya fijados?> SI -> devuelve copia, sin consultar proveedor otra vez.
+    NO -> EN_CURSO,sin detencion,expediente confirmado,RECIBIDO/NO_INICIADO,
+      sin intento/resultado. Correspondencia exacta reglas/valores/procedencia.
+      Resuelve SOLO Diferido con ID y propiedades del expediente confirmado;
+      clasificacion solo si una dependencia la requiere. No rehace valores
+      previos ya resueltos ni cambia la fecha fijada por otra ejecucion.
+      <incidencias o dependencia pendiente?> SI -> vaciar conjunto parcial.
+      NO -> combinar valores originales+resueltos y comprobar correspondencia.
+      -> reautorizar -> MySqlImportacionCarpetasRepository.FijarValoresArchivo
+         comprueba vista bajo bloqueo; fija valores o rechazo con incidencias.
+    <-- HTTP200 estado CONFIRMADO/codigo VALORES_FIJADOS, o HTTP422
+        ARCHIVO_RECHAZADO. No crea intento documental ni almacena PDF aqui.
+
+11. ALMACENAMIENTO DEL DOCUMENTO Y PROTOCOLO V2
+--------------------------------------------
++ AvanzarLote {fase=ALMACENAR,recursoId=archivoId,revisionEsperada,...} -------+
+| ComposicionDocumentoImportacion.Crear -> coordinador con                 |
+| ObtenerBarreraDocumental,ObtenerArchivo,ObtenerIntentoAlmacenamiento,      |
+| staging, AdaptadorDocumentoImportacion.EnlazarV2 + persistencia V2.        |
+| Guardia de origen: mismo HttpContext y conexiones RA/DA capturadas.       |
++------------------------------------------------------------------------+
+    -> AlmacenarArchivo -> AlmacenarArchivoMedido:
+       identidad/destino ALMACENAR_DOCUMENTO -> archivo/vista -> validar
+       valores/contexto/snapshot -> reautorizar -> hash de solicitud.
+    <hay intento historico compatible?> SI -> ProyectarDocumento sin escritor.
+    NO -> revision exacta y EvaluarBarreraAlmacenamiento [9a].
+       -> VerificarStagingCreacion previo [11a].
+       -> reautorizar -> ReservarIntento(ALMACENAR): estado RESERVADO/token,
+          marca archivo EN_CURSO e incrementa revision; transaccion acotada.
+       <reserva repetida?> SI -> proyectar sin ejecutar.
+       NO -> vista fresca,ExigirReservaDocumento y reautorizar.
+          -> VerificarStagingCreacion retenido [11a], mantener handles.
+          -> EnlaceDocumentoV2.Almacenar -> comando/autoridad/lote vigente.
+          -> AdaptadorDocumentoImportacion.AlmacenarV2:
+             instancia ejecuta una sola vez (Interlocked); exige stagingV2.
+             ComandoAlmacenamientoCarpetas.Preparar/ValidarDatos;
+             PerfilImportacionCatalogAdapter.PrepararDatosAlmacenamiento;
+             misma relacion/clasificacion/empresa/gabinete/tipologia/indices.
+             ConservarOriginalV2 -> validar huella/tamano/identidad retenida.
+             DocumentosAlmacenamientoV2Importacion.Preparar(revisionLote).
+             PersistenciaDocumentoV2Importacion.Iniciar -> acuse PREPARADO.
+             CrearCopiaTrabajo -> VerificarCopia, validar original retenido.
+             AutorizarInvocacion -> acuse AUTORIZADO, validar/autorizar.
+             InvocarAlmacenamiento -> UNA llamada al escritor compartido:
+               ClassAlmacenamiento.AlmacenamientoDocumentoProduccionDocumental
+               (GabineteNombre,copia,NombreOriginal,ID_EXPEDIENTE confirmado,
+                TipologiaNombre,TipologiaId,TipoAlmacenamiento=0,
+                campos no automaticos,clase documental,IDs de salida).
+               Writer consulta expediente por ID, clasificacion y gabinete;
+               compone campos automaticos, llama Almacenamiento existente,
+               produce documento/inventario, devuelve estructura e IDs.
+               En exito puede consumir/borrar COPIA de trabajo, no original
+               retenido. Su rama TIFF existe pero importador la rechaza antes.
+             Finally: conservar IDs observados -> ObservarRetorno
+               -> acuse RETORNO_OBSERVADO; no inventarlo si no fue durable.
+             <llamada concluida,YES,IDs>0,nombre/gabinete exactos y
+               PerfilImportacionCatalogAdapter.ComprobarAlmacenamiento?>
+               SI -> resultado CONFIRMADO/DOCUMENTO_CONFIRMADO.
+               NO/excepcion -> INCIERTO con evidencia disponible.
+             RegistrarResultado -> checkpoint coincidente -> devolver copia.
+             Falta de acuse/coincidencia o respuesta perdida -> INCIERTO;
+               no llamar escritor para reparar respuesta/checkpoint.
+             Finally libera retencion V2; coordinador libera demas handles.
+          -> lectura final/vista/archivo/historico -> ProyectarDocumento:
+             exige IDs/valores/identidad y checkpoint CONFIRMADO, archivo
+             COMPLETADO sin intento activo. Observacion aislada no basta.
+    <-- HTTP200 confirmado o HTTP409 RESULTADO_INCIERTO; otros errores [15].
+
+11a. DOBLE RECORRIDO ACTUAL Y COSTO OBSERVADO
+-----------------------------------------
+CoordinadorImportacionCarpetas.VerificarStagingCreacion(vista,cargar,staging,
+autorizar,retenciones,objetivo,intentoPropio):
+  evaluar barrera -> determinar candidatos elegibles RECIBIDO segun ambito ->
+  ordenar por archivoId -> POR CADA candidato:
+    autorizar(contexto,snapshot.Configuracion)
+      -> ImportacionCarpetasContextAdapter.AutorizarRecursos (lecturas actuales).
+    cargar(contexto,loteId,archivoId)
+      -> MySqlImportacionCarpetasRepository.ObtenerArchivo
+      -> Operar: abrir conexion,ValidarMetadatos(LeerMetadatos),transaccion
+      -> BuscarLote -> CargarArchivoRecepcion -> commit/cerrar.
+    comparar revision,IDs,nombre/ruta,bytes,hash,staging,estados,intento.
+    <retenciones Is Nothing?>
+      SI -> AlmacenStagingImportacion.VerificarRetenido (lectura/hash/PDF).
+      NO -> ConservarVerificado (verifica y mantiene FileStream de lectura).
+    comprobar misma recepcion; registrar archivo verificado.
+    <parcial,creacion sin objetivo y error permitido de original?>
+      SI -> registrar archivo incierto, seguir otros candidatos.
+      NO -> propagar error; inesperado se convierte en CAPACIDAD_NO_DISPONIBLE.
+  exige al menos un verificado -> reautorizar -> devolver pruebas.
+
+Almacenar usa este metodo antes de reservar Y despues de reservar con retencion.
+La vista inicial ya trae datos agrupados; aun asi el bucle vuelve a cargar cada
+archivo individualmente. Para1000 candidatos:1000 llamadas cargar por pasada,
+2000 por documento. Cada llamada puede ejecutar varias sentencias SQL.
+NO son necesariamente1000 sentencias SQL ni1000 solicitudes HTTP.
+Medicion real: metadatos72,321% del coordinador; writer0,082% en tres muestras.
+No hay aun lectura agrupada sustituyendo esas llamadas ni validacion del conjunto
+reutilizada entre documentos. El diagrama conserva esa decision implementada.
+
+12. CONSULTAS, PRIVACIDAD, FILTROS, CSV Y ARBOL
+-------------------------------------------
+CLIENTE crearReferencias(storage,scope): sessionStorage DOC111_REF_<scope>
+  conserva solo v,loteId,planId canonicos. PreparacionSegmentadaImportacion
+  .referencias usa DOC120_PREP_<scope> solo para preparacionId. Sin File,
+  credenciales,token,hash,snapshot ni clave de mutacion persistidos. Scope de
+  ReferenciaRecuperacion vincula sesion/cuenta/empresa/origen; no es permiso.
+  Referencia local ausente -> buscarUltimo al clic; tambien consulta manual.
+  Consulta secundaria conserva seleccion/revision de la vista original;
+  originales File no se transfieren a un lote ajeno por coincidir idCliente.
+
++ ASMX -> ServicioConsultaImportacion ------------------------------------+
+| ConsultarUltimoLote({}) -> ConsultarUltimo: identidad de sesion ->         |
+| ObtenerUltimoLoteId: WHERE solicitante_ref=@usuario AND ambito_ref=@ambito |
+| ORDER BY lote_id DESC LIMIT1. Sin lote ->200 encontrado=False.           |
+| Con lote -> Autorizar ANTES de publicar ID; no busca otro si este deniega.|
+| No exige perfil seleccionado ni referencia en sessionStorage.           |
++------------------------------------------------------------------------+
+    ConsultarLote({loteId}) -> Consultar -> Autorizar:
+      identidad -> ObtenerContextoLote con usuario/empresa -> destino original
+      CONSULTAR -> mismo sello/ruta -> ConsultarEstado -> recursos actuales.
+      Lote ajeno devuelve ACCESO_DENEGADO HTTP403; no fuga nombres/evidencia.
+      ProyectarEstado: CONSULTAR/EXPORTAR_PAGINA/CONSULTAR_RAICES siempre
+      disponibles bajo autoridad.
+      Segun control: REANUDAR_LOTE, SOLICITAR_DETENCION, SOLICITAR_VERIFICACION,
+      SOLICITAR_REANUDACION o SOLICITAR_AVANCE. Pistas no sustituyen validacion.
+    ConsultarConfirmacionLote({planId}) -> ConsultarConfirmacion:
+      propietario/destino/plan/snapshot y lote concordantes. confirmada=False
+      no constituye prueba negativa que habilite repetir efectos.
+    ConsultarRecursosLote({loteId,tipo,pagina,tamanoPagina,raizId,estado,
+      estadoRecepcion}) -> ConsultarPagina -> Autorizar -> repositorio:
+      tipo RAICES|ARCHIVOS; pagina>=1; tamano1..200; offset<=UInt32.MaxValue;
+      IDs y estados cerrados; estadoRecepcion solo ARCHIVOS.
+      WHERE lote+empresa+solicitante+nivel; filtros opcionales parametrizados:
+      raizId; estado de raiz O efecto del archivo; estadoRecepcion.
+      COUNT y SELECT ordenado por raiz_id/archivo_id LIMIT/OFFSET en snapshot
+      RepeatableRead de ESA pagina. No snapshot global entre peticiones.
+      RAICES: completa recepcionListaParaCrear con ambito original, no filtro
+      de archivos; tambien pista puedeRetomarCreacion. No verifica disco.
+      <-- totalOriginal,totalFiltrado,revisionLectura,puedeHaberMas,elementos.
+    ConsultarRecursoLote({loteId,tipo,recursoId}) -> ConsultarFocal:
+      reautoriza -> ConsultarRecursoFocal -> recurso/padre/estado/progreso y
+      huella de miembros/revisiones del lote. Solo lectura, no checkpoint.
+    ExportarPaginaLote(mismo DTO de filtros) -> ExportarPagina:
+      llama ConsultarPagina con la MISMA autoridad; CSV de UNA pagina filtrada,
+      celdas escapadas y proteccion de formula; JSON con contenido/nombre/MIME.
+      Cliente crea Blob UTF8 con BOM y descarga; no recorre todo el lote.
+    <filtro sin filas?> -> HTTP200 elementos=[] y totalFiltrado=0; no error.
+
+ARBOL: consultar/proyectarCoordinacion -> deps.Doc111ActualizarRama
+  solo raices con IDs expediente/relacion, codigoExpediente y estado confirmado,
+  sin intento activo. Integra por identidad de relacion en destino original;
+  etiqueta codigoExpediente (CODIGO_UNICO), no nombre informativo.
+  Rama no disponible/fallo visual -> aviso; no repetir creacion por ello.
+
+13. PAUSA, DETENCION Y RECUPERACION: RAMAS DISTINTAS
+-------------------------------------------------
+PAUSA LOCAL: crearCoordinacion.pausar [7], sin UPDATE por si misma.
+
+DETENCION PERSISTENTE:
+  SolicitarDetencion({loteId,revisionEsperada}) -> coordinador.SolicitarDetencion
+  -> autoridad/destino/snapshot -> Repository.SolicitarDetencion CAS/evento.
+  No cancela solicitud/escritor en vuelo. Publica estado/revision/detencion.
+
+LEVANTAR DETENCION SIN REPLAY:
+  ReanudarLote({loteId,revisionEsperada}) -> coordinador.ReanudarLote
+  -> mismos controles -> repository.ReanudarLote -> vista consolidada bajo
+  bloqueo. MotivoControlLote, en orden:
+    terminal -> LOTE_TERMINAL;
+    incierto/PENDIENTE_VERIFICACION -> RESULTADO_INCIERTO;
+    activos -> OPERACION_EN_CURSO;
+    DETENIDO Y detencion=True -> REANUDACION_DISPONIBLE;
+    incoherencia detencion/estado -> DETENCION_INCONSISTENTE;
+    resto -> sin motivo de reanudacion.
+  Solo REANUDACION_DISPONIBLE habilita levantar; revision exacta y vista valida.
+  UPDATE lote detencion=0/revision+1, raices si consolidacion cambia y evento
+  DETENCION_LEVANTADA atomicos. No confirma/recibe/crea/almacena en esta llamada.
+  Cliente consulta despues; continuar exige accion explicita.
+
+RETOMAR RESERVA DE CREACION QUE NO INICIO ESCRITOR:
+  AvanzarLote({fase=RETOMAR_CREACION,loteId,recursoId,intentoId,
+    revisionEsperada,revisionLoteEsperada,levantarDetencion,claveOperacion})
+  -> coordinador.RetomarCreacion -> vista reconciliacion/revisiones/detencion
+  -> ExigirReservaRetomable: raiz CREANDO,sin identidad/valores efectivos,
+     intento RESERVADO WEB_CREACION,sin resultado/fin; no convertir INCIERTO.
+  -> comando de preflight/catalogos -> staging -> ReanudarReservaCreacion:
+     ausencia de checkpoint de inicio, identidad y eventos incompatibles bajo
+     bloqueo; cambia token de ejecutor de la MISMA reserva -> ejecutar [9].
+  Otra condicion ->409; tiempo transcurrido no autoriza esta rama.
+
+RECONCILIAR EVIDENCIA EXISTENTE:
+  ReconciliarRecurso({loteId,intentoId,revisionEsperada}) -> ReconciliarIntento
+  -> ObtenerVistaReconciliacion, autoridad, revision,plan/inventario exactos.
+  <ya confirmado?> -> proyectar repeticion sin efecto.
+  <PuedeReconciliar?> NO -> conflicto. SI -> VerificadorReconciliacionImportacion
+    .Verificar por IDs previamente observados; no buscar por codigo/nombre.
+  <verificacion demuestra resultado?> NO -> resuelta=False,INCIERTO HTTP409.
+    SI -> GuardarReconciliacion/checkpoint bajo comparacion, relectura y
+    confirmacion persistida -> HTTP200; no llama escritor.
+
+CAPACIDADES HTTP QUE NO OFRECE LA ALLOWLIST ImportacionCarpetasApi.invocar:
+  CerrarReservaSinInicio({loteId,intentoId,revisionEsperada}) -> coordinador
+    .CerrarReservaSinInicio, control conservador de reserva ALMACENAR sin
+    inicio. Exige exactamente un evento de reserva WEB_DOCUMENTO y ningun
+    inicio/otro evento, vista igual, lote EN_CURSO sin detencion, expediente
+    confirmado y archivo RECIBIDO/EN_CURSO con valores fijados. Transaccion:
+    intento RECHAZADO/RESERVA_CERRADA_SIN_INICIO, archivo NO_INICIADO sin
+    intento activo, revisiones/evento. Repeticion devuelve cierre persistido.
+    No crea nueva reserva; HTTP200 confirma este control, no un documento.
+  RecuperarDocumentoV2({loteId,intentoId,revisionLoteEsperada,
+    revisionArchivoEsperada}) -> ValidarSolicitudRecuperacionV2 ->
+    coordinador.RecuperarDocumento/RecuperarDocumentoV2:
+    autoridad+vista/diario/huellas+revision -> clasificar evidencia V2 ->
+    guardia exclusiva del original -> PREPARADO con ausencia demostrada
+    permite cierre EJECUCION_CERRADA_SIN_INVOCACION (no documento);
+    retorno durable e IDs comprobados permite DOCUMENTO_CONFIRMADO.
+    AUTORIZADO sin retorno o evidencia incoherente no autoriza reenvio.
+    Guardar CAS con retencion y comprobar acuse; sin escritor/recepcion.
+  HTTP real sigue [15]. La existencia de estos WebMethods NO supone un boton
+  implementado en el asistente actual ni recuperacion automatica al consultar.
+
+RECUPERAR ORIGINALES DEL NAVEGADOR:
+  recarga conserva referencias, no File. validarReseleccion y
+  PreparacionSegmentadaImportacion.vincularOriginales cotejan raiz/ruta relativa,
+  nombre,bytes,lastModified. Reportan faltantes/modificados/ambiguos/sobrantes;
+  archivos RECIBIDO se omiten. Vincular NO envia; envio requiere accion posterior.
+
+14. REPOSITORY, ESTADOS Y CONSOLIDACION
+------------------------------------
++ MySqlImportacionCarpetasRepository (unica clase parcial operativa) -------+
+| Operar<T>: conexion -> metadatos compatibles -> transaccion              |
+| ReadCommitted por defecto (consultas de seguimiento RepeatableRead) ->   |
+| operacion -> commit -> return. Dispose sin commit ante excepcion.        |
+| MySQL1062/1205/1213 -> CONFLICTO_REVISION; otros MySQL/Argument/InvalidOp   |
+| controlados por envoltorio -> CAPACIDAD_NO_DISPONIBLE.                    |
+| ComandoOperacion: parametros MySql,timeout30 de comando (NO significa    |
+| timeout total HTTP30s); algunos lectores propios usan5/10s.             |
+| Escrituras de efecto: orden lote -> raices/archivos/intentos, CAS/token,  |
+| comparar snapshot/valores/evidencia; exigir filas afectadas esperadas.    |
++------------------------------------------------------------------------+
+  Filtros de propiedad: ambito_ref y solicitante_ref/usuario_ref de contexto;
+  nivel y sello/ruta originales; JOIN de archivo a raiz/lote para pertenencia.
+  Estado del repositorio no reemplaza reautorizacion actual del servicio.
+  Escritura legacy y checkpoint RA NO forman una transaccion global unica.
+  Por eso existe INCIERTO: commit documental con acuse perdido es posible.
+
+  Tablas principales: ra_integracion_plan,lote,raiz,archivo,intento,evento;
+  nombre completo con prefijo ra_integracion_ para cada sufijo.
+  Preparacion/fragmentos: ra_integracion_preparacion,
+  ra_integracion_preparacion_parte,ra_integracion_preparacion_resultado.
+  No hay staging SQL de PDF. Snapshot/reglas/valores/evidencia: JSON y hashes.
+
+  CoordinadorImportacionCarpetas.EvaluarConsolidacion / repositorio consolidan
+  despues de checkpoints/control; ConsultarEstado no escribe consolidacion.
+  RAIZ: incertidumbre -> INCIERTO; todos archivos confirmados y creacion probada
+  -> COMPLETADA; confirmados+rechazos sin pendientes automaticos -> PARCIAL;
+  raiz no elegible PENDIENTE -> BLOQUEADO. ValidarTransicion controla cambios.
+  LOTE, prioridad real:
+    incertidumbre -> PENDIENTE_VERIFICACION;
+    intentos activos -> EN_CURSO;
+    todos archivos/raices confirmados -> COMPLETADO;
+    detencion -> DETENIDO (excepto rama explicita ReanudarLote);
+    pendiente verificacion no resuelta -> conservar estado;
+    progreso+rechazos sin automaticos -> PARCIAL;
+    sin recuperables ni progreso -> FALLIDO;
+    progreso -> EN_CURSO;
+    sin progreso -> LISTO si recibidos, en otro caso RECIBIENDO.
+  Matriz exacta PLAN/RAIZ/RECEPCION/EFECTO/INTENTO/LOTE en CrearTransiciones,
+  reproducida literalmente en anexo. No todos los estados permiten reintento.
+
+  Limpieza/retencion: ServicioConsultaImportacion.DiagnosticarRetencion y
+  capacidad interna LimpiarOriginal existen; SIN endpoint del asistente ni
+  limpieza automatica/job. No confundir consumo de copia del writer con borrar
+  original retenido. No hay rollback global de toda la importacion.
+
+15. RESPUESTAS, CODIGOS HTTP Y CAMINOS DE ERROR
+-------------------------------------------
++ WebServiceImportacionCarpetas.EjecutarEntradaOperativa -------------------+
+| datos es RecuperacionDocumentoImportacionResultado -> ok=True,codigo     |
+| propio (cierre sin invocacion tambien200, no documento confirmado).      |
+| AvanceLoteImportacionResultado.estado=INCIERTO -> ok=False,               |
+| codigo RESULTADO_INCIERTO; RECHAZADO -> ARCHIVO_RECHAZADO.                 |
+| Otro resultado normal -> ok=True,codigo OK.                              |
+| Catch PerfilImportacionException/ConfiguracionPerfilImportacionException |
+| -> DiagnosticoOperacionImportacion.Publicar/Registrar.                    |
+| Catch Exception -> ERROR_INTERNO, no confirma operacion.                 |
+| Adjuntar diagnostico saneado; cache NoCache/NoStore, sin redirect de forms,|
+| TrySkipIisCustomErrors. EstadoHttp(salida) determina codigo de transporte.|
++------------------------------------------------------------------------+
+
+  Instrumentacion optativa vigente: MedicionAlmacenamientoImportacion.Preparar
+  se ejecuta despues del guard y antes de la accion. Solo ALMACENAR con cabecera
+  X-DOC120-Medicion con valor32hex activa acumulacion aislada en HttpContext.Items.
+  Adjuntar emite Server-Timing de categorias/conteos/duraciones cerrados;
+  no modifica JSON ni publica SQL/PDF/rutas/credenciales. Fallos de observacion
+  se contienen. No introduce agrupacion de consultas ni salto de validaciones.
+
+  ok=True                                                     -> HTTP200
+  SESION_REQUERIDA                                             -> HTTP401
+  ACCESO_DENEGADO / SOLICITUD_NO_VERIFICADA                     -> HTTP403
+  CONFLICTO_REVISION / CODIGO_PERFIL_EXISTENTE / RESULTADO_INCIERTO
+    / OPERACION_EN_CURSO / CONTENIDO_DISTINTO                   -> HTTP409
+  LIMITE_EXCEDIDO                                              -> HTTP413
+  FORMATO_NO_SOPORTADO                                         -> HTTP415
+  ARCHIVO_RECHAZADO                                            -> HTTP422
+  RECEPCION_OCUPADA                                            -> HTTP429
+  CAPACIDAD_NO_DISPONIBLE / ESQUEMA_FUENTES_INCOMPLETO           -> HTTP503
+  ERROR_INTERNO                                                -> HTTP500
+  Cualquier otro codigo con ok=False                           -> HTTP400
+
+  IMPORTANTE: codigo de incidencia NO es automaticamente codigo del sobre.
+  Ejemplo PLAN_EXPIRADO puede ser causa dentro de CONFLICTO_REVISION en
+  Confirmar (409), pero excepcion PLAN_EXPIRADO de preparacion segmentada
+  queda en default400. No asignar409 a todos los errores por intuicion.
+
+  ASHX: controlado Publicar igual; Exception inesperada se convierte en
+  RESULTADO_INCIERTO HTTP409 (no ERROR_INTERNO500 del envoltorio ASMX).
+  Publicar usa catalogo cerrado; elimina detalles para401/403; max128 incidencias
+  con campos/mensajes seguros. operacionId permite correlacionar traza saneada.
+  SQL/rutas fisicas/conexiones/tokens/mensajes libres legacy no se devuelven.
+
++ CLIENTE ImportacionCarpetasApi.send -------------------------------------+
+| <401/403?> invalida token/cierra instancia API; requiere contexto nuevo.  |
+| <sobre no reconocido?> RESPUESTA_INVALIDA; mutacion conserva incertidumbre.|
+| PrepararPlan: HTTP413 o rechazo ASMX maxJsonLength reconocido ->           |
+| REVISION_TAMANO_EXCEDIDO; no transforma cualquier500 en exceso.           |
+| !ok o HTTP fuera2xx: rechazo; resultadoIncierto si mutacion y              |
+| (HTTP>=500 O RESULTADO_INCIERTO O OPERACION_EN_CURSO).                     |
+| red/timeout/abort/transporte: error local, incierto si era mutacion.      |
+| Recepcion multipart y AvanzarLote/ALMACENAR: xhr.timeout=0; espera acuse.  |
+| Otras solicitudes: options.timeout o30000ms. IIS/servidor aun pueden       |
+| interrumpir. Cancelar la espera no demuestra que el efecto no ocurrio.    |
++------------------------------------------------------------------------+
+  Un error local tiene httpStatus=0 si no hubo respuesta; NO inventar HTTP.
+  ASMX puede fallar al deserializar ANTES de EjecutarEntradaOperativa; IIS puede
+  rechazar tamano/URL/autenticacion antes del guard. Esa salida no garantiza
+  sobre d ni el mapeo anterior. El cliente la trata segun reglas de arriba.
+
+16. MANTENIMIENTO DENTRO DEL MISMO CAMBIO
+--------------------------------------
+1) Actualizar este mapa al cambiar cualquier fase/contrato/decision descrita.
+2) Ejecutar node tools/docs/generate-doc120-flow.cjs para regenerar contratos,
+   predicados/filtros literales, rutas/lineas y SHA256 LF del anexo/manifiesto.
+3) Ejecutar node tools/docs/generate-doc120-flow.cjs --check: falla si cambian
+   fuentes, mapa o anexo sin regenerar. Releer manualmente decisiones cambiadas;
+   una huella coincidente acredita correspondencia de fuentes, no correccion
+   de negocio ni cobertura E2E. No equivale a certificacion de capacidad.
+4) Actualizar tarea3.170/guia/matriz de DOC-120 con alcance y limitaciones.
+5) Entregar mapa TXT + anexo TXT + manifiesto junto a la implementacion.
+
+Este corte es documental: no modifica producto, no agrupa metadatos, no ejecuta
+HTTP/SQL ni repite almacenamientos del lote50. Mantiene abiertas las tareas de
+aceptacion/capacidad/carreras y las propuestas de optimizacion pendientes.
