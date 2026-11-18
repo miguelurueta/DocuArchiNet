@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const {MAX,RESUME_MAX,SQL,bind,bindResumed,confirmationBinding,EffectsGate,fingerprint,receiptPayload,failure,hash}=require('../tools/e2e/tests/support/doc120-qa-window.cjs');
-const {heldGate,gateOutcome,waitConsultReady,reviewPrior,reviewAfterUi}=require('../tools/e2e/scripts/run-doc120-qa-failures.cjs');
+const {heldGate,gateOutcome,waitConsultReady,observeQaTree,independentTreeFailure,reviewPrior,reviewAfterUi}=require('../tools/e2e/scripts/run-doc120-qa-failures.cjs');
 const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 function fixture(){
  const header=(lot,level,version,n,r)=>({lote_id:lot,nivel_ref:level,version_id:version,total_archivos:String(n),total_raices:String(r),unresolved:'0',detencion_solicitada:'0',estado:'EN_CURSO',config_doc:JSON.stringify({Configuracion:{OrigenGabinete:'DA',GabineteId:10}})});
@@ -76,6 +76,8 @@ test('QA12: revision especifica de la corrida con efectos conserva identidad/con
  try{fs.writeFileSync(file,JSON.stringify(state));const parsed=reviewAfterUi(folder,runId);assert.equal(parsed.confirmed.length,2);assert.equal(parsed.select,12);assert.throws(()=>reviewPrior(folder,runId),/SPECIFIC_RESUME/);
   const childId='c4afaca21fe2bb90d54f9b0ddeea4750',childFile=path.join(folder,'.tmp/doc120-qa-failures',childId,'state.json'),child={runId:childId,status:'STOPPED',failure:'DOC120_QA_UI_TIMEOUT',failureStage:'VERIFY_LOT29_RECOVERY_READONLY',failureLoadStep:'QUERY_LOT_29',closed:true,credentialsCleared:true,previousStatePreserved:true,http:278,select:5,sessions:1,operations:[],effectCalls:{},previousReview:{runId,sha256:parsed.sha256},before:{...state.before,completed29:2}};fs.mkdirSync(path.dirname(childFile),{recursive:true});fs.writeFileSync(childFile,JSON.stringify(child));
   assert.deepEqual(reviewAfterUi(folder,childId).cumulative,{http:860,select:17,sessions:2});assert.equal(reviewAfterUi(folder,childId).parentReview.sha256,parsed.sha256);
+  const latestId='9bad855f684d064ed35d8a7667e13151',latestFile=path.join(folder,'.tmp/doc120-qa-failures',latestId,'state.json'),latest={...child,runId:latestId,http:283,select:9,failure:'DOC120_QA_TREE_RESULT_MISSING',failureLoadStep:'LOADED_29',previousReview:{runId:childId,sha256:reviewAfterUi(folder,childId).sha256}};fs.mkdirSync(path.dirname(latestFile),{recursive:true});fs.writeFileSync(latestFile,JSON.stringify(latest));
+  assert.deepEqual(reviewAfterUi(folder,latestId).cumulative,{http:1143,select:26,sessions:3});assert.equal(reviewAfterUi(folder,latestId).ancestorReviews[0].sha256,parsed.sha256);
   for(const change of [s=>s.operations.push({operation:'AvanzarLote'}),s=>s.effectCalls.RECEIPT=1,s=>s.previousReview.sha256='a'.repeat(64),s=>s.credentialsCleared=false]){const broken=structuredClone(child);change(broken);fs.writeFileSync(childFile,JSON.stringify(broken));assert.throws(()=>reviewAfterUi(folder,childId));}
   for(const change of [s=>s.operations.push(s.operations[0]),s=>s.operations[4].documentId='999',s=>s.closed=false,s=>s.select=13,s=>s.effectCalls.RECEIPT=2]){const broken=structuredClone(state);change(broken);fs.writeFileSync(file,JSON.stringify(broken));assert.throws(()=>reviewAfterUi(folder,runId));}
  }finally{assert.equal(path.dirname(folder),os.tmpdir());assert.ok(path.basename(folder).startsWith('doc120-qa-resume-'));fs.rmSync(folder,{recursive:true,force:true});}
@@ -91,4 +93,16 @@ test('QA13: consulta con recibidos guardados y original pendiente queda lista si
   assert.equal(await page.locator('[data-doc111-action="continuar-importacion"]').isEnabled(),true);
   assert.equal(await page.evaluate(()=>calls.filter(c=>['AvanzarLote','RECEPCION','ConfirmarPlan'].includes(c.operation)).length),before);
  });
+});
+test('QA14: imagen/texto WebForms representan un nodo; una relacion logica duplicada sigue siendo fallo',async()=>{
+ const {chromium}=require('../tools/e2e/node_modules/playwright'),browser=await chromium.launch({headless:true});
+ try{const page=await browser.newPage();await page.setContent('<div id="TreeViewArchivo"><a id="TreeViewArchivot7i" title="1118|7|694|"><span></span></a><a id="TreeViewArchivot7" title="1118|7|694|">CODIGO-PRUEBA</a></div>');
+  const input={identity:{RelacionNivelId:'1118',ExpedienteId:'694'},level:'7',code:'CODIGO-PRUEBA'};assert.deepEqual(await page.evaluate(observeQaTree,input),{count:1,matchingAnchors:2,labelMatches:true});assert.equal((await page.evaluate(observeQaTree,{...input,code:'OTRO'})).labelMatches,false);
+  await page.evaluate(()=>{const node=document.querySelector('#TreeViewArchivot7').cloneNode(true);node.id='TreeViewArchivot8';document.querySelector('#TreeViewArchivo').append(node);});assert.deepEqual(await page.evaluate(observeQaTree,input),{count:2,matchingAnchors:3,labelMatches:false});
+ }finally{await browser.close();}
+});
+
+test('QA15: solo fallo visual con checkpoints RA/DA permite continuar casos independientes sin ocultarlo',()=>{
+ const error=Error('DOC120_QA_TREE_RESULT_MISSING'),state={operations:[],results:{uiRecoveryCheckpoint:{A:{documentId:'16282'},C:{documentId:'16283'},reload:true,noRepeatedEffects:true}}};assert.equal(independentTreeFailure(error,state),true);
+ for(const change of [s=>s.guardFailure='BLOCKED',s=>s.operations.push({operation:'AvanzarLote'}),s=>s.results.uiRecoveryCheckpoint.C.documentId='999',s=>s.results.uiRecoveryCheckpoint.reload=false]){const broken=structuredClone(state);change(broken);assert.equal(independentTreeFailure(error,broken),false);}assert.equal(independentTreeFailure(Error('DOC120_QA_UI_TIMEOUT'),state),false);
 });

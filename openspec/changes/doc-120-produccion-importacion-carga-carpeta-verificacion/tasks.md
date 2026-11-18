@@ -565,3 +565,7 @@ ba8a1ace cerró STOPPED antes de HTTP/efectos con5 SELECT por comparación de hu
 ## Espera heredada de consulta QA corregida2026-11-18
 
 c4afaca2:278 HTTP/5 SELECT/1 sesión,0 efectos; identidades/huellas RA preservadas. Se reproduce en Chromium que Actualizar estado puede ser retirado de DOM mientras Continuar queda listo: QA13. Solo arnes corregido;13/13 QA y25/25 junto a regresión de parada. Nueva continuación enlaza ambos cierres con103 SELECT remanentes y efectos restringidos; presupuesto/consumo en el plan QA.3.202/3.203 conservan pendientes,209/223.
+
+## Conteo de nodo lógico del arnes QA2026-11-18
+
+9bad855f confirma consulta/RA-DA16282/16283 y detiene aserción visual sin guardar su conteo;283 HTTP/9 SELECT/1 sesión,0 efectos. Auxiliar corrige tNi/tN y registra diagnóstico antes del rechazo; QA14/QA15,15 QA y35/35 locales combinadas. Continuación propuesta conserva tres cierres y94 SELECT restantes; solo fallo visual acreditado puede reportarse sin bloquear casos independientes, nunca PASS. Plan QA y doc120-qa-arbol-detenido-20261118.json delimitan alcance.209/223,14 pendientes, producto/DLL sin cambios.
