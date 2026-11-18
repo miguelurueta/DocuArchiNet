@@ -1,0 +1,32 @@
+{
+  "runId": "86709c052d0c4bb9942c666e9a5a2ec5",
+  "status": "STOPPED",
+  "http": 278,
+  "select": 6,
+  "sessions": 1,
+  "failureStage": "CONFIRMED_PLAN_CONVERGENCE",
+  "failure": "DOC120_QA_API_REJECTED",
+  "operations": [
+    {
+      "operation": "ConfirmarPlan",
+      "lotId": null,
+      "resourceId": null,
+      "phase": null,
+      "http": 409,
+      "code": "CONFLICTO_REVISION",
+      "ok": false
+    }
+  ],
+  "effectCalls": {
+    "CONFIRM": 1
+  },
+  "closed": true,
+  "credentialsCleared": true,
+  "finishedUtc": "2026-11-18T20:03:40.361Z",
+  "applicationChanged": false,
+  "receiptCalls": 0,
+  "creationCalls": 0,
+  "storageCalls": 0,
+  "cause": "HARNESS_USED_CURRENT_REVISION_INSTEAD_OF_ORIGINAL_CONFIRMED_REQUEST",
+  "correctedHarnessTests": 8
+}
