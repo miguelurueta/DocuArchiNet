@@ -31,3 +31,9 @@ Esta ventana no inyecta fallos en transacciones MySQL ni conecta al escritor con
 ## Primera ventana cerrada, corrección del ejecutor
 
 Run86709c052d0c4bb9942c666e9a5a2ec5: STOPPED en CONFIRMED_PLAN_CONVERGENCE,278 HTTP/6 SELECT/1 sesión. Una reconfirmación con revisión actual devolvió409/CONFLICTO_REVISION correctamente. Cero recepciones, creaciones o solicitudes de almacenamiento. Se corrige solo el ejecutor: revisión original ligada por hash y selección B/C por orden de ID persistido. Ocho pruebas locales verifican ambos supuestos y la continuación exclusiva. El estado anterior permanece intacto; una ventana nueva enlazada necesita claves privadas nuevas porque las anteriores fueron eliminadas. No se modifica la aplicación ni su DLL.
+
+## Segunda ventana cerrada y comparación canónica corregida
+
+Runba8a1acef7c41a6d9db5a557f61318ac: STOPPED/PREFLIGHT_READONLY,5 SELECT/0 HTTP/0 sesiones,0 efectos. La guarda CONFIRMATION_REQUEST_HASH_INVALID evitó cualquier POST. Estado previo86709c05 preservado y credenciales eliminadas. No fue un rechazo del servidor ni una regresión del importador: el arnes calculaba SHA256 de JSON en orden de inserción, pero PerfilImportacionJson.Escribir ordena propiedades ordinalmente.
+
+Se corrige exclusivamente la construcción de la huella en el auxiliar QA: huella,planId,revision. La nueva prueba QA09 invoca Escribir en la DLL instalada8b27a942 con solicitud sintética y compara texto/SHA nativos contra la guarda, sin conexión ni escritor. También demuestra que el orden anterior produce otra huella.9/9 locales aprobadas; la aplicación y binarios no cambian. Esta comprobación local no acredita coincidencia contra una lectura actual de BD ni aprueba los escenarios reales pendientes. Evidencia segura doc120-qa-huella-detenida-20261118.json. No se inicia otra ventana por la solicitud de revisar el resultado; una continuación debe revisar este cierre y pedir nuevamente las claves en consola privada.

@@ -30,8 +30,17 @@ test('QA05: retener una respuesta espera liberacion explicita; el acuse conserva
  const gate=heldGate();let delivered=false;const delivery=gate.continued.then(()=>{delivered=true;});gate.ready({documentId:'100'});assert.deepEqual(await gateOutcome(gate.reached),{documentId:'100'});await new Promise(setImmediate);assert.equal(delivered,false);gate.release();await delivery;assert.equal(delivered,true);
 });
 test('QA06: reconfirmacion usa revision original verificada contra huella de solicitud, nunca revision actual',()=>{
- const planHash='a'.repeat(64),row=revision=>({estado:'CONFIRMADO',plan_id:'90',revision:String(revision),plan_hash:Buffer.from(planHash,'hex').toString('base64'),confirmed_request_hash:Buffer.from(hash({planId:'90',revision:revision-1,huella:planHash}),'hex').toString('base64')});
+ const planHash='a'.repeat(64),row=revision=>({estado:'CONFIRMADO',plan_id:'90',revision:String(revision),plan_hash:Buffer.from(planHash,'hex').toString('base64'),confirmed_request_hash:Buffer.from(hash('{"huella":"'+planHash+'","planId":"90","revision":'+(revision-1)+'}'),'hex').toString('base64')});
  assert.deepEqual(confirmationBinding(row(2)),{revision:1,hash:planHash});assert.equal(confirmationBinding(row(3)).revision,2);const wrong=row(2);wrong.confirmed_request_hash=Buffer.from(hash({planId:'90',revision:2,huella:planHash}),'hex').toString('base64');assert.throws(()=>confirmationBinding(wrong),/CONFIRMATION_REQUEST_HASH_INVALID/);assert.throws(()=>confirmationBinding({...row(2),revision:'1'}),/PLAN_CHANGED/);
+});
+test('QA09: solicitud de confirmacion coincide con serializador real de DLL instalada, sin conexion ni escritor',()=>{
+ const {execFileSync}=require('node:child_process');
+ const output=execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',path.resolve(__dirname,'../tools/e2e/tests/support/doc120-confirmation-native.ps1')],{encoding:'utf8',windowsHide:true});
+ const native=JSON.parse(output.replace(/^\uFEFF/,''));
+ assert.equal(native.json,'{"huella":"'+'a'.repeat(64)+'","planId":"90","revision":1}');
+ assert.equal(native.sha256,hash(native.json));
+ assert.deepEqual(confirmationBinding({estado:'CONFIRMADO',plan_id:'90',revision:'2',plan_hash:Buffer.from('a'.repeat(64),'hex').toString('base64'),confirmed_request_hash:Buffer.from(native.sha256,'hex').toString('base64')}),{revision:1,hash:'a'.repeat(64)});
+ assert.notEqual(native.sha256,hash({planId:'90',revision:1,huella:'a'.repeat(64)}));
 });
 test('QA07: B/C siguen orden persistido de archivo, no orden numerico del identificador cliente',()=>{
  const d=fixture(),clients=['a1',...Array.from({length:26},(_,i)=>'a'+(i+2)).sort()];d.files.filter(r=>r.lote_id==='29').forEach((r,i)=>r.cliente_archivo_id=clients[i]);const b=bind(d);assert.equal(b.B,'11');assert.equal(b.C,'12');assert.equal(b.CClient,'a11');

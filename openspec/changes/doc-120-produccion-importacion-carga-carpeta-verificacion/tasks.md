@@ -553,3 +553,7 @@ Muestra solicitada de diez siguientes:3.201 completa, run3d30f47d FINISHED_TEN,1
 ## Ventana QA preparada y autorizada2026-11-18
 
 3.86 verificada mediante plan concreto doc120-qa-fallos-plan-20261118.md y aprobación de consola localhost/lotes29 y50/propietario141-empresa2. Primera ventana86709c05 cerrada antes de efectos:409 correcto por revisión incorrecta del ejecutor;278 HTTP/6 SELECT/1 sesión,0 recepciones/creaciones/almacenamientos. Corrección del arnes,8/8 locales y continuación nueva ba8a1ace enlazada sin alterar el estado previo. DLL y aplicación sin cambios.3.202/3.203 en ejecución;3.87/3.187/3.196, capacidad y aceptación conservan sus pendientes.209/223 verificadas,14 pendientes;27 S/196 M/0 L.
+
+## Revisión de resultado QA y huella canónica2026-11-18
+
+ba8a1ace cerró STOPPED antes de HTTP/efectos con5 SELECT por comparación de huella incorrecta del ejecutor. Se corrige solo auxiliar y se agrega verificación contra serializador real de DLL instalada sin conexión/escritor:9/9 locales. Evidencia doc120-qa-huella-detenida-20261118.json y plan QA actualizado. No es una ejecución aprobada de3.202/3.203;209/223,14 pendientes. Sin nueva ventana ni cambios de aplicación/BD.

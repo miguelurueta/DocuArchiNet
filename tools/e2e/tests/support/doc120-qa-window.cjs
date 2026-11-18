@@ -34,7 +34,9 @@ function confirmationBinding(row){
  check(row.estado==='CONFIRMADO'&&String(row.plan_id)==='90'&&Number.isInteger(current)&&current>1&&current<4294967295&&/^[a-f0-9]{64}$/.test(planHash),'PLAN_CHANGED');
  // ConfirmarPlan increments revision once. Verify the reconstructed ORIGINAL
  // request against the immutable hash in the already existing lot before POST.
- const original=current-1,requestHash=hash({planId:'90',revision:original,huella:planHash});
+ // PerfilImportacionJson.Escribir sorts properties with StringComparer.Ordinal.
+ // JSON.stringify preserves insertion order, so use that exact canonical order.
+ const original=current-1,requestHash=hash({huella:planHash,planId:'90',revision:original});
  check(Buffer.from(row.confirmed_request_hash,'base64').toString('hex')===requestHash,'CONFIRMATION_REQUEST_HASH_INVALID');
  return{revision:original,hash:planHash};
 }

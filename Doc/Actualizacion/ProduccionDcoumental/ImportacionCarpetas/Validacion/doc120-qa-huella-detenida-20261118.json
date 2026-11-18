@@ -1,0 +1,36 @@
+{
+  "runId": "ba8a1acef7c41a6d9db5a557f61318ac",
+  "status": "STOPPED",
+  "http": 0,
+  "select": 5,
+  "sessions": 0,
+  "failureStage": "PREFLIGHT_READONLY",
+  "failure": "DOC120_QA_CONFIRMATION_REQUEST_HASH_INVALID",
+  "operations": [],
+  "closed": true,
+  "credentialsCleared": true,
+  "finishedUtc": "2026-11-18T20:31:53.860Z",
+  "previousStatePreserved": true,
+  "receiptCalls": 0,
+  "creationCalls": 0,
+  "storageCalls": 0,
+  "applicationChanged": false,
+  "cause": "HARNESS_JSON_PROPERTY_ORDER_DIFFERS_FROM_CANONICAL_SERVER_SERIALIZER",
+  "localTests": 9,
+  "nativeSerializer": {
+    "dllSha256": "8b27a942458d41aa87d8ddd0df684bf70b7b89ec7702f0607958169a91cc571d",
+    "expectedPropertyOrder": [
+      "huella",
+      "planId",
+      "revision"
+    ],
+    "oldHarnessPropertyOrder": [
+      "planId",
+      "revision",
+      "huella"
+    ],
+    "connectionOpened": false,
+    "writerInvoked": false
+  },
+  "realQaPassed": false
+}
