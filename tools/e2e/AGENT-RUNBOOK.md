@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — HTTP500 antes de nueva reserva2026-11-18
+
+Usuario «lanza»: run42318523fd4e432a84a2473952e3e59d,100 HTTP/8 SELECT/1 sesión, un ALMACENAR107 con HTTP500/ERROR_INTERNO en1121,0625ms;0 acuses confirmados y cero solicitudes108/109. Referencia a6720c307b20449ca695c0b318e69ee4. Cerrado, secretos eliminados, ventana anterior intacta. Diagnóstico posterior be3cbe81 con5 SELECT/0 HTTP confirma RA EN_CURSO/revisión3057,10 completados/990 pendientes y cero actividad/incertidumbre; no certifica DA/disco ni la excepción exacta. Fuente `Validacion/doc120-lote50-http500-20261118.md`/JSON. No reintentar107 ni modificar estados para forzar medición. Reproducir lecturas/validaciones sin escritor o mejorar evidencia técnica antes de otra ventana con efectos.3.198 sigue pendiente.
+
 ## DOC-120 — nueva versión instalada, medición sin despachos2026-11-18
 
 Solicitud de reutilizar la medición de tres archivos del lote50. Run9dd8a1e963154c338fb8885c10ce8180 revisa la ventana23e18a40 sin modificarla. Índice09 aplicado manualmente y verificado por SELECT. Tras «continua» y aprobación de instalación, DLL/PDB del commitb72f2dd6 instaladas con respaldo verificado (DLL b3303603). Cerró antes del login con5 SELECT/0 HTTP/0 sesiones/0 ALMACENAR, secretos eliminados; código genérico no certifica causa. Diagnóstico futuro distingue entrada de cuenta/clave y arranque del navegador sin conservar excepciones privadas. Evidencia `Validacion/doc120-lote50-medicion-reutilizada-20261118.md`/JSON;11/11 locales. No hay tiempos nuevos ni aceptación de3.198/3.187/3.196. No reabrir ni borrar estados cerrados; revisar consumo/resultados y autorización antes de otra ventana. Los apartados inferiores conservan el estado histórico de su corte.
