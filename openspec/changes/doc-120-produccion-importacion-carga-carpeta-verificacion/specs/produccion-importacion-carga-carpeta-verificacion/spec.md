@@ -5,6 +5,8 @@ Consolidar la verificación trazable de importación de carpetas sobre la interf
 
 ## ADDED Requirements
 
+Reglas acordadas para planificación tras la exploración de rendimiento: [procesamiento independiente](../../../../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/09-procesamiento-independiente-archivos.md). A no depende de la disponibilidad física de B; la completitud se evalúa por resultados al cierre. Ante faltante conocido, la cola espera Continuar con los demás/Pausar para revisar. Los escenarios IND y las precisiones de creación/pausa/CAP-08 describen el objetivo pendiente de3.171–3.196; no afirman que esté implementado. Las guardas de autoridad, identidad y exclusión de escritor activo permanecen obligatorias.
+
 ### Requirement: RQ-01 — Base y vigencia por componente
 DOC-120 SHALL cumplir la decisión D-01: Fijar el merge de DOC-119 como base funcional. Cada caso conserva SHA/huellas de sus componentes, prueba, ambiente y resultado originales; la identidad de huellas permite reutilización local, no una ejecución real nueva. Un cambio invalida únicamente los casos dependientes; el mapa explicita esa dependencia.
 
@@ -95,9 +97,9 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **AND** la paridad local usa las funciones de enrutamiento originales con fronteras de negocio sintéticas y no se atribuye a una prueba IIS autenticada
 
 #### Scenario: Recepción requerida antes de ofrecer creación
-- **WHEN** una carpeta confirmada todavía no cumple la recepción exigida por la política del perfil
-- **THEN** la UI explica cómo enviar los pendientes y no ofrece Crear expediente hasta consultar la disponibilidad calculada por el servidor
-- **AND** esa disponibilidad evalúa el ámbito completo EXPEDIENTE/LOTE/PARCIAL, aunque los archivos estén en otra página o fuera del filtro, sin ejecutar efectos; la creación revalida su autoridad, revisión y staging
+- **WHEN** una carpeta elegible no tiene ningún original recibido y utilizable para iniciar su expediente
+- **THEN** la UI explica cómo vincular/enviar los pendientes y no ofrece Crear expediente hasta consultar la disponibilidad calculada por el servidor
+- **AND** con al menos un PDF propio utilizable y datos de raíz válidos, otro faltante no bloquea crear para ese archivo; el servidor revalida autoridad, revisión y staging del original de referencia sin depender del filtro/página, y la completitud final conserva el inventario original
 
 #### Scenario: Selección reunida sin perder controles
 - **WHEN** el usuario abre el asistente reorganizado
@@ -139,6 +141,31 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **WHEN** el recurso tiene nombre/ruta largos, hay una denegación o el servidor envía texto desconocido
 - **THEN** el panel se adapta a390/768/1280px, usa texto seguro y un catálogo cerrado; los datos para soporte permanecen disponibles sin errores internos, rutas absolutas ni secretos
 - **AND** la denegación no añade detalle de recurso desde la respuesta; cierre invalida lecturas tardías y no inicia otro archivo
+
+#### Scenario: IND-UI-01 Faltante identificado y decisión pendiente
+- **WHEN** no está disponible el File local de un pendiente o el servidor acredita un original no disponible antes de invocar el escritor
+- **THEN** el asistente pausa antes del siguiente efecto y muestra archivo/ruta relativa, fase, causa comprobada, certeza y cantidades confirmadas/pendientes
+- **AND** ofrece Continuar con los demás y Pausar para revisar sin elección automática, sin alert/confirm nativos y sin confundir falta de archivo con escritura incierta
+
+#### Scenario: IND-UI-02 Continuación elegida sin descartar el faltante
+- **WHEN** en A válido, B no disponible y C válido el usuario elige Continuar con los demás ante B
+- **THEN** C puede procesarse una vez si cumple sus propias guardas, B queda sin completar e identificado en el mismo inventario y no se vuelve a elegir automáticamente en esa ejecución
+- **AND** no se omite una denegación de autoridad, una identidad de expediente inválida ni la exclusión de un escritor todavía activo mediante esta decisión
+
+#### Scenario: IND-UI-03 Pausa, cierre y generación de la decisión
+- **WHEN** el usuario elige Pausar para revisar, cierra el aviso o el asistente, cambia de contexto o recarga antes de decidir
+- **THEN** se conserva el avance confirmado y no se inicia el siguiente archivo; Escape y cierre mantienen la pausa y las respuestas tardías no continúan otra ejecución
+- **AND** el diálogo conserva teclado/foco y vuelve al recurso pertinente; recargar no restaura una autorización para saltar o reintentar archivos
+
+#### Scenario: IND-UI-04 Revisión y retoma de un pendiente individual
+- **WHEN** el usuario revisa y vuelve a iniciar un pendiente después de una incidencia con cero invocación acreditada
+- **THEN** se consulta el mismo lote y se reautoriza/revalida físicamente ese archivo antes de reservarlo; completados y resultados inciertos no se reenvían
+- **AND** vincular un File local PENDIENTE no lo envía por sí solo; la ausencia del temporal de un RECIBIDO informa su límite real de recuperación y no inventa reposición mediante VerificarReenvio
+
+#### Scenario: IND-UI-05 Resultado con pendientes y consultas conservadas
+- **WHEN** termina la ejecución consentida con A y C confirmados y B sin procesar por decisión del usuario
+- **THEN** muestra Importación con pendientes, los tres archivos siguen en el total original y B conserva referencia/fase/causa sin presentarse como completado
+- **AND** progreso por acuses y recuento final son distinguibles; consulta, filtros, páginas, CSV y árbol mantienen identidad/selección y no ejecutan efectos implícitos
 
 ### Requirement: RQ-05 — Integridad, incertidumbre y consumidores
 Ampliación aprobada2026-11-17: D-04/D-05/D-09 autorizan el control ReanudarLote y la espera de respuesta según Diseno/espera-respuesta-reanudacion-lote-doc120.md. Sin nuevas tablas, escritores o efectos reales autorizados por la implementación local.
@@ -222,7 +249,8 @@ DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PE
 
 #### Scenario: Pausa, incertidumbre y recuperación explícita
 - **WHEN** se pausa, se cierra, falta un original, cambia una revisión o falla una respuesta/lectura posterior
-- **THEN** no se solicita el siguiente efecto; los resultados e identidades confirmados se conservan y las respuestas tardías de una generación cerrada no continúan la cola
+- **THEN** se pausa antes del siguiente efecto y se conservan resultados e identidades; ante un faltante con cero invocación acreditada, solo Continuar con los demás permite elegir otro archivo, mientras Pausar/cerrar o no decidir no avanza
+- **AND** conflicto/autoridad o invocación posible sin resultado confirmado conservan sus guardas y consulta sin replay; las respuestas tardías de una generación cerrada no continúan la cola
 - **AND** una respuesta perdida exige consulta sin replay ni reanudación automática; una lectura fallida tras acuse conserva su confirmación; Continuar, Retomar creación y Verificar intento mantienen consentimiento explícito
 - **AND** consultar, exportar, recargar o recuperar una confirmación pendiente no inicia operaciones; el cierre y conteos proceden de resultados confirmados, con acceso por ID a los expedientes
 
@@ -272,7 +300,7 @@ Los escenarios CAP siguientes amplían RQ-05 con trazabilidad adicional RQ-04/RQ
 #### Scenario: CAP-08 Lectura focal antes del siguiente efecto
 - **WHEN** termina una operación de la coordinación grande
 - **THEN** acuse y lectura autoritativa del recurso/padre/barreras permiten continuar con hasta dos solicitudes de lectura por efecto ordinario
-- **AND** detención, revocación, conflicto o incertidumbre impiden el siguiente efecto, sin reenumerar todo el lote ni elevar los topes para ocultar consumo
+- **AND** detención, revocación, conflicto del objetivo o ejecución posiblemente activa impiden el siguiente efecto; una incidencia conocida de otro archivo solo se omite por decisión explícita y con guardas de ejecución vigentes, sin reenumerar todo el lote ni elevar topes
 
 #### Scenario: CAP-09 Recuperación de originales por carpeta
 - **WHEN** se reselecciona una carpeta para una raíz confirmada del lote
@@ -293,6 +321,36 @@ Los escenarios CAP siguientes amplían RQ-05 con trazabilidad adicional RQ-04/RQ
 - **WHEN** se verifica la versión con preparación segmentada
 - **THEN** lectores1/2, reversión compatible y UI390/768/1280 conservan sus controles y presupuesto local del contrato08
 - **AND** simulación local no acredita capacidad IIS/SQL ni autoriza DDL, carga, SII o limpieza reales
+
+#### Scenario: IND-01 Almacenamiento independiente por identidad de archivo
+- **WHEN** se almacena A con B pendiente, rechazado o físicamente no disponible en el mismo lote, de la misma raíz o de otra
+- **THEN** la operación de A comprueba pertenencia/contexto, recepción, valores, revisión y original propio sin cargar ni abrir el original de B
+- **AND** COMPLETO_OBLIGATORIO EXPEDIENTE/LOTE y PARCIAL_PERMITIDO conservan inventario/snapshot y su evaluación final; A no requiere cambiar el perfil a parcial
+
+#### Scenario: IND-02 Creación por raíz con un original utilizable
+- **WHEN** una raíz elegible tiene datos válidos y al menos un PDF recibido y físicamente verificado, mientras otro archivo aún no está disponible
+- **THEN** puede crear una sola vez su expediente confirmado para procesar el archivo disponible, sin exigir la recepción o comprobación de otros PDF
+- **AND** no crea una raíz sin ningún original utilizable, no reutiliza expediente por nombre/código ni ignora un intento de creación incierto o una revisión/token diferentes
+
+#### Scenario: IND-03 Reserva atómica y exclusión de ejecución
+- **WHEN** dos sesiones intentan procesar A o existe un escritor todavía activo en el lote
+- **THEN** las revisiones, tokens, estado y locks del repositorio permiten como máximo un escritor de A y mantienen la ejecución secuencial
+- **AND** leer un ID o consentir continuar no concede una reclamación, no libera intentos ajenos y no ignora un marcador huérfano o una autorización sin retorno por tiempo transcurrido
+
+#### Scenario: IND-04 Incidencia sin invocación y cierre seguro
+- **WHEN** se comprueba falta, alteración o imposibilidad de lectura del original de A antes de invocarlo, incluso después de una reserva propia
+- **THEN** se registra una incidencia focal sin IDs documentales y se conserva archivo/recepción/valores/historial; solo prueba durable de ausencia de autorización/invocación permite cerrar la reserva propia con CAS
+- **AND** una incidencia negativa tipada permite una nueva revisión explícita del objetivo sin habilitar cualquier RECHAZADO/INCIERTO; una falla de registro mantiene incertidumbre y nunca afirma cierre no persistido
+
+#### Scenario: IND-05 Incertidumbre y checkpoints focales V2
+- **WHEN** falta el acuse del escritor/checkpoint de A o la evidencia no permite determinar si fue invocado
+- **THEN** conserva INCIERTO, identidad física, época, IDs observados y diario V2 sin replay ni conversión a archivo ausente sin efectos
+- **AND** un resultado incierto de B solo deja avanzar otro archivo si la evidencia durable y guardas de exclusión prueban que su escritor terminó; una autorización posible sin retorno mantiene pausa/consulta aunque el usuario quiera continuar
+
+#### Scenario: IND-06 Completitud por resultados sin inspección cruzada
+- **WHEN** se confirma un documento, se actualiza progreso o se evalúa el cierre de raíz/lote
+- **THEN** usa resultados y resúmenes coherentes del inventario original sin verificar físicamente otros PDF ni reconstruir todos sus JSON por cada fase individual
+- **AND** solamente declara COMPLETADO si todos los documentos previstos están comprobados; pendientes, rechazos, incertidumbre y detención conservan significado e identidad del expediente sin mutar snapshots históricos
 
 ### Requirement: RQ-06 — INT-02 degradación acotada
 DOC-120 SHALL cumplir la decisión D-06: Conservar el caso real histórico de ausencia temporal de ra_integracion_evento con restauración y carga individual, sin extrapolar a cada incompatibilidad. Contrastar los verificadores/esquema y el guard de indisponibilidad actuales. Exigir variante nueva solo si un requisito concreto y una diferencia reproducida la hacen necesaria; registrar NO_NECESARIA con justificación en los demás casos.
@@ -329,6 +387,16 @@ DOC-120 SHALL cumplir la decisión D-07: Antes de medir acordar objetivo, cantid
 - **WHEN** faltan objetivo, umbrales o autorización específica de capacidad
 - **THEN** INT-03 consta NO_EJECUTADO con motivo, responsable e impacto operativo
 - **AND** no se infiere capacidad máxima de páginas, lotes pequeños o pruebas locales
+
+#### Scenario: IND-PERF-01 Costo focal independiente del tamaño del inventario
+- **WHEN** se compara la misma operación individual con inventarios de1,100 y1000 archivos
+- **THEN** las cargas/consultas operativas por ID, reconstrucciones de plan y verificaciones físicas de esa fase permanecen acotadas al objetivo y las visitas a otros originales son cero
+- **AND** se miden enumeración, agregados y cierre por separado, incluyendo information_schema, autoridad, catálogos, V2 y consolidación; los SELECT del ejecutor externo no se presentan como el SQL interno total
+
+#### Scenario: IND-PERF-02 Comparación real sin heredar la ventana anterior
+- **WHEN** se pretende comprobar tiempos y decisión de continuar/pausar en el servidor real después del cambio
+- **THEN** exige autorización nueva de instalación/ambiente/cuentas/recursos/efectos/topes y compara candidatos pendientes equivalentes con la misma política
+- **AND** no repite documentos completados, no borra originales reales por inferencia ni reutiliza la ventana cerrada de tres archivos; sin ejecución conserva pendiente y evidencia local separada
 
 ### Requirement: RQ-08 — Autorización separada y herramientas existentes
 DOC-120 SHALL cumplir la decisión D-08: La continuación autoriza refinamiento/inspección y preparación local. Antes de ejecutar cada ventana real exigir ambiente, cuentas, recursos, operaciones, presupuestos y recuperación revisados. Reutilizar autenticación, runners y queryRows existentes; controles RA/DA exclusivamente SELECT y secretos efímeros. Autorizaciones DOC110–119 no se heredan.
@@ -372,6 +440,11 @@ Excepción adicional autorizada2026-11-17: el ajuste del índice17 de Egresos pu
 - **WHEN** se consume SEG-03 de DOC-119
 - **THEN** se conserva operación sin limpieza y datos retenidos
 - **AND** la medición histórica de disco no se anuncia como actual ni como borrado real
+
+#### Scenario: IND-COMP-01 Compatibilidad y fuentes protegidas
+- **WHEN** se entrega procesamiento independiente con lectura focal versión2 e incidencias individuales
+- **THEN** mantiene lectura focal1, planes1/2, evidencias/recuperación V1/V2 y escritores compartidos, con sesión/CSRF/origen/empresa/usuario/destino comprobados
+- **AND** usa tablas/estados existentes salvo ampliación previamente documentada, no aplica DDL o despliegue por planificación y no activa limpieza/jobs, paralelismo de escritores, reposición automática de recibidos o rutas de archivos enviadas por el cliente
 
 ### Requirement: RQ-10 — Defectos reproducidos y criterio de cierre
 DOC-120 SHALL cumplir la decisión D-10: Modificar producto solo ante una brecha reproducible vinculada a requisito, causa y prueba de regresión. Registrar cada no ejecutado con motivo, responsable e impacto operativo. Autoridad/destino/integridad/recuperación con fallo crítico bloquean salida. Límites necesitan aceptación expresa; archivo/CI/checklists no sustituyen aceptación integral.
