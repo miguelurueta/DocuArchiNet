@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
-const {MAX,SQL,bind,confirmationBinding,EffectsGate,fingerprint,receiptPayload,failure,hash}=require('../tools/e2e/tests/support/doc120-qa-window.cjs');
-const {heldGate,gateOutcome,reviewPrior}=require('../tools/e2e/scripts/run-doc120-qa-failures.cjs');
+const {MAX,RESUME_MAX,SQL,bind,bindResumed,confirmationBinding,EffectsGate,fingerprint,receiptPayload,failure,hash}=require('../tools/e2e/tests/support/doc120-qa-window.cjs');
+const {heldGate,gateOutcome,reviewPrior,reviewAfterUi}=require('../tools/e2e/scripts/run-doc120-qa-failures.cjs');
 const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 function fixture(){
  const header=(lot,level,version,n,r)=>({lote_id:lot,nivel_ref:level,version_id:version,total_archivos:String(n),total_raices:String(r),unresolved:'0',detencion_solicitada:'0',estado:'EN_CURSO',config_doc:JSON.stringify({Configuracion:{OrigenGabinete:'DA',GabineteId:10}})});
@@ -49,4 +49,31 @@ test('QA08: continuacion revisa una ventana cerrada sin efectos y rechaza cualqu
  const folder=fs.mkdtempSync(path.join(os.tmpdir(),'doc120-qa-review-')),previous='a'.repeat(32),file=path.join(folder,'.tmp/doc120-qa-failures',previous,'state.json');fs.mkdirSync(path.dirname(file),{recursive:true});const state={runId:previous,status:'STOPPED',closed:true,credentialsCleared:true,max:MAX,http:278,select:6,sessions:1,operations:[{operation:'ConfirmarPlan',ok:false}],effectCalls:{CONFIRM:1}};
  try{fs.writeFileSync(file,JSON.stringify(state));assert.equal(reviewPrior(folder,previous).failedConfirmations,1);for(const change of [s=>s.closed=false,s=>s.credentialsCleared=false,s=>s.operations.push({operation:'AvanzarLote',ok:false}),s=>s.effectCalls.RECEIPT=1]){const broken=structuredClone(state);change(broken);fs.writeFileSync(file,JSON.stringify(broken));assert.throws(()=>reviewPrior(folder,previous));}}
  finally{assert.equal(path.dirname(folder),os.tmpdir());assert.ok(path.basename(folder).startsWith('doc120-qa-review-'));fs.rmSync(folder,{recursive:true,force:true});}
+});
+function resumedFixture(){
+ const d=fixture(),q=d.files.filter(f=>f.lote_id==='29'),main=d.files.filter(f=>f.lote_id==='50');
+ d.roots[0].raiz_id='49';d.roots[1].raiz_id='50';d.roots[2].raiz_id='71';q.forEach((f,i)=>{f.archivo_id=String(50+i);f.raiz_id=i?'50':'49';});
+ main.forEach((f,i)=>{f.archivo_id=String(97+i);f.raiz_id='71';if(i<23){f.estado_efecto='COMPLETADO';f.resultado_doc='{}';}});
+ const bindings={A:'50',B:'51',C:'52',createRoot:'50',D:'120',E:'121'},confirmed=[{resourceId:'50',documentId:'16282',inventoryId:'23412',expedientId:'681',relationId:'1105'},{resourceId:'52',documentId:'16283',inventoryId:'23413',expedientId:'694',relationId:'1118'}];
+ const review={type:'AFTER_UI_STORES',bindings,confirmed,before:{completed29:0,completed50:23,fingerprint29:fingerprint(q,['50','52']),fingerprint50:fingerprint(main,['120','121'])}};
+ for(const ack of confirmed){const f=q.find(r=>r.archivo_id===ack.resourceId);Object.assign(f,{estado_recepcion:'RECIBIDO',bytes_recibidos:'677',has_staging:'1',estado_efecto:'COMPLETADO',resultado_doc:JSON.stringify({Estado:'CONFIRMADO',DocumentoId:ack.documentId,InventarioId:ack.inventoryId,Expediente:{ExpedienteId:ack.expedientId,RelacionNivelId:ack.relationId}})});}
+ Object.assign(d.roots[1],{estado:'EXPEDIENTE_CONFIRMADO',identidad_expediente_doc:JSON.stringify({ExpedienteId:'694',RelacionNivelId:'1118'})});return{d,review};
+}
+test('QA10: continuacion preserva 16282/16283 y solo permite cuatro llamadas restantes sobre 120/121',()=>{
+ const {d,review}=resumedFixture(),b=bindResumed(d,review),gate=new EffectsGate(b);
+ for(const [op,p] of [['RecibirArchivo',{loteId:'29',archivoId:b.C,claveIntento:'a'.repeat(32)}],['ConfirmarPlan',{}],['AvanzarLote',command('29',b.A)],['AvanzarLote',command('29',b.C)],['AvanzarLote',command('29',b.createRoot,'CREAR_EXPEDIENTE')]])assert.throws(()=>gate.permit(op,p),/RESUME_MUTATION_DENIED/);
+ gate.permit('AvanzarLote',command('50',b.D));for(let i=0;i<3;i++)gate.permit('AvanzarLote',command('50',b.E));assert.throws(()=>gate.permit('AvanzarLote',command('50',b.D)));assert.throws(()=>gate.permit('AvanzarLote',command('50',b.E)));
+ assert.equal(RESUME_MAX.receipts,0);assert.equal(RESUME_MAX.creations,0);assert.equal(RESUME_MAX.storageCalls,4);assert.equal(RESUME_MAX.confirmationCalls,0);
+});
+test('QA11: cambios en documentos confirmados, B, ajenos o siguientes impiden continuar antes de HTTP',()=>{
+ for(const change of [d=>d.files[0].resultado_doc='{}',d=>d.files[1].has_staging='1',d=>d.files[4].revision='changed',d=>d.files.find(f=>f.archivo_id==='120').estado_efecto='COMPLETADO',d=>d.roots[1].identidad_expediente_doc='{}']){const {d,review}=resumedFixture();change(d);assert.throws(()=>bindResumed(d,review));}
+ assert.equal(failure(Object.assign(Error('PRIVATE_SENTINEL'),{name:'TimeoutError'})),'DOC120_QA_UI_TIMEOUT');
+});
+test('QA12: revision especifica de la corrida con efectos conserva identidad/consumo y rechaza reprocesarla',()=>{
+ const folder=fs.mkdtempSync(path.join(os.tmpdir(),'doc120-qa-resume-')),runId='95b22a23844453a3529c4908060be669',file=path.join(folder,'.tmp/doc120-qa-failures',runId,'state.json');fs.mkdirSync(path.dirname(file),{recursive:true});const {review}=resumedFixture();
+ const operations=[['ConfirmarPlan',null,null],['ConfirmarPlan',null,null],['RecibirArchivo','52',null],['AvanzarLote','50','MATERIALIZAR_VALORES'],['AvanzarLote','50','ALMACENAR'],['AvanzarLote','50','CREAR_EXPEDIENTE'],['AvanzarLote','52','MATERIALIZAR_VALORES'],['AvanzarLote','52','ALMACENAR']].map(([operation,resourceId,phase])=>({operation,resourceId,phase,lotId:operation==='ConfirmarPlan'?null:'29',http:200,ok:true,...(phase==='ALMACENAR'?review.confirmed.find(a=>a.resourceId===resourceId):{})}));
+ const state={runId,max:MAX,status:'STOPPED',failureStage:'UI_PAUSE_WAITING_FOR_RESPONSE',closed:true,credentialsCleared:true,previousStatePreserved:true,http:582,select:12,sessions:1,before:review.before,bindings:review.bindings,results:{confirmedPlanConvergence:{sameLot:true},pauseAtMissing:{paused:true}},operations,effectCalls:{CONFIRM:2,RECEIPT:1,'29:50:MATERIALIZAR_VALORES':1,'29:50:ALMACENAR':1,'29:50:CREAR_EXPEDIENTE':1,'29:52:MATERIALIZAR_VALORES':1,'29:52:ALMACENAR':1}};
+ try{fs.writeFileSync(file,JSON.stringify(state));const parsed=reviewAfterUi(folder,runId);assert.equal(parsed.confirmed.length,2);assert.equal(parsed.select,12);assert.throws(()=>reviewPrior(folder,runId),/SPECIFIC_RESUME/);
+  for(const change of [s=>s.operations.push(s.operations[0]),s=>s.operations[4].documentId='999',s=>s.closed=false,s=>s.select=13,s=>s.effectCalls.RECEIPT=2]){const broken=structuredClone(state);change(broken);fs.writeFileSync(file,JSON.stringify(broken));assert.throws(()=>reviewAfterUi(folder,runId));}
+ }finally{assert.equal(path.dirname(folder),os.tmpdir());assert.ok(path.basename(folder).startsWith('doc120-qa-resume-'));fs.rmSync(folder,{recursive:true,force:true});}
 });

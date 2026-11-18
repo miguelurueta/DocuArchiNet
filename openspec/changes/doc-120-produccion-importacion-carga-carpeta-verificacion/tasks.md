@@ -557,3 +557,7 @@ Muestra solicitada de diez siguientes:3.201 completa, run3d30f47d FINISHED_TEN,1
 ## Revisión de resultado QA y huella canónica2026-11-18
 
 ba8a1ace cerró STOPPED antes de HTTP/efectos con5 SELECT por comparación de huella incorrecta del ejecutor. Se corrige solo auxiliar y se agrega verificación contra serializador real de DLL instalada sin conexión/escritor:9/9 locales. Evidencia doc120-qa-huella-detenida-20261118.json y plan QA actualizado. No es una ejecución aprobada de3.202/3.203;209/223,14 pendientes. Sin nueva ventana ni cambios de aplicación/BD.
+
+## QA parcial real y continuación sin replay2026-11-18
+
+95b22a23:582 HTTP/12 SELECT/1 sesión; convergencia plan90, decisión/pausa ante B51 y dos guardados16282/16283 con1 expediente694. STOPPED genérico en fase amplia, sin subpaso final ni controles de cierre; no asumir regresión de aplicación o aprobación integral. Evidencia doc120-qa-parcial-20261118.json. Continuación específica del arnes bloquea todo efecto sobre29 y conserva dos siguientes120/121;12/12 locales. Plan y acumulados explícitos en doc120-qa-fallos-plan-20261118.md.3.202/3.203/3.196 conservan pendientes hasta verificación real suficiente;209/223,14 pendientes.

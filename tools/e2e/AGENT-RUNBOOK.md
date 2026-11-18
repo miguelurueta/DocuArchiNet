@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 - QA parcial con efectos, continuacion especifica2026-11-18
+
+Run95b22a23 cerrado STOPPED:582 HTTP/12 SELECT/1 sesion,1 recibo677 bytes y1 expediente694, documentos16282/16283. No volver a lanzar el perfil inicial: el corpus29 ya cambio. Continuacion exclusiva --resume-after-ui revisa ese estado intacto y verifica identidades/huellas antes de HTTP; lote29 solo lectura, cero confirmaciones/recibos/creaciones. Solo archivos120/121 del50 para cuatro solicitudes maximas/dos documentos esperados; nuevo presupuesto y acumulados en Validacion/doc120-qa-fallos-plan-20261118.md requieren aprobacion concreta. Fallo generico no localiza subpaso despues de pausa; no atribuirlo al escritor. Evidencia doc120-qa-parcial-20261118.json.12/12 locales, DLL sin cambios; recuperacion final, carrera y privacidad pendientes.
+
 ## DOC-120 — diez siguientes medidos y ventana cerrada2026-11-18
 
 Solicitud expresa de diez siguientes del lote50: perfil `--authorized-ten` del ejecutor existente, ventana nueva3d30f47d6bec4e33b6e532ffa8ed78cb enlazada a c6f62c44 aprobada. FINISHED_TEN,118 HTTP/48 SELECT externos/1 sesión/10 ALMACENAR;110–119 confirmados RA/DA en documentos16270–16279, mismo expediente693/gabinete10.13→23 guardados y huella de990 ajenos preservada. Media0,969465s, mediana0,934637s, p95 muestral1,140969s, rango0,897519–1,225048s; sin degradación creciente observada entre mitades.14/14 locales, modo3 conserva límite3. Sin cambio de DLL/esquema, recepción/creación/reanudación/borrado. Cerrado y secretos eliminados, estado/ventana anterior intactos. Fuente `Validacion/doc120-lote50-diez-20261118.md`/JSON/CSV. No reabrir ni ampliar automáticamente la ventana;50 o1.000 necesitan alcance/aprobación propios. No certifica sellado en frío, PDF grandes, concurrencia o capacidad total.
