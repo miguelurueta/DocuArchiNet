@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — nueva versión instalada, medición sin despachos2026-11-18
+
+Solicitud de reutilizar la medición de tres archivos del lote50. Run9dd8a1e963154c338fb8885c10ce8180 revisa la ventana23e18a40 sin modificarla. Índice09 aplicado manualmente y verificado por SELECT. Tras «continua» y aprobación de instalación, DLL/PDB del commitb72f2dd6 instaladas con respaldo verificado (DLL b3303603). Cerró antes del login con5 SELECT/0 HTTP/0 sesiones/0 ALMACENAR, secretos eliminados; código genérico no certifica causa. Diagnóstico futuro distingue entrada de cuenta/clave y arranque del navegador sin conservar excepciones privadas. Evidencia `Validacion/doc120-lote50-medicion-reutilizada-20261118.md`/JSON;11/11 locales. No hay tiempos nuevos ni aceptación de3.198/3.187/3.196. No reabrir ni borrar estados cerrados; revisar consumo/resultados y autorización antes de otra ventana. Los apartados inferiores conservan el estado histórico de su corte.
+
 ## DOC-120 - procesamiento independiente, corte local2026-11-18
 
 Implementacion local y pruebas sinteticas terminadas; script09 preparado, sin aplicar indice ni instalar DLL/assets. [Contrato focal](../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/contrato-focal-implementado-doc120.md) y [ventana nueva propuesta](../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-independientes-plan-real-20261118.md). La ventana anterior23e18a40 sigue cerrada. No reutilizarla, no borrar originales recibidos para simular faltantes y no interpretar "implementa" como autorizacion de operaciones reales. Nuevas pruebas MySQL/IIS requieren recursos, topes y aprobacion especificos. El ejecutor anterior conserva sus limites; la ampliacion del parser de tiempos no lo habilita para decisiones o nuevos efectos.

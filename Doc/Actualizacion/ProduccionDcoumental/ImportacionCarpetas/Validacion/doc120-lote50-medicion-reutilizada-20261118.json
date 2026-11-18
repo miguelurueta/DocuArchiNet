@@ -1,0 +1,42 @@
+{
+  "runId": "9dd8a1e963154c338fb8885c10ce8180",
+  "status": "STOPPED",
+  "indexVerified": true,
+  "http": 0,
+  "select": 5,
+  "sessions": 0,
+  "dispatched": [],
+  "closed": true,
+  "failure": "DOC120_MEASURE_STOPPED",
+  "credentialsCleared": true,
+  "finishedUtc": "2026-11-18T14:12:20.964Z",
+  "previousWindowPreserved": true,
+  "deployment": {
+    "status": "INSTALLED",
+    "sourceCommit": "b72f2dd637dddea0e5c8ffa1f633bffb0eb060ed",
+    "finishedUtc": "2026-11-18T14:12:12.7957230Z",
+    "files": [
+      {
+        "extension": "dll",
+        "sha256": "b3303603a03001e2a1f578d48ed4a3f6ea396c0b0faa162544941c7f9485e12f",
+        "backupSha256": "f667ea0ffe1b6f2ef111ac5afd52f50bab92c5edcd340a0421b9ea0931aef689"
+      },
+      {
+        "extension": "pdb",
+        "sha256": "ebf1e48e0dee9f8c76f492ec37af062d510c7cbbc3fc5fcbadab76f60cc86806",
+        "backupSha256": "024c9ae7c1bd98c9c062d96f2b890b0a904402d3fa746c979f64d898f768fcec"
+      }
+    ]
+  },
+  "storageTimingsObserved": false,
+  "previousRunId": "23e18a403aae4dd4b455adc86ab787ad",
+  "selectedFileIds": [
+    "107",
+    "108",
+    "109"
+  ],
+  "completedBefore": 10,
+  "causeCertified": false,
+  "runnerTestsPassed": 11,
+  "secretsRecorded": false
+}
