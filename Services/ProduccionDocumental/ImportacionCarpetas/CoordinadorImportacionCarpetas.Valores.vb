@@ -25,6 +25,7 @@ Public Partial Class CoordinadorImportacionCarpetas
         If referencia Is Nothing OrElse referencia.UsuarioRef <> identidad.UsuarioRef OrElse referencia.AmbitoRef <> identidad.AmbitoRef Then Throw Denegado()
         Dim contexto = _destino(referencia.NivelRef)
         If Not MismoContextoControl(contexto, referencia) Then Throw Denegado()
+        PrepararArchivosIndependientes(contexto, loteId)
         Dim vista = _vistaValores(contexto, loteId, archivoId)
         ValidarVistaValores(contexto, vista)
         If vista.Lote.LoteId <> loteId OrElse vista.Archivo.ArchivoId <> archivoId OrElse (Not vista.Archivo.ValoresEfectivosFijados AndAlso vista.Archivo.Revision <> revisionEsperada) Then Throw NoPermitida()
@@ -44,7 +45,7 @@ Public Partial Class CoordinadorImportacionCarpetas
         autorizar()
         'No se consulta siquiera la publicacion del proveedor en una repeticion.
         If vista.Archivo.ValoresEfectivosFijados Then Return CopiarValores(vista.Archivo)
-        If vista.Lote.DetencionSolicitada OrElse vista.Lote.Estado <> "EN_CURSO" OrElse vista.Raiz.Estado <> "EXPEDIENTE_CONFIRMADO" OrElse vista.Archivo.EstadoRecepcion <> "RECIBIDO" OrElse vista.Archivo.EstadoEfecto <> "NO_INICIADO" OrElse vista.Archivo.IntentoActivoId IsNot Nothing OrElse vista.Archivo.Resultado IsNot Nothing Then Throw NoPermitida()
+        If vista.Lote.DetencionSolicitada OrElse Not ({"EN_CURSO"}.Contains(vista.Lote.Estado) OrElse (vista.Lote.ControlArchivos IsNot Nothing AndAlso {"PARCIAL", "PENDIENTE_VERIFICACION"}.Contains(vista.Lote.Estado))) OrElse Not {"EXPEDIENTE_CONFIRMADO", "PARCIAL", "INCIERTO"}.Contains(vista.Raiz.Estado) OrElse vista.Archivo.EstadoRecepcion <> "RECIBIDO" OrElse vista.Archivo.EstadoEfecto <> "NO_INICIADO" OrElse vista.Archivo.IntentoActivoId IsNot Nothing OrElse (vista.Archivo.Resultado IsNot Nothing AndAlso Not ControlArchivoIndependienteImportacion.EsNoDisponible(vista.Archivo.Resultado)) Then Throw NoPermitida()
         Dim reglas = vista.Lote.Snapshot.Reglas.Where(Function(r) r.DestinoTipo <> "CAMPO_EXPEDIENTE").ToList()
         Dim plan = vista.Archivo.ValoresPlan
         ValidarCorrespondenciaValores(reglas, plan, False)

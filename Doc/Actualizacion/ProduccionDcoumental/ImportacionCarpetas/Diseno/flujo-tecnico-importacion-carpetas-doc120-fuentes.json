@@ -1,27 +1,28 @@
 {
   "schema": 1,
-  "implementationCut": "1a45b8915f699c205d41938b9767c4b9e79decac",
-  "purpose": "Mapa textual del comportamiento implementado; no optimizacion ni nueva ejecucion real.",
+  "implementationCut": "DOC120-independent-files-20261118",
+  "implementationBaseCommit": "b6bb7e7caed77ca156c2338380691e8ea285b6c6",
+  "purpose": "Flujo resumido implementado localmente por archivo; fuentes del mismo cambio, sin nueva ejecucion real.",
   "diagram": {
     "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/flujo-tecnico-importacion-carpetas-doc120.txt",
-    "sha256Lf": "ef5e125e4331753de859e392be343809fbd6f4fc0e619631fe375127f25760bd"
+    "sha256Lf": "ba2ac8783e2e52f311584c620ba811edafb940d1aff69bab6f78eefe7655e286"
   },
   "annex": {
     "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/flujo-tecnico-importacion-carpetas-doc120-anexo.txt",
-    "sha256Lf": "8ca91ab35ea4d419cdcf48f04b32513da3d8fbdebb513cdd995522233e2e9dd9"
+    "sha256Lf": "b1e2567d3d93020c5a7597a7e4d69c4dd129f059ba95bf04f4d5ef36bd27a450"
   },
   "generator": {
     "path": "tools/docs/generate-doc120-flow.cjs",
-    "sha256Lf": "d27f59d69ce6d7a6093c9b2bb18f7516ba11341c75c865e0a18e9abf4b132832"
+    "sha256Lf": "3923f938f3a27cce66d89d9c9554439a9092e862c0ab77c3d63f34356fdc0998"
   },
-  "sourceCount": 120,
+  "sourceCount": 124,
   "httpEndpoints": 53,
-  "extractedLines": 19414,
+  "extractedLines": 20070,
   "sourceInventory": [
     {
       "path": "DTOs/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasDtos.vb",
-      "sha256Lf": "a53e0acbc8fe25e5b652ee335bc3bdf15a5a7e442c5a1af541e1039c28c2b867",
-      "lines": 341,
+      "sha256Lf": "fa0cdac68df5a6989d359ba46aeefd4b7b47ce49fc9e924128869ec1f12f396b",
+      "lines": 343,
       "selectedMethods": null
     },
     {
@@ -32,8 +33,8 @@
     },
     {
       "path": "DTOs/ProduccionDocumental/ImportacionCarpetas/PreparacionSegmentadaDtos.vb",
-      "sha256Lf": "b9002667db6d771efd2843081866656a483abe7a35d11ceb7a4a18484b10d166",
-      "lines": 129,
+      "sha256Lf": "0ca9f8458736c07b67934996d3e752029356368f5c8544bfd0f81fed3cb58a7f",
+      "lines": 131,
       "selectedMethods": null
     },
     {
@@ -47,13 +48,13 @@
     },
     {
       "path": "Gestion/WebFormProducionDocumental.aspx",
-      "sha256Lf": "d21b79b38a24c9bc2bdc3d865939127c79114a0e0e542a756be41ad981a7531c",
+      "sha256Lf": "384c438e8f5773ef618e91cf372097ab025f504c4b16f7d4a2b58abe1bfc2874",
       "lines": 2249,
       "selectedMethods": null
     },
     {
       "path": "Gestion/WebFormProducionDocumental.aspx.vb",
-      "sha256Lf": "80b13bf80ab5d28c0f07d6a3fcf43e2721b054ca6c619b3faa0fbb8221c14a71",
+      "sha256Lf": "fbfd5114e1b09affcbae343a3d53c4756e87afb77faacf5b964678ad0c2a44c5",
       "lines": 2954,
       "selectedMethods": [
         "RenderImportacionCarpetas",
@@ -106,19 +107,19 @@
     },
     {
       "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.Recuperacion.vb",
-      "sha256Lf": "28175c8055e1d5cdf8374fa3fc0b226a9eddde6300063fb824548b706aa5f06e",
-      "lines": 263,
+      "sha256Lf": "a85ee7a65ba584de6fa99fc8024232240fe4ba47c5b67b716963904922f6a4a8",
+      "lines": 264,
       "selectedMethods": null
     },
     {
       "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.vb",
-      "sha256Lf": "6a0f4377532c3daa9df16b288121f04a344f5b853d1509cc72e6d86cbd4429f4",
-      "lines": 366,
+      "sha256Lf": "15b6c87ecd52a06cb80803b3b6d09b1e685fd7ce692c54385cd055743564581d",
+      "lines": 369,
       "selectedMethods": null
     },
     {
       "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoAlmacenamientoCarpetas.vb",
-      "sha256Lf": "82c423e8d9488d9b82fd124df3fddc23eba5c88720c81cbcb717cf2a691de19e",
+      "sha256Lf": "907120b2c04048764e38cfff4422d7ba87c9f721450b4b109d31da44d1f30c4b",
       "lines": 176,
       "selectedMethods": null
     },
@@ -160,7 +161,7 @@
     },
     {
       "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasContextAdapter.vb",
-      "sha256Lf": "f0b0e28b900cb056dfe9f60a0c801378c17da77f27d4dc32cf60d280970fadc3",
+      "sha256Lf": "f67255ecc04a2c02b12b3de9a403cee6b458ccdd3ba9867e59e6d01de842d612",
       "lines": 229,
       "selectedMethods": null
     },
@@ -172,19 +173,19 @@
     },
     {
       "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MetadatosFuenteImportacion.vb",
-      "sha256Lf": "471bdc8bac95705cda722103e3a12f221996d7cbac016dbae37b40aafb3cebc8",
+      "sha256Lf": "f83894ec1b5da1651a4bf1fd49f86e4b1927c608cb160bb83d3f64d7fe5fb6b4",
       "lines": 88,
       "selectedMethods": null
     },
     {
       "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MetadatosProveedorIndices.vb",
-      "sha256Lf": "0736322a724ce2dc4efebc652ba196a68a8ba44c2b19861ff1b2f6b7dc7f8ac8",
+      "sha256Lf": "d1592180750176ca3ce7f481055c6e57703207f723e8140ffe10f2802ff812c8",
       "lines": 55,
       "selectedMethods": null
     },
     {
       "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorDatosIndices.vb",
-      "sha256Lf": "19e8374e8987e0c8c68debbbf06a79efc1756e88fe953265ac08e175be4f05d1",
+      "sha256Lf": "41e5578493c4747adb601eba358aabbdca7a40e2200430bcab811c5afc393ab5",
       "lines": 153,
       "selectedMethods": null
     },
@@ -214,13 +215,13 @@
     },
     {
       "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.vb",
-      "sha256Lf": "d7d1aafa9d9ca87d5b9dc76e44bb491dd96a6f5f7e139a3dacd7cbda79b936b2",
+      "sha256Lf": "b0eae83996e9fd881ca37f7aae145b6726af01f055d3aa08fa31bef7b17b74c6",
       "lines": 359,
       "selectedMethods": null
     },
     {
       "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionContextAdapter.vb",
-      "sha256Lf": "d675689fda4fcb8586459e43f7fe4be44457827e4210f0a869e7dac443a23eb6",
+      "sha256Lf": "9107a6aae120c3494604cb5113f3cbc5998a22595ff762c22efb210a854a26bc",
       "lines": 97,
       "selectedMethods": null
     },
@@ -274,61 +275,73 @@
     },
     {
       "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Barreras.vb",
-      "sha256Lf": "3c9c4a5bdbd7793f1f400ace85a97c2fc944757cd74eabb1a06ac7f02a2f9537",
-      "lines": 74,
+      "sha256Lf": "6ee8dcab0838f736d4cebfd3b196b4e329d03b5fcc5685d5a16e890e55e19e63",
+      "lines": 75,
       "selectedMethods": null
     },
     {
       "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consolidacion.vb",
-      "sha256Lf": "b81979923f59f2a356b44882ed46f7903229d63ac707871df511916b3df8bc23",
+      "sha256Lf": "e0f9a2afcf82dfa806af3451245c92d8f3052e2bac32ab8efffe3f5fc8dda173",
+      "lines": 86,
+      "selectedMethods": null
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ConsolidacionFocal.vb",
+      "sha256Lf": "5bf75bb421aa540b40a39fa505337640c32a29c9fd6d81a5f4cefdfddd3a63c7",
       "lines": 84,
       "selectedMethods": null
     },
     {
       "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consulta.vb",
-      "sha256Lf": "9634decc545f41414cc15271def34caf1a3fb7f0ad5ff57833f0432baf5b9581",
-      "lines": 172,
+      "sha256Lf": "609355195cf6b8c347ca45876259095ee5495ab4f2b081c33ef923edf388c2a8",
+      "lines": 171,
       "selectedMethods": null
     },
     {
       "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ConsultaFocal.vb",
-      "sha256Lf": "d39acc4e8e140bb3e4c66200f4000d99d3db545bcb0a0d2baa076c2998b16f54",
-      "lines": 92,
+      "sha256Lf": "a37b990c71e669eeeff7683f2a53fc0dfb7df5a3e77703e5becd344cdf140820",
+      "lines": 102,
       "selectedMethods": null
     },
     {
       "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Control.vb",
-      "sha256Lf": "4927b4083209b355ca401fde8d31884c0c73a97532e42e40ea249f6b6d1bb788",
-      "lines": 207,
+      "sha256Lf": "22e7fa4d49db9a5d6deaec57bafbedf5956672da3561d1cc61fa3248517c0331",
+      "lines": 225,
+      "selectedMethods": null
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ControlFocal.vb",
+      "sha256Lf": "fde28977269a13fb72f33f8f66c9a019dfc3cd89bc38e9c3291f3fba74fb4e93",
+      "lines": 227,
       "selectedMethods": null
     },
     {
       "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Documento.vb",
-      "sha256Lf": "fde8a4441f1ea4f95c794246e658b65c9e08069fefe9e9a0b8477db57b6fc9ef",
+      "sha256Lf": "3fbef43a3dfb1c42bc71d11a4fceb9fa33c7516021e706d3a9c69c633d1984be",
       "lines": 117,
       "selectedMethods": null
     },
     {
       "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.DocumentoV2.vb",
-      "sha256Lf": "aeefc2f839eb8ab8ab8383511c769af379d3bfab5a76bf3c72ae48dd10845e4b",
-      "lines": 195,
+      "sha256Lf": "c45532a4a973b91e9eef72f82e972ff21a2517406af2a43ef8131e91128dc0cf",
+      "lines": 208,
       "selectedMethods": null
     },
     {
       "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Limpieza.vb",
-      "sha256Lf": "1d1864a124027656705469fdfd0c019d32b24e7401dd745699d7032ea688a324",
+      "sha256Lf": "af807b1aa7079c2a7b2772eb0ca8604ac40d04d75ca7a1e1f5c44693934f742e",
       "lines": 87,
       "selectedMethods": null
     },
     {
       "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.PlanSegmentado.vb",
-      "sha256Lf": "2f5274ee06f8f05c99faf101bbdd855e732e4cf846997265db58709de9253dd0",
+      "sha256Lf": "9729adcf9009e526e60a57f4cd46ddd6dbe23e47fb3e26fc3322a902975e93a9",
       "lines": 64,
       "selectedMethods": null
     },
     {
       "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Preparacion.vb",
-      "sha256Lf": "8992a643f8002e11b9cde0f4090cf2788a1af77f8eacbe9f108d5d647a41653d",
+      "sha256Lf": "3dd30440c6827bb32cb40adb997dbe36fe09a44ca46506741c01006670cb7fea",
       "lines": 257,
       "selectedMethods": null
     },
@@ -340,7 +353,7 @@
     },
     {
       "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Reanudacion.vb",
-      "sha256Lf": "74ccc77ebf88c54da358cfe62d9fc5b87c3c53426d7e2517a11eeccdbe05031b",
+      "sha256Lf": "273f90b0a7c40f541ea090c3b801fa115229c2ecf2f683faeddefbb02178fccf",
       "lines": 97,
       "selectedMethods": null
     },
@@ -352,7 +365,7 @@
     },
     {
       "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Reconciliacion.vb",
-      "sha256Lf": "de98ba5dad27feee03a3425273fc595403fb3c84089e2c1af20dd4ddf8b25f7b",
+      "sha256Lf": "7eecdd5c4636c7cf1a6819307f1465c4358bfc82dea30f71236d62571771fe27",
       "lines": 147,
       "selectedMethods": null
     },
@@ -364,14 +377,14 @@
     },
     {
       "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ResultadoCreacion.vb",
-      "sha256Lf": "2ed13bc65c81ac03fa9ff6545bb0b00a34b2758eb97f234ad39a5fa898daf07c",
+      "sha256Lf": "54050b469a4596e84319ff02d89266c47e02a05b7b17a1d4aafb976092a451c9",
       "lines": 102,
       "selectedMethods": null
     },
     {
       "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Valores.vb",
-      "sha256Lf": "9f1eb2a54ee315d99cab6ed8edbab5c1c94551fd6ffdbc8461dd0c771fc79372",
-      "lines": 86,
+      "sha256Lf": "e10d5bae4e27418c1c6c4435f5e8d563c47b5796084a0e9ad4883f6685afb871",
+      "lines": 87,
       "selectedMethods": null
     },
     {
@@ -382,8 +395,8 @@
     },
     {
       "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.vb",
-      "sha256Lf": "270a8e1f054b486faf97554d18777fc85e2fec69506836f1b1fa14a7f5d560bf",
-      "lines": 1029,
+      "sha256Lf": "eb6c59bf9ad5c077605cb8c982a79c0cd883e17689d80b13de5bf1dc4a462dd5",
+      "lines": 1048,
       "selectedMethods": null
     },
     {
@@ -402,6 +415,12 @@
       "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/AdministracionProveedorModels.vb",
       "sha256Lf": "8c720bf34924c3e82be66961bd210bf3144dea48388ed52639880f9348f35efc",
       "lines": 42,
+      "selectedMethods": null
+    },
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/ControlArchivoIndependienteImportacion.vb",
+      "sha256Lf": "0ee94092f12f73a1563a5abd28403964b827f2a7fb8ada6165686daaed430dcf",
+      "lines": 133,
       "selectedMethods": null
     },
     {
@@ -424,8 +443,8 @@
     },
     {
       "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasModels.vb",
-      "sha256Lf": "12cfcb4951513331776b479ee4fe7bc94992dff1df927b5fb95706d24468219c",
-      "lines": 389,
+      "sha256Lf": "839a65c1230b102ebfe575caf34b22c5950bf690ee428cf54b42b3be01ce4e0e",
+      "lines": 397,
       "selectedMethods": null
     },
     {
@@ -448,8 +467,8 @@
     },
     {
       "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/PreparacionSegmentadaImportacion.vb",
-      "sha256Lf": "1f7552a795f9140a1490f22dc344db5f2c11789c32a8bf99e9ce1d4e7cce8a5a",
-      "lines": 80,
+      "sha256Lf": "9ce1547e9031d9ed0006c713455503f5c8ab7c90dd5b879c0bec46d0728a7c60",
+      "lines": 85,
       "selectedMethods": null
     },
     {
@@ -472,26 +491,32 @@
     },
     {
       "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Barreras.vb",
-      "sha256Lf": "e7db7e6087b4faa24856ad4e2715971925628789fc302cc12582e3edeb7e7290",
-      "lines": 113,
+      "sha256Lf": "cde32e326f2746b235b16589a487a8d02f3f33bbee7be250dd32965fbfec60a4",
+      "lines": 114,
       "selectedMethods": null
     },
     {
       "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Consolidacion.vb",
-      "sha256Lf": "80123972108ba5a0c5542ffdba004a9da4b402d1bb5422eeac2827019185207b",
+      "sha256Lf": "2ba35e2280d391c0d27cb27ab22b184457c365443c1f6f23d98faf5c50e12505",
       "lines": 189,
       "selectedMethods": null
     },
     {
       "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Creacion.vb",
-      "sha256Lf": "ab9263b70ecaaa7d821214b15bf7af8e0f00d4a7cb7242a2cb78a5f5fdb5eb77",
-      "lines": 130,
+      "sha256Lf": "0decb4a3872d036a7325157c8242d390fa6db7e4b5deff6194c7e4929f426e64",
+      "lines": 142,
       "selectedMethods": null
     },
     {
       "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Documento.vb",
-      "sha256Lf": "85d8ca2ad924b139d839d44e831486295fab16bf2c06403dc21533c73fd31098",
-      "lines": 142,
+      "sha256Lf": "b0d1567b011f52c6cbf1f17dadcae36c4139fcf8da5fa1a9620c7f72c78dd85c",
+      "lines": 152,
+      "selectedMethods": null
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Independiente.vb",
+      "sha256Lf": "6048b6a9c04c349722405591b3cd4706403b85327046d920840c808c9dfab708",
+      "lines": 75,
       "selectedMethods": null
     },
     {
@@ -526,14 +551,14 @@
     },
     {
       "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Staging.vb",
-      "sha256Lf": "e9eb30b301a91417566e5855642866b0e6d72748ae93281e8820b5858b0c0d0c",
-      "lines": 127,
+      "sha256Lf": "25232b0c312ba2da318fed55ec8c59c050e1f2aa66839ece7ee479def6b284ae",
+      "lines": 128,
       "selectedMethods": null
     },
     {
       "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Valores.vb",
-      "sha256Lf": "51d00e0ffdf37e5df664bf439679a9ffb46653da6bff1660381f2ae71be2dd15",
-      "lines": 155,
+      "sha256Lf": "3b08130744662f99fac48beb515bd05202ccf6fcb1d6680b6b6ca18d73a34034",
+      "lines": 156,
       "selectedMethods": null
     },
     {
@@ -592,8 +617,8 @@
     },
     {
       "path": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.Focal.vb",
-      "sha256Lf": "99eecbdbf15631f211604a1e0ef2ff137d075fb9448ab3c35fd9726585e756c1",
-      "lines": 28,
+      "sha256Lf": "5b9be76a1ed14de28889b1531befd6ae23a7d0053e050cf0aa24e945396b7d8e",
+      "lines": 36,
       "selectedMethods": null
     },
     {
@@ -604,7 +629,7 @@
     },
     {
       "path": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb",
-      "sha256Lf": "69ce0b6cb4224c5940d735648058da3aab6ba5562f992cc4e608cf0982bf1eb9",
+      "sha256Lf": "f21d678f1ce6d0138420f4f2671d5c79da58e127c5eb45869861d976b3a126a2",
       "lines": 266,
       "selectedMethods": null
     },
@@ -616,8 +641,8 @@
     },
     {
       "path": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioPerfilImportacion.vb",
-      "sha256Lf": "de9ef60f5b15c541f93f12acc2d59ce3ef58adf62e7ef44f9855307ef765fe36",
-      "lines": 491,
+      "sha256Lf": "9620f89642f39d93a25b5c231f7808ff2d04f357641d538bcf71f88b73240721",
+      "lines": 507,
       "selectedMethods": null
     },
     {
@@ -634,8 +659,8 @@
     },
     {
       "path": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioRecepcionImportacion.vb",
-      "sha256Lf": "35cfc17bd5e0d8f1d7b351c2a4dc66069ce0d4ac67be9a22b38c84e325c0dd00",
-      "lines": 198,
+      "sha256Lf": "878bf21a53fe59be26b35e975a680656621f1e252e3109f67f24205ddbc9d0db",
+      "lines": 200,
       "selectedMethods": null
     },
     {
@@ -664,20 +689,20 @@
     },
     {
       "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
-      "sha256Lf": "a77232ea8d0221725f8e51b2521aeb7080428fe9429a63ffd2229abd471d8712",
-      "lines": 855,
+      "sha256Lf": "a8f2d9a546146424f004d4512fb833a2fec8251c8e3bdcabd56853815eccd8e3",
+      "lines": 918,
       "selectedMethods": null
     },
     {
       "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js",
-      "sha256Lf": "8bc3c2565b63afaedc5df424d9bad466bc8c04c57d518cba18c8d9637c05a12d",
-      "lines": 339,
+      "sha256Lf": "2333b9a77bf0df0e4768cecc12a44d6c2cc93f5c6103895fac0408107aaaf416",
+      "lines": 347,
       "selectedMethods": null
     },
     {
       "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
-      "sha256Lf": "310a41d18e1cfa99b1d399b1a2a8db969808fc0d95a7d9f40cae9ae625246921",
-      "lines": 386,
+      "sha256Lf": "71c07df17da889656032ffa4a2d271af9c12c9ab63173354b8e6e5193c9dd7f4",
+      "lines": 404,
       "selectedMethods": null
     },
     {
@@ -741,8 +766,8 @@
     },
     {
       "path": "webservice/WebServiceImportacionCarpetas.asmx.vb",
-      "sha256Lf": "ebdcae35c36a470b8bcccf51cfda04b4929b03dca984450b6aeca510d37f126c",
-      "lines": 437,
+      "sha256Lf": "708b1be4edf3c1a0d0e910ec455f9e3480d327ac33f82f80193c5530acf2d85f",
+      "lines": 440,
       "selectedMethods": null
     },
     {

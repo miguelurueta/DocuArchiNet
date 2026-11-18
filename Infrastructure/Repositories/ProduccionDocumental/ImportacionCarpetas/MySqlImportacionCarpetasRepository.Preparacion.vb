@@ -27,7 +27,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
         Return OperarPreparacion(Function(conexion, tx)
             Using cmd = ComandoOperacion(conexion, tx, "SELECT preparacion_id,cabecera_hash,nivel_ref FROM ra_integracion_preparacion WHERE ambito_ref=@ambito AND usuario_ref=@usuario AND clave=@clave FOR UPDATE", "@ambito", contexto.AmbitoRef, "@usuario", contexto.UsuarioRef, "@clave", original.Clave)
                 Dim id As String = Nothing
-                Using reader = cmd.ExecuteReader()
+                Using reader = EjecutarLecturaControl(cmd)
                     If reader.Read() Then
                         If Not Iguales(DirectCast(reader("cabecera_hash"), Byte()), BytesHuella(original.CabeceraHash)) OrElse CStr(reader("nivel_ref")) <> contexto.NivelRef Then Throw ConflictoOperacion()
                         id = Convert.ToString(reader("preparacion_id"), CultureInfo.InvariantCulture)
@@ -51,7 +51,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
         IdOperacion(preparacionId)
         Return OperarPreparacion(Function(conexion, tx)
             Using cmd = ComandoOperacion(conexion, tx, "SELECT contexto_doc FROM ra_integracion_preparacion WHERE preparacion_id=@id AND ambito_ref=@ambito AND usuario_ref=@usuario", "@id", IdOperacion(preparacionId), "@ambito", identidad.AmbitoRef, "@usuario", identidad.UsuarioRef)
-                Dim doc = cmd.ExecuteScalar()
+                Dim doc = EjecutarEscalarControl(cmd)
                 If doc Is Nothing OrElse Convert.IsDBNull(doc) Then Throw AccesoDenegado()
                 Dim contexto = LeerPersistido(Of ContextoImportacionCarpetas)(CStr(doc))
                 If contexto.UsuarioRef <> identidad.UsuarioRef OrElse contexto.AmbitoRef <> identidad.AmbitoRef Then Throw AccesoDenegado()
@@ -70,7 +70,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
         If Not System.Text.RegularExpressions.Regex.IsMatch(If(clave, ""), "\A[0-9a-f]{32}\z") Then Throw SolicitudInvalida()
         Return OperarPreparacion(Function(conexion, tx)
             Using cmd = ComandoOperacion(conexion, tx, "SELECT preparacion_id FROM ra_integracion_preparacion WHERE ambito_ref=@ambito AND usuario_ref=@usuario AND nivel_ref=@nivel AND clave=@clave", "@ambito", contexto.AmbitoRef, "@usuario", contexto.UsuarioRef, "@nivel", contexto.NivelRef, "@clave", clave)
-                Dim valor = cmd.ExecuteScalar()
+                Dim valor = EjecutarEscalarControl(cmd)
                 If valor Is Nothing OrElse Convert.IsDBNull(valor) Then Return Nothing
                 Return CargarPreparacion(conexion, tx, contexto, Convert.ToString(valor, CultureInfo.InvariantCulture), False)
             End Using
@@ -79,7 +79,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
 
     Private Shared Function CargarPreparacion(conexion As MySqlConnection, tx As MySqlTransaction, contexto As ContextoImportacionCarpetas, id As String, bloquear As Boolean) As PreparacionSegmentadaImportacion
         Using cmd = ComandoOperacion(conexion, tx, "SELECT " & ColumnasCabeceraPreparacion & " FROM ra_integracion_preparacion WHERE preparacion_id=@id AND ambito_ref=@ambito AND usuario_ref=@usuario AND nivel_ref=@nivel" & If(bloquear, " FOR UPDATE", ""), "@id", IdOperacion(id), "@ambito", contexto.AmbitoRef, "@usuario", contexto.UsuarioRef, "@nivel", contexto.NivelRef)
-            Using r = cmd.ExecuteReader()
+            Using r = EjecutarLecturaControl(cmd)
                 If Not r.Read() Then Throw AccesoDenegado()
                 Dim p As New PreparacionSegmentadaImportacion With {.PreparacionId = id, .Contexto = LeerPersistido(Of ContextoImportacionCarpetas)(CStr(r("contexto_doc"))), .Snapshot = LeerPersistido(Of SnapshotPerfilImportacionOperativa)(CStr(r("config_doc"))),
                     .Clave = CStr(r("clave")), .CabeceraHash = Hexadecimal(DirectCast(r("cabecera_hash"), Byte())), .TotalRaices = Convert.ToUInt32(r("total_raices")), .TotalArchivos = Convert.ToUInt32(r("total_archivos")), .TotalBytes = Convert.ToString(r("total_bytes"), CultureInfo.InvariantCulture),
@@ -102,7 +102,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
     Private Shared Function CargarPartesPreparacion(conexion As MySqlConnection, tx As MySqlTransaction, id As String) As List(Of PartePreparacionImportacion)
         Dim partes As New List(Of PartePreparacionImportacion)()
         Using cmd = ComandoOperacion(conexion, tx, "SELECT tipo,numero,contenido_doc,contenido_hash,estado,sello_catalogos FROM ra_integracion_preparacion_parte WHERE preparacion_id=@id ORDER BY tipo,numero", "@id", IdOperacion(id))
-            Using r = cmd.ExecuteReader()
+            Using r = EjecutarLecturaControl(cmd)
                 While r.Read()
                     Dim p As New PartePreparacionImportacion With {.Tipo = CStr(r("tipo")), .Numero = Convert.ToUInt32(r("numero")), .Contenido = CStr(r("contenido_doc")), .Huella = Hexadecimal(DirectCast(r("contenido_hash"), Byte())), .Estado = CStr(r("estado")), .SelloCatalogos = If(r.IsDBNull(r.GetOrdinal("sello_catalogos")), Nothing, CStr(r("sello_catalogos")))}
                     If Not {"RAICES", "ARCHIVOS"}.Contains(p.Tipo) OrElse p.Numero = 0 OrElse p.Contenido.Length > PerfilImportacionJson.MaximoCaracteres OrElse p.Huella <> PlanSegmentadoImportacionJson.HuellaTexto(p.Contenido) OrElse Not {"REGISTRADA", "VALIDADA"}.Contains(p.Estado) Then Throw NoDisponible()
@@ -183,7 +183,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
             CargarPreparacion(conexion, tx, contexto, id, False)
             Dim resultado As New List(Of FragmentoPlanImportacion)()
             Using cmd = ComandoOperacion(conexion, tx, "SELECT tipo,numero,contenido_doc,contenido_hash FROM ra_integracion_preparacion_resultado WHERE preparacion_id=@id ORDER BY tipo,numero", "@id", IdOperacion(id))
-                Using r = cmd.ExecuteReader()
+                Using r = EjecutarLecturaControl(cmd)
                     While r.Read()
                         resultado.Add(New FragmentoPlanImportacion With {.Tipo = CStr(r("tipo")), .Numero = Convert.ToUInt32(r("numero")), .Contenido = CStr(r("contenido_doc")), .Huella = Hexadecimal(DirectCast(r("contenido_hash"), Byte()))})
                     End While

@@ -7,18 +7,23 @@ Imports System.Linq
 Imports MySql.Data.MySqlClient
 
 Public Partial Class MySqlImportacionCarpetasRepository
-    Implements IConsultaFocalImportacionRepository
+    Implements IConsultaFocalImportacionRepository, IConsultaFocalVersionadaImportacionRepository
 
     Public Function ConsultarRecursoFocal(contexto As ContextoImportacionCarpetas, loteId As String, tipo As String, recursoId As String) As VistaConsultaFocalImportacion Implements IConsultaFocalImportacionRepository.ConsultarRecursoFocal
+        Return ConsultarRecursoFocalVersionado(contexto, loteId, tipo, recursoId, 1)
+    End Function
+
+    Public Function ConsultarRecursoFocalVersionado(contexto As ContextoImportacionCarpetas, loteId As String, tipo As String, recursoId As String, version As Integer) As VistaConsultaFocalImportacion Implements IConsultaFocalVersionadaImportacionRepository.ConsultarRecursoFocalVersionado
+        If version <> 1 AndAlso version <> 2 Then Throw SolicitudInvalida()
         AutorizarOperacion(contexto) : IdOperacion(loteId) : IdOperacion(recursoId)
         If Not {"RAICES", "ARCHIVOS"}.Contains(tipo) Then Throw SolicitudInvalida()
         Return Operar(Function(conexion, tx)
             Dim lectura = LeerEstadoConsulta(conexion, tx, contexto, loteId), lote = lectura.Lote
-            Dim vista As New VistaConsultaFocalImportacion With {.Lectura = lectura}
+            Dim vista As New VistaConsultaFocalImportacion With {.VersionLectura = version, .Lectura = lectura}
             Dim raizId = recursoId
             If tipo = "ARCHIVOS" Then
                 Using cmd = ComandoOperacion(conexion, tx, "SELECT f.*,r.cliente_raiz_id AS cliente_raiz,r.datos_doc AS datos_raiz FROM ra_integracion_archivo f INNER JOIN ra_integracion_raiz r ON r.raiz_id=f.raiz_id WHERE r.lote_id=@lote AND f.archivo_id=@archivo", "@lote", IdOperacion(loteId), "@archivo", IdOperacion(recursoId))
-                    Using reader = cmd.ExecuteReader()
+                    Using reader = EjecutarLecturaControl(cmd)
                         If Not reader.Read() Then Throw AccesoDenegado()
                         vista.Archivo = LeerArchivoRecepcion(reader) : raizId = vista.Archivo.RaizId
                     End Using
@@ -29,6 +34,11 @@ Public Partial Class MySqlImportacionCarpetasRepository
             If pagina.Elementos.Count <> 1 Then Throw AccesoDenegado()
             vista.Raiz = pagina.Elementos(0)
             CompletarRetomarCreacionConsulta(lote, pagina, consultar)
+            If version = 2 Then
+                CompletarRecepcionIndividualConsulta(lote, pagina, consultar)
+                If vista.Archivo IsNot Nothing AndAlso lote.ControlArchivos IsNot Nothing Then VerificarArchivoFocal(conexion, tx, lote, vista.Raiz, vista.Archivo)
+                Return vista
+            End If
             'Mientras quede una recepcion pendiente no hace falta reconstruir
             'el plan/barrera global para anunciar que aun no se puede crear.
             If Not lote.DetencionSolicitada AndAlso vista.Raiz.Estado = "PENDIENTE" AndAlso vista.Raiz.IntentoActivoId Is Nothing AndAlso vista.Raiz.IdentidadExpediente Is Nothing Then

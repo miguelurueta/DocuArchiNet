@@ -31,6 +31,7 @@ Public Partial Class CoordinadorImportacionCarpetas
         If referencia Is Nothing OrElse referencia.UsuarioRef <> identidad.UsuarioRef OrElse referencia.AmbitoRef <> identidad.AmbitoRef Then Throw Denegado()
         Dim contexto = _destino(referencia.NivelRef)
         If Not MismoContextoControl(contexto, referencia) OrElse Not contexto.PuedeImportar Then Throw Denegado()
+        PrepararArchivosIndependientes(contexto, loteId)
         Dim archivo = MedicionAlmacenamientoImportacion.Medir("CONSULTA_PREFLIGHT", loteId, archivoId, Function() _archivoDocumental(contexto, loteId, archivoId))
         If archivo Is Nothing OrElse archivo.ArchivoId <> archivoId Then Throw Denegado()
         Dim vista = MedicionAlmacenamientoImportacion.Medir("CONSULTA_PREFLIGHT", loteId, archivoId, Function() _vistaDocumental(contexto, loteId, archivo.RaizId))
@@ -45,7 +46,12 @@ Public Partial Class CoordinadorImportacionCarpetas
         If previo IsNot Nothing Then Return ProyectarDocumento(vista, archivo, solicitud, previo, Nothing, True)
         If archivo.Revision <> revisionEsperada OrElse Not EvaluarBarreraAlmacenamiento(vista, archivo) Then Throw NoPermitida()
         'Comprobar los originales exigidos antes de reclamar un efecto.
-        MedicionAlmacenamientoImportacion.Medir("ORIGINALES_PREVIOS", loteId, archivoId, Function() VerificarStagingCreacion(vista, _archivoDocumental, _stagingDocumental, _autorizar, Nothing, archivo))
+        Try
+            MedicionAlmacenamientoImportacion.Medir("ORIGINALES_PREVIOS", loteId, archivoId, Function() VerificarStagingCreacion(vista, _archivoDocumental, _stagingDocumental, _autorizar, Nothing, archivo))
+        Catch ex As ArchivoNoDisponibleImportacionException
+            RegistrarNoDisponible(contexto, ex, archivo.Revision)
+            Throw
+        End Try
         ReautorizarFase(contexto, vista.Lote.Snapshot.Configuracion)
         Dim reserva = MedicionAlmacenamientoImportacion.Medir("RESERVA", loteId, archivoId, Function() _repositorio.ReservarIntento(contexto, solicitud))
         ExigirIntentoDocumento(solicitud, vista.Raiz.RaizId, reserva)
@@ -74,6 +80,10 @@ Public Partial Class CoordinadorImportacionCarpetas
             Dim adaptador = _almacenador(almacen)
             If adaptador Is Nothing Then Throw NoPermitida()
             observado = MedicionAlmacenamientoImportacion.Medir("ADAPTADOR", loteId, archivoId, Function() adaptador.Almacenar(contexto, actual.Raiz, fresco, actual.Lote.Snapshot, reserva))
+        Catch ex As ArchivoNoDisponibleImportacionException
+            'Solo se cierra nuestra reserva si el diario demuestra cero inicio/gate.
+            RegistrarNoDisponible(contexto, ex, revisionEsperada + 1UI, reserva)
+            Throw
         Catch ex As Exception
             DiagnosticoOperacionImportacion.Registrar(ex, "ALMACENAMIENTO", punto:="COORDINACION_DOCUMENTO")
             'La reserva o el efecto pueden haber quedado persistidos. Consultar

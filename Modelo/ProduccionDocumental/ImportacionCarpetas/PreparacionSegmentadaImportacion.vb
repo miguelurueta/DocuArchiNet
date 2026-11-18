@@ -60,7 +60,12 @@ Public Interface IPreparacionSegmentadaImportacionRepository
     Function ObtenerContextoPlan(identidad As ContextoImportacionCarpetas, planId As String) As ContextoImportacionCarpetas
 End Interface
 
+Public Interface IConsultaFocalVersionadaImportacionRepository
+    Function ConsultarRecursoFocalVersionado(contexto As ContextoImportacionCarpetas, loteId As String, tipo As String, recursoId As String, version As Integer) As VistaConsultaFocalImportacion
+End Interface
+
 Public Class VistaConsultaFocalImportacion
+    Public Property VersionLectura As Integer = 1
     Public Property Lectura As EstadoLecturaImportacion
     Public Property Raiz As RaizImportacionCarpetas
     Public Property Archivo As ArchivoImportacionCarpetas

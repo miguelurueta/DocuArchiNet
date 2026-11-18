@@ -36,6 +36,7 @@ Public Partial Class CoordinadorImportacionCarpetas
     Private Shared Function VerificarStagingCreacion(vista As VistaBarreraCreacionImportacion, cargar As Func(Of ContextoImportacionCarpetas, String, String, ArchivoImportacionCarpetas), staging As Func(Of LoteImportacionCarpetas, ArchivoImportacionCarpetas, IAlmacenStagingImportacion), autorizar As Action(Of ContextoImportacionCarpetas, ConfiguracionPerfilImportacion), retenciones As List(Of IRetencionVerificadaImportacion), Optional objetivo As ArchivoImportacionCarpetas = Nothing, Optional intentoPropio As String = Nothing) As ReservaCreacionVerificadaImportacion
         If vista Is Nothing OrElse vista.Lote Is Nothing OrElse cargar Is Nothing OrElse staging Is Nothing OrElse autorizar Is Nothing Then Throw BarreraInvalida()
         If vista.Lote.Contexto Is Nothing OrElse vista.Lote.Snapshot Is Nothing OrElse vista.Lote.Snapshot.Configuracion Is Nothing Then Throw BarreraInvalida()
+        If vista.EsFocal Then Return VerificarOriginalIndividual(vista, cargar, staging, autorizar, retenciones, objetivo, intentoPropio)
         Dim contexto = vista.Lote.Contexto
         autorizar(contexto, vista.Lote.Snapshot.Configuracion)
         If objetivo Is Nothing Then

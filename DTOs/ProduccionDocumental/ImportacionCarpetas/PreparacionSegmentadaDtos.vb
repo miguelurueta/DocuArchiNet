@@ -18,6 +18,7 @@ End Class
 
 Public Class ConsultarRecursoLoteSolicitud
     Inherits ConsultarLoteImportacionSolicitud
+    Public Property versionLectura As Integer = 1
     Public Property tipo As String
     Public Property recursoId As String
 End Class
@@ -33,6 +34,7 @@ Public Class ProgresoConfirmadoImportacion
 End Class
 
 Public Class ConsultaFocalImportacionResultado
+    Public Property versionLectura As Integer = 1
     Public Property estado As EstadoLoteImportacionResultado
     Public Property tipo As String
     Public Property recurso As RecursoConsultaImportacionResultado

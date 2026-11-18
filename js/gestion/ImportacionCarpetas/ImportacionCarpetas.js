@@ -80,7 +80,7 @@
             if (resource.estado === "PENDIENTE" && !resource.expedienteId && resource.recepcionListaParaCrear === true) { actions.push("CREAR_EXPEDIENTE"); }
         } else {
             var parent = model.raices && model.raices.elementos.filter(function (r) { return r.recursoId === resource.raizId; })[0];
-            if (parent && parent.estado === "EXPEDIENTE_CONFIRMADO" && !parent.tieneIntentoActivo && resource.estadoRecepcion === "RECIBIDO" && resource.estado === "NO_INICIADO") {
+            if (parent && (parent.estado === "EXPEDIENTE_CONFIRMADO" || model.estado.procesamientoIndependiente === true && ["PARCIAL","INCIERTO"].indexOf(parent.estado)!==-1) && !parent.tieneIntentoActivo && resource.estadoRecepcion === "RECIBIDO" && resource.estado === "NO_INICIADO") {
                 actions.push(resource.valoresEfectivosFijados === true ? "ALMACENAR" : "MATERIALIZAR_VALORES");
             }
         }
@@ -91,6 +91,7 @@
         var resources = (model.raices ? model.raices.elementos : []).map(function (r) { return {tipo:"RAICES", recurso:r, fase:"CREAR_EXPEDIENTE"}; }).concat((model.resultados ? model.resultados.elementos : []).map(function (f) { return {tipo:"ARCHIVOS", recurso:f, fase:["RECIBIENDO","INCIERTO"].indexOf(f.estadoRecepcion) !== -1 ? "RECEPCION" : "ALMACENAR"}; }));
         var active = resources.filter(function (item) { var r = item.recurso; return r.tieneIntentoActivo === true || ["CREANDO","EN_CURSO","INCIERTO"].indexOf(r.estado) !== -1 || ["RECIBIENDO","INCIERTO"].indexOf(r.estadoRecepcion) !== -1; });
         var last = model.ultimaOperacion && model.ultimaOperacion.loteId === model.loteId ? model.ultimaOperacion : null, needsRead = !!(last && model.mutacionIncierta && last.estado === "SIN_CONFIRMAR"), pending = last && (last.estado === "SOLICITANDO" || needsRead) && resources.filter(function (item) { return last.tipo === item.tipo && last.recursoId === item.recurso.recursoId; })[0], blocked = active.filter(function (item) { return last && last.tipo === item.tipo && last.recursoId === item.recurso.recursoId; })[0] || pending || active[0];
+        if(model.estado.procesamientoIndependiente===true && model.estado.escritorVivo===false && !model.mutacionIncierta && !needsRead && (!last || last.estado!=='SOLICITANDO')){return null;}
         if (!blocked) { return model.estado.hayIntentosActivos || model.estado.hayIncertidumbre || needsRead ? {tipo:"LOTE", fase:needsRead ? last.fase : null, fueraDePagina:true, verificable:false, requiereConsulta:needsRead} : null; }
         blocked.verificable = accionesRecurso(model, blocked.recurso, blocked.tipo === "RAICES").indexOf("RECONCILIAR") !== -1;
         blocked.retomable = accionesRecurso(model, blocked.recurso, blocked.tipo === "RAICES").indexOf("RETOMAR_CREACION") !== -1;
@@ -102,6 +103,7 @@
     function crearCoordinacion(options) {
         if (!options || typeof options.leer !== "function" || typeof options.ejecutar !== "function" || typeof options.vigente !== "function") { throw new Error("SOLICITUD_INVALIDA"); }
         var running = null, stopped = true, disposed = false, generation = 0, reads = 0, effects = 0, members = null, scope = null;
+        var excluded = Object.create(null), decision = null, resolveDecision = null;
         var completed = Object.create(null), confirmedRows = Object.create(null), failed = Object.create(null), current = null, status = "paused", code = null, latest = null, acknowledged = false, consultingResult = false;
         var limits = {resources:10000,pages:400,reads:10000,effects:10000};
         function id(value) { return typeof value === "string" && /^[1-9][0-9]{0,9}$/.test(value) && Number(value) <= 4294967295; }
@@ -111,7 +113,7 @@
         function summary() {
             var roots = latest ? latest.raices : [], files = latest ? latest.archivos : [];
             var rows=current&&current.tipo==='RAICES'?roots:files, position=current?rows.findIndex(function(row){return row.recursoId===current.row.recursoId;})+1:0;
-            return {activa:status === "running" || status === "pausing",consultandoResultado:consultingResult,estado:status,codigo:code,actual:current ? {tipo:current.tipo,id:current.row.recursoId,nombre:current.row.nombre,rutaRelativa:current.row.rutaRelativa,fase:current.fase,posicion:position,total:rows.length} : null,
+            return {decision:decision,excluidos:Object.keys(excluded).length,pendientes:files.filter(function(f){return f.estado!=="COMPLETADO";}).length,activa:status === "running" || status === "pausing",consultandoResultado:consultingResult,estado:status,codigo:code,actual:current ? {tipo:current.tipo,id:current.row.recursoId,nombre:current.row.nombre,rutaRelativa:current.row.rutaRelativa,fase:current.fase,posicion:position,total:rows.length} : null,
                 totalRaices:roots.length,totalArchivos:files.length,recibidos:files.filter(function (f) { return f.estadoRecepcion === "RECIBIDO"; }).length,
                 expedientes:roots.filter(function (r) { return id(r.expedienteId) && id(r.relacionNivelId); }).length,
                 guardados:files.filter(function (f) { return id(f.documentoId) && ["ALMACENADO","COMPLETADO"].indexOf(f.estado) !== -1; }).length,
@@ -121,6 +123,11 @@
         function publish() { if (!disposed && options.vigente() && options.cambiar) { options.cambiar(summary(),latest); } }
         function consumeRead() { if (++reads > limits.reads) { throw fault("COORDINACION_LIMITE"); } }
         function validate(snapshot) {
+            if(snapshot && snapshot.focalValidado===2 && snapshot.anterior===latest && latest){
+                var s=snapshot.estado,p=latest.estado;
+                if(!s || s.loteId!==p.loteId || s.nivelRef!==p.nivelRef || s.perfilId!==p.perfilId || s.versionId!==p.versionId || s.rutaCanonica!==p.rutaCanonica || s.totalRaices!==p.totalRaices || s.totalArchivos!==p.totalArchivos || !Number.isInteger(s.revision) || s.revision<p.revision || !Array.isArray(s.accionesPermitidas) || ['detencionSolicitada','hayIntentosActivos','hayIncertidumbre','escritorVivo','procesamientoIndependiente'].some(function(k){return typeof s[k]!=='boolean';})){throw fault('RESPUESTA_INVALIDA');}
+                delete snapshot.anterior;return snapshot;
+            }
             if (!snapshot || !snapshot.estado || !Array.isArray(snapshot.raices) || !Array.isArray(snapshot.archivos)) { throw fault("RESPUESTA_INVALIDA"); }
             var state = snapshot.estado, roots = Object.create(null), files = Object.create(null), identity = [];
             if (!id(state.loteId) || !id(state.nivelRef) || !Number.isInteger(state.revision) || state.revision <= 0 || !Array.isArray(state.accionesPermitidas) || !integer(state.totalRaices) || !integer(state.totalArchivos) || state.totalRaices + state.totalArchivos > limits.resources || snapshot.raices.length !== state.totalRaices || snapshot.archivos.length !== state.totalArchivos) { throw fault("RESPUESTA_INVALIDA"); }
@@ -139,14 +146,29 @@
         }
         function blocked(snapshot) {
             var state = snapshot.estado;
+            if(state.procesamientoIndependiente===true){return state.detencionSolicitada || state.escritorVivo!==false || ['DETENIDO','FALLIDO'].indexOf(state.estado)!==-1;}
             return state.detencionSolicitada || state.hayIntentosActivos || state.hayIncertidumbre || ["DETENIDO","FALLIDO","PENDIENTE_VERIFICACION"].indexOf(state.estado) !== -1 || snapshot.raices.concat(snapshot.archivos).some(function (r) { return r.tieneIntentoActivo || ["CREANDO","EN_CURSO","INCIERTO"].indexOf(r.estado) !== -1 || ["RECIBIENDO","INCIERTO"].indexOf(r.estadoRecepcion) !== -1; });
         }
         function choose(snapshot) {
             var state = snapshot.estado, roots = snapshot.raices, files = snapshot.archivos, model = {loteId:state.loteId,estado:state,raices:{elementos:roots}}, rootMap = Object.create(null), result = null;
             roots.forEach(function (r) { rootMap[r.recursoId] = r; });
-            function eligible(f) { return ["BLOQUEADO","CANCELADA"].indexOf(rootMap[f.raizId].estado) === -1 && ["CANCELADO","RECHAZADO"].indexOf(f.estado) === -1 && ["CANCELADO","RECHAZADO"].indexOf(f.estadoRecepcion) === -1; }
+            function eligible(f) { return !excluded[f.recursoId] && ["BLOQUEADO","CANCELADA"].indexOf(rootMap[f.raizId].estado) === -1 && ["CANCELADO","RECHAZADO"].indexOf(f.estado) === -1 && ["CANCELADO","RECHAZADO"].indexOf(f.estadoRecepcion) === -1; }
             function confirmedParent(f){return id(rootMap[f.raizId].expedienteId)&&id(rootMap[f.raizId].relacionNivelId);}
             if (state.accionesPermitidas.indexOf("SOLICITAR_AVANCE") === -1) { return null; }
+            if(state.procesamientoIndependiente===true){
+                files.some(function(f){
+                    if(!eligible(f)){return false;}
+                    var parent=rootMap[f.raizId],actions=accionesRecurso(model,f,false),phase=null;
+                    if(f.estadoRecepcion==='PENDIENTE'&&f.estado==='NO_INICIADO'&&!f.tieneIntentoActivo){phase='RECEPCION';}
+                    else if(f.estadoRecepcion==='RECIBIDO'&&f.estado==='NO_INICIADO'&&!f.tieneIntentoActivo){
+                        if(accionesRecurso(model,parent,true).indexOf('CREAR_EXPEDIENTE')!==-1){result={tipo:'RAICES',fase:'CREAR_EXPEDIENTE',row:parent};return true;}
+                        if(actions.indexOf('MATERIALIZAR_VALORES')!==-1){phase='MATERIALIZAR_VALORES';}
+                        else if(actions.indexOf('ALMACENAR')!==-1){phase='ALMACENAR';}
+                    }
+                    if(phase){result={tipo:'ARCHIVOS',fase:phase,row:f};return true;}return false;
+                });
+                if(result){result.key=result.tipo+':'+result.row.recursoId+':'+result.fase;}return result;
+            }
             files.some(function (f) { if (eligible(f) && f.estadoRecepcion === "PENDIENTE" && f.estado === "NO_INICIADO" && !f.tieneIntentoActivo) { result = {tipo:"ARCHIVOS",fase:"RECEPCION",row:f}; return true; } return false; });
             if (!result) { roots.some(function (r) { if (accionesRecurso(model,r,true).indexOf("CREAR_EXPEDIENTE") !== -1) { result = {tipo:"RAICES",fase:"CREAR_EXPEDIENTE",row:r}; return true; } return false; }); }
             if (!result) { files.some(function (f) { if (!eligible(f)||!confirmedParent(f)) { return false; } var actions = accionesRecurso(model,f,false); if (actions.indexOf("MATERIALIZAR_VALORES") !== -1) { result = {tipo:"ARCHIVOS",fase:"MATERIALIZAR_VALORES",row:f}; return true; } return false; }); }
@@ -161,6 +183,19 @@
             var values={};if(receipt){values.estadoRecepcion='RECIBIDO';}else if(op.fase==='CREAR_EXPEDIENTE'){values.expedienteId=result.expedienteId;values.relacionNivelId=result.relacionNivelId;}else if(op.fase==='MATERIALIZAR_VALORES'){values.valoresEfectivosFijados=true;}else if(op.fase==='ALMACENAR'){values.documentoId=result.documentoId;values.gabineteId=result.gabineteId;}
             confirmedRows[op.key]={tipo:op.tipo,id:op.row.recursoId,valores:values};completed[op.key] = true; acknowledged = true; if (options.confirmar) { options.confirmar(op,result); }
         }
+        function askUnavailable(token,snapshot,op,data){
+            var file=snapshot.archivos.filter(function(f){return f.recursoId===data.archivoId;})[0];
+            if(!file || file.raizId!==data.raizId || data.loteId!==snapshot.estado.loteId || data.certeza!=='NO_INICIADO' || data.fase!==op.fase){throw fault('RESPUESTA_INVALIDA');}
+            decision={archivoId:file.recursoId,nombre:file.nombre,rutaRelativa:file.rutaRelativa,raizId:file.raizId,fase:op.fase,causa:data.causa,certeza:'NO_INICIADO',local:data.local===true};
+            status='awaiting-decision';code='ARCHIVO_NO_DISPONIBLE';publish();
+            return new Promise(function(resolve){resolveDecision=resolve;}).then(function(continueOthers){
+                resolveDecision=null;decision=null;
+                if(!live(token)||!continueOthers||stopped){stopped=true;status='paused';publish();return null;}
+                excluded[file.recursoId]=true;status='running';current=null;publish();
+                var refresh=data.local?Promise.resolve(snapshot):read(token,{tipo:'ARCHIVOS',fase:op.fase,row:file});
+                return refresh.then(function(next){return next?cycle(token,next):null;});
+            });
+        }
         function cycle(token,snapshot) {
             if (!live(token) || stopped) { return; }
             if (snapshot.estado.estado === "COMPLETADO") { status = "complete"; current = null; publish(); return; }
@@ -169,11 +204,20 @@
             if (!current) { status = "paused"; code = "SIN_AVANCE_DISPONIBLE"; publish(); return; }
             if (completed[current.key] || failed[current.key]) { status = "blocked"; code = "RESULTADO_PENDIENTE_LECTURA"; publish(); return; }
             if (effects >= limits.effects) { throw fault("COORDINACION_LIMITE"); }
-            if (current.fase === "RECEPCION" && (!options.original || !options.original(current.row))) { status = "needs-original"; code = "ORIGINAL_REQUERIDO"; publish(); return; }
+            if (current.fase === "RECEPCION" && (!options.original || !options.original(current.row))) {
+                if(snapshot.estado.procesamientoIndependiente===true){return askUnavailable(token,snapshot,current,{loteId:snapshot.estado.loteId,archivoId:current.row.recursoId,raizId:current.row.raizId,fase:'RECEPCION',causa:'ORIGINAL_LOCAL_NO_SELECCIONADO',certeza:'NO_INICIADO',local:true});}
+                status = "needs-original"; code = "ORIGINAL_REQUERIDO"; publish(); return;
+            }
             acknowledged = false; publish(); var op = current;
             return Promise.resolve().then(function () {
                 if (!live(token) || stopped) { return null; } effects++;
-                return options.ejecutar(op,snapshot).then(function (result) {
+                return options.ejecutar(op,snapshot).catch(function(error){
+                    if(error && error.codigo==='ARCHIVO_NO_DISPONIBLE' && error.noDisponible && !acknowledged && snapshot.estado.procesamientoIndependiente===true){
+                        return askUnavailable(token,snapshot,op,error.noDisponible).then(function(){return {decisionAtendida:true};});
+                    }
+                    throw error;
+                }).then(function (result) {
+                    if(result && result.decisionAtendida){return null;}
                     if (!live(token)) { return null; } confirm(op,result,snapshot);
                     return read(token,op).catch(function (error) { error.lecturaPosterior = true; error.fase = op.fase; throw error; });
                 });
@@ -185,7 +229,7 @@
         }
         function start() {
             if (disposed || !options.vigente() || running) { return running || Promise.resolve(); }
-            stopped = false; code = null; status = "running"; current = null; reads = effects = 0; var token = ++generation; publish();
+            excluded=Object.create(null);decision=null;stopped = false; code = null; status = "running"; current = null; reads = effects = 0; var token = ++generation; publish();
             running = Promise.resolve().then(function () { return read(token); }).then(function (snapshot) { if (snapshot) { return cycle(token,snapshot); } }).catch(function (error) {
                 if (!live(token)) { return; }
                 if (current && !acknowledged) { failed[current.key] = true; }
@@ -198,8 +242,8 @@
             }).then(function () { consultingResult = false; if (live(token)) { if (status === "running" || status === "pausing") { status = "paused"; } publish(); } running = null; });
             return running;
         }
-        return {iniciar:start,pausar:function () { stopped = true; if (running) { status = "pausing"; publish(); } return running || Promise.resolve(); },estado:summary,
-            destruir:function () { disposed = true; stopped = true; generation++; current = null; },limites:Object.freeze({resources:limits.resources,pages:limits.pages,reads:limits.reads,effects:limits.effects})};
+        return {iniciar:start,decidir:function(value){if(status!=='awaiting-decision'||!resolveDecision||['continuar','pausar'].indexOf(value)===-1){return false;}var resolve=resolveDecision;resolveDecision=null;if(value==='pausar'){stopped=true;}resolve(value==='continuar');return true;},pausar:function () { stopped = true; if(resolveDecision){var resolve=resolveDecision;resolveDecision=null;resolve(false);} if (running) { status = "pausing"; publish(); } return running || Promise.resolve(); },estado:summary,
+            destruir:function () { disposed = true; stopped = true; generation++; current = null; if(resolveDecision){resolveDecision(false);resolveDecision=null;}decision=null; },limites:Object.freeze({resources:limits.resources,pages:limits.pages,reads:limits.reads,effects:limits.effects})};
     }
 
     function rotularAccesoMenu(button, text, icon) {
@@ -323,7 +367,7 @@
         }
         function refresh(session) {
             session.model.preparacionPendienteId=host.doc120PreparacionPendiente;
-            session.model.reseleccionCarpetaDisponible=!!(segmentado && host.getAttribute("data-consulta-focal")==="1" && session.view && session.view.reselectorCarpeta && "webkitdirectory" in session.view.reselectorCarpeta);
+            session.model.reseleccionCarpetaDisponible=!!(segmentado && ["1","2"].indexOf(host.getAttribute("data-consulta-focal"))!==-1 && session.view && session.view.reselectorCarpeta && "webkitdirectory" in session.view.reselectorCarpeta);
             if (active !== session) { return; }
             var model = session.model; model.manifiesto = model.consulta ? {raices:[], archivos:[]} : session.inventory.manifiesto();
             model.describirIncidencia = session.api.detalleIncidencia;
@@ -462,14 +506,25 @@
                 });
             }
             function readFocal(consume,limits,op,previous) {
-                if(!segmentado || host.getAttribute("data-consulta-focal") !== "1" || !op || !previous){return readAll(consume,limits);}
+                if(!segmentado || ["1","2"].indexOf(host.getAttribute("data-consulta-focal"))===-1 || !op || !previous){return readAll(consume,limits);}
                 if(!live()){return Promise.reject(fail("SOLICITUD_CANCELADA"));}consume();
-                return session.api.invocar("ConsultarRecursoLote",{loteId:lot,tipo:op.tipo,recursoId:op.row.recursoId}).then(function(value){
-                    if(!live() || !value || value.tipo!==op.tipo || !value.recurso || value.recurso.recursoId!==op.row.recursoId || !value.estado || value.estado.loteId!==lot || value.estado.revision<previous.estado.revision || !/^[a-f0-9]{64}$/.test(value.huellaRecursos||"")){throw fail("RESPUESTA_INVALIDA");}
+                var version=host.getAttribute("data-consulta-focal")==="2"?2:1;
+                return session.api.invocar("ConsultarRecursoLote",{loteId:lot,tipo:op.tipo,recursoId:op.row.recursoId,versionLectura:version}).then(function(value){
+                    if(!live() || !value || value.tipo!==op.tipo || !value.recurso || value.recurso.recursoId!==op.row.recursoId || !value.estado || value.estado.loteId!==lot || value.estado.revision<previous.estado.revision || version===1&&!/^[a-f0-9]{64}$/.test(value.huellaRecursos||"")){throw fail("RESPUESTA_INVALIDA");}
                     var next={estado:value.estado,raices:previous.raices.slice(),archivos:previous.archivos.slice(),progreso:value.progreso};
-                    function replace(rows,row,file){var index=rows.findIndex(function(old){return old.recursoId===row.recursoId;});if(index<0 || row.idCliente!==rows[index].idCliente || row.revision<rows[index].revision || file&&row.raizId!==rows[index].raizId){throw fail("CONFLICTO_REVISION");}rows[index]=row;}
+                    function replace(rows,row,file){
+                        if(!row || !validId(row.recursoId) || !Number.isInteger(row.revision) || row.revision<=0 || row.revision>4294967295 || typeof row.tieneIntentoActivo!=='boolean' || file&&typeof row.valoresEfectivosFijados!=='boolean'){throw fail('RESPUESTA_INVALIDA');}
+                        var index=rows.findIndex(function(old){return old.recursoId===row.recursoId;});if(index<0 || row.idCliente!==rows[index].idCliente || row.revision<rows[index].revision || file&&row.raizId!==rows[index].raizId){throw fail("CONFLICTO_REVISION");}rows[index]=row;
+                    }
                     if(op.tipo==='RAICES'){if(value.padre){throw fail('RESPUESTA_INVALIDA');}replace(next.raices,value.recurso,false);}
                     else{if(!value.padre || value.padre.recursoId!==value.recurso.raizId){throw fail('RESPUESTA_INVALIDA');}replace(next.archivos,value.recurso,true);replace(next.raices,value.padre,false);}
+                    if(version===2){
+                        if(value.versionLectura!==2 || value.huellaRecursos!=null || value.progreso!=null){throw fail('RESPUESTA_INVALIDA');}
+                        var observed=value.recurso,known=previous[op.tipo==='RAICES'?'raices':'archivos'].filter(function(r){return r.recursoId===op.row.recursoId;})[0];
+                        ['expedienteId','relacionNivelId','documentoId','inventarioId','gabineteId'].forEach(function(k){if(known[k]!=null && observed[k]!==known[k]){throw fail('RESULTADO_PENDIENTE_LECTURA');}});
+                        if(known.valoresEfectivosFijados===true && observed.valoresEfectivosFijados!==true){throw fail('RESULTADO_PENDIENTE_LECTURA');}
+                        next.focalValidado=2;next.anterior=previous;return next;
+                    }
                     return segmentado.huellaRecursos(next,deps.crypto || env.crypto).then(function(hash){
                         if(!live()){throw fail('SOLICITUD_CANCELADA');}if(hash!==value.huellaRecursos){throw fail('CONFLICTO_REVISION');}
                         var progress=value.progreso;
@@ -483,6 +538,10 @@
                 ceder:function () { return new Promise(function (resolve) { (deps.setTimeout || env.setTimeout)(resolve,0); }); },
                 cambiar:function (value,snapshot) {
                     if (!live()) { return; } model.coordinacion=value; model.busy=value.activa || value.consultandoResultado;
+                    if(value.decision && value.decision.certeza==='NO_INICIADO'){
+                        model.mutacionIncierta=false;model.detalleErrorOperacion=null;
+                        if(model.ultimaOperacion){model.ultimaOperacion.estado='NO_INICIADO';}
+                    }
                     if (snapshot) { session.lecturaCoordinada=snapshot; model.contexto={nivelRef:snapshot.estado.nivelRef,rutaCanonica:snapshot.estado.rutaCanonica}; host.doc111UltimoLote={loteId:lot}; save(); proyectarCoordinacion(session,model,snapshot); }
                     if(snapshot && value.estado==='blocked' && model.detalleErrorOperacion && model.ultimaOperacion && model.ultimaOperacion.fase==='ALMACENAR'){
                         var observed=snapshot.archivos.filter(function(row){return row.recursoId===model.ultimaOperacion.recursoId;})[0];
@@ -491,7 +550,8 @@
                         else if(observed && observed.tieneIntentoActivo){model.detalleErrorOperacion.estadoConsultado='Intento activo; guardado todavía sin confirmar';if(validId(observed.intentoActivoId)){model.detalleErrorOperacion.intentoId=observed.intentoActivoId;}}
                     }
                     if (value.estado==='needs-original') { model.mensaje="Falta el original del archivo pendiente. Vincúlalo y pulsa Continuar importación; los resultados confirmados se conservan."; model.tipoMensaje="AVISO"; }
-                    if (value.estado==='paused' && !model.mutacionIncierta) { model.mensaje="Importación en pausa. La siguiente operación requiere Continuar importación."; }
+                    if (value.estado==='paused' && value.excluidos) {model.tipoMensaje='AVISO';model.mensaje=value.guardados+' de '+value.totalArchivos+' documentos guardados. '+value.pendientes+' pendientes; '+value.excluidos+' apartados solo durante esta ejecución. Puedes revisar y continuar el mismo lote.';}
+                    else if (value.estado==='paused' && !model.mutacionIncierta) { model.mensaje="Importación en pausa. La siguiente operación requiere Continuar importación."; }
                     if (value.completo) { model.mensaje="Importación completada. Revisa los expedientes y documentos confirmados o cierra el asistente."; model.tipoMensaje="EXITO"; }
                     renderAvance();
                 },
@@ -548,11 +608,14 @@
         function action(session, name, value) {
             var model = session.model;
             model.faseSolicitud = "CONSULTAR";
+            if(name==='continuar-demas'||name==='pausar-revisar'){
+                if(session.coordinator){session.coordinator.decidir(name==='continuar-demas'?'continuar':'pausar');}return;
+            }
             if (name === "cerrar") { cerrar(); return; }
             if (active !== session) { return; }
             if (name === "pausar-preparacion") { if(session.preparacionSegmentada){session.preparacionSegmentada.pausar();} return; }
             if (name === "pausar-importacion") { if(session.coordinator){return session.coordinator.pausar();}return; }
-            if (session.coordinator && session.coordinator.estado().activa) {
+            if (session.coordinator && (session.coordinator.estado().activa || session.coordinator.estado().estado==='awaiting-decision')) {
                 if (["consultar","consultar-referencia","consultar-ultimo","volver-importacion","verificar-referencia","exportar","pagina-resultados","pagina-raices-resultado","filtrar-resultados","limpiar-resultados","filtrar-raices","limpiar-raices","ver-expedientes"].indexOf(name)!==-1) { session.coordinator.pausar().then(function(){if(active===session){action(session,name,value);}}); }
                 return;
             }

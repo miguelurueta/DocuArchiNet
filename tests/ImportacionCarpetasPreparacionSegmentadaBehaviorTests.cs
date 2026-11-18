@@ -7,9 +7,14 @@ using System.Reflection;
 using Newtonsoft.Json;
 
 public static partial class ImportacionCarpetasBehaviorTests {
-    sealed partial class QueryRepository : IConsultaFocalImportacionRepository {
+    sealed partial class QueryRepository : IConsultaFocalImportacionRepository, IConsultaFocalVersionadaImportacionRepository {
         public int FocalReads;
         public Action<VistaConsultaFocalImportacion> AlterFocal;
+        public Action<VistaConsultaFocalImportacion> AlterFocalV2;
+        public VistaConsultaFocalImportacion ConsultarRecursoFocalVersionado(ContextoImportacionCarpetas c,string lot,string type,string id,int version){
+            var view=ConsultarRecursoFocal(c,lot,type,id);view.VersionLectura=version;view.HuellaRecursos=null;view.Progreso=null;
+            if(AlterFocalV2!=null)AlterFocalV2(view);return view;
+        }
         public VistaConsultaFocalImportacion ConsultarRecursoFocal(ContextoImportacionCarpetas c,string lot,string type,string id){
             Owner(c,lot);FocalReads++;
             var file=type=="ARCHIVOS"?Files.SingleOrDefault(f=>f.ArchivoId==id):null;

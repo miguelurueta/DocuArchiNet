@@ -10,7 +10,7 @@ const {loginRequestAction}=require('./apply-doc120-egresos-length.cjs');
 const ROOT=path.resolve(__dirname,'../../..'),BASE='https://localhost/GestionDocumental-Docuarchi.net/';
 const LOT='50',OWNER='141',COMPANY='2',LEVEL='223';
 const MAX={http:600,select:60,sessions:1,storage:3,sourceBytes:96*1024*1024,milliseconds:45*60*1000};
-const TIMINGS=new Set(['total','consulta_preflight','originales_previos','reserva','originales_retenidos','adaptador','datos_documentales','escritor_legacy','comprobacion_posterior','checkpoint','lectura_final','prev_auth','prev_meta','prev_io','ret_auth','ret_meta','ret_io','v2_hash','original_v2','copia_trabajo','v2_inicio','v2_autorizacion','v2_retorno']);
+const TIMINGS=new Set(['total','consulta_preflight','originales_previos','reserva','originales_retenidos','adaptador','datos_documentales','escritor_legacy','comprobacion_posterior','checkpoint','lectura_final','prev_auth','prev_meta','prev_io','ret_auth','ret_meta','ret_io','v2_hash','original_v2','copia_trabajo','v2_inicio','v2_autorizacion','v2_retorno','sql_esquema','sql_plan','sql_archivo','sql_evento','sql_control','sql_autoridad','sql_catalogo','sql_fuente','json_control','json_chars','pdf_bytes','original_open']);
 const check=(v,c)=>{if(!v)throw Error('DOC120_MEASURE_'+c);};
 const id=v=>typeof v==='string'&&/^[1-9][0-9]{0,9}$/.test(v)&&Number(v)<=4294967295;
 const sha=v=>crypto.createHash('sha256').update(v).digest('hex');
@@ -19,7 +19,7 @@ const SELECT_FILES="SELECT f.archivo_id,f.raiz_id,f.revision,f.estado_recepcion,
 const SELECT_LOT="SELECT l.lote_id,l.plan_id,l.version_id,l.nivel_ref,l.revision,l.estado,l.detencion_solicitada,l.total_archivos,l.total_raices,(SELECT COUNT(*) FROM ra_integracion_intento i WHERE i.lote_id=l.lote_id AND i.estado IN ('RESERVADO','EN_CURSO','INCIERTO')) AS unresolved,(SELECT COUNT(*) FROM ra_integracion_raiz r WHERE r.lote_id=l.lote_id AND r.identidad_expediente_doc IS NOT NULL) AS created_roots FROM ra_integracion_lote l WHERE l.lote_id=? AND l.solicitante_ref=? AND l.ambito_ref=?";
 function parseTiming(value){
  check(typeof value==='string'&&value.length>0&&value.length<4096,'SERVER_TIMING_MISSING');const result={};
- for(const item of value.split(/,\s*/)){const m=/^doc120_([a-z0-9_]+);dur=([0-9]+\.[0-9]{3});desc="n=([1-9][0-9]*)"$/.exec(item.trim());check(m&&TIMINGS.has(m[1])&&!Object.hasOwn(result,m[1]),'SERVER_TIMING_INVALID');const durationMs=Number(m[2]),calls=Number(m[3]);check(Number.isFinite(durationMs)&&Number.isSafeInteger(calls)&&calls<=1000000,'SERVER_TIMING_INVALID');result[m[1]]={durationMs,calls};}
+ for(const item of value.split(/,\s*/)){const m=/^doc120_([a-z0-9_]+);dur=([0-9]+\.[0-9]{3});desc="n=([1-9][0-9]*)"$/.exec(item.trim());check(m&&TIMINGS.has(m[1])&&!Object.hasOwn(result,m[1]),'SERVER_TIMING_INVALID');const durationMs=Number(m[2]),calls=Number(m[3]);check(Number.isFinite(durationMs)&&Number.isSafeInteger(calls)&&(['pdf_bytes','json_chars'].includes(m[1])||calls<=1000000),'SERVER_TIMING_INVALID');result[m[1]]={durationMs,calls};}
  check(['total','originales_previos','originales_retenidos','escritor_legacy','comprobacion_posterior','checkpoint'].every(k=>result[k]?.calls>0),'SERVER_TIMING_INCOMPLETE');return result;
 }
 function selectFiles(rows){

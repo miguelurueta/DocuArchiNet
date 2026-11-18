@@ -296,6 +296,13 @@
 #doc111-importacion .doc111-query label{display:flex;flex-direction:column;gap:7px;font-weight:600}
 #doc111-importacion .doc111-query input{padding:10px 12px;border:1px solid #bfcddd;border-radius:8px;min-height:43px;max-width:100%;width:100%;color:var(--ink);background:#fff}
 #doc111-importacion .doc111-query-modal{background:white}
+#doc111-importacion .doc120-original-modal{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:14px;width:min(620px,calc(100vw - 28px));max-width:calc(100vw - 28px);max-height:calc(100dvh - 32px);overflow:auto;padding:22px;overflow-wrap:anywhere}
+#doc111-importacion .doc120-original-modal:not([open]){display:none!important}
+#doc111-importacion .doc120-original-modal::backdrop{background:rgba(15,23,42,.5)}
+#doc111-importacion .doc120-original-modal .modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+#doc111-importacion .doc120-original-modal h2{font-size:20px;margin:0 0 14px}
+#doc111-importacion .doc120-original-modal .modal-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+#doc111-importacion .doc120-original-modal button{white-space:normal;min-height:44px}
 #doc111-importacion .doc111-filters{border:0;padding:0;margin:0;min-width:0}
 #doc111-importacion .doc111-filters legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
 #doc111-importacion .doc111-table{margin:12px 0 8px;max-width:100%;overflow:hidden}

@@ -175,6 +175,9 @@ Public Partial Class WebServiceImportacionCarpetas
         Catch ex As ConfiguracionPerfilImportacionException
             DiagnosticoOperacionImportacion.Publicar(salida, ex)
             DiagnosticoOperacionImportacion.Registrar(ex, faseDiagnostico, salida.operacionId)
+        Catch ex As ArchivoNoDisponibleImportacionException
+            salida.codigo = ex.Codigo : salida.mensaje = "El original de este archivo no esta disponible; decide si continuar con los demas o pausar."
+            salida.datos = New With {.loteId = ex.LoteId, .archivoId = ex.ArchivoId, .raizId = ex.RaizId, .fase = ex.Fase, .causa = ex.Causa, .certeza = "NO_INICIADO"}
         Catch ex As PerfilImportacionException
             DiagnosticoOperacionImportacion.Publicar(salida, ex)
             DiagnosticoOperacionImportacion.Registrar(ex, faseDiagnostico, salida.operacionId)
@@ -426,9 +429,9 @@ Public Partial Class WebServiceImportacionCarpetas
             Case "RESULTADO_INCIERTO", "OPERACION_EN_CURSO", "CONTENIDO_DISTINTO" : Return 409
             Case "LIMITE_EXCEDIDO" : Return 413
             Case "FORMATO_NO_SOPORTADO" : Return 415
-            Case "ARCHIVO_RECHAZADO" : Return 422
+            Case "ARCHIVO_RECHAZADO", "ARCHIVO_NO_DISPONIBLE" : Return 422
             Case "RECEPCION_OCUPADA" : Return 429
-            Case "CAPACIDAD_NO_DISPONIBLE", "ESQUEMA_FUENTES_INCOMPLETO" : Return 503
+            Case "CAPACIDAD_NO_DISPONIBLE", "ESQUEMA_FUENTES_INCOMPLETO", "CONTROL_FOCAL_NO_CONFIGURADO" : Return 503
             Case "ERROR_INTERNO" : Return 500
             Case Else : Return 400
         End Select

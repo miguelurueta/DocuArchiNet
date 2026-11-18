@@ -44,6 +44,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
         Dim archivo = CargarArchivoRecepcion(conexion, tx, contexto, loteId, archivoId, False)
         Dim raiz = CargarRaizControl(conexion, tx, loteId, archivo.RaizId)
         archivo = CargarArchivoRecepcion(conexion, tx, contexto, loteId, archivoId, True)
+        VerificarArchivoFocal(conexion, tx, lote, raiz, archivo)
         Return New VistaValoresImportacion With {.Lote = lote, .Raiz = raiz, .Archivo = archivo}
     End Function
 
@@ -57,7 +58,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
             If resultado.Incidencias.Count <> 0 OrElse PerfilImportacionJson.Escribir(archivo.ValoresEfectivos) <> PerfilImportacionJson.Escribir(resultado.Valores) Then Throw ConflictoOperacion()
             Return archivo
         End If
-        If PerfilImportacionJson.Escribir(actual) <> PerfilImportacionJson.Escribir(esperada) OrElse lote.Estado <> "EN_CURSO" OrElse lote.DetencionSolicitada OrElse archivo.EstadoRecepcion <> "RECIBIDO" OrElse archivo.EstadoEfecto <> "NO_INICIADO" OrElse archivo.IntentoActivoId IsNot Nothing OrElse archivo.Resultado IsNot Nothing OrElse archivo.Revision = 0 OrElse archivo.Revision >= UInteger.MaxValue - 1UI OrElse lote.Revision = 0 OrElse lote.Revision >= UInteger.MaxValue - 1UI Then Throw ConflictoOperacion()
+        If PerfilImportacionJson.Escribir(actual) <> PerfilImportacionJson.Escribir(esperada) OrElse Not ({"EN_CURSO"}.Contains(lote.Estado) OrElse (lote.ControlArchivos IsNot Nothing AndAlso {"PARCIAL", "PENDIENTE_VERIFICACION"}.Contains(lote.Estado))) OrElse lote.DetencionSolicitada OrElse archivo.EstadoRecepcion <> "RECIBIDO" OrElse archivo.EstadoEfecto <> "NO_INICIADO" OrElse archivo.IntentoActivoId IsNot Nothing OrElse (archivo.Resultado IsNot Nothing AndAlso Not ControlArchivoIndependienteImportacion.EsNoDisponible(archivo.Resultado)) OrElse archivo.Revision = 0 OrElse archivo.Revision >= UInteger.MaxValue - 1UI OrElse lote.Revision = 0 OrElse lote.Revision >= UInteger.MaxValue - 1UI Then Throw ConflictoOperacion()
         Dim correcto = resultado.Incidencias.Count = 0
         If correcto Then
             CoordinadorImportacionCarpetas.ValidarCorrespondenciaValores(lote.Snapshot.Reglas.Where(Function(r) r.DestinoTipo <> "CAMPO_EXPEDIENTE").ToList(), resultado.Valores, True)
@@ -69,10 +70,10 @@ Public Partial Class MySqlImportacionCarpetasRepository
             CoordinadorImportacionCarpetas.ValidarTransicion("EFECTO", archivo.EstadoEfecto, "RECHAZADO")
         End If
         Dim codigo = If(correcto, "VALORES_FIJADOS", "VALORES_INCOMPATIBLES")
-        Dim evidencia As ResultadoEfectoImportacion = Nothing
+        Dim evidencia As ResultadoEfectoImportacion = If(ControlArchivoIndependienteImportacion.EsNoDisponible(archivo.Resultado), archivo.Resultado, Nothing)
         If Not correcto Then evidencia = New ResultadoEfectoImportacion With {.Estado = "RECHAZADO", .Codigo = codigo, .Mensaje = "Los valores del documento requieren revision; se conserva el expediente confirmado.", .Expediente = actual.Raiz.IdentidadExpediente}
-        UnaFila(ejecutar("UPDATE ra_integracion_archivo SET valores_efectivos_doc=@valores,estado_efecto=@estado,resultado_doc=@resultado,revision=revision+1,actualizado_utc=@ahora WHERE archivo_id=@archivo AND raiz_id=@raiz AND revision=@revision AND valores_efectivos_doc IS NULL AND intento_activo_id IS NULL AND estado_recepcion='RECIBIDO' AND estado_efecto='NO_INICIADO' AND resultado_doc IS NULL", New Object() {"@valores", If(correcto, DirectCast(PerfilImportacionJson.Escribir(resultado.Valores), Object), DBNull.Value), "@estado", If(correcto, "NO_INICIADO", "RECHAZADO"), "@resultado", If(correcto, DirectCast(DBNull.Value, Object), PerfilImportacionJson.Escribir(evidencia)), "@ahora", instante, "@archivo", IdOperacion(archivo.ArchivoId), "@raiz", IdOperacion(actual.Raiz.RaizId), "@revision", archivo.Revision}))
-        UnaFila(ejecutar("UPDATE ra_integracion_lote SET revision=revision+1,actualizado_utc=@ahora WHERE lote_id=@lote AND revision=@revision AND detencion_solicitada=0 AND estado='EN_CURSO'", New Object() {"@ahora", instante, "@lote", IdOperacion(lote.LoteId), "@revision", lote.Revision}))
+        UnaFila(ejecutar("UPDATE ra_integracion_archivo SET valores_efectivos_doc=@valores,estado_efecto=@estado,resultado_doc=@resultado,revision=revision+1,actualizado_utc=@ahora WHERE archivo_id=@archivo AND raiz_id=@raiz AND revision=@revision AND valores_efectivos_doc IS NULL AND intento_activo_id IS NULL AND estado_recepcion='RECIBIDO' AND estado_efecto='NO_INICIADO' AND resultado_doc <=> @anteriorResultado", New Object() {"@anteriorResultado", If(archivo.Resultado Is Nothing, DirectCast(DBNull.Value, Object), PerfilImportacionJson.Escribir(archivo.Resultado)), "@valores", If(correcto, DirectCast(PerfilImportacionJson.Escribir(resultado.Valores), Object), DBNull.Value), "@estado", If(correcto, "NO_INICIADO", "RECHAZADO"), "@resultado", If(evidencia Is Nothing, DirectCast(DBNull.Value, Object), PerfilImportacionJson.Escribir(evidencia)), "@ahora", instante, "@archivo", IdOperacion(archivo.ArchivoId), "@raiz", IdOperacion(actual.Raiz.RaizId), "@revision", archivo.Revision}))
+        UnaFila(ejecutar("UPDATE ra_integracion_lote SET revision=revision+1,actualizado_utc=@ahora WHERE lote_id=@lote AND revision=@revision AND detencion_solicitada=0 AND estado=@estadoAnterior", New Object() {"@estadoAnterior", lote.Estado, "@ahora", instante, "@lote", IdOperacion(lote.LoteId), "@revision", lote.Revision}))
         evento(codigo)
         Dim salida = PerfilImportacionJson.Leer(Of ArchivoImportacionCarpetas)(PerfilImportacionJson.Escribir(archivo))
         salida.Revision += 1UI

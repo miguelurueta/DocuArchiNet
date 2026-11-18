@@ -30,8 +30,12 @@ Public Partial Class MySqlImportacionCarpetasRepository
                           Dim lote = BloquearLoteRecepcion(conexion, tx, contexto, comando.LoteId)
                           Dim raiz = CargarRaizControl(conexion, tx, lote.LoteId, comando.RaizId)
                           ValidarInicioCreacion(comando, lote, raiz)
-                          Dim plan = CargarPlan(conexion, tx, contexto, IdOperacion(lote.PlanId), False)
-                          If Not LeerBarreraCreacion(lote, plan, raiz, Function(sql, parametros) LeerTablaConsulta(conexion, tx, sql, parametros)) Then Return False
+                          If lote.ControlArchivos IsNot Nothing Then
+                              If Not CoordinadorImportacionCarpetas.EvaluarCreacionIndividual(CargarBarreraFocal(conexion, tx, lote, raiz)) Then Return False
+                          Else
+                              Dim plan = CargarPlan(conexion, tx, contexto, IdOperacion(lote.PlanId), False)
+                              If Not LeerBarreraCreacion(lote, plan, raiz, Function(sql, parametros) LeerTablaConsulta(conexion, tx, sql, parametros)) Then Return False
+                          End If
                           Dim instante = Ahora()
                           Dim evidencia As New ResultadoEfectoImportacion With {.Estado = "EN_CURSO", .Codigo = "CREACION_PREPARADA", .Mensaje = "Inicio registrado; no acredita resultado documental.", .Creacion = New EvidenciaCreacionExpedienteImportacion With {.IntentoId = comando.IntentoId, .CicloArchivoId = datos("CICLO_ARCHIVO_ID"), .CicloArchivoNombre = datos("CICLO_ARCHIVO_NOMBRE")}}
                           Using cmd = ComandoOperacion(conexion, tx, "UPDATE ra_integracion_intento SET estado='EN_CURSO',ultimo_contacto_utc=@ahora,evidencia_doc=@evidencia WHERE intento_id=@intento AND lote_id=@lote AND raiz_id=@raiz AND archivo_id IS NULL AND fase='CREAR_EXPEDIENTE' AND estado='RESERVADO' AND token_reclamacion=@token AND solicitud_hash=@hash AND fin_utc IS NULL", "@ahora", instante, "@evidencia", PerfilImportacionJson.Escribir(evidencia), "@intento", IdOperacion(comando.IntentoId), "@lote", IdOperacion(comando.LoteId), "@raiz", IdOperacion(comando.RaizId), "@token", comando.TokenReclamacion, "@hash", BytesHuella(comando.SolicitudHash))
@@ -70,10 +74,24 @@ Public Partial Class MySqlImportacionCarpetasRepository
                           If archivo IsNot Nothing Then archivo = CargarArchivoRecepcion(conexion, tx, contexto, lote.LoteId, archivo.ArchivoId, True)
                           Dim previo = CargarRepeticionDocumental(conexion, tx, solicitud, raiz.RaizId)
                           If previo IsNot Nothing Then Return previo
-                          ValidarReservaDocumental(lote, raiz, archivo, solicitud, HayReclamacionDocumental(conexion, tx, lote.LoteId))
+                          If archivo IsNot Nothing AndAlso lote.ControlArchivos IsNot Nothing Then
+                              VerificarArchivoFocal(conexion, tx, lote, raiz, archivo)
+                              If ControlArchivoIndependienteImportacion.EsNoDisponible(archivo.Resultado) Then
+                                  Using cmd = ComandoOperacion(conexion, tx, "UPDATE ra_integracion_archivo SET resultado_doc=NULL WHERE archivo_id=@id AND raiz_id=@raiz AND revision=@revision AND estado_efecto='NO_INICIADO' AND intento_activo_id IS NULL AND resultado_doc=@resultado", "@id", IdOperacion(archivo.ArchivoId), "@raiz", IdOperacion(raiz.RaizId), "@revision", archivo.Revision, "@resultado", PerfilImportacionJson.Escribir(archivo.Resultado))
+                                      UnaFila(cmd.ExecuteNonQuery())
+                                  End Using
+                                  archivo.Resultado = Nothing
+                              End If
+                          End If
+                          ValidarReservaDocumental(lote, raiz, archivo, solicitud, If(lote.ControlArchivos Is Nothing, HayReclamacionDocumental(conexion, tx, lote.LoteId), HayEscritorVivoFocal(conexion, tx, lote.LoteId)))
                           If solicitud.Fase = "ALMACENAR" Then
-                              Dim plan = CargarPlan(conexion, tx, contexto, IdOperacion(lote.PlanId), False)
-                              Dim vista = LeerVistaBarreraCreacion(lote, plan, raiz, Function(sql, parametros) LeerTablaConsulta(conexion, tx, sql, parametros))
+                              Dim vista As VistaBarreraCreacionImportacion
+                              If lote.ControlArchivos IsNot Nothing Then
+                                  vista = New VistaBarreraCreacionImportacion With {.Lote = lote, .Raiz = raiz, .EsFocal = True}
+                              Else
+                                  Dim plan = CargarPlan(conexion, tx, contexto, IdOperacion(lote.PlanId), False)
+                                  vista = LeerVistaBarreraCreacion(lote, plan, raiz, Function(sql, parametros) LeerTablaConsulta(conexion, tx, sql, parametros))
+                              End If
                               If Not CoordinadorImportacionCarpetas.EvaluarBarreraAlmacenamiento(vista, archivo) Then Throw ConflictoOperacion()
                           End If
                           Dim instante = Ahora(), intentoId As String
@@ -108,13 +126,13 @@ Public Partial Class MySqlImportacionCarpetasRepository
 
     Friend Shared Sub ValidarReservaDocumental(lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas, archivo As ArchivoImportacionCarpetas, solicitud As ReclamacionImportacionCarpetas, hayReclamacion As Boolean)
         ValidarSolicitudDocumental(solicitud)
-        If lote Is Nothing OrElse raiz Is Nothing OrElse lote.LoteId <> solicitud.LoteId OrElse raiz.LoteId <> lote.LoteId OrElse lote.Revision = 0 OrElse lote.Revision >= UInteger.MaxValue - 1UI OrElse lote.DetencionSolicitada OrElse Not {"RECIBIENDO", "LISTO", "EN_CURSO", "PARCIAL"}.Contains(lote.Estado) Then Throw ConflictoOperacion()
-        If hayReclamacion OrElse Not String.IsNullOrEmpty(raiz.IntentoActivoId) OrElse {"CREANDO", "INCIERTO"}.Contains(raiz.Estado) Then Throw New PerfilImportacionException("OPERACION_EN_CURSO", "Existe un intento documental pendiente de verificación.")
+        If lote Is Nothing OrElse raiz Is Nothing OrElse lote.LoteId <> solicitud.LoteId OrElse raiz.LoteId <> lote.LoteId OrElse lote.Revision = 0 OrElse lote.Revision >= UInteger.MaxValue - 1UI OrElse lote.DetencionSolicitada OrElse Not ({"RECIBIENDO", "LISTO", "EN_CURSO", "PARCIAL"}.Contains(lote.Estado) OrElse (lote.ControlArchivos IsNot Nothing AndAlso lote.Estado = "PENDIENTE_VERIFICACION")) Then Throw ConflictoOperacion()
+        If hayReclamacion OrElse Not String.IsNullOrEmpty(raiz.IntentoActivoId) OrElse raiz.Estado = "CREANDO" OrElse (raiz.Estado = "INCIERTO" AndAlso (lote.ControlArchivos Is Nothing OrElse raiz.IdentidadExpediente Is Nothing)) Then Throw New PerfilImportacionException("OPERACION_EN_CURSO", "Existe un intento documental pendiente de verificación.")
         If solicitud.Fase = "CREAR_EXPEDIENTE" Then
             If archivo IsNot Nothing OrElse raiz.RaizId <> solicitud.RecursoId OrElse raiz.Revision <> solicitud.RevisionEsperada OrElse raiz.Estado <> "PENDIENTE" OrElse raiz.IdentidadExpediente IsNot Nothing Then Throw ConflictoOperacion()
             CoordinadorImportacionCarpetas.ValidarTransicion("RAIZ", raiz.Estado, "CREANDO")
         Else
-            If archivo Is Nothing OrElse archivo.ArchivoId <> solicitud.RecursoId OrElse archivo.RaizId <> raiz.RaizId OrElse archivo.Revision <> solicitud.RevisionEsperada OrElse raiz.Estado <> "EXPEDIENTE_CONFIRMADO" OrElse Not IdentidadRaizValida(lote, raiz.IdentidadExpediente) Then Throw ConflictoOperacion()
+            If archivo Is Nothing OrElse archivo.ArchivoId <> solicitud.RecursoId OrElse archivo.RaizId <> raiz.RaizId OrElse archivo.Revision <> solicitud.RevisionEsperada OrElse Not ({"EXPEDIENTE_CONFIRMADO"}.Contains(raiz.Estado) OrElse (lote.ControlArchivos IsNot Nothing AndAlso {"PARCIAL", "INCIERTO"}.Contains(raiz.Estado))) OrElse Not IdentidadRaizValida(lote, raiz.IdentidadExpediente) Then Throw ConflictoOperacion()
             If Not String.IsNullOrEmpty(archivo.IntentoActivoId) OrElse archivo.EstadoEfecto = "INCIERTO" OrElse archivo.EstadoEfecto = "EN_CURSO" Then Throw New PerfilImportacionException("OPERACION_EN_CURSO", "El archivo tiene un intento pendiente de verificación.")
             If archivo.EstadoRecepcion <> "RECIBIDO" OrElse archivo.BytesRecibidos <> archivo.BytesPrevistos OrElse BytesDecimales(archivo.BytesRecibidos) = 0UL OrElse Not HexExacto(archivo.ContenidoHash, 64) OrElse Not HexExacto(archivo.StagingRef, 32) Then Throw ConflictoOperacion()
             If solicitud.Fase = "ALMACENAR" Then
@@ -127,7 +145,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
             End If
             CoordinadorImportacionCarpetas.ValidarTransicion("EFECTO", archivo.EstadoEfecto, "EN_CURSO")
         End If
-        If lote.Estado <> "EN_CURSO" Then CoordinadorImportacionCarpetas.ValidarTransicion("LOTE", lote.Estado, "EN_CURSO")
+        If lote.Estado <> "EN_CURSO" AndAlso Not (lote.ControlArchivos IsNot Nothing AndAlso lote.Estado = "PENDIENTE_VERIFICACION") Then CoordinadorImportacionCarpetas.ValidarTransicion("LOTE", lote.Estado, "EN_CURSO")
     End Sub
 
     Private Shared Function IdentidadRaizValida(lote As LoteImportacionCarpetas, identidad As IdentidadExpedienteImportacion) As Boolean
@@ -137,13 +155,13 @@ Public Partial Class MySqlImportacionCarpetasRepository
     Private Shared Function HayReclamacionDocumental(conexion As MySqlConnection, tx As MySqlTransaction, loteId As String) As Boolean
         'Tambien bloquea marcadores huerfanos. Ninguna fecha/lease da permiso.
         Using cmd = ComandoOperacion(conexion, tx, "SELECT EXISTS(SELECT 1 FROM ra_integracion_intento WHERE lote_id=@lote AND fase<>'RECEPCION' AND estado IN ('RESERVADO','EN_CURSO','INCIERTO')) OR EXISTS(SELECT 1 FROM ra_integracion_raiz WHERE lote_id=@lote AND (intento_activo_id IS NOT NULL OR estado IN ('CREANDO','INCIERTO'))) OR EXISTS(SELECT 1 FROM ra_integracion_archivo a INNER JOIN ra_integracion_raiz r ON r.raiz_id=a.raiz_id WHERE r.lote_id=@lote AND (a.estado_efecto IN ('EN_CURSO','INCIERTO') OR (a.intento_activo_id IS NOT NULL AND a.estado_recepcion='RECIBIDO')))", "@lote", IdOperacion(loteId))
-            Return Convert.ToBoolean(cmd.ExecuteScalar())
+            Return Convert.ToBoolean(EjecutarEscalarControl(cmd))
         End Using
     End Function
 
     Private Shared Function CargarRaizControl(conexion As MySqlConnection, tx As MySqlTransaction, loteId As String, raizId As String) As RaizImportacionCarpetas
         Using cmd = ComandoOperacion(conexion, tx, "SELECT * FROM ra_integracion_raiz WHERE raiz_id=@raiz AND lote_id=@lote FOR UPDATE", "@raiz", IdOperacion(raizId), "@lote", IdOperacion(loteId))
-            Using reader = cmd.ExecuteReader()
+            Using reader = EjecutarLecturaControl(cmd)
                 If Not reader.Read() Then Throw AccesoDenegado()
                 Return LeerRaizControl(reader)
             End Using
@@ -162,7 +180,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
 
     Private Shared Function CargarRepeticionDocumental(conexion As MySqlConnection, tx As MySqlTransaction, solicitud As ReclamacionImportacionCarpetas, raizId As String) As IntentoImportacionCarpetas
         Using cmd = ComandoOperacion(conexion, tx, "SELECT * FROM ra_integracion_intento WHERE lote_id=@lote AND raiz_id=@raiz AND " & If(solicitud.RecursoTipo = "RAIZ", "archivo_id IS NULL", "archivo_id=@archivo") & " AND fase=@fase AND solicitud_hash=@hash ORDER BY intento_id DESC LIMIT 1", "@lote", IdOperacion(solicitud.LoteId), "@raiz", IdOperacion(raizId), "@archivo", If(solicitud.RecursoTipo = "RAIZ", DirectCast(DBNull.Value, Object), IdOperacion(solicitud.RecursoId)), "@fase", solicitud.Fase, "@hash", BytesHuella(solicitud.SolicitudHash))
-            Using reader = cmd.ExecuteReader()
+            Using reader = EjecutarLecturaControl(cmd)
                 If Not reader.Read() Then Return Nothing
                 Return LeerIntentoDocumental(reader)
             End Using

@@ -8710,6 +8710,7 @@
     <Content Include="App_Code\MyUtils.vb" />
     <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\PerfilImportacionModels.vb" />
     <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\ImportacionCarpetasModels.vb" />
+    <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\ControlArchivoIndependienteImportacion.vb" />
     <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\PreparacionSegmentadaImportacion.vb" />
     <Compile Include="DTOs\ProduccionDocumental\ImportacionCarpetas\PreparacionSegmentadaDtos.vb" />
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.Preparacion.vb" />
@@ -8731,6 +8732,7 @@
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.RecuperacionV2.vb" />
     <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\PerfilImportacionCatalogAdapter.RecuperacionV2.vb" />
     <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\AdaptadorDocumentoImportacion.ProtocoloV2.vb" />
+    <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.ConsolidacionFocal.vb" />
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.vb" />
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.Control.vb" />
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.Reanudacion.vb" />
@@ -8751,6 +8753,7 @@
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.Documento.vb" />
     <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\PerfilImportacionCatalogAdapter.Documento.vb" />
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.ResultadoCreacion.vb" />
+    <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.ControlFocal.vb" />
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlImportacionCarpetasRepository.Barreras.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\CoordinadorImportacionCarpetas.Barreras.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\CoordinadorImportacionCarpetas.Staging.vb" />
@@ -8781,6 +8784,7 @@
     <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\LimitesImportacionCarpetas.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\ServicioPreparacionImportacion.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\ServicioRecepcionImportacion.vb" />
+    <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\CoordinadorImportacionCarpetas.Independiente.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\CoordinadorImportacionCarpetas.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\ServicioConsultaImportacion.vb" />
     <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\ProveedorIndicesModels.vb" />

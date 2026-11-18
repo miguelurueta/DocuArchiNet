@@ -141,7 +141,7 @@ Public Class MySqlProveedorDatosIndices
                 For i = 0 To parametros.Length - 1 Step 2
                     cmd.Parameters.AddWithValue(CStr(parametros(i)), parametros(i + 1))
                 Next
-                Using reader = cmd.ExecuteReader()
+                Using reader = MedicionAlmacenamientoImportacion.MedirParte("sql_fuente", Function() cmd.ExecuteReader())
                     Dim tabla As New DataTable()
                     tabla.Load(reader)
                     Return tabla

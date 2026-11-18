@@ -25,7 +25,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
         Using cmd = ComandoOperacion(conexion, tx, "SELECT contexto_doc,config_doc,estado,creado_utc,expira_utc FROM ra_integracion_preparacion WHERE preparacion_id=@prep AND plan_id=@plan AND ambito_ref=@ambito AND usuario_ref=@usuario AND nivel_ref=@nivel AND version_id=@version",
             "@prep", IdOperacion(plan.PreparacionId), "@plan", IdOperacion(plan.PlanId), "@ambito", contexto.AmbitoRef,
             "@usuario", contexto.UsuarioRef, "@nivel", contexto.NivelRef, "@version", IdOperacion(plan.Snapshot.VersionId))
-            Using reader = cmd.ExecuteReader()
+            Using reader = EjecutarLecturaControl(cmd)
                 If Not reader.Read() OrElse CStr(reader("estado")) <> "SELLADA" OrElse
                     Not MismoDestino(contexto, LeerPersistido(Of ContextoImportacionCarpetas)(CStr(reader("contexto_doc")))) OrElse
                     Not PerfilImportacionJson.MismaPublicacion(LeerPersistido(Of SnapshotPerfilImportacionOperativa)(CStr(reader("config_doc"))), plan.Snapshot) OrElse
@@ -34,7 +34,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
         End Using
         Dim fragmentos As New List(Of FragmentoPlanImportacion)()
         Using cmd = ComandoOperacion(conexion, tx, "SELECT tipo,numero,contenido_doc,contenido_hash FROM ra_integracion_preparacion_resultado WHERE preparacion_id=@prep AND tipo IN ('RAICES','ARCHIVOS','ELEMENTOS','INCIDENCIAS','ELEGIBLES','CONFIRMABLE') ORDER BY tipo,numero", "@prep", IdOperacion(plan.PreparacionId))
-            Using reader = cmd.ExecuteReader()
+            Using reader = EjecutarLecturaControl(cmd)
                 While reader.Read()
                     fragmentos.Add(New FragmentoPlanImportacion With {.Tipo = CStr(reader("tipo")), .Numero = Convert.ToUInt32(reader("numero"), CultureInfo.InvariantCulture),
                         .Contenido = CStr(reader("contenido_doc")), .Huella = Hexadecimal(DirectCast(reader("contenido_hash"), Byte()))})

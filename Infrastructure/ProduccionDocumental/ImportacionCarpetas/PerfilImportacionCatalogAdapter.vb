@@ -305,7 +305,7 @@ Public Partial Class PerfilImportacionCatalogAdapter
                 For i = 0 To parametros.Length - 1 Step 2
                     cmd.Parameters.AddWithValue(CStr(parametros(i)), If(parametros(i + 1), DBNull.Value))
                 Next
-                Using reader = cmd.ExecuteReader()
+                Using reader = MedicionAlmacenamientoImportacion.MedirParte("sql_catalogo", Function() cmd.ExecuteReader())
                     Dim tabla As New DataTable()
                     tabla.Load(reader)
                     Return tabla

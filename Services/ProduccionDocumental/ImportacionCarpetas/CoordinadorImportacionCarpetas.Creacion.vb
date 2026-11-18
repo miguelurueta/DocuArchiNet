@@ -31,6 +31,7 @@ Public Partial Class CoordinadorImportacionCarpetas
         If referencia Is Nothing OrElse referencia.UsuarioRef <> identidad.UsuarioRef OrElse referencia.AmbitoRef <> identidad.AmbitoRef Then Throw Denegado()
         Dim contexto = _destino(referencia.NivelRef)
         If Not MismoContextoControl(contexto, referencia) OrElse Not contexto.PuedeImportar Then Throw Denegado()
+        PrepararArchivosIndependientes(contexto, loteId)
         Dim vista = _vistaDocumental(contexto, loteId, raizId)
         ExigirVistaDocumental(vista, contexto, loteId, raizId)
         _autorizar(contexto, vista.Lote.Snapshot.Configuracion)
@@ -41,7 +42,14 @@ Public Partial Class CoordinadorImportacionCarpetas
         Dim previo = _historicoDocumental(contexto, solicitud)
         If previo IsNot Nothing Then Return ProyectarCreacion(vista, solicitud, previo, Nothing, True)
         If vista.Raiz.Revision <> revisionEsperada Then Throw NoPermitida()
-        Dim reserva = ReservarCreacionConStaging(vista, solicitud, _archivoDocumental, _stagingDocumental, _autorizar, AddressOf _repositorio.ReservarIntento)
+        Dim reserva As ReservaCreacionVerificadaImportacion
+        Try
+            reserva = ReservarCreacionConStaging(vista, solicitud, _archivoDocumental, _stagingDocumental, _autorizar, AddressOf _repositorio.ReservarIntento)
+        Catch ex As ArchivoNoDisponibleImportacionException
+            Dim afectado = vista.Archivos.Single(Function(a) a.ArchivoId = ex.ArchivoId)
+            RegistrarNoDisponible(contexto, ex, afectado.Revision)
+            Throw
+        End Try
         If Not reserva.Intento.EsNuevaReserva Then Return ProyectarCreacion(vista, solicitud, reserva.Intento, Nothing, True)
         Return EjecutarCreacionReservada(contexto, vista, solicitud, reserva, revisionEsperada)
     End Function
@@ -103,6 +111,10 @@ Public Partial Class CoordinadorImportacionCarpetas
     End Sub
 
     Private Shared Sub ExigirVistaDocumental(vista As VistaBarreraCreacionImportacion, contexto As ContextoImportacionCarpetas, loteId As String, raizId As String)
+        If vista IsNot Nothing AndAlso vista.EsFocal Then
+            If vista.Lote Is Nothing OrElse vista.Raiz Is Nothing OrElse vista.Lote.ControlArchivos Is Nothing OrElse vista.Lote.Snapshot Is Nothing OrElse vista.Lote.Snapshot.Configuracion Is Nothing OrElse vista.Lote.LoteId <> loteId OrElse vista.Raiz.RaizId <> raizId OrElse vista.Raiz.LoteId <> loteId OrElse vista.Raiz.Revision = 0 OrElse Not MismoContextoControl(contexto, vista.Lote.Contexto) Then Throw Denegado()
+            Return
+        End If
         If vista Is Nothing OrElse vista.Lote Is Nothing OrElse vista.Plan Is Nothing OrElse vista.Raiz Is Nothing OrElse vista.Lote.LoteId <> loteId OrElse vista.Raiz.RaizId <> raizId OrElse vista.Raiz.LoteId <> loteId OrElse vista.Raiz.Revision = 0 OrElse vista.Lote.PlanId <> vista.Plan.PlanId OrElse vista.Plan.Estado <> "CONFIRMADO" OrElse Not MismoContextoControl(contexto, vista.Plan.Contexto) OrElse Not MismoContextoControl(contexto, vista.Lote.Contexto) OrElse vista.Lote.Snapshot Is Nothing OrElse vista.Lote.Snapshot.Configuracion Is Nothing OrElse PerfilImportacionJson.Escribir(vista.Lote.Snapshot) <> PerfilImportacionJson.Escribir(vista.Plan.Snapshot) Then Throw Denegado()
     End Sub
 

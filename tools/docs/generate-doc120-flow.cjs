@@ -183,8 +183,9 @@ const appendix = out.map(line => line.trimEnd()).join('\n');
 const mainText = read(main);
 const info = JSON.stringify({
     schema: 1,
-    implementationCut: '1a45b8915f699c205d41938b9767c4b9e79decac',
-    purpose: 'Mapa textual del comportamiento implementado; no optimizacion ni nueva ejecucion real.',
+    implementationCut: 'DOC120-independent-files-20261118',
+    implementationBaseCommit: 'b6bb7e7caed77ca156c2338380691e8ea285b6c6',
+    purpose: 'Flujo resumido implementado localmente por archivo; fuentes del mismo cambio, sin nueva ejecucion real.',
     diagram: { path: main, sha256Lf: hash(mainText) },
     annex: { path: annex, sha256Lf: hash(appendix) },
     generator: { path: 'tools/docs/generate-doc120-flow.cjs', sha256Lf: hash(read('tools/docs/generate-doc120-flow.cjs')) },

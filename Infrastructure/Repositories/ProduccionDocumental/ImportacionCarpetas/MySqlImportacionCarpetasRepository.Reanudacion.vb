@@ -55,7 +55,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
                           Dim raiz = CargarRaizControl(conexion, tx, lote.LoteId, esperada.Raiz.RaizId)
                           Dim intento As IntentoImportacionCarpetas
                           Using cmd = ComandoOperacion(conexion, tx, "SELECT * FROM ra_integracion_intento WHERE intento_id=@intento AND lote_id=@lote AND raiz_id=@raiz AND archivo_id IS NULL AND fase='CREAR_EXPEDIENTE' FOR UPDATE", "@intento", IdOperacion(esperada.Intento.IntentoId), "@lote", IdOperacion(lote.LoteId), "@raiz", IdOperacion(raiz.RaizId))
-                              Using reader = cmd.ExecuteReader()
+                              Using reader = EjecutarLecturaControl(cmd)
                                   If Not reader.Read() Then Throw ConflictoOperacion()
                                   intento = LeerIntentoDocumental(reader)
                                   If reader.Read() Then Throw ConflictoOperacion()

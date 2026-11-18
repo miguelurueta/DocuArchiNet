@@ -1,0 +1,395 @@
+{
+  "version": 1,
+  "cut": "DOC120-independent-files-20261118",
+  "baseCommit": "b6bb7e7caed77ca156c2338380691e8ea285b6c6",
+  "authorization": "implementa (local implementation and verification)",
+  "status": "PASS_LOCAL_REAL_VALIDATION_PENDING",
+  "tasks": {
+    "complete": 204,
+    "total": 217,
+    "completedThisCut": 25,
+    "realPending": [
+      "3.187",
+      "3.196"
+    ],
+    "previousPendingPreserved": true
+  },
+  "validation": {
+    "nodeUniquePassedAfterFocalRerun": 258,
+    "rawRuns": {
+      "regression": {
+        "tests": 254,
+        "pass": 253,
+        "fail": 1
+      },
+      "focal-rerun": {
+        "tests": 10,
+        "pass": 10,
+        "fail": 0
+      },
+      "browser-v2": {
+        "tests": 7,
+        "pass": 7,
+        "fail": 0
+      },
+      "framework": {
+        "tests": 2,
+        "pass": 2,
+        "fail": 0
+      },
+      "protocol-final": {
+        "tests": 17,
+        "pass": 17,
+        "fail": 0
+      },
+      "compat-v1": {
+        "tests": 1,
+        "pass": 1,
+        "fail": 0
+      }
+    },
+    "historicalAssertionCorrected": "FID01 expected Consultar ultimo lote disabled without local reference; contradicted approved3.159 already present in HEAD; now verifies enabled control",
+    "wrapperCounting": "2 Framework/DDL wrappers included; their internal cases and overlapping runs not added",
+    "build": {
+      "target": "Compile",
+      "isolated": true,
+      "exitCode": 0,
+      "errors": 0,
+      "deployed": false
+    },
+    "openspecStrict": "PASS",
+    "refinement": "15/15",
+    "flow": {
+      "sources": 124,
+      "extractedLines": 20070
+    }
+  },
+  "uiProtocol2Synthetic1000": {
+    "stored": 1000,
+    "focal": 3001,
+    "versions": [
+      2
+    ],
+    "maxDom": 772,
+    "p95": 10.700000047683716,
+    "heapIncrease": 25234095,
+    "elapsedMs": 35521,
+    "transport": "synthetic; no SQL or real storage"
+  },
+  "physicalScope": "Local temporary PDFs and handles; no real business originals touched",
+  "databaseScope": "No database executed; index metadata/transactional guards use doubles. Actual MySQL races/rollback/index application pending.",
+  "schema": {
+    "newTables": 0,
+    "newColumns": 0,
+    "newIndexes": 1,
+    "manualScript": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Sql/09-control-focal-indice-mysql51.sql",
+    "applied": false
+  },
+  "operationCounts": {
+    "realApplicationHttp": 0,
+    "realSelect": 0,
+    "realStorage": 0,
+    "realReceipts": 0,
+    "realExpeditions": 0,
+    "iisConfigurationWrites": 0,
+    "dllInstallations": 0
+  },
+  "runtimeEvidence": [
+    {
+      "path": ".tmp/doc120-independent-regression.log",
+      "sha256": "cb944a28738fa452c6e8a223e9ef8ad385d1ee45102328da3c107b9d417693f1",
+      "excludedFromGit": true
+    },
+    {
+      "path": ".tmp/doc120-independent-focal-rerun.log",
+      "sha256": "f06ee00fa81827366784718d8367983785f30fff24b57da9f39127102ecf673c",
+      "excludedFromGit": true
+    },
+    {
+      "path": ".tmp/doc120-independent-browser-v2.log",
+      "sha256": "a57609491811bbc7ddd49bb7e54b18a89e6de66931f147cf94583f96d2a9324d",
+      "excludedFromGit": true
+    },
+    {
+      "path": ".tmp/doc120-independent-framework.log",
+      "sha256": "b4dce000a06d222c61675afaa24799d7e63048e540cc32dda5877a441ba636e6",
+      "excludedFromGit": true
+    },
+    {
+      "path": ".tmp/doc120-independent-protocol-final.log",
+      "sha256": "42c051785dd4185a73835080c96318e49e60cef319e397fd8d037bebc95b91ca",
+      "excludedFromGit": true
+    },
+    {
+      "path": ".tmp/doc120-independent-compat-v1.log",
+      "sha256": "69bc19bd7a2af0d2feb81da72501646682aa5279ccc3b0dcbbfc72f44ac6218a",
+      "excludedFromGit": true
+    }
+  ],
+  "sourceHashesLf": [
+    {
+      "path": "DTOs/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasDtos.vb",
+      "sha256Lf": "fa0cdac68df5a6989d359ba46aeefd4b7b47ce49fc9e924128869ec1f12f396b"
+    },
+    {
+      "path": "DTOs/ProduccionDocumental/ImportacionCarpetas/PreparacionSegmentadaDtos.vb",
+      "sha256Lf": "0ca9f8458736c07b67934996d3e752029356368f5c8544bfd0f81fed3cb58a7f"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Sql/09-control-focal-indice-mysql51.sql",
+      "sha256Lf": "774db06ca2773ccd659727bfa3ce3af36f01faa7b5490470bc46eabfc575b704"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Lf": "384c438e8f5773ef618e91cf372097ab025f504c4b16f7d4a2b58abe1bfc2874"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx.vb",
+      "sha256Lf": "fbfd5114e1b09affcbae343a3d53c4756e87afb77faacf5b964678ad0c2a44c5"
+    },
+    {
+      "path": "GestionDocumental-Docuarchi.net.vbproj",
+      "sha256Lf": "2d361ee797728c27ada70b0fd59a80fb805708e8cf3b8fea3277c49960548c5c"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.Recuperacion.vb",
+      "sha256Lf": "a85ee7a65ba584de6fa99fc8024232240fe4ba47c5b67b716963904922f6a4a8"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.vb",
+      "sha256Lf": "15b6c87ecd52a06cb80803b3b6d09b1e685fd7ce692c54385cd055743564581d"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoAlmacenamientoCarpetas.vb",
+      "sha256Lf": "907120b2c04048764e38cfff4422d7ba87c9f721450b4b109d31da44d1f30c4b"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasContextAdapter.vb",
+      "sha256Lf": "f67255ecc04a2c02b12b3de9a403cee6b458ccdd3ba9867e59e6d01de842d612"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MetadatosFuenteImportacion.vb",
+      "sha256Lf": "f83894ec1b5da1651a4bf1fd49f86e4b1927c608cb160bb83d3f64d7fe5fb6b4"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MetadatosProveedorIndices.vb",
+      "sha256Lf": "d1592180750176ca3ce7f481055c6e57703207f723e8140ffe10f2802ff812c8"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorDatosIndices.vb",
+      "sha256Lf": "41e5578493c4747adb601eba358aabbdca7a40e2200430bcab811c5afc393ab5"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.vb",
+      "sha256Lf": "b0eae83996e9fd881ca37f7aae145b6726af01f055d3aa08fa31bef7b17b74c6"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionContextAdapter.vb",
+      "sha256Lf": "9107a6aae120c3494604cb5113f3cbc5998a22595ff762c22efb210a854a26bc"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Barreras.vb",
+      "sha256Lf": "6ee8dcab0838f736d4cebfd3b196b4e329d03b5fcc5685d5a16e890e55e19e63"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consolidacion.vb",
+      "sha256Lf": "e0f9a2afcf82dfa806af3451245c92d8f3052e2bac32ab8efffe3f5fc8dda173"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ConsolidacionFocal.vb",
+      "sha256Lf": "5bf75bb421aa540b40a39fa505337640c32a29c9fd6d81a5f4cefdfddd3a63c7"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consulta.vb",
+      "sha256Lf": "609355195cf6b8c347ca45876259095ee5495ab4f2b081c33ef923edf388c2a8"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ConsultaFocal.vb",
+      "sha256Lf": "a37b990c71e669eeeff7683f2a53fc0dfb7df5a3e77703e5becd344cdf140820"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Control.vb",
+      "sha256Lf": "22e7fa4d49db9a5d6deaec57bafbedf5956672da3561d1cc61fa3248517c0331"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ControlFocal.vb",
+      "sha256Lf": "fde28977269a13fb72f33f8f66c9a019dfc3cd89bc38e9c3291f3fba74fb4e93"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Documento.vb",
+      "sha256Lf": "3fbef43a3dfb1c42bc71d11a4fceb9fa33c7516021e706d3a9c69c633d1984be"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.DocumentoV2.vb",
+      "sha256Lf": "c45532a4a973b91e9eef72f82e972ff21a2517406af2a43ef8131e91128dc0cf"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Limpieza.vb",
+      "sha256Lf": "af807b1aa7079c2a7b2772eb0ca8604ac40d04d75ca7a1e1f5c44693934f742e"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.PlanSegmentado.vb",
+      "sha256Lf": "9729adcf9009e526e60a57f4cd46ddd6dbe23e47fb3e26fc3322a902975e93a9"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Preparacion.vb",
+      "sha256Lf": "3dd30440c6827bb32cb40adb997dbe36fe09a44ca46506741c01006670cb7fea"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Reanudacion.vb",
+      "sha256Lf": "273f90b0a7c40f541ea090c3b801fa115229c2ecf2f683faeddefbb02178fccf"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Reconciliacion.vb",
+      "sha256Lf": "7eecdd5c4636c7cf1a6819307f1465c4358bfc82dea30f71236d62571771fe27"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ResultadoCreacion.vb",
+      "sha256Lf": "54050b469a4596e84319ff02d89266c47e02a05b7b17a1d4aafb976092a451c9"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Valores.vb",
+      "sha256Lf": "e10d5bae4e27418c1c6c4435f5e8d563c47b5796084a0e9ad4883f6685afb871"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.vb",
+      "sha256Lf": "eb6c59bf9ad5c077605cb8c982a79c0cd883e17689d80b13de5bf1dc4a462dd5"
+    },
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/ControlArchivoIndependienteImportacion.vb",
+      "sha256Lf": "0ee94092f12f73a1563a5abd28403964b827f2a7fb8ada6165686daaed430dcf"
+    },
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasModels.vb",
+      "sha256Lf": "839a65c1230b102ebfe575caf34b22c5950bf690ee428cf54b42b3be01ce4e0e"
+    },
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/PreparacionSegmentadaImportacion.vb",
+      "sha256Lf": "9ce1547e9031d9ed0006c713455503f5c8ab7c90dd5b879c0bec46d0728a7c60"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Barreras.vb",
+      "sha256Lf": "cde32e326f2746b235b16589a487a8d02f3f33bbee7be250dd32965fbfec60a4"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Consolidacion.vb",
+      "sha256Lf": "2ba35e2280d391c0d27cb27ab22b184457c365443c1f6f23d98faf5c50e12505"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Creacion.vb",
+      "sha256Lf": "0decb4a3872d036a7325157c8242d390fa6db7e4b5deff6194c7e4929f426e64"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Documento.vb",
+      "sha256Lf": "b0d1567b011f52c6cbf1f17dadcae36c4139fcf8da5fa1a9620c7f72c78dd85c"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Independiente.vb",
+      "sha256Lf": "6048b6a9c04c349722405591b3cd4706403b85327046d920840c808c9dfab708"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Staging.vb",
+      "sha256Lf": "25232b0c312ba2da318fed55ec8c59c050e1f2aa66839ece7ee479def6b284ae"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Valores.vb",
+      "sha256Lf": "3b08130744662f99fac48beb515bd05202ccf6fcb1d6680b6b6ca18d73a34034"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.Focal.vb",
+      "sha256Lf": "5b9be76a1ed14de28889b1531befd6ae23a7d0053e050cf0aa24e945396b7d8e"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb",
+      "sha256Lf": "f21d678f1ce6d0138420f4f2671d5c79da58e127c5eb45869861d976b3a126a2"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioPerfilImportacion.vb",
+      "sha256Lf": "9620f89642f39d93a25b5c231f7808ff2d04f357641d538bcf71f88b73240721"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioRecepcionImportacion.vb",
+      "sha256Lf": "878bf21a53fe59be26b35e975a680656621f1e252e3109f67f24205ddbc9d0db"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css",
+      "sha256Lf": "6658a0bb60ee9be0bb8103f1fee322ca9ed1cee7ac0f1ce821aa8956191068b8"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256Lf": "a8f2d9a546146424f004d4512fb833a2fec8251c8e3bdcabd56853815eccd8e3"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js",
+      "sha256Lf": "2333b9a77bf0df0e4768cecc12a44d6c2cc93f5c6103895fac0408107aaaf416"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256Lf": "71c07df17da889656032ffa4a2d271af9c12c9ab63173354b8e6e5193c9dd7f4"
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "sha256Lf": "794e689917c957bf943efabcd0b18efc872622b951afb714b835f02f4cb65fdb"
+    },
+    {
+      "path": "tests/doc120-importacion-fidelidad.test.cjs",
+      "sha256Lf": "0a13ca96096859067a37cbb19f1e8a95387659dcabbba2e0240b95493c2821af"
+    },
+    {
+      "path": "tests/doc120-independientes-browser.test.cjs",
+      "sha256Lf": "27a3a9cee4439b63a61e341634d0acb3787797024167ce05f7916386d711c67f"
+    },
+    {
+      "path": "tests/doc120-independientes.test.cjs",
+      "sha256Lf": "d245b963e6f9ed98a7e084b481204140d13afda075a695142a6fd8ed23982f92"
+    },
+    {
+      "path": "tests/doc120-medicion-tres.test.cjs",
+      "sha256Lf": "2565bc046cccd58ed5b1a5cb49fc22f75e6f7234bbe07b9afde3d7a9bd1d4045"
+    },
+    {
+      "path": "tests/support/doc120-coordinacion-browser.cjs",
+      "sha256Lf": "02129f8c939eb20c3c69b12166bc8103add45b7cd17e70129e58a4b19b6655a6"
+    },
+    {
+      "path": "tools/docs/generate-doc120-flow.cjs",
+      "sha256Lf": "3923f938f3a27cce66d89d9c9554439a9092e862c0ab77c3d63f34356fdc0998"
+    },
+    {
+      "path": "tools/e2e/scripts/measure-doc120-three-files.cjs",
+      "sha256Lf": "1b77cbf53fdb54e93cb53e145dbb2b72b41ff17632980bb7ecfc4bce02010a13"
+    },
+    {
+      "path": "webservice/WebServiceImportacionCarpetas.asmx.vb",
+      "sha256Lf": "708b1be4edf3c1a0d0e910ec455f9e3480d327ac33f82f80193c5530acf2d85f"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": ".tmp/doc120-coordinacion-ui/original-no-disponible-1280.png",
+      "sha256": "811e2cc582910a3b55e9557bd7afc8f790f7006a2ddd0495377f496e3ea32eb6",
+      "excludedFromGit": true
+    },
+    {
+      "path": ".tmp/doc120-coordinacion-ui/original-no-disponible-390.png",
+      "sha256": "814efcbb0eeeba3dbf362dd259e6e935677d9362dfbb1aeebfc9484d1bb7d45d",
+      "excludedFromGit": true
+    },
+    {
+      "path": ".tmp/doc120-coordinacion-ui/original-no-disponible-768.png",
+      "sha256": "11b3ee7e2e1c9b4e9e5b6efa81ba592d0bd14c8528059b3e472505102be575a1",
+      "excludedFromGit": true
+    }
+  ],
+  "limitations": [
+    "New DLL/assets not installed. Script09 not applied.",
+    "No new real latency/capacity guarantee.",
+    "Prior run23e18a40 remains closed.",
+    "Known RECIBIDO original cannot be replaced by file reselection.",
+    "SQL aggregates scan rows; writer internal SQL excluded from instrumentation."
+  ],
+  "deploymentObservation": {
+    "deployedBinaryMatchesPreviousWindow": true,
+    "servedAssetsObserved": false
+  }
+}

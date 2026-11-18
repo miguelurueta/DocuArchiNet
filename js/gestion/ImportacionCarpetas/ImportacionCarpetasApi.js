@@ -160,6 +160,8 @@
     "ORIGINAL_REQUERIDO": "Falta el PDF original de un archivo pendiente. Vincúlalo al mismo archivo y pulsa Continuar importación; seleccionarlo no lo envía.",
     "SIN_AVANCE_DISPONIBLE": "El estado consultado no permite iniciar otra fase. Revisa los pendientes y sus requisitos en el mismo lote.",
     "REVISION_TAMANO_EXCEDIDO": "Los datos necesarios para preparar esta revisión superan el tamaño que admite el servicio de importación.",
+    "ARCHIVO_NO_DISPONIBLE": "No se pudo comprobar el original de este archivo. Decide si continuar con los demás o pausar para revisarlo.",
+    "CONTROL_FOCAL_NO_CONFIGURADO": "Falta el índice de control por archivo. Solicita aplicar manualmente el script09 de importación antes de iniciar.",
     "RESULTADO_INCIERTO": "No se recibió un resultado comprobable de esta operación. Conserve su referencia.",
     "ERROR_INTERNO": "No se recibió un resultado comprobable de esta operación. Conserve su referencia.",
     "ARCHIVO_RECHAZADO": "El archivo fue rechazado por una comprobación de la fase. Revise sus incidencias antes de continuar."
@@ -265,6 +267,12 @@
                             error.incidencias = ["ACCESO_DENEGADO","SESION_REQUERIDA"].indexOf(response.codigo) === -1 ? response.incidencias.slice(0, 128).map(function (item) { return {Campo:item && item.Campo, Codigo:item && item.Codigo, Mensaje:detalleIncidencia({Codigo:item && item.Codigo,Mensaje:item && item.Mensaje})}; }) : [];
                             if (typeof response.operacionId === "string" && /^[a-f0-9]{32}$/i.test(response.operacionId)) { error.operacionId = response.operacionId.toLowerCase(); }
                             if (["ACCESO_DENEGADO","SESION_REQUERIDA"].indexOf(response.codigo) === -1 && response.datos && typeof response.datos.intentoId === "string" && /^[1-9][0-9]{0,9}$/.test(response.datos.intentoId) && Number(response.datos.intentoId) <= 4294967295) { error.intentoId = response.datos.intentoId; }
+                            if(response.codigo==='ARCHIVO_NO_DISPONIBLE'){
+                                var data=response.datos, validId=function(v){return typeof v==='string'&&/^[1-9][0-9]{0,9}$/.test(v)&&Number(v)<=4294967295;};
+                                if(data && validId(data.loteId)&&validId(data.archivoId)&&validId(data.raizId)&&['CREAR_EXPEDIENTE','ALMACENAR'].indexOf(data.fase)!==-1&&['ORIGINAL_AUSENTE','ORIGINAL_ALTERADO','ORIGINAL_ILEGIBLE','ORIGINAL_NO_COMPROBADO'].indexOf(data.causa)!==-1&&data.certeza==='NO_INICIADO'){
+                                    error.noDisponible={loteId:data.loteId,archivoId:data.archivoId,raizId:data.raizId,fase:data.fase,causa:data.causa,certeza:data.certeza};
+                                } else {error=fallo('RESPUESTA_INVALIDA',xhr.status,mutation);}
+                            }
                             finish(error); return;
                         }
                         finish(null, response.datos);

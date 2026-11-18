@@ -14,7 +14,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
                           Dim actual = CargarVistaReconciliacion(conexion, tx, contexto, esperada.Lote.LoteId, esperada.Intento.IntentoId)
                           Dim reservadas = 0, cerradas = 0, otras = 0
                           Using cmd = ComandoOperacion(conexion, tx, "SELECT accion,codigo,recurso_tipo,recurso_id FROM ra_integracion_evento WHERE lote_id=@lote AND intento_id=@intento", "@lote", IdOperacion(actual.Lote.LoteId), "@intento", IdOperacion(actual.Intento.IntentoId))
-                              Using reader = cmd.ExecuteReader()
+                              Using reader = EjecutarLecturaControl(cmd)
                                   While reader.Read()
                                       If Texto(reader("recurso_tipo")) <> "ARCHIVO" OrElse Texto(reader("recurso_id")) <> actual.Intento.ArchivoId Then
                                           otras += 1
@@ -67,7 +67,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
         Dim lote = BloquearLoteRecepcion(conexion, tx, contexto, loteId)
         Dim intento As IntentoImportacionCarpetas
         Using cmd = ComandoOperacion(conexion, tx, "SELECT * FROM ra_integracion_intento WHERE intento_id=@intento AND lote_id=@lote", "@intento", IdOperacion(intentoId), "@lote", IdOperacion(loteId))
-            Using reader = cmd.ExecuteReader()
+            Using reader = EjecutarLecturaControl(cmd)
                 If Not reader.Read() Then Throw AccesoDenegado()
                 intento = LeerIntentoDocumental(reader)
             End Using

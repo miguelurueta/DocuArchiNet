@@ -48,6 +48,7 @@ Public NotInheritable Partial Class AlmacenStagingImportacion
             bloqueo = New FileStream(rutaBloqueo, FileMode.Open, FileAccess.Read, FileShare.None)
             ExigirRutaHandleV2(bloqueo.SafeFileHandle, rutaBloqueo)
             ExigirSinEnlaces(original)
+            MedicionAlmacenamientoImportacion.Contar("original_open", 1UL)
             entrada = New FileStream(original, FileMode.Open, FileAccess.Read, If(esperado Is Nothing, FileShare.Read, FileShare.None), 4096, FileOptions.SequentialScan)
             ExigirRutaHandleV2(entrada.SafeFileHandle, original)
             Dim informacion = InformacionV2(entrada.SafeFileHandle, False)

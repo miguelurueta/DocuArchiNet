@@ -12,6 +12,13 @@ test('MEASURE02: rechaza otros efectos, replay, recursos ajenos y campos ignorad
 test('MEASURE03: tiempos cerrados, separados, con conteos; nunca acepta texto privado',()=>{
  const names=['total','originales_previos','originales_retenidos','escritor_legacy','comprobacion_posterior','checkpoint','v2_inicio','v2_hash','original_v2'],header=names.map(k=>'doc120_'+k+';dur=1.250;desc="n=1"').join(', ');assert.equal(parseTiming(header).total.durationMs,1.25);for(const invalid of ['',header+', doc120_private_sql;dur=0.000;desc="n=1"',header+', '+header,header.replace('1.250','NaN'),header.replace('n=1','n=0')])assert.throws(()=>parseTiming(invalid));
 });
+
+test('MEASURE07: captura categorias internas nuevas sin ampliar la ventana real cerrada',()=>{
+ const required=['total','originales_previos','originales_retenidos','escritor_legacy','comprobacion_posterior','checkpoint'].map(k=>'doc120_'+k+';dur=1.000;desc="n=1"').join(', ');
+ const value=parseTiming(required+', doc120_sql_archivo;dur=2.000;desc="n=3", doc120_json_chars;dur=0.000;desc="n=2000000", doc120_pdf_bytes;dur=0.000;desc="n=4000000", doc120_original_open;dur=0.100;desc="n=2"');
+ assert.equal(value.sql_archivo.calls,3);assert.equal(value.pdf_bytes.calls,4000000);assert.equal(value.json_chars.calls,2000000);assert.equal(value.original_open.calls,2);
+ assert.throws(()=>parseTiming(required+', doc120_sql_archivo;dur=0.000;desc="n=1000001"'));assert.throws(()=>parseTiming(required+', doc120_pdf_bytes;dur=0.000;desc="n=9007199254740992"'));assert.equal(MAX.storage,3);
+});
 test('MEASURE04: una solicitud pendiente impide siguiente archivo; una perdida termina sin retry',async()=>{
  const selected=selectFiles(rows()),started=[];let release;
  const read=async resourceId=>({recurso:{recursoId:resourceId,estadoRecepcion:'RECIBIDO',estado:'NO_INICIADO',valoresEfectivosFijados:true,tieneIntentoActivo:false,revision:1},padre:{recursoId:'60',expedienteId:'700',relacionNivelId:'800'},estado:{loteId:'50',detencionSolicitada:false,hayIntentosActivos:false,hayIncertidumbre:false}});

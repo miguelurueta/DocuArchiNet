@@ -226,6 +226,8 @@ Public Class ConsultarRecursosImportacionSolicitud
 End Class
 
 Public Class EstadoLoteImportacionResultado
+    Public Property procesamientoIndependiente As Boolean
+    Public Property escritorVivo As Boolean
     Public Property motivoBloqueo As String
     Public Property maximoTamanoPagina As Integer
     Public Property loteId As String

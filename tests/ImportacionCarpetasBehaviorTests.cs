@@ -2818,6 +2818,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
     }
 
     public static void Run() {
+        IndependentFileCases();
         UltimoLoteCases();
         ReanudacionLoteCases();
         MedicionAlmacenamientoCases();

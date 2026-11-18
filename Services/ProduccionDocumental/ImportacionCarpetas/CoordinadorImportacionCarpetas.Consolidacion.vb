@@ -105,7 +105,7 @@ Public Partial Class CoordinadorImportacionCarpetas
                     If archivo.EstadoEfecto = "COMPLETADO" Then incierta = True
                     If permitido AndAlso archivo.EstadoEfecto <> "CANCELADO" AndAlso archivo.EstadoRecepcion <> "CANCELADO" Then
                         recuperables = True
-                        If archivo.EstadoEfecto <> "RECHAZADO" Then pendientesAutomaticos = True
+                        If archivo.EstadoEfecto <> "RECHAZADO" AndAlso Not ControlArchivoIndependienteImportacion.EsNoDisponible(archivo.Resultado) Then pendientesAutomaticos = True
                     End If
                 End If
                 If archivo.EstadoRecepcion = "INCIERTO" OrElse archivo.EstadoEfecto = "INCIERTO" Then incierta = True
@@ -117,7 +117,7 @@ Public Partial Class CoordinadorImportacionCarpetas
                     salida.HayIntentosActivos = True
                     If archivo.IntentoActivoId Is Nothing Then incierta = True
                 End If
-                If {"RECHAZADO", "CANCELADO"}.Contains(archivo.EstadoRecepcion) OrElse {"RECHAZADO", "CANCELADO"}.Contains(archivo.EstadoEfecto) OrElse Not permitido Then rechazo = True
+                If {"RECHAZADO", "CANCELADO"}.Contains(archivo.EstadoRecepcion) OrElse {"RECHAZADO", "CANCELADO"}.Contains(archivo.EstadoEfecto) OrElse ControlArchivoIndependienteImportacion.EsNoDisponible(archivo.Resultado) OrElse Not permitido Then rechazo = True
                 If permitido AndAlso Not RecepcionRegistradaValida(archivo) Then recibidos = False
             Next
             automaticos = automaticos OrElse pendientesAutomaticos
@@ -170,7 +170,7 @@ Public Partial Class CoordinadorImportacionCarpetas
     Private Shared Function MarcadorConsolidacion(intentos As Dictionary(Of String, IntentoImportacionCarpetas), id As String, raiz As String, archivo As String) As Boolean
         Return intentos.ContainsKey(id) AndAlso intentos(id).RaizId = raiz AndAlso intentos(id).ArchivoId = archivo AndAlso {"RESERVADO", "EN_CURSO", "INCIERTO"}.Contains(intentos(id).Estado)
     End Function
-    Private Shared Function CreacionConfirmadaConsolidacion(lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas, intentos As List(Of IntentoImportacionCarpetas)) As Boolean
+    Friend Shared Function CreacionConfirmadaConsolidacion(lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas, intentos As List(Of IntentoImportacionCarpetas)) As Boolean
         Dim id = raiz.IdentidadExpediente
         If id Is Nothing OrElse id.OrigenLogico <> "RA" OrElse id.NivelRef <> lote.Contexto.NivelRef OrElse Not ValidadorPerfilImportacion.ReferenciaValida(id.ExpedienteId) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(id.RelacionNivelId) Then Return False
         Dim pruebas = intentos.Where(Function(i) i.RaizId = raiz.RaizId AndAlso i.Fase = "CREAR_EXPEDIENTE" AndAlso i.Estado = "CONFIRMADO").ToList()

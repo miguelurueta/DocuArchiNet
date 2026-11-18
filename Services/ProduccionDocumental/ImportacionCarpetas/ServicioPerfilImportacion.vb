@@ -178,10 +178,10 @@ End Class
 'Mediciones del importador: no modifica Trace.Listeners ni registra datos de negocio.
 Public NotInheritable Class MedicionAlmacenamientoImportacion
     Private Const ClaveCaptura As String = "DOC120_TIEMPOS_SOLICITUD"
-    Private Shared ReadOnly Partes As String() = {"prev_auth", "prev_meta", "prev_io", "ret_auth", "ret_meta", "ret_io", "v2_hash"}
+    Private Shared ReadOnly Partes As String() = {"prev_auth", "prev_meta", "prev_io", "ret_auth", "ret_meta", "ret_io", "v2_hash", "sql_esquema", "sql_plan", "sql_archivo", "sql_evento", "sql_control", "json_control", "sql_autoridad", "sql_catalogo", "sql_fuente"}
     Private NotInheritable Class Acumulado
         Public Milisegundos As Double
-        Public Llamadas As Integer
+        Public Llamadas As ULong
     End Class
     Private Sub New()
     End Sub
@@ -212,8 +212,22 @@ Public NotInheritable Class MedicionAlmacenamientoImportacion
             If Not datos.TryGetValue(nombre, item) Then
                 item = New Acumulado() : datos.Add(nombre, item)
             End If
-            item.Milisegundos += milisegundos : item.Llamadas += 1
+            item.Milisegundos += milisegundos : item.Llamadas += 1UL
         Catch
+        End Try
+    End Sub
+    Public Shared Sub Contar(nombre As String, cantidad As ULong)
+        If Not {"json_chars", "pdf_bytes", "original_open"}.Contains(nombre) Then Return
+        Try
+            Dim datos = Captura()
+            If datos Is Nothing Then Return
+            Dim item As Acumulado = Nothing
+            If Not datos.TryGetValue(nombre, item) Then
+                item = New Acumulado() : datos.Add(nombre, item)
+            End If
+            If cantidad <= ULong.MaxValue - item.Llamadas Then item.Llamadas += cantidad
+        Catch
+            'La medicion no controla la operacion ni publica datos del archivo.
         End Try
     End Sub
     Public Shared Function MedirParte(Of T)(nombre As String, trabajo As Func(Of T)) As T
@@ -287,6 +301,8 @@ Public NotInheritable Class DiagnosticoOperacionImportacion
     End Sub
     Public Shared Function Texto(codigo As String) As String
         Select Case codigo
+            Case "ARCHIVO_NO_DISPONIBLE" : Return "No se pudo comprobar el original de este archivo. Decide si continuar con los demás o pausar para revisarlo."
+            Case "CONTROL_FOCAL_NO_CONFIGURADO" : Return "Falta el índice de control por archivo. Solicita aplicar manualmente el script09 de importación antes de iniciar."
             Case "SEGMENTO_INVALIDO" : Return "La posición o el separador de extracción no cumple la regla configurada."
             Case "LONGITUD_INVALIDA", "LIMITE_INVALIDO" : Return "El límite configurado no está dentro del intervalo admitido."
             Case "LONGITUD_CODIGO_EXCEDIDA", "CODIGO_NO_REPRESENTABLE" : Return "El código del expediente excede la longitud o representación admitida por el destino."

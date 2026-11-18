@@ -167,7 +167,7 @@ Public Class ImportacionCarpetasContextAdapter
                     cmd.Parameters.AddWithValue(CStr(parametros(i)), parametros(i + 1))
                 Next
                 conexion.Open()
-                Using reader = cmd.ExecuteReader()
+                Using reader = MedicionAlmacenamientoImportacion.MedirParte("sql_autoridad", Function() cmd.ExecuteReader())
                     Dim datos As New DataTable()
                     datos.Load(reader)
                     Return datos
@@ -191,7 +191,7 @@ Public Class ImportacionCarpetasContextAdapter
                 Using cmd As New MySqlCommand("SELECT u.id_Remit_Dest_Int AS usuario_ref,u.Empresa_Gestion_Documental_id_empresa AS empresa_ref,u.Estado_Usuario AS usuario_activo,e.ID_EMPRESA AS empresa_existente,p.IMPORTAR_CARPETAS AS puede_importar FROM remit_dest_interno u INNER JOIN empresa_gestion_documental e ON e.ID_EMPRESA=u.Empresa_Gestion_Documental_id_empresa LEFT JOIN remit_dest_interno_perfil_produccion p ON p.remit_dest_interno_idremit_dest_interno=u.id_Remit_Dest_Int WHERE u.id_Remit_Dest_Int=@usuario LIMIT 2", conexion)
                     cmd.CommandTimeout = 5
                     cmd.Parameters.AddWithValue("@usuario", usuario)
-                    Using reader = cmd.ExecuteReader()
+                    Using reader = MedicionAlmacenamientoImportacion.MedirParte("sql_autoridad", Function() cmd.ExecuteReader())
                         Dim datos As New DataTable()
                         datos.Load(reader)
                         Return datos

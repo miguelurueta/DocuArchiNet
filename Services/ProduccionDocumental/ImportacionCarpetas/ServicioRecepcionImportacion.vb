@@ -74,6 +74,8 @@ Public Class ServicioRecepcionImportacion
         ValidarSolicitud(solicitud)
         If contenido Is Nothing OrElse Not contenido.CanRead Then Throw New PerfilImportacionException("SOLICITUD_INVALIDA", "El contenido es obligatorio.")
         Dim recurso = ObtenerRecepcion(solicitud)
+        Dim control = TryCast(_recepciones, IControlArchivosIndependientesImportacion)
+        If control IsNot Nothing AndAlso recurso.Lote.ControlArchivos Is Nothing AndAlso recurso.Archivo.EstadoRecepcion <> "RECIBIDO" Then control.PrepararControlArchivos(recurso.Contexto, solicitud.loteId)
         If recurso.Archivo.EstadoRecepcion = "RECIBIDO" Then
             Dim anterior = _recepciones.ObtenerIntentoRecepcion(recurso.Contexto, solicitud.loteId, solicitud.archivoId, Nothing)
             ValidarIntentoServicio(anterior, recurso.Archivo, solicitud.loteId)

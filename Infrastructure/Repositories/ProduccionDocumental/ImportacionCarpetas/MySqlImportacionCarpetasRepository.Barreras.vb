@@ -22,6 +22,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
         Return Operar(Function(conexion, tx)
                           Dim lote = BloquearLoteRecepcion(conexion, tx, contexto, loteId)
                           Dim raiz = CargarRaizControl(conexion, tx, loteId, raizId)
+                          If lote.ControlArchivos IsNot Nothing Then Return CargarBarreraFocal(conexion, tx, lote, raiz)
                           Dim plan = CargarPlan(conexion, tx, contexto, IdOperacion(lote.PlanId), False)
                           Return LeerVistaBarreraCreacion(lote, plan, raiz, Function(sql, parametros) LeerTablaConsulta(conexion, tx, sql, parametros))
                       End Function)

@@ -1,5 +1,10 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 - procesamiento independiente, corte local2026-11-18
+
+Implementacion local y pruebas sinteticas terminadas; script09 preparado, sin aplicar indice ni instalar DLL/assets. [Contrato focal](../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/contrato-focal-implementado-doc120.md) y [ventana nueva propuesta](../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-independientes-plan-real-20261118.md). La ventana anterior23e18a40 sigue cerrada. No reutilizarla, no borrar originales recibidos para simular faltantes y no interpretar "implementa" como autorizacion de operaciones reales. Nuevas pruebas MySQL/IIS requieren recursos, topes y aprobacion especificos. El ejecutor anterior conserva sus limites; la ampliacion del parser de tiempos no lo habilita para decisiones o nuevos efectos.
+
+
 ## DOC-120 — tres almacenamientos medidos y ventana cerrada2026-11-17
 
 Autorización «ejecuta la prueba»: DLL/PDB instrumentadas instaladas con respaldo,1 POST anónimo401; run23e18a403aae4dd4b455adc86ab787ad FINISHED_THREE.104 HTTP/14 SELECT de control/1 sesión/3 almacenamientos. Archivos104/105/106 confirmados en documentos16264/16265/16266 y expediente693;7→10 guardados, huella de997 ajenos preservada. Promedio HTTP79,432s, metadatos72,321% y writer0,082% del coordinador. Fuente `Validacion/doc120-medicion-tres-20261117.md`/JSON/CSV. Cierre y secretos eliminados; el proceso Node terminó. No reabrir la consola ni eludir window.json para guardar otros tres; una continuación requiere revisar consumo/resultados y autorización específica. La DLL detallada sigue instalada; la captura por cabecera es optativa, sin optimización ni cambio de política. Los apartados inferiores conservan el estado de preparación/histórico de su corte.
