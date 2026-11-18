@@ -1,5 +1,5 @@
 {
-  "status": "LOCAL_FIX_VERIFIED_DEPLOYMENT_PENDING",
+  "status": "FIX_INSTALLED_REAL_THREE_PASSED",
   "runs": [
     {
       "runId": "9f11f7ba36074e23b35efec9f65de16e",
@@ -102,6 +102,24 @@
     "flowSources": 124,
     "flowLines": 20075
   },
-  "realThreeMeasurementPending": true,
-  "secretsRecorded": false
+  "realThreeMeasurementPending": false,
+  "secretsRecorded": false,
+  "deployment": {
+    "sourceCommit": "8f71ec7e0133616b2a26d6ca46380c75a1fd0bf5",
+    "status": "INSTALLED",
+    "finishedUtc": "2026-11-18T15:50:12.5920709Z",
+    "files": [
+      {
+        "extension": "dll",
+        "sha256": "8b27a942458d41aa87d8ddd0df684bf70b7b89ec7702f0607958169a91cc571d",
+        "backupSha256": "b3303603a03001e2a1f578d48ed4a3f6ea396c0b0faa162544941c7f9485e12f"
+      },
+      {
+        "extension": "pdb",
+        "sha256": "f9f0212794266e5d5568d23e6a897481b462d5dd0ef0c03e8aba7883e23d7627",
+        "backupSha256": "ebf1e48e0dee9f8c76f492ec37af062d510c7cbbc3fc5fcbadab76f60cc86806"
+      }
+    ]
+  },
+  "realMeasurementRunId": "c6f62c443bf64e039878754736ceb1b4"
 }

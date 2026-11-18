@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — corrección focal instalada y tres guardados aprobados2026-11-18
+
+DLL/PDB8f71ec7e instaladas con respaldo tras aprobación (DLL8b27a942). Nueva ventana aprobada c6f62c443bf64e039878754736ceb1b4 FINISHED_THREE:104 HTTP/20 SELECT externos/1 sesión/3 ALMACENAR.107/108/109 confirmados RA/DA en documentos16267/16268/16269 y expediente693;10→13 guardados, huella de997 ajenos preservada. HTTP1,352934/0,913335/0,908159s, promedio1,058143s frente79,432043s de la referencia histórica. Control focal ya existente, no mide sellado en frío ni capacidad completa. Cerrado, secretos eliminados, ventana42318523 intacta; no repetir automáticamente. Fuente `Validacion/doc120-lote50-correccion-medida-20261118.md`/JSON/CSV.3.198 aprobada en ese alcance;3.187/3.196 y once brechas previas conservadas. Los apartados inferiores mantienen sus cortes históricos.
+
 ## DOC-120 — NullReference focal reproducida sin escritor2026-11-18
 
 Diagnóstico puro9f11f7ba:7 SELECT,1.000 archivos/1.000 pruebas válidas,0 HTTP/efectos, cerrado y secretos eliminados. Auxiliar nativo59c48d91 falla por vista32/64 del DSN antes de SQL; corregido x64. ad60fe52 llega a NATIVE_LOT y falla un guard del auxiliar, límite superior9 SELECT, sin reproducir el fallo de aplicación. No confundir estos estados con una causa certificada del500. Inspección y reproducción sin conexión sobre DLL instalada b3303603 confirman NullReferenceException en CargarBarreraFocal al agregar la raíz a una lista Nothing. Corrección local inicia las dos colecciones mediante constructor del repositorio;20 Node+2 wrappers Framework/DDL aprobados, Compile aislado0 errores. Fuente `Validacion/doc120-preflight-puro-20261118.md`/JSON. Candidata8b27a942 con respaldo, instalación y nueva ventana real pendientes; no repetir107 por estos diagnósticos ni declarar3.198 aprobada.
