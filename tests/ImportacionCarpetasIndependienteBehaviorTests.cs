@@ -50,6 +50,19 @@ public static partial class ImportacionCarpetasBehaviorTests {
             new Action<ContextoImportacionCarpetas,ConfiguracionPerfilImportacion>((c,s)=>authorize()),handles,target,null);
     }
     static void IndependentFileCases(){
+        // The actual repository constructor must work before any file is loaded.
+        // Prior tests supplied an already-built port and missed its null lists.
+        foreach(bool created in new[]{false,true}){
+            var lot=new LoteImportacionCarpetas{LoteId="20"};
+            var root=new RaizImportacionCarpetas{RaizId="40",LoteId="20",IdentidadExpediente=created?new IdentidadExpedienteImportacion{ExpedienteId="60"}:null};
+            var builder=typeof(MySqlImportacionCarpetasRepository).GetMethod("CrearVistaBarreraFocal",BindingFlags.Static|BindingFlags.NonPublic);
+            Check(builder!=null,"Actual focal view constructor is missing");
+            var view=(VistaBarreraCreacionImportacion)builder.Invoke(null,new object[]{lot,root});
+            Check(view.EsFocal&&Object.ReferenceEquals(view.Lote,lot)&&Object.ReferenceEquals(view.Raiz,root)&&view.Plan==null,"Focal scope changed during construction");
+            Check(view.Raices!=null&&view.Raices.Count==1&&Object.ReferenceEquals(view.Raices[0],root)&&view.Archivos!=null&&view.Archivos.Count==0,"Focal view collections unavailable before loading files");
+            view.Archivos.Add(new ArchivoImportacionCarpetas{ArchivoId="30",RaizId="40"});
+            Check(view.Archivos.Single().ArchivoId=="30","Pending root cannot collect its candidate file");
+        }
         using(var f=new IndependentPhasePort()){
             var missing=f.F.Source.Stage.PathFor("31");File.Move(missing,missing+".missing");var result=f.Run();
             Check(result.Resultado.Estado=="CONFIRMADO"&&f.F.Source.Writers==1&&f.Claims==1&&f.Loads==3,"Complete storage path depends on B or reloads all originals");

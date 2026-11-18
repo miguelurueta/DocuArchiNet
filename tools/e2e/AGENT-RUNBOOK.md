@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — NullReference focal reproducida sin escritor2026-11-18
+
+Diagnóstico puro9f11f7ba:7 SELECT,1.000 archivos/1.000 pruebas válidas,0 HTTP/efectos, cerrado y secretos eliminados. Auxiliar nativo59c48d91 falla por vista32/64 del DSN antes de SQL; corregido x64. ad60fe52 llega a NATIVE_LOT y falla un guard del auxiliar, límite superior9 SELECT, sin reproducir el fallo de aplicación. No confundir estos estados con una causa certificada del500. Inspección y reproducción sin conexión sobre DLL instalada b3303603 confirman NullReferenceException en CargarBarreraFocal al agregar la raíz a una lista Nothing. Corrección local inicia las dos colecciones mediante constructor del repositorio;20 Node+2 wrappers Framework/DDL aprobados, Compile aislado0 errores. Fuente `Validacion/doc120-preflight-puro-20261118.md`/JSON. Candidata8b27a942 con respaldo, instalación y nueva ventana real pendientes; no repetir107 por estos diagnósticos ni declarar3.198 aprobada.
+
 ## DOC-120 — HTTP500 antes de nueva reserva2026-11-18
 
 Usuario «lanza»: run42318523fd4e432a84a2473952e3e59d,100 HTTP/8 SELECT/1 sesión, un ALMACENAR107 con HTTP500/ERROR_INTERNO en1121,0625ms;0 acuses confirmados y cero solicitudes108/109. Referencia a6720c307b20449ca695c0b318e69ee4. Cerrado, secretos eliminados, ventana anterior intacta. Diagnóstico posterior be3cbe81 con5 SELECT/0 HTTP confirma RA EN_CURSO/revisión3057,10 completados/990 pendientes y cero actividad/incertidumbre; no certifica DA/disco ni la excepción exacta. Fuente `Validacion/doc120-lote50-http500-20261118.md`/JSON. No reintentar107 ni modificar estados para forzar medición. Reproducir lecturas/validaciones sin escritor o mejorar evidencia técnica antes de otra ventana con efectos.3.198 sigue pendiente.

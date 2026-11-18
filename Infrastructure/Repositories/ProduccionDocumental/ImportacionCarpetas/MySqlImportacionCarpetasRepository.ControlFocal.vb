@@ -142,8 +142,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
 
     Private Shared Function CargarBarreraFocal(conexion As MySqlConnection, tx As MySqlTransaction, lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas) As VistaBarreraCreacionImportacion
         VerificarIdentidadRaizFocal(conexion, tx, lote, raiz)
-        Dim vista As New VistaBarreraCreacionImportacion With {.Lote = lote, .Raiz = raiz, .EsFocal = True}
-        vista.Raices.Add(raiz)
+        Dim vista = CrearVistaBarreraFocal(lote, raiz)
         If raiz.IdentidadExpediente Is Nothing Then
             Dim id As Object
             Using cmd = ComandoOperacion(conexion, tx, "SELECT archivo_id FROM ra_integracion_archivo WHERE raiz_id=@raiz AND estado_recepcion='RECIBIDO' AND estado_efecto='NO_INICIADO' AND intento_activo_id IS NULL ORDER BY (resultado_doc IS NOT NULL),archivo_id LIMIT 1", "@raiz", IdOperacion(raiz.RaizId))
@@ -156,6 +155,13 @@ Public Partial Class MySqlImportacionCarpetasRepository
             End If
         End If
         Return vista
+    End Function
+
+    Friend Shared Function CrearVistaBarreraFocal(lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas) As VistaBarreraCreacionImportacion
+        Return New VistaBarreraCreacionImportacion With {
+            .Lote = lote, .Raiz = raiz, .EsFocal = True,
+            .Raices = New List(Of RaizImportacionCarpetas) From {raiz},
+            .Archivos = New List(Of ArchivoImportacionCarpetas)()}
     End Function
 
     'No se infiere disponibilidad por tiempo ni se libera un intento ajeno.

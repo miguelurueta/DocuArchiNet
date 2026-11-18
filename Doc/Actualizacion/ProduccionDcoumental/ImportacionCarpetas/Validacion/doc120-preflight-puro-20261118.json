@@ -1,0 +1,107 @@
+{
+  "status": "LOCAL_FIX_VERIFIED_DEPLOYMENT_PENDING",
+  "runs": [
+    {
+      "runId": "9f11f7ba36074e23b35efec9f65de16e",
+      "lotId": "50",
+      "status": "PURE_PREFLIGHT_PASSED",
+      "select": 7,
+      "maxSelect": 7,
+      "http": 0,
+      "sessions": 0,
+      "businessEffects": 0,
+      "closed": true,
+      "binarySha256": "b3303603a03001e2a1f578d48ed4a3f6ea396c0b0faa162544941c7f9485e12f",
+      "stage": "after",
+      "result": {
+        "ok": true,
+        "stage": "PURE_PREFLIGHT_PASSED",
+        "files": 1000,
+        "roots": 1,
+        "attempts": 11,
+        "proofs": 1000,
+        "controlCharacters": 727503,
+        "readOnly": true,
+        "writerInvoked": false,
+        "sqlWritesTested": false
+      },
+      "credentialsCleared": true,
+      "finishedUtc": "2026-11-18T15:01:35.555Z"
+    },
+    {
+      "runId": "59c48d9116a64a3a860eaa360496d706",
+      "lotId": "50",
+      "status": "NATIVE_FAILURE_REPRODUCED",
+      "select": null,
+      "maxSelect": 12,
+      "http": 0,
+      "sessions": 0,
+      "businessEffects": 0,
+      "closed": true,
+      "native": true,
+      "binarySha256": "b3303603a03001e2a1f578d48ed4a3f6ea396c0b0faa162544941c7f9485e12f",
+      "selectBudgetReserved": 12,
+      "result": {
+        "ok": false,
+        "stage": "NATIVE_INPUT",
+        "selectReserved": 0,
+        "exceptionType": "InvalidOperationException",
+        "methods": [],
+        "code": null,
+        "readOnly": true,
+        "writerInvoked": false
+      },
+      "selectUpperBound": 0,
+      "credentialsCleared": true,
+      "finishedUtc": "2026-11-18T15:07:29.038Z"
+    },
+    {
+      "runId": "ad60fe5296a6490ea2303cfd8d135825",
+      "lotId": "50",
+      "status": "NATIVE_READ_FAILURE_OBSERVED",
+      "select": null,
+      "maxSelect": 12,
+      "http": 0,
+      "sessions": 0,
+      "businessEffects": 0,
+      "closed": true,
+      "native": true,
+      "binarySha256": "b3303603a03001e2a1f578d48ed4a3f6ea396c0b0faa162544941c7f9485e12f",
+      "selectBudgetReserved": 12,
+      "result": {
+        "ok": false,
+        "stage": "NATIVE_LOT",
+        "selectReserved": 9,
+        "exceptionType": "InvalidOperationException",
+        "methods": [],
+        "code": null,
+        "readOnly": true,
+        "writerInvoked": false
+      },
+      "selectUpperBound": 9,
+      "credentialsCleared": true,
+      "finishedUtc": "2026-11-18T15:18:34.329Z"
+    }
+  ],
+  "cause": {
+    "method": "CargarBarreraFocal",
+    "exception": "NullReferenceException",
+    "nullCollections": [
+      "Raices",
+      "Archivos"
+    ],
+    "reproducedOnInstalledBinaryWithoutConnection": true,
+    "writerInvoked": false,
+    "productionRequestStackCaptured": false
+  },
+  "fixedBinarySha256": "8b27a942458d41aa87d8ddd0df684bf70b7b89ec7702f0607958169a91cc571d",
+  "validation": {
+    "node": 20,
+    "frameworkDdlWrappers": 2,
+    "isolatedCompileErrors": 0,
+    "flowSources": 124,
+    "flowLines": 20075
+  },
+  "realThreeMeasurementPending": true,
+  "secretsRecorded": false
+}

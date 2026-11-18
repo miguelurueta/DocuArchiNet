@@ -75,7 +75,7 @@ Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImport
 Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consulta.vb | 609355195cf6b8c347ca45876259095ee5495ab4f2b081c33ef923edf388c2a8
 Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ConsultaFocal.vb | a37b990c71e669eeeff7683f2a53fc0dfb7df5a3e77703e5becd344cdf140820
 Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Control.vb | 22e7fa4d49db9a5d6deaec57bafbedf5956672da3561d1cc61fa3248517c0331
-Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ControlFocal.vb | fde28977269a13fb72f33f8f66c9a019dfc3cd89bc38e9c3291f3fba74fb4e93
+Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ControlFocal.vb | 5dc552aaefc73585c859e5a7b304541dde10b9dd1da1b194ab2a753ab8dafaf9
 Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Documento.vb | 3fbef43a3dfb1c42bc71d11a4fceb9fa33c7516021e706d3a9c69c633d1984be
 Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.DocumentoV2.vb | c45532a4a973b91e9eef72f82e972ff21a2517406af2a43ef8131e91128dc0cf
 Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Limpieza.vb | af807b1aa7079c2a7b2772eb0ca8604ac40d04d75ca7a1e1f5c44693934f742e
@@ -9120,84 +9120,90 @@ L00141 |     End Sub
     ...
 L00143 |     Private Shared Function CargarBarreraFocal(conexion As MySqlConnection, tx As MySqlTransaction, lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas) As VistaBarreraCreacionImportacion
 L00144 |         VerificarIdentidadRaizFocal(conexion, tx, lote, raiz)
-L00145 |         Dim vista As New VistaBarreraCreacionImportacion With {.Lote = lote, .Raiz = raiz, .EsFocal = True}
-L00146 |         vista.Raices.Add(raiz)
-L00147 |         If raiz.IdentidadExpediente Is Nothing Then
-L00148 |             Dim id As Object
-L00149 |             Using cmd = ComandoOperacion(conexion, tx, "SELECT archivo_id FROM ra_integracion_archivo WHERE raiz_id=@raiz AND estado_recepcion='RECIBIDO' AND estado_efecto='NO_INICIADO' AND intento_activo_id IS NULL ORDER BY (resultado_doc IS NOT NULL),archivo_id LIMIT 1", "@raiz", IdOperacion(raiz.RaizId))
-L00150 |                 id = EjecutarEscalarControl(cmd)
-L00151 |             End Using
-L00152 |             If id IsNot Nothing AndAlso id IsNot DBNull.Value Then
-L00153 |                 Dim archivo = CargarArchivoRecepcion(conexion, tx, lote.Contexto, lote.LoteId, Texto(id), False)
-L00154 |                 VerificarArchivoFocal(conexion, tx, lote, raiz, archivo)
-L00155 |                 vista.Archivos.Add(archivo)
-L00156 |             End If
-L00157 |         End If
-L00158 |         Return vista
-L00159 |     End Function
+L00145 |         Dim vista = CrearVistaBarreraFocal(lote, raiz)
+L00146 |         If raiz.IdentidadExpediente Is Nothing Then
+L00147 |             Dim id As Object
+L00148 |             Using cmd = ComandoOperacion(conexion, tx, "SELECT archivo_id FROM ra_integracion_archivo WHERE raiz_id=@raiz AND estado_recepcion='RECIBIDO' AND estado_efecto='NO_INICIADO' AND intento_activo_id IS NULL ORDER BY (resultado_doc IS NOT NULL),archivo_id LIMIT 1", "@raiz", IdOperacion(raiz.RaizId))
+L00149 |                 id = EjecutarEscalarControl(cmd)
+L00150 |             End Using
+L00151 |             If id IsNot Nothing AndAlso id IsNot DBNull.Value Then
+L00152 |                 Dim archivo = CargarArchivoRecepcion(conexion, tx, lote.Contexto, lote.LoteId, Texto(id), False)
+L00153 |                 VerificarArchivoFocal(conexion, tx, lote, raiz, archivo)
+L00154 |                 vista.Archivos.Add(archivo)
+L00155 |             End If
+L00156 |         End If
+L00157 |         Return vista
+L00158 |     End Function
     ...
-L00163 |     Private Shared Function HayEscritorVivoFocal(conexion As MySqlConnection, tx As MySqlTransaction, loteId As String) As Boolean
-L00164 |         Dim retorno = "(SELECT COUNT(*) FROM ra_integracion_evento e INNER JOIN ra_integracion_lote l ON l.lote_id=e.lote_id WHERE e.lote_id=i.lote_id AND e.intento_id=i.intento_id AND e.recurso_tipo='ARCHIVO' AND e.recurso_id=i.archivo_id AND e.actor_ref=l.solicitante_ref AND e.accion='OBSERVAR_RETORNO_DOCUMENTAL' AND e.codigo='RETORNO_DOCUMENTAL_OBSERVADO')=1" &
-L00165 |             " AND (SELECT COUNT(*) FROM ra_integracion_evento e WHERE e.lote_id=i.lote_id AND e.intento_id=i.intento_id AND e.recurso_tipo='ARCHIVO' AND e.recurso_id=i.archivo_id AND e.accion='AUTORIZAR_INVOCACION_DOCUMENTAL' AND e.codigo='INVOCACION_DOCUMENTAL_AUTORIZADA')=1" &
-L00166 |             " AND (SELECT COUNT(*) FROM ra_integracion_evento e WHERE e.lote_id=i.lote_id AND e.intento_id=i.intento_id AND e.recurso_tipo='ARCHIVO' AND e.recurso_id=i.archivo_id AND e.accion='INICIAR_ALMACENAMIENTO_V2' AND e.codigo='ALMACENAMIENTO_PREPARADO_V2')=1"
-L00167 |         Dim sql = "SELECT EXISTS(SELECT 1 FROM ra_integracion_intento i WHERE i.lote_id=@lote AND (i.estado IN ('RESERVADO','EN_CURSO') OR (i.estado='INCIERTO' AND NOT (i.fase='ALMACENAR' AND " & retorno & "))))" &
-L00168 |             " OR EXISTS(SELECT 1 FROM ra_integracion_raiz WHERE lote_id=@lote AND (intento_activo_id IS NOT NULL OR estado='CREANDO' OR (estado='INCIERTO' AND identidad_expediente_doc IS NULL)))" &
-L00169 |             " OR EXISTS(SELECT 1 FROM ra_integracion_archivo a INNER JOIN ra_integracion_raiz r ON r.raiz_id=a.raiz_id WHERE r.lote_id=@lote AND (a.estado_efecto='EN_CURSO' OR a.estado_recepcion IN ('RECIBIENDO','INCIERTO') OR ((a.estado_efecto='INCIERTO' OR a.intento_activo_id IS NOT NULL) AND NOT EXISTS(SELECT 1 FROM ra_integracion_intento i WHERE i.intento_id=a.intento_activo_id AND i.lote_id=r.lote_id AND i.archivo_id=a.archivo_id AND i.raiz_id=a.raiz_id AND i.fase='ALMACENAR' AND i.estado='INCIERTO' AND " & retorno & "))))"
-L00170 |         Using cmd = ComandoOperacion(conexion, tx, sql, "@lote", IdOperacion(loteId))
-L00171 |             Return Convert.ToBoolean(EjecutarEscalarControl(cmd), CultureInfo.InvariantCulture)
-L00172 |         End Using
-L00173 |     End Function
+L00160 |     Friend Shared Function CrearVistaBarreraFocal(lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas) As VistaBarreraCreacionImportacion
+L00161 |         Return New VistaBarreraCreacionImportacion With {
+L00162 |             .Lote = lote, .Raiz = raiz, .EsFocal = True,
+L00163 |             .Raices = New List(Of RaizImportacionCarpetas) From {raiz},
+L00164 |             .Archivos = New List(Of ArchivoImportacionCarpetas)()}
+L00165 |     End Function
     ...
-L00175 |     Public Sub RegistrarOriginalNoDisponible(contexto As ContextoImportacionCarpetas, loteId As String, archivoId As String, revision As UInteger, causa As String, Optional intento As IntentoImportacionCarpetas = Nothing) Implements IControlArchivosIndependientesImportacion.RegistrarOriginalNoDisponible
-L00176 |         AutorizarOperacion(contexto) : IdOperacion(loteId) : IdOperacion(archivoId)
-L00177 |         If Not {"ORIGINAL_AUSENTE", "ORIGINAL_ALTERADO", "ORIGINAL_ILEGIBLE", "ORIGINAL_NO_COMPROBADO"}.Contains(causa) Then Throw SolicitudInvalida()
-L00178 |         Operar(Function(conexion, tx)
-L00179 |             Dim lote = BloquearLoteRecepcion(conexion, tx, contexto, loteId)
-L00180 |             If lote.ControlArchivos Is Nothing OrElse lote.DetencionSolicitada Then Throw ConflictoOperacion()
-L00181 |             Dim archivo = CargarArchivoRecepcion(conexion, tx, contexto, loteId, archivoId, False), raiz = CargarRaizControl(conexion, tx, loteId, archivo.RaizId)
-L00182 |             archivo = CargarArchivoRecepcion(conexion, tx, contexto, loteId, archivoId, True)
-L00183 |             VerificarArchivoFocal(conexion, tx, lote, raiz, archivo)
-L00184 |             If archivo.Revision <> revision OrElse archivo.EstadoRecepcion <> "RECIBIDO" OrElse (archivo.Resultado IsNot Nothing AndAlso Not ControlArchivoIndependienteImportacion.EsNoDisponible(archivo.Resultado)) Then Throw ConflictoOperacion()
-L00185 |             If intento Is Nothing Then
-L00186 |                 If archivo.IntentoActivoId IsNot Nothing OrElse archivo.EstadoEfecto <> "NO_INICIADO" Then Throw ConflictoOperacion()
-L00187 |             Else
-L00188 |                 Dim datos = LeerTablaConsulta(conexion, tx, "SELECT estado,token_reclamacion,evidencia_doc,fin_utc FROM ra_integracion_intento WHERE intento_id=@intento AND lote_id=@lote AND archivo_id=@archivo AND fase='ALMACENAR' FOR UPDATE", New Object() {"@intento", IdOperacion(intento.IntentoId), "@lote", IdOperacion(loteId), "@archivo", IdOperacion(archivoId)})
-L00189 |                 If datos.Rows.Count <> 1 OrElse Texto(datos.Rows(0)("estado")) <> "RESERVADO" OrElse Texto(datos.Rows(0)("token_reclamacion")) <> intento.TokenReclamacion OrElse Not datos.Rows(0).IsNull("evidencia_doc") OrElse Not datos.Rows(0).IsNull("fin_utc") OrElse archivo.IntentoActivoId <> intento.IntentoId OrElse archivo.EstadoEfecto <> "EN_CURSO" Then Throw ConflictoOperacion()
-L00190 |                 Dim eventos = LeerTablaConsulta(conexion, tx, "SELECT accion,codigo,recurso_tipo,recurso_id,actor_ref FROM ra_integracion_evento WHERE lote_id=@lote AND intento_id=@intento ORDER BY evento_id LIMIT 2", New Object() {"@lote", IdOperacion(loteId), "@intento", IdOperacion(intento.IntentoId)})
-L00191 |                 ValidarReservaSinInvocacionFocal(lote, archivo, intento, eventos)
-L00192 |             End If
-L00193 |             Dim evidencia As New ResultadoEfectoImportacion With {.Estado = "RECHAZADO", .Codigo = ControlArchivoIndependienteImportacion.CodigoNoDisponible, .Mensaje = causa, .Expediente = raiz.IdentidadExpediente, .ValoresEfectivos = archivo.ValoresEfectivos}
-L00194 |             Dim instante = Ahora(), evidenciaJson = PerfilImportacionJson.Escribir(evidencia)
-L00195 |             If intento IsNot Nothing Then
-L00196 |                 Using cmd = ComandoOperacion(conexion, tx, "UPDATE ra_integracion_intento SET estado='RECHAZADO',evidencia_doc=@doc,fin_utc=@instante,ultimo_contacto_utc=@instante WHERE intento_id=@intento AND lote_id=@lote AND archivo_id=@archivo AND fase='ALMACENAR' AND estado='RESERVADO' AND token_reclamacion=@token AND solicitud_hash=@hash AND fin_utc IS NULL AND evidencia_doc IS NULL", "@doc", evidenciaJson, "@instante", instante, "@intento", IdOperacion(intento.IntentoId), "@lote", IdOperacion(loteId), "@archivo", IdOperacion(archivoId), "@token", intento.TokenReclamacion, "@hash", BytesHuella(intento.SolicitudHash))
-L00197 |                     UnaFila(cmd.ExecuteNonQuery())
-L00198 |                 End Using
-L00199 |             End If
-L00200 |             Using cmd = ComandoOperacion(conexion, tx, "UPDATE ra_integracion_archivo SET estado_efecto='NO_INICIADO',intento_activo_id=NULL,resultado_doc=@doc,revision=revision+1,actualizado_utc=@instante WHERE archivo_id=@archivo AND raiz_id=@raiz AND revision=@revision AND estado_efecto=@estado AND intento_activo_id <=> @intento", "@doc", evidenciaJson, "@instante", instante, "@archivo", IdOperacion(archivoId), "@raiz", IdOperacion(raiz.RaizId), "@revision", revision, "@estado", archivo.EstadoEfecto, "@intento", If(intento Is Nothing, DirectCast(DBNull.Value, Object), IdOperacion(intento.IntentoId)))
-L00201 |                 UnaFila(cmd.ExecuteNonQuery())
-L00202 |             End Using
-L00203 |             Using cmd = ComandoOperacion(conexion, tx, "UPDATE ra_integracion_lote SET revision=revision+1,actualizado_utc=@instante WHERE lote_id=@lote AND revision=@revision", "@instante", instante, "@lote", IdOperacion(loteId), "@revision", lote.Revision)
-L00204 |                 UnaFila(cmd.ExecuteNonQuery())
-L00205 |             End Using
-L00206 |             RegistrarEventoControl(conexion, tx, contexto, loteId, "ARCHIVO", archivoId, If(intento Is Nothing, Nothing, intento.IntentoId), "ORIGINAL_NO_DISPONIBLE", causa, instante, evidencia)
-L00207 |             ConsolidarEnTransaccion(conexion, tx, contexto, loteId, instante)
-L00208 |             Return True
-L00209 |         End Function)
-L00210 |     End Sub
+L00169 |     Private Shared Function HayEscritorVivoFocal(conexion As MySqlConnection, tx As MySqlTransaction, loteId As String) As Boolean
+L00170 |         Dim retorno = "(SELECT COUNT(*) FROM ra_integracion_evento e INNER JOIN ra_integracion_lote l ON l.lote_id=e.lote_id WHERE e.lote_id=i.lote_id AND e.intento_id=i.intento_id AND e.recurso_tipo='ARCHIVO' AND e.recurso_id=i.archivo_id AND e.actor_ref=l.solicitante_ref AND e.accion='OBSERVAR_RETORNO_DOCUMENTAL' AND e.codigo='RETORNO_DOCUMENTAL_OBSERVADO')=1" &
+L00171 |             " AND (SELECT COUNT(*) FROM ra_integracion_evento e WHERE e.lote_id=i.lote_id AND e.intento_id=i.intento_id AND e.recurso_tipo='ARCHIVO' AND e.recurso_id=i.archivo_id AND e.accion='AUTORIZAR_INVOCACION_DOCUMENTAL' AND e.codigo='INVOCACION_DOCUMENTAL_AUTORIZADA')=1" &
+L00172 |             " AND (SELECT COUNT(*) FROM ra_integracion_evento e WHERE e.lote_id=i.lote_id AND e.intento_id=i.intento_id AND e.recurso_tipo='ARCHIVO' AND e.recurso_id=i.archivo_id AND e.accion='INICIAR_ALMACENAMIENTO_V2' AND e.codigo='ALMACENAMIENTO_PREPARADO_V2')=1"
+L00173 |         Dim sql = "SELECT EXISTS(SELECT 1 FROM ra_integracion_intento i WHERE i.lote_id=@lote AND (i.estado IN ('RESERVADO','EN_CURSO') OR (i.estado='INCIERTO' AND NOT (i.fase='ALMACENAR' AND " & retorno & "))))" &
+L00174 |             " OR EXISTS(SELECT 1 FROM ra_integracion_raiz WHERE lote_id=@lote AND (intento_activo_id IS NOT NULL OR estado='CREANDO' OR (estado='INCIERTO' AND identidad_expediente_doc IS NULL)))" &
+L00175 |             " OR EXISTS(SELECT 1 FROM ra_integracion_archivo a INNER JOIN ra_integracion_raiz r ON r.raiz_id=a.raiz_id WHERE r.lote_id=@lote AND (a.estado_efecto='EN_CURSO' OR a.estado_recepcion IN ('RECIBIENDO','INCIERTO') OR ((a.estado_efecto='INCIERTO' OR a.intento_activo_id IS NOT NULL) AND NOT EXISTS(SELECT 1 FROM ra_integracion_intento i WHERE i.intento_id=a.intento_activo_id AND i.lote_id=r.lote_id AND i.archivo_id=a.archivo_id AND i.raiz_id=a.raiz_id AND i.fase='ALMACENAR' AND i.estado='INCIERTO' AND " & retorno & "))))"
+L00176 |         Using cmd = ComandoOperacion(conexion, tx, sql, "@lote", IdOperacion(loteId))
+L00177 |             Return Convert.ToBoolean(EjecutarEscalarControl(cmd), CultureInfo.InvariantCulture)
+L00178 |         End Using
+L00179 |     End Function
     ...
-L00212 |     Friend Shared Sub ValidarReservaSinInvocacionFocal(lote As LoteImportacionCarpetas, archivo As ArchivoImportacionCarpetas, intento As IntentoImportacionCarpetas, diario As DataTable)
-L00213 |         If lote Is Nothing OrElse archivo Is Nothing OrElse intento Is Nothing OrElse diario Is Nothing OrElse diario.Rows.Count <> 1 Then Throw ConflictoOperacion()
-L00214 |         If intento.LoteId <> lote.LoteId OrElse intento.ArchivoId <> archivo.ArchivoId OrElse intento.RaizId <> archivo.RaizId OrElse intento.Fase <> "ALMACENAR" OrElse intento.Estado <> "RESERVADO" OrElse intento.Resultado IsNot Nothing OrElse intento.FinUtc IsNot Nothing OrElse archivo.EstadoEfecto <> "EN_CURSO" OrElse archivo.IntentoActivoId <> intento.IntentoId Then Throw ConflictoOperacion()
-L00215 |         Dim fila = diario.Rows(0)
-L00216 |         If Texto(fila("accion")) <> "RESERVAR_INTENTO" OrElse Texto(fila("codigo")) <> "INTENTO_RESERVADO" OrElse Texto(fila("recurso_tipo")) <> "ARCHIVO" OrElse Texto(fila("recurso_id")) <> archivo.ArchivoId OrElse Texto(fila("actor_ref")) <> lote.Contexto.UsuarioRef Then Throw ConflictoOperacion()
-L00217 |     End Sub
+L00181 |     Public Sub RegistrarOriginalNoDisponible(contexto As ContextoImportacionCarpetas, loteId As String, archivoId As String, revision As UInteger, causa As String, Optional intento As IntentoImportacionCarpetas = Nothing) Implements IControlArchivosIndependientesImportacion.RegistrarOriginalNoDisponible
+L00182 |         AutorizarOperacion(contexto) : IdOperacion(loteId) : IdOperacion(archivoId)
+L00183 |         If Not {"ORIGINAL_AUSENTE", "ORIGINAL_ALTERADO", "ORIGINAL_ILEGIBLE", "ORIGINAL_NO_COMPROBADO"}.Contains(causa) Then Throw SolicitudInvalida()
+L00184 |         Operar(Function(conexion, tx)
+L00185 |             Dim lote = BloquearLoteRecepcion(conexion, tx, contexto, loteId)
+L00186 |             If lote.ControlArchivos Is Nothing OrElse lote.DetencionSolicitada Then Throw ConflictoOperacion()
+L00187 |             Dim archivo = CargarArchivoRecepcion(conexion, tx, contexto, loteId, archivoId, False), raiz = CargarRaizControl(conexion, tx, loteId, archivo.RaizId)
+L00188 |             archivo = CargarArchivoRecepcion(conexion, tx, contexto, loteId, archivoId, True)
+L00189 |             VerificarArchivoFocal(conexion, tx, lote, raiz, archivo)
+L00190 |             If archivo.Revision <> revision OrElse archivo.EstadoRecepcion <> "RECIBIDO" OrElse (archivo.Resultado IsNot Nothing AndAlso Not ControlArchivoIndependienteImportacion.EsNoDisponible(archivo.Resultado)) Then Throw ConflictoOperacion()
+L00191 |             If intento Is Nothing Then
+L00192 |                 If archivo.IntentoActivoId IsNot Nothing OrElse archivo.EstadoEfecto <> "NO_INICIADO" Then Throw ConflictoOperacion()
+L00193 |             Else
+L00194 |                 Dim datos = LeerTablaConsulta(conexion, tx, "SELECT estado,token_reclamacion,evidencia_doc,fin_utc FROM ra_integracion_intento WHERE intento_id=@intento AND lote_id=@lote AND archivo_id=@archivo AND fase='ALMACENAR' FOR UPDATE", New Object() {"@intento", IdOperacion(intento.IntentoId), "@lote", IdOperacion(loteId), "@archivo", IdOperacion(archivoId)})
+L00195 |                 If datos.Rows.Count <> 1 OrElse Texto(datos.Rows(0)("estado")) <> "RESERVADO" OrElse Texto(datos.Rows(0)("token_reclamacion")) <> intento.TokenReclamacion OrElse Not datos.Rows(0).IsNull("evidencia_doc") OrElse Not datos.Rows(0).IsNull("fin_utc") OrElse archivo.IntentoActivoId <> intento.IntentoId OrElse archivo.EstadoEfecto <> "EN_CURSO" Then Throw ConflictoOperacion()
+L00196 |                 Dim eventos = LeerTablaConsulta(conexion, tx, "SELECT accion,codigo,recurso_tipo,recurso_id,actor_ref FROM ra_integracion_evento WHERE lote_id=@lote AND intento_id=@intento ORDER BY evento_id LIMIT 2", New Object() {"@lote", IdOperacion(loteId), "@intento", IdOperacion(intento.IntentoId)})
+L00197 |                 ValidarReservaSinInvocacionFocal(lote, archivo, intento, eventos)
+L00198 |             End If
+L00199 |             Dim evidencia As New ResultadoEfectoImportacion With {.Estado = "RECHAZADO", .Codigo = ControlArchivoIndependienteImportacion.CodigoNoDisponible, .Mensaje = causa, .Expediente = raiz.IdentidadExpediente, .ValoresEfectivos = archivo.ValoresEfectivos}
+L00200 |             Dim instante = Ahora(), evidenciaJson = PerfilImportacionJson.Escribir(evidencia)
+L00201 |             If intento IsNot Nothing Then
+L00202 |                 Using cmd = ComandoOperacion(conexion, tx, "UPDATE ra_integracion_intento SET estado='RECHAZADO',evidencia_doc=@doc,fin_utc=@instante,ultimo_contacto_utc=@instante WHERE intento_id=@intento AND lote_id=@lote AND archivo_id=@archivo AND fase='ALMACENAR' AND estado='RESERVADO' AND token_reclamacion=@token AND solicitud_hash=@hash AND fin_utc IS NULL AND evidencia_doc IS NULL", "@doc", evidenciaJson, "@instante", instante, "@intento", IdOperacion(intento.IntentoId), "@lote", IdOperacion(loteId), "@archivo", IdOperacion(archivoId), "@token", intento.TokenReclamacion, "@hash", BytesHuella(intento.SolicitudHash))
+L00203 |                     UnaFila(cmd.ExecuteNonQuery())
+L00204 |                 End Using
+L00205 |             End If
+L00206 |             Using cmd = ComandoOperacion(conexion, tx, "UPDATE ra_integracion_archivo SET estado_efecto='NO_INICIADO',intento_activo_id=NULL,resultado_doc=@doc,revision=revision+1,actualizado_utc=@instante WHERE archivo_id=@archivo AND raiz_id=@raiz AND revision=@revision AND estado_efecto=@estado AND intento_activo_id <=> @intento", "@doc", evidenciaJson, "@instante", instante, "@archivo", IdOperacion(archivoId), "@raiz", IdOperacion(raiz.RaizId), "@revision", revision, "@estado", archivo.EstadoEfecto, "@intento", If(intento Is Nothing, DirectCast(DBNull.Value, Object), IdOperacion(intento.IntentoId)))
+L00207 |                 UnaFila(cmd.ExecuteNonQuery())
+L00208 |             End Using
+L00209 |             Using cmd = ComandoOperacion(conexion, tx, "UPDATE ra_integracion_lote SET revision=revision+1,actualizado_utc=@instante WHERE lote_id=@lote AND revision=@revision", "@instante", instante, "@lote", IdOperacion(loteId), "@revision", lote.Revision)
+L00210 |                 UnaFila(cmd.ExecuteNonQuery())
+L00211 |             End Using
+L00212 |             RegistrarEventoControl(conexion, tx, contexto, loteId, "ARCHIVO", archivoId, If(intento Is Nothing, Nothing, intento.IntentoId), "ORIGINAL_NO_DISPONIBLE", causa, instante, evidencia)
+L00213 |             ConsolidarEnTransaccion(conexion, tx, contexto, loteId, instante)
+L00214 |             Return True
+L00215 |         End Function)
+L00216 |     End Sub
     ...
-L00220 | Public Class ReferenciaIdentidadArchivoImportacion
-L00221 |     Public Property ArchivoId As String
-L00222 |     Public Property Origen As String
-L00223 |     Public Property GabineteId As String
-L00224 |     Public Property DocumentoId As String
-L00225 |     Public Property InventarioId As String
+L00218 |     Friend Shared Sub ValidarReservaSinInvocacionFocal(lote As LoteImportacionCarpetas, archivo As ArchivoImportacionCarpetas, intento As IntentoImportacionCarpetas, diario As DataTable)
+L00219 |         If lote Is Nothing OrElse archivo Is Nothing OrElse intento Is Nothing OrElse diario Is Nothing OrElse diario.Rows.Count <> 1 Then Throw ConflictoOperacion()
+L00220 |         If intento.LoteId <> lote.LoteId OrElse intento.ArchivoId <> archivo.ArchivoId OrElse intento.RaizId <> archivo.RaizId OrElse intento.Fase <> "ALMACENAR" OrElse intento.Estado <> "RESERVADO" OrElse intento.Resultado IsNot Nothing OrElse intento.FinUtc IsNot Nothing OrElse archivo.EstadoEfecto <> "EN_CURSO" OrElse archivo.IntentoActivoId <> intento.IntentoId Then Throw ConflictoOperacion()
+L00221 |         Dim fila = diario.Rows(0)
+L00222 |         If Texto(fila("accion")) <> "RESERVAR_INTENTO" OrElse Texto(fila("codigo")) <> "INTENTO_RESERVADO" OrElse Texto(fila("recurso_tipo")) <> "ARCHIVO" OrElse Texto(fila("recurso_id")) <> archivo.ArchivoId OrElse Texto(fila("actor_ref")) <> lote.Contexto.UsuarioRef Then Throw ConflictoOperacion()
+L00223 |     End Sub
+    ...
+L00226 | Public Class ReferenciaIdentidadArchivoImportacion
+L00227 |     Public Property ArchivoId As String
+L00228 |     Public Property Origen As String
+L00229 |     Public Property GabineteId As String
+L00230 |     Public Property DocumentoId As String
+L00231 |     Public Property InventarioId As String
 
 + FUENTE: Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Documento.vb
 | Alcance: archivo de modulo completo
@@ -22700,4 +22706,4 @@ L09140 |         Catch ex As Exception
 L09141 |             AlmacenamientoDocumentoProduccionDocumental = "PRODUCCION_CARGA_ALMACENAMIENTO_RECHAZADO"
 L09142 |         End Try
 
-FIN DEL INVENTARIO. Archivos: 124; lineas fuente reproducidas: 20070.
+FIN DEL INVENTARIO. Archivos: 124; lineas fuente reproducidas: 20075.

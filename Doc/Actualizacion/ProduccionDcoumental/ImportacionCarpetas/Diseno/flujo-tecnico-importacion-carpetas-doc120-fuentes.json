@@ -9,7 +9,7 @@
   },
   "annex": {
     "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/flujo-tecnico-importacion-carpetas-doc120-anexo.txt",
-    "sha256Lf": "b1e2567d3d93020c5a7597a7e4d69c4dd129f059ba95bf04f4d5ef36bd27a450"
+    "sha256Lf": "a0dafb291dc21416556629995bb27e4787f5c661cf7beead1c0945717d12e5ce"
   },
   "generator": {
     "path": "tools/docs/generate-doc120-flow.cjs",
@@ -17,7 +17,7 @@
   },
   "sourceCount": 124,
   "httpEndpoints": 53,
-  "extractedLines": 20070,
+  "extractedLines": 20075,
   "sourceInventory": [
     {
       "path": "DTOs/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasDtos.vb",
@@ -311,8 +311,8 @@
     },
     {
       "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ControlFocal.vb",
-      "sha256Lf": "fde28977269a13fb72f33f8f66c9a019dfc3cd89bc38e9c3291f3fba74fb4e93",
-      "lines": 227,
+      "sha256Lf": "5dc552aaefc73585c859e5a7b304541dde10b9dd1da1b194ab2a753ab8dafaf9",
+      "lines": 233,
       "selectedMethods": null
     },
     {
