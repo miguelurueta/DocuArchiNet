@@ -561,3 +561,7 @@ ba8a1ace cerró STOPPED antes de HTTP/efectos con5 SELECT por comparación de hu
 ## QA parcial real y continuación sin replay2026-11-18
 
 95b22a23:582 HTTP/12 SELECT/1 sesión; convergencia plan90, decisión/pausa ante B51 y dos guardados16282/16283 con1 expediente694. STOPPED genérico en fase amplia, sin subpaso final ni controles de cierre; no asumir regresión de aplicación o aprobación integral. Evidencia doc120-qa-parcial-20261118.json. Continuación específica del arnes bloquea todo efecto sobre29 y conserva dos siguientes120/121;12/12 locales. Plan y acumulados explícitos en doc120-qa-fallos-plan-20261118.md.3.202/3.203/3.196 conservan pendientes hasta verificación real suficiente;209/223,14 pendientes.
+
+## Espera heredada de consulta QA corregida2026-11-18
+
+c4afaca2:278 HTTP/5 SELECT/1 sesión,0 efectos; identidades/huellas RA preservadas. Se reproduce en Chromium que Actualizar estado puede ser retirado de DOM mientras Continuar queda listo: QA13. Solo arnes corregido;13/13 QA y25/25 junto a regresión de parada. Nueva continuación enlaza ambos cierres con103 SELECT remanentes y efectos restringidos; presupuesto/consumo en el plan QA.3.202/3.203 conservan pendientes,209/223.

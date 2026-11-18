@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const {MAX,RESUME_MAX,SQL,bind,bindResumed,confirmationBinding,EffectsGate,fingerprint,receiptPayload,failure,hash}=require('../tools/e2e/tests/support/doc120-qa-window.cjs');
-const {heldGate,gateOutcome,reviewPrior,reviewAfterUi}=require('../tools/e2e/scripts/run-doc120-qa-failures.cjs');
+const {heldGate,gateOutcome,waitConsultReady,reviewPrior,reviewAfterUi}=require('../tools/e2e/scripts/run-doc120-qa-failures.cjs');
 const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 function fixture(){
  const header=(lot,level,version,n,r)=>({lote_id:lot,nivel_ref:level,version_id:version,total_archivos:String(n),total_raices:String(r),unresolved:'0',detencion_solicitada:'0',estado:'EN_CURSO',config_doc:JSON.stringify({Configuracion:{OrigenGabinete:'DA',GabineteId:10}})});
@@ -74,6 +74,21 @@ test('QA12: revision especifica de la corrida con efectos conserva identidad/con
  const operations=[['ConfirmarPlan',null,null],['ConfirmarPlan',null,null],['RecibirArchivo','52',null],['AvanzarLote','50','MATERIALIZAR_VALORES'],['AvanzarLote','50','ALMACENAR'],['AvanzarLote','50','CREAR_EXPEDIENTE'],['AvanzarLote','52','MATERIALIZAR_VALORES'],['AvanzarLote','52','ALMACENAR']].map(([operation,resourceId,phase])=>({operation,resourceId,phase,lotId:operation==='ConfirmarPlan'?null:'29',http:200,ok:true,...(phase==='ALMACENAR'?review.confirmed.find(a=>a.resourceId===resourceId):{})}));
  const state={runId,max:MAX,status:'STOPPED',failureStage:'UI_PAUSE_WAITING_FOR_RESPONSE',closed:true,credentialsCleared:true,previousStatePreserved:true,http:582,select:12,sessions:1,before:review.before,bindings:review.bindings,results:{confirmedPlanConvergence:{sameLot:true},pauseAtMissing:{paused:true}},operations,effectCalls:{CONFIRM:2,RECEIPT:1,'29:50:MATERIALIZAR_VALORES':1,'29:50:ALMACENAR':1,'29:50:CREAR_EXPEDIENTE':1,'29:52:MATERIALIZAR_VALORES':1,'29:52:ALMACENAR':1}};
  try{fs.writeFileSync(file,JSON.stringify(state));const parsed=reviewAfterUi(folder,runId);assert.equal(parsed.confirmed.length,2);assert.equal(parsed.select,12);assert.throws(()=>reviewPrior(folder,runId),/SPECIFIC_RESUME/);
+  const childId='c4afaca21fe2bb90d54f9b0ddeea4750',childFile=path.join(folder,'.tmp/doc120-qa-failures',childId,'state.json'),child={runId:childId,status:'STOPPED',failure:'DOC120_QA_UI_TIMEOUT',failureStage:'VERIFY_LOT29_RECOVERY_READONLY',failureLoadStep:'QUERY_LOT_29',closed:true,credentialsCleared:true,previousStatePreserved:true,http:278,select:5,sessions:1,operations:[],effectCalls:{},previousReview:{runId,sha256:parsed.sha256},before:{...state.before,completed29:2}};fs.mkdirSync(path.dirname(childFile),{recursive:true});fs.writeFileSync(childFile,JSON.stringify(child));
+  assert.deepEqual(reviewAfterUi(folder,childId).cumulative,{http:860,select:17,sessions:2});assert.equal(reviewAfterUi(folder,childId).parentReview.sha256,parsed.sha256);
+  for(const change of [s=>s.operations.push({operation:'AvanzarLote'}),s=>s.effectCalls.RECEIPT=1,s=>s.previousReview.sha256='a'.repeat(64),s=>s.credentialsCleared=false]){const broken=structuredClone(child);change(broken);fs.writeFileSync(childFile,JSON.stringify(broken));assert.throws(()=>reviewAfterUi(folder,childId));}
   for(const change of [s=>s.operations.push(s.operations[0]),s=>s.operations[4].documentId='999',s=>s.closed=false,s=>s.select=13,s=>s.effectCalls.RECEIPT=2]){const broken=structuredClone(state);change(broken);fs.writeFileSync(file,JSON.stringify(broken));assert.throws(()=>reviewAfterUi(folder,runId));}
  }finally{assert.equal(path.dirname(folder),os.tmpdir());assert.ok(path.basename(folder).startsWith('doc120-qa-resume-'));fs.rmSync(folder,{recursive:true,force:true});}
+});
+test('QA13: consulta con recibidos guardados y original pendiente queda lista sin boton heredado Actualizar estado',async()=>{
+ const {fixture,select,click}=require('./support/doc120-coordinacion-browser.cjs');
+ await fixture(async page=>{
+  await select(page,1,1);await click(page,'confirmar-importar');await page.getByRole('heading',{name:'Importación completada',exact:true}).waitFor();await page.getByRole('button',{name:'Cerrar',exact:true}).first().click();
+  await page.evaluate(()=>{doc120Independent=true;files.push({...files[0],recursoId:'79',idCliente:'a2',nombre:'pendiente.pdf',rutaRelativa:'Carpeta-0/pendiente.pdf',estadoRecepcion:'PENDIENTE',estado:'NO_INICIADO',documentoId:null,bytesRecibidos:null,valoresEfectivosFijados:false,accionesPermitidas:['RECIBIR']});roots[0].estado='EXPEDIENTE_CONFIRMADO';rev++;});
+  const before=await page.evaluate(()=>calls.filter(c=>['AvanzarLote','RECEPCION','ConfirmarPlan'].includes(c.operation)).length);
+  await page.locator('[data-doc111-resume]').click();
+  await waitConsultReady(page);assert.equal(await page.getByRole('button',{name:'Actualizar estado',exact:true}).count(),0);
+  assert.equal(await page.locator('[data-doc111-action="continuar-importacion"]').isEnabled(),true);
+  assert.equal(await page.evaluate(()=>calls.filter(c=>['AvanzarLote','RECEPCION','ConfirmarPlan'].includes(c.operation)).length),before);
+ });
 });

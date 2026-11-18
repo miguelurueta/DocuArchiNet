@@ -6,7 +6,7 @@ const {createWorkflowLoginPageSession}=require('../tests/support/authenticated-w
 const {classifyLoginMessage,classifyLoginPostback}=require('../tests/support/doc111-importacion-carpetas.cjs');
 const {readPrepared}=require('../tests/support/doc119-acceptance-data.cjs');
 const {selectLevel}=require('../tests/support/doc113-ventana-importacion.cjs');
-const {consult,permittedRequest,STATIC_DEPENDENCIES}=require('../tests/support/doc119-seguimiento.cjs');
+const {responseFor,permittedRequest,STATIC_DEPENDENCIES}=require('../tests/support/doc119-seguimiento.cjs');
 const {loginRequestAction}=require('./apply-doc120-egresos-length.cjs');
 const {parseTiming}=require('./measure-doc120-three-files.cjs');
 const {MAX,RESUME_MAX,SQL,check,id,hash,one,fingerprint,bind,bindResumed,confirmationBinding,EffectsGate,receiptPayload,failure}=require('../tests/support/doc120-qa-window.cjs');
@@ -16,6 +16,20 @@ const SOURCES=['bin/GestionDocumental-Docuarchi.net.dll','js/gestion/Importacion
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 function heldGate(){let ready,release;const reached=new Promise(r=>ready=r),continued=new Promise(r=>release=r);return{ready,release,reached,continued};}
 async function gateOutcome(promise){let timer;try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('DOC120_QA_HELD_RESPONSE_TIMEOUT')),60000);})]);}finally{clearTimeout(timer);}}
+async function waitConsultReady(page){
+ await page.locator('[data-doc111-action="continuar-importacion"]').waitFor();
+ await page.waitForFunction(()=>{const b=document.querySelector('[data-doc111-action="continuar-importacion"]');return b&&!b.disabled;});
+}
+async function consultQa(page,lotId){
+ const r=await responseFor(page,'ConsultarRecursosLote',async()=>{
+  const access='[data-doc111-query-open]';if(await page.locator(access).count()){if(!await page.locator(access).isVisible()&&await page.locator('#doc110-navigation-toggle').count())await page.locator('#doc110-navigation-toggle').click();await page.locator(access).click();}
+  await page.locator('[data-doc111-lote]').fill(lotId);await page.locator('[data-doc111-consultar]').click();
+ },'ARCHIVOS');
+ check(r.status===200&&r.body?.ok&&r.body.datos?.loteId===lotId,'QUERY_FAILED');
+ // Both fixed lots have pending files. The current view can remove its legacy
+ // Actualizar estado button when the primary action becomes Continuar.
+ await waitConsultReady(page);return r.body.datos;
+}
 function reviewPrior(root,previous){
  check(/^[a-f0-9]{32}$/.test(previous),'PREVIOUS_INVALID');const file=path.join(root,'.tmp/doc120-qa-failures',previous,'state.json'),bytes=fs.readFileSync(file),s=JSON.parse(bytes);
  check(s.runId===previous&&s.closed===true&&s.credentialsCleared===true&&s.status==='STOPPED'&&s.http<=s.max.http&&s.select<=s.max.select&&s.sessions<=s.max.sessions,'PREVIOUS_UNCLOSED');
@@ -23,6 +37,12 @@ function reviewPrior(root,previous){
  return{runId:previous,file,sha256:hash(bytes),http:s.http,select:s.select,sessions:s.sessions,failedConfirmations:s.operations.length};
 }
 function reviewAfterUi(root,previous){
+ if(previous==='c4afaca21fe2bb90d54f9b0ddeea4750'){
+  const file=path.join(root,'.tmp/doc120-qa-failures',previous,'state.json'),bytes=fs.readFileSync(file),s=JSON.parse(bytes),parent=reviewAfterUi(root,'95b22a23844453a3529c4908060be669');
+  check(s.runId===previous&&s.closed===true&&s.credentialsCleared===true&&s.previousStatePreserved===true&&s.status==='STOPPED'&&s.failure==='DOC120_QA_UI_TIMEOUT'&&s.failureStage==='VERIFY_LOT29_RECOVERY_READONLY'&&s.failureLoadStep==='QUERY_LOT_29'&&s.http===278&&s.select===5&&s.sessions===1,'READONLY_CONTINUATION_INVALID');
+  check(s.operations.length===0&&Object.keys(s.effectCalls||{}).length===0&&s.previousReview.runId===parent.runId&&s.previousReview.sha256===parent.sha256&&s.before.completed29===2&&s.before.completed50===23&&s.before.fingerprint29===parent.before.fingerprint29&&s.before.fingerprint50===parent.before.fingerprint50,'READONLY_CONTINUATION_CHANGED');
+  return{...parent,runId:previous,file,sha256:hash(bytes),http:s.http,select:s.select,sessions:s.sessions,parentReview:{runId:parent.runId,file:parent.file,sha256:parent.sha256},cumulative:{http:parent.http+s.http,select:parent.select+s.select,sessions:parent.sessions+s.sessions}};
+ }
  check(previous==='95b22a23844453a3529c4908060be669','RESUME_RUN_INVALID');
  const file=path.join(root,'.tmp/doc120-qa-failures',previous,'state.json'),bytes=fs.readFileSync(file),s=JSON.parse(bytes);
  check(s.runId===previous&&s.closed===true&&s.credentialsCleared===true&&s.previousStatePreserved===true&&s.status==='STOPPED'&&s.failureStage==='UI_PAUSE_WAITING_FOR_RESPONSE'&&s.http===582&&s.select===12&&s.sessions===1,'RESUME_PREVIOUS_INVALID');
@@ -44,7 +64,8 @@ async function main(args=process.argv.slice(2)){
  let environment,browser,binding,effects,started=0,cabinet,expectedSources,holdingC=null,losingD=false;const pendingGates=[];
  const assertLive=()=>{check(!state.guardFailure,'GUARD_STOPPED');check(!started||Date.now()-started<caps.milliseconds,'WINDOW_EXPIRED');};
  const charge=kind=>{assertLive();check(state[kind]<caps[kind],'BUDGET_EXHAUSTED');state[kind]++;save();};
- const unchanged=()=>{check(SOURCES.every(f=>hash(fs.readFileSync(path.join(ROOT,f)))===expectedSources[f]),'SOURCE_CHANGED');if(previous)check(hash(fs.readFileSync(previous.file))===previous.sha256,'PREVIOUS_STATE_CHANGED');};
+ const priorIntact=()=>!previous||[previous,previous.parentReview].filter(Boolean).every(p=>hash(fs.readFileSync(p.file))===p.sha256);
+ const unchanged=()=>{check(SOURCES.every(f=>hash(fs.readFileSync(path.join(ROOT,f)))===expectedSources[f]),'SOURCE_CHANGED');check(priorIntact(),'PREVIOUS_STATE_CHANGED');};
  const query=async(sql,parameters,prefix='DOC120_E2E')=>{charge('select');return queryRows(sql,parameters,environment,prefix);};
  const snapshot=async()=>{const data={};for(const key of ['headers','roots','files'])data[key]=await query(SQL[key],['29','50','141','2']);return data;};
  const safeBody=(operation,p,response,body)=>{const row=effects.observe(operation,p,response.status(),body);if(row){state.operations.push(row);save();}if(!body?.ok&&operation==='AvanzarLote'&&!(p.loteId==='50'&&p.recursoId===binding.E)){state.serviceFailure={phase:p.fase,code:/^[A-Z][A-Z0-9_]{0,63}$/.test(body?.codigo||'')?body.codigo:'UNKNOWN'};save();}return body;};
@@ -92,7 +113,7 @@ async function main(args=process.argv.slice(2)){
   check(typeof auth.token==='string'&&auth.token.length>0,'TOKEN_UNAVAILABLE');return auth;
  }
  async function loaded(auth,lot,level){
-  state.loadStep='NAVIGATE_'+lot;save();await auth.page.goto(new URL('Gestion/WebFormProducionDocumental.aspx',BASE).href,{waitUntil:'domcontentloaded',timeout:60000});state.loadStep='SELECT_LEVEL_'+level;save();await selectLevel(auth.page,level);state.loadStep='QUERY_LOT_'+lot;save();await consult(auth.page,lot);auth.token=await auth.page.locator('#doc111-importacion').getAttribute('data-token');state.loadStep='LOADED_'+lot;save();assertLive();
+  state.loadStep='NAVIGATE_'+lot;save();await auth.page.goto(new URL('Gestion/WebFormProducionDocumental.aspx',BASE).href,{waitUntil:'domcontentloaded',timeout:60000});state.loadStep='SELECT_LEVEL_'+level;save();await selectLevel(auth.page,level);state.loadStep='QUERY_LOT_'+lot;save();await consultQa(auth.page,lot);auth.token=await auth.page.locator('#doc111-importacion').getAttribute('data-token');state.loadStep='LOADED_'+lot;save();assertLive();
  }
  async function decision(page,fileId){await page.locator('[data-doc120-unavailable][open]').waitFor();const text=await page.locator('[data-doc120-unavailable][open]').textContent();check(text.includes('archivo '+fileId)&&text.includes('Envío del PDF')&&text.includes('Ruta dentro de la selección')&&text.includes('no está vinculado'),'DECISION_CONTEXT_MISSING');}
  async function paused(page){await page.waitForFunction(()=>{const b=document.querySelector('[data-doc111-action="continuar-importacion"]');return b&&!b.disabled&&!document.querySelector('[data-doc120-unavailable][open]');});assertLive();}
@@ -123,7 +144,7 @@ async function main(args=process.argv.slice(2)){
  }
  async function lostResponse(auth){
   await loaded(auth,'50','223');stage('LOST_STORAGE_RESPONSE');losingD=true;await auth.page.locator('[data-doc111-action="continuar-importacion"]').click();
-  await auth.page.waitForFunction(()=>{const text=document.querySelector('.doc111-notice')?.textContent||'';return /guardado|confirm/i.test(text)&&!!document.querySelector('[data-doc111-action="consultar"]')&&!document.querySelector('[data-doc111-action="pausar-importacion"]');},null,{timeout:60000});assertLive();check(!losingD&&state.results.responseDeliveryBoundary,'RESPONSE_LOSS_NOT_INJECTED');
+  await auth.page.waitForFunction(()=>{const text=document.querySelector('.doc111-notice')?.textContent||'';return /guardado|confirm/i.test(text)&&!!document.querySelector('[data-doc111-action="consultar"]:not(:disabled)')&&!document.querySelector('[data-doc111-action="pausar-importacion"]');},null,{timeout:60000});assertLive();check(!losingD&&state.results.responseDeliveryBoundary,'RESPONSE_LOSS_NOT_INJECTED');
   const proof=await verifyFile('50',binding.D);await shot(auth.page,'response-delivery-lost');await loaded(auth,'50','223');const again=await verifyFile('50',binding.D);check(again.documentId===proof.documentId,'LOST_RESPONSE_DUPLICATED');state.results.lostResponse={...proof,reloadConfirmed:true,noReplay:true};save();
  }
  async function concurrency(first){
@@ -140,7 +161,7 @@ async function main(args=process.argv.slice(2)){
  }
  try{
   const prepared=resume?null:readPrepared(ROOT);expectedSources=Object.fromEntries(SOURCES.map(f=>[f,hash(fs.readFileSync(path.join(ROOT,f)))]));check(expectedSources[SOURCES[0]]===BINARY,'BINARY_CHANGED');state.sources=expectedSources;save();
-  if(resume){console.log('CONTINUACION REVISADA: lote29 solo lectura, documentos16282/16283 preservados. Lote50 archivos120/121: hasta4 ALMACENAR,2 documentos esperados (tope4 ante regresion). Cero recepciones, creaciones o confirmaciones.');console.log('Ventana anterior cerrada:582 HTTP/12 SELECT/1 sesion/2 documentos. Nueva ventana:1200 HTTP/108 SELECT/3 sesiones; acumulado maximo1782 HTTP/120 SELECT/4 sesiones.45min. Claves privadas nuevas; sin borrados ni nuevos lotes.');}else{console.log('QA REAL: reutiliza lotes29 y50 del propietario141/empresa2. Sin nuevos planes/lotes ni borrados. Maximo1 PDF de677 bytes recibido,1 expediente nuevo y6 solicitudes de guardado (4 documentos previstos; hasta6 si aparece una regresion). Fallo controlado por entrega de respuesta y dos sesiones sobre un archivo.');
+  if(resume){const used=previous.cumulative||{http:previous.http,select:previous.select,sessions:previous.sessions};state.accounting={used,maximumIncludingContinuation:{http:used.http+caps.http,select:used.select+caps.select,sessions:used.sessions+caps.sessions}};save();console.log('CONTINUACION REVISADA: lote29 solo lectura, documentos16282/16283 preservados. Lote50 archivos120/121: hasta4 ALMACENAR,2 documentos esperados (tope4 ante regresion). Cero recepciones, creaciones o confirmaciones.');console.log('Consumo anterior revisado: '+used.http+' HTTP/'+used.select+' SELECT/'+used.sessions+' sesiones/2 documentos. Nueva ventana:'+caps.http+' HTTP/'+caps.select+' SELECT/'+caps.sessions+' sesiones. Acumulados='+JSON.stringify(state.accounting.maximumIncludingContinuation)+'.45min. Claves privadas nuevas; sin borrados ni nuevos lotes.');}else{console.log('QA REAL: reutiliza lotes29 y50 del propietario141/empresa2. Sin nuevos planes/lotes ni borrados. Maximo1 PDF de677 bytes recibido,1 expediente nuevo y6 solicitudes de guardado (4 documentos previstos; hasta6 si aparece una regresion). Fallo controlado por entrega de respuesta y dos sesiones sobre un archivo.');
   console.log('Topes1200 HTTP,120 SELECT de control,3 sesiones,45 minutos. No se mueve ni borra ningun original. Las claves se ingresan enmascaradas y se eliminan al terminar.');}
   await tty.collectValue(secrets,'ra','DSN RA de lectura',{defaultValue:'MembershipUsers'});await tty.collectValue(secrets,'da','DSN DA de lectura',{defaultValue:'MembershipUsers'});check([secrets.ra,secrets.da].every(s=>/^[A-Za-z0-9 _.-]{1,128}$/.test(s)),'DSN_INVALID');
   await tty.collectValue(secrets,'tls','Aceptar certificado local: SI o NO',{defaultValue:'NO'});check(secrets.tls.toUpperCase()==='SI','TLS_NOT_ACCEPTED');
@@ -158,7 +179,7 @@ async function main(args=process.argv.slice(2)){
   stage('FINAL_CONTROLS');const after=await snapshot();for(const [lot,excluded,expected] of [['29',[binding.A,binding.C],resume?0:2],['50',[binding.D,binding.E],2]]){const files=after.files.filter(f=>String(f.lote_id)===lot);check(files.filter(f=>f.estado_efecto==='COMPLETADO').length===state.before['completed'+lot]+expected&&fingerprint(files,excluded)===state.before['fingerprint'+lot],'FINAL_INVENTORY_CHANGED');}
   check(after.headers.every(h=>!Number(h.detencion_solicitada)&&Number(h.unresolved)===0),'FINAL_ACTIVE_OR_STOPPED');state.after={completed29:state.before.completed29+(resume?0:2),completed50:state.before.completed50+2,other25And998Preserved:true};state.effectCalls=effects.calls;stage('PASS_QA_WITH_LIMITS');
  }catch(e){state.failureStage=state.status;state.failureLoadStep=state.loadStep||null;state.failureType=e?.name==='TimeoutError'?'TIMEOUT':'ERROR';state.status='STOPPED';state.failure=state.guardFailure||failure(e);process.exitCode=2;}
- finally{for(const gate of pendingGates)gate.release();for(const context of contexts)await context.close().catch(()=>{});if(browser)await browser.close().catch(()=>{});for(const k of Object.keys(secrets))delete secrets[k];if(environment)for(const k of Object.keys(environment))if(/^DOC120(?:_DA)?_E2E/.test(k))delete environment[k];state.closed=true;state.credentialsCleared=true;state.finishedUtc=new Date().toISOString();if(effects)state.effectCalls=effects.calls;if(previous){state.previousStatePreserved=hash(fs.readFileSync(previous.file))===previous.sha256;if(!state.previousStatePreserved){state.status='STOPPED';state.failure='DOC120_QA_PREVIOUS_STATE_CHANGED';process.exitCode=2;}}save();console.log('DOC120_QA_RESULT='+JSON.stringify(state));console.log('La QA termino. No se repetiran operaciones.');}
+ finally{for(const gate of pendingGates)gate.release();for(const context of contexts)await context.close().catch(()=>{});if(browser)await browser.close().catch(()=>{});for(const k of Object.keys(secrets))delete secrets[k];if(environment)for(const k of Object.keys(environment))if(/^DOC120(?:_DA)?_E2E/.test(k))delete environment[k];state.closed=true;state.credentialsCleared=true;state.finishedUtc=new Date().toISOString();if(effects)state.effectCalls=effects.calls;if(previous){state.previousStatePreserved=priorIntact();if(!state.previousStatePreserved){state.status='STOPPED';state.failure='DOC120_QA_PREVIOUS_STATE_CHANGED';process.exitCode=2;}}save();console.log('DOC120_QA_RESULT='+JSON.stringify(state));console.log('La QA termino. No se repetiran operaciones.');}
 }
 if(require.main===module)main().catch(()=>{console.error('DOC120_QA_PRECHECK_STOPPED');process.exitCode=2;});
-module.exports={heldGate,gateOutcome,reviewPrior,reviewAfterUi,main};
+module.exports={heldGate,gateOutcome,waitConsultReady,consultQa,reviewPrior,reviewAfterUi,main};

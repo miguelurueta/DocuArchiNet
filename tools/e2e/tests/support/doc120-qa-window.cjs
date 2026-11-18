@@ -4,7 +4,7 @@ const check=(v,c)=>{if(!v)throw Error('DOC120_QA_'+c);};
 const id=v=>typeof v==='string'&&/^[1-9][0-9]{0,9}$/.test(v)&&Number(v)<=4294967295;
 const hash=v=>crypto.createHash('sha256').update(typeof v==='string'||Buffer.isBuffer(v)?v:JSON.stringify(v)).digest('hex');
 const MAX=Object.freeze({http:1200,select:120,sessions:3,receipts:1,receiptBytes:677,creations:1,storageCalls:6,newDocuments:6,expectedNewDocuments:4,confirmationCalls:2,milliseconds:45*60*1000});
-const RESUME_MAX=Object.freeze({...MAX,select:108,receipts:0,receiptBytes:0,creations:0,storageCalls:4,newDocuments:4,expectedNewDocuments:2,confirmationCalls:0});
+const RESUME_MAX=Object.freeze({...MAX,select:103,receipts:0,receiptBytes:0,creations:0,storageCalls:4,newDocuments:4,expectedNewDocuments:2,confirmationCalls:0});
 const SQL={
  headers:"SELECT l.lote_id,l.plan_id,l.nivel_ref,l.version_id,l.estado,l.revision,l.detencion_solicitada,l.total_raices,l.total_archivos,l.config_doc,(SELECT COUNT(*) FROM ra_integracion_intento i WHERE i.lote_id=l.lote_id AND i.estado IN ('RESERVADO','EN_CURSO','INCIERTO')) AS unresolved FROM ra_integracion_lote l WHERE l.lote_id IN (?,?) AND l.solicitante_ref=? AND l.ambito_ref=? ORDER BY l.lote_id",
  roots:'SELECT l.lote_id,r.raiz_id,r.cliente_raiz_id,r.estado,r.revision,r.intento_activo_id,r.datos_doc,r.identidad_expediente_doc FROM ra_integracion_lote l INNER JOIN ra_integracion_raiz r ON r.lote_id=l.lote_id WHERE l.lote_id IN (?,?) AND l.solicitante_ref=? AND l.ambito_ref=? ORDER BY l.lote_id,r.raiz_id LIMIT 4',
