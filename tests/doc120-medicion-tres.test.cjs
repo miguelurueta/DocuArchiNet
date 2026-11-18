@@ -4,6 +4,7 @@ const {parseTiming,selectFiles,protectedHash,allowed,runThree,MAX,SELECT_FILES,S
 const {prepareWindow,reviewPrevious,assertPreviousUnchanged,validateIndex,waitBinary,SELECT_INDEX}=require('../tools/e2e/scripts/measure-doc120-three-files.cjs');
 const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 const {collectApplicationCredentials,failure}=require('../tools/e2e/scripts/measure-doc120-three-files.cjs');
+const {TEN}=require('../tools/e2e/scripts/measure-doc120-three-files.cjs');
 function rows(){return Array.from({length:1000},(_,i)=>({archivo_id:String(i+1),raiz_id:'60',revision:1,estado_recepcion:'RECIBIDO',estado_efecto:i<7?'COMPLETADO':'NO_INICIADO',bytes_previstos:'927',bytes_recibidos:'927',active_marker:0,fixed_values:1,result_hash:'synthetic'}));}
 test('MEASURE01: selecciona solo tres pendientes recibidos con valores y conserva las huellas ajenas',()=>{
  const input=rows(),selected=selectFiles(input);assert.deepEqual(selected.map(r=>r.archivo_id),['8','9','10']);const before=protectedHash(input,selected);selected[0].estado_efecto='COMPLETADO';assert.equal(protectedHash(input,selected),before);input[0].result_hash='changed';assert.notEqual(protectedHash(input,selected),before);input[7].active_marker=1;assert.equal(selectFiles(input)[0].archivo_id,'9');assert.throws(()=>selectFiles(input.slice(1)));assert.equal(MAX.storage,3);
@@ -74,4 +75,35 @@ test('MEASURE11: diagnostico de entrada privada conserva solo fase y codigo cerr
   assert.deepEqual(calls,failedName==='user'?['user']:['user','password']);assert.equal(stages.at(-1),failedName==='user'?'WAITING_APPLICATION_ACCOUNT':'WAITING_APPLICATION_PASSWORD');
  }
  const values={};await collectApplicationCredentials(values,()=>{},async(target,name)=>{target[name]='synthetic';});assert.deepEqual(values,{user:'synthetic',password:'synthetic'});
+});
+
+test('MEASURE12: diez siguientes pendientes requieren perfil explicito y nunca habilitan un undecimo',()=>{
+ const input=rows(),selected=selectFiles(input,10);assert.deepEqual(selected.map(r=>r.archivo_id),Array.from({length:10},(_,i)=>String(i+8)));assert.equal(selectFiles(input).length,3);assert.equal(MAX.storage,3);assert.equal(TEN.storage,10);
+ for(const count of [0,4,11,1000])assert.throws(()=>selectFiles(input,count),/SAMPLE_SIZE_INVALID/);
+ const state={max:TEN,sampleCount:10,authorizationTag:'TEN_NEXT_EXISTING',selected,dispatched:[]},request=id=>({loteId:'50',recursoId:id,fase:'ALMACENAR',revisionEsperada:1,claveOperacion:'measure_'+'a'.repeat(32)});
+ for(const row of selected){allowed('AvanzarLote',request(row.archivo_id),state);state.dispatched.push(row.archivo_id);}
+ assert.throws(()=>allowed('AvanzarLote',request('18'),state));assert.throws(()=>allowed('AvanzarLote',request('8'),state));
+ assert.throws(()=>allowed('AvanzarLote',request('8'),{...state,dispatched:[],authorizationTag:undefined}),/REQUEST_SCOPE_DENIED/);
+ assert.throws(()=>allowed('AvanzarLote',request('11'),{selected,dispatched:['8','9','10']}),/REPLAY_OR_RESOURCE_DENIED/);
+ const oversized=rows();for(const row of oversized)row.bytes_previstos=row.bytes_recibidos=String(10*1024*1024);assert.throws(()=>selectFiles(oversized,10),/SOURCE_BYTES_EXCEEDED/);
+});
+
+test('MEASURE13: muestra de diez termina ante el cuarto fallo sin repetir confirmados ni iniciar el quinto',async()=>{
+ const selected=selectFiles(rows(),10),calls=[],confirmed=[];
+ const read=async id=>({recurso:{recursoId:id,estadoRecepcion:'RECIBIDO',estado:'NO_INICIADO',valoresEfectivosFijados:true,tieneIntentoActivo:false,revision:1},padre:{recursoId:'60',expedienteId:'700',relacionNivelId:'800'},estado:{loteId:'50',detencionSolicitada:false,hayIntentosActivos:false,hayIncertidumbre:false}});
+ await assert.rejects(runThree({selected,read,store:async row=>{calls.push(row.archivo_id);if(calls.length===4)throw Error('closed failure');return row.archivo_id;},verify:async()=>{},onResult:id=>confirmed.push(id)}));assert.deepEqual(calls,['8','9','10','11']);assert.deepEqual(confirmed,['8','9','10']);
+});
+
+test('MEASURE14: diez abre ventana nueva solo tras muestra aprobada, conserva sus archivos y revisa cierre exacto',()=>{
+ const parent=fs.mkdtempSync(path.join(os.tmpdir(),'doc120-measure-ten-')),previous='a'.repeat(32),next='b'.repeat(32),folder=path.join(parent,previous);fs.mkdirSync(folder);
+ const prior={runId:previous,status:'FINISHED_THREE',closed:true,credentialsCleared:true,max:MAX,http:104,select:20,sessions:1,dispatched:['107','108','109'],results:[{fileId:'107'},{fileId:'108'},{fileId:'109'}],before:{completed:10,protectedHash:'same'},after:{completed:13,protectedHash:'same'}};
+ fs.writeFileSync(path.join(folder,'state.json'),JSON.stringify(prior));fs.writeFileSync(path.join(parent,'window.json'),JSON.stringify({runId:previous,maximum:MAX}));
+ try{
+  assert.throws(()=>prepareWindow(parent,next,null,TEN),/REVIEWED_BASELINE/);
+  fs.writeFileSync(path.join(folder,'state.json'),JSON.stringify({...prior,status:'STOPPED'}));assert.throws(()=>prepareWindow(parent,next,previous,TEN),/PASSED_BASELINE/);
+  fs.writeFileSync(path.join(folder,'state.json'),JSON.stringify(prior));const opened=prepareWindow(parent,next,previous,TEN);assertPreviousUnchanged(opened.review);assert.equal(JSON.parse(fs.readFileSync(path.join(opened.folder,'window.json'))).maximum.storage,10);
+  const ten={...prior,runId:next,status:'FINISHED_TEN',max:TEN,sampleCount:10,authorizationTag:'TEN_NEXT_EXISTING',dispatched:Array.from({length:10},(_,i)=>String(110+i)),before:{completed:13,protectedHash:'same'},after:{completed:23,protectedHash:'same'}};ten.results=ten.dispatched.map(fileId=>({fileId}));
+  fs.writeFileSync(path.join(opened.folder,'state.json'),JSON.stringify(ten));assert.equal(reviewPrevious(parent,next).confirmed.length,10);
+  for(const change of [s=>s.dispatched.push('120'),s=>s.results[9]={fileId:'110'},s=>s.after.completed=22,s=>s.authorizationTag='THREE_EXISTING']){const broken=structuredClone(ten);change(broken);fs.writeFileSync(path.join(opened.folder,'state.json'),JSON.stringify(broken));assert.throws(()=>reviewPrevious(parent,next));}
+ }finally{assert.equal(path.dirname(parent),os.tmpdir());assert.ok(path.basename(parent).startsWith('doc120-measure-ten-'));fs.rmSync(parent,{recursive:true,force:true});}
 });

@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — diez siguientes medidos y ventana cerrada2026-11-18
+
+Solicitud expresa de diez siguientes del lote50: perfil `--authorized-ten` del ejecutor existente, ventana nueva3d30f47d6bec4e33b6e532ffa8ed78cb enlazada a c6f62c44 aprobada. FINISHED_TEN,118 HTTP/48 SELECT externos/1 sesión/10 ALMACENAR;110–119 confirmados RA/DA en documentos16270–16279, mismo expediente693/gabinete10.13→23 guardados y huella de990 ajenos preservada. Media0,969465s, mediana0,934637s, p95 muestral1,140969s, rango0,897519–1,225048s; sin degradación creciente observada entre mitades.14/14 locales, modo3 conserva límite3. Sin cambio de DLL/esquema, recepción/creación/reanudación/borrado. Cerrado y secretos eliminados, estado/ventana anterior intactos. Fuente `Validacion/doc120-lote50-diez-20261118.md`/JSON/CSV. No reabrir ni ampliar automáticamente la ventana;50 o1.000 necesitan alcance/aprobación propios. No certifica sellado en frío, PDF grandes, concurrencia o capacidad total.
+
 ## DOC-120 — corrección focal instalada y tres guardados aprobados2026-11-18
 
 DLL/PDB8f71ec7e instaladas con respaldo tras aprobación (DLL8b27a942). Nueva ventana aprobada c6f62c443bf64e039878754736ceb1b4 FINISHED_THREE:104 HTTP/20 SELECT externos/1 sesión/3 ALMACENAR.107/108/109 confirmados RA/DA en documentos16267/16268/16269 y expediente693;10→13 guardados, huella de997 ajenos preservada. HTTP1,352934/0,913335/0,908159s, promedio1,058143s frente79,432043s de la referencia histórica. Control focal ya existente, no mide sellado en frío ni capacidad completa. Cerrado, secretos eliminados, ventana42318523 intacta; no repetir automáticamente. Fuente `Validacion/doc120-lote50-correccion-medida-20261118.md`/JSON/CSV.3.198 aprobada en ese alcance;3.187/3.196 y once brechas previas conservadas. Los apartados inferiores mantienen sus cortes históricos.
