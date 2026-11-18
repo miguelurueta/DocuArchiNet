@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Tres archivos medidos en ejecución real —2026-11-17
+
+Usuario «ejecuta la prueba» autorizó instalar la instrumentación y medir tres guardados del lote50. Run23e18a40 **FINISHED_THREE**,3 confirmados y verificados,7→10 documentos y997 archivos preservados. [Tiempos/controles reales](doc120-medicion-tres-20261117.md), JSON y CSV:93,177/74,219/70,900s HTTP, writer0,152/0,023/0,020s; lectura/reconstrucción de metadatos72,321% del coordinador. DLL instrumentada instalada con respaldo;105 HTTP totales/14 SELECT de control/1 sesión. Sin optimizar el recorrido; secretos eliminados y ventana cerrada.3.169 completa,178/189; once pendientes previas conservadas.
+
 ## Medición de tres documentos — preparación2026-11-17
 
 Solicitud real del usuario delimitada en [plan de tres archivos](doc120-medicion-tres-plan-real-20261117.md). Captura Server-Timing por solicitud y runner con guardias preparados;8/8 locales y compilación aislada. Estado **PREPARADO; NO EJECUTADO**: requiere aprobación de instalación y credenciales privadas. No hay tiempos reales nuevos ni escrituras de esta ventana;3.169 sigue abierta. No se aplicó la optimización propuesta.

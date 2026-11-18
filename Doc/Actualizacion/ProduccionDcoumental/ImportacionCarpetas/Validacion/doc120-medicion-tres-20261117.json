@@ -1,0 +1,441 @@
+{
+  "status": "PASS_REAL_THREE_FILES",
+  "runId": "23e18a403aae4dd4b455adc86ab787ad",
+  "authorizedBy": "ejecuta la prueba",
+  "environment": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "ownerRef": "141",
+  "companyRef": "2",
+  "levelRef": "223",
+  "lotId": "50",
+  "planId": "90",
+  "versionId": "45",
+  "cabinetId": "10",
+  "integrity": {
+    "mode": "COMPLETO_OBLIGATORIO",
+    "scope": "EXPEDIENTE"
+  },
+  "startedUtc": "2026-11-18T02:00:07.443Z",
+  "finishedUtc": "2026-11-18T02:06:03.186Z",
+  "startedBogota": "2026-11-17T21:00:07.443000-05:00",
+  "finishedBogota": "2026-11-17T21:06:03.186000-05:00",
+  "deployment": {
+    "runId": "23e18a403aae4dd4b455adc86ab787ad",
+    "status": "INSTALLED_SMOKE_PASS",
+    "beforeDllSha256": "234268c3dddabc2996b871718af508be8ab4a86842a4af770aa44535b78a319a",
+    "installedDllSha256": "f667ea0ffe1b6f2ef111ac5afd52f50bab92c5edcd340a0421b9ea0931aef689",
+    "installedPdbSha256": "024c9ae7c1bd98c9c062d96f2b890b0a904402d3fa746c979f64d898f768fcec",
+    "smoke": {
+      "status": 401,
+      "code": "SESION_REQUERIDA"
+    },
+    "anonymousHttp": 1,
+    "poolRecycled": false,
+    "backupPath": ".tmp/doc120-three-deploy/23e18a403aae4dd4b455adc86ab787ad"
+  },
+  "usage": {
+    "measurementHttp": 104,
+    "deploymentHttp": 1,
+    "totalHttp": 105,
+    "controlSelect": 14,
+    "sessions": 1,
+    "storageRequests": 3,
+    "newReceipts": 0,
+    "newPlans": 0,
+    "newLots": 0,
+    "newExpedients": 0,
+    "manualSqlMutations": 0,
+    "retries": 0,
+    "sourceBytes": 134451
+  },
+  "controls": {
+    "originalFiles": 1000,
+    "protectedFiles": 997,
+    "completedBefore": 7,
+    "completedAfter": 10,
+    "pendingAfter": 990,
+    "beforeProtectedHash": "30895436f7705d81c4369e4dced64b689c58368452803db8ca52f3fdeb780820",
+    "afterProtectedHash": "30895436f7705d81c4369e4dced64b689c58368452803db8ca52f3fdeb780820",
+    "beforeSnapshotSha256": "9140cc7400c96a17e717372664f3db51a497e63c9348fbe2915520e4f6e28e82",
+    "daVerified": true,
+    "priorConfirmedDocumentsPreserved": true,
+    "closed": true,
+    "credentialsCleared": true,
+    "nodeExitedObserved": true
+  },
+  "files": [
+    {
+      "fileId": "104",
+      "documentId": "16264",
+      "expedientId": "693",
+      "inventoryId": "23392",
+      "httpMs": 93176.8768,
+      "coordinatorMs": 93149.545,
+      "metadataMs": 64010.597,
+      "authorityMs": 9826.596000000001,
+      "physicalVerificationMs": 13801.332999999999,
+      "originalsTotalMs": 90007.604,
+      "legacyWriterMs": 151.548,
+      "postcheckMs": 12.583,
+      "checkpointMs": 638.378,
+      "metadataCalls": 2000,
+      "physicalVerificationCalls": 2000,
+      "checkpointHash": "NmUxOTYzNWI1MWQxYzJmMTU5NjAxZmQ2OGVhM2YxNTFhMGU3NjJiZA==",
+      "operationId": "24de7c372ff54bab807c450f568637df",
+      "timing": {
+        "adaptador": {
+          "durationMs": 1803.47,
+          "calls": 1
+        },
+        "checkpoint": {
+          "durationMs": 638.378,
+          "calls": 1
+        },
+        "comprobacion_posterior": {
+          "durationMs": 12.583,
+          "calls": 1
+        },
+        "consulta_preflight": {
+          "durationMs": 263.022,
+          "calls": 2
+        },
+        "copia_trabajo": {
+          "durationMs": 27.045,
+          "calls": 1
+        },
+        "datos_documentales": {
+          "durationMs": 55.267,
+          "calls": 1
+        },
+        "escritor_legacy": {
+          "durationMs": 151.548,
+          "calls": 1
+        },
+        "lectura_final": {
+          "durationMs": 200.596,
+          "calls": 1
+        },
+        "original_v2": {
+          "durationMs": 16.064,
+          "calls": 1
+        },
+        "originales_previos": {
+          "durationMs": 45906.872,
+          "calls": 1
+        },
+        "originales_retenidos": {
+          "durationMs": 44100.732,
+          "calls": 1
+        },
+        "prev_auth": {
+          "durationMs": 4709.438,
+          "calls": 1000
+        },
+        "prev_io": {
+          "durationMs": 9585.607,
+          "calls": 1000
+        },
+        "prev_meta": {
+          "durationMs": 30469,
+          "calls": 1000
+        },
+        "reserva": {
+          "durationMs": 325.945,
+          "calls": 1
+        },
+        "ret_auth": {
+          "durationMs": 5117.158,
+          "calls": 1000
+        },
+        "ret_io": {
+          "durationMs": 4215.726,
+          "calls": 1000
+        },
+        "ret_meta": {
+          "durationMs": 33541.597,
+          "calls": 1000
+        },
+        "total": {
+          "durationMs": 93149.545,
+          "calls": 1
+        },
+        "v2_autorizacion": {
+          "durationMs": 246.219,
+          "calls": 1
+        },
+        "v2_hash": {
+          "durationMs": 5.026,
+          "calls": 9
+        },
+        "v2_inicio": {
+          "durationMs": 241.712,
+          "calls": 1
+        },
+        "v2_retorno": {
+          "durationMs": 41.922,
+          "calls": 1
+        }
+      }
+    },
+    {
+      "fileId": "105",
+      "documentId": "16265",
+      "expedientId": "693",
+      "inventoryId": "23393",
+      "httpMs": 74219.48449999999,
+      "coordinatorMs": 74202.899,
+      "metadataMs": 55149.186,
+      "authorityMs": 8002.749,
+      "physicalVerificationMs": 6553.982,
+      "originalsTotalMs": 71666.161,
+      "legacyWriterMs": 23.231,
+      "postcheckMs": 5.388,
+      "checkpointMs": 561.389,
+      "metadataCalls": 2000,
+      "physicalVerificationCalls": 2000,
+      "checkpointHash": "ZmQ4MWZkNmE4YWZmZWIxYjU3Mjc3ZTcxNmNlY2I4MmJkN2Y1NDg5Zg==",
+      "operationId": "0be10d1b0ca34b53a47add0723481d8f",
+      "timing": {
+        "adaptador": {
+          "durationMs": 1462.172,
+          "calls": 1
+        },
+        "checkpoint": {
+          "durationMs": 561.389,
+          "calls": 1
+        },
+        "comprobacion_posterior": {
+          "durationMs": 5.388,
+          "calls": 1
+        },
+        "consulta_preflight": {
+          "durationMs": 274.23,
+          "calls": 2
+        },
+        "copia_trabajo": {
+          "durationMs": 80.686,
+          "calls": 1
+        },
+        "datos_documentales": {
+          "durationMs": 21.721,
+          "calls": 1
+        },
+        "escritor_legacy": {
+          "durationMs": 23.231,
+          "calls": 1
+        },
+        "lectura_final": {
+          "durationMs": 192.614,
+          "calls": 1
+        },
+        "original_v2": {
+          "durationMs": 2.886,
+          "calls": 1
+        },
+        "originales_previos": {
+          "durationMs": 36699.097,
+          "calls": 1
+        },
+        "originales_retenidos": {
+          "durationMs": 34967.064,
+          "calls": 1
+        },
+        "prev_auth": {
+          "durationMs": 4164.174,
+          "calls": 1000
+        },
+        "prev_io": {
+          "durationMs": 3724.36,
+          "calls": 1000
+        },
+        "prev_meta": {
+          "durationMs": 27817.367,
+          "calls": 1000
+        },
+        "reserva": {
+          "durationMs": 220.577,
+          "calls": 1
+        },
+        "ret_auth": {
+          "durationMs": 3838.575,
+          "calls": 1000
+        },
+        "ret_io": {
+          "durationMs": 2829.622,
+          "calls": 1000
+        },
+        "ret_meta": {
+          "durationMs": 27331.819,
+          "calls": 1000
+        },
+        "total": {
+          "durationMs": 74202.899,
+          "calls": 1
+        },
+        "v2_autorizacion": {
+          "durationMs": 203.285,
+          "calls": 1
+        },
+        "v2_hash": {
+          "durationMs": 2.532,
+          "calls": 9
+        },
+        "v2_inicio": {
+          "durationMs": 225.896,
+          "calls": 1
+        },
+        "v2_retorno": {
+          "durationMs": 40.821,
+          "calls": 1
+        }
+      }
+    },
+    {
+      "fileId": "106",
+      "documentId": "16266",
+      "expedientId": "693",
+      "inventoryId": "23394",
+      "httpMs": 70899.7683,
+      "coordinatorMs": 70893.461,
+      "metadataMs": 53141.962,
+      "authorityMs": 7772.0560000000005,
+      "physicalVerificationMs": 5566.674,
+      "originalsTotalMs": 68374.727,
+      "legacyWriterMs": 20.009,
+      "postcheckMs": 6.773,
+      "checkpointMs": 632.012,
+      "metadataCalls": 2000,
+      "physicalVerificationCalls": 2000,
+      "checkpointHash": "Y2NjNGZmZTFlZThiODNkOTE5YmU3YzE0NGMwZGI1YTEyMWRmNDE5NQ==",
+      "operationId": "f6e3fa7841a9425885a5a1e706bb3aef",
+      "timing": {
+        "adaptador": {
+          "durationMs": 1484.725,
+          "calls": 1
+        },
+        "checkpoint": {
+          "durationMs": 632.012,
+          "calls": 1
+        },
+        "comprobacion_posterior": {
+          "durationMs": 6.773,
+          "calls": 1
+        },
+        "consulta_preflight": {
+          "durationMs": 225.215,
+          "calls": 2
+        },
+        "copia_trabajo": {
+          "durationMs": 15.649,
+          "calls": 1
+        },
+        "datos_documentales": {
+          "durationMs": 32.525,
+          "calls": 1
+        },
+        "escritor_legacy": {
+          "durationMs": 20.009,
+          "calls": 1
+        },
+        "lectura_final": {
+          "durationMs": 232.91,
+          "calls": 1
+        },
+        "original_v2": {
+          "durationMs": 3.582,
+          "calls": 1
+        },
+        "originales_previos": {
+          "durationMs": 34515.782,
+          "calls": 1
+        },
+        "originales_retenidos": {
+          "durationMs": 33858.945,
+          "calls": 1
+        },
+        "prev_auth": {
+          "durationMs": 3897.402,
+          "calls": 1000
+        },
+        "prev_io": {
+          "durationMs": 2816.769,
+          "calls": 1000
+        },
+        "prev_meta": {
+          "durationMs": 26843.88,
+          "calls": 1000
+        },
+        "reserva": {
+          "durationMs": 229.123,
+          "calls": 1
+        },
+        "ret_auth": {
+          "durationMs": 3874.654,
+          "calls": 1000
+        },
+        "ret_io": {
+          "durationMs": 2749.905,
+          "calls": 1000
+        },
+        "ret_meta": {
+          "durationMs": 26298.082,
+          "calls": 1000
+        },
+        "total": {
+          "durationMs": 70893.461,
+          "calls": 1
+        },
+        "v2_autorizacion": {
+          "durationMs": 186.534,
+          "calls": 1
+        },
+        "v2_hash": {
+          "durationMs": 3.118,
+          "calls": 9
+        },
+        "v2_inicio": {
+          "durationMs": 264.903,
+          "calls": 1
+        },
+        "v2_retorno": {
+          "durationMs": 38.649,
+          "calls": 1
+        }
+      }
+    }
+  ],
+  "totalsMs": {
+    "httpMs": 238296.1296,
+    "coordinatorMs": 238245.905,
+    "metadataMs": 172301.745,
+    "authorityMs": 25601.401,
+    "physicalVerificationMs": 25921.988999999998,
+    "originalsTotalMs": 230048.492,
+    "legacyWriterMs": 194.788,
+    "postcheckMs": 24.744,
+    "checkpointMs": 1831.779
+  },
+  "percentOfCoordinator": {
+    "metadataMs": 72.32096811905329,
+    "authorityMs": 10.74578847430767,
+    "physicalVerificationMs": 10.880350283460276,
+    "originalsTotalMs": 96.55926384128198,
+    "legacyWriterMs": 0.08175922268212754
+  },
+  "meanHttpMs": 79432.0432,
+  "medianHttpMs": 74219.48449999999,
+  "limitations": [
+    "Metadata timing includes connection/transaction, SQL and reconstruction; it is not pure database execution time.",
+    "Nested durations must not be summed as independent stages.",
+    "The 14 control SELECT statements do not represent internal application SQL count.",
+    "Three existing files are a diagnostic sample, not a capacity certification or acceptance of 1000 stored documents.",
+    "No optimization was applied.",
+    "Counts describe measured method calls, not physical byte totals."
+  ],
+  "sources": {
+    "state": ".tmp/doc120-three-files/23e18a403aae4dd4b455adc86ab787ad/state.json",
+    "stateSha256": "106a39af80ce39e222bbeb4ca0abc269c752b4d5796b9a64c6c8d63137d53ac9",
+    "csvSha256": "0c35d3e9ab8d417c4628c4f8a5b077aa34be2e391ee39d4629fd0a5e759cedbe",
+    "runnerSha256": "805b3bbc2ff2eb6f50b9e1619a6e3ad7ea4fab5019cf7bdfd377e5f088e455c3",
+    "binarySha256": "f667ea0ffe1b6f2ef111ac5afd52f50bab92c5edcd340a0421b9ea0931aef689"
+  }
+}

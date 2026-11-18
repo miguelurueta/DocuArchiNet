@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Medición real de tres archivos —2026-11-17
+
+3.169 completa, D-07/RQ-07 y D-10/RQ-10: [evidencia real](doc120-medicion-tres-20261117.md)/JSON/CSV, run23e18a40. Archivos104/105/106 confirmados como documentos16264/16265/16266 en expediente693;7→10 completados, huella de997 ajenos idéntica. HTTP93,177/74,219/70,900s; metadatos72,321% del coordinador y writer0,082%.6000 cargas de metadatos y6000 comprobaciones físicas en tres documentos.104 HTTP/14 SELECT de control/1 sesión/3 almacenamientos, más1 HTTP técnico del despliegue instrumentado. Credenciales eliminadas y ventana cerrada.178/189; no optimización ni aceptación de capacidad/rollback.
+
 ## Medición por etapas de tres archivos — preparación2026-11-17
 
 3.165–3.168 locales,3.169 abierta. [Plan y límites](doc120-medicion-tres-plan-real-20261117.md):8/8 pruebas Node únicas y compilación aislada; instrumentación por solicitud y ejecutor privado preparados. No hay medición real nueva, instalación ni guardados ejecutados por esta preparación. La solicitud del usuario cubre tres almacenamientos del lote existente; instalación y captura de credenciales pendientes. Los tiempos del video o de los dobles no certifican la distribución real de costo.

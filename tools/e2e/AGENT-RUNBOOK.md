@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — tres almacenamientos medidos y ventana cerrada2026-11-17
+
+Autorización «ejecuta la prueba»: DLL/PDB instrumentadas instaladas con respaldo,1 POST anónimo401; run23e18a403aae4dd4b455adc86ab787ad FINISHED_THREE.104 HTTP/14 SELECT de control/1 sesión/3 almacenamientos. Archivos104/105/106 confirmados en documentos16264/16265/16266 y expediente693;7→10 guardados, huella de997 ajenos preservada. Promedio HTTP79,432s, metadatos72,321% y writer0,082% del coordinador. Fuente `Validacion/doc120-medicion-tres-20261117.md`/JSON/CSV. Cierre y secretos eliminados; el proceso Node terminó. No reabrir la consola ni eludir window.json para guardar otros tres; una continuación requiere revisar consumo/resultados y autorización específica. La DLL detallada sigue instalada; la captura por cabecera es optativa, sin optimización ni cambio de política. Los apartados inferiores conservan el estado de preparación/histórico de su corte.
+
 ## DOC-120 — medición solicitada de tres archivos,2026-11-17
 
 Usuario solicita prueba real de tiempos de tres archivos del lote50. [Ventana concreta](../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-medicion-tres-plan-real-20261117.md): propietario141/empresa2/nivel223;3 ALMACENAR de originales ya recibidos y con valores fijados,600 HTTP/60 SELECT de control/1 sesión/45min para nuevas operaciones. Cero preparación, recepción, creación, materialización, reanudación, reconciliación, SII o borrado. Señal de detención, actividad o incertidumbre detienen; no liberar por SQL ni inferir abandono.

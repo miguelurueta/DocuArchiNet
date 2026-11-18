@@ -2,7 +2,7 @@
 
 Solicitud expresa2026-11-17: «puedes hacer una prueba real y determinar los tiempo de tres archivos de ese lote y medir los tiempos quirurgicamente». Alcance de negocio: tres almacenamientos existentes del lote50 en `https://localhost/GestionDocumental-Docuarchi.net/`, propietario141/empresa2/nivel223. La ventana anterior de5 SELECT permanece cerrada. Esta ventana no es la carga de1.000 archivos ni una autorización para optimizar el producto.
 
-**Estado: PREPARADA; instalación instrumentada pendiente de aprobación y credenciales efímeras pendientes. No ejecutada.**
+**Estado: EJECUTADA por «ejecuta la prueba».** Instalación y medición aprobadas; run23e18a403aae4dd4b455adc86ab787ad cerrado con3 guardados confirmados. [Resultados reales](doc120-medicion-tres-20261117.md)/JSON/CSV. No repetir esta ventana ni reiniciar sus presupuestos.
 
 ## Límites y ejecución
 
