@@ -323,10 +323,10 @@
         function enviarCola(items, progress) {
             if (!Array.isArray(items)) { return Promise.reject(fallo("SOLICITUD_INVALIDA")); }
             // Una transferencia en vuelo. Un fallo detiene la cola, sin replay.
-            var index = 0, cancelled = false, current = null, received = [];
+            var index = 0, cancelled = false, paused = false, current = null, received = [];
             function next() {
                 if (cancelled) { throw fallo("SOLICITUD_CANCELADA", 0, false); }
-                if (index === items.length) { return received; }
+                if (paused || index === items.length) { return received; }
                 var item = items[index++]; current = recibir(item.solicitud, item.file, function (event) { if (progress) { progress(item, event); } });
                 return current.then(function (result) {
                     if (!result || result.archivoId !== item.solicitud.archivoId || result.loteId !== item.solicitud.loteId || result.estadoRecepcion !== "RECIBIDO") { throw fallo("RESPUESTA_INVALIDA", 200, true); }
@@ -338,6 +338,7 @@
                 error.recepcionParcial = {total:items.length, confirmados:received.slice(), archivoActual:index > received.length ? items[index - 1].solicitud.archivoId : null, noIntentados:items.length - index, resultadoActual:error.resultadoIncierto ? "SIN_CONFIRMAR" : "RECHAZADO"};
                 throw error;
             });
+            promise.pausar = function () { paused = true; return promise; };
             promise.cancelar = function () { cancelled = true; if (current) { current.cancelar(); } }; return promise;
         }
         return {invocar:invocar, recibir:recibir, enviarCola:enviarCola, detalleIncidencia:detalleIncidencia, describirError:describirError, detalleOperacion:detalleOperacion, cerrar:function () { closed = true; token = ""; pending.slice().forEach(function (cancel) { cancel(); }); }};

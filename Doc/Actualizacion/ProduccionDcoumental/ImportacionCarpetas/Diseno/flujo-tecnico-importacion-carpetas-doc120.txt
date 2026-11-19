@@ -1,12 +1,23 @@
 DOC-120 | GUARDAR UN DOCUMENTO: FLUJO IMPLEMENTADO Y COSTOS
 =========================================================
-Corte local: DOC120-independent-files-20261118. Sin despliegue/prueba real nueva.
+Corte local: DOC120-controles-cierre-20261119. Sin nueva prueba real.
+QA real5f7af8f5 corresponde al cliente anterior; backend/DLL sin cambios.
 Detalle literal de metodos, parametros, filtros y decisiones: anexo.txt y
 fuentes.json con el mismo prefijo de este archivo; --check verifica sus fuentes.
 
 [CLIENTE: ImportacionCarpetas.js / crearCoordinacion]
   Inicio/retoma: ConsultarLote + ConsultarRecursosLote paginados, una enumeracion.
   Elige A por recursoId; conserva lo ya confirmado; una operacion en vuelo.
+  politicaControles(model): misma politica para vista y controlador.
+  Cerrar/X/Escape o consulta -> transicionar(session, accion, valor, finish).
+     | Una intencion pendiente; bloquea clics adicionales y efectos nuevos.
+     | crearCoordinacion.pausar + trabajoActual de run esperan acuse/lectura.
+     | envio manual: enviarCola.pausar deja terminar A y no admite B.
+     | preparacion segmentada: pausar conserva la parte ya iniciada.
+     v
+  Espera resuelta -> conservar referencia/resultado -> cerrarAhora o consultar.
+  Error/respuesta perdida: aviso pendiente, consulta sin replay; no afirmar rollback.
+  Destruir forzado: invalida callbacks y cancela espera local; servidor no revertido.
        |
        +-- Falta File local para PENDIENTE? --> [DECISION], cero envio/intento.
        |
@@ -86,7 +97,10 @@ COSTOS QUE SIGUEN EXISTIENDO
 * Agregados SQL pueden recorrer N filas; no son N viajes ni N objetos JSON/archivos.
 * Al cierre completo: auditoria integral una vez. Consultar/CSV/arbol conservados.
 * Medicion previa: HTTP93,177/74,219/70,900s;72,321% metadatos;0,082% writer.
-  Son tiempos del codigo anterior. Reduccion real de esta version: SIN MEDIR.
+  Son tiempos del codigo anterior al control focal.
+* Control focal instalado8b27a942: tres siguientes1,058143s y diez0,969465s de media.
+  QA5f7af8f5 (respuesta perdida/carrera): dos1,570348s. Cortes historicos acotados,
+  no benchmark pareado ni garantia del cierre cliente actualizado20261119.
 * Server-Timing optativo: categorias SQL/JSON/aperturas/bytes instrumentados,
   separados de SELECT externos y SQL interno del writer. No sumar etapas anidadas.
 

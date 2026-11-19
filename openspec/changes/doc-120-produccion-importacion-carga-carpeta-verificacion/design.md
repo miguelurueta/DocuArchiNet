@@ -49,6 +49,15 @@ Propuesta2026-11-16 pendiente de3.97: [contrato de capacidad](../../../Doc/Actua
 
 ## Decisions
 
+### Ampliación2026-11-19: controles por estado y cierre voluntario seguro (D-04/D-05/D-10, RQ-04/RQ-05/RQ-10)
+
+Tras el análisis de botones y la instrucción «continua con el flujo», se implementa un ajuste cliente acotado. Una política pura derivada de coordinacion/busy/incertidumbre/transición pendiente alimenta vista y controlador; no concede acciones ausentes de la respuesta del servidor. Perfil/selección/preparación/confirmación/efectos manuales/filtros/páginas/CSV quedan bloqueados durante la ejecución o transición; ayuda/progreso siguen disponibles. Consultar importación y Consultar último lote permanecen visibles, con rótulo Pausar y consultar durante ejecución, y esperan pausa antes de cambiar contexto. Solo se admite una intención pendiente; los clics adicionales y Escape no agregan callbacks de navegación.
+
+Cerrar mediante X/Escape o API pública del formulario solicita pausa, impide el siguiente efecto, espera la operación/lectura en curso y conserva referencias antes de retirar la vista. Durante esa espera no se llama a xhr.abort. El envío manual obtiene pausa de admisión: conserva el acuse actual y devuelve solo recepciones confirmadas, sin enviar el siguiente PDF. Preparación segmentada también deja terminar su solicitud iniciada. Una confirmación que termine mientras se pide cerrar/navegar no inicia automáticamente la coordinación.
+
+Respuesta perdida/error no significa guardado ni cancelación del servidor: el cierre conserva lote/plan y publica aviso de resultado pendiente cuando corresponda. Consultar/volver/reabrir nunca reanuda ni repite. La destrucción forzada por UpdatePanel/desmontaje conserva invalidación de generación y cancelación local de esperas; no promete detener el servidor. Esta cláusula sustituye la cancelación inmediata del cierre voluntario del diseño previo y conserva el caso forzado. Sin tablas, DTO, endpoints, contratos de revisión/reserva, escritores o efectos reales nuevos. La QA real5f7af8f5 conserva su SHA previo; el ajuste requiere regresión local propia y posterior aceptación visual, sin repetir lote50 por inferencia.
+
+
 ### Ampliación aprobada2026-11-15 — inicio único y códigos repetidos (D-04/D-05, RQ-04/RQ-05)
 
 La aprobación «aprobado implementa las tareas» sobre la maqueta563160db autoriza3.72–3.85 y3.88–3.92 en producto y preparación de3.86. Sustituye las cláusulas de clic separado/no encadenamiento del recorrido anterior: seleccionar y revisar siguen explícitos; Confirmar e importar confirma una sola vez e inicia la coordinación únicamente tras recibir lote confirmado y lectura posterior válida. Continúan separadas las solicitudes del servidor y sus guardas; el cliente secuencia recepción, creación por raíz, valores y almacenamiento sin paralelismo de mutaciones ni jobs. Consultar, exportar, navegar, recuperar confirmación o verificar intento nunca inician la cola. Continuar exige consentimiento nuevo sobre el mismo lote.

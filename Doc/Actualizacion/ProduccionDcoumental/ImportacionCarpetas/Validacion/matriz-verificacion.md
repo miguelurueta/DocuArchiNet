@@ -1,5 +1,11 @@
 # DOC-120 — matriz única de verificación
 
+## Controles y cierre seguro - implementación local2026-11-19
+
+[Dictamen](doc120-controles-cierre-20261119.md) y [JSON de fuentes/resultados](doc120-controles-cierre-20261119.json), D-04/RQ-04, D-05/RQ-05, D-08/RQ-08, D-10/RQ-10. CTL-01–06/tareas3.204–3.211: política compartida, una intención, X/Escape tras acuse, pausa de admisión manual, metadatos en curso, respuesta perdida y desmontaje forzado diferenciado.22 pruebas nuevas;142 casos únicos cubiertos mediante141/142 iniciales y8/8 focales tras corregir redacción, con siete solapados. Corridas de1.000 archivos sintéticos/DOM/memoria y consultas/CSV/árbol pasan; no son otra QA real.
+
+220/231 tareas locales/documentales verificadas,87 escenarios y11 pendientes previas. Sin nueva autenticación/HTTP/SELECT/efectos reales, DLL o esquema. Assets de API/vista/controlador versionados doc120-controles-cierre-20261119-1; aceptación visual posterior pendiente. La QA5f7af8f5 conserva fuentes anteriores y no acredita este nuevo cierre; los videos del usuario muestran la culminación previa de1.000 archivos sin nueva auditoría SQL del agente. Los apartados inferiores conservan sus cortes y límites históricos.
+
 ## QA real vigente y trazabilidad -2026-11-19
 
 [Primario saneado](doc120-qa-recuperacion-concurrencia-20261119.json), [dictamen](doc120-qa-recuperacion-concurrencia-20261119.md) y [tiempos CSV](doc120-qa-recuperacion-concurrencia-20261119.csv). Corrida5f7af8f5 **PASS_QA_WITH_LIMITS**, con95b22a23 conservada como STOPPED parcial y continuaciones de lectura preservadas por hash. No se repiten operaciones para consolidar evidencia.

@@ -167,6 +167,36 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **THEN** muestra Importación con pendientes, los tres archivos siguen en el total original y B conserva referencia/fase/causa sin presentarse como completado
 - **AND** progreso por acuses y recuento final son distinguibles; consulta, filtros, páginas, CSV y árbol mantienen identidad/selección y no ejecutan efectos implícitos
 
+#### Scenario: CTL-01 Política de controles compartida
+- **WHEN** la importación ejecuta una fase, aplica pausa, espera una transición o presenta incertidumbre
+- **THEN** vista y controlador usan una política derivada de esos estados; bloquean edición/efectos paralelos y conservan ayuda/progreso y las acciones de consulta compatibles
+- **AND** no se relajan permisos, acciones del servidor, revisiones o reservas por una habilitación visual
+
+#### Scenario: CTL-02 Cierre voluntario sin abortar el acuse
+- **WHEN** se pulsa X, Escape o Cerrar con una solicitud en curso
+- **THEN** se solicita una sola pausa/cierre, no se inicia la siguiente fase y la vista espera la solicitud actual sin abortarla antes de conservar referencias y cerrar
+- **AND** una confirmación terminada durante la transición no inicia automáticamente la importación; cerrar una preparación sin confirmar conserva su consentimiento de descarte existente
+
+#### Scenario: CTL-03 Una navegación después de pausar
+- **WHEN** se solicita consultar otro lote, el último lote o volver a otra vista durante la ejecución
+- **THEN** se indica Pausar y consultar, se espera la operación actual y se ejecuta una sola intención pendiente
+- **AND** mientras se aplica pausa/transición los controles de navegación no agregan más acciones, y consultar nunca reanuda automáticamente
+
+#### Scenario: CTL-04 Pausa de admisión en envío manual
+- **WHEN** se solicita cerrar durante el envío manual de varios PDF
+- **THEN** termina la solicitud iniciada, se conservan únicamente sus recepciones confirmadas y los archivos restantes no se envían
+- **AND** el resumen informa la cantidad efectivamente recibida; pausa no equivale a cancelar la solicitud ni almacenar documentos
+
+#### Scenario: CTL-05 Cierre con resultado sin confirmar
+- **WHEN** la solicitud esperada falla o pierde su respuesta durante el cierre
+- **THEN** se conservan lote/plan y el aviso público de consulta pendiente, sin afirmar guardado/cancelación del servidor ni repetir el efecto
+- **AND** reabrir/consultar conserva los requisitos vigentes de recuperación e incertidumbre
+
+#### Scenario: CTL-06 Desmontaje forzado y accesibilidad
+- **WHEN** se destruye el componente por postback/desmontaje o se recorre el formulario con teclado/viewport estrecho
+- **THEN** el desmontaje forzado invalida callbacks antiguos sin encadenar efectos, y la interfaz distingue ese caso del cierre voluntario
+- **AND** foco, ayuda, espera visible, bloqueo de navegación y acceso al expediente completado se verifican localmente sin atribuirlo a otra prueba real
+
 ### Requirement: RQ-05 — Integridad, incertidumbre y consumidores
 Ampliación aprobada2026-11-17: D-04/D-05/D-09 autorizan el control ReanudarLote y la espera de respuesta según Diseno/espera-respuesta-reanudacion-lote-doc120.md. Sin nuevas tablas, escritores o efectos reales autorizados por la implementación local.
 DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, valores diferidos y fecha estable, revocación, stop e incertidumbre con casos del arnés existente. Comprobar contrato del plugin en sus26 registros/22archivos y carga individual pertinente. Un callback sintético no demuestra la acción de negocio real de cada módulo.

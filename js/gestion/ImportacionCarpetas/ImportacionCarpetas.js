@@ -71,7 +71,7 @@
         return file;
     }
     function accionesRecurso(model, resource, raiz) {
-        if (!model || !model.estado || !resource || model.busy || model.mutacionIncierta) { return []; }
+        if (!model || !model.estado || !resource || politicaControles(model).bloquearEdicion || model.mutacionIncierta) { return []; }
         var allowed = model.estado.accionesPermitidas || [], actions = [];
         if (allowed.indexOf("SOLICITAR_VERIFICACION") !== -1 && resource.estado === "INCIERTO" && /^[1-9][0-9]*$/.test(resource.intentoActivoId || "")) { actions.push("RECONCILIAR"); }
         if (raiz && allowed.indexOf("SOLICITAR_REANUDACION") !== -1 && model.estado.loteId === model.loteId && model.estado.estado === "EN_CURSO" && model.estado.hayIncertidumbre === false && model.estado.revision > 0 && model.raices && model.raices.loteId === model.loteId && model.raices.tipo === "RAICES" && model.raices.revisionLectura === model.estado.revision && resource.revision > 0 && resource.estado === "CREANDO" && resource.tieneIntentoActivo === true && resource.puedeRetomarCreacion === true && !resource.expedienteId && !resource.relacionNivelId && typeof resource.intentoActivoId === "string" && /^[1-9][0-9]{0,9}$/.test(resource.intentoActivoId) && Number(resource.intentoActivoId) <= 4294967295) { actions.push("RETOMAR_CREACION"); }
@@ -100,6 +100,17 @@
         return blocked;
     }
     // Consentimiento efimero en esta vista; nunca se persiste una cola ejecutable.
+    function politicaControles(model) {
+        model = model || {};
+        var flow = model.coordinacion || {}, transicion = !!model.transicionPendiente;
+        var activa = flow.activa === true, pausando = flow.estado === "pausing", decision = flow.estado === "awaiting-decision";
+        var ocupado = !!model.busy || activa || flow.consultandoResultado === true;
+        return {ejecutando:activa, aplicandoPausa:pausando, transicion:transicion,
+            bloquearEdicion:ocupado || transicion || decision, resultadoIncierto:!!model.mutacionIncierta,
+            puedePausar:activa && !pausando && !transicion, puedeCerrar:!transicion,
+            puedeNavegar:!transicion && !pausando && (!ocupado || activa || decision),
+            consultarConPausa:activa || decision};
+    }
     function crearCoordinacion(options) {
         if (!options || typeof options.leer !== "function" || typeof options.ejecutar !== "function" || typeof options.vigente !== "function") { throw new Error("SOLICITUD_INVALIDA"); }
         var running = null, stopped = true, disposed = false, generation = 0, reads = 0, effects = 0, members = null, scope = null;
@@ -369,7 +380,7 @@
             session.model.preparacionPendienteId=host.doc120PreparacionPendiente;
             session.model.reseleccionCarpetaDisponible=!!(segmentado && ["1","2"].indexOf(host.getAttribute("data-consulta-focal"))!==-1 && session.view && session.view.reselectorCarpeta && "webkitdirectory" in session.view.reselectorCarpeta);
             if (active !== session) { return; }
-            var model = session.model; model.manifiesto = model.consulta ? {raices:[], archivos:[]} : session.inventory.manifiesto();
+            var model = session.model; model.controles = politicaControles(model); model.manifiesto = model.consulta ? {raices:[], archivos:[]} : session.inventory.manifiesto();
             model.describirIncidencia = session.api.detalleIncidencia;
             model.ultimoLoteId = host.doc111UltimoLote && host.doc111UltimoLote.loteId; model.planPendienteId = host.doc111ConfirmacionPendiente && host.doc111ConfirmacionPendiente.planId;
             model.paginaRaices = Math.min(model.paginaRaices, Math.max(1, Math.ceil(model.manifiesto.raices.length / 10)));
@@ -383,13 +394,18 @@
             session.view.render(model);
         }
         function run(session, work) {
-            if (active !== session || session.model.busy) { return Promise.resolve(); }
+            if (active !== session || session.model.busy || session.model.transicionPendiente) { return Promise.resolve(false); }
             session.model.busy = true; session.model.mensaje = ""; session.model.tipoMensaje = null; refresh(session);
             var succeeded = true;
-            return Promise.resolve().then(work).catch(function (error) {
+            var operation = Promise.resolve().then(function () {
+                if (active !== session || session.model.transicionPendiente) { succeeded = false; return; }
+                return work();
+            }).catch(function (error) {
                 succeeded = false;
                 if (active === session) { error = error && typeof error === "object" ? error : new Error("RESPUESTA_INVALIDA"); session.model.tipoMensaje = "ERROR"; session.model.mensaje = message(error); if (error.recepcionParcial && ["ACCESO_DENEGADO","SESION_REQUERIDA"].indexOf(error.codigo) === -1) { var partial = error.recepcionParcial; session.model.mensaje += " Cola de esta página: " + partial.confirmados.length + " de " + partial.total + " recepciones confirmadas, " + partial.noIntentados + " archivos sin intentar." + (partial.archivoActual ? " Archivo " + partial.archivoActual + (partial.resultadoActual === "SIN_CONFIRMAR" ? " sin recepción confirmada; consulta antes de reenviar." : " interrumpió la cola; revisa la incidencia.") : ""); } }
             }).then(function () { if (active === session) { session.model.busy = false; refresh(session); } return succeeded; });
+            session.trabajoActual = operation;
+            return operation.then(function (result) { if (session.trabajoActual === operation) { session.trabajoActual = null; } return result; });
         }
         function solicitudPagina(session, type, page) {
             var model = session.model, filters = (type === "RAICES" ? model.filtrosRaices : model.filtrosArchivos) || {};
@@ -592,14 +608,46 @@
             var rows=snapshot&&snapshot.estado.loteId===model.loteId?snapshot.archivos:model.resultados&&model.resultados.elementos||[];
             return rows.filter(function(row){return row.recursoId===resourceId;})[0];
         }
-        function iniciarCoordinacion(session) { if(active!==session||!session.model.loteId||session.model.confirmacionIncierta){return Promise.resolve();}return coordinacion(session).iniciar(); }
+        function iniciarCoordinacion(session) { if(active!==session||!session.model.loteId||session.model.confirmacionIncierta||session.model.transicionPendiente){return Promise.resolve();}return coordinacion(session).iniciar(); }
+
+        function transicionar(session, name, value, finish) {
+            if (active !== session || session.model.transicionPendiente) { return Promise.resolve(false); }
+            var model = session.model, intent = {accion:name}; model.transicionPendiente = intent;
+            refresh(session);
+            var waits = [];
+            if (session.coordinator) { waits.push(session.coordinator.pausar()); }
+            if (session.preparacionSegmentada) { waits.push(session.preparacionSegmentada.pausar()); }
+            if (session.envioActual && session.envioActual.pausar) { waits.push(session.envioActual.pausar()); }
+            if (session.trabajoActual) { waits.push(session.trabajoActual); }
+            // run/coordinator preserve the public failure and uncertainty. A
+            // rejected request is settled too; it must not strand the intent.
+            return Promise.all(waits.map(function (wait) { return Promise.resolve(wait).then(function () {}, function () {}); })).then(function () {
+                if (active !== session || session.model !== model || model.transicionPendiente !== intent) { return false; }
+                model.transicionPendiente = null; refresh(session);
+                return finish ? finish() : action(session, name, value);
+            });
+        }
 
         function cerrar(force) {
+            var session = active;
+            if (!force && session) {
+                var policy = politicaControles(session.model), state = session.coordinator && session.coordinator.estado();
+                if (!policy.puedeCerrar) { return Promise.resolve(false); }
+                if (session.trabajoActual || policy.ejecutando || state && state.estado === "awaiting-decision") {
+                    return transicionar(session, "cerrar", null, function () { return cerrarAhora(false); });
+                }
+            }
+            return cerrarAhora(force);
+        }
+        function cerrarAhora(force) {
             var session = active; if (!session) { return; }
             var preparation = session.importacionGuardada ? session.importacionGuardada.model : session.model;
             if (!force && (session.confirming || preparation.confirmacionIncierta) && !deps.confirm("La confirmación puede seguir en el servidor. Cerrar liberará los archivos locales y conservará la referencia del plan para verificarla. ¿Cerrar?")) { return; }
             if (!force && !preparation.loteId && !session.confirming && !preparation.confirmacionIncierta && session.inventory.manifiesto().archivos.length && !deps.confirm(session.preparacionSegmentada || host.doc120PreparacionPendiente ? "Cerrar libera la selección local y conserva los metadatos recibidos por el servidor. Puedes consultar la revisión pendiente; después de recargar puede hacer falta preparar una nueva revisión. No se enviaron PDF ni se crearon expedientes. ¿Cerrar?" : "Se descartará esta preparación sin confirmar. ¿Cerrar?")) { return; }
             if (session.confirming) { host.doc111ConfirmacionPendiente = session.confirming; }
+            if (!force && session.model.mutacionIncierta && session.model.loteId) {
+                errorApertura = "El lote " + session.model.loteId + " conserva un resultado pendiente de comprobar. Usa Consultar importación antes de continuar; cerrar no confirma ni revierte la operación.";
+            }
             if(session.preparacionSegmentada){session.preparacionSegmentada.destruir();}
             invalidarCoordinacion(session); save(); active = null; opening = false; session.api.cerrar(); session.picker.destruir(); session.unsubscribe(); session.operation.destruir(); session.view.destruir();
             session.urls.forEach(function (url) { deps.URL.revokeObjectURL(url); }); session.timers.forEach(function (id) { deps.clearTimeout(id); }); sync();
@@ -611,15 +659,18 @@
             if(name==='continuar-demas'||name==='pausar-revisar'){
                 if(session.coordinator){session.coordinator.decidir(name==='continuar-demas'?'continuar':'pausar');}return;
             }
-            if (name === "cerrar") { cerrar(); return; }
+            if (name === "cerrar") { return cerrar(); }
             if (active !== session) { return; }
+            var policy = politicaControles(model);
+            if (policy.transicion) { return false; }
             if (name === "pausar-preparacion") { if(session.preparacionSegmentada){session.preparacionSegmentada.pausar();} return; }
             if (name === "pausar-importacion") { if(session.coordinator){return session.coordinator.pausar();}return; }
-            if (session.coordinator && (session.coordinator.estado().activa || session.coordinator.estado().estado==='awaiting-decision')) {
-                if (["consultar","consultar-referencia","consultar-ultimo","volver-importacion","verificar-referencia","exportar","pagina-resultados","pagina-raices-resultado","filtrar-resultados","limpiar-resultados","filtrar-raices","limpiar-raices","ver-expedientes"].indexOf(name)!==-1) { session.coordinator.pausar().then(function(){if(active===session){action(session,name,value);}}); }
-                return;
+            if (session.coordinator && (policy.ejecutando || session.coordinator.estado().estado==='awaiting-decision')) {
+                if (policy.puedeNavegar && ["abrir-consulta","consultar","consultar-referencia","consultar-ultimo","volver-importacion","verificar-referencia","exportar","pagina-resultados","pagina-raices-resultado","filtrar-resultados","limpiar-resultados","filtrar-raices","limpiar-raices","ver-expedientes"].indexOf(name)!==-1) { return transicionar(session,name,value); }
+                return false;
             }
-            if (model.busy) { return; }
+            if (model.busy) { return false; }
+            if (name === "abrir-consulta") { return policy.puedeNavegar; }
             if(name === 'consultar-preparacion'){
                 if(!segmentado || !validId(host.doc120PreparacionPendiente)){return;}
                 run(session,function(){return session.api.invocar('ConsultarPreparacionPlan',{preparacionId:host.doc120PreparacionPendiente,tipo:'RESUMEN',pagina:1}).then(function(value){
@@ -796,7 +847,13 @@
                         if (file.name !== f.nombre || String(file.size) !== f.bytesPrevistos) { throw new Error("CONTENIDO_DISTINTO"); }
                         return {file:file, solicitud:{loteId:model.loteId, archivoId:f.recursoId, claveIntento:key()}};
                     });
-                    return session.api.enviarCola(items, function (item, progress) { if (active === session) { model.mensaje = "Enviando archivo " + (items.indexOf(item) + 1) + " de " + items.length + " de esta página filtrada: " + item.file.name + ". Transferencia: " + progress.enviados + " de " + progress.total + " bytes de solicitud enviados. La recepción no implica almacenamiento documental."; refresh(session); } }).then(function (receipts) { model.recepcionesConfirmadas = receipts; return consultar(session, model.resultados.pagina).catch(function (error) { error.lecturaPosterior = true; error.totalRecibidos = receipts ? receipts.length : items.length; error.fase = "RECEPCION"; throw error; }); }).then(function () { if (active === session) { model.mensaje = "Recepción confirmada para " + items.length + " archivos de esta página filtrada. Continúa con las acciones disponibles; todavía no implica almacenamiento documental."; } }).catch(function (error) { model.mutacionIncierta = true; throw error; });
+                    var confirmedCount = 0, queue = session.api.enviarCola(items, function (item, progress) { if (active === session) { model.mensaje = "Enviando archivo " + (items.indexOf(item) + 1) + " de " + items.length + " de esta página filtrada: " + item.file.name + ". Transferencia: " + progress.enviados + " de " + progress.total + " bytes de solicitud enviados. La recepción no implica almacenamiento documental."; refresh(session); } });
+                    session.envioActual = queue;
+                    return queue.then(function (receipts) {
+                        if (session.envioActual === queue) { session.envioActual = null; }
+                        confirmedCount = receipts.length; model.recepcionesConfirmadas = receipts;
+                        return consultar(session, model.resultados.pagina).catch(function (error) { error.lecturaPosterior = true; error.totalRecibidos = confirmedCount; error.fase = "RECEPCION"; throw error; });
+                    }).then(function () { if (active === session) { model.mensaje = "Recepción confirmada para " + (confirmedCount === items.length ? String(confirmedCount) : confirmedCount + " de " + items.length) + " archivos de esta página filtrada. Continúa con las acciones disponibles; todavía no implica almacenamiento documental."; } }).catch(function (error) { if (session.envioActual === queue) { session.envioActual = null; } model.mutacionIncierta = true; throw error; });
                 }); return;
             }
             if (name === "exportar") {
@@ -913,5 +970,5 @@
         function install() { inicializar(); if (!installed && env.Sys && env.Sys.Application) { installed = true; env.Sys.Application.add_load(inicializar); } }
         if (env.document.readyState === "loading") { env.document.addEventListener("DOMContentLoaded", install, {once:true}); } else { install(); }
     }
-    return {crear:crear, crearReferencias:crearReferencias, validarReseleccion:validarReseleccion, crearCoordinacion:crearCoordinacion, accionesRecurso:accionesRecurso, bloqueoFlujo:bloqueoFlujo, asegurarMenu:asegurarMenu, rotularAccesoMenu:rotularAccesoMenu, montar:montar, inicializar:inicializar};
+    return {crear:crear, crearReferencias:crearReferencias, validarReseleccion:validarReseleccion, crearCoordinacion:crearCoordinacion, politicaControles:politicaControles, accionesRecurso:accionesRecurso, bloqueoFlujo:bloqueoFlujo, asegurarMenu:asegurarMenu, rotularAccesoMenu:rotularAccesoMenu, montar:montar, inicializar:inicializar};
 }));
