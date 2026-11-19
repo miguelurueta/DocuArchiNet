@@ -1,5 +1,11 @@
 # DOC-120 — índice cronológico de resultados
 
+## QA real aprobada con límites -2026-11-19
+
+**PASS_QA_WITH_LIMITS** en5f7af8f5354a4fca5e2eb5c7a53b4b4d: recuperación/árbol sin replay, original local faltante por decisión, pérdida de entrega tras checkpoint, dos sesiones HTTP con un ganador, revisión antigua y privacidad de ambos lotes. [Resultado y límites](doc120-qa-recuperacion-concurrencia-20261119.md), [JSON](doc120-qa-recuperacion-concurrencia-20261119.json), [CSV](doc120-qa-recuperacion-concurrencia-20261119.csv).758 HTTP/22 SELECT externos/3 sesiones;120/121→16284/16285, mismo expediente693,23→25 guardados. Se conservan16282/16283 del29, B51 pendiente, una relación lógica con etiqueta por código y huellas25/998. Media HTTP de los dos últimos1,570348s; casos de QA con respuesta suprimida/carrera, no benchmark pareado.
+
+3.196/3.202/3.203 completas en alcance acotado:212/223,11 pendientes.3.87 conserva inicio UI completo/aceptación manual;3.187 rollback nativo y otros escenarios; capacidad/segmentación/publicación/aceptación restantes sin certificar. Estados previos intactos, credenciales eliminadas y cero ejecuciones nuevas en esta revisión. DLL8b27a942 conservada;35/35 regresiones locales del ejecutor/árbol/mensajes en el corte previo. Los apartados inferiores son cortes históricos con sus propias versiones y límites.
+
 Implementacion local2026-11-18: [evidencia y limites](doc120-independientes-20261118.md), [contrato focal](../Diseno/contrato-focal-implementado-doc120.md), script09 manual sin aplicar.25 tareas locales verificadas;204/217,13 pendientes (once anteriores y3.187/3.196);27 S/190 M,81 escenarios.258 pruebas Node unicas aprobadas tras repeticion focal documentada,2 wrappers Framework/DDL incluidos sin sumar internos, compilacion aislada0 errores. Sin desplegar DLL/assets, SQL aplicado o nueva prueba real.
 
 Flujo vigente: [resumen de guardado en texto](../Diseno/flujo-tecnico-importacion-carpetas-doc120.txt), anexo/manifiesto regenerados para124 fuentes. El sello inicial y la auditoria final son separados del costo normal por archivo; no se promete un tiempo IIS o numero total de SELECT antes de medir.

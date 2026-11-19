@@ -1,5 +1,20 @@
 # DOC-120 — matriz única de verificación
 
+## QA real vigente y trazabilidad -2026-11-19
+
+[Primario saneado](doc120-qa-recuperacion-concurrencia-20261119.json), [dictamen](doc120-qa-recuperacion-concurrencia-20261119.md) y [tiempos CSV](doc120-qa-recuperacion-concurrencia-20261119.csv). Corrida5f7af8f5 **PASS_QA_WITH_LIMITS**, con95b22a23 conservada como STOPPED parcial y continuaciones de lectura preservadas por hash. No se repiten operaciones para consolidar evidencia.
+
+| Verificación | Trazabilidad | Evidencia y alcance |
+| --- | --- | --- |
+| Decisión A/C/B, pausa y recarga |3.196/3.202, D-04/RQ-04, D-05/RQ-05, D-08/RQ-08 | A50/C52 confirmados, B51 sin recibir; dos documentos recuperados RA/DA, sin replay. Pausa esperando acuse acreditada por captura/fuente sellada y secuencia de control de95b22a23, con identidades revalidadas en5f7af8f5. |
+| Árbol |3.202, D-04/RQ-04, D-08/RQ-08 | Expediente694/relación1118: un nodo lógico, dos enlaces HTML y etiqueta igual al código. |
+| Confirmación existente/pérdida |3.203, D-05/RQ-05, D-08/RQ-08 | Plan90 converge a50. Respuesta de120 suprimida al navegador tras checkpoint,16284 recuperado sin replay; no prueba rollback ni un plan nuevo. |
+| Carrera/revisión |3.203, D-05/RQ-05, D-08/RQ-08, D-10/RQ-10 | Dos sesiones HTTP solapadas sobre121: un200/16285 y un409/OPERACION_EN_CURSO; revisión antigua409/CONFLICTO_REVISION. Sin prueba de solapamiento físico SQL ni cierres/rollback de3.187. |
+| Privacidad/controles finales |3.203, D-10/RQ-10 | Cuenta ajena403 sin datos al consultar/exportar29/50; huellas25/998 en columnas RA observadas y DA sobre documentos conocidos. |
+| Comparación de tiempos |3.196, D-07/RQ-07 | Misma clase de corpus Egresos y guardados siguientes: primarios históricos de tres/diez y categorías internas preservadas; casos de QA/677bytes separados, sin repetir completados ni prometer rendimiento general. |
+
+212/223 verificadas. Permanecen3.87/3.118/3.126/3.127/3.130/3.131/3.187/5.2/6.4/6.5/6.6. Aceptación visual manual, capacidad completa e inyección nativa de rollback no se acreditan por esta QA. Los apartados inferiores son cortes históricos; sus huellas y límites no representan de nuevo el runtime actual.
+
 Implementacion local2026-11-18: [evidencia y limites](doc120-independientes-20261118.md), [contrato focal](../Diseno/contrato-focal-implementado-doc120.md), script09 manual sin aplicar.25 tareas locales verificadas;204/217,13 pendientes (once anteriores y3.187/3.196);27 S/190 M,81 escenarios.258 pruebas Node unicas aprobadas tras repeticion focal documentada,2 wrappers Framework/DDL incluidos sin sumar internos, compilacion aislada0 errores. Sin desplegar DLL/assets, SQL aplicado o nueva prueba real.
 
 Flujo vigente: [resumen de guardado en texto](../Diseno/flujo-tecnico-importacion-carpetas-doc120.txt), anexo/manifiesto regenerados para124 fuentes. El sello inicial y la auditoria final son separados del costo normal por archivo; no se promete un tiempo IIS o numero total de SELECT antes de medir.

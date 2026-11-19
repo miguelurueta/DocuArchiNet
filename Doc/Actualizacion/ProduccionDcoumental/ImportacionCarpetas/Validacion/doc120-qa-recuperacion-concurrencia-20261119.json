@@ -1,0 +1,602 @@
+{
+  "runId": "5f7af8f5354a4fca5e2eb5c7a53b4b4d",
+  "status": "PASS_QA_WITH_LIMITS",
+  "max": {
+    "http": 1200,
+    "select": 94,
+    "sessions": 3,
+    "receipts": 0,
+    "receiptBytes": 0,
+    "creations": 0,
+    "storageCalls": 4,
+    "newDocuments": 4,
+    "expectedNewDocuments": 2,
+    "confirmationCalls": 0,
+    "milliseconds": 2700000
+  },
+  "http": 758,
+  "select": 22,
+  "sessions": 3,
+  "operations": [
+    {
+      "operation": "AvanzarLote",
+      "lotId": "50",
+      "resourceId": "120",
+      "phase": "ALMACENAR",
+      "http": 200,
+      "code": "OK",
+      "ok": true,
+      "documentId": "16284",
+      "inventoryId": "23414",
+      "expedientId": "693",
+      "relationId": "1117"
+    },
+    {
+      "operation": "AvanzarLote",
+      "lotId": "50",
+      "resourceId": "121",
+      "phase": "ALMACENAR",
+      "http": 409,
+      "code": "OPERACION_EN_CURSO",
+      "ok": false
+    },
+    {
+      "operation": "AvanzarLote",
+      "lotId": "50",
+      "resourceId": "121",
+      "phase": "ALMACENAR",
+      "http": 200,
+      "code": "OK",
+      "ok": true,
+      "documentId": "16285",
+      "inventoryId": "23415",
+      "expedientId": "693",
+      "relationId": "1117"
+    },
+    {
+      "operation": "AvanzarLote",
+      "lotId": "50",
+      "resourceId": "121",
+      "phase": "ALMACENAR",
+      "http": 409,
+      "code": "CONFLICTO_REVISION",
+      "ok": false
+    }
+  ],
+  "timings": [
+    {
+      "lotId": "50",
+      "fileId": "120",
+      "elapsedMs": 1813.7453999966383,
+      "timing": {
+        "adaptador": {
+          "durationMs": 1051.388,
+          "calls": 1
+        },
+        "checkpoint": {
+          "durationMs": 81.801,
+          "calls": 1
+        },
+        "comprobacion_posterior": {
+          "durationMs": 12.622,
+          "calls": 1
+        },
+        "consulta_preflight": {
+          "durationMs": 114.87,
+          "calls": 2
+        },
+        "copia_trabajo": {
+          "durationMs": 73.954,
+          "calls": 1
+        },
+        "datos_documentales": {
+          "durationMs": 74.466,
+          "calls": 1
+        },
+        "escritor_legacy": {
+          "durationMs": 166.723,
+          "calls": 1
+        },
+        "json_chars": {
+          "durationMs": 0,
+          "calls": 130815
+        },
+        "json_control": {
+          "durationMs": 15.076,
+          "calls": 137
+        },
+        "lectura_final": {
+          "durationMs": 39.632,
+          "calls": 1
+        },
+        "original_open": {
+          "durationMs": 0,
+          "calls": 2
+        },
+        "original_v2": {
+          "durationMs": 12.695,
+          "calls": 1
+        },
+        "originales_previos": {
+          "durationMs": 115.981,
+          "calls": 1
+        },
+        "originales_retenidos": {
+          "durationMs": 16.568,
+          "calls": 1
+        },
+        "pdf_bytes": {
+          "durationMs": 0,
+          "calls": 223445
+        },
+        "prev_io": {
+          "durationMs": 96.696,
+          "calls": 1
+        },
+        "reserva": {
+          "durationMs": 59.408,
+          "calls": 1
+        },
+        "ret_io": {
+          "durationMs": 6.699,
+          "calls": 1
+        },
+        "sql_archivo": {
+          "durationMs": 4.986,
+          "calls": 11
+        },
+        "sql_autoridad": {
+          "durationMs": 18.631,
+          "calls": 90
+        },
+        "sql_catalogo": {
+          "durationMs": 47.696,
+          "calls": 85
+        },
+        "sql_control": {
+          "durationMs": 39.345,
+          "calls": 86
+        },
+        "sql_esquema": {
+          "durationMs": 695.537,
+          "calls": 120
+        },
+        "sql_evento": {
+          "durationMs": 14.039,
+          "calls": 35
+        },
+        "total": {
+          "durationMs": 1779.764,
+          "calls": 1
+        },
+        "v2_autorizacion": {
+          "durationMs": 43.923,
+          "calls": 1
+        },
+        "v2_hash": {
+          "durationMs": 7.434,
+          "calls": 9
+        },
+        "v2_inicio": {
+          "durationMs": 64.987,
+          "calls": 1
+        },
+        "v2_retorno": {
+          "durationMs": 63.927,
+          "calls": 1
+        }
+      }
+    },
+    {
+      "lotId": "50",
+      "fileId": "121",
+      "elapsedMs": 1326.9505999982357,
+      "timing": {
+        "adaptador": {
+          "durationMs": 747.822,
+          "calls": 1
+        },
+        "checkpoint": {
+          "durationMs": 78.237,
+          "calls": 1
+        },
+        "comprobacion_posterior": {
+          "durationMs": 10.194,
+          "calls": 1
+        },
+        "consulta_preflight": {
+          "durationMs": 73.776,
+          "calls": 2
+        },
+        "copia_trabajo": {
+          "durationMs": 27.645,
+          "calls": 1
+        },
+        "datos_documentales": {
+          "durationMs": 28.969,
+          "calls": 1
+        },
+        "escritor_legacy": {
+          "durationMs": 37.089,
+          "calls": 1
+        },
+        "json_chars": {
+          "durationMs": 0,
+          "calls": 131015
+        },
+        "json_control": {
+          "durationMs": 13.803,
+          "calls": 137
+        },
+        "lectura_final": {
+          "durationMs": 49.141,
+          "calls": 1
+        },
+        "original_open": {
+          "durationMs": 0,
+          "calls": 2
+        },
+        "original_v2": {
+          "durationMs": 8.806,
+          "calls": 1
+        },
+        "originales_previos": {
+          "durationMs": 12.132,
+          "calls": 1
+        },
+        "originales_retenidos": {
+          "durationMs": 10.468,
+          "calls": 1
+        },
+        "pdf_bytes": {
+          "durationMs": 0,
+          "calls": 223460
+        },
+        "prev_io": {
+          "durationMs": 5.688,
+          "calls": 1
+        },
+        "reserva": {
+          "durationMs": 47.685,
+          "calls": 1
+        },
+        "ret_io": {
+          "durationMs": 3.289,
+          "calls": 1
+        },
+        "sql_archivo": {
+          "durationMs": 4.345,
+          "calls": 11
+        },
+        "sql_autoridad": {
+          "durationMs": 15.096,
+          "calls": 90
+        },
+        "sql_catalogo": {
+          "durationMs": 30.013,
+          "calls": 85
+        },
+        "sql_control": {
+          "durationMs": 35.41,
+          "calls": 86
+        },
+        "sql_esquema": {
+          "durationMs": 734.808,
+          "calls": 120
+        },
+        "sql_evento": {
+          "durationMs": 13.828,
+          "calls": 35
+        },
+        "total": {
+          "durationMs": 1295.877,
+          "calls": 1
+        },
+        "v2_autorizacion": {
+          "durationMs": 47.937,
+          "calls": 1
+        },
+        "v2_hash": {
+          "durationMs": 4.496,
+          "calls": 9
+        },
+        "v2_inicio": {
+          "durationMs": 71.004,
+          "calls": 1
+        },
+        "v2_retorno": {
+          "durationMs": 61.904,
+          "calls": 1
+        }
+      }
+    }
+  ],
+  "results": {
+    "treeDiagnostic": {
+      "count": 1,
+      "matchingAnchors": 2,
+      "labelMatches": true
+    },
+    "uiRecoveryCheckpoint": {
+      "A": {
+        "fileId": "50",
+        "documentId": "16282",
+        "inventoryId": "23412",
+        "expedientId": "681",
+        "relationId": "1105"
+      },
+      "C": {
+        "fileId": "52",
+        "documentId": "16283",
+        "inventoryId": "23413",
+        "expedientId": "694",
+        "relationId": "1118"
+      },
+      "reload": true,
+      "noRepeatedEffects": true
+    },
+    "uiRecovery": {
+      "A": {
+        "fileId": "50",
+        "documentId": "16282",
+        "inventoryId": "23412",
+        "expedientId": "681",
+        "relationId": "1105"
+      },
+      "C": {
+        "fileId": "52",
+        "documentId": "16283",
+        "inventoryId": "23413",
+        "expedientId": "694",
+        "relationId": "1118"
+      },
+      "B": {
+        "fileId": "51",
+        "pending": true
+      },
+      "reload": true,
+      "noRepeatedEffects": true,
+      "tree": {
+        "count": 1,
+        "matchingAnchors": 2,
+        "labelMatches": true
+      },
+      "other25FingerprintPreserved": true
+    },
+    "responseDeliveryBoundary": {
+      "fileId": "120",
+      "documentId": "16284",
+      "inventoryId": "23414",
+      "expedientId": "693",
+      "relationId": "1117",
+      "boundary": "BROWSER_RESPONSE_AFTER_SERVER_CHECKPOINT",
+      "responseSuppressed": true
+    },
+    "lostResponse": {
+      "fileId": "120",
+      "documentId": "16284",
+      "inventoryId": "23414",
+      "expedientId": "693",
+      "relationId": "1117",
+      "reloadConfirmed": true,
+      "noReplay": true
+    },
+    "concurrentReservation": {
+      "fileId": "121",
+      "documentId": "16285",
+      "inventoryId": "23415",
+      "expedientId": "693",
+      "relationId": "1117",
+      "sessions": 2,
+      "overlappingHttp": true,
+      "winners": 1,
+      "rejected": 1,
+      "staleRejected": true
+    },
+    "privacy": {
+      "otherReadDenied": true,
+      "otherCsvDenied": true,
+      "lots": 2
+    }
+  },
+  "before": {
+    "completed29": 2,
+    "completed50": 23,
+    "fingerprint29": "99e9accd91be9003f7b9d3dcf97c8e27e650dc62d65f0b45d1c79bb8f96a0972",
+    "fingerprint50": "ec1acd0553af709c3ca09bf3caf677ea09ac39da7db4492d7aeb3265173257ac"
+  },
+  "after": {
+    "completed29": 2,
+    "completed50": 25,
+    "other25And998Preserved": true
+  },
+  "effectCalls": {
+    "50:120:ALMACENAR": 1,
+    "50:121:ALMACENAR": 3
+  },
+  "sources": {
+    "bin/GestionDocumental-Docuarchi.net.dll": "8b27a942458d41aa87d8ddd0df684bf70b7b89ec7702f0607958169a91cc571d",
+    "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js": "a8f2d9a546146424f004d4512fb833a2fec8251c8e3bdcabd56853815eccd8e3",
+    "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js": "71c07df17da889656032ffa4a2d271af9c12c9ab63173354b8e6e5193c9dd7f4",
+    "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js": "2333b9a77bf0df0e4768cecc12a44d6c2cc93f5c6103895fac0408107aaaf416",
+    "tools/e2e/scripts/run-doc120-qa-failures.cjs": "699dd34ad873f0612d6a3725f70d0846acf4d9cc077d3640eef07631d467c484",
+    "tools/e2e/tests/support/doc120-qa-window.cjs": "296ea3e6e9f43d6b5f0024416f53d602d7b07d933aaeff652dfaecc96a396f93",
+    "tools/e2e/scripts/measure-doc120-three-files.cjs": "8b50072db1f15e6f887105794632e6067e6728ff47328037043261f1aecc2174"
+  },
+  "closed": true,
+  "credentialsCleared": true,
+  "finishedUtc": "2026-11-19T11:50:54.086Z",
+  "previousStatePreserved": true,
+  "scope": "EXISTING_LOTS_29_50_BOUNDED_RECOVERY_CONCURRENCY_PRIVACY",
+  "sourceCommit": "2c37beef",
+  "lastStateSha256": "c26e2686c9243fca52662b7afdf262b572c0e5929cdc28dbf5fa4eb01aaa64a0",
+  "sourcesMatchWorkingDirectory": true,
+  "windows": [
+    {
+      "runId": "86709c052d0c4bb9942c666e9a5a2ec5",
+      "status": "STOPPED",
+      "http": 278,
+      "select": 6,
+      "sessions": 1,
+      "closed": true,
+      "credentialsCleared": true,
+      "stateRelativePath": ".tmp/doc120-qa-failures/86709c052d0c4bb9942c666e9a5a2ec5/state.json",
+      "stateSha256": "8acb637f99e503baa3c1d30fded6d4ed0e4b7b99bcec042515113c5531f6a391"
+    },
+    {
+      "runId": "ba8a1acef7c41a6d9db5a557f61318ac",
+      "status": "STOPPED",
+      "http": 0,
+      "select": 5,
+      "sessions": 0,
+      "closed": true,
+      "credentialsCleared": true,
+      "stateRelativePath": ".tmp/doc120-qa-failures/ba8a1acef7c41a6d9db5a557f61318ac/state.json",
+      "stateSha256": "8d519fc995b7c98274cebdd4c77a305591eb3432e9c067486d5849983d73d985"
+    },
+    {
+      "runId": "95b22a23844453a3529c4908060be669",
+      "status": "STOPPED",
+      "http": 582,
+      "select": 12,
+      "sessions": 1,
+      "closed": true,
+      "credentialsCleared": true,
+      "stateRelativePath": ".tmp/doc120-qa-failures/95b22a23844453a3529c4908060be669/state.json",
+      "stateSha256": "bd8e5b575bbe24d3c56063c014efd7eb0978b60444253f7765318477a3003368"
+    },
+    {
+      "runId": "c4afaca21fe2bb90d54f9b0ddeea4750",
+      "status": "STOPPED",
+      "http": 278,
+      "select": 5,
+      "sessions": 1,
+      "closed": true,
+      "credentialsCleared": true,
+      "stateRelativePath": ".tmp/doc120-qa-failures/c4afaca21fe2bb90d54f9b0ddeea4750/state.json",
+      "stateSha256": "dc9d07cbeb00d0c55bca7b910a27d877cbe2cfb83b5a7880bee5fe05a91f5c93"
+    },
+    {
+      "runId": "9bad855f684d064ed35d8a7667e13151",
+      "status": "STOPPED",
+      "http": 283,
+      "select": 9,
+      "sessions": 1,
+      "closed": true,
+      "credentialsCleared": true,
+      "stateRelativePath": ".tmp/doc120-qa-failures/9bad855f684d064ed35d8a7667e13151/state.json",
+      "stateSha256": "859cd41b5b56e19ff6d299588678bcd2b806788d4df4d0bc7d8d73c804c58535"
+    },
+    {
+      "runId": "5f7af8f5354a4fca5e2eb5c7a53b4b4d",
+      "status": "PASS_QA_WITH_LIMITS",
+      "http": 758,
+      "select": 22,
+      "sessions": 3,
+      "closed": true,
+      "credentialsCleared": true,
+      "stateRelativePath": ".tmp/doc120-qa-failures/5f7af8f5354a4fca5e2eb5c7a53b4b4d/state.json",
+      "stateSha256": "c26e2686c9243fca52662b7afdf262b572c0e5929cdc28dbf5fa4eb01aaa64a0"
+    }
+  ],
+  "consumption": {
+    "effectChain": {
+      "http": 1901,
+      "select": 48,
+      "sessions": 6
+    },
+    "allQaWindows": {
+      "http": 2179,
+      "select": 59,
+      "sessions": 7
+    }
+  },
+  "confirmedEffectsAcrossBusinessWindows": {
+    "receipts": 1,
+    "receivedBytes": 677,
+    "createdExpeditions": 1,
+    "storedDocuments": 4,
+    "storageRequests": 6,
+    "newLots": 0,
+    "newPlans": 0,
+    "confirmedPlanReplayRequests": 2,
+    "materializations": 2
+  },
+  "priorFailedConfirmationRequests": 1,
+  "storedDocuments": [
+    {
+      "lotId": "29",
+      "fileId": "50",
+      "documentId": "16282",
+      "expedientId": "681"
+    },
+    {
+      "lotId": "29",
+      "fileId": "52",
+      "documentId": "16283",
+      "expedientId": "694"
+    },
+    {
+      "lotId": "50",
+      "fileId": "120",
+      "documentId": "16284",
+      "expedientId": "693"
+    },
+    {
+      "lotId": "50",
+      "fileId": "121",
+      "documentId": "16285",
+      "expedientId": "693"
+    }
+  ],
+  "timingSummary": {
+    "lastTwoMeanHttpSeconds": 1.5703479999999999,
+    "doc119TwoMeanHttpSeconds": 0.9091689000000001,
+    "pairedBenchmark": false
+  },
+  "pauseAcknowledgementEvidence": {
+    "runId": "95b22a23844453a3529c4908060be669",
+    "sourceCommit": "420af6a7",
+    "sourceLfShaMatches": true,
+    "screenshot": "pause-waiting-response.png",
+    "selectCount": 12,
+    "observation": "Source control flow reaches verifyFile(C) after release and awaited paused(page); last window independently confirms same C and no replay. Original broad failure label is preserved."
+  },
+  "historicalComparisonEvidence": [
+    "doc120-lote50-correccion-medida-20261118.json",
+    "doc120-lote50-diez-20261118.json"
+  ],
+  "captures": [
+    {
+      "relativePath": ".tmp/doc120-qa-failures/95b22a23844453a3529c4908060be669/missing-original.png",
+      "sha256": "b466a3eef90f3eb64df5f1d508b18a447a9086ef6ad875e24d3cce1d0618bf2c",
+      "trackedInGit": false
+    },
+    {
+      "relativePath": ".tmp/doc120-qa-failures/95b22a23844453a3529c4908060be669/pause-waiting-response.png",
+      "sha256": "da77f572ee5299df26ed4c19e396cf8e343b54da4dfd5e4415d2a05a3d250577",
+      "trackedInGit": false
+    },
+    {
+      "relativePath": ".tmp/doc120-qa-failures/5f7af8f5354a4fca5e2eb5c7a53b4b4d/lot29-recovered-readonly.png",
+      "sha256": "30b44a01b51bdcb4a68a96a6a578350a3d0a4b17fab97fcf63d51a0230782500",
+      "trackedInGit": false
+    },
+    {
+      "relativePath": ".tmp/doc120-qa-failures/5f7af8f5354a4fca5e2eb5c7a53b4b4d/response-delivery-lost.png",
+      "sha256": "1bdba6a749752bb3063be9823a639d9beb999891669a0eac084c23f30c2b3f9d",
+      "trackedInGit": false
+    }
+  ],
+  "limitations": [
+    "NO_NEW_SEGMENTED_PREPARATION_OR_FULL_1000_IMPORT",
+    "BROWSER_RESPONSE_LOSS_AFTER_SERVER_CHECKPOINT_ONLY",
+    "HTTP_SESSION_OVERLAP_NOT_PHYSICAL_SQL_CONNECTION_OVERLAP_PROOF",
+    "NO_NATIVE_TRANSACTION_ROLLBACK_INJECTION",
+    "LOCAL_MISSING_ORIGINAL_NOT_SERVER_BINARY_TAMPERING",
+    "FINGERPRINTS_COVER_SELECTED_RA_CONTROL_COLUMNS_DA_CHECKS_KNOWN_DOCUMENTS",
+    "MANUAL_USER_ACCEPTANCE_PENDING",
+    "NO_JIRA_CLOSE_OR_ARCHIVE"
+  ],
+  "secretsRecorded": false
+}

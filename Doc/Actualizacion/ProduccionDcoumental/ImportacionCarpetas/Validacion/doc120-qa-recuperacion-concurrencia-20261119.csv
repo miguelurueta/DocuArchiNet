@@ -1,0 +1,5 @@
+runId,lotId,fileId,documentId,expedientId,scenario,httpMs,serverTotalMs,legacyWriterMs,schemaCategoryMs,fileSqlCategoryCalls
+95b22a23844453a3529c4908060be669,29,50,16282,681,A_local_missing_decision,1020.9537,999.606,90.737,507.394,11
+95b22a23844453a3529c4908060be669,29,52,16283,694,C_continue_and_pause,797.3841,790.857,22.491,491.719,11
+5f7af8f5354a4fca5e2eb5c7a53b4b4d,50,120,16284,693,lost_browser_response,1813.7454,1779.764,166.723,695.537,11
+5f7af8f5354a4fca5e2eb5c7a53b4b4d,50,121,16285,693,concurrent_winner,1326.9506,1295.877,37.089,734.808,11
