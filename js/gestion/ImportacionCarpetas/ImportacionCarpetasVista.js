@@ -83,9 +83,11 @@
             if(d.local){
                 var actions=decisionBody.querySelector('.modal-actions'),link=button(model.reseleccionCarpetaDisponible?'Vincular carpeta de originales':'Vincular PDF pendiente','recuperar-originales',model.reseleccionCarpetaDisponible?'CARPETA':'ARCHIVO');link.className='primary';actions.insertBefore(link,actions.firstChild);
                 if(model.reseleccionCarpetaDisponible){actions.insertBefore(button('Vincular solo este PDF','recuperar-originales','ARCHIVO'),link.nextSibling);}
-                decisionBody.insertBefore(node('p',model.reseleccionCarpetaDisponible?'Selecciona la carpeta original para vincular sus PDF pendientes de una vez. Los ya recibidos se omiten. Seleccionar no envía archivos: después pulsa Continuar importación.':'Selecciona el PDF original. Vincularlo no lo envía; después pulsa Continuar importación.'),actions);
+                decisionBody.textContent='';description.textContent='Este PDF pendiente no está seleccionado en esta ventana. Vincula '+(model.reseleccionCarpetaDisponible?'la carpeta original para recuperar sus pendientes de una vez.':'el PDF original para retomarlo.');
+                var details=node('details',undefined,'doc120-original-details');add(details,node('summary','Ver ruta y detalles del pendiente'),node('p',cause),fields);
+                add(decisionBody,description,node('p','Archivo pendiente: '+d.nombre),node('p',flow.guardados+' de '+flow.totalArchivos+' documentos guardados; '+flow.pendientes+' pendientes. Lo ya confirmado se conserva.'),node('p','Vincular no envía archivos ni repite los ya recibidos. Después pulsa Continuar importación.'),node('p','Continuar con los demás aparta solo este archivo durante esta ejecución; seguirá pendiente.'),details,actions);
             }
-            if(queryModal.open){queryModal.close();}if(!decisionModal.open){decisionModal.showModal();}decisionTitle.focus();
+            if(queryModal.open){queryModal.close();}if(!decisionModal.open){decisionModal.showModal();}decisionModal.scrollTop=0;decisionTitle.focus({preventScroll:true});decisionModal.scrollTop=0;
         }
         var picker = node("input"); picker.type = "file"; picker.hidden = true; picker.setAttribute("aria-label", "Agregar carpeta"); dialog.appendChild(picker);
         var reselector = node("input"); reselector.type = "file"; reselector.hidden = true; reselector.setAttribute("aria-label", "Reseleccionar archivo pendiente"); dialog.appendChild(reselector);

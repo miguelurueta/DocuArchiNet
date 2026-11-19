@@ -1,6 +1,6 @@
 DOC-120 | GUARDAR UN DOCUMENTO: FLUJO IMPLEMENTADO Y COSTOS
 =========================================================
-Corte local: DOC120-recuperacion-originales-20261119. Sin nueva prueba real.
+Corte local: DOC120-mensajes-vigentes-20261119. Sin nueva prueba real.
 QA real5f7af8f5 conserva sus fuentes; no certifica cliente o DLL instalada actual.
 Detalle literal de metodos, parametros, filtros y decisiones: anexo.txt y
 fuentes.json con el mismo prefijo de este archivo; --check verifica sus fuentes.
@@ -9,6 +9,12 @@ fuentes.json con el mismo prefijo de este archivo; --check verifica sus fuentes.
   Inicio/retoma: ConsultarLote + ConsultarRecursosLote paginados, una enumeracion.
   Elige A por recursoId; conserva lo ya confirmado; una operacion en vuelo.
   politicaControles(model): misma politica para vista y controlador.
+  cambiar(value,snapshot): continuar sin actual -> mensaje de consulta vigente;
+    pausing espera acuse, paused muestra pausa aplicada; incertidumbre conserva
+    diagnostico. renderAvance(true) actualiza inicio/pausa sin esperar rAF;
+    progreso normal conserva rAF. Textos/render no ejecutan operaciones.
+  decisionRender: aviso local resumido; ruta/fase/referencia en details.
+    Modal limitado al viewport, cabecera visible y scroll interno sin I/O.
   Cerrar/X/Escape -> cerrar(force): lote confirmado no COMPLETADO?
      | SI -> view.confirmarCierre({loteId,activa}), un aviso por sesion.
      |       Cancelar/Escape: resolverCierre(false), sin pausa ni reinicio.

@@ -1,5 +1,10 @@
 # DOC-120 — índice cronológico de resultados
 
+## Mensajes vigentes y aviso compacto - corte local2026-11-19
+
+[Dictamen](doc120-mensajes-vigentes-20261119.md) y [fuentes/resultados](doc120-mensajes-vigentes-20261119.json). Video103048 muestra recuperacion/avance22 a99 guardados, aviso alto y franja de pausa previa al continuar. Se actualizan mensaje/render inmediato solo inicio/pausa; error/incertidumbre conservados. Aviso local resumido, detalle desplegable sin operaciones y limites/scroll de dialogo.59/59 locales,5 nuevos;1/1 focal solapado del ultimo boton. Geometria1552x912/768x600/390x600; no se repite1000.232/243 tareas,96 escenarios,11 pendientes previas. Assets doc120-mensajes-vigentes-20261119-4. Sin nueva QA real/HTTP/SELECT/efectos, DLL o esquema; aceptacion visual actual pendiente. Cortes inferiores historicos.
+
+
 ## Recuperacion visible de originales - corte local2026-11-19
 
 [Dictamen](doc120-recuperacion-originales-20261119.md) y [fuentes/resultados](doc120-recuperacion-originales-20261119.json). Video092932: lote51 muestra10 recibidos/guardados y990 pendientes; falta seleccion local, no se acredita perdida de temporal recibido. Aviso local ofrece carpeta/PDF, pausa antes del selector y seleccion no envia; cancelar/pausar/modificado conserva recuperacion visible. Temporal RECIBIDO mantiene camino anterior sin reemplazo local.56/56 casos locales,6 nuevos;6/6 focales solapados tras ajustar texto/asercion. Sintetico1000 vincula990 sin efectos y continua990 una vez, conservando10 IDs,0 nuevas confirmaciones/expedientes.228/239 tareas,93 escenarios,11 pendientes previas. Assets doc120-recuperacion-originales-20261119-3. Sin nueva QA real/HTTP/SELECT/efectos, DLL o esquema; aceptacion manual actual pendiente. Cortes inferiores historicos.

@@ -4,6 +4,8 @@ DOC-120 consolida la verificación de importación de carpetas sobre la interfaz
 
 ## What Changes
 
+Video103048: mensajes de continuar/pausa vigentes con render inmediato del cambio de intencion; aviso local compacto con ruta/fase/referencia desplegables y dialogo limitado al viewport. MNS-01-03/tareas3.220-3.223; cliente y pruebas locales, sin operaciones reales nuevas.
+
 Video092932: recuperacion por carpeta/PDF desde aviso local, pausa antes del selector, accion visible despues de pausar/cancelar y Continuar explicito; no reemplaza temporal RECIBIDO ausente ni crea otro lote. ORI-01-03/tareas3.216-3.219, solo ajuste cliente y verificacion local.
 
 Correccion del video090901: dialogo de consentimiento antes de cerrar lote confirmado pendiente; cancelar conserva ejecucion, aceptar espera la solicitud actual y cierra sin otra fase. Contrato CTL-07-09 y tareas3.212-3.215, sin nueva operacion real.

@@ -303,6 +303,10 @@
 #doc111-importacion .doc120-original-modal h2{font-size:20px;margin:0 0 14px}
 #doc111-importacion .doc120-original-modal .modal-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
 #doc111-importacion .doc120-original-modal button{white-space:normal;min-height:44px}
+#doc111-importacion .doc111-dialog dialog.doc120-original-modal{position:fixed;inset:16px 0;margin:auto;height:fit-content;width:min(620px,calc(100vw - 28px));max-width:calc(100vw - 28px);max-height:calc(100dvh - 32px);overflow:auto}
+#doc111-importacion .doc111-dialog .doc120-original-modal .modal-head{position:sticky;top:0;z-index:1;background:#fff}
+#doc111-importacion .doc111-dialog .doc120-original-details{margin:12px 0}
+#doc111-importacion .doc111-dialog .doc120-original-details summary{font-weight:600}
 #doc111-importacion .doc111-filters{border:0;padding:0;margin:0;min-width:0}
 #doc111-importacion .doc111-filters legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
 #doc111-importacion .doc111-table{margin:12px 0 8px;max-width:100%;overflow:hidden}

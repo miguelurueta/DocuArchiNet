@@ -495,9 +495,9 @@
             var model = session.model, lot = model.loteId, level = model.contexto && model.contexto.nivelRef;
             function live() { return active === session && session.model === model && model.loteId === lot && (!level || model.contexto && model.contexto.nivelRef === level) && !destroyed; }
             function fail(code) { var error = new Error(code); error.codigo = code; return error; }
-            function renderAvance(){
+            function renderAvance(immediate){
                 var frame=deps.requestAnimationFrame||env.requestAnimationFrame,cancel=deps.cancelAnimationFrame||env.cancelAnimationFrame;
-                if(!model.coordinacion||!model.coordinacion.activa||!frame){if(session.coordinacionFrame!=null&&cancel){cancel.call(env,session.coordinacionFrame);}session.coordinacionFrame=null;refresh(session);return;}
+                if(immediate===true||!model.coordinacion||!model.coordinacion.activa||!frame){if(session.coordinacionFrame!=null&&cancel){cancel.call(env,session.coordinacionFrame);}session.coordinacionFrame=null;refresh(session);return;}
                 if(session.coordinacionFrame==null){session.coordinacionFrame=frame.call(env,function(){session.coordinacionFrame=null;if(live()){refresh(session);}});}
             }
 
@@ -556,6 +556,8 @@
                 ceder:function () { return new Promise(function (resolve) { (deps.setTimeout || env.setTimeout)(resolve,0); }); },
                 cambiar:function (value,snapshot) {
                     if (!live()) { return; } model.coordinacion=value; model.busy=value.activa || value.consultandoResultado;
+                    if(!model.mutacionIncierta&&value.estado==='running'&&!value.actual){model.tipoMensaje=null;model.mensaje='Consultando el lote '+lot+' para continuar. Todavía no se ha iniciado la siguiente operación.';}
+                    if(!model.mutacionIncierta&&value.estado==='pausing'){model.tipoMensaje=null;model.mensaje='Pausa solicitada. Se espera la respuesta de la operación actual; no se iniciará la siguiente.';}
                     if(value.decision && value.decision.certeza==='NO_INICIADO'){
                         model.originalLocalPendiente=value.decision.local?Object.assign({loteId:lot},value.decision):null;
                         model.mutacionIncierta=false;model.detalleErrorOperacion=null;
@@ -572,7 +574,7 @@
                     if (value.estado==='paused' && value.excluidos) {model.tipoMensaje='AVISO';model.mensaje=value.guardados+' de '+value.totalArchivos+' documentos guardados. '+value.pendientes+' pendientes; '+value.excluidos+' apartados solo durante esta ejecución. Puedes revisar y continuar el mismo lote.';}
                     else if (value.estado==='paused' && !model.mutacionIncierta) { model.mensaje="Importación en pausa. La siguiente operación requiere Continuar importación."; }
                     if (value.completo) { model.mensaje="Importación completada. Revisa los expedientes y documentos confirmados o cierra el asistente."; model.tipoMensaje="EXITO"; }
-                    renderAvance();
+                    renderAvance(value.estado==='pausing'||value.estado==='running'&&!value.actual);
                 },
                 ejecutar:function (op,snapshot) {
                     model.faseSolicitud=op.fase; model.tipoMensaje=null;model.transferencia=null;

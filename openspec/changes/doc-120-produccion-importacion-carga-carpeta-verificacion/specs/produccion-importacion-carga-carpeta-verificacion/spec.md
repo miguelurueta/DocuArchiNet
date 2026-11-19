@@ -227,6 +227,21 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **THEN** se vinculan solo990 pendientes sin enviar al seleccionar; Continuar procesa esos pendientes una vez y conserva los10 resultados anteriores
 - **AND** faltantes/modificados/ambiguos se informan sin contar exito, y un RECIBIDO sin temporal no ofrece la reseleccion como restauracion de servidor
 
+#### Scenario: MNS-01 Continuacion con mensaje vigente
+- **WHEN** el usuario continua y la consulta inicial del lote aun espera respuesta
+- **THEN** la franja informa que se esta consultando para continuar y no conserva pausa/vinculacion como estado actual
+- **AND** solicitar pausa informa espera del acuse; solo al aplicarse muestra pausa, sin cambiar solicitud, resultado ni numero de operaciones
+
+#### Scenario: MNS-02 Aviso local breve con detalle disponible
+- **WHEN** falta un File local pendiente
+- **THEN** el aviso muestra archivo, avance, conservacion de resultados y accion de vinculacion sin parrafos repetidos; causa, ruta, fase y referencias permanecen accesibles en un desplegable
+- **AND** titulo, botones y foco caben o se alcanzan mediante scroll interno en pantallas estrechas o de poca altura; expandir detalle no envia ni consulta negocio
+
+#### Scenario: MNS-03 Mensajes de fallo e incertidumbre preservados
+- **WHEN** una solicitud o su lectura posterior falla durante pausa o continuacion
+- **THEN** diagnostico, certeza y accion de consulta conservan prioridad sobre el mensaje informativo transitorio
+- **AND** el aviso de temporal RECIBIDO ausente mantiene sus limites sin ofrecer reposicion local; texto/render no reintentan operaciones
+
 ### Requirement: RQ-05 — Integridad, incertidumbre y consumidores
 Ampliación aprobada2026-11-17: D-04/D-05/D-09 autorizan el control ReanudarLote y la espera de respuesta según Diseno/espera-respuesta-reanudacion-lote-doc120.md. Sin nuevas tablas, escritores o efectos reales autorizados por la implementación local.
 DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, valores diferidos y fecha estable, revocación, stop e incertidumbre con casos del arnés existente. Comprobar contrato del plugin en sus26 registros/22archivos y carga individual pertinente. Un callback sintético no demuestra la acción de negocio real de cada módulo.

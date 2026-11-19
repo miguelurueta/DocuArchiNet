@@ -1,5 +1,10 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 - mensajes y aviso compacto, corte actual2026-11-19
+
+MNS-01..03/tareas3.220..3.223: mensaje y render inicial de continuar/pausar inmediatos, progreso normal agrupado, diagnostico incierto conservado. Aviso local resumido con detalle de ruta/fase/referencia; limites/scroll/foco del dialogo y botones originales.59/59 locales (5 nuevos),1/1 solapado de ultimo boton;1552x912/768x600/390x600. No se repite1000 ni se mide SQL/almacenamiento nativo.232/243 y11 pendientes previas; assets doc120-mensajes-vigentes-20261119-4. Evidencia Validacion/doc120-mensajes-vigentes-20261119.md/JSON. Video usuario muestra recuperacion22 a99 guardados, sin auditoria SQL nueva. Cero autenticacion/HTTP/SELECT/efectos reales, DLL o esquema. No relanzar50/51 ni ventanas anteriores; aceptacion visual actual pendiente. Apartados inferiores historicos.
+
+
 ## DOC-120 - recuperacion local visible, corte actual2026-11-19
 
 ORI-01..03/tareas3.216..3.219: ante PENDIENTE sin File, aviso distingue seleccion local y temporal recibido; Vincular carpeta/PDF pausa antes de selector existente y no envia. Pausar/cancelar mantiene accion visible, validacion contextual/metadatos omite RECIBIDO y Continuar es explicito. Temporal RECIBIDO ausente no ofrece restauracion local.56/56 locales,6 nuevos;6/6 focales solapados. Sintetico1000:10 existentes preservados,990 vinculados sin envio y990 procesados una vez,0 nuevas confirmaciones/expedientes. Capturas390/768/1280, assets doc120-recuperacion-originales-20261119-3;228/239 y11 pendientes previas. Evidencia Validacion/doc120-recuperacion-originales-20261119.md/JSON. Sin autenticacion/HTTP/SELECT/efectos reales, DLL o esquema. No relanzar50/51 ni ventanas previas; aceptacion manual actual pendiente. Apartados inferiores historicos.
