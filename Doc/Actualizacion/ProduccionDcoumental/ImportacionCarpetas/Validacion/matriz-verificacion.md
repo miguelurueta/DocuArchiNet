@@ -1,5 +1,10 @@
 # DOC-120 — matriz única de verificación
 
+## Recuperacion visible de originales - corte local2026-11-19
+
+[Dictamen](doc120-recuperacion-originales-20261119.md) y [fuentes/resultados](doc120-recuperacion-originales-20261119.json). Video092932: lote51 muestra10 recibidos/guardados y990 pendientes; falta seleccion local, no se acredita perdida de temporal recibido. Aviso local ofrece carpeta/PDF, pausa antes del selector y seleccion no envia; cancelar/pausar/modificado conserva recuperacion visible. Temporal RECIBIDO mantiene camino anterior sin reemplazo local.56/56 casos locales,6 nuevos;6/6 focales solapados tras ajustar texto/asercion. Sintetico1000 vincula990 sin efectos y continua990 una vez, conservando10 IDs,0 nuevas confirmaciones/expedientes.228/239 tareas,93 escenarios,11 pendientes previas. Assets doc120-recuperacion-originales-20261119-3. Sin nueva QA real/HTTP/SELECT/efectos, DLL o esquema; aceptacion manual actual pendiente. Cortes inferiores historicos.
+
+
 ## Consentimiento de cierre - corte local2026-11-19
 
 [Dictamen](doc120-consentimiento-cierre-20261119.md) y [fuentes/resultados](doc120-consentimiento-cierre-20261119.json). Video090901 muestra salida sin pregunta del lote51; ahora X/Escape sobre lote confirmado pendiente piden consentimiento antes de pausar. Cancelar no cambia ejecucion; aceptar espera respuesta/lectura y no admite siguiente fase.78 casos unicos locales verificados:73/78 amplios +11/11 focales tras adaptar cinco fixtures (seis solapados);11 nuevos. Foco/viewport390/768/1280.224/235 tareas,90 escenarios,11 pendientes previas. Assets doc120-consentimiento-cierre-20261119-2. Sin nueva QA real, HTTP/SELECT/efectos, compilacion/sustitucion DLL o esquema; hash instalado observado distinto del historico, sin certificar esa DLL. Aceptacion manual actual pendiente. Apartados inferiores historicos.

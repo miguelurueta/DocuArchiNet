@@ -1,5 +1,10 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 - recuperacion local visible, corte actual2026-11-19
+
+ORI-01..03/tareas3.216..3.219: ante PENDIENTE sin File, aviso distingue seleccion local y temporal recibido; Vincular carpeta/PDF pausa antes de selector existente y no envia. Pausar/cancelar mantiene accion visible, validacion contextual/metadatos omite RECIBIDO y Continuar es explicito. Temporal RECIBIDO ausente no ofrece restauracion local.56/56 locales,6 nuevos;6/6 focales solapados. Sintetico1000:10 existentes preservados,990 vinculados sin envio y990 procesados una vez,0 nuevas confirmaciones/expedientes. Capturas390/768/1280, assets doc120-recuperacion-originales-20261119-3;228/239 y11 pendientes previas. Evidencia Validacion/doc120-recuperacion-originales-20261119.md/JSON. Sin autenticacion/HTTP/SELECT/efectos reales, DLL o esquema. No relanzar50/51 ni ventanas previas; aceptacion manual actual pendiente. Apartados inferiores historicos.
+
+
 ## DOC-120 - consentimiento de cierre, corte actual2026-11-19
 
 CTL-07..09/tareas3.212..3.215: dialogo previo para lote confirmado pendiente; cancelar/Escape conserva ejecucion, aceptar espera solicitud/lectura y no inicia siguiente efecto. Mientras decide puede avanzar, informado. Completado/forzado no preguntan. Driver SEG-02 acepta nuevo aviso si existe y espera cierre real antes de recargar.78 casos unicos locales (73/78 +11/11 focales, seis solapados),11 nuevos; capturas390/768/1280. Cero HTTP/SELECT/autenticacion/efectos reales; no se compila/sustituye DLL ni cambia esquema. DLL observada B0B5D0D3 distinta de QA8B27A942, sin certificarla.224/235;11 pendientes previas. Assets doc120-consentimiento-cierre-20261119-2. Evidencia Validacion/doc120-consentimiento-cierre-20261119.md/JSON. No relanzar lotes50/51 ni ventanas previas para verificar este ajuste; aceptacion manual actual pendiente. Apartados inferiores historicos.

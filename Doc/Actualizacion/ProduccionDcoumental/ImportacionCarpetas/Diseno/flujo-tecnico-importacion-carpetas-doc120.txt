@@ -1,6 +1,6 @@
 DOC-120 | GUARDAR UN DOCUMENTO: FLUJO IMPLEMENTADO Y COSTOS
 =========================================================
-Corte local: DOC120-consentimiento-cierre-20261119. Sin nueva prueba real.
+Corte local: DOC120-recuperacion-originales-20261119. Sin nueva prueba real.
 QA real5f7af8f5 conserva sus fuentes; no certifica cliente o DLL instalada actual.
 Detalle literal de metodos, parametros, filtros y decisiones: anexo.txt y
 fuentes.json con el mismo prefijo de este archivo; --check verifica sus fuentes.
@@ -26,6 +26,13 @@ fuentes.json con el mismo prefijo de este archivo; --check verifica sus fuentes.
   Destruir forzado: invalida callbacks y cancela espera local; servidor no revertido.
        |
        +-- Falta File local para PENDIENTE? --> [DECISION], cero envio/intento.
+       |   Vincular carpeta/PDF -> action(recuperar-originales), solo causa local.
+       |   transicionar -> pausa y resuelve decision -> selector existente.
+       |   reselectFolder consulta inventario, valida ruta/metadatos por raiz;
+       |   omite RECIBIDO, informa faltantes/modificados/ambiguos. Cero envio.
+       |   originalLocalPendiente conserva accion si pausa/cancela; File solo
+       |   queda en la sesion. Vinculado -> Continuar explicito, mismo lote.
+       |   Un RECIBIDO sin temporal no ofrece esta reposicion local.
        |
        +-- Falta expediente? --> CrearExpediente de esa raiz, con un PDF recibido
        |   comprobado. No exige los otros originales ni crea una raiz vacia.

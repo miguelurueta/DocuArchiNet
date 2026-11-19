@@ -212,6 +212,21 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **THEN** completado no pregunta; el lote pendiente explica que se conserva lo confirmado y que consultar el lote permite revisar y continuar, pudiendo requerir originales locales
 - **AND** el aviso distingue Pausar y cerrar de Cerrar y conservar lote cuando la ejecucion ya esta pausada; cerrar no solicita detencion de negocio ni confirma resultados inciertos
 
+#### Scenario: ORI-01 Vincular originales desde el aviso local
+- **WHEN** el lote consultado tiene PDF PENDIENTE sin File vinculado en esta ventana
+- **THEN** el aviso distingue falta de seleccion local de temporal recibido ausente y ofrece vincular carpeta o PDF individual con pausa antes del selector
+- **AND** seleccionar reutiliza validacion contextual existente, omite recibidos y no envia ni crea ni confirma otro lote; continuar sigue siendo explicito
+
+#### Scenario: ORI-02 Recuperacion visible despues de pausar o cancelar
+- **WHEN** el usuario pausa el aviso local o cancela el selector de originales
+- **THEN** la vista conserva referencia y accion visible para vincular los originales del pendiente, incluso con su raiz fuera de pagina o filtros
+- **AND** consultar no hereda File por coincidencia con otra preparacion y el consentimiento de cerrar sigue funcionando sin callbacks de sesiones antiguas
+
+#### Scenario: ORI-03 Recuperar una carpeta con muchos pendientes
+- **WHEN** un lote sintetico contiene10 de1000 PDF recibidos/guardados y se vincula la carpeta original
+- **THEN** se vinculan solo990 pendientes sin enviar al seleccionar; Continuar procesa esos pendientes una vez y conserva los10 resultados anteriores
+- **AND** faltantes/modificados/ambiguos se informan sin contar exito, y un RECIBIDO sin temporal no ofrece la reseleccion como restauracion de servidor
+
 ### Requirement: RQ-05 — Integridad, incertidumbre y consumidores
 Ampliación aprobada2026-11-17: D-04/D-05/D-09 autorizan el control ReanudarLote y la espera de respuesta según Diseno/espera-respuesta-reanudacion-lote-doc120.md. Sin nuevas tablas, escritores o efectos reales autorizados por la implementación local.
 DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, valores diferidos y fecha estable, revocación, stop e incertidumbre con casos del arnés existente. Comprobar contrato del plugin en sus26 registros/22archivos y carga individual pertinente. Un callback sintético no demuestra la acción de negocio real de cada módulo.

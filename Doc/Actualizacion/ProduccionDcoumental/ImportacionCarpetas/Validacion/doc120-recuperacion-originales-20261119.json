@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-19",
+  "baseCommit": "78adb53d736f1b25f87a349b5d15a985b03a1fa2",
+  "tasks": [
+    "3.216",
+    "3.217",
+    "3.218",
+    "3.219"
+  ],
+  "scenarios": [
+    "ORI-01",
+    "ORI-02",
+    "ORI-03"
+  ],
+  "sources": [
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256": "98731290019ac572c6009032e8caeb2ecf88f1e98dae84b548f42ca803f42258"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256": "6c627e50b4d1bbe1feb23b05f180fc52114b29e40430eafdd84521d16c6f0768"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256": "9dd8ec959a51754b9c76831019f69c48ea15d0fc26940eda96966b913e74d593"
+    },
+    {
+      "path": "tests/doc120-originales-recuperacion-browser.test.cjs",
+      "sha256": "6b8bb23ff758fc472a8c8fd264d1185e8f003ceb05c1ae9c3fd40061ed1eebce"
+    },
+    {
+      "path": "tests/doc120-independientes-browser.test.cjs",
+      "sha256": "6822266f491ffa4902fb87aa60bfca5eadda86b454a28c7c0b0353166a79d3e9"
+    },
+    {
+      "path": "tools/docs/generate-doc120-flow.cjs",
+      "sha256": "a04e0e28650196655e78be5e0981fcf49d23fd4e22dcee07089404fd4cc389af"
+    }
+  ],
+  "video": {
+    "name": "Grabación 2026-11-19 092932-error-nuevo.mp4",
+    "sha256": "763f0c5e7cd1b93510363fe36bcda8d8da41c6ebaf7556561b1aad9906e5f07c",
+    "seconds": 101.9,
+    "observations": [
+      "Lot51 consultation shows ten received/stored of1000 and990 pending.",
+      "Local-not-selected prompts repeat after Continue/Continue with others; pause works but folder recovery is hidden.",
+      "No source SHA, HTTP acknowledgement or SQL audit certified by the video."
+    ]
+  },
+  "verification": {
+    "newBrowserTests": 6,
+    "regression": {
+      "tests": 56,
+      "passed": 56,
+      "failed": 0,
+      "log": ".tmp/doc120-originales-regresion.log",
+      "sha256": "e659c3530bebf80eb2b9d117385e978de32fdcc194b27dce0a42b76fb6db1b09"
+    },
+    "afterTransitionCopy": {
+      "tests": 6,
+      "passed": 6,
+      "failed": 0,
+      "overlapWithRegression": 6,
+      "log": ".tmp/doc120-originales-copy-focal.log",
+      "sha256": "1121d180068725b4696cc1fa44c471b49a741f674ab745e5a761e0013b981e9a",
+      "scope": "Native folder/PDF chooser, pause/cancel/filter/modified cases; explicit assertion that server-missing original has no local replacement action."
+    },
+    "uniqueCases": 56,
+    "exploratory": {
+      "tests": 5,
+      "passed": 4,
+      "failed": 1,
+      "log": ".tmp/doc120-originales-focal.log",
+      "sha256": "92dc4245e9a4a6472df0954d2916bb71af4df7d597a155b13a0f40f3c767c106",
+      "resolution": "Test tried hidden Actualizar control; uses visible Consultar ultimo lote to refresh capability. Passes in subsequent56-case run."
+    },
+    "synthetic1000": {
+      "existingReceivedAndStored": 10,
+      "linkedPending": 990,
+      "effectsOnSelection": 0,
+      "receiptsAfterContinue": 990,
+      "storesAfterContinue": 990,
+      "newPlans": 0,
+      "newLotConfirmations": 0,
+      "newExpeditions": 0,
+      "previousTenDocumentIdsPreserved": true,
+      "distinctReceiptIds": 990,
+      "distinctStoredIds": 990,
+      "protocol": 2,
+      "realPerformanceMeasurement": false
+    },
+    "syntax": true,
+    "strictOpenSpec": true,
+    "diffCheck": true,
+    "flowSources": 124,
+    "flowLines": 20193,
+    "viewports": [
+      390,
+      768,
+      1280
+    ]
+  },
+  "behavior": {
+    "localAndServerMissingSeparated": true,
+    "pauseBeforeSelector": true,
+    "selectionDoesNotSendOrResume": true,
+    "pausedOrCancelledKeepsRecoveryAction": true,
+    "contextRootMayBeOutsideVisibleFilter": true,
+    "individualFallback": true,
+    "receivedOriginalsNotReplaced": true,
+    "recoveryHintEphemeralAndScopedByLot": true,
+    "assetVersion": "doc120-recuperacion-originales-20261119-3"
+  },
+  "runtime": {
+    "realHttp": 0,
+    "realSelect": 0,
+    "realSessions": 0,
+    "realBusinessEffects": 0,
+    "dllCompiledOrReplacedByAgent": false,
+    "schemaChangedByAgent": false,
+    "installedDllObservedSha256": "b0b5d0d329f62124aa45ea49248746b90ad40c824a8a0a6adf73291d5d39dc4f",
+    "historicalQaStateSha256": "c26e2686c9243fca52662b7afdf262b572c0e5929cdc28dbf5fa4eb01aaa64a0",
+    "historicalQaStatePreserved": true,
+    "manualAcceptanceCurrentClient": "PENDING"
+  },
+  "secretsRecorded": false
+}

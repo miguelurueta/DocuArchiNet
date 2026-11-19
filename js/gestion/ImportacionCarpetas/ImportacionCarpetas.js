@@ -391,6 +391,8 @@
             model.archivosParaEnviar = model.mutacionIncierta ? 0 : files.filter(function (f) { return f.estadoRecepcion === "PENDIENTE" && f.estado === "NO_INICIADO" && !f.tieneIntentoActivo && (!session.origenesExcluidos[f.recursoId] && (session.reselected[f.recursoId] || (!model.consulta && session.inventory.obtenerFile(f.idCliente)))); }).length;
             model.puedeEnviar = model.archivosParaEnviar > 0;
             model.originalDisponible = function(row){return !session.origenesExcluidos[row.recursoId] && !!(session.reselected[row.recursoId] || (!model.consulta && session.loteOriginal===model.loteId && session.inventory.obtenerFile(row.idCliente)));};
+            var pendingLocal=model.originalLocalPendiente, pendingRow=pendingLocal&&archivoConocido(session,pendingLocal.archivoId);
+            if(pendingLocal&&(pendingLocal.loteId!==model.loteId||model.estado&&model.estado.estado==='COMPLETADO'||session.reselected[pendingLocal.archivoId]&&!session.origenesExcluidos[pendingLocal.archivoId]||pendingRow&&(pendingRow.estadoRecepcion!=='PENDIENTE'||model.originalDisponible(pendingRow)))){model.originalLocalPendiente=null;}
             session.view.render(model);
         }
         function run(session, work) {
@@ -555,6 +557,7 @@
                 cambiar:function (value,snapshot) {
                     if (!live()) { return; } model.coordinacion=value; model.busy=value.activa || value.consultandoResultado;
                     if(value.decision && value.decision.certeza==='NO_INICIADO'){
+                        model.originalLocalPendiente=value.decision.local?Object.assign({loteId:lot},value.decision):null;
                         model.mutacionIncierta=false;model.detalleErrorOperacion=null;
                         if(model.ultimaOperacion){model.ultimaOperacion.estado='NO_INICIADO';}
                     }
@@ -678,6 +681,11 @@
             }
             if (name === "cerrar") { return cerrar(); }
             if (active !== session) { return; }
+            if(name==='recuperar-originales'){
+                var missing=session.coordinator&&session.coordinator.estado().decision;
+                if(!missing||missing.local!==true||missing.causa!=='ORIGINAL_LOCAL_NO_SELECCIONADO'||model.mutacionIncierta||['CARPETA','ARCHIVO'].indexOf(value)===-1||value==='CARPETA'&&!model.reseleccionCarpetaDisponible){return false;}
+                return transicionar(session,value==='CARPETA'?'vincular-carpeta':'reseleccionar',value==='CARPETA'?missing.raizId:missing.archivoId);
+            }
             var policy = politicaControles(model);
             if (policy.transicion) { return false; }
             if (name === "pausar-preparacion") { if(session.preparacionSegmentada){session.preparacionSegmentada.pausar();} return; }
@@ -701,7 +709,8 @@
                 });});return;
             }
             if(name==='vincular-carpeta'){
-                if(!model.reseleccionCarpetaDisponible || model.mutacionIncierta || !validId(value) || !model.raices || !model.raices.elementos.some(function(row){return row.recursoId===value;})){return;}
+                var snapshot=session.lecturaCoordinada,knownRoot=model.raices&&model.raices.elementos.some(function(row){return row.recursoId===value;})||snapshot&&snapshot.estado.loteId===model.loteId&&snapshot.raices.some(function(row){return row.recursoId===value;});
+                if(!model.reseleccionCarpetaDisponible || model.mutacionIncierta || !validId(value) || !knownRoot){return;}
                 session.expectedRootId=value;session.view.reselectorCarpeta.setAttribute('webkitdirectory','');session.view.reselectorCarpeta.setAttribute('multiple','');session.view.reselectorCarpeta.value='';session.view.reselectorCarpeta.click();return;
             }
             if (name === "continuar-importacion") { iniciarCoordinacion(session);return; }
@@ -740,7 +749,7 @@
                     session.importacionGuardada = {model:model, reselected:session.reselected, origenesExcluidos:session.origenesExcluidos, consultaArchivos:session.consultaArchivos};
                     session.model = Object.assign({}, model, {consulta:true, perfil:null, plan:null, confirmable:false, puedeVolverImportacion:true}); model = session.model;
                 }
-                model.referencia = reference; model.loteId = reference; model.contexto = null; model.estado = null; model.resultados = null; model.raices = null; model.expedientesConfirmados = null; model.coordinacion = null; model.filtrosArchivos = {}; model.filtrosRaices = {}; model.etapa = 3; model.mutacionIncierta = false; model.ultimaOperacion = null; session.reselected = Object.create(null); session.origenesExcluidos = Object.create(null);
+                model.referencia = reference; model.loteId = reference; model.contexto = null; model.estado = null; model.resultados = null; model.raices = null; model.expedientesConfirmados = null; model.coordinacion = null; model.originalLocalPendiente=null; model.filtrosArchivos = {}; model.filtrosRaices = {}; model.etapa = 3; model.mutacionIncierta = false; model.ultimaOperacion = null; session.reselected = Object.create(null); session.origenesExcluidos = Object.create(null);
                 run(session, function () { return consultar(session, 1); }); return;
             }
             if (name === "verificar-referencia") { cerrar(true); verify(); return; }

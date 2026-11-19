@@ -5,7 +5,7 @@ const {install,selectFiles}=require('./support/doc120-segmentada-browser.cjs');
 async function start(page){await page.evaluate(()=>{doc120Independent=true;doc120MissingId='79';});await select(page,1,3);await click(page,'confirmar-importar');await page.locator('[data-doc120-unavailable][open]').waitFor();}
 const modal=page=>page.locator('[data-doc120-unavailable]');
 test('IND-UI01: archivo, ruta, causa, fase, avance y decision accesibles; continuar guarda C',()=>fixture(async page=>{
- await start(page);const text=await modal(page).textContent();assert.match(text,/1.pdf/);assert.match(text,/Carpeta-0\/1.pdf/);assert.match(text,/almacenamiento temporal/);assert.match(text,/1 de 3 documentos guardados; 2 pendientes/);assert.doesNotMatch(text,/PRIVATE_UNTRUSTED_MESSAGE/);
+ await start(page);const text=await modal(page).textContent();assert.equal(await modal(page).locator('[data-doc111-action="recuperar-originales"]').count(),0);assert.match(text,/1.pdf/);assert.match(text,/Carpeta-0\/1.pdf/);assert.match(text,/almacenamiento temporal/);assert.match(text,/1 de 3 documentos guardados; 2 pendientes/);assert.doesNotMatch(text,/PRIVATE_UNTRUSTED_MESSAGE/);
  assert.equal(await page.evaluate(()=>document.activeElement.id),'doc120-original-title');
  const before=await page.evaluate(()=>calls.length);await page.waitForTimeout(80);assert.equal(await page.evaluate(()=>calls.length),before);
  for(const width of [390,768,1280]){await page.setViewportSize({width,height:900});assert.ok(await modal(page).evaluate(el=>el.scrollWidth<=el.clientWidth+2));await page.screenshot({path:path.join(out,'original-no-disponible-'+width+'.png')});}
