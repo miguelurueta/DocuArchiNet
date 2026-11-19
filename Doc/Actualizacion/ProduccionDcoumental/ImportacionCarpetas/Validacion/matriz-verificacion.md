@@ -1,5 +1,10 @@
 # DOC-120 — matriz única de verificación
 
+## Consentimiento de cierre - corte local2026-11-19
+
+[Dictamen](doc120-consentimiento-cierre-20261119.md) y [fuentes/resultados](doc120-consentimiento-cierre-20261119.json). Video090901 muestra salida sin pregunta del lote51; ahora X/Escape sobre lote confirmado pendiente piden consentimiento antes de pausar. Cancelar no cambia ejecucion; aceptar espera respuesta/lectura y no admite siguiente fase.78 casos unicos locales verificados:73/78 amplios +11/11 focales tras adaptar cinco fixtures (seis solapados);11 nuevos. Foco/viewport390/768/1280.224/235 tareas,90 escenarios,11 pendientes previas. Assets doc120-consentimiento-cierre-20261119-2. Sin nueva QA real, HTTP/SELECT/efectos, compilacion/sustitucion DLL o esquema; hash instalado observado distinto del historico, sin certificar esa DLL. Aceptacion manual actual pendiente. Apartados inferiores historicos.
+
+
 ## Controles y cierre seguro - implementación local2026-11-19
 
 [Dictamen](doc120-controles-cierre-20261119.md) y [JSON de fuentes/resultados](doc120-controles-cierre-20261119.json), D-04/RQ-04, D-05/RQ-05, D-08/RQ-08, D-10/RQ-10. CTL-01–06/tareas3.204–3.211: política compartida, una intención, X/Escape tras acuse, pausa de admisión manual, metadatos en curso, respuesta perdida y desmontaje forzado diferenciado.22 pruebas nuevas;142 casos únicos cubiertos mediante141/142 iniciales y8/8 focales tras corregir redacción, con siete solapados. Corridas de1.000 archivos sintéticos/DOM/memoria y consultas/CSV/árbol pasan; no son otra QA real.

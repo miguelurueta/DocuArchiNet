@@ -631,13 +631,30 @@
         function cerrar(force) {
             var session = active;
             if (!force && session) {
+                if (session.solicitudCierre || session.model.transicionPendiente) { return Promise.resolve(false); }
+                var preparation = session.importacionGuardada ? session.importacionGuardada.model : session.model;
+                if (preparation.loteId && (!preparation.estado || preparation.estado.estado !== "COMPLETADO")) {
+                    var request = session.view.confirmarCierre({loteId:preparation.loteId, activa:politicaControles(session.model).ejecutando || !!session.trabajoActual});
+                    session.solicitudCierre = request;
+                    return request.then(function (accepted) {
+                        if (active !== session || session.solicitudCierre !== request) { return false; }
+                        session.solicitudCierre = null;
+                        return accepted ? aplicarCierre(session) : false;
+                    });
+                }
+                return aplicarCierre(session);
+            }
+            return cerrarAhora(force);
+        }
+        function aplicarCierre(session) {
+            if (active === session) {
                 var policy = politicaControles(session.model), state = session.coordinator && session.coordinator.estado();
                 if (!policy.puedeCerrar) { return Promise.resolve(false); }
                 if (session.trabajoActual || policy.ejecutando || state && state.estado === "awaiting-decision") {
                     return transicionar(session, "cerrar", null, function () { return cerrarAhora(false); });
                 }
             }
-            return cerrarAhora(force);
+            return active === session ? cerrarAhora(false) : false;
         }
         function cerrarAhora(force) {
             var session = active; if (!session) { return; }

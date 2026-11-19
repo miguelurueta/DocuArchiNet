@@ -1,5 +1,10 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 - consentimiento de cierre, corte actual2026-11-19
+
+CTL-07..09/tareas3.212..3.215: dialogo previo para lote confirmado pendiente; cancelar/Escape conserva ejecucion, aceptar espera solicitud/lectura y no inicia siguiente efecto. Mientras decide puede avanzar, informado. Completado/forzado no preguntan. Driver SEG-02 acepta nuevo aviso si existe y espera cierre real antes de recargar.78 casos unicos locales (73/78 +11/11 focales, seis solapados),11 nuevos; capturas390/768/1280. Cero HTTP/SELECT/autenticacion/efectos reales; no se compila/sustituye DLL ni cambia esquema. DLL observada B0B5D0D3 distinta de QA8B27A942, sin certificarla.224/235;11 pendientes previas. Assets doc120-consentimiento-cierre-20261119-2. Evidencia Validacion/doc120-consentimiento-cierre-20261119.md/JSON. No relanzar lotes50/51 ni ventanas previas para verificar este ajuste; aceptacion manual actual pendiente. Apartados inferiores historicos.
+
+
 ## DOC-120 - controles y cierre cliente actualizados2026-11-19
 
 CTL-01..06 implementados localmente: X/Escape voluntarios esperan acuse sin abortar; una transicion de navegacion; pausa de admision manual/metadatos y aviso por resultado incierto. Desmontaje forzado conserva invalidacion/cancelacion local.22 nuevos casos,142 unicos cubiertos (141/142 inicial +8/8 focal tras conservar redaccion habitual, siete repetidos), flujos sinteticos de1000/DOM/memoria y consulta/CSV/arbol. Sin nueva autenticacion/HTTP/SELECT/efectos, DLL o esquema. Fuente Validacion/doc120-controles-cierre-20261119.md/JSON, assets doc120-controles-cierre-20261119-1;220/231 y11 pendientes. QA5f7af8f5 pertenece al cliente anterior y sigue cerrada. Videos del usuario muestran50 completado1000 en esa version; no reimportar120/121 ni reiniciar su ventana para verificar el cierre nuevo. Otra QA real necesita alcance/cuentas/recursos/presupuesto nuevos. Los apartados inferiores son historicos.

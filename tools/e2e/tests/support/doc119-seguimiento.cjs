@@ -317,6 +317,9 @@ async function runSeg02(page,profile,baseline,filePath){
   check(identities.length>0,'CONFIRMED_ROOT_RESOURCE_REQUIRED');
   await selectLevel(page,baseline.context.NivelRef);await consult(page,profile.recoveryLotId);
   await page.getByRole('button',{name:'Cerrar',exact:true}).click();
+  // Cliente actual pregunta antes de cerrar un lote pendiente; no eludir el consentimiento mediante reload.
+  if(await page.locator('.doc120-close-modal[open]').count()){await page.locator('[data-doc111-action="confirmar-cierre"]').click();}
+  await page.locator('.doc111-overlay').waitFor({state:'hidden'});
   await page.reload({waitUntil:'domcontentloaded'});
   await page.locator('[data-doc111-resume]').waitFor({state:'visible'});
   await selectLevel(page,profile.alternateLevel);

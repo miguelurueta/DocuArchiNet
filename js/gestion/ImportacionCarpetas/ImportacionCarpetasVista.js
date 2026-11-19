@@ -53,9 +53,24 @@
         var footer = node("footer", undefined, "actionbar doc111-actionbar"), feedback = node("p", "", "query-feedback doc111-feedback"); feedback.setAttribute("role", "status"); feedback.setAttribute("aria-live", "polite"); sheet.appendChild(footer);
         var queryModal = node("dialog",undefined,"doc111-query-modal"), queryTitle = node("h2","Consultar importación"), queryBody = node("div",undefined,"modal-body"), modalHead = node("div",undefined,"modal-head"); queryTitle.id = "doc111-query-title"; queryModal.setAttribute("aria-labelledby",queryTitle.id); add(modalHead,queryTitle,button("Cerrar consulta","cerrar-consulta")); add(queryModal,modalHead,queryBody); dialog.appendChild(queryModal);
         var decisionModal=node('dialog',undefined,'doc120-original-modal'),decisionTitle=node('h2','El original de este archivo no está disponible'),decisionBody=node('div',undefined,'modal-body'),decisionKey=null,decisionReturnFocus=null;
+        var closeModal=node('dialog',undefined,'doc120-original-modal doc120-close-modal'),closeTitle=node('h2','¿Cerrar esta importación?'),closeBody=node('div',undefined,'modal-body'),closeResolve=null,closePromise=null,closeReturnFocus=null;
+        closeTitle.id='doc120-close-title';closeModal.setAttribute('aria-labelledby',closeTitle.id);closeModal.setAttribute('aria-describedby','doc120-close-description');add(closeModal,closeTitle,closeBody);dialog.appendChild(closeModal);
+        function resolverCierre(accepted,disposing){
+            if(!closeResolve){return;}var resolve=closeResolve;closeResolve=null;closePromise=null;if(closeModal.open){closeModal.close();}
+            if(!disposing){var focus=closeReturnFocus&&closeReturnFocus.isConnected&&!closeReturnFocus.disabled?closeReturnFocus:dialog;focus.focus();if(!accepted){decisionRender(currentModel);}}
+            resolve(accepted);
+        }
+        function confirmarCierre(info){
+            if(closePromise){return closePromise;}closeReturnFocus=doc.activeElement;closeBody.textContent='';
+            var description=node('p','Lote '+info.loteId+'. Los expedientes y documentos confirmados se conservan.');description.id='doc120-close-description';
+            add(closeBody,description,node('p',info.activa?'Mientras decides, la importación sigue activa. Si eliges Pausar y cerrar, se esperará la respuesta de la operación actual y no se iniciará la siguiente.':'Cerrar conserva este lote; no inicia ni repite operaciones.'),node('p','Para retomarlo, usa Consultar último lote o Consultar importación con esta referencia y después Continuar importación cuando esté disponible. Los PDF locales pendientes pueden requerir que vuelvas a seleccionar su carpeta.'),node('p','Cerrar no cancela ni revierte operaciones del servidor. Si queda un resultado sin confirmar, consulta su estado antes de continuar.'),add(node('div',undefined,'modal-actions'),button(info.activa?'Seguir importando':'Volver a la importación','cancelar-cierre'),button(info.activa?'Pausar y cerrar':'Cerrar y conservar lote','confirmar-cierre')));
+            closePromise=new Promise(function(resolve){closeResolve=resolve;});if(queryModal.open){queryModal.close();}if(decisionModal.open){decisionModal.close();decisionKey=null;}closeModal.showModal();closeBody.querySelector('[data-doc111-action="cancelar-cierre"]').focus();return closePromise;
+        }
+        closeModal.addEventListener('cancel',function(event){event.preventDefault();event.stopPropagation();resolverCierre(false);});
         decisionTitle.id='doc120-original-title';decisionTitle.tabIndex=-1;decisionModal.setAttribute('aria-labelledby',decisionTitle.id);decisionModal.setAttribute('aria-describedby','doc120-original-description');decisionModal.setAttribute('data-doc120-unavailable','');add(decisionModal,add(node('div',undefined,'modal-head'),decisionTitle,button('Cerrar y pausar','pausar-revisar')),decisionBody);dialog.appendChild(decisionModal);
         decisionModal.addEventListener('cancel',function(event){event.preventDefault();event.stopPropagation();action('pausar-revisar');});
         function decisionRender(model){
+            if(closeModal.open){return;}
             var flow=model.coordinacion,d=flow&&flow.estado==='awaiting-decision'&&flow.decision;
             if(!d){if(decisionModal.open){decisionModal.close();decisionKey=null;var focus=decisionReturnFocus&&decisionReturnFocus.isConnected?decisionReturnFocus:dialog;focus.focus();}return;}
             var key=d.archivoId+':'+d.fase+':'+d.causa;if(decisionKey===key&&decisionModal.open){return;}
@@ -74,6 +89,7 @@
             var target = event.target.closest("[data-doc111-action]");
             if (!target || !dialog.contains(target) || target.disabled) { return; }
             var name = target.getAttribute("data-doc111-action"), value = target.doc111Value;
+            if(name==='confirmar-cierre'||name==='cancelar-cierre'){resolverCierre(name==='confirmar-cierre');return;}
             if (name === "abrir-consulta") { var ready=action(name);if(ready&&typeof ready.then==='function'){ready.then(function(ok){if(ok!==false&&overlay.isConnected){openQuery();}});}else if(ready!==false){openQuery();}return; }
             if (name === "ver-expedientes" && value == null) { mostrarExpedientes(1);return; }
             if (name === "expedientes-anterior" || name === "expedientes-siguiente") { mostrarExpedientes(resultPage+(name=== "expedientes-anterior"?-1:1));return; }
@@ -97,6 +113,7 @@
             if (event.target.hasAttribute("data-doc111-filter")) { var group = event.target.closest("[data-doc111-filtros]"), key = group.getAttribute("data-doc111-filtros"); filterDrafts[key] = filterDrafts[key] || {}; Array.prototype.forEach.call(group.querySelectorAll("[data-doc111-filter]"), function (field) { filterDrafts[key][field.getAttribute("data-doc111-filter")] = field.value; }); }
         }
         function key(event) {
+            if(event.key==='Escape'&&closeModal.open){event.preventDefault();event.stopPropagation();resolverCierre(false);return;}
             if (event.key === "Enter" && !event.isComposing && event.target.hasAttribute("data-doc111-reference")) { event.preventDefault(); event.stopPropagation(); event.target.closest("[data-doc111-query-form]").querySelector("[data-doc111-consultar]").click(); return; }
             if (event.key === "Enter" && !event.isComposing && event.target.getAttribute("data-doc111-filter") === "raizId") {
                 event.preventDefault(); event.stopPropagation();
@@ -107,7 +124,7 @@
             if (event.key === "Escape" && queryModal.open) { event.preventDefault(); event.stopPropagation(); closeQuery(); return; }
             if (event.key === "Escape") { event.preventDefault(); action("cerrar"); }
             if (event.key === "Tab") {
-                var controls = Array.prototype.filter.call((decisionModal.open ? decisionModal : queryModal.open ? queryModal : dialog).querySelectorAll("button,input,select,summary,[tabindex]"), function (n) { return !n.disabled && !n.hidden && n.getClientRects().length > 0; });
+                var controls = Array.prototype.filter.call((closeModal.open ? closeModal : decisionModal.open ? decisionModal : queryModal.open ? queryModal : dialog).querySelectorAll("button,input,select,summary,[tabindex]"), function (n) { return !n.disabled && !n.hidden && n.getClientRects().length > 0; });
                 var first = controls[0], last = controls[controls.length - 1];
                 if (event.shiftKey && (doc.activeElement === first || doc.activeElement === dialog)) { event.preventDefault(); if (last) { last.focus(); } }
                 else if (!event.shiftKey && doc.activeElement === last) { event.preventDefault(); if (first) { first.focus(); } }
@@ -404,13 +421,13 @@
             var pairs = node("dl",undefined,"kv"); configValues.forEach(function (v) { add(pairs,node("dt",v[0]),node("dd",v[1] == null ? "No disponible" : v[1])); }); add(summary,pairs,node("p","Cerrar conserva la referencia del lote confirmado. Los archivos locales pendientes pueden requerir una nueva selección.","small muted"));
             organizeFooter(); scroll.scrollTop = oldScroll;
             if (queryModal.open && model.mensaje) { var error = queryBody.querySelector("[role=alert]"); if (!error) { error = node("p",undefined,"notice warn"); error.setAttribute("role","alert"); queryBody.appendChild(error); } error.textContent = model.mensaje; }
-            if (restore && !queryModal.open) {
+            if (restore && !queryModal.open && !closeModal.open) {
                 var replacement = referenceFocused ? content.querySelector("[data-doc111-reference]:not(:disabled)") : focusFilter ? content.querySelector('[data-doc111-filtros="' + focusPanelKey + '"] [data-doc111-filter="' + focusFilter + '"]') : focusAction ? Array.prototype.filter.call(dialog.querySelectorAll("[data-doc111-action]"), function (b) { return b.getAttribute("data-doc111-action") === focusAction && JSON.stringify(b.doc111Value) === focusValue && !b.disabled; })[0] : content.querySelector("[data-doc111-profile]");
                 (replacement && !replacement.disabled ? replacement : dialog).focus();
                 if (!ocupado(model)) { pendingFocus = null; }
             }
         }
-        return {render:render, picker:picker, reselector:reselector, reselectorCarpeta:reselectorCarpeta, enfocar:function () { dialog.focus(); }, destruir:function () { dialog.removeEventListener("click", click); dialog.removeEventListener("change", change); dialog.removeEventListener("input", change); dialog.removeEventListener("keydown", key); if (queryModal.open) { queryModal.close(); } if(decisionModal.open){decisionModal.close();} overlay.remove(); doc.body.style.overflow = previousOverflow; if (previousFocus && previousFocus.isConnected) { previousFocus.focus(); } }};
+        return {render:render, confirmarCierre:confirmarCierre, picker:picker, reselector:reselector, reselectorCarpeta:reselectorCarpeta, enfocar:function () { dialog.focus(); }, destruir:function () { resolverCierre(false,true); dialog.removeEventListener("click", click); dialog.removeEventListener("change", change); dialog.removeEventListener("input", change); dialog.removeEventListener("keydown", key); if (queryModal.open) { queryModal.close(); } if(decisionModal.open){decisionModal.close();} overlay.remove(); doc.body.style.overflow = previousOverflow; if (previousFocus && previousFocus.isConnected) { previousFocus.focus(); } }};
     }
     return {crear:crear};
 }));

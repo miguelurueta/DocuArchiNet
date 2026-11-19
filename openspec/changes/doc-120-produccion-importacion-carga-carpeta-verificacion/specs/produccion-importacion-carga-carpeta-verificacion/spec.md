@@ -174,7 +174,7 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 
 #### Scenario: CTL-02 Cierre voluntario sin abortar el acuse
 - **WHEN** se pulsa X, Escape o Cerrar con una solicitud en curso
-- **THEN** se solicita una sola pausa/cierre, no se inicia la siguiente fase y la vista espera la solicitud actual sin abortarla antes de conservar referencias y cerrar
+- **THEN** tras el consentimiento del lote confirmado se solicita una sola pausa/cierre, no se inicia la siguiente fase y la vista espera la solicitud actual sin abortarla antes de conservar referencias y cerrar
 - **AND** una confirmación terminada durante la transición no inicia automáticamente la importación; cerrar una preparación sin confirmar conserva su consentimiento de descarte existente
 
 #### Scenario: CTL-03 Una navegación después de pausar
@@ -196,6 +196,21 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **WHEN** se destruye el componente por postback/desmontaje o se recorre el formulario con teclado/viewport estrecho
 - **THEN** el desmontaje forzado invalida callbacks antiguos sin encadenar efectos, y la interfaz distingue ese caso del cierre voluntario
 - **AND** foco, ayuda, espera visible, bloqueo de navegación y acceso al expediente completado se verifican localmente sin atribuirlo a otra prueba real
+
+#### Scenario: CTL-07 Consentimiento antes del cierre de un lote pendiente
+- **WHEN** se pulsa X, Escape o Cerrar en un lote confirmado no completado
+- **THEN** se muestra un unico dialogo del modulo con referencia y consecuencias antes de solicitar pausa; seguir importando o Escape dentro del aviso lo cancelan sin modificar la ejecucion
+- **AND** se explica que la importacion sigue activa mientras decide; aceptar espera la solicitud/lectura iniciada y no admite la siguiente fase antes de cerrar
+
+#### Scenario: CTL-08 Consentimiento accesible y aislado por sesion
+- **WHEN** hay renders de progreso, clics repetidos o desmontaje mientras el aviso esta abierto
+- **THEN** el foco permanece en el dialogo, Tab y Escape operan en el aviso y no aparecen consentimientos duplicados
+- **AND** destruir descarta el consentimiento sin esperar ni ejecutar callbacks de la sesion anterior; no se repiten efectos por cancelar o reabrir
+
+#### Scenario: CTL-09 Cierre completado y retoma explicita
+- **WHEN** se cierra un lote completado o se acepta salir de un lote con pendientes o incertidumbre
+- **THEN** completado no pregunta; el lote pendiente explica que se conserva lo confirmado y que consultar el lote permite revisar y continuar, pudiendo requerir originales locales
+- **AND** el aviso distingue Pausar y cerrar de Cerrar y conservar lote cuando la ejecucion ya esta pausada; cerrar no solicita detencion de negocio ni confirma resultados inciertos
 
 ### Requirement: RQ-05 — Integridad, incertidumbre y consumidores
 Ampliación aprobada2026-11-17: D-04/D-05/D-09 autorizan el control ReanudarLote y la espera de respuesta según Diseno/espera-respuesta-reanudacion-lote-doc120.md. Sin nuevas tablas, escritores o efectos reales autorizados por la implementación local.

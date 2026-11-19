@@ -1,7 +1,7 @@
 DOC-120 | GUARDAR UN DOCUMENTO: FLUJO IMPLEMENTADO Y COSTOS
 =========================================================
-Corte local: DOC120-controles-cierre-20261119. Sin nueva prueba real.
-QA real5f7af8f5 corresponde al cliente anterior; backend/DLL sin cambios.
+Corte local: DOC120-consentimiento-cierre-20261119. Sin nueva prueba real.
+QA real5f7af8f5 conserva sus fuentes; no certifica cliente o DLL instalada actual.
 Detalle literal de metodos, parametros, filtros y decisiones: anexo.txt y
 fuentes.json con el mismo prefijo de este archivo; --check verifica sus fuentes.
 
@@ -9,7 +9,13 @@ fuentes.json con el mismo prefijo de este archivo; --check verifica sus fuentes.
   Inicio/retoma: ConsultarLote + ConsultarRecursosLote paginados, una enumeracion.
   Elige A por recursoId; conserva lo ya confirmado; una operacion en vuelo.
   politicaControles(model): misma politica para vista y controlador.
-  Cerrar/X/Escape o consulta -> transicionar(session, accion, valor, finish).
+  Cerrar/X/Escape -> cerrar(force): lote confirmado no COMPLETADO?
+     | SI -> view.confirmarCierre({loteId,activa}), un aviso por sesion.
+     |       Cancelar/Escape: resolverCierre(false), sin pausa ni reinicio.
+     |       Aceptar: aplicarCierre(session) -> transicionar(cerrar).
+     |       Mientras decide puede seguir avanzando; el aviso lo explica.
+     | NO -> cierre previo de preparacion / completado sin pregunta adicional.
+  Consultar o cierre aceptado -> transicionar(session, accion, valor, finish).
      | Una intencion pendiente; bloquea clics adicionales y efectos nuevos.
      | crearCoordinacion.pausar + trabajoActual de run esperan acuse/lectura.
      | envio manual: enviarCola.pausar deja terminar A y no admite B.

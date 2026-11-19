@@ -404,6 +404,8 @@ test('DOC-111: interfaz Chromium local con servicios sintéticos, foco y cierre 
     const download = page.waitForEvent('download'); await page.getByRole('button', {name:'Exportar esta página'}).click();
     assert.equal((await download).suggestedFilename(), 'importacion-20-pagina-1.csv');
     await page.getByRole('button', {name:'Cerrar', exact:true}).click();
+    await page.locator('[data-doc111-action="confirmar-cierre"]').click();
+    await page.locator('.doc111-overlay').waitFor({state:'hidden'});
     assert.equal(await page.getByRole('dialog').count(), 0);
     await page.locator('[data-doc111-resume]').click(); await page.getByRole('dialog').waitFor();
     await page.getByRole('heading', {name:'Importación del lote revisado', exact:true}).waitFor();
@@ -411,7 +413,7 @@ test('DOC-111: interfaz Chromium local con servicios sintéticos, foco y cierre 
     assert.equal(await page.locator('[data-doc111-action="enviar"]').isDisabled(), true);
     await page.getByRole('button', {name:'Cerrar', exact:true}).focus(); await page.keyboard.press('Shift+Tab');
     assert.equal(await page.evaluate(() => document.querySelector('[role=dialog]').contains(document.activeElement)), true);
-    await page.keyboard.press('Escape'); assert.equal(await page.getByRole('dialog').count(), 0);
+    await page.keyboard.press('Escape'); await page.locator('[data-doc111-action="confirmar-cierre"]').click(); await page.locator('.doc111-overlay').waitFor({state:'hidden'}); assert.equal(await page.getByRole('dialog').count(), 0);
     // Apertura denegada no deja una ventana abierta ni una espera bloqueada.
     await page.evaluate(() => { window.denyOpening=true; }); await page.locator('[data-doc111-open]').click();
     await page.waitForFunction(() => document.querySelector('[data-doc111-status]').textContent.includes('autorización'));
@@ -554,7 +556,7 @@ async function bridgeDoc119Responses(page){
 
 test('DOC-119: driver SEG-01 recorre filtros, segunda página, CSV y vacío con el cliente real',async()=>withDoc119Seguimiento(async page=>{
   const {runSeg01Owner}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs');
-  await page.getByRole('button',{name:'Cerrar',exact:true}).click();
+  await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.locator('[data-doc111-action="confirmar-cierre"]').click();await page.locator('.doc111-overlay').waitFor({state:'hidden'});
   const bridge=await bridgeDoc119Responses(page);
   const baseline=await page.evaluate(()=>({data:{lot:{total_archivos:5},files:doc119Dataset.map(f=>({raiz_id:f.raizId,estado_recepcion:f.estadoRecepcion,estado_efecto:f.estado}))}}));
   const result=await runSeg01Owner(bridge.page,'20',baseline,{calls:bridge.calls});
@@ -563,14 +565,14 @@ test('DOC-119: driver SEG-01 recorre filtros, segunda página, CSV y vacío con 
 
 test('DOC-119: driver de cuenta ajena exige denegación de lote y de CSV',async()=>withDoc119Seguimiento(async page=>{
   const {runSeg01Other}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs');
-  await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.evaluate(()=>{window.doc119Deny=true;});
+  await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.locator('[data-doc111-action="confirmar-cierre"]').click();await page.locator('.doc111-overlay').waitFor({state:'hidden'});await page.evaluate(()=>{window.doc119Deny=true;});
   const bridge=await bridgeDoc119Responses(page);
   assert.deepEqual(await runSeg01Other(bridge.page,'20'),{otherAccountDenied:true,otherCsvDenied:true});
 }));
 
 test('DOC-119: sesion caducada se identifica en ConsultarLote sin esperar archivos inexistentes',async()=>withDoc119Seguimiento(async page=>{
   const {runSeg01Owner}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs');
-  await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.evaluate(()=>{window.doc119Expired=true;});
+  await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.locator('[data-doc111-action="confirmar-cierre"]').click();await page.locator('.doc111-overlay').waitFor({state:'hidden'});await page.evaluate(()=>{window.doc119Expired=true;});
   const bridge=await bridgeDoc119Responses(page);
   await assert.rejects(()=>runSeg01Owner(bridge.page,'20',{}, {calls:bridge.calls}),/DOC119_SESSION_REQUIRED/);
   assert.deepEqual(bridge.calls.map(call=>call.operation),['ConsultarLote']);
@@ -578,7 +580,7 @@ test('DOC-119: sesion caducada se identifica en ConsultarLote sin esperar archiv
 
 test('DOC-119: rechazo 200 de ConsultarLote se informa antes de esperar recursos',async()=>withDoc119Seguimiento(async page=>{
   const {runSeg01Owner}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs');
-  await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.evaluate(()=>{window.doc119Deny=true;});
+  await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.locator('[data-doc111-action="confirmar-cierre"]').click();await page.locator('.doc111-overlay').waitFor({state:'hidden'});await page.evaluate(()=>{window.doc119Deny=true;});
   const bridge=await bridgeDoc119Responses(page);
   await assert.rejects(()=>runSeg01Owner(bridge.page,'20',{}, {calls:bridge.calls}),/DOC119_RESOURCE_ACCESS_DENIED/);
   assert.deepEqual(bridge.calls.map(call=>call.operation),['ConsultarLote']);
@@ -586,7 +588,7 @@ test('DOC-119: rechazo 200 de ConsultarLote se informa antes de esperar recursos
 
 test('DOC-119: pocos recursos permiten filtros y CSV sin acreditar una segunda pagina',async()=>withDoc119Seguimiento(async page=>{
   const {runSeg01Owner}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs');
-  await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.evaluate(()=>{window.doc119MaxPageSize=25;});
+  await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.locator('[data-doc111-action="confirmar-cierre"]').click();await page.locator('.doc111-overlay').waitFor({state:'hidden'});await page.evaluate(()=>{window.doc119MaxPageSize=25;});
   const bridge=await bridgeDoc119Responses(page);
   const baseline=await page.evaluate(()=>({data:{lot:{total_archivos:5},files:doc119Dataset.map(f=>({raiz_id:f.raizId,estado_recepcion:f.estadoRecepcion,estado_efecto:f.estado}))}}));
   const result=await runSeg01Owner(bridge.page,'20',baseline,{calls:bridge.calls});
