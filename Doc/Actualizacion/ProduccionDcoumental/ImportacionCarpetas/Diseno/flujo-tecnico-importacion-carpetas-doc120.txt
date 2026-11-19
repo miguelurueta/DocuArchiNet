@@ -1,6 +1,6 @@
 DOC-120 | GUARDAR UN DOCUMENTO: FLUJO IMPLEMENTADO Y COSTOS
 =========================================================
-Corte local: DOC120-mensajes-vigentes-20261119. Sin nueva prueba real.
+Corte local: DOC120-pausar-salir-20261119. Sin nueva prueba real.
 QA real5f7af8f5 conserva sus fuentes; no certifica cliente o DLL instalada actual.
 Detalle literal de metodos, parametros, filtros y decisiones: anexo.txt y
 fuentes.json con el mismo prefijo de este archivo; --check verifica sus fuentes.
@@ -15,6 +15,8 @@ fuentes.json con el mismo prefijo de este archivo; --check verifica sus fuentes.
     progreso normal conserva rAF. Textos/render no ejecutan operaciones.
   decisionRender: aviso local resumido; ruta/fase/referencia en details.
     Modal limitado al viewport, cabecera visible y scroll interno sin I/O.
+  Vista: salida activa se muestra como Pausar y salir (visible/aria/confirmacion).
+    En reposo/pausa/completado conserva Cerrar; mismo manejador y espera.
   Cerrar/X/Escape -> cerrar(force): lote confirmado no COMPLETADO?
      | SI -> view.confirmarCierre({loteId,activa}), un aviso por sesion.
      |       Cancelar/Escape: resolverCierre(false), sin pausa ni reinicio.

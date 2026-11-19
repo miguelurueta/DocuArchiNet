@@ -210,7 +210,7 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 #### Scenario: CTL-09 Cierre completado y retoma explicita
 - **WHEN** se cierra un lote completado o se acepta salir de un lote con pendientes o incertidumbre
 - **THEN** completado no pregunta; el lote pendiente explica que se conserva lo confirmado y que consultar el lote permite revisar y continuar, pudiendo requerir originales locales
-- **AND** el aviso distingue Pausar y cerrar de Cerrar y conservar lote cuando la ejecucion ya esta pausada; cerrar no solicita detencion de negocio ni confirma resultados inciertos
+- **AND** el aviso distingue Pausar y salir de Cerrar y conservar lote cuando la ejecucion ya esta pausada; cerrar no solicita detencion de negocio ni confirma resultados inciertos
 
 #### Scenario: ORI-01 Vincular originales desde el aviso local
 - **WHEN** el lote consultado tiene PDF PENDIENTE sin File vinculado en esta ventana
@@ -241,6 +241,11 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **WHEN** una solicitud o su lectura posterior falla durante pausa o continuacion
 - **THEN** diagnostico, certeza y accion de consulta conservan prioridad sobre el mensaje informativo transitorio
 - **AND** el aviso de temporal RECIBIDO ausente mantiene sus limites sin ofrecer reposicion local; texto/render no reintentan operaciones
+
+#### Scenario: CTL-10 Salida visible como pausa durante ejecucion
+- **WHEN** el lote tiene coordinacion activa o una solicitud pendiente en el formulario
+- **THEN** el control de salida muestra Pausar y salir y su consentimiento usa el mismo nombre; en reposo, pausa aplicada o completado muestra Cerrar
+- **AND** nombre accesible y etiqueta visible coinciden, con la misma confirmacion/espera de respuesta e incertidumbre; no se cancela la operacion del servidor ni se agrega otra fase
 
 ### Requirement: RQ-05 — Integridad, incertidumbre y consumidores
 Ampliación aprobada2026-11-17: D-04/D-05/D-09 autorizan el control ReanudarLote y la espera de respuesta según Diseno/espera-respuesta-reanudacion-lote-doc120.md. Sin nuevas tablas, escritores o efectos reales autorizados por la implementación local.

@@ -1,0 +1,11 @@
+# DOC-120 - Pausar y salir durante la ejecucion
+
+Baseb7339bfe,2026-11-19. Aprobacion explicita del usuario sobre recomendacion arquitectonica; tareas3.224-3.226, CTL-10 y D-04/RQ-04/D-05/RQ-05. [Fuentes/resultados](doc120-pausar-salir-20261119.json).
+
+El control de salida muestra **Pausar y salir** como texto visible, nombre accesible y ayuda mientras hay coordinacion activa o trabajo pendiente del lote en el formulario. El consentimiento activo usa el mismo texto y titulo. En reposo/pausa aplicada/completado vuelve a **Cerrar**; el lote pendiente pausado conserva Cerrar y conservar lote. Mismos manejador cerrar, confirmacion, transicion de espera y tratamiento de incertidumbre; no cambia coordinador, API, permisos, reservas, cantidad de operaciones o desmontaje forzado.
+
+Se ampliaron aserciones de suites existentes, sin nuevos tests espejo: **42 casos locales verificados**. Amplia34/42; ocho aserciones nuevas encontraban dos botones con el mismo nombre (cabecera y dialogo). Se acoto la comprobacion al dialogo, se preservo codificacion Unicode del titulo y se verifico su nombre exacto. Focal10/10: ocho corregidos y dos solapados, no es una nueva corrida unica42/42. Cuatro fases con X/Escape, nombre visible/accesible, confirmacion, rechazo de duplicados, espera de acuse, pausa/cancelacion, respuesta perdida, desmontaje, estado pausado/completado y390/768/1280. Mensajes actuales/aviso compacto y consultas/CSV/recuperacion de suites existentes conservados. No se repite carga1000 por una etiqueta.
+
+Assets doc120-pausar-salir-20261119-5; flujo124 fuentes/20199 lineas, sintaxis/OpenSpec estricto/diff verificados. Cero autenticacion, HTTP/SELECT/efectos reales, compilacion/sustitucion DLL o esquema. QA historica intacta por hash y no acredita este cliente nuevo. Aceptacion visual actual pendiente. **235/246 tareas,38 S/208 M/0 L,97 escenarios y11 pendientes previas**.
+
+Recarga Ctrl+F5. Durante una importacion de prueba, Pausar y salir pide consentimiento y espera la respuesta actual antes de salir. Seguir importando/Escape conserva ejecucion; en pausa/completado se muestra Cerrar. No reimportar un lote completado ni relanzar ventanas cerradas para verificar esta etiqueta.

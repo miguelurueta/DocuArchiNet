@@ -1,0 +1,93 @@
+{
+  "date": "2026-11-19",
+  "baseCommit": "b7339bfe9ff725ad6427541ef2390e23360d1644",
+  "approval": "User approved architecture recommendation to label active exit Pausar y salir.",
+  "tasks": [
+    "3.224",
+    "3.225",
+    "3.226"
+  ],
+  "scenarios": [
+    "CTL-10"
+  ],
+  "sources": [
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256": "dc9c7e5bea5ca11f9b2062eab992eae73e8103df45bd0a15c39cda8b855aa56b"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256": "e2c86024e9a21b8d1541e7dbb0a470870867a522eedb361c68700577b8885a8f"
+    },
+    {
+      "path": "tests/doc120-controles-cierre-browser.test.cjs",
+      "sha256": "894aceeee363477612813ca367ad1ad0f4b97daa87398af3ae92e75294590dc6"
+    },
+    {
+      "path": "tests/doc120-coordinacion-browser.test.cjs",
+      "sha256": "19a56dc31900e4a4c1c8529d63e86115d4dc93a8144ae0af16b05886db691c9f"
+    },
+    {
+      "path": "tools/docs/generate-doc120-flow.cjs",
+      "sha256": "12b6653b6cf9c66c0b7dabcb6eb6f95b63870ec10e1e65f717edd8017dab3a21"
+    }
+  ],
+  "behavior": {
+    "activeExitVisibleLabel": "Pausar y salir",
+    "activeExitAccessibleName": "Pausar y salir",
+    "activeConsentAction": "Pausar y salir",
+    "activeConsentTitle": "¿Pausar y salir de esta importación?",
+    "idlePausedCompleteLabel": "Cerrar",
+    "sameHandlerAndWaitingSemantics": true,
+    "assetVersion": "doc120-pausar-salir-20261119-5"
+  },
+  "verification": {
+    "newTests": 0,
+    "existingCasesVerified": 42,
+    "broad": {
+      "tests": 42,
+      "passed": 34,
+      "failed": 8,
+      "log": ".tmp/doc120-pausar-salir-regresion.log",
+      "sha256": "0a828efba4da787d0e8a545da2c5ab0f7143bc74542b765d7c82e0c1f9a9f166",
+      "resolution": "New active-caption assertion matched both background header and consent button; scoped it to dialog. Fixed Unicode encoding of Spanish title and verified exact accessible title."
+    },
+    "focused": {
+      "tests": 10,
+      "passed": 10,
+      "failed": 0,
+      "overlapWithBroadSuccesses": 2,
+      "log": ".tmp/doc120-pausar-salir-focal.log",
+      "sha256": "72af9329655e681884e3f8c5af430edbadbcbebdeeda9a241a92dfb6ab79752c"
+    },
+    "counting": "34 broad successes plus8 corrected cases, two focused overlap. Not a new single42/42 run.",
+    "phases": [
+      "RECEPCION",
+      "CREAR_EXPEDIENTE",
+      "MATERIALIZAR_VALORES",
+      "ALMACENAR"
+    ],
+    "viewports": [
+      390,
+      768,
+      1280
+    ],
+    "syntax": true,
+    "strictOpenSpec": true,
+    "diffCheck": true,
+    "flowSources": 124,
+    "flowLines": 20199
+  },
+  "runtime": {
+    "realHttp": 0,
+    "realSelect": 0,
+    "realSessions": 0,
+    "realBusinessEffects": 0,
+    "dllCompiledOrReplacedByAgent": false,
+    "schemaChangedByAgent": false,
+    "historicalQaStatePreserved": true,
+    "historicalQaStateSha256": "c26e2686c9243fca52662b7afdf262b572c0e5929cdc28dbf5fa4eb01aaa64a0",
+    "manualAcceptanceCurrentClient": "PENDING"
+  },
+  "secretsRecorded": false
+}

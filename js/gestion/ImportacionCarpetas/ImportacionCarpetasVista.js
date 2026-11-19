@@ -61,9 +61,9 @@
             resolve(accepted);
         }
         function confirmarCierre(info){
-            if(closePromise){return closePromise;}closeReturnFocus=doc.activeElement;closeBody.textContent='';
+            if(closePromise){return closePromise;}closeReturnFocus=doc.activeElement;closeBody.textContent='';closeTitle.textContent=info.activa?'\u00bfPausar y salir de esta importaci\u00f3n?':'\u00bfCerrar esta importaci\u00f3n?';
             var description=node('p','Lote '+info.loteId+'. Los expedientes y documentos confirmados se conservan.');description.id='doc120-close-description';
-            add(closeBody,description,node('p',info.activa?'Mientras decides, la importación sigue activa. Si eliges Pausar y cerrar, se esperará la respuesta de la operación actual y no se iniciará la siguiente.':'Cerrar conserva este lote; no inicia ni repite operaciones.'),node('p','Para retomarlo, usa Consultar último lote o Consultar importación con esta referencia y después Continuar importación cuando esté disponible. Los PDF locales pendientes pueden requerir que vuelvas a seleccionar su carpeta.'),node('p','Cerrar no cancela ni revierte operaciones del servidor. Si queda un resultado sin confirmar, consulta su estado antes de continuar.'),add(node('div',undefined,'modal-actions'),button(info.activa?'Seguir importando':'Volver a la importación','cancelar-cierre'),button(info.activa?'Pausar y cerrar':'Cerrar y conservar lote','confirmar-cierre')));
+            add(closeBody,description,node('p',info.activa?'Mientras decides, la importación sigue activa. Si eliges Pausar y salir, se esperará la respuesta de la operación actual y no se iniciará la siguiente.':'Cerrar conserva este lote; no inicia ni repite operaciones.'),node('p','Para retomarlo, usa Consultar último lote o Consultar importación con esta referencia y después Continuar importación cuando esté disponible. Los PDF locales pendientes pueden requerir que vuelvas a seleccionar su carpeta.'),node('p','Cerrar no cancela ni revierte operaciones del servidor. Si queda un resultado sin confirmar, consulta su estado antes de continuar.'),add(node('div',undefined,'modal-actions'),button(info.activa?'Seguir importando':'Volver a la importación','cancelar-cierre'),button(info.activa?'Pausar y salir':'Cerrar y conservar lote','confirmar-cierre')));
             closePromise=new Promise(function(resolve){closeResolve=resolve;});if(queryModal.open){queryModal.close();}if(decisionModal.open){decisionModal.close();decisionKey=null;}closeModal.showModal();closeBody.querySelector('[data-doc111-action="cancelar-cierre"]').focus();return closePromise;
         }
         closeModal.addEventListener('cancel',function(event){event.preventDefault();event.stopPropagation();resolverCierre(false);});
@@ -231,6 +231,8 @@
 
         function render(model) {
             close.disabled=model.controles ? !model.controles.puedeCerrar : !!model.transicionPendiente;
+            var exitActive=!!(model.coordinacion&&model.coordinacion.activa||model.loteId&&model.busy),exitLabel=exitActive?'Pausar y salir':'Cerrar',exitText=close.querySelector('span');
+            exitText.textContent=exitLabel;exitText.className=exitActive?'':'sr-only';close.setAttribute('aria-label',exitLabel);close.title=exitLabel;
             decisionRender(model);
             currentModel = model; var oldScroll = scroll.scrollTop;
             var focused = doc.activeElement, restore = focused !== dialog && dialog.contains(focused) && !queryModal.contains(focused), referenceFocused = focused && focused.hasAttribute("data-doc111-reference"), focusAction = focused && focused.getAttribute("data-doc111-action"), focusValue = focused && JSON.stringify(focused.doc111Value), focusFilter = focused && focused.getAttribute("data-doc111-filter"), focusPanel = focused && focused.closest("[data-doc111-filtros]"), focusPanelKey = focusPanel && focusPanel.getAttribute("data-doc111-filtros");

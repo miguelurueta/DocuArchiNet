@@ -1,5 +1,10 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 - salida nombrada como pausa, corte actual2026-11-19
+
+CTL-10/tareas3.224..3.226: Pausar y salir visible/accesible y en consentimiento durante actividad; Cerrar en reposo/pausa/completado. Misma espera/confirmacion/uncertumbre sin cambiar negocio.42 casos existentes verificados (34/42 +10/10 focales, dos solapados),0 nuevos y sin repetir1000.235/246 y11 pendientes previas; assets doc120-pausar-salir-20261119-5. Evidencia Validacion/doc120-pausar-salir-20261119.md/JSON. Cero HTTP/SELECT/autenticacion/efectos reales, DLL o esquema. QA historica cerrada; aceptacion visual actual pendiente. No relanzar50/51 ni ventanas cerradas; apartados inferiores historicos.
+
+
 ## DOC-120 - mensajes y aviso compacto, corte actual2026-11-19
 
 MNS-01..03/tareas3.220..3.223: mensaje y render inicial de continuar/pausar inmediatos, progreso normal agrupado, diagnostico incierto conservado. Aviso local resumido con detalle de ruta/fase/referencia; limites/scroll/foco del dialogo y botones originales.59/59 locales (5 nuevos),1/1 solapado de ultimo boton;1552x912/768x600/390x600. No se repite1000 ni se mide SQL/almacenamiento nativo.232/243 y11 pendientes previas; assets doc120-mensajes-vigentes-20261119-4. Evidencia Validacion/doc120-mensajes-vigentes-20261119.md/JSON. Video usuario muestra recuperacion22 a99 guardados, sin auditoria SQL nueva. Cero autenticacion/HTTP/SELECT/efectos reales, DLL o esquema. No relanzar50/51 ni ventanas anteriores; aceptacion visual actual pendiente. Apartados inferiores historicos.

@@ -67,12 +67,12 @@
     <form id="form1" runat="server" onkeypress="return caracter_especial(event,this)">
         <%= RenderPerfilImportacion() %>
         <%= RenderImportacionCarpetas() %>
-        <link href="../js/gestion/ImportacionCarpetas/ImportacionCarpetas.css?v=doc120-mensajes-vigentes-20261119-4" rel="stylesheet" />
+        <link href="../js/gestion/ImportacionCarpetas/ImportacionCarpetas.css?v=doc120-pausar-salir-20261119-5" rel="stylesheet" />
         <script src="../js/gestion/ImportacionCarpetas/InventarioImportacion.js?v=doc111-ui-20261028-1"></script>
         <script src="../js/gestion/ImportacionCarpetas/PreparacionSegmentadaImportacion.js?v=doc120-segmentada-20261116-1"></script>
-        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js?v=doc120-mensajes-vigentes-20261119-4"></script>
-        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js?v=doc120-mensajes-vigentes-20261119-4"></script>
-        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetas.js?v=doc120-mensajes-vigentes-20261119-4"></script>
+        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js?v=doc120-pausar-salir-20261119-5"></script>
+        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js?v=doc120-pausar-salir-20261119-5"></script>
+        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetas.js?v=doc120-pausar-salir-20261119-5"></script>
         <link href="../js/gestion/ImportacionCarpetas/PerfilImportacionEditor.css?v=doc110-menu-20261024-2" rel="stylesheet" />
         <script src="../js/gestion/ImportacionCarpetas/PerfilImportacionApi.js"></script>
         <script src="../js/gestion/ImportacionCarpetas/ProveedorAdminEditor.js?v=doc110-source-diagnostics-20261027-1"></script>

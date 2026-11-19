@@ -183,8 +183,8 @@ const appendix = out.map(line => line.trimEnd()).join('\n');
 const mainText = read(main);
 const info = JSON.stringify({
     schema: 1,
-    implementationCut: 'DOC120-mensajes-vigentes-20261119',
-    implementationBaseCommit: '1d399d0e11e83e5e695e39520da830bbfdbef199',
+    implementationCut: 'DOC120-pausar-salir-20261119',
+    implementationBaseCommit: 'b7339bfe9ff725ad6427541ef2390e23360d1644',
     purpose: 'Flujo resumido implementado localmente por archivo; fuentes del mismo cambio, sin nueva ejecucion real.',
     diagram: { path: main, sha256Lf: hash(mainText) },
     annex: { path: annex, sha256Lf: hash(appendix) },

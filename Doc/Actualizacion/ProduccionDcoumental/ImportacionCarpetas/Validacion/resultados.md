@@ -1,5 +1,10 @@
 # DOC-120 — índice cronológico de resultados
 
+## Etiqueta Pausar y salir - corte local2026-11-19
+
+[Dictamen](doc120-pausar-salir-20261119.md) y [fuentes/resultados](doc120-pausar-salir-20261119.json). Aprobacion expresa: salida activa y consentimiento muestran Pausar y salir visible/accesible; reposo/pausa/completado conserva Cerrar. Mismo manejador y espera, sin cambios de negocio.42 casos existentes locales verificados (34/42 +10/10 focales, dos solapados),0 nuevos; cuatro fases/teclado/390-768-1280, incertidumbre y mensajes conservados.235/246 tareas,97 escenarios,11 pendientes previas. Assets doc120-pausar-salir-20261119-5; sin QA real/HTTP/SELECT/efectos, DLL o esquema. Aceptacion visual actual pendiente; cortes inferiores historicos.
+
+
 ## Mensajes vigentes y aviso compacto - corte local2026-11-19
 
 [Dictamen](doc120-mensajes-vigentes-20261119.md) y [fuentes/resultados](doc120-mensajes-vigentes-20261119.json). Video103048 muestra recuperacion/avance22 a99 guardados, aviso alto y franja de pausa previa al continuar. Se actualizan mensaje/render inmediato solo inicio/pausa; error/incertidumbre conservados. Aviso local resumido, detalle desplegable sin operaciones y limites/scroll de dialogo.59/59 locales,5 nuevos;1/1 focal solapado del ultimo boton. Geometria1552x912/768x600/390x600; no se repite1000.232/243 tareas,96 escenarios,11 pendientes previas. Assets doc120-mensajes-vigentes-20261119-4. Sin nueva QA real/HTTP/SELECT/efectos, DLL o esquema; aceptacion visual actual pendiente. Cortes inferiores historicos.
