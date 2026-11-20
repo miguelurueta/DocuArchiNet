@@ -1,8 +1,8 @@
 # DOC-120 — matriz única de verificación
 
-## Archivo y cierre administrativo — continuación autorizada
+## Archivo y cierre administrativo — completos
 
-[Archivo preparado](doc120-archivo-cierre-20261120.md):17 archivos conservados y270 tareas completas en openspec/changes/archive/2026-11-20-doc-120-produccion-importacion-carga-carpeta-verificacion. Nueva especificación principal15 requisitos/114 escenarios,91/91 estrictas y15/15 refinement archivado. No cambia el alcance aceptado ni las195 entradas revisadas. Jira se verificará y cerrará después de integrar el archivo; este registro no anticipa el resultado de la transición.
+[Registro de archivo y cierre](doc120-archivo-cierre-20261120.md)/JSON. Archivo integrado por [PR132](https://github.com/miguelurueta/DocuArchiNet/pull/132), merge `86e3fd61`; CI 37/37. Conserva 17 archivos y 270 tareas completas, con 15 requisitos y 114 escenarios en la especificación principal. Validación estricta 91/91, refinement 15/15 y gobierno 72/72. Las 195 fuentes de ejecución siguen iguales. Jira **Listo**, categoría `done`, confirmado por lectura posterior el 2026-11-20T22:08:53.584Z. Cero nuevas ejecuciones reales, despliegues o limpieza. Los cortes inferiores mantienen su estado histórico.
 
 ## Entrega vigente — aceptación y merge verificados
 

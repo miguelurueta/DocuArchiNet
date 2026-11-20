@@ -1,19 +1,17 @@
-# DOC-120 — archivo de OpenSpec y cierre administrativo
+# DOC-120 — OpenSpec archivado y Jira cerrado
 
-Continuación autorizada por el usuario después de la entrega integrada y la aceptación de límites. El archivo conserva270/270 tareas, la revisión y los primarios de las pruebas. El PR131 y el merge3fe73d6f permanecen como integración funcional; el registro final de entrega está en7589c50d.
+Continuación autorizada tras aceptar los límites y entregar la implementación en el [PR131](https://github.com/miguelurueta/DocuArchiNet/pull/131), merge `3fe73d6f`. Jira pasó de **En curso** a **Listo** mediante la transición 41; la lectura posterior confirmó la categoría `done` el 2026-11-20T22:08:53.584Z. No se enviaron comentarios de issue. El [registro JSON](doc120-archivo-cierre-20261120.json) conserva los datos de comprobación.
 
-## Archivo preparado y verificado
+## Archivo integrado
 
-Cambio movido a `openspec/changes/archive/2026-11-20-doc-120-produccion-importacion-carga-carpeta-verificacion/`, con sus17 archivos. Esquema spec-driven, artefactos completos y cero tareas pendientes. El contexto Jira se conserva como contexto, no como otro contrato normativo.
+El [PR132](https://github.com/miguelurueta/DocuArchiNet/pull/132) integró el archivo mediante `86e3fd61e5e3c72eab113da6d04af3388117372b`. El árbol integrado coincide con el revisado `73b4d816380d1b2a7aa1f3e2177b4a2461bf256b`; [CI](https://github.com/miguelurueta/DocuArchiNet/actions/runs/44825467841) terminó con 37 de 37 pasos aprobados. La carpeta principal quedó en `main` y se comprobó el mismo SHA en el remoto antes de cerrar Jira.
 
-La especificación principal nueva está en `openspec/specs/produccion-importacion-carga-carpeta-verificacion/spec.md`:15 requisitos añadidos,114 escenarios; cero requisitos modificados/eliminados/renombrados de otras capacidades. Se copió el Purpose existente y se compararon todos los bloques normativos resolviendo sus enlaces. El encabezado de trazabilidad del delta se conserva como texto auxiliar dentro de Requirements, evitando que cierre la sección o se interprete como un requisito adicional. El contrato no cambia.
+Se conservan los 17 archivos y las 270 tareas completas en `openspec/changes/archive/2026-11-20-doc-120-produccion-importacion-carga-carpeta-verificacion/`. El directorio activo ya no existe. La [especificación principal](../../../../../openspec/specs/produccion-importacion-carga-carpeta-verificacion/spec.md) contiene los 15 requisitos y 114 escenarios del delta, comparados bloque por bloque y resolviendo sus enlaces. Se preservó Purpose; el contexto Jira permanece en el archivo como contexto.
 
-Se repararon enlaces Markdown relativos del archivo y la referencia al diseño desde la matriz de límites. Las rutas registradas en los JSON históricos no se reescriben: identifican sus entradas originales. Validación estricta global91/91 y refinement archivado15/15 aprobados. La primera comprobación detectó el encabezado auxiliar; el movimiento provisional se revirtió y la sincronización se validó antes del archivo definitivo. Ningún archivo parcial se publicó.
+Se repararon los enlaces Markdown afectados. Los JSON históricos conservan sus rutas y cortes originales. La primera validación detectó un encabezado auxiliar que cortaba Requirements: el movimiento provisional se revirtió, se corrigió el formato y se validó la sincronización antes del archivo definitivo. Ninguna versión parcial se publicó.
 
-No se modifica producto, DLL, configuración, datos, cuota o política. Las195 entradas de la revisión siguen iguales; no se repiten226 pruebas locales ni E2E/cargas reales por mover documentación.
+## Verificación y alcance
 
-## Condición de cierre Jira
+Validación estricta global: **91/91**. Refinement archivado: **15/15**. Gobierno sobre el merge archivado: **72/72**, sin tareas pendientes. Las **195 entradas** de producto y pruebas mantienen sus hashes; se reutilizan los resultados existentes de 226 pruebas locales y las evidencias E2E con sus alcances documentados. El registro final documental vuelve a vincular la revisión al SHA comprometido en los archivos locales excluidos de Git.
 
-La lectura previa muestra DOC-120 «En curso». La transición final se ejecutará solo después de integrar este archivo, comprobar el main remoto y validar el gobierno del SHA archivado. Se reutiliza el cliente Jira existente para la transición y lectura de confirmación; no se envían comentarios de issue ni mensajes adicionales.
-
-El resultado de esa transición y su SHA se registrarán después de verificarlo; este corte de preparación no afirma que Jira ya esté cerrado. Los estados anteriores «archivo/cierre no ejecutados» permanecen como historia de la entrega funcional.
+El cierre conserva los [límites aceptados](doc120-aceptacion-limites-final-20261120.md): no añade certificación SII/limpieza, máximo de capacidad o SLA. Esta operación administrativa no ejecutó nuevas cargas reales, despliegues ni limpieza de datos. Los estados «archivo/cierre no ejecutados» de documentos anteriores corresponden a sus cortes históricos.

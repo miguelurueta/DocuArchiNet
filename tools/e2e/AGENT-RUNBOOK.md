@@ -1,8 +1,8 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
-## DOC-120 — archivo OpenSpec en curso administrativo
+## DOC-120 — OpenSpec archivado y Jira Listo
 
-Usuario solicita continuar después de270/270/PR131 integrado. Cambio movido a openspec/changes/archive/2026-11-20-doc-120-produccion-importacion-carga-carpeta-verificacion;17 archivos conservados. Especificación principal nueva15 requisitos/114 escenarios,91/91 estrictas y15/15 refinement archivado.195 entradas de producto/pruebas sin cambios. Fuente `Validacion/doc120-archivo-cierre-20261120.md`. Jira En curso en la lectura previa; transición/readback después de integrar el archivo, sin comentarios. No abrir claves E2E, repetir ventanas o limpiar datos por esta operación administrativa. Los cortes inferiores reflejan la entrega funcional anterior al archivo.
+Archivo integrado por [PR132](https://github.com/miguelurueta/DocuArchiNet/pull/132), merge `86e3fd61`; CI 37/37. Conserva 17 archivos y 270 tareas completas, con 15 requisitos y 114 escenarios en la especificación principal. Validación estricta 91/91, refinement 15/15 y gobierno 72/72. Las 195 fuentes de ejecución siguen iguales. Jira **Listo**, categoría `done`, confirmado por lectura posterior el 2026-11-20T22:08:53.584Z. Cero nuevas ejecuciones reales, despliegues o limpieza. Los cortes inferiores mantienen su estado histórico. Fuente: `Validacion/doc120-archivo-cierre-20261120.md`/JSON. No recuperar claves E2E ni reabrir ventanas por pendientes históricos.
 
 ## DOC-120 — entrega integrada, límites aceptados y270/270
 

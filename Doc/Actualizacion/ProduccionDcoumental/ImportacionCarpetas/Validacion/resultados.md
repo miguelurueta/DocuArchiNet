@@ -1,8 +1,8 @@
 # DOC-120 — índice cronológico de resultados
 
-## Continuación de archivo/cierre — 2026-11-20
+## Archivo y cierre verificados — 2026-11-20
 
-[Archivo OpenSpec verificado](doc120-archivo-cierre-20261120.md):270 tareas/17 archivos conservados, capacidad principal15 requisitos/114 escenarios,91/91 especificaciones y15/15 refinement archivado. La corrección de formato del encabezado auxiliar precede al archivo definitivo; ninguna versión inválida fue publicada.195 fuentes de entrega sin cambios y cero nuevos efectos. Jira En curso en la lectura previa; transición final condicionada a integrar/verificar el archivo.
+[Registro de archivo y cierre](doc120-archivo-cierre-20261120.md)/JSON. Archivo integrado por [PR132](https://github.com/miguelurueta/DocuArchiNet/pull/132), merge `86e3fd61`; CI 37/37. Conserva 17 archivos y 270 tareas completas, con 15 requisitos y 114 escenarios en la especificación principal. Validación estricta 91/91, refinement 15/15 y gobierno 72/72. Las 195 fuentes de ejecución siguen iguales. Jira **Listo**, categoría `done`, confirmado por lectura posterior el 2026-11-20T22:08:53.584Z. Cero nuevas ejecuciones reales, despliegues o limpieza. Los cortes inferiores mantienen su estado histórico.
 
 ## Entrega final integrada — 2026-11-20
 

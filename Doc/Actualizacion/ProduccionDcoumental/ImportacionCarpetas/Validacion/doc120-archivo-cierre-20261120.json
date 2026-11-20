@@ -1,0 +1,61 @@
+{
+  "issueKey": "DOC-120",
+  "recordedUtc": "2026-11-20T22:09:45.558Z",
+  "authorization": "User requested continuation of the OpenSpec archive and Jira closure after accepted limits and merged implementation.",
+  "archive": {
+    "path": "openspec/changes/archive/2026-11-20-doc-120-produccion-importacion-carga-carpeta-verificacion",
+    "archivedFiles": 17,
+    "completedTasks": 270,
+    "pendingTasks": 0,
+    "synchronizedCapability": "produccion-importacion-carga-carpeta-verificacion",
+    "requirements": 15,
+    "scenarios": 114,
+    "mainSpec": "openspec/specs/produccion-importacion-carga-carpeta-verificacion/spec.md",
+    "syncVerified": true,
+    "pr": 132,
+    "url": "https://github.com/miguelurueta/DocuArchiNet/pull/132",
+    "reviewedHead": "73b4d816380d1b2a7aa1f3e2177b4a2461bf256b",
+    "mergeCommit": "86e3fd61e5e3c72eab113da6d04af3388117372b",
+    "merged": true,
+    "mergedAt": "2026-11-20T22:06:51Z",
+    "reviewedTree": "50b193aaac4303b3d2d3d7ce1871892493e54bca",
+    "mergeTree": "50b193aaac4303b3d2d3d7ce1871892493e54bca",
+    "treesEqual": true,
+    "ciRun": 44825467841,
+    "ciConclusion": "success",
+    "ciStepsPassed": 37
+  },
+  "jira": {
+    "before": "En curso",
+    "after": "Listo",
+    "category": "done",
+    "transitionId": "41",
+    "readBackVerifiedUtc": "2026-11-20T22:08:53.584Z",
+    "commentsSent": 0
+  },
+  "implementation": {
+    "pr": 131,
+    "mergeCommit": "3fe73d6f8fad8a64e5ff665c714cb7940baceb94",
+    "acceptedLimitsReference": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-aceptacion-limites-final-20261120.md"
+  },
+  "verification": {
+    "strictOpenSpecPassed": 91,
+    "strictOpenSpecFailed": 0,
+    "archivedRefinementPassed": 15,
+    "governancePassed": 72,
+    "governanceFailed": 0,
+    "governanceSha": "86e3fd61e5e3c72eab113da6d04af3388117372b",
+    "executionInputs": 195,
+    "executionInputsUnchanged": true,
+    "reusedLocalTests": 226,
+    "newRealExecutions": 0,
+    "newDeployment": false,
+    "newCleanup": false
+  },
+  "workspace": {
+    "root": "D:/imagenesda/DocuachiNet/DocuArchiNet",
+    "branch": "main",
+    "archiveMergeVerifiedInLocalAndRemote": true
+  },
+  "finalRecord": "Documentation-only closing record; final review and evidence bind to its committed SHA in excluded OPSXJ records. Historical execution snapshots retain their original states."
+}
