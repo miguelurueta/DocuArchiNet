@@ -220,8 +220,10 @@ async function consult(page,lotId,resume=false){
     if(!resume){await page.locator('[data-doc111-lote]').fill(lotId);await page.locator('[data-doc111-consultar]').click();}
   },'ARCHIVOS');
   check(r.status===200&&r.body?.ok&&r.body.datos?.loteId===lotId,'QUERY_FAILED');
-  await page.getByRole('button',{name:'Actualizar estado',exact:true}).waitFor();
-  await page.waitForFunction(()=>{const b=document.querySelector('[data-doc111-action="consultar"]');return b&&!b.disabled;});return r.body.datos;
+  try{
+    await page.getByRole('button',{name:'Actualizar estado',exact:true}).waitFor();
+    await page.waitForFunction(()=>{const b=document.querySelector('[data-doc111-action="consultar"]');return b&&!b.disabled;});
+  }catch(error){if(error?.name==='TimeoutError')check(false,'RESULT_CONTROL_NOT_READY');throw error;}return r.body.datos;
 }
 function csvRows(text){
   check(typeof text==='string'&&text.length<=8*1024*1024,'CSV_INVALID');const rows=[];let row=[],value='',quoted=false;

@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Consulta secundaria conservada; E2E real detenida -2026-11-19
+
+[Diagnostico y limites](doc120-consulta-visible-20261119.md), [fuentes](doc120-consulta-visible-20261119.json). Run97c9d4c3/lote52 STOPPED/DOC119_STOPPED con192 HTTP/10 SELECT/1 sesion, cerrada/secretos eliminados y sin endpoint escritor; sin huella posterior verificada. Defecto UI reproducido: pagina con todos sus archivos guardados elimina Actualizar estado al reemplazar pie por Continuar. Se conserva el mismo boton en cabecera y se clasifica su espera como RESULT_CONTROL_NOT_READY. AUD-08 rojo->verde;44/44 focales y8/8 diagnostico con7 solapados. Amplia223/224; contextual teclado falla una vez y pasa4/4 aislado sin cambios, causa intermitente no certificada/6.4 pendiente. No declarar corrida224/224 ni nueva E2E real aprobada. Assets doc120-consulta-visible-20261119-9;251/262 tareas,108 escenarios,11 pendientes previas. Ventana cerrada no se relanza.
+
 ## Parametros de video para E2E visible -2026-11-19
 
 [Parametros y limites](doc120-e2e-parametros-video-20261119.md), [fuentes](doc120-e2e-parametros-video-20261119.json). Lote52 preseleccionado por --lot, solo dentro de catalogo autorizado, sin fallback ni recuperacion de otro lote. Egresos v3 mostrado antes de consulta no sustituye perfil confirmado.41/41 locales,2 nuevos; nueva consola97c9d4c3/PID15952, resultado real pendiente.36a221bf sin proceso activo y estado anterior preservado; sin recuperar secretos.250/261 y11 pendientes previas. Sin cambios del producto/DLL/esquema.

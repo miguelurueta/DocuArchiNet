@@ -600,3 +600,7 @@ El cliente SHALL mantener separado el estado de revision/importacion guardada de
 #### Scenario: AUDCTX04 - Consulta no hereda progreso de revision
 - **WHEN** se consulta y procesa otro lote mientras existe una revision pausada guardada
 - **THEN** la consulta SHALL usar un modelo propio sin progreso ni errores heredados, informar de la fase y certeza reales, y permitir volver al ticket vigente de revision sin empezar otra preparacion
+
+#### Scenario: QUERY-REFRESH01 - Consulta secundaria en pagina ya guardada
+- **WHEN** la pagina visible contiene archivos guardados y el lote conserva pendientes fuera de ella
+- **THEN** Actualizar estado SHALL permanecer visible junto a los resultados aunque el pie muestre Continuar importacion, y consultar SHALL actualizar solo la lectura sin iniciar efectos

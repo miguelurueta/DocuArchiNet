@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 - ventana97c9d4c3 detenida y consulta secundaria corregida
+
+Lote52 preflight1000 archivos/1 raiz; STOPPED/DOC119_STOPPED,192 HTTP/10 SELECT/1 sesion, cerrada/secretos eliminados. No endpoints escritores ni huella posterior acreditada. Se reproduce pagina guardada que pierde Actualizar estado al reemplazar pie coordinado; control restaurado y timeout especifico DOC119_RESULT_CONTROL_NOT_READY. Focal44/44 y8/8 diagnostico con7 solapados; amplia223/224 y contextual4/4 aislado sin cambios, intermitencia de teclado no certificada/6.4 pendiente. No repetir automaticamente la ventana cerrada; nueva E2E necesita ventana/cuentas privadas actuales. Evidencia Validacion/doc120-consulta-visible-20261119.md/JSON. Assets doc120-consulta-visible-20261119-9,251/262 y11 pendientes; sin DLL/esquema. Apartados inferiores historicos.
+
 ## DOC-120 - E2E visible dirigida al lote52 del video
 
 Nueva ventana97c9d4c3 con `run-doc119-seguimiento.cjs --run <nuevo32hex> --authorized-plan --lot 52 --headed`; exige ID en catalogo autorizado, sin fallback, y limita recuperacion al mismo lote. Egresos v3 mostrado en seleccion previa no sustituye perfil del lote. Consola15952 iniciada; resultado pendiente. Ventana36a221bf sin proceso activo antes de seleccionar; estado preservado,189 HTTP/2 SELECT/1 sesion conocidos, no recuperar secretos ni relanzarla.41/41 locales; evidencia Validacion/doc120-e2e-parametros-video-20261119.md/JSON. Siguen mismos limites solo lectura; ninguna autorizacion para guardados o nuevas importaciones. Apartados inferiores historicos.

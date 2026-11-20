@@ -73,3 +73,11 @@ test('AUD-07: fallo en lectura inicial de continuacion desbloquea consulta sin e
  assert.equal(await page.getByRole('button',{name:'Consultar importación',exact:true}).isEnabled(),true);await click(page,'consultar');await page.getByRole('button',{name:'Continuar importación',exact:true}).waitFor();assert.equal(await writes(page),0);
  assert.match(await page.locator('.doc111-destino').textContent(),/34/);
 }));
+
+test('AUD-08: pagina ya guardada conserva Actualizar estado mientras el lote tiene pendientes fuera de pagina',()=>fixture(async page=>{
+ await lots(page);await page.evaluate(()=>{roots.forEach((r,i)=>Object.assign(r,{estado:'EXPEDIENTE_CONFIRMADO',expedienteId:String(4000+i),relacionNivelId:String(5000+i),codigoExpediente:'COD-'+i}));files.slice(0,25).forEach((f,i)=>Object.assign(f,{estadoRecepcion:'RECIBIDO',bytesRecibidos:f.bytesPrevistos,estado:'COMPLETADO',documentoId:String(6000+i),valoresEfectivosFijados:true}));rev++;});await query(page,'34');
+ const refresh=page.getByRole('button',{name:'Actualizar estado',exact:true});await refresh.waitFor({timeout:1800});assert.equal(await refresh.isEnabled(),true);
+ assert.equal(await page.locator('.query-control [data-doc111-action="consultar"]').count(),1);assert.equal(await page.getByRole('button',{name:'Continuar importación',exact:true}).isVisible(),true);
+ const before=await page.evaluate(()=>calls.filter(c=>c.operation==='ConsultarLote').length);await refresh.click();await page.waitForFunction(before=>calls.filter(c=>c.operation==='ConsultarLote').length===before+1&&document.querySelector('.doc111-dialog').getAttribute('aria-busy')==='false',before);
+ assert.equal(await writes(page),0);assert.equal(await refresh.isEnabled(),true);
+}));

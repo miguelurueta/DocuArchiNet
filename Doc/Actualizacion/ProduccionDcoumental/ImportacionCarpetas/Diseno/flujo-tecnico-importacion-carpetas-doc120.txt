@@ -1,6 +1,6 @@
 DOC-120 | GUARDAR UN DOCUMENTO: FLUJO IMPLEMENTADO Y COSTOS
 =========================================================
-Corte local: DOC120-auditoria-transiciones-20261119. Sin nueva prueba real.
+Corte local: DOC120-consulta-visible-20261119. Ventana de lectura97c9d4c3 detenida.
 QA real5f7af8f5 conserva sus fuentes; no certifica cliente o DLL instalada actual.
 Detalle literal de metodos, parametros, filtros y decisiones: anexo.txt y
 fuentes.json con el mismo prefijo de este archivo; --check verifica sus fuentes.
@@ -11,6 +11,8 @@ fuentes.json con el mismo prefijo de este archivo; --check verifica sus fuentes.
     pagina1 de carpetas/archivos y filtros vacios. Volver restaura su modelo/ticket.
     Borradores ligados a instancia de filtros; CSV usa solo consulta aplicada.
     Ayuda permanece ante acuses; Escape cierra solo ayuda. Sin pausa o I/O adicional.
+    Actualizar estado conserva lugar en query-control antes de reemplazar el pie
+    coordinado: pagina guardada no elimina la consulta secundaria del mismo lote.
   Elige A por recursoId; conserva lo ya confirmado; una operacion en vuelo.
   politicaControles(model): misma politica para vista y controlador.
   cambiar(value,snapshot): continuar sin actual -> mensaje de consulta vigente;

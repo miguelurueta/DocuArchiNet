@@ -24,6 +24,12 @@ test('VISIBLE-06: solo selecciona el lote solicitado dentro del catalogo autoriz
  const items=[{id:'50'},{id:'52'}];assert.equal(requestedImport(items,'52'),items[1]);
  assert.throws(()=>requestedImport(items,'53'),/DOC119_REQUESTED_IMPORT_UNAVAILABLE/);assert.throws(()=>requestedImport([],'52'),/DOC119_REQUESTED_IMPORT_UNAVAILABLE/);
 });
+test('READINESS-01: lote respondido sin control disponible emite codigo propio sin mensaje privado',async()=>{
+ const {consult}=require('../tools/e2e/tests/support/doc119-seguimiento.cjs');
+ const response={url:()=> 'https://localhost/GestionDocumental-Docuarchi.net/webservice/WebServiceImportacionCarpetas.asmx/ConsultarRecursosLote',status:()=>200,json:async()=>({ok:true,datos:{loteId:'52'}}),request:()=>({method:()=> 'POST',postData:()=>JSON.stringify({solicitud:{tipo:'ARCHIVOS'}})})};
+ const page={waitForResponse:async predicate=>{assert.equal(await predicate(response),true);return response;},locator:()=>({count:async()=>0,fill:async()=>{},click:async()=>{}}),getByRole:()=>({waitFor:async()=>{const e=Error('PRIVATE_BROWSER_DETAIL');e.name='TimeoutError';throw e;}})};
+ await assert.rejects(()=>consult(page,'52'),e=>e.message==='DOC119_RESULT_CONTROL_NOT_READY'&&!e.message.includes('PRIVATE_BROWSER_DETAIL'));
+});
 for(const answer of ['NO','SI'])test('VISIBLE-04 '+answer+': consentimiento antes de credenciales y cero acceso al ambiente',async()=>{
  const file=path.resolve(__dirname,'../tools/e2e/scripts/run-doc119-seguimiento.cjs'),states=[],prompts=[];
  const runtime={module:{exports:{}},exports:{},__dirname:path.dirname(file),process:{argv:[],env:{},pid:1},console:{log(){},error(){}},Buffer,Set,Date};

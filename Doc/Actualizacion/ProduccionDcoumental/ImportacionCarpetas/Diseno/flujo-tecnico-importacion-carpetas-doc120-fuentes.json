@@ -1,23 +1,23 @@
 {
   "schema": 1,
-  "implementationCut": "DOC120-auditoria-transiciones-20261119",
-  "implementationBaseCommit": "077920dad9aaba3bf9bb03ce469c35f27718aed9",
+  "implementationCut": "DOC120-consulta-visible-20261119",
+  "implementationBaseCommit": "18cba51344ca656e3242111f272aa3e5855076a6",
   "purpose": "Flujo resumido implementado localmente por archivo; fuentes del mismo cambio, sin nueva ejecucion real.",
   "diagram": {
     "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/flujo-tecnico-importacion-carpetas-doc120.txt",
-    "sha256Lf": "a3659bfda7e2811e94d64f13b195c59f56fa5c5cc8c96f8e081bf1df5e88f4a7"
+    "sha256Lf": "6d8e2cd21cb94a6bb1a38e472b3f54ee587cc4b7d716464ab4820573983472d1"
   },
   "annex": {
     "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/flujo-tecnico-importacion-carpetas-doc120-anexo.txt",
-    "sha256Lf": "bef8c19cc2c82944ac14f4a37fd30a017dfc4a0cd24f802c65e1d51c7d872511"
+    "sha256Lf": "110a8119de19a89a9b0e0f3bab952489267060945530939864eae9d476373286"
   },
   "generator": {
     "path": "tools/docs/generate-doc120-flow.cjs",
-    "sha256Lf": "95c4bc31a0e007e7dc76a6bedb3ef12c4e695066b1caf25938c7b2b6b7120445"
+    "sha256Lf": "1311b7ddd6ee40574d6de61f9be1c9759180eb7f1c4eb8e335606c82cdef881e"
   },
   "sourceCount": 124,
   "httpEndpoints": 53,
-  "extractedLines": 20225,
+  "extractedLines": 20226,
   "sourceInventory": [
     {
       "path": "DTOs/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasDtos.vb",
@@ -48,7 +48,7 @@
     },
     {
       "path": "Gestion/WebFormProducionDocumental.aspx",
-      "sha256Lf": "7d0572b748b9c915b9f979bcc60e750b8af2f928bd139ac295dfccfe4678e816",
+      "sha256Lf": "56842034b403e50dd662381982629eab251bddc4b79f94a22643dacc61b755f8",
       "lines": 2249,
       "selectedMethods": null
     },
@@ -701,8 +701,8 @@
     },
     {
       "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
-      "sha256Lf": "cd0e041194ee72ae92f5a9d682973f78e5ea4acde492fc3086eb124d525c1255",
-      "lines": 458,
+      "sha256Lf": "ea9f92f91b740cf38cecd7292ec84b77013af28bb6f7171e701c59260de8a059",
+      "lines": 459,
       "selectedMethods": null
     },
     {
