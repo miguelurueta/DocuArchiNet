@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Preparación de reservas nativas3.187 — 2026-11-20
+
+[Recursos, guardas y límites](doc120-reservas-archivo-ventana-20261120.md). Se reutilizan los ejecutores y arnés existentes para122/123 del lote50;32/32 pruebas del ejecutor y2/2 envoltorios Framework/DDL locales. Check de manifiesto sin BD. Sin ejecución MySQL acreditada todavía:3.187 permanece pendiente y266/270 no cambia. Ventanas anteriores cerradas, sin nuevas invocaciones documentales.
+
 ## Rendimiento real consolidado — 2026-11-20
 
 [Revisión de CSV y autorizaciones](doc120-rendimiento-consolidado-20261120.md). Medias reales recalculadas79,432043/1,058143/0,969465/0,980750 s en sus respectivos cortes, separados por versión y alcance. DLL de cuatro coincide con instalada; datos finales1.000/1.000 ya acreditados.3.126 completa y5.2 resuelta sin nueva ventana; límites de muestra explícitos, sin declarar memoria/disco o duración integral no observados.266/270, cuatro pendientes. Revisión documental, sin volver a ejecutar pruebas.

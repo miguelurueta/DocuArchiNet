@@ -1,5 +1,9 @@
-param([switch]$AuthorizedPersistence,[switch]$AuthorizedTemporaryProfile24,[ValidateSet('Create','Rollback','PublicationRead','Doc115','Doc120Segmented')][string]$Mode='Create',[switch]$AuthorizedDoc115,[string]$ResourcesFile,[string]$RuntimeRoot,[switch]$Check)
+param([switch]$AuthorizedPersistence,[switch]$AuthorizedTemporaryProfile24,[ValidateSet('Create','Rollback','PublicationRead','Doc115','Doc120Segmented','Doc120Files')][string]$Mode='Create',[switch]$AuthorizedDoc115,[string]$ResourcesFile,[string]$RuntimeRoot,[switch]$Check)
 $ErrorActionPreference='Stop'
+if($Mode -eq 'Doc120Files'){
+    & (Join-Path $PSScriptRoot 'support/doc115-repository-integration.ps1') -ResourcesFile $ResourcesFile -RuntimeRoot $RuntimeRoot -Check:$Check -FileReservations
+    exit $LASTEXITCODE
+}
 if($Mode -eq 'Doc120Segmented'){
     & (Join-Path $PSScriptRoot 'support/doc115-repository-integration.ps1') -ResourcesFile $ResourcesFile -RuntimeRoot $RuntimeRoot -Check:$Check -Segmented
     exit $LASTEXITCODE

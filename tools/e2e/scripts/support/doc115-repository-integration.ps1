@@ -1,17 +1,25 @@
-param([Parameter(Mandatory=$true)][string]$ResourcesFile,[Parameter(Mandatory=$true)][string]$RuntimeRoot,[switch]$Check,[switch]$Segmented)
+param([Parameter(Mandatory=$true)][string]$ResourcesFile,[Parameter(Mandatory=$true)][string]$RuntimeRoot,[switch]$Check,[switch]$Segmented,[switch]$FileReservations)
 $ErrorActionPreference='Stop'
-if(-not $Check -and (($Segmented -and $env:DOC120_SEGMENTED_AUTHORIZED -ne 'true') -or (-not $Segmented -and $env:DOC115_07A_AUTHORIZED -ne 'true'))){throw 'DOC115_REPOSITORY_AUTHORIZATION_REQUIRED'}
+$privateRepository=$Segmented -or $FileReservations
+if($Segmented -and $FileReservations){throw 'DOC120_FILES_SCOPE_INVALID'}
+if(-not $Check -and (($privateRepository -and $env:DOC120_SEGMENTED_AUTHORIZED -ne 'true') -or (-not $privateRepository -and $env:DOC115_07A_AUTHORIZED -ne 'true'))){throw 'DOC115_REPOSITORY_AUTHORIZATION_REQUIRED'}
 . (Join-Path $PSScriptRoot 'doc115-readonly-failure.ps1')
 $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../../..'))
 $scope=Get-Content -LiteralPath $ResourcesFile -Raw|ConvertFrom-Json
-if($Segmented){
-    if($scope.scenario -ne 'DOC120-SEGMENTED-REPOSITORY' -or $scope.runId -notmatch '\A[a-f0-9]{32}\z' -or $scope.userRef -ne '141' -or $scope.companyRef -ne '2' -or $scope.levelRef -ne '7' -or $scope.profileRef -ne '24' -or $scope.odbcDsn -ne 'MembershipUsers' -or $scope.cabinetRef -ne '10' -or $scope.environmentHash -notmatch '\A[a-f0-9]{64}\z' -or $scope.backendSha256 -notmatch '\A[a-f0-9]{64}\z' -or $scope.files.Count -ne 2 -or $scope.preserveResources -ne $true){throw 'DOC120_SEGMENTED_SCOPE_INVALID'}
+if($privateRepository){
+    if($scope.runId -notmatch '\A[a-f0-9]{32}\z' -or $scope.userRef -ne '141' -or $scope.companyRef -ne '2' -or $scope.odbcDsn -ne 'MembershipUsers' -or $scope.cabinetRef -ne '10' -or $scope.environmentHash -notmatch '\A[a-f0-9]{64}\z' -or $scope.backendSha256 -notmatch '\A[a-f0-9]{64}\z' -or $scope.files.Count -ne 2 -or $scope.preserveResources -ne $true){throw 'DOC120_SEGMENTED_SCOPE_INVALID'}
+    if($FileReservations){
+        if($scope.scenario -ne 'DOC120-FILES-REPOSITORY' -or $scope.levelRef -ne '223' -or $scope.profileRef -ne '28' -or $scope.versionRef -ne '45' -or $scope.lotRef -ne '50' -or ($scope.files -join ',') -cne '122,123' -or $scope.previous){throw 'DOC120_FILES_SCOPE_INVALID'}
+    }else{
+    if($scope.scenario -ne 'DOC120-SEGMENTED-REPOSITORY' -or $scope.levelRef -ne '7' -or $scope.profileRef -ne '24'){throw 'DOC120_SEGMENTED_SCOPE_INVALID'}
     $corpus=[IO.Path]::GetFullPath('D:\Pruebas\Importador\Egresos_20261113_092045_39126bb4')+[IO.Path]::DirectorySeparatorChar
     foreach($file in $scope.files){
         $path=[IO.Path]::GetFullPath([string]$file.path)
         if(-not $path.StartsWith($corpus,[StringComparison]::OrdinalIgnoreCase) -or [IO.Path]::GetExtension($path) -ine '.pdf' -or [IO.Path]::GetFileName($path) -cne $file.name -or [uint64]$file.bytes -lt 1 -or [uint64]$file.bytes -gt 2097152 -or $file.sha256 -notmatch '\A[a-f0-9]{64}\z' -or (Get-Item -LiteralPath $path).Length -ne [uint64]$file.bytes -or (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $file.sha256){throw 'DOC120_SEGMENTED_CORPUS_CHANGED'}
     }
     if($scope.files[0].path -eq $scope.files[1].path -or $scope.files[0].name -eq $scope.files[1].name -or @($scope.sources.PSObject.Properties).Count -lt 10){throw 'DOC120_SEGMENTED_CORPUS_DUPLICATE'}
+    }
+    if(@($scope.sources.PSObject.Properties).Count -lt 10){throw 'DOC120_SEGMENTED_SOURCE_CHANGED'}
     foreach($source in $scope.sources.PSObject.Properties){if((Get-FileHash -LiteralPath (Join-Path $root $source.Name) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $source.Value){throw 'DOC120_SEGMENTED_SOURCE_CHANGED'}}
     if([IO.Path]::GetFullPath($RuntimeRoot) -ne [IO.Path]::GetFullPath($scope.runtimeRoot) -or (Get-FileHash -LiteralPath (Join-Path $RuntimeRoot 'bin/GestionDocumental-Docuarchi.net.dll') -Algorithm SHA256).Hash.ToLowerInvariant() -ne $scope.backendSha256){throw 'DOC120_SEGMENTED_RUNTIME_CHANGED'}
     $segmentedTarget=Resolve-Doc115DsnTarget -Dsn $scope.odbcDsn -ExpectedHash $scope.environmentHash
@@ -39,19 +47,19 @@ if($Check){
     [Console]::Out.WriteLine('DOC115_07A_CHECK='+(@{status='PASS';realExecution=$false;preparations=3;maximumCommittedLots=2;receipts=1;injectedRollbacks=4;resourcesSha256=(Get-FileHash -LiteralPath $ResourcesFile -Algorithm SHA256).Hash.ToLowerInvariant()}|ConvertTo-Json -Compress));exit 0
 }
 }
-if($Segmented){$runId=[string]$scope.runId}else{$runId=$env:DOC115_07A_RUN_ID}
+if($privateRepository){$runId=[string]$scope.runId}else{$runId=$env:DOC115_07A_RUN_ID}
 if($runId -notmatch '\A[a-f0-9]{32}\z'){throw 'DOC115_RUN_ID_REQUIRED'}
-$journalPath=Join-Path $root ('tools/e2e/artifacts/'+$(if($Segmented){'doc120-segmented-'}else{'doc115-07a-'})+$runId+'.json')
+$journalPath=Join-Path $root ('tools/e2e/artifacts/'+$(if($FileReservations){'doc120-files-'}elseif($Segmented){'doc120-segmented-'}else{'doc115-07a-'})+$runId+'.json')
 if(Test-Path -LiteralPath $journalPath){throw 'DOC115_JOURNAL_ALREADY_EXISTS'}
-if($Segmented){$marker=[IO.File]::Open($journalPath,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None);$marker.Dispose()}
+if($privateRepository){$marker=[IO.File]::Open($journalPath,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None);$marker.Dispose()}
 $journal=[ordered]@{issueKey='DOC-115';scenario='REPO-07A';status='STARTING';phase='COMPILE';references=@();resourcesSha256=$env:DOC115_07A_RESOURCES_SHA256;backendSha256=$scope.backendSha256;startedUtc=[DateTime]::UtcNow.ToString('o')}
-if($Segmented){$journal.issueKey='DOC-120';$journal.scenario=$scope.scenario;$journal.resourcesSha256=$env:DOC120_SEGMENTED_RESOURCES_SHA256;$journal.wrapperSelects=0;$journal.wrapperSelectsThisRun=0;$journal.authorized=$true;if($scope.previous){$journal.previous=$scope.previous;$journal.wrapperSelects=29}}
+if($privateRepository){$journal.issueKey='DOC-120';$journal.scenario=$scope.scenario;$journal.resourcesSha256=$env:DOC120_SEGMENTED_RESOURCES_SHA256;$journal.wrapperSelects=0;$journal.wrapperSelectsThisRun=0;$journal.authorized=$true;if($scope.previous){$journal.previous=$scope.previous;$journal.wrapperSelects=29}}
 $admission=[Diagnostics.Stopwatch]::StartNew()
 function Save-Journal { [IO.File]::WriteAllText($journalPath,($journal|ConvertTo-Json -Depth 15),[Text.UTF8Encoding]::new($false)) }
 $control=$null;$catalog=$null;$runLock=$null;$writerBuilder=$null
 function Read-Rows([string]$sql,[object[]]$arguments=@()){
     if($sql -notmatch '\ASELECT\b' -or $sql -match ';|\b(?:INSERT|UPDATE|DELETE|CALL|EXEC|DROP|ALTER|CREATE|REPLACE|TRUNCATE|GRANT|REVOKE|SET|USE|LOAD|OUTFILE|INTO|LOCK|SLEEP|BENCHMARK)\b' -or ([regex]::Matches($sql,'\?')).Count -ne $arguments.Count){throw 'DOC115_SELECT_REQUIRED'}
-    if($Segmented){if($admission.Elapsed.TotalMinutes -ge 15 -or $journal.wrapperSelects -ge 96){throw 'DOC120_SEGMENTED_WRAPPER_BUDGET'};$journal.wrapperSelects++;$journal.wrapperSelectsThisRun++}
+    if($privateRepository){if($admission.Elapsed.TotalMinutes -ge 15 -or $journal.wrapperSelects -ge 96){throw 'DOC120_SEGMENTED_WRAPPER_BUDGET'};$journal.wrapperSelects++;$journal.wrapperSelectsThisRun++}
     $journal.readonlyStep='SELECT';$journal.selectSha256=Hash-Text $sql;Save-Journal
     $cmd=$control.CreateCommand();$cmd.CommandText=$sql;$cmd.CommandTimeout=15
     foreach($value in $arguments){$p=$cmd.Parameters.Add('@p'+$cmd.Parameters.Count,[Data.Odbc.OdbcType]::VarChar);$p.Size=2048;$p.Value=if($null -eq $value){[DBNull]::Value}else{[Convert]::ToString($value,[Globalization.CultureInfo]::InvariantCulture)}}
@@ -62,8 +70,24 @@ function Read-Rows([string]$sql,[object[]]$arguments=@()){
 function Hash-Text([string]$text){$sha=[Security.Cryptography.SHA256]::Create();try{return ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($text)))).Replace('-','').ToLowerInvariant()}finally{$sha.Dispose()}}
 function Row-Hash([string]$sql,[object[]]$arguments=@()){return Hash-Text (ConvertTo-Json -InputObject (Read-Rows $sql $arguments) -Depth 15 -Compress)}
 $entities=[ordered]@{plan='plan_id';lote='lote_id';raiz='raiz_id';archivo='archivo_id';intento='intento_id';evento='evento_id'}
-if($Segmented){$entities.preparacion='preparacion_id'}
-function Protected-Hashes($maxima){$out=[ordered]@{};foreach($name in $entities.Keys){$out[$name]=Row-Hash ('SELECT * FROM ra_integracion_'+$name+' WHERE '+$entities[$name]+'<=? ORDER BY '+$entities[$name]) @([string]$maxima[$name])};$out.profiles=Row-Hash 'SELECT * FROM ra_integracion_perfil ORDER BY perfil_id';$out.versions=Row-Hash 'SELECT * FROM ra_integracion_perfil_version ORDER BY version_id';$out.rules=Row-Hash 'SELECT * FROM ra_integracion_perfil_regla ORDER BY regla_id';$out.permissions=Row-Hash ('SELECT * FROM remit_dest_interno_perfil_produccion ORDER BY '+$script:permissionOrder);$out.expedientes=Row-Hash 'SELECT COUNT(*) AS total FROM expediente_archivo';$out.documents=Row-Hash ('SELECT COUNT(*) AS total FROM `'+$script:cabinetTable+'`');$out.inventories=Row-Hash 'SELECT COUNT(*) AS total FROM registro_producion_documental';return $out}
+if($privateRepository){$entities.preparacion='preparacion_id'}
+function Protected-Hashes($maxima){
+    $out=[ordered]@{}
+    foreach($name in $entities.Keys){
+        $filter=''
+        if($FileReservations){$filter=switch($name){'lote'{' AND lote_id<>50'};'raiz'{' AND lote_id<>50'};'archivo'{' AND archivo_id NOT IN (122,123)'};default{''}}}
+        $out[$name]=Row-Hash ('SELECT * FROM ra_integracion_'+$name+' WHERE '+$entities[$name]+'<=?'+$filter+' ORDER BY '+$entities[$name]) @([string]$maxima[$name])
+    }
+    if($FileReservations){
+        foreach($name in @('lote','raiz','archivo')){
+            $filter=switch($name){'lote'{'lote_id=50'};'raiz'{'lote_id=50'};'archivo'{'archivo_id IN (122,123)'}}
+            $rows=Read-Rows ('SELECT * FROM ra_integracion_'+$name+' WHERE '+$filter+' ORDER BY '+$entities[$name])
+            foreach($row in $rows){foreach($column in @('revision','actualizado_utc')+$(if($name -eq 'archivo'){@('estado_efecto','intento_activo_id','resultado_doc')}else{@('estado')})){$row.PSObject.Properties.Remove($column)}}
+            $out[$name+'Originals']=Hash-Text (ConvertTo-Json -InputObject $rows -Depth 15 -Compress)
+        }
+    }
+    $out.profiles=Row-Hash 'SELECT * FROM ra_integracion_perfil ORDER BY perfil_id';$out.versions=Row-Hash 'SELECT * FROM ra_integracion_perfil_version ORDER BY version_id';$out.rules=Row-Hash 'SELECT * FROM ra_integracion_perfil_regla ORDER BY regla_id';$out.permissions=Row-Hash ('SELECT * FROM remit_dest_interno_perfil_produccion ORDER BY '+$script:permissionOrder);$out.expedientes=Row-Hash 'SELECT COUNT(*) AS total FROM expediente_archivo';$out.documents=Row-Hash ('SELECT COUNT(*) AS total FROM `'+$script:cabinetTable+'`');$out.inventories=Row-Hash 'SELECT COUNT(*) AS total FROM registro_producion_documental';return $out
+}
 try{
     Save-Journal
     $runLock=New-Object IO.FileStream((Join-Path $root '.tmp/doc115-07a.lock'),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
@@ -91,22 +115,28 @@ try{
     $cabinet=Read-Rows 'SELECT NOMBRE FROM system1 WHERE id_gabinete=?' @($scope.cabinetRef)
     if($cabinet.Count -ne 1 -or $cabinet[0].NOMBRE -notmatch '\A[A-Za-z_][A-Za-z0-9_]{0,63}\z'){throw 'DOC115_CABINET_IDENTIFIER_INVALID'}
     $script:cabinetTable=[string]$cabinet[0].NOMBRE
-    if(-not $Segmented){$prior=Read-Rows 'SELECT manifiesto_doc FROM ra_integracion_plan WHERE usuario_ref=? AND ambito_ref=? AND nivel_ref=? AND version_id=? ORDER BY plan_id' @($scope.userRef,$scope.companyRef,$scope.levelRef,$scope.versionRef)
+    if(-not $privateRepository){$prior=Read-Rows 'SELECT manifiesto_doc FROM ra_integracion_plan WHERE usuario_ref=? AND ambito_ref=? AND nivel_ref=? AND version_id=? ORDER BY plan_id' @($scope.userRef,$scope.companyRef,$scope.levelRef,$scope.versionRef)
     foreach($row in $prior){$m=ConvertFrom-Json $row.manifiesto_doc;foreach($r in $m.Raices){if($scope.rootNames -contains $r.Nombre){throw 'DOC115_PRIOR_FIXTURE_REQUIRES_REVIEW'}}}}
     $authority=Read-Rows 'SELECT a.IMPORTAR_CARPETAS FROM remit_dest_interno_perfil_produccion a INNER JOIN remit_dest_interno u ON u.id_Remit_Dest_Int=a.remit_dest_interno_idremit_dest_interno WHERE u.id_Remit_Dest_Int=? AND u.Empresa_Gestion_Documental_id_empresa=? AND u.Estado_Usuario=1' @($scope.userRef,$scope.companyRef)
     if($authority.Count -ne 1 -or $authority[0].IMPORTAR_CARPETAS -ne '1'){throw 'DOC115_EXISTING_AUTHORITY_REQUIRED'}
     $level=Read-Rows 'SELECT n.id_nivel FROM ra_pro_niveles n INNER JOIN remit_dest_interno u ON u.id_Remit_Dest_Int=n.remit_dest_interno_id_Remit_Dest_Int WHERE n.id_nivel=? AND n.estado_nivel=1 AND u.Empresa_Gestion_Documental_id_empresa=? AND (u.id_Remit_Dest_Int=? OR EXISTS(SELECT 1 FROM ra_pro_permisos_niveles p WHERE p.ra_pro_niveles_id_nivel=n.id_nivel AND p.remit_dest_interno_id_Remit_Dest_Int=? AND p.estado_permiso=1 AND p.agregar_expediente=1))' @($scope.levelRef,$scope.companyRef,$scope.userRef,$scope.userRef)
     if($level.Count -ne 1){throw 'DOC115_EXISTING_DESTINATION_REQUIRED'}
-    $context=New-Object ContextoImportacionCarpetas;$context.UsuarioRef=$scope.userRef;$context.AmbitoRef=$scope.companyRef;$context.NivelRef=$scope.levelRef;$context.RutaCanonica='DOC-115 / fixture de repositorio / nivel '+$scope.levelRef;$context.SelloDestino=Hash-Text ('DOC115|'+$scope.userRef+'|'+$scope.companyRef+'|'+$scope.levelRef+'|'+$(if($Segmented){$runId}else{$scope.rootNames[0]}));$context.PuedeImportar=$true
+    $context=New-Object ContextoImportacionCarpetas;$context.UsuarioRef=$scope.userRef;$context.AmbitoRef=$scope.companyRef;$context.NivelRef=$scope.levelRef;$context.RutaCanonica='DOC-115 / fixture de repositorio / nivel '+$scope.levelRef;$context.SelloDestino=Hash-Text ('DOC115|'+$scope.userRef+'|'+$scope.companyRef+'|'+$scope.levelRef+'|'+$(if($privateRepository){$runId}else{$scope.rootNames[0]}));$context.PuedeImportar=$true
+    if($FileReservations){
+        $existingLot=Read-Rows 'SELECT contexto_doc,plan_id,version_id FROM ra_integracion_lote WHERE lote_id=50 AND solicitante_ref=? AND ambito_ref=? AND nivel_ref=?' @($scope.userRef,$scope.companyRef,$scope.levelRef)
+        if($existingLot.Count -ne 1 -or $existingLot[0].plan_id -ne '90' -or $existingLot[0].version_id -ne '45'){throw 'DOC120_FILES_LOT_CHANGED'}
+        $context=[Newtonsoft.Json.JsonConvert]::DeserializeObject($existingLot[0].contexto_doc,[ContextoImportacionCarpetas])
+        $journal.publication=@{profileId=$scope.profileRef;versionId=$scope.versionRef;levelId=$scope.levelRef;lotId=$scope.lotRef}
+    }
     $maxima=[ordered]@{};foreach($name in $entities.Keys){$row=Read-Rows ('SELECT COALESCE(MAX('+$entities[$name]+'),0) AS ultimo FROM ra_integracion_'+$name);$maxima[$name]=[uint64]$row[0].ultimo}
     $before=Protected-Hashes $maxima;$journal.protectedBefore=$before;$journal.existingMaxima=$maxima;Save-Journal
-    if($Segmented){
+    if($privateRepository){
         foreach($partTable in @('preparacion_parte','preparacion_resultado')){$before[$partTable]=Row-Hash ('SELECT * FROM ra_integracion_'+$partTable+' WHERE preparacion_id<=? ORDER BY preparacion_id,tipo,numero') @([string]$maxima.preparacion)}
     }
     # Resolve the registered operational connection in memory, following the
     # existing persistence runner. Never print or persist module credentials.
     $journal.phase='REGISTERED_CONNECTION';Save-Journal
-    if($Segmented){
+    if($privateRepository){
         if([string]::IsNullOrWhiteSpace($env:DOC120_SEGMENTED_WRITER_USER) -or [string]::IsNullOrWhiteSpace($env:DOC120_SEGMENTED_WRITER_PASSWORD)){throw 'DOC120_SEGMENTED_WRITER_CREDENTIALS_REQUIRED'}
         $writerBuilder=New-Object MySql.Data.MySqlClient.MySqlConnectionStringBuilder
         $segmentedTarget=Resolve-Doc115DsnTarget -Dsn $scope.odbcDsn -ExpectedHash $scope.environmentHash
@@ -122,13 +152,20 @@ try{
     if((Hash-Text ($writerBuilder.Server+'|'+$writerBuilder.Database)) -ne $scope.environmentHash){throw 'DOC115_AUTHORIZED_DATABASE_CHANGED'}
     $controlDatabase=Read-Rows 'SELECT DATABASE() AS database_ref'
     if($controlDatabase.Count -ne 1 -or $controlDatabase[0].database_ref -cne $writerBuilder.Database){throw 'DOC115_CONTROL_DATABASE_MISMATCH'}
+    if(-not $FileReservations){
     $profileRepo=New-Object MySqlPerfilImportacionRepository($writerBuilder.ConnectionString);$snapshot=$profileRepo.ObtenerPublicacion($context,$scope.versionRef)
-    if($snapshot.PerfilId -ne $scope.profileRef -or (-not $Segmented -and ($snapshot.Configuracion.ModoIntegridad -ne 'COMPLETO_OBLIGATORIO' -or $snapshot.Configuracion.AmbitoIntegridad -ne 'LOTE'))){throw 'DOC115_PUBLICATION_CHANGED'}
-    if(-not $Segmented){$fixture=Join-Path $root ('tools/e2e/fixtures/'+$scope.pdfFixture)
+    if($snapshot.PerfilId -ne $scope.profileRef -or (-not $privateRepository -and ($snapshot.Configuracion.ModoIntegridad -ne 'COMPLETO_OBLIGATORIO' -or $snapshot.Configuracion.AmbitoIntegridad -ne 'LOTE'))){throw 'DOC115_PUBLICATION_CHANGED'}
+    }
+    if(-not $privateRepository){$fixture=Join-Path $root ('tools/e2e/fixtures/'+$scope.pdfFixture)
     if((Get-FileHash -LiteralPath $fixture -Algorithm SHA256).Hash.ToLowerInvariant() -ne $scope.fixtureSha256){throw 'DOC115_FIXTURE_CHANGED'}}
     $journal.phase='REPOSITORY_INTEGRATION';$journal.status='RUNNING';Save-Journal
     $journal.codeFiles=@();foreach($relative in @('tests/ImportacionCarpetasBehaviorTests.cs','tests/ImportacionCarpetasRepositoryIntegrationTests.cs','tools/e2e/scripts/run-doc111-persistence.ps1','tools/e2e/scripts/support/doc115-repository-integration.ps1','tools/e2e/scripts/compile-doc111-persistence.cjs','tests/doc110-perfil-importacion-behavior.test.cjs','Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.vb','Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlPerfilImportacionRepository.vb','Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.vb')){$journal.codeFiles+=@(@{path=$relative;sha256=(Get-FileHash -LiteralPath (Join-Path $root $relative) -Algorithm SHA256).Hash.ToLowerInvariant()})};Save-Journal
-    if($Segmented){
+    if($FileReservations){
+        foreach($source in $scope.sources.PSObject.Properties){if((Get-FileHash -LiteralPath (Join-Path $root $source.Name) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $source.Value){throw 'DOC120_SEGMENTED_SOURCE_CHANGED'}}
+        $reference=[Action[string,string]]{param($kind,$id)if($kind -eq 'phase'){if($id -notmatch '\A[A-Z_]{3,64}\z'){throw 'DOC120_FILES_PHASE_INVALID'};$journal.phase=$id}else{if($kind -ne 'intento' -or $id -notmatch '\A[1-9][0-9]{0,9}\z'){throw 'DOC120_FILES_REFERENCE_INVALID'};$journal.references+=@([ordered]@{kind=$kind;id=$id})};Save-Journal}
+        if($admission.Elapsed.TotalMinutes -ge 15){throw 'DOC120_SEGMENTED_WRAPPER_BUDGET'}
+        $result=[ImportacionCarpetasBehaviorTests]::RunDoc120FileRepositoryIntegration($true,$writerBuilder.ConnectionString,$context,$runId,$scope.environmentHash,$scope.lotRef,[string[]]$scope.files,$reference)
+    }elseif($Segmented){
         foreach($source in $scope.sources.PSObject.Properties){if((Get-FileHash -LiteralPath (Join-Path $root $source.Name) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $source.Value){throw 'DOC120_SEGMENTED_SOURCE_CHANGED'}}
         $context.RutaCanonica='DOC-120 / E2E existente / nivel '+$scope.levelRef;$context.SelloDestino=Hash-Text ('DOC120|'+$scope.userRef+'|'+$scope.companyRef+'|'+$scope.levelRef+'|'+$runId)
         $plan=New-Object PlanImportacionCarpetas;$plan.EsquemaDoc=1;$plan.Contexto=$context;$plan.Snapshot=$snapshot
@@ -144,17 +181,25 @@ try{
     }
     $journal.phase='READONLY_FINAL';Save-Journal
     $after=Protected-Hashes $maxima
-    if($Segmented){foreach($partTable in @('preparacion_parte','preparacion_resultado')){$after[$partTable]=Row-Hash ('SELECT * FROM ra_integracion_'+$partTable+' WHERE preparacion_id<=? ORDER BY preparacion_id,tipo,numero') @([string]$maxima.preparacion)}}
+    if($privateRepository){foreach($partTable in @('preparacion_parte','preparacion_resultado')){$after[$partTable]=Row-Hash ('SELECT * FROM ra_integracion_'+$partTable+' WHERE preparacion_id<=? ORDER BY preparacion_id,tipo,numero') @([string]$maxima.preparacion)}}
     foreach($key in $before.Keys){if($before[$key] -cne $after[$key]){throw 'DOC115_PREEXISTING_DATA_CHANGED'}}
     $journal.protectedAfter=$after
-    foreach($name in $entities.Keys){$row=Read-Rows ('SELECT COUNT(*) AS total FROM ra_integracion_'+$name+' WHERE '+$entities[$name]+'>?') @([string]$maxima[$name]);$expected=if($Segmented){@{plan=1;lote=1;raiz=1;archivo=2;intento=0;evento=1;preparacion=1}}else{@{plan=3;lote=2;raiz=4;archivo=4;intento=1;evento=4}};if([uint64]$row[0].total -ne $expected[$name]){throw 'DOC115_NEW_RECORD_COUNTS_UNEXPECTED'}}
+    foreach($name in $entities.Keys){$row=Read-Rows ('SELECT COUNT(*) AS total FROM ra_integracion_'+$name+' WHERE '+$entities[$name]+'>?') @([string]$maxima[$name]);$expected=if($FileReservations){@{plan=0;lote=0;raiz=0;archivo=0;intento=2;evento=7;preparacion=0}}elseif($Segmented){@{plan=1;lote=1;raiz=1;archivo=2;intento=0;evento=1;preparacion=1}}else{@{plan=3;lote=2;raiz=4;archivo=4;intento=1;evento=4}};if($FileReservations -and $name -eq 'evento'){if([uint64]$row[0].total -lt 4 -or [uint64]$row[0].total -gt 7){throw 'DOC120_FILES_EVENTS_UNEXPECTED'}}elseif([uint64]$row[0].total -ne $expected[$name]){throw 'DOC115_NEW_RECORD_COUNTS_UNEXPECTED'}}
+    if($FileReservations){
+        $events=Read-Rows 'SELECT accion,recurso_tipo,COUNT(*) AS total FROM ra_integracion_evento WHERE evento_id>? AND lote_id=50 AND actor_ref=141 GROUP BY accion,recurso_tipo ORDER BY accion,recurso_tipo' @([string]$maxima.evento)
+        $sum=0;$reserves=0;$incidents=0
+        foreach($event in $events){$sum+=[int]$event.total;if($event.accion -eq 'RESERVAR_INTENTO' -and $event.recurso_tipo -eq 'ARCHIVO'){$reserves+=[int]$event.total}elseif($event.accion -eq 'ORIGINAL_NO_DISPONIBLE' -and $event.recurso_tipo -eq 'ARCHIVO'){$incidents+=[int]$event.total}elseif($event.accion -ne 'CONSOLIDAR_ESTADO' -or $event.recurso_tipo -notin @('LOTE','RAIZ')){throw 'DOC120_FILES_EVENTS_UNEXPECTED'}}
+        $newEvents=Read-Rows 'SELECT COUNT(*) AS total FROM ra_integracion_evento WHERE evento_id>?' @([string]$maxima.evento)
+        if($sum -ne [int]$newEvents[0].total -or $reserves -ne 2 -or $incidents -ne 2){throw 'DOC120_FILES_EVENTS_UNEXPECTED'}
+        $result['newEvents']=$sum
+    }
     if((Get-FileHash -LiteralPath (Join-Path $RuntimeRoot 'bin/GestionDocumental-Docuarchi.net.dll') -Algorithm SHA256).Hash.ToLowerInvariant() -ne $scope.backendSha256){throw 'DOC115_BACKEND_CHANGED'}
-    if($Segmented){foreach($source in $scope.sources.PSObject.Properties){if((Get-FileHash -LiteralPath (Join-Path $root $source.Name) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $source.Value){throw 'DOC120_SEGMENTED_SOURCE_CHANGED'}}}
+    if($privateRepository){foreach($source in $scope.sources.PSObject.Properties){if((Get-FileHash -LiteralPath (Join-Path $root $source.Name) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $source.Value){throw 'DOC120_SEGMENTED_SOURCE_CHANGED'}}}
     $result['preexistingDataUnchanged']=$true;$result['readOnlyControls']=$true;$journal.result=$result;$journal.status='PASS';$journal.finishedUtc=[DateTime]::UtcNow.ToString('o');Save-Journal
     [Console]::Out.WriteLine('DOC115_07A_RESULT='+($result|ConvertTo-Json -Depth 8 -Compress))
 }catch{
     $odbc=$null;$candidate=$_.Exception;while($candidate){if($candidate -is [Data.Odbc.OdbcException]){$odbc=$candidate;break};$candidate=$candidate.InnerException}
-    $e=$_.Exception;while($e.InnerException){$e=$e.InnerException};$code=if($e.Message -match '\A(?:DOC115|DOC120_SEGMENTED)_[A-Z0-9_]{3,80}\z'){$e.Message}else{'DOC115_REPOSITORY_INTEGRATION_FAILED'}
+    $e=$_.Exception;while($e.InnerException){$e=$e.InnerException};$code=if($e.Message -match '\A(?:DOC115|DOC120_SEGMENTED|DOC120_FILES)_[A-Z0-9_]{3,80}\z'){$e.Message}else{'DOC115_REPOSITORY_INTEGRATION_FAILED'}
     if($code -eq 'DOC115_REPOSITORY_INTEGRATION_FAILED' -and $journal.phase -in @('READONLY_PREFLIGHT','READONLY_FINAL')){$states=@();$native=@();if($odbc){$states=@($odbc.Errors|ForEach-Object {$_.SQLState});$native=@($odbc.Errors|ForEach-Object {$_.NativeError})};$code=Get-Doc115ReadOnlyFailure -Step $journal.readonlyStep -States $states -Native $native}
     $journal.status='STOPPED_REVIEW_REQUIRED';$journal.failure=@{phase=$journal.phase;code=$code};if($journal.phase -in @('READONLY_PREFLIGHT','READONLY_FINAL')){$journal.failure.step=$journal.readonlyStep};$journal.finishedUtc=[DateTime]::UtcNow.ToString('o');Save-Journal
     [Console]::Out.WriteLine('DOC115_07A_FAILURE='+($journal.failure|ConvertTo-Json -Compress));exit 1

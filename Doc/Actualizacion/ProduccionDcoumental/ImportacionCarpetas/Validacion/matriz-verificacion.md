@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Reservas nativas por archivo — preparación2026-11-20
+
+[Ventana y cobertura3.187](doc120-reservas-archivo-ventana-20261120.md): reutilización del arnés07A sobre122/123 del lote E2E50, con dos reservas/cierres sin invocación y tres rollbacks.32/32 pruebas del ejecutor y2/2 envoltorios Framework/DDL locales; manifiesto privado y check sin BD. **NO_EJECUTADO en MySQL**;3.187 sigue pendiente,266/270 y cuatro abiertas. La evidencia HTTP anterior y el PASS segmentado no sustituyen esta prueba.
+
 ## Rendimiento real consolidado — 2026-11-20
 
 [Fuentes, recálculo y límites](doc120-rendimiento-consolidado-20261120.md). El rendimiento ya fue medido:79,432043 s iniciales→1,058143 s tres corregidos→0,969465 s diez; prueba posterior0,980750 s en cuatro, con la DLL instalada.1.000 documentos finales acreditados por otro primario; no extrapolar tiempo integral/memoria/disco.3.126/5.2 resueltas por consolidación y autorizaciones existentes, sin una medición nueva que solicitar. Límites en6.4;266/270 y cuatro abiertas, sin nuevas pruebas o efectos.

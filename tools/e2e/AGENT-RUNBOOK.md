@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — preparación focal de reservas nativas3.187, 2026-11-20
+
+Se amplían los ejecutores existentes con `--repository-files`: lote E2E50/plan90/perfil28-version45/nivel223/141-2, solo archivos122/123 si siguen pendientes recibidos.48 llamadas/64 controles nativos+96 envoltorio/15min por etapa; dos reservas y cierres anteriores a invocación, tres rollbacks; cero adaptadores documentales/recepciones/planes/lotes/DDL. Quedan incidencias deliberadas ORIGINAL_NO_COMPROBADO y su historial, sin quitar PDF ni limpiar datos. Conservar998 archivos/resultados anteriores y comprobar huellas. Preparación32/32+2/2 locales, sin ejecución MySQL acreditada;3.187 pendiente,266/270. Fuente `Validacion/doc120-reservas-archivo-ventana-20261120.md`. Consola privada/manifiesto nuevo y autorización concreta; no reutilizar ventanas cerradas ni credenciales previas.
+
 ## DOC-120 — rendimiento ya medido y consolidado, 2026-11-20
 
 Revisión solicitada del rendimiento existente: cuatro CSV recalculados, medias79,432043 s iniciales/1,058143 s tres corregidos/0,969465 s diez/0,980750 s cuatro posteriores; la DLL del último corte coincide con instalada.1.000 documentos completados tienen su control independiente.3.126 de consolidación y5.2 de autorización condicional resueltas, sin otra carga o ventana por defecto. Fuente Validacion/doc120-rendimiento-consolidado-20261120.md. Límites muestrales/duración integral/memoria/disco explícitos en6.4; no garantía ni autorización futura derivada.266/270 y cuatro pendientes:3.187/6.4/6.5/6.6. No repetir pruebas, reabrir ventanas cerradas o recuperar secretos por estos pendientes históricos.

@@ -1,5 +1,9 @@
 # DOC-120 — PruebasEvidencia
 
+## Preparación3.187 — reservas nativas por archivo
+
+[Ventana concreta y límites](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-reservas-archivo-ventana-20261120.md). Ejecutores existentes07A/Framework, lote50/122-123, tres rollbacks y dos cierres anteriores a invocación.32/32 del ejecutor y2/2 envoltorios Framework/DDL locales; sin ejecución MySQL acreditada ni cierre de3.187. Avance266/270;6.4–6.6 conservan su pendiente.
+
 ## Rendimiento real consolidado — 2026-11-20
 
 [Recálculo de los CSV existentes](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-rendimiento-consolidado-20261120.md). Diez guardados:media0,969465 s/mediana0,934637/p95 muestral1,140969; cuatro posteriores:media0,980750 s y DLL idéntica a instalada. Diagnóstico inicial79,432043 s y tres corregidos1,058143 s conservan sus versiones. Junto a1.000 documentos finales y confirmación del usuario,3.126/5.2 quedan resueltas sin nueva prueba o autorización. Sin extrapolar garantía integral/memoria/disco;6.4 mantiene la aceptación de límites.266/270, cuatro abiertas.

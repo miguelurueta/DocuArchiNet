@@ -161,3 +161,20 @@ test('segmented console captures secrets privately, clears them and refuses a se
     await assert.rejects(main(['--repository-segmented','--session',file],runtime),e=>e.code==='EEXIST');
   }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
+
+test('file reservation mode binds exact existing resources and reuses the private one-shot console',async()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'doc120-files-'));
+  try{
+    const file=path.join(dir,'resources.json'),scope={scenario:'DOC120-FILES-REPOSITORY',runId:'c'.repeat(32),approvedByUser:true,runtimeRoot:path.resolve(__dirname,'..'),lotRef:'50',files:['122','123']};
+    fs.writeFileSync(file,JSON.stringify({...scope,files:['122','124']}));
+    await assert.rejects(main(['--repository-files','--session',file,'--check']),/SCOPE_INVALID/);
+    fs.writeFileSync(file,JSON.stringify(scope));
+    await main(['--repository-files','--session',file,'--check'],{requireInteractiveConsole(){throw Error('must not prompt');},async runChild(command,args){assert.ok(args.includes('Doc120Files'));assert.ok(args.includes('-Check'));return{code:0};}});
+    assert.equal(fs.existsSync(file+'.console-state.json'),false);
+    let environment;
+    const runtime={requireInteractiveConsole(){},async collectValue(values,key,label,options){assert.equal(options.secret,true);values[key]='PRIVATE_SENTINEL';},async runChild(command,args,cwd,env){environment=env;assert.equal(env.DOC120_SEGMENTED_AUTHORIZED,'true');return{code:1};}};
+    await assert.rejects(main(['--repository-files','--session',file],runtime),/STOPPED_REVIEW_REQUIRED/);
+    assert.deepEqual(environment,{});const state=fs.readFileSync(file+'.console-state.json','utf8');assert.doesNotMatch(state,/PRIVATE_SENTINEL/);assert.equal(JSON.parse(state).credentialsCleared,true);
+    await assert.rejects(main(['--repository-files','--session',file],runtime),e=>e.code==='EEXIST');
+  }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
