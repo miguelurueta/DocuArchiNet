@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Continuación local del gobierno — 2026-11-20
+
+[Resultado y pendientes](doc120-continuacion-gobierno-20261120.md): 32 casos locales de preparación/control final/árbol y 59 de gobierno, 91 únicos. Reproducción del falso positivo 10/11; focal 19/19 incluida en la selección final, sin sumarla. Orígenes de 39 tareas normalizados y control de plantillas corregido con sus rechazos conservados. OpenSpec estricto PASS; gobierno integral conserva tareas/revisión/aceptación abiertas. Cero acceso real o efectos; 259/270, once tareas abiertas, sin archivo/cierre global.
+
 ## DOC-120 - Ver expediente en rama contraida, video001055
 
 Video50,77s muestra COMPLETADO1000/1000, pero Ver expediente falla; acceso manual carga1000 bajo codigo repetido sin ID visible. Reproduccion local con buscador/ancestros productivos y jQuery: guardia de visibilidad impedia expandir nXNodes existente.3.250 completa localmente: acceso expreso por relacion+nivel+ID permite esa expansion y reutiliza consulta de archivos con TreeViewArchivo; arbol/contenedor oculto ajeno e identidad inexistente/ambigua se rechazan. Seguimiento no expande y funciones de busqueda/carga individual no cambian.1/2 rojo,10/10 focal y101/101 finales (dos nuevos, focales solapados). Script compartido cache doc120-acceso-expediente-20261120-2; flujo124 fuentes/20373 lineas. Evidencia Validacion/doc120-ver-expediente-video001055-20261120.md/JSON.259/270,48 S/222 M,114 escenarios, once pendientes anteriores.0 HTTP/SELECT/sesiones/efectos reales, DLL/esquema/datos intactos; control7ace0d25 preservado. Pendiente acceso visual al ID696 con nueva version/reapertura del lote; no cierre/archivo global. Apartados inferiores historicos.

@@ -137,4 +137,43 @@ describe("refinementService", () => {
       await rm(baseDir, { recursive: true, force: true });
     }
   });
+
+  it("accepts pending runtime states in approved prose while rejecting incomplete decisions", async () => {
+    const baseDir = await mkdtemp(path.join(os.tmpdir(), "opsxj-refinement-states-"));
+    try {
+      const { changeDir, changeName } = await writeApprovedChange({ baseDir });
+      const refinementPath = path.join(changeDir, "refinement.md");
+      const approved = await readFile(refinementPath, "utf8");
+      await writeFile(refinementPath, `${approved}\nSolo se admite una intencion pendiente. El archivo PENDIENTE requiere consentimiento.\n`, "utf8");
+      const runtime = await auditRefinement({ baseDir, changeName });
+      expect(runtime.status).toBe("PASS");
+
+      await writeFile(refinementPath, approved.replace("Mantener la transicion legacy encapsulada", "PENDIENTE"), "utf8");
+      const incomplete = await auditRefinement({ baseDir, changeName });
+      expect(incomplete.checks).toEqual(expect.arrayContaining([
+        expect.objectContaining({ name: "refinement:decisions", status: "FAIL" }),
+      ]));
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it.each(["[PENDIENTE: evidencia]", "TBD", "TODO", "por definir", "por confirmar", "Evidencia: pendiente", "Pendiente"])(
+    "rejects explicit refinement placeholder %s",
+    async (placeholder) => {
+      const baseDir = await mkdtemp(path.join(os.tmpdir(), "opsxj-refinement-placeholder-"));
+      try {
+        const { changeDir, changeName } = await writeApprovedChange({ baseDir });
+        const refinementPath = path.join(changeDir, "refinement.md");
+        const approved = await readFile(refinementPath, "utf8");
+        await writeFile(refinementPath, `${approved}\n${placeholder}\n`, "utf8");
+        const result = await auditRefinement({ baseDir, changeName });
+        expect(result.checks).toEqual(expect.arrayContaining([
+          expect.objectContaining({ name: "refinement:no_placeholders", status: "FAIL" }),
+        ]));
+      } finally {
+        await rm(baseDir, { recursive: true, force: true });
+      }
+    },
+  );
 });

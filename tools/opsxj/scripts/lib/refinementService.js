@@ -5,6 +5,9 @@ export const REFINEMENT_VERSION = 1;
 const DRAFT_MARKER = `<!-- opsxj:refinement version=${REFINEMENT_VERSION} state=draft -->`;
 const APPROVED_MARKER = `<!-- opsxj:refinement version=${REFINEMENT_VERSION} state=approved -->`;
 const PLACEHOLDER_PATTERN = /\b(?:tbd|todo|pendiente|por definir|por confirmar)\b|\[pendiente[^\]]*\]/i;
+// Runtime prose can describe a pending operation. Template markers and empty
+// fields remain invalid; decision rows retain the stricter check above.
+const EXPLICIT_PLACEHOLDER_PATTERN = /\b(?:tbd|todo|por definir|por confirmar)\b|\[pendiente[^\]]*\]|(?:^|[:|])\s*pendiente\s*(?=$|[|.;])/im;
 const TASK_PATTERN = /^\s*-\s+\[[ xX]\]\s+(.+)$/gm;
 
 const exists = async (targetPath) => access(targetPath).then(() => true).catch(() => false);
@@ -176,7 +179,7 @@ const getRefinementChecks = async ({ baseDir, changeName, changePath, manifest }
   const content = await readFile(refinementPath, "utf8");
   const approved = content.includes(APPROVED_MARKER);
   checks.push({ name: "refinement:approved", status: approved ? "PASS" : "FAIL" });
-  checks.push({ name: "refinement:no_placeholders", status: PLACEHOLDER_PATTERN.test(content) ? "FAIL" : "PASS" });
+  checks.push({ name: "refinement:no_placeholders", status: EXPLICIT_PLACEHOLDER_PATTERN.test(content) ? "FAIL" : "PASS" });
   const decisionRows = extractDecisionRows(content);
   const decisionIds = extractDecisionIds(content);
   const requirementIds = extractRequirementIds(content);

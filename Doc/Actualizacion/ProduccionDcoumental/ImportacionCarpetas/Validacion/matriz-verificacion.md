@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Continuación local del gobierno — 2026-11-20
+
+[Revisión de las once tareas abiertas y correcciones de gobierno](doc120-continuacion-gobierno-20261120.md). Se normalizan 39 orígenes y se corrige el falso positivo de «pendiente» en prosa operativa, conservando rechazo de plantillas/decisiones incompletas. 91/91 casos locales únicos y OpenSpec estricto aprobados; no QA real nueva ni aceptación integral. Avance 259/270, sin cambiar casillas ni reutilizar ventanas cerradas. Responsables y siguientes acciones de cada brecha en el informe; 6.4–6.6 continúan abiertas.
+
 ## DOC-120 - Ver expediente en rama contraida, video001055
 
 Video50,77s muestra COMPLETADO1000/1000, pero Ver expediente falla; acceso manual carga1000 bajo codigo repetido sin ID visible. Reproduccion local con buscador/ancestros productivos y jQuery: guardia de visibilidad impedia expandir nXNodes existente.3.250 completa localmente: acceso expreso por relacion+nivel+ID permite esa expansion y reutiliza consulta de archivos con TreeViewArchivo; arbol/contenedor oculto ajeno e identidad inexistente/ambigua se rechazan. Seguimiento no expande y funciones de busqueda/carga individual no cambian.1/2 rojo,10/10 focal y101/101 finales (dos nuevos, focales solapados). Script compartido cache doc120-acceso-expediente-20261120-2; flujo124 fuentes/20373 lineas. Evidencia Validacion/doc120-ver-expediente-video001055-20261120.md/JSON.259/270,48 S/222 M,114 escenarios, once pendientes anteriores.0 HTTP/SELECT/sesiones/efectos reales, DLL/esquema/datos intactos; control7ace0d25 preservado. Pendiente acceso visual al ID696 con nueva version/reapertura del lote; no cierre/archivo global. Apartados inferiores historicos.

@@ -1,5 +1,9 @@
 # DOC-120 — PruebasEvidencia
 
+## Continuación local del gobierno — 2026-11-20
+
+[Informe de comprobaciones y once pendientes](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-continuacion-gobierno-20261120.md). Se corrigen el formato de 39 orígenes y el falso positivo del control de plantillas sobre estados operativos pendientes. Regresión 91/91 casos locales únicos (32 cliente/árbol/controles sintéticos y 59 gobierno), con ocho nuevos casos y OpenSpec estricto PASS. Evidencia unit del commit de entrega parcial; ninguna aceptación manual integral atribuida a estas pruebas. Avance 259/270, once abiertas; ventanas reales y fuentes históricas conservan sus autorizaciones/alcance. No se ejecutan autenticación, SQL real ni efectos de negocio.
+
 ## Mensajes de las cinco fases — implementación local2026-11-14
 
 Preparación, confirmación, recepción, creación/reanudación e índices/almacenamiento muestran causas verificadas y acciones vigentes, con contrato público conservado. El catálogo cerrado cubre148 códigos, incluidos los118 auditados. El mapa clasifica577 textos y684 sitios, conservando etiquetas y excluyendo administración/legacy/V2 sin ampliación. Un acuse confirmado no se pierde por una consulta o proyección fallida; la cola conserva confirmados, archivo actual y no intentados. Sin replay ni cambios de autoridad, reservas, política de nombres o escritores compartidos. Avisos accesibles con Tab en390/768/1280px. **119/119 pruebas locales únicas**, incluidos19 nuevos casos Node y wrappers Framework/DDL; casos internos no sumados. Compilación0 errores. Avance**82/86**,36 escenarios; siguen abiertas5.2/6.4/6.5/6.6. Fuentes, comandos, logs y huellas en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-mensajes-20261114.json`; mapa compañero `doc120-mensajes-mapa-20261114.json`. No hubo nuevas operaciones reales ni comprobación del runtime o destino de trazas de IIS.
