@@ -190,3 +190,31 @@ test('read-only inspection cannot request writer credentials or enter the mutati
     assert.equal(JSON.parse(fs.readFileSync(file+'.console-state.json','utf8')).credentialsCleared,true);
   }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
+
+test('fixture provisioning reuses DOC111 and stops before any storage command',async()=>{
+  const {prepareFileReservationFixture}=require('../tools/e2e/tests/support/doc111-importacion-carpetas.cjs');
+  const commands=[],receipts=[],references=[];let planChecked=false;
+  const roots=[{idCliente:'r1',recursoId:'701',revision:1}],files=[{idCliente:'a1',recursoId:'702',revision:2},{idCliente:'a2',recursoId:'703',revision:2}];
+  const driver={async refreshToken(){},async pages(lot,type){assert.equal(lot,'700');return type==='RAICES'?roots:files;},async receive(lot,file,bytes,name){receipts.push({lot,id:file.recursoId,bytes:bytes.length,name});},async request(operation,payload){commands.push({operation,payload});
+    if(operation==='AbrirImportacion')return{nivelRef:'7'};
+    if(operation==='PrepararPlan'){assert.equal(payload.raices.length,1);assert.equal(payload.archivos.length,2);return{planId:'699',revision:1,planHash:'b'.repeat(64),snapshot:{PerfilId:'24',VersionId:'38'},resultado:{PuedeConfirmar:true,UnidadesElegibles:['r1']}};}
+    if(operation==='ConfirmarPlan'){assert.equal(planChecked,true);return{loteId:'700'};}
+    assert.equal(operation,'AvanzarLote');assert.ok(['CREAR_EXPEDIENTE','MATERIALIZAR_VALORES'].includes(payload.fase));
+    if(payload.fase==='CREAR_EXPEDIENTE'){assert.equal(receipts.length,2);return{estado:'CONFIRMADO',expedienteId:'704',relacionNivelId:'705'};}return{estado:'CONFIRMADO'};
+  }};
+  const result=await prepareFileReservationFixture(driver,{nivelRef:'7',versionId:'38'},Buffer.alloc(677),'a'.repeat(32),(kind,id)=>references.push({kind,id}),async id=>{assert.equal(id,'699');planChecked=true;});
+  assert.deepEqual(result.files,['702','703']);assert.equal(receipts.length,2);assert.equal(new Set(receipts.map(r=>r.name)).size,2);
+  assert.equal(commands.filter(c=>c.payload.fase==='CREAR_EXPEDIENTE').length,1);assert.equal(commands.filter(c=>c.payload.fase==='MATERIALIZAR_VALORES').length,2);
+  const refused=[];await assert.rejects(prepareFileReservationFixture({...driver,async request(op,payload){refused.push(op);return driver.request(op,payload);}},{nivelRef:'7',versionId:'38'},Buffer.alloc(677),'a'.repeat(32),()=>{},async()=>{throw Error('OWNER_CHANGED');}),/OWNER_CHANGED/);
+  assert.equal(refused.includes('ConfirmarPlan'),false);
+});
+
+test('authorized fixture console captures six masked values and clears all on failure',async()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'doc120-files-fixture-'));
+  try{
+    const file=path.join(dir,'resources.json');fs.writeFileSync(file,JSON.stringify({scenario:'DOC120-FILES-FIXTURE',runId:'e'.repeat(32),approvedByUser:true,runtimeRoot:path.resolve(__dirname,'..'),profileRef:'24',versionRef:'38',levelRef:'7',files:['a1','a2'],odbcDsn:'MembershipUsers'}));
+    const keys=[];let environment;
+    await assert.rejects(main(['--repository-files-fixture','--session',file],{requireInteractiveConsole(){},async collectValue(values,key,label,options){assert.equal(options.secret,true);keys.push(key);values[key]='PRIVATE_SENTINEL';},async runChild(command,args,cwd,env){assert.ok(args.includes('Doc120FilesFixture'));assert.equal(env.DOC111_E2E_PASSWORD,'PRIVATE_SENTINEL');environment=env;return{code:1};}}),/STOPPED_REVIEW_REQUIRED/);
+    assert.deepEqual(keys,['readUser','readPassword','writeUser','writePassword','appUser','appPassword']);assert.deepEqual(environment,{});assert.doesNotMatch(fs.readFileSync(file+'.console-state.json','utf8'),/PRIVATE_SENTINEL/);
+  }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});

@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — fixture de3.187 autorizado
+
+Usuario «autorizado» para2 PDF/1 expediente y0 documentos almacenados. `--repository-files-fixture`: perfil24-v38/nivel7/141-2, raíz única DOC120-<run>-RES, PDF existente677 bytes recibido dos veces con nombres distintos. Reutiliza DOC111 para login/preparación/recepción/creación/materialización; propietario por SELECT antes de confirmar; luego arnés nativo reutilizado. Máximo600 HTTP/1 sesión/48 llamadas/64 SELECT nativos+96 envoltorio (incluye hasta12 del fixture)/15min por etapa; una creación, sin replay. Preservar todo lo anterior y los originales/recibos/resultado de creación del fixture; cero ALMACENAR/DDL/perfiles/borrados.35/35+2/2 locales y check sin BD; resultado real todavía pendiente. Fuente `Validacion/doc120-reservas-archivo-fixture-20261120.md`. No confundir con la parada de50 completado ni reabrir ventanas cerradas.
+
 ## DOC-120 — preparación focal de reservas nativas3.187, 2026-11-20
 
 **Corte real posterior:**4a3c1b2e STOPPED/DOC120_FILES_NOT_PENDING,33 controles+3 lecturas nativas antes de reserva/incidencias,0 referencias. Inspección83b36216 PASS_READONLY_INSPECTION,7 SELECT/0 mutaciones/0 conexiones escritoras:50 ya1.000/1.000 completados;29 tiene2 completados/25 sin recibir, sin candidatos recibidos pendientes. Claves eliminadas y ambas ventanas cerradas. No tocar122/123 ni resetear resultados; tampoco intentar reservar otra vez en50. Para3.187 hace falta un fixture adicional autorizado con2 recepciones/1 expediente y cero almacenamiento documental. Propuesta en ventana compañera; adaptación y ejecución aún pendientes.33/33 del ejecutor local;266/270 no cambia. JSON primarios `doc120-reservas-archivo-parada-20261120` e `inspeccion-20261120` en Validacion.

@@ -1,8 +1,9 @@
-param([Parameter(Mandatory=$true)][string]$ResourcesFile,[Parameter(Mandatory=$true)][string]$RuntimeRoot,[switch]$Check,[switch]$Segmented,[switch]$FileReservations,[switch]$InspectFiles)
+param([Parameter(Mandatory=$true)][string]$ResourcesFile,[Parameter(Mandatory=$true)][string]$RuntimeRoot,[switch]$Check,[switch]$Segmented,[switch]$FileReservations,[switch]$InspectFiles,[switch]$FixtureFiles)
 $ErrorActionPreference='Stop'
 $privateRepository=$Segmented -or $FileReservations
 if($Segmented -and $FileReservations){throw 'DOC120_FILES_SCOPE_INVALID'}
 if($InspectFiles -and -not $FileReservations){throw 'DOC120_FILES_SCOPE_INVALID'}
+if($FixtureFiles -and (-not $FileReservations -or $InspectFiles)){throw 'DOC120_FILES_SCOPE_INVALID'}
 if(-not $Check -and (($privateRepository -and $env:DOC120_SEGMENTED_AUTHORIZED -ne 'true') -or (-not $privateRepository -and $env:DOC115_07A_AUTHORIZED -ne 'true'))){throw 'DOC115_REPOSITORY_AUTHORIZATION_REQUIRED'}
 . (Join-Path $PSScriptRoot 'doc115-readonly-failure.ps1')
 $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../../..'))
@@ -10,8 +11,12 @@ $scope=Get-Content -LiteralPath $ResourcesFile -Raw|ConvertFrom-Json
 if($privateRepository){
     if($scope.runId -notmatch '\A[a-f0-9]{32}\z' -or $scope.userRef -ne '141' -or $scope.companyRef -ne '2' -or $scope.odbcDsn -ne 'MembershipUsers' -or $scope.cabinetRef -ne '10' -or $scope.environmentHash -notmatch '\A[a-f0-9]{64}\z' -or $scope.backendSha256 -notmatch '\A[a-f0-9]{64}\z' -or $scope.files.Count -ne 2 -or $scope.preserveResources -ne $true){throw 'DOC120_SEGMENTED_SCOPE_INVALID'}
     if($FileReservations){
+        if($FixtureFiles){
+            if($scope.scenario -ne 'DOC120-FILES-FIXTURE' -or $scope.levelRef -ne '7' -or $scope.profileRef -ne '24' -or $scope.versionRef -ne '38' -or ($scope.files -join ',') -cne 'a1,a2' -or $scope.previous -or $scope.inspectOnly -or $scope.baseUrl -ne 'https://localhost/GestionDocumental-Docuarchi.net/' -or $scope.fixtureSha256 -ne (Get-FileHash -LiteralPath (Join-Path $root 'tools/e2e/fixtures/doc111-carga-individual.pdf') -Algorithm SHA256).Hash.ToLowerInvariant()){throw 'DOC120_FILES_FIXTURE_SCOPE_INVALID'}
+        }else{
         if($scope.scenario -ne 'DOC120-FILES-REPOSITORY' -or $scope.levelRef -ne '223' -or $scope.profileRef -ne '28' -or $scope.versionRef -ne '45' -or $scope.lotRef -ne '50' -or ($scope.files -join ',') -cne '122,123' -or $scope.previous){throw 'DOC120_FILES_SCOPE_INVALID'}
         if([bool]$scope.inspectOnly -ne [bool]$InspectFiles){throw 'DOC120_FILES_INSPECTION_SCOPE_REQUIRED'}
+        }
     }else{
     if($scope.scenario -ne 'DOC120-SEGMENTED-REPOSITORY' -or $scope.levelRef -ne '7' -or $scope.profileRef -ne '24'){throw 'DOC120_SEGMENTED_SCOPE_INVALID'}
     $corpus=[IO.Path]::GetFullPath('D:\Pruebas\Importador\Egresos_20261113_092045_39126bb4')+[IO.Path]::DirectorySeparatorChar
@@ -51,7 +56,7 @@ if($Check){
 }
 if($privateRepository){$runId=[string]$scope.runId}else{$runId=$env:DOC115_07A_RUN_ID}
 if($runId -notmatch '\A[a-f0-9]{32}\z'){throw 'DOC115_RUN_ID_REQUIRED'}
-$journalPath=Join-Path $root ('tools/e2e/artifacts/'+$(if($InspectFiles){'doc120-files-inspect-'}elseif($FileReservations){'doc120-files-'}elseif($Segmented){'doc120-segmented-'}else{'doc115-07a-'})+$runId+'.json')
+$journalPath=Join-Path $root ('tools/e2e/artifacts/'+$(if($FixtureFiles){'doc120-files-fixture-'}elseif($InspectFiles){'doc120-files-inspect-'}elseif($FileReservations){'doc120-files-'}elseif($Segmented){'doc120-segmented-'}else{'doc115-07a-'})+$runId+'.json')
 if(Test-Path -LiteralPath $journalPath){throw 'DOC115_JOURNAL_ALREADY_EXISTS'}
 if($privateRepository){$marker=[IO.File]::Open($journalPath,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None);$marker.Dispose()}
 $journal=[ordered]@{issueKey='DOC-115';scenario='REPO-07A';status='STARTING';phase='COMPILE';references=@();resourcesSha256=$env:DOC115_07A_RESOURCES_SHA256;backendSha256=$scope.backendSha256;startedUtc=[DateTime]::UtcNow.ToString('o')}
@@ -77,10 +82,10 @@ function Protected-Hashes($maxima){
     $out=[ordered]@{}
     foreach($name in $entities.Keys){
         $filter=''
-        if($FileReservations){$filter=switch($name){'lote'{' AND lote_id<>50'};'raiz'{' AND lote_id<>50'};'archivo'{' AND archivo_id NOT IN (122,123)'};default{''}}}
+        if($FileReservations -and -not $FixtureFiles){$filter=switch($name){'lote'{' AND lote_id<>50'};'raiz'{' AND lote_id<>50'};'archivo'{' AND archivo_id NOT IN (122,123)'};default{''}}}
         $out[$name]=Row-Hash ('SELECT * FROM ra_integracion_'+$name+' WHERE '+$entities[$name]+'<=?'+$filter+' ORDER BY '+$entities[$name]) @([string]$maxima[$name])
     }
-    if($FileReservations){
+    if($FileReservations -and -not $FixtureFiles){
         foreach($name in @('lote','raiz','archivo')){
             $filter=switch($name){'lote'{'lote_id=50'};'raiz'{'lote_id=50'};'archivo'{'archivo_id IN (122,123)'}}
             $rows=Read-Rows ('SELECT * FROM ra_integracion_'+$name+' WHERE '+$filter+' ORDER BY '+$entities[$name])
@@ -88,7 +93,21 @@ function Protected-Hashes($maxima){
             $out[$name+'Originals']=Hash-Text (ConvertTo-Json -InputObject $rows -Depth 15 -Compress)
         }
     }
-    $out.profiles=Row-Hash 'SELECT * FROM ra_integracion_perfil ORDER BY perfil_id';$out.versions=Row-Hash 'SELECT * FROM ra_integracion_perfil_version ORDER BY version_id';$out.rules=Row-Hash 'SELECT * FROM ra_integracion_perfil_regla ORDER BY regla_id';$out.permissions=Row-Hash ('SELECT * FROM remit_dest_interno_perfil_produccion ORDER BY '+$script:permissionOrder);$out.expedientes=Row-Hash 'SELECT COUNT(*) AS total FROM expediente_archivo';$out.documents=Row-Hash ('SELECT COUNT(*) AS total FROM `'+$script:cabinetTable+'`');$out.inventories=Row-Hash 'SELECT COUNT(*) AS total FROM registro_producion_documental';return $out
+    $out.profiles=Row-Hash 'SELECT * FROM ra_integracion_perfil ORDER BY perfil_id';$out.versions=Row-Hash 'SELECT * FROM ra_integracion_perfil_version ORDER BY version_id';$out.rules=Row-Hash 'SELECT * FROM ra_integracion_perfil_regla ORDER BY regla_id';$out.permissions=Row-Hash ('SELECT * FROM remit_dest_interno_perfil_produccion ORDER BY '+$script:permissionOrder)
+    if($FixtureFiles){$out.expedientes=Row-Hash 'SELECT * FROM expediente_archivo WHERE ID_EXPEDIENTE<=? ORDER BY ID_EXPEDIENTE' @($script:physicalMax.exp);$out.relations=Row-Hash 'SELECT * FROM ra_pro_niveles_has_expediente_archivo WHERE id_registro<=? ORDER BY id_registro' @($script:physicalMax.rel)}else{$out.expedientes=Row-Hash 'SELECT COUNT(*) AS total FROM expediente_archivo'}
+    $out.documents=Row-Hash ('SELECT COUNT(*) AS total FROM `'+$script:cabinetTable+'`');$out.inventories=Row-Hash 'SELECT COUNT(*) AS total FROM registro_producion_documental';return $out
+}
+function Fixture-Hashes($lot,$attemptMax,$eventMax){
+    $out=[ordered]@{}
+    foreach($name in @('lote','raiz','archivo')){
+        $sql=if($name -eq 'archivo'){'SELECT a.* FROM ra_integracion_archivo a INNER JOIN ra_integracion_raiz r ON r.raiz_id=a.raiz_id WHERE r.lote_id=? ORDER BY a.archivo_id'}else{'SELECT * FROM ra_integracion_'+$name+' WHERE lote_id=? ORDER BY '+$entities[$name]}
+        $rows=Read-Rows $sql @($lot)
+        foreach($row in $rows){foreach($column in @('revision','actualizado_utc')+$(if($name -eq 'archivo'){@('estado_efecto','intento_activo_id','resultado_doc')}else{@('estado')})){$row.PSObject.Properties.Remove($column)}}
+        $out[$name]=Hash-Text (ConvertTo-Json -InputObject $rows -Depth 15 -Compress)
+    }
+    $out.attempts=Row-Hash 'SELECT * FROM ra_integracion_intento WHERE lote_id=? AND intento_id<=? ORDER BY intento_id' @($lot,$attemptMax)
+    $out.events=Row-Hash 'SELECT * FROM ra_integracion_evento WHERE lote_id=? AND evento_id<=? ORDER BY evento_id' @($lot,$eventMax)
+    return $out
 }
 try{
     Save-Journal
@@ -120,9 +139,10 @@ try{
         $journal.result=@{status='PASS_READONLY_INSPECTION';lots=$lots;targets=$targets;candidates=$candidates;states=$states;mutations=0;writerConnections=0};$journal.status='PASS';$journal.finishedUtc=[DateTime]::UtcNow.ToString('o');Save-Journal
         [Console]::Out.WriteLine('DOC115_07A_RESULT='+($journal.result|ConvertTo-Json -Depth 6 -Compress));return
     }
-    if($Segmented){
+    if($Segmented -or $FixtureFiles){
         $publication=Read-Rows 'SELECT p.perfil_id,p.version_publicada_id,p.revision,p.activo FROM ra_integracion_perfil p WHERE p.perfil_id=? AND p.ambito_ref=?' @($scope.profileRef,$scope.companyRef)
         if($publication.Count -ne 1 -or $publication[0].activo -ne '1' -or $publication[0].version_publicada_id -notmatch '\A[1-9][0-9]{0,9}\z'){throw 'DOC120_SEGMENTED_EXISTING_PROFILE_UNAVAILABLE'}
+        if($FixtureFiles -and $publication[0].version_publicada_id -ne '38'){throw 'DOC120_FILES_PUBLICATION_CHANGED'}
         $scope|Add-Member -NotePropertyName versionRef -NotePropertyValue $publication[0].version_publicada_id -Force
         $journal.publication=@{profileId=$scope.profileRef;versionId=$scope.versionRef;levelId=$scope.levelRef};Save-Journal
     }
@@ -141,13 +161,14 @@ try{
     $level=Read-Rows 'SELECT n.id_nivel FROM ra_pro_niveles n INNER JOIN remit_dest_interno u ON u.id_Remit_Dest_Int=n.remit_dest_interno_id_Remit_Dest_Int WHERE n.id_nivel=? AND n.estado_nivel=1 AND u.Empresa_Gestion_Documental_id_empresa=? AND (u.id_Remit_Dest_Int=? OR EXISTS(SELECT 1 FROM ra_pro_permisos_niveles p WHERE p.ra_pro_niveles_id_nivel=n.id_nivel AND p.remit_dest_interno_id_Remit_Dest_Int=? AND p.estado_permiso=1 AND p.agregar_expediente=1))' @($scope.levelRef,$scope.companyRef,$scope.userRef,$scope.userRef)
     if($level.Count -ne 1){throw 'DOC115_EXISTING_DESTINATION_REQUIRED'}
     $context=New-Object ContextoImportacionCarpetas;$context.UsuarioRef=$scope.userRef;$context.AmbitoRef=$scope.companyRef;$context.NivelRef=$scope.levelRef;$context.RutaCanonica='DOC-115 / fixture de repositorio / nivel '+$scope.levelRef;$context.SelloDestino=Hash-Text ('DOC115|'+$scope.userRef+'|'+$scope.companyRef+'|'+$scope.levelRef+'|'+$(if($privateRepository){$runId}else{$scope.rootNames[0]}));$context.PuedeImportar=$true
-    if($FileReservations){
+    if($FileReservations -and -not $FixtureFiles){
         $existingLot=Read-Rows 'SELECT contexto_doc,plan_id,version_id FROM ra_integracion_lote WHERE lote_id=50 AND solicitante_ref=? AND ambito_ref=? AND nivel_ref=?' @($scope.userRef,$scope.companyRef,$scope.levelRef)
         if($existingLot.Count -ne 1 -or $existingLot[0].plan_id -ne '90' -or $existingLot[0].version_id -ne '45'){throw 'DOC120_FILES_LOT_CHANGED'}
         $context=[Newtonsoft.Json.JsonConvert]::DeserializeObject($existingLot[0].contexto_doc,[ContextoImportacionCarpetas])
         $journal.publication=@{profileId=$scope.profileRef;versionId=$scope.versionRef;levelId=$scope.levelRef;lotId=$scope.lotRef}
     }
     $maxima=[ordered]@{};foreach($name in $entities.Keys){$row=Read-Rows ('SELECT COALESCE(MAX('+$entities[$name]+'),0) AS ultimo FROM ra_integracion_'+$name);$maxima[$name]=[uint64]$row[0].ultimo}
+    if($FixtureFiles){$p=Read-Rows 'SELECT (SELECT COALESCE(MAX(ID_EXPEDIENTE),0) FROM expediente_archivo) AS exp,(SELECT COALESCE(MAX(id_registro),0) FROM ra_pro_niveles_has_expediente_archivo) AS rel';$script:physicalMax=$p[0];$journal.physicalMaxima=$script:physicalMax}
     $before=Protected-Hashes $maxima;$journal.protectedBefore=$before;$journal.existingMaxima=$maxima;Save-Journal
     if($privateRepository){
         foreach($partTable in @('preparacion_parte','preparacion_resultado')){$before[$partTable]=Row-Hash ('SELECT * FROM ra_integracion_'+$partTable+' WHERE preparacion_id<=? ORDER BY preparacion_id,tipo,numero') @([string]$maxima.preparacion)}
@@ -183,7 +204,21 @@ try{
         foreach($source in $scope.sources.PSObject.Properties){if((Get-FileHash -LiteralPath (Join-Path $root $source.Name) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $source.Value){throw 'DOC120_SEGMENTED_SOURCE_CHANGED'}}
         $reference=[Action[string,string]]{param($kind,$id)if($kind -eq 'phase'){if($id -notmatch '\A[A-Z_]{3,64}\z'){throw 'DOC120_FILES_PHASE_INVALID'};$journal.phase=$id}else{if($kind -ne 'intento' -or $id -notmatch '\A[1-9][0-9]{0,9}\z'){throw 'DOC120_FILES_REFERENCE_INVALID'};$journal.references+=@([ordered]@{kind=$kind;id=$id})};Save-Journal}
         if($admission.Elapsed.TotalMinutes -ge 15){throw 'DOC120_SEGMENTED_WRAPPER_BUDGET'}
-        $result=[ImportacionCarpetasBehaviorTests]::RunDoc120FileRepositoryIntegration($true,$writerBuilder.ConnectionString,$context,$runId,$scope.environmentHash,$scope.lotRef,[string[]]$scope.files,$reference)
+        if($FixtureFiles){
+            $journal.phase='PREPARE_HTTP_FIXTURE';Save-Journal
+            & node (Join-Path $PSScriptRoot '../run-doc115-recepcion-importacion.cjs') --prepare-files-fixture --session $ResourcesFile | ForEach-Object {if($_ -match '\ADOC110_TIMING: [A-Za-z]+ [0-9]+ms\z'){[Console]::Out.WriteLine($_)}}
+            $fixtureExit=$LASTEXITCODE;$fixtureState=Get-Content -LiteralPath ($ResourcesFile+'.fixture-state.json') -Raw|ConvertFrom-Json
+            $journal.fixture=$fixtureState;$journal.references+=@($fixtureState.references);$journal.wrapperSelects+=[int]$fixtureState.selects;$journal.wrapperSelectsThisRun+=[int]$fixtureState.selects;Save-Journal
+            if($fixtureExit -ne 0 -or $fixtureState.status -ne 'PASS_FIXTURE_READY' -or $fixtureState.closed -ne $true){throw 'DOC120_FILES_FIXTURE_STOPPED'}
+            $f=$fixtureState.result
+            if($f.planId -notmatch '\A[1-9][0-9]{0,9}\z' -or $f.lotId -notmatch '\A[1-9][0-9]{0,9}\z' -or [uint64]$f.planId -le $maxima.plan -or [uint64]$f.lotId -le $maxima.lote -or $f.files.Count -ne 2 -or @($f.files|Where-Object {$_ -notmatch '\A[1-9][0-9]{0,9}\z' -or [uint64]$_ -le $maxima.archivo}).Count -ne 0){throw 'DOC120_FILES_FIXTURE_REFERENCES_INVALID'}
+            $actualLot=Read-Rows 'SELECT contexto_doc FROM ra_integracion_lote WHERE lote_id=? AND plan_id=? AND solicitante_ref=141 AND ambito_ref=2 AND nivel_ref=7 AND version_id=38' @($f.lotId,$f.planId)
+            if($actualLot.Count -ne 1){throw 'DOC120_FILES_FIXTURE_OWNER_CHANGED'};$context=[Newtonsoft.Json.JsonConvert]::DeserializeObject($actualLot[0].contexto_doc,[ContextoImportacionCarpetas])
+            $bounds=Read-Rows 'SELECT (SELECT MAX(intento_id) FROM ra_integracion_intento WHERE lote_id=?) AS intento,(SELECT MAX(evento_id) FROM ra_integracion_evento WHERE lote_id=?) AS evento,(SELECT COUNT(*) FROM ra_integracion_evento WHERE lote_id=?) AS eventos' @($f.lotId,$f.lotId,$f.lotId)
+            $fixtureAttemptMax=$bounds[0].intento;$fixtureEventMax=$bounds[0].evento;$fixtureEventCount=[int]$bounds[0].eventos
+            $fixtureBefore=Fixture-Hashes $f.lotId $fixtureAttemptMax $fixtureEventMax;$journal.fixtureOriginalsBefore=$fixtureBefore;Save-Journal
+            $result=[ImportacionCarpetasBehaviorTests]::RunDoc120FixtureFileRepositoryIntegration($true,$writerBuilder.ConnectionString,$context,$runId,$scope.environmentHash,$f.lotId,[string[]]$f.files,$f.planId,$reference)
+        }else{$result=[ImportacionCarpetasBehaviorTests]::RunDoc120FileRepositoryIntegration($true,$writerBuilder.ConnectionString,$context,$runId,$scope.environmentHash,$scope.lotRef,[string[]]$scope.files,$reference)}
     }elseif($Segmented){
         foreach($source in $scope.sources.PSObject.Properties){if((Get-FileHash -LiteralPath (Join-Path $root $source.Name) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $source.Value){throw 'DOC120_SEGMENTED_SOURCE_CHANGED'}}
         $context.RutaCanonica='DOC-120 / E2E existente / nivel '+$scope.levelRef;$context.SelloDestino=Hash-Text ('DOC120|'+$scope.userRef+'|'+$scope.companyRef+'|'+$scope.levelRef+'|'+$runId)
@@ -203,14 +238,28 @@ try{
     if($privateRepository){foreach($partTable in @('preparacion_parte','preparacion_resultado')){$after[$partTable]=Row-Hash ('SELECT * FROM ra_integracion_'+$partTable+' WHERE preparacion_id<=? ORDER BY preparacion_id,tipo,numero') @([string]$maxima.preparacion)}}
     foreach($key in $before.Keys){if($before[$key] -cne $after[$key]){throw 'DOC115_PREEXISTING_DATA_CHANGED'}}
     $journal.protectedAfter=$after
-    foreach($name in $entities.Keys){$row=Read-Rows ('SELECT COUNT(*) AS total FROM ra_integracion_'+$name+' WHERE '+$entities[$name]+'>?') @([string]$maxima[$name]);$expected=if($FileReservations){@{plan=0;lote=0;raiz=0;archivo=0;intento=2;evento=7;preparacion=0}}elseif($Segmented){@{plan=1;lote=1;raiz=1;archivo=2;intento=0;evento=1;preparacion=1}}else{@{plan=3;lote=2;raiz=4;archivo=4;intento=1;evento=4}};if($FileReservations -and $name -eq 'evento'){if([uint64]$row[0].total -lt 4 -or [uint64]$row[0].total -gt 7){throw 'DOC120_FILES_EVENTS_UNEXPECTED'}}elseif([uint64]$row[0].total -ne $expected[$name]){throw 'DOC115_NEW_RECORD_COUNTS_UNEXPECTED'}}
+    if($FixtureFiles){
+        $fixtureAfter=Fixture-Hashes $f.lotId $fixtureAttemptMax $fixtureEventMax
+        foreach($key in $fixtureBefore.Keys){if($fixtureBefore[$key] -cne $fixtureAfter[$key]){throw 'DOC120_FILES_FIXTURE_ORIGINALS_CHANGED'}};$journal.fixtureOriginalsAfter=$fixtureAfter
+        $physical=Read-Rows 'SELECT (SELECT COUNT(*) FROM expediente_archivo WHERE ID_EXPEDIENTE>?) AS exp,(SELECT COUNT(*) FROM ra_pro_niveles_has_expediente_archivo WHERE id_registro>?) AS rel' @($script:physicalMax.exp,$script:physicalMax.rel)
+        if($physical[0].exp -ne '1' -or $physical[0].rel -ne '1'){throw 'DOC120_FILES_PHYSICAL_COUNTS_UNEXPECTED'}
+        $identity=Read-Rows 'SELECT e.ID_EXPEDIENTE,r.id_registro FROM expediente_archivo e INNER JOIN ra_pro_niveles_has_expediente_archivo r ON r.expediente_archivo_ID_EXPEDIENTE=e.ID_EXPEDIENTE WHERE e.ID_EXPEDIENTE=? AND r.id_registro=? AND r.ra_pro_niveles_id_nivel=7' @($f.expedientId,$f.relationId)
+        if($identity.Count -ne 1){throw 'DOC120_FILES_PHYSICAL_IDENTITY_CHANGED'}
+    }
+    foreach($name in $entities.Keys){
+        $row=Read-Rows ('SELECT COUNT(*) AS total FROM ra_integracion_'+$name+' WHERE '+$entities[$name]+'>?') @([string]$maxima[$name])
+        $expected=if($FixtureFiles){@{plan=1;lote=1;raiz=1;archivo=2;intento=5;preparacion=0}}elseif($FileReservations){@{plan=0;lote=0;raiz=0;archivo=0;intento=2;evento=7;preparacion=0}}elseif($Segmented){@{plan=1;lote=1;raiz=1;archivo=2;intento=0;evento=1;preparacion=1}}else{@{plan=3;lote=2;raiz=4;archivo=4;intento=1;evento=4}}
+        if($FileReservations -and $name -eq 'evento'){$newCount=[int]$row[0].total-$(if($FixtureFiles){$fixtureEventCount}else{0});if($newCount -lt 4 -or $newCount -gt 7 -or [int]$row[0].total -gt 40){throw 'DOC120_FILES_EVENTS_UNEXPECTED'}}elseif([uint64]$row[0].total -ne $expected[$name]){throw 'DOC115_NEW_RECORD_COUNTS_UNEXPECTED'}
+    }
     if($FileReservations){
-        $events=Read-Rows 'SELECT accion,recurso_tipo,COUNT(*) AS total FROM ra_integracion_evento WHERE evento_id>? AND lote_id=50 AND actor_ref=141 GROUP BY accion,recurso_tipo ORDER BY accion,recurso_tipo' @([string]$maxima.evento)
+        $eventFloor=if($FixtureFiles){$fixtureEventMax}else{[string]$maxima.evento};$eventLot=if($FixtureFiles){$f.lotId}else{'50'}
+        $events=Read-Rows 'SELECT accion,recurso_tipo,COUNT(*) AS total FROM ra_integracion_evento WHERE evento_id>? AND lote_id=? AND actor_ref=141 GROUP BY accion,recurso_tipo ORDER BY accion,recurso_tipo' @($eventFloor,$eventLot)
         $sum=0;$reserves=0;$incidents=0
         foreach($event in $events){$sum+=[int]$event.total;if($event.accion -eq 'RESERVAR_INTENTO' -and $event.recurso_tipo -eq 'ARCHIVO'){$reserves+=[int]$event.total}elseif($event.accion -eq 'ORIGINAL_NO_DISPONIBLE' -and $event.recurso_tipo -eq 'ARCHIVO'){$incidents+=[int]$event.total}elseif($event.accion -ne 'CONSOLIDAR_ESTADO' -or $event.recurso_tipo -notin @('LOTE','RAIZ')){throw 'DOC120_FILES_EVENTS_UNEXPECTED'}}
-        $newEvents=Read-Rows 'SELECT COUNT(*) AS total FROM ra_integracion_evento WHERE evento_id>?' @([string]$maxima.evento)
+        $newEvents=Read-Rows 'SELECT COUNT(*) AS total FROM ra_integracion_evento WHERE evento_id>?' @($eventFloor)
         if($sum -ne [int]$newEvents[0].total -or $reserves -ne 2 -or $incidents -ne 2){throw 'DOC120_FILES_EVENTS_UNEXPECTED'}
         $result['newEvents']=$sum
+        if($FixtureFiles){$result['fixture']=$fixtureState.result;$result['fixtureHttp']=$fixtureState.http;$result['fixtureSelects']=$fixtureState.selects;$result['fixtureOriginalsUnchanged']=$true;$result['priorExpedientsUnchanged']=$true;$result['fixtureEventCount']=$fixtureEventCount}
     }
     if((Get-FileHash -LiteralPath (Join-Path $RuntimeRoot 'bin/GestionDocumental-Docuarchi.net.dll') -Algorithm SHA256).Hash.ToLowerInvariant() -ne $scope.backendSha256){throw 'DOC115_BACKEND_CHANGED'}
     if($privateRepository){foreach($source in $scope.sources.PSObject.Properties){if((Get-FileHash -LiteralPath (Join-Path $root $source.Name) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $source.Value){throw 'DOC120_SEGMENTED_SOURCE_CHANGED'}}}

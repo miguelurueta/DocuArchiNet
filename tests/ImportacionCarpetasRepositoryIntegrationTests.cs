@@ -42,25 +42,26 @@ public static partial class ImportacionCarpetasBehaviorTests {
     // from the test. A stopped run is retained for review, never auto-replayed.
     sealed class Doc120FileControls {
         readonly string connection;
+        readonly uint lot,a,b;
         readonly System.Diagnostics.Stopwatch time=System.Diagnostics.Stopwatch.StartNew();
         public int Selects;
-        public Doc120FileControls(string value){connection=value;}
+        public Doc120FileControls(string value,string lotId,string[] files){connection=value;lot=UInt32.Parse(lotId);a=UInt32.Parse(files[0]);b=UInt32.Parse(files[1]);}
         public string Read(string sql,MySqlConnection db=null,MySqlTransaction tx=null){
             Check(sql.StartsWith("SELECT ",StringComparison.Ordinal)&&!sql.Contains(";"),"DOC120_FILES_SELECT_REQUIRED");
             Check(time.Elapsed<TimeSpan.FromMinutes(15)&&Interlocked.Increment(ref Selects)<=64,"DOC120_FILES_SELECT_BUDGET");
             if(db==null)using(var c=new MySqlConnection(connection)){c.Open();return Execute(sql,c,null);}
             return Execute(sql,db,tx);
         }
-        static string Execute(string sql,MySqlConnection db,MySqlTransaction tx){
+        string Execute(string sql,MySqlConnection db,MySqlTransaction tx){
             using(var cmd=new MySqlCommand(sql,db,tx)){
-                cmd.CommandTimeout=10;var rows=new List<object[]>();
+                cmd.CommandTimeout=10;cmd.Parameters.AddWithValue("@lot",lot);cmd.Parameters.AddWithValue("@a",a);cmd.Parameters.AddWithValue("@b",b);var rows=new List<object[]>();
                 using(var r=cmd.ExecuteReader())while(r.Read()){var values=new object[r.FieldCount];r.GetValues(values);rows.Add(values);}
                 return Newtonsoft.Json.JsonConvert.SerializeObject(rows);
             }
         }
         public string State(){
             var hashes=new List<string>();
-            foreach(var query in new[]{"SELECT * FROM ra_integracion_lote WHERE lote_id=50", "SELECT * FROM ra_integracion_raiz WHERE lote_id=50 ORDER BY raiz_id", "SELECT a.* FROM ra_integracion_archivo a INNER JOIN ra_integracion_raiz r ON r.raiz_id=a.raiz_id WHERE r.lote_id=50 ORDER BY a.archivo_id", "SELECT * FROM ra_integracion_intento WHERE lote_id=50 ORDER BY intento_id", "SELECT * FROM ra_integracion_evento WHERE lote_id=50 ORDER BY evento_id"})
+            foreach(var query in new[]{"SELECT * FROM ra_integracion_lote WHERE lote_id=@lot", "SELECT * FROM ra_integracion_raiz WHERE lote_id=@lot ORDER BY raiz_id", "SELECT a.* FROM ra_integracion_archivo a INNER JOIN ra_integracion_raiz r ON r.raiz_id=a.raiz_id WHERE r.lote_id=@lot ORDER BY a.archivo_id", "SELECT * FROM ra_integracion_intento WHERE lote_id=@lot ORDER BY intento_id", "SELECT * FROM ra_integracion_evento WHERE lote_id=@lot ORDER BY evento_id"})
                 hashes.Add(Doc120DatabaseHash("state",Read(query)));
             return String.Join("|",hashes);
         }
@@ -84,33 +85,51 @@ public static partial class ImportacionCarpetasBehaviorTests {
         catch(Exception e){Check(e.Message=="DOC120_FILES_CONNECTION_INVALID","File integration parses connections safely");}
         try{RunDoc120FileRepositoryIntegration(true,"Server=127.0.0.1;Database=doc120_lab;User ID=PRIVATE",c,new string('a',32),new string('b',64),"50",new[]{"122","123"},(k,id)=>{});throw new Exception("guard");}
         catch(Exception e){Check(e.Message=="DOC120_FILES_ENVIRONMENT_CHANGED","File integration checks target before connecting");}
+        try{RunDoc120FixtureFileRepositoryIntegration(false,"PRIVATE",null,null,null,null,null,null,null);throw new Exception("guard");}
+        catch(Exception e){Check(e.Message=="DOC120_FILES_AUTHORIZATION_REQUIRED","New fixture cannot bypass authorization");}
+        var fixtureContext=ReceiptClone(c);fixtureContext.NivelRef="7";
+        foreach(var lot in new[]{"50","29","0","1 OR 1=1"}){
+            try{RunDoc120FixtureFileRepositoryIntegration(true,"PRIVATE",fixtureContext,new string('a',32),new string('b',64),lot,new[]{"900001","900002"},"900003",(k,id)=>{});throw new Exception("guard");}
+            catch(Exception e){Check(e.Message=="DOC120_FILES_SCOPE_INVALID","New fixture broadens into historical resources");}
+        }
         Console.WriteLine("DOC-120 native file reservation guards: passed (no database)");
     }
     public static Dictionary<string,object> RunDoc120FileRepositoryIntegration(bool authorized,string connection,
         ContextoImportacionCarpetas context,string runId,string environmentHash,string lotId,string[] files,Action<string,string> reference){
         if(!authorized)throw new Exception("DOC120_FILES_AUTHORIZATION_REQUIRED");
         Doc120FileScope(context,runId,environmentHash,lotId,files,reference);
+        return RunDoc120FileRepositoryCases(connection,context,runId,environmentHash,lotId,files,reference,false,"90");
+    }
+    public static Dictionary<string,object> RunDoc120FixtureFileRepositoryIntegration(bool authorized,string connection,
+        ContextoImportacionCarpetas context,string runId,string environmentHash,string lotId,string[] files,string planId,Action<string,string> reference){
+        if(!authorized)throw new Exception("DOC120_FILES_AUTHORIZATION_REQUIRED");
+        Func<string,bool> id=v=>v!=null&&System.Text.RegularExpressions.Regex.IsMatch(v,@"\A[1-9][0-9]{0,9}\z")&&UInt64.Parse(v)<=UInt32.MaxValue;
+        if(context==null||context.UsuarioRef!="141"||context.AmbitoRef!="2"||context.NivelRef!="7"||!context.PuedeImportar||runId==null||!System.Text.RegularExpressions.Regex.IsMatch(runId,@"\A[a-f0-9]{32}\z")||environmentHash==null||!System.Text.RegularExpressions.Regex.IsMatch(environmentHash,@"\A[a-f0-9]{64}\z")||!id(lotId)||lotId=="50"||lotId=="29"||!id(planId)||files==null||files.Length!=2||files.Any(f=>!id(f))||files[0]==files[1]||reference==null)throw new Exception("DOC120_FILES_SCOPE_INVALID");
+        return RunDoc120FileRepositoryCases(connection,context,runId,environmentHash,lotId,files,reference,true,planId);
+    }
+    static Dictionary<string,object> RunDoc120FileRepositoryCases(string connection,ContextoImportacionCarpetas context,string runId,string environmentHash,string lotId,string[] files,Action<string,string> reference,bool fixture,string planId){
         MySqlConnectionStringBuilder builder;
         try{builder=new MySqlConnectionStringBuilder(connection);}catch{throw new Exception("DOC120_FILES_CONNECTION_INVALID");}
         if(Doc120DatabaseHash(builder.Server,builder.Database)!=environmentHash)throw new Exception("DOC120_FILES_ENVIRONMENT_CHANGED");
         builder.Pooling=false;builder.ConnectionTimeout=5;
-        var window=new Doc120SegmentedWindow(builder.ConnectionString);var controls=new Doc120FileControls(builder.ConnectionString);
+        var window=new Doc120SegmentedWindow(builder.ConnectionString);var controls=new Doc120FileControls(builder.ConnectionString,lotId,files);
         var lot=window.Call(r=>r.ObtenerLote(context,lotId));
-        Check(lot.ControlArchivos!=null&&!lot.DetencionSolicitada&&lot.TotalArchivos==1000&&lot.TotalRaices==1&&lot.PlanId=="90"&&lot.Snapshot.VersionId=="45"&&lot.Snapshot.PerfilId=="28","DOC120_FILES_LOT_CHANGED");
+        Check(lot.ControlArchivos!=null&&!lot.DetencionSolicitada&&lot.TotalArchivos==(fixture?2:1000)&&lot.TotalRaices==1&&lot.PlanId==planId&&lot.Snapshot.VersionId==(fixture?"38":"45")&&lot.Snapshot.PerfilId==(fixture?"24":"28"),"DOC120_FILES_LOT_CHANGED");
+        if(fixture){var plan=window.Call(r=>r.ObtenerPlan(context,planId));Check(plan.Manifiesto.Raices.Count==1&&plan.Manifiesto.Raices[0].Nombre=="DOC120-"+runId+"-RES"&&plan.Manifiesto.Archivos.Count==2,"DOC120_FILES_FIXTURE_ORIGIN_CHANGED");}
         var originals=files.Select(id=>window.Call(r=>r.ObtenerArchivo(context,lotId,id))).ToArray();
-        Check(originals[0].RaizId==originals[1].RaizId&&originals.All(f=>f.EstadoRecepcion=="RECIBIDO"&&f.EstadoEfecto=="NO_INICIADO"&&f.IntentoActivoId==null&&f.Resultado==null),"DOC120_FILES_NOT_PENDING");
-        Check(controls.Read("SELECT COUNT(*) FROM ra_integracion_intento WHERE lote_id=50 AND estado IN ('RESERVADO','EN_CURSO','INCIERTO')")=="[[0]]","DOC120_FILES_EXISTING_ACTIVE_ATTEMPT");
+        Check(originals[0].RaizId==originals[1].RaizId&&originals.All(f=>f.EstadoRecepcion=="RECIBIDO"&&f.EstadoEfecto=="NO_INICIADO"&&f.IntentoActivoId==null&&f.Resultado==null&&f.ValoresEfectivosFijados),"DOC120_FILES_NOT_PENDING");
+        Check(controls.Read("SELECT COUNT(*) FROM ra_integracion_intento WHERE lote_id=@lot AND estado IN ('RESERVADO','EN_CURSO','INCIERTO')")=="[[0]]","DOC120_FILES_EXISTING_ACTIVE_ATTEMPT");
         Func<ArchivoImportacionCarpetas,string,ReclamacionImportacionCarpetas> claim=(file,tag)=>new ReclamacionImportacionCarpetas{LoteId=lotId,RecursoTipo="ARCHIVO",RecursoId=file.ArchivoId,Fase="ALMACENAR",RevisionEsperada=file.Revision,EjecutorRef="DOC120_FILES",TokenReclamacion=Guid.NewGuid().ToString("N"),SolicitudHash=Doc120DatabaseHash(runId,tag)};
         var initial=controls.State();int noReserveFault=0;
         Rejected("PRUEBA_ROLLBACK",()=>window.Call(r=>{r.RegistrarOriginalNoDisponible(context,lotId,files[0],originals[0].Revision,"ORIGINAL_NO_COMPROBADO");return true;},false,(stage,db,tx)=>{
             if(stage!="CONTROL_ANTES_EVENTO")return;noReserveFault++;
-            Check(controls.Read("SELECT COUNT(*) FROM ra_integracion_archivo WHERE archivo_id=122 AND resultado_doc IS NOT NULL AND intento_activo_id IS NULL",db,tx)=="[[1]]","DOC120_FILES_PROVISIONAL_INCIDENT_MISSING");
+            Check(controls.Read("SELECT COUNT(*) FROM ra_integracion_archivo WHERE archivo_id=@a AND resultado_doc IS NOT NULL AND intento_activo_id IS NULL",db,tx)=="[[1]]","DOC120_FILES_PROVISIONAL_INCIDENT_MISSING");
             throw new PerfilImportacionException("PRUEBA_ROLLBACK","Fallo controlado del diario de incidencia.");}));
         Check(noReserveFault==1&&initial==controls.State(),"DOC120_FILES_UNCLAIMED_INCIDENT_ROLLBACK_FAILED");
         reference("phase","RESERVATION_ROLLBACK");int reservationFault=0;
         Rejected("PRUEBA_ROLLBACK",()=>window.Call(r=>r.ReservarIntento(context,claim(originals[0],"rollback")),false,(stage,db,tx)=>{
             if(stage!="RECLAMACION_RECURSO_RESERVADO")return;reservationFault++;
-            Check(controls.Read("SELECT COUNT(*) FROM ra_integracion_archivo WHERE archivo_id=122 AND estado_efecto='EN_CURSO' AND intento_activo_id IS NOT NULL",db,tx)=="[[1]]","DOC120_FILES_PROVISIONAL_CLAIM_MISSING");
+            Check(controls.Read("SELECT COUNT(*) FROM ra_integracion_archivo WHERE archivo_id=@a AND estado_efecto='EN_CURSO' AND intento_activo_id IS NOT NULL",db,tx)=="[[1]]","DOC120_FILES_PROVISIONAL_CLAIM_MISSING");
             throw new PerfilImportacionException("PRUEBA_ROLLBACK","Fallo controlado de reserva.");}));
         Check(reservationFault==1&&initial==controls.State(),"DOC120_FILES_RESERVATION_ROLLBACK_FAILED");
         var old=claim(originals[0],"stale");old.RevisionEsperada++;
@@ -132,7 +151,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
         var current=window.Call(r=>r.ObtenerArchivo(context,lotId,files[0]));var beforeIncident=controls.State();int incidentFault=0;
         Rejected("PRUEBA_ROLLBACK",()=>window.Call(r=>{r.RegistrarOriginalNoDisponible(context,lotId,files[0],current.Revision,"ORIGINAL_NO_COMPROBADO",active);return true;},false,(stage,db,tx)=>{
             if(stage!="CONTROL_ANTES_EVENTO")return;incidentFault++;
-            Check(controls.Read("SELECT COUNT(*) FROM ra_integracion_intento WHERE lote_id=50 AND archivo_id=122 AND fase='ALMACENAR' AND estado='RECHAZADO' AND evidencia_doc IS NOT NULL AND fin_utc IS NOT NULL",db,tx)=="[[1]]","DOC120_FILES_PROVISIONAL_CLOSE_MISSING");
+            Check(controls.Read("SELECT COUNT(*) FROM ra_integracion_intento WHERE lote_id=@lot AND archivo_id=@a AND fase='ALMACENAR' AND estado='RECHAZADO' AND evidencia_doc IS NOT NULL AND fin_utc IS NOT NULL",db,tx)=="[[1]]","DOC120_FILES_PROVISIONAL_CLOSE_MISSING");
             throw new PerfilImportacionException("PRUEBA_ROLLBACK","Fallo controlado al cerrar reserva propia.");}));
         Check(incidentFault==1&&beforeIncident==controls.State(),"DOC120_FILES_CLAIMED_INCIDENT_ROLLBACK_FAILED");
         var wrongToken=ReceiptClone(active);wrongToken.TokenReclamacion=Guid.NewGuid().ToString("N");
@@ -155,9 +174,9 @@ public static partial class ImportacionCarpetasBehaviorTests {
             var expected=request==winner?active:b;
             Check(persisted.IntentoId==expected.IntentoId&&persisted.TokenReclamacion==expected.TokenReclamacion&&persisted.SolicitudHash==expected.SolicitudHash&&persisted.Estado=="RECHAZADO"&&persisted.FinUtc!=null&&ControlArchivoIndependienteImportacion.EsNoDisponible(persisted.Resultado),"DOC120_FILES_FINAL_EVIDENCE_CHANGED");
         }
-        Check(controls.Read("SELECT COUNT(*) FROM ra_integracion_intento WHERE lote_id=50 AND archivo_id IN (122,123) AND fase='ALMACENAR' AND estado='RECHAZADO' AND fin_utc IS NOT NULL AND evidencia_doc IS NOT NULL")=="[[2]]","DOC120_FILES_FINAL_ATTEMPTS_INVALID");
-        Check(controls.Read("SELECT COUNT(*) FROM ra_integracion_intento WHERE lote_id=50 AND estado IN ('RESERVADO','EN_CURSO','INCIERTO')")=="[[0]]","DOC120_FILES_ACTIVE_AT_CLOSE");
-        Check(controls.Read("SELECT COUNT(*) FROM ra_integracion_evento WHERE lote_id=50 AND recurso_tipo='ARCHIVO' AND recurso_id IN (122,123) AND accion IN ('AUTORIZAR_INVOCACION_DOCUMENTAL','INICIAR_ALMACENAMIENTO_V2','OBSERVAR_RETORNO_DOCUMENTAL','RESULTADO_ALMACENAMIENTO_V2')")=="[[0]]","DOC120_FILES_UNEXPECTED_INVOCATION");
+        Check(controls.Read("SELECT COUNT(*) FROM ra_integracion_intento WHERE lote_id=@lot AND archivo_id IN (@a,@b) AND fase='ALMACENAR' AND estado='RECHAZADO' AND fin_utc IS NOT NULL AND evidencia_doc IS NOT NULL")=="[[2]]","DOC120_FILES_FINAL_ATTEMPTS_INVALID");
+        Check(controls.Read("SELECT COUNT(*) FROM ra_integracion_intento WHERE lote_id=@lot AND estado IN ('RESERVADO','EN_CURSO','INCIERTO')")=="[[0]]","DOC120_FILES_ACTIVE_AT_CLOSE");
+        Check(controls.Read("SELECT COUNT(*) FROM ra_integracion_evento WHERE lote_id=@lot AND recurso_tipo='ARCHIVO' AND recurso_id IN (@a,@b) AND accion IN ('AUTORIZAR_INVOCACION_DOCUMENTAL','INICIAR_ALMACENAMIENTO_V2','OBSERVAR_RETORNO_DOCUMENTAL','RESULTADO_ALMACENAMIENTO_V2')")=="[[0]]","DOC120_FILES_UNEXPECTED_INVOCATION");
         return new Dictionary<string,object>{{"status","PASS_FILE_RESERVATIONS_REPOSITORY"},{"lotId",lotId},{"files",files},{"attempts",new[]{active.IntentoId,b.IntentoId}},{"nativeCalls",window.Calls},{"nativeControlSelects",controls.Selects},{"rollbackStages",3},{"sameFileUnique",true},{"staleRejected",true},{"activeBExcludedA",true},{"preinvocationClosures",2},{"writerInvocations",0},{"physicalPooling",false}};
     }
     public static Dictionary<string,object> RunDoc115RepositoryIntegration(bool authorized,string connection,ContextoImportacionCarpetas context,SnapshotPerfilImportacionOperativa snapshot,string[] rootNames,string runtimeRoot,byte[] pdf,Action<string,string> reference) {

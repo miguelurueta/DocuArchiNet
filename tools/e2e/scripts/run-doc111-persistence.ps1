@@ -1,7 +1,7 @@
-param([switch]$AuthorizedPersistence,[switch]$AuthorizedTemporaryProfile24,[ValidateSet('Create','Rollback','PublicationRead','Doc115','Doc120Segmented','Doc120Files','Doc120FilesInspect')][string]$Mode='Create',[switch]$AuthorizedDoc115,[string]$ResourcesFile,[string]$RuntimeRoot,[switch]$Check)
+param([switch]$AuthorizedPersistence,[switch]$AuthorizedTemporaryProfile24,[ValidateSet('Create','Rollback','PublicationRead','Doc115','Doc120Segmented','Doc120Files','Doc120FilesInspect','Doc120FilesFixture')][string]$Mode='Create',[switch]$AuthorizedDoc115,[string]$ResourcesFile,[string]$RuntimeRoot,[switch]$Check)
 $ErrorActionPreference='Stop'
-if($Mode -in @('Doc120Files','Doc120FilesInspect')){
-    & (Join-Path $PSScriptRoot 'support/doc115-repository-integration.ps1') -ResourcesFile $ResourcesFile -RuntimeRoot $RuntimeRoot -Check:$Check -FileReservations -InspectFiles:($Mode -eq 'Doc120FilesInspect')
+if($Mode -in @('Doc120Files','Doc120FilesInspect','Doc120FilesFixture')){
+    & (Join-Path $PSScriptRoot 'support/doc115-repository-integration.ps1') -ResourcesFile $ResourcesFile -RuntimeRoot $RuntimeRoot -Check:$Check -FileReservations -InspectFiles:($Mode -eq 'Doc120FilesInspect') -FixtureFiles:($Mode -eq 'Doc120FilesFixture')
     exit $LASTEXITCODE
 }
 if($Mode -eq 'Doc120Segmented'){
