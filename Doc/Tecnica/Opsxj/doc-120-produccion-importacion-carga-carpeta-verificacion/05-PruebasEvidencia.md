@@ -1,5 +1,9 @@
 # DOC-120 — PruebasEvidencia
 
+## Preparación del laboratorio segmentado — 2026-11-20
+
+[Plan y límites del arnés de 3.118](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-preparacion-repositorio-plan-20261120.md). Integración en la compilación Framework existente; 2/2 pruebas Node envolventes y 16 comprobaciones internas nuevas sin conexión. La entrada real contiene los casos de partes, sellado, confirmación concurrente y tres rollbacks; falta concretar laboratorio/manifiesto/consola y autorizar su ejecución. No modifica producto/DLL/esquema ni acredita pruebas MySQL, dos pestañas reales o QA integral. 259/270, once abiertas.
+
 ## Continuación local del gobierno — 2026-11-20
 
 [Informe de comprobaciones y once pendientes](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-continuacion-gobierno-20261120.md). Se corrigen el formato de 39 orígenes y el falso positivo del control de plantillas sobre estados operativos pendientes. Regresión 91/91 casos locales únicos (32 cliente/árbol/controles sintéticos y 59 gobierno), con ocho nuevos casos y OpenSpec estricto PASS. Evidencia unit del commit de entrega parcial; ninguna aceptación manual integral atribuida a estas pruebas. Avance 259/270, once abiertas; ventanas reales y fuentes históricas conservan sus autorizaciones/alcance. No se ejecutan autenticación, SQL real ni efectos de negocio.

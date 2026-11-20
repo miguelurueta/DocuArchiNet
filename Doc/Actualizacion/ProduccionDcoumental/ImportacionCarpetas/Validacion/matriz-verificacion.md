@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Preparación del laboratorio segmentado — 2026-11-20
+
+[Arnés, casos y datos necesarios para concretar la ventana](doc120-preparacion-repositorio-plan-20261120.md). Avance parcial de 3.118: entrada explícita para partes/sellado/confirmación concurrentes y tres rollbacks, integrada en la compilación Framework existente. 2/2 pruebas Node envolventes; 16 guardas/comprobaciones internas nuevas sin conexión. MySQL todavía NO_EJECUTADO; faltan laboratorio, manifiesto y consola acotada antes de autorizar. 259/270, once abiertas; no se acredita 3.187 ni capacidad integral.
+
 ## Continuación local del gobierno — 2026-11-20
 
 [Revisión de las once tareas abiertas y correcciones de gobierno](doc120-continuacion-gobierno-20261120.md). Se normalizan 39 orígenes y se corrige el falso positivo de «pendiente» en prosa operativa, conservando rechazo de plantillas/decisiones incompletas. 91/91 casos locales únicos y OpenSpec estricto aprobados; no QA real nueva ni aceptación integral. Avance 259/270, sin cambiar casillas ni reutilizar ventanas cerradas. Responsables y siguientes acciones de cada brecha en el informe; 6.4–6.6 continúan abiertas.

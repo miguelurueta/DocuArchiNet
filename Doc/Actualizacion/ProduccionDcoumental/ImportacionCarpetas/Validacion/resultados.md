@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Preparación del laboratorio segmentado — 2026-11-20
+
+[Preparación local de 3.118](doc120-preparacion-repositorio-plan-20261120.md): recorrido de repositorio compilado, 16 guardas/comprobaciones internas sin conexión y 2/2 pruebas Node envolventes. Casos reales de partes, sellado, confirmación y rollback sin ejecutar. Recursos/topes propuestos y datos faltantes explícitos; sin aprobación de laboratorio o replay de ventanas anteriores. Se mantienen 259/270 y once abiertas; el resultado local no sustituye carrera/rollback MySQL.
+
 ## Continuación local del gobierno — 2026-11-20
 
 [Resultado y pendientes](doc120-continuacion-gobierno-20261120.md): 32 casos locales de preparación/control final/árbol y 59 de gobierno, 91 únicos. Reproducción del falso positivo 10/11; focal 19/19 incluida en la selección final, sin sumarla. Orígenes de 39 tareas normalizados y control de plantillas corregido con sus rechazos conservados. OpenSpec estricto PASS; gobierno integral conserva tareas/revisión/aceptación abiertas. Cero acceso real o efectos; 259/270, once tareas abiertas, sin archivo/cierre global.
