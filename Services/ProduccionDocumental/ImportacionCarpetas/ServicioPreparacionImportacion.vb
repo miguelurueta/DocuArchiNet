@@ -54,7 +54,7 @@ Public Class ServicioPreparacionImportacion
 
     'Calculo sin persistencia ni efectos. Las coincidencias se consultan en el
     'origen documental, nunca mediante una comparacion por nombre de carpeta.
-    Public Function CalcularPlan(solicitud As PrepararPlanImportacionSolicitud) As PlanImportacionCarpetas
+    Public Function CalcularPlan(solicitud As PrepararPlanImportacionSolicitud, Optional esquemaDoc As UShort = 1US) As PlanImportacionCarpetas
         If solicitud Is Nothing OrElse Not ValidadorPerfilImportacion.ReferenciaValida(solicitud.nivelRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(solicitud.versionId) OrElse
             solicitud.raices Is Nothing OrElse solicitud.archivos Is Nothing OrElse solicitud.raices.Any(Function(r) r Is Nothing) OrElse solicitud.archivos.Any(Function(a) a Is Nothing) Then Throw New PerfilImportacionException("SOLICITUD_INVALIDA", "El inventario y sus referencias son obligatorios.")
         Dim contexto = _destino(solicitud.nivelRef)
@@ -63,7 +63,7 @@ Public Class ServicioPreparacionImportacion
         _esquema()
         Dim manifiesto = CanonizadorManifiestoImportacion.Canonizar(New ManifiestoImportacionCarpetas With {
             .Raices = solicitud.raices.Select(Function(r) New RaizManifiestoImportacion With {.SeleccionId = r.seleccionId, .IdCliente = r.idCliente, .Nombre = r.nombre}).ToList(),
-            .Archivos = solicitud.archivos.Select(Function(a) New ArchivoManifiestoImportacion With {.IdCliente = a.idCliente, .RaizIdCliente = a.raizIdCliente, .Nombre = a.nombre, .RutaRelativa = a.rutaRelativa, .Bytes = a.bytes, .UltimaModificacionLocal = a.ultimaModificacionLocal}).ToList()}, _limites)
+            .Archivos = solicitud.archivos.Select(Function(a) New ArchivoManifiestoImportacion With {.IdCliente = a.idCliente, .RaizIdCliente = a.raizIdCliente, .Nombre = a.nombre, .RutaRelativa = a.rutaRelativa, .Bytes = a.bytes, .UltimaModificacionLocal = a.ultimaModificacionLocal}).ToList()}, _limites, esquemaDoc)
         Dim snapshot = _perfiles.Seleccionar(contexto, solicitud.versionId)
         Dim errores = New ValidadorPerfilImportacion().Validar(snapshot.Configuracion, snapshot.Reglas, True)
         If errores.Count <> 0 Then Throw New ConfiguracionPerfilImportacionException(errores)
@@ -86,18 +86,7 @@ Public Class ServicioPreparacionImportacion
             resultadosArchivo.Add(archivo.RaizIdCliente & ":" & archivo.IdCliente, documentosResueltos(indice))
         Next
         For Each raiz In manifiesto.Raices
-            Dim ejemplo As New EjemploPerfilImportacion With {.NombreCarpeta = raiz.Nombre, .Expediente = New Dictionary(Of String, String)(clasificacion, StringComparer.Ordinal)}
-            Dim resuelto = _resolvedor.ResolverOperativo(contexto, reglasRaiz, New List(Of EjemploPerfilImportacion) From {ejemplo})(0)
-            Dim elemento As New ValoresElementoImportacion With {.Ambito = "RAIZ", .RaizIdCliente = raiz.IdCliente, .Valores = resuelto.Valores}
-            resultado.Elementos.Add(elemento)
-            AgregarIncidencias(resultado, elemento, resuelto.Incidencias)
-            For Each valor In elemento.Valores.Where(Function(v) v.DestinoRef = "CODIGO" AndAlso v.Valor IsNot Nothing AndAlso v.Valor.Length > 45)
-                AgregarIncidencias(resultado, elemento, New List(Of IncidenciaPerfilImportacion) From {New IncidenciaPerfilImportacion("CAMPO_EXPEDIENTE:CODIGO", "LONGITUD_CODIGO_EXCEDIDA", "El código de expediente admite hasta 45 caracteres en este recorrido.")})
-            Next
-            For Each valor In elemento.Valores.Where(Function(v) v.DestinoRef = "NOMBRE" AndAlso v.Valor IsNot Nothing AndAlso v.Valor.Length > 120)
-                AgregarIncidencias(resultado, elemento, New List(Of IncidenciaPerfilImportacion) From {New IncidenciaPerfilImportacion("CAMPO_EXPEDIENTE:NOMBRE", "LONGITUD_NOMBRE_EXCEDIDA", "El nombre visible de expediente admite hasta 120 caracteres en este recorrido.")})
-            Next
-            AgregarIncidencias(resultado, elemento, _catalogos.ValidarValoresOperativos(contexto, snapshot.Configuracion, elemento.Valores))
+            ResolverRaiz(contexto, snapshot, clasificacion, raiz, resultado)
             'Solo clasificacion conocida en preflight. Las propiedades del futuro
             'expediente conservan su dependencia tipada, sin fabricar un ID.
             For Each archivo In manifiesto.Archivos.Where(Function(a) a.RaizIdCliente = raiz.IdCliente)
@@ -124,8 +113,58 @@ Public Class ServicioPreparacionImportacion
             resultado.Incidencias.Add(New IncidenciaImportacionCarpetas With {.Ambito = "GLOBAL", .Campo = "coincidencias", .Codigo = ex.Codigo, .Mensaje = "No se pudo comprobar la comparación o las coincidencias del origen documental.", .BloqueaUnidad = True})
         End Try
         EvaluarElegibilidad(manifiesto, snapshot.Configuracion, resultado)
-        Return New PlanImportacionCarpetas With {.Contexto = contexto, .Snapshot = snapshot, .Manifiesto = manifiesto, .Resultado = resultado, .EsquemaDoc = 1US, .Estado = If(resultado.PuedeConfirmar, "REVISABLE", "BLOQUEADO")}
+        Return New PlanImportacionCarpetas With {.Contexto = contexto, .Snapshot = snapshot, .Manifiesto = manifiesto, .Resultado = resultado, .EsquemaDoc = esquemaDoc, .Estado = If(resultado.PuedeConfirmar, "REVISABLE", "BLOQUEADO")}
     End Function
+
+    Private Sub ResolverRaiz(contexto As ContextoImportacionCarpetas, snapshot As SnapshotPerfilImportacionOperativa, clasificacion As Dictionary(Of String, String), raiz As RaizManifiestoImportacion, resultado As ResultadoPreparacionImportacion)
+        Dim reglasRaiz = snapshot.Reglas.Where(Function(r) r.DestinoTipo = "CAMPO_EXPEDIENTE").ToList()
+            Dim ejemplo As New EjemploPerfilImportacion With {.NombreCarpeta = raiz.Nombre, .Expediente = New Dictionary(Of String, String)(clasificacion, StringComparer.Ordinal)}
+            Dim resuelto = _resolvedor.ResolverOperativo(contexto, reglasRaiz, New List(Of EjemploPerfilImportacion) From {ejemplo})(0)
+            Dim elemento As New ValoresElementoImportacion With {.Ambito = "RAIZ", .RaizIdCliente = raiz.IdCliente, .Valores = resuelto.Valores}
+            resultado.Elementos.Add(elemento)
+            AgregarIncidencias(resultado, elemento, resuelto.Incidencias)
+            For Each valor In elemento.Valores.Where(Function(v) v.DestinoRef = "CODIGO" AndAlso v.Valor IsNot Nothing AndAlso v.Valor.Length > 45)
+                AgregarIncidencias(resultado, elemento, New List(Of IncidenciaPerfilImportacion) From {New IncidenciaPerfilImportacion("CAMPO_EXPEDIENTE:CODIGO", "LONGITUD_CODIGO_EXCEDIDA", "El código de expediente admite hasta 45 caracteres en este recorrido.")})
+            Next
+            For Each valor In elemento.Valores.Where(Function(v) v.DestinoRef = "NOMBRE" AndAlso v.Valor IsNot Nothing AndAlso v.Valor.Length > 120)
+                AgregarIncidencias(resultado, elemento, New List(Of IncidenciaPerfilImportacion) From {New IncidenciaPerfilImportacion("CAMPO_EXPEDIENTE:NOMBRE", "LONGITUD_NOMBRE_EXCEDIDA", "El nombre visible de expediente admite hasta 120 caracteres en este recorrido.")})
+            Next
+            AgregarIncidencias(resultado, elemento, _catalogos.ValidarValoresOperativos(contexto, snapshot.Configuracion, elemento.Valores))
+    End Sub
+
+    Friend Function CalcularRaicesSegmentadas(solicitud As PrepararPlanImportacionSolicitud) As PlanImportacionCarpetas
+        If solicitud Is Nothing OrElse solicitud.raices Is Nothing OrElse solicitud.raices.Count = 0 OrElse solicitud.raices.Any(Function(r) r Is Nothing OrElse String.IsNullOrWhiteSpace(r.nombre) OrElse Not System.Text.RegularExpressions.Regex.IsMatch(If(r.idCliente, ""), "\A[A-Za-z0-9_-]{1,64}\z") OrElse Not System.Text.RegularExpressions.Regex.IsMatch(If(r.seleccionId, ""), "\A[A-Za-z0-9_-]{1,64}\z")) Then Throw New PerfilImportacionException("SOLICITUD_INVALIDA", "Las raices de preparacion no son validas.")
+        Dim contexto = _destino(solicitud.nivelRef)
+        If contexto Is Nothing OrElse contexto.NivelRef <> solicitud.nivelRef Then Throw New PerfilImportacionException("ACCESO_DENEGADO", "El destino no esta disponible.")
+        If _catalogos Is Nothing OrElse _resolvedor Is Nothing Then Throw New PerfilImportacionException("CAPACIDAD_NO_DISPONIBLE", "La resolucion operativa no esta disponible.")
+        _esquema()
+        Dim snapshot = _perfiles.Seleccionar(contexto, solicitud.versionId)
+        Dim errores = New ValidadorPerfilImportacion().Validar(snapshot.Configuracion, snapshot.Reglas, True)
+        If errores.Count <> 0 Then Throw New ConfiguracionPerfilImportacionException(errores)
+        Dim clasificacion = _catalogos.ClasificacionOperativa(contexto, snapshot.Configuracion)
+        If clasificacion Is Nothing Then Throw New PerfilImportacionException("CAPACIDAD_NO_DISPONIBLE", "La clasificacion no esta disponible.")
+        Dim plan As New PlanImportacionCarpetas With {.Contexto = contexto, .Snapshot = snapshot, .EsquemaDoc = 2US, .Manifiesto = New ManifiestoImportacionCarpetas(), .Resultado = New ResultadoPreparacionImportacion(), .Estado = "BLOQUEADO"}
+        For Each r In solicitud.raices
+            Dim raiz As New RaizManifiestoImportacion With {.IdCliente = r.idCliente, .SeleccionId = r.seleccionId, .Nombre = r.nombre}
+            plan.Manifiesto.Raices.Add(raiz)
+            ResolverRaiz(contexto, snapshot, clasificacion, raiz, plan.Resultado)
+        Next
+        plan.Resultado.Incidencias.AddRange(_coincidencias(contexto, snapshot, plan.Manifiesto, plan.Resultado))
+        Return plan
+    End Function
+
+    Friend Function SelloClasificacion(contexto As ContextoImportacionCarpetas, snapshot As SnapshotPerfilImportacionOperativa) As String
+        Dim lecturas = TryCast(_catalogos, ICatalogosLecturaPreparacion)
+        If lecturas IsNot Nothing Then Return lecturas.SelloLecturasPreparacion(contexto, snapshot)
+        Dim clasificacion = _catalogos.ClasificacionOperativa(contexto, snapshot.Configuracion)
+        If clasificacion Is Nothing Then Throw New PerfilImportacionException("CAPACIDAD_NO_DISPONIBLE", "La clasificacion no esta disponible.")
+        Return PlanSegmentadoImportacionJson.HuellaTexto(PerfilImportacionJson.Escribir(New With {.perfil = snapshot.Huella, .clasificacion = clasificacion}))
+    End Function
+
+    Friend Sub IniciarLecturasPreparacion(contexto As ContextoImportacionCarpetas, snapshot As SnapshotPerfilImportacionOperativa)
+        Dim lecturas = TryCast(_catalogos, ICatalogosLecturaPreparacion)
+        If lecturas IsNot Nothing Then lecturas.IniciarLecturasPreparacion(contexto, snapshot)
+    End Sub
 
     Public Function Preparar(solicitud As PrepararPlanImportacionSolicitud) As PreparacionImportacionResultado
         If _guardar Is Nothing Then Throw New PerfilImportacionException("CAPACIDAD_NO_DISPONIBLE", "La persistencia del plan no está disponible.")

@@ -48,6 +48,7 @@ Public NotInheritable Partial Class AlmacenStagingImportacion
             bloqueo = New FileStream(rutaBloqueo, FileMode.Open, FileAccess.Read, FileShare.None)
             ExigirRutaHandleV2(bloqueo.SafeFileHandle, rutaBloqueo)
             ExigirSinEnlaces(original)
+            MedicionAlmacenamientoImportacion.Contar("original_open", 1UL)
             entrada = New FileStream(original, FileMode.Open, FileAccess.Read, If(esperado Is Nothing, FileShare.Read, FileShare.None), 4096, FileOptions.SequentialScan)
             ExigirRutaHandleV2(entrada.SafeFileHandle, original)
             Dim informacion = InformacionV2(entrada.SafeFileHandle, False)
@@ -128,6 +129,12 @@ Public NotInheritable Partial Class AlmacenStagingImportacion
             End SyncLock
         End Sub
         Private Sub Comprobar()
+            MedicionAlmacenamientoImportacion.MedirParte("v2_hash", Function()
+                                                                      ComprobarMedido()
+                                                                      Return True
+                                                                  End Function)
+        End Sub
+        Private Sub ComprobarMedido()
             If _entrada Is Nothing OrElse _directorios Is Nothing Then Throw Conflicto()
             Try
                 For Each handle In _directorios

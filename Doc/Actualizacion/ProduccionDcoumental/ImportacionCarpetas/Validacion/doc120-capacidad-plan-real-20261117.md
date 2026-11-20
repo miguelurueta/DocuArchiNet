@@ -1,0 +1,45 @@
+# DOC-120 — ventana propuesta de 1.000 PDF y continuación
+
+Ampliación documental2026-11-17: [espera y reanudación general](doc120-reanudacion-plan-real-20261117.md) propone una ventana separada de un control/un documento del lote existente. No amplía los efectos ni autorizaciones de este plan; no se ejecutó.
+
+Corrección técnica posterior2026-11-17: retorno recomendado `beae0afc`, que conserva el detector y corrige la relectura de planes2 con reglas en orden de publicación. DLL actualizada;0 SELECT/efectos y1 comprobación JSON anónima en ese corte. [Pruebas y límites](doc120-lectura-plan-sellado-20261117.md). Sustituye `af1ff073` como recomendación; no aprueba la importación ni requiere SQL adicional.
+
+Actualización técnica2026-11-17: el usuario ya aplicó SQL08;10 SELECT validaron el esquema y se desplegaron DLL/PDB, con denegación anónima JSON comprobada. No repetir DDL/despliegue por este plan. El mínimo de retorno es ahora `af1ff073`, sustituyendo `d5bae464` por su defecto del detector real de índices. [Evidencia](doc120-despliegue-esquema-20261117.md). La ventana de importación siguiente permanece **NO AUTORIZADA NI EJECUTADA**; sus efectos/topes no se aprobaron al continuar la preparación técnica.
+
+Estado: **PREPARADA, NO AUTORIZADA NI EJECUTADA**. La aprobación del contrato08 permite implementar y probar localmente; no permite aplicar el SQL08, reemplazar la DLL de IIS ni crear estos documentos. Esta ventana sustituiría únicamente la prueba de capacidad propuesta; conserva las evidencias y consumos de ventanas anteriores. Tareas3.125/3.126/3.127 y5.2.
+
+## Parámetros para aprobación
+
+| Recurso | Alcance propuesto |
+| --- | --- |
+| Ambiente | `https://localhost/GestionDocumental-Docuarchi.net/`, exclusivamente pruebas. Comparar fuentes servidas y DLL con la entrega; detener si no coinciden. |
+| Preparación del ambiente | Aplicar una sola vez el script aditivo `Sql/08-preparacion-segmentada-mysql51.sql`, únicamente en RA de pruebas y después de verificar tablas/índices/FK existentes. Instalar primero los lectores compatibles del commit `d5bae464`, después la entrega de interfaz. Estas dos operaciones requieren autorización expresa aparte de la carga y una copia de retorno verificable. No ejecutar el script si alguna tabla existe con definición distinta. |
+| Cuentas | Propietaria de pruebas que el operador identifique en consola; segunda cuenta `carolina.cruz` solo si sigue disponible y autorizada para comprobar privacidad. Contrastar referencias actuales, sin activar ni modificar cuentas o permisos. MySQL exclusivamente SELECT para controles RA/DA, efímero y sin guardar DSN/clave. |
+| Clasificación | Destino de pruebas `PRUEBA-IMPORT`, gabinete `CONTABIL`, perfil publicado `Egresos`. Resolver y fijar IDs actuales de empresa/área/nivel/perfil/versión/gabinete en el preflight autorizado; no inferirlos de otro lote ni modificar el perfil. Revisar tipología/índices previstos antes de confirmar. |
+| Corpus cerrado | `D:\Pruebas\Importador\Egresos_20261113_092045_39126bb4\06_Prueba_1000_PDF_20261115T190317Z_d06aba\EGRPRUEBA_00004523_20060120`: exactamente1.000 PDF y44.859.102 bytes. Cotejar el manifiesto local existente y las huellas de cada archivo, sin regenerar, renombrar ni alterar fechas. Registrar la huella del manifiesto en la ejecución. |
+| Efectos máximos | Una preparación, un plan sellado, una confirmación y un lote nuevo;1.000 recepciones,1 expediente/relación,1.000 materializaciones de valores y1.000 documentos almacenados. Una raíz representa un expediente. Sin reutilización de expedientes previos ni adición de inventario después de confirmar. |
+| Topes globales |9.000 solicitudes HTTP intentadas,100 SELECT de control intentados y2 sesiones de aplicación: propietaria y privacidad. Incluyen descubrimiento, login, errores, recarga y comprobación final, sin reinicio de consumo. Los SELECT internos de aplicación se miden por separado y no se presentan como las100 consultas de control. |
+| Bytes/disco | Recepción acumulada de PDF <=44.859.102 bytes; no retransmitir archivos confirmados. Propuesta para aprobar: al menos2GiB libres en staging y almacenamiento, crecimiento combinado observado <=512MiB. Medir PDF, derivados y transporte por separado; no atribuir a PDF el crecimiento completo. Si no se pueden medir los destinos, no iniciar almacenamiento. |
+| Tiempo/memoria | Propuesta para aprobar: ventana total <=45min; incremento observado de heap del navegador <=256MiB y de memoria privada del proceso IIS <=512MiB respecto al preflight. Registrar muestreo y procesos; no confundirlos con picos exactos. Estos umbrales son propuestas para el ambiente, no resultados medidos ni garantías. Si no pueden instrumentarse, redefinir el criterio antes de ejecutar INT-03. |
+| Interrupción permitida | Pausa ordinaria por interfaz durante recepción después de al menos un acuse y antes del último archivo; esperar solicitud activa, registrar el conteo confirmado, cerrar y recargar. No exigir un corte exacto que fuerce abortar una solicitud. Sin desconexión forzada, concurrencia, inyección de fallos, revocación o parada de procesos. |
+| Retención | Conservar datos y evidencia saneada en ubicaciones locales excluidas de Git. Sin borrado, limpieza, jobs, SII, cambios manuales de estado, liberación de reservas ni ajustes globales de Web.config. |
+
+## Secuencia y evidencias
+
+1. Crear runId nuevo; verificar ambiente, artefactos compatibles, tablas/índices, cuentas/autoridad vigente, perfil/clasificación, corpus y espacio. Leer solo metadatos/catálogos y recursos de esta ventana; si un índice físico impide el código repetido, detener sin quitarlo.
+2. Seleccionar la carpeta completa una vez y preparar revisión. Comprobar segmentos <=100 entradas y <=65.536 caracteres del sobre; una revisión con1.000 documentos, totales globales, incidencias paginadas y ningún envío PDF antes de confirmar. Si no es elegible, detener antes de efectos.
+3. Pulsar **Confirmar e importar** una vez. Verificar un único lote y máximo una mutación activa. Pausar en el punto permitido, dejar terminar la solicitud en curso y guardar referencias/conteos por SELECT. La consulta/CSV no continúa la cola.
+4. Cerrar y recargar manteniendo la sesión propietaria; consultar el mismo lote. Elegir su raíz y **Vincular carpeta de originales**. Debe asociar únicamente pendientes por ruta/nombre/tamaño/fecha; los recibidos se omiten. No enviar al vincular. Pulsar **Continuar importación** y terminar ese mismo lote, sin otra confirmación.
+5. Comprobar filtros, segunda página, filtro vacío y CSV de la página filtrada. El árbol muestra la relación confirmada con etiqueta del código y navegación por ID. Controles SELECT confirman1 expediente,1.000 documentos, identidades y pertenencia, sin recepciones ni escrituras duplicadas.
+6. La segunda cuenta debe recibir denegación neutra al consultar/exportar el lote y sus recursos, borrador y revisión por IDs conocidos. Un fallo de login no demuestra privacidad. Comparar controles antes/después de esta parte de solo lectura.
+7. Registrar HTTP/SELECT/sesiones/bytes, fases y tiempos, tamaños de sobres, memoria/DOM, disco y consultas internas observadas. Separar aceptación funcional, capacidad INT-03 y continuación real. No convertir resultados sintéticos en resultados de esta ventana.
+
+Reutilizar `tests/support/authenticated-workflow-session.cjs`, `queryRows`, guardias y controles de los runners existentes de importación. El ejecutor DOC119 de lectura/preparación no autoriza almacenamiento y su allowlist antigua no admite las siete operaciones nuevas: debe adaptarse y revisarse antes de ejecutar esta ventana. La secuencia manual en el módulo tampoco elude el registro y los topes. No lanzar un runner antiguo como sustituto ni capturar HAR/cuerpos/cookies.
+
+## Parada, retorno y pendientes
+
+Primer error, autoridad/configuración cambiante, acuse incierto, diferencia de inventario/huella, duplicación, presupuesto o umbral excedido: **STOPPED**, conservar referencias/consumo y eliminar secretos. Cero repetición automática; una consulta explícita de resultado incierto consume el mismo presupuesto. La continuación de una ventana detenida necesita instrucción expresa y conserva el consumo anterior.
+
+El retorno soportado vuelve a los lectores compatibles `d5bae464` y conserva las tablas/datos de esquema2. No regresar al binario anterior a ese commit mientras existan planes2 que gestionar. El ensayo local B→A→B cubre lectura/huellas en archivos sintéticos; no acredita transacciones, DDL ni retorno de negocio real. La validación de rollback transaccional3.118 requiere un plan de laboratorio separado: esta ventana no autoriza inyectar ese fallo.
+
+La autorización debe confirmar expresamente ambiente, cuentas/recursos anteriores, aplicación del SQL/despliegue si se solicitan y los efectos/topes/recuperación. [Runbook](../../../../../tools/e2e/AGENT-RUNBOOK.md): «Ejecutar solo contra un ambiente de pruebas autorizado; nunca inferir autorización para producción». Preparar este documento no satisface5.2.

@@ -1,0 +1,179 @@
+{
+  "change": "DOC-120",
+  "date": "2026-11-16",
+  "baseCommit": "721883254f1b2c3c0f729ef83d3764a7608d9f62",
+  "branch": "feature/DOC-120",
+  "status": "PASS_LOCAL",
+  "tasks": {
+    "complete": 110,
+    "total": 116,
+    "completed": [
+      "3.95",
+      "3.96"
+    ],
+    "pending": [
+      "3.86",
+      "3.87",
+      "5.2",
+      "6.4",
+      "6.5",
+      "6.6"
+    ],
+    "scenarios": 41
+  },
+  "behavior": {
+    "code": "REVISION_TAMANO_EXCEDIDO",
+    "localPreflight": "Solo PrepararPlan, cuerpo serializado mayor que hint numérico; cero XHR/POST y certeza local de no envío.",
+    "hint": "Mínimo de configuración efectiva ASMX y262144, expuesto por el host; requiere DLL actualizada en IIS.",
+    "legacySignal": "HTTP413 o error ASMX HTTP5xx/tipo cerrado/maxJsonLength/longitud excedida reconocidos; no se publica texto interno.",
+    "unknownResponse": "No se atribuye a tamaño por contar PDF o por HTTP500; conserva incertidumbre y selección/perfil.",
+    "permission": "HTTP401/403 neutros incluso sin sobre; transporte cerrado."
+  },
+  "tests": {
+    "unique": 122,
+    "pass": 122,
+    "fail": 0,
+    "new": 10,
+    "frameworkWrappersIncluded": 2,
+    "internalCasesAdded": 0,
+    "focalRerunsAdded": 0,
+    "log": {
+      "path": ".tmp/doc120-mensaje-tamano-regresion-final.log",
+      "sha256": "6496ad3498bf81e31f5dccefecd6fc74a97a49ea428bde3a56a21d00ef044900"
+    },
+    "overlappingFocal": {
+      "count": 10,
+      "log": {
+        "path": ".tmp/doc120-mensaje-tamano-focal-final.log",
+        "sha256": "cc5bd01774346670d8f2ae907c397ffd4704df95087b11b19c1f8f7ddc36067b"
+      }
+    },
+    "applicationHttp": 0,
+    "authenticatedSessions": 0,
+    "businessSelect": 0,
+    "realEffects": 0
+  },
+  "build": {
+    "status": "PASS",
+    "target": "Compile",
+    "directory": ".tmp/doc120-mensaje-tamano-build",
+    "log": {
+      "path": ".tmp/doc120-mensaje-tamano-build/output.log",
+      "sha256": "fce859d15c62571ff516905cbb0c4388f522e2937b5e5da758748656f5b70624"
+    },
+    "errors": 0,
+    "iisActivated": false
+  },
+  "validation": {
+    "strict": "PASS",
+    "log": {
+      "path": ".tmp/doc120-mensaje-tamano-openspec-final.log",
+      "sha256": "5a4bc14e8e14e3e419b4d762db239fd691b6bba109cab90a539bd8dc86577c2f"
+    },
+    "diff": "PASS",
+    "protectedPaths": [
+      "Web.config",
+      "Integracionccv/",
+      "js/gestion/ImportacionCarpetas/InventarioImportacion.js",
+      "Services/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionJson.vb",
+      "Services/ProduccionDocumental/ImportacionCarpetas/ServicioPreparacionImportacion.vb",
+      "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.vb",
+      "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.vb"
+    ]
+  },
+  "captures": [
+    {
+      "path": ".tmp/doc120-preparacion-tamano/tamano-390.png",
+      "sha256": "3912a2bb4a28664f9b3507a37731d10cfefcf9397de5791775736f406aa2e86c"
+    },
+    {
+      "path": ".tmp/doc120-preparacion-tamano/tamano-768.png",
+      "sha256": "821ff9cb8ba75da838272f60dcb4ef98193be6da172bc2c64d74c0536e0629dc"
+    },
+    {
+      "path": ".tmp/doc120-preparacion-tamano/tamano-1280.png",
+      "sha256": "8d775992d0f9c3ef587272d93cf6ee2e5d3cdcb47bcb5685780f0860c5b87dab"
+    }
+  ],
+  "catalogCodes": 153,
+  "offlineAntecedent": {
+    "requestCharacters": 172409,
+    "defaultAsmxLimit": 102400,
+    "defaultParserRejected": true,
+    "requestArtifact": {
+      "path": ".tmp/doc120-video-20261116-123321/solicitud-1000.json",
+      "sha256": "91b3099cfcf97b9a861c56a24c6917f116b73a9d5b1d185c6809389dd7b28f47"
+    },
+    "effectiveIisConfigObserved": false,
+    "actualVideoHttpResponseObserved": false
+  },
+  "limitations": [
+    "Sin despliegue o activación IIS; el preflight necesita servir el host de la DLL actualizada.",
+    "La respuesta HTTP exacta del video no se observó; no se declara retrospectivamente su causa.",
+    "El límite JSON del resultado y las relecturas de la coordinación siguen vigentes; no se promete capacidad de1.000 documentos.",
+    "No se ampliaron límites ni se cambiaron inventarios, permisos, perfiles, esquema o almacenamiento.",
+    "Sin nueva autenticación, SQL o efectos reales."
+  ],
+  "sources": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/11-prompt-seguimiento-operacion.md",
+      "sha256Lf": "c0878912447edc46fab7995825a41589078337c524e34f86deb55dfa1cef6944"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-mensaje-tamano-20261116.md",
+      "sha256Lf": "a5fca4c42c79449599c91ed73d56e23dbf2364a1f7d65ea5cce569cf8058789f"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/matriz-verificacion.md",
+      "sha256Lf": "b95f0f037365046653029d8f2f458a0e6d32e68201a618ba4b9ff380084c5a89"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/resultados.md",
+      "sha256Lf": "b3258c9d1acab5e002b1ca70c21f20afa01a273879b65eb8a64ab3e79c6a855c"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Lf": "a6666b39ec3d46ce7ab4a2911e5412ea8f50d4028cfae4bf95e92ac946b87099"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx.vb",
+      "sha256Lf": "9d42908322769a7887fbbce5e4eca60e9e4f768cb2f8e2a35a379d481b14406e"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioPerfilImportacion.vb",
+      "sha256Lf": "392425d505cbdb9a80b1fdd9332c2c96197c4121eb15e7d5206c600c55d1624f"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256Lf": "68afc25746f97c211c50b5a1c484a0a316a8834b452eec850db631cdfe706569"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js",
+      "sha256Lf": "71b5403747fac778f3b2939ea9a5984531395282a4799bbb0df5a5432bd6bd9c"
+    },
+    {
+      "path": "openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/design.md",
+      "sha256Lf": "7ef488d3484d1b79d8e8ffe4ed4b60e5aed9a43f2555aff0217017744fb35520"
+    },
+    {
+      "path": "openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/proposal.md",
+      "sha256Lf": "37e991c292dac3d4af56b8f7f3cb68faff7c2d903da973d78b4811e4a1a37638"
+    },
+    {
+      "path": "openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/refinement.md",
+      "sha256Lf": "74335af3caaad8b155d1beee5f379f6ae34ba53f281cc6835291e0e8294e2047"
+    },
+    {
+      "path": "openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/specs/produccion-importacion-carga-carpeta-verificacion/spec.md",
+      "sha256Lf": "f9f6a520759e33b45e5c93f93e98a550dcf55a79bafed91bc11060d2a7aa7eac"
+    },
+    {
+      "path": "openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/tasks.md",
+      "sha256Lf": "0d05973747eb2d8906b20e25e8f68e621e5076d29de5ac3b2555e2164d6b4656"
+    },
+    {
+      "path": "tests/doc120-preparacion-tamano.test.cjs",
+      "sha256Lf": "9171053ccb6626f5b16ac4f46290e50bfc402afa69a02ce25ba1ef769ef96050"
+    }
+  ]
+}

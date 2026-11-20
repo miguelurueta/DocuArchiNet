@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-19",
+  "baseCommit": "18cba51344ca656e3242111f272aa3e5855076a6",
+  "task": "3.242",
+  "scenario": "QUERY-REFRESH01",
+  "realReadWindow": {
+    "runId": "97c9d4c32bac45bf88defe391a3dabca",
+    "status": "STOPPED",
+    "failure": "DOC119_STOPPED",
+    "lotId": "52",
+    "usage": {
+      "SEG-01": {
+        "http": 192,
+        "select": 10,
+        "sessions": 1
+      }
+    },
+    "closed": true,
+    "credentialsCleared": true,
+    "stateSha256": "ae91847623089a61acc3eb80ec84459353c0f6b4e318548a46596bb5a6c5b04a",
+    "preflight": {
+      "stage": "SEG-01",
+      "lotId": "52",
+      "originalFiles": 1000,
+      "originalRoots": 1,
+      "fingerprint": "1b3b78ae17b5c0b2ece72a0b15c79f7cc2099f0b106e599cca10e42845199948"
+    },
+    "results": {
+      "SEG-02": {
+        "status": "NOT_EXECUTED_RESOURCE_NOT_SELECTED"
+      }
+    },
+    "businessWriteEndpointsDispatched": 0,
+    "afterFingerprintVerified": false
+  },
+  "diagnosis": {
+    "reproducedDefect": "With only completed files on current page and pending files outside it, statusButton is promoted into old footer then removed by coordinated footer replacement.",
+    "runnerExpectation": "consult waits up to30 seconds for Actualizar estado after lot/resource responses.",
+    "evidenceLimit": "Real runner retained generic DOC119_STOPPED without raw exception. UI defect reproduced locally and visible missing refresh in video214029; exact raw real exception is not retained.",
+    "correction": "Return the existing refresh control to query-control before replacing footer. Preserve main Continue and readonly handler.",
+    "newDiagnostic": "DOC119_RESULT_CONTROL_NOT_READY"
+  },
+  "sources": [
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256": "7d3c24179a3d459ac7ec01e820f3c81c5adc7d09366579224778a9b9821092d5"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256": "b8b7d624b7521de5f07045b3b430a1b59bb361f85f055cb92df3e5cdec74ec71"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc119-seguimiento.cjs",
+      "sha256": "40822673adaecc0fb790ab5ede2ae10ed7ff3e80debc3f00b3b64d3a6e5ff510"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc119-seguimiento.cjs",
+      "sha256": "4ad70e00a15f152de087e022c85dbfe5ba7e841aed18113099efc6b056f9544e"
+    },
+    {
+      "path": "tests/doc120-auditoria-transiciones-browser.test.cjs",
+      "sha256": "c46dfd1b20dfa29d39ca875177016ffbf7514a31bc85a2765432595f82f61552"
+    },
+    {
+      "path": "tests/doc120-e2e-visible.test.cjs",
+      "sha256": "df89d050b3631df794e39436b2610efc3bda85f187b97a8cdc9d7a5e938a2c14"
+    },
+    {
+      "path": "tools/docs/generate-doc120-flow.cjs",
+      "sha256": "f9966f14c9748786139891b52aea8577546e29fbe9b3a0587f379ea5db3c77b1"
+    }
+  ],
+  "localEvidence": {
+    "red": {
+      "log": ".tmp/doc120-actualizar-consulta-rojo.log",
+      "tests": 1,
+      "pass": 0,
+      "fail": 1,
+      "sha256": "17eea5154bb412db6bbcd02cd3eec2307691a18b8e4ea4a4c496793afee73b40"
+    },
+    "focused": {
+      "log": ".tmp/doc120-actualizar-consulta-focal.log",
+      "tests": 44,
+      "pass": 44,
+      "fail": 0,
+      "sha256": "77d129ef3aa27e9f57658e50bcfb2ae9ff98a1e2bb02259ca81343f1f610520f"
+    },
+    "diagnostic": {
+      "log": ".tmp/doc120-actualizar-diagnostico.log",
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "overlapCases": 7,
+      "sha256": "ca922e2e9b91ed67ce833ec87242c07a51724f221ff6200f9ec14649d8a55d16"
+    },
+    "regression": {
+      "path": ".tmp/doc120-actualizar-consulta-regresion.log",
+      "sha256": "d0590635e75cd453f694a09c408703454518f7d195dd28888f98ca9a466818e4",
+      "tests": 224,
+      "pass": 223,
+      "fail": 1
+    },
+    "contextMenuFocused": {
+      "path": ".tmp/doc120-actualizar-contextual-focal.log",
+      "sha256": "6e0b3533624d73119b434a6189bae021ae46bf5500ea28ad8fee579f993ac002",
+      "tests": 4,
+      "pass": 4,
+      "fail": 0
+    },
+    "counting": "223 broad successes +1 previously failing contextual case passed unchanged in focused4/4 =224 distinct successful cases. Not a clean single224/224 run.",
+    "remainingConcern": "One intermittent keyboard opening timeout in unchanged jquery.contextMenu fixture;4/4 pass isolated without changes. Cause not certified; tracked in existing acceptance task6.4."
+  },
+  "assets": "doc120-consulta-visible-20261119-9",
+  "flow": {
+    "sources": 124,
+    "lines": 20226
+  },
+  "newRealRunAfterFix": false,
+  "dllChanged": false,
+  "schemaChanged": false,
+  "checks": {
+    "syntax": "PASS",
+    "openSpecStrict": "PASS",
+    "flowCurrent": "PASS",
+    "diffWhitespace": "PASS"
+  },
+  "progress": {
+    "complete": 251,
+    "total": 262,
+    "S": 45,
+    "M": 217,
+    "normativeScenarios": 108,
+    "previousPending": 11
+  }
+}

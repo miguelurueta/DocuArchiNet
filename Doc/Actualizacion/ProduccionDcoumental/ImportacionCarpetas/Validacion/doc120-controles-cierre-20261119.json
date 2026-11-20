@@ -1,0 +1,123 @@
+{
+  "scope": "LOCAL_CLIENT_CONTROLS_AND_GRACEFUL_VOLUNTARY_CLOSE",
+  "date": "2026-11-19",
+  "baseCommit": "557f8485447744858ded632b6f5f36c92f160053",
+  "tasks": [
+    "3.204",
+    "3.205",
+    "3.206",
+    "3.207",
+    "3.208",
+    "3.209",
+    "3.210",
+    "3.211"
+  ],
+  "decisions": [
+    "D-04/RQ-04",
+    "D-05/RQ-05",
+    "D-08/RQ-08",
+    "D-10/RQ-10"
+  ],
+  "scenarios": [
+    "CTL-01",
+    "CTL-02",
+    "CTL-03",
+    "CTL-04",
+    "CTL-05",
+    "CTL-06"
+  ],
+  "sources": [
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256": "53f7098e609df3efa83c8c1f62771f054603388233167b24247ed895fb350dd5"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256": "51b8452e53293fa28d77208dfe9c839d8f132d25e0f235ab658d5e7805ff66c7"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js",
+      "sha256": "56a0e3daa23df5d30b83dc32fee63dc5e453205a9357bd328fc970fa5e44d988"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256": "9c5e15a449b9f0e1be845a8176df0bd3305a5655780d153740bb75f39b4f525d"
+    },
+    {
+      "path": "tests/doc120-controles-cierre.test.cjs",
+      "sha256": "54a251c08c1354b1fde5493fccf49716c7fcb85c614c025716fd8949c078ec6a"
+    },
+    {
+      "path": "tests/doc120-controles-cierre-browser.test.cjs",
+      "sha256": "015e6cf184c9504e61197ed4e4640c2044516c990354f20463fed9b31f99f77a"
+    },
+    {
+      "path": "tools/docs/generate-doc120-flow.cjs",
+      "sha256": "847a39ec31347841c025a8ca52f2e92c37c5911f4c0c02e5e01f5052fea8387e"
+    }
+  ],
+  "verification": {
+    "newTests": 22,
+    "newBrowserTests": 17,
+    "newPolicyTransportTests": 5,
+    "uniqueCasesCovered": 142,
+    "broadRun": {
+      "tests": 142,
+      "passed": 141,
+      "failed": 1,
+      "logRelativePath": ".tmp/doc120-controles-regresion.log",
+      "sha256": "119ad9f82fda33cc6bd14d515428a7421bf2c537c1add08a9d74149529fccc67",
+      "failure": "FULL_RECEIPT_SUCCESS_MESSAGE_REGEX_CHANGED",
+      "resolution": "Preserve existing wording for complete receipt; confirmed-of-total only for partial paused queue."
+    },
+    "focusedAfterResolution": {
+      "tests": 8,
+      "passed": 8,
+      "failed": 0,
+      "evidence": "tool transcript, not another full run",
+      "command": "node --test --test-name-pattern=\"interfaz Chromium local|CTL-P|CTL-UI04|CTL-UI09\" tests/doc111-importacion-carpetas-client.test.cjs tests/doc120-controles-cierre.test.cjs tests/doc120-controles-cierre-browser.test.cjs"
+    },
+    "counting": "141 broad successes + corrected failed case; seven focused cases overlap. Not a new 142/142 run.",
+    "synthetic1000": {
+      "focalProtocol1And2": true,
+      "domAndMemoryBudgetsPassed": true,
+      "notRealCapacityEvidence": true
+    },
+    "syntax": true,
+    "flowSources": 124,
+    "flowLines": 20143,
+    "openspecStrict": true,
+    "diffCheck": true
+  },
+  "behavior": {
+    "voluntaryCloseWaitsCurrentAcknowledgement": true,
+    "noNextMutationDuringClose": true,
+    "onePendingNavigationIntent": true,
+    "manualQueuePausesAdmissionWithoutAbort": true,
+    "lostResponseKeepsReferenceAndWarning": true,
+    "segmentedPreparationWaitsCurrentPart": true,
+    "lateConfirmationDoesNotStartImport": true,
+    "forcedDisposalStillCancelsLocalWaits": true,
+    "manualSendOptionAccessible": true,
+    "mobileHelpAccessibleName": true,
+    "assetVersion": "doc120-controles-cierre-20261119-1"
+  },
+  "runtime": {
+    "realHttp": 0,
+    "realSelect": 0,
+    "realBusinessEffects": 0,
+    "dllChanged": false,
+    "schemaChanged": false,
+    "historicalQaRun": "5f7af8f5354a4fca5e2eb5c7a53b4b4d",
+    "historicalStateSha256": "c26e2686c9243fca52662b7afdf262b572c0e5929cdc28dbf5fa4eb01aaa64a0",
+    "historicalStatePreserved": true,
+    "historicalQaDoesNotCertifyNewClientClose": true
+  },
+  "remaining": [
+    "NEW_CLIENT_MANUAL_ACCEPTANCE",
+    "NATIVE_MYSQL_ROLLBACK_AND_REMAINING_RACES",
+    "FULL_SCOPED_CAPACITY_ACCEPTANCE",
+    "PUBLICATION_AND_ADMINISTRATIVE_CLOSE"
+  ],
+  "secretsRecorded": false
+}

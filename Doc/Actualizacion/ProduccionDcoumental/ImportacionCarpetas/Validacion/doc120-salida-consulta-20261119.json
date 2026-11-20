@@ -1,0 +1,155 @@
+{
+  "date": "2026-11-19",
+  "baseCommit": "06649ce0680bf184ce23e93ebf0bb962d56b29c7",
+  "tasks": [
+    "3.231",
+    "3.232",
+    "3.233",
+    "3.234"
+  ],
+  "scenarios": [
+    "CTX-EXIT01",
+    "CTX-EXIT02",
+    "CTX-EXIT03"
+  ],
+  "sources": [
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256": "205d2781369841a955b6b2863d114c34f3394b6aabb255e345892d1522ba4ca2"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256": "a0a9381bf814b7813e44b40f15b885ce5a7e7696fecff4688e33cc823a385fa4"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256": "8d301a5a83989525bc5489b2510803dd1fad8cd436b27c94b9be17c0530bce1c"
+    },
+    {
+      "path": "tests/doc120-salida-consulta-browser.test.cjs",
+      "sha256": "d2270e69d09e2b6096bda3084b8aa4004b9bd63ba672d1cccf3024dcbaac7645"
+    },
+    {
+      "path": "tools/docs/generate-doc120-flow.cjs",
+      "sha256": "d174fdf7a6eee28c3c60014b17c3a3f4727f0e6f4dc968557bfda9d934da0e44"
+    }
+  ],
+  "video": {
+    "name": "Grabación 2026-11-19 200257-cancelkar.mp4",
+    "sha256": "84d0e4f7e9fff182dd1e534481fde9c08f01da52a7e642d8d735d11437efca05",
+    "seconds": 22.73,
+    "observation": "Consulted lot52 resumed after local binding. Pause and exit closes without consent. Empty saved preparation was selected instead of current lot. Video does not show a successful cancellation or certify SQL state."
+  },
+  "verification": {
+    "newBrowserCases": 5,
+    "uniqueCasesVerified": 53,
+    "red": {
+      "tests": 2,
+      "passed": 0,
+      "failed": 2
+    },
+    "focused": {
+      "tests": 5,
+      "passed": 5,
+      "failed": 0
+    },
+    "regression": {
+      "tests": 53,
+      "passed": 53,
+      "failed": 0,
+      "suites": [
+        "doc120-salida-consulta-browser",
+        "doc120-controles-cierre-browser",
+        "doc120-revision-salida-browser",
+        "doc120-coordinacion-browser",
+        "doc120-mensajes-vigentes-browser"
+      ]
+    },
+    "wording": {
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "overlap": true
+    },
+    "logs": {
+      "red": {
+        "path": ".tmp/doc120-salida-consulta-rojo.log",
+        "sha256": "0d4ab75a42c4bb99be0f053100e0dbc3378ed523409d76a08aade068e6143717"
+      },
+      "focused": {
+        "path": ".tmp/doc120-salida-consulta-focal.log",
+        "sha256": "f12cb5a205b1a735721c55e787ce18f42681b2ab533a11c7d6591bf621254737"
+      },
+      "regression": {
+        "path": ".tmp/doc120-salida-consulta-regresion.log",
+        "sha256": "0068bb59ffc346d5ea3708f554cba773cac8389b4f99b69a8ce27020603af634"
+      },
+      "wording": {
+        "path": ".tmp/doc120-salida-consulta-texto.log",
+        "sha256": "f634da8ccb3e1e6c69551280710213811c197c9d8d09371d11d88b6e249ad6f9"
+      }
+    },
+    "viewports": [
+      "1280x900",
+      "768x600",
+      "390x600"
+    ],
+    "transport": "Synthetic XHR with real client/DOM/CSS; no authenticated or real business traffic."
+  },
+  "flow": {
+    "sources": 124,
+    "lines": 20221
+  },
+  "assets": "doc120-salida-consulta-20261119-7",
+  "realOperations": {
+    "http": 0,
+    "select": 0,
+    "sessions": 0,
+    "effects": 0
+  },
+  "dllCompiledOrReplaced": false,
+  "schemaChanged": false,
+  "historicalQa": {
+    "runId": "5f7af8f5354a4fca5e2eb5c7a53b4b4d",
+    "sha256": "c26e2686c9243fca52662b7afdf262b572c0e5929cdc28dbf5fa4eb01aaa64a0",
+    "unchanged": true,
+    "closed": true,
+    "notProofOfCurrentClient": true
+  },
+  "progress": {
+    "complete": 243,
+    "total": 254,
+    "complexity": {
+      "S": 42,
+      "M": 212,
+      "L": 0
+    },
+    "normativeScenarios": 103,
+    "previousPending": [
+      "3.87",
+      "3.118",
+      "3.126",
+      "3.127",
+      "3.130",
+      "3.131",
+      "3.187",
+      "5.2",
+      "6.4",
+      "6.5",
+      "6.6"
+    ]
+  },
+  "limits": [
+    "Current visual acceptance pending.",
+    "No real operation on lot52 or replay of closed QA windows.",
+    "No new database performance or full capacity certification."
+  ],
+  "checks": {
+    "javascriptSyntax": "PASS",
+    "openSpecStrict": "PASS",
+    "flowCurrent": "PASS",
+    "gitDiffWhitespace": "PASS",
+    "sourceHashes": "PASS",
+    "taskCountsAndPreviousPending": "PASS"
+  }
+}

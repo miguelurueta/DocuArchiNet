@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-17",
+  "baseCommit": "5b0f4850eb8629ff6b6a0af184d805f0be87f021",
+  "status": "PASS_LOCAL_DEPLOYMENT_AWAITING_APPROVAL",
+  "video": {
+    "filename": "Grabación 2026-11-17 170531-bloqueo.mp4",
+    "sha256": "ce2ecc8470ad8cabdc5955dd3cc38ce65b62a8105a5bf2e91b7e2fdec3c4e1ab",
+    "durationSeconds": 8.87,
+    "sampledFrames": ".tmp/doc120-video-bloqueo/frame-001.png, frame-002.png",
+    "finding": "BUTTON_DISABLED_WITHOUT_LOCAL_REFERENCE_NOT_CHANGED_BY_PROFILE",
+    "serverErrorObserved": false
+  },
+  "completedTasks": [
+    "3.159",
+    "3.160",
+    "3.161",
+    "3.162",
+    "3.163",
+    "3.164"
+  ],
+  "progress": {
+    "done": 173,
+    "total": 184,
+    "priorTasksPreserved": 178,
+    "pending": [
+      "3.86",
+      "3.87",
+      "3.118",
+      "3.126",
+      "3.127",
+      "3.130",
+      "3.131",
+      "5.2",
+      "6.4",
+      "6.5",
+      "6.6"
+    ]
+  },
+  "tests": [
+    {
+      "log": ".tmp/doc120-ultimo-node.log",
+      "tests": 68,
+      "pass": 68,
+      "fail": 0
+    },
+    {
+      "log": ".tmp/doc120-ultimo-framework.log",
+      "tests": 2,
+      "pass": 2,
+      "fail": 0
+    }
+  ],
+  "uniqueNodeTests": 70,
+  "internalCasesAddedToTotal": false,
+  "normativeScenarios": 65,
+  "build": {
+    "target": "Compile",
+    "exitCode": 0,
+    "log": ".tmp/doc120-ultimo-build.log",
+    "dll": ".tmp/doc120-ultimo-build/obj/GestionDocumental-Docuarchi.net.dll",
+    "sha256": "9a35cb3ed58cf60aa9e94db019b7820fa5e5123ad24f5eb02ee45768f5379a7d",
+    "pdbSha256": "ff4c9eac9879408cf832f781a36ff2d4c3b47b008c658e11fb178d0ef4389448",
+    "activeDllObservedSha256": "230391d329e6bab33b559dd04a4e7ad69fd1b403385a59e6805272d33443825f",
+    "activeDllProvenance": "NOT_ATTRIBUTED",
+    "deployedByThisCorrection": false
+  },
+  "clientVersion": "doc120-ultimo-20261117-1",
+  "boundaries": {
+    "realHttp": 0,
+    "realSelect": 0,
+    "authenticatedSessions": 0,
+    "businessMutations": 0,
+    "newTables": 0,
+    "newColumns": 0,
+    "iisLogRead": false,
+    "lot50Resumed": false
+  },
+  "sources": [
+    {
+      "path": "DTOs/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasDtos.vb",
+      "sha256LF": "a53e0acbc8fe25e5b652ee335bc3bdf15a5a7e442c5a1af541e1039c28c2b867"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256LF": "d21b79b38a24c9bc2bdc3d865939127c79114a0e0e542a756be41ad981a7531c"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consulta.vb",
+      "sha256LF": "9634decc545f41414cc15271def34caf1a3fb7f0ad5ff57833f0432baf5b9581"
+    },
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasInterfaces.vb",
+      "sha256LF": "18e6041923f5dab4e69d86c1161ba62107c1129e14d3879a5bebcf7d0811e8a1"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb",
+      "sha256LF": "69ce0b6cb4224c5940d735648058da3aab6ba5562f992cc4e608cf0982bf1eb9"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256LF": "a77232ea8d0221725f8e51b2521aeb7080428fe9429a63ffd2229abd471d8712"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js",
+      "sha256LF": "8bc3c2565b63afaedc5df424d9bad466bc8c04c57d518cba18c8d9637c05a12d"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256LF": "310a41d18e1cfa99b1d399b1a2a8db969808fc0d95a7d9f40cae9ae625246921"
+    },
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "sha256LF": "f4f3228bb96ceeec977a8e8b1db6b73c3920751379ac1b92963af318b029b657"
+    },
+    {
+      "path": "tests/ImportacionCarpetasUltimoLoteBehaviorTests.cs",
+      "sha256LF": "a2749c2cc93bc2fa67ac0ca5026f75434b488d6825be3b595e86db08caeb9469"
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-behavior.test.cjs",
+      "sha256LF": "11dd9b9b7d170864507dde80e7f593cfe29b31c805deb8600577d62d152accf1"
+    },
+    {
+      "path": "tests/doc111-importacion-carpetas-client.test.cjs",
+      "sha256LF": "6e90f2e6105b2268c16ebc7e151037a368d71ef2aa324e8c5924d79c7c034090"
+    },
+    {
+      "path": "tests/doc120-consultar-ultimo.test.cjs",
+      "sha256LF": "35f87a8506a53f15ee9b3955dc832604040015e5261c255261b0c75c061facd0"
+    },
+    {
+      "path": "webservice/WebServiceImportacionCarpetas.asmx.vb",
+      "sha256LF": "75385a8273a00e9743cd5eb01bf12b1e1133cc721aded3087b21cca93c3b96f9"
+    }
+  ]
+}

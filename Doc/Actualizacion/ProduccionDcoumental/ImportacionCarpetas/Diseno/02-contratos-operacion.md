@@ -1,5 +1,23 @@
 # Diseño 02 — Contratos de operación
 
+Ampliación aprobada2026-11-16: la continuación del usuario aprueba [contrato08](08-preparacion-segmentada-capacidad.md) para implementación local. Sus apartados de preparación segmentada, plan2 y lectura focal sustituyen únicamente las restricciones anteriores que impedían esos cambios; fases de recepción/efectos, compatibilidad y autoridad se conservan. Aplicación DDL/despliegue/prueba real no autorizados por esta aprobación.
+
+Propuesta pendiente2026-11-16: [preparación segmentada y lectura focal](08-preparacion-segmentada-capacidad.md), prerrequisito3.97 de DOC-120. Ese documento concreta contratos/persistencia nuevos para revisión; aún no sustituye las operaciones vigentes descritas a continuación.
+
+## Extensión vigente DOC-120 — 2026-11-15
+
+Las tareas3.72–3.92 y el diseño OpenSpec actualizan el consentimiento de interfaz: **Confirmar e importar** coordina las fases existentes después de recibir un lote confirmado. Cada endpoint sigue ejecutando una sola fase; las cláusulas posteriores de separación de operaciones conservan ese contrato del servidor y las acciones individuales avanzadas. No impiden la coordinación secuencial consentida desde el cliente.
+
+La coordinación enumera raíces y archivos sin filtros, comprueba revisión común entre páginas y relectura final, y fija ámbito e identidades del inventario. Cada siguiente efecto exige acuse válido y lectura compatible con los IDs/valores confirmados. Solo recibe pendientes vinculados al original correcto; creación usa la barrera publicada, índices y almacenamiento requieren padre confirmado. Nunca ejecuta automáticamente RETOMAR_CREACION o RECONCILIAR.
+
+Límites del cliente por continuación explícita:10000 recursos entre raíces y archivos,400 páginas por tipo/enumeración,10000 consultas y10000 efectos. La página interna tiene como máximo25 filas y respeta el máximo del servidor. Agotar un tope, cambiar revisión/ámbito, perder una respuesta o fallar una lectura detiene la cola. Son límites de interfaz, no cuotas del servidor ni medición INT-03. Una respuesta incierta permite una única lectura del resultado, sin repetir su operación.
+
+El consentimiento es efímero y se invalida al cerrar, destruir o cambiar de importación; no se persiste una cola ni hay trabajo en segundo plano. Pausar deja concluir la petición iniciada. Consultar/exportar/verificar no reinicia efectos. Continuar importación reconstruye los pendientes del mismo lote, conserva IDs confirmados y solicita únicamente originales faltantes. Ver acciones mantiene las fases individuales y Ver avance del lote devuelve al recorrido coordinado.
+
+El importador deja de consultar candidatos para imponer exclusividad de CODIGO_UNICO o rechazar raíces con el mismo código. Se conservan comprobaciones técnicas de tipo, longitud y representabilidad; permisos, snapshot, integridad e idempotencia siguen vigentes. Nuevas configuraciones usan PERMITIR; BLOQUEAR/REUTILIZAR_VALIDADO históricos permanecen legibles sin imponer bloqueo ni reutilización implícita. Los planes anteriores bloqueados requieren una nueva revisión. El delegado interno existente permite una futura evaluación explícita, todavía sin configuración operativa, endpoints o tablas nuevos.
+
+La identidad sigue siendo ID_EXPEDIENTE y la etiqueta usa el código. El esquema versionado observado contiene PRIMARY compuesto por ID_EXPEDIENTE y CODIGO_UNICO, compatible con repetir el código al cambiar el ID; no prueba el esquema actualmente servido. No se modifican índices, SII, limpieza, almacenamiento compartido ni permisos. [Evidencia y límites del corte](../Validacion/doc120-coordinacion-20261115.md).
+
 Estado vigente: revisión DOC-112 del 2026-11-02 del contrato ya implementado en WebForms/ASMX/ASHX. Secciones 1/2/5 y referencias vigentes siguientes prevalecen sobre cortes locales anteriores; estos conservan fecha y procedencia. La [matriz final DOC-111](../Validacion/doc111-matriz-final-20261102.md) delimita evidencia real/local/no ejecutada. Esta revisión no ejecuta el producto.
 
 ## 1. Transporte, autoridad y respuesta vigentes
@@ -420,3 +438,13 @@ Ambas respuestas usan RespuestaPerfilImportacion y EstadoHttp vigentes. El repos
 claveIntento identifica la solicitud de recepción; la identidad de contenido se prueba con bytes y SHA-256 del retenido. Reenvío íntegro de RECIBIDO devuelve evidencia previa; contenido distinto produce CONTENIDO_DISTINTO sin sustitución. Un intento RECHAZADO no se reutiliza ciegamente. Una incertidumbre sin contenido íntegro no habilita otro escritor por antigüedad.
 
 ReconciliarRecepcion pertenece al servicio interno, no a una operación pública nueva. RECIBIDO no significa documento incorporado. Paths/stagingRef/token de reclamación no se publican. Errores de servidor anteriores al handler se registran como tales, sin atribuirles un envelope JSON de aplicación.
+
+## Consolidación DOC-120 sobre la interfaz definitiva
+
+Mensajes operativos2026-11-14: se conserva el contrato `RespuestaPerfilImportacion` y sus campos `codigo`, `mensaje`, `operacionId`, `datos`, `incidencias`; cada incidencia conserva `Campo/Codigo/Mensaje`. Las causas internas se traducen mediante catálogo cerrado y medidas acotadas, sin serializar Exception.Message ni añadir propiedades de transporte. Los códigos públicos y HTTP existentes se mantienen para las causas conocidas; una causa desconocida se presenta como error interno seguro. Respuesta sin detalle conserva alternativa por fase; acceso denegado/sesión no publica incidencias ni identidades ajenas. Las referencias de diagnóstico no sustituyen evidencia del efecto.
+
+Las promesas del cliente distinguen acuse de mutación de lectura/proyección posterior: una lectura fallida no degrada un acuse CONFIRMADO a SIN_CONFIRMAR. El modelo conserva las identidades confirmadas recibidas, y bloquea nuevos efectos hasta disponer de lectura válida. Preparación puede persistir revisión sin confirmar lote; confirmación sin acuse conserva el plan para su consulta. La cola conserva recibos confirmados, recurso que interrumpe y no intentados, deteniéndose sin replay. Materializar valores, recibir y almacenar siguen siendo operaciones distintas y explícitas.
+
+Diagnóstico: ASMX y ASHX asignan operacionId a la petición; las capturas del coordinador/adaptador registran fase/punto de control/categoría de excepción y versión del ensamblado mediante los listeners `System.Diagnostics.Trace` existentes. Los códigos de incidencias y SQLState/NativeError ODBC se acotan; no se registran consultas, parámetros, valores, mensajes libres o secretos. Un listener averiado no cambia el resultado de negocio. El destino del runtime IIS requiere comprobación propia; no hay configuración, plataforma de logs, esquema ni endpoint nuevos. Las pruebas locales reutilizan Framework/Chromium, SQL y escritores sintéticos, con staging temporal; no constituyen una importación real. Ver `../Validacion/doc120-mensajes-20261114.json`.
+
+Base8c0773d4; sin cambio de contratos de aplicación. [Matriz](../Validacion/matriz-verificacion.md) e [índice de resultados](../Validacion/resultados.md) distinguen la evidencia original y la regresión local focal. DOC120-SUP01 adapta únicamente el auxiliar de degradación al menú existente, sin DDL o nueva ejecución real. INT03 requiere contrato/autorización propios y la aceptación final conserva las limitaciones de UI autenticada, SII y limpieza.

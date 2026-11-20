@@ -112,13 +112,13 @@ async function exercisePublication(auth,baseUrl,token,contender,providerBinding)
     expect(p.Version.PerfilId).toBe(p.PerfilId);
     checked('INCREMENTAL_IDENTITIES');
     if(process.env.DOC110_E2E_MATCHING==='YES'){
-      expect(p.Version.Configuracion.PoliticaCoincidencias).toBe('BLOQUEAR');
-      await expect(auth.page.locator('[data-doc110-field=PoliticaCoincidencias]')).toHaveValue('BLOQUEAR');
+      expect(p.Version.Configuracion.PoliticaCoincidencias).toBe('PERMITIR');
+      await expect(auth.page.locator('[data-doc110-field=PoliticaCoincidencias]')).toHaveValue('PERMITIR');
       const reloaded=(await call('ObtenerPerfil',{perfilId:p.PerfilId,versionId:p.Version.VersionId})).datos;
-      expect(reloaded.Version.Configuracion.PoliticaCoincidencias).toBe('BLOQUEAR');
-      checked('MATCHING_DEFAULT_BLOCK_PERSISTED');
+      expect(reloaded.Version.Configuracion.PoliticaCoincidencias).toBe('PERMITIR');
+      checked('MATCHING_DEFAULT_ALLOW_REPEATED_PERSISTED');
       // configureUI realiza la seleccion explicita; no se cambia el valor por defecto del producto.
-      f.configuracion.PoliticaCoincidencias='REUTILIZAR_VALIDADO';
+      f.configuracion.PoliticaCoincidencias='PERMITIR';
     }
     p=await configureUI(f);
     checked('GUIDED_CONFIGURATION_AND_SAVE_UI');
@@ -148,8 +148,8 @@ async function exercisePublication(auth,baseUrl,token,contender,providerBinding)
       await require('./doc110-provider-revalidation.cjs').verifyProviderRevalidation(call,p,providerBinding.provider);
     if(process.env.DOC110_E2E_MATCHING==='YES'){
       const before=(await call('ObtenerPerfil',{perfilId:p.PerfilId,versionId:p.Version.VersionId})).datos;
-      expect(before.Version.Configuracion.PoliticaCoincidencias).toBe('REUTILIZAR_VALIDADO');
-      checked('MATCHING_EXPLICIT_REUSE_UI_PERSISTED');
+      expect(before.Version.Configuracion.PoliticaCoincidencias).toBe('PERMITIR');
+      checked('MATCHING_ALLOW_REPEATED_UI_PERSISTED');
       const invalid=await call('GuardarBorrador',{...payload(p),configuracion:{...p.Version.Configuracion,PoliticaCoincidencias:'DOC110_INVALID'}},400);
       expect(invalid.codigo).toBe('CONFIGURACION_INVALIDA');
       expect(invalid.incidencias.some(i=>i.Campo==='PoliticaCoincidencias' && i.Codigo==='POLITICA_INVALIDA')).toBe(true);
@@ -256,7 +256,7 @@ async function exercisePublication(auth,baseUrl,token,contender,providerBinding)
     expect(second.Version.Numero).toBe(original.Numero+1);
     expect(second.Version.Estado).toBe('BORRADOR');
     second=(await call('GuardarBorrador',{...payload(second),configuracion:{...second.Version.Configuracion,AmbitoIntegridad:'LOTE',
-      ...(process.env.DOC110_E2E_MATCHING==='YES'?{PoliticaCoincidencias:'BLOQUEAR'}:{})}})).datos;
+      ...(process.env.DOC110_E2E_MATCHING==='YES'?{PoliticaCoincidencias:'PERMITIR'}:{})}})).datos;
     const publicationRequest={perfilId:second.PerfilId,versionId:second.Version.VersionId,
       revisionPerfilEsperada:second.Revision,revisionVersionEsperada:second.Version.Revision};
     if(contender){
@@ -296,9 +296,9 @@ async function exercisePublication(auth,baseUrl,token,contender,providerBinding)
     expect(JSON.stringify(old)===JSON.stringify(original)).toBe(true);
     checked('FIRST_PUBLICATION_IMMUTABLE');
     if(process.env.DOC110_E2E_MATCHING==='YES'){
-      expect(old.Configuracion.PoliticaCoincidencias).toBe('REUTILIZAR_VALIDADO');
-      expect(second.Version.Configuracion.PoliticaCoincidencias).toBe('BLOQUEAR');
-      checked('MATCHING_POLICY_VERSIONED_WITHOUT_CHANGING_PRIOR_PUBLICATION');
+      expect(old.Configuracion.PoliticaCoincidencias).toBe('PERMITIR');
+      expect(second.Version.Configuracion.PoliticaCoincidencias).toBe('PERMITIR');
+      checked('MATCHING_POLICY_PERMITIR_PRESERVES_PRIOR_PUBLICATION');
     }
     const history=(await call('ConsultarHistorial',{perfilId:p.PerfilId,pagina:1,tamanoPagina:25})).datos;
     expect(history.length).toBe(2);expect(history.every(v=>v.Estado==='PUBLICADA')).toBe(true);

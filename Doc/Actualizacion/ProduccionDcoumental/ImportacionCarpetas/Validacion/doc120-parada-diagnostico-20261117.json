@@ -1,0 +1,155 @@
+{
+  "recordedUtc": "2026-11-17T20:13:49.130411+00:00",
+  "classification": "LOCAL_DOC120_WITH_UNAUTHENTICATED_STATIC_GETS",
+  "status": "PASS_LOCAL",
+  "baselineCommit": "9d558d5cf1a3d010a4006bc1b8fcee40a78eef85",
+  "tasks": [
+    "3.132",
+    "3.133",
+    "3.134"
+  ],
+  "progress": {
+    "total": 154,
+    "complete": 143,
+    "remaining": 11,
+    "scenarios": 56
+  },
+  "changes": [
+    "Preserve public cause and actual client timeout seconds",
+    "Publish blocked state before the existing single follow-up query",
+    "Identify resource, relative path, inventory position and last confirmed counts",
+    "Keep unknown result, observed active attempt, observed storage confirmation and failed follow-up query distinct",
+    "Never replay uncertain effect or continue automatically after interruption"
+  ],
+  "tests": {
+    "tests": 89,
+    "pass": 89,
+    "fail": 0,
+    "skipped": 0,
+    "command": "node --test tests/doc120-coordinacion-core.test.cjs tests/doc120-parada-diagnostico.test.cjs tests/doc120-coordinacion-browser.test.cjs tests/doc120-importacion-mensajes.test.cjs tests/doc120-importacion-flujo-final.test.cjs tests/doc120-preparacion-tamano.test.cjs",
+    "log": {
+      "path": ".tmp/doc120-parada-validacion-final.log",
+      "sha256": "675d3cb6c48d828fb28b010a436d2da0a9eaea5fc67f06ee762301f6436f09ed"
+    }
+  },
+  "sources": [
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256": "ada3b295f35def01aafbe73c1d38fafae9e048a96bb718ea293d637263a002d2",
+      "sha256Lf": "ba47d8d39d489d953a0993d5a939e69e6b30f93cbecc146ee83358c759995863"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256": "6564aa4b86a2b3ee789bdbee29063542004183f02633f78d8c187091a5d6488d",
+      "sha256Lf": "d70838c45e39b79eb3ad1d3f542b3eb714af403c29fb12abf26c9ec7d4ade3c2"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js",
+      "sha256": "92c5a010263cfde2ba9bd6efe23ed7e021c43e93372c291825c4492a27db68d3",
+      "sha256Lf": "bd091eeb96be15925b5c36ad8f598383a5d4ddf5edc30b736362590e740ca76b"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256": "3606012322df13bf5deccf31291257e331e8aa8b329ec151fc8ab04b211d895a",
+      "sha256Lf": "282b33e13e6146546670a96c2200d42968963c84e1e29818b50b2f6a6748ccc9"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css",
+      "sha256": "c92fcd939cf6379a2b5afd7a22ab89041183db7e1ae5624341dc1fb806d4ff2d",
+      "sha256Lf": "9dc9ffdc8abbfd5dcd86337d09800ba47b41dab1b8b79cc4f7bbf8bf661a30f9"
+    },
+    {
+      "path": "tests/doc120-coordinacion-core.test.cjs",
+      "sha256": "f28be7d29f944cc73161e2608d8a1fb5fffdfef8f9d91818a52f5f55cc33e9a0",
+      "sha256Lf": "f28be7d29f944cc73161e2608d8a1fb5fffdfef8f9d91818a52f5f55cc33e9a0"
+    },
+    {
+      "path": "tests/doc120-parada-diagnostico.test.cjs",
+      "sha256": "6482076a229e955a94e70430faec40769cd0388f5b85abf49f97f0b2055b430b",
+      "sha256Lf": "6482076a229e955a94e70430faec40769cd0388f5b85abf49f97f0b2055b430b"
+    },
+    {
+      "path": "tests/doc120-coordinacion-browser.test.cjs",
+      "sha256": "39b4e5e9a44352c29c4c11e46f02e15fbf64420a3751d527656813abf74a2b84",
+      "sha256Lf": "39b4e5e9a44352c29c4c11e46f02e15fbf64420a3751d527656813abf74a2b84"
+    },
+    {
+      "path": "tests/doc120-importacion-mensajes.test.cjs",
+      "sha256": "3d9a5754fa45a0b684acb09cf8974ffdc5a4c959e38b077d97e757ac268aa88f",
+      "sha256Lf": "3d9a5754fa45a0b684acb09cf8974ffdc5a4c959e38b077d97e757ac268aa88f"
+    },
+    {
+      "path": "tests/doc120-importacion-flujo-final.test.cjs",
+      "sha256": "13be4b78d20f161729ff15440a35719d1937721707f244a1ca2cd083378ea517",
+      "sha256Lf": "13be4b78d20f161729ff15440a35719d1937721707f244a1ca2cd083378ea517"
+    },
+    {
+      "path": "tests/doc120-preparacion-tamano.test.cjs",
+      "sha256": "9171053ccb6626f5b16ac4f46290e50bfc402afa69a02ce25ba1ef769ef96050",
+      "sha256Lf": "9171053ccb6626f5b16ac4f46290e50bfc402afa69a02ce25ba1ef769ef96050"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": ".tmp/doc120-coordinacion-ui/parada-390.png",
+      "sha256": "07c58d70c9127317c5055028c60f835003a9c05bc82b5bfc184587a71aa913e9"
+    },
+    {
+      "path": ".tmp/doc120-coordinacion-ui/parada-768.png",
+      "sha256": "a6601f067a2ce411ebd28d38ecf805a5d9dbdd19484b483e317bedf0d377891f"
+    },
+    {
+      "path": ".tmp/doc120-coordinacion-ui/parada-1280.png",
+      "sha256": "2a6f67fee861995f2e486c65b235ccd654f142bf8ca631268ee7a45226a7dfa4"
+    }
+  ],
+  "staticReadVerification": {
+    "http": 4,
+    "authenticatedSessions": 0,
+    "select": 0,
+    "businessEffects": 0,
+    "results": [
+      {
+        "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+        "status": 200,
+        "sha256": "6564aa4b86a2b3ee789bdbee29063542004183f02633f78d8c187091a5d6488d",
+        "matchesWorkspace": true
+      },
+      {
+        "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js",
+        "status": 200,
+        "sha256": "92c5a010263cfde2ba9bd6efe23ed7e021c43e93372c291825c4492a27db68d3",
+        "matchesWorkspace": true
+      },
+      {
+        "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+        "status": 200,
+        "sha256": "3606012322df13bf5deccf31291257e331e8aa8b329ec151fc8ab04b211d895a",
+        "matchesWorkspace": true
+      },
+      {
+        "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css",
+        "status": 200,
+        "sha256": "c92fcd939cf6379a2b5afd7a22ab89041183db7e1ae5624341dc1fb806d4ff2d",
+        "matchesWorkspace": true
+      }
+    ]
+  },
+  "businessRuntime": {
+    "authenticatedSessions": 0,
+    "select": 0,
+    "receipts": 0,
+    "expeditions": 0,
+    "storedDocuments": 0,
+    "ddl": 0,
+    "profileWrites": 0,
+    "dllReplaced": false
+  },
+  "limits": [
+    "Video observations are not a database diagnosis of lot50/file98.",
+    "No authenticated replay, recovery or import was executed.",
+    "Server storage latency and full-inventory checks were not changed.",
+    "Client timeout stays at its configured value (default30s).",
+    "Real capacity acceptance and previous pending tasks remain open."
+  ]
+}

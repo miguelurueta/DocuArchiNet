@@ -1,0 +1,184 @@
+{
+  "case": "DOC120-GUI",
+  "date": "2026-11-13",
+  "classification": "LOCAL_DOC120",
+  "status": "PASS_LOCAL_IMPLEMENTATION",
+  "baseSha": "0325a579b9bc1a35c46ba85903d91fe7ef761045",
+  "tasks": [
+    "3.10",
+    "3.11",
+    "3.12",
+    "3.13",
+    "3.14",
+    "3.15",
+    "3.16",
+    "3.17",
+    "3.18"
+  ],
+  "decisions": [
+    "D-04",
+    "D-05",
+    "D-10"
+  ],
+  "requirements": [
+    "RQ-04",
+    "RQ-05",
+    "RQ-10"
+  ],
+  "progress": {
+    "complete": 34,
+    "total": 38,
+    "remaining": [
+      "5.2",
+      "6.4",
+      "6.5",
+      "6.6"
+    ]
+  },
+  "change": {
+    "selection": "Perfil y carpetas reunidos; versiones/más perfiles, selector y eliminación individual conservados",
+    "tracking": "Una acción de recurso existente destacada; el botón se mueve al pie, sin duplicar petición ni encadenar fases",
+    "query": "Actualizar estado con fecha/contador tras todas las lecturas válidas; no anuncia éxito en consulta fallida",
+    "filters": "Paneles separados, borradores y filtros aplicados, foco y paginación independientes",
+    "sending": "Cantidad elegible de la página; archivo actual/total de cola y bytes de transporte; recepción separada del almacenamiento",
+    "recovery": "Mismas referencias, último lote, confirmación sin acuse y reselección",
+    "cacheVersion": "doc120-guiada-20261113-1"
+  },
+  "prototype": {
+    "historicalAudit": "../Prototipo/compatibilidad-maqueta-doc120-20261113.json",
+    "resolved": [
+      {
+        "id": "C01",
+        "case": "GUI04",
+        "result": "PASS",
+        "description": "Padre confirmado visible exigido para índices y almacenamiento; guard productivo sin cambios"
+      },
+      {
+        "id": "C02",
+        "case": "GUI03/GUI04",
+        "result": "PASS",
+        "description": "CSV trece columnas, coma y escape/protección de fórmulas del contrato; datos DEMO"
+      },
+      {
+        "id": "C03",
+        "case": "GUI03",
+        "result": "PASS",
+        "description": "Página solicitada vacía conservada; capacidad simulada explícita"
+      }
+    ],
+    "remainingLimits": [
+      "Datos offline sin autenticación ni CSRF reales",
+      "Persistencia de nuevos lotes DEMO solo en memoria; simular recarga no prueba F5 real",
+      "Verificar intento simulado no acredita resolución real",
+      "Fixture positiva limitada; servidor conserva políticas/revisiones/hash/expiración/autoridad"
+    ]
+  },
+  "test": {
+    "command": "node --test --test-concurrency=2 tests/doc120-importacion-guiada.test.cjs tests/doc120-recepcion-creacion.test.cjs tests/doc110-perfil-importacion-behavior.test.cjs tests/doc120-produccion-barra.test.cjs tests/doc111-importacion-carpetas-client.test.cjs tests/doc119-navigation.test.cjs tests/doc110-perfil-importacion-editor.test.cjs tools/e2e/tests/doc111-degradation.test.cjs",
+    "nodeTests": 68,
+    "passed": 68,
+    "failed": 0,
+    "frameworkAndDdlWrappersIncluded": 2,
+    "viewportWidths": [
+      390,
+      768,
+      1280
+    ],
+    "coverage": [
+      "Selección/revisión con callbacks conservados",
+      "Acción única destacada y padre oculto sin operaciones",
+      "Borradores/paneles/foco conservados y filtros independientes",
+      "Página dos vacía y CSV13 con fórmulas protegidas",
+      "Consulta exitosa con contador y consulta denegada sin éxito falso",
+      "Conteo de cola y recepción; envío/creación/índices/almacenamiento separados",
+      "Último lote, referencia, incertidumbre, recarga y rama original",
+      "36 manejadores/búsqueda de barra original y montaje tras postback"
+    ],
+    "log": {
+      "file": ".tmp/doc120-guiada-final.log",
+      "sha256": "646cad27f9159b720c5da105bdfa98d5614cb410c63f53eb639e3a45566defba"
+    },
+    "realApplicationHttp": 0,
+    "realBusinessEffects": 0
+  },
+  "build": {
+    "status": "PASS",
+    "errors": 0,
+    "warnings": 1,
+    "configuration": "Debug incremental",
+    "output": "bin/GestionDocumental-Docuarchi.net.dll",
+    "outputSha256": "4e7e692294856056776b8f33fbc0b36b14eb123452f288e00fefcd0f362e2ee6",
+    "log": {
+      "file": ".tmp/doc120-guiada-build.log",
+      "sha256": "ebba883482988d09c2446f6cd4306b02149dce92d1360e41ac4431aad973b4fa"
+    }
+  },
+  "sources": [
+    {
+      "file": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Lf": "d1e906bc457f59bc950f3f1bfba37cdc043580f1dda4500db330d66c604afc41"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256Lf": "4293b545438813b94a28387125642f789fd3138b8c221794deb4d203f943d89f"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256Lf": "4b93374ff944b8fffad6d97b30d6f678ad85cac510e0ae9677ee0d9943fc6f4c"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css",
+      "sha256Lf": "02c33849417202a9d76c975123303c155f8cba036c045b3a124266ef088825c6"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js",
+      "sha256Lf": "c2f06b7b944b0fac244bee29e4c98438083e4c2698533367208e453a0962c7a1"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/InventarioImportacion.js",
+      "sha256Lf": "3ae16d908ca21b35279bf2feabf63ba26c4a21cfbf273773c01ecee1d5fa16db"
+    },
+    {
+      "file": "js/gestion/WebFormProducionDocumental.js",
+      "sha256Lf": "c800184475732e48c8a478bd5afa340cb8c2acd7131010745f25ab823c4343e8"
+    },
+    {
+      "file": "js/gestion/ProduccionDocumentalBarra.js",
+      "sha256Lf": "8c7961a76effc80407e482312b64bd4d9371f7020d196137fa5b67415c4a03e1"
+    },
+    {
+      "file": "Styles/produccion-documental-barra.css",
+      "sha256Lf": "431091f46f4cbd9ee5b4ef1f0fd44c1b7553b21918f947138f13f59e492f7d0f"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb",
+      "sha256Lf": "5e3eb94d7884c434f0eebde4952f35e33dfd39823bc71913ced5b9d99a92c5a0"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Barreras.vb",
+      "sha256Lf": "e7db7e6087b4faa24856ad4e2715971925628789fc302cc12582e3edeb7e7290"
+    },
+    {
+      "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Prototipo/propuesta-importacion-guiada-doc120.html",
+      "sha256Lf": "5d0394cc1276e8f6fe45c70e7442e813aeebb49e1b5fedbfc9aff918a6dde85f"
+    },
+    {
+      "file": "tests/doc120-importacion-guiada.test.cjs",
+      "sha256Lf": "25c5834ad37e1bdc3d5043321e6ab6a62afe625a85a95cdac9b75eb0906bb29b"
+    },
+    {
+      "file": "tests/doc120-recepcion-creacion.test.cjs",
+      "sha256Lf": "879f55d247f17290436313246956de90ea044bb7cffc104ed14fa72da2a562c4"
+    },
+    {
+      "file": "tests/doc111-importacion-carpetas-client.test.cjs",
+      "sha256Lf": "76a49b57c00edb911375093797034c5082df6ec82cb1f1b811e9f147026f2709"
+    },
+    {
+      "file": "tools/e2e/tests/support/doc119-seguimiento.cjs",
+      "sha256Lf": "f536bca5b1eafab45ef2ce03e83e03943fee0caba15fcbe469a07ced1dc2bc62"
+    }
+  ],
+  "protectedSourcesUnchanged": true,
+  "integralAcceptance": false
+}

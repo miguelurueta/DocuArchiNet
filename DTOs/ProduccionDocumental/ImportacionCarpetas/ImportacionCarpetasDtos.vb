@@ -84,6 +84,11 @@ Public Class DetenerLoteImportacionSolicitud
     Public Property revisionEsperada As UInteger
 End Class
 
+Public Class ReanudarLoteImportacionSolicitud
+    Public Property loteId As String
+    Public Property revisionEsperada As UInteger
+End Class
+
 'Cada llamada avanza solo la fase indicada del recurso persistido.
 Public Class AvanzarLoteImportacionSolicitud
     Public Property loteId As String
@@ -91,6 +96,10 @@ Public Class AvanzarLoteImportacionSolicitud
     Public Property fase As String
     Public Property revisionEsperada As UInteger
     Public Property claveOperacion As String
+    'Exclusivos de RETOMAR_CREACION; nunca contienen token ni evidencia.
+    Public Property intentoId As String
+    Public Property revisionLoteEsperada As UInteger
+    Public Property levantarDetencion As Boolean
 End Class
 
 Public Class ReconciliarRecursoImportacionSolicitud
@@ -187,6 +196,14 @@ Public Class ConsultarLoteImportacionSolicitud
     Public Property loteId As String
 End Class
 
+Public Class ConsultarUltimoLoteImportacionSolicitud
+End Class
+
+Public Class ConsultaUltimoLoteImportacionResultado
+    Public Property encontrado As Boolean
+    Public Property loteId As String
+End Class
+
 Public Class ConsultarConfirmacionImportacionSolicitud
     Public Property planId As String
 End Class
@@ -209,6 +226,9 @@ Public Class ConsultarRecursosImportacionSolicitud
 End Class
 
 Public Class EstadoLoteImportacionResultado
+    Public Property procesamientoIndependiente As Boolean
+    Public Property escritorVivo As Boolean
+    Public Property motivoBloqueo As String
     Public Property maximoTamanoPagina As Integer
     Public Property loteId As String
     Public Property nivelRef As String
@@ -229,6 +249,9 @@ Public Class EstadoLoteImportacionResultado
 End Class
 
 Public Class RecursoConsultaImportacionResultado
+    'Solo metadatos: el efecto vuelve a comprobar permisos, revision y staging.
+    Public Property recepcionListaParaCrear As Boolean
+    Public Property puedeRetomarCreacion As Boolean
     Public Property rutaRelativa As String
     Public Property ultimaModificacionLocal As String
     Public Property recursoId As String
@@ -246,6 +269,8 @@ Public Class RecursoConsultaImportacionResultado
     Public Property intentoActivoId As String
     Public Property valoresEfectivosFijados As Boolean
     Public Property nombreExpediente As String
+    'Etiqueta del arbol; el codigo de negocio no sustituye expedienteId.
+    Public Property codigoExpediente As String
     Public Property expedienteId As String
     Public Property relacionNivelId As String
     Public Property gabineteId As String

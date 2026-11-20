@@ -1,0 +1,19 @@
+# DOC-120 — fixture autorizado para3.187
+
+**Resultado posterior:** run655467f4, código6fc5d343, PASS_FILE_RESERVATIONS_REPOSITORY; plan94/lote57/archivos3105-3106/expediente697-relación1121. Tres rollbacks, reserva única, revisión antigua y exclusión por B activo;125 controles externos/23 llamadas/256 HTTP,0 almacenamiento documental.17 grupos anteriores/5 del fixture/154 fuentes conservados; ventana cerrada y claves eliminadas. [Evidencia final](doc120-reservas-archivo-resultado-20261120.md) y JSON compañero.3.187 completa,267/270;6.4–6.6 pendientes. La preparación inferior conserva su estado inicial como historia.
+
+El usuario responde «autorizado» a2 PDF/1 expediente E2E, sin almacenar documentos. Se reutilizan el perfil24/version38 publicado, nivel7,141/empresa2, MembershipUsers y la URL local de las E2E DOC-111. Una raíz `DOC120-<run32hex>-RES`, un plan/lote nuevos y dos inventarios. El PDF estándar existente `doc111-carga-individual.pdf`,677 bytes, se recibe bajo dos nombres distintos; total1.354 bytes. Se conservan todos los recursos. Las ventanas4a3c1b2e/83b36216 permanecen cerradas y los1.000 documentos completados del lote50 no se utilizan como pendientes.
+
+## Reutilización y límites
+
+Los ejecutores DOC-115/DOC-111 incorporan `--repository-files-fixture` y modo `Doc120FilesFixture`. Se reutilizan `openSession/createDriver` del soporte DOC-111 para preparar/confirmar, recibir dos PDF, crear un expediente y materializar valores. El código comprueba propietario141/empresa2 del plan por SELECT **antes de confirmar**. No llama a ALMACENAR; un único intento de creación, sin replay. La consola solicita enmascaradas las cuentas SELECT, escritora y operativa; solo memoria, sin traza/video/capturas/cookies guardadas.
+
+Después se ejecutan los mismos casos nativos de3.187 preparados antes:3 fallos/rollbacks, dos conexiones con barrera sobre A, revisión antigua, exclusión del lote/B reservado, token ajeno rechazado y dos cierres anteriores a invocación. SQL del test parametrizado, autorización/IDs/destino y origen de fixture comprobados antes de los casos. Un fallo conserva referencias y exige revisión; no vuelve a crear el lote o expediente automáticamente.
+
+Topes:600 HTTP/1 sesión,48 llamadas nativas al repositorio,64 controles SELECT nativos y96 SELECT del envoltorio incluyendo hasta12 de preparación HTTP;15 minutos de admisión por etapa. Los SELECT internos del producto no se cuentan como controles externos. Una preparación/confirmación, dos recepciones, una creación de expediente/relación, dos materializaciones y dos reservas/cierres documentales. Esperados1 plan/1 lote/1 raíz/2 archivos/5 intentos (dos recepciones,una creación ydos cierres); los eventos de la preparación se separan de4–7 eventos de los casos. Cero documentos/inventarios documentales nuevos, cambios de perfil/esquema o borrados.
+
+Se comparan las filas previas de plan/lote/raíz/archivo/intento/evento/preparación/partes, perfiles/versiones/reglas/permisos, expedientes y relaciones; conteos documentales invariables. Del fixture se preservan identidad y datos originales/recepción/valores, intentos de recepción/creación y eventos anteriores a los casos. Al cierre se exige un expediente/relación físicos y ningún intento activo/incierto. Las dos incidencias deliberadas ORIGINAL_NO_COMPROBADO quedan con historial, sin retirar originales ni almacenar documentos para limpiarlas.
+
+## Preparación verificada
+
+35/35 pruebas Node del ejecutor y2/2 envoltorios Framework/DDL aprobados, sin sumar casos internos o corridas superpuestas. Check del manifiesto sin conexión aprobado. Manifiesto privado y estado de uso único en `.tmp/doc120-files-fixture/<run>/resources.json`;154 fuentes/dependencias selladas. Diario `tools/e2e/artifacts/doc120-files-fixture-<run>.json`; estado de preparación con referencias seguras en el mismo directorio privado. Inicialmente3.187 permanece pendiente hasta el resultado real y los controles finales;266/270.

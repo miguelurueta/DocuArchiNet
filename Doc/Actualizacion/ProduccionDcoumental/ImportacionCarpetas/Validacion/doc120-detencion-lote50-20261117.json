@@ -1,0 +1,151 @@
+{
+  "recordedUtc": "2026-11-17T20:44:22.177128+00:00",
+  "status": "PASS_READONLY_STOP_CONDITION_CONFIRMED",
+  "authorization": "Explicit user authorization: at most5 SELECT/zero HTTP/zero changes for lot50. No recovery or import.",
+  "runtime": {
+    "runId": "8803b6f4f2c44b028bc279fbe42f4250",
+    "lotId": "50",
+    "status": "FINISHED",
+    "select": 5,
+    "completedSelect": 5,
+    "maxSelect": 5,
+    "http": 0,
+    "sessions": 0,
+    "businessEffects": 0,
+    "closed": true,
+    "stage": "after",
+    "result": {
+      "before": {
+        "lotId": "50",
+        "planId": "90",
+        "ownerRef": "141",
+        "companyRef": "2",
+        "levelId": "223",
+        "versionId": "45",
+        "state": "DETENIDO",
+        "revision": 3026,
+        "stopRequested": 1,
+        "roots": 1,
+        "files": 1000,
+        "rootsObserved": 1,
+        "rootsWithIdentity": 1,
+        "rootActiveMarkers": 0,
+        "rootsUnresolved": 0,
+        "latestEvent": 3545,
+        "stopEvent": "3544",
+        "stopActor": "141",
+        "stopUtc": "2026-11-17 19:58:35"
+      },
+      "files": [
+        {
+          "receipt": "RECIBIDO",
+          "effect": "COMPLETADO",
+          "count": 4,
+          "activeMarkers": 0,
+          "withResult": 4,
+          "withValues": 4
+        },
+        {
+          "receipt": "RECIBIDO",
+          "effect": "NO_INICIADO",
+          "count": 996,
+          "activeMarkers": 0,
+          "withResult": 0,
+          "withValues": 996
+        }
+      ],
+      "attempts": [
+        {
+          "phase": "ALMACENAR",
+          "state": "CONFIRMADO",
+          "count": 4
+        },
+        {
+          "phase": "CREAR_EXPEDIENTE",
+          "state": "CONFIRMADO",
+          "count": 1
+        },
+        {
+          "phase": "RECEPCION",
+          "state": "CONFIRMADO",
+          "count": 1000
+        }
+      ],
+      "unresolved": [],
+      "after": {
+        "lotId": "50",
+        "planId": "90",
+        "ownerRef": "141",
+        "companyRef": "2",
+        "levelId": "223",
+        "versionId": "45",
+        "state": "DETENIDO",
+        "revision": 3026,
+        "stopRequested": 1,
+        "roots": 1,
+        "files": 1000,
+        "rootsObserved": 1,
+        "rootsWithIdentity": 1,
+        "rootActiveMarkers": 0,
+        "rootsUnresolved": 0,
+        "latestEvent": 3545,
+        "stopEvent": "3544",
+        "stopActor": "141",
+        "stopUtc": "2026-11-17 19:58:35"
+      },
+      "summary": {
+        "stableRevisionAndEvent": true,
+        "counts": {
+          "received": 1000,
+          "completed": 4,
+          "completedWithResult": 4,
+          "fileActiveMarkers": 0,
+          "activeAttempts": 0,
+          "uncertainAttempts": 0,
+          "activeFiles": 0,
+          "uncertainFiles": 0
+        },
+        "pendingStorageConfirmation": 996,
+        "reason": "PERSISTED_STOP_WITHOUT_GENERAL_RESUME",
+        "scope": "RA_CONTROL_METADATA_ONLY"
+      }
+    },
+    "credentialsCleared": true,
+    "finishedUtc": "2026-11-17T20:42:26.836Z"
+  },
+  "localVerification": {
+    "tests": 8,
+    "pass": 8,
+    "fail": 0,
+    "logSha256": "22070cf3e609b4b52796eb7991d85caba789dbf4226b9538d0078669fb5624ca"
+  },
+  "sources": [
+    {
+      "path": "tools/e2e/scripts/inspect-doc120-stopped-lot.cjs",
+      "sha256": "a1f03e4df9a4101232ada4bbae9896b8086f792d11af8066d514969d1643fe9e"
+    },
+    {
+      "path": "tests/doc120-stopped-lot-diagnostic.test.cjs",
+      "sha256": "2e548aa4c434f506dab91d821f95119631af38518a62067267785c64680330d8"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc32-e2e-odbc.cjs",
+      "sha256": "d748cfd17cf3c170df4ce5cf7d4daf1959df16a3ed788084754d5ceec0a5a256"
+    },
+    {
+      "path": "tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1",
+      "sha256": "7a4fb15210785f221835f865ce81a5b9c55aed6243f7592ee383e81640492d11"
+    },
+    {
+      "path": "tools/e2e/scripts/support/interactive-e2e-console.cjs",
+      "sha256": "778d847653e3351e9e7c50957c7c16f21f9ba17e2d06eb020a2a5df5f3651087"
+    }
+  ],
+  "limits": [
+    "RA control metadata only; no DA or disk/PDF inspection.",
+    "Five statements use separate read connections; unchanged revision and event plus complete census establish observed stability, not a global transactional snapshot.",
+    "Stop event actor identifies the account, not the exact human interaction.",
+    "No mutation or new authenticated HTTP session; credentials cleared.",
+    "General resume remains unimplemented; this read window does not authorize it."
+  ]
+}

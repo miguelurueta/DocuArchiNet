@@ -14,7 +14,7 @@ Public Class ValidadorPerfilImportacion
         End If
         If configuracion.Esquema <> 1 Then ErrorCampo(errores, "Esquema", "ESQUEMA_INVALIDO")
         If Not TextoValido(configuracion.NombreVisible, 160, Not publicar) Then ErrorCampo(errores, "NombreVisible", "NOMBRE_INVALIDO")
-        If Not {"BLOQUEAR", "REUTILIZAR_VALIDADO"}.Contains(configuracion.PoliticaCoincidencias) Then ErrorCampo(errores, "PoliticaCoincidencias", "POLITICA_INVALIDA")
+        If Not {"PERMITIR", "BLOQUEAR", "REUTILIZAR_VALIDADO"}.Contains(configuracion.PoliticaCoincidencias) Then ErrorCampo(errores, "PoliticaCoincidencias", "POLITICA_INVALIDA")
         If configuracion.ModoIntegridad = "PARCIAL_PERMITIDO" Then
             configuracion.AmbitoIntegridad = "NO_APLICA"
         ElseIf configuracion.ModoIntegridad = "COMPLETO_OBLIGATORIO" Then

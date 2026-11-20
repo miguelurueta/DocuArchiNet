@@ -220,8 +220,10 @@ async function consult(page,lotId,resume=false){
     if(!resume){await page.locator('[data-doc111-lote]').fill(lotId);await page.locator('[data-doc111-consultar]').click();}
   },'ARCHIVOS');
   check(r.status===200&&r.body?.ok&&r.body.datos?.loteId===lotId,'QUERY_FAILED');
-  await page.getByRole('button',{name:'Consultar estado',exact:true}).waitFor();
-  await page.waitForFunction(()=>{const b=document.querySelector('[data-doc111-action="consultar"]');return b&&!b.disabled;});return r.body.datos;
+  try{
+    await page.getByRole('button',{name:'Actualizar estado',exact:true}).waitFor();
+    await page.waitForFunction(()=>{const b=document.querySelector('[data-doc111-action="consultar"]');return b&&!b.disabled;});
+  }catch(error){if(error?.name==='TimeoutError')check(false,'RESULT_CONTROL_NOT_READY');throw error;}return r.body.datos;
 }
 function csvRows(text){
   check(typeof text==='string'&&text.length<=8*1024*1024,'CSV_INVALID');const rows=[];let row=[],value='',quoted=false;
@@ -234,6 +236,8 @@ function csvRows(text){
   check(!quoted,'CSV_INVALID');if(value.length||row.length){row.push(value);rows.push(row);}return rows;
 }
 async function applyFilter(page,values){
+  const filterPanel=page.locator('details[data-doc111-panel="ARCHIVOS"]');
+  if(await filterPanel.count()&&!await filterPanel.evaluate(panel=>panel.open))await filterPanel.locator('summary').click();
   await page.getByLabel('Referencia de carpeta',{exact:true}).fill(values.raizId||'');
   await page.getByLabel('Efecto documental',{exact:true}).selectOption(values.estado||'');
   await page.getByLabel('Recepción',{exact:true}).selectOption(values.estadoRecepcion||'');
@@ -315,6 +319,9 @@ async function runSeg02(page,profile,baseline,filePath){
   check(identities.length>0,'CONFIRMED_ROOT_RESOURCE_REQUIRED');
   await selectLevel(page,baseline.context.NivelRef);await consult(page,profile.recoveryLotId);
   await page.getByRole('button',{name:'Cerrar',exact:true}).click();
+  // Cliente actual pregunta antes de cerrar un lote pendiente; no eludir el consentimiento mediante reload.
+  if(await page.locator('.doc120-close-modal[open]').count()){await page.locator('[data-doc111-action="confirmar-cierre"]').click();}
+  await page.locator('.doc111-overlay').waitFor({state:'hidden'});
   await page.reload({waitUntil:'domcontentloaded'});
   await page.locator('[data-doc111-resume]').waitFor({state:'visible'});
   await selectLevel(page,profile.alternateLevel);
@@ -326,10 +333,11 @@ async function runSeg02(page,profile,baseline,filePath){
     await page.waitForFunction(()=>!document.querySelector('[data-doc111-action="consultar"]')?.disabled);
   }
   check(result.elementos.some(row=>row.recursoId===String(pending.archivo_id)),'PENDING_RECEPTION_NOT_VISIBLE');
+  await page.getByRole('button',{name:'Ver acciones de archivo '+pending.archivo_id,exact:true}).click();
   const [chooser]=await Promise.all([page.waitForEvent('filechooser'),page.getByRole('button',{name:'Reseleccionar archivo '+pending.archivo_id,exact:true}).click()]);await chooser.setFiles(filePath);
   await page.waitForFunction(()=>document.querySelector('.doc111-notice')?.textContent.includes('Archivo vinculado')||document.querySelector('.doc111-notice')?.textContent.includes('no coincide'));
   check((await page.locator('.doc111-notice').textContent()).includes('Archivo vinculado'),'RESELECTION_METADATA_MISMATCH');
-  const repeated=await responseFor(page,'ConsultarRecursosLote',()=>page.getByRole('button',{name:'Consultar estado',exact:true}).click(),'ARCHIVOS');
+  const repeated=await responseFor(page,'ConsultarRecursosLote',()=>page.getByRole('button',{name:'Actualizar estado',exact:true}).click(),'ARCHIVOS');
   check(repeated.body?.ok,'REQUERY_FAILED');await page.waitForFunction(()=>!document.querySelector('[data-doc111-action="consultar"]')?.disabled);
   const after=await page.evaluate(observeOriginalBranch,{level:baseline.context.NivelRef,identities});
   const treeDiagnostic=safeTreeDiagnostic({before:{availability:before.reason,counts:before.counts},after:{availability:after.reason,counts:after.counts},selectionPreserved:after.selection===before.selection,expansionPreserved:after.reason===before.reason&&after.display===before.display});

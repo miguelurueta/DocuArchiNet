@@ -1,0 +1,468 @@
+{
+  "runId": "c6f62c443bf64e039878754736ceb1b4",
+  "status": "FINISHED_THREE",
+  "http": 104,
+  "select": 20,
+  "sessions": 1,
+  "closed": true,
+  "credentialsCleared": true,
+  "finishedUtc": "2026-11-18T15:55:19.151Z",
+  "previousWindowPreserved": true,
+  "controlBefore": [
+    {
+      "recurso_tipo": "ARCHIVO",
+      "accion": "SELLAR_CONTROL_ARCHIVO",
+      "cantidad": "1000"
+    },
+    {
+      "recurso_tipo": "DOCUMENTO",
+      "accion": "FIJAR_IDENTIDAD_DOCUMENTAL",
+      "cantidad": "10"
+    },
+    {
+      "recurso_tipo": "INVENTARIO",
+      "accion": "FIJAR_IDENTIDAD_DOCUMENTAL",
+      "cantidad": "10"
+    },
+    {
+      "recurso_tipo": "LOTE",
+      "accion": "SELLAR_CONTROL_ARCHIVOS",
+      "cantidad": "1"
+    }
+  ],
+  "controlAfter": [
+    {
+      "recurso_tipo": "ARCHIVO",
+      "accion": "SELLAR_CONTROL_ARCHIVO",
+      "cantidad": "1000"
+    },
+    {
+      "recurso_tipo": "DOCUMENTO",
+      "accion": "FIJAR_IDENTIDAD_DOCUMENTAL",
+      "cantidad": "13"
+    },
+    {
+      "recurso_tipo": "INVENTARIO",
+      "accion": "FIJAR_IDENTIDAD_DOCUMENTAL",
+      "cantidad": "13"
+    },
+    {
+      "recurso_tipo": "LOTE",
+      "accion": "SELLAR_CONTROL_ARCHIVOS",
+      "cantidad": "1"
+    }
+  ],
+  "before": {
+    "planId": "90",
+    "versionId": "45",
+    "revision": 3057,
+    "completed": 10,
+    "protectedHash": "31aa4a4bce213c56bf3d8760887f4631a09efb2a1d8fb5d05907465c52e96e27",
+    "snapshotSha256": "9140cc7400c96a17e717372664f3db51a497e63c9348fbe2915520e4f6e28e82"
+  },
+  "after": {
+    "completed": 13,
+    "protectedHash": "31aa4a4bce213c56bf3d8760887f4631a09efb2a1d8fb5d05907465c52e96e27"
+  },
+  "binarySha256": "8b27a942458d41aa87d8ddd0df684bf70b7b89ec7702f0607958169a91cc571d",
+  "results": [
+    {
+      "fileId": "107",
+      "documentId": "16267",
+      "expedientId": "693",
+      "inventoryId": "23396",
+      "cabinetId": "10",
+      "elapsedMs": 1352.9341999999888,
+      "timing": {
+        "adaptador": {
+          "durationMs": 824.929,
+          "calls": 1
+        },
+        "checkpoint": {
+          "durationMs": 90.372,
+          "calls": 1
+        },
+        "comprobacion_posterior": {
+          "durationMs": 10.688,
+          "calls": 1
+        },
+        "consulta_preflight": {
+          "durationMs": 64.106,
+          "calls": 2
+        },
+        "copia_trabajo": {
+          "durationMs": 39.042,
+          "calls": 1
+        },
+        "datos_documentales": {
+          "durationMs": 47.03,
+          "calls": 1
+        },
+        "escritor_legacy": {
+          "durationMs": 130.837,
+          "calls": 1
+        },
+        "json_chars": {
+          "durationMs": 0,
+          "calls": 131040
+        },
+        "json_control": {
+          "durationMs": 9.4,
+          "calls": 137
+        },
+        "lectura_final": {
+          "durationMs": 28.342,
+          "calls": 1
+        },
+        "original_open": {
+          "durationMs": 0,
+          "calls": 2
+        },
+        "original_v2": {
+          "durationMs": 11.204,
+          "calls": 1
+        },
+        "originales_previos": {
+          "durationMs": 76.746,
+          "calls": 1
+        },
+        "originales_retenidos": {
+          "durationMs": 7.978,
+          "calls": 1
+        },
+        "pdf_bytes": {
+          "durationMs": 0,
+          "calls": 224425
+        },
+        "prev_io": {
+          "durationMs": 61.03,
+          "calls": 1
+        },
+        "reserva": {
+          "durationMs": 55.204,
+          "calls": 1
+        },
+        "ret_io": {
+          "durationMs": 3.129,
+          "calls": 1
+        },
+        "sql_archivo": {
+          "durationMs": 4.464,
+          "calls": 11
+        },
+        "sql_autoridad": {
+          "durationMs": 9.694,
+          "calls": 90
+        },
+        "sql_catalogo": {
+          "durationMs": 29.918,
+          "calls": 85
+        },
+        "sql_control": {
+          "durationMs": 32.99,
+          "calls": 86
+        },
+        "sql_esquema": {
+          "durationMs": 582.333,
+          "calls": 120
+        },
+        "sql_evento": {
+          "durationMs": 12.076,
+          "calls": 35
+        },
+        "total": {
+          "durationMs": 1330.696,
+          "calls": 1
+        },
+        "v2_autorizacion": {
+          "durationMs": 43.609,
+          "calls": 1
+        },
+        "v2_hash": {
+          "durationMs": 4.346,
+          "calls": 9
+        },
+        "v2_inicio": {
+          "durationMs": 52.851,
+          "calls": 1
+        },
+        "v2_retorno": {
+          "durationMs": 39.854,
+          "calls": 1
+        }
+      },
+      "operationId": "3dab4a9f03834e0c8b75297119d48653",
+      "checkpointHash": "YjI3NzY2OThhMzVlNTFmOTgyY2VhYWYwZjEzYTRkNGM4OTlmMzFlZg=="
+    },
+    {
+      "fileId": "108",
+      "documentId": "16268",
+      "expedientId": "693",
+      "inventoryId": "23397",
+      "cabinetId": "10",
+      "elapsedMs": 913.3349999999919,
+      "timing": {
+        "adaptador": {
+          "durationMs": 536.379,
+          "calls": 1
+        },
+        "checkpoint": {
+          "durationMs": 51.614,
+          "calls": 1
+        },
+        "comprobacion_posterior": {
+          "durationMs": 6.608,
+          "calls": 1
+        },
+        "consulta_preflight": {
+          "durationMs": 58.949,
+          "calls": 2
+        },
+        "copia_trabajo": {
+          "durationMs": 19.991,
+          "calls": 1
+        },
+        "datos_documentales": {
+          "durationMs": 24.408,
+          "calls": 1
+        },
+        "escritor_legacy": {
+          "durationMs": 18.734,
+          "calls": 1
+        },
+        "json_chars": {
+          "durationMs": 0,
+          "calls": 130640
+        },
+        "json_control": {
+          "durationMs": 8.742,
+          "calls": 137
+        },
+        "lectura_final": {
+          "durationMs": 29.322,
+          "calls": 1
+        },
+        "original_open": {
+          "durationMs": 0,
+          "calls": 2
+        },
+        "original_v2": {
+          "durationMs": 3.372,
+          "calls": 1
+        },
+        "originales_previos": {
+          "durationMs": 10.149,
+          "calls": 1
+        },
+        "originales_retenidos": {
+          "durationMs": 6.805,
+          "calls": 1
+        },
+        "pdf_bytes": {
+          "durationMs": 0,
+          "calls": 220935
+        },
+        "prev_io": {
+          "durationMs": 4.47,
+          "calls": 1
+        },
+        "reserva": {
+          "durationMs": 37.851,
+          "calls": 1
+        },
+        "ret_io": {
+          "durationMs": 2.18,
+          "calls": 1
+        },
+        "sql_archivo": {
+          "durationMs": 2.715,
+          "calls": 11
+        },
+        "sql_autoridad": {
+          "durationMs": 9.676,
+          "calls": 90
+        },
+        "sql_catalogo": {
+          "durationMs": 22.763,
+          "calls": 85
+        },
+        "sql_control": {
+          "durationMs": 22.771,
+          "calls": 86
+        },
+        "sql_esquema": {
+          "durationMs": 548.879,
+          "calls": 120
+        },
+        "sql_evento": {
+          "durationMs": 8.915,
+          "calls": 35
+        },
+        "total": {
+          "durationMs": 906.477,
+          "calls": 1
+        },
+        "v2_autorizacion": {
+          "durationMs": 41.107,
+          "calls": 1
+        },
+        "v2_hash": {
+          "durationMs": 2.88,
+          "calls": 9
+        },
+        "v2_inicio": {
+          "durationMs": 37.451,
+          "calls": 1
+        },
+        "v2_retorno": {
+          "durationMs": 42.224,
+          "calls": 1
+        }
+      },
+      "operationId": "04b6e0e2a2544e5283ed7e58e00baad1",
+      "checkpointHash": "Zjk5NGEwZTgyZDMzOGMyYTUzODAwZDE4ZDE0NmYzOTQyYjc1NzA0NA=="
+    },
+    {
+      "fileId": "109",
+      "documentId": "16269",
+      "expedientId": "693",
+      "inventoryId": "23398",
+      "cabinetId": "10",
+      "elapsedMs": 908.1592999999993,
+      "timing": {
+        "adaptador": {
+          "durationMs": 524.217,
+          "calls": 1
+        },
+        "checkpoint": {
+          "durationMs": 53.017,
+          "calls": 1
+        },
+        "comprobacion_posterior": {
+          "durationMs": 5.128,
+          "calls": 1
+        },
+        "consulta_preflight": {
+          "durationMs": 58.916,
+          "calls": 2
+        },
+        "copia_trabajo": {
+          "durationMs": 15.506,
+          "calls": 1
+        },
+        "datos_documentales": {
+          "durationMs": 21.205,
+          "calls": 1
+        },
+        "escritor_legacy": {
+          "durationMs": 15.849,
+          "calls": 1
+        },
+        "json_chars": {
+          "durationMs": 0,
+          "calls": 130815
+        },
+        "json_control": {
+          "durationMs": 8.284,
+          "calls": 137
+        },
+        "lectura_final": {
+          "durationMs": 30.372,
+          "calls": 1
+        },
+        "original_open": {
+          "durationMs": 0,
+          "calls": 2
+        },
+        "original_v2": {
+          "durationMs": 4.089,
+          "calls": 1
+        },
+        "originales_previos": {
+          "durationMs": 11.637,
+          "calls": 1
+        },
+        "originales_retenidos": {
+          "durationMs": 7.53,
+          "calls": 1
+        },
+        "pdf_bytes": {
+          "durationMs": 0,
+          "calls": 223440
+        },
+        "prev_io": {
+          "durationMs": 7.148,
+          "calls": 1
+        },
+        "reserva": {
+          "durationMs": 36.793,
+          "calls": 1
+        },
+        "ret_io": {
+          "durationMs": 2.363,
+          "calls": 1
+        },
+        "sql_archivo": {
+          "durationMs": 2.693,
+          "calls": 11
+        },
+        "sql_autoridad": {
+          "durationMs": 9.259,
+          "calls": 90
+        },
+        "sql_catalogo": {
+          "durationMs": 19.324,
+          "calls": 85
+        },
+        "sql_control": {
+          "durationMs": 19.522,
+          "calls": 86
+        },
+        "sql_esquema": {
+          "durationMs": 551.064,
+          "calls": 120
+        },
+        "sql_evento": {
+          "durationMs": 8.459,
+          "calls": 35
+        },
+        "total": {
+          "durationMs": 901.196,
+          "calls": 1
+        },
+        "v2_autorizacion": {
+          "durationMs": 37.229,
+          "calls": 1
+        },
+        "v2_hash": {
+          "durationMs": 4.216,
+          "calls": 9
+        },
+        "v2_inicio": {
+          "durationMs": 35.664,
+          "calls": 1
+        },
+        "v2_retorno": {
+          "durationMs": 40.61,
+          "calls": 1
+        }
+      },
+      "operationId": "05ee59bc4b054c00bdede5b6d0a2777b",
+      "checkpointHash": "ZjI1NGZiZTQxYTZhMGExYzM0MjdjMGRhN2E3YjI3MDE2YjRiZWZiYQ=="
+    }
+  ],
+  "lotId": "50",
+  "sourceCommit": "8f71ec7e0133616b2a26d6ca46380c75a1fd0bf5",
+  "meanHttpSeconds": 1.0581428333333267,
+  "oldMeanHttpSeconds": 79.4320432,
+  "sourceBytes": [
+    "44885",
+    "44187",
+    "44688"
+  ],
+  "previousRunId": "42318523fd4e432a84a2473952e3e59d",
+  "scope": "THREE_EXISTING_PENDING_FILES_ONLY",
+  "coldSealMeasured": false,
+  "other997FingerprintPreserved": true,
+  "secretsRecorded": false
+}

@@ -36,6 +36,7 @@ Public Partial Class CoordinadorImportacionCarpetas
     Private Shared Function VerificarStagingCreacion(vista As VistaBarreraCreacionImportacion, cargar As Func(Of ContextoImportacionCarpetas, String, String, ArchivoImportacionCarpetas), staging As Func(Of LoteImportacionCarpetas, ArchivoImportacionCarpetas, IAlmacenStagingImportacion), autorizar As Action(Of ContextoImportacionCarpetas, ConfiguracionPerfilImportacion), retenciones As List(Of IRetencionVerificadaImportacion), Optional objetivo As ArchivoImportacionCarpetas = Nothing, Optional intentoPropio As String = Nothing) As ReservaCreacionVerificadaImportacion
         If vista Is Nothing OrElse vista.Lote Is Nothing OrElse cargar Is Nothing OrElse staging Is Nothing OrElse autorizar Is Nothing Then Throw BarreraInvalida()
         If vista.Lote.Contexto Is Nothing OrElse vista.Lote.Snapshot Is Nothing OrElse vista.Lote.Snapshot.Configuracion Is Nothing Then Throw BarreraInvalida()
+        If vista.EsFocal Then Return VerificarOriginalIndividual(vista, cargar, staging, autorizar, retenciones, objetivo, intentoPropio)
         Dim contexto = vista.Lote.Contexto
         autorizar(contexto, vista.Lote.Snapshot.Configuracion)
         If objetivo Is Nothing Then
@@ -48,19 +49,23 @@ Public Partial Class CoordinadorImportacionCarpetas
         Dim originales = vista.Plan.Manifiesto.Archivos.ToDictionary(Function(a) a.RaizIdCliente & ":" & a.IdCliente, StringComparer.Ordinal)
         Dim candidatos = vista.Archivos.Where(Function(a) (objetivo Is Nothing OrElse Not parcial OrElse a.ArchivoId = objetivo.ArchivoId) AndAlso RecepcionRegistradaValida(a, If(objetivo IsNot Nothing AndAlso a.ArchivoId = objetivo.ArchivoId, intentoPropio, Nothing)) AndAlso ServicioPreparacionImportacion.EsArchivoElegible(vista.Plan, originales(raices(a.RaizId) & ":" & a.ClienteArchivoId))).OrderBy(Function(a) UInteger.Parse(a.ArchivoId, CultureInfo.InvariantCulture)).Select(Function(a) PerfilImportacionJson.Leer(Of ArchivoImportacionCarpetas)(PerfilImportacionJson.Escribir(a))).ToList()
         Dim salida As New ReservaCreacionVerificadaImportacion()
+        Dim prefijoMedicion = If(retenciones Is Nothing, "prev_", "ret_")
         For Each metadatos In candidatos
-            autorizar(contexto, vista.Lote.Snapshot.Configuracion)
+            MedicionAlmacenamientoImportacion.MedirParte(prefijoMedicion & "auth", Function()
+                                                                                   autorizar(contexto, vista.Lote.Snapshot.Configuracion)
+                                                                                   Return True
+                                                                               End Function)
             Try
-                Dim archivo = cargar(contexto, vista.Lote.LoteId, metadatos.ArchivoId)
+                Dim archivo = MedicionAlmacenamientoImportacion.MedirParte(prefijoMedicion & "meta", Function() cargar(contexto, vista.Lote.LoteId, metadatos.ArchivoId))
                 Dim original = originales(raices(metadatos.RaizId) & ":" & metadatos.ClienteArchivoId)
                 If archivo Is Nothing OrElse archivo.ArchivoId <> metadatos.ArchivoId OrElse archivo.RaizId <> metadatos.RaizId OrElse archivo.ClienteArchivoId <> metadatos.ClienteArchivoId OrElse archivo.Revision = 0 OrElse archivo.Revision <> metadatos.Revision OrElse archivo.BytesPrevistos <> metadatos.BytesPrevistos OrElse archivo.BytesRecibidos <> metadatos.BytesRecibidos OrElse archivo.ContenidoHash <> metadatos.ContenidoHash OrElse archivo.StagingRef <> metadatos.StagingRef OrElse archivo.EstadoEfecto <> metadatos.EstadoEfecto OrElse archivo.IntentoActivoId <> metadatos.IntentoActivoId OrElse Not RecepcionRegistradaValida(archivo, If(objetivo IsNot Nothing AndAlso archivo.ArchivoId = objetivo.ArchivoId, intentoPropio, Nothing)) OrElse archivo.NombreOriginal <> original.Nombre OrElse archivo.RutaRelativa <> original.RutaRelativa Then Throw New PerfilImportacionException("CONFLICTO_REVISION", "La recepción cambió durante la revisión previa.")
                 Dim almacen = staging(vista.Lote, archivo)
                 If almacen Is Nothing Then Throw New PerfilImportacionException("CAPACIDAD_NO_DISPONIBLE", "No se pudo comprobar el staging privado.")
                 Dim retenido As RecepcionVerificadaImportacion
                 If retenciones Is Nothing Then
-                    retenido = almacen.VerificarRetenido(contexto)
+                    retenido = MedicionAlmacenamientoImportacion.MedirParte(prefijoMedicion & "io", Function() almacen.VerificarRetenido(contexto))
                 Else
-                    Dim guardia = almacen.ConservarVerificado(contexto)
+                    Dim guardia = MedicionAlmacenamientoImportacion.MedirParte(prefijoMedicion & "io", Function() almacen.ConservarVerificado(contexto))
                     If guardia Is Nothing Then Throw StagingCreacionIncierto()
                     Try
                         retenido = guardia.Recepcion
@@ -90,10 +95,10 @@ Public Partial Class CoordinadorImportacionCarpetas
     End Function
 
     Private Shared Function StagingCreacionOcupado() As PerfilImportacionException
-        Return New PerfilImportacionException("OPERACION_EN_CURSO", "La raíz no tiene una recepción disponible para reservar creación.")
+        Return DiagnosticoOperacionImportacion.Fallo("OPERACION_EN_CURSO", "creacion", "BARRERA_CREACION_NO_DISPONIBLE")
     End Function
     Private Shared Function StagingCreacionIncierto() As PerfilImportacionException
-        Return New PerfilImportacionException("RESULTADO_INCIERTO", "El staging no pudo comprobarse; no se autoriza reservar creación.")
+        Return DiagnosticoOperacionImportacion.Fallo("RESULTADO_INCIERTO", "recepcion", "ORIGINAL_NO_COMPROBADO")
     End Function
 End Class
 

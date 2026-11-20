@@ -1,0 +1,89 @@
+# DOC-120 — ServiciosYReglas
+
+## Servicios y reglas
+
+Preparación segmentada y plan2 reutilizan el repositorio de importación y su confirmación atómica. ControlArchivoIndependienteImportacion vincula archivo/raíz/lote/snapshot con pruebas de procedencia; la reserva mantiene bloqueos, CAS, token/hash y exclusión de escritor activo. El original de B ausente no exige abrirlo para procesar A; la completitud se evalúa al cierre sin convertir un perfil completo en parcial.
+
+ReanudarLote y Retomar creación reautorizan y contrastan revisiones/diario/estado antes de reclamar; INCIERTO y EN_CURSO no se rehabilitan por tiempo. V2 conserva preparación/autorización/retorno/checkpoint. RegistrarOriginalNoDisponible solo cierra una reserva propia anterior a invocación bajo token/diario coherentes y registra el negativo sin IDs documentales. No puede borrar resultados confirmados ni liberar el intento ajeno.
+
+3.187 verificó con conexiones MySQL nativas dos reclamaciones sobre A, revisión antigua, contención/B reservado, tres rollbacks y dos cierres; plan94/lote57. Se preservaron17 grupos anteriores y5 del fixture, incluidos comprobantes de recepción/creación. Las pruebas Framework compilan las fuentes pertinentes; no se suman sus casos internos como suites Node. ValidarMetadatos y la degradación histórica/local conservan su alcance acotado, sin afirmar todas las incompatibilidades de BD reales.
+
+## Cronología conservada
+
+## Mensajes de las cinco fases — implementación local2026-11-14
+
+Preparación, confirmación, recepción, creación/reanudación e índices/almacenamiento muestran causas verificadas y acciones vigentes, con contrato público conservado. El catálogo cerrado cubre148 códigos, incluidos los118 auditados. El mapa clasifica577 textos y684 sitios, conservando etiquetas y excluyendo administración/legacy/V2 sin ampliación. Un acuse confirmado no se pierde por una consulta o proyección fallida; la cola conserva confirmados, archivo actual y no intentados. Sin replay ni cambios de autoridad, reservas, política de nombres o escritores compartidos. Avisos accesibles con Tab en390/768/1280px. **119/119 pruebas locales únicas**, incluidos19 nuevos casos Node y wrappers Framework/DDL; casos internos no sumados. Compilación0 errores. Avance**82/86**,36 escenarios; siguen abiertas5.2/6.4/6.5/6.6. Fuentes, comandos, logs y huellas en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-mensajes-20261114.json`; mapa compañero `doc120-mensajes-mapa-20261114.json`. No hubo nuevas operaciones reales ni comprobación del runtime o destino de trazas de IIS.
+
+## Primer expediente del nivel — corrección2026-11-14
+
+El usuario reporta que recuperó el lote y terminó la importación, con expediente ausente del árbol. Reproducción local: Doc111ActualizarRama exige un contenedor que WebForms omite en niveles vacíos y el asistente ignora el fallo. Se reutiliza el insertor del primer hijo, se verifica la relación y se conserva selección/expansión existente, búsqueda y contador. Si no se puede mostrar, hay aviso y Actualizar reintenta solo la proyección. **74/74 pruebas locales únicas**, incluidos cinco focales superpuestos y expansor nativo System.Web; sin operaciones reales ni delta backend. Avance**57/61**,36 escenarios. La actualización en IIS queda sin observar; abiertas5.2/6.4/6.5/6.6. Evidencia: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-primer-expediente-arbol-20261114.json`; instrucciones `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-primer-expediente-arbol-20261114.md`. Cortes siguientes históricos.
+
+
+## Reanudación permanente implementada — 2026-11-14
+
+**Retomar creación** queda incorporado al seguimiento de cualquier importación elegible, sin configuración por cuenta. La consulta comprueba una reserva de creación activa, sin inicio ni evidencia de resultado y con diario coherente. Confirmar vuelve a validar permisos, destino, catálogos, recepción y staging; rota la reclamación del mismo intento bajo bloqueos/CAS y conserva su identidad, hash, inicio, recibo, valores y snapshot. Solo levanta la detención observada con consentimiento; una revisión nueva o intento ya iniciado se rechazan.
+
+La interfaz mantiene consulta/último lote, filtros, CSV y árbol. Cancelar no envía; confirmar solicita una fase. Tras la creación confirmada aparece Preparar índices; no recibe ni almacena automáticamente. Una respuesta perdida exige consultar y no produce replay. **108/108 pruebas locales únicas**, incluidos dos wrappers Framework/DDL cuyos casos internos no se suman, y compilación local0 errores; Chromium sintético390/1280px. Las pruebas de SQL/transacciones/escritor usan dobles y staging temporal real; no prueban concurrencia en MySQL real ni sesión autenticada de IIS.
+
+Avance**55/59**,35 escenarios. El lote39 no se recuperó en este corte:0 HTTP de aplicación,0 SELECT de negocio,0 sesiones y0 efectos reales nuevos. Las8 lecturas intentadas previas se conservan. Abiertas5.2,6.4,6.5,6.6 y aceptación integral pendiente. Evidencia: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-retomar-creacion-permanente-20261114.json`; detalle `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-retomar-creacion-permanente-20261114.md`. Los cortes siguientes son antecedentes históricos y no se renuevan sus resultados.
+
+
+## Fecha canónica corregida — diagnósticof23baf65,2026-11-14
+
+La ventana autorizada de1 SELECT RA terminó STOPPED reproduciendo **ROOT_FIELD_RULE / FECHA_INICIAL / LONGITUD_EXCEDIDA**: fuente/tipo coinciden y el valor resuelto ocupa10 caracteres. El validador resuelto conservaba el límite menor de la entrada original.8 intentos acumulados,7 lecturas concluidas conocidas y1 anterior de resultado desconocido;0 HTTP/sesiones/efectos y credenciales eliminadas. No se guardó el valor real ni se presume la longitud exacta de la regla.
+
+Corrección acotada en ValidarValorResuelto: sobre copia, FECHA se valida como yyyy-MM-dd con longitud10. La entrada original sigue respetando formato/límite del perfil; fechas inválidas/no canónicas y tipos no fecha siguen rechazados. No cambian reglas publicadas, snapshot, permisos, barreras ni reserva96. Reproducción fallida antes en la DLL anterior con el mismo detalle del caso real; **29/29 pruebas locales** después, incluidos1 wrapper Framework y1 DDL cuyos casos internos no se suman, y compilación local0 errores. La DLL compilada acepta el caso sintético compacto sin mutar recursos.
+
+3.30/3.31 completadas en diagnóstico de causa, corrección y propuesta de recuperación; avance**47/51**. **El lote39 no fue recuperado ni probado de nuevo con efectos.** La reserva y detención permanecen; la acción de retomar una reserva requiere implementación revisada y autorización propia. Propuesta técnica, todavía no disponible: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-recuperacion-reserva96-propuesta-20261114.md`. Evidencia: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-fecha-canonica-corregida-20261114.json`. Sin aceptación integral; los cortes siguientes conservan su alcance histórico.
+
+
+## Estado real del lote39 — diagnóstico933961f9,2026-11-14
+
+**Diagnóstico de estado completado; recuperación sin resolver.** Ventana autorizada expresamente sobre50803073:5 SELECT concluidos,0 HTTP/0 sesiones, credenciales eliminadas. Con el intento64c70664 anterior:6 intentos presupuestados y5 lecturas concluidas conocidas; no se reconstruye el resultado fallido anterior. Lote39/plan57 EN_CURSO, carpeta60 CREANDO e intento96 **RESERVADO**, sin evidencia CREACION_PREPARADA ni identidad de expediente registrada. Archivo86 RECIBIDO/NO_INICIADO, recepción95 CONFIRMADA. La detención se solicitó después (00:43:02 UTC frente a la reserva00:39:26), por lo que no explica el rechazo inicial.
+
+El código actual registra EN_CURSO antes del escritor; la lectura orienta a comprobaciones previas o a la transacción de inicio. **No identifica la validación fallida ni demuestra ausencia del expediente en tablas de negocio.** No se liberó el intento, reconcilió, recibió, creó ni almacenó. Los estados activos no autorizan replay por tiempo. Tarea3.27 completada por diagnóstico válido de estado; avance**44/48**. La brecha crítica de recuperación sigue bloqueando6.4/aceptación integral. Cualquier lectura adicional o recuperación real necesita alcance y autorización específicos. Evidencia: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-diagnostico-lote39-20261114.json`; filas saneadas y ejecución permanecen excluidas de Git. Los cortes siguientes conservan su alcance histórico.
+
+
+## Diagnóstico detenido y corrección del reporte — 2026-11-14
+
+Ventana autorizada64c70664, sobre3010eef7: lote39/carpeta60, STOPPED en el primer intento contabilizado,0 HTTP/0 sesiones y credenciales eliminadas. No hay archivo de resultados; el contador anterior no distingue apertura fallida de SQL ejecutado. La causa del lote y la existencia del expediente siguen desconocidas. El ejecutor descartaba las categorías seguras DOC111_SELECT del puente: corrección local conserva solo la lista cerrada y agrega lectura actual/intentos/respuestas concluidas. **12/12 pruebas locales**, sin consultar datos de negocio ni repetir la corrida real. Evidencia: `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-diagnostico-reporte-20261114.json`. El corte79/79 de UI permanece histórico; esta corrección solo cambia el auxiliar. Avance43/48;3.27 sigue abierta. Otra ventana de hasta5 SELECT exige instrucción expresa; se conserva1 intento previo (máximo6 acumulado), sin HTTP ni efectos. Los cortes siguientes conservan su alcance histórico.
+
+
+## Flujo final tras creación sin confirmación — corte2026-11-14
+
+Video194059: lote39/plan57, carpeta60 y archivo86. La recepción se muestra confirmada, pero la creación deja la carpeta CREANDO y el lote EN_CURSO durante las consultas de la grabación. La columna Expediente pendiente **no demuestra ausencia del expediente real**; no se conoce su resultado sin diagnóstico.
+
+Corrección local3.24/3.25/3.26/3.28: contexto de operación conservado, aviso fijo con referencias, recurso bloqueante priorizado y **Revisar bloqueo** como acción principal local tras una consulta sin confirmación. Actualizar no reanuda; CREANDO no permite reconciliar por timeout. Una verificación válida sin resolución mantiene el bloqueo con explicación. Creación/índices/almacenamiento y fin solo por confirmaciones, sin encadenamiento. **79/79 Node locales**, incluidos2 wrappers Framework/DDL; compilación0 errores/1 advertencia. Evidencia: Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-flujo-final-20261114.json.
+
+**3.27 pendiente**: diagnóstico preparado de5 SELECT,0 HTTP,0 efectos; requiere autorización y credenciales efímeras. No ejecutado ni recuperado el lote39; causa interna todavía no comprobada. Avance**43/48**; pendientes3.27,5.2,6.4,6.5,6.6. La UI local aprobada no concede aceptación integral ni cierra este resultado real. Los cortes siguientes permanecen históricos.
+
+
+## Fidelidad a la maqueta — corte vigente2026-11-13
+
+Corrección solicitada tras2642e604: la reorganización anterior no igualaba el aspecto ni mantenía accesos de consulta dentro de todas las etapas. Tareas3.19–3.23 completadas: barra Consultar importación / Consultar último lote y pie siempre visibles, diseño de controles trasladado de la maqueta, selección de recurso sin efectos y consulta secundaria con preparación conservada. Un idCliente coincidente de otro lote no habilita Files del inventario original. Las operaciones mantienen sus guardas y validaciones.
+
+**116 propiedades visuales contrastadas** y capturas390/768/1280px con CSS real, Bootstrap y servicios sintéticos; **71/71 pruebas Node**, incluidos2 wrappers Framework/DDL (no se suman casos internos), compilación Debug incremental0 errores/1 advertencia. Evidencia: Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-fidelidad-maqueta-20261113.json. Avance**39/43**, con5.2,6.4,6.5,6.6 abiertas. No hay nueva sesión IIS autenticada ni aceptación integral. El marco modal y los controles operativos adicionales se conservan; la maqueta sigue siendo una página independiente con datos de ejemplo. Los cortes siguientes son históricos.
+
+
+## Asistente guiado — corte vigente2026-11-13
+
+Tareas3.10–3.18 completadas: **Seleccionar → Revisar → Seguimiento** sobre el asistente real. Perfil/carpetas juntos; una acción existente destacada con recurso, sin duplicación ni fases automáticas. Configuración/filtros desplegables con borradores y foco; consultas por referencia/último lote/plan pendiente, páginas independientes y CSV conservados. Actualizar estado muestra fecha/contador al completar lecturas válidas; envío muestra cantidad elegible de la página y archivo actual/total de cola, diferenciando transporte, recepción y almacenamiento. C01/C02/C03 de la maqueta corregidas; auditoría anterior y sus límites se conservan como antecedentes.
+
+**Validación local:68/68 Node**, incluidos2 wrappers Framework/DDL cuyos casos internos no se suman; Chromium con servicios sintéticos y compilación Debug incremental0 errores/1 advertencia. Evidencia: Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-asistente-guiado-20261113.json. Avance**34/38**; siguen abiertas5.2,6.4,6.5 y6.6. Sin ejecución IIS autenticada nueva ni aceptación integral. Los cortes siguientes mantienen su SHA, conteos y ámbito histórico.
+
+
+## Corte de recepción — DOC120-REC01,2026-11-13
+
+Tarea3.9: disponibilidad de creación por consulta, reutilizando la barrera de recepción y el ámbito completo, con dos SELECT de metadatos agrupados por página y lectura del plan. Se añade el booleano público recepcionListaParaCrear (false por defecto), sin endpoint ni esquema nuevo; pista interna excluida de JSON persistido. Cliente exige true, explica la recepción y acerca el envío. Sin cambios de creación/almacenamiento/SII/perfil Egresos ni efectos sobre lote31. Regresión local64/64 Node (incluye2 wrappers Framework/DDL) y compilación0 errores. Evidencia: Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-recepcion-creacion-20261113.json. Avance25/29; cuatro tareas de autorización/aceptación/gobierno/entrega abiertas. Sin nueva prueba IIS autenticada; los apartados siguientes son cortes históricos y sus afirmaciones sin delta/DTO no describen esta corrección.
+
+- Ticket: DOC-120
+- Cambio OpenSpec: doc-120-produccion-importacion-carga-carpeta-verificacion
+- Clasificacion: cross_cutting
+
+## Antecedente inicial — Servicios y reglas
+
+Producto/servicios/repositorio sin delta desde8c0773d4. Consultar/CSV reautorizan y no reconcilian; coordinador/Barreras/Valores/RecuperacionV2 conservan revisiones, integridad, valores diferidos, fecha estable y fases. INCIERTO no se repite; stop no revierte lo confirmado.
+
+Regresión actual del arnés Framework y contraste DDL:2 wrappers Node PASS dentro del corte5/5 inicial. Se fijan114 entradas del arnés (fuentes y contratos SQL); las fuentes compiladas usan disco temporal/dobles SQL/HTTP y no una BD real. Sus casos internos no se agregan al total Node.
+
+INT-02 reutiliza exclusivamente la ausencia histórica de ra_integracion_evento y restauración/carga individual. ValidarMetadatos tiene verificaciones de tablas/motor/columnas/índices/claves/reglas; la prueba local no acredita esquema instalado ni cada incompatibilidad real. No se requiere variante real adicional sin requisito/diferencia concreta; auxiliar compatible corregido por separado.

@@ -71,19 +71,201 @@
         return file;
     }
     function accionesRecurso(model, resource, raiz) {
-        if (!model || !model.estado || !resource || model.busy || model.mutacionIncierta) { return []; }
+        if (!model || !model.estado || !resource || politicaControles(model).bloquearEdicion || model.mutacionIncierta) { return []; }
         var allowed = model.estado.accionesPermitidas || [], actions = [];
         if (allowed.indexOf("SOLICITAR_VERIFICACION") !== -1 && resource.estado === "INCIERTO" && /^[1-9][0-9]*$/.test(resource.intentoActivoId || "")) { actions.push("RECONCILIAR"); }
+        if (raiz && allowed.indexOf("SOLICITAR_REANUDACION") !== -1 && model.estado.loteId === model.loteId && model.estado.estado === "EN_CURSO" && model.estado.hayIncertidumbre === false && model.estado.revision > 0 && model.raices && model.raices.loteId === model.loteId && model.raices.tipo === "RAICES" && model.raices.revisionLectura === model.estado.revision && resource.revision > 0 && resource.estado === "CREANDO" && resource.tieneIntentoActivo === true && resource.puedeRetomarCreacion === true && !resource.expedienteId && !resource.relacionNivelId && typeof resource.intentoActivoId === "string" && /^[1-9][0-9]{0,9}$/.test(resource.intentoActivoId) && Number(resource.intentoActivoId) <= 4294967295) { actions.push("RETOMAR_CREACION"); }
         if (allowed.indexOf("SOLICITAR_AVANCE") === -1 || resource.tieneIntentoActivo) { return actions; }
         if (raiz) {
-            if (resource.estado === "PENDIENTE" && !resource.expedienteId) { actions.push("CREAR_EXPEDIENTE"); }
+            if (resource.estado === "PENDIENTE" && !resource.expedienteId && resource.recepcionListaParaCrear === true) { actions.push("CREAR_EXPEDIENTE"); }
         } else {
             var parent = model.raices && model.raices.elementos.filter(function (r) { return r.recursoId === resource.raizId; })[0];
-            if (parent && parent.estado === "EXPEDIENTE_CONFIRMADO" && !parent.tieneIntentoActivo && resource.estadoRecepcion === "RECIBIDO" && resource.estado === "NO_INICIADO") {
+            if (parent && (parent.estado === "EXPEDIENTE_CONFIRMADO" || model.estado.procesamientoIndependiente === true && ["PARCIAL","INCIERTO"].indexOf(parent.estado)!==-1) && !parent.tieneIntentoActivo && resource.estadoRecepcion === "RECIBIDO" && resource.estado === "NO_INICIADO") {
                 actions.push(resource.valoresEfectivosFijados === true ? "ALMACENAR" : "MATERIALIZAR_VALORES");
             }
         }
         return actions;
+    }
+    function bloqueoFlujo(model) {
+        if (!model || !model.estado) { return null; }
+        var resources = (model.raices ? model.raices.elementos : []).map(function (r) { return {tipo:"RAICES", recurso:r, fase:"CREAR_EXPEDIENTE"}; }).concat((model.resultados ? model.resultados.elementos : []).map(function (f) { return {tipo:"ARCHIVOS", recurso:f, fase:["RECIBIENDO","INCIERTO"].indexOf(f.estadoRecepcion) !== -1 ? "RECEPCION" : "ALMACENAR"}; }));
+        var active = resources.filter(function (item) { var r = item.recurso; return r.tieneIntentoActivo === true || ["CREANDO","EN_CURSO","INCIERTO"].indexOf(r.estado) !== -1 || ["RECIBIENDO","INCIERTO"].indexOf(r.estadoRecepcion) !== -1; });
+        var last = model.ultimaOperacion && model.ultimaOperacion.loteId === model.loteId ? model.ultimaOperacion : null, needsRead = !!(last && model.mutacionIncierta && last.estado === "SIN_CONFIRMAR"), pending = last && (last.estado === "SOLICITANDO" || needsRead) && resources.filter(function (item) { return last.tipo === item.tipo && last.recursoId === item.recurso.recursoId; })[0], blocked = active.filter(function (item) { return last && last.tipo === item.tipo && last.recursoId === item.recurso.recursoId; })[0] || pending || active[0];
+        if(model.estado.procesamientoIndependiente===true && model.estado.escritorVivo===false && !model.mutacionIncierta && !needsRead && (!last || last.estado!=='SOLICITANDO')){return null;}
+        if (!blocked) { return model.estado.hayIntentosActivos || model.estado.hayIncertidumbre || needsRead ? {tipo:"LOTE", fase:needsRead ? last.fase : null, fueraDePagina:true, verificable:false, requiereConsulta:needsRead} : null; }
+        blocked.verificable = accionesRecurso(model, blocked.recurso, blocked.tipo === "RAICES").indexOf("RECONCILIAR") !== -1;
+        blocked.retomable = accionesRecurso(model, blocked.recurso, blocked.tipo === "RAICES").indexOf("RETOMAR_CREACION") !== -1;
+        blocked.solicitando = !!pending && last.estado === "SOLICITANDO";
+        blocked.requiereConsulta = needsRead && active.indexOf(blocked) === -1;
+        return blocked;
+    }
+    // Consentimiento efimero en esta vista; nunca se persiste una cola ejecutable.
+    function politicaControles(model) {
+        model = model || {};
+        var flow = model.coordinacion || {}, transicion = !!model.transicionPendiente;
+        var activa = flow.activa === true, pausando = flow.estado === "pausing", decision = flow.estado === "awaiting-decision";
+        var ocupado = !!model.busy || activa || flow.consultandoResultado === true;
+        return {ejecutando:activa, aplicandoPausa:pausando, transicion:transicion,
+            bloquearEdicion:ocupado || transicion || decision, resultadoIncierto:!!model.mutacionIncierta,
+            puedePausar:activa && !pausando && !transicion, puedeCerrar:!transicion,
+            puedeNavegar:!transicion && !pausando && (!ocupado || activa || decision),
+            consultarConPausa:activa || decision};
+    }
+    function crearCoordinacion(options) {
+        if (!options || typeof options.leer !== "function" || typeof options.ejecutar !== "function" || typeof options.vigente !== "function") { throw new Error("SOLICITUD_INVALIDA"); }
+        var running = null, stopped = true, disposed = false, generation = 0, reads = 0, effects = 0, members = null, scope = null;
+        var excluded = Object.create(null), decision = null, resolveDecision = null;
+        var completed = Object.create(null), confirmedRows = Object.create(null), failed = Object.create(null), current = null, status = "paused", code = null, latest = null, acknowledged = false, consultingResult = false;
+        var limits = {resources:10000,pages:400,reads:10000,effects:10000};
+        function id(value) { return typeof value === "string" && /^[1-9][0-9]{0,9}$/.test(value) && Number(value) <= 4294967295; }
+        function integer(value) { return Number.isInteger(value) && value >= 0; }
+        function fault(value) { var error = new Error(value); error.codigo = value; return error; }
+        function live(token) { return !disposed && token === generation && options.vigente(); }
+        function summary() {
+            var roots = latest ? latest.raices : [], files = latest ? latest.archivos : [];
+            var rows=current&&current.tipo==='RAICES'?roots:files, position=current?rows.findIndex(function(row){return row.recursoId===current.row.recursoId;})+1:0;
+            return {decision:decision,excluidos:Object.keys(excluded).length,pendientes:files.filter(function(f){return f.estado!=="COMPLETADO";}).length,activa:status === "running" || status === "pausing",consultandoResultado:consultingResult,estado:status,codigo:code,actual:current ? {tipo:current.tipo,id:current.row.recursoId,nombre:current.row.nombre,rutaRelativa:current.row.rutaRelativa,fase:current.fase,posicion:position,total:rows.length} : null,
+                totalRaices:roots.length,totalArchivos:files.length,recibidos:files.filter(function (f) { return f.estadoRecepcion === "RECIBIDO"; }).length,
+                expedientes:roots.filter(function (r) { return id(r.expedienteId) && id(r.relacionNivelId); }).length,
+                guardados:files.filter(function (f) { return id(f.documentoId) && ["ALMACENADO","COMPLETADO"].indexOf(f.estado) !== -1; }).length,
+                datos:files.filter(function (f) { return f.valoresEfectivosFijados === true; }).length,
+                completo:!!latest && latest.estado.estado === "COMPLETADO",lecturas:reads,efectos:effects,enumeracionCompleta:!!latest};
+        }
+        function publish() { if (!disposed && options.vigente() && options.cambiar) { options.cambiar(summary(),latest); } }
+        function consumeRead() { if (++reads > limits.reads) { throw fault("COORDINACION_LIMITE"); } }
+        function validate(snapshot) {
+            if(snapshot && snapshot.focalValidado===2 && snapshot.anterior===latest && latest){
+                var s=snapshot.estado,p=latest.estado;
+                if(!s || s.loteId!==p.loteId || s.nivelRef!==p.nivelRef || s.perfilId!==p.perfilId || s.versionId!==p.versionId || s.rutaCanonica!==p.rutaCanonica || s.totalRaices!==p.totalRaices || s.totalArchivos!==p.totalArchivos || !Number.isInteger(s.revision) || s.revision<p.revision || !Array.isArray(s.accionesPermitidas) || ['detencionSolicitada','hayIntentosActivos','hayIncertidumbre','escritorVivo','procesamientoIndependiente'].some(function(k){return typeof s[k]!=='boolean';})){throw fault('RESPUESTA_INVALIDA');}
+                delete snapshot.anterior;return snapshot;
+            }
+            if (!snapshot || !snapshot.estado || !Array.isArray(snapshot.raices) || !Array.isArray(snapshot.archivos)) { throw fault("RESPUESTA_INVALIDA"); }
+            var state = snapshot.estado, roots = Object.create(null), files = Object.create(null), identity = [];
+            if (!id(state.loteId) || !id(state.nivelRef) || !Number.isInteger(state.revision) || state.revision <= 0 || !Array.isArray(state.accionesPermitidas) || !integer(state.totalRaices) || !integer(state.totalArchivos) || state.totalRaices + state.totalArchivos > limits.resources || snapshot.raices.length !== state.totalRaices || snapshot.archivos.length !== state.totalArchivos) { throw fault("RESPUESTA_INVALIDA"); }
+            if(!id(state.perfilId)||!id(state.versionId)||typeof state.rutaCanonica!=='string'||['detencionSolicitada','hayIntentosActivos','hayIncertidumbre'].some(function(field){return typeof state[field]!=='boolean';})){throw fault('RESPUESTA_INVALIDA');}
+            var observedScope = JSON.stringify([state.loteId,state.nivelRef,state.perfilId,state.versionId,state.rutaCanonica]);
+            if (scope && scope !== observedScope) { throw fault("CONFLICTO_REVISION"); }
+            snapshot.raices.forEach(function (r) { if (!r || !id(r.recursoId) || roots[r.recursoId] || !Number.isInteger(r.revision) || r.revision <= 0) { throw fault("RESPUESTA_INVALIDA"); } roots[r.recursoId] = r; identity.push("R:" + r.recursoId + ":" + r.idCliente); });
+            snapshot.archivos.forEach(function (f) { if (!f || !id(f.recursoId) || files[f.recursoId] || !roots[f.raizId] || !Number.isInteger(f.revision) || f.revision <= 0) { throw fault("RESPUESTA_INVALIDA"); } files[f.recursoId] = f; identity.push("A:" + f.recursoId + ":" + f.raizId + ":" + f.idCliente); });
+            Object.keys(confirmedRows).forEach(function(key){var known=confirmedRows[key],row=(known.tipo==='RAICES'?roots:files)[known.id];if(!row||Object.keys(known.valores).some(function(field){return row[field]!==known.valores[field];})){throw fault('RESULTADO_PENDIENTE_LECTURA');}});
+            var signature = identity.sort().join("|"); if (members && members !== signature) { throw fault("CONFLICTO_REVISION"); } scope = observedScope; members = signature;
+            return snapshot;
+        }
+        function read(token, affected) {
+            if (!live(token)) { return Promise.resolve(null); }
+            return options.leer(consumeRead,limits,affected,latest).then(function (snapshot) { if (!live(token)) { return null; } latest = validate(snapshot); publish(); return latest; });
+        }
+        function blocked(snapshot) {
+            var state = snapshot.estado;
+            if(state.procesamientoIndependiente===true){return state.detencionSolicitada || state.escritorVivo!==false || ['DETENIDO','FALLIDO'].indexOf(state.estado)!==-1;}
+            return state.detencionSolicitada || state.hayIntentosActivos || state.hayIncertidumbre || ["DETENIDO","FALLIDO","PENDIENTE_VERIFICACION"].indexOf(state.estado) !== -1 || snapshot.raices.concat(snapshot.archivos).some(function (r) { return r.tieneIntentoActivo || ["CREANDO","EN_CURSO","INCIERTO"].indexOf(r.estado) !== -1 || ["RECIBIENDO","INCIERTO"].indexOf(r.estadoRecepcion) !== -1; });
+        }
+        function choose(snapshot) {
+            var state = snapshot.estado, roots = snapshot.raices, files = snapshot.archivos, model = {loteId:state.loteId,estado:state,raices:{elementos:roots}}, rootMap = Object.create(null), result = null;
+            roots.forEach(function (r) { rootMap[r.recursoId] = r; });
+            function eligible(f) { return !excluded[f.recursoId] && ["BLOQUEADO","CANCELADA"].indexOf(rootMap[f.raizId].estado) === -1 && ["CANCELADO","RECHAZADO"].indexOf(f.estado) === -1 && ["CANCELADO","RECHAZADO"].indexOf(f.estadoRecepcion) === -1; }
+            function confirmedParent(f){return id(rootMap[f.raizId].expedienteId)&&id(rootMap[f.raizId].relacionNivelId);}
+            if (state.accionesPermitidas.indexOf("SOLICITAR_AVANCE") === -1) { return null; }
+            if(state.procesamientoIndependiente===true){
+                files.some(function(f){
+                    if(!eligible(f)){return false;}
+                    var parent=rootMap[f.raizId],actions=accionesRecurso(model,f,false),phase=null;
+                    if(f.estadoRecepcion==='PENDIENTE'&&f.estado==='NO_INICIADO'&&!f.tieneIntentoActivo){phase='RECEPCION';}
+                    else if(f.estadoRecepcion==='RECIBIDO'&&f.estado==='NO_INICIADO'&&!f.tieneIntentoActivo){
+                        if(accionesRecurso(model,parent,true).indexOf('CREAR_EXPEDIENTE')!==-1){result={tipo:'RAICES',fase:'CREAR_EXPEDIENTE',row:parent};return true;}
+                        if(actions.indexOf('MATERIALIZAR_VALORES')!==-1){phase='MATERIALIZAR_VALORES';}
+                        else if(actions.indexOf('ALMACENAR')!==-1){phase='ALMACENAR';}
+                    }
+                    if(phase){result={tipo:'ARCHIVOS',fase:phase,row:f};return true;}return false;
+                });
+                if(result){result.key=result.tipo+':'+result.row.recursoId+':'+result.fase;}return result;
+            }
+            files.some(function (f) { if (eligible(f) && f.estadoRecepcion === "PENDIENTE" && f.estado === "NO_INICIADO" && !f.tieneIntentoActivo) { result = {tipo:"ARCHIVOS",fase:"RECEPCION",row:f}; return true; } return false; });
+            if (!result) { roots.some(function (r) { if (accionesRecurso(model,r,true).indexOf("CREAR_EXPEDIENTE") !== -1) { result = {tipo:"RAICES",fase:"CREAR_EXPEDIENTE",row:r}; return true; } return false; }); }
+            if (!result) { files.some(function (f) { if (!eligible(f)||!confirmedParent(f)) { return false; } var actions = accionesRecurso(model,f,false); if (actions.indexOf("MATERIALIZAR_VALORES") !== -1) { result = {tipo:"ARCHIVOS",fase:"MATERIALIZAR_VALORES",row:f}; return true; } return false; }); }
+            if (!result) { files.some(function (f) { if (eligible(f)&&confirmedParent(f) && accionesRecurso(model,f,false).indexOf("ALMACENAR") !== -1) { result = {tipo:"ARCHIVOS",fase:"ALMACENAR",row:f}; return true; } return false; }); }
+            if (result) { result.key = result.tipo + ":" + result.row.recursoId + ":" + result.fase; }
+            return result;
+        }
+        function confirm(op,result,snapshot) {
+            var receipt = op.fase === "RECEPCION";
+            if (!result || result.loteId !== snapshot.estado.loteId || (receipt ? result.archivoId !== op.row.recursoId || result.estadoRecepcion !== "RECIBIDO" : result.fase !== op.fase || result.estado !== "CONFIRMADO" || (op.tipo === "RAICES" ? result.raizId : result.archivoId) !== op.row.recursoId)) { var error = fault("RESPUESTA_INVALIDA"); error.resultadoIncierto = true; throw error; }
+            if (op.fase === "CREAR_EXPEDIENTE" && (!id(result.expedienteId) || !id(result.relacionNivelId)) || op.fase === "ALMACENAR" && (!id(result.documentoId) || !id(result.gabineteId))) { var incomplete = fault("RESPUESTA_INVALIDA"); incomplete.resultadoIncierto = true; throw incomplete; }
+            var values={};if(receipt){values.estadoRecepcion='RECIBIDO';}else if(op.fase==='CREAR_EXPEDIENTE'){values.expedienteId=result.expedienteId;values.relacionNivelId=result.relacionNivelId;}else if(op.fase==='MATERIALIZAR_VALORES'){values.valoresEfectivosFijados=true;}else if(op.fase==='ALMACENAR'){values.documentoId=result.documentoId;values.gabineteId=result.gabineteId;}
+            confirmedRows[op.key]={tipo:op.tipo,id:op.row.recursoId,valores:values};completed[op.key] = true; acknowledged = true; if (options.confirmar) { options.confirmar(op,result); }
+        }
+        function askUnavailable(token,snapshot,op,data){
+            var file=snapshot.archivos.filter(function(f){return f.recursoId===data.archivoId;})[0];
+            if(!file || file.raizId!==data.raizId || data.loteId!==snapshot.estado.loteId || data.certeza!=='NO_INICIADO' || data.fase!==op.fase){throw fault('RESPUESTA_INVALIDA');}
+            decision={archivoId:file.recursoId,nombre:file.nombre,rutaRelativa:file.rutaRelativa,raizId:file.raizId,fase:op.fase,causa:data.causa,certeza:'NO_INICIADO',local:data.local===true};
+            status='awaiting-decision';code='ARCHIVO_NO_DISPONIBLE';publish();
+            return new Promise(function(resolve){resolveDecision=resolve;}).then(function(continueOthers){
+                resolveDecision=null;decision=null;
+                if(!live(token)||!continueOthers||stopped){stopped=true;status='paused';publish();return null;}
+                excluded[file.recursoId]=true;status='running';current=null;publish();
+                var refresh=data.local?Promise.resolve(snapshot):read(token,{tipo:'ARCHIVOS',fase:op.fase,row:file});
+                return refresh.then(function(next){return next?cycle(token,next):null;});
+            });
+        }
+        function cycle(token,snapshot) {
+            if (!live(token) || stopped) { return; }
+            if (snapshot.estado.estado === "COMPLETADO") { status = "complete"; current = null; publish(); return; }
+            if (blocked(snapshot)) { status = "blocked"; code = snapshot.estado.hayIncertidumbre || snapshot.estado.estado==='PENDIENTE_VERIFICACION' ? 'RESULTADO_INCIERTO' : snapshot.estado.hayIntentosActivos ? 'OPERACION_EN_CURSO' : snapshot.estado.detencionSolicitada || snapshot.estado.estado==='DETENIDO' ? 'DETENCION_SOLICITADA' : snapshot.estado.estado==='FALLIDO' ? 'LOTE_TERMINAL' : 'OPERACION_EN_CURSO'; publish(); return; }
+            current = choose(snapshot);
+            if (!current) { status = "paused"; code = "SIN_AVANCE_DISPONIBLE"; publish(); return; }
+            if (completed[current.key] || failed[current.key]) { status = "blocked"; code = "RESULTADO_PENDIENTE_LECTURA"; publish(); return; }
+            if (effects >= limits.effects) { throw fault("COORDINACION_LIMITE"); }
+            if (current.fase === "RECEPCION" && (!options.original || !options.original(current.row))) {
+                if(snapshot.estado.procesamientoIndependiente===true){return askUnavailable(token,snapshot,current,{loteId:snapshot.estado.loteId,archivoId:current.row.recursoId,raizId:current.row.raizId,fase:'RECEPCION',causa:'ORIGINAL_LOCAL_NO_SELECCIONADO',certeza:'NO_INICIADO',local:true});}
+                status = "needs-original"; code = "ORIGINAL_REQUERIDO"; publish(); return;
+            }
+            acknowledged = false; publish(); var op = current;
+            return Promise.resolve().then(function () {
+                if (!live(token) || stopped) { return null; } effects++;
+                return options.ejecutar(op,snapshot).catch(function(error){
+                    if(error && error.codigo==='ARCHIVO_NO_DISPONIBLE' && error.noDisponible && !acknowledged && snapshot.estado.procesamientoIndependiente===true){
+                        return askUnavailable(token,snapshot,op,error.noDisponible).then(function(){return {decisionAtendida:true};});
+                    }
+                    throw error;
+                }).then(function (result) {
+                    if(result && result.decisionAtendida){return null;}
+                    if (!live(token)) { return null; } confirm(op,result,snapshot);
+                    return read(token,op).catch(function (error) { error.lecturaPosterior = true; error.fase = op.fase; throw error; });
+                });
+            }).then(function (next) {
+                if (!live(token)) { return; } if (stopped) { status = "paused"; current = null; publish(); return; }
+                if (!next) { return; } current = null;
+                return (options.ceder ? options.ceder() : Promise.resolve()).then(function () { return cycle(token,next); });
+            });
+        }
+        function start() {
+            if (disposed || !options.vigente() || running) { return running || Promise.resolve(); }
+            excluded=Object.create(null);decision=null;stopped = false; code = null; status = "running"; current = null; reads = effects = 0; var token = ++generation; publish();
+            running = Promise.resolve().then(function () { return read(token); }).then(function (snapshot) { if (snapshot) { return cycle(token,snapshot); } }).catch(function (error) {
+                if (!live(token)) { return; }
+                if (current && !acknowledged) { failed[current.key] = true; }
+                error.fase = current ? current.fase : error.fase; status = "blocked"; code = /^[A-Z][A-Z0-9_]{0,63}$/.test(error.codigo || "") ? error.codigo : "RESPUESTA_INVALIDA";
+                consultingResult = !!error.resultadoIncierto && !error.lecturaPosterior;
+                if (options.fallar) { options.fallar(error,current,acknowledged); }
+                publish();
+                // Una sola consulta del resultado incierto; nunca replay o polling.
+                if (consultingResult) { return read(token).catch(function (readError) { if(live(token)&&options.falloConsulta){options.falloConsulta(readError);} }); }
+            }).then(function () { consultingResult = false; if (live(token)) { if (status === "running" || status === "pausing") { status = "paused"; } publish(); } running = null; });
+            return running;
+        }
+        return {iniciar:start,decidir:function(value){if(status!=='awaiting-decision'||!resolveDecision||['continuar','pausar'].indexOf(value)===-1){return false;}var resolve=resolveDecision;resolveDecision=null;if(value==='pausar'){stopped=true;}resolve(value==='continuar');return true;},pausar:function () { stopped = true; if(resolveDecision){var resolve=resolveDecision;resolveDecision=null;resolve(false);} if (running) { status = "pausing"; publish(); } return running || Promise.resolve(); },estado:summary,
+            destruir:function () { disposed = true; stopped = true; generation++; current = null; if(resolveDecision){resolveDecision(false);resolveDecision=null;}decision=null; },limites:Object.freeze({resources:limits.resources,pages:limits.pages,reads:limits.reads,effects:limits.effects})};
+    }
+
+    function rotularAccesoMenu(button, text, icon) {
+        var label = button.querySelector("[data-doc120-menu-label]");
+        if (!label) {
+            var glyph = button.ownerDocument.createElement("i");
+            glyph.className = "fas " + icon + " doc120-menu-icon"; glyph.setAttribute("aria-hidden", "true");
+            label = button.ownerDocument.createElement("span"); label.setAttribute("data-doc120-menu-label", "");
+            button.textContent = ""; button.appendChild(glyph); button.appendChild(label);
+        }
+        label.textContent = text;
     }
     function asegurarMenu() {
         var doc = env.document, bar = doc && doc.querySelector("#menu_var .navbar-nav");
@@ -91,9 +273,9 @@
         var existing = doc.getElementById("doc110-navigation");
         if (existing) { return existing.querySelector(".dropdown-menu"); }
         var item = doc.createElement("li"), toggle = doc.createElement("a"), options = doc.createElement("div");
-        item.id = "doc110-navigation"; item.className = "nav-item dropdown ml-2";
+        item.id = "doc110-navigation"; item.className = "nav-item dropdown active ml-2 mr-0 active_";
         toggle.id = "doc110-navigation-toggle"; toggle.href = "#"; toggle.className = "nav-link dropdown-toggle";
-        toggle.textContent = "Importación"; toggle.setAttribute("data-toggle", "dropdown"); toggle.setAttribute("aria-haspopup", "true"); toggle.setAttribute("aria-expanded", "false");
+        rotularAccesoMenu(toggle, "Importación", "fa-file-import"); toggle.setAttribute("data-toggle", "dropdown"); toggle.setAttribute("aria-haspopup", "true"); toggle.setAttribute("aria-expanded", "false");
         options.className = "dropdown-menu"; options.setAttribute("aria-labelledby", toggle.id);
         item.appendChild(toggle); item.appendChild(options); bar.appendChild(item);
         if (!(env.jQuery && env.jQuery.fn && env.jQuery.fn.dropdown)) { toggle.addEventListener("click", function (event) { event.preventDefault(); var expanded = item.classList.toggle("show"); options.classList.toggle("show", expanded); toggle.setAttribute("aria-expanded", String(expanded)); }); }
@@ -107,6 +289,7 @@
         if (host.doc111Scope && host.doc111Scope !== incomingScope) { delete host.doc111UltimoLote; delete host.doc111ConfirmacionPendiente; }
         host.doc111Scope = incomingScope;
         var deps = dependencies || env, active = null, opening = false, errorApertura = "", destroyed = false, verificationApi = null, storage = null;
+        var segmentado = deps.PreparacionSegmentadaImportacion || env.PreparacionSegmentadaImportacion;
         var openButton = host.querySelector("[data-doc111-open]"), resumeButton = host.querySelector("[data-doc111-resume]"), status = host.querySelector("[data-doc111-status]");
         var verifyButton = host.querySelector("[data-doc111-verificar]"), manualButton = host.querySelector("[data-doc111-consultar]"), manualInput = host.querySelector("[data-doc111-lote]");
         var modern = host.getAttribute("data-navegacion") === "menu", queryOpen = null, navigation = null;
@@ -116,16 +299,20 @@
                 var section = host.ownerDocument.createElement("div"); section.setAttribute("data-doc119-operacion", "1");
                 section.className = "doc119-operation-menu";
                 [openButton, resumeButton, verifyButton].forEach(function (button) { if (button) { button.className = "dropdown-item"; section.appendChild(button); } });
-                openButton.hidden = false; openButton.textContent = "Importar carpetas…";
-                queryOpen = host.ownerDocument.createElement("button"); queryOpen.type = "button"; queryOpen.className = "dropdown-item"; queryOpen.textContent = "Consultar importación…"; queryOpen.setAttribute("data-doc111-query-open", "");
+                openButton.hidden = false; rotularAccesoMenu(openButton, "Importar carpetas…", "fa-folder-open");
+                rotularAccesoMenu(resumeButton, resumeButton.textContent, "fa-history");
+                if (verifyButton) { rotularAccesoMenu(verifyButton, verifyButton.textContent, "fa-check-circle"); }
+                queryOpen = host.ownerDocument.createElement("button"); queryOpen.type = "button"; queryOpen.className = "dropdown-item"; rotularAccesoMenu(queryOpen, "Consultar importación…", "fa-search"); queryOpen.setAttribute("data-doc111-query-open", "");
                 section.insertBefore(queryOpen, resumeButton); navigation.insertBefore(section, navigation.firstChild);
             }
         }
         try { storage = deps.sessionStorage; } catch (_) {}
         var references = crearReferencias(storage, host.getAttribute("data-recuperacion")), saved = references.leer();
+        var preparationReferences=segmentado?segmentado.referencias(storage,host.getAttribute("data-recuperacion")):null;
+        if(preparationReferences){host.doc120PreparacionPendiente=preparationReferences.leer();}
         if (saved.loteId) { host.doc111UltimoLote = {loteId:saved.loteId}; }
         if (saved.planId) { host.doc111ConfirmacionPendiente = {planId:saved.planId}; }
-        function save() { return references.guardar({loteId:host.doc111UltimoLote && host.doc111UltimoLote.loteId, planId:host.doc111ConfirmacionPendiente && host.doc111ConfirmacionPendiente.planId}); }
+        function save() { if(preparationReferences){preparationReferences.guardar(host.doc120PreparacionPendiente);} return references.guardar({loteId:host.doc111UltimoLote && host.doc111UltimoLote.loteId, planId:host.doc111ConfirmacionPendiente && host.doc111ConfirmacionPendiente.planId}); }
         function validId(id) { return typeof id === "string" && /^[1-9][0-9]*$/.test(id); }
         // Solo forma de los datos que consume la vista; reglas y elegibilidad son del servidor.
         function object(value) { return !!value && typeof value === "object" && !Array.isArray(value); }
@@ -158,37 +345,71 @@
             if (destroyed) { return; }
             if (modern && queryOpen) { var currentMenu = asegurarMenu(); if (currentMenu && !currentMenu.contains(section)) { currentMenu.insertBefore(section, currentMenu.firstChild); navigation = currentMenu; } }
             openButton.disabled = opening || !!host.doc111ConfirmacionPendiente || !validId(host.getAttribute("data-nivel"));
-            resumeButton.hidden = !host.doc111UltimoLote;
-            if (host.doc111UltimoLote) { resumeButton.textContent = "Consultar lote " + host.doc111UltimoLote.loteId; }
+            resumeButton.hidden = false; resumeButton.disabled = opening;
+            if (host.doc111UltimoLote) { if (modern) { rotularAccesoMenu(resumeButton, "Consultar lote " + host.doc111UltimoLote.loteId, "fa-history"); } else { resumeButton.textContent = "Consultar lote " + host.doc111UltimoLote.loteId; } }
             if (verifyButton) { verifyButton.hidden = !host.doc111ConfirmacionPendiente; verifyButton.disabled = opening; }
             status.textContent = host.doc111ConfirmacionPendiente ? "La confirmación del plan " + host.doc111ConfirmacionPendiente.planId + " requiere verificar su resultado antes de iniciar otra preparación. " + errorApertura : (opening ? "Validando el destino de la importación…" : errorApertura);
-            if (!references.disponible() && (host.doc111UltimoLote || host.doc111ConfirmacionPendiente)) { status.textContent += " El navegador no permite guardar esta referencia; anota el lote o plan antes de recargar."; }
-            if (modern) { status.hidden = !status.textContent; if (queryOpen) { queryOpen.disabled = opening; queryOpen.textContent = host.doc111ConfirmacionPendiente ? "Consultar importación… · verificación pendiente" : "Consultar importación…"; } }
+            var storageWarning = !references.disponible() && (host.doc111UltimoLote || host.doc111ConfirmacionPendiente);
+            if (storageWarning) { status.textContent += " El navegador no permite guardar esta referencia; anota el lote o plan antes de recargar."; }
+            if (modern) {
+                status.setAttribute("data-doc111-state", opening && !host.doc111ConfirmacionPendiente && !errorApertura && !storageWarning ? "loading" : "notice");
+                status.hidden = !status.textContent;
+                var menu = host.ownerDocument.getElementById("doc110-navigation");
+                if (menu) { menu.setAttribute("aria-busy", opening ? "true" : "false"); }
+                if (queryOpen) { queryOpen.disabled = opening; rotularAccesoMenu(queryOpen, host.doc111ConfirmacionPendiente ? "Consultar importación… · verificación pendiente" : "Consultar importación…", "fa-search"); }
+            }
         }
         function message(error) {
+            if(error && error.operacion === "ConsultarUltimoLote" && ["ACCESO_DENEGADO","SESION_REQUERIDA","SOLICITUD_NO_VERIFICADA"].indexOf(error.codigo)===-1){return "No se pudo buscar la última importación de tu cuenta. Usa Consultar importación para consultar una referencia conocida; no necesitas preparar otra importación.";}
+            if(error && error.elementoMetadatos){return 'Los datos de «'+error.elementoMetadatos+'» no caben en una solicitud de revisión. Revisa su nombre y ruta. La preparación se detuvo antes de enviar metadatos o PDF; la selección y el perfil se conservan.';}
+            if(error && error.codigo === "PREPARACION_PAUSADA"){return "Revisión en pausa. Continúa la preparación para revisar los metadatos pendientes; todavía no se enviaron PDF.";}
+            if(active && active.model.progresoPreparacion && error && ['ACCESO_DENEGADO','SESION_REQUERIDA','SOLICITUD_NO_VERIFICADA'].indexOf(error.codigo)===-1){
+                var progress=active.model.progresoPreparacion,steps={INICIO:'iniciar la revisión',REGISTRAR:'registrar el inventario',VALIDAR:'revisar los datos',SELLAR:'guardar la revisión completa',REVISION:'consultar los resultados'};
+                var detail=active.api.describirError?active.api.describirError(error,{fase:'PREPARACION'}):'No se pudo completar esa operación.';
+                var next=['PERFIL_CAMBIADO','PLAN_EXPIRADO','CONFIGURACION_INVALIDA','LIMITE_EXCEDIDO'].indexOf(error.codigo)!==-1?'Corrige la selección o el perfil y prepara una nueva revisión.':'Continuar revisión conserva esta misma preparación; no confirma la importación.';
+                return 'La preparación se detuvo al '+(steps[progress.fase]||'revisar la selección')+'. '+(progress.archivosRevisados||0)+' de '+progress.totalArchivos+' archivos revisados. '+detail+' No se enviaron PDF ni se crearon expedientes. '+next;
+            }
+            if (active && active.api.describirError && !(error && error.message === "RESELECCION_NO_COINCIDE")) { return active.api.describirError(error, {fase:active.model.faseSolicitud,loteId:active.model.loteId}); }
             if (error && error.planPendiente) { return "No se pudo confirmar el resultado del plan " + error.planPendiente + ". Conserva esta referencia para su verificación. No se repetirá la confirmación automáticamente."; }
-            if (error && error.resultadoIncierto) { return "No se pudo confirmar el resultado. Consulta el estado antes de volver a enviar."; }
+            if (error && error.resultadoIncierto) { return ["CREAR_EXPEDIENTE","RETOMAR_CREACION"].indexOf(error.fase) !== -1 ? "No se confirmó la creación del expediente. Conserva la referencia del lote y consulta su estado; no repitas la creación." : "No se pudo confirmar el resultado. Consulta el estado antes de repetir la operación."; }
             var texts = {SESION_REQUERIDA:"La sesión expiró. Recarga la página.", ACCESO_DENEGADO:"No tienes autorización vigente para esta operación.", CAPACIDAD_NO_DISPONIBLE:"La importación no está disponible con la configuración actual.", SOLICITUD_NO_VERIFICADA:"Recarga la página para renovar el contexto de la operación.", SELECCION_DIRECTORIOS_NO_DISPONIBLE:"Este navegador no permite seleccionar carpetas.", CONFLICTO_REVISION:"Los datos cambiaron. Consulta el estado o prepara una nueva revisión.", RESPUESTA_INVALIDA:"La respuesta del servidor no es válida. Revisa la selección o vuelve a preparar."};
             if (error && error.message === "RESELECCION_NO_COINCIDE") { return "El archivo no coincide con el nombre, tamaño y fecha del archivo pendiente seleccionado. El lote permanece sin cambios."; }
             return texts[error && (error.codigo || error.message)] || "No se pudo completar la solicitud. Revisa la selección y consulta el estado antes de repetir.";
         }
         function refresh(session) {
+            session.model.preparacionPendienteId=host.doc120PreparacionPendiente;
+            session.model.reseleccionCarpetaDisponible=!!(segmentado && ["1","2"].indexOf(host.getAttribute("data-consulta-focal"))!==-1 && session.view && session.view.reselectorCarpeta && "webkitdirectory" in session.view.reselectorCarpeta);
             if (active !== session) { return; }
-            var model = session.model; model.manifiesto = session.inventory.manifiesto();
+            var model = session.model; model.controles = politicaControles(model); model.manifiesto = model.consulta ? {raices:[], archivos:[]} : session.inventory.manifiesto();
+            if(session.preparacionSegmentada&&(!session.ticketPreparacion||!session.operation.vigente(session.ticketPreparacion))){session.preparacionSegmentada.destruir();session.preparacionSegmentada=null;session.ticketPreparacion=null;model.progresoPreparacion=null;}
+            model.puedeContinuarPreparacion=!!(!model.consulta&&session.preparacionSegmentada&&session.ticketPreparacion&&session.operation.vigente(session.ticketPreparacion)&&model.progresoPreparacion);
+            model.describirIncidencia = session.api.detalleIncidencia;
             model.ultimoLoteId = host.doc111UltimoLote && host.doc111UltimoLote.loteId; model.planPendienteId = host.doc111ConfirmacionPendiente && host.doc111ConfirmacionPendiente.planId;
             model.paginaRaices = Math.min(model.paginaRaices, Math.max(1, Math.ceil(model.manifiesto.raices.length / 10)));
             model.paginaArchivos = Math.min(model.paginaArchivos, Math.max(1, Math.ceil(model.manifiesto.archivos.length / 20)));
             var files = model.resultados ? model.resultados.elementos : [];
             model.accionesRecurso = function (resource, raiz) { return accionesRecurso(model, resource, raiz); };
-            model.puedeEnviar = !model.mutacionIncierta && files.some(function (f) { return f.estadoRecepcion === "PENDIENTE" && f.estado === "NO_INICIADO" && !f.tieneIntentoActivo && (session.reselected[f.recursoId] || session.inventory.obtenerFile(f.idCliente)); });
+            model.bloqueoFlujo = bloqueoFlujo(model);
+            model.archivosParaEnviar = model.mutacionIncierta ? 0 : files.filter(function (f) { return f.estadoRecepcion === "PENDIENTE" && f.estado === "NO_INICIADO" && !f.tieneIntentoActivo && (!session.origenesExcluidos[f.recursoId] && (session.reselected[f.recursoId] || (!model.consulta && session.inventory.obtenerFile(f.idCliente)))); }).length;
+            model.puedeEnviar = model.archivosParaEnviar > 0;
+            model.originalDisponible = function(row){return !session.origenesExcluidos[row.recursoId] && !!(session.reselected[row.recursoId] || (!model.consulta && session.loteOriginal===model.loteId && session.inventory.obtenerFile(row.idCliente)));};
+            var pendingLocal=model.originalLocalPendiente, pendingRow=pendingLocal&&archivoConocido(session,pendingLocal.archivoId);
+            if(pendingLocal&&(pendingLocal.loteId!==model.loteId||model.estado&&model.estado.estado==='COMPLETADO'||session.reselected[pendingLocal.archivoId]&&!session.origenesExcluidos[pendingLocal.archivoId]||pendingRow&&(pendingRow.estadoRecepcion!=='PENDIENTE'||model.originalDisponible(pendingRow)))){model.originalLocalPendiente=null;}
             session.view.render(model);
         }
         function run(session, work) {
-            if (active !== session || session.model.busy) { return Promise.resolve(); }
-            session.model.busy = true; session.model.mensaje = ""; refresh(session);
-            return Promise.resolve().then(work).catch(function (error) {
-                if (active === session) { session.model.mensaje = message(error); }
-            }).then(function () { if (active === session) { session.model.busy = false; refresh(session); } });
+            if (active !== session || session.model.busy || session.model.transicionPendiente) { return Promise.resolve(false); }
+            session.model.busy = true; session.model.mensaje = ""; session.model.tipoMensaje = null; refresh(session);
+            var succeeded = true;
+            var operation = Promise.resolve().then(function () {
+                if (active !== session || session.model.transicionPendiente) { succeeded = false; return; }
+                return work();
+            }).catch(function (error) {
+                succeeded = false;
+                if (active === session) { error = error && typeof error === "object" ? error : new Error("RESPUESTA_INVALIDA"); session.model.tipoMensaje = error.codigo==='PREPARACION_PAUSADA'?'AVISO':"ERROR"; session.model.mensaje = message(error); if (error.recepcionParcial && ["ACCESO_DENEGADO","SESION_REQUERIDA"].indexOf(error.codigo) === -1) { var partial = error.recepcionParcial; session.model.mensaje += " Cola de esta página: " + partial.confirmados.length + " de " + partial.total + " recepciones confirmadas, " + partial.noIntentados + " archivos sin intentar." + (partial.archivoActual ? " Archivo " + partial.archivoActual + (partial.resultadoActual === "SIN_CONFIRMAR" ? " sin recepción confirmada; consulta antes de reenviar." : " interrumpió la cola; revisa la incidencia.") : ""); } }
+            }).then(function () { if (active === session) { session.model.busy = false; refresh(session); } return succeeded; });
+            session.trabajoActual = operation;
+            return operation.then(function (result) { if (session.trabajoActual === operation) { session.trabajoActual = null; } return result; });
         }
         function solicitudPagina(session, type, page) {
             var model = session.model, filters = (type === "RAICES" ? model.filtrosRaices : model.filtrosArchivos) || {};
@@ -198,8 +419,19 @@
             });
             return request;
         }
+        function buscarUltimo(session) {
+            return session.api.invocar("ConsultarUltimoLote",{}).then(function(result){
+                if(active!==session){return null;}
+                if(!result || typeof result.encontrado!=="boolean" || result.encontrado && !validId(result.loteId) || !result.encontrado && result.loteId!=null){throw new Error("RESPUESTA_INVALIDA");}
+                if(!result.encontrado){session.model.mensaje="No hay importaciones confirmadas de tu cuenta en esta empresa.";return null;}
+                host.doc111UltimoLote={loteId:result.loteId};save();sync();return result.loteId;
+            }).catch(function(error){error.operacion="ConsultarUltimoLote";throw error;});
+        }
         function consultar(session, page) {
             if (active !== session) { return Promise.resolve(); }
+            session.model.avisoArbol = null;
+            session.model.ultimaConsulta = null;
+            function consultaCompleta() { invalidarCoordinacion(session); session.model.coordinacion = null; session.model.ultimaConsulta = Date.now(); session.model.consultasCompletadas = (session.model.consultasCompletadas || 0) + 1; }
             session.consultaArchivos = null; session.model.resultados = null; session.model.raices = null;
             return session.api.invocar("ConsultarLote", {loteId:session.model.loteId}).then(function (state) {
                 if (active !== session) { return; }
@@ -216,34 +448,317 @@
                 if (active !== session || !result) { return; }
                 if (result.loteId !== session.model.loteId || !Array.isArray(result.elementos)) { throw new Error("RESPUESTA_INVALIDA"); }
                 session.model.resultados = result; session.model.raices = null;
-                if (session.model.estado.accionesPermitidas.indexOf("CONSULTAR_RAICES") === -1) { session.model.mutacionIncierta = false; return; }
+                if (session.model.estado.accionesPermitidas.indexOf("CONSULTAR_RAICES") === -1) { session.model.mutacionIncierta = false; consultaCompleta(); return; }
                 return session.api.invocar("ConsultarRecursosLote", solicitudPagina(session, "RAICES", session.model.paginaRaicesResultado)).then(function (roots) {
                     if (active !== session) { return; }
                     if (!roots || roots.loteId !== session.model.loteId || roots.tipo !== "RAICES" || !Array.isArray(roots.elementos)) { throw new Error("RESPUESTA_INVALIDA"); }
-                    session.model.raices = roots; session.model.mutacionIncierta = false;
+                    session.model.raices = roots; session.model.mutacionIncierta = false; consultaCompleta();
+                    session.model.avisoArbol = null;
                     if (typeof deps.Doc111ActualizarRama === "function") {
-                        try { deps.Doc111ActualizarRama({nivelRef:session.model.contexto.nivelRef, referenciaContexto:session.scope}, roots.elementos); } catch (_) { /* La vista del arbol no invalida resultados persistidos. */ }
+                        var confirmedRoots = roots.elementos.filter(function (root) { return root && !root.tieneIntentoActivo && ["EXPEDIENTE_CONFIRMADO", "COMPLETADA", "PARCIAL"].indexOf(root.estado) !== -1 && validId(root.expedienteId) && validId(root.relacionNivelId) && typeof root.codigoExpediente === "string" && root.codigoExpediente.trim(); });
+                        if (confirmedRoots.length) {
+                            try { if (deps.Doc111ActualizarRama({nivelRef:session.model.contexto.nivelRef, referenciaContexto:session.scope}, confirmedRoots) !== true) { session.model.avisoArbol = "El expediente está confirmado, pero no se pudo mostrar en el árbol. Localiza el destino original y pulsa Actualizar estado; no repitas la importación."; } }
+                            catch (_) { session.model.avisoArbol = "El expediente está confirmado, pero no se pudo mostrar en el árbol. Localiza el destino original y pulsa Actualizar estado; no repitas la importación."; }
+                        }
                     }
                 });
             });
         }
+        function originalCoordinado(session, model, file, roots) {
+            if(session.origenesExcluidos && session.origenesExcluidos[file.recursoId]){return null;}
+            var original = session.reselected[file.recursoId];
+            if (original) { return validarReseleccion(file, original); }
+            if (model.consulta || session.loteOriginal !== model.loteId) { return null; }
+            original = session.inventory.obtenerFile(file.idCliente);
+            if (!original) { return null; }
+            var item = session.inventory.manifiesto().archivos.filter(function (entry) { return entry.idCliente === file.idCliente; })[0], parent = roots.filter(function (r) { return r.recursoId === file.raizId; })[0];
+            if (!item || !parent || item.raizIdCliente !== parent.idCliente || item.rutaRelativa !== file.rutaRelativa) { throw new Error("CONTENIDO_DISTINTO"); }
+            return validarReseleccion(file,original);
+        }
+        function proyectarCoordinacion(session, model, snapshot) {
+            var state = snapshot.estado, size = Math.min(25,state.maximoTamanoPagina || 1);
+            function project(type, rows, filters, page) {
+                var selected = rows.filter(function (row) { return Object.keys(filters || {}).every(function (key) { return !filters[key] || row[key] === filters[key]; }); });
+                return {loteId:state.loteId,tipo:type,pagina:page,tamanoPagina:size,revisionLectura:state.revision,totalOriginal:rows.length,totalFiltrado:selected.length,puedeHaberMas:page*size<selected.length,elementos:selected.slice((page-1)*size,page*size)};
+            }
+            model.estado = state; model.tamanoResultados = size; model.expedientesConfirmados = snapshot.raices.filter(function(r){return validId(r.expedienteId)&&validId(r.relacionNivelId);});
+            model.resultados = project("ARCHIVOS",snapshot.archivos,model.filtrosArchivos,model.resultados ? model.resultados.pagina : 1);
+            model.raices = project("RAICES",snapshot.raices,model.filtrosRaices,model.paginaRaicesResultado || 1);
+            session.consultaArchivos = solicitudPagina(session,"ARCHIVOS",model.resultados.pagina);
+            model.avisoArbol = null;
+            if (typeof deps.Doc111ActualizarRama === "function") {
+                var confirmed = snapshot.raices.filter(function (r) { return !r.tieneIntentoActivo && validId(r.expedienteId) && validId(r.relacionNivelId) && typeof r.codigoExpediente === "string" && ["EXPEDIENTE_CONFIRMADO","COMPLETADA","PARCIAL"].indexOf(r.estado) !== -1; });
+                if (confirmed.length) { try { if (deps.Doc111ActualizarRama({nivelRef:model.contexto.nivelRef,referenciaContexto:session.scope},confirmed) !== true) { model.avisoArbol = "El expediente está confirmado, pero no se pudo mostrar en el árbol. Consulta el destino original sin repetir la importación."; } } catch (_) { model.avisoArbol = "El expediente está confirmado, pero no se pudo mostrar en el árbol. Consulta el destino original sin repetir la importación."; } }
+            }
+            model.ultimaConsulta = Date.now(); model.consultasCompletadas = (model.consultasCompletadas || 0) + 1;
+        }
+        function coordinacion(session) {
+            if (session.coordinator) { return session.coordinator; }
+            var model = session.model, lot = model.loteId, level = model.contexto && model.contexto.nivelRef;
+            function live() { return active === session && session.model === model && model.loteId === lot && (!level || model.contexto && model.contexto.nivelRef === level) && !destroyed; }
+            function fail(code) { var error = new Error(code); error.codigo = code; return error; }
+            function renderAvance(immediate){
+                var frame=deps.requestAnimationFrame||env.requestAnimationFrame,cancel=deps.cancelAnimationFrame||env.cancelAnimationFrame;
+                if(immediate===true||!model.coordinacion||!model.coordinacion.activa||!frame){if(session.coordinacionFrame!=null&&cancel){cancel.call(env,session.coordinacionFrame);}session.coordinacionFrame=null;refresh(session);return;}
+                if(session.coordinacionFrame==null){session.coordinacionFrame=frame.call(env,function(){session.coordinacionFrame=null;if(live()){refresh(session);}});}
+            }
+
+            function readAll(consume,limits) {
+                function read(operation,request) { if (!live()) { return Promise.reject(fail("SOLICITUD_CANCELADA")); } consume(); return session.api.invocar(operation,request); }
+                var snapshot;
+                return read("ConsultarLote",{loteId:lot}).then(function (state) {
+                    if (!live() || !state || state.loteId !== lot || !validId(state.nivelRef) || level && state.nivelRef !== level || !revision(state.revision) || !Array.isArray(state.accionesPermitidas) || state.accionesPermitidas.indexOf("CONSULTAR_RAICES") === -1 || !Number.isInteger(state.maximoTamanoPagina) || state.maximoTamanoPagina<1 || !Number.isInteger(state.totalRaices) || !Number.isInteger(state.totalArchivos) || state.totalRaices+state.totalArchivos>limits.resources) { throw fail("RESPUESTA_INVALIDA"); }
+                    snapshot = {estado:state,raices:[],archivos:[]};
+                    function pages(type,expected,target,page) {
+                        if (page>limits.pages) { throw fail("COORDINACION_LIMITE"); }
+                        var size=Math.min(25,state.maximoTamanoPagina);
+                        return read("ConsultarRecursosLote",{loteId:lot,tipo:type,pagina:page,tamanoPagina:size}).then(function (result) {
+                            if (!live() || !result || result.loteId!==lot || result.tipo!==type || result.pagina!==page || result.tamanoPagina!==size || result.revisionLectura!==state.revision || result.totalOriginal!==expected || result.totalFiltrado!==expected || !Array.isArray(result.elementos) || result.elementos.length!==Math.min(size,Math.max(0,expected-(page-1)*size)) || result.puedeHaberMas!==((page-1)*size+result.elementos.length<expected)) { throw fail("CONFLICTO_REVISION"); }
+                            Array.prototype.push.apply(target,result.elementos);
+                            return result.puedeHaberMas ? pages(type,expected,target,page+1) : null;
+                        });
+                    }
+                    return pages("RAICES",state.totalRaices,snapshot.raices,1).then(function () { return pages("ARCHIVOS",state.totalArchivos,snapshot.archivos,1); });
+                }).then(function () { return read("ConsultarLote",{loteId:lot}); }).then(function (last) {
+                    var first=snapshot.estado;
+                    if (!live() || !last || last.loteId!==lot || last.nivelRef!==first.nivelRef || last.revision!==first.revision || last.versionId!==first.versionId || last.perfilId!==first.perfilId || last.estado!==first.estado || last.totalRaices!==first.totalRaices || last.totalArchivos!==first.totalArchivos || last.detencionSolicitada!==first.detencionSolicitada || last.hayIntentosActivos!==first.hayIntentosActivos || last.hayIncertidumbre!==first.hayIncertidumbre) { throw fail("CONFLICTO_REVISION"); }
+                    return snapshot;
+                });
+            }
+            function readFocal(consume,limits,op,previous) {
+                if(!segmentado || ["1","2"].indexOf(host.getAttribute("data-consulta-focal"))===-1 || !op || !previous){return readAll(consume,limits);}
+                if(!live()){return Promise.reject(fail("SOLICITUD_CANCELADA"));}consume();
+                var version=host.getAttribute("data-consulta-focal")==="2"?2:1;
+                return session.api.invocar("ConsultarRecursoLote",{loteId:lot,tipo:op.tipo,recursoId:op.row.recursoId,versionLectura:version}).then(function(value){
+                    if(!live() || !value || value.tipo!==op.tipo || !value.recurso || value.recurso.recursoId!==op.row.recursoId || !value.estado || value.estado.loteId!==lot || value.estado.revision<previous.estado.revision || version===1&&!/^[a-f0-9]{64}$/.test(value.huellaRecursos||"")){throw fail("RESPUESTA_INVALIDA");}
+                    var next={estado:value.estado,raices:previous.raices.slice(),archivos:previous.archivos.slice(),progreso:value.progreso};
+                    function replace(rows,row,file){
+                        if(!row || !validId(row.recursoId) || !Number.isInteger(row.revision) || row.revision<=0 || row.revision>4294967295 || typeof row.tieneIntentoActivo!=='boolean' || file&&typeof row.valoresEfectivosFijados!=='boolean'){throw fail('RESPUESTA_INVALIDA');}
+                        var index=rows.findIndex(function(old){return old.recursoId===row.recursoId;});if(index<0 || row.idCliente!==rows[index].idCliente || row.revision<rows[index].revision || file&&row.raizId!==rows[index].raizId){throw fail("CONFLICTO_REVISION");}rows[index]=row;
+                    }
+                    if(op.tipo==='RAICES'){if(value.padre){throw fail('RESPUESTA_INVALIDA');}replace(next.raices,value.recurso,false);}
+                    else{if(!value.padre || value.padre.recursoId!==value.recurso.raizId){throw fail('RESPUESTA_INVALIDA');}replace(next.archivos,value.recurso,true);replace(next.raices,value.padre,false);}
+                    if(version===2){
+                        if(value.versionLectura!==2 || value.huellaRecursos!=null || value.progreso!=null){throw fail('RESPUESTA_INVALIDA');}
+                        var observed=value.recurso,known=previous[op.tipo==='RAICES'?'raices':'archivos'].filter(function(r){return r.recursoId===op.row.recursoId;})[0];
+                        ['expedienteId','relacionNivelId','documentoId','inventarioId','gabineteId'].forEach(function(k){if(known[k]!=null && observed[k]!==known[k]){throw fail('RESULTADO_PENDIENTE_LECTURA');}});
+                        if(known.valoresEfectivosFijados===true && observed.valoresEfectivosFijados!==true){throw fail('RESULTADO_PENDIENTE_LECTURA');}
+                        next.focalValidado=2;next.anterior=previous;return next;
+                    }
+                    return segmentado.huellaRecursos(next,deps.crypto || env.crypto).then(function(hash){
+                        if(!live()){throw fail('SOLICITUD_CANCELADA');}if(hash!==value.huellaRecursos){throw fail('CONFLICTO_REVISION');}
+                        var progress=value.progreso;
+                        if(!progress || ['recibidos','expedientes','datos','guardados','pendientesRecepcion','incidencias'].some(function(key){return !Number.isInteger(progress[key])||progress[key]<0||progress[key]>(key==='expedientes'?next.raices.length:next.archivos.length);}) || !/^(0|[1-9][0-9]*)$/.test(progress.bytesRecibidos||'')){throw fail('RESPUESTA_INVALIDA');}
+                        return next;
+                    });
+                });
+            }
+            session.coordinator = crearCoordinacion({vigente:live,leer:readFocal,
+                original:function (row) { return originalCoordinado(session,model,row,session.lecturaCoordinada.raices); },
+                ceder:function () { return new Promise(function (resolve) { (deps.setTimeout || env.setTimeout)(resolve,0); }); },
+                cambiar:function (value,snapshot) {
+                    if (!live()) { return; } model.coordinacion=value; model.busy=value.activa || value.consultandoResultado;
+                    if(!model.mutacionIncierta&&value.estado==='running'&&!value.actual){model.tipoMensaje=null;model.mensaje='Consultando el lote '+lot+' para continuar. Todavía no se ha iniciado la siguiente operación.';}
+                    if(!model.mutacionIncierta&&value.estado==='pausing'){model.tipoMensaje=null;model.mensaje='Pausa solicitada. Se espera la respuesta de la operación actual; no se iniciará la siguiente.';}
+                    if(value.decision && value.decision.certeza==='NO_INICIADO'){
+                        model.originalLocalPendiente=value.decision.local?Object.assign({loteId:lot},value.decision):null;
+                        model.mutacionIncierta=false;model.detalleErrorOperacion=null;
+                        if(model.ultimaOperacion){model.ultimaOperacion.estado='NO_INICIADO';}
+                    }
+                    if (snapshot) { session.lecturaCoordinada=snapshot; model.contexto={nivelRef:snapshot.estado.nivelRef,rutaCanonica:snapshot.estado.rutaCanonica}; host.doc111UltimoLote={loteId:lot}; save(); proyectarCoordinacion(session,model,snapshot); }
+                    if(snapshot && value.estado==='blocked' && model.detalleErrorOperacion && model.ultimaOperacion && model.ultimaOperacion.fase==='ALMACENAR'){
+                        var observed=snapshot.archivos.filter(function(row){return row.recursoId===model.ultimaOperacion.recursoId;})[0];
+                        var stored=observed && !observed.tieneIntentoActivo && validId(observed.documentoId) && ['ALMACENADO','COMPLETADO'].indexOf(observed.estado)!==-1?observed:null;
+                        if(stored){model.detalleErrorOperacion.titulo='Documento guardado; importación en pausa';model.detalleErrorOperacion.certeza='La consulta confirmó que este documento quedó guardado. Su resultado se conserva.';model.detalleErrorOperacion.siguiente='Pulsa «Consultar resultado» para actualizar las acciones disponibles y continuar con los demás archivos. Este documento no debe guardarse de nuevo.';model.mensaje='La consulta confirmó el guardado de «'+stored.nombre+'». La importación permanece en pausa en el mismo lote; consulta el resultado para continuar con los demás archivos.';model.tipoMensaje='AVISO';}
+                        else if(observed && observed.tieneIntentoActivo){model.detalleErrorOperacion.estadoConsultado='Intento activo; guardado todavía sin confirmar';if(validId(observed.intentoActivoId)){model.detalleErrorOperacion.intentoId=observed.intentoActivoId;}}
+                    }
+                    if (value.estado==='needs-original') { model.mensaje="Falta el original del archivo pendiente. Vincúlalo y pulsa Continuar importación; los resultados confirmados se conservan."; model.tipoMensaje="AVISO"; }
+                    if (value.estado==='paused' && value.excluidos) {model.tipoMensaje='AVISO';model.mensaje=value.guardados+' de '+value.totalArchivos+' documentos guardados. '+value.pendientes+' pendientes; '+value.excluidos+' apartados solo durante esta ejecución. Puedes revisar y continuar el mismo lote.';}
+                    else if (value.estado==='paused' && !model.mutacionIncierta) { model.mensaje="Importación en pausa. La siguiente operación requiere Continuar importación."; }
+                    if (value.completo) { model.mensaje="Importación completada. Revisa los expedientes y documentos confirmados o cierra el asistente."; model.tipoMensaje="EXITO"; }
+                    renderAvance(value.estado==='pausing'||value.estado==='running'&&!value.actual);
+                },
+                ejecutar:function (op,snapshot) {
+                    model.faseSolicitud=op.fase; model.tipoMensaje=null;model.transferencia=null;
+                    model.detalleErrorOperacion=null;
+                    model.ultimaOperacion={loteId:lot,tipo:op.tipo,recursoId:op.row.recursoId,nombre:op.row.nombre,rutaRelativa:op.row.rutaRelativa,fase:op.fase,estado:"SOLICITANDO"};
+                    model.mensaje={RECEPCION:"Enviando PDF",CREAR_EXPEDIENTE:"Creando expediente",MATERIALIZAR_VALORES:"Preparando datos",ALMACENAR:"Guardando documento"}[op.fase]+": "+op.row.nombre+". Espera la confirmación de esta fase."; renderAvance();
+                    if(op.fase==='RECEPCION'){
+                        var original=originalCoordinado(session,model,op.row,snapshot.raices);
+                        if(!original){return Promise.reject(fail('ORIGINAL_REQUERIDO'));}
+                        return session.api.enviarCola([{file:original,solicitud:{loteId:lot,archivoId:op.row.recursoId,claveIntento:key()}}],function(item,progress){if(live()){model.transferencia={enviados:progress.enviados,total:progress.total};if(progress.total>0&&progress.enviados>=progress.total){model.mensaje='Archivo enviado: '+op.row.nombre+'. Esperando confirmación del servidor; todavía no se confirma su recepción.';}renderAvance();}}).then(function(receipts){return receipts[0];});
+                    }
+                    return session.api.invocar('AvanzarLote',{loteId:lot,recursoId:op.row.recursoId,fase:op.fase,revisionEsperada:op.row.revision,claveOperacion:key()});
+                },
+                confirmar:function(op,result){if(!live()){return;}model.mutacionIncierta=false;model.ultimaOperacion.estado='CONFIRMADA';model.ultimaOperacion.resultadoConfirmado={};['intentoId','expedienteId','relacionNivelId','documentoId','inventarioId','gabineteId'].forEach(function(field){if(validId(String(result[field]))){model.ultimaOperacion.resultadoConfirmado[field]=String(result[field]);}});},
+                fallar:function(error,op,confirmed){
+                    if(!live()){return;}model.mutacionIncierta=!!op;model.tipoMensaje='ERROR';
+                    if(op&&model.ultimaOperacion){model.ultimaOperacion.estado=confirmed?'CONFIRMADA':'SIN_CONFIRMAR';model.ultimaOperacion.codigo=/^[A-Z][A-Z0-9_]{0,63}$/.test(error.codigo||'')?error.codigo:'RESPUESTA_NO_CONFIRMADA';model.ultimaOperacion.intentoId=error.intentoId||op.row.intentoActivoId||null;}
+                    model.detalleErrorOperacion=session.api.detalleOperacion?session.api.detalleOperacion(error,session.coordinator.estado().actual):null;
+                    model.mensaje=message(error);
+                    if(model.detalleErrorOperacion){var detail=model.detalleErrorOperacion;model.mensaje+=' '+(op.tipo==='RAICES'?'Carpeta':'Archivo')+': «'+detail.nombre+'»'+(detail.posicion?' ('+detail.posicion+' de '+detail.total+')':'')+'. Referencia '+detail.id+'.';}
+                    renderAvance();
+                },
+                falloConsulta:function(error){
+                    if(!live()){return;}
+                    if(['ACCESO_DENEGADO','SESION_REQUERIDA','SOLICITUD_NO_VERIFICADA'].indexOf(error.codigo)!==-1){model.detalleErrorOperacion=null;model.mensaje=message(error);}
+                    else if(model.detalleErrorOperacion){model.detalleErrorOperacion.consultaPosterior='La consulta posterior también falló. '+session.api.describirError(error,{fase:'CONSULTA'});}
+                    renderAvance();
+                }
+            });
+            session.coordinator.consultarInventario=function(){var count=0;return readAll(function(){if(++count>session.coordinator.limites.reads){throw fail('COORDINACION_LIMITE');}},session.coordinator.limites).then(function(snapshot){if(!live()){throw fail('SOLICITUD_CANCELADA');}session.lecturaCoordinada=snapshot;return snapshot;});};
+            return session.coordinator;
+        }
+        function invalidarCoordinacion(session) {if(session.coordinacionFrame!=null){var cancel=deps.cancelAnimationFrame||env.cancelAnimationFrame;if(cancel){cancel.call(env,session.coordinacionFrame);}session.coordinacionFrame=null;} if(session.coordinator){session.coordinator.destruir();session.coordinator=null;}session.lecturaCoordinada=null;session.model.busy=false;if(session.model.coordinacion){session.model.coordinacion.activa=false;session.model.coordinacion.estado='paused';session.model.coordinacion.actual=null;session.model.coordinacion.enumeracionCompleta=false;} }
+        function archivoConocido(session, resourceId) {
+            var model=session.model, snapshot=session.lecturaCoordinada;
+            var rows=snapshot&&snapshot.estado.loteId===model.loteId?snapshot.archivos:model.resultados&&model.resultados.elementos||[];
+            return rows.filter(function(row){return row.recursoId===resourceId;})[0];
+        }
+        function iniciarCoordinacion(session) { if(active!==session||!session.model.loteId||session.model.confirmacionIncierta||session.model.transicionPendiente){return Promise.resolve();}return coordinacion(session).iniciar(); }
+
+        function transicionar(session, name, value, finish) {
+            if (active !== session || session.model.transicionPendiente) { return Promise.resolve(false); }
+            var model = session.model, intent = {accion:name}; model.transicionPendiente = intent;
+            refresh(session);
+            var waits = [];
+            if (session.coordinator) { waits.push(session.coordinator.pausar()); }
+            if (session.preparacionSegmentada) { waits.push(session.preparacionSegmentada.pausar()); }
+            if (session.envioActual && session.envioActual.pausar) { waits.push(session.envioActual.pausar()); }
+            if (session.trabajoActual) { waits.push(session.trabajoActual); }
+            // run/coordinator preserve the public failure and uncertainty. A
+            // rejected request is settled too; it must not strand the intent.
+            return Promise.all(waits.map(function (wait) { return Promise.resolve(wait).then(function () {}, function () {}); })).then(function () {
+                if (active !== session || session.model !== model || model.transicionPendiente !== intent) { return false; }
+                model.transicionPendiente = null; refresh(session);
+                return finish ? finish() : action(session, name, value);
+            });
+        }
+
         function cerrar(force) {
+            var session = active;
+            if (!force && session) {
+                if (session.solicitudCierre || session.model.transicionPendiente) { return Promise.resolve(false); }
+                var current=session.model,preparation=session.importacionGuardada?session.importacionGuardada.model:current,info=null,inventory=session.inventory.manifiesto();
+                if(session.confirming||preparation.confirmacionIncierta){info={tipo:'CONFIRMACION',planId:session.confirming&&session.confirming.planId||host.doc111ConfirmacionPendiente&&host.doc111ConfirmacionPendiente.planId,activa:!!session.trabajoActual};}
+                else if(current.loteId&&(!current.estado||current.estado.estado!=='COMPLETADO')){info={tipo:'LOTE',loteId:current.loteId,activa:politicaControles(current).ejecutando||!!session.trabajoActual};}
+                else if(preparation.loteId&&(!preparation.estado||preparation.estado.estado!=='COMPLETADO')){info={tipo:'LOTE',loteId:preparation.loteId,vistaGuardada:preparation!==current,activa:politicaControles(current).ejecutando||!!session.trabajoActual};}
+                else if(!preparation.loteId&&inventory.archivos.length){info={tipo:'PREPARACION',archivos:inventory.archivos.length,vistaGuardada:preparation!==current,preparacionId:preparation.progresoPreparacion&&preparation.progresoPreparacion.preparacionId,planId:preparation.plan&&preparation.plan.planId,activa:current===preparation&&!!session.trabajoActual};}
+                if(info&&info.tipo==='LOTE'&&preparation!==current){
+                    if(!preparation.loteId&&inventory.archivos.length){info.archivosRevisionGuardada=inventory.archivos.length;}
+                    else if(preparation.loteId&&preparation.loteId!==info.loteId&&(!preparation.estado||preparation.estado.estado!=='COMPLETADO')){info.loteGuardado=preparation.loteId;}
+                }
+                if (info) {
+                    var request = session.view.confirmarCierre(info);
+                    session.solicitudCierre = request;
+                    return request.then(function (accepted) {
+                        if (active !== session || session.solicitudCierre !== request) { return false; }
+                        session.solicitudCierre = null;
+                        return accepted ? aplicarCierre(session) : false;
+                    });
+                }
+                return aplicarCierre(session);
+            }
+            return cerrarAhora(force);
+        }
+        function aplicarCierre(session) {
+            if (active === session) {
+                var policy = politicaControles(session.model), state = session.coordinator && session.coordinator.estado();
+                if (!policy.puedeCerrar) { return Promise.resolve(false); }
+                if (session.trabajoActual || policy.ejecutando || state && state.estado === "awaiting-decision") {
+                    return transicionar(session, "cerrar", null, function () { return cerrarAhora(false); });
+                }
+            }
+            return active === session ? cerrarAhora(false) : false;
+        }
+        function cerrarAhora(force) {
             var session = active; if (!session) { return; }
-            if (!force && (session.confirming || session.model.confirmacionIncierta) && !deps.confirm("La confirmación puede seguir en el servidor. Cerrar liberará los archivos locales y conservará la referencia del plan para verificarla. ¿Cerrar?")) { return; }
-            if (!force && !session.model.loteId && !session.confirming && !session.model.confirmacionIncierta && session.inventory.manifiesto().archivos.length && !deps.confirm("Se descartará esta preparación sin confirmar. ¿Cerrar?")) { return; }
             if (session.confirming) { host.doc111ConfirmacionPendiente = session.confirming; }
-            save(); active = null; opening = false; session.api.cerrar(); session.picker.destruir(); session.unsubscribe(); session.operation.destruir(); session.view.destruir();
+            if (!force && session.model.mutacionIncierta && session.model.loteId) {
+                errorApertura = "El lote " + session.model.loteId + " conserva un resultado pendiente de comprobar. Usa Consultar importación antes de continuar; cerrar no confirma ni revierte la operación.";
+            }
+            if(session.preparacionSegmentada){session.preparacionSegmentada.destruir();}
+            invalidarCoordinacion(session); save(); active = null; opening = false; session.api.cerrar(); session.picker.destruir(); session.unsubscribe(); session.operation.destruir(); session.view.destruir();
             session.urls.forEach(function (url) { deps.URL.revokeObjectURL(url); }); session.timers.forEach(function (id) { deps.clearTimeout(id); }); sync();
             if (!force && session.returnFocus && session.returnFocus.isConnected && typeof session.returnFocus.focus === "function") { session.returnFocus.focus(); }
         }
         function action(session, name, value) {
             var model = session.model;
-            if (name === "cerrar") { cerrar(); return; }
-            if (active !== session || model.busy) { return; }
+            model.faseSolicitud = "CONSULTAR";
+            if(name==='continuar-demas'||name==='pausar-revisar'){
+                if(session.coordinator){session.coordinator.decidir(name==='continuar-demas'?'continuar':'pausar');}return;
+            }
+            if (name === "cerrar") { return cerrar(); }
+            if (active !== session) { return; }
+            if(name==='recuperar-originales'){
+                var missing=session.coordinator&&session.coordinator.estado().decision;
+                if(!missing||missing.local!==true||missing.causa!=='ORIGINAL_LOCAL_NO_SELECCIONADO'||model.mutacionIncierta||['CARPETA','ARCHIVO'].indexOf(value)===-1||value==='CARPETA'&&!model.reseleccionCarpetaDisponible){return false;}
+                return transicionar(session,value==='CARPETA'?'vincular-carpeta':'reseleccionar',value==='CARPETA'?missing.raizId:missing.archivoId);
+            }
+            var policy = politicaControles(model);
+            if (policy.transicion) { return false; }
+            if (name === "pausar-preparacion") { if(session.preparacionSegmentada){session.preparacionSegmentada.pausar();} return; }
+            if (name === "pausar-importacion") { if(session.coordinator){return session.coordinator.pausar();}return; }
+            if (session.coordinator && (policy.ejecutando || session.coordinator.estado().estado==='awaiting-decision')) {
+                if (policy.puedeNavegar && ["abrir-consulta","consultar","consultar-referencia","consultar-ultimo","volver-importacion","verificar-referencia","exportar","pagina-resultados","pagina-raices-resultado","filtrar-resultados","limpiar-resultados","filtrar-raices","limpiar-raices","ver-expedientes"].indexOf(name)!==-1) { return transicionar(session,name,value); }
+                return false;
+            }
+            if (model.busy) { return false; }
+            if (name === "abrir-consulta") { return policy.puedeNavegar; }
+            if(name === 'consultar-preparacion'){
+                if(!segmentado || !validId(host.doc120PreparacionPendiente)){return;}
+                run(session,function(){return session.api.invocar('ConsultarPreparacionPlan',{preparacionId:host.doc120PreparacionPendiente,tipo:'RESUMEN',pagina:1}).then(function(value){
+                    if(!value || value.preparacionId!==host.doc120PreparacionPendiente || !Number.isInteger(value.partesValidadas)){throw new Error('RESPUESTA_INVALIDA');}
+                    if(value.estado==='SELLADA' && validId(value.planId)){return session.api.invocar('ConsultarConfirmacionLote',{planId:value.planId}).then(function(found){
+                        if(!found || found.planId!==value.planId || typeof found.confirmada!=='boolean' || found.confirmada&&!validId(found.loteId)){throw new Error('RESPUESTA_INVALIDA');}
+                        if(found.confirmada===true && validId(found.loteId)){host.doc111UltimoLote={loteId:found.loteId};host.doc120PreparacionPendiente=null;save();sync();model.mensaje='Esta revisión ya tiene el lote '+found.loteId+'. Usa Consultar último lote para revisar y continuar sus pendientes; no prepares otra importación para recuperarlo.';}
+                        else{model.mensaje='La revisión está guardada y no tiene una confirmación visible. Si conservas esta ventana, continúa su revisión. Tras recargar, selecciona la carpeta y prepara una nueva revisión; esta consulta no confirma ni envía archivos.';}
+                    });}
+                    model.mensaje=value.estado==='EXPIRADA'||value.estado==='INVALIDADA'?'Esta revisión ya no está vigente. Selecciona la carpeta y prepara una nueva revisión. Los metadatos anteriores se conservan; esta consulta no envía PDF.':'Revisión consultada: '+value.archivosRevisados+' de '+value.totalArchivos+' archivos revisados. Puedes continuar en esta ventana. Tras recargar, vuelve a seleccionar la carpeta y prepara una nueva revisión; los metadatos anteriores se conservan y esta consulta no envía PDF.';
+                });});return;
+            }
+            if(name==='vincular-carpeta'){
+                var snapshot=session.lecturaCoordinada,knownRoot=model.raices&&model.raices.elementos.some(function(row){return row.recursoId===value;})||snapshot&&snapshot.estado.loteId===model.loteId&&snapshot.raices.some(function(row){return row.recursoId===value;});
+                if(!model.reseleccionCarpetaDisponible || model.mutacionIncierta || !validId(value) || !knownRoot){return;}
+                session.expectedRootId=value;session.view.reselectorCarpeta.setAttribute('webkitdirectory','');session.view.reselectorCarpeta.setAttribute('multiple','');session.view.reselectorCarpeta.value='';session.view.reselectorCarpeta.click();return;
+            }
+            if (name === "continuar-importacion") { iniciarCoordinacion(session);return; }
+            if (name === 'reanudar-importacion') {
+                var previous=model.estado;
+                if(!previous || previous.loteId!==model.loteId || previous.estado!=='DETENIDO' || previous.detencionSolicitada!==true || previous.hayIntentosActivos!==false || previous.hayIncertidumbre!==false || previous.accionesPermitidas.indexOf('REANUDAR_LOTE')===-1 || model.mutacionIncierta){return;}
+                invalidarCoordinacion(session);model.detalleErrorOperacion=null;model.faseSolicitud='REANUDAR_LOTE';
+                var acknowledged=false,lot=model.loteId,revision=previous.revision;
+                run(session,function(){return session.api.invocar('ReanudarLote',{loteId:lot,revisionEsperada:revision}).then(function(result){
+                    if(active!==session){return;}
+                    if(!result || result.loteId!==lot || result.revision!==revision+1 || result.detencionSolicitada!==false || ['RECIBIENDO','LISTO','EN_CURSO','PARCIAL','COMPLETADO','FALLIDO'].indexOf(result.estado)===-1){var invalid=new Error('RESPUESTA_INVALIDA');invalid.codigo='RESPUESTA_INVALIDA';invalid.resultadoIncierto=true;throw invalid;}
+                    acknowledged=true;return consultar(session,1).then(function(){
+                        if(active!==session){return;}
+                        if(!model.estado || model.estado.loteId!==lot || model.estado.revision<result.revision){var stale=new Error('RESPUESTA_INVALIDA');stale.codigo='RESPUESTA_INVALIDA';stale.resultadoIncierto=true;throw stale;}
+                    });
+                }).catch(function(error){error.fase='REANUDAR_LOTE';if(active===session){model.mutacionIncierta=true;}if(acknowledged){error.lecturaPosterior=true;}throw error;});}).then(function(ok){
+                    if(ok && active===session && model.loteId===lot && model.estado && model.estado.detencionSolicitada===false && model.estado.hayIntentosActivos===false && model.estado.hayIncertidumbre===false && model.estado.accionesPermitidas.indexOf('SOLICITAR_AVANCE')!==-1){return iniciarCoordinacion(session);}
+                });return;
+            }
+            if (name === "ver-expedientes") { if(typeof deps.Doc120MostrarExpediente==='function'&&value){var known=(model.expedientesConfirmados||model.raices&&model.raices.elementos||[]).filter(function(r){return r.recursoId===value;})[0];if(known&&validId(known.expedienteId)&&validId(known.relacionNivelId)){if(deps.Doc120MostrarExpediente(known,model.contexto)===true){cerrar();}else{model.mensaje="El expediente está confirmado, pero su nodo no está visible o es ambiguo. Abre el destino original en la estructura y consulta de nuevo; no repitas la importación.";model.tipoMensaje="AVISO";refresh(session);}}}return; }
+            if (name === "volver-importacion") {
+                if (!session.importacionGuardada) { return; }
+                invalidarCoordinacion(session); var saved = session.importacionGuardada; session.importacionGuardada = null; session.model = saved.model; session.reselected = saved.reselected; session.origenesExcluidos = saved.origenesExcluidos || Object.create(null); session.consultaArchivos = saved.consultaArchivos; session.expected = null;
+                if (session.model.loteId) { run(session, function () { return consultar(session, session.model.resultados ? session.model.resultados.pagina : 1); }); }
+                else { refresh(session); }
+                return;
+            }
             if (name === "consultar-referencia" || name === "consultar-ultimo") {
                 var reference = name === "consultar-ultimo" ? model.ultimoLoteId : String(value || "").trim();
+                if(name === "consultar-ultimo" && !validId(reference)){
+                    var found=null;run(session,function(){return buscarUltimo(session).then(function(id){found=id;});}).then(function(ok){if(ok && active===session && found){action(session,"consultar-referencia",found);}});return;
+                }
                 if (!validId(reference)) { model.mensaje = "Escribe una referencia de lote válida."; refresh(session); return; }
-                model.referencia = reference; model.loteId = reference; model.contexto = null; model.estado = null; model.resultados = null; model.raices = null; model.filtrosArchivos = {}; model.filtrosRaices = {}; model.etapa = 3; model.mutacionIncierta = false; session.reselected = Object.create(null);
+                invalidarCoordinacion(session);
+                if (!model.consulta) {
+                    session.importacionGuardada = {model:model, reselected:session.reselected, origenesExcluidos:session.origenesExcluidos, consultaArchivos:session.consultaArchivos};
+                    session.model = modeloInicial({loteId:reference}); session.model.consulta = true; session.model.puedeVolverImportacion = true; model = session.model;
+                }
+                model.referencia = reference; model.loteId = reference; model.contexto = null; model.estado = null; model.resultados = null; model.raices = null; model.expedientesConfirmados = null; model.coordinacion = null; model.originalLocalPendiente=null; model.filtrosArchivos = {}; model.filtrosRaices = {}; model.paginaRaicesResultado = 1; model.etapa = 3; model.mutacionIncierta = false; model.ultimaOperacion = null; session.reselected = Object.create(null); session.origenesExcluidos = Object.create(null);
                 run(session, function () { return consultar(session, 1); }); return;
             }
             if (name === "verificar-referencia") { cerrar(true); verify(); return; }
@@ -255,12 +770,12 @@
             }
             if (name === "agregar") { session.picker.abrir(); return; }
             if (name === "reseleccionar") {
-                session.expected = model.resultados.elementos.filter(function (f) { return f.recursoId === value; })[0];
+                session.expected = archivoConocido(session,value);
                 if (!session.expected || session.expected.estadoRecepcion !== "PENDIENTE" || session.expected.estado !== "NO_INICIADO" || session.expected.tieneIntentoActivo) { return; }
                 session.view.reselector.value = ""; session.view.reselector.click(); return;
             }
             if (name === "quitar-raiz" || name === "quitar-archivo") { session.inventory[name === "quitar-raiz" ? "quitarRaiz" : "quitarArchivo"](value); return; }
-            var pagers = {"pagina-raices":"paginaRaices", "pagina-archivos":"paginaArchivos", "pagina-incidencias":"paginaIncidencias", "pagina-valores":"paginaValores"};
+            var pagers = {"pagina-raices":"paginaRaices", "pagina-archivos":"paginaArchivos", "pagina-incidencias":"paginaIncidencias", "pagina-valores":"paginaValores", "pagina-raices-revision":"paginaRaicesRevision"};
             if (pagers[name]) { model[pagers[name]] = value; refresh(session); return; }
             if (name === "mas-perfiles") {
                 run(session, function () { return session.api.invocar("ListarPerfilesImportacion", {nivelRef:model.contexto.nivelRef, pagina:model.paginaPerfiles + 1, tamanoPagina:50}).then(function (page) {
@@ -270,19 +785,32 @@
                     page.perfiles.forEach(function (p) { if (!model.perfiles.some(function (old) { return old.VersionId === p.VersionId; })) { model.perfiles.push(p); } });
                 }); }); return;
             }
-            if (name === "preparar") {
+            if (name === "preparar" || name === "continuar-preparacion") {
+                var resumablePreparation=!!(session.preparacionSegmentada&&session.ticketPreparacion&&session.operation.vigente(session.ticketPreparacion));
+                if(name==='continuar-preparacion'&&!resumablePreparation){return false;}
+                if(name==='preparar'&&resumablePreparation){name='continuar-preparacion';}
+                model.faseSolicitud = "PrepararPlan";
                 run(session, function () {
-                    model.plan = null; model.confirmable = false;
-                    var ticket = session.operation.iniciarPreparacion(), request = ticket.manifiesto;
-                    request.nivelRef = model.contexto.nivelRef; request.versionId = ticket.versionId;
-                    return session.api.invocar("PrepararPlan", request).then(function (plan) {
-                        if (active !== session || !session.operation.vigente(ticket)) { return; }
-                        if (!preparation(plan, model.contexto.nivelRef)) { throw new Error("RESPUESTA_INVALIDA"); }
-                        model.confirmable = session.operation.registrarPreparacion(ticket, plan); model.plan = plan; model.etapa = 2; model.paginaIncidencias = model.paginaValores = 1;
+                    var resume=name==='continuar-preparacion' && session.preparacionSegmentada;
+                    if(!resume){if(session.preparacionSegmentada){session.preparacionSegmentada.destruir();}session.preparacionSegmentada=null;model.progresoPreparacion=null;model.plan=null;model.confirmable=false;session.ticketPreparacion=session.operation.iniciarPreparacion();}
+                    var ticket=session.ticketPreparacion,request=ticket.manifiesto;
+                    request.nivelRef=model.contexto.nivelRef;request.versionId=ticket.versionId;
+                    var hint=Number(host.getAttribute('data-maximo-json'));
+                    var useParts=!!segmentado && host.getAttribute('data-preparacion-segmentada')==='2' && (request.archivos.length>100 || Number.isSafeInteger(hint)&&hint>0&&JSON.stringify({solicitud:request}).length>hint);
+                    if(useParts && !session.preparacionSegmentada){session.preparacionSegmentada=segmentado.crear({api:session.api,solicitud:request,maximoJson:hint,clave:key().slice(4),vigente:function(){return active===session&&session.model===model&&session.operation.vigente(ticket);},cambiar:function(value){if(active===session&&session.model===model){model.progresoPreparacion=value;if(value.preparacionId){host.doc120PreparacionPendiente=value.preparacionId;save();}refresh(session);}}});}
+                    var pending=session.preparacionSegmentada?session.preparacionSegmentada.iniciar():session.api.invocar('PrepararPlan',request);
+                    return pending.then(function(plan){
+                        if(active!==session||!session.operation.vigente(ticket)){return;}
+                        if(!preparation(plan,model.contexto.nivelRef)){throw new Error('RESPUESTA_INVALIDA');}
+                        model.confirmable=session.operation.registrarPreparacion(ticket,plan);model.plan=plan;model.etapa=2;model.paginaIncidencias=model.paginaValores=model.paginaRaicesRevision=1;model.progresoPreparacion=null;
+                        if(session.preparacionSegmentada){session.preparacionSegmentada.destruir();session.preparacionSegmentada=null;}
+                        model.tipoMensaje=model.confirmable?'EXITO':'AVISO';model.mensaje=(model.confirmable?'Revisión preparada. Comprueba las carpetas y sus datos antes de importar.':'La revisión necesita correcciones. Consulta las incidencias de cada carpeta o archivo.')+' Todavía no se enviaron archivos ni se crearon expedientes.';
                     });
-                }); return;
+                });return;
             }
-            if (name === "confirmar") {
+            var coordinatedStart = name === "confirmar-importar";
+            if (name === "confirmar" || coordinatedStart) {
+                model.faseSolicitud = "ConfirmarPlan";
                 if (!model.confirmable || model.confirmacionIncierta) { return; }
                 run(session, function () {
                     var request = session.operation.referenciaConfirmacion(); request.claveConfirmacion = key();
@@ -290,15 +818,15 @@
                     host.doc111ConfirmacionPendiente = {planId:expectedPlan}; save();
                     return session.api.invocar("ConfirmarPlan", request).then(function (result) {
                         if (!result || !validId(result.loteId) || result.planId !== expectedPlan || result.nivelRef !== expectedLevel) { var bad = new Error("RESPUESTA_INVALIDA"); bad.resultadoIncierto = true; throw bad; }
-                        host.doc111UltimoLote = {loteId:result.loteId, nivelRef:result.nivelRef}; host.doc111ConfirmacionPendiente = null; session.confirming = null; save(); sync();
-                        if (active !== session) { return; } model.loteId = result.loteId; model.etapa = 3; return consultar(session, 1);
+                        host.doc111UltimoLote = {loteId:result.loteId, nivelRef:result.nivelRef}; host.doc111ConfirmacionPendiente = null; host.doc120PreparacionPendiente=null; session.confirming = null; save(); sync();
+                        if (active !== session) { return; } model.loteId = result.loteId; session.loteOriginal = result.loteId; model.etapa = 3; model.mensaje = "Plan confirmado en el lote " + result.loteId + ". La importación puede continuar con sus operaciones verificadas."; return consultar(session, 1).catch(function (error) { error.lecturaPosterior = true; error.fase = "ConfirmarPlan"; throw error; });
                     }).catch(function (error) {
                         if (session.confirming && error.resultadoIncierto) { host.doc111ConfirmacionPendiente = session.confirming; model.confirmacionIncierta = true; error.planPendiente = session.confirming.planId; }
                         else if (session.confirming) { host.doc111ConfirmacionPendiente = null; }
                         save(); sync();
                         session.confirming = null; throw error;
                     });
-                }); return;
+                }).then(function(ok){if(ok&&coordinatedStart&&active===session&&model.loteId&&!model.confirmacionIncierta){iniciarCoordinacion(session);}}); return;
             }
             if (name === "consultar" || name === "pagina-resultados") { run(session, function () { return consultar(session, name === "consultar" ? (model.resultados ? model.resultados.pagina : 1) : value); }); return; }
             if (["filtrar-resultados", "limpiar-resultados", "filtrar-raices", "limpiar-raices"].indexOf(name) !== -1) {
@@ -323,31 +851,47 @@
                     var resourcePage = kind ? model.raices : model.resultados;
                     row = resourcePage && resourcePage.elementos.filter(function (r) { return r.recursoId === value.id; })[0];
                     if (accionesRecurso(model, row, kind).indexOf(phase) === -1) { return; }
+                    if (phase === "RETOMAR_CREACION" && !deps.confirm("Se retomará la creación del expediente en esta importación, conservando los archivos recibidos." + (model.estado.detencionSolicitada === true ? " También se levantará la detención que acabas de consultar." : "") + " ¿Retomar creación?")) { return; }
                 }
+                model.ultimaOperacion = {loteId:model.loteId,tipo:kind ? "RAICES" : "ARCHIVOS",recursoId:row && row.recursoId || null,fase:name === "detener" ? "DETENCION" : phase,estado:"SOLICITANDO"};
+                model.faseSolicitud = phase || "DETENCION";
                 run(session, function () {
                     var operation = name === "detener" ? "SolicitarDetencion" : name === "reconciliar" ? "ReconciliarRecurso" : "AvanzarLote";
                     var request = {loteId:model.loteId, revisionEsperada:name === "fase" ? row.revision : model.estado.revision};
                     if (name === "fase") { request.recursoId = row.recursoId; request.fase = phase; request.claveOperacion = key(); }
+                    if (phase === "RETOMAR_CREACION") { request.intentoId = row.intentoActivoId; request.revisionLoteEsperada = model.estado.revision; request.levantarDetencion = model.estado.detencionSolicitada === true; }
                     if (name === "reconciliar") { request.intentoId = row.intentoActivoId; }
                     return session.api.invocar(operation, request).then(function (result) {
                         if (active !== session) { return; }
+                        if (name === "reconciliar" && result && result.loteId === model.loteId && result.intentoId === row.intentoActivoId && result.resuelta === false && result.estado === "INCIERTO") { model.ultimaOperacion.estado = "SIN_RESOLVER"; model.mensaje = "La verificación no pudo confirmar el resultado del intento. Se conserva el bloqueo sin repetir efectos."; return consultar(session, model.resultados.pagina); }
                         if (!result || result.loteId !== model.loteId || (name === "fase" && (result.fase !== phase || result.estado !== "CONFIRMADO" || (kind ? result.raizId : result.archivoId) !== row.recursoId)) || (name === "reconciliar" && (result.intentoId !== row.intentoActivoId || result.resuelta !== true || result.estado !== "CONFIRMADO")) || (name === "detener" && result.detencionSolicitada !== true && ["COMPLETADO", "FALLIDO"].indexOf(result.estado) === -1)) {
                             var invalid = new Error("RESPUESTA_INVALIDA"); invalid.resultadoIncierto = true; throw invalid;
                         }
+                        model.ultimaOperacion.estado = "CONFIRMADA";
+                        model.ultimaOperacion.resultadoConfirmado = {};
+                        ["intentoId","expedienteId","relacionNivelId","documentoId","inventarioId","gabineteId"].forEach(function (field) { if (validId(String(result[field]))) { model.ultimaOperacion.resultadoConfirmado[field] = String(result[field]); } });
+                        model.mensaje = phase === "MATERIALIZAR_VALORES" ? "Índices preparados para el archivo " + row.recursoId + ". Todavía falta almacenar el documento; utiliza Almacenar archivo cuando esté disponible." : phase === "ALMACENAR" ? "Almacenamiento confirmado para el archivo " + row.recursoId + ". Consulta el estado de la carpeta y del lote para revisar sus pendientes." : ["CREAR_EXPEDIENTE","RETOMAR_CREACION"].indexOf(phase) !== -1 ? "Creación confirmada para la carpeta " + row.recursoId + ". Continúa con Preparar índices en los archivos disponibles; no se almacenan automáticamente." : "Operación confirmada. Consulta el estado actualizado.";
                         return consultar(session, model.resultados.pagina);
-                    }).catch(function (error) { model.mutacionIncierta = true; throw error; });
+                    }).catch(function (error) { error.fase = phase; if (["CONFIRMADA","SIN_RESOLVER"].indexOf(model.ultimaOperacion.estado) !== -1) { error.lecturaPosterior = model.ultimaOperacion.estado === "CONFIRMADA"; model.mutacionIncierta = true; throw error; } model.mutacionIncierta = true; model.ultimaOperacion.estado = "SIN_CONFIRMAR"; model.ultimaOperacion.codigo = /^[A-Z][A-Z0-9_]{0,63}$/.test(error.codigo || "") ? error.codigo : "RESPUESTA_NO_CONFIRMADA"; model.ultimaOperacion.operacionId = error.operacionId || null; model.ultimaOperacion.intentoId = error.intentoId || row && row.intentoActivoId || null; throw error; });
                 }); return;
             }
             if (name === "enviar") {
+                model.faseSolicitud = "RECEPCION";
                 if (!model.puedeEnviar) { return; }
                 run(session, function () {
-                    var items = model.resultados.elementos.filter(function (f) { return f.estadoRecepcion === "PENDIENTE" && f.estado === "NO_INICIADO" && !f.tieneIntentoActivo && (session.reselected[f.recursoId] || session.inventory.obtenerFile(f.idCliente)); }).map(function (f) {
-                        var file = session.reselected[f.recursoId] || session.inventory.obtenerFile(f.idCliente);
+                    var items = model.resultados.elementos.filter(function (f) { return f.estadoRecepcion === "PENDIENTE" && f.estado === "NO_INICIADO" && !f.tieneIntentoActivo && (!session.origenesExcluidos[f.recursoId] && (session.reselected[f.recursoId] || (!model.consulta && session.inventory.obtenerFile(f.idCliente)))); }).map(function (f) {
+                        var file = !session.origenesExcluidos[f.recursoId] && (session.reselected[f.recursoId] || (!model.consulta && session.inventory.obtenerFile(f.idCliente)));
                         if (session.reselected[f.recursoId]) { validarReseleccion(f, file); }
                         if (file.name !== f.nombre || String(file.size) !== f.bytesPrevistos) { throw new Error("CONTENIDO_DISTINTO"); }
                         return {file:file, solicitud:{loteId:model.loteId, archivoId:f.recursoId, claveIntento:key()}};
                     });
-                    return session.api.enviarCola(items, function (_, progress) { if (active === session) { model.mensaje = "Transferencia: " + progress.enviados + " de " + progress.total + " bytes de solicitud enviados."; refresh(session); } }).then(function () { return consultar(session, model.resultados.pagina); }).catch(function (error) { model.mutacionIncierta = true; throw error; });
+                    var confirmedCount = 0, queue = session.api.enviarCola(items, function (item, progress) { if (active === session) { model.mensaje = "Enviando archivo " + (items.indexOf(item) + 1) + " de " + items.length + " de esta página filtrada: " + item.file.name + ". Transferencia: " + progress.enviados + " de " + progress.total + " bytes de solicitud enviados. La recepción no implica almacenamiento documental."; refresh(session); } });
+                    session.envioActual = queue;
+                    return queue.then(function (receipts) {
+                        if (session.envioActual === queue) { session.envioActual = null; }
+                        confirmedCount = receipts.length; model.recepcionesConfirmadas = receipts;
+                        return consultar(session, model.resultados.pagina).catch(function (error) { error.lecturaPosterior = true; error.totalRecibidos = confirmedCount; error.fase = "RECEPCION"; throw error; });
+                    }).then(function () { if (active === session) { model.mensaje = "Recepción confirmada para " + (confirmedCount === items.length ? String(confirmedCount) : confirmedCount + " de " + items.length) + " archivos de esta página filtrada. Continúa con las acciones disponibles; todavía no implica almacenamiento documental."; } }).catch(function (error) { if (session.envioActual === queue) { session.envioActual = null; } model.mutacionIncierta = true; throw error; });
                 }); return;
             }
             if (name === "exportar") {
@@ -360,22 +904,28 @@
                 }); });
             }
         }
+        function modeloInicial(resume) {
+            return {etapa:resume ? 3 : 0, busy:false, contexto:null, perfiles:[], perfil:null, paginaPerfiles:1, masPerfiles:false, paginaRaices:1, paginaArchivos:1, paginaIncidencias:1, paginaValores:1, paginaRaicesResultado:1, confirmable:false, loteId:resume ? resume.loteId : null, manifiesto:{raices:[], archivos:[]}};
+        }
         function abrir(resume, explicitLevel) {
             if (active || opening) { if (active && active.view.enfocar) { active.view.enfocar(); } return; }
             var requestedLevel = explicitLevel === undefined ? host.getAttribute("data-nivel") : explicitLevel;
             if (!resume && (host.doc111ConfirmacionPendiente || !validId(requestedLevel))) { errorApertura = host.doc111ConfirmacionPendiente ? "Verifica la confirmación pendiente antes de importar." : "Selecciona un nivel para importar carpetas."; sync(); return; }
             var returnFocus = host.ownerDocument && host.ownerDocument.activeElement; errorApertura = ""; opening = true; sync();
-            var session = {inventory:deps.InventarioImportacion.crear(), reselected:Object.create(null), urls:[], timers:[], confirming:null, scope:host.getAttribute("data-recuperacion"), returnFocus:returnFocus};
-            try { session.api = deps.ImportacionCarpetasApi.crear({url:host.getAttribute("data-api"), uploadUrl:host.getAttribute("data-upload"), token:host.getAttribute("data-token")}); }
+            var session = {inventory:deps.InventarioImportacion.crear(), reselected:Object.create(null), origenesExcluidos:Object.create(null), urls:[], timers:[], confirming:null, scope:host.getAttribute("data-recuperacion"), returnFocus:returnFocus};
+            try { session.api = deps.ImportacionCarpetasApi.crear({url:host.getAttribute("data-api"), uploadUrl:host.getAttribute("data-upload"), token:host.getAttribute("data-token"), maximoJsonSolicitud:Number(host.getAttribute("data-maximo-json"))}); }
             catch (error) { opening = false; errorApertura = message(error); sync(); return; }
             session.operation = crear(session.inventory);
-            session.model = {etapa:resume ? 3 : 0, busy:false, contexto:null, perfiles:[], perfil:null, paginaPerfiles:1, masPerfiles:false, paginaRaices:1, paginaArchivos:1, paginaIncidencias:1, paginaValores:1, confirmable:false, loteId:resume ? resume.loteId : null, manifiesto:{raices:[], archivos:[]}};
+            session.model = modeloInicial(resume);
             session.model.consulta = !!(modern && resume); session.model.referencia = resume && resume.loteId || "";
             if (resume && resume.consulta) { session.model.etapa = -1; session.model.consulta = true; }
             // La ventana solo se monta tras resolver el destino autorizado.
             active = session; session.view = {render:function () {}, destruir:function () {}}; session.picker = {destruir:function () {}}; session.unsubscribe = function () {};
             run(session, function () {
-                if (resume) { return resume.consulta ? Promise.resolve() : consultar(session, 1); }
+                if (resume) {
+                    if(resume.buscarUltimo){return buscarUltimo(session).then(function(id){if(active!==session||!id){return;}session.model.loteId=id;session.model.referencia=id;session.model.etapa=3;return consultar(session,1);});}
+                    return resume.consulta ? Promise.resolve() : consultar(session, 1);
+                }
                 return session.api.invocar("AbrirImportacion", {nivelRef:requestedLevel}).then(function (result) {
                     if (active !== session) { return; }
                     if (!object(result) || result.nivelRef !== requestedLevel || typeof result.rutaCanonica !== "string" || !Array.isArray(result.perfiles) || !result.perfiles.every(profile) || (result.paginaPerfiles != null && (!object(result.paginaPerfiles) || typeof result.paginaPerfiles.puedeHaberMas !== "boolean"))) { throw new Error("RESPUESTA_INVALIDA"); }
@@ -386,27 +936,43 @@
                 opening = false;
                 if (active === session) {
                     if (!session.model.contexto && !session.model.consulta) { errorApertura = session.model.mensaje; cerrar(true); return; }
-                    session.view = deps.ImportacionCarpetasVista.crear(host, function (name, value) { action(session, name, value); });
+                    session.view = deps.ImportacionCarpetasVista.crear(host, function (name, value) { return action(session, name, value); });
                     try { session.picker = deps.InventarioImportacion.vincularSelector(session.view.picker, session.inventory, function (error) { session.model.mensaje = message(error); refresh(session); }); session.model.selectorDisponible = true; }
                     catch (_) { session.model.selectorDisponible = false; session.model.mensaje = "Este navegador no permite seleccionar carpetas."; }
                     session.unsubscribe = session.inventory.alCambiar(function () { session.model.plan = null; session.model.confirmable = false; refresh(session); }); refresh(session);
                     function reselect() {
                         try {
                             if (active !== session || session.model.busy || !session.view.reselector.files.length) { return; }
-                            var current = session.model.resultados.elementos.filter(function (f) { return session.expected && f.recursoId === session.expected.recursoId; })[0];
+                            var current = session.expected && archivoConocido(session,session.expected.recursoId);
                             var file = validarReseleccion(current, session.view.reselector.files[0]);
-                            session.reselected[current.recursoId] = file; session.model.mensaje = "Archivo vinculado al pendiente " + current.recursoId + ". Puedes enviar los pendientes de esta página."; refresh(session);
+                            session.reselected[current.recursoId] = file; delete session.origenesExcluidos[current.recursoId];
+                            if(session.model.coordinacion&&session.model.coordinacion.estado==='needs-original'){invalidarCoordinacion(session);session.model.coordinacion=null;}
+                            session.model.mensaje = "Archivo vinculado al pendiente " + current.recursoId + ". La selección no lo envía. Puedes continuar la importación desde el avance del lote o usar el envío individual disponible."; refresh(session);
                         } catch (error) { session.model.mensaje = message(error); refresh(session); }
                         finally { session.view.reselector.value = ""; session.expected = null; }
                     }
                     session.view.reselector.addEventListener("change", reselect);
+                    function reselectFolder(){
+                        var selected=Array.prototype.slice.call(session.view.reselectorCarpeta.files||[]),expected=session.expectedRootId;
+                        session.view.reselectorCarpeta.value='';session.expectedRootId=null;
+                        if(active!==session||session.model.busy||!selected.length||!expected){return;}
+                        run(session,function(){return coordinacion(session).consultarInventario().then(function(snapshot){
+                            if(active!==session){return;}var root=snapshot.raices.filter(function(row){return row.recursoId===expected;})[0];
+                            if(!root){throw new Error('RESPUESTA_INVALIDA');}var report=segmentado.vincularOriginales(root,snapshot.archivos,selected);
+                            snapshot.archivos.filter(function(row){return row.raizId===expected;}).forEach(function(row){delete session.reselected[row.recursoId];session.origenesExcluidos[row.recursoId]=true;});
+                            Object.keys(report.vinculados).forEach(function(id){session.reselected[id]=report.vinculados[id];delete session.origenesExcluidos[id];});
+                            invalidarCoordinacion(session);session.model.coordinacion=null;session.model.resumenVinculacion=report;
+                            session.model.mensaje=Object.keys(report.vinculados).length+' originales vinculados; '+report.faltantes.length+' pendientes sin vincular, '+report.modificados.length+' modificados y '+report.ambiguos.length+' ambiguos. '+report.yaRecibidos+' ya recibidos se omitieron. Se compararon ruta, nombre, tamaño y fecha local; el contenido PDF se valida al recibir. No se enviaron archivos. Pulsa Continuar importación para procesar los pendientes vinculados.';
+                        });});
+                    }
+                    if(session.view.reselectorCarpeta){session.view.reselectorCarpeta.addEventListener('change',reselectFolder);}
                     var unsubscribe = session.unsubscribe;
-                    session.unsubscribe = function () { unsubscribe(); session.view.reselector.removeEventListener("change", reselect); session.reselected = Object.create(null); };
+                    session.unsubscribe = function () { unsubscribe(); session.view.reselector.removeEventListener("change", reselect); if(session.view.reselectorCarpeta){session.view.reselectorCarpeta.removeEventListener("change",reselectFolder);} session.origenesExcluidos=Object.create(null); session.reselected = Object.create(null); };
                 }
                 sync();
             });
         }
-        function open() { abrir(null); } function resume() { if (host.doc111UltimoLote) { abrir(host.doc111UltimoLote); } }
+        function open() { abrir(null); } function resume() { if(active){action(active,"consultar-ultimo");return;} abrir(host.doc111UltimoLote || {consulta:true,buscarUltimo:true}); }
         function consulta() { abrir({consulta:true}); }
         function manual() {
             if (!validId(manualInput.value)) { errorApertura = "Escribe una referencia de lote válida."; sync(); return; }
@@ -445,5 +1011,5 @@
         function install() { inicializar(); if (!installed && env.Sys && env.Sys.Application) { installed = true; env.Sys.Application.add_load(inicializar); } }
         if (env.document.readyState === "loading") { env.document.addEventListener("DOMContentLoaded", install, {once:true}); } else { install(); }
     }
-    return {crear:crear, crearReferencias:crearReferencias, validarReseleccion:validarReseleccion, accionesRecurso:accionesRecurso, asegurarMenu:asegurarMenu, montar:montar, inicializar:inicializar};
+    return {crear:crear, crearReferencias:crearReferencias, validarReseleccion:validarReseleccion, crearCoordinacion:crearCoordinacion, politicaControles:politicaControles, accionesRecurso:accionesRecurso, bloqueoFlujo:bloqueoFlujo, asegurarMenu:asegurarMenu, rotularAccesoMenu:rotularAccesoMenu, montar:montar, inicializar:inicializar};
 }));

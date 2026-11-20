@@ -332,7 +332,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
     }
 
     // Doble de SOLO lectura. No contiene metodos de mutacion o efectos.
-    sealed class QueryRepository : IConsultaImportacionRepository {
+    sealed partial class QueryRepository : IConsultaImportacionRepository {
         public bool HasConfirmation=true;public int ConfirmationReads;
         public ContextoImportacionCarpetas ObtenerContextoPlan(ContextoImportacionCarpetas c,string id){if(id!="17")throw new PerfilImportacionException("ACCESO_DENEGADO","Fixture");Owner(c,Lot.LoteId);return ReceiptClone(Lot.Contexto);}
         public ConfirmacionLecturaImportacion ConsultarConfirmacion(ContextoImportacionCarpetas c,string id){ObtenerContextoPlan(c,id);ConfirmationReads++;var plan=PlanFixture();plan.PlanId="17";plan.Contexto=ReceiptClone(Lot.Contexto);plan.Snapshot=ReceiptClone(Lot.Snapshot);plan.Estado=HasConfirmation?"CONFIRMADO":"REVISABLE";var lot=ReceiptClone(Lot);lot.PlanId="17";return new ConfirmacionLecturaImportacion{Plan=plan,Lote=HasConfirmation?lot:null};}
@@ -371,8 +371,13 @@ public static partial class ImportacionCarpetasBehaviorTests {
         var savedAttempt=repository.Files[0].IntentoActivoId;repository.Files[0].IntentoActivoId="50";Check(service.ConsultarPagina(pageRequest).elementos[0].intentoActivoId=="50","DOC111 response loss cannot recover known attempt reference");repository.Files[0].IntentoActivoId=savedAttempt;
         var export=service.ExportarPagina(pageRequest);Check(export.pagina.totalOriginal==3&&export.pagina.elementos.Count==2&&export.nombreArchivo=="importacion-20-archivos-pagina-1.csv"&&export.contenido.Contains("\"'\t=1+1\"")&&!export.contenido.Contains("PRIVATE_"),"DOC111 page CSV exposes evidence or spreadsheet formula");
         pageRequest.tipo="RAICES";var roots=service.ConsultarPagina(pageRequest);Check(roots.totalFiltrado==3&&roots.elementos[0].estado=="BLOQUEADO","DOC111 root query hides blocked resources");
-        var savedRoot=ReceiptClone(repository.Roots[0]);repository.Roots[0].Estado="EXPEDIENTE_CONFIRMADO";repository.Roots[0].IdentidadExpediente=new IdentidadExpedienteImportacion{ExpedienteId="60",RelacionNivelId="70",NivelRef="7",OrigenLogico="RA"};repository.Roots[0].ValoresPlan=new List<ValorReglaPerfilImportacion>{new ValorReglaPerfilImportacion{DestinoTipo="CAMPO_EXPEDIENTE",DestinoRef="NOMBRE",Valor="Nombre confirmado distinto de carpeta"}};
-        Check(service.ConsultarPagina(pageRequest).elementos[0].nombreExpediente=="Nombre confirmado distinto de carpeta","DOC111 tree label uses original folder instead of confirmed NOMBRE");repository.Roots[0].Estado="INCIERTO";Check(service.ConsultarPagina(pageRequest).elementos[0].nombreExpediente==null,"DOC111 uncertain root supplies confirmed tree label");repository.Roots[0]=savedRoot;
+        var savedRoot=ReceiptClone(repository.Roots[0]);repository.Roots[0].Estado="EXPEDIENTE_CONFIRMADO";repository.Roots[0].IdentidadExpediente=new IdentidadExpedienteImportacion{ExpedienteId="60",RelacionNivelId="70",NivelRef="7",OrigenLogico="RA"};repository.Roots[0].ValoresPlan=new List<ValorReglaPerfilImportacion>{new ValorReglaPerfilImportacion{DestinoTipo="CAMPO_EXPEDIENTE",DestinoRef="NOMBRE",Valor="Nombre confirmado distinto de carpeta"},new ValorReglaPerfilImportacion{DestinoTipo="CAMPO_EXPEDIENTE",DestinoRef="CODIGO",Valor="EGR-00029"}};
+        Check(service.ConsultarPagina(pageRequest).elementos[0].nombreExpediente=="Nombre confirmado distinto de carpeta","DOC111 query changes informative name");Check(service.ConsultarPagina(pageRequest).elementos[0].codigoExpediente=="EGR-00029","DOC120 tree code is replaced by name or folder");
+        var confirmedRoot=ReceiptClone(repository.Roots[0]);
+        foreach(var change in new Action<RaizImportacionCarpetas>[]{r=>r.ValoresPlan.RemoveAt(1),r=>r.ValoresPlan[1].Diferido=true,r=>r.ValoresPlan.Add(ReceiptClone(r.ValoresPlan[1])),r=>{var extra=ReceiptClone(r.ValoresPlan[1]);extra.Diferido=true;r.ValoresPlan.Add(extra);},r=>r.IdentidadExpediente=null,r=>r.Estado="INCIERTO"}){
+            repository.Roots[0]=ReceiptClone(confirmedRoot);change(repository.Roots[0]);Check(service.ConsultarPagina(pageRequest).elementos[0].codigoExpediente==null,"DOC120 missing/ambiguous/deferred/unconfirmed code receives a tree label");
+        }
+        Check(service.ConsultarPagina(pageRequest).elementos[0].nombreExpediente==null,"DOC111 uncertain root supplies confirmed tree label");repository.Roots[0]=savedRoot;
         pageRequest.estadoRecepcion="RECIBIDO";Rejected("SOLICITUD_INVALIDA",()=>service.ConsultarPagina(pageRequest));pageRequest.estadoRecepcion=null;
         pageRequest.tamanoPagina=3;Rejected("SOLICITUD_INVALIDA",()=>service.ExportarPagina(pageRequest));pageRequest.tamanoPagina=2;
         pageRequest.estado="INCIERTO' OR 1=1";Rejected("SOLICITUD_INVALIDA",()=>service.ConsultarPagina(pageRequest));pageRequest.estado=null;
@@ -607,11 +612,18 @@ public static partial class ImportacionCarpetasBehaviorTests {
         var f=SafeCreationCatalog();var command=f.Source.Prepare();var names=f.PrepareLegacy();var identity=new IdentidadExpedienteImportacion{OrigenLogico="RA",ExpedienteId="60",RelacionNivelId="70",NivelRef=command.Contexto.NivelRef};
         var rows=new DataTable();foreach(var col in new[]{"expediente","relacion","nivel","empresa","usuario","nivel_activo","electronico","empresa_nivel","autorizado","fondo","instrumento","area","serie","subserie","tipo","unidad","codigo","nombre","fecha_inicial","fecha_final","ciclo_id","ciclo_nombre","gabinete","responsable_nombre","responsable_identificacion","volumen"})rows.Columns.Add(col,typeof(object));
         rows.Rows.Add("60","70","3","2","1","1","2","2","1","1","2","3","4",DBNull.Value,"5","6","000123",command.Nombre,"2026-10-29","2026-10-30","13","Archivo Gestión","Gabinete","Responsable","00012345","1");
-        rows.Columns.Add("alias_visible",typeof(object));rows.Rows[0]["alias_visible"]=command.Nombre;
+        rows.Columns.Add("alias_visible",typeof(object));rows.Rows[0]["alias_visible"]=command.Codigo;
         int calls=0;Func<string,object[],DataTable> query=(sql,args)=>{calls++;Check(sql.StartsWith("SELECT ")&&sql.EndsWith("LIMIT 2")&&sql.Contains("r.id_registro=@relacion")&&sql.Contains("e.ID_EXPEDIENTE=@expediente")&&!sql.Contains("FOR UPDATE")&&!sql.Contains("'000123'"),"DOC111 result lookup is not exact bounded SELECT");return rows;};
         Func<bool> check=()=>(bool)RepositoryHelper("LeerResultadoCreacion",command,identity,names,query);Check(check(),"DOC111 correct created result rejected");
+        Check(command.Codigo!=command.Nombre,"DOC120 distinct label test uses identical values");rows.Rows[0]["alias_visible"]=command.Nombre;Check(!check(),"DOC120 new creation accepts the informative name as its tree label");rows.Rows[0]["alias_visible"]=command.Codigo;
         foreach(DataColumn col in rows.Columns){var saved=rows.Rows[0][col];rows.Rows[0][col]="999";Check(!check(),"DOC111 inconsistent created field accepted: "+col.ColumnName);if(saved!=DBNull.Value){rows.Rows[0][col]=DBNull.Value;Check(!check(),"DOC111 null created field accepted");}rows.Rows[0][col]=saved;}
         rows.ImportRow(rows.Rows[0]);Check(!check(),"DOC111 ambiguous created result accepted");rows.Rows.RemoveAt(1);var original=rows.Rows[0].ItemArray;rows.Clear();Check(!check(),"DOC111 missing created effect accepted");rows.Rows.Add(original);
+        f.Source.Root.Estado="INCIERTO";f.Source.Attempt.Estado="INCIERTO";f.Source.Attempt.EsNuevaReserva=false;f.Source.Attempt.Resultado=new ResultadoEfectoImportacion{Estado="INCIERTO",Expediente=identity,Creacion=new EvidenciaCreacionExpedienteImportacion{IntentoId=f.Source.Attempt.IntentoId,CicloArchivoId="13",CicloArchivoNombre="Archivo Gestión"}};
+        command=ComandoCreacionExpedienteImportacion.PrepararVerificacion(f.Source.Context,f.Source.Lot,f.Source.Root,f.Source.Attempt);
+        var historicalBefore=PerfilImportacionJson.Escribir(new{f.Source.Root,f.Source.Attempt});
+        foreach(var label in new[]{command.Nombre,command.Codigo}){rows.Rows[0]["alias_visible"]=label;Check(check(),"DOC120 known uncertain ID loses historical alias compatibility");}
+        rows.Rows[0]["alias_visible"]="Alias ajeno";Check(!check(),"DOC120 unknown historical alias accepted");rows.Rows[0]["alias_visible"]=command.Nombre;rows.Rows[0]["codigo"]="otro";Check(!check(),"DOC120 historical alias bypasses code check");rows.Rows[0]["codigo"]=command.Codigo;
+        Check(PerfilImportacionJson.Escribir(new{f.Source.Root,f.Source.Attempt})==historicalBefore,"DOC120 label verification rewrites historical evidence");
         rows.Columns.Remove("ciclo_id");Unavailable(()=>check());
         Console.WriteLine("DOC-111 creation result checks destination classification cycle and effective values (synthetic SELECT): passed");
     }
@@ -664,11 +676,14 @@ public static partial class ImportacionCarpetasBehaviorTests {
         List<RaizImportacionCarpetas> ScopedRoots(){return GlobalScope()?Roots:Roots.Where(r=>r.RaizId==Roots[Target].RaizId).ToList();}
         List<ArchivoImportacionCarpetas> ScopedFiles(){return GlobalScope()?Files:Files.Where(f=>f.RaizId==Roots[Target].RaizId).ToList();}
         public bool Check(){var method=typeof(CoordinadorImportacionCarpetas).GetMethod("EvaluarBarreraCreacion",BindingFlags.Static|BindingFlags.NonPublic);try{return (bool)method.Invoke(null,new object[]{Lot,Plan,Roots[Target],ScopedRoots(),ScopedFiles()});}catch(TargetInvocationException e){throw e.InnerException;}}
-        public bool ReadCheck(){
-            var roots=new DataTable();foreach(var col in new[]{"raiz_id","lote_id","cliente_raiz_id","estado"})roots.Columns.Add(col,typeof(object));foreach(var r in ScopedRoots())roots.Rows.Add(r.RaizId,r.LoteId,r.ClienteRaizId,r.Estado);
-            var files=new DataTable();foreach(var col in new[]{"archivo_id","raiz_id","cliente_archivo_id","bytes_previstos","bytes_recibidos","contenido_hash","staging_ref","estado_recepcion","estado_efecto","intento_activo_id","revision"})files.Columns.Add(col,typeof(object));foreach(var f in ScopedFiles())files.Rows.Add(f.ArchivoId,f.RaizId,f.ClienteArchivoId,f.BytesPrevistos,f.BytesRecibidos==null?DBNull.Value:(object)f.BytesRecibidos,f.ContenidoHash==null?DBNull.Value:(object)Unhex(f.ContenidoHash),f.StagingRef==null?DBNull.Value:(object)f.StagingRef,f.EstadoRecepcion,f.EstadoEfecto,f.IntentoActivoId==null?DBNull.Value:(object)f.IntentoActivoId,f.Revision);
-            Func<string,object[],DataTable> query=(sql,args)=>{Queries++;ImportacionCarpetasBehaviorTests.Check(sql.StartsWith("SELECT ")&&sql.Contains("r.lote_id=@lote")&&sql.EndsWith("LIMIT @limite")&&!sql.Contains("FOR UPDATE")&&!sql.Contains("origen_doc")&&!sql.Contains("datos_doc"),"DOC111 barrier query unscoped, unbounded or loads payload");ImportacionCarpetasBehaviorTests.Check(sql.Contains("r.raiz_id=@raiz")==!GlobalScope(),"DOC111 barrier query uses wrong integrity scope");bool rootQuery=sql.Contains("FROM ra_integracion_raiz r WHERE");ImportacionCarpetasBehaviorTests.Check((int)args[Array.IndexOf(args,"@limite")+1]==(rootQuery?Plan.Manifiesto.Raices.Count:Plan.Manifiesto.Archivos.Count)+1,"DOC111 barrier query lost original inventory bound");return rootQuery?roots:files;};
-            return (bool)RepositoryHelper("LeerBarreraCreacion",Lot,Plan,Roots[Target],query);
+        public bool ReadCheck(bool consultation=false,bool wholePage=false){
+            var roots=new DataTable();foreach(var col in new[]{"raiz_id","lote_id","cliente_raiz_id","estado"})roots.Columns.Add(col,typeof(object));foreach(var r in wholePage?Roots:ScopedRoots())roots.Rows.Add(r.RaizId,r.LoteId,r.ClienteRaizId,r.Estado);
+            var files=new DataTable();foreach(var col in new[]{"archivo_id","raiz_id","cliente_archivo_id","bytes_previstos","bytes_recibidos","contenido_hash","staging_ref","estado_recepcion","estado_efecto","intento_activo_id","revision"})files.Columns.Add(col,typeof(object));foreach(var f in wholePage?Files:ScopedFiles())files.Rows.Add(f.ArchivoId,f.RaizId,f.ClienteArchivoId,f.BytesPrevistos,f.BytesRecibidos==null?DBNull.Value:(object)f.BytesRecibidos,f.ContenidoHash==null?DBNull.Value:(object)Unhex(f.ContenidoHash),f.StagingRef==null?DBNull.Value:(object)f.StagingRef,f.EstadoRecepcion,f.EstadoEfecto,f.IntentoActivoId==null?DBNull.Value:(object)f.IntentoActivoId,f.Revision);
+            Func<string,object[],DataTable> query=(sql,args)=>{Queries++;ImportacionCarpetasBehaviorTests.Check(sql.StartsWith("SELECT ")&&sql.Contains("r.lote_id=@lote")&&sql.EndsWith("LIMIT @limite")&&!sql.Contains("FOR UPDATE")&&!sql.Contains("origen_doc")&&!sql.Contains("datos_doc"),"DOC111 barrier query unscoped, unbounded or loads payload");ImportacionCarpetasBehaviorTests.Check(sql.Contains(consultation?"r.raiz_id IN (@consulta0":"r.raiz_id=@raiz")==!GlobalScope(),"DOC111 barrier query uses wrong integrity scope");if(consultation&&!GlobalScope())ImportacionCarpetasBehaviorTests.Check((uint)args[Array.IndexOf(args,"@consulta0")+1]==uint.Parse(Roots[Target].RaizId),"DOC120 page root parameter not bound");bool rootQuery=sql.Contains("FROM ra_integracion_raiz r WHERE");ImportacionCarpetasBehaviorTests.Check((int)args[Array.IndexOf(args,"@limite")+1]==(rootQuery?Plan.Manifiesto.Raices.Count:Plan.Manifiesto.Archivos.Count)+1,"DOC111 barrier query lost original inventory bound");return rootQuery?roots:files;};
+            if(!consultation)return (bool)RepositoryHelper("LeerBarreraCreacion",Lot,Plan,Roots[Target],query);
+            var page=new PaginaRecursosImportacion<RaizImportacionCarpetas>{Elementos=wholePage?Roots:new List<RaizImportacionCarpetas>{Roots[Target]}};
+            RepositoryHelper("CompletarRecepcionCreacionConsulta",Lot,Plan,page,query);
+            return Roots[Target].RecepcionListaParaCrear;
         }
         public void AnotherFile(){Plan.Manifiesto.Archivos.Add(new ArchivoManifiestoImportacion{RaizIdCliente="r1",IdCliente="a2",Nombre="other.pdf",RutaRelativa="Órdenes/other.pdf",Bytes="7"});var file=ReceiptClone(Files[0]);file.ArchivoId="32";file.ClienteArchivoId="a2";Files.Add(file);Lot.TotalArchivos=3;Lot.TotalBytes="21";}
     }
@@ -682,6 +697,25 @@ public static partial class ImportacionCarpetasBehaviorTests {
         f=new CreationBarrierFixture();f.Policy("PARCIAL_PERMITIDO","LOTE");Rejected("CONFIGURACION_INVALIDA",()=>f.Check());
         f=new CreationBarrierFixture();f.Roots[1].Estado="EXPEDIENTE_CONFIRMADO";f.Files[1].EstadoEfecto="COMPLETADO";Check(f.Check(),"DOC111 already confirmed other root invalidates original full-lot receipt barrier");
         Console.WriteLine("DOC-111 creation receipt barriers preserve inventory for EXPEDIENTE LOTE and partial (synthetic metadata): passed");
+    }
+
+    static void CreationReadinessQueryCases() {
+        foreach(var policy in new[]{new[]{"COMPLETO_OBLIGATORIO","EXPEDIENTE"},new[]{"COMPLETO_OBLIGATORIO","LOTE"},new[]{"PARCIAL_PERMITIDO","NO_APLICA"}}){
+            var f=new CreationBarrierFixture();f.Policy(policy[0],policy[1]);Check(f.ReadCheck(true),"DOC120 receipt query hides ready root");Check(f.Queries==2,"DOC120 readiness does not use bounded metadata SELECTs");
+            f.Files[0].EstadoRecepcion="PENDIENTE";Check(!f.ReadCheck(true),"DOC120 pending receipt offers creation");
+            f=new CreationBarrierFixture();f.Policy(policy[0],policy[1]);f.Files[1].EstadoRecepcion="PENDIENTE";Check(f.ReadCheck(true)==(policy[1]!="LOTE"),"DOC120 readiness uses visible page instead of integrity scope");
+            f=new CreationBarrierFixture();f.Policy(policy[0],policy[1]);f.AnotherFile();f.Files[2].EstadoRecepcion="PENDIENTE";Check(f.ReadCheck(true)==(policy[0]=="PARCIAL_PERMITIDO"),"DOC120 partial/full receipt policy changed");
+            foreach(var change in new Action<CreationBarrierFixture>[] {x=>x.Files[0].EstadoRecepcion="INCIERTO",x=>x.Files[0].IntentoActivoId="50",x=>x.Files[0].BytesRecibidos="6",x=>x.Files[0].ContenidoHash=null,x=>x.Files[0].StagingRef=null}){
+                f=new CreationBarrierFixture();f.Policy(policy[0],policy[1]);change(f);Check(!f.ReadCheck(true),"DOC120 invalid receipt enables creation");
+            }
+        }
+        var global=new CreationBarrierFixture();global.Policy("COMPLETO_OBLIGATORIO","LOTE");Check(global.ReadCheck(true,true)&&global.Roots.All(r=>r.RecepcionListaParaCrear)&&global.Queries==2,"DOC120 full-lot page repeats scope queries for each root");
+        var pageFixture=new CreationBarrierFixture();pageFixture.Policy("COMPLETO_OBLIGATORIO","EXPEDIENTE");pageFixture.Files[1].EstadoRecepcion="PENDIENTE";Check(pageFixture.ReadCheck(true,true)&&!pageFixture.Roots[1].RecepcionListaParaCrear&&pageFixture.Queries==2,"DOC120 page does not batch root reads or mixes homonymous roots");
+        foreach(var change in new Action<CreationBarrierFixture>[] {x=>x.Lot.DetencionSolicitada=true,x=>x.Roots[0].IntentoActivoId="50",x=>x.Roots[0].Estado="INCIERTO"}){
+            var f=new CreationBarrierFixture();f.Roots[0].RecepcionListaParaCrear=true;change(f);Check(!f.ReadCheck(true)&&f.Queries==0,"DOC120 stopped/active root retains stale readiness or reads inventory");
+        }
+        Check(!PerfilImportacionJson.Escribir(global.Roots[0]).Contains("RecepcionListaParaCrear"),"DOC120 query hint contaminates persisted root JSON");
+        Console.WriteLine("DOC-120 creation readiness: full scope, partial policy, SELECT only and no effects: passed");
     }
 
     sealed class CreationStagingFixture : IDisposable {
@@ -758,7 +792,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
         public Func<ContextoImportacionCarpetas,LoteImportacionCarpetas,RaizImportacionCarpetas,IntentoImportacionCarpetas,ResultadoEfectoImportacion> Run;
         public ResultadoEfectoImportacion Crear(ContextoImportacionCarpetas c,LoteImportacionCarpetas l,RaizImportacionCarpetas r,IntentoImportacionCarpetas i){return Run(c,l,r,i);}
     }
-    sealed class CreationPhaseFixture : IControlLoteImportacionRepository,IDisposable {
+    sealed partial class CreationPhaseFixture : IControlLoteImportacionRepository,IDisposable {
         public CreationStagingFixture Stage=new CreationStagingFixture();public IntentoImportacionCarpetas Attempt;public int Reserves,Writers,Checkpoints,Factories,StageFactories,Leases;public bool StopAfterReserve,CorruptAfterReserve,ThrowWriter,LoseCommitResponse,FailCheckpoint,RevokeAfterReserve;
         public CoordinadorImportacionCarpetas Coordinator;
         public CreationPhaseFixture(){
@@ -848,6 +882,12 @@ public static partial class ImportacionCarpetasBehaviorTests {
         invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan.RemoveAt(0));invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[0].Diferido=true);invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[0].PropiedadPendiente="ID");invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[0].TipoValor="ENTERO");invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[0].FuenteTipo="ARCHIVO");
         invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[0].Valor=new string('0',46));invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[1].Valor=" ");invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[2].Valor="29/10/2026");invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[2].Valor="2026-02-30");invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[3].Valor="2026-10-28");invalid("CONFIGURACION_INVALIDA",x=>x.Root.ValoresPlan[4].Valor="08");
         f=new CreationCommandFixture();f.Lot.Snapshot.Reglas.RemoveAll(r=>r.DestinoRef=="FECHA_FINAL"||r.DestinoRef=="RESPONSABLE");f.Root.ValoresPlan.RemoveAll(v=>v.DestinoRef=="FECHA_FINAL"||v.DestinoRef=="RESPONSABLE");f.Rehash();command=f.Prepare();Check(command.FechaFinal==null&&command.ResponsableRef==null,"DOC111 optional values fabricated");
+        f=new CreationCommandFixture();foreach(var r in f.Lot.Snapshot.Reglas.Where(r=>r.TipoValor=="FECHA")){r.FormatoFecha="yyyyMMdd";r.LongitudMaxima=8;}f.Rehash();
+        before=PerfilImportacionJson.Escribir(new{f.Context,f.Lot,f.Root,f.Attempt});command=f.Prepare();
+        Check(command.FechaInicial=="2026-10-29"&&command.FechaFinal=="2026-10-30"&&command.Snapshot.Reglas.Single(r=>r.DestinoRef=="FECHA_INICIAL").LongitudMaxima==8,"DOC120 creation rejects normalized date or changes source rule");
+        Check(PerfilImportacionJson.Escribir(new{f.Context,f.Lot,f.Root,f.Attempt})==before,"DOC120 creation date fix changes confirmed values/reservation");
+        f.Root.ValoresPlan.Single(v=>v.DestinoRef=="FECHA_INICIAL").Valor="2026-02-30";Rejected("CONFIGURACION_INVALIDA",()=>f.Prepare());
+        Console.WriteLine("DOC-120 creation accepts canonical dates from compact input without mutating confirmed resources: passed");
         Console.WriteLine("DOC-111 immutable creation command from confirmed root values (no effects): passed");
     }
 
@@ -1165,7 +1205,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
 
     static object RepositoryHelper(string method,params object[] args) {
         try { return typeof(MySqlImportacionCarpetasRepository).GetMethod(method,BindingFlags.NonPublic|BindingFlags.Static).Invoke(null,args); }
-        catch(TargetInvocationException e) { if(e.InnerException is PerfilImportacionException)throw e.InnerException;throw; }
+        catch(TargetInvocationException e) { throw e.InnerException ?? e; }
     }
     static string Hex(byte[] value) { return BitConverter.ToString(value).Replace("-","").ToLowerInvariant(); }
     static byte[] Unhex(string value) { return Enumerable.Range(0,32).Select(i=>Convert.ToByte(value.Substring(i*2,2),16)).ToArray(); }
@@ -1298,12 +1338,12 @@ public static partial class ImportacionCarpetasBehaviorTests {
         foreach(var root in plan.Manifiesto.Raices)plan.Resultado.Elementos.Add(new ValoresElementoImportacion{Ambito="RAIZ",RaizIdCliente=root.IdCliente,Valores=new List<ValorReglaPerfilImportacion>{new ValorReglaPerfilImportacion{DestinoTipo="CAMPO_EXPEDIENTE",DestinoRef="CODIGO",Valor="000123'OR'1"}}});
         var fixture=new CoincidenceQueryFixture();
         Func<List<IncidenciaImportacionCarpetas>> read=()=> (List<IncidenciaImportacionCarpetas>)RepositoryHelper("LeerCoincidencias",plan.Contexto,plan.Snapshot,plan.Manifiesto,plan.Resultado,(Func<string,object[],DataTable>)fixture.Query);
-        Check(read().Count==0 && fixture.BusinessReads==2,"DOC111 no-candidate plan not checked for every root");
+        Check(read().Count==0 && fixture.BusinessReads==0,"DOC120 technical validation performs business candidate lookups");
         Check(fixture.Sql.All(sql=>!sql.Contains("000123'OR'1")),"DOC111 code interpolated into query");
-        fixture.Candidates=1;Check(read().All(i=>i.Codigo=="CODIGO_EXPEDIENTE_EXISTENTE" && i.Ambito=="RAIZ" && i.BloqueaUnidad),"DOC111 BLOQUEAR ignores existing candidate");
-        plan.Snapshot.Configuracion.PoliticaCoincidencias="REUTILIZAR_VALIDADO";Check(read().All(i=>i.Codigo=="REUTILIZACION_NO_DISPONIBLE"),"DOC111 unverified candidate reused or silently downgraded");
-        fixture.Candidates=2;Check(read().All(i=>i.Codigo=="COINCIDENCIA_AMBIGUA"),"DOC111 chooses first ambiguous candidate");fixture.Candidates=0;
-        fixture.Duplicate=true;var before=fixture.BusinessReads;Check(read().Count==2 && fixture.BusinessReads==before,"DOC111 collation duplicate roots not both blocked");fixture.Duplicate=false;
+        fixture.Candidates=1;plan.Snapshot.Configuracion.PoliticaCoincidencias="BLOQUEAR";Check(read().Count==0 && fixture.BusinessReads==0,"DOC120 legacy policy blocks repeated business code");
+        plan.Snapshot.Configuracion.PoliticaCoincidencias="REUTILIZAR_VALIDADO";Check(read().Count==0 && fixture.BusinessReads==0,"DOC120 legacy reuse policy performs implicit matching");
+        fixture.Candidates=2;Check(read().Count==0 && fixture.BusinessReads==0,"DOC120 multiple prior candidates block creation");fixture.Candidates=0;
+        fixture.Duplicate=true;var before=fixture.BusinessReads;Check(read().Count==0 && fixture.BusinessReads==before,"DOC120 repeated codes within inventory are blocked");fixture.Duplicate=false;
         fixture.Unrepresentable=true;Check(read().All(i=>i.Codigo=="CODIGO_NO_REPRESENTABLE") && fixture.BusinessReads==before,"DOC111 lossy code used for candidates");fixture.Unrepresentable=false;
         fixture.Collation="latin1_swedish_ci;DROP_TABLE";Unavailable(()=>read());fixture.Collation="latin1_swedish_ci";
         fixture.MissingMetadata=true;Unavailable(()=>read());fixture.MissingMetadata=false;
@@ -1317,8 +1357,11 @@ public static partial class ImportacionCarpetasBehaviorTests {
         var fixture=new ResourceFixture();var plan=PlanFixture();plan.Contexto=fixture.Adapter.ResolverDestino(fixture.Http,"7");
         foreach(var file in plan.Manifiesto.Archivos)file.UltimaModificacionLocal="0";
         plan.Snapshot.Configuracion=fixture.Configuration();
+        plan.Snapshot.Configuracion.AreaRef="3";
         plan.Snapshot.Configuracion.ModoIntegridad="COMPLETO_OBLIGATORIO";plan.Snapshot.Configuracion.AmbitoIntegridad="EXPEDIENTE";
         plan.Snapshot.Reglas.Insert(0,new ReglaPerfilImportacion{ReglaId="7",DestinoTipo="CAMPO_EXPEDIENTE",DestinoRef="NOMBRE",FuenteTipo="CONSTANTE",ValorConstante="Órdenes"});
+        plan.Resultado.Elementos.Clear();
+        foreach(var root in plan.Manifiesto.Raices)plan.Resultado.Elementos.Add(new ValoresElementoImportacion{Ambito="RAIZ",RaizIdCliente=root.IdCliente,Valores=new List<ValorReglaPerfilImportacion>{new ValorReglaPerfilImportacion{DestinoTipo="CAMPO_EXPEDIENTE",DestinoRef="CODIGO",Valor="MISMO-CODIGO"}}});
         plan.Snapshot.Huella=Hex(PerfilImportacionJson.Huella(new VersionPerfilImportacion{Configuracion=plan.Snapshot.Configuracion,Reglas=plan.Snapshot.Reglas}));
         var stored=Prepare(plan);stored.PlanId="12";var now=new DateTime(2026,10,27,20,5,0,DateTimeKind.Utc);
         var publication=new PublicationPort{Value=plan.Snapshot};var catalog=new OperativeCatalogPort();
@@ -1329,7 +1372,8 @@ public static partial class ImportacionCarpetasBehaviorTests {
             var changed=PerfilImportacionJson.Leer<SnapshotPerfilImportacionOperativa>(originalPublication);change(changed);Check(!PerfilImportacionJson.MismaPublicacion(changed,stored.Snapshot),"DOC111 publication comparison ignores real changes");
         }
         var calls=0;var matchingCalls=0;var newConflict=false;
-        Func<ContextoImportacionCarpetas,SnapshotPerfilImportacionOperativa,ManifiestoImportacionCarpetas,ResultadoPreparacionImportacion,List<IncidenciaImportacionCarpetas>> matching=(c,s,m,r)=>{matchingCalls++;return newConflict?new List<IncidenciaImportacionCarpetas>{new IncidenciaImportacionCarpetas{RaizIdCliente="r1",BloqueaUnidad=true}}:new List<IncidenciaImportacionCarpetas>();};
+        var technicalCodes=new CoincidenceQueryFixture();
+        Func<ContextoImportacionCarpetas,SnapshotPerfilImportacionOperativa,ManifiestoImportacionCarpetas,ResultadoPreparacionImportacion,List<IncidenciaImportacionCarpetas>> matching=(c,s,m,r)=>{matchingCalls++;return newConflict?new List<IncidenciaImportacionCarpetas>{new IncidenciaImportacionCarpetas{RaizIdCliente="r1",BloqueaUnidad=true}}:(List<IncidenciaImportacionCarpetas>)RepositoryHelper("LeerCoincidencias",c,s,m,r,(Func<string,object[],DataTable>)technicalCodes.Query);};
         var service=new ServicioRecepcionImportacion(()=>fixture.Adapter.Resolver(fixture.Http),(c,id)=>{Check(c.UsuarioRef=="1" && c.AmbitoRef=="2" && id=="12","DOC111 plan reference lookup not tied to actor");return stored.Contexto;},
             level=>fixture.Adapter.ResolverDestino(fixture.Http,level,"CONFIRMAR"),(c,id)=>stored,
             (c,config)=>fixture.Adapter.AutorizarRecursos(fixture.Http,c,config,"CONFIRMAR"),new AdaptadorPerfilImportacionOperativa(publication,catalog,null),matching,
@@ -1346,7 +1390,8 @@ public static partial class ImportacionCarpetasBehaviorTests {
         catalog.Incompatible=true;Rejected("CONFIGURACION_INVALIDA",()=>service.Confirmar(request));catalog.Incompatible=false;
         publication.Substitute=true;Rejected("ACCESO_DENEGADO",()=>service.Confirmar(request));publication.Substitute=false;
         Check(calls==0,"DOC111 failed validation reaches confirmation transaction");
-        var confirmed=service.Confirmar(request);Check(confirmed.loteId=="20" && confirmed.nivelRef=="7" && confirmed.totalArchivos==2 && calls==1,"DOC111 valid confirmation loses result");
+        technicalCodes.Candidates=2;technicalCodes.Duplicate=true;
+        var confirmed=service.Confirmar(request);Check(confirmed.loteId=="20" && confirmed.nivelRef=="7" && confirmed.totalArchivos==2 && calls==1 && technicalCodes.BusinessReads==0,"DOC120 confirmation blocks new matching codes or loses result");
         var matched=matchingCalls;now=now.AddDays(1);catalog.Unavailable=true;
         var replay=service.Confirmar(request);Check(replay.loteId==confirmed.loteId && matchingCalls==matched && calls==2,"DOC111 replay revalidates expired plan or inactive publication as new confirmation");
         request.revisionEsperada=2;Rejected("CONFLICTO_REVISION",()=>service.Confirmar(request));request.revisionEsperada=1;
@@ -1460,37 +1505,54 @@ public static partial class ImportacionCarpetasBehaviorTests {
         var constructor=typeof(MySqlImportacionCarpetasRepository).GetConstructor(BindingFlags.NonPublic|BindingFlags.Instance,null,new[]{typeof(string),typeof(Func<DateTime>),probeType},null);
         Check(constructor!=null,"DOC111 internal rollback observer constructor missing");
         Check(typeof(MySqlImportacionCarpetasRepository).GetConstructors().All(c=>c.GetParameters().Length==2),"DOC111 rollback observer exposed as public constructor");
+        Func<string,MySql.Data.MySqlClient.MySqlConnection,MySql.Data.MySqlClient.MySqlTransaction,long> count=(sql,db,tx)=>{
+            if(db==null)using(var control=new MySql.Data.MySqlClient.MySqlConnection(connection)) {
+                control.Open();using(var cmd=new MySql.Data.MySqlClient.MySqlCommand(sql,control)) {
+                    cmd.CommandTimeout=15;cmd.Parameters.AddWithValue("@plan",UInt32.Parse(planId));return Convert.ToInt64(cmd.ExecuteScalar());
+                }
+            }
+            using(var cmd=new MySql.Data.MySqlClient.MySqlCommand(sql,db,tx)) {
+                cmd.CommandTimeout=15;cmd.Parameters.AddWithValue("@plan",UInt32.Parse(planId));return Convert.ToInt64(cmd.ExecuteScalar());
+            }
+        };
+        var stages=RunConfirmationRollbackCases(original,
+            probe=>Doc115Observed(connection,clock,probe).ConfirmarPlan(context,planId,original.Revision,original.Huella,"rollback-"+Guid.NewGuid().ToString("N")),
+            ()=>normal.ObtenerPlan(context,planId),count,null);
+        var committed=normal.ObtenerPlan(context,committedPlanId);
+        Check(normal.ConfirmarPlan(context,committed.PlanId,1,committed.Huella,"post-rollback-"+Guid.NewGuid().ToString("N")).LoteId==existingLotId,"DOC111 rollback damaged committed replay");
+        return stages;
+    }
+
+    // Shared by the existing DOC111/DOC115 repository E2E and the segmented
+    // DOC120 fixture. Callers retain their authorization, connections and budgets.
+    static string[] RunConfirmationRollbackCases(PlanImportacionCarpetas original,
+        Func<Action<string,MySql.Data.MySqlClient.MySqlConnection,MySql.Data.MySqlClient.MySqlTransaction>,LoteImportacionCarpetas> confirm,
+        Func<PlanImportacionCarpetas> read,
+        Func<string,MySql.Data.MySqlClient.MySqlConnection,MySql.Data.MySqlClient.MySqlTransaction,long> count,
+        Action<string> phase) {
+        Check(original.Estado=="REVISABLE"&&original.Revision==1,"DOC111 rollback requires original unconfirmed fixture");
         var stages=new[]{"ANTES_EVENTO","EVENTO_INSERTADO","PLAN_CONFIRMADO"};
         foreach(var target in stages) {
+            if(phase!=null)phase(target);
             var reached=0;
             Action<string,MySql.Data.MySqlClient.MySqlConnection,MySql.Data.MySqlClient.MySqlTransaction> probe=(stage,db,tx)=>{
                 if(stage!=target)return;
                 reached++;
                 Check(tx!=null && Object.ReferenceEquals(tx.Connection,db),"DOC111 observer outside production transaction");
-                Func<string,long> count=sql=>{using(var cmd=new MySql.Data.MySqlClient.MySqlCommand(sql,db,tx)){cmd.CommandTimeout=15;cmd.Parameters.AddWithValue("@plan",UInt32.Parse(planId));return Convert.ToInt64(cmd.ExecuteScalar());}};
-                Check(count("SELECT COUNT(*) FROM ra_integracion_lote WHERE plan_id=@plan")==1,"DOC111 provisional lot not visible in transaction");
-                Check(count("SELECT COUNT(*) FROM ra_integracion_raiz r INNER JOIN ra_integracion_lote l ON l.lote_id=r.lote_id WHERE l.plan_id=@plan")==2,"DOC111 provisional roots missing");
-                Check(count("SELECT COUNT(*) FROM ra_integracion_archivo a INNER JOIN ra_integracion_raiz r ON r.raiz_id=a.raiz_id INNER JOIN ra_integracion_lote l ON l.lote_id=r.lote_id WHERE l.plan_id=@plan")==2,"DOC111 provisional files missing");
-                Check(count("SELECT COUNT(*) FROM ra_integracion_evento e INNER JOIN ra_integracion_lote l ON l.lote_id=e.lote_id WHERE l.plan_id=@plan")== (target=="ANTES_EVENTO"?0:1),"DOC111 provisional event unexpected");
-                Check(count("SELECT COUNT(*) FROM ra_integracion_plan WHERE plan_id=@plan AND estado='CONFIRMADO' AND revision=2")== (target=="PLAN_CONFIRMADO"?1:0),"DOC111 provisional plan state unexpected");
+                Check(count("SELECT COUNT(*) FROM ra_integracion_lote WHERE plan_id=@plan",db,tx)==1,"DOC111 provisional lot not visible in transaction");
+                Check(count("SELECT COUNT(*) FROM ra_integracion_raiz r INNER JOIN ra_integracion_lote l ON l.lote_id=r.lote_id WHERE l.plan_id=@plan",db,tx)==original.Manifiesto.Raices.Count,"DOC111 provisional roots missing");
+                Check(count("SELECT COUNT(*) FROM ra_integracion_archivo a INNER JOIN ra_integracion_raiz r ON r.raiz_id=a.raiz_id INNER JOIN ra_integracion_lote l ON l.lote_id=r.lote_id WHERE l.plan_id=@plan",db,tx)==original.Manifiesto.Archivos.Count,"DOC111 provisional files missing");
+                Check(count("SELECT COUNT(*) FROM ra_integracion_evento e INNER JOIN ra_integracion_lote l ON l.lote_id=e.lote_id WHERE l.plan_id=@plan",db,tx)== (target=="ANTES_EVENTO"?0:1),"DOC111 provisional event unexpected");
+                Check(count("SELECT COUNT(*) FROM ra_integracion_plan WHERE plan_id=@plan AND estado='CONFIRMADO' AND revision=2",db,tx)== (target=="PLAN_CONFIRMADO"?1:0),"DOC111 provisional plan state unexpected");
                 throw new PerfilImportacionException("PRUEBA_ROLLBACK","Fallo controlado de la prueba de transacción.");
             };
-            var failing=(MySqlImportacionCarpetasRepository)constructor.Invoke(new object[]{connection,new Func<DateTime>(()=>clock),probe});
-            Rejected("PRUEBA_ROLLBACK",()=>failing.ConfirmarPlan(context,planId,original.Revision,original.Huella,"rollback-"+Guid.NewGuid().ToString("N")));
+            Rejected("PRUEBA_ROLLBACK",()=>confirm(probe));
             Check(reached==1,"DOC111 rollback checkpoint not reached exactly once");
-            var after=normal.ObtenerPlan(context,planId);
+            var after=read();
             Check(after.Estado==original.Estado && after.Revision==original.Revision && after.Huella==original.Huella,"DOC111 failed confirmation changed original plan");
-            using(var db=new MySql.Data.MySqlClient.MySqlConnection(connection)) {
-                db.Open();
-                using(var cmd=new MySql.Data.MySqlClient.MySqlCommand("SELECT COUNT(*) FROM ra_integracion_lote WHERE plan_id=@plan",db)) {
-                    cmd.CommandTimeout=15;cmd.Parameters.AddWithValue("@plan",UInt32.Parse(planId));
-                    Check(Convert.ToInt64(cmd.ExecuteScalar())==0,"DOC111 failed confirmation committed a lot");
-                }
-            }
+            Check(count("SELECT COUNT(*) FROM ra_integracion_lote WHERE plan_id=@plan",null,null)==0,"DOC111 failed confirmation committed a lot");
             Console.WriteLine("DOC111_ROLLBACK_STAGE_PASS: "+target);
         }
-        var committed=normal.ObtenerPlan(context,committedPlanId);
-        Check(normal.ConfirmarPlan(context,committed.PlanId,1,committed.Huella,"post-rollback-"+Guid.NewGuid().ToString("N")).LoteId==existingLotId,"DOC111 rollback damaged committed replay");
         return stages;
     }
 
@@ -1674,9 +1736,11 @@ public static partial class ImportacionCarpetasBehaviorTests {
     sealed class ImportRequest : SimpleWorkerRequest {
         readonly MemoryStream response=new MemoryStream();
         public string ResponseText{get{return System.Text.Encoding.UTF8.GetString(response.ToArray());}}
+        public string ServerTiming;
+        public override void SendUnknownResponseHeader(string name,string value){if(name=="Server-Timing")ServerTiming=value;}
         public override void SendResponseFromMemory(byte[] data,int length){response.Write(data,0,length);}
         public byte[] Body=System.Text.Encoding.UTF8.GetBytes("{\"solicitud\":{\"nivelRef\":\"7\"}}");
-        public string Mime="application/json; charset=utf-8",Verb="POST",Token,AdminToken,Origin,FetchSite;
+        public string Mime="application/json; charset=utf-8",Verb="POST",Token,AdminToken,Origin,FetchSite,TimingRef;
         public int BodyReads;
         public ImportRequest():base("/",Path.GetTempPath(),"doc111.asmx","",new StringWriter()){}
         public override string GetHttpVerbName(){return Verb;}
@@ -1694,6 +1758,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
             if(AdminToken!=null)headers.Add(new[]{"X-Importacion-Perfil-CSRF",AdminToken});
             if(Origin!=null)headers.Add(new[]{"Origin",Origin});
             if(FetchSite!=null)headers.Add(new[]{"Sec-Fetch-Site",FetchSite});
+            if(TimingRef!=null)headers.Add(new[]{"X-DOC120-Medicion",TimingRef});
             return headers.ToArray();
         }
         public override byte[] GetPreloadedEntityBody(){BodyReads++;return Body;}
@@ -1777,7 +1842,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
             Check(endpoint.ConsultarLote(new ConsultarLoteImportacionSolicitud{loteId="20"}).ok,"Revocation fixture has no previously authorized request");
             var savedLot=PerfilImportacionJson.Escribir(repository.Lot);var token=firstWorker.Token;var factoryCount=factories;var policyCount=policyReads;var resourceReads=fixture.Reads;
             fixture.ImportAllowed=false;
-            var operations=new[]{"AbrirImportacion","ListarPerfilesImportacion","PrepararPlan","ConfirmarPlan","ConsultarLote","ConsultarConfirmacionLote","ConsultarRecursosLote","ExportarPaginaLote","AvanzarLote","SolicitarDetencion","ReconciliarRecurso","CerrarReservaSinInicio","RecuperarDocumentoV2"};
+            var operations=new[]{"AbrirImportacion","ListarPerfilesImportacion","PrepararPlan","ConfirmarPlan","ConsultarLote","ConsultarConfirmacionLote","ConsultarRecursosLote","ExportarPaginaLote","AvanzarLote","SolicitarDetencion","ReconciliarRecurso","CerrarReservaSinInicio","RecuperarDocumentoV2","IniciarPreparacionPlan","RegistrarPartePreparacion","ConsultarPreparacionPlan","ValidarPartePreparacion","SellarPreparacionPlan","ConsultarRevisionPlan","ConsultarRecursoLote"};
             foreach(var operation in operations){
                 var method=typeof(WebServiceImportacionCarpetas).GetMethod(operation);var request=Activator.CreateInstance(method.GetParameters().Single().ParameterType);
                 var worker=new ImportRequest{Body=System.Text.Encoding.UTF8.GetBytes(PerfilImportacionJson.Escribir(new{solicitud=request})),Token=token};var next=SessionFixture(worker:worker,sessionId:first.Session.SessionID);
@@ -1793,7 +1858,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
             upload.ProcessRequest(uploadHttp);uploadHttp.Response.Flush();
             Check(uploadHttp.Response.StatusCode==403&&uploadWorker.ResponseText.Contains("ACCESO_DENEGADO")&&factories==factoryCount&&policyReads==policyCount&&uploadWorker.BodyReads==0,"Revoked multipart enters staging/receipt");
             Check(PerfilImportacionJson.Escribir(repository.Lot)==savedLot,"Revocation changes persisted fixture lot");
-            Console.WriteLine("DOC111 5.9 authenticated stale session/token rejected across 12 ASMX operations and upload (synthetic HTTP/authority): passed");
+            Console.WriteLine("DOC111/DOC120 authenticated stale session/token rejected across 20 ASMX operations and upload (synthetic HTTP/authority): passed");
         }finally{HttpContext.Current=previous;}
     }
     static void AdminOperativeCompatibilityCases(){
@@ -1984,6 +2049,8 @@ public static partial class ImportacionCarpetasBehaviorTests {
         request.archivos.Add(new ArchivoManifiestoImportacionSolicitud{idCliente="a3",raizIdCliente="r2",nombre="000457-125.pdf",rutaRelativa="000457#29-02-2024/000457-125.pdf",bytes="7",ultimaModificacionLocal="0"});
         var partial=configured.Preparar(request);Check(partial.resultado.PuedeConfirmar && partial.resultado.UnidadesElegibles.Count==2 && storedPlans.Last().Manifiesto.Archivos.Count==3 && partial.resultado.Incidencias.Any(i=>i.ArchivoIdCliente=="a2"),"DOC111 integrated partial preparation drops rejected inventory or blocks valid file");
         request.archivos.RemoveAt(2);read.Value.Configuracion.ModoIntegridad="COMPLETO_OBLIGATORIO";read.Value.Configuracion.AmbitoIntegridad="EXPEDIENTE";seal();
+        var repeated=PerfilImportacionJson.Leer<PrepararPlanImportacionSolicitud>(PerfilImportacionJson.Escribir(request));repeated.raices[1].nombre=repeated.raices[0].nombre;repeated.archivos[1].nombre=repeated.archivos[0].nombre;repeated.archivos[1].rutaRelativa=repeated.archivos[0].rutaRelativa;coincidences.Candidates=2;
+        var allowedRepeated=configured.Preparar(repeated);Check(allowedRepeated.resultado.PuedeConfirmar && allowedRepeated.resultado.UnidadesElegibles.Count==2 && allowedRepeated.resultado.Elementos.Where(e=>e.Ambito=="RAIZ").Select(e=>e.Valores.Single(v=>v.DestinoRef=="CODIGO").Valor).Distinct().Count()==1 && coincidences.BusinessReads==0,"DOC120 preparation rejects repeated codes or queries business candidates");
         coincidences.MissingMetadata=true;var blocked=configured.Preparar(request);Check(!blocked.resultado.PuedeConfirmar && blocked.resultado.Incidencias.Any(i=>i.Ambito=="GLOBAL"),"DOC111 missing comparison metadata advertised as confirmable");coincidences.MissingMetadata=false;
         var previousHttp=HttpContext.Current;
         try {
@@ -2768,6 +2835,17 @@ public static partial class ImportacionCarpetasBehaviorTests {
     }
 
     public static void Run() {
+        IndependentFileCases();
+        UltimoLoteCases();
+        ReanudacionLoteCases();
+        MedicionAlmacenamientoCases();
+        SegmentedPlanCases();
+        SegmentedSchemaCases();
+        SegmentedServiceCases();
+        SegmentedCatalogCacheCases();
+        SegmentedFocalServiceCases();
+        FocalVersionCases();
+        MessageDiagnosticCases();
         DocumentProtocolV2Cases();
         StagingV2Cases();
         AdapterV2Cases();
@@ -2778,7 +2856,8 @@ public static partial class ImportacionCarpetasBehaviorTests {
         BindingV2Cases();
         AckLossV2Cases();
         Doc115RepositoryGuardCases();
-        QueryCases();QuerySqlCases();QueryDispatcherCases();RetentionDiagnosisCases();KnownExpedientRelationCases();KnownExpedientClassificationCases();CreationCommandCases();CreationCatalogCases();CreationLegacyCompatibilityCases();LegacyCreationAuthorityCases();ProductionArchiveCycleCases();CreationAdapterCases();CreationResultSqlCases();CreationCheckpointCases();CreationBarrierCases();PhysicalCreationStagingCases();CoordinatedCreationCases();DeferredValuesCases();
+        Doc120SegmentedRepositoryGuardCases();
+        QueryCases();QuerySqlCases();QueryDispatcherCases();RetentionDiagnosisCases();KnownExpedientRelationCases();KnownExpedientClassificationCases();CreationCommandCases();CreationCatalogCases();CreationLegacyCompatibilityCases();LegacyCreationAuthorityCases();ProductionArchiveCycleCases();CreationAdapterCases();CreationResultSqlCases();CreationCheckpointCases();CreationBarrierCases();CreationReadinessQueryCases();PhysicalCreationStagingCases();CoordinatedCreationCases();ReanudacionCreacionCases();DeferredValuesCases();
         ControlCases();
         TransitionCases();
         ReceiptRecordCases();

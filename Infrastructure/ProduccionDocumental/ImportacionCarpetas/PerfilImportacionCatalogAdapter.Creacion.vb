@@ -91,6 +91,6 @@ Public Partial Class PerfilImportacionCatalogAdapter
         Return New Dictionary(Of String, String)(StringComparer.Ordinal) From {{"id", id}, {"nombre", nombre}}
     End Function
     Private Shared Function CatalogoCreacionNoDisponible() As PerfilImportacionException
-        Return New PerfilImportacionException("CAPACIDAD_NO_DISPONIBLE", "No se pudo comprobar el catálogo para creación.")
+        Return DiagnosticoOperacionImportacion.Fallo("CAPACIDAD_NO_DISPONIBLE", "creacion", "CATALOGO_NO_DISPONIBLE")
     End Function
 End Class

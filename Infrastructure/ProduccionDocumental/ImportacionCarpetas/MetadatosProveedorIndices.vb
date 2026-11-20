@@ -30,7 +30,7 @@ Public Class MetadatosProveedorIndices
                 Using cmd As New MySqlCommand("SELECT COLUMN_NAME,DATA_TYPE,CHARACTER_MAXIMUM_LENGTH FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=@tabla ORDER BY ORDINAL_POSITION", cn)
                     cmd.CommandTimeout = 5
                     cmd.Parameters.AddWithValue("@tabla", tabla)
-                    Using reader = cmd.ExecuteReader()
+                    Using reader = MedicionAlmacenamientoImportacion.MedirParte("sql_catalogo", Function() cmd.ExecuteReader())
                         While reader.Read()
                             Dim nombre = CStr(reader("COLUMN_NAME"))
                             If Not fuente.Columnas.Contains(nombre) Then Continue While

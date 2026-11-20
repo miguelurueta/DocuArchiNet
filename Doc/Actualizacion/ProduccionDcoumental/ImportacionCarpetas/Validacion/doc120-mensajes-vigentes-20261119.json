@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-19",
+  "baseCommit": "1d399d0e11e83e5e695e39520da830bbfdbef199",
+  "tasks": [
+    "3.220",
+    "3.221",
+    "3.222",
+    "3.223"
+  ],
+  "scenarios": [
+    "MNS-01",
+    "MNS-02",
+    "MNS-03"
+  ],
+  "sources": [
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256": "2abe368d042c9e168814f47dfd6ff1ade763b77f3bb62aa08c03d85926c0fd8a"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256": "f014178df4e77816f4ed0b7737190441777483d8ac9d01c96dd63c0618df0e7a"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css",
+      "sha256": "25ac8bff4b33f3a5de5f4aef62b8f9422f2d8a763d0362c6dc94c6d8df43a157"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256": "6629024409c815d370403aec2770a2a4dea358a3547fc06427b9ab7494ce08f4"
+    },
+    {
+      "path": "tests/doc120-mensajes-vigentes-browser.test.cjs",
+      "sha256": "463ee27f233f0689243235014b16d63fb6a084a5b4406e2ca0b9fae60d765b53"
+    },
+    {
+      "path": "tools/docs/generate-doc120-flow.cjs",
+      "sha256": "5c3f2d8de86f278985c0f4b9da7e4d456bf2ca1a8a81998ccd981a5cf12c1eac"
+    }
+  ],
+  "video": {
+    "name": "Grabación 2026-11-19 103048-mensaje.mp4",
+    "sha256": "46c983ca64292db43e76a024086ff956cc35b0f041d0d37fbe9445d84083c3ca",
+    "seconds": 216.37,
+    "observed": [
+      "Lot51 recovery shows978 linked and22 already received; subsequent counter reaches99 stored.",
+      "Local recovery modal is tall and heading clipped; resumed initial consultation briefly retains previous paused message.",
+      "Final pause corresponds to user pause/query interactions; no spontaneous server stop certified."
+    ],
+    "limit": "Video does not certify asset SHA, SQL state, no duplicates or native storage timings."
+  },
+  "verification": {
+    "uniqueCases": 59,
+    "newBrowserCases": 5,
+    "regression": {
+      "tests": 59,
+      "passed": 59,
+      "failed": 0,
+      "log": ".tmp/doc120-mensajes-regresion.log",
+      "sha256": "6b125d39651f1ecf63e5e8e7d2f0e0b6592df5a8b8427f233d3f270fd755fa71"
+    },
+    "lastButtonReachability": {
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "overlapWithRegression": 1,
+      "log": ".tmp/doc120-mensajes-geometria.log",
+      "sha256": "a8699c88637ac28ffaf27d55b94c4adfbc0f045f823a4b72331eff4ad2649a13"
+    },
+    "firstCut": {
+      "tests": 5,
+      "passed": 3,
+      "failed": 2,
+      "log": ".tmp/doc120-mensajes-focal.log",
+      "sha256": "b502d894ea29a87e9dc2e670ba87fd6627ab77c91034fb93f5c25dbe3036efcd",
+      "resolution": "Messages changed in model but animation-frame renderer retained previous DOM at start/pause; immediate rendering for those two intent states cancels pending frame, normal progress remains grouped."
+    },
+    "geometryViewports": [
+      [
+        1552,
+        912
+      ],
+      [
+        768,
+        600
+      ],
+      [
+        390,
+        600
+      ]
+    ],
+    "screenshots": [
+      {
+        "path": ".tmp/doc120-coordinacion-ui/aviso-compacto-1552x912.png",
+        "sha256": "f0a67becab6272c47ed14a240bb06481882a3f5f23d10576befbf00dd4132732"
+      },
+      {
+        "path": ".tmp/doc120-coordinacion-ui/aviso-compacto-768x600.png",
+        "sha256": "71eb84fceaaa519b9402903bd2e7833ea82efe5fa11dfa0f5d2b1f22105e4448"
+      },
+      {
+        "path": ".tmp/doc120-coordinacion-ui/aviso-compacto-390x600.png",
+        "sha256": "c7d71ad2e84e617a3e1138dd49cbda26c2e02f8e1d579f014f4e6b1af84a7148"
+      }
+    ],
+    "syntax": true,
+    "strictOpenSpec": true,
+    "diffCheck": true,
+    "flowSources": 124,
+    "flowLines": 20197
+  },
+  "behavior": {
+    "resumeMessageUpdatedBeforeInitialResponse": true,
+    "pauseRequestedDistinctFromPaused": true,
+    "uncertainAndPostReadDiagnosticsPreserved": true,
+    "localModalCompactWithAccessibleDetails": true,
+    "detailsPerformNoOperations": true,
+    "viewportBoundsAndLastButtonReachable": true,
+    "allOriginalActionsRetained": true,
+    "serverMissingOriginalPathRetained": true,
+    "assetVersion": "doc120-mensajes-vigentes-20261119-4"
+  },
+  "runtime": {
+    "realHttp": 0,
+    "realSelect": 0,
+    "realSessions": 0,
+    "realBusinessEffects": 0,
+    "dllCompiledOrReplacedByAgent": false,
+    "schemaChangedByAgent": false,
+    "installedDllObservedSha256": "b0b5d0d329f62124aa45ea49248746b90ad40c824a8a0a6adf73291d5d39dc4f",
+    "historicalQaStateSha256": "c26e2686c9243fca52662b7afdf262b572c0e5929cdc28dbf5fa4eb01aaa64a0",
+    "historicalQaStatePreserved": true,
+    "manualAcceptanceNewClient": "PENDING"
+  },
+  "secretsRecorded": false
+}

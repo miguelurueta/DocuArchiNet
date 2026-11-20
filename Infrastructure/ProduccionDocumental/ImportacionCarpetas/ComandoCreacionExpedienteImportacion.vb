@@ -25,6 +25,7 @@ Public NotInheritable Class ComandoCreacionExpedienteImportacion
     Public ReadOnly Property ResponsableRef As String
     Public ReadOnly Property CicloArchivoNombre As String
     Public ReadOnly Property EsVerificacion As Boolean
+    Public ReadOnly Property EsPreflightReanudacion As Boolean
 
     Public ReadOnly Property Contexto As ContextoImportacionCarpetas
         Get
@@ -42,8 +43,9 @@ Public NotInheritable Class ComandoCreacionExpedienteImportacion
         End Get
     End Property
 
-    Private Sub New(contexto As ContextoImportacionCarpetas, lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas, intento As IntentoImportacionCarpetas, campos As Dictionary(Of String, ValorReglaPerfilImportacion), verificacion As Boolean)
+    Private Sub New(contexto As ContextoImportacionCarpetas, lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas, intento As IntentoImportacionCarpetas, campos As Dictionary(Of String, ValorReglaPerfilImportacion), verificacion As Boolean, reanudacion As Boolean)
         EsVerificacion = verificacion
+        EsPreflightReanudacion = reanudacion
         _contextoDoc = PerfilImportacionJson.Escribir(contexto)
         _snapshotDoc = PerfilImportacionJson.Escribir(lote.Snapshot)
         _valoresDoc = PerfilImportacionJson.Escribir(raiz.ValoresPlan)
@@ -62,7 +64,10 @@ Public NotInheritable Class ComandoCreacionExpedienteImportacion
     Public Shared Function PrepararVerificacion(contextoActual As ContextoImportacionCarpetas, lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas, intento As IntentoImportacionCarpetas) As ComandoCreacionExpedienteImportacion
         Return Componer(contextoActual, lote, raiz, intento, True)
     End Function
-    Private Shared Function Componer(contextoActual As ContextoImportacionCarpetas, lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas, intento As IntentoImportacionCarpetas, verificacion As Boolean) As ComandoCreacionExpedienteImportacion
+    Public Shared Function PrepararReanudacion(contextoActual As ContextoImportacionCarpetas, lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas, intento As IntentoImportacionCarpetas) As ComandoCreacionExpedienteImportacion
+        Return Componer(contextoActual, lote, raiz, intento, False, True)
+    End Function
+    Private Shared Function Componer(contextoActual As ContextoImportacionCarpetas, lote As LoteImportacionCarpetas, raiz As RaizImportacionCarpetas, intento As IntentoImportacionCarpetas, verificacion As Boolean, Optional reanudacion As Boolean = False) As ComandoCreacionExpedienteImportacion
         If contextoActual Is Nothing OrElse Not contextoActual.PuedeImportar OrElse Not Referencia(contextoActual.UsuarioRef) OrElse Not Referencia(contextoActual.AmbitoRef) OrElse Not Referencia(contextoActual.NivelRef) OrElse String.IsNullOrWhiteSpace(contextoActual.SelloDestino) OrElse String.IsNullOrWhiteSpace(contextoActual.RutaCanonica) Then Throw Fallo("ACCESO_DENEGADO")
         If lote Is Nothing OrElse lote.Contexto Is Nothing OrElse Not lote.Contexto.PuedeImportar OrElse contextoActual.UsuarioRef <> lote.Contexto.UsuarioRef OrElse contextoActual.AmbitoRef <> lote.Contexto.AmbitoRef OrElse contextoActual.NivelRef <> lote.Contexto.NivelRef OrElse contextoActual.SelloDestino <> lote.Contexto.SelloDestino OrElse contextoActual.RutaCanonica <> lote.Contexto.RutaCanonica Then Throw Fallo("ACCESO_DENEGADO")
         If Not Referencia(lote.LoteId) OrElse lote.Revision = 0 OrElse lote.Revision = UInteger.MaxValue Then Throw Fallo("CONFLICTO_REVISION")
@@ -70,29 +75,32 @@ Public NotInheritable Class ComandoCreacionExpedienteImportacion
         If intento Is Nothing OrElse Not Referencia(intento.IntentoId) OrElse intento.LoteId <> lote.LoteId OrElse intento.RaizId <> raiz.RaizId OrElse Not String.IsNullOrEmpty(intento.ArchivoId) OrElse intento.Fase <> "CREAR_EXPEDIENTE" OrElse Not String.IsNullOrEmpty(intento.FinUtc) OrElse raiz.IntentoActivoId <> intento.IntentoId OrElse Not Hexadecimal(intento.TokenReclamacion, 32) OrElse Not Hexadecimal(intento.SolicitudHash, 64) Then Throw Fallo("CONFLICTO_REVISION")
         If verificacion Then
             If raiz.Estado <> "INCIERTO" OrElse raiz.IdentidadExpediente IsNot Nothing OrElse intento.Estado <> "INCIERTO" OrElse intento.EsNuevaReserva OrElse intento.Resultado Is Nothing OrElse intento.Resultado.Estado <> "INCIERTO" OrElse intento.Resultado.Expediente Is Nothing OrElse Not Referencia(intento.Resultado.Expediente.ExpedienteId) OrElse Not Referencia(intento.Resultado.Expediente.RelacionNivelId) OrElse intento.Resultado.Expediente.OrigenLogico <> "RA" OrElse intento.Resultado.Expediente.NivelRef <> contextoActual.NivelRef OrElse intento.Resultado.Creacion Is Nothing OrElse intento.Resultado.Creacion.IntentoId <> intento.IntentoId OrElse intento.Resultado.Creacion.CicloArchivoNombre <> "Archivo Gestión" OrElse Not Referencia(intento.Resultado.Creacion.CicloArchivoId) OrElse {"COMPLETADO", "FALLIDO"}.Contains(lote.Estado) Then Throw Fallo("RESULTADO_INCIERTO")
-        ElseIf lote.DetencionSolicitada OrElse lote.Estado <> "EN_CURSO" OrElse raiz.Estado <> "CREANDO" OrElse raiz.IdentidadExpediente IsNot Nothing OrElse intento.Estado <> "RESERVADO" OrElse Not intento.EsNuevaReserva OrElse intento.Resultado IsNot Nothing Then
-            Throw Fallo("CONFLICTO_REVISION")
+        ElseIf (lote.DetencionSolicitada AndAlso Not reanudacion) OrElse lote.Estado <> "EN_CURSO" OrElse raiz.Estado <> "CREANDO" OrElse raiz.IdentidadExpediente IsNot Nothing OrElse intento.Estado <> "RESERVADO" OrElse intento.EsNuevaReserva = reanudacion OrElse intento.Resultado IsNot Nothing Then
+            Throw Fallo("CONFLICTO_REVISION", "creacion", If(lote.DetencionSolicitada AndAlso Not reanudacion, "DETENCION_SOLICITADA", "RESERVA_NO_DISPONIBLE"))
         End If
         Dim snapshot = lote.Snapshot
         If snapshot Is Nothing OrElse snapshot.Configuracion Is Nothing OrElse snapshot.Reglas Is Nothing OrElse Not Referencia(snapshot.PerfilId) OrElse Not Referencia(snapshot.VersionId) OrElse snapshot.NumeroVersion = 0 OrElse Not Hexadecimal(snapshot.Huella, 64) Then Throw Fallo("CONFIGURACION_INVALIDA")
         'Validar trabaja sobre copia: no normalizar el snapshot confirmado.
         Dim copia = PerfilImportacionJson.Leer(Of SnapshotPerfilImportacionOperativa)(PerfilImportacionJson.Escribir(snapshot))
-        If New ValidadorPerfilImportacion().Validar(copia.Configuracion, copia.Reglas, True).Count <> 0 Then Throw Fallo("CONFIGURACION_INVALIDA")
-        If PerfilImportacionJson.Escribir(copia.Configuracion) <> PerfilImportacionJson.Escribir(snapshot.Configuracion) Then Throw Fallo("CONFIGURACION_INVALIDA")
+        Dim incidencias = New ValidadorPerfilImportacion().Validar(copia.Configuracion, copia.Reglas, True)
+        If incidencias.Count <> 0 Then Throw New ConfiguracionPerfilImportacionException(incidencias)
+        If PerfilImportacionJson.Escribir(copia.Configuracion) <> PerfilImportacionJson.Escribir(snapshot.Configuracion) Then Throw Fallo("CONFIGURACION_INVALIDA", "reglas", "SNAPSHOT_NO_COINCIDE")
         Dim huella = BitConverter.ToString(PerfilImportacionJson.Huella(New VersionPerfilImportacion With {.Configuracion = snapshot.Configuracion, .Reglas = snapshot.Reglas})).Replace("-", "").ToLowerInvariant()
-        If huella <> snapshot.Huella Then Throw Fallo("CONFIGURACION_INVALIDA")
+        If huella <> snapshot.Huella Then Throw Fallo("CONFIGURACION_INVALIDA", "reglas", "SNAPSHOT_NO_COINCIDE")
         Dim reglas = snapshot.Reglas.Where(Function(r) r.DestinoTipo = "CAMPO_EXPEDIENTE").ToDictionary(Function(r) r.DestinoRef, StringComparer.Ordinal)
-        If raiz.ValoresPlan Is Nothing OrElse raiz.ValoresPlan.Count <> reglas.Count Then Throw Fallo("CONFIGURACION_INVALIDA")
+        If raiz.ValoresPlan Is Nothing OrElse raiz.ValoresPlan.Count <> reglas.Count Then Throw Fallo("CONFIGURACION_INVALIDA", "reglas", "VALORES_NO_COINCIDEN")
         Dim campos As New Dictionary(Of String, ValorReglaPerfilImportacion)(StringComparer.Ordinal)
         For Each valor In raiz.ValoresPlan
             If valor Is Nothing OrElse valor.DestinoTipo <> "CAMPO_EXPEDIENTE" OrElse String.IsNullOrEmpty(valor.DestinoRef) OrElse Not reglas.ContainsKey(valor.DestinoRef) OrElse campos.ContainsKey(valor.DestinoRef) OrElse valor.Diferido OrElse Not String.IsNullOrEmpty(valor.PropiedadPendiente) Then Throw Fallo("CONFIGURACION_INVALIDA")
             Dim regla = reglas(valor.DestinoRef)
-            If valor.FuenteTipo <> regla.FuenteTipo OrElse valor.TipoValor <> regla.TipoValor OrElse ResolvedorReglasPerfilImportacion.ValidarValorResuelto(regla, valor.Valor) IsNot Nothing Then Throw Fallo("CONFIGURACION_INVALIDA")
-            If valor.DestinoRef = "RESPONSABLE" AndAlso Not Referencia(valor.Valor) Then Throw Fallo("CONFIGURACION_INVALIDA")
+            If valor.FuenteTipo <> regla.FuenteTipo OrElse valor.TipoValor <> regla.TipoValor Then Throw Fallo("CONFIGURACION_INVALIDA", valor.DestinoRef, "VALORES_NO_COINCIDEN")
+            Dim causa = ResolvedorReglasPerfilImportacion.ValidarValorResuelto(regla, valor.Valor)
+            If causa IsNot Nothing Then Throw DiagnosticoOperacionImportacion.Fallo("CONFIGURACION_INVALIDA", valor.DestinoRef, causa, If(valor.Valor Is Nothing, 0, valor.Valor.Length), If(regla.TipoValor = "FECHA", 10, regla.LongitudMaxima))
+            If valor.DestinoRef = "RESPONSABLE" AndAlso Not Referencia(valor.Valor) Then Throw Fallo("CONFIGURACION_INVALIDA", "RESPONSABLE", "REFERENCIA_LEGACY_INVALIDA")
             campos.Add(valor.DestinoRef, valor)
         Next
-        If campos.ContainsKey("FECHA_FINAL") AndAlso String.CompareOrdinal(campos("FECHA_INICIAL").Valor, campos("FECHA_FINAL").Valor) > 0 Then Throw Fallo("CONFIGURACION_INVALIDA")
-        Return New ComandoCreacionExpedienteImportacion(contextoActual, lote, raiz, intento, campos, verificacion)
+        If campos.ContainsKey("FECHA_FINAL") AndAlso String.CompareOrdinal(campos("FECHA_INICIAL").Valor, campos("FECHA_FINAL").Valor) > 0 Then Throw Fallo("CONFIGURACION_INVALIDA", "FECHA_FINAL", "RANGO_FECHAS_INVALIDO")
+        Return New ComandoCreacionExpedienteImportacion(contextoActual, lote, raiz, intento, campos, verificacion, reanudacion)
     End Function
 
     'Subconjunto compatible con los argumentos Integer y el SQL concatenado
@@ -104,9 +112,9 @@ Public NotInheritable Class ComandoCreacionExpedienteImportacion
         Next
         If Not String.IsNullOrEmpty(c.SubserieRef) Then EnteroLegacy(c.SubserieRef)
         TextoLegacy(Codigo, True) : TextoLegacy(Nombre, True)
-        'El arbol de Produccion presenta ALEAS_EXPEDIENTE. Conservacion limita
-        'ese argumento a 120; no truncar el nombre confirmado para rellenarlo.
-        If Nombre.Length > 120 Then Throw Fallo("CONFIGURACION_INVALIDA")
+        'Conservar el limite vigente del nombre informativo confirmado.
+        'El alias del arbol se rellena con Codigo, sin truncar ninguno.
+        If Nombre.Length > 120 Then Throw DiagnosticoOperacionImportacion.Fallo("CONFIGURACION_INVALIDA", "NOMBRE", "LONGITUD_EXCEDIDA", Nombre.Length, 120)
         TextoLegacy(FechaInicial, True) : TextoLegacy(FechaFinal, False)
     End Sub
 
@@ -137,11 +145,11 @@ Public NotInheritable Class ComandoCreacionExpedienteImportacion
 
     Friend Shared Sub EnteroLegacy(valor As String)
         Dim numero As Integer
-        If Not Referencia(valor) OrElse Not Integer.TryParse(valor, NumberStyles.None, CultureInfo.InvariantCulture, numero) OrElse numero <= 0 Then Throw Fallo("CONFIGURACION_INVALIDA")
+        If Not Referencia(valor) OrElse Not Integer.TryParse(valor, NumberStyles.None, CultureInfo.InvariantCulture, numero) OrElse numero <= 0 Then Throw Fallo("CONFIGURACION_INVALIDA", "creacion", "REFERENCIA_LEGACY_INVALIDA")
     End Sub
     Friend Shared Sub TextoLegacy(valor As String, requerido As Boolean)
         If valor Is Nothing AndAlso Not requerido Then Return
-        If String.IsNullOrWhiteSpace(valor) OrElse valor.Any(Function(c) c = "'"c OrElse c = "\"c OrElse Char.IsControl(c) OrElse Char.IsSurrogate(c)) Then Throw Fallo("CONFIGURACION_INVALIDA")
+        If String.IsNullOrWhiteSpace(valor) OrElse valor.Any(Function(c) c = "'"c OrElse c = "\"c OrElse Char.IsControl(c) OrElse Char.IsSurrogate(c)) Then Throw Fallo("CONFIGURACION_INVALIDA", "creacion", "TEXTO_LEGACY_INVALIDO")
     End Sub
 
     Private Shared Function Referencia(valor As String) As Boolean
@@ -150,7 +158,7 @@ Public NotInheritable Class ComandoCreacionExpedienteImportacion
     Private Shared Function Hexadecimal(valor As String, longitud As Integer) As Boolean
         Return valor IsNot Nothing AndAlso valor.Length = longitud AndAlso valor.All(Function(c) (c >= "0"c AndAlso c <= "9"c) OrElse (c >= "a"c AndAlso c <= "f"c))
     End Function
-    Private Shared Function Fallo(codigo As String) As PerfilImportacionException
-        Return New PerfilImportacionException(codigo, "No se pudo componer el comando de creación con el contexto confirmado.")
+    Private Shared Function Fallo(codigo As String, Optional campo As String = "creacion", Optional motivo As String = Nothing) As PerfilImportacionException
+        Return DiagnosticoOperacionImportacion.Fallo(codigo, campo, If(motivo, If(codigo = "CONFLICTO_REVISION", "RESERVA_NO_DISPONIBLE", codigo)))
     End Function
 End Class

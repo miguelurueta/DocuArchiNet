@@ -55,6 +55,8 @@ Public NotInheritable Class ImportacionCarpetasRequestGuard
         Dim tipo = ValidarBase(http, contexto, limites)
         If Not String.Equals(tipo.MediaType, "application/json", StringComparison.OrdinalIgnoreCase) OrElse (Not String.IsNullOrEmpty(tipo.CharSet) AndAlso Not String.Equals(tipo.CharSet, "utf-8", StringComparison.OrdinalIgnoreCase)) Then Throw Rechazo()
         Dim maximo = Math.Min(CLng(limites.MaximoBytesManifiesto), CLng(PerfilImportacionJson.MaximoCaracteres) * 3L)
+        Dim segmentada = GetType(ISolicitudPreparacionSegmentada).IsAssignableFrom(GetType(T))
+        If segmentada Then maximo = Math.Min(maximo, CLng(PlanSegmentadoImportacionJson.MaximoCaracteresTransporte) * 3L)
         If http.Request.ContentLength > maximo Then Throw Exceso()
         Dim stream = http.Request.InputStream
         If stream Is Nothing OrElse Not stream.CanRead OrElse Not stream.CanSeek Then Throw Invalida()
@@ -71,6 +73,7 @@ Public NotInheritable Class ImportacionCarpetasRequestGuard
                 End While
                 If memoria.Length <> http.Request.ContentLength Then Throw Invalida()
                 Dim texto = New UTF8Encoding(False, True).GetString(memoria.ToArray())
+                If segmentada AndAlso texto.Length > PlanSegmentadoImportacionJson.MaximoCaracteresTransporte Then Throw Exceso()
                 Dim sobre = PerfilImportacionJson.Leer(Of SobreSolicitudPerfil(Of T))(texto)
                 If sobre.solicitud Is Nothing Then Throw Invalida()
                 Return sobre.solicitud

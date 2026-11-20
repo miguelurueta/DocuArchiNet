@@ -45,6 +45,7 @@ Public Partial Class AdaptadorDocumentoImportacion
                 _invocar(comando, Copiar(datos), copia, salida)
                 concluida = True
             Catch ex As Exception
+                DiagnosticoOperacionImportacion.Registrar(ex, "ALMACENAMIENTO", punto:="ESCRITOR_DOCUMENTO")
                 'Sin mensajes legacy, SQL o paths en evidencia publica.
             End Try
             If salida.DocumentoId > 0 Then resultado.DocumentoId = salida.DocumentoId.ToString(CultureInfo.InvariantCulture)
@@ -57,6 +58,7 @@ Public Partial Class AdaptadorDocumentoImportacion
                         resultado.Mensaje = "Documento, gabinete e incorporacion comprobados en el expediente confirmado."
                     End If
                 Catch ex As Exception
+                    DiagnosticoOperacionImportacion.Registrar(ex, "ALMACENAMIENTO", punto:="VERIFICACION_DOCUMENTO")
                     'Mantener evidencia y estado incierto si no se puede verificar.
                 End Try
             End If
@@ -64,6 +66,7 @@ Public Partial Class AdaptadorDocumentoImportacion
                 Dim guardado = _registrar(comando, Copiar(resultado))
                 If guardado IsNot Nothing AndAlso PerfilImportacionJson.Escribir(guardado) = PerfilImportacionJson.Escribir(resultado) Then Return guardado
             Catch ex As Exception
+                DiagnosticoOperacionImportacion.Registrar(ex, "ALMACENAMIENTO", punto:="CHECKPOINT_DOCUMENTO")
                 'Un checkpoint sin respuesta puede haber confirmado; consultar.
             End Try
             resultado.Estado = "INCIERTO" : resultado.Codigo = "RESULTADO_INCIERTO"

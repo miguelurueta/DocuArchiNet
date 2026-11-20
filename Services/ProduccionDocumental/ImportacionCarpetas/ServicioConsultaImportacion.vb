@@ -27,18 +27,38 @@ Public Partial Class ServicioConsultaImportacion
 
     Public Const MaximoPagina As Integer = 200
 
+    Public Function ConsultarUltimo(solicitud As ConsultarUltimoLoteImportacionSolicitud) As ConsultaUltimoLoteImportacionResultado
+        If solicitud Is Nothing Then Throw Invalida()
+        Dim identidad = _identidad()
+        If identidad Is Nothing OrElse Not identidad.PuedeImportar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(identidad.UsuarioRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(identidad.AmbitoRef) Then Throw Denegado()
+        Dim puerto = TryCast(_repositorio, IConsultaUltimoLoteImportacionRepository)
+        If puerto Is Nothing Then Throw NoDisponible()
+        Dim id = puerto.ObtenerUltimoLoteId(identidad)
+        If id Is Nothing Then Return New ConsultaUltimoLoteImportacionResultado With {.encontrado = False}
+        If Not ValidadorPerfilImportacion.ReferenciaValida(id) Then Throw NoDisponible()
+        'La referencia no se publica hasta comprobar propietario, destino y recursos vigentes.
+        Dim lectura = Autorizar(New ConsultarLoteImportacionSolicitud With {.loteId = id})
+        Return New ConsultaUltimoLoteImportacionResultado With {.encontrado = True, .loteId = lectura.Lote.LoteId}
+    End Function
+
     Public Function Consultar(solicitud As ConsultarLoteImportacionSolicitud) As EstadoLoteImportacionResultado
-        Dim lectura = Autorizar(solicitud)
+        Return ProyectarEstado(Autorizar(solicitud))
+    End Function
+
+    Private Function ProyectarEstado(lectura As EstadoLecturaImportacion) As EstadoLoteImportacionResultado
         Dim lote = lectura.Lote
         'Autoridad vigente ya comprobada. Son solicitudes disponibles: cada
         'fase vuelve a validar recurso, revision, barrera y permisos inmediatos.
         Dim acciones As New List(Of String) From {"CONSULTAR", "EXPORTAR_PAGINA", "CONSULTAR_RAICES"}
+        Dim motivo = CoordinadorImportacionCarpetas.MotivoControlLote(lote, lectura.HayIntentosActivos, lectura.HayIncertidumbre)
+        If motivo = "REANUDACION_DISPONIBLE" Then acciones.Add("REANUDAR_LOTE")
         If Not {"COMPLETADO", "FALLIDO"}.Contains(lote.Estado) Then
             If Not lote.DetencionSolicitada Then acciones.Add("SOLICITAR_DETENCION")
             If lectura.HayIncertidumbre Then acciones.Add("SOLICITAR_VERIFICACION")
-            If Not lote.DetencionSolicitada AndAlso Not lectura.HayIncertidumbre AndAlso Not lectura.HayIntentosActivos AndAlso Not {"DETENIDO", "PENDIENTE_VERIFICACION"}.Contains(lote.Estado) Then acciones.Add("SOLICITAR_AVANCE")
+            If lote.Estado = "EN_CURSO" AndAlso lectura.HayIntentosActivos AndAlso Not lectura.HayIncertidumbre Then acciones.Add("SOLICITAR_REANUDACION")
+            If Not lote.DetencionSolicitada AndAlso lote.Estado <> "DETENIDO" AndAlso If(lectura.ProcesamientoIndependiente, Not lectura.EscritorVivo, Not lectura.HayIncertidumbre AndAlso Not lectura.HayIntentosActivos AndAlso lote.Estado <> "PENDIENTE_VERIFICACION") Then acciones.Add("SOLICITAR_AVANCE")
         End If
-        Return New EstadoLoteImportacionResultado With {.maximoTamanoPagina = _maximoPagina, .loteId = lote.LoteId, .nivelRef = lote.Contexto.NivelRef, .rutaCanonica = lote.Contexto.RutaCanonica,
+        Return New EstadoLoteImportacionResultado With {.procesamientoIndependiente = lectura.ProcesamientoIndependiente, .escritorVivo = lectura.EscritorVivo, .motivoBloqueo = motivo, .maximoTamanoPagina = _maximoPagina, .loteId = lote.LoteId, .nivelRef = lote.Contexto.NivelRef, .rutaCanonica = lote.Contexto.RutaCanonica,
             .perfilId = lote.Snapshot.PerfilId, .versionId = lote.Snapshot.VersionId, .estado = lote.Estado, .revision = lote.Revision,
             .detencionSolicitada = lote.DetencionSolicitada, .hayIntentosActivos = lectura.HayIntentosActivos, .hayIncertidumbre = lectura.HayIncertidumbre,
             .totalRaices = lote.TotalRaices, .totalArchivos = lote.TotalArchivos, .totalBytes = lote.TotalBytes,
@@ -78,8 +98,7 @@ Public Partial Class ServicioConsultaImportacion
             salida.revisionLectura = pagina.RevisionLectura : salida.totalFiltrado = pagina.Total
             For Each raiz In pagina.Elementos
                 If raiz Is Nothing OrElse raiz.LoteId <> lote.LoteId OrElse Not EstadosImportacionCarpetas.EsRaiz(raiz.Estado) Then Throw NoDisponible()
-                salida.elementos.Add(New RecursoConsultaImportacionResultado With {.recursoId = Referencia(raiz.RaizId), .raizId = Referencia(raiz.RaizId), .idCliente = raiz.ClienteRaizId, .nombre = raiz.NombreOriginal, .estado = raiz.Estado, .revision = raiz.Revision,
-                    .tieneIntentoActivo = Not String.IsNullOrEmpty(raiz.IntentoActivoId), .intentoActivoId = IntentoPublico(raiz.IntentoActivoId), .nombreExpediente = NombreExpedientePublico(raiz), .expedienteId = If(raiz.IdentidadExpediente Is Nothing, Nothing, Referencia(raiz.IdentidadExpediente.ExpedienteId)), .relacionNivelId = If(raiz.IdentidadExpediente Is Nothing, Nothing, Referencia(raiz.IdentidadExpediente.RelacionNivelId))})
+                salida.elementos.Add(ProyectarRaiz(raiz))
             Next
         Else
             Dim pagina = _repositorio.ConsultarArchivos(lote.Contexto, lote.LoteId, filtro)
@@ -87,11 +106,7 @@ Public Partial Class ServicioConsultaImportacion
             salida.revisionLectura = pagina.RevisionLectura : salida.totalFiltrado = pagina.Total
             For Each archivo In pagina.Elementos
                 If archivo Is Nothing OrElse Not EstadosImportacionCarpetas.EsRecepcion(archivo.EstadoRecepcion) OrElse Not EstadosImportacionCarpetas.EsEfecto(archivo.EstadoEfecto) Then Throw NoDisponible()
-                Dim resultado = archivo.Resultado, expediente = If(resultado Is Nothing, Nothing, resultado.Expediente)
-                salida.elementos.Add(New RecursoConsultaImportacionResultado With {.rutaRelativa = archivo.RutaRelativa, .ultimaModificacionLocal = archivo.UltimaModificacionLocal, .recursoId = Referencia(archivo.ArchivoId), .raizId = Referencia(archivo.RaizId), .idCliente = archivo.ClienteArchivoId, .nombre = archivo.NombreOriginal,
-                    .estado = archivo.EstadoEfecto, .estadoRecepcion = archivo.EstadoRecepcion, .bytesPrevistos = archivo.BytesPrevistos, .bytesRecibidos = archivo.BytesRecibidos, .revision = archivo.Revision, .valoresEfectivosFijados = archivo.ValoresEfectivosFijados, .tieneIntentoActivo = Not String.IsNullOrEmpty(archivo.IntentoActivoId), .intentoActivoId = IntentoPublico(archivo.IntentoActivoId),
-                    .expedienteId = If(expediente Is Nothing, Nothing, Referencia(expediente.ExpedienteId)), .relacionNivelId = If(expediente Is Nothing, Nothing, Referencia(expediente.RelacionNivelId)),
-                    .gabineteId = If(resultado Is Nothing, Nothing, Referencia(resultado.GabineteId)), .documentoId = If(resultado Is Nothing, Nothing, Referencia(resultado.DocumentoId)), .codigoResultado = CodigoPublico(resultado)})
+                salida.elementos.Add(ProyectarArchivo(archivo))
             Next
         End If
         If salida.revisionLectura = 0 OrElse salida.totalFiltrado > salida.totalOriginal OrElse salida.elementos.Count > filtro.TamanoPagina OrElse CULng(salida.elementos.Count) > salida.totalFiltrado Then Throw NoDisponible()
@@ -207,9 +222,13 @@ Public Partial Class ServicioConsultaImportacion
     End Function
 
     Private Shared Function NombreExpedientePublico(raiz As RaizImportacionCarpetas) As String
+        Return ValorExpedientePublico(raiz, "NOMBRE")
+    End Function
+
+    Private Shared Function ValorExpedientePublico(raiz As RaizImportacionCarpetas, campo As String) As String
         If raiz.IdentidadExpediente Is Nothing OrElse raiz.ValoresPlan Is Nothing OrElse Not {"EXPEDIENTE_CONFIRMADO", "COMPLETADA", "PARCIAL"}.Contains(raiz.Estado) Then Return Nothing
-        Dim nombres = raiz.ValoresPlan.Where(Function(v) v IsNot Nothing AndAlso v.DestinoTipo = "CAMPO_EXPEDIENTE" AndAlso v.DestinoRef = "NOMBRE" AndAlso Not v.Diferido).ToList()
-        Return If(nombres.Count = 1, nombres(0).Valor, Nothing)
+        Dim valores = raiz.ValoresPlan.Where(Function(v) v IsNot Nothing AndAlso v.DestinoTipo = "CAMPO_EXPEDIENTE" AndAlso v.DestinoRef = campo).ToList()
+        Return If(valores.Count = 1 AndAlso Not valores(0).Diferido, valores(0).Valor, Nothing)
     End Function
 
     Friend Shared Function CeldaCsv(valor As String) As String
@@ -230,4 +249,17 @@ Public Partial Class ServicioConsultaImportacion
     Private Shared Function NoDisponible() As PerfilImportacionException
         Return New PerfilImportacionException("CAPACIDAD_NO_DISPONIBLE", "La consulta no está disponible con la política o los datos actuales.")
     End Function
+    Private Shared Function ProyectarRaiz(raiz As RaizImportacionCarpetas) As RecursoConsultaImportacionResultado
+        Return New RecursoConsultaImportacionResultado With {.recursoId = Referencia(raiz.RaizId), .raizId = Referencia(raiz.RaizId), .idCliente = raiz.ClienteRaizId, .nombre = raiz.NombreOriginal, .estado = raiz.Estado, .revision = raiz.Revision,
+                    .recepcionListaParaCrear = raiz.RecepcionListaParaCrear, .puedeRetomarCreacion = raiz.PuedeRetomarCreacion, .tieneIntentoActivo = Not String.IsNullOrEmpty(raiz.IntentoActivoId), .intentoActivoId = IntentoPublico(raiz.IntentoActivoId), .nombreExpediente = NombreExpedientePublico(raiz), .codigoExpediente = ValorExpedientePublico(raiz, "CODIGO"), .expedienteId = If(raiz.IdentidadExpediente Is Nothing, Nothing, Referencia(raiz.IdentidadExpediente.ExpedienteId)), .relacionNivelId = If(raiz.IdentidadExpediente Is Nothing, Nothing, Referencia(raiz.IdentidadExpediente.RelacionNivelId))}
+    End Function
+
+    Private Shared Function ProyectarArchivo(archivo As ArchivoImportacionCarpetas) As RecursoConsultaImportacionResultado
+        Dim resultado = archivo.Resultado, expediente = If(resultado Is Nothing, Nothing, resultado.Expediente)
+        Return New RecursoConsultaImportacionResultado With {.rutaRelativa = archivo.RutaRelativa, .ultimaModificacionLocal = archivo.UltimaModificacionLocal, .recursoId = Referencia(archivo.ArchivoId), .raizId = Referencia(archivo.RaizId), .idCliente = archivo.ClienteArchivoId, .nombre = archivo.NombreOriginal,
+                    .estado = archivo.EstadoEfecto, .estadoRecepcion = archivo.EstadoRecepcion, .bytesPrevistos = archivo.BytesPrevistos, .bytesRecibidos = archivo.BytesRecibidos, .revision = archivo.Revision, .valoresEfectivosFijados = archivo.ValoresEfectivosFijados, .tieneIntentoActivo = Not String.IsNullOrEmpty(archivo.IntentoActivoId), .intentoActivoId = IntentoPublico(archivo.IntentoActivoId),
+                    .expedienteId = If(expediente Is Nothing, Nothing, Referencia(expediente.ExpedienteId)), .relacionNivelId = If(expediente Is Nothing, Nothing, Referencia(expediente.RelacionNivelId)),
+                    .gabineteId = If(resultado Is Nothing, Nothing, Referencia(resultado.GabineteId)), .documentoId = If(resultado Is Nothing, Nothing, Referencia(resultado.DocumentoId)), .codigoResultado = CodigoPublico(resultado)}
+    End Function
+
 End Class

@@ -1,0 +1,98 @@
+{
+  "date": "2026-11-19",
+  "baseCommit": "6ee8446c05be3e1ac1b3609029d540c5ace39bd7",
+  "tasks": [
+    "3.239",
+    "3.240"
+  ],
+  "runnerReused": "tools/e2e/scripts/run-doc119-seguimiento.cjs",
+  "command": "node tools/e2e/scripts/run-doc119-seguimiento.cjs --run <new32hex> --authorized-plan --headed",
+  "launchOptions": {
+    "headless": false,
+    "slowMo": 300
+  },
+  "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "limits": {
+    "SEG-01": {
+      "http": 600,
+      "select": 80,
+      "sessions": 2
+    },
+    "SEG-02": {
+      "http": 600,
+      "select": 60,
+      "sessions": 2
+    }
+  },
+  "prohibited": [
+    "ConfirmarPlan",
+    "RecibirArchivo",
+    "AvanzarLote",
+    "SolicitarDetencion",
+    "ReanudarLote",
+    "DDL",
+    "business writes"
+  ],
+  "verification": {
+    "newCases": 5,
+    "policyRun": {
+      "tests": 39,
+      "pass": 39,
+      "fail": 0,
+      "log": ".tmp/doc120-headed-policies.log",
+      "sha256": "f890e7ac452d82325cd76c089281b8b3d68047a2ed33c174a21d75e6bbceba21"
+    },
+    "compatibilityRun": {
+      "tests": 20,
+      "pass": 20,
+      "fail": 0,
+      "overlap": 5,
+      "log": ".tmp/doc120-headed-tests.log",
+      "sha256": "18cea5bd7b603fdf5c70fe801a5e63132d0a0a11bce77a0764a2d76a19b7be65"
+    },
+    "check": "PASS; REAL_EXECUTION=false",
+    "syntax": "PASS",
+    "openSpecStrict": "PASS"
+  },
+  "sources": [
+    {
+      "path": "tools/e2e/scripts/run-doc119-seguimiento.cjs",
+      "sha256": "68ccca5a01187de0932855ead62ff5a341acae848d06fed123490f969c41b6cd"
+    },
+    {
+      "path": "tests/doc120-e2e-visible.test.cjs",
+      "sha256": "3c0bd4b80ae835cb77836ff0c1068784d1bcdaf5ae0064daa332661c2a4e031e"
+    }
+  ],
+  "launch": {
+    "runId": "36a221bfd1c64451a870a14d9f9d315c",
+    "consolePid": 9656,
+    "statusAtObservation": "AUTHENTICATING_OWNER",
+    "headed": true,
+    "authorizedPlan": true,
+    "result": "IN_PROGRESS_NOT_CERTIFIED",
+    "stage": "SEG-01",
+    "browserStarted": true,
+    "usageAtObservation": {
+      "SEG-01": {
+        "http": 96,
+        "select": 0,
+        "sessions": 1
+      }
+    },
+    "observedUtc": "2026-11-20T02:34:32.715924+00:00"
+  },
+  "productChanged": false,
+  "dllChanged": false,
+  "schemaChanged": false,
+  "limitsOfEvidence": [
+    "Console started; real result must be reviewed separately.",
+    "Readonly scope cannot certify pause/cancel while a storage effect runs.",
+    "No closed previous QA run is replayed."
+  ],
+  "progress": {
+    "complete": 249,
+    "total": 260,
+    "previousPending": 11
+  }
+}

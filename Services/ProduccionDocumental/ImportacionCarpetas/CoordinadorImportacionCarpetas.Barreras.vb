@@ -14,6 +14,7 @@ Public Partial Class CoordinadorImportacionCarpetas
     Friend Shared Function EvaluarBarreraAlmacenamiento(vista As VistaBarreraCreacionImportacion, objetivo As ArchivoImportacionCarpetas, Optional intentoPropio As String = Nothing) As Boolean
         If vista Is Nothing OrElse vista.Lote Is Nothing OrElse objetivo Is Nothing OrElse Not objetivo.ValoresEfectivosFijados Then Return False
         ValidarVistaValores(vista.Lote.Contexto, New VistaValoresImportacion With {.Lote = vista.Lote, .Raiz = vista.Raiz, .Archivo = objetivo})
+        If vista.EsFocal Then Return EvaluarBarreraIndividual(vista, objetivo, intentoPropio)
         Return EvaluarBarreraRecepcion(vista.Lote, vista.Plan, vista.Raiz, vista.Raices, vista.Archivos, objetivo, intentoPropio)
     End Function
 

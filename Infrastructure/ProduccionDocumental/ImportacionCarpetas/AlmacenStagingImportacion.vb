@@ -85,28 +85,29 @@ Public NotInheritable Partial Class AlmacenStagingImportacion
         Try
             Dim carpeta = CarpetaLote(contexto)
             ExigirSinEnlaces(carpeta)
-            If Not Directory.Exists(carpeta) Then Throw Incierto()
+            If Not Directory.Exists(carpeta) Then Throw New OriginalNoComprobadoImportacionException("ORIGINAL_AUSENTE")
             Using bloqueo = BloquearLote(carpeta)
                 Dim original = Ruta(CarpetaArchivo(contexto), _archivo.StagingRef & ".bin")
                 ExigirSinEnlaces(original)
-                If Not File.Exists(original) Then Throw Incierto()
+                If Not File.Exists(original) Then Throw New OriginalNoComprobadoImportacionException("ORIGINAL_AUSENTE")
+                MedicionAlmacenamientoImportacion.Contar("original_open", 1UL)
                 entrada = New FileStream(original, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan)
-                If CULng(entrada.Length) <> esperados Then Throw Incierto()
+                If CULng(entrada.Length) <> esperados Then Throw New OriginalNoComprobadoImportacionException("ORIGINAL_ALTERADO")
                 Dim hash = CopiarAcotado(entrada, Stream.Null, esperados)
                 Try
                     ValidarFormato(original)
                 Catch ex As PerfilImportacionException When ex.Codigo = "ARCHIVO_RECHAZADO"
-                    Throw Incierto()
+                    Throw New OriginalNoComprobadoImportacionException("ORIGINAL_ALTERADO")
                 End Try
-                If hash <> _archivo.ContenidoHash Then Throw Incierto()
+                If hash <> _archivo.ContenidoHash Then Throw New OriginalNoComprobadoImportacionException("ORIGINAL_ALTERADO")
                 Dim retencion As New RetencionVerificada(entrada, New RecepcionVerificadaImportacion With {.StagingRef = _archivo.StagingRef, .BytesRecibidos = _archivo.BytesRecibidos, .ContenidoHash = hash})
                 entrada = Nothing
                 Return retencion
             End Using
         Catch ex As UnauthorizedAccessException
-            Throw NoDisponible()
+            Throw New OriginalNoComprobadoImportacionException("ORIGINAL_ILEGIBLE")
         Catch ex As IOException
-            Throw Incierto()
+            Throw New OriginalNoComprobadoImportacionException("ORIGINAL_ILEGIBLE")
         Finally
             If entrada IsNot Nothing Then entrada.Dispose()
         End Try
@@ -135,17 +136,17 @@ Public NotInheritable Partial Class AlmacenStagingImportacion
         Try
             Dim carpeta = CarpetaLote(contexto)
             ExigirSinEnlaces(carpeta)
-            If Not Directory.Exists(carpeta) Then Throw Incierto()
+            If Not Directory.Exists(carpeta) Then Throw New OriginalNoComprobadoImportacionException("ORIGINAL_AUSENTE")
             Using bloqueo = BloquearLote(carpeta)
                 Dim rutaCompleta = Ruta(CarpetaArchivo(contexto), referencia & ".bin")
                 Dim recepcion = VerificarCompleto(rutaCompleta, referencia, esperados)
-                If _archivo.EstadoRecepcion = "RECIBIDO" AndAlso (_archivo.StagingRef <> referencia OrElse _archivo.BytesRecibidos <> recepcion.BytesRecibidos OrElse _archivo.ContenidoHash <> recepcion.ContenidoHash) Then Throw Incierto()
+                If _archivo.EstadoRecepcion = "RECIBIDO" AndAlso (_archivo.StagingRef <> referencia OrElse _archivo.BytesRecibidos <> recepcion.BytesRecibidos OrElse _archivo.ContenidoHash <> recepcion.ContenidoHash) Then Throw New OriginalNoComprobadoImportacionException("ORIGINAL_ALTERADO")
                 Return recepcion
             End Using
         Catch ex As UnauthorizedAccessException
-            Throw NoDisponible()
+            Throw New OriginalNoComprobadoImportacionException("ORIGINAL_ILEGIBLE")
         Catch ex As IOException
-            Throw Incierto()
+            Throw New OriginalNoComprobadoImportacionException("ORIGINAL_ILEGIBLE")
         End Try
     End Function
 
@@ -197,14 +198,15 @@ Public NotInheritable Partial Class AlmacenStagingImportacion
 
     Private Function VerificarCompleto(archivo As String, referencia As String, esperados As ULong) As RecepcionVerificadaImportacion
         ExigirSinEnlaces(archivo)
-        If Not File.Exists(archivo) OrElse CULng(New FileInfo(archivo).Length) <> esperados Then Throw Incierto()
+        If Not File.Exists(archivo) Then Throw New OriginalNoComprobadoImportacionException("ORIGINAL_AUSENTE")
+        If CULng(New FileInfo(archivo).Length) <> esperados Then Throw New OriginalNoComprobadoImportacionException("ORIGINAL_ALTERADO")
         Dim hash As String
         Using entrada As New FileStream(archivo, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan)
             hash = CopiarAcotado(entrada, Stream.Null, esperados)
             Try
                 ValidarFormato(archivo)
             Catch ex As PerfilImportacionException When ex.Codigo = "ARCHIVO_RECHAZADO"
-                Throw Incierto()
+                Throw New OriginalNoComprobadoImportacionException("ORIGINAL_ALTERADO")
             End Try
         End Using
         Return New RecepcionVerificadaImportacion With {.StagingRef = referencia, .BytesRecibidos = esperados.ToString(CultureInfo.InvariantCulture), .ContenidoHash = hash}
@@ -219,12 +221,13 @@ Public NotInheritable Partial Class AlmacenStagingImportacion
                 Dim cantidad = CInt(Math.Min(CULng(buffer.Length), esperados - total + 1UL))
                 Dim leidos = entrada.Read(buffer, 0, cantidad)
                 If leidos = 0 Then Exit While
-                If CULng(leidos) > esperados - total Then Throw Limite()
+                MedicionAlmacenamientoImportacion.Contar("pdf_bytes", CULng(leidos))
+                If CULng(leidos) > esperados - total Then Throw DiagnosticoOperacionImportacion.Fallo("LIMITE_EXCEDIDO", "recepcion", "BYTES_NO_COINCIDEN")
                 salida.Write(buffer, 0, leidos)
                 sha.TransformBlock(buffer, 0, leidos, buffer, 0)
                 total += CULng(leidos)
             End While
-            If total <> esperados Then Throw Rechazado()
+            If total <> esperados Then Throw Rechazado("BYTES_NO_COINCIDEN")
             sha.TransformFinalBlock(New Byte() {}, 0, 0)
             Return BitConverter.ToString(sha.Hash).Replace("-", "").ToLowerInvariant()
         End Using
@@ -237,7 +240,7 @@ Public NotInheritable Partial Class AlmacenStagingImportacion
         ExigirNombre(_archivo.NombreOriginal)
         Dim configuracion = _lote.Snapshot.Configuracion
         Dim extension = Path.GetExtension(_archivo.NombreOriginal).TrimStart("."c).ToLowerInvariant()
-        If configuracion.Extensiones Is Nothing OrElse (configuracion.Extensiones.Count > 0 AndAlso Not configuracion.Extensiones.Contains(extension, StringComparer.OrdinalIgnoreCase)) Then Throw Rechazado()
+        If configuracion.Extensiones Is Nothing OrElse (configuracion.Extensiones.Count > 0 AndAlso Not configuracion.Extensiones.Contains(extension, StringComparer.OrdinalIgnoreCase)) Then Throw Rechazado("FORMATO_NO_SOPORTADO")
         If extension <> "pdf" Then Throw New PerfilImportacionException("FORMATO_NO_SOPORTADO", "Este receptor admite PDF validado; el formato solicitado aún no está caracterizado.")
         If configuracion.MaximoBytesArchivo.HasValue AndAlso (configuracion.MaximoBytesArchivo.Value <= 0 OrElse esperados > CULng(configuracion.MaximoBytesArchivo.Value)) Then Throw Limite()
         Return esperados
@@ -247,14 +250,14 @@ Public NotInheritable Partial Class AlmacenStagingImportacion
         Try
             Using entrada As New FileStream(archivo, FileMode.Open, FileAccess.Read, FileShare.Read)
                 Dim cabecera(7) As Byte
-                If entrada.Read(cabecera, 0, cabecera.Length) <> 8 OrElse Not Regex.IsMatch(Encoding.ASCII.GetString(cabecera), "\A%PDF-1\.[0-7]\z", RegexOptions.CultureInvariant) Then Throw Rechazado()
+                If entrada.Read(cabecera, 0, cabecera.Length) <> 8 OrElse Not Regex.IsMatch(Encoding.ASCII.GetString(cabecera), "\A%PDF-1\.[0-7]\z", RegexOptions.CultureInvariant) Then Throw Rechazado("PDF_FIRMA_INVALIDA")
                 Dim longitud = CInt(Math.Min(entrada.Length, 1024L)), cola(longitud - 1) As Byte
                 entrada.Position = entrada.Length - longitud
-                If entrada.Read(cola, 0, longitud) <> longitud OrElse Not Encoding.ASCII.GetString(cola).TrimEnd(ChrW(9), ChrW(10), ChrW(12), ChrW(13), " "c).EndsWith("%%EOF", StringComparison.Ordinal) Then Throw Rechazado()
+                If entrada.Read(cola, 0, longitud) <> longitud OrElse Not Encoding.ASCII.GetString(cola).TrimEnd(ChrW(9), ChrW(10), ChrW(12), ChrW(13), " "c).EndsWith("%%EOF", StringComparison.Ordinal) Then Throw Rechazado("PDF_CIERRE_INVALIDO")
             End Using
             'Lectura parcial sobre archivo, sin byte[] del documento completo.
             Using pdf As New PdfReader(archivo, Nothing, True)
-                If pdf.IsEncrypted() OrElse pdf.IsRebuilt() OrElse pdf.NumberOfPages <= 0 OrElse pdf.NumberOfPages > _maximoPaginasPdf OrElse pdf.XrefSize > _maximoObjetosPdf Then Throw Rechazado()
+                If pdf.IsEncrypted() OrElse pdf.IsRebuilt() OrElse pdf.NumberOfPages <= 0 OrElse pdf.NumberOfPages > _maximoPaginasPdf OrElse pdf.XrefSize > _maximoObjetosPdf Then Throw Rechazado("PDF_ESTRUCTURA_INVALIDA")
                 For pagina = 1 To pdf.NumberOfPages
                     If pdf.GetPageNRelease(pagina) Is Nothing Then Throw Rechazado()
                 Next
@@ -353,8 +356,8 @@ Public NotInheritable Partial Class AlmacenStagingImportacion
     Private Shared Function Limite() As PerfilImportacionException
         Return New PerfilImportacionException("LIMITE_EXCEDIDO", "El contenido excede los bytes o la capacidad temporal permitidos.")
     End Function
-    Private Shared Function Rechazado() As PerfilImportacionException
-        Return New PerfilImportacionException("ARCHIVO_RECHAZADO", "El contenido está incompleto o no corresponde a un PDF admitido.")
+    Private Shared Function Rechazado(Optional motivo As String = "PDF_INVALIDO") As PerfilImportacionException
+        Return DiagnosticoOperacionImportacion.Fallo("ARCHIVO_RECHAZADO", "recepcion", motivo)
     End Function
     Private Shared Function Incierto() As PerfilImportacionException
         Return New PerfilImportacionException("RESULTADO_INCIERTO", "No se pudo verificar el staging retenido; no se autoriza el efecto documental.")

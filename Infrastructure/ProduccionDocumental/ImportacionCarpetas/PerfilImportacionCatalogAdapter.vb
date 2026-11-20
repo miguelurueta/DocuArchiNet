@@ -284,6 +284,18 @@ Public Partial Class PerfilImportacionCatalogAdapter
         Return campo.Tipo <> "NO_SOPORTADO"
     End Function
     Private Function Leer(cadena As String, sql As String, ParamArray parametros As Object()) As DataTable
+        If _lecturasPreparacion Is Nothing OrElse Not sql.TrimStart().StartsWith("SELECT ", StringComparison.OrdinalIgnoreCase) OrElse sql.IndexOf("FOR UPDATE", StringComparison.OrdinalIgnoreCase) >= 0 OrElse sql.IndexOf("LOCK IN SHARE MODE", StringComparison.OrdinalIgnoreCase) >= 0 Then Return LeerSinCache(cadena, sql, parametros)
+        Dim clave = ClaveLecturaPreparacion(cadena, sql, parametros)
+        Dim datos As DataTable = Nothing
+        If Not _lecturasPreparacion.TryGetValue(clave, datos) Then
+            datos = LeerSinCache(cadena, sql, parametros)
+            If datos Is Nothing Then Throw Invalida()
+            _lecturasPreparacion.Add(clave, datos.Copy())
+        End If
+        Return datos.Copy()
+    End Function
+
+    Private Function LeerSinCache(cadena As String, sql As String, ParamArray parametros As Object()) As DataTable
         If _consulta IsNot Nothing Then Return _consulta(cadena, sql, parametros)
         If String.IsNullOrWhiteSpace(cadena) Then Throw New PerfilImportacionException("CAPACIDAD_NO_DISPONIBLE", "El origen documental no está disponible.")
         Try
@@ -293,7 +305,7 @@ Public Partial Class PerfilImportacionCatalogAdapter
                 For i = 0 To parametros.Length - 1 Step 2
                     cmd.Parameters.AddWithValue(CStr(parametros(i)), If(parametros(i + 1), DBNull.Value))
                 Next
-                Using reader = cmd.ExecuteReader()
+                Using reader = MedicionAlmacenamientoImportacion.MedirParte("sql_catalogo", Function() cmd.ExecuteReader())
                     Dim tabla As New DataTable()
                     tabla.Load(reader)
                     Return tabla

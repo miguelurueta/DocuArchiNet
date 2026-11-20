@@ -66,7 +66,7 @@ Public NotInheritable Class ComandoAlmacenamientoCarpetas
         For Each referencia In New String() {contexto.UsuarioRef, contexto.AmbitoRef, contexto.NivelRef, raiz.LoteId, raiz.RaizId, archivo.ArchivoId, intento.IntentoId}
             ComandoCreacionExpedienteImportacion.EnteroLegacy(referencia)
         Next
-        If String.IsNullOrWhiteSpace(contexto.RutaCanonica) OrElse String.IsNullOrWhiteSpace(contexto.SelloDestino) OrElse raiz.IntentoActivoId IsNot Nothing OrElse raiz.IdentidadExpediente Is Nothing Then Throw Fallo()
+        If String.IsNullOrWhiteSpace(contexto.RutaCanonica) OrElse String.IsNullOrWhiteSpace(contexto.SelloDestino) OrElse raiz.IntentoActivoId IsNot Nothing OrElse raiz.IdentidadExpediente Is Nothing Then Throw Fallo("CONTEXTO_EXPEDIENTE_NO_DISPONIBLE")
         Dim identidad = raiz.IdentidadExpediente
         If identidad.OrigenLogico <> "RA" OrElse identidad.NivelRef <> contexto.NivelRef Then Throw Fallo()
         ComandoCreacionExpedienteImportacion.EnteroLegacy(identidad.ExpedienteId)
@@ -80,24 +80,24 @@ Public NotInheritable Class ComandoAlmacenamientoCarpetas
             If Not verificacion OrElse raiz.Estado <> "EXPEDIENTE_CONFIRMADO" OrElse intento.Estado <> "EN_CURSO" OrElse intento.EsNuevaReserva OrElse archivo.EstadoEfecto <> "EN_CURSO" OrElse archivo.Resultado IsNot Nothing OrElse intento.Resultado Is Nothing OrElse intento.Resultado.Estado <> "EN_CURSO" OrElse intento.Resultado.Codigo <> "ALMACENAMIENTO_PREPARADO_V2" Then Throw Fallo()
         ElseIf verificacion Then
             If Not {"EXPEDIENTE_CONFIRMADO", "INCIERTO"}.Contains(raiz.Estado) OrElse intento.Estado <> "INCIERTO" OrElse intento.EsNuevaReserva OrElse archivo.EstadoEfecto <> "INCIERTO" OrElse intento.Resultado Is Nothing OrElse intento.Resultado.Estado <> "INCIERTO" OrElse Not ValidadorPerfilImportacion.ReferenciaValida(intento.Resultado.DocumentoId) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(intento.Resultado.InventarioId) OrElse PerfilImportacionJson.Escribir(archivo.Resultado) <> PerfilImportacionJson.Escribir(intento.Resultado) Then Throw Fallo()
-        ElseIf raiz.Estado <> "EXPEDIENTE_CONFIRMADO" OrElse intento.Estado <> "RESERVADO" OrElse Not intento.EsNuevaReserva OrElse intento.Resultado IsNot Nothing OrElse archivo.EstadoEfecto <> "EN_CURSO" OrElse archivo.Resultado IsNot Nothing Then
+        ElseIf Not {"EXPEDIENTE_CONFIRMADO", "PARCIAL", "INCIERTO"}.Contains(raiz.Estado) OrElse raiz.IntentoActivoId IsNot Nothing OrElse intento.Estado <> "RESERVADO" OrElse Not intento.EsNuevaReserva OrElse intento.Resultado IsNot Nothing OrElse archivo.EstadoEfecto <> "EN_CURSO" OrElse archivo.Resultado IsNot Nothing Then
             Throw Fallo()
         End If
-        If Not Hexadecimal(intento.TokenReclamacion, 32) OrElse Not Hexadecimal(intento.SolicitudHash, 64) OrElse Not Hexadecimal(archivo.StagingRef, 32) OrElse Not Hexadecimal(archivo.ContenidoHash, 64) Then Throw Fallo()
+        If Not Hexadecimal(intento.TokenReclamacion, 32) OrElse Not Hexadecimal(intento.SolicitudHash, 64) OrElse Not Hexadecimal(archivo.StagingRef, 32) OrElse Not Hexadecimal(archivo.ContenidoHash, 64) Then Throw Fallo("REFERENCIAS_EVIDENCIA_INVALIDAS")
         Dim cantidad As ULong
-        If Not ULong.TryParse(archivo.BytesPrevistos, NumberStyles.None, CultureInfo.InvariantCulture, cantidad) OrElse cantidad = 0 OrElse cantidad.ToString(CultureInfo.InvariantCulture) <> archivo.BytesPrevistos OrElse archivo.BytesRecibidos <> archivo.BytesPrevistos Then Throw Fallo()
-        If String.IsNullOrEmpty(archivo.NombreOriginal) OrElse archivo.NombreOriginal.Length > 255 OrElse archivo.NombreOriginal.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 OrElse archivo.NombreOriginal <> Path.GetFileName(archivo.NombreOriginal) OrElse archivo.NombreOriginal.Contains("|") OrElse archivo.NombreOriginal.EndsWith(".", StringComparison.Ordinal) OrElse archivo.NombreOriginal.EndsWith(" ", StringComparison.Ordinal) Then Throw Fallo()
+        If Not ULong.TryParse(archivo.BytesPrevistos, NumberStyles.None, CultureInfo.InvariantCulture, cantidad) OrElse cantidad = 0 OrElse cantidad.ToString(CultureInfo.InvariantCulture) <> archivo.BytesPrevistos OrElse archivo.BytesRecibidos <> archivo.BytesPrevistos Then Throw Fallo("ORIGINAL_NO_COMPROBADO")
+        If String.IsNullOrEmpty(archivo.NombreOriginal) OrElse archivo.NombreOriginal.Length > 255 OrElse archivo.NombreOriginal.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 OrElse archivo.NombreOriginal <> Path.GetFileName(archivo.NombreOriginal) OrElse archivo.NombreOriginal.Contains("|") OrElse archivo.NombreOriginal.EndsWith(".", StringComparison.Ordinal) OrElse archivo.NombreOriginal.EndsWith(" ", StringComparison.Ordinal) Then Throw Fallo("NOMBRE_ARCHIVO_INVALIDO")
         ComandoCreacionExpedienteImportacion.TextoLegacy(archivo.NombreOriginal, True)
         If Not String.Equals(Path.GetExtension(archivo.NombreOriginal), ".pdf", StringComparison.OrdinalIgnoreCase) Then Throw New PerfilImportacionException("FORMATO_NO_SOPORTADO", "La importacion documental admite PDF en esta entrega.")
         If snapshot.Configuracion Is Nothing OrElse snapshot.Reglas Is Nothing OrElse New ResolvedorReglasPerfilImportacion().ValidarEstructura(snapshot.Reglas).Count <> 0 Then Throw Fallo()
         If BitConverter.ToString(PerfilImportacionJson.Huella(New VersionPerfilImportacion With {.Configuracion = snapshot.Configuracion, .Reglas = snapshot.Reglas})).Replace("-", "").ToLowerInvariant() <> snapshot.Huella Then Throw Fallo()
         Dim c = snapshot.Configuracion
-        If c.OrigenGabinete <> "DA" OrElse Not c.GabineteId.HasValue OrElse Not Hexadecimal(c.HuellaOrigenGabinete, 64) Then Throw Fallo()
-        If c.Extensiones Is Nothing OrElse (c.Extensiones.Count > 0 AndAlso Not c.Extensiones.Contains("pdf", StringComparer.OrdinalIgnoreCase)) OrElse (c.MaximoBytesArchivo.HasValue AndAlso (c.MaximoBytesArchivo.Value <= 0 OrElse cantidad > CULng(c.MaximoBytesArchivo.Value))) Then Throw Fallo()
+        If c.OrigenGabinete <> "DA" OrElse Not c.GabineteId.HasValue OrElse Not Hexadecimal(c.HuellaOrigenGabinete, 64) Then Throw Fallo("GABINETE_INCOMPATIBLE")
+        If c.Extensiones Is Nothing OrElse (c.Extensiones.Count > 0 AndAlso Not c.Extensiones.Contains("pdf", StringComparer.OrdinalIgnoreCase)) OrElse (c.MaximoBytesArchivo.HasValue AndAlso (c.MaximoBytesArchivo.Value <= 0 OrElse cantidad > CULng(c.MaximoBytesArchivo.Value))) Then Throw Fallo("LIMITES_PERFIL_INCOMPATIBLES")
         ComandoCreacionExpedienteImportacion.EnteroLegacy(c.GabineteId.Value.ToString(CultureInfo.InvariantCulture))
-        If Not archivo.ValoresEfectivosFijados Then Throw Fallo()
+        If Not archivo.ValoresEfectivosFijados Then Throw Fallo("INDICES_PENDIENTES")
         CoordinadorImportacionCarpetas.ValidarCorrespondenciaValores(snapshot.Reglas.Where(Function(r) r.DestinoTipo <> "CAMPO_EXPEDIENTE").ToList(), archivo.ValoresEfectivos, True)
-        If archivo.ValoresEfectivos.Where(Function(v) v.DestinoTipo = "TIPOLOGIA").Count() <> 1 Then Throw Fallo()
+        If archivo.ValoresEfectivos.Where(Function(v) v.DestinoTipo = "TIPOLOGIA").Count() <> 1 Then Throw Fallo("TIPOLOGIA_INCOMPATIBLE")
         For Each valor In archivo.ValoresEfectivos
             ComandoCreacionExpedienteImportacion.TextoLegacy(valor.Valor, valor.DestinoTipo = "TIPOLOGIA")
         Next
@@ -155,8 +155,8 @@ Public NotInheritable Class ComandoAlmacenamientoCarpetas
     Private Shared Function Hexadecimal(valor As String, longitud As Integer) As Boolean
         Return valor IsNot Nothing AndAlso valor.Length = longitud AndAlso valor.All(Function(c) (c >= "0"c AndAlso c <= "9"c) OrElse (c >= "a"c AndAlso c <= "f"c))
     End Function
-    Private Shared Function Fallo() As PerfilImportacionException
-        Return New PerfilImportacionException("CONFIGURACION_INVALIDA", "El comando documental no coincide con el archivo, valores e intento confirmados.")
+    Private Shared Function Fallo(Optional motivo As String = "CONTEXTO_DOCUMENTAL_NO_COINCIDE") As PerfilImportacionException
+        Return DiagnosticoOperacionImportacion.Fallo("CONFIGURACION_INVALIDA", "almacenamiento", motivo)
     End Function
 End Class
 

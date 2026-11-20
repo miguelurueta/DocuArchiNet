@@ -1,0 +1,951 @@
+{
+  "version": 1,
+  "status": "STATIC_ANALYSIS_AND_PROPOSALS_ONLY",
+  "date": "2026-11-14",
+  "baseSha": "394f7dd2e67c893e9fafe1694822c6ebbef0f14d",
+  "scope": {
+    "ownedSourceFiles": 101,
+    "ownedLines": 17541,
+    "initializationAdditional": {
+      "file": "Gestion/WebFormProducionDocumental.aspx.vb",
+      "lines": "1-75",
+      "sha256Lf": "3bc9877a149d2e846ab506129b12a47989bd6aeff0d5e6b40bff063fac98d83c"
+    },
+    "includes": [
+      "asistente operativo",
+      "API XHR",
+      "inventario local",
+      "vistas y avisos",
+      "administración de perfiles",
+      "proveedores",
+      "fuentes",
+      "ASMX y handler multipart",
+      "validadores",
+      "repositorios",
+      "comandos y adaptadores",
+      "retención/limpieza interna",
+      "recuperación documental V2 interna",
+      "barra/árbol y auxiliares de Producción compartidos"
+    ],
+    "externalBoundary": "Framework, motor MySQL, IIS, plugins y dependencias legacy externas pueden generar textos dinámicos no enumerables a partir de estas fuentes. Se registran sus fronteras; no se afirma inspección de binarios ni cobertura de cada mensaje externo."
+  },
+  "counts": {
+    "lexedLiteralOccurrences": 8769,
+    "filteredLiteralOccurrences": 3683,
+    "uniqueTextCandidates": 1028,
+    "messageRows": 577,
+    "individualManualProposals": 447,
+    "translatedCodes": 118,
+    "errorAndCatchRoutes": 1410,
+    "operationFlows": 58,
+    "silentOrLossRoutes": 18,
+    "excludedStrings": 451,
+    "formulationParameters": 187,
+    "stateTranslations": 38
+  },
+  "coverage": {
+    "allTextCandidatesAccounted": true,
+    "allRowsHaveProposal": true,
+    "allCodeRowsHaveProposal": true,
+    "allRoutesHaveReference": true,
+    "method": "Inventario estático de literales de JS/VB y guardas/capturas, seguido de clasificación y propuestas manuales. Un segundo barrido sin filtro identifica los estados cortos sin espacios. Los fragmentos dinámicos conservan el contexto de origen. No equivale a prueba AST formal ni a ejecución de todas las ramas."
+  },
+  "formula": "Etapa + acción/recurso autorizados + causa comprobada + certeza del resultado + acción siguiente disponible + referencia. Solo mostrar componentes que existan.",
+  "csv": {
+    "encoding": "UTF-8 con BOM",
+    "separator": ";",
+    "cellsQuoted": true,
+    "excelFormulaPrefixEscaped": true
+  },
+  "fields": {
+    "operacionId": "Grupo: Correlación | Disponibilidad: EXISTE_EN_SOBRE_SI_HUBO_RESPUESTA | OrigenConcreto: RespuestaPerfilImportacion.operacionId y respuesta del handler multipart. El API operativo solo lo copia en determinadas ramas de error. | ReglaDePresentación: Validar formato público, conservarlo al traducir y mostrarlo como referencia. Si no llegó, omitirlo; no sustituir por token, cookie, hash o clave de operación.",
+    "operacionIdSiExiste": "Grupo: Correlación | Disponibilidad: EXISTE_EN_SOBRE_SI_HUBO_RESPUESTA | OrigenConcreto: RespuestaPerfilImportacion.operacionId y respuesta del handler multipart. El API operativo solo lo copia en determinadas ramas de error. | ReglaDePresentación: Validar formato público, conservarlo al traducir y mostrarlo como referencia. Si no llegó, omitirlo; no sustituir por token, cookie, hash o clave de operación.",
+    "operación": "Grupo: Operación | Disponibilidad: CONOCIDA_POR_EL_CLIENTE | OrigenConcreto: Nombre del endpoint pasado a invocar/ejecutar y acción seleccionada del editor. | ReglaDePresentación: Traducir el identificador a Preparar revisión, Guardar borrador, etc. El API debe conservarlo en los errores; no mostrar el nombre de una función auxiliar.",
+    "fase": "Grupo: Fase | Disponibilidad: DISPONIBLE_SEGUN_SOLICITUD_Y_RESULTADO | OrigenConcreto: AvanzarLoteImportacionSolicitud.fase; ReconciliacionRecursoImportacionResultado.fase; resultado público de confirmación. | ReglaDePresentación: Distinguir recepción, creación, valores, almacenamiento y verificación. No deducir una fase del mensaje ERROR_INTERNO.",
+    "loteId": "Grupo: Identidad | Disponibilidad: SOLO_TRAS_CONFIRMACION_O_CONSULTA_CONOCIDA | OrigenConcreto: ConfirmacionImportacionResultado.loteId; EstadoLoteImportacionResultado.loteId; pista local autorizada del último lote. | ReglaDePresentación: No disponible por el mero hecho de pulsar Preparar revisión. Sin lote, no ofrecer Consultar último lote como solución.",
+    "planId": "Grupo: Identidad | Disponibilidad: SOLO_SI_SE_CONSERVA_REFERENCIA_VALIDA | OrigenConcreto: PreparacionImportacionResultado.planId; session.confirming.planId; host.doc111ConfirmacionPendiente.planId. | ReglaDePresentación: Si hubo confirmación sin respuesta, usar ese plan para ConsultarConfirmacionLote. No inventar una referencia cuando falló la preparación sin devolverla.",
+    "intentoId": "Grupo: Identidad | Disponibilidad: SOLO_RESPUESTA_O_CONSULTA_AUTORIZADA | OrigenConcreto: RecursoConsultaImportacionResultado.intentoActivoId; resultados públicos de AvanzarLote y Reconciliar; extracción validada de datos.intentoId en el API. | ReglaDePresentación: No deducir del último intento global, tiempo, nombre o código del expediente. Omitir si no existe en el contexto autorizado.",
+    "campo": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "motivoValidado": "Grupo: Causa y certeza | Disponibilidad: REQUIERE_DESGLOSE_O_CHECKPOINT_SEGUN_CASO | OrigenConcreto: Predicado exacto de la guarda o catch; código específico de incidencia; estado y evidencia durables del intento. La mayoría de fábricas actuales solo transmiten un código general. | ReglaDePresentación: Crear motivos cerrados y comprobados. Distinguir NO_INICIADO_COMPROBADO, CONFIRMADO, RECHAZADO y RESULTADO_INCIERTO. No fabricar la causa a partir de un texto ni reenviar ex.Message/SQL/stack.",
+    "motivoPublicoValidado": "Grupo: Causa y certeza | Disponibilidad: REQUIERE_DESGLOSE_O_CHECKPOINT_SEGUN_CASO | OrigenConcreto: Predicado exacto de la guarda o catch; código específico de incidencia; estado y evidencia durables del intento. La mayoría de fábricas actuales solo transmiten un código general. | ReglaDePresentación: Crear motivos cerrados y comprobados. Distinguir NO_INICIADO_COMPROBADO, CONFIRMADO, RECHAZADO y RESULTADO_INCIERTO. No fabricar la causa a partir de un texto ni reenviar ex.Message/SQL/stack.",
+    "motivoTraducido": "Grupo: Causa y certeza | Disponibilidad: REQUIERE_DESGLOSE_O_CHECKPOINT_SEGUN_CASO | OrigenConcreto: Predicado exacto de la guarda o catch; código específico de incidencia; estado y evidencia durables del intento. La mayoría de fábricas actuales solo transmiten un código general. | ReglaDePresentación: Crear motivos cerrados y comprobados. Distinguir NO_INICIADO_COMPROBADO, CONFIRMADO, RECHAZADO y RESULTADO_INCIERTO. No fabricar la causa a partir de un texto ni reenviar ex.Message/SQL/stack.",
+    "certezaComprobada": "Grupo: Causa y certeza | Disponibilidad: REQUIERE_DESGLOSE_O_CHECKPOINT_SEGUN_CASO | OrigenConcreto: Predicado exacto de la guarda o catch; código específico de incidencia; estado y evidencia durables del intento. La mayoría de fábricas actuales solo transmiten un código general. | ReglaDePresentación: Crear motivos cerrados y comprobados. Distinguir NO_INICIADO_COMPROBADO, CONFIRMADO, RECHAZADO y RESULTADO_INCIERTO. No fabricar la causa a partir de un texto ni reenviar ex.Message/SQL/stack.",
+    "accionPermitida": "Grupo: Acción siguiente | Disponibilidad: DEBE_DERIVARSE_DEL_ESTADO_Y_REFERENCIAS | OrigenConcreto: EstadoLote.accionesPermitidas, RecursoConsulta.puedeRetomarCreacion/recepcionListaParaCrear/tieneIntentoActivo, estado de confirmación pendiente y referencias locales. | ReglaDePresentación: No ofrecer una acción ausente o deshabilitada. Verificar puede registrar un checkpoint; Actualizar solo consulta; Retomar requiere elegibilidad específica y confirmación.",
+    "nombreSeleccionado": "Grupo: Recurso visible | Disponibilidad: EXISTE_EN_MANIFIESTO_O_PAGINA_AUTORIZADA | OrigenConcreto: Manifiesto.raices[].nombre; manifiesto.archivos[].nombre/rutaRelativa; recurso.nombre; File.name al seleccionar o reseleccionar. | ReglaDePresentación: Usar textContent. No mostrar rutas absolutas del equipo, contenido de documentos ni nombres obtenidos buscando recursos ajenos. Para listas, limitar longitud y cantidad.",
+    "motivoPDFValidado": "Grupo: Causa y certeza | Disponibilidad: REQUIERE_DESGLOSE_O_CHECKPOINT_SEGUN_CASO | OrigenConcreto: Predicado exacto de la guarda o catch; código específico de incidencia; estado y evidencia durables del intento. La mayoría de fábricas actuales solo transmiten un código general. | ReglaDePresentación: Crear motivos cerrados y comprobados. Distinguir NO_INICIADO_COMPROBADO, CONFIRMADO, RECHAZADO y RESULTADO_INCIERTO. No fabricar la causa a partir de un texto ni reenviar ex.Message/SQL/stack.",
+    "motivoVisualValidado": "Grupo: Causa y certeza | Disponibilidad: REQUIERE_DESGLOSE_O_CHECKPOINT_SEGUN_CASO | OrigenConcreto: Predicado exacto de la guarda o catch; código específico de incidencia; estado y evidencia durables del intento. La mayoría de fábricas actuales solo transmiten un código general. | ReglaDePresentación: Crear motivos cerrados y comprobados. Distinguir NO_INICIADO_COMPROBADO, CONFIRMADO, RECHAZADO y RESULTADO_INCIERTO. No fabricar la causa a partir de un texto ni reenviar ex.Message/SQL/stack.",
+    "revisionAnterior": "Grupo: Revisión | Disponibilidad: ESPERADA_EXISTE_ACTUAL_REQUIERE_LECTURA | OrigenConcreto: Solicitud.revisionEsperada/revisionLoteEsperada; EstadoLote.revision y RecursoConsulta.revision; revisión de perfil/fuente/proveedor obtenida en lectura autorizada. | ReglaDePresentación: Una revisión nueva debe proceder de una consulta válida. No inventarla en una respuesta genérica de conflicto ni levantar una detención posterior usando una revisión vieja.",
+    "revisionActualAutorizada": "Grupo: Revisión | Disponibilidad: ESPERADA_EXISTE_ACTUAL_REQUIERE_LECTURA | OrigenConcreto: Solicitud.revisionEsperada/revisionLoteEsperada; EstadoLote.revision y RecursoConsulta.revision; revisión de perfil/fuente/proveedor obtenida en lectura autorizada. | ReglaDePresentación: Una revisión nueva debe proceder de una consulta válida. No inventarla en una respuesta genérica de conflicto ni levantar una detención posterior usando una revisión vieja.",
+    "bytesConfirmados": "Grupo: Bytes | Disponibilidad: DISPONIBILIDAD_DISTINTA_POR_FASE | OrigenConcreto: Declarados: File.size/manifiesto.bytes/bytesPrevistos. Observados: contador real de lectura de la recepción. Confirmados: bytesRecibidos del recibo persistido. Configuración: tamaño realmente serializado. | ReglaDePresentación: No intercambiar bytes declarados, leídos y confirmados. Cada mensaje debe indicar cuál mide. No usar progreso multipart como prueba de un recibo.",
+    "bytesTransferidos": "Grupo: Transferencia | Disponibilidad: EXISTE_EN_PROGRESS_XHR_SI_ES_COMPUTABLE | OrigenConcreto: Evento upload.onprogress: loaded/total cuando lengthComputable es true. | ReglaDePresentación: Mide la petición de transporte. No equivale al tamaño del documento ni confirma almacenamiento. No inventar un porcentaje cuando el total no es computable.",
+    "cantidadPendiente": "Grupo: Conteo y ámbito | Disponibilidad: PUEDE_REQUERIR_PROYECCION_AGREGADA | OrigenConcreto: Total pendiente del ámbito indicado, no solo filas visibles. Puede requerir contador agregado adicional. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "cantidadBloqueos": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: Incidencias BloqueaUnidad y política aplicable; no número de archivos fallidos. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "cantidadRecibida": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: Recibos confirmados de la carpeta/lote/cola indicados; no contar transferencias terminadas. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "cantidadConfirmada": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: Respuestas o checkpoints confirmados de la cola concreta; no progreso ni fin del bucle. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "formatoOLimite": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "medidaSegura": "Grupo: Medida observada | Disponibilidad: REQUIERE_CONSERVAR_LA_COMPROBACION | OrigenConcreto: String.Length, tipo o extensión de la entrada comprobada; File.name/size/lastModified frente a los metadatos públicos del pendiente; resultado de una conversión validada. | ReglaDePresentación: No mostrar por defecto valores completos de claves, índices, identificación o contenido documental. Preferir longitud/tipo/formato; enumerar solo los atributos que realmente difieren.",
+    "posicionVisible": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "catalogo": "Grupo: Capacidad o catálogo | Disponibilidad: CONOCIDO_EN_EL_PUNTO_DE_COMPROBACION | OrigenConcreto: Tipo de selector/metadato/operación y alias lógico autorizado del contexto; presencia de webkitdirectory u otra capacidad realmente comprobada. | ReglaDePresentación: Mostrar el componente funcional, como catálogo de tipologías. Cadenas de conexión, servidor, esquema físico y nombres de tablas no autorizadas quedan fuera del mensaje operativo.",
+    "referenciasAutorizadas": "Grupo: Recurso contextual | Disponibilidad: CONOCIDO_SEGUN_FORMULARIO | OrigenConcreto: Fila/versión/recurso sobre el que se pulsó la acción, con los identificadores que ya conserva el formulario y el resultado público. | ReglaDePresentación: Nombrar el tipo y su referencia conocida. No completar el dato mediante búsquedas por nombre ni informar existencia de recursos que la autorización no permita ver.",
+    "timeoutPublicado": "Grupo: Tiempo de espera | Disponibilidad: EXISTE_EN_CONFIGURACION_DEL_CLIENTE | OrigenConcreto: options.timeout o 30000 ms por defecto en ImportacionCarpetasApi; timeout30000 en PerfilImportacionApi. | ReglaDePresentación: Indicar que expiró la espera del navegador, no que el servidor dejó de ejecutar. No deducir avance ni finalización por el tiempo.",
+    "accionConsultaDisponible": "Grupo: Acción siguiente | Disponibilidad: DEBE_DERIVARSE_DEL_ESTADO_Y_REFERENCIAS | OrigenConcreto: EstadoLote.accionesPermitidas, RecursoConsulta.puedeRetomarCreacion/recepcionListaParaCrear/tieneIntentoActivo, estado de confirmación pendiente y referencias locales. | ReglaDePresentación: No ofrecer una acción ausente o deshabilitada. Verificar puede registrar un checkpoint; Actualizar solo consulta; Retomar requiere elegibilidad específica y confirmación.",
+    "acción": "Grupo: Operación | Disponibilidad: CONOCIDA_POR_EL_CLIENTE | OrigenConcreto: Nombre del endpoint pasado a invocar/ejecutar y acción seleccionada del editor. | ReglaDePresentación: Traducir el identificador a Preparar revisión, Guardar borrador, etc. El API debe conservarlo en los errores; no mostrar el nombre de una función auxiliar.",
+    "acciónAdministrativa": "Grupo: Operación | Disponibilidad: CONOCIDA_POR_EL_CLIENTE | OrigenConcreto: Nombre del endpoint pasado a invocar/ejecutar y acción seleccionada del editor. | ReglaDePresentación: Traducir el identificador a Preparar revisión, Guardar borrador, etc. El API debe conservarlo en los errores; no mostrar el nombre de una función auxiliar.",
+    "acciónFuente": "Grupo: Operación | Disponibilidad: CONOCIDA_POR_EL_CLIENTE | OrigenConcreto: Nombre del endpoint pasado a invocar/ejecutar y acción seleccionada del editor. | ReglaDePresentación: Traducir el identificador a Preparar revisión, Guardar borrador, etc. El API debe conservarlo en los errores; no mostrar el nombre de una función auxiliar.",
+    "acciónPerfil": "Grupo: Operación | Disponibilidad: CONOCIDA_POR_EL_CLIENTE | OrigenConcreto: Nombre del endpoint pasado a invocar/ejecutar y acción seleccionada del editor. | ReglaDePresentación: Traducir el identificador a Preparar revisión, Guardar borrador, etc. El API debe conservarlo en los errores; no mostrar el nombre de una función auxiliar.",
+    "acciónProveedor": "Grupo: Operación | Disponibilidad: CONOCIDA_POR_EL_CLIENTE | OrigenConcreto: Nombre del endpoint pasado a invocar/ejecutar y acción seleccionada del editor. | ReglaDePresentación: Traducir el identificador a Preparar revisión, Guardar borrador, etc. El API debe conservarlo en los errores; no mostrar el nombre de una función auxiliar.",
+    "aliasAutorizado": "Grupo: Capacidad o catálogo | Disponibilidad: CONOCIDO_EN_EL_PUNTO_DE_COMPROBACION | OrigenConcreto: Tipo de selector/metadato/operación y alias lógico autorizado del contexto; presencia de webkitdirectory u otra capacidad realmente comprobada. | ReglaDePresentación: Mostrar el componente funcional, como catálogo de tipologías. Cadenas de conexión, servidor, esquema físico y nombres de tablas no autorizadas quedan fuera del mensaje operativo.",
+    "almacenados": "Grupo: Conteo y ámbito | Disponibilidad: PUEDE_REQUERIR_PROYECCION_AGREGADA | OrigenConcreto: Agregado de documentos incorporados confirmados; requiere proyección autorizada si no existe en DTO. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "ambitoIntegridad": "Grupo: Integridad | Disponibilidad: EXISTE_EN_PERFIL_Y_SNAPSHOT_DEL_LOTE | OrigenConcreto: Configuracion.ModoIntegridad/AmbitoIntegridad/PoliticaCoincidencias; EstadoLote.modoIntegridad/ambitoIntegridad. | ReglaDePresentación: Distinguir EXPEDIENTE, LOTE y PARCIAL. Por lote exige el ámbito completo, no un único expediente base ni una selección parcial de la página.",
+    "archivo": "Grupo: Recurso visible | Disponibilidad: EXISTE_EN_MANIFIESTO_O_PAGINA_AUTORIZADA | OrigenConcreto: Manifiesto.raices[].nombre; manifiesto.archivos[].nombre/rutaRelativa; recurso.nombre; File.name al seleccionar o reseleccionar. | ReglaDePresentación: Usar textContent. No mostrar rutas absolutas del equipo, contenido de documentos ni nombres obtenidos buscando recursos ajenos. Para listas, limitar longitud y cantidad.",
+    "archivoId": "Grupo: Identidad | Disponibilidad: DISPONIBLE_SEGUN_RECURSO_CONFIRMADO | OrigenConcreto: Campos públicos del mismo nombre en EstadoLote, RecursoConsulta, AvanceLote o Reconciliacion. archivoId/recursoId se toman del recurso seleccionado, no del nombre físico. | ReglaDePresentación: Solo mostrar identidades de la cuenta y contexto autorizados. La ausencia de respuesta no implica que no exista la identidad en el servidor.",
+    "archivoSeguro": "Grupo: Recurso visible | Disponibilidad: EXISTE_EN_MANIFIESTO_O_PAGINA_AUTORIZADA | OrigenConcreto: Manifiesto.raices[].nombre; manifiesto.archivos[].nombre/rutaRelativa; recurso.nombre; File.name al seleccionar o reseleccionar. | ReglaDePresentación: Usar textContent. No mostrar rutas absolutas del equipo, contenido de documentos ni nombres obtenidos buscando recursos ajenos. Para listas, limitar longitud y cantidad.",
+    "atributosNoCoincidentes": "Grupo: Medida observada | Disponibilidad: REQUIERE_CONSERVAR_LA_COMPROBACION | OrigenConcreto: String.Length, tipo o extensión de la entrada comprobada; File.name/size/lastModified frente a los metadatos públicos del pendiente; resultado de una conversión validada. | ReglaDePresentación: No mostrar por defecto valores completos de claves, índices, identificación o contenido documental. Preferir longitud/tipo/formato; enumerar solo los atributos que realmente difieren.",
+    "atributosQueNoCoinciden": "Grupo: Medida observada | Disponibilidad: REQUIERE_CONSERVAR_LA_COMPROBACION | OrigenConcreto: String.Length, tipo o extensión de la entrada comprobada; File.name/size/lastModified frente a los metadatos públicos del pendiente; resultado de una conversión validada. | ReglaDePresentación: No mostrar por defecto valores completos de claves, índices, identificación o contenido documental. Preferir longitud/tipo/formato; enumerar solo los atributos que realmente difieren.",
+    "bytesArchivo": "Grupo: Bytes | Disponibilidad: DISPONIBILIDAD_DISTINTA_POR_FASE | OrigenConcreto: Declarados: File.size/manifiesto.bytes/bytesPrevistos. Observados: contador real de lectura de la recepción. Confirmados: bytesRecibidos del recibo persistido. Configuración: tamaño realmente serializado. | ReglaDePresentación: No intercambiar bytes declarados, leídos y confirmados. Cada mensaje debe indicar cuál mide. No usar progreso multipart como prueba de un recibo.",
+    "bytesComprobados": "Grupo: Bytes | Disponibilidad: DISPONIBILIDAD_DISTINTA_POR_FASE | OrigenConcreto: Declarados: File.size/manifiesto.bytes/bytesPrevistos. Observados: contador real de lectura de la recepción. Confirmados: bytesRecibidos del recibo persistido. Configuración: tamaño realmente serializado. | ReglaDePresentación: No intercambiar bytes declarados, leídos y confirmados. Cada mensaje debe indicar cuál mide. No usar progreso multipart como prueba de un recibo.",
+    "bytesDeclarados": "Grupo: Bytes | Disponibilidad: DISPONIBILIDAD_DISTINTA_POR_FASE | OrigenConcreto: Declarados: File.size/manifiesto.bytes/bytesPrevistos. Observados: contador real de lectura de la recepción. Confirmados: bytesRecibidos del recibo persistido. Configuración: tamaño realmente serializado. | ReglaDePresentación: No intercambiar bytes declarados, leídos y confirmados. Cada mensaje debe indicar cuál mide. No usar progreso multipart como prueba de un recibo.",
+    "bytesObservados": "Grupo: Bytes | Disponibilidad: DISPONIBILIDAD_DISTINTA_POR_FASE | OrigenConcreto: Declarados: File.size/manifiesto.bytes/bytesPrevistos. Observados: contador real de lectura de la recepción. Confirmados: bytesRecibidos del recibo persistido. Configuración: tamaño realmente serializado. | ReglaDePresentación: No intercambiar bytes declarados, leídos y confirmados. Cada mensaje debe indicar cuál mide. No usar progreso multipart como prueba de un recibo.",
+    "bytesPrevistos": "Grupo: Bytes | Disponibilidad: DISPONIBILIDAD_DISTINTA_POR_FASE | OrigenConcreto: Declarados: File.size/manifiesto.bytes/bytesPrevistos. Observados: contador real de lectura de la recepción. Confirmados: bytesRecibidos del recibo persistido. Configuración: tamaño realmente serializado. | ReglaDePresentación: No intercambiar bytes declarados, leídos y confirmados. Cada mensaje debe indicar cuál mide. No usar progreso multipart como prueba de un recibo.",
+    "bytesSolicitud": "Grupo: Transferencia | Disponibilidad: EXISTE_EN_PROGRESS_XHR_SI_ES_COMPUTABLE | OrigenConcreto: Evento upload.onprogress: loaded/total cuando lengthComputable es true. | ReglaDePresentación: Mide la petición de transporte. No equivale al tamaño del documento ni confirma almacenamiento. No inventar un porcentaje cuando el total no es computable.",
+    "campoActual": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "campoAutorizado": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "campoClasificacion": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "campoDestino": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "campoEjemplo": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "campoFechaFinal": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "campoReferencia": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "campoSeguro": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "campos": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "camposConIncidencia": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "camposDependencia": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "cantidad": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: Conteo del resultado o selección del que habla la frase; sustituir por un nombre específico si hay dos ámbitos posibles. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "cantidadActual": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: Medida que disparó un límite en la guarda; indicar unidad y ámbito. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "cantidadArchivos": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: Manifiesto.archivos.length antes de confirmar o totalArchivos original del lote. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "cantidadCarpetas": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: Manifiesto.raices.length antes de confirmar o totalRaices de una lectura autorizada. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "cantidadCola": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: Longitud de la cola seleccionada y elegible de esta página. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "cantidadComprobada": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: Conteo obtenido del catálogo o metadatos completos que disparó la comprobación. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "cantidadElegible": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: model.archivosParaEnviar de la página, revalidado al construir la cola. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "cantidadElegibles": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: ResultadoPreparacion.UnidadesElegibles.Count para carpetas; indicar esa unidad. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "cantidadIncidencias": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: ResultadoPreparacion.Incidencias.Count o lista realmente devuelta para el ensayo. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "cantidadPropiedades": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: Propiedades realmente devueltas por la consulta única del proveedor. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "cantidadRechazada": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: Respuestas de rechazo confirmado del conjunto indicado; un timeout es incierto, no rechazado. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "cantidadRequerida": "Grupo: Conteo y ámbito | Disponibilidad: PUEDE_REQUERIR_PROYECCION_AGREGADA | OrigenConcreto: Conjunto completo que exige EvaluarBarreraCreacion por EXPEDIENTE/LOTE/PARCIAL; puede requerir proyección agregada adicional. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "capacidadNavegador": "Grupo: Capacidad o catálogo | Disponibilidad: CONOCIDO_EN_EL_PUNTO_DE_COMPROBACION | OrigenConcreto: Tipo de selector/metadato/operación y alias lógico autorizado del contexto; presencia de webkitdirectory u otra capacidad realmente comprobada. | ReglaDePresentación: Mostrar el componente funcional, como catálogo de tipologías. Cadenas de conexión, servidor, esquema físico y nombres de tablas no autorizadas quedan fuera del mensaje operativo.",
+    "capacidadPublica": "Grupo: Capacidad o catálogo | Disponibilidad: CONOCIDO_EN_EL_PUNTO_DE_COMPROBACION | OrigenConcreto: Tipo de selector/metadato/operación y alias lógico autorizado del contexto; presencia de webkitdirectory u otra capacidad realmente comprobada. | ReglaDePresentación: Mostrar el componente funcional, como catálogo de tipologías. Cadenas de conexión, servidor, esquema físico y nombres de tablas no autorizadas quedan fuera del mensaje operativo.",
+    "carpeta": "Grupo: Recurso visible | Disponibilidad: EXISTE_EN_MANIFIESTO_O_PAGINA_AUTORIZADA | OrigenConcreto: Manifiesto.raices[].nombre; manifiesto.archivos[].nombre/rutaRelativa; recurso.nombre; File.name al seleccionar o reseleccionar. | ReglaDePresentación: Usar textContent. No mostrar rutas absolutas del equipo, contenido de documentos ni nombres obtenidos buscando recursos ajenos. Para listas, limitar longitud y cantidad.",
+    "carpetasAutorizadas": "Grupo: Recurso visible | Disponibilidad: EXISTE_EN_MANIFIESTO_O_PAGINA_AUTORIZADA | OrigenConcreto: Manifiesto.raices[].nombre; manifiesto.archivos[].nombre/rutaRelativa; recurso.nombre; File.name al seleccionar o reseleccionar. | ReglaDePresentación: Usar textContent. No mostrar rutas absolutas del equipo, contenido de documentos ni nombres obtenidos buscando recursos ajenos. Para listas, limitar longitud y cantidad.",
+    "carpetasSeleccionadas": "Grupo: Recurso visible | Disponibilidad: EXISTE_EN_MANIFIESTO_O_PAGINA_AUTORIZADA | OrigenConcreto: Manifiesto.raices[].nombre; manifiesto.archivos[].nombre/rutaRelativa; recurso.nombre; File.name al seleccionar o reseleccionar. | ReglaDePresentación: Usar textContent. No mostrar rutas absolutas del equipo, contenido de documentos ni nombres obtenidos buscando recursos ajenos. Para listas, limitar longitud y cantidad.",
+    "codigo": "Grupo: Código público | Disponibilidad: EXISTE_SI_EL_CONTRATO_SE_INTERPRETO | OrigenConcreto: Respuesta.codigo; Incidencia.Codigo; ResultadoProveedorIndices.Codigo; whitelist UltimoCodigo. | ReglaDePresentación: Traducir por catálogo cerrado. Si el código no está reconocido, mostrar un fallback seguro con operación y referencia; no tratarlo como éxito.",
+    "codigoCerradoSiValidado": "Grupo: Código público | Disponibilidad: EXISTE_SI_EL_CONTRATO_SE_INTERPRETO | OrigenConcreto: Respuesta.codigo; Incidencia.Codigo; ResultadoProveedorIndices.Codigo; whitelist UltimoCodigo. | ReglaDePresentación: Traducir por catálogo cerrado. Si el código no está reconocido, mostrar un fallback seguro con operación y referencia; no tratarlo como éxito.",
+    "codigoProveedorTraducido": "Grupo: Código público | Disponibilidad: EXISTE_SI_EL_CONTRATO_SE_INTERPRETO | OrigenConcreto: Respuesta.codigo; Incidencia.Codigo; ResultadoProveedorIndices.Codigo; whitelist UltimoCodigo. | ReglaDePresentación: Traducir por catálogo cerrado. Si el código no está reconocido, mostrar un fallback seguro con operación y referencia; no tratarlo como éxito.",
+    "completados": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: Respuestas/checkpoints confirmados dentro de la cola o conjunto explícitamente identificado. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "componentePublico": "Grupo: Capacidad o catálogo | Disponibilidad: CONOCIDO_EN_EL_PUNTO_DE_COMPROBACION | OrigenConcreto: Tipo de selector/metadato/operación y alias lógico autorizado del contexto; presencia de webkitdirectory u otra capacidad realmente comprobada. | ReglaDePresentación: Mostrar el componente funcional, como catálogo de tipologías. Cadenas de conexión, servidor, esquema físico y nombres de tablas no autorizadas quedan fuera del mensaje operativo.",
+    "contextoPublico": "Grupo: Destino | Disponibilidad: EXISTE_TRAS_APERTURA_O_CONSULTA_AUTORIZADA | OrigenConcreto: AperturaImportacionResultado.rutaCanonica/nivelRef; EstadoLoteImportacionResultado.rutaCanonica/nivelRef. | ReglaDePresentación: El lote conserva su destino original. No usar el nodo actualmente seleccionado para reemplazarlo ni mostrar rutas documentales ajenas.",
+    "dependenciaPublica": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "destino": "Grupo: Destino | Disponibilidad: EXISTE_TRAS_APERTURA_O_CONSULTA_AUTORIZADA | OrigenConcreto: AperturaImportacionResultado.rutaCanonica/nivelRef; EstadoLoteImportacionResultado.rutaCanonica/nivelRef. | ReglaDePresentación: El lote conserva su destino original. No usar el nodo actualmente seleccionado para reemplazarlo ni mostrar rutas documentales ajenas.",
+    "documentoId": "Grupo: Identidad | Disponibilidad: DISPONIBLE_SEGUN_RECURSO_CONFIRMADO | OrigenConcreto: Campos públicos del mismo nombre en EstadoLote, RecursoConsulta, AvanceLote o Reconciliacion. archivoId/recursoId se toman del recurso seleccionado, no del nombre físico. | ReglaDePresentación: Solo mostrar identidades de la cuenta y contexto autorizados. La ausencia de respuesta no implica que no exista la identidad en el servidor.",
+    "ejemploDeFormato": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "ejemploFecha": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "ejemploValido": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "enviados": "Grupo: Transferencia | Disponibilidad: EXISTE_EN_PROGRESS_XHR_SI_ES_COMPUTABLE | OrigenConcreto: Evento upload.onprogress: loaded/total cuando lengthComputable es true. | ReglaDePresentación: Mide la petición de transporte. No equivale al tamaño del documento ni confirma almacenamiento. No inventar un porcentaje cuando el total no es computable.",
+    "estado": "Grupo: Estado | Disponibilidad: SOLO_SOLICITUD_O_LECTURA_CONFIRMADA | OrigenConcreto: Estado del recurso/lote consultado; transición solicitada y estados cerrados del modelo. | ReglaDePresentación: Distinguir solicitud local, estado observado y resultado confirmado. Un estado CREANDO no equivale a INCIERTO ni autoriza reinicio por antigüedad.",
+    "estadoActual": "Grupo: Estado | Disponibilidad: SOLO_SOLICITUD_O_LECTURA_CONFIRMADA | OrigenConcreto: Estado del recurso/lote consultado; transición solicitada y estados cerrados del modelo. | ReglaDePresentación: Distinguir solicitud local, estado observado y resultado confirmado. Un estado CREANDO no equivale a INCIERTO ni autoriza reinicio por antigüedad.",
+    "estadoSolicitado": "Grupo: Estado | Disponibilidad: SOLO_SOLICITUD_O_LECTURA_CONFIRMADA | OrigenConcreto: Estado del recurso/lote consultado; transición solicitada y estados cerrados del modelo. | ReglaDePresentación: Distinguir solicitud local, estado observado y resultado confirmado. Un estado CREANDO no equivale a INCIERTO ni autoriza reinicio por antigüedad.",
+    "etapaEsperada": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "expedienteId": "Grupo: Identidad | Disponibilidad: DISPONIBLE_SEGUN_RECURSO_CONFIRMADO | OrigenConcreto: Campos públicos del mismo nombre en EstadoLote, RecursoConsulta, AvanceLote o Reconciliacion. archivoId/recursoId se toman del recurso seleccionado, no del nombre físico. | ReglaDePresentación: Solo mostrar identidades de la cuenta y contexto autorizados. La ausencia de respuesta no implica que no exista la identidad en el servidor.",
+    "extension": "Grupo: Medida observada | Disponibilidad: REQUIERE_CONSERVAR_LA_COMPROBACION | OrigenConcreto: String.Length, tipo o extensión de la entrada comprobada; File.name/size/lastModified frente a los metadatos públicos del pendiente; resultado de una conversión validada. | ReglaDePresentación: No mostrar por defecto valores completos de claves, índices, identificación o contenido documental. Preferir longitud/tipo/formato; enumerar solo los atributos que realmente difieren.",
+    "extensionesPublicadas": "Grupo: Límite aplicable | Disponibilidad: DISPONIBLE_EN_POLITICA_O_VALIDACION | OrigenConcreto: Apertura.limites; LimitesImportacionCarpetas; Configuracion.MaximoBytesArchivo/Extensiones; regla.LongitudMaxima; máximos de creación código45/nombre120 y máximos de paginación/JSON. | ReglaDePresentación: Identificar unidad y origen del límite. Los máximos técnicos de transporte o tipos enteros no demuestran capacidad operativa de carga. Un campo no configurado no debe presentarse como máximo cero.",
+    "fasePublica": "Grupo: Fase | Disponibilidad: DISPONIBLE_SEGUN_SOLICITUD_Y_RESULTADO | OrigenConcreto: AvanzarLoteImportacionSolicitud.fase; ReconciliacionRecursoImportacionResultado.fase; resultado público de confirmación. | ReglaDePresentación: Distinguir recepción, creación, valores, almacenamiento y verificación. No deducir una fase del mensaje ERROR_INTERNO.",
+    "formatoEsperado": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "formatoSiAplica": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "formatosAdmitidos": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "fuenteActual": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "fuenteAutorizada": "Grupo: Capacidad o catálogo | Disponibilidad: CONOCIDO_EN_EL_PUNTO_DE_COMPROBACION | OrigenConcreto: Tipo de selector/metadato/operación y alias lógico autorizado del contexto; presencia de webkitdirectory u otra capacidad realmente comprobada. | ReglaDePresentación: Mostrar el componente funcional, como catálogo de tipologías. Cadenas de conexión, servidor, esquema físico y nombres de tablas no autorizadas quedan fuera del mensaje operativo.",
+    "fuentesAdmitidas": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "fuentesPermitidas": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "hora": "Grupo: Vigencia de consulta | Disponibilidad: EXISTE_EN_CLIENTE_TRAS_LECTURA_COMPLETA | OrigenConcreto: model.ultimaConsulta y consultasCompletadas del cliente al completar ConsultarLote y las páginas requeridas. | ReglaDePresentación: No presentar la hora local del último clic como hora de actualización del estado del servidor. Un fallo no debe incrementar un contador de consultas exitosas.",
+    "horaConsulta": "Grupo: Vigencia de consulta | Disponibilidad: EXISTE_EN_CLIENTE_TRAS_LECTURA_COMPLETA | OrigenConcreto: model.ultimaConsulta y consultasCompletadas del cliente al completar ConsultarLote y las páginas requeridas. | ReglaDePresentación: No presentar la hora local del último clic como hora de actualización del estado del servidor. Un fallo no debe incrementar un contador de consultas exitosas.",
+    "horaLocal": "Grupo: Vigencia de consulta | Disponibilidad: EXISTE_EN_CLIENTE_TRAS_LECTURA_COMPLETA | OrigenConcreto: model.ultimaConsulta y consultasCompletadas del cliente al completar ConsultarLote y las páginas requeridas. | ReglaDePresentación: No presentar la hora local del último clic como hora de actualización del estado del servidor. Un fallo no debe incrementar un contador de consultas exitosas.",
+    "indiceAutorizado": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "intentoIdSiExiste": "Grupo: Identidad | Disponibilidad: SOLO_RESPUESTA_O_CONSULTA_AUTORIZADA | OrigenConcreto: RecursoConsultaImportacionResultado.intentoActivoId; resultados públicos de AvanzarLote y Reconciliar; extracción validada de datos.intentoId en el API. | ReglaDePresentación: No deducir del último intento global, tiempo, nombre o código del expediente. Omitir si no existe en el contexto autorizado.",
+    "intervalo": "Grupo: Límite aplicable | Disponibilidad: DISPONIBLE_EN_POLITICA_O_VALIDACION | OrigenConcreto: Apertura.limites; LimitesImportacionCarpetas; Configuracion.MaximoBytesArchivo/Extensiones; regla.LongitudMaxima; máximos de creación código45/nombre120 y máximos de paginación/JSON. | ReglaDePresentación: Identificar unidad y origen del límite. Los máximos técnicos de transporte o tipos enteros no demuestran capacidad operativa de carga. Un campo no configurado no debe presentarse como máximo cero.",
+    "intervaloAdmitido": "Grupo: Límite aplicable | Disponibilidad: DISPONIBLE_EN_POLITICA_O_VALIDACION | OrigenConcreto: Apertura.limites; LimitesImportacionCarpetas; Configuracion.MaximoBytesArchivo/Extensiones; regla.LongitudMaxima; máximos de creación código45/nombre120 y máximos de paginación/JSON. | ReglaDePresentación: Identificar unidad y origen del límite. Los máximos técnicos de transporte o tipos enteros no demuestran capacidad operativa de carga. Un campo no configurado no debe presentarse como máximo cero.",
+    "inventarioId": "Grupo: Identidad | Disponibilidad: DISPONIBLE_SEGUN_RECURSO_CONFIRMADO | OrigenConcreto: Campos públicos del mismo nombre en EstadoLote, RecursoConsulta, AvanceLote o Reconciliacion. archivoId/recursoId se toman del recurso seleccionado, no del nombre físico. | ReglaDePresentación: Solo mostrar identidades de la cuenta y contexto autorizados. La ausencia de respuesta no implica que no exista la identidad en el servidor.",
+    "limite": "Grupo: Límite aplicable | Disponibilidad: DISPONIBLE_EN_POLITICA_O_VALIDACION | OrigenConcreto: Apertura.limites; LimitesImportacionCarpetas; Configuracion.MaximoBytesArchivo/Extensiones; regla.LongitudMaxima; máximos de creación código45/nombre120 y máximos de paginación/JSON. | ReglaDePresentación: Identificar unidad y origen del límite. Los máximos técnicos de transporte o tipos enteros no demuestran capacidad operativa de carga. Un campo no configurado no debe presentarse como máximo cero.",
+    "limitePerfil": "Grupo: Límite aplicable | Disponibilidad: DISPONIBLE_EN_POLITICA_O_VALIDACION | OrigenConcreto: Apertura.limites; LimitesImportacionCarpetas; Configuracion.MaximoBytesArchivo/Extensiones; regla.LongitudMaxima; máximos de creación código45/nombre120 y máximos de paginación/JSON. | ReglaDePresentación: Identificar unidad y origen del límite. Los máximos técnicos de transporte o tipos enteros no demuestran capacidad operativa de carga. Un campo no configurado no debe presentarse como máximo cero.",
+    "limitePublicado": "Grupo: Límite aplicable | Disponibilidad: DISPONIBLE_EN_POLITICA_O_VALIDACION | OrigenConcreto: Apertura.limites; LimitesImportacionCarpetas; Configuracion.MaximoBytesArchivo/Extensiones; regla.LongitudMaxima; máximos de creación código45/nombre120 y máximos de paginación/JSON. | ReglaDePresentación: Identificar unidad y origen del límite. Los máximos técnicos de transporte o tipos enteros no demuestran capacidad operativa de carga. Un campo no configurado no debe presentarse como máximo cero.",
+    "limites": "Grupo: Límite aplicable | Disponibilidad: DISPONIBLE_EN_POLITICA_O_VALIDACION | OrigenConcreto: Apertura.limites; LimitesImportacionCarpetas; Configuracion.MaximoBytesArchivo/Extensiones; regla.LongitudMaxima; máximos de creación código45/nombre120 y máximos de paginación/JSON. | ReglaDePresentación: Identificar unidad y origen del límite. Los máximos técnicos de transporte o tipos enteros no demuestran capacidad operativa de carga. Un campo no configurado no debe presentarse como máximo cero.",
+    "longitudEntrada": "Grupo: Medida observada | Disponibilidad: REQUIERE_CONSERVAR_LA_COMPROBACION | OrigenConcreto: String.Length, tipo o extensión de la entrada comprobada; File.name/size/lastModified frente a los metadatos públicos del pendiente; resultado de una conversión validada. | ReglaDePresentación: No mostrar por defecto valores completos de claves, índices, identificación o contenido documental. Preferir longitud/tipo/formato; enumerar solo los atributos que realmente difieren.",
+    "longitudObservada": "Grupo: Medida observada | Disponibilidad: REQUIERE_CONSERVAR_LA_COMPROBACION | OrigenConcreto: String.Length, tipo o extensión de la entrada comprobada; File.name/size/lastModified frente a los metadatos públicos del pendiente; resultado de una conversión validada. | ReglaDePresentación: No mostrar por defecto valores completos de claves, índices, identificación o contenido documental. Preferir longitud/tipo/formato; enumerar solo los atributos que realmente difieren.",
+    "loteIdConocido": "Grupo: Identidad | Disponibilidad: SOLO_TRAS_CONFIRMACION_O_CONSULTA_CONOCIDA | OrigenConcreto: ConfirmacionImportacionResultado.loteId; EstadoLoteImportacionResultado.loteId; pista local autorizada del último lote. | ReglaDePresentación: No disponible por el mero hecho de pulsar Preparar revisión. Sin lote, no ofrecer Consultar último lote como solución.",
+    "maximo": "Grupo: Límite aplicable | Disponibilidad: DISPONIBLE_EN_POLITICA_O_VALIDACION | OrigenConcreto: Apertura.limites; LimitesImportacionCarpetas; Configuracion.MaximoBytesArchivo/Extensiones; regla.LongitudMaxima; máximos de creación código45/nombre120 y máximos de paginación/JSON. | ReglaDePresentación: Identificar unidad y origen del límite. Los máximos técnicos de transporte o tipos enteros no demuestran capacidad operativa de carga. Un campo no configurado no debe presentarse como máximo cero.",
+    "maximoAplicable": "Grupo: Límite aplicable | Disponibilidad: DISPONIBLE_EN_POLITICA_O_VALIDACION | OrigenConcreto: Apertura.limites; LimitesImportacionCarpetas; Configuracion.MaximoBytesArchivo/Extensiones; regla.LongitudMaxima; máximos de creación código45/nombre120 y máximos de paginación/JSON. | ReglaDePresentación: Identificar unidad y origen del límite. Los máximos técnicos de transporte o tipos enteros no demuestran capacidad operativa de carga. Un campo no configurado no debe presentarse como máximo cero.",
+    "maximoEntrada": "Grupo: Límite aplicable | Disponibilidad: DISPONIBLE_EN_POLITICA_O_VALIDACION | OrigenConcreto: Apertura.limites; LimitesImportacionCarpetas; Configuracion.MaximoBytesArchivo/Extensiones; regla.LongitudMaxima; máximos de creación código45/nombre120 y máximos de paginación/JSON. | ReglaDePresentación: Identificar unidad y origen del límite. Los máximos técnicos de transporte o tipos enteros no demuestran capacidad operativa de carga. Un campo no configurado no debe presentarse como máximo cero.",
+    "maximoPerfil": "Grupo: Límite aplicable | Disponibilidad: DISPONIBLE_EN_POLITICA_O_VALIDACION | OrigenConcreto: Apertura.limites; LimitesImportacionCarpetas; Configuracion.MaximoBytesArchivo/Extensiones; regla.LongitudMaxima; máximos de creación código45/nombre120 y máximos de paginación/JSON. | ReglaDePresentación: Identificar unidad y origen del límite. Los máximos técnicos de transporte o tipos enteros no demuestran capacidad operativa de carga. Un campo no configurado no debe presentarse como máximo cero.",
+    "maximoPublicado": "Grupo: Límite aplicable | Disponibilidad: DISPONIBLE_EN_POLITICA_O_VALIDACION | OrigenConcreto: Apertura.limites; LimitesImportacionCarpetas; Configuracion.MaximoBytesArchivo/Extensiones; regla.LongitudMaxima; máximos de creación código45/nombre120 y máximos de paginación/JSON. | ReglaDePresentación: Identificar unidad y origen del límite. Los máximos técnicos de transporte o tipos enteros no demuestran capacidad operativa de carga. Un campo no configurado no debe presentarse como máximo cero.",
+    "medidaComprobada": "Grupo: Medida observada | Disponibilidad: REQUIERE_CONSERVAR_LA_COMPROBACION | OrigenConcreto: String.Length, tipo o extensión de la entrada comprobada; File.name/size/lastModified frente a los metadatos públicos del pendiente; resultado de una conversión validada. | ReglaDePresentación: No mostrar por defecto valores completos de claves, índices, identificación o contenido documental. Preferir longitud/tipo/formato; enumerar solo los atributos que realmente difieren.",
+    "medidaObservada": "Grupo: Medida observada | Disponibilidad: REQUIERE_CONSERVAR_LA_COMPROBACION | OrigenConcreto: String.Length, tipo o extensión de la entrada comprobada; File.name/size/lastModified frente a los metadatos públicos del pendiente; resultado de una conversión validada. | ReglaDePresentación: No mostrar por defecto valores completos de claves, índices, identificación o contenido documental. Preferir longitud/tipo/formato; enumerar solo los atributos que realmente difieren.",
+    "medidasLocales": "Grupo: Medida observada | Disponibilidad: REQUIERE_CONSERVAR_LA_COMPROBACION | OrigenConcreto: String.Length, tipo o extensión de la entrada comprobada; File.name/size/lastModified frente a los metadatos públicos del pendiente; resultado de una conversión validada. | ReglaDePresentación: No mostrar por defecto valores completos de claves, índices, identificación o contenido documental. Preferir longitud/tipo/formato; enumerar solo los atributos que realmente difieren.",
+    "motivoConfiguracionCerrado": "Grupo: Causa y certeza | Disponibilidad: REQUIERE_DESGLOSE_O_CHECKPOINT_SEGUN_CASO | OrigenConcreto: Predicado exacto de la guarda o catch; código específico de incidencia; estado y evidencia durables del intento. La mayoría de fábricas actuales solo transmiten un código general. | ReglaDePresentación: Crear motivos cerrados y comprobados. Distinguir NO_INICIADO_COMPROBADO, CONFIRMADO, RECHAZADO y RESULTADO_INCIERTO. No fabricar la causa a partir de un texto ni reenviar ex.Message/SQL/stack.",
+    "motivoPublico": "Grupo: Causa y certeza | Disponibilidad: REQUIERE_DESGLOSE_O_CHECKPOINT_SEGUN_CASO | OrigenConcreto: Predicado exacto de la guarda o catch; código específico de incidencia; estado y evidencia durables del intento. La mayoría de fábricas actuales solo transmiten un código general. | ReglaDePresentación: Crear motivos cerrados y comprobados. Distinguir NO_INICIADO_COMPROBADO, CONFIRMADO, RECHAZADO y RESULTADO_INCIERTO. No fabricar la causa a partir de un texto ni reenviar ex.Message/SQL/stack.",
+    "motivoPublicoVerificado": "Grupo: Causa y certeza | Disponibilidad: REQUIERE_DESGLOSE_O_CHECKPOINT_SEGUN_CASO | OrigenConcreto: Predicado exacto de la guarda o catch; código específico de incidencia; estado y evidencia durables del intento. La mayoría de fábricas actuales solo transmiten un código general. | ReglaDePresentación: Crear motivos cerrados y comprobados. Distinguir NO_INICIADO_COMPROBADO, CONFIRMADO, RECHAZADO y RESULTADO_INCIERTO. No fabricar la causa a partir de un texto ni reenviar ex.Message/SQL/stack.",
+    "motivoValidadoRevisionOPublicacion": "Grupo: Causa y certeza | Disponibilidad: REQUIERE_DESGLOSE_O_CHECKPOINT_SEGUN_CASO | OrigenConcreto: Predicado exacto de la guarda o catch; código específico de incidencia; estado y evidencia durables del intento. La mayoría de fábricas actuales solo transmiten un código general. | ReglaDePresentación: Crear motivos cerrados y comprobados. Distinguir NO_INICIADO_COMPROBADO, CONFIRMADO, RECHAZADO y RESULTADO_INCIERTO. No fabricar la causa a partir de un texto ni reenviar ex.Message/SQL/stack.",
+    "nivelRef": "Grupo: Identidad | Disponibilidad: DISPONIBLE_SEGUN_RECURSO_CONFIRMADO | OrigenConcreto: Campos públicos del mismo nombre en EstadoLote, RecursoConsulta, AvanceLote o Reconciliacion. archivoId/recursoId se toman del recurso seleccionado, no del nombre físico. | ReglaDePresentación: Solo mostrar identidades de la cuenta y contexto autorizados. La ausencia de respuesta no implica que no exista la identidad en el servidor.",
+    "nombreArchivo": "Grupo: Recurso visible | Disponibilidad: EXISTE_EN_MANIFIESTO_O_PAGINA_AUTORIZADA | OrigenConcreto: Manifiesto.raices[].nombre; manifiesto.archivos[].nombre/rutaRelativa; recurso.nombre; File.name al seleccionar o reseleccionar. | ReglaDePresentación: Usar textContent. No mostrar rutas absolutas del equipo, contenido de documentos ni nombres obtenidos buscando recursos ajenos. Para listas, limitar longitud y cantidad.",
+    "nombreDato": "Grupo: Recurso contextual | Disponibilidad: CONOCIDO_SEGUN_FORMULARIO | OrigenConcreto: Fila/versión/recurso sobre el que se pulsó la acción, con los identificadores que ya conserva el formulario y el resultado público. | ReglaDePresentación: Nombrar el tipo y su referencia conocida. No completar el dato mediante búsquedas por nombre ni informar existencia de recursos que la autorización no permita ver.",
+    "nombreTamanoFechaAutorizados": "Grupo: Medida observada | Disponibilidad: REQUIERE_CONSERVAR_LA_COMPROBACION | OrigenConcreto: String.Length, tipo o extensión de la entrada comprobada; File.name/size/lastModified frente a los metadatos públicos del pendiente; resultado de una conversión validada. | ReglaDePresentación: No mostrar por defecto valores completos de claves, índices, identificación o contenido documental. Preferir longitud/tipo/formato; enumerar solo los atributos que realmente difieren.",
+    "numeroConsulta": "Grupo: Vigencia de consulta | Disponibilidad: EXISTE_EN_CLIENTE_TRAS_LECTURA_COMPLETA | OrigenConcreto: model.ultimaConsulta y consultasCompletadas del cliente al completar ConsultarLote y las páginas requeridas. | ReglaDePresentación: No presentar la hora local del último clic como hora de actualización del estado del servidor. Un fallo no debe incrementar un contador de consultas exitosas.",
+    "numeroFila": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "numeroRegla": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "opcionesPublicas": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "pagina": "Grupo: Consulta y filtros | Disponibilidad: EXISTE_EN_PETICION_Y_MODELO_LOCAL | OrigenConcreto: Solicitudes de página y filtros aplicados; pagina/tamanoPagina; filtrosArchivos/filtrosRaices; término de búsqueda del editor. | ReglaDePresentación: Distinguir filtros aplicados de borradores. Mostrar la página solicitada incluso si queda vacía; no cambiarla automáticamente ni prometer exportación total del lote.",
+    "pendientes": "Grupo: Conteo y ámbito | Disponibilidad: PUEDE_REQUERIR_PROYECCION_AGREGADA | OrigenConcreto: Agregado de pendientes del ámbito completo; distinguir de pendientes seleccionados en una cola. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "perfil": "Grupo: Configuración seleccionada | Disponibilidad: EXISTE_SI_HAY_SELECCION_O_EDICION | OrigenConcreto: Apertura.perfiles y perfil.Configuracion.NombreVisible/VersionId/NumeroVersion; DocumentoProveedorAdmin y selección guardada del editor. | ReglaDePresentación: Usar nombre visible y número/referencia de la versión seleccionada. Una versión nueva no modifica el snapshot del lote anterior.",
+    "planIdConocido": "Grupo: Identidad | Disponibilidad: SOLO_SI_SE_CONSERVA_REFERENCIA_VALIDA | OrigenConcreto: PreparacionImportacionResultado.planId; session.confirming.planId; host.doc111ConfirmacionPendiente.planId. | ReglaDePresentación: Si hubo confirmación sin respuesta, usar ese plan para ConsultarConfirmacionLote. No inventar una referencia cuando falló la preparación sin devolverla.",
+    "politica": "Grupo: Integridad | Disponibilidad: EXISTE_EN_PERFIL_Y_SNAPSHOT_DEL_LOTE | OrigenConcreto: Configuracion.ModoIntegridad/AmbitoIntegridad/PoliticaCoincidencias; EstadoLote.modoIntegridad/ambitoIntegridad. | ReglaDePresentación: Distinguir EXPEDIENTE, LOTE y PARCIAL. Por lote exige el ámbito completo, no un único expediente base ni una selección parcial de la página.",
+    "porcentaje": "Grupo: Transferencia | Disponibilidad: EXISTE_EN_PROGRESS_XHR_SI_ES_COMPUTABLE | OrigenConcreto: Evento upload.onprogress: loaded/total cuando lengthComputable es true. | ReglaDePresentación: Mide la petición de transporte. No equivale al tamaño del documento ni confirma almacenamiento. No inventar un porcentaje cuando el total no es computable.",
+    "posicion": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: Índice actual más1 de la cola capturada, junto al total de esa misma cola. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "propiedad": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "propiedadOColumnaAutorizada": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "proveedor": "Grupo: Configuración seleccionada | Disponibilidad: EXISTE_SI_HAY_SELECCION_O_EDICION | OrigenConcreto: Apertura.perfiles y perfil.Configuracion.NombreVisible/VersionId/NumeroVersion; DocumentoProveedorAdmin y selección guardada del editor. | ReglaDePresentación: Usar nombre visible y número/referencia de la versión seleccionada. Una versión nueva no modifica el snapshot del lote anterior.",
+    "rangoOLista": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "recibidos": "Grupo: Conteo y ámbito | Disponibilidad: PUEDE_REQUERIR_PROYECCION_AGREGADA | OrigenConcreto: Agregado confirmado del ámbito; el estado público actual no siempre lo devuelve. No inferirlo de una página. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "recurso": "Grupo: Recurso contextual | Disponibilidad: CONOCIDO_SEGUN_FORMULARIO | OrigenConcreto: Fila/versión/recurso sobre el que se pulsó la acción, con los identificadores que ya conserva el formulario y el resultado público. | ReglaDePresentación: Nombrar el tipo y su referencia conocida. No completar el dato mediante búsquedas por nombre ni informar existencia de recursos que la autorización no permita ver.",
+    "recursoAdministrativo": "Grupo: Recurso contextual | Disponibilidad: CONOCIDO_SEGUN_FORMULARIO | OrigenConcreto: Fila/versión/recurso sobre el que se pulsó la acción, con los identificadores que ya conserva el formulario y el resultado público. | ReglaDePresentación: Nombrar el tipo y su referencia conocida. No completar el dato mediante búsquedas por nombre ni informar existencia de recursos que la autorización no permita ver.",
+    "recursoConocido": "Grupo: Recurso contextual | Disponibilidad: CONOCIDO_SEGUN_FORMULARIO | OrigenConcreto: Fila/versión/recurso sobre el que se pulsó la acción, con los identificadores que ya conserva el formulario y el resultado público. | ReglaDePresentación: Nombrar el tipo y su referencia conocida. No completar el dato mediante búsquedas por nombre ni informar existencia de recursos que la autorización no permita ver.",
+    "recursoId": "Grupo: Identidad | Disponibilidad: DISPONIBLE_SEGUN_RECURSO_CONFIRMADO | OrigenConcreto: Campos públicos del mismo nombre en EstadoLote, RecursoConsulta, AvanceLote o Reconciliacion. archivoId/recursoId se toman del recurso seleccionado, no del nombre físico. | ReglaDePresentación: Solo mostrar identidades de la cuenta y contexto autorizados. La ausencia de respuesta no implica que no exista la identidad en el servidor.",
+    "referenciaConocida": "Grupo: Recurso contextual | Disponibilidad: CONOCIDO_SEGUN_FORMULARIO | OrigenConcreto: Fila/versión/recurso sobre el que se pulsó la acción, con los identificadores que ya conserva el formulario y el resultado público. | ReglaDePresentación: Nombrar el tipo y su referencia conocida. No completar el dato mediante búsquedas por nombre ni informar existencia de recursos que la autorización no permita ver.",
+    "reglaDeClave": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "reglaPublica": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "reglasDuplicadas": "Grupo: Campo y regla | Disponibilidad: EXISTE_EN_VALIDACION_PERO_PUEDE_PERDERSE | OrigenConcreto: IncidenciaPerfilImportacion.Campo y Codigo; ReglaPerfilImportacion.DestinoTipo/DestinoRef/Orden/Proveedor/PropiedadExpediente; campo del formulario o catálogo ya autorizado. | ReglaDePresentación: Conservar la referencia junto al error y traducirla a un nombre legible. En una fábrica de excepción sin incidencias hay que capturar primero qué predicado falló. No revelar columnas no autorizadas.",
+    "relacionNivelId": "Grupo: Identidad | Disponibilidad: DISPONIBLE_SEGUN_RECURSO_CONFIRMADO | OrigenConcreto: Campos públicos del mismo nombre en EstadoLote, RecursoConsulta, AvanceLote o Reconciliacion. archivoId/recursoId se toman del recurso seleccionado, no del nombre físico. | ReglaDePresentación: Solo mostrar identidades de la cuenta y contexto autorizados. La ausencia de respuesta no implica que no exista la identidad en el servidor.",
+    "resumenFiltros": "Grupo: Consulta y filtros | Disponibilidad: EXISTE_EN_PETICION_Y_MODELO_LOCAL | OrigenConcreto: Solicitudes de página y filtros aplicados; pagina/tamanoPagina; filtrosArchivos/filtrosRaices; término de búsqueda del editor. | ReglaDePresentación: Distinguir filtros aplicados de borradores. Mostrar la página solicitada incluso si queda vacía; no cambiarla automáticamente ni prometer exportación total del lote.",
+    "revisionLote": "Grupo: Revisión | Disponibilidad: ESPERADA_EXISTE_ACTUAL_REQUIERE_LECTURA | OrigenConcreto: Solicitud.revisionEsperada/revisionLoteEsperada; EstadoLote.revision y RecursoConsulta.revision; revisión de perfil/fuente/proveedor obtenida en lectura autorizada. | ReglaDePresentación: Una revisión nueva debe proceder de una consulta válida. No inventarla en una respuesta genérica de conflicto ni levantar una detención posterior usando una revisión vieja.",
+    "selector": "Grupo: Capacidad o catálogo | Disponibilidad: CONOCIDO_EN_EL_PUNTO_DE_COMPROBACION | OrigenConcreto: Tipo de selector/metadato/operación y alias lógico autorizado del contexto; presencia de webkitdirectory u otra capacidad realmente comprobada. | ReglaDePresentación: Mostrar el componente funcional, como catálogo de tipologías. Cadenas de conexión, servidor, esquema físico y nombres de tablas no autorizadas quedan fuera del mensaje operativo.",
+    "separadorVisible": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "tamano": "Grupo: Consulta y filtros | Disponibilidad: EXISTE_EN_PETICION_Y_MODELO_LOCAL | OrigenConcreto: Solicitudes de página y filtros aplicados; pagina/tamanoPagina; filtrosArchivos/filtrosRaices; término de búsqueda del editor. | ReglaDePresentación: Distinguir filtros aplicados de borradores. Mostrar la página solicitada incluso si queda vacía; no cambiarla automáticamente ni prometer exportación total del lote.",
+    "terminoSeguro": "Grupo: Consulta y filtros | Disponibilidad: EXISTE_EN_PETICION_Y_MODELO_LOCAL | OrigenConcreto: Solicitudes de página y filtros aplicados; pagina/tamanoPagina; filtrosArchivos/filtrosRaices; término de búsqueda del editor. | ReglaDePresentación: Distinguir filtros aplicados de borradores. Mostrar la página solicitada incluso si queda vacía; no cambiarla automáticamente ni prometer exportación total del lote.",
+    "tipo": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "tipoActual": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "tipoClave": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "tipoEsperado": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "tipoLimite": "Grupo: Límite aplicable | Disponibilidad: DISPONIBLE_EN_POLITICA_O_VALIDACION | OrigenConcreto: Apertura.limites; LimitesImportacionCarpetas; Configuracion.MaximoBytesArchivo/Extensiones; regla.LongitudMaxima; máximos de creación código45/nombre120 y máximos de paginación/JSON. | ReglaDePresentación: Identificar unidad y origen del límite. Los máximos técnicos de transporte o tipos enteros no demuestran capacidad operativa de carga. Un campo no configurado no debe presentarse como máximo cero.",
+    "tipoMetadato": "Grupo: Capacidad o catálogo | Disponibilidad: CONOCIDO_EN_EL_PUNTO_DE_COMPROBACION | OrigenConcreto: Tipo de selector/metadato/operación y alias lógico autorizado del contexto; presencia de webkitdirectory u otra capacidad realmente comprobada. | ReglaDePresentación: Mostrar el componente funcional, como catálogo de tipologías. Cadenas de conexión, servidor, esquema físico y nombres de tablas no autorizadas quedan fuera del mensaje operativo.",
+    "tipoOFormato": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "tipoOLimite": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "tipoPublico": "Grupo: Capacidad o catálogo | Disponibilidad: CONOCIDO_EN_EL_PUNTO_DE_COMPROBACION | OrigenConcreto: Tipo de selector/metadato/operación y alias lógico autorizado del contexto; presencia de webkitdirectory u otra capacidad realmente comprobada. | ReglaDePresentación: Mostrar el componente funcional, como catálogo de tipologías. Cadenas de conexión, servidor, esquema físico y nombres de tablas no autorizadas quedan fuera del mensaje operativo.",
+    "tipoResultado": "Grupo: Fase | Disponibilidad: DISPONIBLE_SEGUN_SOLICITUD_Y_RESULTADO | OrigenConcreto: AvanzarLoteImportacionSolicitud.fase; ReconciliacionRecursoImportacionResultado.fase; resultado público de confirmación. | ReglaDePresentación: Distinguir recepción, creación, valores, almacenamiento y verificación. No deducir una fase del mensaje ERROR_INTERNO.",
+    "tiposPermitidos": "Grupo: Requisito esperado | Disponibilidad: DISPONIBLE_EN_REGLA_CONTRATO_O_CATALOGO | OrigenConcreto: ReglaPerfilImportacion.TipoValor/FormatoFecha/Extraccion/Separador/Posicion/LongitudMaxima/Obligatoria/FuenteTipo; Proveedor.Clave; listas cerradas de validación. | ReglaDePresentación: Mostrar formato o límite, con ejemplos ficticios. Posicion es base 0 en contrato y base 1 en UI. No aplicar al valor canónico de fecha el límite corto de su entrada original.",
+    "totalArchivos": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: Lote.totalArchivos o manifiesto.archivos.length según fase; indicar el inventario original. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "totalCola": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: Longitud de los elementos elegibles capturados al iniciar enviarCola; no total original. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "totalFiltrado": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: PaginaConsulta.totalFiltrado de la consulta y filtros actuales. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "totalOriginal": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: PaginaConsulta.totalOriginal, para el tipo RAICES/ARCHIVOS solicitado. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "totalRaices": "Grupo: Conteo y ámbito | Disponibilidad: EXISTE_EN_CONTEXTO_SEGUN_AMBITO | OrigenConcreto: Lote.totalRaices o manifiesto.raices.length según fase; no confundir con carpetas de la página. | ReglaDePresentación: Nombrar siempre si se cuenta una página filtrada, una cola, una carpeta o todo el lote. No extrapolar páginas ni contar inciertos como fallidos.",
+    "totalSolicitud": "Grupo: Transferencia | Disponibilidad: EXISTE_EN_PROGRESS_XHR_SI_ES_COMPUTABLE | OrigenConcreto: Evento upload.onprogress: loaded/total cuando lengthComputable es true. | ReglaDePresentación: Mide la petición de transporte. No equivale al tamaño del documento ni confirma almacenamiento. No inventar un porcentaje cuando el total no es computable.",
+    "version": "Grupo: Configuración seleccionada | Disponibilidad: EXISTE_SI_HAY_SELECCION_O_EDICION | OrigenConcreto: Apertura.perfiles y perfil.Configuracion.NombreVisible/VersionId/NumeroVersion; DocumentoProveedorAdmin y selección guardada del editor. | ReglaDePresentación: Usar nombre visible y número/referencia de la versión seleccionada. Una versión nueva no modifica el snapshot del lote anterior.",
+    "versionProveedor": "Grupo: Configuración seleccionada | Disponibilidad: EXISTE_SI_HAY_SELECCION_O_EDICION | OrigenConcreto: Apertura.perfiles y perfil.Configuracion.NombreVisible/VersionId/NumeroVersion; DocumentoProveedorAdmin y selección guardada del editor. | ReglaDePresentación: Usar nombre visible y número/referencia de la versión seleccionada. Una versión nueva no modifica el snapshot del lote anterior."
+  },
+  "files": [
+    {
+      "file": "DTOs/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasDtos.vb",
+      "lines": 325,
+      "sha256Lf": "90885f361f69eb26450226c351fee4c7a3573293529d4cd917b919c427cfaa98",
+      "literals": 1
+    },
+    {
+      "file": "DTOs/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionDtos.vb",
+      "lines": 96,
+      "sha256Lf": "3bf3b5b52193849d3531f988aef47f01bb4de0bea89af8611442c91c2e93c35b",
+      "literals": 0
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb",
+      "lines": 48,
+      "sha256Lf": "fa2b76448f451c7b5633f81406b08a47ed0cfe10fd7de2ed8e8058368c12d741",
+      "literals": 9
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.ProtocoloV2.vb",
+      "lines": 148,
+      "sha256Lf": "9f5a425b57b1be1d48e8e16c4aa743d60491c545f54b4bf636a7696e50732291",
+      "literals": 24
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.vb",
+      "lines": 94,
+      "sha256Lf": "2c5e25c1ebcb3efeaa913c6d37c785390d934ced21b8b1ad1546ee5f080107f0",
+      "literals": 11
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorExpedienteImportacion.Legacy.vb",
+      "lines": 55,
+      "sha256Lf": "3b65c2de5b0d7aae2c9a6a1fb2c8876ffb9bc675213a40e9cfad84d55ffbb045",
+      "literals": 14
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorExpedienteImportacion.vb",
+      "lines": 93,
+      "sha256Lf": "d45cbe7722222453f203984f76279694de5335b93a60eb6f06c85d8450bd1499",
+      "literals": 17
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorPerfilImportacionOperativa.vb",
+      "lines": 77,
+      "sha256Lf": "04a9e125d21d73a911fac048833caaf30bcf573236f52d8dab915c93b140c40e",
+      "literals": 11
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.Limpieza.vb",
+      "lines": 77,
+      "sha256Lf": "4e76543a433f40f40b83d1ef922b58d2ce6b8197e7b31188d049a11b268ee679",
+      "literals": 3
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.Recuperacion.vb",
+      "lines": 257,
+      "sha256Lf": "6dad369137a48a16accc34083c726aa139ddd96805a40de003077fc05a7f0600",
+      "literals": 5
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.vb",
+      "lines": 366,
+      "sha256Lf": "7e4ddc9f4867dccd8057b98f9410dfe63a5f9d92ab6d801ba9d477cae7d819ed",
+      "literals": 32
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoAlmacenamientoCarpetas.vb",
+      "lines": 176,
+      "sha256Lf": "6021e84e2a903bb8c4a345cfd491651f32f0d06301069367f8cffce84ae32aa0",
+      "literals": 59
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoCreacionExpedienteImportacion.vb",
+      "lines": 162,
+      "sha256Lf": "8112c690278ed66da03e8f12711f137ab8f71ba543f3d5ba7ae71bdef6a4673b",
+      "literals": 80
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionCreacionImportacion.vb",
+      "lines": 33,
+      "sha256Lf": "271246a06e1e46e53c63f0f4203d13232d2be28210015b80dec61869745f190e",
+      "literals": 6
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionDocumentoImportacion.vb",
+      "lines": 34,
+      "sha256Lf": "9bac29e512e92fa11ba4f2b948e527a9ec90099253ad6a0fd444c115d625c3f0",
+      "literals": 4
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionLimpiezaOriginalImportacion.vb",
+      "lines": 49,
+      "sha256Lf": "db36e5cffe648b5a97504ef3d61ae41be637ec2e4ffdc84a1cfee9811889e2f8",
+      "literals": 8
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionPerfilImportacionOperativa.vb",
+      "lines": 34,
+      "sha256Lf": "246c12349226c14587dd440ba68b5be86e045931a92501307291a2d34fee1c83",
+      "literals": 4
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionReconciliacionImportacion.vb",
+      "lines": 62,
+      "sha256Lf": "7f14345b6fae94e57fbc7f4dbc9963175609948c632c1e23150ceea0b5fc0531",
+      "literals": 14
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasContextAdapter.vb",
+      "lines": 229,
+      "sha256Lf": "7289a08734512a2f834502223ee838a4ffebe1b36ce7f02989c001e0f4754072",
+      "literals": 37
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasRequestGuard.vb",
+      "lines": 153,
+      "sha256Lf": "63b5f33e553eae0b82336f3380717f015cef25c29fdfe3de12733409f780203c",
+      "literals": 19
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MetadatosFuenteImportacion.vb",
+      "lines": 88,
+      "sha256Lf": "471bdc8bac95705cda722103e3a12f221996d7cbac016dbae37b40aafb3cebc8",
+      "literals": 34
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MetadatosProveedorIndices.vb",
+      "lines": 55,
+      "sha256Lf": "0736322a724ce2dc4efebc652ba196a68a8ba44c2b19861ff1b2f6b7dc7f8ac8",
+      "literals": 23
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorDatosIndices.vb",
+      "lines": 153,
+      "sha256Lf": "19e8374e8987e0c8c68debbbf06a79efc1756e88fe953265ac08e175be4f05d1",
+      "literals": 46
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.Creacion.vb",
+      "lines": 97,
+      "sha256Lf": "7219f128ac3ba636eb00c1b69223ddf25ee246c04c07542a68df997c46ba0b42",
+      "literals": 24
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.Documento.vb",
+      "lines": 127,
+      "sha256Lf": "92ad880f5eeb2d9c51d9ce5f352953d8c849da7e73a113bbaf345c1b0fc4c8ad",
+      "literals": 16
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.RecuperacionV2.vb",
+      "lines": 32,
+      "sha256Lf": "bfe7b9f4fddc358ca9a8b4289b9597226ebf24f95e9ee22e329e401bf67e46f9",
+      "literals": 1
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.vb",
+      "lines": 347,
+      "sha256Lf": "51a29d37cec1764f359b53126190e2235d5f00c59acdfb1cbdb02257e49afdb4",
+      "literals": 115
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionContextAdapter.vb",
+      "lines": 97,
+      "sha256Lf": "d675689fda4fcb8586459e43f7fe4be44457827e4210f0a869e7dac443a23eb6",
+      "literals": 14
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionRequestGuard.vb",
+      "lines": 73,
+      "sha256Lf": "fcc2f58ffa6136a9eb002e3d02a1001502ed500fe1a0b0502d69e33c8f411916",
+      "literals": 5
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PersistenciaDocumentoV2Importacion.vb",
+      "lines": 32,
+      "sha256Lf": "809fa113539d43822c13ebc48697ca805dd9b4d6d545f2c885f3773fa38ff794",
+      "literals": 0
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PoliticaFuentesProveedor.vb",
+      "lines": 69,
+      "sha256Lf": "72aa90ad98c574391c735777f6ca0198c5756d00b8e7c76a890603cc87877203",
+      "literals": 6
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/RestriccionTablasFuente.vb",
+      "lines": 37,
+      "sha256Lf": "36ef0ab56c8b10fac704ac01dcee713f1821aae1cbdd8865cdba9e48be6cbdad",
+      "literals": 2
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ValidadorAdministracionProveedor.vb",
+      "lines": 63,
+      "sha256Lf": "dccd39f7b5cf8503163824fafc4dca86fc7ca3bc7aefe248faa73fdb73f081a1",
+      "literals": 15
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/VerificadorReconciliacionImportacion.vb",
+      "lines": 35,
+      "sha256Lf": "73615e518e26397c77f15aabe04ddf045538072d23cdbe18cf4f5636522355ca",
+      "literals": 3
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlAdministracionProveedorRepository.vb",
+      "lines": 141,
+      "sha256Lf": "f1789554aaa0015fa3ea82d3f98843ee3de6144046772a94b65fc79478fe5b73",
+      "literals": 27
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlFuenteImportacionRepository.vb",
+      "lines": 181,
+      "sha256Lf": "23ac10ea390824a516edde34015bd82279525fa9509e7df93eab19c41e3484c5",
+      "literals": 24
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Barreras.vb",
+      "lines": 74,
+      "sha256Lf": "3c9c4a5bdbd7793f1f400ace85a97c2fc944757cd74eabb1a06ac7f02a2f9537",
+      "literals": 4
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consolidacion.vb",
+      "lines": 84,
+      "sha256Lf": "b81979923f59f2a356b44882ed46f7903229d63ac707871df511916b3df8bc23",
+      "literals": 10
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consulta.vb",
+      "lines": 153,
+      "sha256Lf": "0dd2dc30d9756310c605ab98bb56415ba14571245b1c08cbc2007a65ff3a6080",
+      "literals": 23
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Control.vb",
+      "lines": 207,
+      "sha256Lf": "4927b4083209b355ca401fde8d31884c0c73a97532e42e40ea249f6b6d1bb788",
+      "literals": 63
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Documento.vb",
+      "lines": 117,
+      "sha256Lf": "fde8a4441f1ea4f95c794246e658b65c9e08069fefe9e9a0b8477db57b6fc9ef",
+      "literals": 40
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.DocumentoV2.vb",
+      "lines": 195,
+      "sha256Lf": "aeefc2f839eb8ab8ab8383511c769af379d3bfab5a76bf3c72ae48dd10845e4b",
+      "literals": 71
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Limpieza.vb",
+      "lines": 87,
+      "sha256Lf": "1d1864a124027656705469fdfd0c019d32b24e7401dd745699d7032ea688a324",
+      "literals": 9
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Reanudacion.vb",
+      "lines": 97,
+      "sha256Lf": "74ccc77ebf88c54da358cfe62d9fc5b87c3c53426d7e2517a11eeccdbe05031b",
+      "literals": 9
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Reconciliacion.vb",
+      "lines": 147,
+      "sha256Lf": "de98ba5dad27feee03a3425273fc595403fb3c84089e2c1af20dd4ddf8b25f7b",
+      "literals": 39
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.RecuperacionV2.vb",
+      "lines": 155,
+      "sha256Lf": "7cb19af1738252ff456907d6c545297e1803a502741e783108c35ae9a5bc5bc0",
+      "literals": 28
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ResultadoCreacion.vb",
+      "lines": 102,
+      "sha256Lf": "2ed13bc65c81ac03fa9ff6545bb0b00a34b2758eb97f234ad39a5fa898daf07c",
+      "literals": 35
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Valores.vb",
+      "lines": 86,
+      "sha256Lf": "9f1eb2a54ee315d99cab6ed8edbab5c1c94551fd6ffdbc8461dd0c771fc79372",
+      "literals": 16
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Verificacion.vb",
+      "lines": 108,
+      "sha256Lf": "63c20d2e893ba0fb14abc489ed2dbfe788a979dd3a5f6021a7c81f5e73b461b0",
+      "literals": 6
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.vb",
+      "lines": 1037,
+      "sha256Lf": "87218c12c533cdba071be7c430783342e0a05cd18fc701bf8c9ad42f938b4709",
+      "literals": 200
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlPerfilImportacionRepository.vb",
+      "lines": 475,
+      "sha256Lf": "f65fe009939e183ffb465159867b14268c6221db350ee75422bdc3b88898bd19",
+      "literals": 49
+    },
+    {
+      "file": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorIndicesRepository.vb",
+      "lines": 95,
+      "sha256Lf": "2b924164324d791697a30fd1e0c37e8f8f1510d228dd301a978c158ee9007e62",
+      "literals": 18
+    },
+    {
+      "file": "Modelo/ProduccionDocumental/ImportacionCarpetas/AdministracionProveedorModels.vb",
+      "lines": 42,
+      "sha256Lf": "8c720bf34924c3e82be66961bd210bf3144dea48388ed52639880f9348f35efc",
+      "literals": 1
+    },
+    {
+      "file": "Modelo/ProduccionDocumental/ImportacionCarpetas/DocumentosAlmacenamientoV2Importacion.vb",
+      "lines": 206,
+      "sha256Lf": "ba94df1c587e466c09ae1c41bb1f55f10822cc8daad12f2117990b11115e22fc",
+      "literals": 29
+    },
+    {
+      "file": "Modelo/ProduccionDocumental/ImportacionCarpetas/FuenteImportacionModels.vb",
+      "lines": 40,
+      "sha256Lf": "11d4cdcb3472939da75f8bbded704f389f4b791773b78fdc8d25b3ebb102e57f",
+      "literals": 0
+    },
+    {
+      "file": "Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasInterfaces.vb",
+      "lines": 111,
+      "sha256Lf": "8cddf61ad6a0cfadd89b921d1aea738cbf3c9c9f67f273ed255edbd2a7023de6",
+      "literals": 0
+    },
+    {
+      "file": "Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasModels.vb",
+      "lines": 385,
+      "sha256Lf": "7451df9499febd1903230b82b26751b61554ab639f39287c88a1698c3ec2e541",
+      "literals": 38
+    },
+    {
+      "file": "Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasStagingV2Interfaces.vb",
+      "lines": 22,
+      "sha256Lf": "67035bc0209b38a828d6c957e88beaa75292a98d5c10c3f1da82a07e66c0cd3e",
+      "literals": 0
+    },
+    {
+      "file": "Modelo/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionInterfaces.vb",
+      "lines": 46,
+      "sha256Lf": "959ae8c5f2282a1d4dbcfd72382cacfba01b39cb5b39313874cd4806c98314c7",
+      "literals": 0
+    },
+    {
+      "file": "Modelo/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionModels.vb",
+      "lines": 156,
+      "sha256Lf": "c2ebcc405d00d49c4d3e3bb18833206fe117544b3aac55a174b36a00d73811c4",
+      "literals": 5
+    },
+    {
+      "file": "Modelo/ProduccionDocumental/ImportacionCarpetas/ProveedorIndicesModels.vb",
+      "lines": 87,
+      "sha256Lf": "6b6764989f5e1d741dd0cf86ad1c7ce48c6283f6e684a84294e6b49d8d82d51d",
+      "literals": 6
+    },
+    {
+      "file": "Modelo/ProduccionDocumental/ImportacionCarpetas/RecuperacionDocumentoV2Importacion.vb",
+      "lines": 21,
+      "sha256Lf": "70ccfad4a1cea69d7dc7d255f17cbfa4356a9fd40022bc0d546f22ac1210241e",
+      "literals": 0
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CanonizadorManifiestoImportacion.vb",
+      "lines": 100,
+      "sha256Lf": "1a1ff85332833eb5e6050dd1d4c91e2e67505b331bd49a8f4b760c95ba240b68",
+      "literals": 13
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Barreras.vb",
+      "lines": 113,
+      "sha256Lf": "e7db7e6087b4faa24856ad4e2715971925628789fc302cc12582e3edeb7e7290",
+      "literals": 31
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Consolidacion.vb",
+      "lines": 180,
+      "sha256Lf": "5c7c32a947771df977cb9b5593d2feb5bfcc6ecd5337741917d93a0ff5f1460f",
+      "literals": 73
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Creacion.vb",
+      "lines": 129,
+      "sha256Lf": "9ee71e3ca0e0612c6bd670a62ab94c06d6b3bc099f8fe85b52bcd4e9eab4d94f",
+      "literals": 24
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Documento.vb",
+      "lines": 137,
+      "sha256Lf": "7ffafac76b93aadf4caced13b48051490202185caad24abbe93fb83ed74816e7",
+      "literals": 22
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Operaciones.vb",
+      "lines": 59,
+      "sha256Lf": "f3e83695b9b6a04e0af3bdfdc87896c0d777d46394706ea48a85d01624bfcbb8",
+      "literals": 22
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Reanudacion.vb",
+      "lines": 52,
+      "sha256Lf": "34c62f448707ccd348d0d523251743abdfc09eee0569a5cb506aaa75fef19999",
+      "literals": 12
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Reconciliacion.vb",
+      "lines": 122,
+      "sha256Lf": "b02bf718b51c663336b372672054601b41630271a8e1455c2c6014005f3962ba",
+      "literals": 42
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.RecuperacionV2.vb",
+      "lines": 109,
+      "sha256Lf": "b15f9331376863e250b9d31ad6650c6ae9f7e195e73dfefb43480740eebcce45",
+      "literals": 15
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Staging.vb",
+      "lines": 123,
+      "sha256Lf": "09a0779b9eb189bc830e18d606da30767e6f764d4ab6c5af577404fe61607809",
+      "literals": 23
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Valores.vb",
+      "lines": 154,
+      "sha256Lf": "cee808a58137b3a6de8c91321523744671e7de7d13093e3eec60aecc8837f002",
+      "literals": 26
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.vb",
+      "lines": 102,
+      "sha256Lf": "5eb85254548bad7b8e918de7c82e40a095db67213060b7556edb9ff6d996018a",
+      "literals": 14
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorProveedorIndices.vb",
+      "lines": 148,
+      "sha256Lf": "1affef605dfa60cc477fffdbe71c37cebd7d23f2b2812405e8a36f5e537c2e85",
+      "literals": 46
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/LimitesImportacionCarpetas.vb",
+      "lines": 59,
+      "sha256Lf": "ad3bf7894a4481a665883735897c3cf781d08e442806d84fa074a8ade7d3f666",
+      "literals": 4
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionJson.vb",
+      "lines": 130,
+      "sha256Lf": "0d623b1667e280e3005e2055a27abec3b8fdae44cde5a9463f50f6145b8ce9d3",
+      "literals": 13
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ReglasFuenteImportacion.vb",
+      "lines": 38,
+      "sha256Lf": "9e8455a90769b90a84863a0b0abb9385afa9d2a8ac49c0be0748c97ac63f8a4d",
+      "literals": 22
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ReglasProveedorIndices.vb",
+      "lines": 32,
+      "sha256Lf": "fe671d512799a02bef90bbb1c104fb6314b099182336e5137c1043592f864011",
+      "literals": 20
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ResolvedorReglasPerfilImportacion.vb",
+      "lines": 188,
+      "sha256Lf": "bd2a293b36ee41d57faa026975c5de1d1921ba2853d76ccef9a08f5717cf066f",
+      "literals": 164
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioAdministracionProveedor.vb",
+      "lines": 59,
+      "sha256Lf": "9a1e18d87b489236ea805e3e3502be2f2209d8ba9f3d7a1f79b430abc8a8054c",
+      "literals": 26
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.Limpieza.vb",
+      "lines": 121,
+      "sha256Lf": "37a57289c516b169e8a5c90146727c8cfcab3c4f0dfebb5228ff66ace15c1a5b",
+      "literals": 17
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb",
+      "lines": 235,
+      "sha256Lf": "1d03b788d89e8d6e5ef8ff43f191b6f295348a8e48f52ddbe21601e25d4409ac",
+      "literals": 56
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioFuenteImportacion.vb",
+      "lines": 31,
+      "sha256Lf": "7a7def525d97d999cdacacb741d941e2d515e04f62452d21892af72496203911",
+      "literals": 14
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioPerfilImportacion.vb",
+      "lines": 186,
+      "sha256Lf": "36d5ea0099b1e79f7c7eedd126bc4fa33ec07a6cb1889860c98525e8173f77cb",
+      "literals": 31
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioPreparacionImportacion.vb",
+      "lines": 177,
+      "sha256Lf": "6667879e8281949ead01f076a2c99057898301fb7b1d09727a3a7cab84f5b1d5",
+      "literals": 55
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioRecepcionImportacion.vb",
+      "lines": 198,
+      "sha256Lf": "6df30d103a796f6334ada2f29041b23d276f321dcbcc64265ef8119fea1bd26c",
+      "literals": 54
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ValidadorPerfilImportacion.vb",
+      "lines": 83,
+      "sha256Lf": "007ae58483b225021958b6b1842e0ae9900070dc248fcad5bec5deed8a1bf160",
+      "literals": 39
+    },
+    {
+      "file": "generic_control/ImportacionCarpetasUpload.ashx.vb",
+      "lines": 63,
+      "sha256Lf": "2fee63302ad40b6b28a6a55dfa2d0b2c6fa3574b11a6e1491474f736af840d3c",
+      "literals": 5
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/FuenteAdminEditor.js",
+      "lines": 93,
+      "sha256Lf": "138a1bffd1504ff90d76b362d50ea94bc6b264ad3b869da6873c6cb0145fbb19",
+      "literals": 81
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "lines": 509,
+      "sha256Lf": "850eed2cee919ab4e6ff7eafa4179fc1c9a93c3c09a4a22dcf5e60f17ded1991",
+      "literals": 145
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js",
+      "lines": 100,
+      "sha256Lf": "61f83635aff83748f07ea4e24bef6dbe0298f498dcbf5e1700d1d0ff93f50a94",
+      "literals": 23
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "lines": 307,
+      "sha256Lf": "880d119752f2e557ea779225c34b161e20a6f6e6b9fede20787b15ca635536e2",
+      "literals": 365
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/InventarioImportacion.js",
+      "lines": 84,
+      "sha256Lf": "3ae16d908ca21b35279bf2feabf63ba26c4a21cfbf273773c01ecee1d5fa16db",
+      "literals": 8
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/PerfilImportacionApi.js",
+      "lines": 114,
+      "sha256Lf": "cca3303bfcb0bcb175a2269bee9c8dffe9a4522b58c9440c66ed7445858c1bd0",
+      "literals": 27
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+      "lines": 543,
+      "sha256Lf": "3fdf8ff1606a47fc0d3e6801ce45172422ff053795118dd18660348b48f6e9c3",
+      "literals": 326
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ProveedorAdminEditor.js",
+      "lines": 112,
+      "sha256Lf": "ce1ec7062d68a95477fc9d215e2e5ecd3a858e7e07a511a6c61a1e96c14aa6a7",
+      "literals": 93
+    },
+    {
+      "file": "js/gestion/ProduccionDocumentalBarra.js",
+      "lines": 30,
+      "sha256Lf": "8c7961a76effc80407e482312b64bd4d9371f7020d196137fa5b67415c4a03e1",
+      "literals": 2
+    },
+    {
+      "file": "js/gestion/WebFormProducionDocumental.js",
+      "lines": 3548,
+      "sha256Lf": "d4713092c4ef2c125096edc301b7e5ace429917c7b5314b8013ff60fa3562575",
+      "literals": 241
+    },
+    {
+      "file": "webservice/WebServiceImportacionCarpetas.Composicion.vb",
+      "lines": 29,
+      "sha256Lf": "54bcd87fba3a74098f59a1d25200cbc88e8b78c2eacc9e6684bf6235c59f7221",
+      "literals": 15
+    },
+    {
+      "file": "webservice/WebServiceImportacionCarpetas.asmx.vb",
+      "lines": 414,
+      "sha256Lf": "b2641e1f521433f9b78c942dc816a47f9551c906ae0a69ef04336b4ed7588331",
+      "literals": 62
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "01-mensajes-y-propuestas.csv",
+      "sha256": "b01f8daf0282c2a08232b3dc41042a3954354882c659eead864007534c6c85f1"
+    },
+    {
+      "file": "02-codigos-y-traducciones.csv",
+      "sha256": "a84475a3d13569f866d788fb97682432643be6ab16aa8e74096e38e7396c66ef"
+    },
+    {
+      "file": "03-rutas-de-error-y-capturas.csv",
+      "sha256": "f849d052ec2be78b19c015ab2cc404896fe1a8758f17b9773986921b14d2d19c"
+    },
+    {
+      "file": "04-recuperacion-por-operacion.csv",
+      "sha256": "359f21db92d912e927106b514ff1a3053854dffd58263168f784121cd6625301"
+    },
+    {
+      "file": "05-silencios-y-perdida-de-detalle.csv",
+      "sha256": "e5f15073c445f30ecc277a4cb4e40696748f2199e0eab7357e37b6349470fced"
+    },
+    {
+      "file": "06-cadenas-excluidas-del-diagnostico.csv",
+      "sha256": "09a985ec5b096a375a1e1710a4e5fb8a09ed545d281238e32af4eb8e04f03574"
+    },
+    {
+      "file": "08-datos-para-formular-cada-mensaje.csv",
+      "sha256": "609602d1250fb7f8501a2b45068fb0f49823332f0a3b92be38d6cde001972ec3"
+    },
+    {
+      "file": "09-estados-por-dimension.csv",
+      "sha256": "0d5fb49c8722e98bc384c6b425d4b44d20c8fdbde3f049e4855638e367ba2847"
+    }
+  ],
+  "realExecution": {
+    "applicationHttp": 0,
+    "businessSelect": 0,
+    "sessions": 0,
+    "uploads": 0,
+    "creations": 0,
+    "storedDocuments": 0
+  },
+  "productModified": false,
+  "openSpecTasksCompletedByThisAudit": 0,
+  "proposedDiagnosticContract": {
+    "public": [
+      "operacion",
+      "etapa",
+      "codigo",
+      "motivoPublicoCerrado",
+      "severidad",
+      "resultadoDelEfecto",
+      "accionSiguientePermitida",
+      "referenciasAutorizadasExistentes",
+      "incidenciasPorCampoConMedidasSeguras",
+      "operacionIdSiFueRecibido"
+    ],
+    "support": [
+      "mismo operacionId",
+      "version desplegada comprobada",
+      "operacion y etapa",
+      "guarda o validacion cerrada",
+      "tipo de excepción clasificado y código de motor si aplica",
+      "inicio/checkpoint/retorno confirmados o inciertos",
+      "unidades y medidas acotadas sin valores documentales"
+    ],
+    "doNotPublishOrLogByDefault": [
+      "credenciales",
+      "cookies",
+      "tokens CSRF",
+      "cadenas de conexión",
+      "SQL y parámetros",
+      "rutas físicas privadas",
+      "valores completos de claves/índices/personas",
+      "ex.Message sin saneamiento"
+    ],
+    "existingTracePrecedents": [
+      "Services/Workflow/ImportarServicioWeb/ImportExecutionSteps.vb:20",
+      "Infrastructure/Login/SegundoFactor/Diagnostics/TraceSecondFactorDiagnosticSink.vb:16"
+    ],
+    "traceLimitation": "Esos precedentes no demuestran que el importador registre hoy una traza ni que haya un listener durable configurado. Integrar y verificar la correlación antes de prometer un diagnóstico por referencia.",
+    "unknownCauseRule": "Si no se capturó una causa, el mensaje debe reconocer que no está identificada y ofrecer una acción compatible con la certeza de la operación. No rellenar un motivo con una hipótesis del video."
+  },
+  "validation": {
+    "status": "PASS_STATIC_INVENTORY_AND_PROPOSAL_VALIDATION",
+    "sourceHashes": true,
+    "csvHashes": true,
+    "utf8Bom": true,
+    "allCandidateTextsClassified": true,
+    "literalDirectExceptionAndReturnCodesWithoutProposal": 0,
+    "productDiffEmpty": true,
+    "openspecStrict": "PASS",
+    "runtimeAcceptance": "NOT_EXECUTED_OR_CLAIMED"
+  }
+}

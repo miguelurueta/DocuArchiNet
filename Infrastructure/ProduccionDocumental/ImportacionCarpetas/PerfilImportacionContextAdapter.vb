@@ -20,14 +20,14 @@ Public Class PerfilImportacionContextAdapter
                 'La relación empresarial se comprueba en RA, no en empresa de módulo ni BD por defecto.
                 Using cmd As New MySqlCommand("SELECT e.ID_EMPRESA FROM remit_dest_interno u INNER JOIN empresa_gestion_documental e ON e.ID_EMPRESA=u.Empresa_Gestion_Documental_id_empresa WHERE u.id_Remit_Dest_int=@usuario LIMIT 2", conexion)
                     cmd.Parameters.AddWithValue("@usuario", UInteger.Parse(usuario, CultureInfo.InvariantCulture))
-                    Using reader = cmd.ExecuteReader()
+                    Using reader = MedicionAlmacenamientoImportacion.MedirParte("sql_autoridad", Function() cmd.ExecuteReader())
                         If Not reader.Read() OrElse Convert.ToString(reader(0), CultureInfo.InvariantCulture) <> empresa Then Throw Denegado()
                         If reader.Read() Then Throw Denegado()
                     End Using
                 End Using
                 Using cmd As New MySqlCommand("SELECT ADMINISTRAR_PERFILES_IMPORTACION FROM remit_dest_interno_perfil_produccion WHERE remit_dest_interno_idremit_dest_interno=@usuario LIMIT 2", conexion)
                     cmd.Parameters.AddWithValue("@usuario", UInteger.Parse(usuario, CultureInfo.InvariantCulture))
-                    Using reader = cmd.ExecuteReader()
+                    Using reader = MedicionAlmacenamientoImportacion.MedirParte("sql_autoridad", Function() cmd.ExecuteReader())
                         If Not reader.Read() OrElse Not PermisoValido(reader(0)) Then Throw Denegado()
                         If reader.Read() Then Throw Denegado()
                     End Using
@@ -55,7 +55,7 @@ Public Class PerfilImportacionContextAdapter
                     cmd.CommandTimeout = 5
                     cmd.Parameters.AddWithValue("@usuario", contexto.UsuarioRef)
                     cmd.Parameters.AddWithValue("@empresa", contexto.AmbitoRef)
-                    Using reader = cmd.ExecuteReader()
+                    Using reader = MedicionAlmacenamientoImportacion.MedirParte("sql_autoridad", Function() cmd.ExecuteReader())
                         If Not reader.Read() OrElse Not PermisoValido(reader(0)) Then Throw Denegado()
                         If reader.Read() Then Throw Denegado()
                     End Using
@@ -76,7 +76,7 @@ Public Class PerfilImportacionContextAdapter
                     cmd.CommandTimeout = 5
                     cmd.Parameters.AddWithValue("@usuario", contexto.UsuarioRef)
                     cmd.Parameters.AddWithValue("@empresa", contexto.AmbitoRef)
-                    Using reader = cmd.ExecuteReader()
+                    Using reader = MedicionAlmacenamientoImportacion.MedirParte("sql_autoridad", Function() cmd.ExecuteReader())
                         If Not reader.Read() OrElse Not PermisoValido(reader(0)) Then Throw Denegado()
                         If reader.Read() Then Throw Denegado()
                     End Using

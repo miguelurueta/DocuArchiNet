@@ -1,0 +1,147 @@
+{
+  "issueKey": "DOC-120",
+  "date": "2026-11-13",
+  "case": "DOC120-UI08",
+  "task": "3.8",
+  "requirements": [
+    "RQ-04",
+    "RQ-10"
+  ],
+  "status": "PASS_LOCAL_READONLY_BUSINESS_DOUBLES",
+  "inspectionHead": "ffec1838ad40c598e915b82e0a9c18eb9e0abc34",
+  "binding": "Per-file LF SHA256 pins the tested working sources; parent HEAD contains the approved pending task.",
+  "scope": "Only the existing top bar and search layout; original controls, handlers, permissions, business routing and endpoints retained.",
+  "sources": [
+    {
+      "file": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Lf": "299b73b4affd701381499edf81209c649870baa5a478dcb16b045048b3735da7"
+    },
+    {
+      "file": "GestionDocumental-Docuarchi.net.vbproj",
+      "sha256Lf": "f9a2c77ad0599d27698be7cb3c06a1b6907f922daa0f518c4db6e05b1eed75c2"
+    },
+    {
+      "file": "Styles/produccion-documental-barra.css",
+      "sha256Lf": "431091f46f4cbd9ee5b4ef1f0fd44c1b7553b21918f947138f13f59e492f7d0f"
+    },
+    {
+      "file": "js/gestion/ProduccionDocumentalBarra.js",
+      "sha256Lf": "8c7961a76effc80407e482312b64bd4d9371f7020d196137fa5b67415c4a03e1"
+    },
+    {
+      "file": "tests/doc120-produccion-barra.test.cjs",
+      "sha256Lf": "e03a2e3e979016f33a887350f3c9afab1fb5684910a6814f8215a8db3a9bbf83"
+    },
+    {
+      "file": "tests/Fixtures/ProduccionDocumental/doc120-barra-acciones.json",
+      "sha256Lf": "1d917b21d87963bf3369db9da8450cc90d528f46184617b34ab2abc75ae93d91"
+    }
+  ],
+  "unchangedRouting": [
+    {
+      "file": "js/gestion/WebFormProducionDocumental.js",
+      "sha256Lf": "c800184475732e48c8a478bd5afa340cb8c2acd7131010745f25ab823c4343e8",
+      "unchangedSinceBaseline": true
+    },
+    {
+      "file": "js/java_general/general_code_java.js",
+      "sha256Lf": "3d25dcdcaf4c25b51be1cb003e0ac42544bc1701562245cfa2c014a25a2592d2",
+      "unchangedSinceBaseline": true
+    }
+  ],
+  "baseline": {
+    "sourceHead": "ffec1838ad40c598e915b82e0a9c18eb9e0abc34",
+    "staticHandlers": 36,
+    "submenus": 4,
+    "functionalBrowser": "PASS: all36 click routes on desktop1554/mobile390 and click/Enter/restore match the baseline; term and selected IDs retained.",
+    "layoutBrowser": "FAIL_EXPECTED on original markup: width768/font16, Expedientes height60px instead of one line40px.",
+    "log": {
+      "file": ".tmp/doc120-barra-baseline-final.log",
+      "sha256": "0f2d6461191028cdabad2b7ec7460205695ef74fe1a47645844135d39088d6e8"
+    }
+  },
+  "implementation": {
+    "assets": [
+      "Styles/produccion-documental-barra.css",
+      "js/gestion/ProduccionDocumentalBarra.js"
+    ],
+    "cacheVersion": "doc120-barra-20261113-1",
+    "packaging": "Both assets listed once as Content in the project; XML and file existence checked. No compiled VB changed.",
+    "layout": "Flex layout, unbroken headers, flexible search; existing Bootstrap collapse below1200px. Narrow panel max60vh with wrapping item labels and internal scrolling.",
+    "height": "ResizeObserver and existing collapse events schedule auto_zise; observer mounts idempotently after synthetic postback."
+  },
+  "test": {
+    "command": "node --test --test-concurrency=2 tests/doc120-produccion-barra.test.cjs tests/doc111-importacion-carpetas-client.test.cjs tests/doc119-navigation.test.cjs tests/doc110-perfil-importacion-editor.test.cjs tools/e2e/tests/doc111-degradation.test.cjs",
+    "passed": 60,
+    "failed": 0,
+    "breakdown": {
+      "bar": 5,
+      "client": 28,
+      "navigation": 11,
+      "profileEditor": 12,
+      "degradation": 4
+    },
+    "widths": [
+      390,
+      768,
+      1024,
+      1280,
+      1554
+    ],
+    "rootFontPixels": [
+      16,
+      20
+    ],
+    "functionalBoundary": "Original routing functions extracted with Acorn; downstream business functions and postback controls record calls. Real jQuery/Bootstrap/FontAwesome, no application server.",
+    "checks": [
+      "All36 handlers and search keypress attribute unchanged; each route matches frozen original trace on desktop/mobile.",
+      "Click/Enter search and restore retain term/context; restore without selected tree node preserves original no-postback path.",
+      "No header wrapping, horizontal overflow or search overlap in10 combinations.",
+      "Height follows collapse/expansion; keyboard Escape returns focus; synthetic postback/reinitialization does not duplicate Importación.",
+      "Importación invokes one synthetic AbrirImportacion with original nivel7 and restores focus.",
+      "Long nested dropdown remains within390px, tree keeps positive usable height and final action can be reached.",
+      "Browser fixtures block network and reject unexpected errors/requests."
+    ],
+    "log": {
+      "file": ".tmp/doc120-barra-final-suite.log",
+      "sha256": "7827772fffd7723cee8c1d0da5973c84674b71c1baff00f16856e3d2cef6e556"
+    }
+  },
+  "visual": {
+    "classification": "LOCAL_SYNTHETIC",
+    "desktop": ".tmp/menu-modernizacion-video-20261113/barra-after-1554-font20.png",
+    "mobile": ".tmp/doc120-barra-mobile-menu.png",
+    "longMenuBefore": {
+      "barHeight": 942,
+      "horizontalExtent": 401,
+      "treeHeight": 0,
+      "viewportWidth": 390,
+      "viewportHeight": 848
+    },
+    "longMenuAfter": {
+      "barHeight": 555,
+      "horizontalExtent": 390,
+      "treeHeight": 273,
+      "viewportWidth": 390,
+      "viewportHeight": 848
+    },
+    "storedInGit": false
+  },
+  "realExecution": {
+    "applicationHttp": 0,
+    "select": 0,
+    "sessions": 0,
+    "uploads": 0,
+    "effects": 0,
+    "permissions": 0,
+    "ddl": 0,
+    "cleanup": 0
+  },
+  "limits": [
+    "No authenticated IIS/manual production validation or real postback/business effects.",
+    "Business permission enforcement remains in unchanged code and existing local regression; mocks do not renew historical real evidence.",
+    "INT-03, final limits acceptance and integral closure remain open."
+  ],
+  "progress": "24/28",
+  "integralAcceptance": false
+}

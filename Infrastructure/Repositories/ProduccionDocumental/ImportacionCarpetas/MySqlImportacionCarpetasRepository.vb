@@ -48,19 +48,19 @@ Public Partial Class MySqlImportacionCarpetasRepository
         End Try
     End Sub
 
-    Private Shared Function LeerMetadatos(conexion As MySqlConnection) As DataSet
+    Private Shared Function LeerMetadatos(conexion As MySqlConnection, Optional propias As String = TablasPropias, Optional padres As String = TablasConPadres, Optional tx As MySqlTransaction = Nothing) As DataSet
         Dim datos As New DataSet()
         'Catalogos acotados por tablas; no JOIN entre catalogos costosos en 5.1.
         Dim consultas As New Dictionary(Of String, String) From {
-            {"Tablas", "SELECT TABLE_NAME,ENGINE,TABLE_COLLATION FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME IN (" & TablasConPadres & ")"},
-            {"Columnas", "SELECT TABLE_NAME,COLUMN_NAME,DATA_TYPE,COLUMN_TYPE,CHARACTER_MAXIMUM_LENGTH,COLLATION_NAME,IS_NULLABLE,EXTRA,COLUMN_DEFAULT FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND (TABLE_NAME IN (" & TablasPropias & ") OR (TABLE_NAME='ra_integracion_perfil_version' AND COLUMN_NAME='version_id') OR (TABLE_NAME='remit_dest_interno_perfil_produccion' AND COLUMN_NAME='IMPORTAR_CARPETAS'))"},
-            {"Indices", "SELECT TABLE_NAME,INDEX_NAME,NON_UNIQUE,SEQ_IN_INDEX,COLUMN_NAME,SUB_PART FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME IN (" & TablasPropias & ",'ra_integracion_perfil_version')"},
-            {"Claves", "SELECT TABLE_NAME,CONSTRAINT_NAME,COLUMN_NAME,ORDINAL_POSITION,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME,(REFERENCED_TABLE_SCHEMA=DATABASE()) AS MISMO_ESQUEMA FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME IN (" & TablasPropias & ") AND REFERENCED_TABLE_NAME IS NOT NULL"},
-            {"Reglas", "SELECT TABLE_NAME,CONSTRAINT_NAME,UPDATE_RULE,DELETE_RULE FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=DATABASE() AND TABLE_NAME IN (" & TablasPropias & ")"}}
+            {"Tablas", "SELECT TABLE_NAME,ENGINE,TABLE_COLLATION FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME IN (" & padres & ")"},
+            {"Columnas", "SELECT TABLE_NAME,COLUMN_NAME,DATA_TYPE,COLUMN_TYPE,CHARACTER_MAXIMUM_LENGTH,COLLATION_NAME,IS_NULLABLE,EXTRA,COLUMN_DEFAULT FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND (TABLE_NAME IN (" & propias & ") OR (TABLE_NAME='ra_integracion_perfil_version' AND COLUMN_NAME='version_id') OR (TABLE_NAME='remit_dest_interno_perfil_produccion' AND COLUMN_NAME='IMPORTAR_CARPETAS'))"},
+            {"Indices", "SELECT TABLE_NAME,INDEX_NAME,NON_UNIQUE,SEQ_IN_INDEX,COLUMN_NAME,SUB_PART FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME IN (" & propias & ",'ra_integracion_perfil_version')"},
+            {"Claves", "SELECT TABLE_NAME,CONSTRAINT_NAME,COLUMN_NAME,ORDINAL_POSITION,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME,(REFERENCED_TABLE_SCHEMA=DATABASE()) AS MISMO_ESQUEMA FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME IN (" & propias & ") AND REFERENCED_TABLE_NAME IS NOT NULL"},
+            {"Reglas", "SELECT TABLE_NAME,CONSTRAINT_NAME,UPDATE_RULE,DELETE_RULE FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=DATABASE() AND TABLE_NAME IN (" & propias & ")"}}
         For Each consulta In consultas
-            Using cmd As New MySqlCommand(consulta.Value, conexion)
+            Using cmd As New MySqlCommand(consulta.Value, conexion, tx)
                 cmd.CommandTimeout = 10
-                Using reader = cmd.ExecuteReader()
+                Using reader = EjecutarLecturaControl(cmd)
                     Dim tabla As New DataTable(consulta.Key)
                     tabla.Load(reader)
                     datos.Tables.Add(tabla)
@@ -71,11 +71,15 @@ Public Partial Class MySqlImportacionCarpetasRepository
     End Function
 
     Friend Shared Sub ValidarMetadatos(datos As DataSet)
+        ValidarContratoMetadatos(datos, ColumnasEsperadas, IndicesEsperados, ClavesEsperadas)
+    End Sub
+
+    Private Shared Sub ValidarContratoMetadatos(datos As DataSet, contratosColumnas As Dictionary(Of String, String()), contratosIndices As String(), contratosClaves As String())
         If datos Is Nothing Then Throw NoDisponible()
         For Each nombre In {"Tablas", "Columnas", "Indices", "Claves", "Reglas"}
             If Not datos.Tables.Contains(nombre) Then Throw NoDisponible()
         Next
-        For Each contrato In ColumnasEsperadas
+        For Each contrato In contratosColumnas
             Dim tablas = Filas(datos, "Tablas").Where(Function(r) Texto(r, "TABLE_NAME") = contrato.Key).ToArray()
             If tablas.Length <> 1 OrElse Texto(tablas(0), "ENGINE") <> "InnoDB" Then Throw NoDisponible()
             Dim propia = contrato.Key.StartsWith("ra_integracion_", StringComparison.Ordinal) AndAlso contrato.Key <> "ra_integracion_perfil_version"
@@ -94,13 +98,13 @@ Public Partial Class MySqlImportacionCarpetasRepository
                 Next
             Next
         Next
-        For Each especificacion In IndicesEsperados
+        For Each especificacion In contratosIndices
             Dim esperado = especificacion.Split("|"c)
             Dim columnas = Filas(datos, "Indices").Where(Function(r) Texto(r, "TABLE_NAME") = esperado(0) AndAlso Texto(r, "INDEX_NAME") = esperado(1)).OrderBy(Function(r) Convert.ToInt32(r("SEQ_IN_INDEX"), CultureInfo.InvariantCulture)).ToArray()
             If columnas.Length = 0 OrElse columnas.Any(Function(r) Texto(r, "NON_UNIQUE") <> esperado(2) OrElse Not r.IsNull("SUB_PART")) Then Throw NoDisponible()
             If String.Join(",", columnas.Select(Function(r) Texto(r, "COLUMN_NAME"))) <> esperado(3) Then Throw NoDisponible()
         Next
-        For Each especificacion In ClavesEsperadas
+        For Each especificacion In contratosClaves
             Dim esperado = especificacion.Split("|"c)
             Dim claves = Filas(datos, "Claves").Where(Function(r) Texto(r, "TABLE_NAME") = esperado(0) AndAlso Texto(r, "CONSTRAINT_NAME") = esperado(1)).ToArray()
             If claves.Length <> 1 Then Throw NoDisponible()
@@ -126,9 +130,8 @@ Public Partial Class MySqlImportacionCarpetasRepository
     Private Const ColumnasPlan As String = "plan_id,ambito_ref,usuario_ref,nivel_ref,version_id,estado,revision,esquema_doc,contexto_doc,config_doc,manifiesto_doc,resultado_doc,plan_hash,creado_utc,expira_utc"
     Private Const ColumnasLote As String = "lote_id,plan_id,ambito_ref,solicitante_ref,nivel_ref,clave_confirmacion,solicitud_hash,version_id,modo_integridad,ambito_integridad,contexto_doc,config_doc,estado,detencion_solicitada,total_raices,total_archivos,total_bytes,revision,creado_utc,actualizado_utc"
 
-    'Consulta preventiva: no reserva codigo ni sustituye la revalidacion al
-    'ejecutar frente a escritores legacy. Incluye todos los volumenes para no
-    'inventar el volumen que Conservacion omite en su INSERT.
+    'Validacion tecnica del codigo. El delegado conserva su contrato como
+    'extension para una futura politica explicita; hoy no consulta candidatos.
     Public Function ComprobarCoincidencias(contexto As ContextoImportacionCarpetas, snapshot As SnapshotPerfilImportacionOperativa, manifiesto As ManifiestoImportacionCarpetas, resultado As ResultadoPreparacionImportacion) As List(Of IncidenciaImportacionCarpetas)
         AutorizarOperacion(contexto)
         Try
@@ -139,7 +142,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
                     Function(sql, parametros)
                         Using cmd = ComandoOperacion(conexion, Nothing, sql, parametros)
                             cmd.CommandTimeout = 5
-                            Using reader = cmd.ExecuteReader()
+                            Using reader = EjecutarLecturaControl(cmd)
                                 Dim datos As New DataTable()
                                 datos.Load(reader)
                                 Return datos
@@ -160,7 +163,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
         AutorizarOperacion(contexto)
         If snapshot Is Nothing OrElse snapshot.Configuracion Is Nothing OrElse manifiesto Is Nothing OrElse resultado Is Nothing OrElse leer Is Nothing Then Throw SolicitudInvalida()
         Dim configuracion = snapshot.Configuracion
-        If Not ValidadorPerfilImportacion.ReferenciaValida(configuracion.AreaRef) OrElse Not {"BLOQUEAR", "REUTILIZAR_VALIDADO"}.Contains(configuracion.PoliticaCoincidencias) Then Throw SolicitudInvalida()
+        If Not ValidadorPerfilImportacion.ReferenciaValida(configuracion.AreaRef) OrElse Not {"PERMITIR", "BLOQUEAR", "REUTILIZAR_VALIDADO"}.Contains(configuracion.PoliticaCoincidencias) Then Throw SolicitudInvalida()
         Dim metadatos = leer("SELECT COLUMN_NAME,DATA_TYPE,CHARACTER_SET_NAME,COLLATION_NAME,CHARACTER_MAXIMUM_LENGTH FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='expediente_archivo' AND COLUMN_NAME IN ('CODIGO_UNICO','ID_EMPRESA_EXPEDIENTE','CODIGO_AREA_TRD','ID_EXPEDIENTE')", New Object() {})
         If metadatos Is Nothing OrElse metadatos.Rows.Count <> 4 Then Throw NoDisponible()
         Dim codigo = metadatos.Rows.Cast(Of DataRow)().Where(Function(r) Texto(r, "COLUMN_NAME") = "CODIGO_UNICO").ToList()
@@ -184,12 +187,11 @@ Public Partial Class MySqlImportacionCarpetasRepository
             codigos.Add(raiz.IdCliente, valores(0).Valor)
         Next
         If codigos.Count = 0 Then Return salida
-        Dim parametrosComparacion As New List(Of Object)(), seleccion As New List(Of String)(), representaciones As New List(Of String)()
+        Dim parametrosComparacion As New List(Of Object)(), representaciones As New List(Of String)()
         Dim indice = 0
         For Each par In codigos
             Dim r = "@raiz" & indice.ToString(CultureInfo.InvariantCulture), c = "@codigo" & indice.ToString(CultureInfo.InvariantCulture)
             parametrosComparacion.AddRange(New Object() {r, par.Key, c, par.Value})
-            seleccion.Add("SELECT CONVERT(" & r & " USING ascii) COLLATE ascii_bin AS raiz,CONVERT(" & c & " USING " & charset & ") COLLATE " & collation & " AS codigo")
             representaciones.Add("SELECT " & r & " AS raiz,(HEX(CONVERT(" & c & " USING utf8))=HEX(CONVERT(CONVERT(" & c & " USING " & charset & ") USING utf8))) AS representable")
             indice += 1
         Next
@@ -201,30 +203,9 @@ Public Partial Class MySqlImportacionCarpetasRepository
             If Not codigos.ContainsKey(raiz) OrElse Not vistas.Add(raiz) Then Throw NoDisponible()
             If Texto(fila, "representable") <> "1" Then salida.Add(ConflictoRaiz(raiz, "CODIGO_NO_REPRESENTABLE", "El código no es representable en el origen documental."))
         Next
-        If codigos.Count > 1 Then
-            Dim consulta = String.Join(" UNION ALL ", seleccion)
-            Dim duplicados = leer("SELECT a.raiz FROM (" & consulta & ") a INNER JOIN (" & consulta & ") b ON a.raiz<>b.raiz AND a.codigo=b.codigo GROUP BY a.raiz", parametrosComparacion.ToArray())
-            If duplicados Is Nothing OrElse duplicados.Rows.Count > codigos.Count Then Throw NoDisponible()
-            For Each fila In duplicados.Rows.Cast(Of DataRow)()
-                Dim raiz = Texto(fila, "raiz")
-                If Not codigos.ContainsKey(raiz) Then Throw NoDisponible()
-                salida.Add(ConflictoRaiz(raiz, "CODIGO_REPETIDO_INVENTARIO", "Otra raíz propone el mismo código según la comparación del origen documental."))
-            Next
-        End If
-        For Each par In codigos
-            If salida.Any(Function(i) i.RaizIdCliente = par.Key) Then Continue For
-            Dim candidatos = leer("SELECT e.ID_EXPEDIENTE FROM expediente_archivo e WHERE e.ID_EMPRESA_EXPEDIENTE=@empresa AND e.CODIGO_AREA_TRD=@area AND e.CODIGO_UNICO=@codigo LIMIT 2", New Object() {"@empresa", contexto.AmbitoRef, "@area", configuracion.AreaRef, "@codigo", par.Value})
-            If candidatos Is Nothing OrElse candidatos.Rows.Count > 2 Then Throw NoDisponible()
-            If candidatos.Rows.Count > 1 Then
-                salida.Add(ConflictoRaiz(par.Key, "COINCIDENCIA_AMBIGUA", "Hay varios candidatos documentales; revise la raíz."))
-            ElseIf candidatos.Rows.Count = 1 Then
-                If configuracion.PoliticaCoincidencias = "BLOQUEAR" Then
-                    salida.Add(ConflictoRaiz(par.Key, "CODIGO_EXPEDIENTE_EXISTENTE", "Existe un candidato para el código en la empresa y área; revise la raíz."))
-                Else
-                    salida.Add(ConflictoRaiz(par.Key, "REUTILIZACION_NO_DISPONIBLE", "La reutilización requiere verificar identidad, destino, clasificación, estado y permisos del candidato."))
-                End If
-            End If
-        Next
+        'Punto de extension: el delegado de evaluacion existente se conserva.
+        'Actualmente solo valida el codigo resuelto; no busca candidatos ni
+        'impone exclusividad. Politicas historicas no reescriben el snapshot.
         Return salida
     End Function
 
@@ -234,6 +215,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
 
     Public Function GuardarPlan(contexto As ContextoImportacionCarpetas, original As PlanImportacionCarpetas) As PlanImportacionCarpetas
         AutorizarOperacion(contexto)
+        If original Is Nothing OrElse original.EsquemaDoc <> 1US Then Throw SolicitudInvalida()
         Dim plan = PrepararPersistencia(contexto, original)
         Dim instante = Ahora()
         If Fecha(plan.CreadoUtc) > instante OrElse Fecha(plan.ExpiraUtc) <= instante Then Throw SolicitudInvalida()
@@ -254,7 +236,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
                       End Function)
     End Function
 
-    Public Function ObtenerPlan(contexto As ContextoImportacionCarpetas, planId As String) As PlanImportacionCarpetas
+    Public Function ObtenerPlan(contexto As ContextoImportacionCarpetas, planId As String) As PlanImportacionCarpetas Implements IPreparacionSegmentadaImportacionRepository.ObtenerPlan
         AutorizarOperacion(contexto)
         Dim id = IdOperacion(planId)
         Return Operar(Function(conexion, tx) CargarPlan(conexion, tx, contexto, id, False))
@@ -262,12 +244,12 @@ Public Partial Class MySqlImportacionCarpetasRepository
 
     'Resuelve solo la referencia persistida que necesita el servicio para volver
     'a autorizar el destino. No acepta nivel/empresa desde ConfirmarPlan HTTP.
-    Public Function ObtenerContextoPlan(identidad As ContextoImportacionCarpetas, planId As String) As ContextoImportacionCarpetas Implements IConsultaImportacionRepository.ObtenerContextoPlan
+    Public Function ObtenerContextoPlan(identidad As ContextoImportacionCarpetas, planId As String) As ContextoImportacionCarpetas Implements IConsultaImportacionRepository.ObtenerContextoPlan, IPreparacionSegmentadaImportacionRepository.ObtenerContextoPlan
         If identidad Is Nothing OrElse Not identidad.PuedeImportar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(identidad.UsuarioRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(identidad.AmbitoRef) Then Throw AccesoDenegado()
         Dim id = IdOperacion(planId)
         Return Operar(Function(conexion, tx)
                           Using cmd = ComandoOperacion(conexion, tx, "SELECT contexto_doc FROM ra_integracion_plan WHERE plan_id=@id AND usuario_ref=@usuario AND ambito_ref=@ambito", "@id", id, "@usuario", identidad.UsuarioRef, "@ambito", identidad.AmbitoRef)
-                              Dim documento = cmd.ExecuteScalar()
+                              Dim documento = EjecutarEscalarControl(cmd)
                               If documento Is Nothing OrElse Convert.IsDBNull(documento) Then Throw AccesoDenegado()
                               Dim referencia = LeerPersistido(Of ContextoImportacionCarpetas)(CStr(documento))
                               AutorizarOperacion(referencia)
@@ -342,7 +324,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
         Dim id = IdOperacion(loteId)
         Return Operar(Function(conexion, tx)
                           Using cmd = ComandoOperacion(conexion, tx, "SELECT contexto_doc FROM ra_integracion_lote WHERE lote_id=@lote AND solicitante_ref=@usuario AND ambito_ref=@ambito", "@lote", id, "@usuario", identidad.UsuarioRef, "@ambito", identidad.AmbitoRef)
-                              Dim documento = cmd.ExecuteScalar()
+                              Dim documento = EjecutarEscalarControl(cmd)
                               If documento Is Nothing OrElse Convert.IsDBNull(documento) Then Throw AccesoDenegado()
                               Dim referencia = LeerPersistido(Of ContextoImportacionCarpetas)(CStr(documento))
                               AutorizarOperacion(referencia)
@@ -355,8 +337,11 @@ Public Partial Class MySqlImportacionCarpetasRepository
     Public Function ObtenerArchivo(contexto As ContextoImportacionCarpetas, loteId As String, archivoId As String) As ArchivoImportacionCarpetas Implements IRecepcionArchivosImportacionRepository.ObtenerArchivo
         AutorizarOperacion(contexto) : IdOperacion(loteId) : IdOperacion(archivoId)
         Return Operar(Function(conexion, tx)
-                          If BuscarLote(conexion, tx, contexto, "lote_id", IdOperacion(loteId)) Is Nothing Then Throw AccesoDenegado()
-                          Return CargarArchivoRecepcion(conexion, tx, contexto, loteId, archivoId, False)
+                          Dim lote = BuscarLote(conexion, tx, contexto, "lote_id", IdOperacion(loteId))
+                          If lote Is Nothing Then Throw AccesoDenegado()
+                          Dim archivo = CargarArchivoRecepcion(conexion, tx, contexto, loteId, archivoId, False)
+                          If lote.ControlArchivos IsNot Nothing Then VerificarArchivoFocal(conexion, tx, lote, CargarRaizControl(conexion, tx, loteId, archivo.RaizId), archivo)
+                          Return archivo
                       End Function)
     End Function
 
@@ -493,7 +478,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
 
     Private Shared Function BloquearLoteRecepcion(conexion As MySqlConnection, tx As MySqlTransaction, contexto As ContextoImportacionCarpetas, loteId As String) As LoteImportacionCarpetas
         Using cmd = ComandoOperacion(conexion, tx, "SELECT lote_id FROM ra_integracion_lote WHERE lote_id=@lote AND ambito_ref=@ambito AND solicitante_ref=@usuario AND nivel_ref=@nivel FOR UPDATE", "@lote", IdOperacion(loteId), "@ambito", contexto.AmbitoRef, "@usuario", contexto.UsuarioRef, "@nivel", contexto.NivelRef)
-            If cmd.ExecuteScalar() Is Nothing Then Throw AccesoDenegado()
+            If EjecutarEscalarControl(cmd) Is Nothing Then Throw AccesoDenegado()
         End Using
         Dim lote = BuscarLote(conexion, tx, contexto, "lote_id", IdOperacion(loteId))
         If lote Is Nothing Then Throw AccesoDenegado()
@@ -502,7 +487,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
 
     Private Shared Function CargarArchivoRecepcion(conexion As MySqlConnection, tx As MySqlTransaction, contexto As ContextoImportacionCarpetas, loteId As String, archivoId As String, bloquear As Boolean) As ArchivoImportacionCarpetas
         Using cmd = ComandoOperacion(conexion, tx, "SELECT f.*,r.cliente_raiz_id AS cliente_raiz,r.datos_doc AS datos_raiz FROM ra_integracion_archivo f INNER JOIN ra_integracion_raiz r ON r.raiz_id=f.raiz_id INNER JOIN ra_integracion_lote l ON l.lote_id=r.lote_id WHERE f.archivo_id=@archivo AND r.lote_id=@lote AND l.ambito_ref=@ambito AND l.solicitante_ref=@usuario AND l.nivel_ref=@nivel" & If(bloquear, " FOR UPDATE", ""), "@archivo", IdOperacion(archivoId), "@lote", IdOperacion(loteId), "@ambito", contexto.AmbitoRef, "@usuario", contexto.UsuarioRef, "@nivel", contexto.NivelRef)
-            Using reader = cmd.ExecuteReader()
+            Using reader = EjecutarLecturaControl(cmd)
                 If Not reader.Read() Then Throw AccesoDenegado()
                 Return LeerArchivoRecepcion(reader)
             End Using
@@ -540,7 +525,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
             filtro = " AND i.solicitud_hash=@hash" : parametros.AddRange(New Object() {"@hash", BytesHuella(solicitudHash)})
         End If
         Using cmd = ComandoOperacion(conexion, tx, "SELECT i.* FROM ra_integracion_intento i INNER JOIN ra_integracion_lote l ON l.lote_id=i.lote_id WHERE i.lote_id=@lote AND i.archivo_id=@archivo AND i.fase='RECEPCION' AND l.ambito_ref=@ambito AND l.solicitante_ref=@usuario AND l.nivel_ref=@nivel" & filtro & " ORDER BY i.intento_id DESC LIMIT 1", parametros.ToArray())
-            Using reader = cmd.ExecuteReader()
+            Using reader = EjecutarLecturaControl(cmd)
                 If Not reader.Read() Then Return Nothing
                 Dim intento As New IntentoImportacionCarpetas With {.IntentoId = Texto(reader("intento_id")), .LoteId = Texto(reader("lote_id")), .RaizId = Texto(reader("raiz_id")), .ArchivoId = Texto(reader("archivo_id")), .Fase = CStr(reader("fase")), .Estado = CStr(reader("estado")), .EjecutorRef = CStr(reader("ejecutor_ref")), .TokenReclamacion = CStr(reader("token_reclamacion")), .SolicitudHash = Hexadecimal(DirectCast(reader("solicitud_hash"), Byte())), .InicioUtc = TextoUtc(CDate(reader("inicio_utc"))), .UltimoContactoUtc = TextoUtc(CDate(reader("ultimo_contacto_utc")))}
                 If Not reader.IsDBNull(reader.GetOrdinal("fin_utc")) Then intento.FinUtc = TextoUtc(CDate(reader("fin_utc")))
@@ -573,10 +558,11 @@ Public Partial Class MySqlImportacionCarpetasRepository
 
     Private Shared Function BuscarLote(conexion As MySqlConnection, tx As MySqlTransaction, contexto As ContextoImportacionCarpetas, campo As String, referencia As Object) As LoteImportacionCarpetas
         If Not {"lote_id", "plan_id", "clave_confirmacion"}.Contains(campo) Then Throw SolicitudInvalida()
+        Dim lote As LoteImportacionCarpetas = Nothing
         Using cmd = ComandoOperacion(conexion, tx, "SELECT " & ColumnasLote & " FROM ra_integracion_lote WHERE " & campo & "=@ref AND ambito_ref=@ambito AND solicitante_ref=@usuario AND nivel_ref=@nivel", "@ref", referencia, "@ambito", contexto.AmbitoRef, "@usuario", contexto.UsuarioRef, "@nivel", contexto.NivelRef)
-            Using reader = cmd.ExecuteReader()
+            Using reader = EjecutarLecturaControl(cmd)
                 If Not reader.Read() Then Return Nothing
-                Dim lote As New LoteImportacionCarpetas With {
+                lote = New LoteImportacionCarpetas With {
                     .LoteId = Convert.ToString(reader("lote_id"), CultureInfo.InvariantCulture), .PlanId = Convert.ToString(reader("plan_id"), CultureInfo.InvariantCulture),
                     .Contexto = LeerPersistido(Of ContextoImportacionCarpetas)(CStr(reader("contexto_doc"))),
                     .Snapshot = LeerPersistido(Of SnapshotPerfilImportacionOperativa)(CStr(reader("config_doc"))),
@@ -589,9 +575,10 @@ Public Partial Class MySqlImportacionCarpetasRepository
                 If Not MismoDestino(contexto, lote.Contexto) Then Throw ConflictoOperacion()
                 If lote.Snapshot Is Nothing OrElse lote.Snapshot.Configuracion Is Nothing OrElse lote.Snapshot.VersionId <> Convert.ToString(reader("version_id"), CultureInfo.InvariantCulture) OrElse lote.Snapshot.Configuracion.ModoIntegridad <> CStr(reader("modo_integridad")) OrElse lote.Snapshot.Configuracion.AmbitoIntegridad <> CStr(reader("ambito_integridad")) OrElse Not EstadosImportacionCarpetas.EsLote(lote.Estado) OrElse lote.Revision = 0 Then Throw NoDisponible()
                 If lote.Snapshot.Reglas Is Nothing OrElse lote.Snapshot.Reglas.Any(Function(r) r Is Nothing) OrElse Not HexExacto(lote.Snapshot.Huella, 64) OrElse Hexadecimal(PerfilImportacionJson.Huella(New VersionPerfilImportacion With {.Configuracion = lote.Snapshot.Configuracion, .Reglas = lote.Snapshot.Reglas})) <> lote.Snapshot.Huella Then Throw NoDisponible()
-                Return lote
             End Using
         End Using
+        lote.ControlArchivos = LeerControlFocal(conexion, tx, lote)
+        Return lote
     End Function
 
     Friend Shared Sub ValidarConfirmable(plan As PlanImportacionCarpetas)
@@ -666,31 +653,41 @@ Public Partial Class MySqlImportacionCarpetasRepository
     End Sub
 
     Private Shared Function CargarPlan(conexion As MySqlConnection, tx As MySqlTransaction, contexto As ContextoImportacionCarpetas, id As UInteger, bloquear As Boolean) As PlanImportacionCarpetas
+        Dim plan As PlanImportacionCarpetas
         Using cmd = ComandoOperacion(conexion, tx, "SELECT " & ColumnasPlan & " FROM ra_integracion_plan WHERE plan_id=@id AND ambito_ref=@ambito AND usuario_ref=@usuario AND nivel_ref=@nivel" & If(bloquear, " FOR UPDATE", ""),
             "@id", id, "@ambito", contexto.AmbitoRef, "@usuario", contexto.UsuarioRef, "@nivel", contexto.NivelRef)
-            Using reader = cmd.ExecuteReader()
+            Using reader = EjecutarLecturaControl(cmd)
                 If Not reader.Read() Then Throw AccesoDenegado()
-                Dim plan = LeerPlan(reader)
+                plan = LeerPlan(reader)
                 If Not MismoDestino(contexto, plan.Contexto) Then Throw ConflictoOperacion()
-                Return plan
             End Using
         End Using
+        If plan.EsquemaDoc = 2US Then CargarPlanSegmentado(conexion, tx, contexto, plan)
+        Return plan
     End Function
 
     Private Shared Function LeerPlan(reader As IDataRecord) As PlanImportacionCarpetas
+        Dim esquema = Convert.ToUInt16(reader("esquema_doc"), CultureInfo.InvariantCulture)
         Dim plan As New PlanImportacionCarpetas With {
             .PlanId = Convert.ToString(reader("plan_id"), CultureInfo.InvariantCulture),
             .Estado = CStr(reader("estado")), .Revision = Convert.ToUInt32(reader("revision"), CultureInfo.InvariantCulture),
             .EsquemaDoc = Convert.ToUInt16(reader("esquema_doc"), CultureInfo.InvariantCulture),
             .Contexto = LeerPersistido(Of ContextoImportacionCarpetas)(CStr(reader("contexto_doc"))),
             .Snapshot = LeerPersistido(Of SnapshotPerfilImportacionOperativa)(CStr(reader("config_doc"))),
-            .Manifiesto = LeerPersistido(Of ManifiestoImportacionCarpetas)(CStr(reader("manifiesto_doc"))),
-            .Resultado = LeerPersistido(Of ResultadoPreparacionImportacion)(CStr(reader("resultado_doc"))),
+            .Manifiesto = If(esquema = 1US, LeerPersistido(Of ManifiestoImportacionCarpetas)(CStr(reader("manifiesto_doc"))), New ManifiestoImportacionCarpetas()),
+            .Resultado = If(esquema = 1US, LeerPersistido(Of ResultadoPreparacionImportacion)(CStr(reader("resultado_doc"))), New ResultadoPreparacionImportacion()),
             .Huella = Hexadecimal(DirectCast(reader("plan_hash"), Byte())),
             .CreadoUtc = TextoUtc(CDate(reader("creado_utc"))), .ExpiraUtc = TextoUtc(CDate(reader("expira_utc")))}
-        If plan.EsquemaDoc <> 1 OrElse plan.Contexto Is Nothing OrElse plan.Snapshot Is Nothing OrElse plan.Snapshot.Configuracion Is Nothing OrElse plan.Snapshot.Reglas Is Nothing OrElse plan.Resultado Is Nothing OrElse plan.Manifiesto Is Nothing Then Throw NoDisponible()
+        If (plan.EsquemaDoc <> 1 AndAlso plan.EsquemaDoc <> 2) OrElse plan.Contexto Is Nothing OrElse plan.Snapshot Is Nothing OrElse plan.Snapshot.Configuracion Is Nothing OrElse plan.Snapshot.Reglas Is Nothing OrElse plan.Resultado Is Nothing OrElse plan.Manifiesto Is Nothing Then Throw NoDisponible()
         If plan.Contexto.AmbitoRef <> CStr(reader("ambito_ref")) OrElse plan.Contexto.UsuarioRef <> CStr(reader("usuario_ref")) OrElse plan.Contexto.NivelRef <> CStr(reader("nivel_ref")) OrElse plan.Snapshot.VersionId <> Convert.ToString(reader("version_id"), CultureInfo.InvariantCulture) Then Throw NoDisponible()
-        If Not EstadosImportacionCarpetas.EsPlan(plan.Estado) OrElse plan.Revision = 0 OrElse Not Iguales(PerfilImportacionJson.HuellaPlan(plan), BytesHuella(plan.Huella)) Then Throw NoDisponible()
+        If Not EstadosImportacionCarpetas.EsPlan(plan.Estado) OrElse plan.Revision = 0 Then Throw NoDisponible()
+        If esquema = 1US Then
+            If Not Iguales(PerfilImportacionJson.HuellaPlan(plan), BytesHuella(plan.Huella)) Then Throw NoDisponible()
+        Else
+            plan.ReferenciaManifiestoSegmentado = LeerPersistido(Of ReferenciaPlanSegmentadoImportacion)(CStr(reader("manifiesto_doc")))
+            plan.ReferenciaResultadoSegmentado = LeerPersistido(Of ReferenciaPlanSegmentadoImportacion)(CStr(reader("resultado_doc")))
+            ValidarReferenciasSegmentadas(plan)
+        End If
         Return plan
     End Function
 
@@ -698,8 +695,8 @@ Public Partial Class MySqlImportacionCarpetasRepository
     Friend Shared Function PrepararPersistencia(contexto As ContextoImportacionCarpetas, original As PlanImportacionCarpetas) As PlanImportacionCarpetas
         AutorizarOperacion(contexto)
         If original Is Nothing OrElse Not String.IsNullOrEmpty(original.PlanId) Then Throw SolicitudInvalida()
-        Dim plan = PerfilImportacionJson.Leer(Of PlanImportacionCarpetas)(PerfilImportacionJson.Escribir(original))
-        If Not MismoDestino(contexto, plan.Contexto) OrElse plan.EsquemaDoc <> 1 OrElse plan.Snapshot Is Nothing OrElse plan.Snapshot.Configuracion Is Nothing OrElse plan.Snapshot.Reglas Is Nothing OrElse plan.Resultado Is Nothing OrElse plan.Manifiesto Is Nothing Then Throw SolicitudInvalida()
+        Dim plan = If(original.EsquemaDoc = 2US, PlanSegmentadoImportacionJson.ClonarPlan(original), PerfilImportacionJson.Leer(Of PlanImportacionCarpetas)(PerfilImportacionJson.Escribir(original)))
+        If Not MismoDestino(contexto, plan.Contexto) OrElse (plan.EsquemaDoc <> 1 AndAlso plan.EsquemaDoc <> 2) OrElse plan.Snapshot Is Nothing OrElse plan.Snapshot.Configuracion Is Nothing OrElse plan.Snapshot.Reglas Is Nothing OrElse plan.Resultado Is Nothing OrElse plan.Manifiesto Is Nothing Then Throw SolicitudInvalida()
         IdOperacion(plan.Snapshot.VersionId) : IdOperacion(plan.Snapshot.PerfilId)
         If plan.Snapshot.Reglas.Any(Function(r) r Is Nothing) Then Throw SolicitudInvalida()
         If plan.Snapshot.NumeroVersion = 0 OrElse Fecha(plan.ExpiraUtc) <= Fecha(plan.CreadoUtc) Then Throw SolicitudInvalida()
@@ -720,7 +717,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
         Next
         plan.Estado = If(plan.Resultado.PuedeConfirmar, "REVISABLE", "BLOQUEADO")
         plan.Revision = 1UI
-        plan.Huella = Hexadecimal(PerfilImportacionJson.HuellaPlan(plan))
+        plan.Huella = Hexadecimal(HuellaPlanPersistido(plan))
         Return plan
     End Function
 
@@ -771,7 +768,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
 
     Private Shared Sub VerificarPublicacion(conexion As MySqlConnection, tx As MySqlTransaction, contexto As ContextoImportacionCarpetas, snapshot As SnapshotPerfilImportacionOperativa)
         Using cmd = ComandoOperacion(conexion, tx, "SELECT v.perfil_id,v.numero,v.config_hash,v.configuracion_doc FROM ra_integracion_perfil_version v INNER JOIN ra_integracion_perfil p ON p.perfil_id=v.perfil_id WHERE v.version_id=@version AND p.ambito_ref=@ambito AND p.activo=1 AND v.estado='PUBLICADA' LOCK IN SHARE MODE", "@version", IdOperacion(snapshot.VersionId), "@ambito", contexto.AmbitoRef)
-            Using reader = cmd.ExecuteReader()
+            Using reader = EjecutarLecturaControl(cmd)
                 If Not reader.Read() OrElse reader.IsDBNull(reader.GetOrdinal("config_hash")) Then Throw ConflictoOperacion()
                 If Convert.ToString(reader("perfil_id"), CultureInfo.InvariantCulture) <> snapshot.PerfilId OrElse Convert.ToUInt32(reader("numero"), CultureInfo.InvariantCulture) <> snapshot.NumeroVersion OrElse Not Iguales(DirectCast(reader("config_hash"), Byte()), BytesHuella(snapshot.Huella)) Then Throw ConflictoOperacion()
                 Dim actual = PerfilImportacionJson.Leer(Of ConfiguracionPerfilImportacion)(CStr(reader("configuracion_doc")))
@@ -801,6 +798,19 @@ Public Partial Class MySqlImportacionCarpetasRepository
         End Try
     End Function
 
+    Private Shared Function CategoriaLecturaControl(sql As String) As String
+        If sql.IndexOf("information_schema.", StringComparison.OrdinalIgnoreCase) >= 0 Then Return "sql_esquema"
+        If sql.IndexOf("manifiesto_doc", StringComparison.OrdinalIgnoreCase) >= 0 OrElse sql.IndexOf("ra_integracion_plan_parte", StringComparison.OrdinalIgnoreCase) >= 0 Then Return "sql_plan"
+        If sql.IndexOf("FROM ra_integracion_evento", StringComparison.OrdinalIgnoreCase) >= 0 Then Return "sql_evento"
+        If sql.IndexOf("FROM ra_integracion_archivo", StringComparison.OrdinalIgnoreCase) >= 0 Then Return "sql_archivo"
+        Return "sql_control"
+    End Function
+    Private Shared Function EjecutarLecturaControl(cmd As MySqlCommand) As MySqlDataReader
+        Return MedicionAlmacenamientoImportacion.MedirParte(CategoriaLecturaControl(cmd.CommandText), Function() cmd.ExecuteReader())
+    End Function
+    Private Shared Function EjecutarEscalarControl(cmd As MySqlCommand) As Object
+        Return MedicionAlmacenamientoImportacion.MedirParte(CategoriaLecturaControl(cmd.CommandText), Function() cmd.ExecuteScalar())
+    End Function
     Private Shared Function ComandoOperacion(conexion As MySqlConnection, tx As MySqlTransaction, sql As String, ParamArray parametros As Object()) As MySqlCommand
         Dim cmd As New MySqlCommand(sql, conexion, tx)
         cmd.CommandTimeout = 30
@@ -878,7 +888,8 @@ Public Partial Class MySqlImportacionCarpetasRepository
     End Function
     Private Shared Function LeerPersistido(Of T)(texto As String) As T
         Try
-            Return PerfilImportacionJson.Leer(Of T)(texto)
+            MedicionAlmacenamientoImportacion.Contar("json_chars", CULng(If(texto, "").Length))
+            Return MedicionAlmacenamientoImportacion.MedirParte("json_control", Function() PerfilImportacionJson.Leer(Of T)(texto))
         Catch ex As PerfilImportacionException
             Throw NoDisponible()
         End Try

@@ -1,5 +1,8 @@
 # Importación documental por carpetas
 
+Corte local2026-11-18: [procesamiento por archivo y validacion](Validacion/doc120-independientes-20261118.md), [flujo resumido de guardado](Diseno/flujo-tecnico-importacion-carpetas-doc120.txt) y [script09 del indice focal](Sql/09-control-focal-indice-mysql51.sql). Script preparado para aplicacion manual; version sin desplegar y comparacion real pendiente.
+
+
 Documentación de la integración propuesta para crear expedientes a partir de carpetas y almacenar sus documentos mediante perfiles configurables. SII permanece intacto.
 
 ## Diseño técnico

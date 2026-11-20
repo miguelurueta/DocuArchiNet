@@ -41,7 +41,7 @@ Public Class MetadatosFuenteImportacion
                         Next
                     End If
                     If tipo = "COLUMNAS" Then cmd.Parameters.AddWithValue("@tabla", tabla)
-                    Using r = cmd.ExecuteReader()
+                    Using r = MedicionAlmacenamientoImportacion.MedirParte("sql_catalogo", Function() cmd.ExecuteReader())
                         While r.Read()
                             Dim nombreColumna = CStr(r(0))
                             If Not Nombre(nombreColumna) Then Continue While

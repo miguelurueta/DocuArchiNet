@@ -25,6 +25,8 @@ Public Class ImportacionCarpetasUpload
     Public Sub ProcessRequest(http As HttpContext) Implements IHttpHandler.ProcessRequest
         If http Is Nothing Then Throw New ArgumentNullException("http")
         Dim salida As New RespuestaPerfilImportacion With {.operacionId = Guid.NewGuid().ToString("N")}
+        http.Items("DOC120_OPERACION") = salida.operacionId
+        http.Items.Remove("DOC120_INCIDENCIAS")
         Try
             Dim contexto = _autoridad.Resolver(http)
             Dim politica = _limites()
@@ -32,9 +34,11 @@ Public Class ImportacionCarpetasUpload
             salida.datos = _servicio(http, _autoridad, politica).Recibir(solicitud, http.Request.Files(0).InputStream)
             salida.ok = True : salida.codigo = "OK" : salida.mensaje = "Recepción verificada; consulte el estado documental por separado."
         Catch ex As PerfilImportacionException
-            salida.codigo = ex.Codigo : salida.mensaje = ex.Message
+            DiagnosticoOperacionImportacion.Publicar(salida, ex)
+            DiagnosticoOperacionImportacion.Registrar(ex, "RECEPCION", salida.operacionId)
         Catch ex As Exception
             salida.codigo = "RESULTADO_INCIERTO" : salida.mensaje = "La recepción no pudo comprobarse. Consulte su estado antes de repetir."
+            DiagnosticoOperacionImportacion.Registrar(ex, "RECEPCION", salida.operacionId)
         End Try
         http.Response.ContentType = "application/json"
         http.Response.ContentEncoding = Encoding.UTF8

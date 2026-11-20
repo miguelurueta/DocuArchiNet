@@ -20,7 +20,7 @@ async function discoverFixture(call){
     ModoIntegridad:'COMPLETO_OBLIGATORIO',AmbitoIntegridad:'EXPEDIENTE',
     EstrategiaCarpetas:'RAIZ_EXPEDIENTE',PoliticaSubcarpetas:'INCLUIR',
     PoliticaCarpetasVacias:'RECHAZAR',PoliticaArchivosSueltos:'RECHAZAR',
-    PoliticaCoincidencias:'BLOQUEAR',Extensiones:['pdf'],MaximoBytesArchivo:1048576};
+    PoliticaCoincidencias:'PERMITIR',Extensiones:['pdf'],MaximoBytesArchivo:1048576};
   config.FondoRef=first(await catalog('FONDO',config),'FONDO');
   config.TipoExpedienteRef=first(await catalog('TIPO_EXPEDIENTE',config),'TIPO_EXPEDIENTE');
   config.UnidadDocumentalRef=first(await catalog('UNIDAD_DOCUMENTAL',config),'UNIDAD_DOCUMENTAL');

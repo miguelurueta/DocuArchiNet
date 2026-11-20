@@ -1,0 +1,32 @@
+{
+  "runId": "9bad855f684d064ed35d8a7667e13151",
+  "status": "STOPPED",
+  "http": 283,
+  "select": 9,
+  "sessions": 1,
+  "before": {
+    "completed29": 2,
+    "completed50": 23,
+    "fingerprint29": "99e9accd91be9003f7b9d3dcf97c8e27e650dc62d65f0b45d1c79bb8f96a0972",
+    "fingerprint50": "ec1acd0553af709c3ca09bf3caf677ea09ac39da7db4492d7aeb3265173257ac"
+  },
+  "operations": [],
+  "failure": "DOC120_QA_TREE_RESULT_MISSING",
+  "failureStage": "VERIFY_LOT29_RECOVERY_READONLY",
+  "failureLoadStep": "LOADED_29",
+  "closed": true,
+  "credentialsCleared": true,
+  "previousStatePreserved": true,
+  "finishedUtc": "2026-11-18T22:38:00.232Z",
+  "effectCalls": {},
+  "applicationChanged": false,
+  "businessEffects": 0,
+  "raDaDocumentsConfirmed": [
+    "16282",
+    "16283"
+  ],
+  "exactTreeCountsRecorded": false,
+  "harnessDefectFound": "COUNTED_IMAGE_AND_TEXT_ANCHORS_AS_DISTINCT_LOGICAL_NODES",
+  "localTests": 35,
+  "realQaComplete": false
+}

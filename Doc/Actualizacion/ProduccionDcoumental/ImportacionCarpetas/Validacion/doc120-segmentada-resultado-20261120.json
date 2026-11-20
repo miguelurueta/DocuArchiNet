@@ -1,0 +1,75 @@
+{
+    "version":  1,
+    "issueKey":  "DOC-120",
+    "task":  "3.118",
+    "classification":  "REAL_DOC120_NATIVE_REPOSITORY",
+    "status":  "PASS_SEGMENTED_REPOSITORY",
+    "runId":  "1a31695b3e0c4a9c9f559a205d2dcf3c",
+    "codeSha":  "43bcff75076061ddd31b8a745ffc60f8f4464e39",
+    "startedUtc":  "2026-11-20T15:50:54.0332281Z",
+    "finishedUtc":  "2026-11-20T15:51:12.3835776Z",
+    "publication":  {
+                        "levelId":  "7",
+                        "profileId":  "24",
+                        "versionId":  "38"
+                    },
+    "previous":  {
+                     "runId":  "92158d88c6d94d328c5af9f2cb562d3d",
+                     "journalSha256":  "1e4bf2e68b91799a69e63e5b68298647e78d9abb3cf68e975c6d80fc87cb443e",
+                     "wrapperSelects":  29,
+                     "nativeEffects":  0
+                 },
+    "resourcesSha256":  "3dc919add7f68ef9b8b4d67ec86b01cc7b1f3506528d1fa84db2e62abd230605",
+    "backendSha256":  "b0b5d0d329f62124aa45ea49248746b90ad40c824a8a0a6adf73291d5d39dc4f",
+    "journalSha256":  "22c8d69c5106bf3cd69689254b5b7ed9d1063e9ecc0a4843e8fe6434d2da3fba",
+    "sourceFiles":  145,
+    "sourceMismatches":  0,
+    "protectedGroups":  16,
+    "protectedMismatches":  0,
+    "result":  {
+                   "status":  "PASS_SEGMENTED_REPOSITORY",
+                   "preparationId":  "9",
+                   "planId":  "93",
+                   "lotId":  "56",
+                   "repositoryCalls":  33,
+                   "controlSelects":  24,
+                   "rollbackStages":  [
+                                          "ANTES_EVENTO",
+                                          "EVENTO_INSERTADO",
+                                          "PLAN_CONFIRMADO"
+                                      ],
+                   "roots":  1,
+                   "files":  2,
+                   "bytes":  "89570",
+                   "finalFragments":  6,
+                   "documentEffects":  0,
+                   "physicalPooling":  false,
+                   "preexistingDataUnchanged":  true,
+                   "readOnlyControls":  true
+               },
+    "usage":  {
+                  "wrapperSelectsThisRun":  53,
+                  "wrapperSelectsPrevious":  29,
+                  "wrapperSelectsCumulative":  82,
+                  "nativeControlSelects":  24,
+                  "controlSelectsCumulative":  106,
+                  "nativeRepositoryCalls":  33
+              },
+    "effects":  {
+                    "preparations":  1,
+                    "plans":  1,
+                    "lots":  1,
+                    "roots":  1,
+                    "inventoryFiles":  2,
+                    "pdfBytesSent":  0,
+                    "expeditions":  0,
+                    "storedDocuments":  0,
+                    "ddl":  0
+                },
+    "credentialsCleared":  true,
+    "limitations":  [
+                        "Direct native repository integration with two physical connections; no real browser tabs or authenticated HTTP.",
+                        "Precomputed synthetic plan/values using metadata of two selected PDF; no provider resolution or binary upload.",
+                        "Does not certify 3.187, capacity of 1000 files, full UI acceptance, archive or global closure."
+                    ]
+}

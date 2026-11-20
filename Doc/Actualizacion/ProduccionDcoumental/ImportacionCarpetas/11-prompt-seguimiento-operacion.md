@@ -1,5 +1,151 @@
 # Prompt 11 — Seguimiento, reanudación y operación
 
+Flujo tecnico vigente (tarea3.170): [mapa en texto con cajas y decisiones](Diseno/flujo-tecnico-importacion-carpetas-doc120.txt), [contratos/predicados/filtros literales](Diseno/flujo-tecnico-importacion-carpetas-doc120-anexo.txt) y [manifiesto de fuentes](Diseno/flujo-tecnico-importacion-carpetas-doc120-fuentes.json). Contraste documental contra codigo1a45b891: ASMX/ASHX, fases tradicionales/segmentadas, autoridad, estados/errores, consulta/CSV/arbol, reanudacion/V2 y costo de las dos pasadas actuales. Regenerar y comprobar con `node tools/docs/generate-doc120-flow.cjs --check` al cambiar la implementacion; no es una prueba real nueva ni evidencia de optimizacion/capacidad. Verificacion documental:120 fuentes,53 WebMethods totales (22 operativos,31 administrativos),20 operaciones permitidas por el cliente; sintaxis del generador, regeneracion/--check, huellas/contratos, OpenSpec estricto y refinamiento15/15 correctos. No se recompila ni despliega porque no cambia codigo de la aplicacion.
+
+## Medición real de almacenamiento —2026-11-17
+
+Lote50: tres archivos medidos y confirmados,7→10 documentos guardados. El promedio de las solicitudes fue79,432s; el escritor habitual tardó0,152/0,023/0,020s. El mayor costo estuvo en cargar/reconstruir metadatos:2.000 llamadas por documento y72,321% del tiempo del coordinador. [Resultados, versión y límites](Validacion/doc120-medicion-tres-20261117.md). DLL instrumentada instalada con respaldo; no se aplicó una optimización. La prueba quedó cerrada y no continúa automáticamente los990 pendientes.
+
+## Consulta sin referencia local — corrección2026-11-17
+
+El botón **Consultar último lote** ya no exige elegir perfil ni tener una referencia en sessionStorage. Cuando falta, busca la última importación confirmada de la cuenta/empresa en el servidor compatible; valida el acceso al destino original y abre su seguimiento. Consultar no reanuda ni ejecuta efectos. Si hay una referencia guardada, conserva su consulta directa. Puedes volver a tu selección sin perder sus archivos o perfil.
+
+Si la cuenta no tiene importaciones, lo indica. Si el servidor todavía no admite la búsqueda, mantiene **Consultar importación** para ingresar una referencia conocida; no necesitas preparar otra importación. La búsqueda automática requiere instalar la DLL de esta corrección, con autorización separada. Cache token `doc120-ultimo-20261117-1`. [Diagnóstico, pruebas y estado de despliegue](Validacion/doc120-consulta-ultimo-20261117.md).
+
+## Espera y reanudación general — implementación local2026-11-17
+
+Recursos del cliente: `doc120-reanudacion-20261117-1`. Recepción y guardado esperan la respuesta del servidor sin el timeout genérico del navegador a30s. Al terminar de transmitir bytes se muestra **Esperando confirmación del servidor**; todavía no significa archivo recibido o documento guardado. Se conserva archivo/ruta, posición y último avance confirmado. Un fallo de red, respuesta inválida o error HTTP sigue obligando a consultar; esperar no impide que IIS u otra dependencia cierre su solicitud.
+
+**Pausar importación** deja terminar la solicitud iniciada y no comienza otra. Después, **Continuar importación** revisa los pendientes del mismo lote. Cerrar/recargar detiene la continuación automática; una respuesta perdida no revierte un guardado ni habilita repetirlo.
+
+Con la nueva DLL desplegada, consultar un lote DETENIDO sin actividad ni incertidumbre ofrece **Reanudar importación**. Ese clic autoriza levantar la detención con su revisión vigente; espera acuse, consulta de nuevo y continúa mediante la cola existente. No crea otro plan/lote, no repite recibidos, expedientes o documentos confirmados. Solo se pide vincular originales que realmente falten por recibir. Si aparece una nueva detención, actividad o incertidumbre, no se continúa automáticamente.
+
+Una solicitud de reanudación sin respuesta permite **Consultar resultado** y una nueva decisión; no se reenvía sola. Un servidor que no anuncie esta capacidad muestra **Importación detenida** con consulta disponible. La reanudación especial de creación conserva su control anterior y no sirve para levantar una detención general.
+
+Consultar importación, último lote, filtros y CSV conservan su función de lectura. La selección de pendientes usa IDs/estados del inventario completo, no el orden o la página visible. [Contrato](Diseno/espera-respuesta-reanudacion-lote-doc120.md), [evidencia local](Validacion/doc120-espera-reanudacion-20261117.md) y [ventana real propuesta](Validacion/doc120-reanudacion-plan-real-20261117.md).
+
+**Estado de entrega:** código compilado y probado localmente; esta continuación no instala la nueva DLL ni recupera el lote50. Los párrafos siguientes conservan sus cortes históricos; la nueva reanudación requiere el servidor compatible. No hay script SQL nuevo en esta ampliación.
+
+## Lote50 — condición real comprobada2026-11-17
+
+Diagnóstico8803b6f4 de5 SELECT confirmó detención persistente,1.000 recibidos, expediente confirmado y4 documentos completados;996 tienen almacenamiento NO_INICIADO y valores efectivos registrados. No hay intentos activos/inciertos. La interfaz vigente todavía carece de reanudación general para DETENIDO: repetir Continuar/Consultar no levanta la señal. Conservar el lote50/plan90/versión45 y sus resultados; esta lectura no ejecutó una recuperación ni autorizó editar estados por SQL. [Evidencia y límites físicos/operativos](Validacion/doc120-detencion-lote50-20261117.md). La implementación de reanudación permanece por desarrollar.
+
+## Aviso de parada por archivo — 2026-11-17, corte posterior
+
+Recargar con Ctrl+F5 para cargar recursos `doc120-parada-20261117-1`. Una parada muestra causa comprobada, fase, archivo/ruta, posición dentro del inventario y último avance confirmado; tiempo agotado no significa guardado fallido. Consultando resultado es una lectura distinta del almacenamiento. La confirmación observada se conserva; intento activo y fallo de consulta mantienen la pausa, sin repetir el efecto. Datos para soporte conserva códigos/referencias seguros. Consultar el mismo lote antes de usar únicamente sus acciones disponibles; no crear otra importación para resolver una espera sin respuesta. [Verificación local y límites](Validacion/doc120-parada-diagnostico-20261117.md):89/89 y4 GET estáticos200, sin autenticación o recuperación nueva del lote50.
+
+## Corrección de consulta tras revisar1.000 archivos — 2026-11-17, corte posterior
+
+DLL actualizada con `beae0afc`: sellado guarda el snapshot canónico y lector acepta revisiones anteriores cuyas reglas tengan otro orden, manteniendo la huella y el rechazo de valores alterados. Sin SQL ni importaciones nuevas. **Continuar revisión** usa el mismo plan si la ventana conserva sesión/selección; si el reinicio de la aplicación obliga a ingresar o recargar, puede hacer falta reselección/nueva revisión por pérdida de referencias en memoria. [Pruebas y límites](Validacion/doc120-lectura-plan-sellado-20261117.md). Retorno recomendado vigente `beae0afc`, sustituye `af1ff073`; los cortes inferiores son históricos.
+
+## Despliegue local confirmado — 2026-11-17
+
+SQL08 aplicado manualmente por el usuario; esquema real aceptado con10 SELECT de metadatos. DLL/PDB actualizados en IIS local, canal JSON de nueva consulta rechaza correctamente el acceso anónimo; sin importar archivos. **Recargar con Ctrl+F5**. El retorno compatible requiere `af1ff073` o posterior; sustituye el mínimo `d5bae464` por la corrección del detector de índices. [Resultado, huellas y límites](Validacion/doc120-despliegue-esquema-20261117.md). Los apartados inferiores conservan su corte previo al despliegue; la aceptación autenticada de1.000 PDF continúa pendiente.
+
+## Preparación segmentada — entrega local2026-11-17
+
+Con la DLL/SQL08 desplegados y compatibles, el usuario puede seleccionar la carpeta completa de1.000 PDF y pulsar **Preparar revisión** una vez. El módulo divide automáticamente los metadatos por cantidad/tamaño; muestra revisados/total y permite **Pausar revisión** y **Continuar revisión**. No envía contenido PDF en esa fase ni crea un plan por parte. Las fichas por carpeta, valores e incidencias se paginan conservando totales globales.
+
+Tras revisar, **Confirmar e importar** mantiene un lote y un expediente por raíz, con envío y efectos secuenciales. Los contadores distinguen recibidos, expedientes y documentos guardados. **Pausar** deja concluir la solicitud en curso; cerrar o recargar cancela la continuación automática. Consultar importación, último lote, filtros y CSV permanecen disponibles y no ejecutan efectos.
+
+Para retomar un lote confirmado: consultarlo, elegir la raíz pendiente y **Vincular carpeta de originales**. El módulo informa vinculados/faltantes/modificados/ambiguos/sobrantes y omite recibidos. Solo **Continuar importación** empieza los pendientes; no vuelve a confirmar ni agrega archivos nuevos al lote. Si la selección original sigue en memoria, no obliga a reseleccionar. En un borrador sin IDs de selección recuperables después de recarga, consultar es posible, pero continuar requiere preparar otra revisión: no se asocian originales por orden o nombre solo.
+
+[Verificación local y límites](Validacion/doc120-segmentada-20261117.md):200 casos únicos, compilaciones aisladas y lectores compatibles. SQL/DLL **sin aplicar al sitio**; capacidad real y rollback transaccional pendientes. [Ventana propuesta](Validacion/doc120-capacidad-plan-real-20261117.md). El apartado siguiente describe el aviso anterior, que sigue aplicando a servidores sin el nuevo contrato o a un elemento indivisible que exceda el límite.
+
+## Aviso de tamaño de revisión — 2026-11-16
+
+Si la lista seleccionada supera el límite JSON publicado por el servidor, Preparar revisión detiene la solicitud antes de enviarla. El aviso indica cantidad de PDF, caracteres observados y máximo permitido, confirma que se conserva selección/perfil y explica que hace falta ajustar la capacidad para esa cantidad. No envía los PDF ni afirma haber guardado una revisión. Ese control previo requiere desplegar la DLL actualizada del host; esta entrega solo compila en una ubicación aislada.
+
+Un servidor anterior sin ese metadato sigue pudiendo devolver un error ASMX reconocible de tamaño o HTTP413: el aviso explica el tamaño, pero conserva incertidumbre sobre si la revisión se guardó. Una respuesta HTML/genérica o un error desconocido no se atribuye a capacidad por tener muchos archivos; se informa que no se pudo identificar la causa. Ningún Message/StackTrace se muestra ni se repite la petición automáticamente. [Evidencia y alcance](Validacion/doc120-mensaje-tamano-20261116.md).
+
+## Recorrido vigente — DOC-120, 2026-11-15
+
+Claridad tras video121039: junto a Agregar carpeta se explica que el permiso «Subir» pertenece al navegador y permite leer la selección; el contenido PDF se envía al confirmar la importación. No se agrega otro diálogo. Revisar presenta cantidades una sola vez y fichas por carpeta con código y nombre informativo completos. La referencia de revisión sigue disponible en Detalles de configuración; incidencias y datos previstos conservan sus controles. Ver [corte de presentación](Validacion/doc120-revision-claridad-20261115.md).
+
+1. **Seleccionar**: elegir perfil publicado y agregar carpetas. Cada selección agrega una raíz con su identidad, aunque se repita el nombre.
+2. **Revisar**: preparar y comprobar carpeta, código previsto, nombre informativo e incidencias. **Confirmar e importar** registra el plan y coordina recepción, creación, preparación de datos y almacenamiento con las operaciones existentes.
+3. **Importar**: recorre los recursos elegibles de todo el lote, independientemente de filtros y páginas. Cada siguiente efecto exige acuse válido y lectura coherente. Se distinguen PDF recibidos, expedientes creados y documentos guardados; los bytes de transporte no equivalen a documentos almacenados.
+
+**Pausar importación** espera la solicitud iniciada e impide enviar la siguiente; no revierte su efecto. Cerrar o recargar no deja una cola ejecutándose en segundo plano. **Consultar importación**, **Consultar último lote**, filtros, páginas y CSV se conservan. Abrir una consulta durante la ejecución primero aplica la pausa; consultar y exportar no reanudan operaciones.
+
+Para recuperar: consultar el mismo lote y pulsar **Continuar importación**. Se reconstruyen los pendientes por IDs y estado del servidor, sin reconfirmar ni repetir resultados confirmados. Tras recargar, **Vincular PDF pendiente** solicita el original que falte; seleccionarlo no lo envía. Una respuesta perdida exige **Consultar resultado**. Los intentos activos, inciertos y reservas retomables conservan su verificación/reanudación explícita; el tiempo transcurrido no permite replay.
+
+El cierre muestra **Resultado de la importación**, **Ver expediente** o **Ver expedientes creados**, y **Cerrar**. El acceso distingue IDs con códigos iguales. Ante nodo oculto o ambiguo, conserva el resultado y avisa para abrir el destino original sin repetir la importación.
+
+El código puede repetirse frente a expedientes anteriores y entre carpetas del lote; el nombre es informativo y cada creación recibe su ID. El editor muestra **Permitir códigos repetidos**. Las versiones históricas se leen sin reescribir snapshots; los planes bloqueados por la comprobación anterior requieren nueva revisión. La política configurable futura todavía no está disponible.
+
+**Ver acciones** conserva operaciones individuales avanzadas; **Ver avance del lote** vuelve al recorrido coordinado. Las descripciones siguientes del envío individual mantienen su alcance de página, sin limitar el nuevo inicio único. Evidencia: [doc120-coordinacion-20261115.md](Validacion/doc120-coordinacion-20261115.md).
+
+## Mensajes del recorrido operativo — DOC-120,2026-11-14
+
+El aviso identifica la fase, el motivo comprobado y la siguiente acción permitida. Las incidencias muestran el campo y, cuando se conoce, formato, segmento desde1 o longitud observada/máxima; no vuelcan valores documentales privados. En una coincidencia de código se puede mostrar el código que ya figura en los datos previstos de esa misma carpeta. Una referencia de diagnóstico aparece solo si llegó del servidor. No se deduce del tiempo transcurrido que una operación haya fallado o pueda repetirse.
+
+Un plan histórico puede conservar la incidencia **Código del expediente** existente o repetido. La comprobación anterior ya no se aplica a nuevas revisiones: prepara otra revisión explícitamente. Se muestra el código solo con un único valor resuelto de la misma raíz; no se consultan ni exponen expedientes anteriores por coincidencia de código.
+
+| Fase | Resultado que puede mostrar | Cómo continuar |
+| --- | --- | --- |
+| Preparar revisión | Revisión guardada o bloqueada, con incidencias por carpeta/archivo. Por ejemplo: FECHA_INICIAL requiere el segmento3 del nombre. | Corregir selección/regla y preparar otra revisión explícitamente. No se han recibido archivos ni creado expedientes por preparar. Si se pierde la respuesta, la revisión puede haberse guardado; se conserva la selección, sin inventar una referencia de lote. |
+| Confirmar plan | Rechazo comprobado; confirmación pendiente de verificar; o lote confirmado cuya consulta falló. | Si no hubo acuse, usar Verificar confirmación pendiente con el plan conservado. Si llegó lote confirmado, consultar ese mismo lote, sin reconfirmar por el fallo de lectura. |
+| Enviar archivos | Archivo actual y bytes transferidos; recibos confirmados; archivo que interrumpió la cola y archivos sin intentar. El alcance es la cola seleccionada de la página filtrada. | La cola se detiene ante un fallo. Consultar antes de reenviar una recepción sin confirmar; reseleccionar solo pendientes elegibles. Los recibos confirmados se conservan aunque falle la consulta posterior. |
+| Crear/retomar expediente | Incidencia de comando, catálogo, revisión o reserva; creación sin confirmación; o creación confirmada con siguiente acción de índices. | Usar solo las acciones que ofrezca la consulta. Retomar conserva su confirmación y consentimiento. Si únicamente falla el árbol, actualizar la vista: no crear otra vez. |
+| Preparar índices/almacenar | Índices preparados, documento confirmado, rechazo comprobado o resultado incierto; archivo, carpeta y lote mantienen estados separados. | Índices preparados todavía requiere Almacenar archivo. Un acuse de almacenamiento no se pierde por un error de consulta. Resultado incierto requiere consulta y verificación permitida, sin repetir el escritor. |
+
+Los bytes de la solicitud no prueban recepción; RECIBIDO no prueba almacenamiento. Un resultado parcial no convierte los archivos sin intentar en rechazados. Tras recargar se conservan referencias de consulta, pero el navegador exige volver a seleccionar los originales pendientes: no se restaura un objeto File desde el servidor. El detalle del aviso se puede enfocar con Tab y recorrer si es largo; consultas, filtros, páginas y CSV siguen disponibles según autoridad.
+
+El catálogo público reutiliza código/mensaje/incidencias del sobre vigente, con alternativa segura para respuestas antiguas o desconocidas. No se muestran SQL, contraseñas, tokens, rutas físicas ni excepciones libres. La traza usa los listeners existentes; la prueba local acredita un listener de prueba, sin garantizar dónde está configurado el destino de traza de cada IIS. Mapa: `Validacion/doc120-mensajes-mapa-20261114.json`. Evidencia de ejecución local: `Validacion/doc120-mensajes-20261114.json`.
+
+## Mostrar un expediente ya confirmado en el árbol
+
+Después de terminar o recuperar una importación, Ctrl+F5 y Consultar importación/Consultar último lote → Actualizar estado vuelven a proyectar los expedientes confirmados de la página consultada en su destino original. Si el nivel estaba vacío se añade el primer hijo con su expansor y búsqueda; los ya representados no se duplican. No vuelvas a confirmar el plan ni enviar archivos. Si el destino no está visible, localízalo y actualiza; el asistente avisa si la vista no puede mostrarlos. Ver Validacion/doc120-primer-expediente-arbol-20261114.md.
+
+## Retomar una creación reservada — opción permanente
+
+1. Abre Consultar importación o Consultar último lote y actualiza el estado.
+2. Si el servidor reconoce una reserva de creación que puede retomarse, selecciona su carpeta y pulsa **Retomar creación**. El aviso indica si también se levantará la detención consultada. Cancelar no envía la solicitud.
+3. Confirma una vez. Se conservan la importación y los archivos ya recibidos. Los permisos, catálogos y archivos temporales se comprueban de nuevo.
+4. Cuando el expediente quede confirmado, continúa con **Preparar índices** y después con el almacenamiento mediante sus acciones separadas.
+
+Si no se confirma la respuesta, usa Actualizar estado. Una creación iniciada o incierta no se reinicia; Verificar intento solo aparece cuando el servidor lo permite. Si falta staging o cambia una revisión, la reanudación se bloquea. No crees otra importación ni reenvíes archivos recibidos para eludir ese bloqueo. Filtros y exportación conservan su funcionamiento.
+
+Implementación verificada localmente con108/108 pruebas y compilación; recuperación autenticada del lote39 pendiente. Ver Validacion/doc120-retomar-creacion-permanente-20261114.md. Los cortes siguientes son históricos.
+
+## Corrección de fechas de origen cortas — 2026-11-14
+
+Una fecha de origen compacta se conserva resuelta en yyyy-MM-dd. La validación de esa salida ya usa sus diez caracteres, sin cambiar el formato/límite de entrada ni editar el perfil. La corrección no reanuda intentos que quedaron reservados: Actualizar solo consulta y Verificar no convierte RESERVADO en verificable. Lote39/intento96 sigue conservado con su detención; la propuesta técnica de recuperación todavía necesita implementación y autorización específicas. No crear otro lote ni reenviar su PDF para sustituir la recuperación. Ver Validacion/doc120-fecha-canonica-corregida-20261114.json.
+
+## Continuación y bloqueo de la parte final — vigente2026-11-14
+
+Después de enviar los pendientes, **Crear expediente** solicita una creación para la carpeta indicada. Solo al confirmarse aparece **Preparar índices** para su archivo; después, **Almacenar archivo**. Son operaciones distintas. **Importación completada** depende del estado confirmado del lote; recibir el PDF no lo almacena.
+
+Si la creación no devuelve confirmación, el aviso permanece visible aunque estés al final de las tablas. Consulta el resultado una vez. Si el servidor conserva **CREANDO/EN_CURSO**, el flujo queda detenido para ese intento: **Revisar bloqueo** lleva al detalle con lote, carpeta e intento sin ejecutar peticiones; **Actualizar estado** solo vuelve a consultar, no reanuda. No se ofrece otra creación ni se habilita Verificar intento por tiempo. Si el servidor publica un INCIERTO verificable, **Verificar intento** comprueba su evidencia sin repetir efectos y puede conservar el bloqueo.
+
+El video194059 muestra este bloqueo en lote39/carpeta60; no consta todavía la causa ni si el escritor llegó a crear el expediente. Diagnóstico preparado: `node tools/e2e/scripts/inspect-doc120-final-state.cjs --lot 39 --root 60 --authorized`. **Ejecutar únicamente después de autorización específica**, con DSN RA del ambiente local autorizado y cuenta MySQL SELECT en consola enmascarada:5 SELECT máximos,0 HTTP,0 modificaciones. La salida saneada queda en .tmp/doc120-final-state, excluida de Git; nunca introducir claves en el chat. La prueba local79/79 no sustituye esa lectura ni acredita recuperación real. Evidencia: Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-flujo-final-20261114.json.
+
+
+## Controles de la maqueta — interfaz vigente2026-11-13
+
+Consultar importación y Consultar último lote permanecen en la barra superior del asistente, visibles al desplazar cualquier etapa. Sin referencia guardada, último lote aparece deshabilitado con explicación. Consultar una referencia abre su seguimiento sin enviar ni confirmar. **Volver a mi importación** recupera la preparación original en memoria; si ya tenía un lote confirmado, relee sus datos antes de habilitar acciones. La consulta requiere reseleccionar sus propios pendientes: no toma los archivos locales de otra preparación por coincidencias de identificación. Cerrar una consulta con preparación sin confirmar mantiene la advertencia de descarte; recargar la página todavía exige reseleccionar Files porque no se guardan en el navegador.
+
+**Ver acciones** en una carpeta o archivo destaca su recurso, sin efectos. El botón del pie solicita únicamente la operación indicada. **Enviar archivo / Enviar N archivos** se limita a pendientes seleccionados en este equipo de la página filtrada; las fases restantes son explícitas. Referencias y estados aparecen en el contexto y en los nombres accesibles, mientras los rótulos visibles de las acciones son breves. Filtros, configuración, incidencias y datos previstos se despliegan; más perfiles, eliminación de archivos y paginación permanecen disponibles.
+
+Verificación local71/71, comparación visual116 propiedades, sin nueva sesión real. Evidencia: Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-fidelidad-maqueta-20261113.json.
+
+
+## Interfaz guiada vigente2026-11-13
+
+1. **Seleccionar**: elige una versión publicada del perfil y agrega una carpeta por selección. Puedes agregar varias, quitar carpetas o archivos y recorrer su inventario. Preparar revisión no envía archivos.
+2. **Revisar**: consulta incidencias/valores y confirma el plan cuando el servidor lo permita. Cambiar selección exige preparar de nuevo.
+3. **Importar**: destaca fase y recurso actuales, con pausa y continuación explícitas. Confirmar e importar recorre el lote elegible completo; Ver acciones conserva la operación individual. Recepción no equivale a documento almacenado.
+
+Actualizar estado conserva filtros/páginas y muestra fecha/contador tras completar las lecturas. Filtros de carpetas y archivos y configuración se despliegan por separado. Exportar esta página descarga únicamente la página de archivos con sus filtros. Las consultas por referencia, último lote y confirmación pendiente conservan destino/autorización originales. Cerrar antes de confirmar descarta la selección; después conserva referencia y puede exigir reseleccionar originales pendientes, sin reenviar recibidos o inciertos automáticamente. Una detención conserva efectos ya confirmados.
+
+Implementación verificada localmente68/68; evidencia Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-asistente-guiado-20261113.json. Sin nueva aceptación IIS ni cambios de perfil Egresos/datos.
+
+
+## Recepción previa a creación — DOC-120, 2026-11-13
+
+En Resultados, Enviar pendientes de esta página aparece antes de los filtros. Primero recibe los archivos requeridos por el perfil: todos los de la carpeta para EXPEDIENTE, todos los del lote para LOTE, o al menos un archivo elegible por carpeta en PARCIAL. Crear expediente aparece tras consultar la disponibilidad de recepción calculada por servidor; los filtros y la página visible no reducen el ámbito exigido. La creación vuelve a verificar autoridad, revisión y staging. Continúa con Preparar índices y Almacenar archivo. Tras recargar debes reseleccionar el PDF pendiente antes de enviarlo; conserva el lote existente, sin volver a confirmar el plan. Esta corrección no recibe archivos automáticamente ni resuelve intentos inciertos.
+
 ## Navegación operativa DOC-119, 2026-11-12
 
 En Producción Documental, el menú superior **Importación** ofrece **Importar carpetas…** y **Consultar importación…** a quien tiene permiso operativo, aunque no administre perfiles. La sección **Administración** conserva por separado los permisos existentes de perfiles/proveedores/fuentes. Los accesos ya no dependen de una franja permanente.
@@ -17,6 +163,10 @@ Ante incertidumbre, consulta el estado o verifica la referencia pendiente antes 
 El contextual cabe en el viewport y permite desplazarse hasta sus últimas opciones. Con foco en el recurso, usa Shift+F10 o la tecla de menú; navega con flechas/Inicio/Fin y cierra con Escape para devolver el foco al invocador. La acción conserva el recurso que abrió el menú.
 
 Evidencia operativa: SEG-01 real completo y SEG-02 real con límites, aceptado con cobertura mixta por el responsable. Inserción nueva y raíces físicas homónimas conservan cobertura local, sin anunciar observación en IIS. La UI definitiva se verifica con Chromium/cliente real y servicios sintéticos, compilación WebForms y regresiones de consumidores; ese alcance no sustituye una nueva prueba autenticada ni autoriza efectos adicionales.
+
+## Consolidación de verificación DOC-120
+
+La interfaz descrita corresponde a la base8c0773d4 entregada por DOC-119; sus fuentes permanecen iguales en la consolidación local DOC-120. Consulta [matriz-verificacion.md](Validacion/matriz-verificacion.md) y [resultados.md](Validacion/resultados.md) para el alcance por caso. Las pruebas locales no equivalen a nueva sesión autenticada, medición de capacidad o ejecución SII. Los límites de capacidad/UI real y la aceptación de salida se revisan expresamente antes del cierre; se mantiene la operación sin limpieza y la conservación de datos.
 
 ## ROL ESPERADO
 

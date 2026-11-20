@@ -84,6 +84,10 @@ Public Class ResultadoPreparacionImportacion
 End Class
 
 Public Class PlanImportacionCarpetas
+    <Newtonsoft.Json.JsonIgnore>
+    Public Property PreparacionId As String
+    Friend Property ReferenciaManifiestoSegmentado As ReferenciaPlanSegmentadoImportacion
+    Friend Property ReferenciaResultadoSegmentado As ReferenciaPlanSegmentadoImportacion
     Public Property PlanId As String
     Public Property Contexto As ContextoImportacionCarpetas
     Public Property Snapshot As SnapshotPerfilImportacionOperativa
@@ -98,6 +102,8 @@ Public Class PlanImportacionCarpetas
 End Class
 
 Public Class LoteImportacionCarpetas
+    <Newtonsoft.Json.JsonIgnore>
+    Public Property ControlArchivos As CabeceraControlArchivosImportacion
     Public Property LoteId As String
     Public Property PlanId As String
     Public Property Contexto As ContextoImportacionCarpetas
@@ -115,6 +121,11 @@ Public Class LoteImportacionCarpetas
 End Class
 
 Public Class RaizImportacionCarpetas
+    'Pista de consulta, nunca persistida ni sustituto de la barrera de escritura.
+    <Newtonsoft.Json.JsonIgnore>
+    Public Property RecepcionListaParaCrear As Boolean
+    <Newtonsoft.Json.JsonIgnore>
+    Public Property PuedeRetomarCreacion As Boolean
     Public Property RaizId As String
     Public Property LoteId As String
     Public Property ClienteRaizId As String
@@ -128,6 +139,8 @@ Public Class RaizImportacionCarpetas
 End Class
 
 Public Class ArchivoImportacionCarpetas
+    <Newtonsoft.Json.JsonIgnore>
+    Public Property ProcedenciaVerificada As Boolean
     Public Property ArchivoId As String
     Public Property RaizId As String
     Public Property ClienteArchivoId As String
@@ -285,6 +298,8 @@ End Class
 
 'Vista interna coherente del plan sellado y metadatos del ambito. No DTO HTTP.
 Public Class VistaBarreraCreacionImportacion
+    <Newtonsoft.Json.JsonIgnore>
+    Public Property EsFocal As Boolean
     Public Property Lote As LoteImportacionCarpetas
     Public Property Plan As PlanImportacionCarpetas
     Public Property Raiz As RaizImportacionCarpetas
@@ -337,6 +352,8 @@ Public Class FiltroConsultaImportacion
 End Class
 
 Public Class EstadoLecturaImportacion
+    Public Property ProcesamientoIndependiente As Boolean
+    Public Property EscritorVivo As Boolean
     Public Property Lote As LoteImportacionCarpetas
     Public Property HayIntentosActivos As Boolean
     Public Property HayIncertidumbre As Boolean

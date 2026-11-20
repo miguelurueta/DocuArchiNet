@@ -52,16 +52,16 @@ Public Class ServicioRecepcionImportacion
         If plan Is Nothing OrElse plan.PlanId <> solicitud.planId OrElse plan.Snapshot Is Nothing OrElse plan.Snapshot.Configuracion Is Nothing OrElse plan.Huella <> solicitud.planHashEsperado Then Throw Conflicto()
         _autorizar(contexto, plan.Snapshot.Configuracion)
         If plan.Estado <> "CONFIRMADO" Then
-            If plan.Estado <> "REVISABLE" OrElse plan.Revision <> solicitud.revisionEsperada OrElse plan.Resultado Is Nothing OrElse Not plan.Resultado.PuedeConfirmar Then Throw Conflicto()
+            If plan.Estado <> "REVISABLE" OrElse plan.Revision <> solicitud.revisionEsperada OrElse plan.Resultado Is Nothing OrElse Not plan.Resultado.PuedeConfirmar Then Throw Conflicto("PLAN_NO_REVISABLE")
             Dim vencimiento As DateTime
             Dim ahora = _ahora()
-            If Not DateTime.TryParseExact(plan.ExpiraUtc, "yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal Or DateTimeStyles.AdjustToUniversal, vencimiento) OrElse ahora.Kind <> DateTimeKind.Utc OrElse vencimiento <= ahora Then Throw Conflicto()
-            CanonizadorManifiestoImportacion.Canonizar(plan.Manifiesto, _limites)
+            If Not DateTime.TryParseExact(plan.ExpiraUtc, "yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal Or DateTimeStyles.AdjustToUniversal, vencimiento) OrElse ahora.Kind <> DateTimeKind.Utc OrElse vencimiento <= ahora Then Throw Conflicto("PLAN_EXPIRADO")
+            CanonizadorManifiestoImportacion.Canonizar(plan.Manifiesto, _limites, plan.EsquemaDoc)
             Dim actual = _perfiles.Seleccionar(contexto, plan.Snapshot.VersionId)
-            If Not PerfilImportacionJson.MismaPublicacion(actual, plan.Snapshot) Then Throw Conflicto()
+            If Not PerfilImportacionJson.MismaPublicacion(actual, plan.Snapshot) Then Throw Conflicto("PERFIL_CAMBIADO")
             Dim incidencias = _coincidencias(contexto, actual, plan.Manifiesto, plan.Resultado)
             If incidencias Is Nothing Then Throw New PerfilImportacionException("CAPACIDAD_NO_DISPONIBLE", "No se pudieron comprobar las coincidencias.")
-            If incidencias.Any(Function(i) i.BloqueaUnidad AndAlso (String.IsNullOrEmpty(i.RaizIdCliente) OrElse plan.Resultado.UnidadesElegibles.Contains(i.RaizIdCliente))) Then Throw Conflicto()
+            If incidencias.Any(Function(i) i.BloqueaUnidad AndAlso (String.IsNullOrEmpty(i.RaizIdCliente) OrElse plan.Resultado.UnidadesElegibles.Contains(i.RaizIdCliente))) Then Throw Conflicto("COINCIDENCIA_DETECTADA")
         End If
         'El repositorio decide repeticion y conflictos bajo su transaccion. Un
         'plan CONFIRMADO no vuelve a seleccionar perfil ni aplicar su expiracion.
@@ -74,6 +74,8 @@ Public Class ServicioRecepcionImportacion
         ValidarSolicitud(solicitud)
         If contenido Is Nothing OrElse Not contenido.CanRead Then Throw New PerfilImportacionException("SOLICITUD_INVALIDA", "El contenido es obligatorio.")
         Dim recurso = ObtenerRecepcion(solicitud)
+        Dim control = TryCast(_recepciones, IControlArchivosIndependientesImportacion)
+        If control IsNot Nothing AndAlso recurso.Lote.ControlArchivos Is Nothing AndAlso recurso.Archivo.EstadoRecepcion <> "RECIBIDO" Then control.PrepararControlArchivos(recurso.Contexto, solicitud.loteId)
         If recurso.Archivo.EstadoRecepcion = "RECIBIDO" Then
             Dim anterior = _recepciones.ObtenerIntentoRecepcion(recurso.Contexto, solicitud.loteId, solicitud.archivoId, Nothing)
             ValidarIntentoServicio(anterior, recurso.Archivo, solicitud.loteId)
@@ -188,8 +190,8 @@ Public Class ServicioRecepcionImportacion
         Return New PerfilImportacionException("RESULTADO_INCIERTO", "La recepción no pudo comprobarse. Consulte y reconcilie antes de repetir.")
     End Function
 
-    Private Shared Function Conflicto() As PerfilImportacionException
-        Return New PerfilImportacionException("CONFLICTO_REVISION", "El plan o sus recursos cambiaron. Consulte su estado antes de continuar.")
+    Private Shared Function Conflicto(Optional motivo As String = "CONFLICTO_REVISION") As PerfilImportacionException
+        Return DiagnosticoOperacionImportacion.Fallo("CONFLICTO_REVISION", "confirmacion", motivo)
     End Function
     Private Shared Function Denegado() As PerfilImportacionException
         Return New PerfilImportacionException("ACCESO_DENEGADO", "El plan no está disponible para este contexto.")

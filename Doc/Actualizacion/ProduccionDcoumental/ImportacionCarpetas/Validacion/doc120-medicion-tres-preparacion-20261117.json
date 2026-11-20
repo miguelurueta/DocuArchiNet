@@ -1,0 +1,91 @@
+{
+  "date": "2026-11-17",
+  "baseCommit": "000fcfd82eeec9608c78f403df1a31405082e701",
+  "status": "PREPARED_AWAITING_DEPLOYMENT_APPROVAL_AND_EPHEMERAL_INPUTS",
+  "completedLocalTasks": [
+    "3.165",
+    "3.166",
+    "3.167",
+    "3.168"
+  ],
+  "pendingMeasurementTask": "3.169",
+  "progress": {
+    "done": 177,
+    "total": 189,
+    "priorTasksPreserved": 184
+  },
+  "tests": [
+    {
+      "log": ".tmp/doc120-three-runner-tests.log",
+      "tests": 6,
+      "pass": 6,
+      "fail": 0
+    },
+    {
+      "log": ".tmp/doc120-three-framework.log",
+      "tests": 2,
+      "pass": 2,
+      "fail": 0
+    }
+  ],
+  "uniqueNodeTests": 8,
+  "internalCasesAddedToTotal": false,
+  "build": {
+    "exitCode": 0,
+    "target": "Compile",
+    "log": ".tmp/doc120-three-build.log",
+    "candidateSha256": "f667ea0ffe1b6f2ef111ac5afd52f50bab92c5edcd340a0421b9ea0931aef689",
+    "candidatePdbSha256": "024c9ae7c1bd98c9c062d96f2b890b0a904402d3fa746c979f64d898f768fcec",
+    "activeObservedSha256": "234268c3dddabc2996b871718af508be8ab4a86842a4af770aa44535b78a319a",
+    "deployed": false
+  },
+  "boundaries": {
+    "httpReal": 0,
+    "selectReal": 0,
+    "authenticatedSessions": 0,
+    "storageDispatched": 0,
+    "newTables": 0,
+    "newEndpoints": 0,
+    "optimizationApplied": false,
+    "measurementWindowCreated": false
+  },
+  "realMeasurements": [],
+  "sources": [
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.ProtocoloV2.vb",
+      "sha256LF": "b5794b9e2af90f8b3024f748679fad84f47b3af457c4311d3a0c1c04a2f93f5c"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.Recuperacion.vb",
+      "sha256LF": "28175c8055e1d5cdf8374fa3fc0b226a9eddde6300063fb824548b706aa5f06e"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Staging.vb",
+      "sha256LF": "e9eb30b301a91417566e5855642866b0e6d72748ae93281e8820b5858b0c0d0c"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioPerfilImportacion.vb",
+      "sha256LF": "de9ef60f5b15c541f93f12acc2d59ce3ef58adf62e7ef44f9855307ef765fe36"
+    },
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "sha256LF": "c3d20445bcd39dae102cbab35c03164184fe444a014db4e07876a662c9621bc5"
+    },
+    {
+      "path": "tests/ImportacionCarpetasMedicionBehaviorTests.cs",
+      "sha256LF": "83105530a04022cd4993652dc41f796b10d140b78c783d401ca436b3422e96b2"
+    },
+    {
+      "path": "tests/doc120-medicion-tres.test.cjs",
+      "sha256LF": "d7ab4e43a4a5ea221f8488d1b142eb84b6c62bab39bc73b1f5aafbaccccd90a2"
+    },
+    {
+      "path": "tools/e2e/scripts/measure-doc120-three-files.cjs",
+      "sha256LF": "19d36f9a3f5f9cf30dc26132b0257706c8c2e3587aeb3ed47eab4b7dc0bc36de"
+    },
+    {
+      "path": "webservice/WebServiceImportacionCarpetas.asmx.vb",
+      "sha256LF": "ebdcae35c36a470b8bcccf51cfda04b4929b03dca984450b6aeca510d37f126c"
+    }
+  ]
+}

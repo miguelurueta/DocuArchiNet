@@ -35,7 +35,7 @@
             var prior=options.querySelector('[data-doc119-administracion]');if(prior){prior.remove();}
             var administration=node('div',null,{'class':'doc119-administration-menu','data-doc119-administracion':'1'});
             administration.appendChild(node('span','Administración',{'class':'dropdown-header'}));
-            [open,host.querySelector('[data-doc110=admin-proveedores]'),host.querySelector('[data-doc110=admin-fuentes]')].forEach(function(access){if(access){access.className='dropdown-item';administration.appendChild(access);}});
+            [open,host.querySelector('[data-doc110=admin-proveedores]'),host.querySelector('[data-doc110=admin-fuentes]')].forEach(function(access,index){if(access){access.className='dropdown-item';window.ImportacionCarpetas.rotularAccesoMenu(access,access.textContent,['fa-sliders-h','fa-server','fa-database'][index]);administration.appendChild(access);}});
             options.appendChild(administration);
         }
         var current = null, busy = false, listPage = 1, listCode = "", listTerm = "", searchWidget = null, searchEpoch = 0, controls = {}, ruleBody, editorArea, rulesArea;
@@ -317,7 +317,7 @@
             controls.PoliticaSubcarpetas=select(editorArea,"Subcarpetas",[["","Seleccione…"],["INCLUIR","Incluir documentos en el expediente raíz"],["RECHAZAR","Rechazar subcarpetas"]],c.PoliticaSubcarpetas);
             controls.PoliticaCarpetasVacias=select(editorArea,"Carpetas vacías",[["","Seleccione…"],["RECHAZAR","Rechazar"]],c.PoliticaCarpetasVacias);
             controls.PoliticaArchivosSueltos=select(editorArea,"Archivos fuera de carpetas",[["","Seleccione…"],["RECHAZAR","Rechazar"]],c.PoliticaArchivosSueltos);
-            controls.PoliticaCoincidencias=select(editorArea,"Expediente coincidente",[["BLOQUEAR","Reportar conflicto"],["REUTILIZAR_VALIDADO","Reutilizar tras validar identidad y permisos"]],c.PoliticaCoincidencias);
+            controls.PoliticaCoincidencias=select(editorArea,"Código del expediente",[["PERMITIR","Permitir códigos repetidos; cada expediente tiene su ID"]],"PERMITIR");
             controls.Extensiones=input(editorArea,"Extensiones permitidas, separadas por coma",(c.Extensiones || []).join(","));
             controls.MaximoBytesArchivo=input(editorArea,"Límite de bytes por archivo (opcional)",c.MaximoBytesArchivo,"number");
             controls.MaximoBytesArchivo.min="1";controls.MaximoBytesArchivo.step="1";

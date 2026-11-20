@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-19",
+  "baseCommit": "7817d2355aeec5773dc7950e5678746b2cb26843",
+  "scope": "CONFIRMED_PENDING_LOT_CLOSE_CONSENT",
+  "tasks": [
+    "3.212",
+    "3.213",
+    "3.214",
+    "3.215"
+  ],
+  "scenarios": [
+    "CTL-07",
+    "CTL-08",
+    "CTL-09"
+  ],
+  "sources": [
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256": "576fd43c097304525b818bd7e1a55fcdb8826917c4994846726453e02b9fd63f"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256": "b0702f9e2c4635dc5ca1615221ebb5ac361ff42f0bb71b7e94df003edbde1fae"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256": "03f0d33f81b49c82cb48f77decd888a65b56623997e65df753e25f36adae9a05"
+    },
+    {
+      "path": "tests/doc120-controles-cierre-browser.test.cjs",
+      "sha256": "36047bdfa49a2947896f639f308bca521c295bfd727b5af2c6f35869891f1ae8"
+    },
+    {
+      "path": "tests/doc120-coordinacion-browser.test.cjs",
+      "sha256": "b4222dc8b46a6c9f63a071b06b45cdfae3dedc547af916c524985f8ad1ddc6b4"
+    },
+    {
+      "path": "tests/doc111-importacion-carpetas-client.test.cjs",
+      "sha256": "bf5f978ffb5229307178f62f87af738ba03db7ad8157ac67d3c91fcc0d07b222"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc119-seguimiento.cjs",
+      "sha256": "a5792675ec49bf8798b77580e49121955c6231439d6372e77e29fcc27f1cc1f2"
+    },
+    {
+      "path": "tools/docs/generate-doc120-flow.cjs",
+      "sha256": "8d3ecb6d28210dbb7a5cce2e9bc735edcc5083fda8b835dcd1138310cc02fafd"
+    }
+  ],
+  "video": {
+    "name": "Grabación 2026-11-19 090901-cirrea-no-pregunta.mp4",
+    "sha256": "6fc7a02517f780bb497db526311037e8718b4685640f19829577450d72225dff",
+    "durationSeconds": 77.53,
+    "observation": "Pending lot51 exits without close consent. Does not certify asset SHA, SQL state or request completion."
+  },
+  "verification": {
+    "uniqueTests": 78,
+    "newTests": 11,
+    "browserControls": 28,
+    "broad": {
+      "tests": 78,
+      "passed": 73,
+      "failed": 5,
+      "log": ".tmp/doc120-consentimiento-regresion.log",
+      "sha256": "f4043fc52444339e958be0f0c3a3b7ad6aea02af5cc1c409fa89b2c0b53cee29",
+      "failureCause": "Five old fixtures omitted accepting new consent, preventing fresh query. Updated to consent explicitly."
+    },
+    "focused": {
+      "tests": 11,
+      "passed": 11,
+      "failed": 0,
+      "log": ".tmp/doc120-consentimiento-focal.log",
+      "sha256": "6607208997fc6e047d6206f02766c75a0f083f2c8d1e8f880a5115a01939a303",
+      "scope": "Five corrected driver cases, five recovery cases, one focus/native-confirm guard"
+    },
+    "counting": "73 broad successes plus 5 corrected cases; 6 focused overlap. Not a new single 78/78 run.",
+    "exploratory": {
+      "tests": 37,
+      "passed": 35,
+      "failed": 2,
+      "log": ".tmp/doc120-consentimiento-tests.log",
+      "sha256": "817f9f5ee535eabbc2ef90a692ff560e9fb78cf53ee1621a80ce0a0f97f270f5",
+      "resolution": "Rearm one-shot synthetic hold; distinguish two valid completed-close buttons. Both pass in subsequent broad run."
+    },
+    "syntax": true,
+    "openspecStrict": true,
+    "flowSources": 124,
+    "flowLines": 20177,
+    "diffCheck": true,
+    "viewports": [
+      390,
+      768,
+      1280
+    ],
+    "screenshots": [
+      {
+        "path": ".tmp/doc120-coordinacion-ui/consentimiento-cierre-390.png",
+        "sha256": "31cc7d5a0db0a423e0cddf00c65bca52b9fa17fab00ad1b4c459f9f9b4dde7b9"
+      },
+      {
+        "path": ".tmp/doc120-coordinacion-ui/consentimiento-cierre-768.png",
+        "sha256": "3168a86c6c665ccd8016c1616a70c14ac3fc9019a5b798f0256a3506cc704e32"
+      },
+      {
+        "path": ".tmp/doc120-coordinacion-ui/consentimiento-cierre-1280.png",
+        "sha256": "e1d9ba692e95184c485d7adce4e887450707225b11d1781b92da1c830ac07fd0"
+      }
+    ]
+  },
+  "behavior": {
+    "pendingLotPromptsBeforePause": true,
+    "declineDoesNotPauseOrRestart": true,
+    "escapeDismissesConsent": true,
+    "acceptWaitsAckWithoutAbortOrNext": true,
+    "oneConsentPerSession": true,
+    "forcedDisposalDiscardsConsent": true,
+    "completedLotNoPrompt": true,
+    "unconfirmedPreparationRetainsPriorConsent": true,
+    "executionCanAdvanceWhileUserDecides": true,
+    "assetVersion": "doc120-consentimiento-cierre-20261119-2"
+  },
+  "runtime": {
+    "realHttp": 0,
+    "realSelect": 0,
+    "realSessions": 0,
+    "realBusinessEffects": 0,
+    "dllCompiledOrReplacedByAgent": false,
+    "schemaChangedByAgent": false,
+    "installedDllObservedSha256": "b0b5d0d329f62124aa45ea49248746b90ad40c824a8a0a6adf73291d5d39dc4f",
+    "installedDllObservation": "Current installed hash differs from historical QA hash; not compiled or replaced in this change. No claim of current binary certification.",
+    "historicalQaStatePreserved": true,
+    "historicalStateSha256": "c26e2686c9243fca52662b7afdf262b572c0e5929cdc28dbf5fa4eb01aaa64a0",
+    "manualAcceptanceNewClient": "PENDING"
+  },
+  "secretsRecorded": false
+}

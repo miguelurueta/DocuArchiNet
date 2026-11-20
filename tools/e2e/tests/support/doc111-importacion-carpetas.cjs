@@ -499,4 +499,28 @@ async function runRec(driver, controls, profile, bytes, onReference = () => {}) 
   const after = await controls.verify(lot.loteId,profile);check(before.fingerprint===after.fingerprint,'REPLAY_OR_REOPEN_CHANGED_DATA');
   return {mode:profile.mode,rec01:true,rec02:true,barrierPreserved:true,idsAndIndicesVerified:true,replayAndReopenUnchanged:true,roots:after.roots,documents:after.documents,originalFiles:files.length};
 }
-module.exports={MODES,FILE_NAME,validateProfile,readFixture,assertAuthorizations,classifyLoginMessage,classifyLoginPostback,loginObservation,openSession,createDriver,createSelectControls,runRec,runResume,runReconciliationResume,runCompletedVerification};
+// Bounded DOC-120 provisioning only. Uses the same official preparation,
+// receipt, creation and value-materialization driver; never calls ALMACENAR.
+async function prepareFileReservationFixture(driver,profile,bytes,runId,reference,verifyPlan){
+  check(/^[a-f0-9]{32}$/.test(runId)&&profile.nivelRef==='7'&&profile.versionId==='38'&&bytes.length===677&&typeof verifyPlan==='function','FILE_FIXTURE_SCOPE_INVALID');
+  const rootName='DOC120-'+runId+'-RES',names=[FILE_NAME,'DOC111 Ordenes 0008.pdf'];
+  await driver.refreshToken();
+  const opened=await driver.request('AbrirImportacion',{nivelRef:profile.nivelRef});check(opened.nivelRef==='7','DESTINATION_CHANGED');
+  const plan=await driver.request('PrepararPlan',{nivelRef:'7',versionId:'38',raices:[{seleccionId:'s1',idCliente:'r1',nombre:rootName}],archivos:names.map((nombre,i)=>({idCliente:'a'+(i+1),raizIdCliente:'r1',nombre,rutaRelativa:rootName+'/'+nombre,bytes:'677',ultimaModificacionLocal:'0'}))});
+  check(id(plan.planId),'FILE_FIXTURE_PLAN_INVALID');reference('plan',plan.planId);
+  check(plan.resultado?.PuedeConfirmar===true&&plan.resultado.UnidadesElegibles?.length===1&&plan.snapshot?.PerfilId==='24'&&plan.snapshot.VersionId==='38','PREFLIGHT_NOT_ELIGIBLE');
+  await verifyPlan(plan.planId);
+  const lot=await driver.request('ConfirmarPlan',{planId:plan.planId,revisionEsperada:plan.revision,planHashEsperado:plan.planHash,claveConfirmacion:crypto.randomBytes(16).toString('hex')});
+  check(id(lot.loteId),'FILE_FIXTURE_LOT_INVALID');reference('lote',lot.loteId);
+  const roots=await driver.pages(lot.loteId,'RAICES'),files=await driver.pages(lot.loteId,'ARCHIVOS');
+  check(roots.length===1&&files.length===2&&roots[0].idCliente==='r1','FILE_FIXTURE_INVENTORY_INVALID');reference('raiz',roots[0].recursoId);
+  const ordered=names.map((name,i)=>one(files.filter(f=>f.idCliente==='a'+(i+1)),'FILE_CORRELATION_INVALID'));
+  for(let i=0;i<2;i++){reference('archivo',ordered[i].recursoId);await driver.receive(lot.loteId,ordered[i],bytes,names[i]);}
+  const freshRoot=one(await driver.pages(lot.loteId,'RAICES'),'ROOT_CORRELATION_INVALID');
+  const created=await driver.request('AvanzarLote',{loteId:lot.loteId,recursoId:freshRoot.recursoId,fase:'CREAR_EXPEDIENTE',revisionEsperada:freshRoot.revision,claveOperacion:crypto.randomBytes(16).toString('hex')});
+  check(created.estado==='CONFIRMADO'&&id(created.expedienteId)&&id(created.relacionNivelId),'CREATION_NOT_CONFIRMED');reference('expediente',created.expedienteId);reference('relacion',created.relacionNivelId);
+  for(const file of ordered){const fresh=one((await driver.pages(lot.loteId,'ARCHIVOS')).filter(f=>f.recursoId===file.recursoId),'FILE_CORRELATION_INVALID');
+    const fixed=await driver.request('AvanzarLote',{loteId:lot.loteId,recursoId:file.recursoId,fase:'MATERIALIZAR_VALORES',revisionEsperada:fresh.revision,claveOperacion:crypto.randomBytes(16).toString('hex')});check(fixed.estado==='CONFIRMADO','PHASE_NOT_CONFIRMED');}
+  return{planId:plan.planId,lotId:lot.loteId,files:ordered.map(f=>f.recursoId),expedientId:created.expedienteId,relationId:created.relacionNivelId};
+}
+module.exports={MODES,FILE_NAME,validateProfile,readFixture,assertAuthorizations,classifyLoginMessage,classifyLoginPostback,loginObservation,openSession,createDriver,createSelectControls,runRec,runResume,runReconciliationResume,runCompletedVerification,prepareFileReservationFixture};

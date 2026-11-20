@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "status": "PASS_LOCAL",
+  "createdUtc": "2026-11-14T20:07:14.103Z",
+  "baseSha": "0a09098030db0a4d4c10a5aacbe0337fe01348ea",
+  "tasks": [
+    "3.67",
+    "3.68"
+  ],
+  "reported": "error.png: código existente presentado sin valor y con alcance genérico de destino",
+  "behavior": {
+    "scope": "MISMA_EMPRESA_Y_AREA",
+    "codeSource": "resultado.Elementos: una RAIZ coincidente, un CAMPO_EXPEDIENTE/CODIGO no diferido",
+    "missingCode": "SE_OMITE_EL_VALOR_SIN_INVENTARLO",
+    "existingExpeditionIdentityExposed": false,
+    "newTransportFields": false,
+    "newQueries": false,
+    "duplicatePolicyChanged": false,
+    "codeRenderedAs": "TEXT_CONTENT"
+  },
+  "sources": [
+    {
+      "file": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Lf": "4403e1e1bee60e42d9d596e0cb27700990161c89b6d26c17f1c183745645ecdb"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioPerfilImportacion.vb",
+      "sha256Lf": "f87f786bf2d5d687e9de20e14d221532e629615e683d01ec441be498d33262a6"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js",
+      "sha256Lf": "cbdd95e7cb77ba19c6c2d6e23f6a45ce6d339d9408bdaf69a6ea4903b0aa4f83"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256Lf": "efca0d63f65f6dd7cf6e646fc42182c5f3503c0753b07654af94e584d9962388"
+    },
+    {
+      "file": "tests/doc120-importacion-mensajes.test.cjs",
+      "sha256Lf": "e21611d42795ca11880180406e4d95bca3e1bf660984976098eb3cab61fc5b6b"
+    }
+  ],
+  "tests": {
+    "command": "node --test tests/doc120-importacion-mensajes.test.cjs tests/doc111-importacion-carpetas-client.test.cjs tests/doc110-perfil-importacion-behavior.test.cjs",
+    "passed": 56,
+    "failed": 0,
+    "newCases": 7,
+    "variants": [
+      "available",
+      "absent",
+      "other-root",
+      "duplicate-root",
+      "duplicate-values",
+      "deferred",
+      "html"
+    ],
+    "frameworkAndDdlWrappersIncluded": true,
+    "internalCasesNotAdded": true,
+    "log": {
+      "file": ".tmp/doc120-coincidencia-regresion.log",
+      "sha256": "83f4c5e7f2cfe6a12ed7addb14ce172329ed222517228731542907e95009a554"
+    },
+    "screenshot": {
+      "file": ".tmp/doc120-mensajes-coincidencia-capturas/codigo-existente-1280.png",
+      "sha256": "195675d1f5e7c29683a504e3611b1a9827606e24653de3861536086e5d5f2d66"
+    }
+  },
+  "build": {
+    "status": "PASS",
+    "errors": 0,
+    "log": {
+      "file": ".tmp/doc120-coincidencia-build.log",
+      "sha256": "47c3900711dba49b08836c52808f5ade0f28a302540badf2907899075ec505ec"
+    }
+  },
+  "realOperations": {
+    "http": 0,
+    "select": 0,
+    "sessions": 0,
+    "confirmations": 0,
+    "receipts": 0,
+    "creations": 0,
+    "storage": 0
+  },
+  "limits": [
+    "Captura del usuario explica el aviso, no verifica un expediente concreto ni su identidad.",
+    "La comprobación existente busca código por empresa/área, no por nivel visible del árbol.",
+    "No hay autenticación ni runtime IIS observado en esta entrega; resultado local con SQL/escritores sintéticos y staging temporal.",
+    "56 casos de este corte no se suman a119 anteriores; comparten pruebas."
+  ],
+  "openTasks": [
+    "5.2",
+    "6.4",
+    "6.5",
+    "6.6"
+  ]
+}

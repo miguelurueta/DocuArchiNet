@@ -19,6 +19,8 @@ Public Partial Class MySqlImportacionCarpetasRepository
     End Function
 
     Private Function ConsolidarEnTransaccion(conexion As MySqlConnection, tx As MySqlTransaction, contexto As ContextoImportacionCarpetas, loteId As String, instante As DateTime) As ConsolidacionImportacion
+        Dim focal = BloquearLoteRecepcion(conexion, tx, contexto, loteId)
+        If focal.ControlArchivos IsNot Nothing Then Return ConsolidarFocal(conexion, tx, contexto, focal, instante)
         Dim vista = CargarVistaConsolidacion(conexion, tx, contexto, loteId)
         Return PersistirConsolidacion(vista, instante,
             Function(sql, parametros)
@@ -39,14 +41,14 @@ Public Partial Class MySqlImportacionCarpetasRepository
         Dim plan = CargarPlan(conexion, tx, contexto, IdOperacion(lote.PlanId), False)
         Dim vista As New VistaConsolidacionImportacion With {.Lote = lote, .Plan = plan}
         Using cmd = ComandoOperacion(conexion, tx, "SELECT * FROM ra_integracion_raiz WHERE lote_id=@lote ORDER BY raiz_id LIMIT @limite FOR UPDATE", "@lote", IdOperacion(loteId), "@limite", plan.Manifiesto.Raices.Count + 1)
-            Using reader = cmd.ExecuteReader()
+            Using reader = EjecutarLecturaControl(cmd)
                 While reader.Read()
                     vista.Raices.Add(LeerRaizControl(reader))
                 End While
             End Using
         End Using
         Using cmd = ComandoOperacion(conexion, tx, "SELECT f.*,r.cliente_raiz_id AS cliente_raiz,r.datos_doc AS datos_raiz FROM ra_integracion_archivo f INNER JOIN ra_integracion_raiz r ON r.raiz_id=f.raiz_id WHERE r.lote_id=@lote ORDER BY f.archivo_id LIMIT @limite FOR UPDATE", "@lote", IdOperacion(loteId), "@limite", plan.Manifiesto.Archivos.Count + 1)
-            Using reader = cmd.ExecuteReader()
+            Using reader = EjecutarLecturaControl(cmd)
                 While reader.Read()
                     vista.Archivos.Add(LeerArchivoRecepcion(reader))
                 End While
@@ -57,7 +59,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
         'incertidumbre; exceder el limite hace fallar la vista, sin truncarla.
         Dim maximo = plan.Manifiesto.Raices.Count + 3 * plan.Manifiesto.Archivos.Count
         Using cmd = ComandoOperacion(conexion, tx, "SELECT * FROM ra_integracion_intento WHERE lote_id=@lote AND (estado IN ('RESERVADO','EN_CURSO','INCIERTO') OR (fase<>'RECEPCION' AND estado='CONFIRMADO')) ORDER BY intento_id LIMIT @limite FOR UPDATE", "@lote", IdOperacion(loteId), "@limite", maximo + 1)
-            Using reader = cmd.ExecuteReader()
+            Using reader = EjecutarLecturaControl(cmd)
                 While reader.Read()
                     vista.Intentos.Add(LeerIntentoDocumental(reader))
                 End While

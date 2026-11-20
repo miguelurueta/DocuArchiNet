@@ -1,0 +1,21 @@
+/* Only the existing Produccion Documental toolbar; action controls stay in place. */
+#menu_var { padding: .5rem .75rem; }
+#menu_var #navbarNavDropdown { min-width: 0; margin: 0; align-items: center; flex-wrap: wrap; gap: .5rem 1rem; }
+#menu_var .doc120-barra-menu { flex: 1 0 auto; width: max-content; max-width: 100%; margin: 0; padding: 0; flex-wrap: wrap; gap: .25rem; }
+#menu_var .doc120-barra-menu > .nav-item { flex: 0 0 auto; margin: 0 !important; }
+#menu_var .doc120-barra-menu > .nav-item > .nav-link { display: inline-flex; align-items: center; gap: .35em; min-height: 2.5rem; padding: .5rem .625rem; line-height: 1.5; white-space: nowrap; }
+#menu_var .doc120-barra-menu > .nav-item > .nav-link::after { flex-shrink: 0; margin-left: 0; }
+#menu_var .doc120-barra-menu > .nav-item > .nav-link > .doc120-menu-icon { margin-right: 0; }
+#menu_var .doc120-barra-search { flex: 1 1 16rem; min-width: 0; max-width: 28rem; margin-left: auto; }
+#menu_var .doc120-barra-search .form-control { min-width: 0; }
+#menu_var #nav_togle_display { align-items: center; gap: .5rem; color: #fff; }
+@media (max-width: 1199.98px) {
+    #menu_var #navbarNavDropdown { max-height: 60vh; overflow-y: auto; overflow-x: hidden; }
+    #menu_var #navbarNavDropdown.show { display: flex; }
+    #menu_var .doc120-barra-menu { flex-basis: 100%; width: 100%; flex-direction: column; align-items: stretch; }
+    #menu_var .doc120-barra-menu > .nav-item > .nav-link { display: flex; width: 100%; }
+    #menu_var .doc120-barra-menu > .nav-item > .nav-link::after { margin-left: auto; }
+    #menu_var .doc120-barra-search { flex-basis: 100%; max-width: none; margin: .25rem 0; }
+    #menu_var .doc120-barra-menu .dropdown-menu { min-width: 0; max-width: 100%; }
+    #menu_var .doc120-barra-menu .dropdown-item { white-space: normal; overflow-wrap: break-word; }
+}

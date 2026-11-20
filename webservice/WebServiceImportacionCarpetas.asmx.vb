@@ -55,6 +55,11 @@ Public Partial Class WebServiceImportacionCarpetas
     End Function
 
     <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function ConsultarUltimoLote(solicitud As ConsultarUltimoLoteImportacionSolicitud) As RespuestaPerfilImportacion
+        Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) _consultaOperativa(http, _autoridadOperativa).ConsultarUltimo(r))
+    End Function
+
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
     Public Function ConsultarConfirmacionLote(solicitud As ConsultarConfirmacionImportacionSolicitud) As RespuestaPerfilImportacion
         Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) _consultaOperativa(http, _autoridadOperativa).ConsultarConfirmacion(r))
     End Function
@@ -77,6 +82,11 @@ Public Partial Class WebServiceImportacionCarpetas
     <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
     Public Function SolicitarDetencion(solicitud As DetenerLoteImportacionSolicitud) As RespuestaPerfilImportacion
         Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) _coordinacionOperativa(http, _autoridadOperativa, "DETENER_LOTE").SolicitarDetencion(r))
+    End Function
+
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function ReanudarLote(solicitud As ReanudarLoteImportacionSolicitud) As RespuestaPerfilImportacion
+        Return EjecutarEntradaOperativa(solicitud, Function(http, limites, r) _coordinacionOperativa(http, _autoridadOperativa, "REANUDAR_LOTE").ReanudarLote(r))
     End Function
 
     <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
@@ -135,11 +145,19 @@ Public Partial Class WebServiceImportacionCarpetas
     Private Function EjecutarEntradaOperativa(Of T As Class)(solicitud As T, accion As Func(Of HttpContext, LimitesImportacionCarpetas, T, Object)) As RespuestaPerfilImportacion
         Dim salida As New RespuestaPerfilImportacion With {.operacionId = Guid.NewGuid().ToString("N")}
         Dim http = HttpContext.Current
+        If http IsNot Nothing Then
+            http.Items("DOC120_OPERACION") = salida.operacionId
+            http.Items.Remove("DOC120_INCIDENCIAS")
+        End If
+        Dim faseDiagnostico = If(TypeOf solicitud Is PrepararPlanImportacionSolicitud OrElse TypeOf solicitud Is ISolicitudPreparacionSegmentada, "PREPARACION", If(TypeOf solicitud Is ConfirmarPlanImportacionSolicitud, "CONFIRMACION", "OPERATIVA"))
         Try
             'No comparte Resolver, guard ni Ejecutar de administracion DOC-110.
             Dim contexto = _autoridadOperativa.Resolver(http)
             Dim limites = _politicaOperativa()
             Dim entrada = ImportacionCarpetasRequestGuard.LeerJson(Of T)(http, contexto, limites)
+            Dim avanceDiagnostico = TryCast(entrada, AvanzarLoteImportacionSolicitud)
+            MedicionAlmacenamientoImportacion.Preparar(http, avanceDiagnostico)
+            If avanceDiagnostico IsNot Nothing Then faseDiagnostico = If({"CREAR_EXPEDIENTE", "RETOMAR_CREACION"}.Contains(avanceDiagnostico.fase), "CREACION", "ALMACENAMIENTO")
             If solicitud Is Nothing Then Throw New PerfilImportacionException("SOLICITUD_INVALIDA", "La solicitud es obligatoria.")
             salida.datos = accion(http, limites, entrada)
             Dim fase = TryCast(salida.datos, AvanceLoteImportacionResultado)
@@ -155,13 +173,21 @@ Public Partial Class WebServiceImportacionCarpetas
                 salida.ok = True : salida.codigo = "OK" : salida.mensaje = "Operación completada."
             End If
         Catch ex As ConfiguracionPerfilImportacionException
-            salida.codigo = ex.Codigo : salida.mensaje = ex.Message : salida.incidencias = ex.Incidencias
+            DiagnosticoOperacionImportacion.Publicar(salida, ex)
+            DiagnosticoOperacionImportacion.Registrar(ex, faseDiagnostico, salida.operacionId)
+        Catch ex As ArchivoNoDisponibleImportacionException
+            salida.codigo = ex.Codigo : salida.mensaje = "El original de este archivo no esta disponible; decide si continuar con los demas o pausar."
+            salida.datos = New With {.loteId = ex.LoteId, .archivoId = ex.ArchivoId, .raizId = ex.RaizId, .fase = ex.Fase, .causa = ex.Causa, .certeza = "NO_INICIADO"}
         Catch ex As PerfilImportacionException
-            salida.codigo = ex.Codigo : salida.mensaje = ex.Message
+            DiagnosticoOperacionImportacion.Publicar(salida, ex)
+            DiagnosticoOperacionImportacion.Registrar(ex, faseDiagnostico, salida.operacionId)
         Catch ex As Exception
             salida.codigo = "ERROR_INTERNO"
             salida.mensaje = "No se confirmó la operación. Consulte su estado antes de repetir."
+            DiagnosticoOperacionImportacion.Registrar(ex, faseDiagnostico, salida.operacionId)
         End Try
+        DiagnosticoOperacionImportacion.Adjuntar(salida)
+        MedicionAlmacenamientoImportacion.Adjuntar(http)
         If http IsNot Nothing Then
             http.Response.TrySkipIisCustomErrors = True
             http.Response.SuppressFormsAuthenticationRedirect = True
@@ -403,9 +429,9 @@ Public Partial Class WebServiceImportacionCarpetas
             Case "RESULTADO_INCIERTO", "OPERACION_EN_CURSO", "CONTENIDO_DISTINTO" : Return 409
             Case "LIMITE_EXCEDIDO" : Return 413
             Case "FORMATO_NO_SOPORTADO" : Return 415
-            Case "ARCHIVO_RECHAZADO" : Return 422
+            Case "ARCHIVO_RECHAZADO", "ARCHIVO_NO_DISPONIBLE" : Return 422
             Case "RECEPCION_OCUPADA" : Return 429
-            Case "CAPACIDAD_NO_DISPONIBLE", "ESQUEMA_FUENTES_INCOMPLETO" : Return 503
+            Case "CAPACIDAD_NO_DISPONIBLE", "ESQUEMA_FUENTES_INCOMPLETO", "CONTROL_FOCAL_NO_CONFIGURADO" : Return 503
             Case "ERROR_INTERNO" : Return 500
             Case Else : Return 400
         End Select

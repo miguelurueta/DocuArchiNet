@@ -1,0 +1,221 @@
+{
+  "case": "DOC120-FINAL-FLOW",
+  "date": "2026-11-14",
+  "classification": "LOCAL_DOC120",
+  "status": "PASS_LOCAL_UI_REAL_OUTCOME_UNCONFIRMED",
+  "baseSha": "a12942b646a190c990b344cdf6fe08c2f97c585b",
+  "tasks": {
+    "completed": [
+      "3.24",
+      "3.25",
+      "3.26",
+      "3.28"
+    ],
+    "pending": "3.27",
+    "progress": "43/48"
+  },
+  "decisions": [
+    "D-04",
+    "D-05",
+    "D-08",
+    "D-10"
+  ],
+  "requirements": [
+    "RQ-04",
+    "RQ-05",
+    "RQ-08",
+    "RQ-10"
+  ],
+  "reproduction": {
+    "source": "Grabación 2026-11-13 194059-no-logra-fncionar-no-es-claro-en la partefinal.mp4",
+    "sha256": "f6aab267d3929d24abd0107dc3af7b4e219576008edeb1073aef3dfdb331fef0",
+    "durationSeconds": 149.2333,
+    "size": {
+      "width": 1622,
+      "height": 940
+    },
+    "lotId": "39",
+    "planId": "57",
+    "rootId": "60",
+    "fileId": "86",
+    "attemptId": null,
+    "timeline": [
+      {
+        "seconds": 32,
+        "observed": "Plan confirmado; archivo listo para recepción"
+      },
+      {
+        "seconds": 40,
+        "observed": "Archivo RECIBIDO; se ofrece Crear expediente"
+      },
+      {
+        "seconds": 56,
+        "observed": "Se solicita creación con recepción completa"
+      },
+      {
+        "seconds": 64,
+        "observed": "Respuesta sin confirmación; contexto se desplaza al archivo y aviso queda fuera de la zona visible"
+      },
+      {
+        "seconds": 72,
+        "observed": "Consultar vuelve con lote EN_CURSO y no muestra acción para continuar"
+      },
+      {
+        "seconds": 112,
+        "observed": "Carpeta CREANDO y columna Expediente pendiente"
+      },
+      {
+        "seconds": 149,
+        "observed": "Persisten consultas sin siguiente operación confirmada"
+      }
+    ],
+    "sourceOfRuntimeState": "USER_RECORDING_ONLY",
+    "actualExpeditionExistence": "UNKNOWN_WITHOUT_DIAGNOSTIC",
+    "rootCause": "NOT_PROVEN; client view cannot establish whether writer or checkpoint failed"
+  },
+  "changes": {
+    "errorContext": "Fase/recurso, código controlado, operacionId32hex e intento público válido conservados sin mensaje privado",
+    "blocking": "Recurso activo priorizado; si está fuera de página/filtros se informa a nivel de lote sin atribuir bloqueo al primer archivo",
+    "visibility": "Aviso fuera del área desplazable, con referencia de lote/carpeta/intento; Ver acciones y Revisar bloqueo llevan al panel",
+    "primaryAction": "Tras consultar un intento activo no verificable, Revisar bloqueo es la acción principal local; Actualizar permanece como consulta secundaria",
+    "reconciliation": "Sin cambio en accionesRecurso ni barreras del servidor; CREANDO/EN_CURSO no se convierten en INCIERTO por tiempo; verificación no resuelta permanece bloqueada con mensaje propio",
+    "confirmedFlow": "Creación confirmada → índices → almacenamiento, cada fase explícita; lote COMPLETADO y expediente/archivo confirmados sustentan el final",
+    "cacheVersion": "doc120-flujo-final-20261114-1"
+  },
+  "diagnostic": {
+    "status": "NOT_EXECUTED_AUTHORIZATION_PENDING",
+    "script": "tools/e2e/scripts/inspect-doc120-final-state.cjs",
+    "command": "node tools/e2e/scripts/inspect-doc120-final-state.cjs --lot 39 --root 60 --authorized",
+    "environment": "RA del ambiente local https://localhost/GestionDocumental-Docuarchi.net/; DSN confirmado por operador",
+    "requires": "Autorización de ventana específica y cuenta MySQL exclusivamente SELECT introducida en consola enmascarada",
+    "maxSelect": 5,
+    "http": 0,
+    "sessions": 0,
+    "actualSelect": 0,
+    "businessEffects": 0,
+    "queryResources": [
+      "lote39",
+      "raíz60 del lote39",
+      "archivos de esa raíz",
+      "intentos de esa raíz",
+      "eventos de raíz60/lote39"
+    ],
+    "secrets": "Ephemeral only; no Web.config or application credentials; raw JSON messages discarded",
+    "runtimeOutput": ".tmp/doc120-final-state/<runId>/diagnostic.json; excluded from Git",
+    "recoveryPerformed": false
+  },
+  "tests": {
+    "command": "node --test --test-concurrency=2 tests/doc120-importacion-flujo-final.test.cjs tests/doc120-importacion-fidelidad.test.cjs tests/doc120-importacion-guiada.test.cjs tests/doc120-recepcion-creacion.test.cjs tests/doc110-perfil-importacion-behavior.test.cjs tests/doc120-produccion-barra.test.cjs tests/doc111-importacion-carpetas-client.test.cjs tests/doc119-navigation.test.cjs tests/doc110-perfil-importacion-editor.test.cjs tools/e2e/tests/doc111-degradation.test.cjs",
+    "nodeTests": 79,
+    "passed": 79,
+    "failed": 0,
+    "frameworkAndDdlWrappersIncluded": 2,
+    "addedCases": [
+      "FIN01 active vs uncertain authority",
+      "FIN02 public error refs only",
+      "FIN03 five SELECT plus sanitized output (doubles)",
+      "FIN04 no real diagnostic without scope/authorization",
+      "FIN05 video sequence, pinned notice, manual review without replay, reopen",
+      "FIN06 unresolved/resolved verification",
+      "FIN07 explicit full confirmation flow plus completed root indicator",
+      "FIN08 blocker outside filtered page"
+    ],
+    "log": {
+      "file": ".tmp/doc120-finalflow-final-20261114.log",
+      "sha256": "22e01320f62cd7db8d6589bf9f2577bf37d2e456e100e368dab996588349a534"
+    },
+    "applicationHttp": 0,
+    "actualDbSelect": 0,
+    "realBusinessEffects": 0
+  },
+  "build": {
+    "status": "PASS",
+    "configuration": "Debug incremental",
+    "errors": 0,
+    "warnings": 1,
+    "output": "bin/GestionDocumental-Docuarchi.net.dll",
+    "sha256": "4e7e692294856056776b8f33fbc0b36b14eb123452f288e00fefcd0f362e2ee6",
+    "log": {
+      "file": ".tmp/doc120-finalflow-build.log",
+      "sha256": "78201d5d2d818cc32f5fc2a1e14e14b9267c72716416bebd58849a3560848d31"
+    }
+  },
+  "captures": [
+    {
+      "file": ".tmp/doc120-flujo-final-20261114/creacion-bloqueada-1280.png",
+      "sha256": "64b90140d856c09c24a8877236a12c163a050c1f0b9ba426291c147c3b8b1f5e"
+    },
+    {
+      "file": ".tmp/doc120-flujo-final-20261114/creacion-bloqueada-390.png",
+      "sha256": "a61c8e7c00f72bae8848e9dd3710ddf12af6cc5499acd374ac4c91d2d1833830"
+    },
+    {
+      "file": ".tmp/doc120-flujo-final-20261114/final-confirmado-1280.png",
+      "sha256": "adf12c980d19cb7af043b1b2746eae1a923dd9ab3addb0d04b3fecbf6576b593"
+    }
+  ],
+  "sources": [
+    {
+      "file": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Lf": "2a2ec3b93d626c64bf3ecc4cb5c7678aac8e2345bd775108fe7192bb1446ce59"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256Lf": "c48b6ed67c59850d8462c6ed0601fb987e31391b058c050461cf9cd306267ed7"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js",
+      "sha256Lf": "61f83635aff83748f07ea4e24bef6dbe0298f498dcbf5e1700d1d0ff93f50a94"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256Lf": "def07b789aa2a2942e5140d2c72aa1c1df5c21afa6e20fc9739a8150b30979f7"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css",
+      "sha256Lf": "1375c592c6da1e3eecf57203ac0e96ae0327356c210c058aa16751a29ac0098b"
+    },
+    {
+      "file": "tests/doc120-importacion-flujo-final.test.cjs",
+      "sha256Lf": "4c1c0d620f907735d07f80bcfce5435b7dedbdadd78db299a0b41664734599d4"
+    },
+    {
+      "file": "tests/doc120-importacion-fidelidad.test.cjs",
+      "sha256Lf": "4ab9f67cb9b6c27417b513335cf23feceeabb1d79ef13d422f998f1a57fd73e0"
+    },
+    {
+      "file": "tests/support/doc120-importacion-browser.cjs",
+      "sha256Lf": "bc5cfa95698b43fc21da9fa2c702866887728610bf7ab5be7048e63f61e5cf55"
+    },
+    {
+      "file": "tools/e2e/scripts/inspect-doc120-final-state.cjs",
+      "sha256Lf": "01507f41bd79378335ce4d08ab04310a974393d8b656ed8513524a6dafda6394"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb",
+      "sha256Lf": "5e3eb94d7884c434f0eebde4952f35e33dfd39823bc71913ced5b9d99a92c5a0"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Creacion.vb",
+      "sha256Lf": "2aeb517ba56eb1ad330c2e0f1c34363ce61a080c9b8577c982323e8f4a22580d"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Reconciliacion.vb",
+      "sha256Lf": "b02bf718b51c663336b372672054601b41630271a8e1455c2c6014005f3962ba"
+    },
+    {
+      "file": "js/gestion/WebFormProducionDocumental.js",
+      "sha256Lf": "c800184475732e48c8a478bd5afa340cb8c2acd7131010745f25ab823c4343e8"
+    },
+    {
+      "file": "js/gestion/ProduccionDocumentalBarra.js",
+      "sha256Lf": "8c7961a76effc80407e482312b64bd4d9371f7020d196137fa5b67415c4a03e1"
+    },
+    {
+      "file": "Styles/produccion-documental-barra.css",
+      "sha256Lf": "431091f46f4cbd9ee5b4ef1f0fd44c1b7553b21918f947138f13f59e492f7d0f"
+    }
+  ],
+  "protectedSourcesUnchanged": true,
+  "integralAcceptance": false
+}

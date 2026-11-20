@@ -24,7 +24,7 @@ Public Partial Class AdaptadorExpedienteImportacion
     End Sub
 
     Private Shared Sub InvocarConservacion(comando As ComandoCreacionExpedienteImportacion, datos As Dictionary(Of String, String), salida As SalidaCreacionExpedienteLegacy)
-        If comando.EsVerificacion Then Throw New PerfilImportacionException("SOLICITUD_INVALIDA", "Un comando de verificacion no puede ejecutar creacion.")
+        If comando.EsVerificacion OrElse comando.EsPreflightReanudacion Then Throw New PerfilImportacionException("SOLICITUD_INVALIDA", "Un comando de comprobacion no puede ejecutar creacion.")
         Dim contexto = comando.Contexto, c = comando.Snapshot.Configuracion
         Dim expedienteId As Integer = 0, relacionId As Integer = 0
         Try
@@ -44,7 +44,7 @@ Public Partial Class AdaptadorExpedienteImportacion
                 nombre_ciclo_documental:=datos("CICLO_ARCHIVO_NOMBRE"), nombre_fondo_documental:=datos("FONDO_NOMBRE"),
                 nombre_persona_expediente:="", indentificacion_persona_expediente:="",
                 nombre_responsable:=If(datos("RESPONSABLE_NOMBRE"), ""), identificacion_responsable:=If(datos("RESPONSABLE_IDENTIFICACION"), ""),
-                aleas_expediente:=comando.Nombre, expediente_relacion_producion:=0, Estado_Publico_Sub_Expediente:=2,
+                aleas_expediente:=comando.Codigo, expediente_relacion_producion:=0, Estado_Publico_Sub_Expediente:=2,
                 id_instrumento:=Integer.Parse(c.InstrumentoRef, CultureInfo.InvariantCulture), nombre_gabinete:=datos("GABINETE_NOMBRE"),
                 id_nivel_padre:=Integer.Parse(contexto.NivelRef, CultureInfo.InvariantCulture), id_registro_relacion:=relacionId, id_auto_registro:=0)
         Finally

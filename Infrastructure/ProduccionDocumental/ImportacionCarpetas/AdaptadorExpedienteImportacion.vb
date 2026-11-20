@@ -47,6 +47,7 @@ Public Partial Class AdaptadorExpedienteImportacion
                 _invocar(comando, New Dictionary(Of String, String)(datos, StringComparer.Ordinal), salida)
                 llamadaConcluida = True
             Catch ex As Exception
+                DiagnosticoOperacionImportacion.Registrar(ex, "CREACION", punto:="ESCRITOR_CREACION")
                 'El escritor puede haber confirmado o asignado IDs antes del fallo.
                 'No incluir su mensaje (puede contener SQL/rutas) ni reintentar.
             End Try
@@ -62,6 +63,7 @@ Public Partial Class AdaptadorExpedienteImportacion
                     resultado.Estado = "CONFIRMADO" : resultado.Codigo = "EXPEDIENTE_CONFIRMADO" : resultado.Mensaje = "Expediente y relación comprobados en el destino confirmado."
                 End If
             Catch ex As Exception
+                DiagnosticoOperacionImportacion.Registrar(ex, "CREACION", punto:="VERIFICACION_CREACION")
                 'Conservar IDs/evidencia aun si la autoridad o la lectura ya no es valida.
             End Try
             Return RegistrarSalida(comando, resultado)
@@ -76,6 +78,7 @@ Public Partial Class AdaptadorExpedienteImportacion
             Dim guardado = _registrar(comando, copia)
             If guardado IsNot Nothing AndAlso PerfilImportacionJson.Escribir(guardado) = PerfilImportacionJson.Escribir(resultado) Then Return guardado
         Catch ex As Exception
+            DiagnosticoOperacionImportacion.Registrar(ex, "CREACION", punto:="CHECKPOINT_CREACION")
             'Puede haber commit sin respuesta. Consultar el intento; nunca
             'volver a invocar al escritor para reparar un checkpoint perdido.
         End Try

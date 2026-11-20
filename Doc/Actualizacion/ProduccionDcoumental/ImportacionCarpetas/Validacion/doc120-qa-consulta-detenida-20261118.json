@@ -1,0 +1,39 @@
+{
+  "runId": "c4afaca21fe2bb90d54f9b0ddeea4750",
+  "status": "STOPPED",
+  "http": 278,
+  "select": 5,
+  "sessions": 1,
+  "before": {
+    "completed29": 2,
+    "completed50": 23,
+    "fingerprint29": "99e9accd91be9003f7b9d3dcf97c8e27e650dc62d65f0b45d1c79bb8f96a0972",
+    "fingerprint50": "ec1acd0553af709c3ca09bf3caf677ea09ac39da7db4492d7aeb3265173257ac"
+  },
+  "operations": [],
+  "failure": "DOC120_QA_UI_TIMEOUT",
+  "failureStage": "VERIFY_LOT29_RECOVERY_READONLY",
+  "failureLoadStep": "QUERY_LOT_29",
+  "failureType": "TIMEOUT",
+  "closed": true,
+  "credentialsCleared": true,
+  "previousStatePreserved": true,
+  "finishedUtc": "2026-11-18T22:24:13.093Z",
+  "effectCalls": {},
+  "cause": "HARNESS_WAITED_FOR_REMOVED_LEGACY_BUTTON",
+  "applicationChanged": false,
+  "receiptCalls": 0,
+  "creationCalls": 0,
+  "storageCalls": 0,
+  "localQaTests": 13,
+  "combinedRegressionTests": 25,
+  "guardBeforeHttp": {
+    "confirmedDocuments": [
+      "16282",
+      "16283"
+    ],
+    "other25FingerprintPreserved": true,
+    "other998FingerprintPreserved": true
+  },
+  "realQaComplete": false
+}

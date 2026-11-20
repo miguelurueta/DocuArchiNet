@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "date": "2026-11-14",
+  "baseSha": "7133296c6df78f824bf0c661ddbc72968e67086d",
+  "status": "PASS_LOCAL_FIRST_CHILD_TREE_FIX_REAL_UI_NOT_OBSERVED",
+  "userReport": {
+    "recoveredAndFinished": true,
+    "expeditionMissingFromUi": true,
+    "classification": "USER_REPORTED_NOT_AGENT_AUTHENTICATED"
+  },
+  "reproducedCause": "Doc111ActualizarRama returned false if WebForms omitted nXNodes on an empty destination. ImportacionCarpetas ignored that return value.",
+  "fix": {
+    "firstChildUsesExistingInserter": true,
+    "requiresUniqueVisibleOriginalLevel": true,
+    "confirmedRelationsOnly": true,
+    "selectionPreserved": true,
+    "existingExpansionPreserved": true,
+    "newFirstChildVisible": true,
+    "deduplicationVerifiedAfterInsert": true,
+    "searchAndCounterReuse": true,
+    "failedProjectionVisible": true,
+    "refreshRetriesProjectionOnly": true,
+    "backendUnchanged": true,
+    "noNewEndpoint": true,
+    "cacheVersioned": true
+  },
+  "tests": {
+    "classification": "LOCAL_CHROMIUM_SYNTHETIC_BUSINESS_RESPONSES",
+    "uniquePassed": 74,
+    "failed": 0,
+    "baselineExpectedFailure": "First relation count 0 instead of1 with legacy JS from base HEAD",
+    "regression": {
+      "file": ".tmp/doc120-arbol-regression.log",
+      "sha256": "7812de68043a4d2b0316a548099de2e8732dc777051c7dd0ba0c113fa552b03f"
+    },
+    "focal": {
+      "file": ".tmp/doc120-arbol-tests.log",
+      "sha256": "3346d0952c727c5597ab456cabdd67e17fc4e29ea31faba5e549e520cb353d98",
+      "passed": 5,
+      "overlapsRegression": true,
+      "extraVerification": "Native TreeView.js embedded in installed System.Web assembly expands/collapses the new branch. Focal rerun after adding this assertion, not five additional unique cases."
+    },
+    "baseline": {
+      "file": ".tmp/doc120-arbol-baseline.log",
+      "sha256": "117130b0c43b8a8012ce4afa665c5ab31ccebd9832c33057e3ce27acc9815213"
+    },
+    "cases": [
+      "first child relation, click, escaped text, search and counter",
+      "native expansion/collapse",
+      "existing collapsed branch preserved",
+      "hidden destination shows warning; refresh inserts without business effects",
+      "wrong scope, homonymous destination and uncertain roots excluded",
+      "inserter without DOM result is not success"
+    ],
+    "command": "node --test --test-concurrency=2 tests/doc120-importacion-arbol.test.cjs tests/doc120-retomar-creacion.test.cjs tests/doc120-importacion-flujo-final.test.cjs tests/doc120-importacion-fidelidad.test.cjs tests/doc120-importacion-guiada.test.cjs tests/doc120-recepcion-creacion.test.cjs tests/doc120-produccion-barra.test.cjs tests/doc111-importacion-carpetas-client.test.cjs tests/doc119-navigation.test.cjs tools/e2e/tests/doc111-degradation.test.cjs",
+    "nativeTreeView": "System.Web, Version=4.0.0.0 embedded TreeView.js; Windows focal run",
+    "backendTestsNotRepeated": "No VB, project, schema or backend edits; prior Framework evidence is historical, not counted."
+  },
+  "syntax": "PASS_THREE_CHANGED_JS_FILES",
+  "capture": {
+    "file": ".tmp/doc120-arbol/primer-expediente.png",
+    "sha256": "962db559c367f1c6a0130815726c947f14944ed44830bc85bc8a7d104a9f6803",
+    "classification": "SYNTHETIC_TREE_FIXTURE_NOT_REAL_APPLICATION"
+  },
+  "sources": [
+    {
+      "file": "js/gestion/WebFormProducionDocumental.js",
+      "sha256Lf": "d4713092c4ef2c125096edc301b7e5ace429917c7b5314b8013ff60fa3562575"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256Lf": "850eed2cee919ab4e6ff7eafa4179fc1c9a93c3c09a4a22dcf5e60f17ded1991"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256Lf": "880d119752f2e557ea779225c34b161e20a6f6e6b9fede20787b15ca635536e2"
+    },
+    {
+      "file": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Lf": "04d3b06f750a3943ef95b0fcb18b1d9ebe341dc55dc8e1687cebbb91b0655cd9"
+    },
+    {
+      "file": "tests/doc120-importacion-arbol.test.cjs",
+      "sha256Lf": "783227eaded400e23602225135129cf5f1cd84c824a357daa3be2e4286c0df9a"
+    }
+  ],
+  "realExecution": {
+    "http": 0,
+    "select": 0,
+    "sessions": 0,
+    "creations": 0,
+    "uploads": 0,
+    "storedDocuments": 0,
+    "treeUpdatedInAuthenticatedEnvironment": "NOT_OBSERVED"
+  },
+  "progress": {
+    "complete": 57,
+    "total": 61,
+    "scenarios": 36,
+    "remaining": [
+      "5.2",
+      "6.4",
+      "6.5",
+      "6.6"
+    ]
+  },
+  "integralAcceptance": false
+}

@@ -54,7 +54,8 @@ Public Class ConfiguracionPerfilImportacion
     Public Property PoliticaSubcarpetas As String
     Public Property PoliticaCarpetasVacias As String
     Public Property PoliticaArchivosSueltos As String
-    Public Property PoliticaCoincidencias As String = "BLOQUEAR"
+    'Los valores anteriores se conservan al leer snapshots; no imponen unicidad.
+    Public Property PoliticaCoincidencias As String = "PERMITIR"
     Public Property Extensiones As New List(Of String)()
     Public Property MaximoBytesArchivo As Nullable(Of Long)
 End Class

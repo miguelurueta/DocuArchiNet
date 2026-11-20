@@ -52,7 +52,7 @@ Public Partial Class AdaptadorDocumentoImportacion
         Dim resultado = ResultadoInciertoV2(comando)
         Dim retenido As IRetencionOriginalV2Importacion = Nothing
         Try
-            retenido = proveedor.ConservarOriginalV2(comando.Contexto)
+            retenido = MedicionAlmacenamientoImportacion.Medir("ORIGINAL_V2", comando.Intento.LoteId, comando.Archivo.ArchivoId, Function() proveedor.ConservarOriginalV2(comando.Contexto))
             If retenido Is Nothing Then Throw AcuseInvalidoV2()
             retenido.Validar()
             Dim preparado = DocumentosAlmacenamientoV2Importacion.Preparar(comando, retenido.Original, revisionLote)
@@ -60,14 +60,18 @@ Public Partial Class AdaptadorDocumentoImportacion
             retenido.Validar()
             'Consumir también ante respuesta de inicio perdida; nunca reintentar.
             intento.EsNuevaReserva = False
-            Dim iniciado = ExigirAcuseV2(persistencia.Iniciar(comando, Copiar(datos), Copiar(preparado)), preparado, "PREPARADO")
+            Dim iniciado = ExigirAcuseV2(MedicionAlmacenamientoImportacion.Medir("V2_INICIO", comando.Intento.LoteId, comando.Archivo.ArchivoId, Function() persistencia.Iniciar(comando, Copiar(datos), Copiar(preparado))), preparado, "PREPARADO")
             retenido.Validar()
             _autorizar(comando)
-            Dim copia = _staging.CrearCopiaTrabajo(comando.Contexto, comando.Archivo.StagingRef, comando.Archivo.NombreOriginal)
-            VerificarCopia(comando, copia)
+            Dim copia = MedicionAlmacenamientoImportacion.Medir("COPIA_TRABAJO", comando.Intento.LoteId, comando.Archivo.ArchivoId,
+                Function()
+                    Dim temporal = _staging.CrearCopiaTrabajo(comando.Contexto, comando.Archivo.StagingRef, comando.Archivo.NombreOriginal)
+                    VerificarCopia(comando, temporal)
+                    Return temporal
+                End Function)
             retenido.Validar()
             _autorizar(comando)
-            Dim autorizado = ExigirAcuseV2(persistencia.AutorizarInvocacion(comando, Copiar(iniciado)), iniciado, "AUTORIZADO")
+            Dim autorizado = ExigirAcuseV2(MedicionAlmacenamientoImportacion.Medir("V2_AUTORIZACION", comando.Intento.LoteId, comando.Archivo.ArchivoId, Function() persistencia.AutorizarInvocacion(comando, Copiar(iniciado))), iniciado, "AUTORIZADO")
             retenido.Validar()
             _autorizar(comando)
             Dim salida As New SalidaAlmacenamientoLegacy()
@@ -86,7 +90,7 @@ Public Partial Class AdaptadorDocumentoImportacion
                     Try
                         retenido.Validar()
                         retorno = DocumentosAlmacenamientoV2Importacion.ConRetorno(autorizado, Copiar(resultado))
-                        ExigirAcuseV2(persistencia.ObservarRetorno(comando, Copiar(retorno)), retorno, "RETORNO_OBSERVADO")
+                        ExigirAcuseV2(MedicionAlmacenamientoImportacion.Medir("V2_RETORNO", comando.Intento.LoteId, comando.Archivo.ArchivoId, Function() persistencia.ObservarRetorno(comando, Copiar(retorno))), retorno, "RETORNO_OBSERVADO")
                         observada = True
                     Catch ex As Exception When Not EsInterrupcionV2(ex)
                         'Sin retry, mensajes legacy o permiso inferido del fallo.
@@ -113,7 +117,7 @@ Public Partial Class AdaptadorDocumentoImportacion
             Try
                 retenido.Validar()
                 _autorizar(comando)
-                Dim guardado = persistencia.RegistrarResultado(comando, Copiar(retorno), Copiar(resultado))
+                Dim guardado = MedicionAlmacenamientoImportacion.Medir("CHECKPOINT", comando.Intento.LoteId, comando.Archivo.ArchivoId, Function() persistencia.RegistrarResultado(comando, Copiar(retorno), Copiar(resultado)))
                 If guardado IsNot Nothing AndAlso PerfilImportacionJson.Escribir(guardado) = PerfilImportacionJson.Escribir(resultado) Then Return Copiar(guardado)
             Catch ex As Exception When Not EsInterrupcionV2(ex)
                 'El checkpoint pudo confirmar aunque su respuesta se perdiera.

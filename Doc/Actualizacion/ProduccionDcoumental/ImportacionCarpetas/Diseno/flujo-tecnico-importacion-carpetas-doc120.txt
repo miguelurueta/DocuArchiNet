@@ -1,0 +1,155 @@
+DOC-120 | GUARDAR UN DOCUMENTO: FLUJO IMPLEMENTADO Y COSTOS
+=========================================================
+Corte local: DOC120-consulta-visible-20261119. Ventana de lectura97c9d4c3 detenida.
+QA real5f7af8f5 conserva sus fuentes; no certifica cliente o DLL instalada actual.
+Detalle literal de metodos, parametros, filtros y decisiones: anexo.txt y
+fuentes.json con el mismo prefijo de este archivo; --check verifica sus fuentes.
+
+[CLIENTE: ImportacionCarpetas.js / crearCoordinacion]
+  Inicio/retoma: ConsultarLote + ConsultarRecursosLote paginados, una enumeracion.
+  Nueva referencia: modeloInicial propio, sin progreso/errores de revision guardada;
+    pagina1 de carpetas/archivos y filtros vacios. Volver restaura su modelo/ticket.
+    Borradores ligados a instancia de filtros; CSV usa solo consulta aplicada.
+    Ayuda permanece ante acuses; Escape cierra solo ayuda. Sin pausa o I/O adicional.
+    Actualizar estado conserva lugar en query-control antes de reemplazar el pie
+    coordinado: pagina guardada no elimina la consulta secundaria del mismo lote.
+  Elige A por recursoId; conserva lo ya confirmado; una operacion en vuelo.
+  politicaControles(model): misma politica para vista y controlador.
+  cambiar(value,snapshot): continuar sin actual -> mensaje de consulta vigente;
+    pausing espera acuse, paused muestra pausa aplicada; incertidumbre conserva
+    diagnostico. renderAvance(true) actualiza inicio/pausa sin esperar rAF;
+    progreso normal conserva rAF. Textos/render no ejecutan operaciones.
+  decisionRender: aviso local resumido; ruta/fase/referencia en details.
+    Modal limitado al viewport, cabecera visible y scroll interno sin I/O.
+  Vista: salida activa se muestra como Pausar y salir (visible/aria/confirmacion).
+    En reposo/pausa/completado conserva Cerrar; mismo manejador y espera.
+  Cerrar/X/Escape -> cerrar(force): consentimiento ANTES de pausar si hay
+    seleccion/revision sin lote, confirmacion en curso/incierta o lote pendiente.
+    confirmarCierre(info.tipo): PREPARACION / CONFIRMACION / LOTE, mismo dialogo.
+    Cancelar/Escape no pausa ni reinicia. Aceptar -> aplicarCierre/transicionar.
+    cerrarAhora ya no pregunta despues de haber aplicado la pausa.
+    Datos del aviso: confirmacion pendiente primero; despues lote visible actual
+    no COMPLETADO, aunque la preparacion guardada este vacia o completada.
+    Seleccion sin confirmar u otro lote guardados se advierten por separado.
+    Si el actual esta completado, conserva consentimiento para trabajo guardado
+    pendiente; si no existe, cierre directo. Cabecera visible al desplazar aviso.
+  Revision pausada: puedeContinuarPreparacion exige ticket/perfil/inventario
+    vigentes; footer unico Continuar revision, misma instancia/partes.
+    Cambiar perfil/seleccion invalida ticket y limpia progreso -> revision nueva.
+    cycle notifica ultimo indice confirmado antes de comprobar pausa; cero I/O.
+  Cerrar/X/Escape -> cerrar(force): lote confirmado no COMPLETADO?
+     | SI -> view.confirmarCierre({loteId,activa}), un aviso por sesion.
+     |       Cancelar/Escape: resolverCierre(false), sin pausa ni reinicio.
+     |       Aceptar: aplicarCierre(session) -> transicionar(cerrar).
+     |       Mientras decide puede seguir avanzando; el aviso lo explica.
+     | NO -> trabajo guardado/preparacion/confirmacion conservan consentimiento;
+     |       completado sin trabajo guardado pendiente sale directamente.
+  Consultar o cierre aceptado -> transicionar(session, accion, valor, finish).
+     | Una intencion pendiente; bloquea clics adicionales y efectos nuevos.
+     | crearCoordinacion.pausar + trabajoActual de run esperan acuse/lectura.
+     | envio manual: enviarCola.pausar deja terminar A y no admite B.
+     | preparacion segmentada: pausar conserva la parte ya iniciada.
+     v
+  Espera resuelta -> conservar referencia/resultado -> cerrarAhora o consultar.
+  Error/respuesta perdida: aviso pendiente, consulta sin replay; no afirmar rollback.
+  Destruir forzado: invalida callbacks y cancela espera local; servidor no revertido.
+       |
+       +-- Falta File local para PENDIENTE? --> [DECISION], cero envio/intento.
+       |   Vincular carpeta/PDF -> action(recuperar-originales), solo causa local.
+       |   transicionar -> pausa y resuelve decision -> selector existente.
+       |   reselectFolder consulta inventario, valida ruta/metadatos por raiz;
+       |   omite RECIBIDO, informa faltantes/modificados/ambiguos. Cero envio.
+       |   originalLocalPendiente conserva accion si pausa/cancela; File solo
+       |   queda en la sesion. Vinculado -> Continuar explicito, mismo lote.
+       |   Un RECIBIDO sin temporal no ofrece esta reposicion local.
+       |
+       +-- Falta expediente? --> CrearExpediente de esa raiz, con un PDF recibido
+       |   comprobado. No exige los otros originales ni crea una raiz vacia.
+       |
+       +-- Faltan indices? --> MaterializarArchivo del objetivo; checkpoint.
+       v
+[HTTP: WebServiceImportacionCarpetas.AvanzarLote]
+  sesion + RequestGuard (POST/JSON/CSRF/origen/limites) + contrato de fase
+  entrada: loteId, recursoId=A, fase=ALMACENAR, revisionEsperada, claveOperacion
+       v
+[SERVICE: CoordinadorImportacionCarpetas.AvanzarLote -> AlmacenarArchivo]
+  Identidad/destino vigentes + propietario/empresa/nivel + permisos del perfil.
+  Si el lote no tiene control focal: PrepararControlArchivos UNA vez, dentro
+  de una fase autorizada. Lee plan1/2/inventario y sella procedencia por archivo.
+  Requiere indice manual09; no aplica DDL. Consulta/exportacion nunca sella.
+       v
+[REPOSITORY: ObtenerArchivo(A) + ObtenerBarreraDocumental(raiz de A)]
+  Filtra lote/propietario/empresa/nivel/ID. Revisa snapshot y cabecera del plan;
+  prueba Merkle de datos/valores originales de A; creacion confirmada de raiz.
+  Vista focal: NO carga el manifiesto ni metadatos/originales de B para guardar A.
+       |
+       +-- Intento previo de esta solicitud? --> proyectar su evidencia; no writer.
+       v
+[PREFLIGHT: VerificarOriginalIndividual / AlmacenStagingImportacion]
+  Comprueba SOLO A: ruta privada contenida, recepcion, bytes, hash y PDF.
+  No disponible antes de invocar? --> guardar negativo tipado de A --> [DECISION].
+       v
+[REPOSITORY: ReservarIntentoDocumental]
+  Transaccion: lock lote -> raiz -> A; revision/estado + token/hash + intento/evento.
+  Detencion o escritor vivo/marcador huerfano? -->409; no reclamar por tiempo.
+  Incertidumbre de B solo se aisla con intento correlacionado y retorno V2
+  duradero; A sigue requiriendo identidad confirmada y ninguna reserva propia.
+  Un negativo conocido de A se consume bajo CAS tras comprobar su original.
+       v
+[SERVICE: nueva vista/A + retener SOLO A hasta terminar]
+  Reautorizar; revision reservada e intento propio. Si falla antes de iniciar,
+  cerrar solo la reserva propia con prueba de cero inicio/gate; despues [DECISION].
+       v
+[ADAPTER: AdaptadorDocumentoImportacion / protocolo V2]
+  ComandoAlmacenamientoCarpetas: expediente, tipologia, indices y PDF propios.
+  Conservar original V2 y copia de trabajo; comprobar identidad/epoca/autoridad.
+  EjecutarPasoDocumentoV2: INICIO -> AUTORIZAR (gate de una sola invocacion).
+       v
+[WRITER EXISTENTE: ClassAlmacenamiento.AlmacenamientoDocumentoProduccionDocumental]
+  Una invocacion para A; guarda documento/indices/incorporacion por el flujo previo.
+  Este cambio no modifica el writer compartido ni SII.
+       v
+[VERIFICACION + REPOSITORY: OBSERVAR -> RESULTADO V2]
+  Conservar IDs observados; comprobar referencias/valores/identidad.
+  IDs documentales repetidos contra otro archivo? --> INCIERTO, conservar evidencia.
+  Checkpoint por ID/revision/token: intento + archivo + lote + evento;
+  proyeccion indexada de documento/inventario en la misma transaccion.
+  ConsolidarFocal: agregados SQL sin reconstruir todos los JSON.
+  Solo candidato a COMPLETADO? --> auditoria integral final de resultados/plan.
+       v
+[RESPUESTA -> CLIENTE: consultar A/padre con versionLectura=2]
+  Acuse confirmado + lectura compatible -> contar A y elegir siguiente pendiente.
+  Sin acuse/resultado incierto -> conservar IDs, consultar; nunca repetir writer.
+  Lectura1 permanece compatible; lectura2 no calcula huella de todos los IDs.
+
+[DECISION: dialogo propio, antes del siguiente efecto]
+  Mostrar archivo/ruta relativa/fase/causa/certeza y guardados/pendientes.
+     | Continuar con los demas         | Pausar para revisar / Escape / cerrar
+     v                                v
+  Apartar solo A EN ESTA EJECUCION.    Conservar resultados, no despachar otro.
+  Sigue pendiente en inventario;       Retoma explicita: enumerar de nuevo,
+  no reintentar ni fingir exito.        comprobar disponibilidad y estados.
+  File local se puede vincular; RECIBIDO perdido no se reemplaza por reseleccion.
+
+COSTOS QUE SIGUEN EXISTIENDO
+--------------------------
+* Una vez: enumeracion paginada; sello inicial O(N) y eventos de procedencia.
+* Por A: autorizaciones/catalogos/SELECT de control, prueba corta, originales de A,
+  copia/hash V2, writer y checkpoint. Harness:3 cargas de A,0 cargas/aperturas de B.
+* Agregados SQL pueden recorrer N filas; no son N viajes ni N objetos JSON/archivos.
+* Al cierre completo: auditoria integral una vez. Consultar/CSV/arbol conservados.
+* Medicion previa: HTTP93,177/74,219/70,900s;72,321% metadatos;0,082% writer.
+  Son tiempos del codigo anterior al control focal.
+* Control focal instalado8b27a942: tres siguientes1,058143s y diez0,969465s de media.
+  QA5f7af8f5 (respuesta perdida/carrera): dos1,570348s. Cortes historicos acotados,
+  no benchmark pareado ni garantia del cierre cliente actualizado20261119.
+* Server-Timing optativo: categorias SQL/JSON/aperturas/bytes instrumentados,
+  separados de SELECT externos y SQL interno del writer. No sumar etapas anidadas.
+
+HTTP PUBLICO
+------------
+200=operacion comprobada;401=sesion;403=autoridad/CSRF;409=revision/actividad/
+incertidumbre;422/ARCHIVO_NO_DISPONIBLE=negativo sin invocacion persistido;
+503/CONTROL_FOCAL_NO_CONFIGURADO=aplicar script09 manualmente.
+Demas validaciones: EstadoHttp del ASMX y controles propios del ASHX.
+IIS puede rechazar antes de producir un sobre de aplicacion.

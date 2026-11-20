@@ -1,0 +1,397 @@
+{
+  "change": "DOC-120",
+  "date": "2026-11-15",
+  "status": "PASS_LOCAL_PENDING_REAL_ACCEPTANCE",
+  "baseCommit": "563160db5a2b64f013a06cdf62256320e248fea5",
+  "branch": "feature/DOC-120",
+  "delivery": "Fuentes fijadas por SHA256 LF; entrega en el commit que incluye este manifiesto. No se atribuye esta ejecución al commit base sin cambios.",
+  "tasks": {
+    "complete": 106,
+    "total": 112,
+    "completedThisDelivery": [
+      "3.72–3.85",
+      "3.88–3.92"
+    ],
+    "pending": [
+      "3.86",
+      "3.87",
+      "5.2",
+      "6.4",
+      "6.5",
+      "6.6"
+    ],
+    "scenarios": 40
+  },
+  "tests": {
+    "unique": 207,
+    "pass": 207,
+    "fail": 0,
+    "frameworkWrappersIncluded": 2,
+    "internalHarnessCasesAdded": 0,
+    "focalRerunsAdded": 0,
+    "applicationHttp": 0,
+    "authenticatedSessions": 0,
+    "businessSelect": 0,
+    "realEffects": 0,
+    "browser": "Chromium headless; CSS/JS reales y XHR sintético",
+    "concurrency": "Dos vistas/revisiones con doble local; no concurrencia MySQL real",
+    "primaryLog": {
+      "path": ".tmp/doc120-coordinacion-regresion-final.log",
+      "sha256": "7760634425202c39cd463150b8de332d4964d09e8e5ac927ab0a6d9ea338a228"
+    },
+    "overlappingFinalRefinement": {
+      "cases": 9,
+      "log": {
+        "path": ".tmp/doc120-coordinacion-homonimos-final.log",
+        "sha256": "f96fb4dc6e99efb74387cb68e40ef478d200c47ad80889c9b651ed3ad717e07a"
+      }
+    }
+  },
+  "build": {
+    "status": "PASS",
+    "target": "Compile",
+    "isolated": ".tmp/doc120-coordinacion-build",
+    "errorCount": 0,
+    "warningScope": "Advertencias heredadas en fuentes fuera de este cambio",
+    "log": {
+      "path": ".tmp/doc120-coordinacion-build/output.log",
+      "sha256": "a9f0ea2f085ebb2d036c2ae55b364356ff6a7566792c92b45e3fc5f42bd482aa"
+    },
+    "iisActivated": false
+  },
+  "openSpec": {
+    "strict": "PASS",
+    "log": {
+      "path": ".tmp/doc120-coordinacion-openspec-final.log",
+      "sha256": "5a4bc14e8e14e3e419b4d762db239fd691b6bba109cab90a539bd8dc86577c2f"
+    }
+  },
+  "limits": {
+    "resources": 10000,
+    "pagesPerTypePerEnumeration": 400,
+    "readsPerExplicitContinuation": 10000,
+    "effectsPerExplicitContinuation": 10000,
+    "internalPageMaximum": 25
+  },
+  "catalogCodes": 152,
+  "schemaObservation": {
+    "source": {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Exploracion/02-evidencia-esquema-perfil.json",
+      "sha256Lf": "8309041617eb357f8248f7579a171fdc1ad833683fd3bf0af9ec7cf7356bb0b7"
+    },
+    "scope": "Esquema versionado histórico, sin lectura actual del destino",
+    "indexes": [
+      {
+        "index": "cod_sub_area",
+        "nonUnique": 1,
+        "position": 1,
+        "column": "ID_SUB_AREA"
+      },
+      {
+        "index": "EXPEDIENTE_ARCHIVO_FKIndex1",
+        "nonUnique": 1,
+        "position": 1,
+        "column": "UNIDAD_CONSERVACION_ID_UNIDAD_CONSERVACION"
+      },
+      {
+        "index": "expediente_archivo_FKIndex1_proces_1",
+        "nonUnique": 1,
+        "position": 1,
+        "column": "Id_registro_proceso"
+      },
+      {
+        "index": "expediente_archivo_FKIndex2_proceso",
+        "nonUnique": 1,
+        "position": 1,
+        "column": "Id_registro_procedimiento"
+      },
+      {
+        "index": "expediente_archivo_FKIndex_Fondo",
+        "nonUnique": 1,
+        "position": 1,
+        "column": "RA_DE_REGISTRO_JERARQUIA_ID_REGISTRO_JERARQUIA"
+      },
+      {
+        "index": "expediente_area_ibfk_1",
+        "nonUnique": 1,
+        "position": 1,
+        "column": "CODIGO_AREA_TRD"
+      },
+      {
+        "index": "expediente_id_fondo_documental",
+        "nonUnique": 1,
+        "position": 1,
+        "column": "ID_FONDO"
+      },
+      {
+        "index": "expediente_id_tipo_ciclo_archivo_expediente_",
+        "nonUnique": 1,
+        "position": 1,
+        "column": "Id_tipos_ciclo_archivo"
+      },
+      {
+        "index": "expediente_nombre_ciclo_archivo_expediente_",
+        "nonUnique": 1,
+        "position": 1,
+        "column": "NOMBRE_CICLO_ARCHIVO"
+      },
+      {
+        "index": "expediente_nombre_fondo_documental",
+        "nonUnique": 1,
+        "position": 1,
+        "column": "NOMBRE_FONDO"
+      },
+      {
+        "index": "expediente_nombre_tipo_unidad_documental",
+        "nonUnique": 1,
+        "position": 1,
+        "column": "NOMBRE_TIPO_UNIDAD_DOCUMENTAL"
+      },
+      {
+        "index": "expediente_Nonbre_tipo_unidad_ibfk_1",
+        "nonUnique": 1,
+        "position": 1,
+        "column": "TIPO_UNIDAD_CONSERVACION"
+      },
+      {
+        "index": "expediente_tipo_unidad_documental",
+        "nonUnique": 1,
+        "position": 1,
+        "column": "ID_TIPO_UNIDAD_DOCUMENTAL"
+      },
+      {
+        "index": "expediente_tipo_unidad_ibfk_1",
+        "nonUnique": 1,
+        "position": 1,
+        "column": "TIPO_UNIDAD_ID_TIPO"
+      },
+      {
+        "index": "nombre_cod_sub_area_",
+        "nonUnique": 1,
+        "position": 1,
+        "column": "NOMBRE_SUB_AREA"
+      },
+      {
+        "index": "PRIMARY",
+        "nonUnique": 0,
+        "position": 1,
+        "column": "ID_EXPEDIENTE"
+      },
+      {
+        "index": "PRIMARY",
+        "nonUnique": 0,
+        "position": 2,
+        "column": "CODIGO_UNICO"
+      },
+      {
+        "index": "RA_TIPO_EXPEDIENTE_ibfk_12",
+        "nonUnique": 1,
+        "position": 1,
+        "column": "RA_TIP_EXPE_ID_TIPO_EXPEDIENTE"
+      },
+      {
+        "index": "tipo_doc_entrante_FKIndex_auto_registro_exp",
+        "nonUnique": 1,
+        "position": 1,
+        "column": "ra_auto_registro_expediente_id_auto_registro"
+      }
+    ],
+    "conclusion": "PRIMARY compuesto ID_EXPEDIENTE/CODIGO_UNICO permite códigos repetidos con IDs diferentes. No se declara esquema actual compatible ni se ejecuta DDL."
+  },
+  "captures": [
+    {
+      "path": ".tmp/doc120-coordinacion-ui/avance-390.png",
+      "sha256": "35032041e387ae4db150022b0abc4dba0caae07475eef40f182951dbcf56bfec"
+    },
+    {
+      "path": ".tmp/doc120-coordinacion-ui/avance-768.png",
+      "sha256": "3855c671ab2ce5cdd6b9d76534323630aecf8189a2b6101ce8a51f6585842baf"
+    },
+    {
+      "path": ".tmp/doc120-coordinacion-ui/avance-1280.png",
+      "sha256": "3a3388501aacade7825f1d13301d9689fd80d61104cfd4037f1bd5adb6347833"
+    },
+    {
+      "path": ".tmp/doc120-coordinacion-ui/resultado.png",
+      "sha256": "83860cf89d10fab9d3d7187bc5c4c856b203eed70b93e0b927c71dc2ceefc9e9"
+    }
+  ],
+  "protectedSources": [
+    "Integracionccv/",
+    "Web.config",
+    "AdaptadorDocumentoImportacion.vb",
+    "ComposicionLimpiezaOriginalImportacion.vb",
+    "esquema y permisos"
+  ],
+  "realAcceptancePlan": "doc120-coordinacion-plan-real-20261115.md",
+  "limitations": [
+    "Sin activación/despliegue IIS o prueba real nueva.",
+    "Política configurable futura no implementada.",
+    "Planes bloqueados anteriores requieren nueva revisión; snapshots y lotes confirmados no se reescriben.",
+    "Presupuestos del cliente no demuestran capacidad INT-03.",
+    "Auxiliar administrativo alineado y sintaxis/fixture locales; ciclo E2E autenticado no ejecutado.",
+    "Nodo oculto o ambiguo avisa y no inventa destino ni repite negocio."
+  ],
+  "sources": [
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/11-prompt-seguimiento-operacion.md",
+      "sha256Lf": "12717e8d2ebcdf38e2a3ec860dc35c6d3a57182d709f711910037d1a913204f1"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/02-contratos-operacion.md",
+      "sha256Lf": "39a8705373fbf84f892f1a436c36f87305a6aacba8435ce372bf7c20825e9758"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-coordinacion-20261115.md",
+      "sha256Lf": "e091554dbe739e8bf61d63e3cd2fe44717fc3e3f9dbdb396a9f32922c362aa1a"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-coordinacion-plan-real-20261115.md",
+      "sha256Lf": "3e70c1ed20100b4a5a66a19f8b2bdc871350fb5198fe592f5c9fed736ab72f7b"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/matriz-verificacion.md",
+      "sha256Lf": "1ab41482752fc1b69d9f9a9d6a4b34849c7d525b48e5b73b9ed79e582710bfab"
+    },
+    {
+      "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/resultados.md",
+      "sha256Lf": "78be63b19daea21fbddb97b2af36001a17d5aab2b5e813f8f0a8f1fefa26819a"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Lf": "3568188b2b388fec66e774a51e0e2deeca1c3e58f142fc0411525a4b3571fd7f"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.vb",
+      "sha256Lf": "5b9dbb9d201f85d6dc97a54f03270ec85f003762f05844609bd59c864ab36aba"
+    },
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionModels.vb",
+      "sha256Lf": "072ff32c06099b523a4de5f17acf136ec6bcc6a70af001e67bcec73126847b11"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioPerfilImportacion.vb",
+      "sha256Lf": "d050211a2f62f06b5b70c0c52fd8675ce4ce5b7067e350db3d4d99b2b14af099"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionCarpetas/ValidadorPerfilImportacion.vb",
+      "sha256Lf": "664a412081b08d42935d72d778fdd42f02e5637f254a9b24b9f32123e7c81581"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css",
+      "sha256Lf": "ea86c259e4439a03e2f6701b22da631ef7cc8b45f060061eabe662b528a17272"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256Lf": "43dec0647b3238b95c8001bdc36a40eebe0bb515d415f0e4dc71a883289911f2"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js",
+      "sha256Lf": "7ae3b9cd02832956b9a4ae9940c10b537604baf0c06126c28378e2748c27a67c"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256Lf": "e123920f8c131427274c52c1d402742b4fc36668f07e48051a111ac10ade7db1"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+      "sha256Lf": "b4c649f711f6dae7dab5f6cd1efb6affa814c3210c9c55f6eab5a2f232babf5f"
+    },
+    {
+      "path": "js/gestion/WebFormProducionDocumental.js",
+      "sha256Lf": "874a8e9de2a2bce7bf9afc02aa1c73e38cb7a661d30386ea15eef307eaa1c494"
+    },
+    {
+      "path": "openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/design.md",
+      "sha256Lf": "5a64bd9678917eedf88a70b7fb79c4f9afcc3e881e0cf43b8ce814ba259ef0aa"
+    },
+    {
+      "path": "openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/proposal.md",
+      "sha256Lf": "c823e96d9414add438d22fdf7987b3d3262ca8f143ef551b66b2dc0c9bf1199c"
+    },
+    {
+      "path": "openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/refinement.md",
+      "sha256Lf": "4fc885424393f468cc8432b682db41155dec8fcd7391fef25a56799c3f5535c0"
+    },
+    {
+      "path": "openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/specs/produccion-importacion-carga-carpeta-verificacion/spec.md",
+      "sha256Lf": "8b89f9c53c308bc4b5975aeaa8ec4198b58c66e92f6e0d5b219ccd421ea430c8"
+    },
+    {
+      "path": "openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/tasks.md",
+      "sha256Lf": "715b78ba2c33545841b17934813b49ab88f9adb33d9f572fd17e7a2b8875bbaf"
+    },
+    {
+      "path": "tests/ImportacionCarpetasBehaviorTests.cs",
+      "sha256Lf": "a2bff72c186a12c3844d45fb5ed105beb47299955feba1b7be29f4943fb583a2"
+    },
+    {
+      "path": "tests/PerfilImportacionReglasBehaviorTests.cs",
+      "sha256Lf": "934bd5c83dba14047bc39f046e6408da7a10da44eb201c94560cd45df8609daa"
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-editor.test.cjs",
+      "sha256Lf": "9eb29937b10117d0f537b61a9242102e67a0080635f3b2d2ed9016038901e220"
+    },
+    {
+      "path": "tests/doc111-importacion-carpetas-client.test.cjs",
+      "sha256Lf": "5e31623ea677bab4d87514c07494375252ae8ce4f8ba9148efab674b4395d7b9"
+    },
+    {
+      "path": "tests/doc120-coordinacion-browser.test.cjs",
+      "sha256Lf": "39b4e5e9a44352c29c4c11e46f02e15fbf64420a3751d527656813abf74a2b84"
+    },
+    {
+      "path": "tests/doc120-coordinacion-core.test.cjs",
+      "sha256Lf": "b6eff62a74c34d5442fa92bd8a2b66a89abe469631091b131d5885d5ef7d78fa"
+    },
+    {
+      "path": "tests/doc120-importacion-arbol.test.cjs",
+      "sha256Lf": "e9950c90b2deda05f62a1c913fc0cc75c41e25fa364835a621568eb8857f2485"
+    },
+    {
+      "path": "tests/doc120-importacion-fidelidad.test.cjs",
+      "sha256Lf": "4eca8b494fac4f3c034b23c71e390250669691bdf29e5ef36db7b326c4008c00"
+    },
+    {
+      "path": "tests/doc120-importacion-flujo-final.test.cjs",
+      "sha256Lf": "13be4b78d20f161729ff15440a35719d1937721707f244a1ca2cd083378ea517"
+    },
+    {
+      "path": "tests/doc120-importacion-guiada.test.cjs",
+      "sha256Lf": "ccbb00ad8a223c67ff9a05921bd4932fa86a7e88cdfd4605e564626b044ac6dc"
+    },
+    {
+      "path": "tests/doc120-importacion-mensajes.test.cjs",
+      "sha256Lf": "1d7c00cce67e9f115c5d78484cb66c368251ff60e3a55dba9871b99ec4385c3d"
+    },
+    {
+      "path": "tests/doc120-recepcion-creacion.test.cjs",
+      "sha256Lf": "3090a3cbd321327cc6c6878a6e21eb0b4746ce4f271bfdb43607933d9ff43502"
+    },
+    {
+      "path": "tests/doc120-retomar-creacion.test.cjs",
+      "sha256Lf": "1937e15f65bd334410b66d61ba072fc38f33b13e9422a69a07ef9b20ed46c2ba"
+    },
+    {
+      "path": "tests/support/doc120-coordinacion-browser.cjs",
+      "sha256Lf": "2b12d24b58603294bfdfe3ea158bd5ed7757ccd409fbd90fea3aa9fa03c94986"
+    },
+    {
+      "path": "tools/e2e/AGENT-RUNBOOK.md",
+      "sha256Lf": "cb252423bcd1fe934f3ad639963ab6f59f384d21ef8d26a29f23d98bab0540b8"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc110-publication-fixture.cjs",
+      "sha256Lf": "8183f88c597a7fa8eb1db84dad8d269f7a0d850b184e5837b9867c0e0670131d"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc110-publication-lifecycle.cjs",
+      "sha256Lf": "23577cb35892b4832c96ed31833d5ed88f0372ac3d519b84cfafdb6bf930aeaf"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc119-seguimiento.cjs",
+      "sha256Lf": "384364b57669668b651658ecbbd1ced04371b6d247a1597c31ff48b0eacd54e5"
+    }
+  ]
+}

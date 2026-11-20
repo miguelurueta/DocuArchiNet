@@ -1,0 +1,114 @@
+{
+  "date": "2026-11-19",
+  "baseCommit": "feb47dda41a12db5d755d7a80fdfdc1dcbb5cc42",
+  "tasks": [
+    "3.243",
+    "3.244",
+    "3.245",
+    "3.246",
+    "3.247"
+  ],
+  "priority": "Actual storage, pause, continue, cancel exit, accept exit and reload/resume on existing lot52",
+  "scope": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "lotId": "52",
+    "owner": "141",
+    "company": "2",
+    "files": 4,
+    "storageCalls": 4,
+    "optionalReceipts": 4,
+    "optionalMetadata": 4,
+    "sourceBytes": 100663296,
+    "http": 1200,
+    "controlSelect": 80,
+    "sessions": 1,
+    "milliseconds": 2700000,
+    "newPlans": 0,
+    "newLots": 0,
+    "newExpeditions": 0,
+    "deletes": 0,
+    "profileChanges": 0,
+    "administrativeResume": 0
+  },
+  "caseSequence": [
+    "A: request storage then pause, wait actual response, no B admission",
+    "B: continue, open close dialog and cancel; deliver B and require automatic C admission",
+    "C: accept close while awaiting response; wait response, no D admission",
+    "D: reload/query, explicitly continue, store D then pause and reload without replay"
+  ],
+  "responseBoundary": "Only browser delivery held. Real request executed once; responseAlreadyAvailable recorded; HTTP timings exclude hold. Not an artificially open SQL transaction.",
+  "verification": {
+    "local": {
+      "tests": 68,
+      "pass": 68,
+      "fail": 0,
+      "newCases": 10,
+      "log": ".tmp/doc120-storage-ui-regresion.log",
+      "sha256": "4d95de52a93cb995bbf45b8126b660f53b97606bc37d59a2b64f8ce66dffb513"
+    },
+    "commandCheck": "PASS; REAL_EXECUTION=false",
+    "syntax": "PASS"
+  },
+  "sources": [
+    {
+      "path": "tools/e2e/scripts/run-doc120-storage-ui.cjs",
+      "sha256": "26d94b5dd1c2522be8a4637499fd2b84241853a2c6e5877c8a9805862e261e97"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc120-storage-ui.cjs",
+      "sha256": "ed0b7e40808b3e1d97deefc56a42cd9f5c1f6ddcb66ac1b35db82ee3ee83d7ec"
+    },
+    {
+      "path": "tests/doc120-storage-ui.test.cjs",
+      "sha256": "8bf32940bc878327e6b646d5961a54b14cc8407b66d4ce38ccb1988dbd3166b7"
+    }
+  ],
+  "reuse": [
+    "authenticated-workflow-session/createWorkflowLoginPageSession",
+    "doc119-seguimiento/consult,permittedRequest,STATIC_DEPENDENCIES,makeControls",
+    "doc113-ventana-importacion/selectLevel",
+    "doc120-qa-window/SQL,hash,id",
+    "measure-doc120-three-files/parseTiming,SELECT_INDEX,validateIndex",
+    "interactive-e2e-console/collectValue",
+    "doc32-e2e-odbc/queryRows"
+  ],
+  "checks": [
+    "Identity and confirmed root/config fixed",
+    "Next4 eligible files in order; no skipping blocked file",
+    "Validate all needed local originals before reception",
+    "One request per file/phase, no replay",
+    "RA checkpoint and DA cabinet/inventory/index/expedition agreement",
+    "Incremental DA counts detect unexpected additional documents",
+    "Other996 file values/origins/results preserved",
+    "Previous attempts/events and expedition/config identity preserved",
+    "Already dispatched request awaited before cleanup"
+  ],
+  "launch": {
+    "runId": "5db2662119bd4d9ab7985548e6cdfea5",
+    "status": "CLOSED_STOPPED",
+    "realResult": "NOT_EXECUTED_PREFLIGHT_INPUT_REJECTED",
+    "pid": 27716,
+    "launchedUtc": "2026-11-20T03:41:06.5248701Z",
+    "observed": {
+      "status": "STOPPED",
+      "authorized": true,
+      "http": 0,
+      "select": 0,
+      "sessions": 0,
+      "closed": true,
+      "credentialsCleared": true,
+      "failure": "DOC120_STORAGE_UI_CONNECTION_INVALID",
+      "failureStage": "WAITING_AUTHORIZATION",
+      "stateSha256": "a8ea172344227d2b1f99b58a31f97648270a1f37bae7af119dee5de9b6966c33",
+      "effects": 0,
+      "diagnosticLimit": "CONNECTION_INVALID combines certificate acceptance and DSN format checks. No typed values retained; cannot attribute to one input.",
+      "noAutomaticReplay": true
+    }
+  },
+  "limits": [
+    "Current real outcome must be reviewed separately; preparing/launching is not PASS",
+    "No proof of native SQL rollback or administrative stop/resume",
+    "Previous contextual keyboard intermittency remains outside this prioritized execution",
+    "Previous windows remain preserved; no replay of closed sessions"
+  ]
+}

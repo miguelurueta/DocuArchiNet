@@ -1,0 +1,128 @@
+{
+  "version": 1,
+  "date": "2026-11-14",
+  "status": "PASS_LOCAL_PREREQUISITE_RUNNER_REAL_WINDOW_NOT_EXECUTED",
+  "baseSha": "2bfc15173f775e48a4d61aa6e8f0cf128a3b6729",
+  "reason": "State diagnosis933961f9 found reservation96 without a start checkpoint; exact historical exception is not retained.",
+  "implementation": {
+    "productChanged": false,
+    "existingClasses": [
+      "ComandoCreacionExpedienteImportacion",
+      "PerfilImportacionCatalogAdapter"
+    ],
+    "existingReader": "queryRows",
+    "transport": "Ephemeral JSON over stdin/stdout between a local C# diagnostic host and Node; no raw metadata/catalog values persisted.",
+    "privateRowsRetained": false,
+    "credentialCapture": "Masked console only; query credentials cleared per call and per window.",
+    "writersComposed": false,
+    "http": 0,
+    "effects": 0,
+    "stages": [
+      "COMMAND",
+      "LEGACY_INPUT",
+      "CATALOG",
+      "LEGACY_CATALOG_VALUES"
+    ],
+    "counterfactual": {
+      "stopFlagInLocalCopy": false,
+      "newReservationInLocalCopy": true,
+      "explanation": "Only copies are projected to check prerequisites before the later stop. No DB mutation, authority, transaction or replay is inferred."
+    },
+    "unchecked": [
+      "HTTP session authority",
+      "Legacy connection compatibility in the HTTP session",
+      "Real start transaction",
+      "Historical catalog state",
+      "Existence/absence of a business expedition"
+    ]
+  },
+  "proposedWindow": {
+    "status": "AUTHORIZATION_REQUESTED_NO_REPLY",
+    "lotId": "39",
+    "rootId": "60",
+    "attemptId": "96",
+    "dsnRA": "MembershipUsers",
+    "dsnDA": "MembershipUsers",
+    "maxSelect": 30,
+    "priorAttempts": 6,
+    "maxCumulativeAttempts": 36,
+    "http": 0,
+    "applicationSessions": 0,
+    "businessEffects": 0,
+    "automaticRetry": false,
+    "command": "node tools/e2e/scripts/inspect-doc120-creation-prerequisites.cjs --lot 39 --root 60 --attempt 96 --authorized",
+    "plan": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-prerrequisitos-plan-20261114.md"
+  },
+  "tests": {
+    "classification": "LOCAL_SYNTHETIC_ONLY",
+    "passed": 23,
+    "failed": 0,
+    "focusedPrerequisiteCases": 11,
+    "otherDiagnosticAndODBC": 12,
+    "command": "node --test --test-name-pattern=\"DOC120-PRE|DOC120-DIAG|DOC120-FIN03|DOC120-FIN04|ODBC filas\" tests/doc120-creation-prerequisites.test.cjs tests/doc120-final-state-diagnostic.test.cjs tests/doc120-importacion-flujo-final.test.cjs tools/e2e/tests/odbc-select-rows.test.cjs",
+    "log": {
+      "file": ".tmp/doc120-prerequisite-tests-20261114.log",
+      "sha256": "6ee08e69674dc64e4b60f14e8a6be6a032790bc4115b41111515a96a27df4c0a"
+    },
+    "frameworkHostCompilation": "PASS",
+    "newBusinessDatabaseReads": 0
+  },
+  "sources": [
+    {
+      "file": "tools/e2e/scripts/inspect-doc120-creation-prerequisites.cjs",
+      "sha256Lf": "f833addc5bb7b49e3d36a23ec12d62c40daa4baab781a41dd94a84c5b7c34f4a"
+    },
+    {
+      "file": "tools/e2e/scripts/support/Doc120CreationPrerequisites.cs",
+      "sha256Lf": "a034563608ad3a686264448803c3577831fd3342a339859f259df142d38fe844"
+    },
+    {
+      "file": "tests/doc120-creation-prerequisites.test.cjs",
+      "sha256Lf": "c61d8350aad4d4a4634f9b3969e4cdbc776a423f4c1d202801b94c6dfa266aba"
+    },
+    {
+      "file": "tests/support/Doc120PrerequisiteFixture.cs",
+      "sha256Lf": "a70d5b07efbde67b21057295a2d4588266cfdd07ab1b14fde506ad86a84143e7"
+    },
+    {
+      "file": "tools/e2e/scripts/support/doc32-e2e-odbc.cjs",
+      "sha256Lf": "4e103b5a42dc1d74dc192405958818136195b2c895d57f9d6d23b61e938afde5"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComandoCreacionExpedienteImportacion.vb",
+      "sha256Lf": "473d623a512cc7b9a383e1573ddfcf55e1cf51c21da2e751a47363e3c9dce59a"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.Creacion.vb",
+      "sha256Lf": "7219f128ac3ba636eb00c1b69223ddf25ee246c04c07542a68df997c46ba0b42"
+    },
+    {
+      "file": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.vb",
+      "sha256Lf": "51a29d37cec1764f359b53126190e2235d5f00c59acdfb1cbdb02257e49afdb4"
+    }
+  ],
+  "assembly": {
+    "file": "bin/GestionDocumental-Docuarchi.net.dll",
+    "sha256": "4e7e692294856056776b8f33fbc0b36b14eb123452f288e00fefcd0f362e2ee6",
+    "claim": "Local assembly used by the tests; no served-runtime provenance or deployment claim."
+  },
+  "progress": {
+    "complete": 45,
+    "total": 51,
+    "doneThisCut": [
+      "3.29"
+    ],
+    "open": [
+      "3.30",
+      "3.31",
+      "5.2",
+      "6.4",
+      "6.5",
+      "6.6"
+    ],
+    "scenarios": 30,
+    "requirements": 10
+  },
+  "realRecovered": false,
+  "integralAcceptance": false
+}

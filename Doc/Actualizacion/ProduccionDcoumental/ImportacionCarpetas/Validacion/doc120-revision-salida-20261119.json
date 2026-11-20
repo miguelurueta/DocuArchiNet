@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-19",
+  "baseCommit": "cc89d49d5dd7788ed9c304b3bc096580d2c34243",
+  "tasks": [
+    "3.227",
+    "3.228",
+    "3.229",
+    "3.230"
+  ],
+  "scenarios": [
+    "REV-EXIT01",
+    "REV-EXIT02",
+    "REV-EXIT03"
+  ],
+  "sources": [
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256": "ac77d5ab7f39a21a6ecef0959c2c232b8a6d52c7c5ddebc37d79f7ba959ea88d"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256": "c0e0231024417154974f8616ecc73644053ac4c5dad83a547cedcc0b5f13f9ca"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/PreparacionSegmentadaImportacion.js",
+      "sha256": "0e1e5238f35c07260cfc786b08edcd298c013cb416c97c98418228d21d90f22f"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256": "c68bf29ed9c646e5a01b259ecaaee802b303d3563eddfa07079f16c33c498343"
+    },
+    {
+      "path": "tests/doc120-revision-salida-browser.test.cjs",
+      "sha256": "a447fd5ddce5a43072aed789b4d9516255d15a229ea2264ce49ad713d39fae0b"
+    },
+    {
+      "path": "tests/doc120-controles-cierre-browser.test.cjs",
+      "sha256": "52fc6a78118d7ce0d066becce89578dae098508cb8981e64ffd1382f044e9a0e"
+    },
+    {
+      "path": "tests/doc111-importacion-carpetas-client.test.cjs",
+      "sha256": "4f9b67f1f298fa8701cea4296c9ff1022e492b71bb3827b0c907c0e04a14a676"
+    },
+    {
+      "path": "tools/docs/generate-doc120-flow.cjs",
+      "sha256": "899199d13a1fe2aaf909ca7ad4f97eff736fd6f837354e1469ed319210e32853"
+    }
+  ],
+  "video": {
+    "name": "Grabación 2026-11-19 191801-suspender-revision.mp4",
+    "sha256": "6ae4595f95f1a74dba1a97386f32feb5631340e29301477cf729fba274e59dc4",
+    "seconds": 65.73,
+    "observations": [
+      "X during validation at600/1000 invokes native exit confirm; Cancel leaves preparation paused.",
+      "Paused preparation shows both Continue review and Prepare review.",
+      "Later review reaches1000 and ready-to-confirm; no import confirmation shown."
+    ],
+    "limit": "No SQL or source SHA certification from video; browser directory permission is separate from application exit consent."
+  },
+  "verification": {
+    "newBrowserCases": 6,
+    "uniqueCasesVerified": 81,
+    "firstCut": {
+      "tests": 34,
+      "passed": 33,
+      "failed": 1,
+      "log": ".tmp/doc120-revision-salida-focal.log",
+      "sha256": "bcb76c25bd1e1069e5081651f4a075e11b5f98417fa8e8deb4b676ad8ba0317f",
+      "resolution": "Pause accepted current part but last displayed index was500 rather than600. Notify current confirmed index before paused check in cycle, without admitting another request."
+    },
+    "broad": {
+      "tests": 65,
+      "passed": 63,
+      "failed": 2,
+      "log": ".tmp/doc120-revision-salida-regresion.log",
+      "sha256": "cda77b0b872daaa50fe926c9ab3b10743b94adf8d73aab848098780bebdfaa0c",
+      "resolution": "Two legacy fixtures expected native confirmation to close automatically; now explicitly accept module consent and await actual close."
+    },
+    "finalFocusedAndCore": {
+      "tests": 18,
+      "passed": 18,
+      "failed": 0,
+      "log": ".tmp/doc120-revision-salida-final-focal.log",
+      "sha256": "68b0453c5b19a09afea6dab20ac79b963f729909233062a9a3a216ab95acb24e",
+      "includes": "Two repaired browser cases plus16 existing pure segmented/focal cases."
+    },
+    "primaryAction": {
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "overlap": true,
+      "log": ".tmp/doc120-revision-salida-primario.log",
+      "sha256": "de88f888e5ede0e6478a12034dcc4094a8098dfb4127b5647511e05bdeb3d691"
+    },
+    "counting": "63 broad successes +2 repaired cases +16 distinct core cases =81 unique. One final primary-action case overlaps; not a new full81/81 run.",
+    "synthetic1000": {
+      "pauseAtReviewed": 600,
+      "samePreparationStartCount": 1,
+      "confirmedPartsNotRepeated": true,
+      "noReceiptOrConfirmationDuringPreparation": true,
+      "existingBrowser1000CapacityBudgetsPassed": true,
+      "notRealSqlOrStoragePerformance": true
+    },
+    "viewports": [
+      390,
+      768,
+      1280
+    ],
+    "syntax": true,
+    "strictOpenSpec": true,
+    "diffCheck": true,
+    "flowSources": 124,
+    "flowLines": 20213
+  },
+  "behavior": {
+    "consentBeforePreparationPause": true,
+    "cancelAndEscapeDoNotPause": true,
+    "preparationSelectionAndPendingConfirmationHaveDedicatedCopy": true,
+    "noNativeApplicationExitConfirm": true,
+    "otherLegacyConfirmationsUnchanged": true,
+    "acceptWaitsCurrentAcknowledgement": true,
+    "onePrimaryContinueForValidPreparation": true,
+    "changedSelectionOrProfileInvalidatesResume": true,
+    "intentionalPauseIsStatus": true,
+    "lastAcknowledgedPartCountedBeforePause": true,
+    "noPromiseOfFullPreparationRecoveryAfterReload": true,
+    "forcedDisposalAndUncertainConfirmationPreserved": true,
+    "assetVersion": "doc120-revision-salida-20261119-6",
+    "versionedAssetsIncludeSegmentedScript": true
+  },
+  "runtime": {
+    "realHttp": 0,
+    "realSelect": 0,
+    "realSessions": 0,
+    "realBusinessEffects": 0,
+    "dllCompiledOrReplacedByAgent": false,
+    "schemaChangedByAgent": false,
+    "installedDllObservedSha256": "b0b5d0d329f62124aa45ea49248746b90ad40c824a8a0a6adf73291d5d39dc4f",
+    "historicalQaStateSha256": "c26e2686c9243fca52662b7afdf262b572c0e5929cdc28dbf5fa4eb01aaa64a0",
+    "historicalQaStatePreserved": true,
+    "manualAcceptanceCurrentClient": "PENDING"
+  },
+  "secretsRecorded": false
+}

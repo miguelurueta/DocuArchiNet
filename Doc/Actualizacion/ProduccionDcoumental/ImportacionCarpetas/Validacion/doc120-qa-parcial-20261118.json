@@ -1,0 +1,389 @@
+{
+  "runId": "95b22a23844453a3529c4908060be669",
+  "status": "STOPPED",
+  "http": 582,
+  "select": 12,
+  "sessions": 1,
+  "bindings": {
+    "A": "50",
+    "B": "51",
+    "C": "52",
+    "createRoot": "50",
+    "D": "120",
+    "E": "121"
+  },
+  "before": {
+    "completed29": 0,
+    "completed50": 23,
+    "fingerprint29": "99e9accd91be9003f7b9d3dcf97c8e27e650dc62d65f0b45d1c79bb8f96a0972",
+    "fingerprint50": "ec1acd0553af709c3ca09bf3caf677ea09ac39da7db4492d7aeb3265173257ac"
+  },
+  "operations": [
+    {
+      "operation": "ConfirmarPlan",
+      "lotId": null,
+      "resourceId": null,
+      "phase": null,
+      "http": 200,
+      "code": "OK",
+      "ok": true
+    },
+    {
+      "operation": "ConfirmarPlan",
+      "lotId": null,
+      "resourceId": null,
+      "phase": null,
+      "http": 200,
+      "code": "OK",
+      "ok": true
+    },
+    {
+      "operation": "RecibirArchivo",
+      "lotId": "29",
+      "resourceId": "52",
+      "phase": null,
+      "http": 200,
+      "code": "OK",
+      "ok": true
+    },
+    {
+      "operation": "AvanzarLote",
+      "lotId": "29",
+      "resourceId": "50",
+      "phase": "MATERIALIZAR_VALORES",
+      "http": 200,
+      "code": "OK",
+      "ok": true
+    },
+    {
+      "operation": "AvanzarLote",
+      "lotId": "29",
+      "resourceId": "50",
+      "phase": "ALMACENAR",
+      "http": 200,
+      "code": "OK",
+      "ok": true,
+      "documentId": "16282",
+      "inventoryId": "23412",
+      "expedientId": "681",
+      "relationId": "1105"
+    },
+    {
+      "operation": "AvanzarLote",
+      "lotId": "29",
+      "resourceId": "50",
+      "phase": "CREAR_EXPEDIENTE",
+      "http": 200,
+      "code": "OK",
+      "ok": true,
+      "expedientId": "694",
+      "relationId": "1118"
+    },
+    {
+      "operation": "AvanzarLote",
+      "lotId": "29",
+      "resourceId": "52",
+      "phase": "MATERIALIZAR_VALORES",
+      "http": 200,
+      "code": "OK",
+      "ok": true
+    },
+    {
+      "operation": "AvanzarLote",
+      "lotId": "29",
+      "resourceId": "52",
+      "phase": "ALMACENAR",
+      "http": 200,
+      "code": "OK",
+      "ok": true,
+      "documentId": "16283",
+      "inventoryId": "23413",
+      "expedientId": "694",
+      "relationId": "1118"
+    }
+  ],
+  "results": {
+    "confirmedPlanConvergence": {
+      "planId": "90",
+      "lotId": "50",
+      "sameLot": true,
+      "newPlans": 0,
+      "newLots": 0
+    },
+    "pauseAtMissing": {
+      "fileId": "51",
+      "waitsForConsent": true,
+      "paused": true
+    }
+  },
+  "failure": "DOC120_QA_STOPPED",
+  "failureStage": "UI_PAUSE_WAITING_FOR_RESPONSE",
+  "closed": true,
+  "credentialsCleared": true,
+  "finishedUtc": "2026-11-18T22:09:50.326Z",
+  "effectCalls": {
+    "CONFIRM": 2,
+    "RECEIPT": 1,
+    "29:50:MATERIALIZAR_VALORES": 1,
+    "29:50:ALMACENAR": 1,
+    "29:50:CREAR_EXPEDIENTE": 1,
+    "29:52:MATERIALIZAR_VALORES": 1,
+    "29:52:ALMACENAR": 1
+  },
+  "previousStatePreserved": true,
+  "timings": [
+    {
+      "lotId": "29",
+      "fileId": "50",
+      "elapsedMs": 1020.9537000000128,
+      "timing": {
+        "adaptador": {
+          "durationMs": 621.803,
+          "calls": 1
+        },
+        "checkpoint": {
+          "durationMs": 48.139,
+          "calls": 1
+        },
+        "comprobacion_posterior": {
+          "durationMs": 9.539,
+          "calls": 1
+        },
+        "consulta_preflight": {
+          "durationMs": 58.445,
+          "calls": 2
+        },
+        "copia_trabajo": {
+          "durationMs": 12.293,
+          "calls": 1
+        },
+        "datos_documentales": {
+          "durationMs": 33.789,
+          "calls": 1
+        },
+        "escritor_legacy": {
+          "durationMs": 90.737,
+          "calls": 1
+        },
+        "json_chars": {
+          "durationMs": 0,
+          "calls": 86573
+        },
+        "json_control": {
+          "durationMs": 7.072,
+          "calls": 137
+        },
+        "lectura_final": {
+          "durationMs": 27.183,
+          "calls": 1
+        },
+        "original_open": {
+          "durationMs": 0,
+          "calls": 2
+        },
+        "original_v2": {
+          "durationMs": 12.242,
+          "calls": 1
+        },
+        "originales_previos": {
+          "durationMs": 18.643,
+          "calls": 1
+        },
+        "originales_retenidos": {
+          "durationMs": 7.361,
+          "calls": 1
+        },
+        "pdf_bytes": {
+          "durationMs": 0,
+          "calls": 3385
+        },
+        "prev_io": {
+          "durationMs": 7.469,
+          "calls": 1
+        },
+        "reserva": {
+          "durationMs": 37.803,
+          "calls": 1
+        },
+        "ret_io": {
+          "durationMs": 3.281,
+          "calls": 1
+        },
+        "sql_archivo": {
+          "durationMs": 2.898,
+          "calls": 11
+        },
+        "sql_autoridad": {
+          "durationMs": 9.119,
+          "calls": 90
+        },
+        "sql_catalogo": {
+          "durationMs": 22.233,
+          "calls": 85
+        },
+        "sql_control": {
+          "durationMs": 17.537,
+          "calls": 86
+        },
+        "sql_esquema": {
+          "durationMs": 507.394,
+          "calls": 120
+        },
+        "sql_evento": {
+          "durationMs": 6.618,
+          "calls": 35
+        },
+        "total": {
+          "durationMs": 999.606,
+          "calls": 1
+        },
+        "v2_autorizacion": {
+          "durationMs": 38.445,
+          "calls": 1
+        },
+        "v2_hash": {
+          "durationMs": 3.595,
+          "calls": 9
+        },
+        "v2_inicio": {
+          "durationMs": 43.37,
+          "calls": 1
+        },
+        "v2_retorno": {
+          "durationMs": 34.918,
+          "calls": 1
+        }
+      }
+    },
+    {
+      "lotId": "29",
+      "fileId": "52",
+      "elapsedMs": 797.3840999999957,
+      "timing": {
+        "adaptador": {
+          "durationMs": 453.453,
+          "calls": 1
+        },
+        "checkpoint": {
+          "durationMs": 39.042,
+          "calls": 1
+        },
+        "comprobacion_posterior": {
+          "durationMs": 3.958,
+          "calls": 1
+        },
+        "consulta_preflight": {
+          "durationMs": 51.061,
+          "calls": 2
+        },
+        "copia_trabajo": {
+          "durationMs": 8.234,
+          "calls": 1
+        },
+        "datos_documentales": {
+          "durationMs": 21.459,
+          "calls": 1
+        },
+        "escritor_legacy": {
+          "durationMs": 22.491,
+          "calls": 1
+        },
+        "json_chars": {
+          "durationMs": 0,
+          "calls": 86760
+        },
+        "json_control": {
+          "durationMs": 6.284,
+          "calls": 137
+        },
+        "lectura_final": {
+          "durationMs": 25.318,
+          "calls": 1
+        },
+        "original_open": {
+          "durationMs": 0,
+          "calls": 2
+        },
+        "original_v2": {
+          "durationMs": 1.418,
+          "calls": 1
+        },
+        "originales_previos": {
+          "durationMs": 4.734,
+          "calls": 1
+        },
+        "originales_retenidos": {
+          "durationMs": 5.297,
+          "calls": 1
+        },
+        "pdf_bytes": {
+          "durationMs": 0,
+          "calls": 3385
+        },
+        "prev_io": {
+          "durationMs": 0.826,
+          "calls": 1
+        },
+        "reserva": {
+          "durationMs": 31.244,
+          "calls": 1
+        },
+        "ret_io": {
+          "durationMs": 0.713,
+          "calls": 1
+        },
+        "sql_archivo": {
+          "durationMs": 2.765,
+          "calls": 11
+        },
+        "sql_autoridad": {
+          "durationMs": 8.992,
+          "calls": 90
+        },
+        "sql_catalogo": {
+          "durationMs": 20.338,
+          "calls": 85
+        },
+        "sql_control": {
+          "durationMs": 14.321,
+          "calls": 86
+        },
+        "sql_esquema": {
+          "durationMs": 491.719,
+          "calls": 120
+        },
+        "sql_evento": {
+          "durationMs": 7.156,
+          "calls": 35
+        },
+        "total": {
+          "durationMs": 790.857,
+          "calls": 1
+        },
+        "v2_autorizacion": {
+          "durationMs": 32.096,
+          "calls": 1
+        },
+        "v2_hash": {
+          "durationMs": 2.053,
+          "calls": 9
+        },
+        "v2_inicio": {
+          "durationMs": 30.605,
+          "calls": 1
+        },
+        "v2_retorno": {
+          "durationMs": 35.541,
+          "calls": 1
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "NO_FINAL_FINGERPRINT_CONTROL",
+    "NO_LOT50_RESPONSE_LOSS_TEST",
+    "NO_CONCURRENT_SESSIONS_TEST",
+    "NO_PRIVACY_TEST",
+    "EXACT_FAILED_UI_SUBSTEP_NOT_RECORDED"
+  ]
+}

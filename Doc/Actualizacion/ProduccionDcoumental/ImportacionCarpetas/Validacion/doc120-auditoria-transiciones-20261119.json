@@ -1,0 +1,218 @@
+{
+  "date": "2026-11-19",
+  "baseCommit": "077920dad9aaba3bf9bb03ce469c35f27718aed9",
+  "scope": "Client transitions, view and transport audit; synthetic local tests only.",
+  "tasks": [
+    "3.235",
+    "3.236",
+    "3.237",
+    "3.238"
+  ],
+  "scenarios": [
+    "AUDCTX01",
+    "AUDCTX02",
+    "AUDCTX03",
+    "AUDCTX04"
+  ],
+  "defects": 4,
+  "newBrowserCases": 7,
+  "sources": [
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256": "da5de4c46b8236b6269aae828ef0989a36edf0902f3d56d9b8e805941b5fc5a4"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256": "ea9aadb4e21c6015722121c5ddb20f18edd9f76598f709d693c456ed92a51bf5"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256": "6b2381dfd3b2773b6e003b889b3b40ac0842fcbc1eb76997f261ec4034c80241"
+    },
+    {
+      "path": "tests/doc120-auditoria-transiciones-browser.test.cjs",
+      "sha256": "0cec6b335126d6dd96608b56f3903db6b6b832fc8ae515d2369c4036084906c2"
+    },
+    {
+      "path": "tests/doc119-navigation.test.cjs",
+      "sha256": "d32c90da6f5e2203466f4df12d290807a37319844aac4d0dda332564f4dd8416"
+    },
+    {
+      "path": "tests/doc120-espera-reanudacion.test.cjs",
+      "sha256": "7e97adee2c91d74fe0b97850bed2f98575b49c3525dcc5b98788be1031b1b9ce"
+    },
+    {
+      "path": "tests/doc120-importacion-fidelidad.test.cjs",
+      "sha256": "560e566a2db39936d51e98f3187336b4c8232a2ed5f38c07c47843ed51ca29ea"
+    },
+    {
+      "path": "tests/doc120-importacion-flujo-final.test.cjs",
+      "sha256": "58e23b6a87cb418d8b927f410fcaa4f61918ad8fbfdbf84eeb41d7287db752ab"
+    },
+    {
+      "path": "tests/doc120-retomar-creacion.test.cjs",
+      "sha256": "682d751f12c104f143dbfbb68e9ccfb898318a9d2b025c64ac39ff216a54ead3"
+    },
+    {
+      "path": "tools/docs/generate-doc120-flow.cjs",
+      "sha256": "6284ead718aa7481c9a954e41b340ca0670b1f75fcbdc35aeac898fbdf55ba26"
+    },
+    {
+      "path": "tools/e2e/scripts/test-doc120-transitions.cjs",
+      "sha256": "2689f46b50dabba4cdf3d0096b6a7b95f2e94e56566d4c7174d4113dd518d9e1"
+    }
+  ],
+  "hashMode": "Raw working file bytes at verification",
+  "verification": {
+    "previousSelectedBaseline": {
+      "path": ".tmp/doc120-auditoria-baseline.log",
+      "sha256": "721ae410d47af098a0a9f3e8290db8263450687baf30692fdedfa3846c6c5657",
+      "tests": 127,
+      "pass": 127,
+      "fail": 0
+    },
+    "redThreeDefects": {
+      "path": ".tmp/doc120-auditoria-rojo.log",
+      "sha256": "ed1b2a83eb98ce107a2178afadb77eaf4cbdd43fa01b532a08e09e07222423cd",
+      "tests": 3,
+      "pass": 0,
+      "fail": 3
+    },
+    "redPreparationLeak": {
+      "path": ".tmp/doc120-auditoria-revision-rojo.log",
+      "sha256": "72780a78467325ff4d34fb1ec35b1a68b904e8d9ae99af8005e3ecc40effe6ad",
+      "tests": 1,
+      "pass": 0,
+      "fail": 1
+    },
+    "newFocused": {
+      "path": ".tmp/doc120-auditoria-focal.log",
+      "sha256": "1579c16ae8cbf741c972161409a486b1afc35f83934681358730b30238588614",
+      "tests": 7,
+      "pass": 7,
+      "fail": 0
+    },
+    "firstBroad": {
+      "path": ".tmp/doc120-auditoria-final.log",
+      "sha256": "b79964519ec025e78b5a733fa063a943141f526167216f3e125e42d5f8c57e76",
+      "tests": 223,
+      "pass": 214,
+      "fail": 9
+    },
+    "firstBroadNote": "214 passes,8 outdated assertions and1 fidelity worker terminated after waiting on unaccepted consent; this is not a passing run.",
+    "previousSourceContrast": {
+      "log": {
+        "path": ".tmp/doc120-auditoria-contraste-base.log",
+        "sha256": "3447e9110001960ae1957f7511563a715c81afc96fe6d3135196449a2ca17776"
+      },
+      "method": "Private fs preload uses git HEAD source snapshots for main, view and ASPX without editing working files.",
+      "observedFailures": 6,
+      "interrupted": true,
+      "limit": "Only the six reported failures are confirmed by this interrupted contrast; do not claim all nine were reexecuted to completion."
+    },
+    "repairedOldSuites": {
+      "path": ".tmp/doc120-auditoria-fixtures-final.log",
+      "sha256": "d028737f75b10948662e30b2b8cbfc155b2f6102994289b8424863136adb543a",
+      "tests": 38,
+      "pass": 38,
+      "fail": 0
+    },
+    "finalSuites": [
+      "tests/doc111-importacion-carpetas-client.test.cjs",
+      "tests/doc119-navigation.test.cjs",
+      "tests/doc119-context-menu.test.cjs",
+      "tests/doc120-controles-cierre.test.cjs",
+      "tests/doc120-coordinacion-core.test.cjs",
+      "tests/doc120-consultar-ultimo.test.cjs",
+      "tests/doc120-importacion-guiada.test.cjs",
+      "tests/doc120-importacion-fidelidad.test.cjs",
+      "tests/doc120-importacion-flujo-final.test.cjs",
+      "tests/doc120-importacion-arbol.test.cjs",
+      "tests/doc120-preparacion-segmentada.test.cjs",
+      "tests/doc120-recepcion-creacion.test.cjs",
+      "tests/doc120-retomar-creacion.test.cjs",
+      "tests/doc120-preparacion-tamano.test.cjs",
+      "tests/doc120-espera-reanudacion.test.cjs",
+      "tests/doc120-auditoria-transiciones-browser.test.cjs",
+      "tests/doc120-controles-cierre-browser.test.cjs",
+      "tests/doc120-coordinacion-browser.test.cjs",
+      "tests/doc120-independientes-browser.test.cjs",
+      "tests/doc120-mensajes-vigentes-browser.test.cjs",
+      "tests/doc120-originales-recuperacion-browser.test.cjs",
+      "tests/doc120-revision-salida-browser.test.cjs",
+      "tests/doc120-salida-consulta-browser.test.cjs",
+      "tests/doc120-segmentada-browser.test.cjs"
+    ],
+    "counting": "Initial127 and focused7/38 overlap final suite selection; do not sum repeated runs.",
+    "final": {
+      "tests": 223,
+      "pass": 223,
+      "fail": 0,
+      "cancelled": 0,
+      "path": ".tmp/doc120-auditoria-verificacion.log",
+      "sha256": "4d994d730177dfaaf04243739276e5e7bfb6b0d93e01962057599bc2c288b04e",
+      "durationMs": 171773.7231
+    },
+    "uniqueCasesVerified": 223,
+    "suiteCount": 24
+  },
+  "unchangedSecurity": "API remains closed after401/403; subsequent operations require renewed context and server authorization.",
+  "assets": "doc120-auditoria-transiciones-20261119-8",
+  "flow": {
+    "sources": 124,
+    "lines": 20225
+  },
+  "realOperations": {
+    "http": 0,
+    "select": 0,
+    "sessions": 0,
+    "businessEffects": 0,
+    "scope": "Application/business HTTP and effects; all browser transport synthetic or intercepted."
+  },
+  "dllCompiledOrReplaced": false,
+  "schemaChanged": false,
+  "historicalQa": {
+    "runId": "5f7af8f5354a4fca5e2eb5c7a53b4b4d",
+    "sha256": "c26e2686c9243fca52662b7afdf262b572c0e5929cdc28dbf5fa4eb01aaa64a0",
+    "unchanged": true,
+    "closed": true,
+    "notProofOfCurrentClient": true
+  },
+  "limits": [
+    "No real E2E execution or native SQL performance measurement.",
+    "Synthetic concurrency is not new MySQL race or rollback certification.",
+    "Eleven previous tasks remain pending; no overall DOC120 completion or proof of absence of all errors."
+  ],
+  "reproducibleCommand": "node tools/e2e/scripts/test-doc120-transitions.cjs",
+  "runnerSelectionMatchesVerifiedSuites": true,
+  "progress": {
+    "complete": 247,
+    "total": 258,
+    "complexity": {
+      "S": 44,
+      "M": 214,
+      "L": 0
+    },
+    "normativeScenarios": 107,
+    "previousPending": [
+      "3.87",
+      "3.118",
+      "3.126",
+      "3.127",
+      "3.130",
+      "3.131",
+      "3.187",
+      "5.2",
+      "6.4",
+      "6.5",
+      "6.6"
+    ]
+  },
+  "checks": {
+    "javascriptSyntax": "PASS",
+    "openSpecStrict": "PASS",
+    "flowCurrent": "PASS",
+    "gitDiffWhitespace": "PASS",
+    "runnerSelection": "PASS"
+  }
+}

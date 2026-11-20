@@ -106,7 +106,7 @@ Public Class ResolvedorReglasPerfilImportacion
                 If regla.Extraccion = "SEGMENTO" Then
                     Dim partes = valor.Split(New String() {regla.Separador}, StringSplitOptions.None)
                     If regla.Posicion >= partes.Length Then
-                        Agregar(resultado.Incidencias, campo, "SEGMENTO_AUSENTE")
+                        resultado.Incidencias.Add(DiagnosticoOperacionImportacion.Incidencia(campo, "SEGMENTO_AUSENTE", posicion:=regla.Posicion))
                         Continue For
                     End If
                     valor = partes(regla.Posicion)
@@ -116,7 +116,7 @@ Public Class ResolvedorReglasPerfilImportacion
             Dim convertido As String = Nothing
             Dim errorValor = Convertir(regla, valor, convertido)
             If errorValor IsNot Nothing Then
-                Agregar(resultado.Incidencias, campo, errorValor)
+                resultado.Incidencias.Add(DiagnosticoOperacionImportacion.Incidencia(campo, errorValor, Longitud(valor), regla.LongitudMaxima, formato:=If(regla.TipoValor = "FECHA", regla.FormatoFecha, Nothing)))
             Else
                 salida.Valor = convertido
                 resultado.Valores.Add(salida)
@@ -134,7 +134,12 @@ Public Class ResolvedorReglasPerfilImportacion
     Friend Shared Function ValidarValorResuelto(regla As ReglaPerfilImportacion, valor As String) As String
         If regla Is Nothing Then Return "REGLA_INVALIDA"
         Dim copia = PerfilImportacionJson.Leer(Of ReglaPerfilImportacion)(PerfilImportacionJson.Escribir(regla))
-        If copia.TipoValor = "FECHA" Then copia.FormatoFecha = "yyyy-MM-dd"
+        If copia.TipoValor = "FECHA" Then
+            copia.FormatoFecha = "yyyy-MM-dd"
+            'El limite original se aplica antes de resolver (p.ej. yyyyMMdd).
+            'La fecha ya resuelta ocupa siempre diez caracteres canonicos.
+            copia.LongitudMaxima = 10
+        End If
         Dim convertido As String = Nothing
         Dim errorValor = Convertir(copia, valor, convertido)
         If errorValor IsNot Nothing Then Return errorValor
@@ -177,6 +182,6 @@ Public Class ResolvedorReglasPerfilImportacion
     End Function
 
     Private Shared Sub Agregar(errores As List(Of IncidenciaPerfilImportacion), campo As String, codigo As String)
-        errores.Add(New IncidenciaPerfilImportacion(campo, codigo, "Revise la regla y el valor del campo indicado."))
+        errores.Add(DiagnosticoOperacionImportacion.Incidencia(campo, codigo))
     End Sub
 End Class

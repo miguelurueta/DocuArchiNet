@@ -1,0 +1,120 @@
+{
+  "change": "DOC-120",
+  "date": "2026-11-17",
+  "generatedUtc": "2026-11-17T15:10:55.793660+00:00",
+  "status": "PASS_REPRODUCED_DEFECT_FIXED_AND_DEPLOYED_REPORTED_INSTANCE_NOT_AUTHENTICATED",
+  "baseCommit": "8f1675f0d310ce2ed9ac820b2ffdba03e240c7ac",
+  "productCommit": "beae0afc194d061db76ca9e4c9d3a2ea522490b4",
+  "minimumRecommendedReturnCommit": "beae0afc194d061db76ca9e4c9d3a2ea522490b4",
+  "userReportedDiagnostic": "62232125f0f64fdfb1537b2251288a35",
+  "reportedPhase": "READ_SEALED_REVISION_AFTER1000_REVIEWED",
+  "diagnosticLimits": {
+    "persistentTraceFound": false,
+    "reportedPreparationIdKnown": false,
+    "reportedDatabaseRowsRead": false,
+    "specificInstanceCauseVerified": false
+  },
+  "reproducedDefect": {
+    "preparedSnapshotCanonicalRuleOrder": true,
+    "previousWriterStoredOriginalPublicationOrder": true,
+    "hashMismatchAfterPersistence": true,
+    "fixedWriterStoresCanonicalSnapshot": true,
+    "fixedReaderNormalizesOrderOnlyInMemory": true,
+    "updatesExistingDatabaseRows": false,
+    "changesProfileHashOrLegacySchema1": false
+  },
+  "validation": {
+    "nodeCasesThisCut": 18,
+    "frameworkWrappers": 2,
+    "clientCases": 16,
+    "internalFrameworkCasesNotAdded": true,
+    "notAddedToHistoricalTotals": true,
+    "beforeFixFailed": true,
+    "afterFixPassed": true,
+    "persistedHeaderReadUsesProductionIDataRecordReader": true,
+    "filesRestored": 1000,
+    "canonicalHeaderReadPassed": true,
+    "alteredRuleValueStillRejected": true,
+    "continueAfterReadFailureOnlyQueriesSamePlan": true,
+    "fullBuildSucceeded": true,
+    "authenticatedCaseReplay": false
+  },
+  "deployment": {
+    "runId": "65a3b228329a4a9f85261325804fa790",
+    "status": "PASS_DEPLOYED_JSON_GUARD",
+    "productCommit": "beae0afc194d061db76ca9e4c9d3a2ea522490b4",
+    "diagnosticReference": "62232125f0f64fdfb1537b2251288a35",
+    "select": 0,
+    "http": 1,
+    "businessEffects": 0,
+    "schemaChanged": false,
+    "poolRestarted": false,
+    "preservedInterveningBuild": true,
+    "files": [
+      {
+        "name": "GestionDocumental-Docuarchi.net.dll",
+        "beforeSha256": "639247b8abd9ba332ee134c53b501e47a65250e5b4a91fdbdc3bf7b2471be0dd",
+        "afterSha256": "5b821504cf0cb583d4cc5dbd155e8eafad50a2a21196bc06b2749c312b77fff4"
+      },
+      {
+        "name": "GestionDocumental-Docuarchi.net.pdb",
+        "beforeSha256": "595e72e8d9612ebfca46371313f3dbf9d8ee2cb86a75a259c73cce3631fd3f56",
+        "afterSha256": "193f109ff9ef4ec182cb0fcbbecf0cf47da423a802f958777a965ccc9cca938b"
+      }
+    ],
+    "finishedUtc": "2026-11-17T15:06:44.607Z",
+    "runtime": {
+      "status": 401,
+      "code": "SESION_REQUERIDA",
+      "anonymousDenied": true
+    }
+  },
+  "sessionLimitation": {
+    "aspNetSessionInProc": true,
+    "dllUpdateCanResetSession": true,
+    "clientReferencesCanBeLostOnReload": true,
+    "samePlanContinueVerifiedWhenContextRetained": true,
+    "newColdRecoveryUiImplemented": false
+  },
+  "scope": {
+    "controlSelect": 0,
+    "anonymousTechnicalHttp": 1,
+    "authenticatedSessions": 0,
+    "businessImportEffects": 0,
+    "schemaChanges": 0,
+    "credentialsUsed": false,
+    "previousBinaryPreserved": true,
+    "sharedPoolRestarted": false
+  },
+  "tasks": {
+    "verified": 139,
+    "total": 148,
+    "pending": [
+      "3.86",
+      "3.87",
+      "3.118",
+      "3.126",
+      "3.127",
+      "5.2",
+      "6.4",
+      "6.5",
+      "6.6"
+    ]
+  },
+  "sourceSha256Lf": {
+    "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.PlanSegmentado.vb": "2f5274ee06f8f05c99faf101bbdd855e732e4cf846997265db58709de9253dd0",
+    "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Preparacion.vb": "8992a643f8002e11b9cde0f4090cf2788a1af77f8eacbe9f108d5d647a41653d",
+    "tests/ImportacionCarpetasPreparacionSegmentadaBehaviorTests.cs": "f4a540dec54c246449b164413a10135f730f0240f17e84ed74fa7b2a3a664d29",
+    "tests/doc120-preparacion-segmentada.test.cjs": "c4b62b46428711040eca521cdd3e76e9e0aed23899cdc1a8f0933d99cbe990ca"
+  },
+  "logSha256": {
+    ".tmp/doc120-sealed-plan-order-before-fix-20261117.log": "5b338f2ca34f233884b0b9f3f305a655cd01cf897537d43cc2a7c09a8810710a",
+    ".tmp/doc120-sealed-plan-order-after-fix-20261117.log": "36156df895b8888abba858ef74eee597f19f7c1b7e806fe13a7ac4a92d3ca2b6",
+    ".tmp/doc120-sealed-plan-order-client-20261117.log": "91b9923dbd13d23dc34ce7f2082551a4503534307f7cfe0b0317ce1848c307a0",
+    ".tmp/doc120-sealed-plan-order-build-20261117.log": "fffaefa6b43f9b0786775773e8cbbbf972692cd9a81900408124b5dd04c3433c"
+  },
+  "primaryResult": {
+    "path": ".tmp/doc120-plan-order-deploy/65a3b228329a4a9f85261325804fa790/deployment.json",
+    "sha256": "2b44b0261765e02693cc9307844f7e92cd0f9da684e40082f65c7167f2e7ca82"
+  }
+}

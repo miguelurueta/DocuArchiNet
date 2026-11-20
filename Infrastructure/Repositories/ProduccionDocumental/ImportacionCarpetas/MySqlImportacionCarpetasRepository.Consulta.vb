@@ -4,11 +4,29 @@ Imports System
 Imports System.Collections.Generic
 Imports System.Data
 Imports System.Globalization
+Imports System.Linq
 Imports MySql.Data.MySqlClient
 
 'Parte de la misma clase/repositorio. Consultas SELECT sin FOR UPDATE;
 'cada pagina tiene snapshot propio, no un snapshot global de varias peticiones.
 Public Partial Class MySqlImportacionCarpetasRepository
+    Implements IConsultaUltimoLoteImportacionRepository
+
+    Public Function ObtenerUltimoLoteId(identidad As ContextoImportacionCarpetas) As String Implements IConsultaUltimoLoteImportacionRepository.ObtenerUltimoLoteId
+        If identidad Is Nothing OrElse Not identidad.PuedeImportar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(identidad.UsuarioRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(identidad.AmbitoRef) Then Throw AccesoDenegado()
+        Return Operar(Function(conexion, tx) LeerUltimoLoteId(identidad, Function(sql, parametros) LeerTablaConsulta(conexion, tx, sql, parametros)), IsolationLevel.RepeatableRead)
+    End Function
+
+    Friend Shared Function LeerUltimoLoteId(identidad As ContextoImportacionCarpetas, consultar As Func(Of String, Object(), DataTable)) As String
+        If identidad Is Nothing OrElse Not identidad.PuedeImportar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(identidad.UsuarioRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(identidad.AmbitoRef) Then Throw AccesoDenegado()
+        Dim datos = consultar("SELECT lote_id FROM ra_integracion_lote WHERE solicitante_ref=@usuario AND ambito_ref=@ambito ORDER BY lote_id DESC LIMIT 1", New Object() {"@usuario", identidad.UsuarioRef, "@ambito", identidad.AmbitoRef})
+        If datos Is Nothing OrElse datos.Rows.Count > 1 Then Throw NoDisponible()
+        If datos.Rows.Count = 0 Then Return Nothing
+        Dim id = Convert.ToString(datos.Rows(0)("lote_id"), CultureInfo.InvariantCulture)
+        If Not ValidadorPerfilImportacion.ReferenciaValida(id) Then Throw NoDisponible()
+        Return id
+    End Function
+
     'Solo consulta. No confirma, libera ni toma control de una llamada incierta.
     Public Function ConsultarConfirmacion(contexto As ContextoImportacionCarpetas, planId As String) As ConfirmacionLecturaImportacion Implements IConsultaImportacionRepository.ConsultarConfirmacion
         AutorizarOperacion(contexto) : IdOperacion(planId)
@@ -23,19 +41,49 @@ Public Partial Class MySqlImportacionCarpetasRepository
 
     Public Function ConsultarEstado(contexto As ContextoImportacionCarpetas, loteId As String) As EstadoLecturaImportacion Implements IConsultaImportacionRepository.ConsultarEstado
         AutorizarOperacion(contexto) : IdOperacion(loteId)
-        Return Operar(Function(conexion, tx)
-                          Dim lote = LoteConsulta(conexion, tx, contexto, loteId)
-                          Dim sql = "SELECT (EXISTS(SELECT 1 FROM ra_integracion_intento WHERE lote_id=@lote AND estado IN ('RESERVADO','EN_CURSO')) OR EXISTS(SELECT 1 FROM ra_integracion_raiz WHERE lote_id=@lote AND (intento_activo_id IS NOT NULL OR estado='CREANDO')) OR EXISTS(SELECT 1 FROM ra_integracion_archivo f INNER JOIN ra_integracion_raiz r ON r.raiz_id=f.raiz_id WHERE r.lote_id=@lote AND (f.intento_activo_id IS NOT NULL OR f.estado_recepcion='RECIBIENDO' OR f.estado_efecto='EN_CURSO'))) AS activos,(EXISTS(SELECT 1 FROM ra_integracion_intento WHERE lote_id=@lote AND estado='INCIERTO') OR EXISTS(SELECT 1 FROM ra_integracion_raiz WHERE lote_id=@lote AND estado='INCIERTO') OR EXISTS(SELECT 1 FROM ra_integracion_archivo f INNER JOIN ra_integracion_raiz r ON r.raiz_id=f.raiz_id WHERE r.lote_id=@lote AND (f.estado_recepcion='INCIERTO' OR f.estado_efecto='INCIERTO'))) AS inciertos"
-                          Dim datos = LeerTablaConsulta(conexion, tx, sql, New Object() {"@lote", IdOperacion(loteId)})
-                          If datos.Rows.Count <> 1 Then Throw NoDisponible()
-                          Return New EstadoLecturaImportacion With {.Lote = lote, .HayIntentosActivos = Convert.ToBoolean(datos.Rows(0)("activos"), CultureInfo.InvariantCulture), .HayIncertidumbre = lote.Estado = "PENDIENTE_VERIFICACION" OrElse Convert.ToBoolean(datos.Rows(0)("inciertos"), CultureInfo.InvariantCulture)}
-                      End Function, IsolationLevel.RepeatableRead)
+        Return Operar(Function(conexion, tx) LeerEstadoConsulta(conexion, tx, contexto, loteId), IsolationLevel.RepeatableRead)
+    End Function
+
+    Private Shared Function LeerEstadoConsulta(conexion As MySqlConnection, tx As MySqlTransaction, contexto As ContextoImportacionCarpetas, loteId As String) As EstadoLecturaImportacion
+        Dim lote = LoteConsulta(conexion, tx, contexto, loteId)
+        Dim sql = "SELECT (EXISTS(SELECT 1 FROM ra_integracion_intento WHERE lote_id=@lote AND estado IN ('RESERVADO','EN_CURSO')) OR EXISTS(SELECT 1 FROM ra_integracion_raiz WHERE lote_id=@lote AND (intento_activo_id IS NOT NULL OR estado='CREANDO')) OR EXISTS(SELECT 1 FROM ra_integracion_archivo f INNER JOIN ra_integracion_raiz r ON r.raiz_id=f.raiz_id WHERE r.lote_id=@lote AND (f.intento_activo_id IS NOT NULL OR f.estado_recepcion='RECIBIENDO' OR f.estado_efecto='EN_CURSO'))) AS activos,(EXISTS(SELECT 1 FROM ra_integracion_intento WHERE lote_id=@lote AND estado='INCIERTO') OR EXISTS(SELECT 1 FROM ra_integracion_raiz WHERE lote_id=@lote AND estado='INCIERTO') OR EXISTS(SELECT 1 FROM ra_integracion_archivo f INNER JOIN ra_integracion_raiz r ON r.raiz_id=f.raiz_id WHERE r.lote_id=@lote AND (f.estado_recepcion='INCIERTO' OR f.estado_efecto='INCIERTO'))) AS inciertos"
+        Dim datos = LeerTablaConsulta(conexion, tx, sql, New Object() {"@lote", IdOperacion(loteId)})
+        If datos.Rows.Count <> 1 Then Throw NoDisponible()
+        Return New EstadoLecturaImportacion With {.ProcesamientoIndependiente = True, .EscritorVivo = HayEscritorVivoFocal(conexion, tx, loteId), .Lote = lote, .HayIntentosActivos = Convert.ToBoolean(datos.Rows(0)("activos"), CultureInfo.InvariantCulture), .HayIncertidumbre = lote.Estado = "PENDIENTE_VERIFICACION" OrElse Convert.ToBoolean(datos.Rows(0)("inciertos"), CultureInfo.InvariantCulture)}
     End Function
 
     Public Function ConsultarRaices(contexto As ContextoImportacionCarpetas, loteId As String, filtro As FiltroConsultaImportacion) As PaginaRecursosImportacion(Of RaizImportacionCarpetas) Implements IConsultaImportacionRepository.ConsultarRaices
         AutorizarOperacion(contexto) : IdOperacion(loteId) : ValidarFiltroConsulta("RAICES", filtro)
-        Return Operar(Function(conexion, tx) LeerRaicesConsulta(LoteConsulta(conexion, tx, contexto, loteId), filtro, Function(sql, parametros) LeerTablaConsulta(conexion, tx, sql, parametros)), IsolationLevel.RepeatableRead)
+        Return Operar(Function(conexion, tx)
+                          Dim lote = LoteConsulta(conexion, tx, contexto, loteId)
+                          Dim consultar As Func(Of String, Object(), DataTable) = Function(sql, parametros) LeerTablaConsulta(conexion, tx, sql, parametros)
+                          Dim pagina = LeerRaicesConsulta(lote, filtro, consultar)
+                          CompletarRetomarCreacionConsulta(lote, pagina, consultar)
+                          If Not lote.DetencionSolicitada AndAlso pagina.Elementos.Any(Function(r) r.Estado = "PENDIENTE" AndAlso r.IntentoActivoId Is Nothing AndAlso r.IdentidadExpediente Is Nothing) Then
+                              CompletarRecepcionIndividualConsulta(lote, pagina, consultar)
+                          End If
+                          Return pagina
+                      End Function, IsolationLevel.RepeatableRead)
     End Function
+
+    'Mismo snapshot de lectura, sin filtros de archivos ni FOR UPDATE. La pista
+    'reutiliza la barrera vigente; no verifica disco, reserva ni ejecuta efectos.
+    Friend Shared Sub CompletarRecepcionCreacionConsulta(lote As LoteImportacionCarpetas, plan As PlanImportacionCarpetas, pagina As PaginaRecursosImportacion(Of RaizImportacionCarpetas), consultar As Func(Of String, Object(), DataTable))
+        If lote Is Nothing OrElse plan Is Nothing OrElse pagina Is Nothing OrElse consultar Is Nothing Then Throw NoDisponible()
+        For Each raiz In pagina.Elementos
+            raiz.RecepcionListaParaCrear = False
+        Next
+        If lote.DetencionSolicitada Then Return
+        Dim pendientes = pagina.Elementos.Where(Function(r) r.Estado = "PENDIENTE" AndAlso r.IntentoActivoId Is Nothing AndAlso r.IdentidadExpediente Is Nothing).ToList()
+        If pendientes.Count = 0 Then Return
+        Dim ambitoLote = lote.Snapshot.Configuracion.ModoIntegridad = "COMPLETO_OBLIGATORIO" AndAlso lote.Snapshot.Configuracion.AmbitoIntegridad = "LOTE"
+        Dim vista = LeerVistaBarreraCreacion(lote, plan, pendientes(0), consultar, pendientes.Select(Function(r) r.RaizId).ToList())
+        For Each raiz In pendientes
+            Dim raices = If(ambitoLote, vista.Raices, vista.Raices.Where(Function(r) r.RaizId = raiz.RaizId).ToList())
+            Dim archivos = If(ambitoLote, vista.Archivos, vista.Archivos.Where(Function(a) a.RaizId = raiz.RaizId).ToList())
+            raiz.RecepcionListaParaCrear = CoordinadorImportacionCarpetas.EvaluarBarreraCreacion(lote, plan, raiz, raices, archivos)
+        Next
+    End Sub
 
     Public Function ConsultarArchivos(contexto As ContextoImportacionCarpetas, loteId As String, filtro As FiltroConsultaImportacion) As PaginaRecursosImportacion(Of ArchivoImportacionCarpetas) Implements IConsultaImportacionRepository.ConsultarArchivos
         AutorizarOperacion(contexto) : IdOperacion(loteId) : ValidarFiltroConsulta("ARCHIVOS", filtro)
@@ -50,7 +98,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
 
     Private Shared Function LeerTablaConsulta(conexion As MySqlConnection, tx As MySqlTransaction, sql As String, parametros As Object()) As DataTable
         Using cmd = ComandoOperacion(conexion, tx, sql, parametros)
-            Using reader = cmd.ExecuteReader()
+            Using reader = EjecutarLecturaControl(cmd)
                 Dim datos As New DataTable()
                 datos.Load(reader)
                 Return datos

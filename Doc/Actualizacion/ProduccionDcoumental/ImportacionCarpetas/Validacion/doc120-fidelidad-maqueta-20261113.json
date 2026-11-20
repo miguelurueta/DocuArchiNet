@@ -1,0 +1,417 @@
+{
+  "case": "DOC120-FIDELIDAD",
+  "date": "2026-11-13",
+  "classification": "LOCAL_DOC120",
+  "status": "PASS_LOCAL_IMPLEMENTATION",
+  "baseSha": "2642e604a0207dc56789ed604849d47fe1cc6f54",
+  "request": "Igualar detalladamente la maqueta y mantener Consultar importación / Consultar último lote siempre visibles",
+  "tasks": [
+    "3.19",
+    "3.20",
+    "3.21",
+    "3.22",
+    "3.23"
+  ],
+  "decisions": [
+    "D-04",
+    "D-05",
+    "D-10"
+  ],
+  "requirements": [
+    "RQ-04",
+    "RQ-05",
+    "RQ-10"
+  ],
+  "progress": {
+    "complete": 39,
+    "total": 43,
+    "complexity": {
+      "S": 15,
+      "M": 28,
+      "L": 0
+    },
+    "remaining": [
+      "5.2",
+      "6.4",
+      "6.5",
+      "6.6"
+    ]
+  },
+  "reference": {
+    "file": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Prototipo/propuesta-importacion-guiada-doc120.html",
+    "sha256Lf": "5d0394cc1276e8f6fe45c70e7442e813aeebb49e1b5fedbfc9aff918a6dde85f",
+    "unchanged": true
+  },
+  "implementation": {
+    "queries": "Consultar importación / último lote siempre presentes; sin referencia se deshabilita último lote con explicación; verificación pendiente conserva referencia",
+    "layout": "Barra de consultas y pie fuera del área desplazable, cabecera contextual, pasos circulares y misma tipografía/variables del HTML",
+    "selection": "Formulario en dos columnas, tarjetas/filas de carpetas, vacío, más perfiles, eliminación individual y páginas conservadas",
+    "review": "Contadores, incidencias, selección revisada, valores y configuración desplegables; confirmación validada",
+    "tracking": "Panel de acción, fase, contadores originales, tablas con estados, filtros separados y Ver acciones por recurso; un botón de efecto",
+    "buttonLabels": "Enviar archivo / Enviar N archivos; referencia de operaciones conservada en aria-label y panel",
+    "queryIsolation": "Preparación original preservada en memoria; consulta usa únicamente File explícitamente reseleccionado; volver a lote confirmado relee estado",
+    "cacheVersion": "doc120-fidelidad-20261113-1",
+    "viewState": "Paneles, borradores, selección de recurso y desplazamiento preservados por importación/consulta; cerrar destruye también la ventana auxiliar"
+  },
+  "visual": {
+    "method": "Comparación automática de propiedades calculadas contra el HTML de referencia; capturas de interfaz real con respuestas sintéticas y Bootstrap local",
+    "widths": [
+      390,
+      768,
+      1280
+    ],
+    "comparedProperties": 116,
+    "checks": [
+      {
+        "width": 390,
+        "actual": ".doc111-title",
+        "properties": 5
+      },
+      {
+        "width": 390,
+        "actual": ".doc111-shortcuts button",
+        "properties": 6
+      },
+      {
+        "width": 390,
+        "actual": ".doc111-head",
+        "properties": 1
+      },
+      {
+        "width": 390,
+        "actual": ".doc111-steps .step-num",
+        "properties": 3
+      },
+      {
+        "width": 390,
+        "actual": ".doc111-content select",
+        "properties": 4
+      },
+      {
+        "width": 390,
+        "actual": ".doc111-content .read-value",
+        "properties": 4
+      },
+      {
+        "width": 390,
+        "actual": ".doc111-actionbar .primary",
+        "properties": 5
+      },
+      {
+        "width": 768,
+        "actual": ".doc111-title",
+        "properties": 5
+      },
+      {
+        "width": 768,
+        "actual": ".doc111-shortcuts button",
+        "properties": 6
+      },
+      {
+        "width": 768,
+        "actual": ".doc111-head",
+        "properties": 1
+      },
+      {
+        "width": 768,
+        "actual": ".doc111-steps .step-num",
+        "properties": 3
+      },
+      {
+        "width": 768,
+        "actual": ".doc111-content select",
+        "properties": 4
+      },
+      {
+        "width": 768,
+        "actual": ".doc111-content .read-value",
+        "properties": 4
+      },
+      {
+        "width": 768,
+        "actual": ".doc111-actionbar .primary",
+        "properties": 5
+      },
+      {
+        "width": 1280,
+        "actual": ".doc111-title",
+        "properties": 5
+      },
+      {
+        "width": 1280,
+        "actual": ".doc111-shortcuts button",
+        "properties": 6
+      },
+      {
+        "width": 1280,
+        "actual": ".doc111-head",
+        "properties": 1
+      },
+      {
+        "width": 1280,
+        "actual": ".doc111-steps .step-num",
+        "properties": 3
+      },
+      {
+        "width": 1280,
+        "actual": ".doc111-content select",
+        "properties": 4
+      },
+      {
+        "width": 1280,
+        "actual": ".doc111-content .read-value",
+        "properties": 4
+      },
+      {
+        "width": 1280,
+        "actual": ".doc111-actionbar .primary",
+        "properties": 5
+      },
+      {
+        "width": 1280,
+        "actual": ".folder-glyph",
+        "properties": 4
+      },
+      {
+        "width": 1280,
+        "actual": ".folder-row",
+        "properties": 2
+      },
+      {
+        "width": 1280,
+        "actual": ".selection",
+        "properties": 2
+      },
+      {
+        "width": 390,
+        "actual": ".stat",
+        "properties": 3
+      },
+      {
+        "width": 768,
+        "actual": ".stat",
+        "properties": 3
+      },
+      {
+        "width": 1280,
+        "actual": ".stat",
+        "properties": 3
+      },
+      {
+        "width": 390,
+        "actual": ".action-panel",
+        "properties": 4
+      },
+      {
+        "width": 390,
+        "actual": ".action-panel",
+        "properties": 1
+      },
+      {
+        "width": 768,
+        "actual": ".action-panel",
+        "properties": 4
+      },
+      {
+        "width": 768,
+        "actual": ".action-panel",
+        "properties": 1
+      },
+      {
+        "width": 1280,
+        "actual": ".action-panel",
+        "properties": 4
+      },
+      {
+        "width": 1280,
+        "actual": ".action-panel",
+        "properties": 1
+      }
+    ],
+    "captures": [
+      {
+        "file": ".tmp/doc120-fidelidad/consultas-pie-scroll-1280.png",
+        "sha256": "6d8d6e971c93d39c4ce809682dfb97e700fc2bb00ca7c6c71c61b424c7012a34"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/consultas-pie-scroll-390.png",
+        "sha256": "f6d2922667599b090be5deb9a0125820ef33d563aded6f94dc4ba49ec7b403fb"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/consultas-pie-scroll-768.png",
+        "sha256": "a4060b622b001ab8c449aec7b9ce9748b3e6128c85a21d731f2825ab3c0b36ca"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/maqueta-revision-1280.png",
+        "sha256": "e5096eceb1eea354fe833e1965fcc5905773f11879f09b2c11ab11fd93b95d6f"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/maqueta-revision-390.png",
+        "sha256": "f200b3c44cdecda149df99277fe051296e3852f359f507bb1bba15608cefca64"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/maqueta-revision-768.png",
+        "sha256": "0d33ee48815da293557687e393823718bc08b11f30931045d8630a488c5bb0f7"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/maqueta-seguimiento-1280.png",
+        "sha256": "2071f180711d61d3e4d0132421c7cc490f5f9c935bb875f853f921e0a38ef372"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/maqueta-seguimiento-390.png",
+        "sha256": "c7716038322c3530fe1ca9866f4a250496fac6beca592819fe09b33cada7ebf1"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/maqueta-seguimiento-768.png",
+        "sha256": "1a349007d83cfecf4aac82cfb0fc2cb9786b3fe78c754dc2f6c39462fd883c23"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/maqueta-seleccion-1280.png",
+        "sha256": "c7665bf7ece20efc0d6460b348a2f935cda44e2bf872ffa5a2984d6a17d3e7ae"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/maqueta-seleccion-390.png",
+        "sha256": "431806f959cb75c8eb1fbf99f55bae608566acd2db3d6ff90ebb14be9ac2f412"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/maqueta-seleccion-768.png",
+        "sha256": "27c956e8d9d49df0bd6c9251d428c8c452411e90de5c83c79e3de7932fda3ded"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/revision-1280.png",
+        "sha256": "064e42151e6420c4a8204c5a557d83ab335fd81da6131c8952cd41a47fea73f7"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/revision-390.png",
+        "sha256": "df96f9bba17510b13945879efcf3a038c70a74e3469d00050fe1fcc5496cdd39"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/revision-768.png",
+        "sha256": "943643aeeda2e8e43b0da4baf4175ee0a20c41dd439407aa8a7c087e3a5badcd"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/seguimiento-1280.png",
+        "sha256": "e3763542973c432883ebeb113b72d353fc62b51a9c9445c82cb21ab3bfbdc09f"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/seguimiento-390.png",
+        "sha256": "861a6c55afbbdf767165313a352233ac27e6a06120bc8ce5e56dd931bc7bdcf0"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/seguimiento-768.png",
+        "sha256": "ca2b0070daad68127b9d6c4794bb459310f1f7a68e83aebd6b1d23c3316b2419"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/seleccion-1280.png",
+        "sha256": "ed1780d877becde857f383e98b0f3b4f2bc55885fb71146b08b3c105dae90d11"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/seleccion-390.png",
+        "sha256": "51c5801ce413d5f05b8de7adbe1fd65a797158fa7b1681a0762ecc401f6b814f"
+      },
+      {
+        "file": ".tmp/doc120-fidelidad/seleccion-768.png",
+        "sha256": "37c9d4e70c01e243180c7925c31d44e2a72bdebbf087d70f4dbc65c12465f135"
+      }
+    ],
+    "comparison": {
+      "file": ".tmp/doc120-fidelidad/comparacion-estilos.json",
+      "sha256": "ad19bf29fc19ba7a3b73bcb786a6fda81d9f0392f201a1bdd142ea46a87d7128"
+    },
+    "limits": [
+      "Capturas locales sintéticas, no nueva aceptación IIS",
+      "Se trasladan estilos/controles; los datos reales y sus guardas sustituyen los ejemplos",
+      "Marco modal y cabeceras de consulta/pie fijos dentro de Producción Documental; el HTML de referencia es una página independiente",
+      "Se conservan controles reales adicionales: más perfiles, quitar archivos, incidencias, políticas y páginas; no se trasladan controles DEMO"
+    ]
+  },
+  "tests": {
+    "command": "node --test --test-concurrency=2 tests/doc120-importacion-fidelidad.test.cjs tests/doc120-importacion-guiada.test.cjs tests/doc120-recepcion-creacion.test.cjs tests/doc110-perfil-importacion-behavior.test.cjs tests/doc120-produccion-barra.test.cjs tests/doc111-importacion-carpetas-client.test.cjs tests/doc119-navigation.test.cjs tests/doc110-perfil-importacion-editor.test.cjs tools/e2e/tests/doc111-degradation.test.cjs",
+    "nodeTests": 71,
+    "passed": 71,
+    "failed": 0,
+    "frameworkAndDdlWrappersIncluded": 2,
+    "log": {
+      "file": ".tmp/doc120-fidelity-final.log",
+      "sha256": "3eb56a328aa2c0752a987b5ecdd1e0e5d18dad325256a3fcd06522ad9b26a9c1"
+    },
+    "realApplicationHttp": 0,
+    "realBusinessEffects": 0
+  },
+  "build": {
+    "status": "PASS",
+    "configuration": "Debug incremental",
+    "errors": 0,
+    "warnings": 1,
+    "output": "bin/GestionDocumental-Docuarchi.net.dll",
+    "sha256": "4e7e692294856056776b8f33fbc0b36b14eb123452f288e00fefcd0f362e2ee6",
+    "log": {
+      "file": ".tmp/doc120-fidelity-build.log",
+      "sha256": "a80e157021600fe78a0023d653399dfa8d533edaa81a3d9c94615eb6fcd36b7a"
+    }
+  },
+  "sources": [
+    {
+      "file": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Lf": "48e2131c409d69e50863f86ff9d0e5b25a36e88c21725df6bbbcb8fdc1e9ebdc"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.css",
+      "sha256Lf": "e03102c991b9cf358c98c12a5dc747193a90a6bc7d59cc73666389c6eabe0156"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "sha256Lf": "aeb37b646a496af04bad2f3fe6d75e1b6b6f3e0b42b67d0d1b632dbcc28d9a2d"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256Lf": "9994902dcc9e836987efe79844a4634b400bd88d365322542d7622fff06896cd"
+    },
+    {
+      "file": "tests/doc120-importacion-fidelidad.test.cjs",
+      "sha256Lf": "b23686bf2a0f6c146a3540e0889cc3d849c51d6e4fa941de27bed586f46876d8"
+    },
+    {
+      "file": "tests/doc120-importacion-guiada.test.cjs",
+      "sha256Lf": "cab3fc0fd41a508592ce72a130b3096250bdf358ccc6010d87e150eb1508eb38"
+    },
+    {
+      "file": "tests/doc120-recepcion-creacion.test.cjs",
+      "sha256Lf": "1f5c3a0fe8315d6ebfb63241ffb71434ccbc8a6ac683c57f44d28af668612c12"
+    },
+    {
+      "file": "tests/doc111-importacion-carpetas-client.test.cjs",
+      "sha256Lf": "a3ea18279edf9922f985ede5f6521525a1bbeb7a4e815571d8bb1865c5e220d0"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js",
+      "sha256Lf": "c2f06b7b944b0fac244bee29e4c98438083e4c2698533367208e453a0962c7a1"
+    },
+    {
+      "file": "js/gestion/ImportacionCarpetas/InventarioImportacion.js",
+      "sha256Lf": "3ae16d908ca21b35279bf2feabf63ba26c4a21cfbf273773c01ecee1d5fa16db"
+    },
+    {
+      "file": "js/gestion/WebFormProducionDocumental.js",
+      "sha256Lf": "c800184475732e48c8a478bd5afa340cb8c2acd7131010745f25ab823c4343e8"
+    },
+    {
+      "file": "js/gestion/ProduccionDocumentalBarra.js",
+      "sha256Lf": "8c7961a76effc80407e482312b64bd4d9371f7020d196137fa5b67415c4a03e1"
+    },
+    {
+      "file": "Styles/produccion-documental-barra.css",
+      "sha256Lf": "431091f46f4cbd9ee5b4ef1f0fd44c1b7553b21918f947138f13f59e492f7d0f"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb",
+      "sha256Lf": "5e3eb94d7884c434f0eebde4952f35e33dfd39823bc71913ced5b9d99a92c5a0"
+    },
+    {
+      "file": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Barreras.vb",
+      "sha256Lf": "e7db7e6087b4faa24856ad4e2715971925628789fc302cc12582e3edeb7e7290"
+    }
+  ],
+  "protectedSourcesUnchanged": true,
+  "integralAcceptance": false
+}

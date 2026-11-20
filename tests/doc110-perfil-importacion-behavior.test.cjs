@@ -19,6 +19,18 @@ function compileBehaviorHarness(directory) {
     const source = [
       'Modelo/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionModels.vb',
       'Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasModels.vb',
+      'Modelo/ProduccionDocumental/ImportacionCarpetas/ControlArchivoIndependienteImportacion.vb',
+      'Modelo/ProduccionDocumental/ImportacionCarpetas/PreparacionSegmentadaImportacion.vb',
+      'DTOs/ProduccionDocumental/ImportacionCarpetas/PreparacionSegmentadaDtos.vb',
+      'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Preparacion.vb',
+      'Services/ProduccionDocumental/ImportacionCarpetas/PlanSegmentadoImportacionJson.vb',
+      'Services/ProduccionDocumental/ImportacionCarpetas/ServicioPreparacionSegmentadaImportacion.vb',
+      'Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.Preparacion.vb',
+      'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ConsultaFocal.vb',
+      'Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.Focal.vb',
+      'webservice/WebServiceImportacionCarpetas.PreparacionSegmentada.vb',
+      'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.PreparacionEsquema.vb',
+      'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.PlanSegmentado.vb',
       'Modelo/ProduccionDocumental/ImportacionCarpetas/DocumentosAlmacenamientoV2Importacion.vb',
       'Modelo/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasStagingV2Interfaces.vb',
       'Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.Recuperacion.vb',
@@ -29,11 +41,14 @@ function compileBehaviorHarness(directory) {
       'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.RecuperacionV2.vb',
       'Infrastructure/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionCatalogAdapter.RecuperacionV2.vb',
       'Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.ProtocoloV2.vb',
+      'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ConsolidacionFocal.vb',
       'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.vb',
       'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Control.vb',
+      'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Reanudacion.vb',
       'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consulta.vb',
       'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Verificacion.vb',
       'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ResultadoCreacion.vb',
+      'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ControlFocal.vb',
       'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Barreras.vb',
       'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Valores.vb',
       'Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Valores.vb',
@@ -41,8 +56,10 @@ function compileBehaviorHarness(directory) {
       'Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Barreras.vb',
       'Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Staging.vb',
       'Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Creacion.vb',
+      'Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Reanudacion.vb',
       'Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Documento.vb',
       'Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Consolidacion.vb',
+      'Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.ReanudacionLote.vb',
       'Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Reconciliacion.vb',
       'Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Operaciones.vb',
       'Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.Limpieza.vb',
@@ -57,6 +74,7 @@ function compileBehaviorHarness(directory) {
       'Infrastructure/ProduccionDocumental/ImportacionCarpetas/ComposicionReconciliacionImportacion.vb',
       'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Reconciliacion.vb',
       'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.Consolidacion.vb',
+      'Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlImportacionCarpetasRepository.ReanudacionLote.vb',
       'Infrastructure/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasContextAdapter.vb',
       'Infrastructure/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasRequestGuard.vb',
       'Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.vb',
@@ -74,6 +92,7 @@ function compileBehaviorHarness(directory) {
       'Services/ProduccionDocumental/ImportacionCarpetas/LimitesImportacionCarpetas.vb',
       'Services/ProduccionDocumental/ImportacionCarpetas/ServicioPreparacionImportacion.vb',
       'Services/ProduccionDocumental/ImportacionCarpetas/ServicioRecepcionImportacion.vb',
+      'Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.Independiente.vb',
       'Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorImportacionCarpetas.vb',
       'Services/ProduccionDocumental/ImportacionCarpetas/ServicioConsultaImportacion.vb',
       'webservice/WebServiceImportacionCarpetas.asmx.vb',
@@ -119,19 +138,27 @@ function compileBehaviorHarness(directory) {
       'tests/PerfilImportacionRequestGuardBehaviorTests.cs','tests/PerfilImportacionCatalogBehaviorTests.cs',
       'tests/PerfilImportacionMigrationBehaviorTests.cs','tests/ProveedorIndicesBehaviorTests.cs','tests/ProveedorIndicesReglasBehaviorTests.cs','tests/PoliticaFuentesProveedorBehaviorTests.cs',
       'Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Sql/Doc110MigrationJson.cs',
-      'tests/FuenteImportacionBehaviorTests.cs','tests/AdministracionProveedorBehaviorTests.cs','tests/ImportacionCarpetasBehaviorTests.cs','tests/ImportacionCarpetasDocumentosV2BehaviorTests.cs','tests/ImportacionCarpetasStagingV2BehaviorTests.cs','tests/ImportacionCarpetasAdaptadorV2BehaviorTests.cs','tests/ImportacionCarpetasPersistenciaV2BehaviorTests.cs','tests/ImportacionCarpetasRecuperacionV2BehaviorTests.cs','tests/ImportacionCarpetasRecuperacionHttpV2BehaviorTests.cs','tests/ImportacionCarpetasMatrizV2BehaviorTests.cs','tests/ImportacionCarpetasEnlaceV2BehaviorTests.cs','tests/ImportacionCarpetasPerdidaAcuseV2BehaviorTests.cs','tests/ImportacionCarpetasRepositoryIntegrationTests.cs','tests/PerfilImportacionBehaviorTestRunner.cs']);
+      'tests/FuenteImportacionBehaviorTests.cs','tests/AdministracionProveedorBehaviorTests.cs','tests/ImportacionCarpetasBehaviorTests.cs','tests/ImportacionCarpetasPreparacionSegmentadaBehaviorTests.cs','tests/ImportacionCarpetasMensajesBehaviorTests.cs','tests/ImportacionCarpetasReanudacionBehaviorTests.cs', 'tests/ImportacionCarpetasReanudacionLoteBehaviorTests.cs','tests/ImportacionCarpetasMedicionBehaviorTests.cs','tests/ImportacionCarpetasIndependienteBehaviorTests.cs','tests/ImportacionCarpetasUltimoLoteBehaviorTests.cs','tests/ImportacionCarpetasDocumentosV2BehaviorTests.cs','tests/ImportacionCarpetasStagingV2BehaviorTests.cs','tests/ImportacionCarpetasAdaptadorV2BehaviorTests.cs','tests/ImportacionCarpetasPersistenciaV2BehaviorTests.cs','tests/ImportacionCarpetasRecuperacionV2BehaviorTests.cs','tests/ImportacionCarpetasRecuperacionHttpV2BehaviorTests.cs','tests/ImportacionCarpetasMatrizV2BehaviorTests.cs','tests/ImportacionCarpetasEnlaceV2BehaviorTests.cs','tests/ImportacionCarpetasPerdidaAcuseV2BehaviorTests.cs','tests/ImportacionCarpetasRepositoryIntegrationTests.cs','tests/ImportacionCarpetasSegmentedRepositoryIntegrationTests.cs','tests/PerfilImportacionBehaviorTestRunner.cs']);
+    fs.copyFileSync(path.join(root,'tests/Fixtures/ProduccionDocumental/doc120-preparacion-esquema-sintetico.json'),path.join(directory,'doc120-preparacion-esquema-sintetico.json'));
     fs.copyFileSync(path.join(root,'tests/Fixtures/ProduccionDocumental/doc110-perfil-antes-proveedor.json'),path.join(directory,'doc110-perfil-antes-proveedor.json'));
     fs.copyFileSync(path.join(root,'tests/Fixtures/ProduccionDocumental/doc111-esquema-instalado-mysql51.json'),path.join(directory,'doc111-esquema-instalado-mysql51.json'));
     return { exe };
 }
 module.exports = { compileBehaviorHarness };
 
-if (require.main === module) test('DOC-110: reglas y configuración ejecutadas en .NET Framework sin conexión ni HTTP', () => {
+if (require.main === module) test('DOC-110: reglas y configuración ejecutadas en .NET Framework sin conexión ni HTTP', t => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'doc110-behavior-'));
   try {
     const { exe } = compileBehaviorHarness(directory);
     const output=run(exe, [], directory);
+    assert.match(output, /DOC-120 segmented repository guards: 16 passed; no database connection/);
+    for(const line of output.split(/\r?\n/).filter(s=>s.startsWith('DOC120 independent local metrics ')))t.diagnostic(line);
+    assert.match(output, /DOC-120 independent files: provenance, bounded target retention, missing siblings, own-file diagnostics and legacy default passed/);
     assert.match(output, /DOC-110 behavior tests: passed/);
+    assert.match(output, /DOC-120 contextual diagnostics: rules, creation, receipt, storage, privacy and trace listener passed/);
+    assert.match(output, /DOC-120 canonical resolved dates preserve input length and immutable rules: passed/);
+    assert.match(output, /DOC-120 creation accepts canonical dates from compact input without mutating confirmed resources: passed/);
+    assert.match(output, /DOC-120 permanent resume fences the same attempt, validates preflight and rejects replay \(SQL\/writer doubles, real staging\): passed/);
     assert.match(output, /DOC-118 V2 internal document behavior cases: 19 passed; no execution capability/);
     assert.match(output, /DOC-118 V2 real staging behavior cases: 21 passed; synthetic child processes: 3 closed; no recovery activated/);
     assert.match(output, /DOC-118 V2 adapter behavior cases: 20 passed; persistence and writer doubles; no public activation/);
@@ -149,6 +176,7 @@ if (require.main === module) test('DOC-110: reglas y configuración ejecutadas e
     assert.match(output, /DOC-111 exhaustive state dimensions and forbidden replay: passed/);
     assert.match(output, /DOC-111 documentary claim guards and stop signal \(local persistence double\): passed/);
     assert.match(output, /DOC-111 authorized read-only pages, private projection and CSV: passed/);
+    assert.match(output, /DOC-120 creation readiness: full scope, partial policy, SELECT only and no effects: passed/);
     assert.match(output, /DOC-111 retention diagnosis preserves uncertain evidence \(read-only double\): passed/);
     assert.match(output, /DOC-111 known expedition relation rejects wrong scope \(synthetic SELECT records\): passed/);
     assert.match(output, /DOC-111 known expedition classification and optional subseries \(synthetic SELECT records\): passed/);

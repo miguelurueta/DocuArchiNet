@@ -1,0 +1,71 @@
+{
+  "runId": "42318523fd4e432a84a2473952e3e59d",
+  "status": "STOPPED",
+  "http": 100,
+  "select": 8,
+  "sessions": 1,
+  "dispatched": [
+    "107"
+  ],
+  "closed": true,
+  "failure": "DOC120_MEASURE_OPERATION_NOT_CONFIRMED",
+  "failureStage": "MEASURING_THREE",
+  "credentialsCleared": true,
+  "finishedUtc": "2026-11-18T14:28:56.191Z",
+  "previousWindowPreserved": true,
+  "lastStorageResponse": {
+    "fileId": "107",
+    "httpStatus": 500,
+    "code": "ERROR_INTERNO",
+    "confirmed": false,
+    "documentId": null,
+    "elapsedMs": 1121.0625,
+    "operationId": "a6720c307b20449ca695c0b318e69ee4"
+  },
+  "lotId": "50",
+  "selectedFileIds": [
+    "107",
+    "108",
+    "109"
+  ],
+  "confirmedResults": 0,
+  "completedBefore": 10,
+  "completedAfter": 10,
+  "noBusinessMutationCertified": false,
+  "causeCertified": false,
+  "binarySha256": "b3303603a03001e2a1f578d48ed4a3f6ea396c0b0faa162544941c7f9485e12f",
+  "previousRunId": "9dd8a1e963154c338fb8885c10ce8180",
+  "diagnosticRunId": "be3cbe812c0e40ddb6ceb8bdfa705f0a",
+  "secretsRecorded": false,
+  "postFailureControl": {
+    "runId": "be3cbe812c0e40ddb6ceb8bdfa705f0a",
+    "status": "FINISHED",
+    "select": 5,
+    "completedSelect": 5,
+    "http": 0,
+    "sessions": 0,
+    "businessEffects": 0,
+    "closed": true,
+    "credentialsCleared": true,
+    "finishedUtc": "2026-11-18T14:36:16.211Z",
+    "state": "EN_CURSO",
+    "revision": 3057,
+    "latestEvent": 4597,
+    "stopRequested": 0,
+    "counts": {
+      "received": 1000,
+      "completed": 10,
+      "completedWithResult": 10,
+      "fileActiveMarkers": 0,
+      "activeAttempts": 0,
+      "uncertainAttempts": 0,
+      "activeFiles": 0,
+      "uncertainFiles": 0
+    },
+    "pendingFiles": 990,
+    "stableRevisionAndEvent": true,
+    "unresolvedAttempts": 0,
+    "scope": "RA_CONTROL_METADATA_ONLY"
+  },
+  "interpretation": "RA has no new confirmed document, active marker or unresolved attempt. The internal exception and DA/disk effects are not certified by these SELECT controls."
+}

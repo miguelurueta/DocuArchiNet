@@ -48,18 +48,30 @@ Public Partial Class MySqlImportacionCarpetasRepository
         Return Operar(Function(conexion, tx)
                           Dim vista = CargarPersistenciaDocumentoV2(conexion, tx, comando)
                           If paso = "INICIO" OrElse paso = "AUTORIZAR" Then
-                              Dim plan = CargarPlan(conexion, tx, comando.Contexto, IdOperacion(vista.Lote.PlanId), False)
-                              Dim barrera = LeerVistaBarreraCreacion(vista.Lote, plan, vista.Raiz, Function(sql, parametros) LeerTablaConsulta(conexion, tx, sql, parametros))
+                              Dim barrera As VistaBarreraCreacionImportacion
+                              If vista.Lote.ControlArchivos IsNot Nothing Then
+                                  barrera = New VistaBarreraCreacionImportacion With {.Lote = vista.Lote, .Raiz = vista.Raiz, .EsFocal = True}
+                              Else
+                                  Dim plan = CargarPlan(conexion, tx, comando.Contexto, IdOperacion(vista.Lote.PlanId), False)
+                                  barrera = LeerVistaBarreraCreacion(vista.Lote, plan, vista.Raiz, Function(sql, parametros) LeerTablaConsulta(conexion, tx, sql, parametros))
+                              End If
                               If Not CoordinadorImportacionCarpetas.EvaluarBarreraAlmacenamiento(barrera, vista.Archivo, comando.Intento.IntentoId) Then Throw ConflictoOperacion()
                           End If
                           If Not LeerClasificacionExpedienteConocido(comando.Contexto, vista.Raiz.IdentidadExpediente, vista.Lote.Snapshot.Configuracion, Function(sql, parametros) LeerTablaConsulta(conexion, tx, sql, parametros)) Then Throw AccesoDenegado()
+                          If paso = "RESULTADO" AndAlso vista.Lote.ControlArchivos IsNot Nothing AndAlso resultado IsNot Nothing AndAlso resultado.Estado = "CONFIRMADO" AndAlso Not IdentidadFocalLibre(conexion, tx, vista.Lote.LoteId, vista.Archivo.ArchivoId, resultado) Then
+                              resultado = PerfilImportacionJson.Leer(Of ResultadoEfectoImportacion)(PerfilImportacionJson.Escribir(resultado))
+                              resultado.Estado = "INCIERTO" : resultado.Codigo = "RESULTADO_INCIERTO" : resultado.Mensaje = "La referencia documental requiere comprobacion; no repita el guardado."
+                          End If
                           Return PersistirPasoDocumentoV2(comando, vista, documento, resultado, paso, Ahora(),
                               Function(sql, parametros)
                                   Using cmd = ComandoOperacion(conexion, tx, sql, parametros)
                                       Return cmd.ExecuteNonQuery()
                                   End Using
                               End Function,
-                              Sub() ConsolidarEnTransaccion(conexion, tx, comando.Contexto, vista.Lote.LoteId, Ahora()))
+                              Sub()
+                                  If vista.Lote.ControlArchivos IsNot Nothing AndAlso resultado IsNot Nothing AndAlso resultado.Estado = "CONFIRMADO" Then RegistrarIdentidadFocal(conexion, tx, comando.Contexto, vista.Lote.LoteId, vista.Archivo.ArchivoId, resultado)
+                                  ConsolidarEnTransaccion(conexion, tx, comando.Contexto, vista.Lote.LoteId, Ahora())
+                              End Sub)
                       End Function)
     End Function
 
@@ -70,9 +82,10 @@ Public Partial Class MySqlImportacionCarpetasRepository
         Dim lote = BloquearLoteRecepcion(conexion, tx, contexto, loteId)
         Dim raiz = CargarRaizControl(conexion, tx, lote.LoteId, raizId)
         Dim archivo = CargarArchivoRecepcion(conexion, tx, contexto, lote.LoteId, archivoId, True)
+        VerificarArchivoFocal(conexion, tx, lote, raiz, archivo)
         Dim vista As New VistaPersistenciaDocumentoV2Importacion With {.Lote = lote, .Raiz = raiz, .Archivo = archivo}
         Using cmd = ComandoOperacion(conexion, tx, "SELECT * FROM ra_integracion_intento WHERE intento_id=@intento AND lote_id=@lote AND raiz_id=@raiz AND archivo_id=@archivo AND fase='ALMACENAR' FOR UPDATE", "@intento", IdOperacion(intentoId), "@lote", IdOperacion(lote.LoteId), "@raiz", IdOperacion(raiz.RaizId), "@archivo", IdOperacion(archivo.ArchivoId))
-            Using reader = cmd.ExecuteReader()
+            Using reader = EjecutarLecturaControl(cmd)
                 If Not reader.Read() Then Throw AccesoDenegado()
                 vista.Intento = LeerIntentoDocumental(reader)
                 If Not reader.IsDBNull(reader.GetOrdinal("evidencia_doc")) Then vista.Evidencia = CStr(reader("evidencia_doc"))

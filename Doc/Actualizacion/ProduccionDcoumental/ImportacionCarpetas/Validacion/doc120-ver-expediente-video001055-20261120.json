@@ -1,0 +1,125 @@
+{
+  "dateLocal": "2026-11-20",
+  "reviewedUtc": "2026-11-20T05:24:59.837551+00:00",
+  "baseCommit": "09659e8fe866616d10655e4f69328c2c061803f7",
+  "task": "3.250",
+  "status": "LOCAL_FIX_VERIFIED_NATIVE_VISUAL_RECHECK_PENDING",
+  "video": {
+    "name": "Grabación 2026-11-20 001055-final.mp4",
+    "bytes": 38113618,
+    "sha256": "0da3315e28e4178efa5e7456069c70bd414a3817c7eb00a593318721c09915ad",
+    "durationSeconds": 50.77,
+    "fps": 30,
+    "size": [
+      1548,
+      912
+    ],
+    "inspection": "Frames decoded in memory; no recording or frames committed"
+  },
+  "observed": {
+    "lotId": "52",
+    "state": "COMPLETADO",
+    "received": 1000,
+    "stored": 1000,
+    "expeditions": 1,
+    "directAccess": "Ver expediente produces node not visible or ambiguous warning",
+    "manualTreeAccess": "Grid eventually displays1000 files under a repeated code; video does not reveal selected expedition ID",
+    "reopenCompletedLot": "Not shown after final tree access"
+  },
+  "timeline": [
+    {
+      "seconds": "0",
+      "observation": "COMPLETADO/1000 documents/0 pending/1 expedition visible"
+    },
+    {
+      "seconds": "1-29",
+      "observation": "Ver expediente attempts show warning; overlay remains open"
+    },
+    {
+      "seconds": "30-36",
+      "observation": "Closes completed result and opens/chooses tree branch manually"
+    },
+    {
+      "seconds": "43",
+      "observation": "File grid loading"
+    },
+    {
+      "seconds": "50",
+      "observation": "1000 archivo(s) encontrado(s) and CONTABIL document rows visible"
+    }
+  ],
+  "diagnosis": {
+    "reproduction": "Real OnSearchClick/AuTospam and jQuery with collapsed nXNodes reproduce rejection; same code on two expedition IDs",
+    "boundary": "Matching already uses relation|level|expedition; getClientRects rejection occurs before search can expand existing ancestors",
+    "certainty": "Local reproduction of failure compatible with video; served JS hash and live DOM rejection branch not captured",
+    "oldTestGap": "TREE08 rejected collapsed child and real navigation was replaced by call recorder, hiding expected ability to expand",
+    "change": "Only explicit access admits existing collapsed nXNodes under visible tree; unrelated hidden containers, missing nodes and duplicate logical identity remain rejected; passes TreeViewArchivo parameter to existing search",
+    "server": "Existing Button_inline_trevie consultation reused; no change to OnSearchClick/AuTospam, authorization or import scheduling"
+  },
+  "verification": {
+    "finalTests": 101,
+    "pass": 101,
+    "fail": 0,
+    "newTests": 2,
+    "focalTests": 10,
+    "focalOverlap": 10,
+    "logs": [
+      {
+        "path": ".tmp\\doc120-ver-expediente-red.log",
+        "sha256": "04cf757ff3c833474317498fd3c65cf8e40c29b637c49baf0be25194830e4f23",
+        "status": "1/2; real-search case rejects collapsed branch before fix"
+      },
+      {
+        "path": ".tmp\\doc120-ver-expediente-focal.log",
+        "sha256": "36c5dfabaac4b222b79dcf3ff1465555df60e75e6a5f01fc90ac86ae1e465079",
+        "status": "10/10; two new cases"
+      },
+      {
+        "path": ".tmp\\doc120-ver-expediente-regresion.log",
+        "sha256": "dfea48734a933b0f96153aa470a99e8311749ae5852e9594dcde944b3e390d04",
+        "status": "101/101 final on seven suites; previous10 overlap"
+      }
+    ],
+    "syntax": "PASS",
+    "openSpecStrict": "PASS",
+    "flow": "FLOW_CURRENT:124 sources/20373 lines; includes access/search/ancestor helpers"
+  },
+  "sources": [
+    {
+      "path": "js/gestion/WebFormProducionDocumental.js",
+      "sha256": "b50592c8a613e93d1fe5ffd1471e3a4cafbc489f2a905a77279126e65ac69256"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256": "b81063b3be05a895664e6e0edc04ff9afdf5f81c39ff14567483031a8d8c4694"
+    },
+    {
+      "path": "tests/doc120-importacion-arbol.test.cjs",
+      "sha256": "6a4a8a423eecc1ec049c7b7ad08f8bf7bcb67363bc5ea813c47e3411cb12440d"
+    },
+    {
+      "path": "tools/docs/generate-doc120-flow.cjs",
+      "sha256": "2e10a2ba6d2feac73033272811d9ab533ce3658ddcd6113de1689c96e86879ff"
+    }
+  ],
+  "assetVersion": "doc120-acceso-expediente-20261120-2",
+  "previousFinalControl": {
+    "runId": "7ace0d2582d611840f51c50be3274aec",
+    "status": "PASS_COMPLETED_METADATA",
+    "stateSha256": "79af26b467a1e0f19fa98accea091ba61e79963e1fac19d210101b00efe1be3a",
+    "preserved": true
+  },
+  "realOperations": {
+    "http": 0,
+    "select": 0,
+    "sessions": 0,
+    "businessEffects": 0
+  },
+  "limits": [
+    "No new authenticated navigation against native application; new access needs visual recheck after reload",
+    "Video confirms completed counts but cannot distinguish homonymous expedition IDs on manual click",
+    "Prior RA/DA verification remains1000 distinct documents for expedition696/relation1120, with its own sources/window",
+    "No change to import data, binary integrity, server/DLL/schema/profile or existing completed windows",
+    "Eleven older open tasks and overall/manual acceptance not closed by local fix"
+  ]
+}

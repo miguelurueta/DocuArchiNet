@@ -14,7 +14,7 @@ Public Partial Class MySqlImportacionCarpetasRepository
     Private Shared Function CargarVistaLimpieza(conexion As MySqlConnection, tx As MySqlTransaction, contexto As ContextoImportacionCarpetas, loteId As String, archivoId As String) As VistaLimpiezaOriginalImportacion
         Dim vista As New VistaLimpiezaOriginalImportacion With {.Inventario = CargarVistaConsolidacion(conexion, tx, contexto, loteId), .ArchivoId = archivoId}
         Using cmd = ComandoOperacion(conexion, tx, "SELECT accion,codigo,actor_ref,detalle_doc FROM ra_integracion_evento WHERE lote_id=@lote AND recurso_tipo='ARCHIVO' AND recurso_id=@archivo AND accion IN ('PREPARAR_LIMPIEZA','CONCLUIR_LIMPIEZA') ORDER BY evento_id LIMIT 3 FOR UPDATE", "@lote", IdOperacion(loteId), "@archivo", IdOperacion(archivoId))
-            Using reader = cmd.ExecuteReader()
+            Using reader = EjecutarLecturaControl(cmd)
                 While reader.Read()
                     If Convert.ToString(reader("actor_ref"), CultureInfo.InvariantCulture) <> contexto.UsuarioRef Then Throw AccesoDenegado()
                     Dim permiso = PerfilImportacionJson.Leer(Of AutorizacionLimpiezaOriginalImportacion)(Convert.ToString(reader("detalle_doc"), CultureInfo.InvariantCulture))
