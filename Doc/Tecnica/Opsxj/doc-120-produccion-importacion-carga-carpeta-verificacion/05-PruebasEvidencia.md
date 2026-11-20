@@ -1,5 +1,9 @@
 # DOC-120 — PruebasEvidencia
 
+## Archivo OpenSpec — continuación administrativa
+
+[Archivo y condición de cierre](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-archivo-cierre-20261120.md). Cambio archivado con17 archivos/270 tareas completas; capacidad principal nueva15 requisitos/114 escenarios, verificada contra el delta.91/91 especificaciones estrictas y15/15 controles de refinement archivado;195 entradas de producto/pruebas sin cambios. La lectura previa de Jira sigue En curso; el cierre espera integración del archivo y lectura de confirmación, sin comentarios de issue o nuevas ejecuciones de negocio.
+
 ## Entrega final y aceptación registrada
 
 [Primario de entrega](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-entrega-final-20261120.md)/JSON: usuario acepta límites («aprobado el limite»),270/270; PR131 integrado enmain por3fe73d6f, árbol idéntico a137ccb58 aprobado porCI37 pasos.195 entradas de la revisión conservadas; carpeta principal enmain por avance directo. La revisión/evidencias de gobierno se vinculan al SHA del registro documental final, sin inventar otra ejecución real. Archivo OpenSpec/cierre Jira no ejecutados. Los cortes siguientes mantienen sus fechas/alcances originales.

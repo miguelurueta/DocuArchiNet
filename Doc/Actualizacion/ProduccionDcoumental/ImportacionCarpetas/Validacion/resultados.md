@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Continuación de archivo/cierre — 2026-11-20
+
+[Archivo OpenSpec verificado](doc120-archivo-cierre-20261120.md):270 tareas/17 archivos conservados, capacidad principal15 requisitos/114 escenarios,91/91 especificaciones y15/15 refinement archivado. La corrección de formato del encabezado auxiliar precede al archivo definitivo; ninguna versión inválida fue publicada.195 fuentes de entrega sin cambios y cero nuevos efectos. Jira En curso en la lectura previa; transición final condicionada a integrar/verificar el archivo.
+
 ## Entrega final integrada — 2026-11-20
 
 [Aceptación y merge131](doc120-entrega-final-20261120.md)/JSON: usuario «aprobado el limite»,6.4 completa;6.6 registrada tras merge3fe73d6f enmain, con árbol igual al HEAD137ccb58 yCI37 pasos aprobados.270/270 y195 entradas sin cambios; carpeta principal actualizada por avance directo. El registro documental final no repite operaciones reales ni activa limpieza/despliegue. Archivo OpenSpec y cierre Jira no ejecutados; no se alteran sus estados por inferencia.
