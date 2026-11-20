@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Entrega final integrada — 2026-11-20
+
+[Aceptación y merge131](doc120-entrega-final-20261120.md)/JSON: usuario «aprobado el limite»,6.4 completa;6.6 registrada tras merge3fe73d6f enmain, con árbol igual al HEAD137ccb58 yCI37 pasos aprobados.270/270 y195 entradas sin cambios; carpeta principal actualizada por avance directo. El registro documental final no repite operaciones reales ni activa limpieza/despliegue. Archivo OpenSpec y cierre Jira no ejecutados; no se alteran sus estados por inferencia.
+
 ## Revisión final6.4–6.6 — 2026-11-20
 
 6.5 completa por revisión/evidencias reales registradas en4954ea05;71/72 controles de gobierno aprobados, único FAIL openspec_tasks.268/270;6.4 aceptación expresa y6.6 entrega/merge continúan abiertas. El registro final se vincula al SHA documental posterior sin repetir efectos históricos.

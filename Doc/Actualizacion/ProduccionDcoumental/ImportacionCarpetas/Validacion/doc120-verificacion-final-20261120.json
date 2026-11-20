@@ -342,12 +342,12 @@
   },
   "sourceCount": 195,
   "releaseGates": {
-    "acceptance64": "PENDING_EXPLICIT_ACCEPTANCE",
+    "acceptance64": "COMPLETE: user explicitly accepted documented limits with \"aprobado el limite\".",
     "governance65": "COMPLETE: strict OpenSpec/refinement and current-SHA review/evidence registered; global gate remains blocked only by incomplete acceptance/delivery tasks.",
-    "delivery66": "PR/merge verification pending; no archive or Jira closure."
+    "delivery66": "COMPLETE: PR131 merged3fe73d6f; main checked out in the primary workspace; merged tree equals reviewed CI head."
   },
   "knownCriticalProductDefectsFound": 0,
-  "readyToArchive": false,
+  "readyToArchive": true,
   "governanceSnapshot": {
     "sha": "4954ea05",
     "checks": 72,
@@ -361,5 +361,22 @@
     "e2eRecorded": true,
     "globalStatus": "FAIL",
     "finalBinding": "Excluded OPSXJ review/evidence records are rebound to the final documentation commit without reexecuting historical real effects."
-  }
+  },
+  "delivery": {
+    "pr": 131,
+    "url": "https://github.com/miguelurueta/DocuArchiNet/pull/131",
+    "reviewedHead": "137ccb586a4c6852c3faccb1aa7670910ec4c56f",
+    "mergeCommit": "3fe73d6f8fad8a64e5ff665c714cb7940baceb94",
+    "mergedAt": "2026-11-20T21:32:36Z",
+    "baseBeforeMerge": "8c0773d4371aeb35543bf182c0abdd0319cababa",
+    "mergeTree": "c3f384d5d1b231ec2fc92bb49f6ce56c8064d5f1",
+    "reviewedTree": "c3f384d5d1b231ec2fc92bb49f6ce56c8064d5f1",
+    "treesEqual": true,
+    "ciRunId": 44815010047,
+    "ciUrl": "https://github.com/miguelurueta/DocuArchiNet/actions/runs/44815010047",
+    "ciStatus": "success",
+    "ciStepsPassed": 37
+  },
+  "archivePerformed": false,
+  "jiraClosedByThisDelivery": false
 }

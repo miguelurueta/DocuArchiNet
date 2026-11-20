@@ -1,6 +1,6 @@
 # DOC-120 — matriz final de aceptación y límites (6.4)
 
-Revisión técnica solicitada al continuar6.4–6.6, después de3.187. Base revisada `aee3fe8eb5023546b134266c6e14ff66b94f8a02`; no se repiten cargas ni se modifican datos/runtime. **Dictamen técnico favorable con los límites siguientes; aceptación operativa expresa pendiente.** La instrucción de continuar autoriza esta revisión; no se transforma en una declaración del usuario sobre límites que todavía no había revisado en conjunto.
+Revisión técnica solicitada al continuar6.4–6.6, después de3.187. Base revisada `aee3fe8eb5023546b134266c6e14ff66b94f8a02`; no se repiten cargas ni se modifican datos/runtime. **Aceptación operativa expresa recibida: «aprobado el limite».** El usuario aprobó los límites después de revisar su explicación.6.4 completa; la integración del PR131 se verificó en3fe73d6f. La instrucción previa de continuar autorizó la revisión; la respuesta actual aporta la aceptación expresa pendiente.
 
 ## Resultados verificados y procedencia
 
@@ -13,9 +13,9 @@ Revisión técnica solicitada al continuar6.4–6.6, después de3.187. Base revi
 | Reservas por archivo |655467f4/código6fc5d343, lote57: dos conexiones/un ganador, revisión antigua, B reservado, tres rollbacks/cierres;17 grupos previos/5 del fixture/154 fuentes conservados. |3.187 completa; ningún adaptador de almacenamiento invocado por los casos nativos. |
 | BENEFICIARIO | Confirmación del usuario de tabla/perfil ampliados; video111928 muestra máximo255 y operación completada. | Conservar aceptación manual y255 observado. No inventar ALTER ejecutado por el agente, consulta SQL posterior o ID de publicación. |
 
-## Límites y propuesta explícita de salida
+## Límites y decisión explícita de salida aceptada
 
-| Límite | Motivo y alcance que falta | Responsable | Propuesta de decisión de salida |
+| Límite | Motivo y alcance que falta | Responsable | Decisión de salida aceptada |
 | --- | --- | --- | --- |
 | CAPACIDAD/SLA | No se midieron duración integral de todas las fases, máximo de memoria/disco, archivos grandes, saturación o capacidad máxima.1.000 funcionales y latencias muestrales sí están acreditados. | Solicitante para aceptación; operador para presupuesto de una carga futura. | Entregar el flujo comprobado sin SLA ni garantía de capacidad máxima; conservar cuotas y guardas existentes. Una prueba distinta se presupuesta/autoriza aparte, sin imponerla para repetir lo ya medido. |
 | SII-REAL | No hay ejecución SII real nueva; las cargas verificadas corresponden a Producción Documental. La ruta compartida mantiene su compatibilidad comprobada local/históricamente. | Solicitante/operador de SII. | Entregar DOC-120 sin certificar SII real ni habilitarlo por inferencia. Ninguna invocación SII para cerrar este ticket. |
@@ -24,7 +24,7 @@ Revisión técnica solicitada al continuar6.4–6.6, después de3.187. Base revi
 | CONCURRENCIA |3.187 usa conexiones nativas; B activo significa RESERVADO. Hay E2E HTTP de dos sesiones en5f7af8f5, con su alcance distinto. | Codex/revisor técnico; operador para una nueva variante. | Certificar exclusión/rollback nativos y el HTTP efectivamente observado; no anunciar dos pestañas o un adaptador artificialmente mantenido en vuelo. |
 | HISTORIA/INCERTIDUMBRE | Fixtures inciertos de laboratorio anteriores conservan sus propios estados y límites; no son autorización para repetición o limpieza. | Operador y responsable de aceptación. | Conservarlos sin replay ni liberación por timeout; no transformar antecedentes STOPPED/INCIERTO en PASS actuales. |
 
-Las dos últimas filas fijan la lectura del alcance ya verificado, sin reabrir3.118/3.187. Los resultados funcionales/manuales anteriores no se solicitan de nuevo. La aceptación solicitada se limita a esta decisión conjunta de salida;6.4 sigue abierta hasta esa respuesta, y archivo/cierre esperan además el merge verificado.
+Las dos últimas filas fijan la lectura del alcance ya verificado, sin reabrir3.118/3.187. Los resultados funcionales/manuales anteriores no se solicitan de nuevo. La aceptación recibida se limita a esta decisión conjunta de salida;6.4 queda completa. El merge131 ya está verificado; esta entrega no ejecuta archivo o cierre Jira.
 
 ## Fundamento de la compuerta
 

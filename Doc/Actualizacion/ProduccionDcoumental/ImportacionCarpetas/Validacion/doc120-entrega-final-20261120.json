@@ -1,0 +1,60 @@
+{
+  "issueKey": "DOC-120",
+  "recordedUtc": "2026-11-20T21:36:45Z",
+  "acceptance": {
+    "source": "User message in the active conversation after review of the documented limits.",
+    "statement": "aprobado el limite",
+    "status": "EXPLICITLY_ACCEPTED",
+    "limitsReference": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-aceptacion-limites-final-20261120.md",
+    "scope": "SII/cleanup real and capacity maximum/SLA not certified; mixed UI/HTTP/native evidence retains its scope; historical uncertainty and originals preserved."
+  },
+  "integration": {
+    "pr": 131,
+    "url": "https://github.com/miguelurueta/DocuArchiNet/pull/131",
+    "reviewedHead": "137ccb586a4c6852c3faccb1aa7670910ec4c56f",
+    "mergeCommit": "3fe73d6f8fad8a64e5ff665c714cb7940baceb94",
+    "mergedAt": "2026-11-20T21:32:36Z",
+    "baseBeforeMerge": "8c0773d4371aeb35543bf182c0abdd0319cababa",
+    "mergeTree": "c3f384d5d1b231ec2fc92bb49f6ce56c8064d5f1",
+    "reviewedTree": "c3f384d5d1b231ec2fc92bb49f6ce56c8064d5f1",
+    "treesEqual": true,
+    "ciRunId": 44815010047,
+    "ciUrl": "https://github.com/miguelurueta/DocuArchiNet/actions/runs/44815010047",
+    "ciStatus": "success",
+    "ciStepsPassed": 37
+  },
+  "workspace": {
+    "root": "D:/imagenesda/DocuachiNet/DocuArchiNet",
+    "branch": "main",
+    "integratedHead": "3fe73d6f8fad8a64e5ff665c714cb7940baceb94",
+    "source": "Primary checkout, not a worktree-only delivery.",
+    "localMainFastForwarded": true
+  },
+  "verification": {
+    "sourceInputs": 195,
+    "sourceInputsUnchanged": true,
+    "localTests": 226,
+    "localPassed": 226,
+    "nativeCase3187": "PASS_FILE_RESERVATIONS_REPOSITORY",
+    "nativeRun": "655467f4fa2c7933ce172836cca88ff7",
+    "sourceReviewReference": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-verificacion-final-20261120.json",
+    "newBusinessEffects": 0,
+    "newDeployment": false,
+    "changesInThisRecord": "Documentation and task states only."
+  },
+  "tasks": {
+    "total": 270,
+    "complete": 270,
+    "pending": [],
+    "completedNow": [
+      "6.4",
+      "6.6"
+    ]
+  },
+  "governance": {
+    "evidenceAndReviewBinding": "Rebind to the committed delivery record SHA in excluded OPSXJ records; no self-referential tracked SHA.",
+    "validation": "Run after committing this record; no global PASS inferred from the old pending-task snapshot."
+  },
+  "archivePerformed": false,
+  "jiraClosedByThisDelivery": false
+}

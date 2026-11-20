@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — entrega integrada, límites aceptados y270/270
+
+Usuario «aprobado el limite» después del detalle: aceptación6.4 recibida. PR131 integrado enmain por3fe73d6f el2026-11-20T21:32:36Z, árbol igual al HEAD137ccb58 aprobado porCI37 pasos;195 entradas de revisión conservadas y carpeta principal enmain por avance directo.6.6 registrada,270/270. Fuente `Validacion/doc120-entrega-final-20261120.md`/JSON y matriz de límites aceptados. El registro final es documental y su gobierno se liga al SHA comprometido; cero nuevas E2E/SQL/efectos/DDL/despliegues/limpieza. No recuperar claves ni reabrir ventanas por pendientes históricos inferiores. Archivo OpenSpec y cierre Jira no ejecutados por esta entrega.
+
 ## DOC-120 — revisión final de entrega2026-11-20
 
 Gobierno6.5 completo: revisión/evidencias registradas para4954ea05,71/72 controles PASS, único FAIL openspec_tasks.268/270,6.4 aceptación expresa de límites D-10 y6.6 entrega/merge pendientes. No sustituir esa aceptación por CI; el PR puede prepararse para revisión, sin archivar/cerrar antes del merge. El SHA final documental se registra nuevamente sin repetir E2E reales ni abrir consolas de claves.

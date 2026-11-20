@@ -1,5 +1,7 @@
 # DOC-120 — revisión final OpenSpec (6.5)
 
+**Corte final:** el usuario aceptó expresamente los límites («aprobado el limite»);6.4 completa. PR131 integrado enmain por3fe73d6f, árbol idéntico a137ccb58 aprobado porCI; carpeta principal enmain por avance directo y195 entradas sin cambios.6.6 registrada y270/270. [Registro de entrega](doc120-entrega-final-20261120.md)/JSON. Las compuertas pendientes descritas abajo corresponden a la revisión previa; el gobierno se vuelve a vincular al SHA del registro final. No se ejecutaron archivo OpenSpec ni cierre Jira.
+
 Skill aplicada: openspec-verify-change. Revisión de completitud/corrección/coherencia sobre `aee3fe8eb5023546b134266c6e14ff66b94f8a02` y la consolidación documental de esta revisión. El cambio es spec-driven;15 requisitos/114 escenarios normativos. El SHA final se vincula en los registros locales OPSXJ después del commit, evitando una referencia circular dentro del propio documento.
 
 **Resultado6.5:** OpenSpec estricto/refinement15/15 aprobados. En4954ea05 se registraron revisión y evidencias unit/manual_qa/e2e por sus fuentes reales;71/72 controles de gobierno PASS y únicamente openspec_tasks FAIL por tareas de salida pendientes.6.5 completa,268/270;6.4 y6.6 abiertas. El FAIL global no se presenta como validación integral aprobada. Al registrar este resultado y crear el PR se vuelve a vincular la revisión/evidencia al SHA documental final; no cambian entradas de producto/pruebas ni se renuevan corridas reales.

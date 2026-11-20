@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Entrega vigente — aceptación y merge verificados
+
+El usuario aceptó los límites mediante «aprobado el limite».6.4/6.5/6.6 completas,270/270. [PR131](https://github.com/miguelurueta/DocuArchiNet/pull/131) integrado enmain:3fe73d6f, árbol igual a137ccb58 aprobado porCI37 pasos;195 entradas de revisión conservadas y carpeta principal actualizada. [Registro final](doc120-entrega-final-20261120.md)/JSON y [decisiones de salida aceptadas](doc120-aceptacion-limites-final-20261120.md). Cero nuevas cargas/despliegues/limpieza; archivo/cierre Jira no ejecutados. Los estados de aceptación pendiente y contadores inferiores son históricos.
+
 ## Revisión final y decisión de salida — 2026-11-20
 
 6.5 completa: revisión/evidencias ligadas a4954ea05,71/72 controles de gobierno PASS; único bloqueo openspec_tasks. Estado268/270: aceptación expresa6.4 y entrega/merge6.6 pendientes, sin archivo/cierre anticipados.

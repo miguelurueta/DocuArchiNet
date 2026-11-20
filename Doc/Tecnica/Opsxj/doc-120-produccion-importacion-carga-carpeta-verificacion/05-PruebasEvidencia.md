@@ -1,5 +1,9 @@
 # DOC-120 — PruebasEvidencia
 
+## Entrega final y aceptación registrada
+
+[Primario de entrega](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-entrega-final-20261120.md)/JSON: usuario acepta límites («aprobado el limite»),270/270; PR131 integrado enmain por3fe73d6f, árbol idéntico a137ccb58 aprobado porCI37 pasos.195 entradas de la revisión conservadas; carpeta principal enmain por avance directo. La revisión/evidencias de gobierno se vinculan al SHA del registro documental final, sin inventar otra ejecución real. Archivo OpenSpec/cierre Jira no ejecutados. Los cortes siguientes mantienen sus fechas/alcances originales.
+
 ## Evidencia requerida
 
 Revisión6.5 consolidada:226/226 locales,15 requisitos/114 escenarios inventariados,195 fuentes selladas. En4954ea05, revisión/evidencias unit/manual_qa/e2e registradas;71/72 controles PASS y únicamente tareas de salida pendientes.6.5 completa/268 de270, sin convertir el estado global FAIL en PASS. Las entradas no cambian al vincular nuevamente estos registros al commit documental final del PR.

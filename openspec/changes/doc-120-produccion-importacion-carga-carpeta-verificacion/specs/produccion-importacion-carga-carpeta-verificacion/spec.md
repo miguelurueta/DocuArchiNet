@@ -1,5 +1,7 @@
 <!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10 -->
 
+Corte vigente de entrega2026-11-20: límites aceptados expresamente por el usuario («aprobado el limite»);6.4/6.5/6.6 completas,270/270. PR131 integrado enmain mediante3fe73d6f, árbol igual a137ccb58 aprobado porCI. Registro final en Validacion/doc120-entrega-final-20261120.md/JSON; sin nueva ejecución real, despliegue, limpieza, archivo o cierre Jira. Los cortes inferiores conservan su estado histórico.
+
 Corte de entrega2026-11-20: implementación y pruebas funcionales/nativas completas;3.118/3.187/3.196 tienen sus primarios reales y1.000 documentos están acreditados. La revisión actual no ejecuta nuevos efectos. Revisión final y propuesta de límites en Validacion/doc120-verificacion-final-20261120.md y doc120-aceptacion-limites-final-20261120.md; aceptación expresa6.4/entrega6.6 pendientes. Las descripciones iniciales y propuestas cronológicas inferiores conservan su alcance histórico; no reabren pruebas ya resueltas.
 
 ## Purpose
