@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 - seguimiento visible sobre E2E existente2026-11-19
+
+Reutilizar `run-doc119-seguimiento.cjs --run <nuevo32hex> --authorized-plan --headed`: Chromium visible/slowMo300, nueva autorizacion SI en consola antes de cuentas y controles solo lectura existentes.600 HTTP/2 sesiones por SEG;80 SELECT en SEG-01 y60 en SEG-02. No confirma planes, recibe, crea, almacena, reanuda ni borra. Puede comprobar consulta/filtros/CSV/privacidad/recuperacion, pero no pausa durante guardado. Consola36a221bf iniciada; resultado pendiente, no ejecutar otra ni reutilizar QA cerrada. Evidencia Validacion/doc120-e2e-visible-20261119.md/JSON;39/39 politicas y20/20 compatibilidad con cinco solapados. Apartados inferiores historicos.
+
 ## DOC-120 - auditoria de transiciones2026-11-19
 
 AUDCTX01..04/tareas3.235..3.238: cuatro defectos de contexto corregidos; consulta con modelo propio, paginas reiniciadas, borradores ligados a filtros del contexto y ayuda estable ante acuses.223/223 en24 suites locales,7 nuevos; incluye1000 sinteticos. Comando reutilizable `node tools/e2e/scripts/test-doc120-transitions.cjs` (`--list` sin ejecutar); no pide claves ni usa runners reales. Primera amplia214/223 conservada, cinco suites antiguas ajustadas al consentimiento/etiquetas/ultimo lote y38/38 antes de corrida completa.247/258 y11 pendientes previas; assets doc120-auditoria-transiciones-20261119-8. Evidencia Validacion/doc120-auditoria-transiciones-20261119.md/JSON. Cero negocio real, autenticacion/HTTP/SELECT nuevos, DLL o esquema; mantener QA anterior cerrada. Apartados inferiores historicos.

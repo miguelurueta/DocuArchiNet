@@ -11,17 +11,20 @@ const SOURCES=['js/gestion/ImportacionCarpetas/ImportacionCarpetas.js','js/gesti
 const EVIDENCE_FILES=[...SOURCES,'Gestion/WebFormProducionDocumental.aspx','tools/e2e/scripts/run-doc119-seguimiento.cjs','tools/e2e/tests/support/doc119-seguimiento.cjs','tools/e2e/tests/support/doc119-second-accounts.cjs','tools/e2e/tests/support/doc111-importacion-carpetas.cjs','tools/e2e/tests/support/doc113-ventana-importacion.cjs','tools/e2e/tests/support/authenticated-workflow-session.cjs','tools/e2e/scripts/support/doc32-e2e-odbc.cjs','tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1','tools/e2e/scripts/support/interactive-e2e-console.cjs','tools/e2e/tests/support/doc110-code-evidence.cjs','bin/GestionDocumental-Docuarchi.net.dll'];
 function parseArgs(args){
   if(args.length===1&&args[0]==='--check')return {check:true};
+  const headed=args[args.length-1]==='--headed';if(headed)args=args.slice(0,-1);
   check([3,5].includes(args.length)&&args[0]==='--run'&&/^[a-f0-9]{32}$/.test(args[1])&&args[2]==='--authorized-plan','ARGUMENT_INVALID');
-  if(args.length===5){check(args[3]==='--reuse-selection'&&/^[a-f0-9]{32}$/.test(args[4])&&args[4]!==args[1],'ARGUMENT_INVALID');return {runId:args[1],selectionRunId:args[4]};}
-  return {runId:args[1]};
+  const result={runId:args[1]};if(headed)result.headed=true;
+  if(args.length===5){check(args[3]==='--reuse-selection'&&/^[a-f0-9]{32}$/.test(args[4])&&args[4]!==args[1],'ARGUMENT_INVALID');result.selectionRunId=args[4];}
+  return result;
 }
+function launchOptions(options){return options.headed?{headless:false,slowMo:300}:{headless:true};}
 async function main(args=process.argv.slice(2)){
   const options=parseArgs(args);
   if(options.check){for(const name of SOURCES)check(fs.statSync(path.join(ROOT,name)).isFile(),'SOURCE_MISSING');console.log('DOC119_CHECK=PASS; REAL_EXECUTION=false');return;}
   requireInteractiveConsole();
   process.title='DOC-119 - lectura real - '+options.runId.slice(0,8);
   const directory=path.join(ROOT,'.tmp','doc119-seguimiento',options.runId);fs.mkdirSync(directory,{recursive:true});
-  const statePath=path.join(directory,'state.json'),state={version:3,runId:options.runId,pid:process.pid,authorizedPlan:true,authorizationRevision:'20261112-http600',limits:LIMITS,baseUrl:BASE_URL,status:'WAITING_ACCOUNT',stage:null,usage:{},results:{},events:[]};
+  const statePath=path.join(directory,'state.json'),state={version:3,runId:options.runId,pid:process.pid,authorizedPlan:!options.headed,authorizationRevision:options.headed?'20261120-visible-readonly':'20261112-http600',headed:!!options.headed,limits:LIMITS,baseUrl:BASE_URL,status:'WAITING_ACCOUNT',stage:null,usage:{},results:{},events:[]};
   fs.writeFileSync(statePath,JSON.stringify(state),{flag:'wx'});
   const save=patch=>{Object.assign(state,patch);fs.writeFileSync(statePath,JSON.stringify(state,null,2));};
   const messages={AUTHENTICATING_OWNER:'Comprobando el acceso de la cuenta de pruebas...',DISCOVERING_IMPORTS:'Buscando sus importaciones de carpetas...',WAITING_IMPORT_SELECTION:'Elige una importacion de la lista.',WAITING_RECOVERY_SELECTION:'Elige si deseas comprobar la recuperacion de archivos por recibir.',PREFLIGHT:'Comprobando los datos actuales de la importacion elegida...',RUNNING:'Ejecutando las comprobaciones de consulta...',WAITING_SECOND_ACCOUNT:'Falta la segunda cuenta para comprobar la privacidad de la importacion.',STAGE_COMPLETE:'Esta parte de la comprobacion termino.',FINISHED:'La ejecucion termino; el informe queda listo para revision.',FINISHED_WITH_LIMITS:'La ejecucion termino con partes omitidas o limites que deben revisarse.',STOPPED:'La comprobacion se detuvo; no se repetira automaticamente.'};
@@ -51,6 +54,12 @@ async function main(args=process.argv.slice(2)){
     console.log('No necesitas conocer numeros internos: se mostraran las importaciones de la cuenta que ingreses.');
     console.log('Ambiente autorizado: '+BASE_URL);
     console.log('Limites autorizados: 600 HTTP y 2 sesiones por prueba; 80 SELECT en filtros/CSV y 60 en recuperacion.');
+    if(options.headed){
+      console.log('Chromium visible: las acciones tendran una pausa de 300 ms para observarlas. Se abrira despues de ingresar las credenciales privadas.');
+      console.log('Nueva ventana de solo lectura. No confirma planes, recibe PDF, crea expedientes ni almacena documentos. Pausa durante guardado queda fuera de esta ventana.');
+      await collectValue(references,'authorizeVisible','Autorizar esta ventana en el ambiente indicado: SI o NO',{defaultValue:'NO'});
+      check(references.authorizeVisible==='SI','VISIBLE_AUTHORIZATION_REQUIRED');delete references.authorizeVisible;save({authorizedPlan:true});
+    }
     await collectValue(references,'odbcDsn','Conexion de consultas RA (Enter conserva el DSN de pruebas)',{defaultValue:'MembershipUsers'});
     await collectValue(references,'docuarchiOdbcDsn','Conexion de consultas DA (Enter conserva el DSN de pruebas)',{defaultValue:'MembershipUsers'});
     await collectValue(references,'tls','Aceptar certificado local de pruebas: SI o NO',{defaultValue:'NO'});check(['SI','NO'].includes(references.tls.toUpperCase()),'TLS_CHOICE_INVALID');
@@ -64,7 +73,7 @@ async function main(args=process.argv.slice(2)){
     for(const prefix of ['DOC111_E2E','DOC111_DA_E2E'])Object.assign(environment,{[prefix+'_MYSQL_USER']:secrets.dbUser,[prefix+'_MYSQL_PASSWORD']:secrets.dbPassword});
     save({code:captureCodeEvidence({files:EVIDENCE_FILES})});
     delete process.env.DEBUG;delete process.env.PWDEBUG;delete environment.DEBUG;delete environment.PWDEBUG;
-    browser=await require('../node_modules/playwright').chromium.launch({headless:true});
+    browser=await require('../node_modules/playwright').chromium.launch(launchOptions(options));
     const query=(origin,sql,parameters)=>queryRows(sql,parameters,environment,origin==='RA'?'DOC111_E2E':'DOC111_DA_E2E');
     const openRole=async(role,budget,scope)=>{
       save({activeRole:role});
@@ -183,4 +192,4 @@ async function main(args=process.argv.slice(2)){
   }
 }
 if(require.main===module)main().catch(()=>{console.error('DOC119_PRECHECK_STOPPED: sin ejecucion automatica ni detalle privado.');process.exitCode=2;});
-module.exports={parseArgs,main};
+module.exports={parseArgs,launchOptions,main};

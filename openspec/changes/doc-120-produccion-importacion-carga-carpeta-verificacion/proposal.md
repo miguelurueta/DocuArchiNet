@@ -106,3 +106,7 @@ Ninguna modificación funcional incondicional. Una brecha exige reproducción y 
 ## Impact
 
 Documentación de Validacion y dossier OPSXJ; pruebas existentes WebForms/VB/JavaScript seleccionadas por impacto. Sin endpoints/DTO/tablas/plataforma de pruebas nuevos, instalación o ejecución real en esta fase.
+
+## E2E existente con Chromium visible -2026-11-19
+
+Solicitud expresa del usuario: observar interaccion en Chromium y reutilizar E2E. run-doc119-seguimiento.cjs conserva controles, presupuestos y operaciones solo lectura; --headed habilita ventana visible y slowMo300ms, sin ampliar guardias ni efectos. Nueva autorizacion de ventana antes de credenciales/autenticacion. Conserva modo anterior, --check y referencias de consulta; no reabre estados cerrados. Consulta/filtros/CSV/privacidad/recuperacion de importaciones existentes, sin confirmar planes, enviar PDF, crear expedientes o almacenar documentos. Esta ventana no valida pausa durante guardado; ese caso requiere presupuesto de efectos propio. Credenciales solo en consola privada. Cinco casos nuevos de argumentos/presentacion/consentimiento y regresion de guardias existentes; abrir consola no equivale a E2E aprobada.

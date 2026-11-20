@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## E2E existente con Chromium visible -2026-11-19
+
+[Preparacion y alcance](doc120-e2e-visible-20261119.md), [fuentes](doc120-e2e-visible-20261119.json). run-doc119-seguimiento.cjs --headed conserva guardias/limites solo lectura y abre Chromium con slowMo300; consentimiento de nueva ventana antes de credenciales. Cinco casos nuevos,39/39 politicas y20/20 compatibilidad (cinco solapados). Consola36a221bf abierta y Chromium iniciado/AUTHENTICATING_OWNER;96 HTTP/0 SELECT/1 sesion al corte, resultado real pendiente.249/260 y once pendientes previas. No confirma, recibe, crea, almacena ni reanuda; no valida pausa durante guardado. Sin cambios del producto/DLL/esquema.
+
 ## Auditoria de transiciones - corte local2026-11-19
 
 [Dictamen y matriz de recorridos](doc120-auditoria-transiciones-20261119.md) y [fuentes/resultados](doc120-auditoria-transiciones-20261119.json). Cuatro defectos reproducidos y corregidos: pagina de raices heredada de otro lote, borrador de filtro que reaparecia, ayuda cerrada por acuses y mensajes/progreso de revision copiados a consulta. Siete casos nuevos;223/223 en24 suites finales, con1000 sinteticos. La primera amplia214/223 y el contraste parcial anterior se conservan: ocho expectativas antiguas y un cierre esperado sin aceptar; cinco suites actualizadas38/38 antes de repetir la seleccion completa. Ejecutor tools/e2e/scripts/test-doc120-transitions.cjs; assets doc120-auditoria-transiciones-20261119-8.247/258 tareas,107 escenarios,11 pendientes previas. Cero HTTP/SELECT/autenticacion/efectos reales, DLL o esquema; QA historica cerrada sin replay. No declara ausencia absoluta de errores ni certificacion de negocio real. Cortes inferiores historicos.
