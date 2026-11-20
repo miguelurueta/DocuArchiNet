@@ -1505,37 +1505,54 @@ public static partial class ImportacionCarpetasBehaviorTests {
         var constructor=typeof(MySqlImportacionCarpetasRepository).GetConstructor(BindingFlags.NonPublic|BindingFlags.Instance,null,new[]{typeof(string),typeof(Func<DateTime>),probeType},null);
         Check(constructor!=null,"DOC111 internal rollback observer constructor missing");
         Check(typeof(MySqlImportacionCarpetasRepository).GetConstructors().All(c=>c.GetParameters().Length==2),"DOC111 rollback observer exposed as public constructor");
+        Func<string,MySql.Data.MySqlClient.MySqlConnection,MySql.Data.MySqlClient.MySqlTransaction,long> count=(sql,db,tx)=>{
+            if(db==null)using(var control=new MySql.Data.MySqlClient.MySqlConnection(connection)) {
+                control.Open();using(var cmd=new MySql.Data.MySqlClient.MySqlCommand(sql,control)) {
+                    cmd.CommandTimeout=15;cmd.Parameters.AddWithValue("@plan",UInt32.Parse(planId));return Convert.ToInt64(cmd.ExecuteScalar());
+                }
+            }
+            using(var cmd=new MySql.Data.MySqlClient.MySqlCommand(sql,db,tx)) {
+                cmd.CommandTimeout=15;cmd.Parameters.AddWithValue("@plan",UInt32.Parse(planId));return Convert.ToInt64(cmd.ExecuteScalar());
+            }
+        };
+        var stages=RunConfirmationRollbackCases(original,
+            probe=>Doc115Observed(connection,clock,probe).ConfirmarPlan(context,planId,original.Revision,original.Huella,"rollback-"+Guid.NewGuid().ToString("N")),
+            ()=>normal.ObtenerPlan(context,planId),count,null);
+        var committed=normal.ObtenerPlan(context,committedPlanId);
+        Check(normal.ConfirmarPlan(context,committed.PlanId,1,committed.Huella,"post-rollback-"+Guid.NewGuid().ToString("N")).LoteId==existingLotId,"DOC111 rollback damaged committed replay");
+        return stages;
+    }
+
+    // Shared by the existing DOC111/DOC115 repository E2E and the segmented
+    // DOC120 fixture. Callers retain their authorization, connections and budgets.
+    static string[] RunConfirmationRollbackCases(PlanImportacionCarpetas original,
+        Func<Action<string,MySql.Data.MySqlClient.MySqlConnection,MySql.Data.MySqlClient.MySqlTransaction>,LoteImportacionCarpetas> confirm,
+        Func<PlanImportacionCarpetas> read,
+        Func<string,MySql.Data.MySqlClient.MySqlConnection,MySql.Data.MySqlClient.MySqlTransaction,long> count,
+        Action<string> phase) {
+        Check(original.Estado=="REVISABLE"&&original.Revision==1,"DOC111 rollback requires original unconfirmed fixture");
         var stages=new[]{"ANTES_EVENTO","EVENTO_INSERTADO","PLAN_CONFIRMADO"};
         foreach(var target in stages) {
+            if(phase!=null)phase(target);
             var reached=0;
             Action<string,MySql.Data.MySqlClient.MySqlConnection,MySql.Data.MySqlClient.MySqlTransaction> probe=(stage,db,tx)=>{
                 if(stage!=target)return;
                 reached++;
                 Check(tx!=null && Object.ReferenceEquals(tx.Connection,db),"DOC111 observer outside production transaction");
-                Func<string,long> count=sql=>{using(var cmd=new MySql.Data.MySqlClient.MySqlCommand(sql,db,tx)){cmd.CommandTimeout=15;cmd.Parameters.AddWithValue("@plan",UInt32.Parse(planId));return Convert.ToInt64(cmd.ExecuteScalar());}};
-                Check(count("SELECT COUNT(*) FROM ra_integracion_lote WHERE plan_id=@plan")==1,"DOC111 provisional lot not visible in transaction");
-                Check(count("SELECT COUNT(*) FROM ra_integracion_raiz r INNER JOIN ra_integracion_lote l ON l.lote_id=r.lote_id WHERE l.plan_id=@plan")==2,"DOC111 provisional roots missing");
-                Check(count("SELECT COUNT(*) FROM ra_integracion_archivo a INNER JOIN ra_integracion_raiz r ON r.raiz_id=a.raiz_id INNER JOIN ra_integracion_lote l ON l.lote_id=r.lote_id WHERE l.plan_id=@plan")==2,"DOC111 provisional files missing");
-                Check(count("SELECT COUNT(*) FROM ra_integracion_evento e INNER JOIN ra_integracion_lote l ON l.lote_id=e.lote_id WHERE l.plan_id=@plan")== (target=="ANTES_EVENTO"?0:1),"DOC111 provisional event unexpected");
-                Check(count("SELECT COUNT(*) FROM ra_integracion_plan WHERE plan_id=@plan AND estado='CONFIRMADO' AND revision=2")== (target=="PLAN_CONFIRMADO"?1:0),"DOC111 provisional plan state unexpected");
+                Check(count("SELECT COUNT(*) FROM ra_integracion_lote WHERE plan_id=@plan",db,tx)==1,"DOC111 provisional lot not visible in transaction");
+                Check(count("SELECT COUNT(*) FROM ra_integracion_raiz r INNER JOIN ra_integracion_lote l ON l.lote_id=r.lote_id WHERE l.plan_id=@plan",db,tx)==original.Manifiesto.Raices.Count,"DOC111 provisional roots missing");
+                Check(count("SELECT COUNT(*) FROM ra_integracion_archivo a INNER JOIN ra_integracion_raiz r ON r.raiz_id=a.raiz_id INNER JOIN ra_integracion_lote l ON l.lote_id=r.lote_id WHERE l.plan_id=@plan",db,tx)==original.Manifiesto.Archivos.Count,"DOC111 provisional files missing");
+                Check(count("SELECT COUNT(*) FROM ra_integracion_evento e INNER JOIN ra_integracion_lote l ON l.lote_id=e.lote_id WHERE l.plan_id=@plan",db,tx)== (target=="ANTES_EVENTO"?0:1),"DOC111 provisional event unexpected");
+                Check(count("SELECT COUNT(*) FROM ra_integracion_plan WHERE plan_id=@plan AND estado='CONFIRMADO' AND revision=2",db,tx)== (target=="PLAN_CONFIRMADO"?1:0),"DOC111 provisional plan state unexpected");
                 throw new PerfilImportacionException("PRUEBA_ROLLBACK","Fallo controlado de la prueba de transacción.");
             };
-            var failing=(MySqlImportacionCarpetasRepository)constructor.Invoke(new object[]{connection,new Func<DateTime>(()=>clock),probe});
-            Rejected("PRUEBA_ROLLBACK",()=>failing.ConfirmarPlan(context,planId,original.Revision,original.Huella,"rollback-"+Guid.NewGuid().ToString("N")));
+            Rejected("PRUEBA_ROLLBACK",()=>confirm(probe));
             Check(reached==1,"DOC111 rollback checkpoint not reached exactly once");
-            var after=normal.ObtenerPlan(context,planId);
+            var after=read();
             Check(after.Estado==original.Estado && after.Revision==original.Revision && after.Huella==original.Huella,"DOC111 failed confirmation changed original plan");
-            using(var db=new MySql.Data.MySqlClient.MySqlConnection(connection)) {
-                db.Open();
-                using(var cmd=new MySql.Data.MySqlClient.MySqlCommand("SELECT COUNT(*) FROM ra_integracion_lote WHERE plan_id=@plan",db)) {
-                    cmd.CommandTimeout=15;cmd.Parameters.AddWithValue("@plan",UInt32.Parse(planId));
-                    Check(Convert.ToInt64(cmd.ExecuteScalar())==0,"DOC111 failed confirmation committed a lot");
-                }
-            }
+            Check(count("SELECT COUNT(*) FROM ra_integracion_lote WHERE plan_id=@plan",null,null)==0,"DOC111 failed confirmation committed a lot");
             Console.WriteLine("DOC111_ROLLBACK_STAGE_PASS: "+target);
         }
-        var committed=normal.ObtenerPlan(context,committedPlanId);
-        Check(normal.ConfirmarPlan(context,committed.PlanId,1,committed.Huella,"post-rollback-"+Guid.NewGuid().ToString("N")).LoteId==existingLotId,"DOC111 rollback damaged committed replay");
         return stages;
     }
 

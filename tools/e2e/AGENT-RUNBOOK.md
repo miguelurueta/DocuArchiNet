@@ -2,6 +2,8 @@
 
 ## DOC-120 — preparación del laboratorio segmentado, 2026-11-20
 
+Reutilización solicitada: DOC-111/115 y DOC-120 comparten ahora `RunConfirmationRollbackCases`, eliminando el ensayo duplicado. Usar el ejecutor de persistencia existente con su escenario acotado; conservar los recorridos y evidencia de `run-doc120-qa-failures.cjs` (acuse perdido/concurrencia) y `run-doc120-storage-ui.cjs` (pausa/cierre). No crear una cadena E2E paralela ni relanzar sus ventanas cerradas. El plan de laboratorio contiene el mapa de reutilización; la prueba MySQL sigue sin ejecutar.
+
 Arnés C# explícito para 3.118 en `tests/ImportacionCarpetasSegmentedRepositoryIntegrationTests.cs`, compilado por el arnés Framework existente. La ejecución local habitual solo prueba 16 guardas/comprobaciones sin conexión; 2/2 pruebas Node envolventes aprobadas. La entrada MySQL exige autorización, fixture sintético acotado y destino sellado: hasta una preparación/un plan/un lote/una raíz/dos archivos de inventario, tres rollbacks previstos, 48 llamadas de repositorio/64 SELECT externos de control/15min y dos operaciones concurrentes. Sin recepción, creación documental, almacenamiento, DDL o limpieza. Los SELECT internos del repositorio y el futuro preflight no se confunden con esos controles. Plan `Validacion/doc120-preparacion-repositorio-plan-20261120.md`: faltan identificación de laboratorio, manifiesto, consola privada de un solo uso y presupuesto propio de preflight antes de solicitar autorización concreta. No ejecutar el helper real, adaptar/reusar permisos DOC-115 ni dirigirlo a lotes existentes por inferencia. 3.118/3.187 y las once tareas siguen abiertas, 259/270; cero acceso real en esta preparación.
 
 ## DOC-120 - Ver expediente en rama contraida, video001055

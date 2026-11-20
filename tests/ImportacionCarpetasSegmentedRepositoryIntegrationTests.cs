@@ -192,27 +192,10 @@ public static partial class ImportacionCarpetasBehaviorTests {
         Check(recovered.EsquemaDoc==2&&recovered.Manifiesto.Raices.Count==1&&recovered.Manifiesto.Archivos.Count==2&&
             PlanSegmentadoImportacionJson.HuellaInventario(recovered.Manifiesto)==PlanSegmentadoImportacionJson.HuellaInventario(plan.Manifiesto),"DOC120_SEGMENTED_INVENTORY_LOST");
         Rejected("CONFLICTO_REVISION",()=>window.Call(r=>r.ConfirmarPlan(context,sealedPlan.PlanId,1,sealedPlan.Huella,"expired-"+runId),true));
-        var stages=new[]{"ANTES_EVENTO","EVENTO_INSERTADO","PLAN_CONFIRMADO"};
-        foreach(var target in stages) {
-            reference("phase",target);
-            int reached=0;
-            Action<string,MySqlConnection,MySqlTransaction> probe=(stage,db,tx)=>{
-                if(stage!=target)return;
-                reached++;
-                Check(tx!=null&&Object.ReferenceEquals(tx.Connection,db),"DOC120_SEGMENTED_OBSERVER_OUTSIDE_TX");
-                Check(window.Count("SELECT COUNT(*) FROM ra_integracion_lote WHERE plan_id=@plan",sealedPlan.PlanId,db,tx)==1,"DOC120_SEGMENTED_PROVISIONAL_LOT_MISSING");
-                Check(window.Count("SELECT COUNT(*) FROM ra_integracion_raiz r INNER JOIN ra_integracion_lote l ON l.lote_id=r.lote_id WHERE l.plan_id=@plan",sealedPlan.PlanId,db,tx)==1,"DOC120_SEGMENTED_PROVISIONAL_ROOT_MISSING");
-                Check(window.Count("SELECT COUNT(*) FROM ra_integracion_archivo a INNER JOIN ra_integracion_raiz r ON r.raiz_id=a.raiz_id INNER JOIN ra_integracion_lote l ON l.lote_id=r.lote_id WHERE l.plan_id=@plan",sealedPlan.PlanId,db,tx)==2,"DOC120_SEGMENTED_PROVISIONAL_FILES_MISSING");
-                Check(window.Count("SELECT COUNT(*) FROM ra_integracion_evento e INNER JOIN ra_integracion_lote l ON l.lote_id=e.lote_id WHERE l.plan_id=@plan",sealedPlan.PlanId,db,tx)==(target=="ANTES_EVENTO"?0:1),"DOC120_SEGMENTED_PROVISIONAL_EVENT_INVALID");
-                Check(window.Count("SELECT COUNT(*) FROM ra_integracion_plan WHERE plan_id=@plan AND estado='CONFIRMADO' AND revision=2",sealedPlan.PlanId,db,tx)==(target=="PLAN_CONFIRMADO"?1:0),"DOC120_SEGMENTED_PROVISIONAL_PLAN_INVALID");
-                throw new PerfilImportacionException("PRUEBA_ROLLBACK","Fallo de laboratorio acotado.");
-            };
-            Rejected("PRUEBA_ROLLBACK",()=>window.Call(r=>r.ConfirmarPlan(context,sealedPlan.PlanId,1,sealedPlan.Huella,"rollback-"+runId),false,probe));
-            Check(reached==1,"DOC120_SEGMENTED_ROLLBACK_STAGE_NOT_REACHED");
-            var after=window.Call(r=>r.ObtenerPlan(context,sealedPlan.PlanId));
-            Check(after.Estado=="REVISABLE"&&after.Revision==1&&after.Huella==sealedPlan.Huella,"DOC120_SEGMENTED_ROLLBACK_CHANGED_PLAN");
-            Check(window.Count("SELECT COUNT(*) FROM ra_integracion_lote WHERE plan_id=@plan",sealedPlan.PlanId)==0,"DOC120_SEGMENTED_ROLLBACK_PUBLISHED_LOT");
-        }
+        var stages=RunConfirmationRollbackCases(sealedPlan,
+            probe=>window.Call(r=>r.ConfirmarPlan(context,sealedPlan.PlanId,1,sealedPlan.Huella,"rollback-"+runId),false,probe),
+            ()=>window.Call(r=>r.ObtenerPlan(context,sealedPlan.PlanId)),
+            (sql,db,tx)=>window.Count(sql,sealedPlan.PlanId,db,tx),stage=>reference("phase",stage));
         reference("phase","CONFIRMATION_RACE");
         var lots=Doc115Pair(()=>window.Call(r=>r.ConfirmarPlan(context,sealedPlan.PlanId,1,sealedPlan.Huella,"left-"+runId)),
             ()=>window.Call(r=>r.ConfirmarPlan(context,sealedPlan.PlanId,1,sealedPlan.Huella,"right-"+runId)));

@@ -6,6 +6,17 @@ Fecha: 2026-11-20. Base: `b25d07a1f91fe8eed0d4a1814540060bdd9b319e`, carpeta pri
 
 `tests/ImportacionCarpetasSegmentedRepositoryIntegrationTests.cs` añade el punto explícito `RunDoc120SegmentedRepositoryIntegration`. Reutiliza el repositorio productivo, el constructor interno de observación y el coordinador de dos operaciones del arnés DOC-115. Se compila mediante el arnés Framework existente; no cambia clases de la aplicación ni añade endpoints, DDL, dependencias o instalación de DLL.
 
+Indicación posterior del usuario: reutilizar las E2E existentes. Se elimina la copia del ensayo de rollback en el helper nuevo: `RunConfirmationRollbackCases` es ahora el mismo núcleo utilizado por `RunRollbackIntegration` de DOC-111/115 y por la preparación segmentada de DOC-120. Conserva los tres puntos, SQL, comprobaciones transaccionales y revisión de ausencia de publicación; los conteos proceden del fixture existente (dos raíces en DOC-115, una en este caso). Cada llamador conserva autorización, conexión y presupuesto. La confirmación de replay del lote previo sigue en el recorrido DOC-111/115.
+
+| Infraestructura E2E existente | Reutilización |
+| --- | --- |
+| `run-doc111-persistence.ps1` y `support/doc115-repository-integration.ps1` | Entrada de persistencia, compilación, journal, huellas y controles de conservación; adaptar únicamente el escenario y sus recursos. No crear un ejecutor paralelo ni heredar sus permisos o IDs. |
+| `ImportacionCarpetasBehaviorTests.cs:RunRollbackIntegration` | Ensayo real de rollback compartido, con los mismos observadores y SQL. |
+| `run-doc120-qa-failures.cjs` | Recorridos ya existentes `lostResponse` y `concurrency`, autenticación y SELECT de control. Sus resultados históricos conservan su alcance y ventanas cerradas; no repetirlos para sustituir el rollback nativo faltante. |
+| `run-doc120-storage-ui.cjs` | Pausa, cierre y continuación ya probados; reutilizar su evidencia y recorrido para la aceptación UI pertinente. |
+
+La ampliación específica sigue siendo el transporte persistente de partes y su sellado. No se reescriben autenticación, captura privada, navegación UI, pérdida de respuesta, pausa/cierre o concurrencia que ya existen.
+
 La ejecución habitual del arnés solo llama `Doc120SegmentedRepositoryGuardCases`: **16 comprobaciones internas sin conexión**, incluidas autorización, alcance, destino, errores sanitizados antes de acceso, preparación pura del inventario, reconstrucción de partes fuera de orden y rechazo de la llamada 49 antes de ejecutar su delegado. No llama al recorrido MySQL.
 
 La entrada real necesita autorización explícita, conexión privada proporcionada por el operador, plan sintético acotado, ID nuevo de 32 hexadecimales, huella SHA-256 de `servidor|base` y un registrador de fases/IDs. No obtiene claves de archivos, configuración, procesos o ventanas anteriores. Comprueba destino antes de conectar y usa `Pooling=false`, con timeout de conexión de cinco segundos. Un fallo inesperado devuelve un código cerrado sin adjuntar la excepción privada.
