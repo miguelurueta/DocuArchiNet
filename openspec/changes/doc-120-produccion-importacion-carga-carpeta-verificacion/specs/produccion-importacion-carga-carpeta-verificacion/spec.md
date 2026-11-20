@@ -247,6 +247,21 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **THEN** el control de salida muestra Pausar y salir y su consentimiento usa el mismo nombre; en reposo, pausa aplicada o completado muestra Cerrar
 - **AND** nombre accesible y etiqueta visible coinciden, con la misma confirmacion/espera de respuesta e incertidumbre; no se cancela la operacion del servidor ni se agrega otra fase
 
+#### Scenario: REV-EXIT01 Cancelar salida no pausa preparacion
+- **WHEN** el usuario solicita salir durante preparacion y cancela o pulsa Escape en el consentimiento del modulo
+- **THEN** la misma revision sigue activa, sin llamar pausa ni crear otra preparacion; no hay confirm nativo despues de haber pausado
+- **AND** aceptar la salida espera la solicitud actual antes de liberar seleccion y conserva referencias confirmadas, sin enviar PDF ni crear expedientes por el cierre
+
+#### Scenario: REV-EXIT02 Una continuacion sobre preparacion vigente
+- **WHEN** se pausa una revision con600 de1000 archivos revisados y se conserva perfil/seleccion
+- **THEN** una accion principal Continuar revision retoma la misma preparacion y sus partes confirmadas; Preparar revision no ofrece crear otra preparacion equivalente en paralelo
+- **AND** pausa intencional es un estado, no error; cambiar perfil/inventario invalida la continuacion y requiere revision nueva sobre los datos actuales
+
+#### Scenario: REV-EXIT03 Confirmacion incierta y limites de salida
+- **WHEN** se solicita salir con confirmacion en curso/incierta, o se destruye la vista con consentimiento pendiente
+- **THEN** el consentimiento distingue el resultado posible del servidor y conserva plan/lote sin replay; aceptar espera lo iniciado y cancelar no interrumpe ni reinicia
+- **AND** desmontaje forzado descarta callbacks; preparacion advierte que salir libera File y tras recarga puede requerir nueva seleccion/revision, sin prometer restauracion de archivos no construida
+
 ### Requirement: RQ-05 — Integridad, incertidumbre y consumidores
 Ampliación aprobada2026-11-17: D-04/D-05/D-09 autorizan el control ReanudarLote y la espera de respuesta según Diseno/espera-respuesta-reanudacion-lote-doc120.md. Sin nuevas tablas, escritores o efectos reales autorizados por la implementación local.
 DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, valores diferidos y fecha estable, revocación, stop e incertidumbre con casos del arnés existente. Comprobar contrato del plugin en sus26 registros/22archivos y carga individual pertinente. Un callback sintético no demuestra la acción de negocio real de cada módulo.

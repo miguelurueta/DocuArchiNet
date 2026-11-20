@@ -4,6 +4,8 @@ DOC-120 consolida la verificación de importación de carpetas sobre la interfaz
 
 ## What Changes
 
+Video191801: consentimiento del modulo previo a pausar tambien en preparacion/confirmacion; cancelar conserva ejecucion. Una continuacion principal sobre ticket vigente y contador de ultima parte confirmada, con invalidacion al cambiar perfil/seleccion. REV-EXIT01-03/tareas3.227-3.230; cliente/local, sin operaciones reales nuevas.
+
 Aprobacion explicita2026-11-19: control y consentimiento activos se presentan como Pausar y salir, con Cerrar en reposo/pausa/completado. CTL-10/tareas3.224-3.226; solo etiqueta/accesibilidad, espera y negocio existentes conservados.
 
 Video103048: mensajes de continuar/pausa vigentes con render inmediato del cambio de intencion; aviso local compacto con ruta/fase/referencia desplegables y dialogo limitado al viewport. MNS-01-03/tareas3.220-3.223; cliente y pruebas locales, sin operaciones reales nuevas.

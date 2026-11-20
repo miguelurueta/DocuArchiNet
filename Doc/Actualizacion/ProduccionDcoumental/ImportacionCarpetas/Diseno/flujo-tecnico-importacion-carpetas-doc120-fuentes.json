@@ -1,23 +1,23 @@
 {
   "schema": 1,
-  "implementationCut": "DOC120-pausar-salir-20261119",
-  "implementationBaseCommit": "b7339bfe9ff725ad6427541ef2390e23360d1644",
+  "implementationCut": "DOC120-revision-salida-20261119",
+  "implementationBaseCommit": "cc89d49d5dd7788ed9c304b3bc096580d2c34243",
   "purpose": "Flujo resumido implementado localmente por archivo; fuentes del mismo cambio, sin nueva ejecucion real.",
   "diagram": {
     "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/flujo-tecnico-importacion-carpetas-doc120.txt",
-    "sha256Lf": "64276fae021b42cb7e1fb3831e605e38976ba7dbe84169da6836b506a638b72c"
+    "sha256Lf": "1132037998937186bbd882f5338ce091ec446aa8435a31de8759089bc021b1a4"
   },
   "annex": {
     "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/flujo-tecnico-importacion-carpetas-doc120-anexo.txt",
-    "sha256Lf": "51cc58ff631ea99cc14e058bcd19fd87da5fa7b519eb927413a14f96339644cc"
+    "sha256Lf": "5fc92ece8aad096393c7e066521506ca123256aba1fe66f5246613e271f7f1a4"
   },
   "generator": {
     "path": "tools/docs/generate-doc120-flow.cjs",
-    "sha256Lf": "ac49b1736972159178f3037f124fbb0119791db5aec2e7f762a35f3d4032e0ed"
+    "sha256Lf": "ca8a0c08cbcd556436086801a380c8befaee277490884dfddabe4da14069e351"
   },
   "sourceCount": 124,
   "httpEndpoints": 53,
-  "extractedLines": 20199,
+  "extractedLines": 20213,
   "sourceInventory": [
     {
       "path": "DTOs/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasDtos.vb",
@@ -48,7 +48,7 @@
     },
     {
       "path": "Gestion/WebFormProducionDocumental.aspx",
-      "sha256Lf": "db8bce060a39421dd713c55fe692792b92db0ef697ca81379905afed4e604730",
+      "sha256Lf": "62c728de5aca34fdb6d50a7092c08e1f3f30cca2f2975cc8b2ed2133de532de2",
       "lines": 2249,
       "selectedMethods": null
     },
@@ -689,8 +689,8 @@
     },
     {
       "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
-      "sha256Lf": "4536a0541e8c0bd32149ee94b15a3a4b8637fdaebcac260649944905fc81ce39",
-      "lines": 1003,
+      "sha256Lf": "05fe369c1e7aaa643bf7b093bdad2dac4492848a0890dc6e21ba99b658d2a0d5",
+      "lines": 1008,
       "selectedMethods": null
     },
     {
@@ -701,8 +701,8 @@
     },
     {
       "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
-      "sha256Lf": "a638d3a5b3b75e9187d3a77a4dbf780e84ce28c466aa31155a61f4773b3c29c1",
-      "lines": 445,
+      "sha256Lf": "fb7a06f502716eb800a57648aea11e5930d4ea15d2821e808c0784706ea5c5c6",
+      "lines": 454,
       "selectedMethods": null
     },
     {
@@ -725,7 +725,7 @@
     },
     {
       "path": "js/gestion/ImportacionCarpetas/PreparacionSegmentadaImportacion.js",
-      "sha256Lf": "8cd2417764d7817521a84a6e8d3c6a177af75879804cd5ca7e0a5fa231dda90f",
+      "sha256Lf": "2ec397dec1a9cf474ae423db9be542d290b4d343ba5ac5207502fc27078514a9",
       "lines": 149,
       "selectedMethods": null
     },

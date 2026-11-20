@@ -74,7 +74,7 @@ test('DOC-113: respuestas anidadas inválidas dejan error y revisión utilizable
     }
     await page.evaluate(()=>window.doc113Bad='');await page.getByRole('button',{name:'Preparar revisión',exact:true}).click();
     await page.getByRole('button',{name:'Confirmar e importar',exact:true}).waitFor();assert.equal(await page.getByRole('button',{name:'Confirmar e importar',exact:true}).isEnabled(),true);
-    await page.getByRole('button',{name:'Cerrar',exact:true}).click();assert.equal(await page.getByRole('dialog').count(),0);
+    await page.getByRole('button',{name:'Cerrar',exact:true}).click();await page.locator('[data-doc111-action="confirmar-cierre"]').click();await page.locator('.doc111-overlay').waitFor({state:'hidden'});assert.equal(await page.getByRole('dialog').count(),0);
     assert.equal(await page.evaluate(()=>window.doc113Requests.some(r=>r.operation==='ConfirmarPlan')),false);
   });
 });
@@ -427,6 +427,7 @@ test('DOC-111: interfaz Chromium local con servicios sintéticos, foco y cierre 
     assert.equal(await page.getByRole('button', {name:'Confirmar e importar', exact:true}).isDisabled(), true);
     assert.equal(await page.evaluate(() => window.doc111Requests.filter(r=>r.operation==='ConfirmarPlan').length), 2);
     await page.getByRole('button', {name:'Cerrar', exact:true}).click();
+    await page.locator('[data-doc111-action="confirmar-cierre"]').click();await page.locator('.doc111-overlay').waitFor({state:'hidden'});
     assert.equal(await page.locator('[data-doc111-open]').isDisabled(), true);
     assert.equal(await page.evaluate(() => document.getElementById('doc111-importacion').doc111ConfirmacionPendiente.planId), '17');
     assert.equal(await page.evaluate(() => document.body.style.overflow), '');

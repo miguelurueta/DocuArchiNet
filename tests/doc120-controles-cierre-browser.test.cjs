@@ -48,7 +48,7 @@ for(const phase of ['RECEPCION','CREAR_EXPEDIENTE','MATERIALIZAR_VALORES','ALMAC
  await page.locator('[data-doc111-resume]').click();await page.locator('[data-doc111-action="continuar-importacion"]').waitFor();assert.equal(await writes(page),before);
 }));
 test('CTL-UI02: confirmacion tardia conserva lote sin iniciar importacion tras pedir cierre',()=>fixture(async page=>{
- await select(page,1,2);await instrument(page,'ConfirmarPlan');await click(page,'confirmar-importar');await page.waitForFunction(()=>!!held);await page.getByRole('button',{name:/^(Cerrar|Pausar y salir)$/}).click();await release(page);await page.locator('.doc111-overlay').waitFor({state:'hidden'});
+ await select(page,1,2);await instrument(page,'ConfirmarPlan');await click(page,'confirmar-importar');await page.waitForFunction(()=>!!held);await page.getByRole('button',{name:/^(Cerrar|Pausar y salir)$/}).click();await acceptClose(page);await release(page);await page.locator('.doc111-overlay').waitFor({state:'hidden'});
  assert.equal(await page.evaluate(()=>calls.filter(c=>c.operation==='ConfirmarPlan').length),1);assert.equal(await page.evaluate(()=>calls.filter(c=>['RECEPCION','AvanzarLote'].includes(c.operation)).length),0);assert.equal(await page.evaluate(()=>doc120Aborts),0);
  await page.locator('[data-doc111-resume]').click();await page.locator('[data-doc111-action="continuar-importacion"]').waitFor();assert.equal(await page.evaluate(()=>calls.filter(c=>c.operation==='RECEPCION').length),0);
 }));
@@ -83,7 +83,7 @@ test('CTL-UI07: espera de cierre accesible en390/768/1280 y ayuda disponible',()
 for(const phase of ['IniciarPreparacionPlan','ValidarPartePreparacion'])test('CTL-UI08 '+phase+': cerrar espera metadatos iniciados y conserva referencia sin otra parte',()=>fixture(async page=>{
  const {install,selectFiles}=require('./support/doc120-segmentada-browser.cjs');await install(page);await selectFiles(page,127);await instrument(page,phase);await click(page,'preparar');await page.waitForFunction(()=>!!held);
  const metadataWrites=()=>page.evaluate(()=>calls.filter(c=>['IniciarPreparacionPlan','RegistrarPartePreparacion','ValidarPartePreparacion','SellarPreparacionPlan'].includes(c.operation)).length),before=await metadataWrites();
- await page.getByRole('button',{name:/^(Cerrar|Pausar y salir)$/}).click();assert.equal(await page.locator('.doc111-overlay').count(),1);assert.equal(await page.evaluate(()=>doc120Aborts),0);await release(page);await page.locator('.doc111-overlay').waitFor({state:'hidden'});
+ await page.getByRole('button',{name:/^(Cerrar|Pausar y salir)$/}).click();await acceptClose(page);assert.equal(await page.locator('.doc111-overlay').count(),1);assert.equal(await page.evaluate(()=>doc120Aborts),0);await release(page);await page.locator('.doc111-overlay').waitFor({state:'hidden'});
  assert.equal(await metadataWrites(),before);assert.equal(await writes(page),0);assert.equal(await page.evaluate(()=>transfers.length),0);assert.equal(await page.evaluate(()=>document.getElementById('doc111-importacion').doc120PreparacionPendiente),'77');assert.equal(await page.evaluate(()=>doc120Aborts),0);
 },{segmented:true}));
 test('CTL-UI09: fallo de respuesta en cola manual resuelve cierre con aviso y sin otro envio',()=>fixture(async page=>{

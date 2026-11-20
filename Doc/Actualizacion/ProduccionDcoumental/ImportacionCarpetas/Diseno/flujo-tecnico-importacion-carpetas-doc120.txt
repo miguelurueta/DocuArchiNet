@@ -1,6 +1,6 @@
 DOC-120 | GUARDAR UN DOCUMENTO: FLUJO IMPLEMENTADO Y COSTOS
 =========================================================
-Corte local: DOC120-pausar-salir-20261119. Sin nueva prueba real.
+Corte local: DOC120-revision-salida-20261119. Sin nueva prueba real.
 QA real5f7af8f5 conserva sus fuentes; no certifica cliente o DLL instalada actual.
 Detalle literal de metodos, parametros, filtros y decisiones: anexo.txt y
 fuentes.json con el mismo prefijo de este archivo; --check verifica sus fuentes.
@@ -17,12 +17,21 @@ fuentes.json con el mismo prefijo de este archivo; --check verifica sus fuentes.
     Modal limitado al viewport, cabecera visible y scroll interno sin I/O.
   Vista: salida activa se muestra como Pausar y salir (visible/aria/confirmacion).
     En reposo/pausa/completado conserva Cerrar; mismo manejador y espera.
+  Cerrar/X/Escape -> cerrar(force): consentimiento ANTES de pausar si hay
+    seleccion/revision sin lote, confirmacion en curso/incierta o lote pendiente.
+    confirmarCierre(info.tipo): PREPARACION / CONFIRMACION / LOTE, mismo dialogo.
+    Cancelar/Escape no pausa ni reinicia. Aceptar -> aplicarCierre/transicionar.
+    cerrarAhora ya no pregunta despues de haber aplicado la pausa.
+  Revision pausada: puedeContinuarPreparacion exige ticket/perfil/inventario
+    vigentes; footer unico Continuar revision, misma instancia/partes.
+    Cambiar perfil/seleccion invalida ticket y limpia progreso -> revision nueva.
+    cycle notifica ultimo indice confirmado antes de comprobar pausa; cero I/O.
   Cerrar/X/Escape -> cerrar(force): lote confirmado no COMPLETADO?
      | SI -> view.confirmarCierre({loteId,activa}), un aviso por sesion.
      |       Cancelar/Escape: resolverCierre(false), sin pausa ni reinicio.
      |       Aceptar: aplicarCierre(session) -> transicionar(cerrar).
      |       Mientras decide puede seguir avanzando; el aviso lo explica.
-     | NO -> cierre previo de preparacion / completado sin pregunta adicional.
+     | NO -> preparacion/confirmacion usan su consentimiento previo; completado sale.
   Consultar o cierre aceptado -> transicionar(session, accion, valor, finish).
      | Una intencion pendiente; bloquea clics adicionales y efectos nuevos.
      | crearCoordinacion.pausar + trabajoActual de run esperan acuse/lectura.

@@ -381,6 +381,8 @@
             session.model.reseleccionCarpetaDisponible=!!(segmentado && ["1","2"].indexOf(host.getAttribute("data-consulta-focal"))!==-1 && session.view && session.view.reselectorCarpeta && "webkitdirectory" in session.view.reselectorCarpeta);
             if (active !== session) { return; }
             var model = session.model; model.controles = politicaControles(model); model.manifiesto = model.consulta ? {raices:[], archivos:[]} : session.inventory.manifiesto();
+            if(session.preparacionSegmentada&&(!session.ticketPreparacion||!session.operation.vigente(session.ticketPreparacion))){session.preparacionSegmentada.destruir();session.preparacionSegmentada=null;session.ticketPreparacion=null;model.progresoPreparacion=null;}
+            model.puedeContinuarPreparacion=!!(session.preparacionSegmentada&&session.ticketPreparacion&&session.operation.vigente(session.ticketPreparacion)&&model.progresoPreparacion);
             model.describirIncidencia = session.api.detalleIncidencia;
             model.ultimoLoteId = host.doc111UltimoLote && host.doc111UltimoLote.loteId; model.planPendienteId = host.doc111ConfirmacionPendiente && host.doc111ConfirmacionPendiente.planId;
             model.paginaRaices = Math.min(model.paginaRaices, Math.max(1, Math.ceil(model.manifiesto.raices.length / 10)));
@@ -404,7 +406,7 @@
                 return work();
             }).catch(function (error) {
                 succeeded = false;
-                if (active === session) { error = error && typeof error === "object" ? error : new Error("RESPUESTA_INVALIDA"); session.model.tipoMensaje = "ERROR"; session.model.mensaje = message(error); if (error.recepcionParcial && ["ACCESO_DENEGADO","SESION_REQUERIDA"].indexOf(error.codigo) === -1) { var partial = error.recepcionParcial; session.model.mensaje += " Cola de esta página: " + partial.confirmados.length + " de " + partial.total + " recepciones confirmadas, " + partial.noIntentados + " archivos sin intentar." + (partial.archivoActual ? " Archivo " + partial.archivoActual + (partial.resultadoActual === "SIN_CONFIRMAR" ? " sin recepción confirmada; consulta antes de reenviar." : " interrumpió la cola; revisa la incidencia.") : ""); } }
+                if (active === session) { error = error && typeof error === "object" ? error : new Error("RESPUESTA_INVALIDA"); session.model.tipoMensaje = error.codigo==='PREPARACION_PAUSADA'?'AVISO':"ERROR"; session.model.mensaje = message(error); if (error.recepcionParcial && ["ACCESO_DENEGADO","SESION_REQUERIDA"].indexOf(error.codigo) === -1) { var partial = error.recepcionParcial; session.model.mensaje += " Cola de esta página: " + partial.confirmados.length + " de " + partial.total + " recepciones confirmadas, " + partial.noIntentados + " archivos sin intentar." + (partial.archivoActual ? " Archivo " + partial.archivoActual + (partial.resultadoActual === "SIN_CONFIRMAR" ? " sin recepción confirmada; consulta antes de reenviar." : " interrumpió la cola; revisa la incidencia.") : ""); } }
             }).then(function () { if (active === session) { session.model.busy = false; refresh(session); } return succeeded; });
             session.trabajoActual = operation;
             return operation.then(function (result) { if (session.trabajoActual === operation) { session.trabajoActual = null; } return result; });
@@ -637,9 +639,12 @@
             var session = active;
             if (!force && session) {
                 if (session.solicitudCierre || session.model.transicionPendiente) { return Promise.resolve(false); }
-                var preparation = session.importacionGuardada ? session.importacionGuardada.model : session.model;
-                if (preparation.loteId && (!preparation.estado || preparation.estado.estado !== "COMPLETADO")) {
-                    var request = session.view.confirmarCierre({loteId:preparation.loteId, activa:politicaControles(session.model).ejecutando || !!session.trabajoActual});
+                var preparation = session.importacionGuardada ? session.importacionGuardada.model : session.model,info=null,inventory=session.inventory.manifiesto();
+                if(session.confirming||preparation.confirmacionIncierta){info={tipo:'CONFIRMACION',planId:session.confirming&&session.confirming.planId||host.doc111ConfirmacionPendiente&&host.doc111ConfirmacionPendiente.planId,activa:!!session.trabajoActual};}
+                else if(preparation.loteId&&(!preparation.estado||preparation.estado.estado!=='COMPLETADO')){info={tipo:'LOTE',loteId:preparation.loteId,activa:politicaControles(session.model).ejecutando||!!session.trabajoActual};}
+                else if(!preparation.loteId&&inventory.archivos.length){info={tipo:'PREPARACION',archivos:inventory.archivos.length,preparacionId:preparation.progresoPreparacion&&preparation.progresoPreparacion.preparacionId,planId:preparation.plan&&preparation.plan.planId,activa:session.model===preparation&&!!session.trabajoActual};}
+                if (info) {
+                    var request = session.view.confirmarCierre(info);
                     session.solicitudCierre = request;
                     return request.then(function (accepted) {
                         if (active !== session || session.solicitudCierre !== request) { return false; }
@@ -663,9 +668,6 @@
         }
         function cerrarAhora(force) {
             var session = active; if (!session) { return; }
-            var preparation = session.importacionGuardada ? session.importacionGuardada.model : session.model;
-            if (!force && (session.confirming || preparation.confirmacionIncierta) && !deps.confirm("La confirmación puede seguir en el servidor. Cerrar liberará los archivos locales y conservará la referencia del plan para verificarla. ¿Cerrar?")) { return; }
-            if (!force && !preparation.loteId && !session.confirming && !preparation.confirmacionIncierta && session.inventory.manifiesto().archivos.length && !deps.confirm(session.preparacionSegmentada || host.doc120PreparacionPendiente ? "Cerrar libera la selección local y conserva los metadatos recibidos por el servidor. Puedes consultar la revisión pendiente; después de recargar puede hacer falta preparar una nueva revisión. No se enviaron PDF ni se crearon expedientes. ¿Cerrar?" : "Se descartará esta preparación sin confirmar. ¿Cerrar?")) { return; }
             if (session.confirming) { host.doc111ConfirmacionPendiente = session.confirming; }
             if (!force && session.model.mutacionIncierta && session.model.loteId) {
                 errorApertura = "El lote " + session.model.loteId + " conserva un resultado pendiente de comprobar. Usa Consultar importación antes de continuar; cerrar no confirma ni revierte la operación.";
@@ -779,6 +781,9 @@
                 }); }); return;
             }
             if (name === "preparar" || name === "continuar-preparacion") {
+                var resumablePreparation=!!(session.preparacionSegmentada&&session.ticketPreparacion&&session.operation.vigente(session.ticketPreparacion));
+                if(name==='continuar-preparacion'&&!resumablePreparation){return false;}
+                if(name==='preparar'&&resumablePreparation){name='continuar-preparacion';}
                 model.faseSolicitud = "PrepararPlan";
                 run(session, function () {
                     var resume=name==='continuar-preparacion' && session.preparacionSegmentada;

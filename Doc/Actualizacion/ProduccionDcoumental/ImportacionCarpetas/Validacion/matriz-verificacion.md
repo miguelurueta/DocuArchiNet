@@ -1,5 +1,10 @@
 # DOC-120 — matriz única de verificación
 
+## Salida de revision antes de pausar - corte local2026-11-19
+
+[Dictamen](doc120-revision-salida-20261119.md) y [fuentes/resultados](doc120-revision-salida-20261119.json). Video191801 cancela aviso nativo y queda pausado600/1000. Consentimiento del modulo ahora precede pausa para preparacion/confirmacion/lote; cancelar conserva ejecucion, aceptar espera lo iniciado. Una continuacion principal sobre ticket vigente, cambios invalidan preparacion y contador incluye ultima parte confirmada.81 unicos locales (63/65 amplios +18/18 focal/core, con dos reparados y16 distintos);6 nuevos y1/1 estilo primario solapado.1000 sinteticos/DOM/memoria aprobados, sin capacidad real nueva.239/250 tareas,100 escenarios,11 pendientes previas. Assets doc120-revision-salida-20261119-6 incluyen segmentador. Sin autenticacion/HTTP/SELECT/efectos reales, DLL o esquema; aceptacion visual actual pendiente. Cortes inferiores historicos.
+
+
 ## Etiqueta Pausar y salir - corte local2026-11-19
 
 [Dictamen](doc120-pausar-salir-20261119.md) y [fuentes/resultados](doc120-pausar-salir-20261119.json). Aprobacion expresa: salida activa y consentimiento muestran Pausar y salir visible/accesible; reposo/pausa/completado conserva Cerrar. Mismo manejador y espera, sin cambios de negocio.42 casos existentes locales verificados (34/42 +10/10 focales, dos solapados),0 nuevos; cuatro fases/teclado/390-768-1280, incertidumbre y mensajes conservados.235/246 tareas,97 escenarios,11 pendientes previas. Assets doc120-pausar-salir-20261119-5; sin QA real/HTTP/SELECT/efectos, DLL o esquema. Aceptacion visual actual pendiente; cortes inferiores historicos.

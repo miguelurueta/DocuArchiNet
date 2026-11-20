@@ -89,7 +89,7 @@
             });
         }
         function cycle() {
-            check(); notify();
+            notify(); check();
             if (stage === 'INICIO') {
                 if (uncertain) { return readState().then(function(){uncertain = null;stage = !state ? 'INICIO' : state.estado === 'SELLADA' ? 'REVISION' : 'REGISTRAR';return cycle();}); }
                 return mutate('IniciarPreparacionPlan',{nivelRef:request.nivelRef,versionId:request.versionId,clavePreparacion:key,totalRaices:request.raices.length,totalArchivos:request.archivos.length,totalBytes:totalBytes,

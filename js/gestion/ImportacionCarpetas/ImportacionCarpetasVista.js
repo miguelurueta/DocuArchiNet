@@ -61,9 +61,18 @@
             resolve(accepted);
         }
         function confirmarCierre(info){
-            if(closePromise){return closePromise;}closeReturnFocus=doc.activeElement;closeBody.textContent='';closeTitle.textContent=info.activa?'\u00bfPausar y salir de esta importaci\u00f3n?':'\u00bfCerrar esta importaci\u00f3n?';
-            var description=node('p','Lote '+info.loteId+'. Los expedientes y documentos confirmados se conservan.');description.id='doc120-close-description';
-            add(closeBody,description,node('p',info.activa?'Mientras decides, la importación sigue activa. Si eliges Pausar y salir, se esperará la respuesta de la operación actual y no se iniciará la siguiente.':'Cerrar conserva este lote; no inicia ni repite operaciones.'),node('p','Para retomarlo, usa Consultar último lote o Consultar importación con esta referencia y después Continuar importación cuando esté disponible. Los PDF locales pendientes pueden requerir que vuelvas a seleccionar su carpeta.'),node('p','Cerrar no cancela ni revierte operaciones del servidor. Si queda un resultado sin confirmar, consulta su estado antes de continuar.'),add(node('div',undefined,'modal-actions'),button(info.activa?'Seguir importando':'Volver a la importación','cancelar-cierre'),button(info.activa?'Pausar y salir':'Cerrar y conservar lote','confirmar-cierre')));
+            if(closePromise){return closePromise;}closeReturnFocus=doc.activeElement;closeBody.textContent='';
+            var description=node('p');description.id='doc120-close-description';
+            if(info.tipo==='PREPARACION'){
+                closeTitle.textContent=info.activa?'¿Pausar la revisión y salir?':'¿Salir de esta revisión?';description.textContent='Tienes '+info.archivos+' archivos seleccionados. Esta revisión todavía no está confirmada.';
+                add(closeBody,description,node('p',info.activa?'Mientras decides, la revisión puede seguir avanzando. Al aceptar, se esperará la respuesta actual y se pausará antes de salir.':'Al salir se liberará la selección local.'),node('p','Todavía no se enviaron PDF ni se crearon expedientes. Se conservarán los metadatos y las referencias que haya confirmado el servidor.'),node('p','Si permaneces en esta ventana, puedes continuar la misma revisión. Después de salir o recargar puede hacer falta seleccionar la carpeta y preparar una nueva revisión.'),add(node('div',undefined,'modal-actions'),button(info.activa?'Seguir revisando':'Volver a la revisión','cancelar-cierre'),button(info.activa?'Pausar y salir':'Salir de la revisión','confirmar-cierre')));
+            }else if(info.tipo==='CONFIRMACION'){
+                closeTitle.textContent='¿Salir mientras se confirma el plan?';description.textContent='La confirmación'+(info.planId?' del plan '+info.planId:'')+' puede continuar en el servidor.';
+                add(closeBody,description,node('p','El proceso puede seguir avanzando mientras decides. Salir esperará la respuesta actual y no iniciará la siguiente operación.'),node('p','Se conservará el lote si queda confirmado o la referencia del plan si su resultado sigue pendiente. Consulta su estado antes de repetir una confirmación.'),node('p','Salir libera los archivos locales y no revierte operaciones del servidor.'),add(node('div',undefined,'modal-actions'),button('Seguir en la importación','cancelar-cierre'),button(info.activa?'Pausar y salir':'Salir y conservar referencia','confirmar-cierre')));
+            }else{
+                closeTitle.textContent=info.activa?'¿Pausar y salir de esta importación?':'¿Cerrar esta importación?';description.textContent='Lote '+info.loteId+'. Los expedientes y documentos confirmados se conservan.';
+                add(closeBody,description,node('p',info.activa?'Mientras decides, la importación sigue activa. Si eliges Pausar y salir, se esperará la respuesta de la operación actual y no se iniciará la siguiente.':'Cerrar conserva este lote; no inicia ni repite operaciones.'),node('p','Para retomarlo, usa Consultar último lote o Consultar importación con esta referencia y después Continuar importación cuando esté disponible. Los PDF locales pendientes pueden requerir que vuelvas a seleccionar su carpeta.'),node('p','Cerrar no cancela ni revierte operaciones del servidor. Si queda un resultado sin confirmar, consulta su estado antes de continuar.'),add(node('div',undefined,'modal-actions'),button(info.activa?'Seguir importando':'Volver a la importación','cancelar-cierre'),button(info.activa?'Pausar y salir':'Cerrar y conservar lote','confirmar-cierre')));
+            }
             closePromise=new Promise(function(resolve){closeResolve=resolve;});if(queryModal.open){queryModal.close();}if(decisionModal.open){decisionModal.close();decisionKey=null;}closeModal.showModal();closeBody.querySelector('[data-doc111-action="cancelar-cierre"]').focus();return closePromise;
         }
         closeModal.addEventListener('cancel',function(event){event.preventDefault();event.stopPropagation();resolverCierre(false);});
@@ -231,7 +240,7 @@
 
         function render(model) {
             close.disabled=model.controles ? !model.controles.puedeCerrar : !!model.transicionPendiente;
-            var exitActive=!!(model.coordinacion&&model.coordinacion.activa||model.loteId&&model.busy),exitLabel=exitActive?'Pausar y salir':'Cerrar',exitText=close.querySelector('span');
+            var exitActive=!!(model.coordinacion&&model.coordinacion.activa||model.busy&&(model.loteId||model.progresoPreparacion||model.faseSolicitud==='PrepararPlan'||model.faseSolicitud==='ConfirmarPlan')),exitLabel=exitActive?'Pausar y salir':'Cerrar',exitText=close.querySelector('span');
             exitText.textContent=exitLabel;exitText.className=exitActive?'':'sr-only';close.setAttribute('aria-label',exitLabel);close.title=exitLabel;
             decisionRender(model);
             currentModel = model; var oldScroll = scroll.scrollTop;
@@ -291,10 +300,10 @@
             if (model.progresoPreparacion) {
                 var preparationProgress = model.progresoPreparacion, preparationPanel = node("section",undefined,"notice doc120-preparation-progress"), progressBar = node("progress");
                 preparationPanel.setAttribute("role","status"); preparationPanel.setAttribute("aria-live","polite");
-                preparationPanel.appendChild(node("strong",preparationProgress.fase === "REGISTRAR" ? "Registrando el inventario de la carpeta" : preparationProgress.fase === "REVISION" ? "Preparando la vista de revisión" : "Revisando los datos de los archivos"));
+                preparationPanel.appendChild(node("strong",preparationProgress.pausada&&!ocupado(model)?"Revisión en pausa":preparationProgress.fase === "REGISTRAR" ? "Registrando el inventario de la carpeta" : preparationProgress.fase === "REVISION" ? "Preparando la vista de revisión" : "Revisando los datos de los archivos"));
                 preparationPanel.appendChild(node("p", (preparationProgress.archivosRevisados || 0) + " de " + preparationProgress.totalArchivos + " archivos revisados. Todavía no se envían PDF ni se crean expedientes."));
                 progressBar.max = preparationProgress.totalArchivos; progressBar.value = preparationProgress.archivosRevisados || 0; progressBar.setAttribute("aria-label","Archivos revisados"); preparationPanel.appendChild(progressBar);
-                preparationPanel.appendChild(button(ocupado(model) ? preparationProgress.pausada ? "Pausando revisión…" : "Pausar revisión" : "Continuar revisión", ocupado(model) ? "pausar-preparacion" : "continuar-preparacion",null,!!(ocupado(model) && preparationProgress.pausada)));
+                if(ocupado(model)){preparationPanel.appendChild(button(preparationProgress.pausada?"Pausando revisión…":"Pausar revisión","pausar-preparacion",null,!!preparationProgress.pausada));}
                 content.appendChild(preparationPanel);
             }
             if (model.etapa === 0 || model.etapa === 1) {
@@ -309,7 +318,7 @@
                 if (!inventory.raices.length) { selection.appendChild(add(node("div",undefined,"empty"),icon("folder"),node("strong","Agrega tu primera carpeta"),node("p","Selecciona una carpeta en este equipo. Puedes agregar varias, una por selección."))); }
                 inventory.raices.slice((model.paginaRaices-1)*10,model.paginaRaices*10).forEach(function (r) { var files = inventory.archivos.filter(function (f) { return f.raizIdCliente === r.idCliente; }), info = add(node("div",undefined,"folder-info"),node("span",r.nombre,"folder-name"),node("span",files.length + " archivos · " + bytes(files.reduce(function (n,f) { return n + Number(f.bytes); },0)),"folder-sub")); var remove = button("Quitar","quitar-raiz",r.idCliente,ocupado(model)); remove.className = "subtle"; selection.appendChild(add(node("div",undefined,"folder-row"),add(node("div",undefined,"folder-glyph"),icon("folder")),info,remove)); }); pager(selection,model.paginaRaices,inventory.raices.length,10,"pagina-raices",ocupado(model)); content.appendChild(selection);
                 if (inventory.archivos.length) { var selectedFiles = disclosure(content,"inventario-archivos","Ver archivos seleccionados (" + inventory.archivos.length + ")",false); selectedFiles.appendChild(table(["Archivo","Ruta relativa","Tamaño","Acción"],inventory.archivos.slice((model.paginaArchivos-1)*20,model.paginaArchivos*20).map(function (f) { return [f.nombre,f.rutaRelativa,bytes(f.bytes),button("Quitar","quitar-archivo",f.idCliente,ocupado(model))]; }),true)); pager(selectedFiles,model.paginaArchivos,inventory.archivos.length,20,"pagina-archivos",ocupado(model)); }
-                footer.appendChild(node("p","Revisa los datos antes de confirmar el plan.")); footer.appendChild(button("Preparar revisión","preparar",null,ocupado(model) || !profile || !inventory.archivos.length));
+                footer.appendChild(node("p",model.puedeContinuarPreparacion?'Continúa esta misma revisión; no se enviarán PDF ni se confirmará la importación.':"Revisa los datos antes de confirmar el plan.")); footer.appendChild(button(model.puedeContinuarPreparacion?"Continuar revisión":"Preparar revisión",model.puedeContinuarPreparacion?'continuar-preparacion':"preparar",null,ocupado(model) || !profile || !inventory.archivos.length));
             } else if (model.etapa === 2) {
                 sectionHead("Revisa antes de importar","Comprueba cómo quedarán los expedientes en el destino seleccionado.",2); var result = model.plan && model.plan.resultado;
                 if (result) {
@@ -423,7 +432,7 @@
                 if (fileTable) { var fileSection = node("section",undefined,"resource-section"), filePager = fileTable.nextElementSibling; content.insertBefore(fileSection,fileTable); add(fileSection,add(node("div",undefined,"table-head"),node("h4","Archivos del lote")),filePanel && filePanel.doc111FilterBadge,filePanel,fileTable); if (filePager && filePager.classList.contains("doc111-pager")) { fileSection.appendChild(filePager); } }
                 coordinacionVista(model,guide);
             }
-            Array.prototype.forEach.call(footer.querySelectorAll("button"), function (b) { if (["preparar", "confirmar", "confirmar-importar"].indexOf(b.getAttribute("data-doc111-action")) !== -1) { b.className = "primary doc111-primary"; } });
+            Array.prototype.forEach.call(footer.querySelectorAll("button"), function (b) { if (["preparar", "continuar-preparacion", "confirmar", "confirmar-importar"].indexOf(b.getAttribute("data-doc111-action")) !== -1) { b.className = "primary doc111-primary"; } });
             summary.textContent = "";
             var configValues = [["Destino",model.contexto ? model.contexto.rutaCanonica : "Consulta una referencia autorizada"],["Perfil",profile ? (config.NombreVisible || "Perfil " + profile.PerfilId) + " · versión " + profile.NumeroVersion : "Configuración del lote confirmado"]];
             if (config) { configValues.push(["Gabinete",config.GabineteId],["Integridad",config.ModoIntegridad === "PARCIAL_PERMITIDO" ? "Se permiten resultados parciales" : config.AmbitoIntegridad === "LOTE" ? "Completa por lote" : "Completa por expediente"],["Clasificación",[config.FondoRef,config.InstrumentoRef,config.AreaRef,config.SerieRef,config.SubserieRef].filter(Boolean).join(" / ")]); }

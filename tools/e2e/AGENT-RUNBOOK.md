@@ -1,5 +1,10 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 - salida de revision antes de pausa, corte actual2026-11-19
+
+REV-EXIT01..03/tareas3.227..3.230: consentimiento del modulo antes de pausar preparacion/confirmacion/lote. Cancelar no pausa, aceptar espera, forzado invalida. Una continuacion principal/ticket vigente; perfil/inventario distintos invalidan; pausa intencional es estado y contador incorpora ultima parte confirmada. Avisos separan seleccion/metadatos/confirmacion incierta y limites tras recarga.81 casos unicos locales (63/65 +18/18 focal/core, dos reparados y16 distintos),6 nuevos;1/1 primario solapado y1000 sinteticos con presupuestos DOM/memoria.239/250 y11 pendientes previas; assets doc120-revision-salida-20261119-6 incluyen segmentador. Evidencia Validacion/doc120-revision-salida-20261119.md/JSON. Cero HTTP/SELECT/autenticacion/efectos reales, DLL o esquema. No relanzar50/51 ni ventanas cerradas; aceptacion visual actual pendiente. Otras confirmaciones legacy y permiso de carpeta del navegador no cambian. Apartados inferiores historicos.
+
+
 ## DOC-120 - salida nombrada como pausa, corte actual2026-11-19
 
 CTL-10/tareas3.224..3.226: Pausar y salir visible/accesible y en consentimiento durante actividad; Cerrar en reposo/pausa/completado. Misma espera/confirmacion/uncertumbre sin cambiar negocio.42 casos existentes verificados (34/42 +10/10 focales, dos solapados),0 nuevos y sin repetir1000.235/246 y11 pendientes previas; assets doc120-pausar-salir-20261119-5. Evidencia Validacion/doc120-pausar-salir-20261119.md/JSON. Cero HTTP/SELECT/autenticacion/efectos reales, DLL o esquema. QA historica cerrada; aceptacion visual actual pendiente. No relanzar50/51 ni ventanas cerradas; apartados inferiores historicos.
