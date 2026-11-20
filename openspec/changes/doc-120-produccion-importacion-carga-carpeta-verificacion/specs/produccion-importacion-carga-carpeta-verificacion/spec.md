@@ -604,3 +604,14 @@ El cliente SHALL mantener separado el estado de revision/importacion guardada de
 #### Scenario: QUERY-REFRESH01 - Consulta secundaria en pagina ya guardada
 - **WHEN** la pagina visible contiene archivos guardados y el lote conserva pendientes fuera de ella
 - **THEN** Actualizar estado SHALL permanecer visible junto a los resultados aunque el pie muestre Continuar importacion, y consultar SHALL actualizar solo la lectura sin iniciar efectos
+
+### Requirement: Priorizar evidencia real de guardado y controles de pausa
+La verificacion E2E SHALL diferenciar efectos reales de almacenamiento, entrega controlada de respuesta y resultados solo sinteticos.
+
+#### Scenario: STORAGE-E2E01 - Guardado con pausa, cancelacion y cierre
+- **WHEN** se ejecuta la ventana real autorizada sobre cuatro pendientes del lote52
+- **THEN** la E2E SHALL verificar pausa sin siguiente admision, cancelar cierre sin pausar, aceptar cierre esperando respuesta y continuar tras recarga sin repetir documentos
+
+#### Scenario: STORAGE-E2E02 - Controles y limites de efectos reales
+- **WHEN** se preparan o ejecutan los cuatro guardados
+- **THEN** la E2E SHALL limitar recepcion/preparacion a esos archivos, verificar RA/DA/conteos/recursos ajenos, esperar toda solicitud iniciada y preservar estados cerrados sin reintentos ni secretos persistidos
