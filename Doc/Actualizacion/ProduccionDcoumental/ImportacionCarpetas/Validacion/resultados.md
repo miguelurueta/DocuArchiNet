@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Persistencia segmentada MySQL aprobada — 2026-11-20
+
+[Resultado real](doc120-segmentada-resultado-20261120.md), [consumos/huellas](doc120-segmentada-resultado-20261120.json). Run1a31695b PASS, preparación9/plan93/lote56; tres rollbacks, partes y confirmación concurrentes, inventario íntegro y16 grupos previos conservados.33 llamadas/24 controles nativos/53 nuevos del envoltorio;106 controles acumulados incluyendo29 de92158d88 detenida.145 fuentes vigentes; cero HTTP/PDF enviados/expedientes/documentos/DDL. Cerrada y claves eliminadas; no relanzar.3.118 completa con alcance nativo y límites explícitos;260/270, diez abiertas, sin aceptación global o3.187.
+
 ## Parada nativa y adaptador de destino — 2026-11-20
 
 [Fuente y continuación acotada](doc120-segmentada-ventana-20261120.md). Run92158d88 detenido tras29 SELECT, antes del arnés mutante, sin referencias y con claves eliminadas. Error del adaptador al construir destino desde ODBC; metadatos registrados SERVER/DATABASE coinciden con huella aprobada. Corrección sin conexiones y30/30 locales, sin relajar destino. Run1a31695b preparado, check sin acceso y consumo previo conservado; sin resultado nativo nuevo. Once tareas siguen pendientes.

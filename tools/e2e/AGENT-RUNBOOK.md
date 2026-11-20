@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — persistencia segmentada real aprobada, 2026-11-20
+
+Run1a31695b3e0c4a9c9f559a205d2dcf3c cerrado PASS_SEGMENTED_REPOSITORY, secretos eliminados. E2E existentes/perfil24-v38/nivel7/141/2; preparación9/plan93/lote56, una raíz/dos inventarios/89.570 bytes declarados. Partes/sellado/confirmación concurrentes y tres rollbacks MySQL verificados;16 grupos de datos anteriores y145 fuentes intactos.33 llamadas,24 controles nativos y53 nuevos del envoltorio;82 acumulados incluyendo29 de92158d88,106 controles totales. Cero HTTP/envío PDF/expedientes/documentos/DDL. Fuente `Validacion/doc120-segmentada-resultado-20261120.md`/JSON;3.118 completa en persistencia con cobertura local anterior y límite explícito de dos conexiones, sin dos pestañas de navegador reales.260/270, diez abiertas;3.187/capacidad/aceptación global conservadas. No relanzar ventanas cerradas ni repetir planes/lotes para obtener otro PASS. Los apartados inferiores son históricos.
+
 ## DOC-120 — parada de destino y continuación preparada, 2026-11-20
 
 92158d88 cerrada STOPPED/REGISTERED_CONNECTION/DOC115_AUTHORIZED_DATABASE_CHANGED,29 SELECT/0 referencias/0 efectos y claves eliminadas. Perfil24/v38 y nivel7 validados. El adaptador usaba propiedades ODBC como destinoMySQL; resolver ahora solo SERVER/DATABASE del DSN registrado y validar huella original, nunca leer UID/PWD/configuración.30/30 locales y check de continuación1a31695b. Nueva ventana ligada porSHA al journal cerrado, guarda ausencia de mutaciones/claves eliminadas y conserva29 SELECT en máximo96 del envoltorio;64 nativos sin consumir. Abrir consola nueva mediante aprobación de apertura, no relanzar la cerrada ni reiniciar consumos. Resultado real y3.118 siguen pendientes.

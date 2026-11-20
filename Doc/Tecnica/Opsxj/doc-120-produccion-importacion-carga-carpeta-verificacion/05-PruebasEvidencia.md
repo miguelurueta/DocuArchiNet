@@ -1,5 +1,9 @@
 # DOC-120 — PruebasEvidencia
 
+## Persistencia segmentada MySQL — 2026-11-20
+
+[Resultado nativo y límites](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-segmentada-resultado-20261120.md). Run1a31695b PASS_SEGMENTED_REPOSITORY con E2E existente: preparación9/plan93/lote56, una raíz/dos inventarios; partes, sellado y confirmación concurrentes, tres rollbacks transaccionales reales.16 grupos de datos previos y145 fuentes sin cambios;106 controles acumulados, cero HTTP/PDF/expedientes/documentos/DDL. Ventana cerrada y secretos eliminados.3.118 completa en persistencia junto a regresión local previa,260/270/diez abiertas; no dos pestañas UI reales, capacidad integral o3.187 ni QA global por este resultado.
+
 ## Preparación del laboratorio segmentado — 2026-11-20
 
 [Plan y límites del arnés de 3.118](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-preparacion-repositorio-plan-20261120.md). Integración en la compilación Framework existente; 2/2 pruebas Node envolventes y 16 comprobaciones internas nuevas sin conexión. La entrada real contiene los casos de partes, sellado, confirmación concurrente y tres rollbacks; falta concretar laboratorio/manifiesto/consola y autorizar su ejecución. No modifica producto/DLL/esquema ni acredita pruebas MySQL, dos pestañas reales o QA integral. 259/270, once abiertas.

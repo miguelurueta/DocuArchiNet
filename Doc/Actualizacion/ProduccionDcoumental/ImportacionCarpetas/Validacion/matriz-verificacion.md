@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Persistencia segmentada MySQL aprobada — 2026-11-20
+
+[Resultado real y límites](doc120-segmentada-resultado-20261120.md), [JSON](doc120-segmentada-resultado-20261120.json). Run1a31695b PASS_SEGMENTED_REPOSITORY: preparación9/plan93/lote56, una raíz/dos inventarios/89.570 bytes declarados. Partes/sellado/confirmación concurrentes y tres rollbacks reales; datos previos en16 grupos y145 fuentes conservados.33 llamadas,24 SELECT nativos y53 nuevos del envoltorio;82 acumulados con29 anteriores,106 controles totales. Cero envío PDF/expedientes/documentos/DDL; claves eliminadas, ventana cerrada.3.118 completa en persistencia/cobertura mixta declarada; no dos pestañas UI reales, capacidad integral o3.187.260/270 y diez abiertas.
+
 ## Ventana nativa detenida antes de mutaciones — 2026-11-20
 
 [Resultado y corrección focal](doc120-segmentada-ventana-20261120.md): 92158d88 STOPPED/REGISTERED_CONNECTION, 29 SELECT y cero referencias/efectos; perfil E2E24/v38 y nivel7 verificados, claves eliminadas. Destino reconstruido ahora desde SERVER/DATABASE del DSN con huella original, sin leer claves ni conectar durante el diagnóstico; 30/30 locales del adaptador. Continuación 1a31695b preparada y ligada al journal anterior, conservando 29 SELECT en el tope acumulado; resultado pendiente. 259/270 y once abiertas, sin PASS MySQL por preparación.
