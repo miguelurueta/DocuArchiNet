@@ -28,4 +28,4 @@ Las dos últimas filas fijan la lectura del alcance ya verificado, sin reabrir3.
 
 ## Fundamento de la compuerta
 
-El diseño aprobado, D-10/RQ-10, exige: **«Límites necesitan aceptación expresa»** y que autoridad/destino/integridad/recuperación sin resolver bloqueen salida. No se usa CI, una casilla o una confirmación del plan local como sustituto. [Diseño](../../../../../openspec/changes/doc-120-produccion-importacion-carga-carpeta-verificacion/design.md).
+El diseño aprobado, D-10/RQ-10, exige: **«Límites necesitan aceptación expresa»** y que autoridad/destino/integridad/recuperación sin resolver bloqueen salida. No se usa CI, una casilla o una confirmación del plan local como sustituto. [Diseño](../../../../../openspec/changes/archive/2026-11-20-doc-120-produccion-importacion-carga-carpeta-verificacion/design.md).
