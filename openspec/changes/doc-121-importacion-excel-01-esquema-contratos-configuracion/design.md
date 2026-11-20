@@ -1,150 +1,64 @@
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08 -->
 ## Context
 
-DOC-121: IMPORTACION-EXCEL-01-ESQUEMA-CONTRATOS-CONFIGURACION
-
-## Jira Details
-
-> Registro del prompt 01
-> Fase 1 de 7 de la implementación de importación Excel en tablas imp_02_. Los siete tickets describen incrementos del mismo cambio funcional y se ejecutan en orden.
-> Proyecto DocuarchiNET (DOC). Sprint solicitado IMPORTAR-ARCHIVOS; nombre existente en Jira IMPOTAR-ARCHIVOS, ID 1927.
-> Dependencias de implementación exploración consolidada y decisiones aprobadas.
-> Origen inmutable dd1091a8d1ad70806509ee86e5fe53df3f2ea866. SHA-256 del prompt normalizado a UTF-8/LF cb1f3f524d4585410bbd69b5fbf0909c43187b8aa57ca31fdabfb1c92e20b1e8. Revisión estructural legacy-webforms-vb PASS, con 0 bloqueantes, 0 mayores y 0 menores.
-> Prompt completo en el repositorio
-> Exploración y diseño técnico consolidados
-> Informe de revisión del prompt
-> Contenido íntegro del prompt
-> Prompt 01 — Esquema, contratos y configuración
-> ROL ESPERADO
-> Arquitecto de aplicación y datos para Web Forms/VB.NET y MySQL 5.1.
-> OBJETIVO
-> Formalizar el cambio y producir el esquema revisable y los contratos que necesitan las fases siguientes.
-> DEPENDENCIAS
-> Comienza desde la exploración consolidada. Identifica si ya existe un cambio relacionado y reutilízalo. Si falta, crea una propuesta OpenSpec local para importacion-excel-tablas-imp y sus tareas. Conserva la relación con un ticket cuando exista.
-> CONTEXTO
-> Trabaja en D:/imagenesda/DocuachiNet/DocuArchiNet, ASP.NET Web Forms con VB.NET, .NET Framework 4.6.1 y MySQL 5.1.37. Lee AGENTS.md y Doc/Actualizacion/Importacion/Exploracion/carga-excel-csv-tablas-imp-02.md, especialmente su diseño técnico resuelto. Estos siete prompts son fases consecutivas del mismo cambio funcional. Reutiliza el cambio OpenSpec y los resultados de las fases anteriores.
-> El alcance aprobado comprende XLS y XLSX, los modos crear/agregar/reemplazar, permiso ADMINISTRAR_CARGAS_IMPORTACION en remit_dest_interno_perfil_produccion, cuenta dedicada sobre la DA autorizada, validación por carga e índice UNIQUE permanente. Agregar rechaza toda la carga ante claves repetidas internas o existentes; reemplazar valida la unicidad del archivo y sustituye el contenido autorizado. Los límites iniciales son 10.000 filas y 10 MB, configurables en servidor; 1 MB equivale a 1.000.000 bytes.
-> Reutiliza imp01_xmlconexion, imp01_plantillaimp, imp01_campos_plantilla y las tablas imp_02_* elegibles. El diseño añade CAMPO_UNICO y REVISION_CARGA a la cabecera y una tabla imp01_carga_ejecucion. Preserva la compatibilidad de las plantillas históricas y sus consumidores de SII e importación de carpetas.
-> PRECONDICIONES DE RUTAS
-> Inventariar los archivos exactos en design.md antes de editar. Contrastar cada ruta propuesta con el código existente y reutilizar las responsabilidades ya implementadas. Aplicar únicamente las modificaciones de la fase actual. Registrar los archivos nuevos de compilación y contenido en GestionDocumental-Docuarchi.net.vbproj según el patrón del proyecto.
-> Responsabilidad
-> Rutas previstas
-> Modelos
-> Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb
-> DTOs y contrato request/response
-> DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb
-> Servicios
-> Services/ProduccionDocumental/ImportacionExcel/ServicioPlantillasExcel.vb, ServicioLecturaExcel.vb, ServicioPreparacionExcel.vb y ServicioConfirmacionExcel.vb en esa misma carpeta
-> Repositorios
-> Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb y MySqlCargaExcelRepository.vb en esa misma carpeta
-> Adaptadores e infraestructura
-> Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelContextAdapter.vb, ImportacionExcelRequestGuard.vb, ImportacionExcelConexionAdapter.vb y LectorArchivoExcel.vb en esa misma carpeta
-> Servicio web
-> webservice/WebServiceImportacionExcel.asmx y webservice/WebServiceImportacionExcel.asmx.vb
-> Receptor de archivo
-> generic_control/ImportacionExcelUpload.ashx y generic_control/ImportacionExcelUpload.ashx.vb
-> Interfaz
-> js/gestion/ImportacionExcel/ImportacionExcelApi.js, js/gestion/ImportacionExcel/ImportacionExcelVista.js y Styles/ImportacionExcel.css
-> Integración existente
-> Gestion/WebFormProducionDocumental.aspx, Gestion/WebFormProducionDocumental.aspx.vb, Gestion/Class_remit_dest_interno_perfil_produccion.vb y js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js
-> Pruebas
-> tests/ImportacionExcelBehaviorTests.cs y tools/e2e/tests/importacion-excel.spec.cjs, ampliando los harness y utilidades existentes cuando corresponda
-> Las rutas propuestas delimitan responsabilidades. Ajustar la división de archivos a la implementación real y registrar la justificación en design.md.
-> RESTRICCIONES CRÍTICAS
-> Mantener la sesión y empresa como autoridad. El navegador envía referencias, nunca un servidor, base o cadena de conexión elegidos libremente.
-> 
-> No imprimir ni persistir credenciales, cookies, tokens o cadenas de conexión en código, documentación o evidencias. Usar secretos efímeros durante pruebas y configuración protegida para la cuenta del servidor.
-> 
-> No modificar AlmacenamientoDocumentoProduccionDocumental ni SII para resolver la carga tabular. Preservar los contratos de los consumidores existentes.
-> 
-> CSV, migración entre gabinetes, omisión de duplicados y actualización automática por coincidencia de clave están fuera de alcance.
-> 
-> El agente genera los cambios SQL en archivos e indica su ejecución manual por el usuario. No debe ejecutar SQL modificador de esquema, datos o permisos ni aplicar archivos SQL directa o indirectamente. La comprobación posterior utiliza exclusivamente SELECT después de la confirmación de ejecución manual.
-> 
-> Conservar los cambios ajenos presentes en el repositorio local y agrupar las entregas conforme al flujo del cambio.
-> 
-> FLUJO OBLIGATORIO DE SQL MANUAL
-> Generar los cambios SQL como archivos nuevos y versionables en Doc/Actualizacion/Importacion/Sql/. Cubrir instalación, tablas, columnas, índices, permisos y cualquier corrección o preparación de datos que se necesite. Conservar los scripts históricos ya aplicados y entregar las correcciones en otro archivo.
-> 
-> Entregar una guía con archivo, orden, destino RA/DA, precondiciones, efectos previstos y consultas SELECT de comprobación. Mantener las credenciales fuera del SQL entregado.
-> 
-> Indicar al usuario qué archivo debe ejecutar manualmente. El agente no debe ejecutar SQL modificador ni aplicar esos archivos, tampoco mediante scripts de arranque, tests o una ruta indirecta de la aplicación.
-> 
-> Esperar la confirmación de ejecución manual del usuario antes de verificar ese cambio en la base. Registrar PENDIENTE_EJECUCION_MANUAL mientras esa confirmación falte y continuar el trabajo local independiente.
-> 
-> Después de la confirmación, revisar el resultado mediante consultas exclusivamente SELECT y evidencia saneada. Registrar diferencias y, si hace falta otra modificación, generar un nuevo archivo para ejecución manual.
-> 
-> La ausencia de errores en un archivo o su entrega no acredita que esté aplicado. La revisión posterior debe comprobar las estructuras, índices, relaciones y permisos observables correspondientes y registrar cualquier aspecto que requiera evidencia del usuario.
-> 
-> El código del cargador implementa los modos funcionales acordados para uso del usuario. La instalación o adecuación de su base sigue esta secuencia manual y debe estar verificada antes de probar las operaciones que dependan de ella.
-> IMPLEMENTACIÓN DE ESTA FASE
-> Contrastar los tres catálogos históricos, sus claves foráneas, nulabilidad y consumidores. Partir del inventario comprobado en la exploración y registrar las comprobaciones de metadatos que se puedan realizar mediante SELECT.
-> 
-> Generar archivos SQL incrementales para ADMINISTRAR_CARGAS_IMPORTACION TINYINT UNSIGNED NOT NULL DEFAULT 0 en RA, CAMPO_UNICO VARCHAR(64) ASCII nullable y REVISION_CARGA INT UNSIGNED DEFAULT 1 al final de imp01_plantillaimp en DA, e imp01_carga_ejecucion InnoDB con el contrato de la exploración. Mantener las columnas históricas en su orden y registrar la compatibilidad. Entregar los archivos para ejecución manual del usuario.
-> 
-> Preparar el procedimiento revisable de adecuación por tabla para NOT NULL e índice UNIQUE completo, o compuesto por empresa y clave cuando corresponda. Diagnosticar duplicados, NULL, vacíos, collation, charset y límites del índice antes de proponer DDL.
-> 
-> Definir el contrato de listar/consultar/guardar plantilla, recibir archivo, preparar, confirmar y consultar carga. Detallar campos obligatorios, identidad de ejecución, errores, revisiones, hashes y estados RECIBIDA, PREPARADA, CONFIRMADA y FALLIDA.
-> 
-> Especificar la fase CREATE identificada por comentario con ID de carga y la consulta ante un commit o respuesta inciertos. Separar los límites transaccionales de DDL y DML en el diseño.
-> 
-> Definir MaxFilasDatos=10000 y MaxArchivoMB=10 como parámetros independientes del servidor y la vinculación entre ámbito, DA y conexión histórica.
-> 
-> Preparar una guía de la cuenta dedicada y archivos revisables de concesiones para ejecución manual. Explicitar que la concesión a la base abarca técnicamente sus tablas y que el módulo valida las tablas elegibles; MySQL 5.1 no concede permisos por prefijo de tabla.
-> 
-> Convertir el diseño en tareas verificables, con archivos afectados, dependencias y criterios de terminación. Esta fase entrega contratos y SQL para revisión.
-> 
-> CRITERIOS DE ACEPTACIÓN
-> El esquema conserva los catálogos históricos y concreta una única tabla operativa nueva.
-> 
-> El contrato permite recuperación e idempotencia, autorización por empresa y diagnóstico de errores.
-> 
-> SQL y configuración son compatibles con MySQL 5.1 y distinguen RA y DA lógicas.
-> 
-> Entregar archivos separados para el permiso RA, extensiones de plantilla DA, tabla de ejecuciones DA, índices específicos y concesiones de la cuenta. Incluir un archivo de preflight exclusivamente SELECT y otro de verificación posterior exclusivamente SELECT.
-> 
-> La guía indica el orden de ejecución manual, el destino de cada archivo y las consultas esperadas. La aplicación queda pendiente hasta que el usuario confirme su ejecución y se revise el resultado mediante SELECT.
-> 
-> E2E no aplica a esta fase de solo contratos y SQL revisable, sin recorrido de usuario. Registrar esa justificación y la aceptación integrada prevista en las fases 06 y 07.
-> 
-> Revisar de forma estática el SQL y los contratos; la compilación se exige sobre cualquier archivo compilable que efectivamente se incorpore.
-> 
-> PRUEBAS OBLIGATORIAS
-> Realiza la compilación MSBuild o el build pertinente al alcance de esta fase, y pruebas unitarias o QA manual reproducible que acrediten sus criterios. Registra comandos, resultado, SHA, ambiente y límites de evidencia. Las pruebas locales o con transporte simulado se identifican como tales.
-> El E2E del recorrido ejecutable es parte integral del mismo cambio funcional. Reutilizar tools/e2e y su autenticación, configuración, validadores y utilidades existentes, sin infraestructura paralela. Antes de autenticar, leer AGENTS.md y tools/e2e/AGENT-RUNBOOK.md. La ejecución real requiere autorización explícita de ambiente, cuentas y datos descartables. Cubrir control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión del alcance modificado. Los tests no deben instalar, migrar, sembrar, limpiar o reparar la base mediante SQL automático. La instalación se ejecuta manualmente por el usuario y se revisa mediante SELECT antes de los recorridos dependientes. Las verificaciones locales usan fixtures sintéticos sin escrituras en bases reales. Las escrituras funcionales de una prueba real requieren el alcance específico autorizado de esa prueba y no sustituyen la ejecución manual de los archivos SQL.
-> Mantener secretos efímeros y evidencia saneada, con consultas de control solo SELECT. Respetar los gates de autorización vigentes. No habilitar permisos arbitrariamente. El criterio de cierre del cambio exige validación autorizada y registrar cualquier bloqueo explícito. Los mocks, simulaciones y evidencia ficticia no acreditan una ejecución real. Las fases de base técnica documentarán la justificación cuando E2E no aplique todavía a su entrega.
-> DOCUMENTACIÓN TÉCNICA
-> Ubicar y actualizar la documentación existente en Doc/Actualizacion/Importacion/. Conservar la exploración como antecedente y registrar el diseño, las decisiones y los contratos vigentes del cambio OpenSpec. Guardar el SQL revisable en Doc/Actualizacion/Importacion/Sql/, y la evidencia y matriz de verificación en Doc/Actualizacion/Importacion/Validacion/. Añadir únicamente los documentos necesarios para explicar la entrega de esta fase.
-> ENTREGABLE FINAL
-> Cambio OpenSpec con propuesta, especificaciones, design.md, tareas, SQL revisable y contrato de configuración y request/response. Entregar inventario, comandos de revisión y las decisiones que requieran comprobación en despliegue.
+DOC-121 entrega la fase 01 contractual de importación XLS/XLSX a `imp_02_`. Lectura, endpoints y UI pertenecen a fases 02–07. Perfil legacy-webforms-vb, Web Forms/VB.NET, Framework 4.6.1 y MySQL 5.1.37 histórico. RA/DA son destinos lógicos que pueden ser bases distintas.
 
 ## Goals / Non-Goals
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
-
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+Inventario, contrato de datos/request-response/configuración, SQL manual y revisión estática. Flujo acordado: archivo completo, preparación integral, confirmación transaccional y resultado por ID. Fuera de alcance: CSV, pausa por fila, subida reanudable por bytes, workers, upsert, omitir duplicados, cambios SII/carpetas y aplicar instalación automáticamente.
 
 ## Decisions
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-01 — Catálogos y compatibilidad (RQ-01)
 
-## Perfil tecnologico
+Conservar los tres catálogos `imp01_*`, sus PK/FK, nombres y orden históricos. Agregar al final de `imp01_plantillaimp` CAMPO_UNICO VARCHAR(64) ASCII nullable y REVISION_CARGA INT UNSIGNED NOT NULL DEFAULT 1. Plantillas sin clave siguen siendo legibles para SII; requieren adecuación antes de escribir desde web. No modificar mapeos ni opciones históricas durante instalación.
 
-- Perfil de revision: legacy-webforms-vb (v1).
-- Alcance: ASP.NET Web Forms, code-behind VB.NET/C# y JavaScript gradual.
-- Este perfil orienta la revision tecnica; no reemplaza los requisitos funcionales ni arquitectonicos del ticket.
+Inventario y contratos en `Doc/Actualizacion/Importacion/Diseno/01-contratos-configuracion-doc121.md`. Los consumidores inspeccionados seleccionan columnas explícitas. Los metadatos del 11 de noviembre no son comprobación actual; no reducir BENEFICIARIO a su longitud histórica después de la ampliación informada por el usuario.
+
+### D-02 — Instalación incremental manual (RQ-02)
+
+Paquete `Doc/Actualizacion/Importacion/Sql/`: 00 preflight SELECT en RA y DA; 01 permiso RA; 02 extensión DA; 03 ejecución DA; 04 adecuación de clave por tabla; 05 concesiones DA; 06 postflight SELECT. DDL de una sola aplicación, después de comprobar ausencia/compatibilidad; no ocultar incompatibilidades mediante IF NOT EXISTS. Un paso ya aplicado se verifica y omite. Un esquema parcial requiere otro archivo revisado.
+
+04 genera una propuesta de ALTER desde metadatos reales, preservando tipo/charset/collation. El usuario la guarda como nuevo SQL específico y la revisa antes de aplicar; controles de datos, aislamiento e índices son precondiciones independientes. 05 es una plantilla administrativa a completar localmente con base/cuenta/host existentes; no contiene contraseñas. Instalación inicial PENDIENTE_EJECUCION_MANUAL. Confirmación y SELECT posterior se acreditan aparte.
+
+### D-03 — Registro operativo (RQ-03)
+
+Solo una tabla nueva `imp01_carga_ejecucion`, InnoDB, en la DA del destino; ID CHAR(36) ASCII binario generado por servidor, sin FK hacia legacy/otras bases. Usuario/ámbito VARCHAR(128) ASCII; nombre original UTF8 descriptivo, referencia privada de 120 caracteres, bytes/hash BINARY(32). Configuración canónica ASCII escapada LONGTEXT, huellas BINARY(32) y revisión de plantilla. Preparación puede ser NULL en RECIBIDA; no usar CHECK ignorados, JSON nativo o triggers.
+
+RECIBIDA/PREPARADA/CONFIRMADA/FALLIDA son estados validados por aplicación. PREPARADA exige configuración y huellas; CONFIRMADA exige conteos/fecha y commit coherentes. FALLIDA solo tras fallo conocido y rollback comprobado. Un acuse perdido no degrada el commit. Índices ámbito/usuario/fecha, plantilla/fecha y ámbito/destino/estado. Resultado histórico independiente de la configuración futura.
+
+### D-04 — Autoridad y configuración (RQ-04)
+
+Permiso RA ADMINISTRAR_CARGAS_IMPORTACION TINYINT UNSIGNED NOT NULL DEFAULT 0, sin habilitar usuarios en instalación. La fase 02 reconstruye usuario/empresa/perfil de permisos RA; no exige administrar perfiles ni reutiliza su resolvedor como autorización del cargador. Protección de solicitud con propósito propio: sesión/ámbito/origen/tipo/tamaño. Reutilizar patrones existentes sin compartir automáticamente su token.
+
+MaxFilasDatos=10000 y MaxArchivoMB=10; MB=1000000 bytes. Enteros positivos, independientes y de servidor, visibles al operador. Comprobar bytes al recibir, filas al preparar y vigencia antes de confirmar. Vinculación protegida ámbito/DA/ID_XMLCONEXION/cuenta dedicada; el cliente no escoge host/base/credenciales. Privilegios acordados SELECT/INSERT/UPDATE/DELETE/CREATE/ALTER/INDEX/CREATE TEMPORARY TABLES sobre esa DA, sin DROP/globales/GRANT OPTION. La concesión de base alcanza técnicamente todas sus tablas; la aplicación limita destinos elegibles.
+
+### D-05 — Clave y fuente de índices (RQ-05)
+
+Tablas nuevas `imp_02_<nombre>` e identificadores ASCII válidos de hasta 64 caracteres. PK técnica histórica opcional. Clave de negocio requerida, sin NULL/vacíos y UNIQUE completo, no un prefijo. Fuente exclusiva: clave; compartida: empresa+clave según autorización. Duplicados comparados con tipo/collation MySQL reales. No reducir longitudes, limpiar datos o cambiar aislamiento en instalación.
+
+Tipos nuevos VARCHAR(250), INT, DECIMAL(18,2), DATE según selección; existentes conservan capacidad real. Contrastar bytes de índice, nulabilidad/defaults/comentarios e índices equivalentes. El generador no acredita datos. Después de confirmar datos, registrar/activar fuente y publicar proveedor por servicios existentes; no conceder autorizaciones mediante semillas SQL.
+
+### D-06 — HTTP y preparación (RQ-06)
+
+Contrato en `Diseno/01-contratos-configuracion-doc121.md`: contexto, listar/consultar/guardar plantilla, recibir, preparar, confirmar y consultar resultado. Son operaciones previstas, no endpoints disponibles. IDs/referencias de servidor, modos CREAR/AGREGAR/REEMPLAZAR; archivo multipart y resto JSON acotado. Encabezado en primera fila; contar filas de datos no vacías de la hoja elegida.
+
+Preparar valida archivo completo, mapeos, tipos/rangos/charset, nulabilidad, índice, duplicados y modo; muestra acotada y resumen completo. Solo publica PREPARADA sin incidencias, fijando archivo/configuración/esquema. Efectos limitados al staging, registro y objetos temporales; no cambiar filas destino. Cambios posteriores, incluso de plantilla antigua sin incremento de revisión, producen conflicto antes de escribir. No transportar el conjunto de filas desde el navegador como autoridad de confirmación.
+
+### D-07 — Confirmación y recuperación (RQ-07)
+
+Confirmar reautoriza y verifica identidad/contenido; si ya está CONFIRMADA devuelve el histórico. Para la ejecución sin confirmar, bloqueo cooperativo por DA física+tabla, transacción InnoDB y bloqueo/relectura de registro/configuración. Releer una confirmación concurrente ganadora antes de escribir. El bloqueo se comparte entre ámbitos sobre la misma tabla; UNIQUE protege frente a escritores externos.
+
+AGREGAR rechaza conflictos e inserta por parámetros en agrupaciones acotadas. REEMPLAZAR usa DELETE filtrado+INSERT en una transacción, conservando estructura. CONFIRMADA y datos se confirman juntos. Fallo conocido: rollback completo y registro seguro posterior de FALLIDA sin sobrescribir otro ganador. Incertidumbre: consulta por ID, sin retry automático o liberación por tiempo.
+
+CREAR es DDL separado, con comentario `ImportacionExcel:<idCarga>` y huella para verificar tabla propia ante acuse perdido. CREATE no tiene rollback DML: puede quedar tabla propia vacía; un nombre ajeno es conflicto, nunca DROP/recreación automática. Agrupaciones INSERT no son commits parciales ni puntos de pausa. Cerrar navegador no autoriza repetir; consulta y confirmación son distintas.
+
+### D-08 — Evidencia y entrega (RQ-08)
+
+Revisión estática SQL/MySQL 5.1, contratos y trazabilidad; no simular aplicación. E2E/build de producto no aplican a documentos/SQL sin compilables. Usar herramientas existentes de gobierno y matriz con SHA/hashes/comandos/resultado/límites. La fase contractual puede entregarse con instalación sin ejecutar; las fases dependientes requieren confirmación y SELECT posterior. Aceptación de capacidad/concurrencia/rollback corresponde a fases ejecutables.
 
 ## Risks / Trade-offs
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+Los prompts elegidos no agregan versionado de datos de fuente ni bloqueo de reemplazo por importaciones activas. Una versión de perfil no congela las filas de la fuente; la regresión posterior debe registrar el comportamiento de valores fijados/diferidos sin prometer otra política. No se cambia Web.config ni se instalan librerías aquí.
 
-## Migration Plan
-
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
-
-## Open Questions
-
-- TBD
+La reversión de código conserva objetos aditivos y no reactiva automáticamente permisos. Cualquier reversión estructural exige otro SQL revisado; no entregar DROP o limpieza como desinstalación automática. El operador determina respaldo/ventana de sus DDL y concesiones.

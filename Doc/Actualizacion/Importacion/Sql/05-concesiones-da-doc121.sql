@@ -1,0 +1,13 @@
+-- DOC-121 | PLANTILLA ADMINISTRATIVA | EJECUCION MANUAL DEL DBA
+-- Completar una COPIA LOCAL con base DA, cuenta dedicada y host de la app.
+-- La cuenta debe existir y su secreto se provisiona fuera de Git.
+-- No convertir el host en %, ni usar *.*. No conceder DROP o GRANT OPTION.
+-- Este archivo comentado NO crea cuentas ni modifica privilegios por si solo.
+-- Revisar metadatos de privilegios de 00/06 y el aprovisionamiento con el DBA.
+-- La concesion a DA abarca todas sus tablas actuales y futuras; el prefijo
+-- imp_02_ es una restriccion de aplicacion, no una concesion nativa por prefijo.
+-- SQL a completar y descomentar exclusivamente en la copia administrativa:
+-- GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX,
+--       CREATE TEMPORARY TABLES
+-- ON `BASE_DA_AUTORIZADA`.* TO 'CUENTA_DEDICADA_EXISTENTE'@'HOST_APLICACION';
+-- GRANT no habilita ADMINISTRAR_CARGAS_IMPORTACION en usuarios de la app.
