@@ -262,6 +262,21 @@ DOC-120 SHALL cumplir la decisión D-04: Mapear UI01–05 al menú superior/cont
 - **THEN** el consentimiento distingue el resultado posible del servidor y conserva plan/lote sin replay; aceptar espera lo iniciado y cancelar no interrumpe ni reinicia
 - **AND** desmontaje forzado descarta callbacks; preparacion advierte que salir libera File y tras recarga puede requerir nueva seleccion/revision, sin prometer restauracion de archivos no construida
 
+#### Scenario: CTX-EXIT01 Lote consultado pendiente con formulario guardado vacio
+- **WHEN** se abre el formulario vacio, consulta un lote pendiente, vinculan originales y continua
+- **THEN** Pausar y salir o Escape solicitan consentimiento del lote visible aunque importacionGuardada este vacia, sin aplicar pausa previamente
+- **AND** cancelar conserva ejecucion; aceptar espera solicitud/lectura y no admite siguiente fase ni repite confirmacion del lote
+
+#### Scenario: CTX-EXIT02 Referencias de contextos guardados separadas
+- **WHEN** el lote visible difiere de una revision sin confirmar o de otro lote guardado
+- **THEN** el consentimiento identifica el lote actual y advierte aparte de la seleccion u otro lote guardado, sin usar su identidad como si fuera la del actual
+- **AND** no se heredan File por idCliente ni se atribuyen ausencia de PDF o resultados de una revision al otro lote
+
+#### Scenario: CTX-EXIT03 Salida de completado con o sin trabajo guardado
+- **WHEN** el lote visible termina y se solicita cerrar
+- **THEN** cierra directamente si no hay seleccion sin confirmar u otro lote pendiente guardado; en caso contrario identifica ese trabajo guardado antes de liberar seleccion
+- **AND** preserva cancelacion/espera, incertidumbre y limites de recuperacion vigentes sin crear nuevas operaciones
+
 ### Requirement: RQ-05 — Integridad, incertidumbre y consumidores
 Ampliación aprobada2026-11-17: D-04/D-05/D-09 autorizan el control ReanudarLote y la espera de respuesta según Diseno/espera-respuesta-reanudacion-lote-doc120.md. Sin nuevas tablas, escritores o efectos reales autorizados por la implementación local.
 DOC-120 SHALL cumplir la decisión D-05: Relacionar EXPEDIENTE/LOTE y PARCIAL_PERMITIDO/NO_APLICA, valores diferidos y fecha estable, revocación, stop e incertidumbre con casos del arnés existente. Comprobar contrato del plugin en sus26 registros/22archivos y carga individual pertinente. Un callback sintético no demuestra la acción de negocio real de cada módulo.

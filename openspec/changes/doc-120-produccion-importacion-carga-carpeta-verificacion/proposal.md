@@ -4,6 +4,8 @@ DOC-120 consolida la verificación de importación de carpetas sobre la interfaz
 
 ## What Changes
 
+Video200257: al retomar un lote consultado, cerrar prioriza el lote visible pendiente sobre una preparacion guardada vacia o completada. Seleccion sin confirmar u otro lote guardado se advierten por separado. Cancelar conserva ejecucion; aceptar espera acuse. CTX-EXIT01-03/tareas3.231-3.234; ajuste cliente y pruebas sinteticas locales, sin operaciones reales nuevas.
+
 Video191801: consentimiento del modulo previo a pausar tambien en preparacion/confirmacion; cancelar conserva ejecucion. Una continuacion principal sobre ticket vigente y contador de ultima parte confirmada, con invalidacion al cambiar perfil/seleccion. REV-EXIT01-03/tareas3.227-3.230; cliente/local, sin operaciones reales nuevas.
 
 Aprobacion explicita2026-11-19: control y consentimiento activos se presentan como Pausar y salir, con Cerrar en reposo/pausa/completado. CTL-10/tareas3.224-3.226; solo etiqueta/accesibilidad, espera y negocio existentes conservados.

@@ -639,10 +639,15 @@
             var session = active;
             if (!force && session) {
                 if (session.solicitudCierre || session.model.transicionPendiente) { return Promise.resolve(false); }
-                var preparation = session.importacionGuardada ? session.importacionGuardada.model : session.model,info=null,inventory=session.inventory.manifiesto();
+                var current=session.model,preparation=session.importacionGuardada?session.importacionGuardada.model:current,info=null,inventory=session.inventory.manifiesto();
                 if(session.confirming||preparation.confirmacionIncierta){info={tipo:'CONFIRMACION',planId:session.confirming&&session.confirming.planId||host.doc111ConfirmacionPendiente&&host.doc111ConfirmacionPendiente.planId,activa:!!session.trabajoActual};}
-                else if(preparation.loteId&&(!preparation.estado||preparation.estado.estado!=='COMPLETADO')){info={tipo:'LOTE',loteId:preparation.loteId,activa:politicaControles(session.model).ejecutando||!!session.trabajoActual};}
-                else if(!preparation.loteId&&inventory.archivos.length){info={tipo:'PREPARACION',archivos:inventory.archivos.length,preparacionId:preparation.progresoPreparacion&&preparation.progresoPreparacion.preparacionId,planId:preparation.plan&&preparation.plan.planId,activa:session.model===preparation&&!!session.trabajoActual};}
+                else if(current.loteId&&(!current.estado||current.estado.estado!=='COMPLETADO')){info={tipo:'LOTE',loteId:current.loteId,activa:politicaControles(current).ejecutando||!!session.trabajoActual};}
+                else if(preparation.loteId&&(!preparation.estado||preparation.estado.estado!=='COMPLETADO')){info={tipo:'LOTE',loteId:preparation.loteId,vistaGuardada:preparation!==current,activa:politicaControles(current).ejecutando||!!session.trabajoActual};}
+                else if(!preparation.loteId&&inventory.archivos.length){info={tipo:'PREPARACION',archivos:inventory.archivos.length,vistaGuardada:preparation!==current,preparacionId:preparation.progresoPreparacion&&preparation.progresoPreparacion.preparacionId,planId:preparation.plan&&preparation.plan.planId,activa:current===preparation&&!!session.trabajoActual};}
+                if(info&&info.tipo==='LOTE'&&preparation!==current){
+                    if(!preparation.loteId&&inventory.archivos.length){info.archivosRevisionGuardada=inventory.archivos.length;}
+                    else if(preparation.loteId&&preparation.loteId!==info.loteId&&(!preparation.estado||preparation.estado.estado!=='COMPLETADO')){info.loteGuardado=preparation.loteId;}
+                }
                 if (info) {
                     var request = session.view.confirmarCierre(info);
                     session.solicitudCierre = request;

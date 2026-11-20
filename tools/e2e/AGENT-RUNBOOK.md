@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 - consentimiento del lote consultado, corte2026-11-19
+
+CTX-EXIT01..03/tareas3.231..3.234: el lote visible pendiente tiene prioridad sobre preparacion guardada vacia/completada; revision/otro lote guardado se advierten aparte. Cancelar no pausa; aceptar espera acuse sin otro efecto.53/53 Chromium sinteticos,5 nuevos; rojo0/2 y focal5/5, texto1/1 solapado,1280/768/390.243/254 y11 pendientes previas; assets doc120-salida-consulta-20261119-7. Evidencia Validacion/doc120-salida-consulta-20261119.md/JSON. Cero HTTP/SELECT/autenticacion/efectos reales, DLL o esquema. Sin operaciones reales sobre52 ni reapertura de QA cerrada. Aceptacion visual actual pendiente; apartados inferiores historicos.
+
 ## DOC-120 - salida de revision antes de pausa, corte actual2026-11-19
 
 REV-EXIT01..03/tareas3.227..3.230: consentimiento del modulo antes de pausar preparacion/confirmacion/lote. Cancelar no pausa, aceptar espera, forzado invalida. Una continuacion principal/ticket vigente; perfil/inventario distintos invalidan; pausa intencional es estado y contador incorpora ultima parte confirmada. Avisos separan seleccion/metadatos/confirmacion incierta y limites tras recarga.81 casos unicos locales (63/65 +18/18 focal/core, dos reparados y16 distintos),6 nuevos;1/1 primario solapado y1000 sinteticos con presupuestos DOM/memoria.239/250 y11 pendientes previas; assets doc120-revision-salida-20261119-6 incluyen segmentador. Evidencia Validacion/doc120-revision-salida-20261119.md/JSON. Cero HTTP/SELECT/autenticacion/efectos reales, DLL o esquema. No relanzar50/51 ni ventanas cerradas; aceptacion visual actual pendiente. Otras confirmaciones legacy y permiso de carpeta del navegador no cambian. Apartados inferiores historicos.

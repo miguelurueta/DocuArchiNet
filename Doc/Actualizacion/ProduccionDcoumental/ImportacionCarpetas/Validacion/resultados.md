@@ -1,5 +1,10 @@
 # DOC-120 — índice cronológico de resultados
 
+## Salida desde lote consultado - corte local2026-11-19
+
+[Dictamen](doc120-salida-consulta-20261119.md) y [fuentes/resultados](doc120-salida-consulta-20261119.json). Video200257: preparacion guardada vacia ocultaba consentimiento del lote visible. Ahora se prioriza el lote actual pendiente y se advierte aparte revision/otro lote guardado; cancelar conserva ejecucion y aceptar espera acuse. CTX-EXIT01-03/tareas3.231-3.234, cinco casos nuevos; reproduccion roja0/2, focal5/5 y regresion53/53; texto1/1 solapado. Cabecera visible/scroll a1280-768-390.243/254 tareas,103 escenarios,11 pendientes previas. Assets doc120-salida-consulta-20261119-7; cero autenticacion/HTTP/SELECT/efectos reales, DLL o esquema. Aceptacion visual actual pendiente; sin operaciones sobre52 ni replay de ventanas cerradas. Cortes inferiores historicos.
+
+
 ## Salida de revision antes de pausar - corte local2026-11-19
 
 [Dictamen](doc120-revision-salida-20261119.md) y [fuentes/resultados](doc120-revision-salida-20261119.json). Video191801 cancela aviso nativo y queda pausado600/1000. Consentimiento del modulo ahora precede pausa para preparacion/confirmacion/lote; cancelar conserva ejecucion, aceptar espera lo iniciado. Una continuacion principal sobre ticket vigente, cambios invalidan preparacion y contador incluye ultima parte confirmada.81 unicos locales (63/65 amplios +18/18 focal/core, con dos reparados y16 distintos);6 nuevos y1/1 estilo primario solapado.1000 sinteticos/DOM/memoria aprobados, sin capacidad real nueva.239/250 tareas,100 escenarios,11 pendientes previas. Assets doc120-revision-salida-20261119-6 incluyen segmentador. Sin autenticacion/HTTP/SELECT/efectos reales, DLL o esquema; aceptacion visual actual pendiente. Cortes inferiores historicos.
