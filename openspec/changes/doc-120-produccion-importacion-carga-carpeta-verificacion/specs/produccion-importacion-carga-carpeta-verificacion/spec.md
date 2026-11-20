@@ -629,3 +629,14 @@ La verificacion final SHALL distinguir el reporte del usuario, la preparacion lo
 #### Scenario: COMPLETED-CHECK01 - Conteos y relaciones del lote completado
 - **WHEN** se autoriza una nueva ventana de10 SELECT sobre el lote52 reportado completado
 - **THEN** el diagnostico SHALL exigir1000 resultados confirmados unicos RA/DA, vinculo al expediente696 y relacion1120, ausencia de intentos sin resolver y lecturas repetidas estables, sin operaciones de negocio ni declarar integridad fisica/capacidad total por esos metadatos
+
+### Requirement: Abrir por identidad un expediente confirmado desde el resultado
+La accion explicita Ver expediente SHALL reutilizar la navegacion existente por relacion, nivel e ID, conservando el aislamiento de contenedores ocultos.
+
+#### Scenario: TREE-ACCESS01 - Nodo existente bajo rama contraida
+- **WHEN** se solicita Ver expediente y existe un unico enlace logico con su relacion, nivel e ID bajo ramas nXNodes contraidas de un arbol visible
+- **THEN** el cliente SHALL permitir al buscador existente expandirlas y consultar sus archivos, aunque otros expedientes tengan el mismo codigo, sin repetir efectos de importacion
+
+#### Scenario: TREE-ACCESS02 - Destino no representado, oculto o ambiguo
+- **WHEN** el arbol o un contenedor ajeno a las ramas esta oculto, falta la identidad o hay mas de un enlace logico para ella
+- **THEN** el cliente SHALL conservar el aviso y no seleccionar otro expediente ni revelar ese contenedor, y una consulta de seguimiento SHALL conservar la expansion previa

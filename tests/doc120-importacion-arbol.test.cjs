@@ -11,7 +11,7 @@ async function tree(page,{branch=false}={}){
   window.$=value=>{const result=typeof value==='string'?Array.from(document.querySelectorAll(value)):[];result.ready=()=>{};result.on=()=>{};result.autocomplete=options=>{window.searchOptions=options;};return result;};window.alert=message=>{throw new Error(message);};
  },branch);
  await page.addScriptTag({path:production});
- await page.evaluate(()=>{SELECCION_TREVIEW_ID='TreeViewArchivot2';ITEMS_DATOS=[{id:'TreeViewArchivot1',text:'Origen',value:'Origen'},{id:'TreeViewArchivot2',text:'Origen',value:'Origen'}];window.clicks=[];window.OnTreeNodeClicked=id=>clicks.push(id);window.OnSearchClick=id=>clicks.push(id);
+ await page.evaluate(()=>{window.doc120NativeSearch=OnSearchClick;SELECCION_TREVIEW_ID='TreeViewArchivot2';ITEMS_DATOS=[{id:'TreeViewArchivot1',text:'Origen',value:'Origen'},{id:'TreeViewArchivot2',text:'Origen',value:'Origen'}];window.clicks=[];window.OnTreeNodeClicked=id=>clicks.push(id);window.OnSearchClick=id=>clicks.push(id);
   const original=XMLHttpRequest.prototype.send;XMLHttpRequest.prototype.send=function(body){const request=JSON.parse(body).solicitud,op=this.operation;if(op==='ConsultarLote'||op==='ConsultarRecursosLote'){const callback=this.onload;this.onload=()=>{const response=JSON.parse(this.responseText),data=response.datos;if(op==='ConsultarLote')Object.assign(data,{estado:'COMPLETADO',revision:9,accionesPermitidas:['CONSULTAR','CONSULTAR_RAICES','EXPORTAR_PAGINA']});else if(request.tipo==='RAICES')for(const r of data.elementos)Object.assign(r,{estado:'COMPLETADA',expedienteId:'60',relacionNivelId:'70',nombreExpediente:'Egreso confirmado distinto del código',codigoExpediente:'EGR-00029 <b>texto</b>',tieneIntentoActivo:false});this.responseText=JSON.stringify(response);callback();};}original.call(this,body);};
  });
  await page.locator('[data-doc111-open]').click();await page.getByLabel('Perfil publicado').waitFor();
@@ -63,6 +63,35 @@ test('DOC120-TREE06: códigos iguales conservan dos expedientes por sus IDs y ac
 test('DOC120-TREE07: código ausente no usa nombre ni carpeta como etiqueta de reemplazo',()=>fixture(async page=>{
  await tree(page);await page.evaluate(({context,row})=>{for(const code of [null,undefined,'','   '])Doc111ActualizarRama(context,[{...row,codigoExpediente:code}]);},{context,row});assert.equal(await page.locator('#TreeViewArchivo a[title="70|7|60|"]').count(),0);
 }));
-test('DOC120-TREE08: acceso usa ID exacto y rechaza nodos ocultos o ambiguos sin llamadas adicionales',()=>fixture(async page=>{
- await tree(page);const result=await page.evaluate(({context,row})=>{Doc111ActualizarRama(context,[row,{...row,expedienteId:'61',relacionNivelId:'71'}]);const branch=document.getElementById('TreeViewArchivon1Nodes');branch.style.display='block';const exact=Doc120MostrarExpediente({...row,expedienteId:'61',relacionNivelId:'71'},context);const target=document.querySelector('a[title="71|7|61|"]');const duplicate=target.cloneNode(true);duplicate.id='TreeViewArchivot999';target.parentElement.appendChild(duplicate);const ambiguous=Doc120MostrarExpediente({...row,expedienteId:'61',relacionNivelId:'71'},context);duplicate.remove();branch.style.display='none';const hidden=Doc120MostrarExpediente(row,context);return{exact,ambiguous,hidden,clicks:clicks.length,selected:clicks[0],expected:target.id};},{context,row});assert.deepEqual(result,{exact:true,ambiguous:false,hidden:false,clicks:1,selected:result.expected,expected:result.expected});
+test('DOC120-TREE08: acceso usa ID exacto y rechaza arbol oculto o nodos ambiguos sin llamadas adicionales',()=>fixture(async page=>{
+ await tree(page);const result=await page.evaluate(({context,row})=>{Doc111ActualizarRama(context,[row,{...row,expedienteId:'61',relacionNivelId:'71'}]);const branch=document.getElementById('TreeViewArchivon1Nodes');branch.style.display='block';const exact=Doc120MostrarExpediente({...row,expedienteId:'61',relacionNivelId:'71'},context);const target=document.querySelector('a[title="71|7|61|"]');const duplicate=target.cloneNode(true);duplicate.id='TreeViewArchivot999';target.parentElement.appendChild(duplicate);const ambiguous=Doc120MostrarExpediente({...row,expedienteId:'61',relacionNivelId:'71'},context);duplicate.remove();document.getElementById('TreeViewArchivo').style.display='none';const hidden=Doc120MostrarExpediente(row,context);return{exact,ambiguous,hidden,clicks:clicks.length,selected:clicks[0],expected:target.id};},{context,row});assert.deepEqual(result,{exact:true,ambiguous:false,hidden:false,clicks:1,selected:result.expected,expected:result.expected});
+}));
+
+async function nativeSearch(page){
+ await page.addScriptTag({path:path.resolve(__dirname,'../js/ui/jquery-3.4.1.min.js')});
+ await page.evaluate(()=>{
+  $.fn.autocomplete=function(options){searchOptions=options;return this;};
+  const controls=document.createElement('div');controls.innerHTML='<input id="HiddenField_0003"><input id="HiddenField_rest_text_node"><span id="Label_title_selecion"></span><div id="id_tag_spiner" style="display:none"></div><span id="titulo_label_grid"></span><div id="menu_var"></div><div id="box_ide"></div><div id="title_treview"></div><button type="button" id="Button_inline_trevie">Consultar archivos</button>';document.body.appendChild(controls);
+  window.gridReads=[];window.searchInvocations=[];OnSearchClick=function(id,panel){searchInvocations.push({id,panel});return doc120NativeSearch(id,panel);};
+  document.getElementById('Button_inline_trevie').addEventListener('click',()=>gridReads.push({identity:document.getElementById('HiddenField_0003').value,selected:SELECCION_TREVIEW_ID}));
+ });
+}
+test('DOC120-TREE09: Ver expediente abre rama contraida por identidad con buscador real y codigos repetidos',()=>fixture(async page=>{
+ await tree(page,{branch:true});await nativeSearch(page);await consult(page,'39');
+ await page.evaluate(({context,row})=>Doc111ActualizarRama(context,[row,{...row,expedienteId:'61',relacionNivelId:'71'}]),{context,row});
+ assert.equal(await page.locator('#TreeViewArchivon1Nodes').evaluate(e=>e.style.display),'none');
+ const before=await page.evaluate(()=>calls.length);await page.getByRole('button',{name:'Ver expediente',exact:true}).click();await page.locator('.doc111-overlay').waitFor({state:'hidden',timeout:1800});
+ assert.equal(await page.locator('#TreeViewArchivon1Nodes').evaluate(e=>e.style.display),'block');
+ assert.deepEqual(await page.evaluate(()=>gridReads.map(r=>r.identity)),['70|7|60|']);
+ assert.equal(await page.evaluate(()=>searchInvocations[0].panel),'TreeViewArchivo');assert.equal(await page.evaluate(()=>calls.length),before);
+ assert.equal(await page.evaluate(()=>calls.some(c=>['AvanzarLote','ConfirmarPlan','PrepararPlan','RECEPCION'].includes(c.operation))),false);
+}));
+test('DOC120-TREE10: acceso explicito no revela contenedor oculto ni decide entre identidades duplicadas',()=>fixture(async page=>{
+ await tree(page,{branch:true});await nativeSearch(page);await consult(page,'39');
+ const result=await page.evaluate(({context,row})=>{
+  const target=document.querySelector('a[title="70|7|60|"]'),branch=document.getElementById('TreeViewArchivon1Nodes'),tree=document.getElementById('TreeViewArchivo'),extra=document.createElement('div');
+  branch.parentElement.insertBefore(extra,branch);extra.appendChild(branch);extra.style.display='none';const hidden=Doc120MostrarExpediente(row,context);extra.style.display='';
+  const duplicate=target.cloneNode(true);duplicate.id='TreeViewArchivot999';target.parentElement.appendChild(duplicate);const ambiguous=Doc120MostrarExpediente(row,context);duplicate.remove();
+  return{hidden,ambiguous,expanded:branch.style.display,reads:gridReads.length,searches:searchInvocations.length};
+ },{context,row});assert.deepEqual(result,{hidden:false,ambiguous:false,expanded:'none',reads:0,searches:0});
 }));

@@ -32,7 +32,7 @@ files.push('Gestion/WebFormProducionDocumental.aspx', 'generic_control/Importaci
 // Shared files: inventory only the real integration methods, not unrelated modules.
 const selections = {
     'Gestion/WebFormProducionDocumental.aspx.vb': ['RenderImportacionCarpetas', 'ImportacionCarpetas_PreRender', 'RenderPerfilImportacion', 'PerfilImportacion_PreRender'],
-    'js/gestion/WebFormProducionDocumental.js': ['Doc119NivelPulsado', 'Doc119InvocarImportacion', 'Doc111ActualizarRama', 'create_trenode_treview'],
+    'js/gestion/WebFormProducionDocumental.js': ['Doc119NivelPulsado', 'Doc119InvocarImportacion', 'Doc120MostrarExpediente', 'Doc111ActualizarRama', 'create_trenode_treview', 'OnSearchClick', 'AuTospam', 'retorna_parent_tr', 'retorna_tabla_padre'],
     'Gestion/ClassGaExpediente.vb': ['Registrar_Expediente_Conservacion', 'SolicitaDatosEstructuraExpediente'],
     'workflow/ClassAlmacenamiento.vb': ['AlmacenamientoDocumentoProduccionDocumental', 'Almacenamiento']
 };
@@ -183,8 +183,8 @@ const appendix = out.map(line => line.trimEnd()).join('\n');
 const mainText = read(main);
 const info = JSON.stringify({
     schema: 1,
-    implementationCut: 'DOC120-consulta-visible-20261119',
-    implementationBaseCommit: '18cba51344ca656e3242111f272aa3e5855076a6',
+    implementationCut: 'DOC120-acceso-expediente-20261120',
+    implementationBaseCommit: '09659e8fe866616d10655e4f69328c2c061803f7',
     purpose: 'Flujo resumido implementado localmente por archivo; fuentes del mismo cambio, sin nueva ejecucion real.',
     diagram: { path: main, sha256Lf: hash(mainText) },
     annex: { path: annex, sha256Lf: hash(appendix) },

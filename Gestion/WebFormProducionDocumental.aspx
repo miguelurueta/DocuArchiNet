@@ -21,7 +21,7 @@
     <link href="../Styles/produccion-documental-barra.css?v=doc120-barra-20261113-1" rel="stylesheet" />
     <script src="../js/MyJavaScriptFile.js"></script> 
     <script src="../js/Reportes/JSEsportaReportes.js"></script>
-    <script src="../js/gestion/WebFormProducionDocumental.js?v=doc120-coordinacion-20261115-1"></script>
+    <script src="../js/gestion/WebFormProducionDocumental.js?v=doc120-acceso-expediente-20261120-2"></script>
     <script src="../js/gestion/ProduccionDocumentalBarra.js?v=doc120-barra-20261113-1" defer></script>
     <script src="../js/validate_campos.js"></script>
     <script src="../generic_control/FileUploadHandler.js" type="text/javascript"></script>

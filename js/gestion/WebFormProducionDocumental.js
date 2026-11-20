@@ -1068,8 +1068,14 @@ function Doc120MostrarExpediente(raiz, contexto) {
     if (!tree || !raiz || !contexto || ![raiz.expedienteId, raiz.relacionNivelId, contexto.nivelRef].every(function (id) { return typeof id === "string" && /^[1-9][0-9]*$/.test(id); })) { return false; }
     var title = raiz.relacionNivelId + "|" + contexto.nivelRef + "|" + raiz.expedienteId;
     var matches = Array.prototype.filter.call(tree.querySelectorAll("a[id][title]"), function (node) { return /^TreeViewArchivot[0-9]+$/.test(node.id) && node.title.replace(/\|$/, "") === title; });
-    if (matches.length !== 1 || !matches[0].getClientRects().length || typeof OnSearchClick !== "function") { return false; }
-    try { OnSearchClick(matches[0].id); return true; } catch (_) { return false; }
+    if (matches.length !== 1 || !tree.getClientRects().length || window.getComputedStyle(tree).visibility !== "visible" || typeof OnSearchClick !== "function") { return false; }
+    // El buscador existente abre sus ancestros. Admitir solo ramas WebForms
+    // contraidas, nunca un enlace o contenedor oculto por otro motivo.
+    for (var parent=matches[0]; parent&&parent!==tree; parent=parent.parentElement) {
+        var style=window.getComputedStyle(parent);
+        if (style.visibility !== "visible" || style.display === "none" && !(parent.tagName === "DIV" && /^TreeViewArchivon[0-9]+Nodes$/.test(parent.id))) { return false; }
+    }
+    try { OnSearchClick(matches[0].id, "TreeViewArchivo"); return true; } catch (_) { return false; }
 }
 function Doc111ActualizarRama(contexto, raices) {
     var host = document.getElementById("doc111-importacion"), tree = document.getElementById("TreeViewArchivo");

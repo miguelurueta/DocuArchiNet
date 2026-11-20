@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "implementationCut": "DOC120-consulta-visible-20261119",
-  "implementationBaseCommit": "18cba51344ca656e3242111f272aa3e5855076a6",
+  "implementationCut": "DOC120-acceso-expediente-20261120",
+  "implementationBaseCommit": "09659e8fe866616d10655e4f69328c2c061803f7",
   "purpose": "Flujo resumido implementado localmente por archivo; fuentes del mismo cambio, sin nueva ejecucion real.",
   "diagram": {
     "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/flujo-tecnico-importacion-carpetas-doc120.txt",
@@ -9,15 +9,15 @@
   },
   "annex": {
     "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/flujo-tecnico-importacion-carpetas-doc120-anexo.txt",
-    "sha256Lf": "1c2d7eae4a040fcb89fe3de94e22f17dd8b1a81e22dfc7127cffc68df7e13da9"
+    "sha256Lf": "04ee83c110de5dc937b870d5f5cbbce4bb4be4fdd3be588e352468a68bd493b2"
   },
   "generator": {
     "path": "tools/docs/generate-doc120-flow.cjs",
-    "sha256Lf": "1311b7ddd6ee40574d6de61f9be1c9759180eb7f1c4eb8e335606c82cdef881e"
+    "sha256Lf": "2052e5d317601519aaf98ecc2e2811de057b69e83167842fb58c5655f452f3d5"
   },
   "sourceCount": 124,
   "httpEndpoints": 53,
-  "extractedLines": 20236,
+  "extractedLines": 20373,
   "sourceInventory": [
     {
       "path": "DTOs/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasDtos.vb",
@@ -48,7 +48,7 @@
     },
     {
       "path": "Gestion/WebFormProducionDocumental.aspx",
-      "sha256Lf": "1bba86c4a207e0b07c2b283a72e6229dc75308dfbdcd15bc989367064fa73567",
+      "sha256Lf": "bc4b1fbefce993de5c619fb35694d84b8e41884edb7b4d88a5c03f733e0ea775",
       "lines": 2249,
       "selectedMethods": null
     },
@@ -737,13 +737,18 @@
     },
     {
       "path": "js/gestion/WebFormProducionDocumental.js",
-      "sha256Lf": "572dede1d53956ccf21a17d4e95abde113f2e2df4a5e4a16add8cb6a4cf7446b",
-      "lines": 3562,
+      "sha256Lf": "f800ad42a5333d889e64d7b396bfe67a644ba0dd1126119d9d3956d0f45d9136",
+      "lines": 3568,
       "selectedMethods": [
         "Doc119NivelPulsado",
         "Doc119InvocarImportacion",
+        "Doc120MostrarExpediente",
         "Doc111ActualizarRama",
-        "create_trenode_treview"
+        "create_trenode_treview",
+        "OnSearchClick",
+        "AuTospam",
+        "retorna_parent_tr",
+        "retorna_tabla_padre"
       ]
     },
     {

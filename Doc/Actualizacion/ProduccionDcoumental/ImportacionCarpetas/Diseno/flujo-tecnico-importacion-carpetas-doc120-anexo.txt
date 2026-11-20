@@ -32,7 +32,7 @@ DTOs/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasDtos.vb | fa0cd
 DTOs/ProduccionDocumental/ImportacionCarpetas/PerfilImportacionDtos.vb | 3bf3b5b52193849d3531f988aef47f01bb4de0bea89af8611442c91c2e93c35b
 DTOs/ProduccionDocumental/ImportacionCarpetas/PreparacionSegmentadaDtos.vb | 0ca9f8458736c07b67934996d3e752029356368f5c8544bfd0f81fed3cb58a7f
 Gestion/ClassGaExpediente.vb | d707d2ca0731e19e6eff66186f22835bf1f097049bb3c5e5a7fe5069a3fadcc1
-Gestion/WebFormProducionDocumental.aspx | 1bba86c4a207e0b07c2b283a72e6229dc75308dfbdcd15bc989367064fa73567
+Gestion/WebFormProducionDocumental.aspx | bc4b1fbefce993de5c619fb35694d84b8e41884edb7b4d88a5c03f733e0ea775
 Gestion/WebFormProducionDocumental.aspx.vb | fbfd5114e1b09affcbae343a3d53c4756e87afb77faacf5b964678ad0c2a44c5
 Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.Legacy.vb | ad9a13e8219bb812f48ef87a0fd192b85c9242c48215d2b4d0ee78104106b0d1
 Infrastructure/ProduccionDocumental/ImportacionCarpetas/AdaptadorDocumentoImportacion.ProtocoloV2.vb | b5794b9e2af90f8b3024f748679fad84f47b3af457c4311d3a0c1c04a2f93f5c
@@ -146,7 +146,7 @@ js/gestion/ImportacionCarpetas/PerfilImportacionApi.js | cca3303bfcb0bcb175a2269
 js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js | b4c649f711f6dae7dab5f6cd1efb6affa814c3210c9c55f6eab5a2f232babf5f
 js/gestion/ImportacionCarpetas/PreparacionSegmentadaImportacion.js | 2ec397dec1a9cf474ae423db9be542d290b4d343ba5ac5207502fc27078514a9
 js/gestion/ImportacionCarpetas/ProveedorAdminEditor.js | ce1ec7062d68a95477fc9d215e2e5ecd3a858e7e07a511a6c61a1e96c14aa6a7
-js/gestion/WebFormProducionDocumental.js | 572dede1d53956ccf21a17d4e95abde113f2e2df4a5e4a16add8cb6a4cf7446b
+js/gestion/WebFormProducionDocumental.js | f800ad42a5333d889e64d7b396bfe67a644ba0dd1126119d9d3956d0f45d9136
 webservice/WebServiceImportacionCarpetas.Composicion.vb | c4938631916ba8a8903db0079f4cf8d7412df55d19ef7077aa4a812b753b9d73
 webservice/WebServiceImportacionCarpetas.PreparacionSegmentada.vb | 83f097483c3e4dd53bc741e6d2c9c5f984a343b1b1eda7a40c426f964e36bbac
 webservice/WebServiceImportacionCarpetas.asmx | 443fa15625440a21a5ceb6cc4a816918285f20225465362d4a02804f345f30ba
@@ -2344,7 +2344,7 @@ L00020 |     <link href="../Styles/Aplicaction.css" rel="stylesheet" />
 L00021 |     <link href="../Styles/produccion-documental-barra.css?v=doc120-barra-20261113-1" rel="stylesheet" />
 L00022 |     <script src="../js/MyJavaScriptFile.js"></script>
 L00023 |     <script src="../js/Reportes/JSEsportaReportes.js"></script>
-L00024 |     <script src="../js/gestion/WebFormProducionDocumental.js?v=doc120-coordinacion-20261115-1"></script>
+L00024 |     <script src="../js/gestion/WebFormProducionDocumental.js?v=doc120-acceso-expediente-20261120-2"></script>
 L00025 |     <script src="../js/gestion/ProduccionDocumentalBarra.js?v=doc120-barra-20261113-1" defer></script>
 L00026 |     <script src="../js/validate_campos.js"></script>
 L00027 |     <script src="../generic_control/FileUploadHandler.js" type="text/javascript"></script>
@@ -20392,7 +20392,7 @@ L00110 |     window.ProveedorAdminEditor={inicializar:iniciar};
 L00111 | }(window));
 
 + FUENTE: js/gestion/WebFormProducionDocumental.js
-| Alcance: Doc119NivelPulsado, Doc119InvocarImportacion, Doc111ActualizarRama, create_trenode_treview
+| Alcance: Doc119NivelPulsado, Doc119InvocarImportacion, Doc120MostrarExpediente, Doc111ActualizarRama, create_trenode_treview, OnSearchClick, AuTospam, retorna_parent_tr, retorna_tabla_padre
 +----------------------------------------
     ...
 L00002 | function Doc119NivelPulsado(target) {
@@ -20746,306 +20746,451 @@ L00350 |         return " Funcion ActivaexportAspnetReporte (" + err.message + "
 L00351 |     }
 L00352 | }
     ...
-L01074 | function Doc111ActualizarRama(contexto, raices) {
-L01075 |     var host = document.getElementById("doc111-importacion"), tree = document.getElementById("TreeViewArchivo");
-L01076 |     function id(value) { return typeof value === "string" && /^[1-9][0-9]*$/.test(value); }
-L01077 |     if (!host || !tree || !contexto || !id(contexto.nivelRef) || !/^[a-f0-9]{32}$/.test(contexto.referenciaContexto || "") || host.getAttribute("data-recuperacion") !== contexto.referenciaContexto || !Array.isArray(raices)) { return false; }
+L01066 | function Doc120MostrarExpediente(raiz, contexto) {
+L01067 |     var tree = document.getElementById("TreeViewArchivo");
+L01068 |     if (!tree || !raiz || !contexto || ![raiz.expedienteId, raiz.relacionNivelId, contexto.nivelRef].every(function (id) { return typeof id === "string" && /^[1-9][0-9]*$/.test(id); })) { return false; }
+L01069 |     var title = raiz.relacionNivelId + "|" + contexto.nivelRef + "|" + raiz.expedienteId;
+L01070 |     var matches = Array.prototype.filter.call(tree.querySelectorAll("a[id][title]"), function (node) { return /^TreeViewArchivot[0-9]+$/.test(node.id) && node.title.replace(/\|$/, "") === title; });
+L01071 |     if (matches.length !== 1 || !tree.getClientRects().length || window.getComputedStyle(tree).visibility !== "visible" || typeof OnSearchClick !== "function") { return false; }
     ...
-L01080 |     var parents = Array.prototype.filter.call(tree.querySelectorAll("a[id][title]"), function (a) { return /^TreeViewArchivot[0-9]+$/.test(a.id) && a.title.split("\\\\")[0] === contexto.nivelRef && a.title.indexOf("\\\\") !== -1; });
-L01081 |     if (parents.length !== 1 || !/^TreeViewArchivot[0-9]+$/.test(parents[0].id) || !parents[0].getClientRects().length) { return false; }
-L01082 |     var parent = parents[0], branch = document.getElementById(parent.id.replace("TreeViewArchivot", "TreeViewArchivon") + "Nodes");
-L01083 |     if (branch && !tree.contains(branch)) { return false; }
+L01074 |     for (var parent=matches[0]; parent&&parent!==tree; parent=parent.parentElement) {
+L01075 |         var style=window.getComputedStyle(parent);
+L01076 |         if (style.visibility !== "visible" || style.display === "none" && !(parent.tagName === "DIV" && /^TreeViewArchivon[0-9]+Nodes$/.test(parent.id))) { return false; }
+L01077 |     }
+L01078 |     try { OnSearchClick(matches[0].id, "TreeViewArchivo"); return true; } catch (_) { return false; }
+L01079 | }
+L01080 | function Doc111ActualizarRama(contexto, raices) {
+L01081 |     var host = document.getElementById("doc111-importacion"), tree = document.getElementById("TreeViewArchivo");
+L01082 |     function id(value) { return typeof value === "string" && /^[1-9][0-9]*$/.test(value); }
+L01083 |     if (!host || !tree || !contexto || !id(contexto.nivelRef) || !/^[a-f0-9]{32}$/.test(contexto.referenciaContexto || "") || host.getAttribute("data-recuperacion") !== contexto.referenciaContexto || !Array.isArray(raices)) { return false; }
     ...
-L01087 |     if (!branch) {
-L01088 |         var table = parent.closest("table");
-L01089 |         if (!table || !tree.contains(table) || !table.querySelector("img") || !Array.prototype.some.call(table.rows, function (row) { return row.cells.length > 2; })) { return false; }
-L01090 |     }
-L01091 |     var updated = true;
-L01092 |     raices.forEach(function (r) {
-L01093 |         if (!r || r.tieneIntentoActivo || ["EXPEDIENTE_CONFIRMADO", "COMPLETADA", "PARCIAL"].indexOf(r.estado) === -1 || !id(r.expedienteId) || !id(r.relacionNivelId) || typeof r.codigoExpediente !== "string" || !r.codigoExpediente.trim()) { return; }
-L01094 |         var title = r.relacionNivelId + "|" + contexto.nivelRef + "|" + r.expedienteId + "|";
-L01095 |         var existing = Array.prototype.some.call(tree.querySelectorAll("a[id][title]"), function (a) { return /^TreeViewArchivot[0-9]+$/.test(a.id) && a.title.replace(/\|$/, "") === title.replace(/\|$/, ""); });
-L01096 |         if (!existing) { create_trenode_treview(title, r.codigoExpediente, "trenode", "TreeViewArchivo", "../Gestion/imagenes/folder-regular.png", "0", parent.id); }
-L01097 |         branch = document.getElementById(parent.id.replace("TreeViewArchivot", "TreeViewArchivon") + "Nodes");
-L01098 |         var matches = Array.prototype.filter.call(tree.querySelectorAll("a[id][title]"), function (a) { return /^TreeViewArchivot[0-9]+$/.test(a.id) && a.title.replace(/\|$/, "") === title.replace(/\|$/, ""); });
-L01099 |         if (!branch || matches.length !== 1 || !branch.contains(matches[0])) { updated = false; }
-L01100 |         else if (matches[0].textContent !== r.codigoExpediente) {
-L01101 |             var node = matches[0];
-L01102 |             node.textContent = r.codigoExpediente;
-L01103 |             ITEMS_DATOS.forEach(function (item) { if (item.id === node.id) { item.text = r.codigoExpediente; item.value = r.codigoExpediente; } });
-L01104 |             precarga_datos_busqueda();
-L01105 |         }
-L01106 |     });
-L01107 |     return updated;
-L01108 | }
+L01086 |     var parents = Array.prototype.filter.call(tree.querySelectorAll("a[id][title]"), function (a) { return /^TreeViewArchivot[0-9]+$/.test(a.id) && a.title.split("\\\\")[0] === contexto.nivelRef && a.title.indexOf("\\\\") !== -1; });
+L01087 |     if (parents.length !== 1 || !/^TreeViewArchivot[0-9]+$/.test(parents[0].id) || !parents[0].getClientRects().length) { return false; }
+L01088 |     var parent = parents[0], branch = document.getElementById(parent.id.replace("TreeViewArchivot", "TreeViewArchivon") + "Nodes");
+L01089 |     if (branch && !tree.contains(branch)) { return false; }
     ...
-L01110 | function create_trenode_treview(title, texto, tipo_node, nombre_tree, ur_img_node, move, node_parent_id) {
-L01111 |     try {
-L01112 |         var element_a_eleccion; //Referencia al elemento A seleccioando
-L01113 |         var element_table_parent;//Elemento que referencia la tabla padre del elemento A seleccionado
-L01114 |         var td_t;//Elemento que referencia el TD al que pertenece el elemento A sleccionado
-L01115 |         var element_div;//Elemento que referencia el div que contiene los nodos del elemento seleccionado
-L01116 |         var tempo_seleccion_treview_id = SELECCION_TREVIEW_ID;
-L01117 |         if (node_parent_id !== "") {
-L01118 |             SELECCION_TREVIEW_ID = node_parent_id;
-L01119 |         }
-L01120 |         if (SELECCION_TREVIEW_ID !== "") {
+L01093 |     if (!branch) {
+L01094 |         var table = parent.closest("table");
+L01095 |         if (!table || !tree.contains(table) || !table.querySelector("img") || !Array.prototype.some.call(table.rows, function (row) { return row.cells.length > 2; })) { return false; }
+L01096 |     }
+L01097 |     var updated = true;
+L01098 |     raices.forEach(function (r) {
+L01099 |         if (!r || r.tieneIntentoActivo || ["EXPEDIENTE_CONFIRMADO", "COMPLETADA", "PARCIAL"].indexOf(r.estado) === -1 || !id(r.expedienteId) || !id(r.relacionNivelId) || typeof r.codigoExpediente !== "string" || !r.codigoExpediente.trim()) { return; }
+L01100 |         var title = r.relacionNivelId + "|" + contexto.nivelRef + "|" + r.expedienteId + "|";
+L01101 |         var existing = Array.prototype.some.call(tree.querySelectorAll("a[id][title]"), function (a) { return /^TreeViewArchivot[0-9]+$/.test(a.id) && a.title.replace(/\|$/, "") === title.replace(/\|$/, ""); });
+L01102 |         if (!existing) { create_trenode_treview(title, r.codigoExpediente, "trenode", "TreeViewArchivo", "../Gestion/imagenes/folder-regular.png", "0", parent.id); }
+L01103 |         branch = document.getElementById(parent.id.replace("TreeViewArchivot", "TreeViewArchivon") + "Nodes");
+L01104 |         var matches = Array.prototype.filter.call(tree.querySelectorAll("a[id][title]"), function (a) { return /^TreeViewArchivot[0-9]+$/.test(a.id) && a.title.replace(/\|$/, "") === title.replace(/\|$/, ""); });
+L01105 |         if (!branch || matches.length !== 1 || !branch.contains(matches[0])) { updated = false; }
+L01106 |         else if (matches[0].textContent !== r.codigoExpediente) {
+L01107 |             var node = matches[0];
+L01108 |             node.textContent = r.codigoExpediente;
+L01109 |             ITEMS_DATOS.forEach(function (item) { if (item.id === node.id) { item.text = r.codigoExpediente; item.value = r.codigoExpediente; } });
+L01110 |             precarga_datos_busqueda();
+L01111 |         }
+L01112 |     });
+L01113 |     return updated;
+L01114 | }
     ...
-L01123 |          element_a_eleccion = document.getElementById(SELECCION_TREVIEW_ID);
-L01124 |          if (element_a_eleccion) {
-L01125 |          } else {
-L01126 |              alert("Imposible entrarl el nodo " + SELECCION_TREVIEW_ID + " funcion create_trenode_treview");
-L01127 |              return true;
-L01128 |          }
+L01116 | function create_trenode_treview(title, texto, tipo_node, nombre_tree, ur_img_node, move, node_parent_id) {
+L01117 |     try {
+L01118 |         var element_a_eleccion; //Referencia al elemento A seleccioando
+L01119 |         var element_table_parent;//Elemento que referencia la tabla padre del elemento A seleccionado
+L01120 |         var td_t;//Elemento que referencia el TD al que pertenece el elemento A sleccionado
+L01121 |         var element_div;//Elemento que referencia el div que contiene los nodos del elemento seleccionado
+L01122 |         var tempo_seleccion_treview_id = SELECCION_TREVIEW_ID;
+L01123 |         if (node_parent_id !== "") {
+L01124 |             SELECCION_TREVIEW_ID = node_parent_id;
+L01125 |         }
+L01126 |         if (SELECCION_TREVIEW_ID !== "") {
     ...
-L01130 |         CONTADOR_NODE_TREVIEW_ID = CONTADOR_NODE_TREVIEW_ID + 1;
-L01131 |         var element_temp = element_a_eleccion.parentElement;
+L01129 |          element_a_eleccion = document.getElementById(SELECCION_TREVIEW_ID);
+L01130 |          if (element_a_eleccion) {
+L01131 |          } else {
+L01132 |              alert("Imposible entrarl el nodo " + SELECCION_TREVIEW_ID + " funcion create_trenode_treview");
+L01133 |              return true;
+L01134 |          }
     ...
-L01133 |         while (element_temp.parentElement) {
-L01134 |             if (element_temp.parentElement.nodeName == "TABLE") {
-L01135 |                 element_table_parent = element_temp.parentElement;
-L01136 |                 break;
-L01137 |             }
-L01138 |             element_temp = element_temp.parentElement;
-L01139 |         }
-L01140 |         if (element_table_parent===null) {
-L01141 |             alert("Impsoble encontrar la tabla padre, función create_trenode_treview");
-L01142 |             return true;
-L01143 |         }
+L01136 |         CONTADOR_NODE_TREVIEW_ID = CONTADOR_NODE_TREVIEW_ID + 1;
+L01137 |         var element_temp = element_a_eleccion.parentElement;
     ...
-L01145 |         for (var i = 0; i < element_table_parent.rows.length; i++) {
-L01146 |             if (element_table_parent.rows[i].cells.length > 2) {
-L01147 |                 td_t = element_table_parent.rows[i].cells;
-L01148 |                 i = element_table_parent.rows.length;
-L01149 |                 break;
-L01150 |             }
-L01151 |         }
+L01139 |         while (element_temp.parentElement) {
+L01140 |             if (element_temp.parentElement.nodeName == "TABLE") {
+L01141 |                 element_table_parent = element_temp.parentElement;
+L01142 |                 break;
+L01143 |             }
+L01144 |             element_temp = element_temp.parentElement;
+L01145 |         }
+L01146 |         if (element_table_parent===null) {
+L01147 |             alert("Impsoble encontrar la tabla padre, función create_trenode_treview");
+L01148 |             return true;
+L01149 |         }
     ...
-L01154 |         var element_table = document.createElement("TABLE");
-L01155 |         element_table.cellSpacing = 0;
-L01156 |         element_table.cellPadding = 0;
-L01157 |         element_table.style.borderWidth = 0;
+L01151 |         for (var i = 0; i < element_table_parent.rows.length; i++) {
+L01152 |             if (element_table_parent.rows[i].cells.length > 2) {
+L01153 |                 td_t = element_table_parent.rows[i].cells;
+L01154 |                 i = element_table_parent.rows.length;
+L01155 |                 break;
+L01156 |             }
+L01157 |         }
     ...
-L01159 |         var id_numero_selccion_ = SELECCION_TREVIEW_ID.replace(nombre_tree + "t", "");
-L01160 |         var indet_elment_div = nombre_tree + "n" + id_numero_selccion_;
-L01161 |         indet_elment_div = indet_elment_div + "Nodes";
-L01162 |         element_div = document.getElementById(indet_elment_div);
+L01160 |         var element_table = document.createElement("TABLE");
+L01161 |         element_table.cellSpacing = 0;
+L01162 |         element_table.cellPadding = 0;
+L01163 |         element_table.style.borderWidth = 0;
     ...
-L01164 |         if (element_div) {
+L01165 |         var id_numero_selccion_ = SELECCION_TREVIEW_ID.replace(nombre_tree + "t", "");
+L01166 |         var indet_elment_div = nombre_tree + "n" + id_numero_selccion_;
+L01167 |         indet_elment_div = indet_elment_div + "Nodes";
+L01168 |         element_div = document.getElementById(indet_elment_div);
     ...
-L01166 |         } else {
+L01170 |         if (element_div) {
     ...
-L01168 |             element_div = document.createElement("DIV");
+L01172 |         } else {
     ...
-L01170 |             element_div.id = indet_elment_div;
+L01174 |             element_div = document.createElement("DIV");
     ...
-L01172 |             var element_table_separa = document.createElement("TABLE");
-L01173 |             element_table_separa.style.height = 0;
-L01174 |             var element_row_t_separe = element_table_separa.insertRow(0);
-L01175 |             var element_cel_t_separe = element_row_t_separe.insertCell(0);
-L01176 |             element_div.appendChild(element_table_separa);
+L01176 |             element_div.id = indet_elment_div;
     ...
-L01178 |             var element_row = element_table.insertRow(0);
-L01179 |             var element_td_expan = element_row.insertCell(0);
-L01180 |             element_row.style.height = 0;
-L01181 |             element_div.appendChild(element_table);
-L01182 |             var td_ = td_t;
-L01183 |             var img_;
-L01184 |             var a_font;
-L01185 |             var pk = 0;
+L01178 |             var element_table_separa = document.createElement("TABLE");
+L01179 |             element_table_separa.style.height = 0;
+L01180 |             var element_row_t_separe = element_table_separa.insertRow(0);
+L01181 |             var element_cel_t_separe = element_row_t_separe.insertCell(0);
+L01182 |             element_div.appendChild(element_table_separa);
     ...
-L01187 |             element_table_parent.id = "hhhhhhhhhh";
-L01188 |             var element_img_expand = $("#" + element_table_parent.id + " img ");
-L01189 |             element_table_parent.id = "";
-L01190 |             if (element_img_expand) {
-L01191 |                 var element_parent_img_expand = element_img_expand[0].parentElement;
-L01192 |                 if (element_parent_img_expand.localName === "td") {
-L01193 |                     var element_a = document.createElement("A");
-L01194 |                     var id_numero_selccion = SELECCION_TREVIEW_ID.replace(nombre_tree + "t", "");
-L01195 |                     var identificador_element = nombre_tree + "n" + id_numero_selccion;
-L01196 |                     element_a.id = identificador_element;
-L01197 |                     element_a.href = "javascript:TreeView_ToggleNode(" + nombre_tree + "_Data," + id_numero_selccion + "," + "document.getElementById('" + identificador_element + "')," + "' '," + "document.getElementById('" + identificador_element + "Nodes'))";
-L01198 |                     element_img_expand[0].alt = "Contraer ";
-L01199 |                     element_img_expand[0].src = "../imagera/minus-square-light_1.png";
-L01200 |                     element_a.appendChild(element_img_expand[0]);
-L01201 |                     element_parent_img_expand.appendChild(element_a);
-L01202 |                 } else {
-L01203 |                     element_div.style.display = "block";
+L01184 |             var element_row = element_table.insertRow(0);
+L01185 |             var element_td_expan = element_row.insertCell(0);
+L01186 |             element_row.style.height = 0;
+L01187 |             element_div.appendChild(element_table);
+L01188 |             var td_ = td_t;
+L01189 |             var img_;
+L01190 |             var a_font;
+L01191 |             var pk = 0;
+    ...
+L01193 |             element_table_parent.id = "hhhhhhhhhh";
+L01194 |             var element_img_expand = $("#" + element_table_parent.id + " img ");
+L01195 |             element_table_parent.id = "";
+L01196 |             if (element_img_expand) {
+L01197 |                 var element_parent_img_expand = element_img_expand[0].parentElement;
+L01198 |                 if (element_parent_img_expand.localName === "td") {
+L01199 |                     var element_a = document.createElement("A");
+L01200 |                     var id_numero_selccion = SELECCION_TREVIEW_ID.replace(nombre_tree + "t", "");
+L01201 |                     var identificador_element = nombre_tree + "n" + id_numero_selccion;
+L01202 |                     element_a.id = identificador_element;
+L01203 |                     element_a.href = "javascript:TreeView_ToggleNode(" + nombre_tree + "_Data," + id_numero_selccion + "," + "document.getElementById('" + identificador_element + "')," + "' '," + "document.getElementById('" + identificador_element + "Nodes'))";
 L01204 |                     element_img_expand[0].alt = "Contraer ";
 L01205 |                     element_img_expand[0].src = "../imagera/minus-square-light_1.png";
-L01206 |                 }
-L01207 |             }
+L01206 |                     element_a.appendChild(element_img_expand[0]);
+L01207 |                     element_parent_img_expand.appendChild(element_a);
+L01208 |                 } else {
+L01209 |                     element_div.style.display = "block";
+L01210 |                     element_img_expand[0].alt = "Contraer ";
+L01211 |                     element_img_expand[0].src = "../imagera/minus-square-light_1.png";
+L01212 |                 }
+L01213 |             }
     ...
-L01210 |             var element_table_separa_final = document.createElement("TABLE");
-L01211 |             element_table_separa_final.style.height = 0;
-L01212 |             var element_row_t_separe_final = element_table_separa_final.insertRow(0);
-L01213 |             var element_cel_t_separe_final = element_row_t_separe_final.insertCell(0);
+L01216 |             var element_table_separa_final = document.createElement("TABLE");
+L01217 |             element_table_separa_final.style.height = 0;
+L01218 |             var element_row_t_separe_final = element_table_separa_final.insertRow(0);
+L01219 |             var element_cel_t_separe_final = element_row_t_separe_final.insertCell(0);
     ...
-L01215 |             element_div.appendChild(element_table_separa_final);
+L01221 |             element_div.appendChild(element_table_separa_final);
     ...
-L01217 |             var div_parent_table_parent = element_table_parent.parentElement;
-L01218 |             div_parent_table_parent.insertBefore(element_div, element_table_parent.nextSibling);
-L01219 |         }
+L01223 |             var div_parent_table_parent = element_table_parent.parentElement;
+L01224 |             div_parent_table_parent.insertBefore(element_div, element_table_parent.nextSibling);
+L01225 |         }
     ...
-L01221 |         if (element_div) {
+L01227 |         if (element_div) {
     ...
-L01223 |             var element_row = element_table.insertRow(0);
-L01224 |             var element_td_expan = element_row.insertCell(0);
-L01225 |             element_row.style.height = 0;
+L01229 |             var element_row = element_table.insertRow(0);
+L01230 |             var element_td_expan = element_row.insertCell(0);
+L01231 |             element_row.style.height = 0;
     ...
-L01227 |             element_row = element_table.insertRow(1);
+L01233 |             element_row = element_table.insertRow(1);
     ...
-L01229 |             var element_div_;
-L01230 |             var numero_td_arbol = td_t.length;
-L01231 |             numero_td_arbol = numero_td_arbol + 1
-L01232 |             if (numero_td_arbol > 3) {
-L01233 |                 numero_td_arbol = numero_td_arbol - 3;
-L01234 |             }
-L01235 |             var conta_td;
-L01236 |             for (var i = 0; i < numero_td_arbol; i++) {
-L01237 |                 element_td_expan = element_row.insertCell(i);
-L01238 |                 element_div_ = document.createElement("DIV");
-L01239 |                 element_div_.style.width = 10 + "px";
-L01240 |                 element_div_.style.height = 1 + "px";
-L01241 |                 element_td_expan.appendChild(element_div_);
-L01242 |                 conta_td = i;
-L01243 |             }
+L01235 |             var element_div_;
+L01236 |             var numero_td_arbol = td_t.length;
+L01237 |             numero_td_arbol = numero_td_arbol + 1
+L01238 |             if (numero_td_arbol > 3) {
+L01239 |                 numero_td_arbol = numero_td_arbol - 3;
+L01240 |             }
+L01241 |             var conta_td;
+L01242 |             for (var i = 0; i < numero_td_arbol; i++) {
+L01243 |                 element_td_expan = element_row.insertCell(i);
+L01244 |                 element_div_ = document.createElement("DIV");
+L01245 |                 element_div_.style.width = 10 + "px";
+L01246 |                 element_div_.style.height = 1 + "px";
+L01247 |                 element_td_expan.appendChild(element_div_);
+L01248 |                 conta_td = i;
+L01249 |             }
     ...
-L01246 |             var ref_href = location.href;
-L01247 |             ref_href = ref_href.replace(location.origin, "");
-L01248 |             var split_location = ref_href.split("/");
-L01249 |             var tempo_rewsd = "/" + split_location[1] + "/WebResource.axd?d=70tBAniWvlvWV5u5hxF89H8ScIHzGwAwVA9LRsmYqPtfEM_U7U3yLxFGIGMrn5tt7XXDkPSzqFBKSkF2QdkuNiPm9wAs4JgBFnKeVYByIwe3tZFf4Y_2PGCju0aDo4wJ0&t=637075857357612364";
-L01250 |             conta_td = conta_td + 1;
-L01251 |             var element_td_expan = element_row.insertCell(conta_td);
-L01252 |             var element_img = document.createElement("IMG");
-L01253 |             element_img.src = "../imagera/plus_black.gif";
-L01254 |             element_td_expan.appendChild(element_img);
+L01252 |             var ref_href = location.href;
+L01253 |             ref_href = ref_href.replace(location.origin, "");
+L01254 |             var split_location = ref_href.split("/");
+L01255 |             var tempo_rewsd = "/" + split_location[1] + "/WebResource.axd?d=70tBAniWvlvWV5u5hxF89H8ScIHzGwAwVA9LRsmYqPtfEM_U7U3yLxFGIGMrn5tt7XXDkPSzqFBKSkF2QdkuNiPm9wAs4JgBFnKeVYByIwe3tZFf4Y_2PGCju0aDo4wJ0&t=637075857357612364";
+L01256 |             conta_td = conta_td + 1;
+L01257 |             var element_td_expan = element_row.insertCell(conta_td);
+L01258 |             var element_img = document.createElement("IMG");
+L01259 |             element_img.src = "../imagera/plus_black.gif";
+L01260 |             element_td_expan.appendChild(element_img);
     ...
-L01256 |             if (ur_img_node !== "") {
-L01257 |                 conta_td = conta_td + 1;
-L01258 |                 element_td_expan = element_row.insertCell(conta_td);
-L01259 |                 element_img = document.createElement("IMG");
-L01260 |                 element_img.src = ur_img_node
-L01261 |                 element_td_expan.appendChild(element_img);
-L01262 |             }
+L01262 |             if (ur_img_node !== "") {
+L01263 |                 conta_td = conta_td + 1;
+L01264 |                 element_td_expan = element_row.insertCell(conta_td);
+L01265 |                 element_img = document.createElement("IMG");
+L01266 |                 element_img.src = ur_img_node
+L01267 |                 element_td_expan.appendChild(element_img);
+L01268 |             }
     ...
-L01264 |             conta_td = conta_td + 1;
-L01265 |             element_td_expan = element_row.insertCell(conta_td);
-L01266 |             element_td_expan.classList.add(nombre_tree + "_2", nombre_tree + "_8", "nav-link_", "mt-1", "mb-1", "pl-1");
-L01267 |             element_td_expan.onmouseover = "TreeView_HoverNode(" + nombre_tree + "_Data, this)";
-L01268 |             element_td_expan.onmouseover = "TreeView_UnhoverNode(this)";
-L01269 |             element_a = document.createElement("A");
-L01270 |             element_a.classList.add(nombre_tree + "_0", nombre_tree + "_1", nombre_tree + "_2", "nav-link_", "mt-1", "mb-1", "pl-1");
-L01271 |             CONTADOR_NODE_TREVIEW_ID = CONTADOR_NODE_TREVIEW_ID + 1;
-L01272 |             element_a.href = "javascript:OnTreeNodeClicked('" + CONTADOR_NODE_TREVIEW_ID + "')";
-L01273 |             element_a.id = nombre_tree + "t" + CONTADOR_NODE_TREVIEW_ID;
-L01274 |             element_a.title = title;
-L01275 |             element_a.text = texto;
-L01276 |             element_td_expan.appendChild(element_a);
+L01270 |             conta_td = conta_td + 1;
+L01271 |             element_td_expan = element_row.insertCell(conta_td);
+L01272 |             element_td_expan.classList.add(nombre_tree + "_2", nombre_tree + "_8", "nav-link_", "mt-1", "mb-1", "pl-1");
+L01273 |             element_td_expan.onmouseover = "TreeView_HoverNode(" + nombre_tree + "_Data, this)";
+L01274 |             element_td_expan.onmouseover = "TreeView_UnhoverNode(this)";
+L01275 |             element_a = document.createElement("A");
+L01276 |             element_a.classList.add(nombre_tree + "_0", nombre_tree + "_1", nombre_tree + "_2", "nav-link_", "mt-1", "mb-1", "pl-1");
+L01277 |             CONTADOR_NODE_TREVIEW_ID = CONTADOR_NODE_TREVIEW_ID + 1;
+L01278 |             element_a.href = "javascript:OnTreeNodeClicked('" + CONTADOR_NODE_TREVIEW_ID + "')";
+L01279 |             element_a.id = nombre_tree + "t" + CONTADOR_NODE_TREVIEW_ID;
+L01280 |             element_a.title = title;
+L01281 |             element_a.text = texto;
+L01282 |             element_td_expan.appendChild(element_a);
     ...
-L01278 |             if (move == 0) {
-L01279 |                 var elemet_fisrt_child = element_div.lastChild;
-L01280 |                 if (elemet_fisrt_child) {
-L01281 |                     element_div.insertBefore(element_table, elemet_fisrt_child)
-L01282 |                 } else {
-L01283 |                     element_div.appendChild(element_table);
-L01284 |                 }
-L01285 |             }
-L01286 |             if (move == 1) {
-L01287 |                 if (element_div.firstChild) {
-L01288 |                     element_div.insertBefore(element_table, element_div.firstChild);
-L01289 |                 } else {
-L01290 |                     element_div.appendChild(element_table);
-L01291 |                 }
+L01284 |             if (move == 0) {
+L01285 |                 var elemet_fisrt_child = element_div.lastChild;
+L01286 |                 if (elemet_fisrt_child) {
+L01287 |                     element_div.insertBefore(element_table, elemet_fisrt_child)
+L01288 |                 } else {
+L01289 |                     element_div.appendChild(element_table);
+L01290 |                 }
+L01291 |             }
+L01292 |             if (move == 1) {
+L01293 |                 if (element_div.firstChild) {
+L01294 |                     element_div.insertBefore(element_table, element_div.firstChild);
+L01295 |                 } else {
+L01296 |                     element_div.appendChild(element_table);
+L01297 |                 }
     ...
-L01293 |                 element_table_parent.id = "hhhhhhhhhh";
-L01294 |                 var element_img_expand = $("#" + element_table_parent.id + " img ");
-L01295 |                 element_table_parent.id = "";
-L01296 |                 if (element_img_expand) {
-L01297 |                     element_div.style.display = "block";
-L01298 |                     element_img_expand[0].alt = "Contraer ";
-L01299 |                     element_img_expand[0].src = "../imagera/minus-square-light_1.png";
-L01300 |                 }
+L01299 |                 element_table_parent.id = "hhhhhhhhhh";
+L01300 |                 var element_img_expand = $("#" + element_table_parent.id + " img ");
+L01301 |                 element_table_parent.id = "";
+L01302 |                 if (element_img_expand) {
+L01303 |                     element_div.style.display = "block";
+L01304 |                     element_img_expand[0].alt = "Contraer ";
+L01305 |                     element_img_expand[0].src = "../imagera/minus-square-light_1.png";
+L01306 |                 }
     ...
-L01302 |             }
+L01308 |             }
     ...
-L01304 |             ITEMS_DATOS.push({ text: texto, id: element_a.id, value: texto });
-L01305 |             if (title.indexOf("|") !== -1) {
-L01306 |                 EXPDIENTE_JERARQUIA++;
-L01307 |             } else {
-L01308 |                 NIVEL_JERARQUIA++;
-L01309 |             }
-L01310 |             document.getElementById("pit").innerHTML = "Expedientes " + EXPDIENTE_JERARQUIA + "  Niveles " + NIVEL_JERARQUIA;
-L01311 |             precarga_datos_busqueda();
-L01312 |             return true;
-L01313 |         }
+L01310 |             ITEMS_DATOS.push({ text: texto, id: element_a.id, value: texto });
+L01311 |             if (title.indexOf("|") !== -1) {
+L01312 |                 EXPDIENTE_JERARQUIA++;
+L01313 |             } else {
+L01314 |                 NIVEL_JERARQUIA++;
+L01315 |             }
+L01316 |             document.getElementById("pit").innerHTML = "Expedientes " + EXPDIENTE_JERARQUIA + "  Niveles " + NIVEL_JERARQUIA;
+L01317 |             precarga_datos_busqueda();
+L01318 |             return true;
+L01319 |         }
     ...
-L01316 |     } else {
+L01322 |     } else {
     ...
-L01318 |         element_a_eleccion = document.getElementById(nombre_tree);
-L01319 |         if (element_a_eleccion) {
-L01320 |             CONTADOR_NODE_TREVIEW_ID = CONTADOR_NODE_TREVIEW_ID + 1;
-L01321 |             var element_table = document.createElement("TABLE");
-L01322 |             element_table.cellSpacing = 0;
-L01323 |             element_table.cellPadding = 0;
-L01324 |             element_table.style.borderWidth = 0;
+L01324 |         element_a_eleccion = document.getElementById(nombre_tree);
+L01325 |         if (element_a_eleccion) {
+L01326 |             CONTADOR_NODE_TREVIEW_ID = CONTADOR_NODE_TREVIEW_ID + 1;
+L01327 |             var element_table = document.createElement("TABLE");
+L01328 |             element_table.cellSpacing = 0;
+L01329 |             element_table.cellPadding = 0;
+L01330 |             element_table.style.borderWidth = 0;
     ...
-L01326 |             var element_row = element_table.insertRow(0);
-L01327 |             var element_td_expan = element_row.insertCell(0);
-L01328 |             element_row.style.height = 0;
+L01332 |             var element_row = element_table.insertRow(0);
+L01333 |             var element_td_expan = element_row.insertCell(0);
+L01334 |             element_row.style.height = 0;
     ...
-L01330 |             element_row = element_table.insertRow(1);
-L01331 |             element_td_expan = element_row.insertCell(0);
-L01332 |             var element_img = document.createElement("IMG");
-L01333 |             var ref_href = location.href;
-L01334 |             ref_href = ref_href.replace(location.origin, "");
-L01335 |             var split_location = ref_href.split("/");
+L01336 |             element_row = element_table.insertRow(1);
+L01337 |             element_td_expan = element_row.insertCell(0);
+L01338 |             var element_img = document.createElement("IMG");
+L01339 |             var ref_href = location.href;
+L01340 |             ref_href = ref_href.replace(location.origin, "");
+L01341 |             var split_location = ref_href.split("/");
     ...
-L01337 |             element_img.src = "../imagera/plus_black.gif";
-L01338 |             element_td_expan.appendChild(element_img);
+L01343 |             element_img.src = "../imagera/plus_black.gif";
+L01344 |             element_td_expan.appendChild(element_img);
     ...
-L01340 |             element_td_expan = element_row.insertCell(1);
-L01341 |             var element_a = document.createElement("A");
-L01342 |             element_a.classList.add(nombre_tree + "_0", nombre_tree + "_1", nombre_tree + "_2");
-L01343 |             element_a.href = "javascript:OnTreeNodeClicked('" + CONTADOR_NODE_TREVIEW_ID + "')";
-L01344 |             element_a.id = nombre_tree + "t" + CONTADOR_NODE_TREVIEW_ID + 'i';
-L01345 |             element_img = document.createElement("IMG");
-L01346 |             element_img.src = ur_img_node;
-L01347 |             element_img.style.borderWidth = 0;
-L01348 |             element_a.appendChild(element_img);
-L01349 |             element_td_expan.appendChild(element_a);
+L01346 |             element_td_expan = element_row.insertCell(1);
+L01347 |             var element_a = document.createElement("A");
+L01348 |             element_a.classList.add(nombre_tree + "_0", nombre_tree + "_1", nombre_tree + "_2");
+L01349 |             element_a.href = "javascript:OnTreeNodeClicked('" + CONTADOR_NODE_TREVIEW_ID + "')";
+L01350 |             element_a.id = nombre_tree + "t" + CONTADOR_NODE_TREVIEW_ID + 'i';
+L01351 |             element_img = document.createElement("IMG");
+L01352 |             element_img.src = ur_img_node;
+L01353 |             element_img.style.borderWidth = 0;
+L01354 |             element_a.appendChild(element_img);
+L01355 |             element_td_expan.appendChild(element_a);
     ...
-L01351 |             element_td_expan = element_row.insertCell(2);
-L01352 |             element_td_expan.classList.add(nombre_tree + "_2", nombre_tree + "_4", "nav-link_", "mt-1", "mb-1", "pl-1");
-L01353 |             element_td_expan.onmouseover = "TreeView_HoverNode(" + nombre_tree + "_Data, this)";
-L01354 |             element_td_expan.onmouseover = "TreeView_UnhoverNode(this)";
-L01355 |             element_a = document.createElement("A");
-L01356 |             element_a.classList.add(nombre_tree + "_0", nombre_tree + "_1", nombre_tree + "_3", "nav-link_", "mt-1", "mb-1", "pl-1");
-L01357 |             element_a.href = "javascript:OnTreeNodeClicked('" + CONTADOR_NODE_TREVIEW_ID + "')";
-L01358 |             element_a.id = nombre_tree + "t" + CONTADOR_NODE_TREVIEW_ID;
-L01359 |             element_a.title = title;
-L01360 |             element_a.text = texto;
-L01361 |             element_td_expan.appendChild(element_a);
+L01357 |             element_td_expan = element_row.insertCell(2);
+L01358 |             element_td_expan.classList.add(nombre_tree + "_2", nombre_tree + "_4", "nav-link_", "mt-1", "mb-1", "pl-1");
+L01359 |             element_td_expan.onmouseover = "TreeView_HoverNode(" + nombre_tree + "_Data, this)";
+L01360 |             element_td_expan.onmouseover = "TreeView_UnhoverNode(this)";
+L01361 |             element_a = document.createElement("A");
+L01362 |             element_a.classList.add(nombre_tree + "_0", nombre_tree + "_1", nombre_tree + "_3", "nav-link_", "mt-1", "mb-1", "pl-1");
+L01363 |             element_a.href = "javascript:OnTreeNodeClicked('" + CONTADOR_NODE_TREVIEW_ID + "')";
+L01364 |             element_a.id = nombre_tree + "t" + CONTADOR_NODE_TREVIEW_ID;
+L01365 |             element_a.title = title;
+L01366 |             element_a.text = texto;
+L01367 |             element_td_expan.appendChild(element_a);
     ...
-L01363 |             element_row = element_table.insertRow(2);
-L01364 |             element_td_expan = element_row.insertCell(0);
-L01365 |             element_a_eleccion.appendChild(element_table);
-L01366 |             ITEMS_DATOS.push({ text: texto, id: element_a.id, value: texto });
-L01367 |             if (title.indexOf("|") !== -1) {
-L01368 |                 EXPDIENTE_JERARQUIA++;
-L01369 |             } else {
-L01370 |                 NIVEL_JERARQUIA++;
-L01371 |             }
-L01372 |             document.getElementById("pit").innerHTML = "Expedientes " + EXPDIENTE_JERARQUIA + "  Niveles " + NIVEL_JERARQUIA;
-L01373 |             precarga_datos_busqueda();
-L01374 |             return true;
-L01375 |         }
-L01376 |     }
-L01377 |     }
-L01378 |     catch (err) {
-L01379 |         alert(err.message + " Funcion create_trenode_treview ");
-L01380 |     } finally { SELECCION_TREVIEW_ID = tempo_seleccion_treview_id; }
-L01381 | }
+L01369 |             element_row = element_table.insertRow(2);
+L01370 |             element_td_expan = element_row.insertCell(0);
+L01371 |             element_a_eleccion.appendChild(element_table);
+L01372 |             ITEMS_DATOS.push({ text: texto, id: element_a.id, value: texto });
+L01373 |             if (title.indexOf("|") !== -1) {
+L01374 |                 EXPDIENTE_JERARQUIA++;
+L01375 |             } else {
+L01376 |                 NIVEL_JERARQUIA++;
+L01377 |             }
+L01378 |             document.getElementById("pit").innerHTML = "Expedientes " + EXPDIENTE_JERARQUIA + "  Niveles " + NIVEL_JERARQUIA;
+L01379 |             precarga_datos_busqueda();
+L01380 |             return true;
+L01381 |         }
+L01382 |     }
+L01383 |     }
+L01384 |     catch (err) {
+L01385 |         alert(err.message + " Funcion create_trenode_treview ");
+L01386 |     } finally { SELECCION_TREVIEW_ID = tempo_seleccion_treview_id; }
+L01387 | }
+    ...
+L01904 | function AuTospam(id_seleccion, nombre_tree_panel) {
+L01905 |     try {
+L01906 |         var element_select = document.getElementById(id_seleccion);
+L01907 |         while (element_select.parentElement) {
+L01908 |             var element_temp = element_select.parentElement;
+L01909 |             var id_element = 0;
+L01910 |             if (element_temp.nodeName == "DIV") {
+L01911 |                 element_temp.style.display = "block";
+L01912 |                 id_element = element_temp.id;
+L01913 |             }
+L01914 |             if (id_element !== 0) {
+L01915 |                 id_element = id_element.replace("Nodes", "");
+L01916 |                 var element_espam = document.getElementById(id_element);
+L01917 |                 if (element_espam) {
+L01918 |                     var element_img = element_espam.firstChild;
+L01919 |                     if (element_img) {
+L01920 |                         element_img.src = "../imagera/minus-square-light_1.png";
+L01921 |                         element_img.alt = "Contraer ";
+L01922 |                     }
+L01923 |                 }
+L01924 |             }
+    ...
+L01926 |             element_select = element_temp;
+L01927 |         }
+L01928 |     } catch (err) { alert(err.message + " funcion AuTospam"); }
+L01929 | }
+    ...
+L01931 | function retorna_tabla_padre(id_seleccion) {
+L01932 |     try {
+L01933 |     var element_select = document.getElementById(id_seleccion);
+L01934 |     while (element_select.parentElement) {
+L01935 |         var element_temp = element_select.parentElement;
+L01936 |         if (element_temp.nodeName == "TABLE") {
+L01937 |             return element_temp;
+L01938 |             break;
+L01939 |         }
+L01940 |         element_select = element_temp;
+L01941 |     }
+L01942 |   } catch (err) {
+L01943 |       alert(err.message + " Fucion retorna_tabla_padre")
+L01944 |   }
+L01945 | }
+    ...
+L02039 | function OnSearchClick(id_seleccion, nombre_tree_panel) {
+L02040 |     try {
+L02041 |         var element_select = document.getElementById(id_seleccion);
+L02042 |         var seleccion_unidad;
+L02043 |         if (element_select.title.indexOf("\\") !== -1) {
+L02044 |             seleccion_unidad = "Nivel";
+L02045 |             /*var id_padre = id_seleccion.replace("TreeViewArchivot", "TreeViewArchivon");
+L02046 |             id_padre = id_padre + "Nodes";
+L02047 |             if (document.getElementById(id_padre)) {
+L02048 |                 var tabla_padre = retorna_tabla_padre(id_seleccion);
+L02049 |                 if (tabla_padre) {
+L02050 |                     tabla_padre.id = id_padre + "kkkk";
+L02051 |                     var imagen;
+L02052 |                     var img_matri = $("#" + tabla_padre.id + " img");
+L02053 |                     if (img_matri) {
+L02054 |                         var src_ref = img_matri[0].src;
+L02055 |                         if (img_matri[0].alt.indexOf("Contraer") !== -1) {
+L02056 |                             src_ref = src_ref.replace("minus-square-light_1.png", "plus-square-light_1.png");
+L02057 |                             img_matri[0].alt = img_matri[0].alt.replace("Contraer", "Expandir");
+L02058 |                         } else {
+L02059 |                             src_ref = src_ref.replace("plus-square-light_1.png", "minus-square-light_1.png");
+L02060 |                             img_matri[0].alt = img_matri[0].alt.replace("Expandir", "Contraer");
+L02061 |                         }
+L02062 |                         img_matri[0].src = src_ref;
+L02063 |                     }
+L02064 |                     tabla_padre.id = "";
+L02065 |                 }
+L02066 |                 if (document.getElementById(id_padre).style.display === "block") {
+L02067 |                     document.getElementById(id_padre).style.display = "none";
+L02068 |                 } else {
+L02069 |                     document.getElementById(id_padre).style.display = "block";
+L02070 |                 }
+    ...
+L02072 |             }*/
+    ...
+L02074 |         } else { seleccion_unidad = "Expediente"; }
+L02075 |         if (SELECCION_TREVIEW_ID !== "") {
+L02076 |             var old_element_selecion = document.getElementById(SELECCION_TREVIEW_ID);
+L02077 |             var old_element_selecion_parent;
+L02078 |             old_element_selecion_parent = retorna_parent_tr(old_element_selecion);
+L02079 |             old_element_selecion.parentElement.classList.remove("node_select_parent");
+L02080 |             old_element_selecion_parent.classList.remove("node_select_parent_table");
+L02081 |         }
+L02082 |         var element_select = document.getElementById(id_seleccion);
+L02083 |         var parent_element_select;
+L02084 |         parent_element_select = retorna_parent_tr(element_select);
+L02085 |         element_select.parentElement.classList.add("node_select_parent");
+L02086 |         parent_element_select.classList.add("node_select_parent_table");
+L02087 |         element_select.style.outline = 0;
+L02088 |         SELECCION_TREVIEW_ID = id_seleccion;
+L02089 |         document.getElementById("HiddenField_0003").value = element_select.title;
+L02090 |         document.getElementById("HiddenField_rest_text_node").value = element_select.text;
+L02091 |         document.getElementById("Label_title_selecion").innerHTML = seleccion_unidad + " (" + element_select.text + ")";
+L02092 |         var element_espiner = document.getElementById("id_tag_spiner");
+L02093 |         if (element_espiner) {
+L02094 |             element_espiner.style.display = "block";
+L02095 |         }
+L02096 |         document.getElementById("titulo_label_grid").innerHTML = "Cargando   ";
+L02097 |         AuTospam(id_seleccion, nombre_tree_panel);
+L02098 |         var element_panel = document.getElementsByName(nombre_tree_panel);
+L02099 |         if (element_panel) {
+L02100 |             var tabla_padre = retorna_tabla_padre(SELECCION_TREVIEW_ID);
+L02101 |             if (tabla_padre) {
+L02102 |                 var x = tabla_padre.offsetTop;
+L02103 |                 var tope = x - (document.getElementById("menu_var").clientHeight + document.getElementById("box_ide").clientHeight + document.getElementById("title_treview").clientHeight);
+L02104 |                 $("#" + nombre_tree_panel).scrollTop((tope));
+    ...
+L02106 |             }
+L02107 |         }
+L02108 |         document.getElementById("Button_inline_trevie").click();
+L02109 |     } catch (err) {
+L02110 |         alert(err.message + " Fucion OnSearchClick")
+L02111 |     }
+L02112 | }
+L02113 | function retorna_parent_tr(element_select) {
+L02114 |     try {
+L02115 |         while (element_select.parentElement) {
+L02116 |             var element_temp = element_select.parentElement;
+L02117 |             if (element_temp.nodeName == "TABLE") {
+L02118 |                 return element_temp;
+L02119 |                 break;
+L02120 |             }
+L02121 |             element_select = element_temp;
+L02122 |         }
+L02123 |     } catch (err) {
+L02124 |         alert(err.message + " Fucion retorna_parent_tr " )
+L02125 |     }
+L02126 | }
 
 + FUENTE: webservice/WebServiceImportacionCarpetas.Composicion.vb
 | Alcance: archivo de modulo completo
@@ -22869,4 +23014,4 @@ L09140 |         Catch ex As Exception
 L09141 |             AlmacenamientoDocumentoProduccionDocumental = "PRODUCCION_CARGA_ALMACENAMIENTO_RECHAZADO"
 L09142 |         End Try
 
-FIN DEL INVENTARIO. Archivos: 124; lineas fuente reproducidas: 20236.
+FIN DEL INVENTARIO. Archivos: 124; lineas fuente reproducidas: 20373.
