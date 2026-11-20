@@ -1,5 +1,7 @@
 # DOC-120 — fixture autorizado para3.187
 
+**Resultado posterior:** run655467f4, código6fc5d343, PASS_FILE_RESERVATIONS_REPOSITORY; plan94/lote57/archivos3105-3106/expediente697-relación1121. Tres rollbacks, reserva única, revisión antigua y exclusión por B activo;125 controles externos/23 llamadas/256 HTTP,0 almacenamiento documental.17 grupos anteriores/5 del fixture/154 fuentes conservados; ventana cerrada y claves eliminadas. [Evidencia final](doc120-reservas-archivo-resultado-20261120.md) y JSON compañero.3.187 completa,267/270;6.4–6.6 pendientes. La preparación inferior conserva su estado inicial como historia.
+
 El usuario responde «autorizado» a2 PDF/1 expediente E2E, sin almacenar documentos. Se reutilizan el perfil24/version38 publicado, nivel7,141/empresa2, MembershipUsers y la URL local de las E2E DOC-111. Una raíz `DOC120-<run32hex>-RES`, un plan/lote nuevos y dos inventarios. El PDF estándar existente `doc111-carga-individual.pdf`,677 bytes, se recibe bajo dos nombres distintos; total1.354 bytes. Se conservan todos los recursos. Las ventanas4a3c1b2e/83b36216 permanecen cerradas y los1.000 documentos completados del lote50 no se utilizan como pendientes.
 
 ## Reutilización y límites

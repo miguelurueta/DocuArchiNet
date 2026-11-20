@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## 3.187 — MySQL real aprobado, 2026-11-20
+
+[Primario nativo](doc120-reservas-archivo-resultado-20261120.md)/JSON:655467f4, código6fc5d343, PASS_FILE_RESERVATIONS_REPOSITORY. Dos conexiones sobre A/un ganador, revisión antigua, contención, B reservado excluye A, tres rollbacks y dos cierres sin invocación documental. Fixture oficial24-v38/nivel7: plan94/lote57/archivos3105-3106/expediente697.17 grupos previos/5 del fixture/154 fuentes conservados;23 llamadas/125 controles externos/256 HTTP. Ventana cerrada y claves eliminadas;3.187 completa,267/270. Alcance nativo, no dos pestañas o capacidad integral. Restan6.4/6.5/6.6; cortes inferiores históricos.
+
 ## Reservas nativas por archivo — preparación2026-11-20
 
 Corte real posterior:4a3c1b2e se detuvo antes de reservas/incidencias por122/123 completados;83b36216 inspeccionó29/50 con7 SELECT y ninguna mutación. Lote50 ya1.000 completados;29 tiene2 completados/25 sin recepción. [Primario](doc120-reservas-archivo-inspeccion-20261120.json). No hay candidatos recibidos pendientes;3.187 continúa abierta hasta autorizar/adaptar un fixture adicional, sin reset de datos. Consolas cerradas/claves eliminadas;33/33 del ejecutor y2/2 Framework/DDL locales, no prueba nativa aprobada.

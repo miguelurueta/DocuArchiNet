@@ -1,5 +1,7 @@
 # DOC-120 — ventana nativa de reservas por archivo (3.187)
 
+**Corte vigente:** el usuario autorizó el fixture adicional;655467f4 cerró PASS_FILE_RESERVATIONS_REPOSITORY sobre el lote nuevo57, tres rollbacks/carrera/exclusión/cierres verificados. [Resultado final](doc120-reservas-archivo-resultado-20261120.md).3.187 completa,267/270, sin almacenamiento documental. La parada/inspección y las propuestas inferiores son historia; no ordenan repetir pruebas ni solicitar de nuevo una autorización ya consumada.
+
 ## Resultado de la primera ventana y revisión
 
 Inspección83b36216 cerrada `PASS_READONLY_INSPECTION`,7 SELECT/0 conexiones escritoras/0 mutaciones, claves eliminadas. Confirma lote50 **1.000/1.000 RECIBIDO/COMPLETADO**;122/123 ya tienen resultados confirmados. Lote29:2 completados y25 PENDIENTE/NO_INICIADO, sin valores fijados. No hay candidatos recibidos y pendientes para la carrera. [Resultado y huellas](doc120-reservas-archivo-inspeccion-20261120.json). No resetear resultados ni reutilizar archivos completados para fabricar una reserva.

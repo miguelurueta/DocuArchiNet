@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## 3.187 — reservas y rollback MySQL aprobados
+
+[Resultado655467f4](doc120-reservas-archivo-resultado-20261120.md)/JSON, código6fc5d343: PASS_FILE_RESERVATIONS_REPOSITORY, lote57/plan94. Fixture reutilizado: dos PDF/expediente697, cero documentos almacenados. Un ganador, revisión antigua, contención/B activo, tres rollbacks y cierres propios comprobados.17 grupos anteriores/5 del fixture conservados;23 llamadas/125 SELECT externos/256 HTTP; claves eliminadas y ventana cerrada.3.187 completa,267/270;6.4–6.6 siguen pendientes. La parada4a3c1b2e y la inspección83b36216 conservan su resultado original.
+
 ## Preparación de reservas nativas3.187 — 2026-11-20
 
 Resultado posterior: [parada4a3c1b2e](doc120-reservas-archivo-parada-20261120.json) sin llegar a reservar; [inspección83b36216](doc120-reservas-archivo-inspeccion-20261120.json) PASS_READONLY_INSPECTION con7 SELECT/0 mutaciones.50 está1.000/1.000 completado;29 conserva2 completados/25 sin recibir. Sin candidatos aptos; no se reinician resultados. Claves eliminadas, ventanas cerradas.33/33 del ejecutor local tras diagnóstico;3.187 pendiente de nuevo fixture autorizado,266/270.

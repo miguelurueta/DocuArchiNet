@@ -1,5 +1,9 @@
 # DOC-120 — PruebasEvidencia
 
+## 3.187 — PASS nativo MySQL
+
+[Evidencia655467f4, código6fc5d343](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-reservas-archivo-resultado-20261120.md)/JSON. Fixture oficial24-v38/nivel7, lote57/plan94, dos recibos y un expediente; cero almacenamiento documental. Dos conexiones/un ganador, revisión antigua, contención/B reservado, tres rollbacks y dos cierres propios.17 grupos previos/5 del fixture/154 fuentes conservados;23 llamadas/125 controles externos/256 HTTP. Ventana cerrada/claves eliminadas.3.187 completa,267/270; aceptación de límites/revisión formal e integración6.4–6.6 pendientes. No es carrera entre pestañas ni benchmark.
+
 ## Preparación3.187 — reservas nativas por archivo
 
 Corte posterior: [inspección real83b36216](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-reservas-archivo-inspeccion-20261120.json),7 SELECT y0 mutaciones/conexiones escritoras.50 ya1.000 completados;29 tiene2 completados y25 sin recibir, sin candidatos aptos.4a3c1b2e se detuvo antes de reservar. Ambas consolas cerradas/claves eliminadas; no replay o reset.33/33 del ejecutor local tras una guarda nueva;3.187 sigue pendiente de autorización/preparación adicional y ejecución nativa.

@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 —3.187 aprobada en MySQL, 2026-11-20
+
+655467f4/código6fc5d343 cerrado PASS_FILE_RESERVATIONS_REPOSITORY, claves eliminadas. Perfil24-v38/nivel7/141-2; plan94/lote57/raíz78/archivos3105-3106/expediente697-relación1121. Dos PDF recibidos/una creación oficial, cero invocaciones ALMACENAR/documentos/inventarios documentales. Carrera nativa con ganador único, revisión antigua, contención/B RESERVADO, tres rollbacks y cierres propios6139/6140.17 grupos previos/5 del fixture/154 fuentes conservados;256 HTTP/1 sesión/23 llamadas/52 SELECT nativos+73 envoltorio=125 externos (1 de fixture ya incluido). Incidencias negativas de prueba conservadas, sin intentos activos/inciertos ni eventos V2 de almacenamiento. Fuente `Validacion/doc120-reservas-archivo-resultado-20261120.md`/JSON.3.187 completa,267/270; solo6.4/6.5/6.6 pendientes. No reabrir, limpiar o repetir el fixture; apartados inferiores históricos.
+
 ## DOC-120 — fixture de3.187 autorizado
 
 Usuario «autorizado» para2 PDF/1 expediente y0 documentos almacenados. `--repository-files-fixture`: perfil24-v38/nivel7/141-2, raíz única DOC120-<run>-RES, PDF existente677 bytes recibido dos veces con nombres distintos. Reutiliza DOC111 para login/preparación/recepción/creación/materialización; propietario por SELECT antes de confirmar; luego arnés nativo reutilizado. Máximo600 HTTP/1 sesión/48 llamadas/64 SELECT nativos+96 envoltorio (incluye hasta12 del fixture)/15min por etapa; una creación, sin replay. Preservar todo lo anterior y los originales/recibos/resultado de creación del fixture; cero ALMACENAR/DDL/perfiles/borrados.35/35+2/2 locales y check sin BD; resultado real todavía pendiente. Fuente `Validacion/doc120-reservas-archivo-fixture-20261120.md`. No confundir con la parada de50 completado ni reabrir ventanas cerradas.
