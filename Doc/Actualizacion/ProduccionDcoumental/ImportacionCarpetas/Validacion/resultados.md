@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Revisión focal de cinco pendientes — 2026-11-20
+
+[Revisión documental solicitada](doc120-revision-cinco-pendientes-20261120.md):3.87 y3.127 completadas por reporte manual actual y fuentes reales existentes.3.126 ya ejecutada funcionalmente con1.000 documentos; solo métricas/aceptación integral de capacidad por resolver.3.130/3.131 reportadas probadas, sin repetir DDL/publicación por ausencia de registro posterior; conciliación de procedencia en curso.262/270 y ocho abiertas. Cero pruebas reales nuevas, sin cambiar fuentes históricas ni datos.
+
 ## Persistencia segmentada MySQL aprobada — 2026-11-20
 
 [Resultado real](doc120-segmentada-resultado-20261120.md), [consumos/huellas](doc120-segmentada-resultado-20261120.json). Run1a31695b PASS, preparación9/plan93/lote56; tres rollbacks, partes y confirmación concurrentes, inventario íntegro y16 grupos previos conservados.33 llamadas/24 controles nativos/53 nuevos del envoltorio;106 controles acumulados incluyendo29 de92158d88 detenida.145 fuentes vigentes; cero HTTP/PDF enviados/expedientes/documentos/DDL. Cerrada y claves eliminadas; no relanzar.3.118 completa con alcance nativo y límites explícitos;260/270, diez abiertas, sin aceptación global o3.187.

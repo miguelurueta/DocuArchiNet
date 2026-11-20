@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Revisión focal de cinco pendientes — 2026-11-20
+
+[Conciliación por tarea y fuente](doc120-revision-cinco-pendientes-20261120.md). El usuario confirma que ya se probaron.3.87/3.127 completas con aceptación manual actual, E2E de continuidad y control final del lote52.3.126 acredita1.000 recibidos/guardados/44.859.102 bytes; queda solo métrica/aceptación de límites, no otra importación.3.130/3.131 requieren conciliar procedencia de aplicación reportada; scripts automáticos encontrados detenidos y versión45 existente no se confunden con falta de implementación. Sin nuevas pruebas o cambios;262/270 y ocho abiertas al corte.
+
 ## Persistencia segmentada MySQL aprobada — 2026-11-20
 
 [Resultado real y límites](doc120-segmentada-resultado-20261120.md), [JSON](doc120-segmentada-resultado-20261120.json). Run1a31695b PASS_SEGMENTED_REPOSITORY: preparación9/plan93/lote56, una raíz/dos inventarios/89.570 bytes declarados. Partes/sellado/confirmación concurrentes y tres rollbacks reales; datos previos en16 grupos y145 fuentes conservados.33 llamadas,24 SELECT nativos y53 nuevos del envoltorio;82 acumulados con29 anteriores,106 controles totales. Cero envío PDF/expedientes/documentos/DDL; claves eliminadas, ventana cerrada.3.118 completa en persistencia/cobertura mixta declarada; no dos pestañas UI reales, capacidad integral o3.187.260/270 y diez abiertas.
