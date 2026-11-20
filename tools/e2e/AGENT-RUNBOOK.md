@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — rendimiento ya medido y consolidado, 2026-11-20
+
+Revisión solicitada del rendimiento existente: cuatro CSV recalculados, medias79,432043 s iniciales/1,058143 s tres corregidos/0,969465 s diez/0,980750 s cuatro posteriores; la DLL del último corte coincide con instalada.1.000 documentos completados tienen su control independiente.3.126 de consolidación y5.2 de autorización condicional resueltas, sin otra carga o ventana por defecto. Fuente Validacion/doc120-rendimiento-consolidado-20261120.md. Límites muestrales/duración integral/memoria/disco explícitos en6.4; no garantía ni autorización futura derivada.266/270 y cuatro pendientes:3.187/6.4/6.5/6.6. No repetir pruebas, reabrir ventanas cerradas o recuperar secretos por estos pendientes históricos.
+
 ## DOC-120 — conciliación manual de beneficiario, 2026-11-20
 
 Usuario confirma tabla y perfil ya ampliados y aporta video111928-perfil-modificado: longitud255 visible en NOMBRE BENEFICIARIO, no250.3.130/3.131 completas por conciliación manual en `Validacion/doc120-beneficiario-confirmacion-manual-20261120.md`; no nueva inspección SQL/ID de publicación atribuido ni repetir ALTER/publicación.3.87/3.127 cerradas en revisión focal anterior;264/270 y seis pendientes. Carga funcional de1.000 ya acreditada; solo métricas/aceptación siguen en3.126. Los cortes inferiores de260/270 y scripts detenidos mantienen su carácter histórico, sin ordenar cambios repetidos.

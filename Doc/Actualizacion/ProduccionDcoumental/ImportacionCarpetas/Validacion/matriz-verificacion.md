@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Rendimiento real consolidado — 2026-11-20
+
+[Fuentes, recálculo y límites](doc120-rendimiento-consolidado-20261120.md). El rendimiento ya fue medido:79,432043 s iniciales→1,058143 s tres corregidos→0,969465 s diez; prueba posterior0,980750 s en cuatro, con la DLL instalada.1.000 documentos finales acreditados por otro primario; no extrapolar tiempo integral/memoria/disco.3.126/5.2 resueltas por consolidación y autorizaciones existentes, sin una medición nueva que solicitar. Límites en6.4;266/270 y cuatro abiertas, sin nuevas pruebas o efectos.
+
 ## Beneficiario ampliado confirmado — 2026-11-20
 
 [Confirmación del operador y video111928](doc120-beneficiario-confirmacion-manual-20261120.md). El usuario declara tabla y perfil ya ampliados; se observa Longitud máxima255 en NOMBRE BENEFICIARIO y Operación completada.3.130/3.131 completas por conciliación manual, sin inventar consulta SQL/ID de publicación ni atribuir efectos a scripts detenidos. Cero nuevas escrituras o publicación;264/270 y seis abiertas. La auditoría anterior262/270 queda histórica.

@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Rendimiento real consolidado — 2026-11-20
+
+[Revisión de CSV y autorizaciones](doc120-rendimiento-consolidado-20261120.md). Medias reales recalculadas79,432043/1,058143/0,969465/0,980750 s en sus respectivos cortes, separados por versión y alcance. DLL de cuatro coincide con instalada; datos finales1.000/1.000 ya acreditados.3.126 completa y5.2 resuelta sin nueva ventana; límites de muestra explícitos, sin declarar memoria/disco o duración integral no observados.266/270, cuatro pendientes. Revisión documental, sin volver a ejecutar pruebas.
+
 ## Confirmación manual de beneficiario — 2026-11-20
 
 [Evidencia y límites](doc120-beneficiario-confirmacion-manual-20261120.md): usuario confirma ampliación de tabla/perfil; video111928,12,4333s/SHA2565c2989cc…, muestra longitud255.3.130/3.131 conciliadas como completas;264/270 y seis abiertas. Revisión visual en memoria, sin guardar capturas ni ejecutar HTTP/SELECT/DDL/publicación. Registros anteriores preservados y sin repetir cambios.

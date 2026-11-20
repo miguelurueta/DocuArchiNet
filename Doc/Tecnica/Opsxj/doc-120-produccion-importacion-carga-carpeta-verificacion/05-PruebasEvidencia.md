@@ -1,5 +1,9 @@
 # DOC-120 — PruebasEvidencia
 
+## Rendimiento real consolidado — 2026-11-20
+
+[Recálculo de los CSV existentes](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-rendimiento-consolidado-20261120.md). Diez guardados:media0,969465 s/mediana0,934637/p95 muestral1,140969; cuatro posteriores:media0,980750 s y DLL idéntica a instalada. Diagnóstico inicial79,432043 s y tres corregidos1,058143 s conservan sus versiones. Junto a1.000 documentos finales y confirmación del usuario,3.126/5.2 quedan resueltas sin nueva prueba o autorización. Sin extrapolar garantía integral/memoria/disco;6.4 mantiene la aceptación de límites.266/270, cuatro abiertas.
+
 ## Beneficiario ampliado — confirmación manual2026-11-20
 
 [Declaración del usuario y video111928](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-beneficiario-confirmacion-manual-20261120.md). Tabla/perfil declarados ampliados; longitud255 visible en la regla de NOMBRE BENEFICIARIO y Operación completada.3.130/3.131 completas por conciliación manual, sin nueva inspección SQL o evento de publicación atribuido.264/270, seis abiertas; no nueva ejecución, carga o cambio de producto.

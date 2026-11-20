@@ -2,6 +2,8 @@
 
 El usuario confirma que las cinco primeras tareas de la lista pendiente ya se probaron y solicita revisión quirúrgica. Se revisan exclusivamente 3.87, 3.126, 3.127, 3.130 y 3.131, sin nuevas pruebas reales, conexiones o cambios de producto. Se contrastaron los primarios publicados, 27 estados locales DOC-120 y los registros de publicación de Egresos. Los estados locales permanecen excluidos de Git; no se consultan claves ni se muestran valores documentales.
 
+**Resolución posterior de rendimiento:** el usuario confirma que ya estaba determinado y se recalculan los cuatro CSV reales. [Consolidación y límites](doc120-rendimiento-consolidado-20261120.md):3.126/5.2 resueltas sin otra ejecución necesaria,266/270 y cuatro abiertas. Las referencias a métricas pendientes de la tabla inferior corresponden al corte anterior; sus límites de cobertura se conservan en6.4, sin imponer otra carga.
+
 **Resolución posterior de la aclaración:** el usuario confirma que la tabla y el perfil ya se ampliaron y entrega el video111928. [Conciliación manual y valor255 observado](doc120-beneficiario-confirmacion-manual-20261120.md): 3.130/3.131 completas, **264/270 y seis abiertas**. La tabla siguiente y el corte262/270 conservan el estado de la investigación anterior a esa respuesta; no son el pendiente vigente.
 
 | Tarea | Evidencia efectiva | Conciliación |
