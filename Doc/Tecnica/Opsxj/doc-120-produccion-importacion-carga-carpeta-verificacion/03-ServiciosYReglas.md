@@ -1,5 +1,15 @@
 # DOC-120 — ServiciosYReglas
 
+## Servicios y reglas
+
+Preparación segmentada y plan2 reutilizan el repositorio de importación y su confirmación atómica. ControlArchivoIndependienteImportacion vincula archivo/raíz/lote/snapshot con pruebas de procedencia; la reserva mantiene bloqueos, CAS, token/hash y exclusión de escritor activo. El original de B ausente no exige abrirlo para procesar A; la completitud se evalúa al cierre sin convertir un perfil completo en parcial.
+
+ReanudarLote y Retomar creación reautorizan y contrastan revisiones/diario/estado antes de reclamar; INCIERTO y EN_CURSO no se rehabilitan por tiempo. V2 conserva preparación/autorización/retorno/checkpoint. RegistrarOriginalNoDisponible solo cierra una reserva propia anterior a invocación bajo token/diario coherentes y registra el negativo sin IDs documentales. No puede borrar resultados confirmados ni liberar el intento ajeno.
+
+3.187 verificó con conexiones MySQL nativas dos reclamaciones sobre A, revisión antigua, contención/B reservado, tres rollbacks y dos cierres; plan94/lote57. Se preservaron17 grupos anteriores y5 del fixture, incluidos comprobantes de recepción/creación. Las pruebas Framework compilan las fuentes pertinentes; no se suman sus casos internos como suites Node. ValidarMetadatos y la degradación histórica/local conservan su alcance acotado, sin afirmar todas las incompatibilidades de BD reales.
+
+## Cronología conservada
+
 ## Mensajes de las cinco fases — implementación local2026-11-14
 
 Preparación, confirmación, recepción, creación/reanudación e índices/almacenamiento muestran causas verificadas y acciones vigentes, con contrato público conservado. El catálogo cerrado cubre148 códigos, incluidos los118 auditados. El mapa clasifica577 textos y684 sitios, conservando etiquetas y excluyendo administración/legacy/V2 sin ampliación. Un acuse confirmado no se pierde por una consulta o proyección fallida; la cola conserva confirmados, archivo actual y no intentados. Sin replay ni cambios de autoridad, reservas, política de nombres o escritores compartidos. Avisos accesibles con Tab en390/768/1280px. **119/119 pruebas locales únicas**, incluidos19 nuevos casos Node y wrappers Framework/DDL; casos internos no sumados. Compilación0 errores. Avance**82/86**,36 escenarios; siguen abiertas5.2/6.4/6.5/6.6. Fuentes, comandos, logs y huellas en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-mensajes-20261114.json`; mapa compañero `doc120-mensajes-mapa-20261114.json`. No hubo nuevas operaciones reales ni comprobación del runtime o destino de trazas de IIS.
@@ -70,7 +80,7 @@ Tarea3.9: disponibilidad de creación por consulta, reutilizando la barrera de r
 - Cambio OpenSpec: doc-120-produccion-importacion-carga-carpeta-verificacion
 - Clasificacion: cross_cutting
 
-## Servicios y reglas
+## Antecedente inicial — Servicios y reglas
 
 Producto/servicios/repositorio sin delta desde8c0773d4. Consultar/CSV reautorizan y no reconcilian; coordinador/Barreras/Valores/RecuperacionV2 conservan revisiones, integridad, valores diferidos, fecha estable y fases. INCIERTO no se repite; stop no revierte lo confirmado.
 

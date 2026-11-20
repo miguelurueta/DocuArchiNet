@@ -1,5 +1,19 @@
 # DOC-120 — PruebasEvidencia
 
+## Evidencia requerida
+
+La evidencia vigente se registra por SHA/fuentes y clase de prueba, sin sumar corridas superpuestas. Primarios principales: doc120-qa-recuperacion-concurrencia-20261119 (HTTP/privacidad/acuse perdido), doc120-guardado-real-resultado-20261119 (cuatro efectos y pausa/cierre), doc120-lote52-control-final-resultado-20261120 (1.000 identidades), doc120-segmentada-resultado-20261120 (persistencia de plan) y doc120-reservas-archivo-resultado-20261120 (reservas por archivo y rollback MySQL). Los CSV de rendimiento conservan versión/corte y la ampliación de beneficiario procede del reporte manual y video del usuario, con255 visible; no se inventa una consulta SQL de ese cambio.
+
+Las evidencias unit/manual_qa de OPSXJ deben corresponder al SHA de entrega y explicar reutilización por huellas, sin atribuir una nueva corrida real al commit documental. La revisión OpenSpec y la aceptación de límites se registran aparte. CI o un documento generado no conceden aceptación integral.
+
+## QA/E2E WebForms
+
+La confirmación manual del usuario resuelve3.87/3.127 y la ampliación de beneficiario. Las E2E y SELECT reales posteriores al corte inicial sí existen y están enlazados arriba; sus ventanas están cerradas y las claves eliminadas.3.187 PASS_FILE_RESERVATIONS_REPOSITORY en655467f4/código6fc5d343:23 llamadas/125 controles externos/256 HTTP, dos PDF recibidos y un expediente, cero almacenamiento documental;17 grupos previos/5 del fixture/154 fuentes conservados.
+
+La regresión de transiciones de la revisión final utiliza el ejecutor local existente; se registra su resultado real en doc120-verificacion-final-20261120.json, sin nuevas cuentas o cargas. La certificación no incluye SII/limpieza reales, capacidad máxima ni todos los fallos de infraestructura. Archivo/cierre deben esperar aceptación y merge verificado; no se limpian ni reproducen fixtures inciertos.
+
+## Cronología conservada
+
 ## 3.187 — PASS nativo MySQL
 
 [Evidencia655467f4, código6fc5d343](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-reservas-archivo-resultado-20261120.md)/JSON. Fixture oficial24-v38/nivel7, lote57/plan94, dos recibos y un expediente; cero almacenamiento documental. Dos conexiones/un ganador, revisión antigua, contención/B reservado, tres rollbacks y dos cierres propios.17 grupos previos/5 del fixture/154 fuentes conservados;23 llamadas/125 controles externos/256 HTTP. Ventana cerrada/claves eliminadas.3.187 completa,267/270; aceptación de límites/revisión formal e integración6.4–6.6 pendientes. No es carrera entre pestañas ni benchmark.
@@ -126,7 +140,7 @@ Avance22/26. Corrección DOC120-UI06: carga inicial con indicador neutro accesib
 
 ## Antecedente2026-11-12
 
-## Evidencia requerida
+## Antecedente inicial — Evidencia requerida
 
 Corte: consolidación local21/25, sin aceptación integral. Índices: Validacion/matriz-verificacion.md y resultados.md. Manifiesto: doc120-consolidacion-20261112.json, con32 casos,25 fuentes originales,11 componentes,15/15 huellas UI coincidentes,114 entradas del arnés y huellas de logs. La inspección inicial doc120-inspeccion-refinamiento-20261112.json se conserva como corte anterior.
 
@@ -136,7 +150,7 @@ Regresión nueva:5/5 inicial (2 wrappers Framework/DDL y3 políticas de degradac
 
 Se resuelven contradicciones de cortes DOC116/117/118 y estado global/caso de SEG01; no se reescriben JSON primarios. El cierre técnico de un caso no borra incertidumbres41/53 ni convierte laboratorio en runtime ordinario.
 
-## QA/E2E WebForms
+## Antecedente inicial — QA/E2E WebForms
 
 Ninguna nueva autenticación, HTTP de aplicación, SELECT real, recepción, creación, almacenamiento, DDL, permiso, fallo real o limpieza en DOC120. La prueba Chromium devuelve503 sintético local. El fichero DLL comparado es un artefacto de disco, no prueba de ensamblado cargado en IIS.
 

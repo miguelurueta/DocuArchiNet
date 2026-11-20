@@ -1,5 +1,15 @@
 # DOC-120 — ContratosIntegracion
 
+## Contratos e integraciones
+
+Hay ampliaciones explícitas del ASMX/DTO respecto a la base: preparación segmentada, consulta focal y ReanudarLote en la fachada existente. Se conserva la recepción ASHX, sesión/CSRF/origen, autorización por contexto y el escritor documental compartido. Preparar/confirmar no almacena; consultar/exportar no reconcilia ni reclama. Plan1/plan2 y lecturas1/2 se validan por su procedencia, sin confiar en IDs o valores enviados por el navegador.
+
+Los scripts08/09 documentan el esquema/índice requerido y sus aplicaciones históricas autorizadas; no se ejecutan como parte del cierre. Codigos repetidos no sustituyen identidad por ID_EXPEDIENTE ni habilitan reutilización implícita. Los primarios de variantes de laboratorio, STOPPED y NO_EJECUTADO permanecen inmutables.
+
+INT-03 ya tiene mediciones reales muestrales y una importación funcional de1.000, consolidadas en doc120-rendimiento-consolidado-20261120.md. Continúan sin certificarse duración integral, memoria/disco máximos y SLA de capacidad; no se exige otra carga para aceptar lo ya medido. SII/limpieza reales requieren su alcance propio; esta entrega no los ejecuta ni los activa.
+
+## Cronología conservada
+
 ## Mensajes de las cinco fases — implementación local2026-11-14
 
 Preparación, confirmación, recepción, creación/reanudación e índices/almacenamiento muestran causas verificadas y acciones vigentes, con contrato público conservado. El catálogo cerrado cubre148 códigos, incluidos los118 auditados. El mapa clasifica577 textos y684 sitios, conservando etiquetas y excluyendo administración/legacy/V2 sin ampliación. Un acuse confirmado no se pierde por una consulta o proyección fallida; la cola conserva confirmados, archivo actual y no intentados. Sin replay ni cambios de autoridad, reservas, política de nombres o escritores compartidos. Avisos accesibles con Tab en390/768/1280px. **119/119 pruebas locales únicas**, incluidos19 nuevos casos Node y wrappers Framework/DDL; casos internos no sumados. Compilación0 errores. Avance**82/86**,36 escenarios; siguen abiertas5.2/6.4/6.5/6.6. Fuentes, comandos, logs y huellas en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-mensajes-20261114.json`; mapa compañero `doc120-mensajes-mapa-20261114.json`. No hubo nuevas operaciones reales ni comprobación del runtime o destino de trazas de IIS.
@@ -70,7 +80,7 @@ Tarea3.9: disponibilidad de creación por consulta, reutilizando la barrera de r
 - Cambio OpenSpec: doc-120-produccion-importacion-carga-carpeta-verificacion
 - Clasificacion: cross_cutting
 
-## Contratos e integraciones
+## Antecedente inicial — Contratos e integraciones
 
 Sin DTO, endpoint, ASMX/ASHX, esquema o coordinador nuevos. Los índices relacionan requisito/caso/componente/prueba/código/ambiente/evidencia/resultado/vigencia/límite. Los primarios originales permanecen intactos, incluidos STOPPED, NO_ACREDITADO y estados de laboratorio.
 

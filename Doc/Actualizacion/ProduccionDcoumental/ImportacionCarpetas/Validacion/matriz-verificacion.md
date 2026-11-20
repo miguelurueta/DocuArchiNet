@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Revisión final y decisión de salida — 2026-11-20
+
+[Revisión técnica6.5](doc120-verificacion-final-20261120.md)/JSON:15 requisitos/114 escenarios inventariados y226/226 pruebas locales finales;154 entradas del PASS nativo siguen iguales. Se corrigen las secciones iniciales de los cinco documentos de gobierno que todavía decían sin cambios de producto. [Matriz de límites/responsables/decisiones](doc120-aceptacion-limites-final-20261120.md): propuesta concreta de aceptación, sin nueva carga o despliegue. No hay defecto técnico crítico abierto hallado;6.4 exige aceptación expresa de los límites y6.6 mantiene merge/archivo pendientes. No se declara aceptación global por esta revisión o por CI.
+
 ## 3.187 — MySQL real aprobado, 2026-11-20
 
 [Primario nativo](doc120-reservas-archivo-resultado-20261120.md)/JSON:655467f4, código6fc5d343, PASS_FILE_RESERVATIONS_REPOSITORY. Dos conexiones sobre A/un ganador, revisión antigua, contención, B reservado excluye A, tres rollbacks y dos cierres sin invocación documental. Fixture oficial24-v38/nivel7: plan94/lote57/archivos3105-3106/expediente697.17 grupos previos/5 del fixture/154 fuentes conservados;23 llamadas/125 controles externos/256 HTTP. Ventana cerrada y claves eliminadas;3.187 completa,267/270. Alcance nativo, no dos pestañas o capacidad integral. Restan6.4/6.5/6.6; cortes inferiores históricos.

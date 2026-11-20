@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — revisión final de entrega2026-11-20
+
+Regresión local existente de transiciones226/226 PASS, sin cuentas/HTTP real/SQL/efectos. Revisión15 requisitos/114 escenarios y195 fuentes en `Validacion/doc120-verificacion-final-20261120.md`/JSON; cinco documentos obligatorios de gobierno actualizados. Matriz de aceptación en `doc120-aceptacion-limites-final-20261120.md`, con motivos/responsables/decisiones propuestas:6.4 requiere aceptación expresa según D-10. No volver a probar los1.000 o3.187, ni pedir otras claves por estas tareas finales. Gobierno6.5 debe enlazar SHA/evidencias reales;6.6/archivo/Jira esperan aceptación y merge verificado.
+
 ## DOC-120 —3.187 aprobada en MySQL, 2026-11-20
 
 655467f4/código6fc5d343 cerrado PASS_FILE_RESERVATIONS_REPOSITORY, claves eliminadas. Perfil24-v38/nivel7/141-2; plan94/lote57/raíz78/archivos3105-3106/expediente697-relación1121. Dos PDF recibidos/una creación oficial, cero invocaciones ALMACENAR/documentos/inventarios documentales. Carrera nativa con ganador único, revisión antigua, contención/B RESERVADO, tres rollbacks y cierres propios6139/6140.17 grupos previos/5 del fixture/154 fuentes conservados;256 HTTP/1 sesión/23 llamadas/52 SELECT nativos+73 envoltorio=125 externos (1 de fixture ya incluido). Incidencias negativas de prueba conservadas, sin intentos activos/inciertos ni eventos V2 de almacenamiento. Fuente `Validacion/doc120-reservas-archivo-resultado-20261120.md`/JSON.3.187 completa,267/270; solo6.4/6.5/6.6 pendientes. No reabrir, limpiar o repetir el fixture; apartados inferiores históricos.

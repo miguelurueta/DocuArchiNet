@@ -1,11 +1,14 @@
 <!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10 -->
+
+Corte de entrega2026-11-20: implementación y pruebas funcionales/nativas completas;3.118/3.187/3.196 tienen sus primarios reales y1.000 documentos están acreditados. La revisión actual no ejecuta nuevos efectos. Revisión final y propuesta de límites en Validacion/doc120-verificacion-final-20261120.md y doc120-aceptacion-limites-final-20261120.md; aceptación expresa6.4/entrega6.6 pendientes. Las descripciones iniciales y propuestas cronológicas inferiores conservan su alcance histórico; no reabren pruebas ya resueltas.
+
 ## Purpose
 
 Consolidar la verificación trazable de importación de carpetas sobre la interfaz definitiva, diferenciando evidencia histórica, pruebas focales, límites operativos y autorización de cada ejecución.
 
 ## ADDED Requirements
 
-Reglas acordadas para planificación tras la exploración de rendimiento: [procesamiento independiente](../../../../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/09-procesamiento-independiente-archivos.md). A no depende de la disponibilidad física de B; la completitud se evalúa por resultados al cierre. Ante faltante conocido, la cola espera Continuar con los demás/Pausar para revisar. Los escenarios IND y las precisiones de creacion/pausa/CAP-08 se implementan localmente tras "implementa", con el contrato focal y script09 manual de3.171/3.197; las pruebas reales3.187/3.196 permanecen pendientes. Las guardas de autoridad, identidad y exclusión de escritor activo permanecen obligatorias.
+Reglas acordadas para planificación tras la exploración de rendimiento: [procesamiento independiente](../../../../../Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/09-procesamiento-independiente-archivos.md). A no depende de la disponibilidad física de B; la completitud se evalúa por resultados al cierre. Ante faltante conocido, la cola espera Continuar con los demás/Pausar para revisar. Los escenarios IND y las precisiones de creacion/pausa/CAP-08 se implementan localmente tras "implementa", con el contrato focal y script09 manual de3.171/3.197; las pruebas reales3.187/3.196 quedaron verificadas en sus ventanas propias posteriores, sin ampliar otras autorizaciones. Las guardas de autoridad, identidad y exclusión de escritor activo permanecen obligatorias.
 
 ### Requirement: RQ-01 — Base y vigencia por componente
 DOC-120 SHALL cumplir la decisión D-01: Fijar el merge de DOC-119 como base funcional. Cada caso conserva SHA/huellas de sus componentes, prueba, ambiente y resultado originales; la identidad de huellas permite reutilización local, no una ejecución real nueva. Un cambio invalida únicamente los casos dependientes; el mapa explicita esa dependencia.

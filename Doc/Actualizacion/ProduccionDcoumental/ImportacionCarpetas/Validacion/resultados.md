@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Revisión final6.4–6.6 — 2026-11-20
+
+[Revisión/huellas y226/226 locales](doc120-verificacion-final-20261120.md)/JSON; sin nueva E2E/SQL/efectos. Cinco documentos de gobierno actualizados al alcance real, fuentes195 selladas y154 del PASS MySQL conservadas. [Aceptación propuesta con responsables](doc120-aceptacion-limites-final-20261120.md): no certificar SII/limpieza reales ni SLA/capacidad máxima, preservar cobertura UI/HTTP/nativa por sus cortes. Aceptación expresa y merge siguen pendientes; no se concede archivo/cierre por casillas o CI.
+
 ## 3.187 — reservas y rollback MySQL aprobados
 
 [Resultado655467f4](doc120-reservas-archivo-resultado-20261120.md)/JSON, código6fc5d343: PASS_FILE_RESERVATIONS_REPOSITORY, lote57/plan94. Fixture reutilizado: dos PDF/expediente697, cero documentos almacenados. Un ganador, revisión antigua, contención/B activo, tres rollbacks y cierres propios comprobados.17 grupos anteriores/5 del fixture conservados;23 llamadas/125 SELECT externos/256 HTTP; claves eliminadas y ventana cerrada.3.187 completa,267/270;6.4–6.6 siguen pendientes. La parada4a3c1b2e y la inspección83b36216 conservan su resultado original.

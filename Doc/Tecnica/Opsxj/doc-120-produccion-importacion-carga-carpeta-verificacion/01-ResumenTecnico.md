@@ -1,5 +1,17 @@
 # DOC-120 — ResumenTecnico
 
+## Objetivo
+
+Entregar la importación de carpetas de DOC-120 sobre la base DOC-119/main8c0773d4: selección/revisión, preparación segmentada, procesamiento independiente por archivo, pausa/continuidad y seguimiento por identidades. La revisión final corresponde a la instrucción actual de continuar6.4–6.6, después del PASS MySQL3.187; no hereda autorizaciones operativas para otras cargas.
+
+## Alcance y compatibilidad
+
+El alcance creció desde la consolidación inicial: cambian producto, DTO/ASMX, servicios, repositorio y cliente, manteniendo el mismo escritor y la autoridad existente. Plan1/plan2 y lecturas compatibles; ID_EXPEDIENTE identifica, el código es etiqueta y puede repetirse. Las decisiones de continuidad son explícitas; un resultado incierto no concede replay ni liberación por timeout.
+
+Importación funcional de1.000 documentos acreditada y latencias muestrales consolidadas; reservas/rollbacks nativos aprobados en655467f4, código6fc5d343. La entrega conserva las fuentes/fechas/runtime originales. SII y limpieza reales, capacidad máxima/memoria/disco y carreras entre dos navegadores no se certifican por estas pruebas. Criterio de salida y responsables en Validacion/doc120-aceptacion-limites-final-20261120.md; revisión en Validacion/doc120-verificacion-final-20261120.md. No hay nueva ejecución real, migración o despliegue por esta consolidación.
+
+## Cronología conservada
+
 ## Mensajes de las cinco fases — implementación local2026-11-14
 
 Preparación, confirmación, recepción, creación/reanudación e índices/almacenamiento muestran causas verificadas y acciones vigentes, con contrato público conservado. El catálogo cerrado cubre148 códigos, incluidos los118 auditados. El mapa clasifica577 textos y684 sitios, conservando etiquetas y excluyendo administración/legacy/V2 sin ampliación. Un acuse confirmado no se pierde por una consulta o proyección fallida; la cola conserva confirmados, archivo actual y no intentados. Sin replay ni cambios de autoridad, reservas, política de nombres o escritores compartidos. Avisos accesibles con Tab en390/768/1280px. **119/119 pruebas locales únicas**, incluidos19 nuevos casos Node y wrappers Framework/DDL; casos internos no sumados. Compilación0 errores. Avance**82/86**,36 escenarios; siguen abiertas5.2/6.4/6.5/6.6. Fuentes, comandos, logs y huellas en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-mensajes-20261114.json`; mapa compañero `doc120-mensajes-mapa-20261114.json`. No hubo nuevas operaciones reales ni comprobación del runtime o destino de trazas de IIS.
@@ -96,11 +108,11 @@ Avance22/26. Corrección DOC120-UI06: carga inicial con indicador neutro accesib
 
 ## Antecedente2026-11-12
 
-## Objetivo
+## Antecedente inicial — Objetivo
 
 Consolidar INT-01/02/03 sobre la interfaz entregada por DOC-119 (main8c0773d4), con resultados trazables por componente y alcance real/local/estático. La continuación sobre73106588 aprueba trabajo local.
 
-## Alcance y compatibilidad
+## Antecedente inicial — Alcance y compatibilidad
 
 Avance21/25: índices matriz-verificacion.md y resultados.md creados,32 casos clasificados,25 primarios y dependencias de11 componentes;15/15 huellas UI y114 entradas del arnés fijadas. Las pruebas UI99/33 históricas se reutilizan por igualdad de huellas/diff. Regresión actual Framework/DDL y políticas/UI:6 Node únicos entre dos cortes, sin sumar casos internos o políticas repetidas.
 

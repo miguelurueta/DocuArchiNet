@@ -1,5 +1,8 @@
 ## Why
 
+Corte de entrega2026-11-20: implementación y pruebas funcionales/nativas completas;3.118/3.187/3.196 tienen sus primarios reales y1.000 documentos están acreditados. La revisión actual no ejecuta nuevos efectos. Revisión final y propuesta de límites en Validacion/doc120-verificacion-final-20261120.md y doc120-aceptacion-limites-final-20261120.md; aceptación expresa6.4/entrega6.6 pendientes. Las descripciones iniciales y propuestas cronológicas inferiores conservan su alcance histórico; no reabren pruebas ya resueltas.
+
+
 DOC-120 consolida la verificación de importación de carpetas sobre la interfaz definitiva integrada por PR130 en main 8c0773d4371aeb35543bf182c0abdd0319cababa. El cierre DOC-119 conserva evidencia real/local diferenciada; hace falta una matriz única de vigencia y límites que consuma EXP/ALM/COORD/SEG sin repetir cargas por cambiar de ticket. Los dos índices exigidos por Jira no existen en la base inspeccionada.
 
 ## What Changes

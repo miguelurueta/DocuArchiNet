@@ -1,5 +1,17 @@
 # DOC-120 — ImpactoUI
 
+## Superficies UI
+
+La barra de Producción Documental y el asistente sí cambian frente a DOC-119: seleccionar reúne perfil/carpetas; revisar conserva validaciones e inventario; seguimiento coordina fases consentidas y expone pausa/cierre, decisiones por faltante, consulta/CSV y acceso al expediente por ID/relación. Consulta y operación mantienen contexto distinto; cambiar encabezados no cambia negocio. Borradores, filtros, páginas, foco y avisos se conservan sin admitir otro efecto por una respuesta tardía.
+
+## Validacion visual
+
+Evidencia mixta: regresión Chromium local de390/768/1280px y contratos de navegación; confirmación manual del usuario del recorrido/retoma; E2E real08bc33cc sobre cuatro guardados y controles de pausa/cancelación/cierre/recarga; resultado final del lote52 confirmado por SELECT. Los primarios de cada corte conservan su SHA. El ajuste de encabezados de eace9bcf y las acciones del árbol tienen sus regresiones locales; no se describe una nueva sesión IIS manual para cada commit documental.
+
+La corrida de transiciones de esta revisión es exclusivamente local/sintética, sin cuentas ni efectos reales. La suficiencia de cobertura y los límites de la interfaz están explicitados en la matriz de aceptación final; no se convierten pruebas de navegador sintéticas en E2E de escritura.
+
+## Cronología conservada
+
 ## Mensajes de las cinco fases — implementación local2026-11-14
 
 Preparación, confirmación, recepción, creación/reanudación e índices/almacenamiento muestran causas verificadas y acciones vigentes, con contrato público conservado. El catálogo cerrado cubre148 códigos, incluidos los118 auditados. El mapa clasifica577 textos y684 sitios, conservando etiquetas y excluyendo administración/legacy/V2 sin ampliación. Un acuse confirmado no se pierde por una consulta o proyección fallida; la cola conserva confirmados, archivo actual y no intentados. Sin replay ni cambios de autoridad, reservas, política de nombres o escritores compartidos. Avisos accesibles con Tab en390/768/1280px. **119/119 pruebas locales únicas**, incluidos19 nuevos casos Node y wrappers Framework/DDL; casos internos no sumados. Compilación0 errores. Avance**82/86**,36 escenarios; siguen abiertas5.2/6.4/6.5/6.6. Fuentes, comandos, logs y huellas en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-mensajes-20261114.json`; mapa compañero `doc120-mensajes-mapa-20261114.json`. No hubo nuevas operaciones reales ni comprobación del runtime o destino de trazas de IIS.
@@ -84,11 +96,11 @@ Avance22/26. Corrección DOC120-UI06: carga inicial con indicador neutro accesib
 
 ## Antecedente2026-11-12
 
-## Superficies UI
+## Antecedente inicial — Superficies UI
 
 La UI de producto no cambia. Menú superior/contextual, destino fijo, consulta/referencia/último lote/verificación y árbol por IDs conservan15 huellas DOC119. El diff de las fuentes y pruebas UI/carga individual respecto a94d57979 está vacío.
 
-## Validacion visual
+## Antecedente inicial — Validacion visual
 
 Se reutiliza la evidencia local DOC119 de navegación, homónimos/denegación, reapertura/recarga, foco/viewport y26 contratos de invocador. No se convierte en nueva sesión IIS ni26 flujos de negocio reales.
 
