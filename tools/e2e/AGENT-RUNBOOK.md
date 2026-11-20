@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — conciliación manual de beneficiario, 2026-11-20
+
+Usuario confirma tabla y perfil ya ampliados y aporta video111928-perfil-modificado: longitud255 visible en NOMBRE BENEFICIARIO, no250.3.130/3.131 completas por conciliación manual en `Validacion/doc120-beneficiario-confirmacion-manual-20261120.md`; no nueva inspección SQL/ID de publicación atribuido ni repetir ALTER/publicación.3.87/3.127 cerradas en revisión focal anterior;264/270 y seis pendientes. Carga funcional de1.000 ya acreditada; solo métricas/aceptación siguen en3.126. Los cortes inferiores de260/270 y scripts detenidos mantienen su carácter histórico, sin ordenar cambios repetidos.
+
 ## DOC-120 — persistencia segmentada real aprobada, 2026-11-20
 
 Run1a31695b3e0c4a9c9f559a205d2dcf3c cerrado PASS_SEGMENTED_REPOSITORY, secretos eliminados. E2E existentes/perfil24-v38/nivel7/141/2; preparación9/plan93/lote56, una raíz/dos inventarios/89.570 bytes declarados. Partes/sellado/confirmación concurrentes y tres rollbacks MySQL verificados;16 grupos de datos anteriores y145 fuentes intactos.33 llamadas,24 controles nativos y53 nuevos del envoltorio;82 acumulados incluyendo29 de92158d88,106 controles totales. Cero HTTP/envío PDF/expedientes/documentos/DDL. Fuente `Validacion/doc120-segmentada-resultado-20261120.md`/JSON;3.118 completa en persistencia con cobertura local anterior y límite explícito de dos conexiones, sin dos pestañas de navegador reales.260/270, diez abiertas;3.187/capacidad/aceptación global conservadas. No relanzar ventanas cerradas ni repetir planes/lotes para obtener otro PASS. Los apartados inferiores son históricos.

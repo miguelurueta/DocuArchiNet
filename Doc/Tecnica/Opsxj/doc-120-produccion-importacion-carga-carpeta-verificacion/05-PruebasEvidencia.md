@@ -1,5 +1,9 @@
 # DOC-120 — PruebasEvidencia
 
+## Beneficiario ampliado — confirmación manual2026-11-20
+
+[Declaración del usuario y video111928](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-beneficiario-confirmacion-manual-20261120.md). Tabla/perfil declarados ampliados; longitud255 visible en la regla de NOMBRE BENEFICIARIO y Operación completada.3.130/3.131 completas por conciliación manual, sin nueva inspección SQL o evento de publicación atribuido.264/270, seis abiertas; no nueva ejecución, carga o cambio de producto.
+
 ## Persistencia segmentada MySQL — 2026-11-20
 
 [Resultado nativo y límites](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-segmentada-resultado-20261120.md). Run1a31695b PASS_SEGMENTED_REPOSITORY con E2E existente: preparación9/plan93/lote56, una raíz/dos inventarios; partes, sellado y confirmación concurrentes, tres rollbacks transaccionales reales.16 grupos de datos previos y145 fuentes sin cambios;106 controles acumulados, cero HTTP/PDF/expedientes/documentos/DDL. Ventana cerrada y secretos eliminados.3.118 completa en persistencia junto a regresión local previa,260/270/diez abiertas; no dos pestañas UI reales, capacidad integral o3.187 ni QA global por este resultado.

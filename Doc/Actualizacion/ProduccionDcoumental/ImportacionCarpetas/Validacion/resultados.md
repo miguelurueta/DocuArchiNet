@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Confirmación manual de beneficiario — 2026-11-20
+
+[Evidencia y límites](doc120-beneficiario-confirmacion-manual-20261120.md): usuario confirma ampliación de tabla/perfil; video111928,12,4333s/SHA2565c2989cc…, muestra longitud255.3.130/3.131 conciliadas como completas;264/270 y seis abiertas. Revisión visual en memoria, sin guardar capturas ni ejecutar HTTP/SELECT/DDL/publicación. Registros anteriores preservados y sin repetir cambios.
+
 ## Revisión focal de cinco pendientes — 2026-11-20
 
 [Revisión documental solicitada](doc120-revision-cinco-pendientes-20261120.md):3.87 y3.127 completadas por reporte manual actual y fuentes reales existentes.3.126 ya ejecutada funcionalmente con1.000 documentos; solo métricas/aceptación integral de capacidad por resolver.3.130/3.131 reportadas probadas, sin repetir DDL/publicación por ausencia de registro posterior; conciliación de procedencia en curso.262/270 y ocho abiertas. Cero pruebas reales nuevas, sin cambiar fuentes históricas ni datos.

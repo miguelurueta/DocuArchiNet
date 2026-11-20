@@ -1,5 +1,7 @@
 # DOC-120 — capacidad de BENEFICIARIO en Egresos
 
+**Resolución posterior2026-11-20:** el usuario confirma ampliadas tabla y perfil y aporta el video111928, con longitud255 visible. [Conciliación manual](doc120-beneficiario-confirmacion-manual-20261120.md):3.130/3.131 completas, sin repetir DDL/publicación. La medición60 y los estados detenidos de este documento/JSON siguen siendo fuentes históricas de esos ejecutores; no describen el estado posterior aportado por el operador.
+
 Estado: **MEDICIÓN REAL COMPLETA; APLICACIÓN DETENIDA ANTES DE ESCRIBIR**. El usuario pidió «hazlo por mi» después del diagnóstico del índice17: medir origen, alinear columna/regla y publicar una versión nueva conservando textos y publicaciones anteriores. No incluye importar documentos, cambiar permisos o modificar el origen/otros índices.
 
 ## Medición

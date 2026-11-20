@@ -2,6 +2,8 @@
 
 El usuario confirma que las cinco primeras tareas de la lista pendiente ya se probaron y solicita revisión quirúrgica. Se revisan exclusivamente 3.87, 3.126, 3.127, 3.130 y 3.131, sin nuevas pruebas reales, conexiones o cambios de producto. Se contrastaron los primarios publicados, 27 estados locales DOC-120 y los registros de publicación de Egresos. Los estados locales permanecen excluidos de Git; no se consultan claves ni se muestran valores documentales.
 
+**Resolución posterior de la aclaración:** el usuario confirma que la tabla y el perfil ya se ampliaron y entrega el video111928. [Conciliación manual y valor255 observado](doc120-beneficiario-confirmacion-manual-20261120.md): 3.130/3.131 completas, **264/270 y seis abiertas**. La tabla siguiente y el corte262/270 conservan el estado de la investigación anterior a esa respuesta; no son el pendiente vigente.
+
 | Tarea | Evidencia efectiva | Conciliación |
 | --- | --- | --- |
 | 3.87, recorrido funcional | Confirmación manual actual del usuario, resultado final lote52 COMPLETADO/1.000/1.000/una creación, pruebas reales de pausa/cierre/retoma y corrección local del acceso al árbol. | Completa por cobertura mixta y aceptación manual reportada. No se exige repetir el recorrido por conservar una casilla anterior. La aceptación global y privacidad/capacidad mantienen sus fuentes propias. |

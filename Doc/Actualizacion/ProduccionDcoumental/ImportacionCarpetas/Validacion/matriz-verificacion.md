@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Beneficiario ampliado confirmado — 2026-11-20
+
+[Confirmación del operador y video111928](doc120-beneficiario-confirmacion-manual-20261120.md). El usuario declara tabla y perfil ya ampliados; se observa Longitud máxima255 en NOMBRE BENEFICIARIO y Operación completada.3.130/3.131 completas por conciliación manual, sin inventar consulta SQL/ID de publicación ni atribuir efectos a scripts detenidos. Cero nuevas escrituras o publicación;264/270 y seis abiertas. La auditoría anterior262/270 queda histórica.
+
 ## Revisión focal de cinco pendientes — 2026-11-20
 
 [Conciliación por tarea y fuente](doc120-revision-cinco-pendientes-20261120.md). El usuario confirma que ya se probaron.3.87/3.127 completas con aceptación manual actual, E2E de continuidad y control final del lote52.3.126 acredita1.000 recibidos/guardados/44.859.102 bytes; queda solo métrica/aceptación de límites, no otra importación.3.130/3.131 requieren conciliar procedencia de aplicación reportada; scripts automáticos encontrados detenidos y versión45 existente no se confunden con falta de implementación. Sin nuevas pruebas o cambios;262/270 y ocho abiertas al corte.
