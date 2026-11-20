@@ -2,6 +2,8 @@
 
 ## Reservas nativas por archivo — preparación2026-11-20
 
+Corte real posterior:4a3c1b2e se detuvo antes de reservas/incidencias por122/123 completados;83b36216 inspeccionó29/50 con7 SELECT y ninguna mutación. Lote50 ya1.000 completados;29 tiene2 completados/25 sin recepción. [Primario](doc120-reservas-archivo-inspeccion-20261120.json). No hay candidatos recibidos pendientes;3.187 continúa abierta hasta autorizar/adaptar un fixture adicional, sin reset de datos. Consolas cerradas/claves eliminadas;33/33 del ejecutor y2/2 Framework/DDL locales, no prueba nativa aprobada.
+
 [Ventana y cobertura3.187](doc120-reservas-archivo-ventana-20261120.md): reutilización del arnés07A sobre122/123 del lote E2E50, con dos reservas/cierres sin invocación y tres rollbacks.32/32 pruebas del ejecutor y2/2 envoltorios Framework/DDL locales; manifiesto privado y check sin BD. **NO_EJECUTADO en MySQL**;3.187 sigue pendiente,266/270 y cuatro abiertas. La evidencia HTTP anterior y el PASS segmentado no sustituyen esta prueba.
 
 ## Rendimiento real consolidado — 2026-11-20

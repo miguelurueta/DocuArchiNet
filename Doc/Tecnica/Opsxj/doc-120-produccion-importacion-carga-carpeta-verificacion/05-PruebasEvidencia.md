@@ -2,6 +2,8 @@
 
 ## Preparación3.187 — reservas nativas por archivo
 
+Corte posterior: [inspección real83b36216](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-reservas-archivo-inspeccion-20261120.json),7 SELECT y0 mutaciones/conexiones escritoras.50 ya1.000 completados;29 tiene2 completados y25 sin recibir, sin candidatos aptos.4a3c1b2e se detuvo antes de reservar. Ambas consolas cerradas/claves eliminadas; no replay o reset.33/33 del ejecutor local tras una guarda nueva;3.187 sigue pendiente de autorización/preparación adicional y ejecución nativa.
+
 [Ventana concreta y límites](../../../Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Validacion/doc120-reservas-archivo-ventana-20261120.md). Ejecutores existentes07A/Framework, lote50/122-123, tres rollbacks y dos cierres anteriores a invocación.32/32 del ejecutor y2/2 envoltorios Framework/DDL locales; sin ejecución MySQL acreditada ni cierre de3.187. Avance266/270;6.4–6.6 conservan su pendiente.
 
 ## Rendimiento real consolidado — 2026-11-20

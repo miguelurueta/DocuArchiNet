@@ -178,3 +178,15 @@ test('file reservation mode binds exact existing resources and reuses the privat
     await assert.rejects(main(['--repository-files','--session',file],runtime),e=>e.code==='EEXIST');
   }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
+
+test('read-only inspection cannot request writer credentials or enter the mutating mode',async()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'doc120-files-inspect-'));
+  try{
+    const file=path.join(dir,'resources.json');fs.writeFileSync(file,JSON.stringify({scenario:'DOC120-FILES-REPOSITORY',runId:'d'.repeat(32),approvedByUser:true,inspectOnly:true,runtimeRoot:path.resolve(__dirname,'..'),lotRef:'50',files:['122','123']}));
+    await assert.rejects(main(['--repository-files','--session',file,'--check']),/INSPECTION_SCOPE_REQUIRED/);
+    let environment;const keys=[];
+    await main(['--repository-files-inspect','--session',file],{requireInteractiveConsole(){},async collectValue(values,key,label,options){keys.push(key);assert.equal(options.secret,true);values[key]='PRIVATE_SENTINEL';},async runChild(command,args,cwd,env){assert.ok(args.includes('Doc120FilesInspect'));environment=env;assert.equal(env.DOC120_SEGMENTED_WRITER_PASSWORD,undefined);return{code:0};}});
+    assert.deepEqual(keys,['readUser','readPassword']);assert.deepEqual(environment,{});
+    assert.equal(JSON.parse(fs.readFileSync(file+'.console-state.json','utf8')).credentialsCleared,true);
+  }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});

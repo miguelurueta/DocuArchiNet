@@ -2,6 +2,8 @@
 
 ## Preparación de reservas nativas3.187 — 2026-11-20
 
+Resultado posterior: [parada4a3c1b2e](doc120-reservas-archivo-parada-20261120.json) sin llegar a reservar; [inspección83b36216](doc120-reservas-archivo-inspeccion-20261120.json) PASS_READONLY_INSPECTION con7 SELECT/0 mutaciones.50 está1.000/1.000 completado;29 conserva2 completados/25 sin recibir. Sin candidatos aptos; no se reinician resultados. Claves eliminadas, ventanas cerradas.33/33 del ejecutor local tras diagnóstico;3.187 pendiente de nuevo fixture autorizado,266/270.
+
 [Recursos, guardas y límites](doc120-reservas-archivo-ventana-20261120.md). Se reutilizan los ejecutores y arnés existentes para122/123 del lote50;32/32 pruebas del ejecutor y2/2 envoltorios Framework/DDL locales. Check de manifiesto sin BD. Sin ejecución MySQL acreditada todavía:3.187 permanece pendiente y266/270 no cambia. Ventanas anteriores cerradas, sin nuevas invocaciones documentales.
 
 ## Rendimiento real consolidado — 2026-11-20

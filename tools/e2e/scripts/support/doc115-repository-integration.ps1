@@ -1,7 +1,8 @@
-param([Parameter(Mandatory=$true)][string]$ResourcesFile,[Parameter(Mandatory=$true)][string]$RuntimeRoot,[switch]$Check,[switch]$Segmented,[switch]$FileReservations)
+param([Parameter(Mandatory=$true)][string]$ResourcesFile,[Parameter(Mandatory=$true)][string]$RuntimeRoot,[switch]$Check,[switch]$Segmented,[switch]$FileReservations,[switch]$InspectFiles)
 $ErrorActionPreference='Stop'
 $privateRepository=$Segmented -or $FileReservations
 if($Segmented -and $FileReservations){throw 'DOC120_FILES_SCOPE_INVALID'}
+if($InspectFiles -and -not $FileReservations){throw 'DOC120_FILES_SCOPE_INVALID'}
 if(-not $Check -and (($privateRepository -and $env:DOC120_SEGMENTED_AUTHORIZED -ne 'true') -or (-not $privateRepository -and $env:DOC115_07A_AUTHORIZED -ne 'true'))){throw 'DOC115_REPOSITORY_AUTHORIZATION_REQUIRED'}
 . (Join-Path $PSScriptRoot 'doc115-readonly-failure.ps1')
 $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../../..'))
@@ -10,6 +11,7 @@ if($privateRepository){
     if($scope.runId -notmatch '\A[a-f0-9]{32}\z' -or $scope.userRef -ne '141' -or $scope.companyRef -ne '2' -or $scope.odbcDsn -ne 'MembershipUsers' -or $scope.cabinetRef -ne '10' -or $scope.environmentHash -notmatch '\A[a-f0-9]{64}\z' -or $scope.backendSha256 -notmatch '\A[a-f0-9]{64}\z' -or $scope.files.Count -ne 2 -or $scope.preserveResources -ne $true){throw 'DOC120_SEGMENTED_SCOPE_INVALID'}
     if($FileReservations){
         if($scope.scenario -ne 'DOC120-FILES-REPOSITORY' -or $scope.levelRef -ne '223' -or $scope.profileRef -ne '28' -or $scope.versionRef -ne '45' -or $scope.lotRef -ne '50' -or ($scope.files -join ',') -cne '122,123' -or $scope.previous){throw 'DOC120_FILES_SCOPE_INVALID'}
+        if([bool]$scope.inspectOnly -ne [bool]$InspectFiles){throw 'DOC120_FILES_INSPECTION_SCOPE_REQUIRED'}
     }else{
     if($scope.scenario -ne 'DOC120-SEGMENTED-REPOSITORY' -or $scope.levelRef -ne '7' -or $scope.profileRef -ne '24'){throw 'DOC120_SEGMENTED_SCOPE_INVALID'}
     $corpus=[IO.Path]::GetFullPath('D:\Pruebas\Importador\Egresos_20261113_092045_39126bb4')+[IO.Path]::DirectorySeparatorChar
@@ -49,7 +51,7 @@ if($Check){
 }
 if($privateRepository){$runId=[string]$scope.runId}else{$runId=$env:DOC115_07A_RUN_ID}
 if($runId -notmatch '\A[a-f0-9]{32}\z'){throw 'DOC115_RUN_ID_REQUIRED'}
-$journalPath=Join-Path $root ('tools/e2e/artifacts/'+$(if($FileReservations){'doc120-files-'}elseif($Segmented){'doc120-segmented-'}else{'doc115-07a-'})+$runId+'.json')
+$journalPath=Join-Path $root ('tools/e2e/artifacts/'+$(if($InspectFiles){'doc120-files-inspect-'}elseif($FileReservations){'doc120-files-'}elseif($Segmented){'doc120-segmented-'}else{'doc115-07a-'})+$runId+'.json')
 if(Test-Path -LiteralPath $journalPath){throw 'DOC115_JOURNAL_ALREADY_EXISTS'}
 if($privateRepository){$marker=[IO.File]::Open($journalPath,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None);$marker.Dispose()}
 $journal=[ordered]@{issueKey='DOC-115';scenario='REPO-07A';status='STARTING';phase='COMPILE';references=@();resourcesSha256=$env:DOC115_07A_RESOURCES_SHA256;backendSha256=$scope.backendSha256;startedUtc=[DateTime]::UtcNow.ToString('o')}
@@ -59,7 +61,7 @@ function Save-Journal { [IO.File]::WriteAllText($journalPath,($journal|ConvertTo
 $control=$null;$catalog=$null;$runLock=$null;$writerBuilder=$null
 function Read-Rows([string]$sql,[object[]]$arguments=@()){
     if($sql -notmatch '\ASELECT\b' -or $sql -match ';|\b(?:INSERT|UPDATE|DELETE|CALL|EXEC|DROP|ALTER|CREATE|REPLACE|TRUNCATE|GRANT|REVOKE|SET|USE|LOAD|OUTFILE|INTO|LOCK|SLEEP|BENCHMARK)\b' -or ([regex]::Matches($sql,'\?')).Count -ne $arguments.Count){throw 'DOC115_SELECT_REQUIRED'}
-    if($privateRepository){if($admission.Elapsed.TotalMinutes -ge 15 -or $journal.wrapperSelects -ge 96){throw 'DOC120_SEGMENTED_WRAPPER_BUDGET'};$journal.wrapperSelects++;$journal.wrapperSelectsThisRun++}
+    if($privateRepository){if($admission.Elapsed.TotalMinutes -ge 15 -or $journal.wrapperSelects -ge $(if($InspectFiles){12}else{96})){throw 'DOC120_SEGMENTED_WRAPPER_BUDGET'};$journal.wrapperSelects++;$journal.wrapperSelectsThisRun++}
     $journal.readonlyStep='SELECT';$journal.selectSha256=Hash-Text $sql;Save-Journal
     $cmd=$control.CreateCommand();$cmd.CommandText=$sql;$cmd.CommandTimeout=15
     foreach($value in $arguments){$p=$cmd.Parameters.Add('@p'+$cmd.Parameters.Count,[Data.Odbc.OdbcType]::VarChar);$p.Size=2048;$p.Value=if($null -eq $value){[DBNull]::Value}else{[Convert]::ToString($value,[Globalization.CultureInfo]::InvariantCulture)}}
@@ -101,6 +103,23 @@ try{
     $ro=New-Object Data.Odbc.OdbcConnectionStringBuilder;$ro['DSN']=$scope.odbcDsn;$ro['UID']=$env:DOC111_E2E_MYSQL_USER;$ro['PWD']=$env:DOC111_E2E_MYSQL_PASSWORD
     if([string]::IsNullOrWhiteSpace($env:DOC111_E2E_MYSQL_USER) -or [string]::IsNullOrWhiteSpace($env:DOC111_E2E_MYSQL_PASSWORD)){throw 'DOC115_READONLY_CREDENTIALS_REQUIRED'}
     $control=New-Object Data.Odbc.OdbcConnection($ro.ConnectionString);$control.Open()
+    if($InspectFiles){
+        $journal.phase='READONLY_FILE_INSPECTION';Save-Journal
+        $actualDatabase=Read-Rows 'SELECT DATABASE() AS database_ref'
+        if($actualDatabase.Count -ne 1 -or $actualDatabase[0].database_ref -cne $segmentedTarget.database){throw 'DOC115_CONTROL_DATABASE_MISMATCH'}
+        $lots=Read-Rows 'SELECT l.lote_id,l.plan_id,l.nivel_ref,l.version_id,l.estado,l.detencion_solicitada,l.total_archivos,v.perfil_id FROM ra_integracion_lote l INNER JOIN ra_integracion_perfil_version v ON v.version_id=l.version_id WHERE l.lote_id IN (29,50) AND l.solicitante_ref=141 AND l.ambito_ref=2 ORDER BY l.lote_id'
+        if($lots.Count -ne 2){throw 'DOC120_FILES_LOT_CHANGED'}
+        $targets=Read-Rows 'SELECT a.archivo_id,r.lote_id,a.estado_recepcion,a.estado_efecto,(a.intento_activo_id IS NOT NULL) AS activo,(a.resultado_doc IS NOT NULL) AS resultado,(a.valores_efectivos_doc IS NOT NULL) AS valores FROM ra_integracion_archivo a INNER JOIN ra_integracion_raiz r ON r.raiz_id=a.raiz_id WHERE r.lote_id=50 AND a.archivo_id IN (122,123) ORDER BY a.archivo_id'
+        $candidates=@();$states=@()
+        foreach($lot in $lots){
+            $group=Read-Rows 'SELECT a.estado_recepcion,a.estado_efecto,(a.valores_efectivos_doc IS NOT NULL) AS valores,COUNT(*) AS total FROM ra_integracion_archivo a INNER JOIN ra_integracion_raiz r ON r.raiz_id=a.raiz_id WHERE r.lote_id=? GROUP BY a.estado_recepcion,a.estado_efecto,a.valores_efectivos_doc IS NOT NULL ORDER BY a.estado_recepcion,a.estado_efecto,valores' @($lot.lote_id)
+            foreach($row in $group){$row|Add-Member -NotePropertyName lote_id -NotePropertyValue $lot.lote_id};$states+=@($group)
+            $available=Read-Rows "SELECT a.archivo_id,r.lote_id,a.revision FROM ra_integracion_archivo a INNER JOIN ra_integracion_raiz r ON r.raiz_id=a.raiz_id WHERE r.lote_id=? AND a.estado_recepcion='RECIBIDO' AND a.estado_efecto='NO_INICIADO' AND a.resultado_doc IS NULL AND a.intento_activo_id IS NULL AND a.valores_efectivos_doc IS NOT NULL AND r.identidad_expediente_doc IS NOT NULL AND r.intento_activo_id IS NULL ORDER BY a.archivo_id LIMIT 4" @($lot.lote_id)
+            $candidates+=@($available)
+        }
+        $journal.result=@{status='PASS_READONLY_INSPECTION';lots=$lots;targets=$targets;candidates=$candidates;states=$states;mutations=0;writerConnections=0};$journal.status='PASS';$journal.finishedUtc=[DateTime]::UtcNow.ToString('o');Save-Journal
+        [Console]::Out.WriteLine('DOC115_07A_RESULT='+($journal.result|ConvertTo-Json -Depth 6 -Compress));return
+    }
     if($Segmented){
         $publication=Read-Rows 'SELECT p.perfil_id,p.version_publicada_id,p.revision,p.activo FROM ra_integracion_perfil p WHERE p.perfil_id=? AND p.ambito_ref=?' @($scope.profileRef,$scope.companyRef)
         if($publication.Count -ne 1 -or $publication[0].activo -ne '1' -or $publication[0].version_publicada_id -notmatch '\A[1-9][0-9]{0,9}\z'){throw 'DOC120_SEGMENTED_EXISTING_PROFILE_UNAVAILABLE'}

@@ -2,6 +2,8 @@
 
 ## DOC-120 — preparación focal de reservas nativas3.187, 2026-11-20
 
+**Corte real posterior:**4a3c1b2e STOPPED/DOC120_FILES_NOT_PENDING,33 controles+3 lecturas nativas antes de reserva/incidencias,0 referencias. Inspección83b36216 PASS_READONLY_INSPECTION,7 SELECT/0 mutaciones/0 conexiones escritoras:50 ya1.000/1.000 completados;29 tiene2 completados/25 sin recibir, sin candidatos recibidos pendientes. Claves eliminadas y ambas ventanas cerradas. No tocar122/123 ni resetear resultados; tampoco intentar reservar otra vez en50. Para3.187 hace falta un fixture adicional autorizado con2 recepciones/1 expediente y cero almacenamiento documental. Propuesta en ventana compañera; adaptación y ejecución aún pendientes.33/33 del ejecutor local;266/270 no cambia. JSON primarios `doc120-reservas-archivo-parada-20261120` e `inspeccion-20261120` en Validacion.
+
 Se amplían los ejecutores existentes con `--repository-files`: lote E2E50/plan90/perfil28-version45/nivel223/141-2, solo archivos122/123 si siguen pendientes recibidos.48 llamadas/64 controles nativos+96 envoltorio/15min por etapa; dos reservas y cierres anteriores a invocación, tres rollbacks; cero adaptadores documentales/recepciones/planes/lotes/DDL. Quedan incidencias deliberadas ORIGINAL_NO_COMPROBADO y su historial, sin quitar PDF ni limpiar datos. Conservar998 archivos/resultados anteriores y comprobar huellas. Preparación32/32+2/2 locales, sin ejecución MySQL acreditada;3.187 pendiente,266/270. Fuente `Validacion/doc120-reservas-archivo-ventana-20261120.md`. Consola privada/manifiesto nuevo y autorización concreta; no reutilizar ventanas cerradas ni credenciales previas.
 
 ## DOC-120 — rendimiento ya medido y consolidado, 2026-11-20

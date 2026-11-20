@@ -1,5 +1,15 @@
 # DOC-120 — ventana nativa de reservas por archivo (3.187)
 
+## Resultado de la primera ventana y revisión
+
+Inspección83b36216 cerrada `PASS_READONLY_INSPECTION`,7 SELECT/0 conexiones escritoras/0 mutaciones, claves eliminadas. Confirma lote50 **1.000/1.000 RECIBIDO/COMPLETADO**;122/123 ya tienen resultados confirmados. Lote29:2 completados y25 PENDIENTE/NO_INICIADO, sin valores fijados. No hay candidatos recibidos y pendientes para la carrera. [Resultado y huellas](doc120-reservas-archivo-inspeccion-20261120.json). No resetear resultados ni reutilizar archivos completados para fabricar una reserva.
+
+La ventana aprobada excluía recepciones y creaciones. Para completar3.187 hace falta autorizar un fixture E2E pequeño adicional: perfil24/publicación vigente y nivel7 ya existentes,141/2, reutilizar el PDF estándar `tools/e2e/fixtures/doc111-carga-individual.pdf` del arnés (677 bytes por archivo), dos inventarios/recepciones y una raíz/expediente confirmado; cero almacenamiento documental. Un plan/lote de prueba adicional, con fuentes, nombres y topes sellados antes de ejecutar; conservación de todo resultado previo. **Esta alternativa no está ejecutada ni autorizada por la ventana anterior.** El arnés de reservas queda preparado sobre el alcance50/122-123; su adaptación al fixture adicional y la ejecución necesitan ese nuevo alcance, sin marcar3.187.
+
+Run4a3c1b2e, código86f6f9d0, cerrado `STOPPED_REVIEW_REQUIRED/DOC120_FILES_NOT_PENDING` a2026-11-20T19:19:56Z. Los dos IDs no cumplen conjuntamente RECIBIDO/NO_INICIADO/sin resultado/sin intento; el diagnóstico no permite inferir cuál condición cambió.33 SELECT del envoltorio y3 lecturas nativas (lote y dos archivos) antes de la guarda; no se alcanzó ningún método de reserva/incidencia/adaptador,0 referencias. Sin postflight global ni atribuir conservación observada a toda la BD. Claves eliminadas, ventana cerrada y no reejecutable. [Registro público](doc120-reservas-archivo-parada-20261120.json).
+
+Se agrega al mismo ejecutor `--repository-files-inspect`, un modo de diagnóstico separado y ligado a `inspectOnly=true` en manifiesto nuevo. Solo solicita cuenta SELECT, verifica destino registrado y consulta estados/candidatos de los lotes E2E29/50, propietario141/empresa2; máximo12 SELECT, cero conexiones escritoras o métodos mutantes. No elige automáticamente otros recursos para reservar.33/33 pruebas del ejecutor tras añadir esta guarda, sin sumar las32 previas superpuestas; los2 envoltorios Framework/DDL permanecen aprobados y el C# no cambió.3.187 sigue pendiente hasta recursos válidos y una ventana nativa autorizada con resultado positivo.
+
 Preparación solicitada por el usuario: verificar reservas por archivo, escritor activo y rollback de incidencias en MySQL. Se amplían las entradas existentes `run-doc115-recepcion-importacion.cjs` y `run-doc111-persistence.ps1`, el helper nativo07A y su parcial `ImportacionCarpetasRepositoryIntegrationTests.cs`. Se conservan las ventanas cerradas anteriores. **Sin ejecución MySQL acreditada todavía; 3.187 permanece pendiente y el avance es266/270.**
 
 ## Recursos y límites concretos
