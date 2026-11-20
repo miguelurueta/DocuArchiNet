@@ -4,6 +4,8 @@ DOC-120 consolida la verificación de importación de carpetas sobre la interfaz
 
 ## What Changes
 
+Auditoria solicitada tras regresiones: revisar transiciones completas y corregir cuatro defectos reproducidos en paginacion entre lotes, borradores de filtros, ayuda durante acuses y estado de revision heredado por consulta. Modelo de consulta propio y regresion amplia local; tareas3.235-3.238, AUDCTX01-04. Sin operaciones reales nuevas.
+
 Video200257: al retomar un lote consultado, cerrar prioriza el lote visible pendiente sobre una preparacion guardada vacia o completada. Seleccion sin confirmar u otro lote guardado se advierten por separado. Cancelar conserva ejecucion; aceptar espera acuse. CTX-EXIT01-03/tareas3.231-3.234; ajuste cliente y pruebas sinteticas locales, sin operaciones reales nuevas.
 
 Video191801: consentimiento del modulo previo a pausar tambien en preparacion/confirmacion; cancelar conserva ejecucion. Una continuacion principal sobre ticket vigente y contador de ultima parte confirmada, con invalidacion al cambiar perfil/seleccion. REV-EXIT01-03/tareas3.227-3.230; cliente/local, sin operaciones reales nuevas.

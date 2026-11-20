@@ -93,8 +93,10 @@ test('DOC119 confirmacion pendiente se verifica sin reconfirmar y las pistas se 
   await page.waitForFunction(()=>document.querySelector('.doc111-destino')?.textContent.includes('Destino original 8'));
   assert.equal(calls.some(call=>call.operation==='ConfirmarPlan'),false);
   await page.getByRole('button',{name:'Cerrar',exact:true}).click();
+  await page.locator('.doc120-close-modal[open] [data-doc111-action="confirmar-cierre"]').click();await page.locator('.doc111-overlay').waitFor({state:'hidden'});
   await page.evaluate(()=>{const host=document.getElementById('doc111-importacion');host.setAttribute('data-recuperacion','b'.repeat(32));ImportacionCarpetas.inicializar();});
-  assert.equal(await page.locator('[data-doc111-resume]').isVisible(),false);assert.equal(await page.locator('[data-doc111-verificar]').isVisible(),false);
+  assert.equal(await page.locator('[data-doc111-resume]').isVisible(),true);assert.equal(await page.locator('[data-doc111-verificar]').isVisible(),false);
+  assert.deepEqual(await page.evaluate(()=>{const h=document.getElementById('doc111-importacion');return {lot:h.doc111UltimoLote||null,plan:h.doc111ConfirmacionPendiente||null};}),{lot:null,plan:null});
   assert.equal(await page.locator('[data-doc119-operacion]').count(),1);
 }));
 
@@ -131,7 +133,8 @@ for(const admin of [false,true])test('DOC120 menu con iconos y colores de Archiv
   assert.equal(await color('#doc110-navigation-toggle'),await color('#reference-files'));
   assert.equal(await color('#doc110-navigation-toggle .doc120-menu-icon'),await color('#reference-files i'));
   await page.locator('#doc110-navigation-toggle').click();
-  const buttons=page.locator('#doc110-navigation .dropdown-item:visible');assert.equal(await buttons.count(),admin?5:2);
+  const buttons=page.locator('#doc110-navigation .dropdown-item:visible');assert.equal(await buttons.count(),admin?6:3);
+  assert.equal(await page.locator('[data-doc111-open]').isVisible(),true);assert.equal(await page.locator('[data-doc111-query-open]').isVisible(),true);assert.equal(await page.locator('[data-doc111-resume]').isVisible(),true);
   for(const button of await buttons.all()){
     assert.equal(await button.evaluate(el=>getComputedStyle(el).color),await color('#reference-item'));
     assert.equal(await button.locator('[aria-hidden="true"]').count(),1);

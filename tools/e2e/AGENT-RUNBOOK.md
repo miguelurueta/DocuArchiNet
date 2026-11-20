@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 - auditoria de transiciones2026-11-19
+
+AUDCTX01..04/tareas3.235..3.238: cuatro defectos de contexto corregidos; consulta con modelo propio, paginas reiniciadas, borradores ligados a filtros del contexto y ayuda estable ante acuses.223/223 en24 suites locales,7 nuevos; incluye1000 sinteticos. Comando reutilizable `node tools/e2e/scripts/test-doc120-transitions.cjs` (`--list` sin ejecutar); no pide claves ni usa runners reales. Primera amplia214/223 conservada, cinco suites antiguas ajustadas al consentimiento/etiquetas/ultimo lote y38/38 antes de corrida completa.247/258 y11 pendientes previas; assets doc120-auditoria-transiciones-20261119-8. Evidencia Validacion/doc120-auditoria-transiciones-20261119.md/JSON. Cero negocio real, autenticacion/HTTP/SELECT nuevos, DLL o esquema; mantener QA anterior cerrada. Apartados inferiores historicos.
+
 ## DOC-120 - consentimiento del lote consultado, corte2026-11-19
 
 CTX-EXIT01..03/tareas3.231..3.234: el lote visible pendiente tiene prioridad sobre preparacion guardada vacia/completada; revision/otro lote guardado se advierten aparte. Cancelar no pausa; aceptar espera acuse sin otro efecto.53/53 Chromium sinteticos,5 nuevos; rojo0/2 y focal5/5, texto1/1 solapado,1280/768/390.243/254 y11 pendientes previas; assets doc120-salida-consulta-20261119-7. Evidencia Validacion/doc120-salida-consulta-20261119.md/JSON. Cero HTTP/SELECT/autenticacion/efectos reales, DLL o esquema. Sin operaciones reales sobre52 ni reapertura de QA cerrada. Aceptacion visual actual pendiente; apartados inferiores historicos.

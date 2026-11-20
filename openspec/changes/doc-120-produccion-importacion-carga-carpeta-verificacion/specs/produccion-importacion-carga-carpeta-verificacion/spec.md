@@ -581,3 +581,22 @@ Los41 escenarios anteriores y los12 escenarios CAP incorporados a RQ-05 forman53
 | D-08/RQ-08 | CAP-11 | Autoridad por solicitud y privacidad de preparaciones/recursos; pruebas reales con ventana propia |
 | D-09/RQ-09 | CAP-12 | Excepción aditiva de preparación/consulta aprobada para código local; configuración, escritores compartidos, formato y ausencia de limpieza preservados |
 | D-01/RQ-01, D-10/RQ-10 | CAP-01–CAP-12 | Fuentes/huellas y resultados locales separados de capacidad/aceptación real |
+
+### Requirement: Aislar estados al consultar, volver y recibir respuestas
+El cliente SHALL mantener separado el estado de revision/importacion guardada del lote consultado y sus controles de paginacion, filtros y ayuda.
+
+#### Scenario: AUDCTX01 - Nueva referencia reinicia paginacion
+- **WHEN** se consulta otro lote despues de navegar a una pagina de raices posterior a la primera
+- **THEN** la consulta de raices y archivos SHALL comenzar en pagina1 con los filtros aplicados vacios, sin ocultar recursos por una pagina del lote anterior
+
+#### Scenario: AUDCTX02 - Borradores de filtros pertenecen al contexto
+- **WHEN** se reinicia una referencia consultada o se vuelve a la importacion guardada
+- **THEN** el cliente SHALL descartar borradores de una consulta reiniciada, conservar los propios del contexto guardado y exportar unicamente los filtros aplicados
+
+#### Scenario: AUDCTX03 - Ayuda permanece durante respuestas
+- **WHEN** se abre la ayuda mientras la importacion recibe acuses y actualiza su avance
+- **THEN** la ayuda SHALL permanecer abierta sin recibir mensajes de consulta como alertas, y Escape SHALL cerrar solo la ayuda sin iniciar una pausa o una operacion
+
+#### Scenario: AUDCTX04 - Consulta no hereda progreso de revision
+- **WHEN** se consulta y procesa otro lote mientras existe una revision pausada guardada
+- **THEN** la consulta SHALL usar un modelo propio sin progreso ni errores heredados, informar de la fase y certeza reales, y permitir volver al ticket vigente de revision sin empezar otra preparacion

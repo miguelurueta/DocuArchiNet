@@ -382,7 +382,7 @@
             if (active !== session) { return; }
             var model = session.model; model.controles = politicaControles(model); model.manifiesto = model.consulta ? {raices:[], archivos:[]} : session.inventory.manifiesto();
             if(session.preparacionSegmentada&&(!session.ticketPreparacion||!session.operation.vigente(session.ticketPreparacion))){session.preparacionSegmentada.destruir();session.preparacionSegmentada=null;session.ticketPreparacion=null;model.progresoPreparacion=null;}
-            model.puedeContinuarPreparacion=!!(session.preparacionSegmentada&&session.ticketPreparacion&&session.operation.vigente(session.ticketPreparacion)&&model.progresoPreparacion);
+            model.puedeContinuarPreparacion=!!(!model.consulta&&session.preparacionSegmentada&&session.ticketPreparacion&&session.operation.vigente(session.ticketPreparacion)&&model.progresoPreparacion);
             model.describirIncidencia = session.api.detalleIncidencia;
             model.ultimoLoteId = host.doc111UltimoLote && host.doc111UltimoLote.loteId; model.planPendienteId = host.doc111ConfirmacionPendiente && host.doc111ConfirmacionPendiente.planId;
             model.paginaRaices = Math.min(model.paginaRaices, Math.max(1, Math.ceil(model.manifiesto.raices.length / 10)));
@@ -756,9 +756,9 @@
                 invalidarCoordinacion(session);
                 if (!model.consulta) {
                     session.importacionGuardada = {model:model, reselected:session.reselected, origenesExcluidos:session.origenesExcluidos, consultaArchivos:session.consultaArchivos};
-                    session.model = Object.assign({}, model, {consulta:true, perfil:null, plan:null, confirmable:false, puedeVolverImportacion:true}); model = session.model;
+                    session.model = modeloInicial({loteId:reference}); session.model.consulta = true; session.model.puedeVolverImportacion = true; model = session.model;
                 }
-                model.referencia = reference; model.loteId = reference; model.contexto = null; model.estado = null; model.resultados = null; model.raices = null; model.expedientesConfirmados = null; model.coordinacion = null; model.originalLocalPendiente=null; model.filtrosArchivos = {}; model.filtrosRaices = {}; model.etapa = 3; model.mutacionIncierta = false; model.ultimaOperacion = null; session.reselected = Object.create(null); session.origenesExcluidos = Object.create(null);
+                model.referencia = reference; model.loteId = reference; model.contexto = null; model.estado = null; model.resultados = null; model.raices = null; model.expedientesConfirmados = null; model.coordinacion = null; model.originalLocalPendiente=null; model.filtrosArchivos = {}; model.filtrosRaices = {}; model.paginaRaicesResultado = 1; model.etapa = 3; model.mutacionIncierta = false; model.ultimaOperacion = null; session.reselected = Object.create(null); session.origenesExcluidos = Object.create(null);
                 run(session, function () { return consultar(session, 1); }); return;
             }
             if (name === "verificar-referencia") { cerrar(true); verify(); return; }
@@ -904,6 +904,9 @@
                 }); });
             }
         }
+        function modeloInicial(resume) {
+            return {etapa:resume ? 3 : 0, busy:false, contexto:null, perfiles:[], perfil:null, paginaPerfiles:1, masPerfiles:false, paginaRaices:1, paginaArchivos:1, paginaIncidencias:1, paginaValores:1, paginaRaicesResultado:1, confirmable:false, loteId:resume ? resume.loteId : null, manifiesto:{raices:[], archivos:[]}};
+        }
         function abrir(resume, explicitLevel) {
             if (active || opening) { if (active && active.view.enfocar) { active.view.enfocar(); } return; }
             var requestedLevel = explicitLevel === undefined ? host.getAttribute("data-nivel") : explicitLevel;
@@ -913,7 +916,7 @@
             try { session.api = deps.ImportacionCarpetasApi.crear({url:host.getAttribute("data-api"), uploadUrl:host.getAttribute("data-upload"), token:host.getAttribute("data-token"), maximoJsonSolicitud:Number(host.getAttribute("data-maximo-json"))}); }
             catch (error) { opening = false; errorApertura = message(error); sync(); return; }
             session.operation = crear(session.inventory);
-            session.model = {etapa:resume ? 3 : 0, busy:false, contexto:null, perfiles:[], perfil:null, paginaPerfiles:1, masPerfiles:false, paginaRaices:1, paginaArchivos:1, paginaIncidencias:1, paginaValores:1, confirmable:false, loteId:resume ? resume.loteId : null, manifiesto:{raices:[], archivos:[]}};
+            session.model = modeloInicial(resume);
             session.model.consulta = !!(modern && resume); session.model.referencia = resume && resume.loteId || "";
             if (resume && resume.consulta) { session.model.etapa = -1; session.model.consulta = true; }
             // La ventana solo se monta tras resolver el destino autorizado.

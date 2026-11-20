@@ -1,5 +1,10 @@
 # DOC-120 — índice cronológico de resultados
 
+## Auditoria de transiciones - corte local2026-11-19
+
+[Dictamen y matriz de recorridos](doc120-auditoria-transiciones-20261119.md) y [fuentes/resultados](doc120-auditoria-transiciones-20261119.json). Cuatro defectos reproducidos y corregidos: pagina de raices heredada de otro lote, borrador de filtro que reaparecia, ayuda cerrada por acuses y mensajes/progreso de revision copiados a consulta. Siete casos nuevos;223/223 en24 suites finales, con1000 sinteticos. La primera amplia214/223 y el contraste parcial anterior se conservan: ocho expectativas antiguas y un cierre esperado sin aceptar; cinco suites actualizadas38/38 antes de repetir la seleccion completa. Ejecutor tools/e2e/scripts/test-doc120-transitions.cjs; assets doc120-auditoria-transiciones-20261119-8.247/258 tareas,107 escenarios,11 pendientes previas. Cero HTTP/SELECT/autenticacion/efectos reales, DLL o esquema; QA historica cerrada sin replay. No declara ausencia absoluta de errores ni certificacion de negocio real. Cortes inferiores historicos.
+
+
 ## Salida desde lote consultado - corte local2026-11-19
 
 [Dictamen](doc120-salida-consulta-20261119.md) y [fuentes/resultados](doc120-salida-consulta-20261119.json). Video200257: preparacion guardada vacia ocultaba consentimiento del lote visible. Ahora se prioriza el lote actual pendiente y se advierte aparte revision/otro lote guardado; cancelar conserva ejecucion y aceptar espera acuse. CTX-EXIT01-03/tareas3.231-3.234, cinco casos nuevos; reproduccion roja0/2, focal5/5 y regresion53/53; texto1/1 solapado. Cabecera visible/scroll a1280-768-390.243/254 tareas,103 escenarios,11 pendientes previas. Assets doc120-salida-consulta-20261119-7; cero autenticacion/HTTP/SELECT/efectos reales, DLL o esquema. Aceptacion visual actual pendiente; sin operaciones sobre52 ni replay de ventanas cerradas. Cortes inferiores historicos.
