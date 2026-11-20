@@ -71,7 +71,7 @@
         <script src="../js/gestion/ImportacionCarpetas/InventarioImportacion.js?v=doc111-ui-20261028-1"></script>
         <script src="../js/gestion/ImportacionCarpetas/PreparacionSegmentadaImportacion.js?v=doc120-consulta-visible-20261119-9"></script>
         <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js?v=doc120-consulta-visible-20261119-9"></script>
-        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js?v=doc120-consulta-visible-20261119-9"></script>
+        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js?v=doc120-estado-visible-20261119-10"></script>
         <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetas.js?v=doc120-consulta-visible-20261119-9"></script>
         <link href="../js/gestion/ImportacionCarpetas/PerfilImportacionEditor.css?v=doc110-menu-20261024-2" rel="stylesheet" />
         <script src="../js/gestion/ImportacionCarpetas/PerfilImportacionApi.js"></script>

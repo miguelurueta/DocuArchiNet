@@ -5,6 +5,17 @@
 }(typeof window !== "undefined" ? window : this, function () {
     "use strict";
     function ocupado(model) { return !!(model.busy || model.transicionPendiente || model.controles && model.controles.bloquearEdicion); }
+    function encabezado(model) {
+        var state=model.estado, flow=model.coordinacion, working=flow&&flow.activa||model.busy&&['RECEPCION','CREAR_EXPEDIENTE','RETOMAR_CREACION','MATERIALIZAR_VALORES','ALMACENAR'].indexOf(model.faseSolicitud)!==-1, labels={title:model.consulta?'Consultar importación':'Importar carpetas',copy:model.consulta||state?'Consulta los resultados y continúa solo cuando lo indiques.':'Convierte tus carpetas en expedientes, paso a paso.',section:'Estado de la importación'};
+        if(!state){return labels;}
+        if(state.estado==='COMPLETADO'){labels.title='Importación finalizada';labels.copy='Revisa los expedientes y documentos confirmados de este lote.';labels.section='Resultado del lote';}
+        else if(model.transicionPendiente||flow&&flow.estado==='pausing'){labels.title=model.transicionPendiente&&model.transicionPendiente.accion==='cerrar'?'Pausando para salir':'Pausando importación';labels.copy='Se espera la respuesta actual. No se iniciará la siguiente operación.';labels.section='Pausa solicitada';}
+        else if(working){labels.title='Importando carpetas';labels.copy='Se procesan los pendientes del mismo lote. Puedes solicitar una pausa.';labels.section='Avance de la importación';}
+        else if(!model.mutacionIncierta&&(state.estado==='DETENIDO'||state.detencionSolicitada)){labels.title='Lote detenido';labels.copy='Consulta las acciones disponibles para este lote antes de reanudar.';labels.section='Detención del lote';}
+        else if(model.mutacionIncierta||model.bloqueoFlujo||flow&&flow.estado==='blocked'){labels.title='Revisar importación';labels.copy='Consulta el resultado y las acciones disponibles antes de continuar.';labels.section='Resultado por revisar';}
+        else if(model.originalLocalPendiente||flow&&['paused','needs-original','awaiting-decision'].indexOf(flow.estado)!==-1){labels.title='Importación en pausa';labels.copy='Lo recibido y guardado se conserva. Revisa cómo continuar este lote.';labels.section='Avance conservado';}
+        return labels;
+    }
     function crear(host, action) {
         var doc = host.ownerDocument, previousFocus = doc.activeElement, previousOverflow = doc.body.style.overflow;
         doc.body.style.overflow = "hidden";
@@ -41,7 +52,7 @@
         var overlay = node("div", undefined, "doc111-overlay"), dialog = node("section", undefined, "doc111-dialog");
         dialog.setAttribute("role", "dialog"); dialog.setAttribute("aria-modal", "true"); dialog.setAttribute("aria-labelledby", "doc111-title"); dialog.tabIndex = -1;
         var shortcuts = node("section",undefined,"query-shortcuts doc111-shortcuts"), sheet = node("div",undefined,"sheet doc111-sheet"), head = node("header",undefined,"sheet-head doc111-head"), heading = node("div",undefined,"heading"), title = node("h2","Importar carpetas","doc111-title"); title.id = "doc111-title"; shortcuts.setAttribute("aria-label","Consultas de importación");
-        var tools = node("div",undefined,"heading-tools"), close = button("Cerrar","cerrar"); close.className = "subtle"; close.querySelector("span").className = "sr-only"; close.setAttribute("aria-label","Cerrar"); var help = button("Cómo funciona","ayuda"); help.className = "subtle"; help.setAttribute("aria-label","Cómo funciona"); add(tools,help,close); add(heading,add(node("div"),title,node("p","Convierte tus carpetas en expedientes, paso a paso.")),tools); head.appendChild(heading); add(dialog,shortcuts,sheet); sheet.appendChild(head);
+        var tools = node("div",undefined,"heading-tools"), close = button("Cerrar","cerrar"); close.className = "subtle"; close.querySelector("span").className = "sr-only"; close.setAttribute("aria-label","Cerrar"); var help = button("Cómo funciona","ayuda"); help.className = "subtle"; help.setAttribute("aria-label","Cómo funciona"); var subtitle=node("p","Convierte tus carpetas en expedientes, paso a paso."); add(tools,help,close); add(heading,add(node("div"),title,subtitle),tools); head.appendChild(heading); add(dialog,shortcuts,sheet); sheet.appendChild(head);
         var destination = node("div", "", "contextbar doc111-destino"); head.appendChild(destination);
         var steps = node("ol", undefined, "steps doc111-steps"); steps.setAttribute("aria-label", "Etapas de importación");
         ["Seleccionar", "Revisar", "Importar"].forEach(function (text,index) { steps.appendChild(add(node("li"),add(node("span",undefined,"step"),node("span",index+1,"step-num"),node("span",text)))); }); head.appendChild(steps);
@@ -227,7 +238,6 @@
             if(flow&&flow.enumeracionCompleta){var total=flow.totalArchivos*3+flow.totalRaices,value=flow.recibidos+flow.expedientes+flow.datos+flow.guardados,bar=node('progress');bar.max=total||1;bar.value=Math.min(value,total);bar.setAttribute('aria-label','Avance por fases confirmadas');add(execution,bar,node('span',(detail?'Último avance confirmado: ':'')+flow.guardados+' de '+flow.totalArchivos+' documentos guardados · '+flow.pendientes+' pendientes · '+flow.expedientes+' de '+flow.totalRaices+' expedientes creados','small muted'));}
             add(guide,add(node('div',undefined,'action-glyph'),icon(done?'check':reference&&reference.fase==='CREAR_EXPEDIENTE'?'folder':'document')),execution);
             var existingStats=content.querySelector('.stats');if(existingStats&&flow&&flow.enumeracionCompleta){var counts=node('div');stats(counts,[[flow.recibidos+' / '+flow.totalArchivos,'PDF recibidos'],[flow.expedientes+' / '+flow.totalRaices,'expedientes creados'],[flow.guardados+' / '+flow.totalArchivos,'documentos guardados']]);existingStats.replaceWith(counts.firstChild);}
-            var stateHeading=content.querySelector('.section-head h3');if(stateHeading){stateHeading.textContent=done?'Resultado de la importación':'Importación del lote revisado';}
             var queryControl=content.querySelector('.query-control'),contextLabel=queryControl&&queryControl.previousElementSibling;if(contextLabel){contextLabel.querySelector('span').textContent='Lote '+model.loteId;contextLabel.querySelector('h4').textContent='Resultados de la importación';}
             var refreshButton=footer.querySelector('[data-doc111-action="consultar"]');if(queryControl&&refreshButton){refreshButton.className='';queryControl.insertBefore(refreshButton,queryControl.firstChild);}
             if(done){Array.prototype.forEach.call(steps.children,function(step){step.removeAttribute('aria-current');step.firstChild.className='step done';step.firstChild.removeAttribute('aria-current');step.firstChild.firstChild.textContent='✓';});}
@@ -259,7 +269,7 @@
             else if (focused !== dialog) { pendingFocus = null; }
             if (pendingFocus) { restore = true; referenceFocused = pendingFocus.reference; focusAction = pendingFocus.action; focusValue = pendingFocus.value; focusFilter = pendingFocus.filter; focusPanelKey = pendingFocus.panel; }
             if (closingQuery) { restore = true; referenceFocused = false; focusAction = "abrir-consulta"; focusValue = JSON.stringify(null); focusFilter = null; focusPanelKey = null; pendingFocus = {action:focusAction,value:focusValue}; }
-            title.textContent = model.consulta ? "Consultar importación" : "Importar carpetas";
+            var labels=encabezado(model);title.textContent=labels.title;subtitle.textContent=labels.copy;
             steps.hidden = !!model.consulta;
             destination.textContent = ""; add(destination,add(node("span",undefined,"context-item"),icon("lock"),node("span",model.consulta ? "Destino original: " : "Destino: "),node("b",model.contexto ? model.contexto.rutaCanonica : "Consulta una referencia autorizada")));
             if (model.perfil) { destination.appendChild(add(node("span",undefined,"context-item"),node("span","Perfil: "),node("b",(model.perfil.Configuracion.NombreVisible || "Perfil " + model.perfil.PerfilId) + " · v" + model.perfil.NumeroVersion))); }
@@ -346,7 +356,7 @@
                 footer.appendChild(node("p", "Al confirmar autorizas enviar los PDF, crear sus expedientes, preparar los datos y guardar los documentos. Puedes pausar entre operaciones.")); footer.appendChild(button("Cambiar selección", "etapa", 1, ocupado(model) || model.confirmacionIncierta));
                 footer.appendChild(button("Confirmar e importar", "confirmar-importar", null, ocupado(model) || !model.confirmable || model.confirmacionIncierta));
             } else {
-                sectionHead("Seguimiento de la importación","El lote conserva su destino original. Consultar y exportar no ejecuta efectos.",model.consulta ? null : 3);
+                sectionHead(labels.section,labels.copy,model.consulta ? null : 3);
                 if (model.estado && model.estado.estado) { var stateHead = content.lastChild, stateTag = stateHead.querySelector(".tag"); if (stateTag) { stateTag.textContent = model.estado.estado; } else { stateHead.appendChild(badge(model.estado.estado,"blue")); } }
 
 

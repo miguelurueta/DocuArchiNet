@@ -38,7 +38,7 @@ async function stopped(page,count=3,mode='normal'){
   };
   if(mode==='lost'){const send=XMLHttpRequest.prototype.send;XMLHttpRequest.prototype.send=function(body){if(this.operation==='ReanudarLote'){this.onload=()=>{if(this.onerror)this.onerror();};}return send.call(this,body);};}
  },{mode,count});await click(page,'confirmar-importar');
- await page.getByRole('heading',{name:mode==='old'?'Importación detenida':'Importación detenida; puedes reanudarla',exact:true}).waitFor();
+ await page.getByRole('heading',{name:mode==='old'?'Importación detenida':'Importación detenida; puedes reanudarla',exact:true}).waitFor();assert.equal(await page.locator('.doc111-title').textContent(),'Lote detenido');
 }
 test('RESUME01: 1000 recibidos y 4 guardados retoma ID pendiente sin repetir confirmación, recibos ni expediente',()=>fixture(async page=>{
  await stopped(page,1000);await page.evaluate(()=>holdPhase='ALMACENAR');await click(page,'reanudar-importacion');await page.waitForFunction(()=>!!held);await click(page,'pausar-importacion');await page.evaluate(()=>held());await page.getByRole('button',{name:'Continuar importación',exact:true}).waitFor();

@@ -615,3 +615,10 @@ La verificacion E2E SHALL diferenciar efectos reales de almacenamiento, entrega 
 #### Scenario: STORAGE-E2E02 - Controles y limites de efectos reales
 - **WHEN** se preparan o ejecutan los cuatro guardados
 - **THEN** la E2E SHALL limitar recepcion/preparacion a esos archivos, verificar RA/DA/conteos/recursos ajenos, esperar toda solicitud iniciada y preservar estados cerrados sin reintentos ni secretos persistidos
+
+### Requirement: Encabezado acorde a la actividad del lote
+La interfaz SHALL describir el estado vigente del lote visible sin modificar su procesamiento al actualizar los textos.
+
+#### Scenario: HEADER-STATE01 - El lote consultado informa del trabajo actual
+- **WHEN** un lote consultado comienza a importar, solicita pausa, queda pausado, necesita revisar un resultado o completa su estado confirmado
+- **THEN** titulo y subtitulo SHALL describir ese estado vigente sin afirmar pausa antes del acuse, confundir origen consulta con actividad ni alterar acciones o efectos, y sus encabezados SHALL conservar identificacion accesible sin duplicar el nombre del resultado

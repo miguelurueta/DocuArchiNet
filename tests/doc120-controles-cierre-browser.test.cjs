@@ -62,7 +62,7 @@ test('CTL-UI03: una consulta pendiente deshabilita clics repetidos y Escape no s
 }));
 test('CTL-UI04: cierre de envio manual espera PDF actual y deja los restantes sin recibir',()=>fixture(async page=>{
  await select(page,1,3);await instrument(page,'RECEPCION');await click(page,'confirmar-importar');await page.waitForFunction(()=>!!held);await click(page,'pausar-importacion');await release(page);await page.locator('[data-doc111-action="continuar-importacion"]').waitFor();
- const manual=page.locator('[data-doc111-panel="envio"]');if(!await manual.evaluate(e=>e.open))await manual.locator('summary').click();await page.evaluate(()=>holdPhase='RECEPCION');await click(page,'enviar');await page.waitForFunction(()=>!!held);const before=await writes(page);
+ const manual=page.locator('[data-doc111-panel="envio"]');if(!await manual.evaluate(e=>e.open))await manual.locator('summary').click();await page.evaluate(()=>holdPhase='RECEPCION');await click(page,'enviar');await page.waitForFunction(()=>!!held);assert.equal(await page.locator('.doc111-title').textContent(),'Importando carpetas');const before=await writes(page);
  await page.getByRole('button',{name:/^(Cerrar|Pausar y salir)$/}).click();await acceptClose(page);assert.equal(await page.evaluate(()=>doc120Aborts),0);await release(page);await page.locator('.doc111-overlay').waitFor({state:'hidden'});
  assert.equal(await writes(page),before);assert.equal(await page.evaluate(()=>files.filter(f=>f.estadoRecepcion==='RECIBIDO').length),2);assert.equal(await page.evaluate(()=>files[2].estadoRecepcion),'PENDIENTE');assert.equal(await page.evaluate(()=>doc120Aborts),0);
 }));

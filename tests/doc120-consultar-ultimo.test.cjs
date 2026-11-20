@@ -23,7 +23,7 @@ test('LAST02: sin referencia ni perfil, el botón busca en servidor y consulta e
  await page.evaluate(()=>{window.doc120ExtraReply=op=>op==='ConsultarUltimoLote'?{encontrado:true,loteId:'34'}:undefined;});
  assert.equal(await page.getByLabel('Perfil publicado').inputValue(),'');const button=page.locator('.doc111-shortcuts').getByRole('button',{name:'Consultar último lote',exact:true});assert.equal(await button.isEnabled(),true);
  const before=await page.evaluate(()=>calls.filter(c=>['ConfirmarPlan','RECEPCION','AvanzarLote'].includes(c.operation)).length);
- await button.click();await page.getByRole('heading',{name:'Consultar importación',exact:true}).waitFor();
+ await button.click();await page.getByRole('heading',{name:'Importación finalizada',exact:true}).waitFor();
  assert.deepEqual(await page.evaluate(()=>calls.filter(c=>c.operation==='ConsultarUltimoLote').map(c=>c.request)),[{}]);
  assert.equal(await page.evaluate(()=>calls.filter(c=>['ConfirmarPlan','RECEPCION','AvanzarLote'].includes(c.operation)).length),before);
  await click(page,'volver-importacion');await page.getByLabel('Perfil publicado').waitFor();assert.equal(await page.getByLabel('Perfil publicado').inputValue(),'');

@@ -9,7 +9,7 @@
   },
   "annex": {
     "path": "Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/Diseno/flujo-tecnico-importacion-carpetas-doc120-anexo.txt",
-    "sha256Lf": "110a8119de19a89a9b0e0f3bab952489267060945530939864eae9d476373286"
+    "sha256Lf": "1c2d7eae4a040fcb89fe3de94e22f17dd8b1a81e22dfc7127cffc68df7e13da9"
   },
   "generator": {
     "path": "tools/docs/generate-doc120-flow.cjs",
@@ -17,7 +17,7 @@
   },
   "sourceCount": 124,
   "httpEndpoints": 53,
-  "extractedLines": 20226,
+  "extractedLines": 20236,
   "sourceInventory": [
     {
       "path": "DTOs/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasDtos.vb",
@@ -48,7 +48,7 @@
     },
     {
       "path": "Gestion/WebFormProducionDocumental.aspx",
-      "sha256Lf": "56842034b403e50dd662381982629eab251bddc4b79f94a22643dacc61b755f8",
+      "sha256Lf": "1bba86c4a207e0b07c2b283a72e6229dc75308dfbdcd15bc989367064fa73567",
       "lines": 2249,
       "selectedMethods": null
     },
@@ -701,8 +701,8 @@
     },
     {
       "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
-      "sha256Lf": "ea9f92f91b740cf38cecd7292ec84b77013af28bb6f7171e701c59260de8a059",
-      "lines": 459,
+      "sha256Lf": "c8eb764151dce409cd248547c9fbfc0af933d14de760e4aa8451921049233b95",
+      "lines": 469,
       "selectedMethods": null
     },
     {

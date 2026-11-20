@@ -408,7 +408,7 @@ test('DOC-111: interfaz Chromium local con servicios sintéticos, foco y cierre 
     await page.locator('.doc111-overlay').waitFor({state:'hidden'});
     assert.equal(await page.getByRole('dialog').count(), 0);
     await page.locator('[data-doc111-resume]').click(); await page.getByRole('dialog').waitFor();
-    await page.getByRole('heading', {name:'Importación del lote revisado', exact:true}).waitFor();
+    await page.getByRole('heading', {name:'Estado de la importación', exact:true}).waitFor();
     await page.waitForFunction(() => document.querySelector('.doc111-content').textContent.includes('RECIBIDO'));
     assert.equal(await page.locator('[data-doc111-action="enviar"]').isDisabled(), true);
     await page.getByRole('button', {name:'Cerrar', exact:true}).focus(); await page.keyboard.press('Shift+Tab');

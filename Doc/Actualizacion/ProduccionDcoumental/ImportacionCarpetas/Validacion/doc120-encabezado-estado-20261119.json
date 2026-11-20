@@ -1,0 +1,131 @@
+{
+  "dateLocal": "2026-11-19",
+  "reviewedUtc": "2026-11-20T04:21:16.656315+00:00",
+  "baseCommit": "851f83c060b14673c2d7aad4b88e6221300e2122",
+  "task": "3.248",
+  "sourceVideoReview": "doc120-validacion-manual-video230607-20261119.json",
+  "scope": "Render-only title/subtitle/section labels derived from existing model; no operation scheduling or model mutation",
+  "labels": [
+    {
+      "state": "No lote, seleccion/revision",
+      "title": "Importar carpetas"
+    },
+    {
+      "state": "Consulta sin coordinacion activa",
+      "title": "Consultar importacion"
+    },
+    {
+      "state": "Coordinacion activa o fase documental manual en vuelo",
+      "title": "Importando carpetas"
+    },
+    {
+      "state": "Pausa solicitada, falta acuse",
+      "title": "Pausando importacion"
+    },
+    {
+      "state": "Cierre voluntario pendiente de respuesta",
+      "title": "Pausando para salir"
+    },
+    {
+      "state": "Pausa local/original pendiente, sin trabajo en vuelo",
+      "title": "Importacion en pausa"
+    },
+    {
+      "state": "Detencion confirmada sin resultado incierto",
+      "title": "Lote detenido"
+    },
+    {
+      "state": "Resultado incierto/bloqueo por revisar",
+      "title": "Revisar importacion"
+    },
+    {
+      "state": "Estado del lote COMPLETADO, no pagina filtrada",
+      "title": "Importacion finalizada"
+    }
+  ],
+  "verification": {
+    "finalTests": 118,
+    "pass": 118,
+    "fail": 0,
+    "newTestCases": 0,
+    "method": "Existing transition, messages, client, responsive fidelity, last-lot, safe close, wait/resume and storage suites with heading assertions",
+    "logs": [
+      {
+        "path": ".tmp\\doc120-titulo-red.log",
+        "sha256": "576eb07adacd2bddccd372c3d608e79ff3218b54c3da0571847ec9f7cc6101d4",
+        "status": "0/4 expected reproduction failures before implementation"
+      },
+      {
+        "path": ".tmp\\doc120-titulo-focal.log",
+        "sha256": "1bb6453daa3acb6ab5d7d4550fcbdf35cb14f49681af7c8a5c3130d321025129",
+        "status": "29/30; completed-lot heading expectation adapted"
+      },
+      {
+        "path": ".tmp\\doc120-titulo-regresion.log",
+        "sha256": "2813c46f4ccbc1d4268124de6a587a7c89c572090f91161aa307faf8d6613d90",
+        "status": "113/118; five stopped-state headings exposed priority defect, then corrected"
+      },
+      {
+        "path": ".tmp\\doc120-titulo-final.log",
+        "sha256": "088a4184d080372b05324d5ea51267c51b4bc5df85c45fb8cbf5a4c5703a4d98",
+        "status": "118/118 final on one selection; previous runs overlap and are not added"
+      }
+    ],
+    "viewports": [
+      390,
+      768,
+      1280
+    ],
+    "syntax": "PASS",
+    "flowCheck": "FLOW_CURRENT:124 sources/20236 lines",
+    "openSpec": "PASS strict validation"
+  },
+  "sources": [
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256": "5872949ab0d05c84da98afa9a317fad414edf01b221fa97c6ce5a1ddb3736dfd"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+      "sha256": "53e25090015c5d7113343ab9fc4bee39f3a4c63a4bb4c9fc928076b7beb8ceaa"
+    },
+    {
+      "path": "tests/doc111-importacion-carpetas-client.test.cjs",
+      "sha256": "15819fc2f67e8260d396ef25347a1ec7b819d48cd66a66086e598496ef3ae4dd"
+    },
+    {
+      "path": "tests/doc120-consultar-ultimo.test.cjs",
+      "sha256": "a625bf2a4f2de511f3871e8d69d161d62d21165920a6343ae5752352f3bdd2a9"
+    },
+    {
+      "path": "tests/doc120-controles-cierre-browser.test.cjs",
+      "sha256": "8eadbd577eca627907905c1c80c5739c5b4f3852018b0634406999b1f2608411"
+    },
+    {
+      "path": "tests/doc120-espera-reanudacion.test.cjs",
+      "sha256": "8011b55691caa96f90fcf811651ff8229fbcae8402944c9ee85ae844d164b828"
+    },
+    {
+      "path": "tests/doc120-mensajes-vigentes-browser.test.cjs",
+      "sha256": "02aace2815efa645552b64286a497361befb3eb1c4dcee309eff993b03349a69"
+    },
+    {
+      "path": "tests/doc120-storage-ui.test.cjs",
+      "sha256": "c571668decbb6afee65135e76e76323f5e59e4fc3adf242e0a0ce9333fd5fff2"
+    }
+  ],
+  "flowManifestSha256": "de1179de83bd9089f1036140fbe9248966c50f63ed364703eff59ff12557eb59",
+  "assetVersion": "doc120-estado-visible-20261119-10",
+  "realOperations": {
+    "http": 0,
+    "select": 0,
+    "sessions": 0,
+    "businessEffects": 0
+  },
+  "limits": [
+    "No new native storage run or authenticated application access",
+    "Prior E2E08bc33cc remains PASS for its sealed sources; new title verified locally, not relabeled as that old native run",
+    "No server/DLL/schema/profile/endpoint changes or automatic repeat of closed windows",
+    "Eleven earlier pending tasks including capacity, rollback and complete/manual acceptance remain open"
+  ]
+}
