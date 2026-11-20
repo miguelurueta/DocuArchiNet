@@ -1,0 +1,810 @@
+{
+  "dateLocal": "2026-11-19",
+  "reviewedUtc": "2026-11-20T03:54:39.983324+00:00",
+  "reviewBaseCommit": "1a516ec6c55e06e743ac07d7f36339d7b89ffe34",
+  "runId": "08bc33cc7b92403e8dd1ba47adca1a86",
+  "status": "PASS_REAL_STORAGE_UI",
+  "stateSha256": "74fb5d23804649416cd872d689c937411e3766000fdbe2440441eb40ed05604e",
+  "stateFile": ".tmp\\doc120-storage-ui\\08bc33cc7b92403e8dd1ba47adca1a86\\state.json",
+  "verification": "Review of already closed local state; no new HTTP, SQL, authentication or effects",
+  "sourcesCurrentlyMatch": true,
+  "httpTimingMs": {
+    "samples": [
+      989,
+      938,
+      974,
+      1022
+    ],
+    "mean": 980.75,
+    "min": 938,
+    "max": 1022,
+    "excludes": "Browser response delivery hold, UI delays, receipts, metadata preparation and external RA/DA controls"
+  },
+  "observedEffects": {
+    "newDocuments": 4,
+    "newReceipts": 3,
+    "receivedBytes": 134642,
+    "metadataPreparations": 4,
+    "newPlans": 0,
+    "newLots": 0,
+    "newExpeditions": 0,
+    "deletes": 0,
+    "profileChanges": 0
+  },
+  "limits": [
+    "Four documents from existing confirmed lot; does not certify 1000-document capacity or complete initial import workflow",
+    "Client pause/continue only; not administrative ReanudarLote",
+    "Browser response delivery controlled; not SQL fault injection or rollback certification",
+    "RA/DA metadata linkage verified; no physical download of stored PDF for byte comparison",
+    "Previous eleven open tasks and manual acceptance preserved; no full-change acceptance or archive"
+  ],
+  "lotId": "52",
+  "owner": "141",
+  "company": "2",
+  "max": {
+    "http": 1200,
+    "select": 80,
+    "sessions": 1,
+    "storage": 4,
+    "receipts": 4,
+    "metadata": 4,
+    "sourceBytes": 100663296,
+    "milliseconds": 2700000
+  },
+  "http": 623,
+  "select": 50,
+  "sessions": 1,
+  "operations": [
+    {
+      "fileId": "2177",
+      "phase": "ALMACENAR",
+      "status": "CONFIRMED",
+      "startedUtc": "2026-11-20T03:50:31.584Z",
+      "http": 200,
+      "code": "OK",
+      "documentId": "18341",
+      "elapsedMs": 989,
+      "timing": {
+        "adaptador": {
+          "durationMs": 567.19,
+          "calls": 1
+        },
+        "checkpoint": {
+          "durationMs": 51.338,
+          "calls": 1
+        },
+        "comprobacion_posterior": {
+          "durationMs": 8.954,
+          "calls": 1
+        },
+        "consulta_preflight": {
+          "durationMs": 57,
+          "calls": 2
+        },
+        "copia_trabajo": {
+          "durationMs": 19.286,
+          "calls": 1
+        },
+        "datos_documentales": {
+          "durationMs": 30.786,
+          "calls": 1
+        },
+        "escritor_legacy": {
+          "durationMs": 44.107,
+          "calls": 1
+        },
+        "json_chars": {
+          "durationMs": 0,
+          "calls": 130812
+        },
+        "json_control": {
+          "durationMs": 9.457,
+          "calls": 137
+        },
+        "lectura_final": {
+          "durationMs": 28.942,
+          "calls": 1
+        },
+        "original_open": {
+          "durationMs": 0,
+          "calls": 2
+        },
+        "original_v2": {
+          "durationMs": 1.575,
+          "calls": 1
+        },
+        "originales_previos": {
+          "durationMs": 11.107,
+          "calls": 1
+        },
+        "originales_retenidos": {
+          "durationMs": 5.933,
+          "calls": 1
+        },
+        "pdf_bytes": {
+          "durationMs": 0,
+          "calls": 223465
+        },
+        "prev_io": {
+          "durationMs": 4.825,
+          "calls": 1
+        },
+        "reserva": {
+          "durationMs": 36.416,
+          "calls": 1
+        },
+        "ret_io": {
+          "durationMs": 0.766,
+          "calls": 1
+        },
+        "sql_archivo": {
+          "durationMs": 3.075,
+          "calls": 11
+        },
+        "sql_autoridad": {
+          "durationMs": 8.564,
+          "calls": 90
+        },
+        "sql_catalogo": {
+          "durationMs": 30.137,
+          "calls": 85
+        },
+        "sql_control": {
+          "durationMs": 21.204,
+          "calls": 86
+        },
+        "sql_esquema": {
+          "durationMs": 551.007,
+          "calls": 120
+        },
+        "sql_evento": {
+          "durationMs": 9.808,
+          "calls": 35
+        },
+        "total": {
+          "durationMs": 950.625,
+          "calls": 1
+        },
+        "v2_autorizacion": {
+          "durationMs": 37.568,
+          "calls": 1
+        },
+        "v2_hash": {
+          "durationMs": 2.751,
+          "calls": 9
+        },
+        "v2_inicio": {
+          "durationMs": 40.96,
+          "calls": 1
+        },
+        "v2_retorno": {
+          "durationMs": 45.601,
+          "calls": 1
+        }
+      }
+    },
+    {
+      "fileId": "2178",
+      "phase": "ALMACENAR",
+      "status": "CONFIRMED",
+      "startedUtc": "2026-11-20T03:50:50.334Z",
+      "http": 200,
+      "code": "OK",
+      "documentId": "18342",
+      "elapsedMs": 938,
+      "timing": {
+        "adaptador": {
+          "durationMs": 537.836,
+          "calls": 1
+        },
+        "checkpoint": {
+          "durationMs": 57.975,
+          "calls": 1
+        },
+        "comprobacion_posterior": {
+          "durationMs": 6.365,
+          "calls": 1
+        },
+        "consulta_preflight": {
+          "durationMs": 61.507,
+          "calls": 2
+        },
+        "copia_trabajo": {
+          "durationMs": 17.848,
+          "calls": 1
+        },
+        "datos_documentales": {
+          "durationMs": 24.027,
+          "calls": 1
+        },
+        "escritor_legacy": {
+          "durationMs": 27.949,
+          "calls": 1
+        },
+        "json_chars": {
+          "durationMs": 0,
+          "calls": 131023
+        },
+        "json_control": {
+          "durationMs": 8.704,
+          "calls": 137
+        },
+        "lectura_final": {
+          "durationMs": 29.32,
+          "calls": 1
+        },
+        "original_open": {
+          "durationMs": 0,
+          "calls": 2
+        },
+        "original_v2": {
+          "durationMs": 1.809,
+          "calls": 1
+        },
+        "originales_previos": {
+          "durationMs": 5.209,
+          "calls": 1
+        },
+        "originales_retenidos": {
+          "durationMs": 4.997,
+          "calls": 1
+        },
+        "pdf_bytes": {
+          "durationMs": 0,
+          "calls": 223505
+        },
+        "prev_io": {
+          "durationMs": 0.729,
+          "calls": 1
+        },
+        "reserva": {
+          "durationMs": 37.72,
+          "calls": 1
+        },
+        "ret_io": {
+          "durationMs": 0.726,
+          "calls": 1
+        },
+        "sql_archivo": {
+          "durationMs": 2.51,
+          "calls": 11
+        },
+        "sql_autoridad": {
+          "durationMs": 10.272,
+          "calls": 90
+        },
+        "sql_catalogo": {
+          "durationMs": 25.052,
+          "calls": 85
+        },
+        "sql_control": {
+          "durationMs": 21.657,
+          "calls": 86
+        },
+        "sql_esquema": {
+          "durationMs": 566.063,
+          "calls": 120
+        },
+        "sql_evento": {
+          "durationMs": 10.322,
+          "calls": 35
+        },
+        "total": {
+          "durationMs": 929.697,
+          "calls": 1
+        },
+        "v2_autorizacion": {
+          "durationMs": 38.341,
+          "calls": 1
+        },
+        "v2_hash": {
+          "durationMs": 2.84,
+          "calls": 9
+        },
+        "v2_inicio": {
+          "durationMs": 36.129,
+          "calls": 1
+        },
+        "v2_retorno": {
+          "durationMs": 38.427,
+          "calls": 1
+        }
+      }
+    },
+    {
+      "fileId": "2179",
+      "phase": "ALMACENAR",
+      "status": "CONFIRMED",
+      "startedUtc": "2026-11-20T03:50:51.416Z",
+      "http": 200,
+      "code": "OK",
+      "documentId": "18343",
+      "elapsedMs": 974,
+      "timing": {
+        "adaptador": {
+          "durationMs": 569.492,
+          "calls": 1
+        },
+        "checkpoint": {
+          "durationMs": 51.468,
+          "calls": 1
+        },
+        "comprobacion_posterior": {
+          "durationMs": 6.231,
+          "calls": 1
+        },
+        "consulta_preflight": {
+          "durationMs": 61.549,
+          "calls": 2
+        },
+        "copia_trabajo": {
+          "durationMs": 10.992,
+          "calls": 1
+        },
+        "datos_documentales": {
+          "durationMs": 20.655,
+          "calls": 1
+        },
+        "escritor_legacy": {
+          "durationMs": 21.933,
+          "calls": 1
+        },
+        "json_chars": {
+          "durationMs": 0,
+          "calls": 130898
+        },
+        "json_control": {
+          "durationMs": 8.245,
+          "calls": 137
+        },
+        "lectura_final": {
+          "durationMs": 31.749,
+          "calls": 1
+        },
+        "original_open": {
+          "durationMs": 0,
+          "calls": 2
+        },
+        "original_v2": {
+          "durationMs": 25.033,
+          "calls": 1
+        },
+        "originales_previos": {
+          "durationMs": 5.063,
+          "calls": 1
+        },
+        "originales_retenidos": {
+          "durationMs": 5.226,
+          "calls": 1
+        },
+        "pdf_bytes": {
+          "durationMs": 0,
+          "calls": 223460
+        },
+        "prev_io": {
+          "durationMs": 0.739,
+          "calls": 1
+        },
+        "reserva": {
+          "durationMs": 35.701,
+          "calls": 1
+        },
+        "ret_io": {
+          "durationMs": 0.712,
+          "calls": 1
+        },
+        "sql_archivo": {
+          "durationMs": 2.54,
+          "calls": 11
+        },
+        "sql_autoridad": {
+          "durationMs": 8.696,
+          "calls": 90
+        },
+        "sql_catalogo": {
+          "durationMs": 20.892,
+          "calls": 85
+        },
+        "sql_control": {
+          "durationMs": 18.495,
+          "calls": 86
+        },
+        "sql_esquema": {
+          "durationMs": 615.952,
+          "calls": 120
+        },
+        "sql_evento": {
+          "durationMs": 8.228,
+          "calls": 35
+        },
+        "total": {
+          "durationMs": 966.665,
+          "calls": 1
+        },
+        "v2_autorizacion": {
+          "durationMs": 43.407,
+          "calls": 1
+        },
+        "v2_hash": {
+          "durationMs": 2.704,
+          "calls": 9
+        },
+        "v2_inicio": {
+          "durationMs": 40.878,
+          "calls": 1
+        },
+        "v2_retorno": {
+          "durationMs": 41.732,
+          "calls": 1
+        }
+      }
+    },
+    {
+      "fileId": "2180",
+      "phase": "ALMACENAR",
+      "status": "CONFIRMED",
+      "startedUtc": "2026-11-20T03:51:25.897Z",
+      "http": 200,
+      "code": "OK",
+      "documentId": "18344",
+      "elapsedMs": 1022,
+      "timing": {
+        "adaptador": {
+          "durationMs": 593.879,
+          "calls": 1
+        },
+        "checkpoint": {
+          "durationMs": 50.815,
+          "calls": 1
+        },
+        "comprobacion_posterior": {
+          "durationMs": 6.327,
+          "calls": 1
+        },
+        "consulta_preflight": {
+          "durationMs": 60.622,
+          "calls": 2
+        },
+        "copia_trabajo": {
+          "durationMs": 17.237,
+          "calls": 1
+        },
+        "datos_documentales": {
+          "durationMs": 26.081,
+          "calls": 1
+        },
+        "escritor_legacy": {
+          "durationMs": 27.299,
+          "calls": 1
+        },
+        "json_chars": {
+          "durationMs": 0,
+          "calls": 131123
+        },
+        "json_control": {
+          "durationMs": 9.07,
+          "calls": 137
+        },
+        "lectura_final": {
+          "durationMs": 30.709,
+          "calls": 1
+        },
+        "original_open": {
+          "durationMs": 0,
+          "calls": 2
+        },
+        "original_v2": {
+          "durationMs": 1.607,
+          "calls": 1
+        },
+        "originales_previos": {
+          "durationMs": 6.867,
+          "calls": 1
+        },
+        "originales_retenidos": {
+          "durationMs": 6.399,
+          "calls": 1
+        },
+        "pdf_bytes": {
+          "durationMs": 0,
+          "calls": 226245
+        },
+        "prev_io": {
+          "durationMs": 0.898,
+          "calls": 1
+        },
+        "reserva": {
+          "durationMs": 39.743,
+          "calls": 1
+        },
+        "ret_io": {
+          "durationMs": 0.98,
+          "calls": 1
+        },
+        "sql_archivo": {
+          "durationMs": 2.975,
+          "calls": 11
+        },
+        "sql_autoridad": {
+          "durationMs": 10.397,
+          "calls": 90
+        },
+        "sql_catalogo": {
+          "durationMs": 25.342,
+          "calls": 85
+        },
+        "sql_control": {
+          "durationMs": 22.396,
+          "calls": 86
+        },
+        "sql_esquema": {
+          "durationMs": 641.566,
+          "calls": 120
+        },
+        "sql_evento": {
+          "durationMs": 9.639,
+          "calls": 35
+        },
+        "total": {
+          "durationMs": 1011.836,
+          "calls": 1
+        },
+        "v2_autorizacion": {
+          "durationMs": 40.389,
+          "calls": 1
+        },
+        "v2_hash": {
+          "durationMs": 2.914,
+          "calls": 9
+        },
+        "v2_inicio": {
+          "durationMs": 39.091,
+          "calls": 1
+        },
+        "v2_retorno": {
+          "durationMs": 42.248,
+          "calls": 1
+        }
+      }
+    }
+  ],
+  "preparation": [
+    {
+      "fileId": "2177",
+      "phase": "MATERIALIZAR_VALORES",
+      "status": "CONFIRMED",
+      "http": 200,
+      "code": "OK",
+      "finishedUtc": "2026-11-20T03:50:14.534Z"
+    },
+    {
+      "fileId": "2178",
+      "phase": "RECEPCION",
+      "status": "CONFIRMED",
+      "bytes": 44701,
+      "http": 200,
+      "code": "OK",
+      "finishedUtc": "2026-11-20T03:50:14.991Z"
+    },
+    {
+      "fileId": "2178",
+      "phase": "MATERIALIZAR_VALORES",
+      "status": "CONFIRMED",
+      "http": 200,
+      "code": "OK",
+      "finishedUtc": "2026-11-20T03:50:15.328Z"
+    },
+    {
+      "fileId": "2179",
+      "phase": "RECEPCION",
+      "status": "CONFIRMED",
+      "bytes": 44692,
+      "http": 200,
+      "code": "OK",
+      "finishedUtc": "2026-11-20T03:50:15.709Z"
+    },
+    {
+      "fileId": "2179",
+      "phase": "MATERIALIZAR_VALORES",
+      "status": "CONFIRMED",
+      "http": 200,
+      "code": "OK",
+      "finishedUtc": "2026-11-20T03:50:16.020Z"
+    },
+    {
+      "fileId": "2180",
+      "phase": "RECEPCION",
+      "status": "CONFIRMED",
+      "bytes": 45249,
+      "http": 200,
+      "code": "OK",
+      "finishedUtc": "2026-11-20T03:50:16.430Z"
+    },
+    {
+      "fileId": "2180",
+      "phase": "MATERIALIZAR_VALORES",
+      "status": "CONFIRMED",
+      "http": 200,
+      "code": "OK",
+      "finishedUtc": "2026-11-20T03:50:16.715Z"
+    }
+  ],
+  "events": [
+    {
+      "event": "fourFilesReady",
+      "utc": "2026-11-20T03:50:24.684Z",
+      "receipts": 3,
+      "metadata": 4
+    },
+    {
+      "event": "A_WAITING",
+      "utc": "2026-11-20T03:50:31.585Z",
+      "fileId": "2177"
+    },
+    {
+      "event": "pauseRequested",
+      "utc": "2026-11-20T03:50:31.923Z",
+      "fileId": "2177",
+      "serverResponseAlreadyAvailable": false
+    },
+    {
+      "event": "documentVerified",
+      "utc": "2026-11-20T03:50:45.518Z",
+      "fileId": "2177",
+      "documentId": "18341",
+      "inventoryId": "25471",
+      "expedientId": "696",
+      "relationId": "1120"
+    },
+    {
+      "event": "pauseAndStore",
+      "utc": "2026-11-20T03:50:45.519Z",
+      "fileId": "2177",
+      "documentId": "18341",
+      "inventoryId": "25471",
+      "expedientId": "696",
+      "relationId": "1120"
+    },
+    {
+      "event": "cancelCloseKeptRunning",
+      "utc": "2026-11-20T03:50:50.954Z",
+      "fileId": "2178"
+    },
+    {
+      "event": "closeWaiting",
+      "utc": "2026-11-20T03:50:52.032Z",
+      "fileId": "2179",
+      "serverResponseAlreadyAvailable": false
+    },
+    {
+      "event": "documentVerified",
+      "utc": "2026-11-20T03:51:05.361Z",
+      "fileId": "2178",
+      "documentId": "18342",
+      "inventoryId": "25472",
+      "expedientId": "696",
+      "relationId": "1120"
+    },
+    {
+      "event": "documentVerified",
+      "utc": "2026-11-20T03:51:18.259Z",
+      "fileId": "2179",
+      "documentId": "18343",
+      "inventoryId": "25473",
+      "expedientId": "696",
+      "relationId": "1120"
+    },
+    {
+      "event": "pauseRequested",
+      "utc": "2026-11-20T03:51:26.274Z",
+      "fileId": "2180",
+      "serverResponseAlreadyAvailable": false
+    },
+    {
+      "event": "documentVerified",
+      "utc": "2026-11-20T03:51:39.941Z",
+      "fileId": "2180",
+      "documentId": "18344",
+      "inventoryId": "25474",
+      "expedientId": "696",
+      "relationId": "1120"
+    }
+  ],
+  "results": {
+    "pauseWaited": true,
+    "cancelCloseKeptRunning": true,
+    "acceptedCloseWaited": true,
+    "resumedAfterReload": true,
+    "noReplay": true,
+    "documents": [
+      {
+        "fileId": "2177",
+        "documentId": "18341",
+        "inventoryId": "25471",
+        "expedientId": "696",
+        "relationId": "1120"
+      },
+      {
+        "fileId": "2178",
+        "documentId": "18342",
+        "inventoryId": "25472",
+        "expedientId": "696",
+        "relationId": "1120"
+      },
+      {
+        "fileId": "2179",
+        "documentId": "18343",
+        "inventoryId": "25473",
+        "expedientId": "696",
+        "relationId": "1120"
+      },
+      {
+        "fileId": "2180",
+        "documentId": "18344",
+        "inventoryId": "25474",
+        "expedientId": "696",
+        "relationId": "1120"
+      }
+    ]
+  },
+  "selected": [
+    {
+      "fileId": "2177",
+      "rootId": "73",
+      "revision": 3,
+      "bytes": 44693
+    },
+    {
+      "fileId": "2178",
+      "rootId": "73",
+      "revision": 1,
+      "bytes": 44701
+    },
+    {
+      "fileId": "2179",
+      "rootId": "73",
+      "revision": 1,
+      "bytes": 44692
+    },
+    {
+      "fileId": "2180",
+      "rootId": "73",
+      "revision": 1,
+      "bytes": 45249
+    }
+  ],
+  "before": {
+    "completed": 80,
+    "documentCount": 80,
+    "protectedFingerprint": "1d2de1aaa03192e726208ea9f1f0c6d3d45a410c17fb217504b0f41d2f13452f",
+    "identityHash": "3420e0c224a50033d36b0193931aa2458fa0b335d45da38dda0ee1ec29f489e6",
+    "configHash": "9140cc7400c96a17e717372664f3db51a497e63c9348fbe2915520e4f6e28e82",
+    "attempts": 162
+  },
+  "after": {
+    "completed": 84,
+    "unrelatedFilesPreserved": true,
+    "expeditionIdentityPreserved": true,
+    "confirmedStorageAttempts": 4
+  },
+  "sources": {
+    "bin/GestionDocumental-Docuarchi.net.dll": "b0b5d0d329f62124aa45ea49248746b90ad40c824a8a0a6adf73291d5d39dc4f",
+    "Gestion/WebFormProducionDocumental.aspx": "b8b7d624b7521de5f07045b3b430a1b59bb361f85f055cb92df3e5cdec74ec71",
+    "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js": "da5de4c46b8236b6269aae828ef0989a36edf0902f3d56d9b8e805941b5fc5a4",
+    "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js": "7d3c24179a3d459ac7ec01e820f3c81c5adc7d09366579224778a9b9821092d5",
+    "js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js": "56a0e3daa23df5d30b83dc32fee63dc5e453205a9357bd328fc970fa5e44d988",
+    "tools/e2e/scripts/run-doc120-storage-ui.cjs": "26d94b5dd1c2522be8a4637499fd2b84241853a2c6e5877c8a9805862e261e97",
+    "tools/e2e/tests/support/doc120-storage-ui.cjs": "ed0b7e40808b3e1d97deefc56a42cd9f5c1f6ddcb66ac1b35db82ee3ee83d7ec",
+    "tools/e2e/tests/support/doc119-seguimiento.cjs": "40822673adaecc0fb790ab5ede2ae10ed7ff3e80debc3f00b3b64d3a6e5ff510",
+    "tools/e2e/tests/support/doc120-qa-window.cjs": "296ea3e6e9f43d6b5f0024416f53d602d7b07d933aaeff652dfaecc96a396f93",
+    "tools/e2e/tests/support/doc111-importacion-carpetas.cjs": "08cdd30b86483fde6ff461da4e19d10950353df6db71448ac7bf8e64886c9548",
+    "tools/e2e/tests/support/doc113-ventana-importacion.cjs": "601273fd0f399ebe1e701010174c0bf07f2cd9f7c93d0147148eaea9a535d280",
+    "tools/e2e/tests/support/authenticated-workflow-session.cjs": "60c33202ded594541a984ffdbe2ed2929734a5e48595440278039b854b93975b",
+    "tools/e2e/scripts/measure-doc120-three-files.cjs": "8b50072db1f15e6f887105794632e6067e6728ff47328037043261f1aecc2174",
+    "tools/e2e/scripts/support/doc32-e2e-odbc.cjs": "d748cfd17cf3c170df4ce5cf7d4daf1959df16a3ed788084754d5ceec0a5a256",
+    "tools/e2e/scripts/support/interactive-e2e-console.cjs": "778d847653e3351e9e7c50957c7c16f21f9ba17e2d06eb020a2a5df5f3651087"
+  },
+  "closed": true,
+  "credentialsCleared": true,
+  "admissionClosed": true
+}

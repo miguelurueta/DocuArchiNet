@@ -1,5 +1,7 @@
 # DOC-120 - guardado real visible, pausa, cierre y retoma
 
+Corte posterior: [guardado real aprobado en una nueva ventana](doc120-guardado-real-resultado-20261119.md). El STOPPED de la preparacion inferior se conserva como historico.
+
 Prioridad solicitada por el usuario. [Alcance, fuentes y verificaciones](doc120-guardado-real-visible-20261119.json). El ejecutor `tools/e2e/scripts/run-doc120-storage-ui.cjs` reutiliza login compartido, guardias de acceso/consulta, SQL y controles RA/DA, seleccion de arbol y captura de tiempos existentes. Los ejecutores anteriores fijan lotes29/50 y fuentes historicas: no se relanzan sobre otro lote quitando sus protecciones.
 
 Ambiente `https://localhost/GestionDocumental-Docuarchi.net/`, lote52 propietario141/empresa2,1000 archivos y una raiz con expediente confirmado. Se toman los cuatro proximos pendientes en orden. Maximos:4 ALMACENAR (4 documentos esperados), hasta4 recepciones/96MiB y4 MATERIALIZAR_VALORES para esos mismos archivos si hacen falta;1200 HTTP,80 SELECT externos de control,1 sesion y45min antes de iniciar operaciones nuevas. Cero planes/lotes/expedientes nuevos, perfil/DDL/borrados/reconciliacion/detencion administrativa. Reanudar aqui significa Continuar importacion despues de pausa del cliente.
