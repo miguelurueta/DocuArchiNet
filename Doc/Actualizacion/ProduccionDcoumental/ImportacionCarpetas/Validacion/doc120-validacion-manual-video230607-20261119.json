@@ -1,0 +1,92 @@
+{
+  "dateLocal": "2026-11-19",
+  "reviewedUtc": "2026-11-20T04:10:10.421951+00:00",
+  "baseCommit": "73373e12968d22c6f9f16280ffbeddfacad621a3",
+  "status": "MANUAL_VIDEO_REVIEWED_PARTIAL_ACTIVE_AT_END",
+  "video": {
+    "name": "Grabación 2026-11-19 230607.-prueba-finalmp4.mp4",
+    "bytes": 183036414,
+    "sha256": "884f2dcc8a9c0c41a55c3a8b4d5938095263b29db0cd254227db969657831afe",
+    "durationSeconds": 188.97,
+    "fps": 30,
+    "size": [
+      1904,
+      950
+    ],
+    "inspection": "Sampled frames and transition-focused frames decoded in memory; no frame files persisted"
+  },
+  "lotId": "52",
+  "observedBefore": {
+    "received": 84,
+    "stored": 84
+  },
+  "observedAtEnd": {
+    "received": 127,
+    "expeditionsConfirmed": 1,
+    "expeditionsExpected": 1,
+    "stored": 126,
+    "fileOrdinalInProgress": 127,
+    "fileNameInProgress": "1215.pdf",
+    "fileIdInProgress": "2223",
+    "lotCompleted": false
+  },
+  "timeline": [
+    {
+      "seconds": "0-8",
+      "observation": "Opens Importar carpetas and queries explicit lot52; no new plan shown."
+    },
+    {
+      "seconds": "22-35",
+      "observation": "Continue checks current state; missing original1174.pdf/id2181 prompts linking; expanded details and paused view preserve84 saved. This is missing local selection, not a displayed storage failure."
+    },
+    {
+      "seconds": "35-65",
+      "observation": "Links original folder and continues same lot; receipt/storage progress resumes."
+    },
+    {
+      "seconds": "94-99",
+      "observation": "Exit consent shown; Seguir importando cancels exit and ongoing phases continue."
+    },
+    {
+      "seconds": "104-108",
+      "observation": "Exit consent shown again; Pausar y salir chosen around106s; by107s overlay has closed. Video does not expose exact server-response timestamp."
+    },
+    {
+      "seconds": "111-119",
+      "observation": "Reopens module and queries same lot52. View offers Continuar importacion; no automatic storage shown from query alone."
+    },
+    {
+      "seconds": "120-140",
+      "observation": "Continue queries pending state; local originals must be linked again after closing. This preserves received/stored counts and is expected local-selection behavior."
+    },
+    {
+      "seconds": "188",
+      "observation": "127 received,1/1 expedition,126 saved; saving1215.pdf/id2223 as file127. Import is active at recording end, not completed."
+    }
+  ],
+  "result": "No new functional failure visible in reviewed sequence. Missing local file, exit cancellation, voluntary close, reopen/link and continuation agree with implemented behavior.",
+  "uxFinding": {
+    "file": "js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js",
+    "line": 262,
+    "description": "Heading chooses Consultar importacion solely from model.consulta and remains so during coordinated receipt/storage. Secondary heading Importacion del lote revisado also remains visible. Text ambiguity; no change made in this review."
+  },
+  "previousE2E": {
+    "runId": "08bc33cc7b92403e8dd1ba47adca1a86",
+    "status": "PASS_REAL_STORAGE_UI",
+    "stateSha256": "74fb5d23804649416cd872d689c937411e3766000fdbe2440441eb40ed05604e",
+    "localSourcesStillMatch": true,
+    "limit": "Local hash match does not prove browser cache/binary identity at recording time"
+  },
+  "reviewOperations": {
+    "http": 0,
+    "select": 0,
+    "sessions": 0,
+    "businessEffects": 0
+  },
+  "limits": [
+    "Video is user-provided visual evidence, not a fresh RA/DA or physical PDF integrity check",
+    "126 displayed saved records do not independently prove no duplicates; previous E2E proved its own four records",
+    "No complete lot1000/import acceptance; active at end; manual stop during active storage is covered by prior E2E, not asserted from this recording",
+    "No new code, deployment, schema, profile, task completion or automatic execution"
+  ]
+}
