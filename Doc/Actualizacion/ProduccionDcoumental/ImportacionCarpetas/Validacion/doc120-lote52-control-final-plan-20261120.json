@@ -1,0 +1,82 @@
+{
+  "dateLocal": "2026-11-20",
+  "baseCommit": "eace9bcf4829f65bd315dcc367888eaafa92c465",
+  "userReport": "completada",
+  "status": "CONSOLE_OPEN_NATIVE_RESULT_PENDING",
+  "task": "3.249",
+  "scope": {
+    "lotId": "52",
+    "rootId": "73",
+    "owner": "141",
+    "company": "2",
+    "expeditionId": "696",
+    "relationId": "1120",
+    "expectedFiles": 1000,
+    "expectedBytes": 44859102,
+    "maxSelect": 10,
+    "http": 0,
+    "sessions": 0,
+    "businessEffects": 0,
+    "milliseconds": 900000
+  },
+  "sequence": [
+    "RA scoped header before",
+    "RA scoped root identity",
+    "RA1000 file checkpoints",
+    "RA attempts grouped phase/state",
+    "DA cabinet name",
+    "DA1000 documents/inventories/index links",
+    "RA expedition/level relation",
+    "RA files after",
+    "DA document links after",
+    "RA header after"
+  ],
+  "localTests": {
+    "pass": 10,
+    "fail": 0,
+    "newTests": 6,
+    "legacyDiagnosticCompatibilityTests": 4,
+    "log": ".tmp\\doc120-completed-local.log",
+    "sha256": "2f8923b500727283ea6efb61b1430e1b9ec9d707f986367532e6dac4e57bacd4"
+  },
+  "sources": [
+    {
+      "path": "tools/e2e/scripts/inspect-doc120-final-state.cjs",
+      "sha256": "23799a09c82ce15c0ee45691b93cb1a30a5eb323ffd7e52dbdcbbc2c7ef30241"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc120-completed-check.cjs",
+      "sha256": "ad2b7c7022111a33d00e0cb48e7283dcddc7f93278aa756dae00c5fafc9a7eb6"
+    },
+    {
+      "path": "tests/doc120-completed-check.test.cjs",
+      "sha256": "94ce7b9c1476ad08365656bfc41309be8a2a871f9abaa0c175480450c66bcbba"
+    }
+  ],
+  "limits": [
+    "No native result yet; requires SI and private read-only DSN/account inputs",
+    "Metadata and stable repeated reads only; not physical PDF integrity or atomic cross-database snapshot",
+    "No browser tree verification or new authentication",
+    "Preserves prior native runs and eleven earlier open tasks; no full change acceptance or archive"
+  ],
+  "launch": {
+    "launchId": "358b270ddea143f595b8f549a2f6e80e",
+    "runId": "7ace0d2582d611840f51c50be3274aec",
+    "pid": 28696,
+    "launchedUtc": "2026-11-20T05:04:41.6798139Z",
+    "authorizationAccepted": true,
+    "observedSelect": 0,
+    "realResult": "PENDING"
+  },
+  "latestExecution": {
+    "runId": "7ace0d2582d611840f51c50be3274aec",
+    "status": "PASS_COMPLETED_METADATA",
+    "select": 10,
+    "http": 0,
+    "businessEffects": 0,
+    "closed": true,
+    "credentialsCleared": true,
+    "finishedUtc": "2026-11-20T05:05:39.982Z",
+    "report": "doc120-lote52-control-final-resultado-20261120.json"
+  }
+}

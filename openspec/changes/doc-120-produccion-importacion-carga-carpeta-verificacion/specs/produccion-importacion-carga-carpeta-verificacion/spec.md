@@ -622,3 +622,10 @@ La interfaz SHALL describir el estado vigente del lote visible sin modificar su 
 #### Scenario: HEADER-STATE01 - El lote consultado informa del trabajo actual
 - **WHEN** un lote consultado comienza a importar, solicita pausa, queda pausado, necesita revisar un resultado o completa su estado confirmado
 - **THEN** titulo y subtitulo SHALL describir ese estado vigente sin afirmar pausa antes del acuse, confundir origen consulta con actividad ni alterar acciones o efectos, y sus encabezados SHALL conservar identificacion accesible sin duplicar el nombre del resultado
+
+### Requirement: Comprobar solo por lectura un lote completado
+La verificacion final SHALL distinguir el reporte del usuario, la preparacion local y el resultado de controles reales de metadatos.
+
+#### Scenario: COMPLETED-CHECK01 - Conteos y relaciones del lote completado
+- **WHEN** se autoriza una nueva ventana de10 SELECT sobre el lote52 reportado completado
+- **THEN** el diagnostico SHALL exigir1000 resultados confirmados unicos RA/DA, vinculo al expediente696 y relacion1120, ausencia de intentos sin resolver y lecturas repetidas estables, sin operaciones de negocio ni declarar integridad fisica/capacidad total por esos metadatos

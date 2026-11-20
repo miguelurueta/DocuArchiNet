@@ -28,4 +28,33 @@ async function main(args=process.argv.slice(2)){if(args.length!==5||args[0]!=='-
  catch(error){state.status='STOPPED';state.failure=failureCode(error);process.exitCode=2;}
  finally{for(const key of Object.keys(values))delete values[key];if(environment)for(const key of Object.keys(environment))if(/^DOC120_E2E_/.test(key))delete environment[key];Object.assign(state,{closed:true,credentialsCleared:true,finishedUtc:new Date().toISOString()});save();console.log('DOC120_DIAGNOSTIC_RESULT='+JSON.stringify(state));}
 }
-if(require.main===module)main().catch(()=>{console.error('DOC120_DIAGNOSTIC_PRECHECK_STOPPED');process.exitCode=2;});module.exports={queries,sanitize,inspect,main};
+async function completedMain(args=process.argv.slice(2)){
+ if(args.length!==5||args[0]!=='--lot'||args[1]!=='52'||args[2]!=='--root'||args[3]!=='73'||args[4]!=='--completed-readonly')throw Error('DOC120_COMPLETED_SCOPE_INVALID');
+ const {SCOPE,inspect:verify}=require('../tests/support/doc120-completed-check.cjs');requireInteractiveConsole();
+ const runId=crypto.randomBytes(16).toString('hex'),directory=path.join(ROOT,'.tmp/doc120-completed',runId);fs.mkdirSync(directory,{recursive:true});
+ const state={runId,lotId:'52',rootId:'73',owner:'141',company:'2',status:'WAITING_AUTHORIZATION',authorized:false,maxSelect:SCOPE.maxSelect,select:0,completedSelect:0,http:0,sessions:0,businessEffects:0,closed:false},values={};let environment;
+ const save=()=>fs.writeFileSync(path.join(directory,'state.json'),JSON.stringify(state,null,2)+'\n');save();
+ const check=(ok,code)=>{if(!ok)throw Error('DOC120_COMPLETED_'+code);};
+ try{
+  console.log('Verificacion final SOLO LECTURA: lote52/raiz73, propietario141/empresa2;1000 archivos, expediente696/relacion1120.');
+  console.log('Maximo10 SELECT RA/DA y15 minutos para iniciar lecturas. Cero HTTP, sesiones de aplicacion, recepciones, creaciones, guardados o cambios. No reanuda ni importa.');
+  console.log('Comprueba conteos, resultados RA, gabinete/inventario/indice DA, relacion del expediente y estabilidad. No descarga PDF ni verifica su integridad fisica ni el arbol en navegador.');
+  await collectValue(values,'authorization','Autorizar esta nueva ventana de lectura: SI o NO',{defaultValue:'NO'});check(values.authorization.toUpperCase()==='SI','AUTHORIZATION_REQUIRED');state.authorized=true;save();
+  for(const [key,label]of [['ra','DSN RA de lectura'],['da','DSN DA de lectura']]){await collectValue(values,key,label,{defaultValue:'MembershipUsers'});check(/^[A-Za-z0-9 _.-]{1,128}$/.test(values[key]),key==='ra'?'RA_DSN_INVALID':'DA_DSN_INVALID');}
+  await collectValue(values,'user','Cuenta MySQL exclusivamente SELECT',{secret:true});await collectValue(values,'password','Clave MySQL SELECT',{secret:true});
+  environment=Object.fromEntries(Object.entries(process.env).filter(([key])=>!/^DOC\d+(?:_DA)?_E2E/.test(key)&&!['DEBUG','PWDEBUG','NODE_DEBUG','NODE_DEBUG_NATIVE'].includes(key)));
+  for(const [prefix,dsn]of [['DOC120_E2E',values.ra],['DOC120_DA_E2E',values.da]])Object.assign(environment,{[prefix+'_ODBC_DSN']:dsn,[prefix+'_MYSQL_USER']:values.user,[prefix+'_MYSQL_PASSWORD']:values.password});
+  const sources=['tools/e2e/scripts/inspect-doc120-final-state.cjs','tools/e2e/tests/support/doc120-completed-check.cjs','tools/e2e/tests/support/doc120-qa-window.cjs','tools/e2e/scripts/support/doc32-e2e-odbc.cjs','tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1','tools/e2e/scripts/support/interactive-e2e-console.cjs','bin/GestionDocumental-Docuarchi.net.dll'];
+  const digest=file=>crypto.createHash('sha256').update(fs.readFileSync(path.join(ROOT,file))).digest('hex');state.sources=Object.fromEntries(sources.map(file=>[file,digest(file)]));const started=Date.now();state.status='READING';save();
+  state.result=await verify(async(origin,name,sql,parameters)=>{
+   check(state.select<SCOPE.maxSelect&&Date.now()-started<15*60*1000,'BUDGET_EXHAUSTED');check(sources.every(file=>digest(file)===state.sources[file]),'SOURCE_CHANGED');
+   check(['RA','DA'].includes(origin)&&/^SELECT\b/.test(sql)&&!/[;]|\b(?:FOR UPDATE|INTO OUTFILE|INTO DUMPFILE)\b/i.test(sql),'SELECT_REQUIRED');state.stage=name;state.select++;save();console.log('DOC120_COMPLETED_PROGRESS='+name);
+   const rows=await queryRows(sql,parameters,environment,origin==='RA'?'DOC120_E2E':'DOC120_DA_E2E');state.completedSelect++;save();return rows;
+  });state.status='PASS_COMPLETED_METADATA';
+ }catch(error){state.failureStage=state.stage||state.status;state.status='STOPPED';state.failure=/^DOC120_COMPLETED_[A-Z_]+$/.test(error?.message||'')?error.message:failureCode(error);process.exitCode=2;}
+ finally{
+  for(const key of Object.keys(values))delete values[key];if(environment)for(const key of Object.keys(environment))if(/^DOC\d+(?:_DA)?_E2E/.test(key))delete environment[key];state.closed=true;state.credentialsCleared=true;state.finishedUtc=new Date().toISOString();save();
+  const result=state.result?{...state.result}:null;if(result)delete result.proofs;console.log('DOC120_COMPLETED_RESULT='+JSON.stringify({...state,result}));console.log('La lectura termino. No se repetiran operaciones. No escribas claves en esta ventana.');
+ }
+}
+if(require.main===module)(process.argv.includes('--completed-readonly')?completedMain():main()).catch(()=>{console.error('DOC120_DIAGNOSTIC_PRECHECK_STOPPED');process.exitCode=2;});module.exports={queries,sanitize,inspect,main,completedMain};

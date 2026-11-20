@@ -1,0 +1,84 @@
+{
+  "runId": "7ace0d2582d611840f51c50be3274aec",
+  "lotId": "52",
+  "rootId": "73",
+  "owner": "141",
+  "company": "2",
+  "status": "PASS_COMPLETED_METADATA",
+  "authorized": true,
+  "maxSelect": 10,
+  "select": 10,
+  "completedSelect": 10,
+  "http": 0,
+  "sessions": 0,
+  "businessEffects": 0,
+  "closed": true,
+  "sources": {
+    "tools/e2e/scripts/inspect-doc120-final-state.cjs": "23799a09c82ce15c0ee45691b93cb1a30a5eb323ffd7e52dbdcbbc2c7ef30241",
+    "tools/e2e/tests/support/doc120-completed-check.cjs": "ad2b7c7022111a33d00e0cb48e7283dcddc7f93278aa756dae00c5fafc9a7eb6",
+    "tools/e2e/tests/support/doc120-qa-window.cjs": "296ea3e6e9f43d6b5f0024416f53d602d7b07d933aaeff652dfaecc96a396f93",
+    "tools/e2e/scripts/support/doc32-e2e-odbc.cjs": "d748cfd17cf3c170df4ce5cf7d4daf1959df16a3ed788084754d5ceec0a5a256",
+    "tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1": "7a4fb15210785f221835f865ce81a5b9c55aed6243f7592ee383e81640492d11",
+    "tools/e2e/scripts/support/interactive-e2e-console.cjs": "778d847653e3351e9e7c50957c7c16f21f9ba17e2d06eb020a2a5df5f3651087",
+    "bin/GestionDocumental-Docuarchi.net.dll": "b0b5d0d329f62124aa45ea49248746b90ad40c824a8a0a6adf73291d5d39dc4f"
+  },
+  "stage": "after",
+  "credentialsCleared": true,
+  "finishedUtc": "2026-11-20T05:05:39.982Z",
+  "reviewedUtc": "2026-11-20T05:07:17.055384+00:00",
+  "stateFile": ".tmp\\doc120-completed\\7ace0d2582d611840f51c50be3274aec\\state.json",
+  "stateSha256": "79af26b467a1e0f19fa98accea091ba61e79963e1fac19d210101b00efe1be3a",
+  "result": {
+    "lotId": "52",
+    "state": "COMPLETADO",
+    "received": 1000,
+    "stored": 1000,
+    "receivedBytes": 44859102,
+    "uniqueDocuments": 1000,
+    "uniqueInventories": 1000,
+    "expeditionId": "696",
+    "relationId": "1120",
+    "levelId": "223",
+    "versionId": "45",
+    "planId": "92",
+    "revision": 8005,
+    "stableRead": true,
+    "unresolved": 0,
+    "creationAttemptsConfirmed": 1,
+    "attempts": [
+      {
+        "fase": "ALMACENAR",
+        "estado": "CONFIRMADO",
+        "total": "1000",
+        "files": "1000"
+      },
+      {
+        "fase": "CREAR_EXPEDIENTE",
+        "estado": "CONFIRMADO",
+        "total": "1",
+        "files": "0"
+      },
+      {
+        "fase": "RECEPCION",
+        "estado": "CONFIRMADO",
+        "total": "1000",
+        "files": "1000"
+      }
+    ],
+    "checkpointFingerprint": "b6bc5441400acaf0d31b118f265c20eaece9bbf9c75d635b57b57cce04c27dfb",
+    "documentRelationFingerprint": "4a2fb64937ef73d33ec25726ee5b3e3f994307bcae79f1833abaf61e79e7766c"
+  },
+  "documentProofs": {
+    "rows": 1000,
+    "file": "doc120-lote52-control-final-resultado-20261120.csv",
+    "sha256": "9c854e67e982041d8400a678b5ff093cd34c64c6e20b520229708e40d4038d6b"
+  },
+  "scope": "Native SELECT control metadata only; no HTTP or business effects",
+  "limits": [
+    "No physical download or content hash check of the1000 stored PDF files",
+    "No browser rendering/reopening test in this window; metadata link to level223 exists",
+    "Stable repeated metadata reads, not an atomic distributed RA/DA snapshot",
+    "No full import timing/memory benchmark or reproduction of initial preparation/confirmation",
+    "Eleven earlier open tasks and overall change acceptance remain pending; no archive or merge"
+  ]
+}
