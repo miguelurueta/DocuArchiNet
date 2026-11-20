@@ -1,0 +1,76 @@
+{
+  "date": "2026-11-19",
+  "baseCommit": "c65e41450d202bd813c6c4f151e511fde73adefe",
+  "task": "3.241",
+  "video": {
+    "name": "Grabación 2026-11-19 214029-parametro.mp4",
+    "sha256": "47b8520e298574b041c8f5f3f376e74b8a9f5fedec7f0b2a6e16cb086a8b5449",
+    "durationSeconds": 19.77,
+    "derived": {
+      "lotId": "52",
+      "destinationLabel": "PRUEBA-IMPORT",
+      "roots": 1,
+      "files": 1000,
+      "displayedSize": "42,8 MB",
+      "stateAtVideo": "EN_CURSO",
+      "profileShownBeforeConsultation": "Egresos - version3"
+    },
+    "limit": "Displayed profile belongs to selection before consulting last lot; confirmed lot profile/version must be queried. Rounded size/state are not forced over current server data.",
+    "frameHandling": "Inspected in memory; no credential or frame files saved."
+  },
+  "command": "node tools/e2e/scripts/run-doc119-seguimiento.cjs --run <new32hex> --authorized-plan --lot 52 --headed",
+  "selection": "Exact ID within authenticated account authorized catalog; no fallback. Recovery candidates restricted to same lot.",
+  "previousRun": {
+    "runId": "36a221bfd1c64451a870a14d9f9d315c",
+    "observedProcessRunning": false,
+    "lastState": "WAITING_IMPORT_SELECTION",
+    "knownUsage": {
+      "http": 189,
+      "select": 2,
+      "sessions": 1
+    },
+    "originalStatePreserved": true,
+    "credentialsNotRecovered": true
+  },
+  "newRun": {
+    "runId": "97c9d4c32bac45bf88defe391a3dabca",
+    "consolePid": 15952,
+    "requestedLotId": "52",
+    "headed": true,
+    "observedStatus": "WAITING_ACCOUNT",
+    "authorizedPlan": true,
+    "observedUtc": "2026-11-20T02:49:54.745808+00:00",
+    "realResult": "PENDING_NOT_CERTIFIED"
+  },
+  "scope": "Existing readonly DOC119 E2E, same600 HTTP/2 sessions per SEG and80/60 SELECT; zero confirmation, receipt, creation, storage, restart, deletion or DDL.",
+  "verification": {
+    "tests": 41,
+    "pass": 41,
+    "fail": 0,
+    "newCases": 2,
+    "log": ".tmp/doc120-video-parametros-tests.log",
+    "sha256": "517518ec0c1a8effe76f07c9a860aaf1d5581e6882107d32bdbc20d7f3847736",
+    "syntax": "PASS",
+    "openSpecStrict": "PASS",
+    "diffWhitespace": "PASS"
+  },
+  "sources": [
+    {
+      "path": "tools/e2e/scripts/run-doc119-seguimiento.cjs",
+      "sha256": "5fa746d0426a7799233fe9d93b5752558a7c944a09f8332044b857f59060a162"
+    },
+    {
+      "path": "tests/doc120-e2e-visible.test.cjs",
+      "sha256": "44037b9e7adc4af00f6dd849a768eb8d3a13b7570aec5fa05725cdf789c90e60"
+    }
+  ],
+  "productChanged": false,
+  "progress": {
+    "complete": 250,
+    "total": 261,
+    "S": 45,
+    "M": 216,
+    "normativeScenarios": 107,
+    "previousPending": 11
+  }
+}

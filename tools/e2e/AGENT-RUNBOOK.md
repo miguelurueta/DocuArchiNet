@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 - E2E visible dirigida al lote52 del video
+
+Nueva ventana97c9d4c3 con `run-doc119-seguimiento.cjs --run <nuevo32hex> --authorized-plan --lot 52 --headed`; exige ID en catalogo autorizado, sin fallback, y limita recuperacion al mismo lote. Egresos v3 mostrado en seleccion previa no sustituye perfil del lote. Consola15952 iniciada; resultado pendiente. Ventana36a221bf sin proceso activo antes de seleccionar; estado preservado,189 HTTP/2 SELECT/1 sesion conocidos, no recuperar secretos ni relanzarla.41/41 locales; evidencia Validacion/doc120-e2e-parametros-video-20261119.md/JSON. Siguen mismos limites solo lectura; ninguna autorizacion para guardados o nuevas importaciones. Apartados inferiores historicos.
+
 ## DOC-120 - seguimiento visible sobre E2E existente2026-11-19
 
 Reutilizar `run-doc119-seguimiento.cjs --run <nuevo32hex> --authorized-plan --headed`: Chromium visible/slowMo300, nueva autorizacion SI en consola antes de cuentas y controles solo lectura existentes.600 HTTP/2 sesiones por SEG;80 SELECT en SEG-01 y60 en SEG-02. No confirma planes, recibe, crea, almacena, reanuda ni borra. Puede comprobar consulta/filtros/CSV/privacidad/recuperacion, pero no pausa durante guardado. Consola36a221bf iniciada; resultado pendiente, no ejecutar otra ni reutilizar QA cerrada. Evidencia Validacion/doc120-e2e-visible-20261119.md/JSON;39/39 politicas y20/20 compatibilidad con cinco solapados. Apartados inferiores historicos.

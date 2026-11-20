@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
-const {parseArgs,launchOptions}=require('../tools/e2e/scripts/run-doc119-seguimiento.cjs');
+const {parseArgs,launchOptions,requestedImport}=require('../tools/e2e/scripts/run-doc119-seguimiento.cjs');
 const id='a'.repeat(32),prior='b'.repeat(32),args=['--run',id,'--authorized-plan'];
 test('VISIBLE-01: modo existente y check conservan contrato sin lanzar navegador',()=>{
  assert.deepEqual(parseArgs(args),{runId:id});assert.deepEqual(parseArgs(['--check']),{check:true});assert.deepEqual(launchOptions(parseArgs(args)),{headless:true});
@@ -13,6 +13,16 @@ test('VISIBLE-02: headed es presentacion observable sobre la misma prueba y sele
 });
 test('VISIBLE-03: no acepta flags extra, combinaciones ambiguas o identidad reutilizada',()=>{
  for(const input of [['--check','--headed'],[...args,'--headed','--headed'],['--headed',...args],[...args,'--reuse-selection',id,'--headed'],[...args,'--effects'],['--run',id,'--headed']])assert.throws(()=>parseArgs(input),/DOC119_ARGUMENT_INVALID/);
+});
+test('VISIBLE-05: lote explicito es canonico, no un indice de menu ni una seleccion anterior',()=>{
+ assert.deepEqual(parseArgs([...args,'--lot','52','--headed']),{runId:id,headed:true,lotId:'52'});
+ assert.deepEqual(parseArgs([...args,'--lot','52']),{runId:id,lotId:'52'});
+ for(const lot of ['0','052','-1','52x','4294967296'])assert.throws(()=>parseArgs([...args,'--lot',lot,'--headed']),/DOC119_ARGUMENT_INVALID/);
+ assert.throws(()=>parseArgs([...args,'--lot','52','--reuse-selection',prior,'--headed']),/DOC119_ARGUMENT_INVALID/);
+});
+test('VISIBLE-06: solo selecciona el lote solicitado dentro del catalogo autorizado y no el primero',()=>{
+ const items=[{id:'50'},{id:'52'}];assert.equal(requestedImport(items,'52'),items[1]);
+ assert.throws(()=>requestedImport(items,'53'),/DOC119_REQUESTED_IMPORT_UNAVAILABLE/);assert.throws(()=>requestedImport([],'52'),/DOC119_REQUESTED_IMPORT_UNAVAILABLE/);
 });
 for(const answer of ['NO','SI'])test('VISIBLE-04 '+answer+': consentimiento antes de credenciales y cero acceso al ambiente',async()=>{
  const file=path.resolve(__dirname,'../tools/e2e/scripts/run-doc119-seguimiento.cjs'),states=[],prompts=[];

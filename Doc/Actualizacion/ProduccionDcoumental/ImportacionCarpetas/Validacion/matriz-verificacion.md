@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Parametros de video para E2E visible -2026-11-19
+
+[Parametros y limites](doc120-e2e-parametros-video-20261119.md), [fuentes](doc120-e2e-parametros-video-20261119.json). Lote52 preseleccionado por --lot, solo dentro de catalogo autorizado, sin fallback ni recuperacion de otro lote. Egresos v3 mostrado antes de consulta no sustituye perfil confirmado.41/41 locales,2 nuevos; nueva consola97c9d4c3/PID15952, resultado real pendiente.36a221bf sin proceso activo y estado anterior preservado; sin recuperar secretos.250/261 y11 pendientes previas. Sin cambios del producto/DLL/esquema.
+
 ## E2E existente con Chromium visible -2026-11-19
 
 [Preparacion y alcance](doc120-e2e-visible-20261119.md), [fuentes](doc120-e2e-visible-20261119.json). run-doc119-seguimiento.cjs --headed conserva guardias/limites solo lectura y abre Chromium con slowMo300; consentimiento de nueva ventana antes de credenciales. Cinco casos nuevos,39/39 politicas y20/20 compatibilidad (cinco solapados). Consola36a221bf abierta y Chromium iniciado/AUTHENTICATING_OWNER;96 HTTP/0 SELECT/1 sesion al corte, resultado real pendiente.249/260 y once pendientes previas. No confirma, recibe, crea, almacena ni reanuda; no valida pausa durante guardado. Sin cambios del producto/DLL/esquema.

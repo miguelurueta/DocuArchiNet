@@ -14,10 +14,14 @@ function parseArgs(args){
   const headed=args[args.length-1]==='--headed';if(headed)args=args.slice(0,-1);
   check([3,5].includes(args.length)&&args[0]==='--run'&&/^[a-f0-9]{32}$/.test(args[1])&&args[2]==='--authorized-plan','ARGUMENT_INVALID');
   const result={runId:args[1]};if(headed)result.headed=true;
-  if(args.length===5){check(args[3]==='--reuse-selection'&&/^[a-f0-9]{32}$/.test(args[4])&&args[4]!==args[1],'ARGUMENT_INVALID');result.selectionRunId=args[4];}
+  if(args.length===5){
+    if(args[3]==='--lot'){check(id(args[4]),'ARGUMENT_INVALID');result.lotId=args[4];}
+    else{check(args[3]==='--reuse-selection'&&/^[a-f0-9]{32}$/.test(args[4])&&args[4]!==args[1],'ARGUMENT_INVALID');result.selectionRunId=args[4];}
+  }
   return result;
 }
 function launchOptions(options){return options.headed?{headless:false,slowMo:300}:{headless:true};}
+function requestedImport(items,lotId){const selected=items.find(item=>item.id===lotId);check(selected,'REQUESTED_IMPORT_UNAVAILABLE');return selected;}
 async function main(args=process.argv.slice(2)){
   const options=parseArgs(args);
   if(options.check){for(const name of SOURCES)check(fs.statSync(path.join(ROOT,name)).isFile(),'SOURCE_MISSING');console.log('DOC119_CHECK=PASS; REAL_EXECUTION=false');return;}
@@ -25,6 +29,7 @@ async function main(args=process.argv.slice(2)){
   process.title='DOC-119 - lectura real - '+options.runId.slice(0,8);
   const directory=path.join(ROOT,'.tmp','doc119-seguimiento',options.runId);fs.mkdirSync(directory,{recursive:true});
   const statePath=path.join(directory,'state.json'),state={version:3,runId:options.runId,pid:process.pid,authorizedPlan:!options.headed,authorizationRevision:options.headed?'20261120-visible-readonly':'20261112-http600',headed:!!options.headed,limits:LIMITS,baseUrl:BASE_URL,status:'WAITING_ACCOUNT',stage:null,usage:{},results:{},events:[]};
+  if(options.lotId)state.requestedLotId=options.lotId;
   fs.writeFileSync(statePath,JSON.stringify(state),{flag:'wx'});
   const save=patch=>{Object.assign(state,patch);fs.writeFileSync(statePath,JSON.stringify(state,null,2));};
   const messages={AUTHENTICATING_OWNER:'Comprobando el acceso de la cuenta de pruebas...',DISCOVERING_IMPORTS:'Buscando sus importaciones de carpetas...',WAITING_IMPORT_SELECTION:'Elige una importacion de la lista.',WAITING_RECOVERY_SELECTION:'Elige si deseas comprobar la recuperacion de archivos por recibir.',PREFLIGHT:'Comprobando los datos actuales de la importacion elegida...',RUNNING:'Ejecutando las comprobaciones de consulta...',WAITING_SECOND_ACCOUNT:'Falta la segunda cuenta para comprobar la privacidad de la importacion.',STAGE_COMPLETE:'Esta parte de la comprobacion termino.',FINISHED:'La ejecucion termino; el informe queda listo para revision.',FINISHED_WITH_LIMITS:'La ejecucion termino con partes omitidas o limites que deben revisarse.',STOPPED:'La comprobacion se detuvo; no se repetira automaticamente.'};
@@ -54,6 +59,7 @@ async function main(args=process.argv.slice(2)){
     console.log('No necesitas conocer numeros internos: se mostraran las importaciones de la cuenta que ingreses.');
     console.log('Ambiente autorizado: '+BASE_URL);
     console.log('Limites autorizados: 600 HTTP y 2 sesiones por prueba; 80 SELECT en filtros/CSV y 60 en recuperacion.');
+    if(options.lotId)console.log('Importacion solicitada: lote '+options.lotId+'. Se comprobara que pertenece a la cuenta ingresada y que conserva acceso vigente; no se elegira otra si no esta disponible.');
     if(options.headed){
       console.log('Chromium visible: las acciones tendran una pausa de 300 ms para observarlas. Se abrira despues de ingresar las credenciales privadas.');
       console.log('Nueva ventana de solo lectura. No confirma planes, recibe PDF, crea expedientes ni almacena documentos. Pausa durante guardado queda fuera de esta ventana.');
@@ -99,12 +105,13 @@ async function main(args=process.argv.slice(2)){
     if(!catalog.items.length){console.log('Esta cuenta no tiene importaciones consultables. La prueba no creara una para forzar el resultado.');check(false,'NO_IMPORTS_FOR_ACCOUNT');}
     console.log('\nImportaciones de carpetas de esta cuenta (fecha UTC, destino, estado y cantidades):');
     catalog.items.forEach((item,index)=>console.log(describeImport(item,index)));
-    if(!previous){console.log('Elige una que tenga varios archivos y estados diferentes. La prueba verificara si alcanza para pasar a otra pagina.');event('WAITING_IMPORT_SELECTION','SEG-01');}
-    const selected=previous?catalog.items.find(item=>item.id===previous.lotId):await menu(catalog.items,'Numero de la opcion para revisar filtros y CSV');
-    check(selected,'PREVIOUS_SELECTION_UNAVAILABLE');
+    if(!previous&&!options.lotId){console.log('Elige una que tenga varios archivos y estados diferentes. La prueba verificara si alcanza para pasar a otra pagina.');event('WAITING_IMPORT_SELECTION','SEG-01');}
+    const selected=options.lotId?requestedImport(catalog.items,options.lotId):previous?catalog.items.find(item=>item.id===previous.lotId):await menu(catalog.items,'Numero de la opcion para revisar filtros y CSV');
+    check(selected,options.lotId?'REQUESTED_IMPORT_UNAVAILABLE':'PREVIOUS_SELECTION_UNAVAILABLE');
+    if(options.lotId)console.log('Importacion verificada: lote '+options.lotId+'. '+describeImport(selected,catalog.items.indexOf(selected)));
     if(previous)console.log('Se conserva tu importacion elegida: '+describeImport(selected,catalog.items.indexOf(selected)));
     let recovery=null,alternate=null;
-    const unfinished=catalog.items.filter(item=>item.pendingFiles>0);
+    const unfinished=catalog.items.filter(item=>item.pendingFiles>0&&(!options.lotId||item.id===options.lotId));
     if(previous)console.log('Se conserva tu decision de omitir recuperacion; esa parte seguira pendiente.');
     else if(unfinished.length){
       console.log('\nPara comprobar la recuperacion, estas importaciones todavia tienen archivos por recibir:');
@@ -181,6 +188,7 @@ async function main(args=process.argv.slice(2)){
     const code=/^(?:DOC119|DOC111|DOC113)_[A-Z0-9_]{3,100}$/.test(error?.message)?error.message:'DOC119_STOPPED';
     const explanations={DOC119_SESSION_IDLE_EXPIRED:'La sesion de pruebas supero el margen de 8 minutos durante la seleccion. No se continuara con una sesion caducada ni se renovara automaticamente.',DOC119_SESSION_REQUIRED:'El servicio rechazo la consulta porque no hay sesion vigente. No es un fallo causado por omitir recuperacion.',DOC119_RESOURCE_ACCESS_DENIED:'El servicio rechazo el acceso a la importacion elegida.',DOC119_LOT_QUERY_REJECTED:'ConsultarLote rechazo la lectura; no se esperaran recursos que el cliente no va a solicitar.',DOC119_READ_STEP_TIMEOUT:'El paso de lectura no se completo dentro del plazo. No se repetira automaticamente.',DOC119_NO_IMPORTS_FOR_ACCOUNT:'No se encontraron importaciones consultables de esta cuenta.',DOC119_MIXED_STATES_REQUIRED:'La importacion elegida no tiene los distintos estados necesarios para esta comprobacion.',DOC119_RESELECTION_METADATA_MISMATCH:'El archivo elegido no coincide en nombre, tamano o fecha con el archivo por recibir. No se envio.',DOC119_SERVED_SOURCE_MISMATCH:'Los archivos servidos no coinciden con los preparados para esta prueba.',DOC111_SELECT_FAILED:'No se pudo completar una consulta de control; revisa la cuenta de lectura y la conexion del ambiente.'};
     if(explanations[code])console.log(explanations[code]);
+    if(code==='DOC119_REQUESTED_IMPORT_UNAVAILABLE')console.log('El lote solicitado no aparece entre las importaciones autorizadas de esta cuenta. No se consultara otro lote ni se creara una importacion para sustituirlo.');
     if(code==='DOC111_LOGIN_ACCOUNT_NOT_FOUND')console.log('El inicio de sesion no encontro la cuenta en el modulo GESTOR. No se repetira ni se probara otra identidad automaticamente.');
     if(code==='DOC119_SECOND_ACCOUNT_UNAVAILABLE')console.log('No hay otra cuenta activa de esta empresa habilitada para importar. No se iniciara una segunda sesion.');
     const observation=loginObservation(error?.loginObservation),treeDiagnostic=safeTreeDiagnostic(error?.treeDiagnostic);save({failure:{code,...observation?{loginObservation:observation}:{},...treeDiagnostic?{treeDiagnostic}:{}}});event('STOPPED');process.exitCode=2;
@@ -192,4 +200,4 @@ async function main(args=process.argv.slice(2)){
   }
 }
 if(require.main===module)main().catch(()=>{console.error('DOC119_PRECHECK_STOPPED: sin ejecucion automatica ni detalle privado.');process.exitCode=2;});
-module.exports={parseArgs,launchOptions,main};
+module.exports={parseArgs,launchOptions,requestedImport,main};
