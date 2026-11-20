@@ -26,3 +26,16 @@ test('read-only classification emits closed codes and never echoes supplied valu
   const result=execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-Command',commands.join(';')],{windowsHide:true,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim().split(/\r?\n/);
   assert.deepEqual(result,['DOC115_READONLY_AUTHENTICATION_FAILED','DOC115_READONLY_DSN_UNAVAILABLE','DOC115_READONLY_SELECT_DENIED','DOC115_READONLY_COLUMN_UNAVAILABLE','DOC115_READONLY_OPEN_FAILED']);
 });
+
+test('registered DSN target uses only SERVER/DATABASE and rejects missing or foreign targets offline',()=>{
+  const crypto=require('node:crypto'),helper=path.join(root,'tools/e2e/scripts/support/doc115-readonly-failure.ps1').replace(/'/g,"''");
+  const digest=crypto.createHash('sha256').update('fixture-server|fixture-db').digest('hex');
+  const commands=[". '"+helper+"'",
+    "$target=Resolve-Doc115DsnTarget 'MembershipUsers' '"+digest+"' {param($path)if($path -like 'HKLM:*' -and $path -notlike '*WOW6432Node*'){return @{server='fixture-server';database='fixture-db';password='PRIVATE_SENTINEL'}}}",
+    "if($target.server -ne 'fixture-server' -or $target.database -ne 'fixture-db' -or $target.ContainsKey('password')){throw 'TARGET_INVALID'}",
+    "try{Resolve-Doc115DsnTarget 'MembershipUsers' '"+digest+"' {param($path)return $null};throw 'MISSING_ACCEPTED'}catch{if($_.Exception.Message -ne 'DOC115_DSN_TARGET_MISSING'){throw}}",
+    "try{Resolve-Doc115DsnTarget 'MembershipUsers' '"+digest+"' {param($path)return @{server='foreign';database='fixture-db'}};throw 'FOREIGN_ACCEPTED'}catch{if($_.Exception.Message -ne 'DOC115_DSN_TARGET_CHANGED'){throw}}",
+    "'PASS_DSN_METADATA_ONLY'"];
+  const result=execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-Command',commands.join(';')],{windowsHide:true,encoding:'utf8',stdio:['ignore','pipe','pipe']});
+  assert.equal(result.trim(),'PASS_DSN_METADATA_ONLY');
+});

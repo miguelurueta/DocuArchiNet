@@ -14,6 +14,17 @@ if($Segmented){
     if($scope.files[0].path -eq $scope.files[1].path -or $scope.files[0].name -eq $scope.files[1].name -or @($scope.sources.PSObject.Properties).Count -lt 10){throw 'DOC120_SEGMENTED_CORPUS_DUPLICATE'}
     foreach($source in $scope.sources.PSObject.Properties){if((Get-FileHash -LiteralPath (Join-Path $root $source.Name) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $source.Value){throw 'DOC120_SEGMENTED_SOURCE_CHANGED'}}
     if([IO.Path]::GetFullPath($RuntimeRoot) -ne [IO.Path]::GetFullPath($scope.runtimeRoot) -or (Get-FileHash -LiteralPath (Join-Path $RuntimeRoot 'bin/GestionDocumental-Docuarchi.net.dll') -Algorithm SHA256).Hash.ToLowerInvariant() -ne $scope.backendSha256){throw 'DOC120_SEGMENTED_RUNTIME_CHANGED'}
+    $segmentedTarget=Resolve-Doc115DsnTarget -Dsn $scope.odbcDsn -ExpectedHash $scope.environmentHash
+    if($scope.previous){
+        if($scope.previous.runId -notmatch '\A[a-f0-9]{32}\z' -or $scope.previous.journalSha256 -notmatch '\A[a-f0-9]{64}\z'){throw 'DOC120_SEGMENTED_PREVIOUS_INVALID'}
+        $previousPath=Join-Path $root ('tools/e2e/artifacts/doc120-segmented-'+$scope.previous.runId+'.json')
+        if((Get-FileHash -LiteralPath $previousPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $scope.previous.journalSha256){throw 'DOC120_SEGMENTED_PREVIOUS_CHANGED'}
+        $previous=Get-Content -LiteralPath $previousPath -Raw|ConvertFrom-Json
+        if($previous.status -ne 'STOPPED_REVIEW_REQUIRED' -or $previous.phase -ne 'REGISTERED_CONNECTION' -or $previous.failure.code -ne 'DOC115_AUTHORIZED_DATABASE_CHANGED' -or @($previous.references).Count -ne 0 -or $previous.wrapperSelects -ne 29){throw 'DOC120_SEGMENTED_PREVIOUS_EFFECTS_UNREVIEWED'}
+        $previousConsolePath=Join-Path $root ('.tmp/doc120-segmented/'+$scope.previous.runId+'/resources.json.console-state.json')
+        $previousConsole=Get-Content -LiteralPath $previousConsolePath -Raw|ConvertFrom-Json
+        if($previousConsole.status -ne 'STOPPED' -or $previousConsole.credentialsCleared -ne $true){throw 'DOC120_SEGMENTED_PREVIOUS_UNCLOSED'}
+    }
     if($Check){[Console]::Out.WriteLine('DOC120_SEGMENTED_CHECK=PASS_NOT_EXECUTED');exit 0}
     if((Get-FileHash -LiteralPath $ResourcesFile -Algorithm SHA256).Hash.ToLowerInvariant() -ne $env:DOC120_SEGMENTED_RESOURCES_SHA256){throw 'DOC120_SEGMENTED_SCOPE_CHANGED'}
 }else{
@@ -34,13 +45,13 @@ $journalPath=Join-Path $root ('tools/e2e/artifacts/'+$(if($Segmented){'doc120-se
 if(Test-Path -LiteralPath $journalPath){throw 'DOC115_JOURNAL_ALREADY_EXISTS'}
 if($Segmented){$marker=[IO.File]::Open($journalPath,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None);$marker.Dispose()}
 $journal=[ordered]@{issueKey='DOC-115';scenario='REPO-07A';status='STARTING';phase='COMPILE';references=@();resourcesSha256=$env:DOC115_07A_RESOURCES_SHA256;backendSha256=$scope.backendSha256;startedUtc=[DateTime]::UtcNow.ToString('o')}
-if($Segmented){$journal.issueKey='DOC-120';$journal.scenario=$scope.scenario;$journal.resourcesSha256=$env:DOC120_SEGMENTED_RESOURCES_SHA256;$journal.wrapperSelects=0;$journal.authorized=$true}
+if($Segmented){$journal.issueKey='DOC-120';$journal.scenario=$scope.scenario;$journal.resourcesSha256=$env:DOC120_SEGMENTED_RESOURCES_SHA256;$journal.wrapperSelects=0;$journal.wrapperSelectsThisRun=0;$journal.authorized=$true;if($scope.previous){$journal.previous=$scope.previous;$journal.wrapperSelects=29}}
 $admission=[Diagnostics.Stopwatch]::StartNew()
 function Save-Journal { [IO.File]::WriteAllText($journalPath,($journal|ConvertTo-Json -Depth 15),[Text.UTF8Encoding]::new($false)) }
 $control=$null;$catalog=$null;$runLock=$null;$writerBuilder=$null
 function Read-Rows([string]$sql,[object[]]$arguments=@()){
     if($sql -notmatch '\ASELECT\b' -or $sql -match ';|\b(?:INSERT|UPDATE|DELETE|CALL|EXEC|DROP|ALTER|CREATE|REPLACE|TRUNCATE|GRANT|REVOKE|SET|USE|LOAD|OUTFILE|INTO|LOCK|SLEEP|BENCHMARK)\b' -or ([regex]::Matches($sql,'\?')).Count -ne $arguments.Count){throw 'DOC115_SELECT_REQUIRED'}
-    if($Segmented){if($admission.Elapsed.TotalMinutes -ge 15 -or $journal.wrapperSelects -ge 96){throw 'DOC120_SEGMENTED_WRAPPER_BUDGET'};$journal.wrapperSelects++}
+    if($Segmented){if($admission.Elapsed.TotalMinutes -ge 15 -or $journal.wrapperSelects -ge 96){throw 'DOC120_SEGMENTED_WRAPPER_BUDGET'};$journal.wrapperSelects++;$journal.wrapperSelectsThisRun++}
     $journal.readonlyStep='SELECT';$journal.selectSha256=Hash-Text $sql;Save-Journal
     $cmd=$control.CreateCommand();$cmd.CommandText=$sql;$cmd.CommandTimeout=15
     foreach($value in $arguments){$p=$cmd.Parameters.Add('@p'+$cmd.Parameters.Count,[Data.Odbc.OdbcType]::VarChar);$p.Size=2048;$p.Value=if($null -eq $value){[DBNull]::Value}else{[Convert]::ToString($value,[Globalization.CultureInfo]::InvariantCulture)}}
@@ -98,7 +109,8 @@ try{
     if($Segmented){
         if([string]::IsNullOrWhiteSpace($env:DOC120_SEGMENTED_WRITER_USER) -or [string]::IsNullOrWhiteSpace($env:DOC120_SEGMENTED_WRITER_PASSWORD)){throw 'DOC120_SEGMENTED_WRITER_CREDENTIALS_REQUIRED'}
         $writerBuilder=New-Object MySql.Data.MySqlClient.MySqlConnectionStringBuilder
-        $writerBuilder.Server=$control.DataSource;$writerBuilder.Database=$control.Database
+        $segmentedTarget=Resolve-Doc115DsnTarget -Dsn $scope.odbcDsn -ExpectedHash $scope.environmentHash
+        $writerBuilder.Server=$segmentedTarget.server;$writerBuilder.Database=$segmentedTarget.database
         $writerBuilder.UserID=$env:DOC120_SEGMENTED_WRITER_USER;$writerBuilder.Password=$env:DOC120_SEGMENTED_WRITER_PASSWORD
         $writerBuilder.Pooling=$false;$writerBuilder.ConnectionTimeout=5
     }else{

@@ -26,3 +26,11 @@ El fixture de repositorio utiliza una raíz nueva identificada por la ventana y 
 Estado inicial: ejecutor verificado y ventana aprobada; credenciales todavía no introducidas, cero accesos reales al preparar este registro. El estado efectivo se conserva en el journal local `tools/e2e/artifacts/doc120-segmented-92158d88c6d94d328c5af9f2cb562d3d.json` y el estado de la consola junto al manifiesto excluido. La apertura de consola no acredita PASS ni completa 3.118.
 
 3.118, 3.187, aceptación y demás tareas mantienen su criterio original hasta observar el resultado. La aprobación de esta ventana no completa la autorización de capacidad de 1.000 documentos de 5.2 ni permite repetir automáticamente una corrida detenida.
+
+## Primera ventana detenida y corrección del adaptador
+
+La ejecución `92158d88c6d94d328c5af9f2cb562d3d` concluyó **STOPPED_REVIEW_REQUIRED**, fase REGISTERED_CONNECTION, código DOC115_AUTHORIZED_DATABASE_CHANGED. Completó 29 SELECT del envoltorio y confirmó el perfil 24 activo/publicación 38 y el nivel 7; no llegó al arnés mutante ni registró preparaciones, planes o lotes. La consola quedó STOPPED y credentialsCleared=true. El journal cerrado y sus fuentes se conservan intactos.
+
+El adaptador construía el destino MySQL desde las propiedades DataSource/Database de la conexión ODBC. La inspección posterior de únicamente SERVER y DATABASE del DSN registrado, sin conexión ni claves, coincide con la huella aprobada. La corrección utiliza exclusivamente esos dos campos, valida la misma huella y rechaza cualquier definición discordante del DSN; no cambia el destino ni relaja la guarda. 30/30 casos del adaptador/contratos pasan, incluido un caso nuevo de resolución sin acceso y rechazo de destinos ausentes/ajenos. Los dos casos Framework anteriores conservan su resultado propio.
+
+Continuación preparada `1a31695b3e0c4a9c9f559a205d2dcf3c`: mismos recursos y efectos, nuevos ID/huellas y consola de un solo uso. Check PASS_NOT_EXECUTED. Liga el journal anterior por SHA-256 y exige su parada anterior a mutaciones y claves eliminadas; arranca con los **29 SELECT ya consumidos**, conservando el máximo acumulado de 96 del envoltorio y 64 nativos. No reabre ni repite la ventana detenida. La consola nueva se abre mediante aprobación explícita de esa apertura; no se declara ejecución o PASS al prepararla.

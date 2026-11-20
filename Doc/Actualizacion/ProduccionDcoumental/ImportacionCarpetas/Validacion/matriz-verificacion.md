@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Ventana nativa detenida antes de mutaciones — 2026-11-20
+
+[Resultado y corrección focal](doc120-segmentada-ventana-20261120.md): 92158d88 STOPPED/REGISTERED_CONNECTION, 29 SELECT y cero referencias/efectos; perfil E2E24/v38 y nivel7 verificados, claves eliminadas. Destino reconstruido ahora desde SERVER/DATABASE del DSN con huella original, sin leer claves ni conectar durante el diagnóstico; 30/30 locales del adaptador. Continuación 1a31695b preparada y ligada al journal anterior, conservando 29 SELECT en el tope acumulado; resultado pendiente. 259/270 y once abiertas, sin PASS MySQL por preparación.
+
 ## Ventana segmentada aprobada — 2026-11-20
 
 [Ejecutor reutilizado, recursos y límites](doc120-segmentada-ventana-20261120.md). Aprobación expresa tras indicar el corpus y recursos E2E existentes. Perfil 24/nivel 7/141/2; publicación vigente por SELECT, dos PDF solo metadatos/89.570 bytes. 31/31 pruebas locales y check de manifiesto aprobados. Ventana nueva `92158d88c6d94d328c5af9f2cb562d3d`, resultado real aún por observar; no PASS por apertura de consola. 259/270, once abiertas.

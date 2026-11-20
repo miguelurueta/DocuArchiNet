@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC-120 — parada de destino y continuación preparada, 2026-11-20
+
+92158d88 cerrada STOPPED/REGISTERED_CONNECTION/DOC115_AUTHORIZED_DATABASE_CHANGED,29 SELECT/0 referencias/0 efectos y claves eliminadas. Perfil24/v38 y nivel7 validados. El adaptador usaba propiedades ODBC como destinoMySQL; resolver ahora solo SERVER/DATABASE del DSN registrado y validar huella original, nunca leer UID/PWD/configuración.30/30 locales y check de continuación1a31695b. Nueva ventana ligada porSHA al journal cerrado, guarda ausencia de mutaciones/claves eliminadas y conserva29 SELECT en máximo96 del envoltorio;64 nativos sin consumir. Abrir consola nueva mediante aprobación de apertura, no relanzar la cerrada ni reiniciar consumos. Resultado real y3.118 siguen pendientes.
+
 ## DOC-120 — ventana segmentada aprobada, 2026-11-20
 
 Usuario aprueba continuar sobre recursos existentes y corpus indicado. Run nuevo 92158d88c6d94d328c5af9f2cb562d3d: `run-doc115-recepcion-importacion.cjs --repository-segmented --session <manifiesto>` reutiliza `run-doc111-persistence.ps1 -Mode Doc120Segmented` y helper DOC-115. Perfil E2E24/nivel7/141/2, publicación vigente leída; si está inactivo, detener sin activar o elegir otro. Dos PDF, solo nombres/tamaños/89.570 bytes; hasta una preparación/plan/lote/raíz y dos inventarios, tres rollbacks previstos; cero envío/expedientes/documentos/DDL. 48 llamadas,64 SELECT nativos+96 envoltorio y15min de admisión por etapa. Captura privada de claves SELECT/escritura, sin extraerlas de configuración; no pedir otra vez autorización ya otorgada. 31/31 locales y check de manifiesto; resultado real pendiente, no PASS por consola abierta. Plan `Validacion/doc120-segmentada-ventana-20261120.md`; 259/270 y once abiertas. No relanzar una ventana iniciada/cerrada ni ampliar a carga completa por esta aprobación.

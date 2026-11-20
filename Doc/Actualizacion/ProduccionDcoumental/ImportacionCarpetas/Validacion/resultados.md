@@ -1,5 +1,9 @@
 # DOC-120 — índice cronológico de resultados
 
+## Parada nativa y adaptador de destino — 2026-11-20
+
+[Fuente y continuación acotada](doc120-segmentada-ventana-20261120.md). Run92158d88 detenido tras29 SELECT, antes del arnés mutante, sin referencias y con claves eliminadas. Error del adaptador al construir destino desde ODBC; metadatos registrados SERVER/DATABASE coinciden con huella aprobada. Corrección sin conexiones y30/30 locales, sin relajar destino. Run1a31695b preparado, check sin acceso y consumo previo conservado; sin resultado nativo nuevo. Once tareas siguen pendientes.
+
 ## Ventana segmentada aprobada — 2026-11-20
 
 [Preparación final y aprobación](doc120-segmentada-ventana-20261120.md): extensión de los ejecutores DOC-115/DOC-111 existentes, 31/31 casos locales y manifiesto sellado de dos metadatos/89.570 bytes. Run `92158d88c6d94d328c5af9f2cb562d3d`; perfil E2E 24/nivel 7, sin cambios de disponibilidad. Resultado nativo pendiente de credenciales/ejecución; fuentes y estado efectivo locales excluidos, sin secretos. Conserva 259/270 y once abiertas.
