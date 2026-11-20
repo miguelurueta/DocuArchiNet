@@ -1,5 +1,9 @@
-param([switch]$AuthorizedPersistence,[switch]$AuthorizedTemporaryProfile24,[ValidateSet('Create','Rollback','PublicationRead','Doc115')][string]$Mode='Create',[switch]$AuthorizedDoc115,[string]$ResourcesFile,[string]$RuntimeRoot,[switch]$Check)
+param([switch]$AuthorizedPersistence,[switch]$AuthorizedTemporaryProfile24,[ValidateSet('Create','Rollback','PublicationRead','Doc115','Doc120Segmented')][string]$Mode='Create',[switch]$AuthorizedDoc115,[string]$ResourcesFile,[string]$RuntimeRoot,[switch]$Check)
 $ErrorActionPreference='Stop'
+if($Mode -eq 'Doc120Segmented'){
+    & (Join-Path $PSScriptRoot 'support/doc115-repository-integration.ps1') -ResourcesFile $ResourcesFile -RuntimeRoot $RuntimeRoot -Check:$Check -Segmented
+    exit $LASTEXITCODE
+}
 if($Mode -eq 'Doc115'){
     if($Check){& (Join-Path $PSScriptRoot 'support/doc115-repository-integration.ps1') -ResourcesFile $ResourcesFile -RuntimeRoot $RuntimeRoot -Check;exit $LASTEXITCODE}
     if(-not $AuthorizedDoc115 -or [string]::IsNullOrWhiteSpace($ResourcesFile) -or [string]::IsNullOrWhiteSpace($RuntimeRoot) -or $env:DOC115_07A_AUTHORIZED -ne 'true'){throw 'DOC115_REPOSITORY_AUTHORIZATION_REQUIRED'}

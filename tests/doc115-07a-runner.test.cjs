@@ -9,6 +9,13 @@ test('07-A mode refuses writes before compilation or connection when its authori
 test('existing persistence modes retain their original two authorizations',()=>{
   assert.throws(()=>execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',script,'-Mode','Create'],{env:{...process.env,DOC115_07A_AUTHORIZED:'false'},windowsHide:true,stdio:['ignore','pipe','pipe']}),e=>String(e.stderr).includes('DOC111_PERSISTENCE_AUTHORIZATION_REQUIRED'));
 });
+
+test('segmented mode refuses access before loading resources without its own authorization',()=>{
+  assert.throws(()=>execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',script,
+    '-Mode','Doc120Segmented','-ResourcesFile','absent.json','-RuntimeRoot',root],{
+      env:{...process.env,DOC120_SEGMENTED_AUTHORIZED:'false'},windowsHide:true,stdio:['ignore','pipe','pipe']}),
+    e=>String(e.stderr).includes('DOC115_REPOSITORY_AUTHORIZATION_REQUIRED'));
+});
 test('new PowerShell helpers parse without executing SQL or the harness',()=>{
   const files=[script,path.join(root,'tools/e2e/scripts/support/doc115-repository-integration.ps1'),path.join(root,'tools/e2e/scripts/support/doc115-readonly-failure.ps1')];
   for(const file of files){const literal=file.replace(/'/g,"''");const command="$e=$null;$t=$null;[Management.Automation.Language.Parser]::ParseFile('"+literal+"',[ref]$t,[ref]$e)|Out-Null;if($e.Count){exit 1}";execFileSync('powershell.exe',['-NoProfile','-NonInteractive','-Command',command],{windowsHide:true,stdio:['ignore','pipe','pipe']});}

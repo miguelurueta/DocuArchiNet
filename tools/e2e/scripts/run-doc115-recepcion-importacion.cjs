@@ -15,6 +15,7 @@ function safeLine(line,scenario){
   return {prefix,value:Object.fromEntries(['scenario','status','preparations','confirmations','uploads','lots','noDocumentEffects','readOnlyControls','httpConcurrency','responseLoss',...(v.interruptedTransferVerified===true?['interruptedTransferVerified']:[]),...(v.preservedLotsUnchanged===true?['preservedLotsUnchanged']:[]),'head','codeSha256','backendSha256'].map(k=>[k,v[k]]))};
 }
 async function main(args=process.argv.slice(2),runtime={}){
+  if(args[0]==='--repository-segmented')return repositorySegmented(args.slice(1),runtime);
   const parsed=parseArgs(args),file=path.resolve(parsed.session);if(fs.statSync(file).size>1024*1024)throw Error('DOC115_SESSION_TOO_LARGE');
   const bytes=fs.readFileSync(file),s=validateSession(JSON.parse(bytes.toString('utf8').replace(/^\uFEFF/,''))),budget=fixture.scenarios[s.scenario];
   if(parsed.check){console.log('DOC115_CHECK='+JSON.stringify({status:'PASS',scenario:s.scenario,...budget,resourcesSha256:crypto.createHash('sha256').update(bytes).digest('hex'),realExecution:false}));return;}
@@ -36,5 +37,40 @@ async function main(args=process.argv.slice(2),runtime={}){
     if(child.code!==0||results.length!==1||results[0].preparations!==budget.preparations||results[0].lots>budget.maximumLots||results[0].uploads>budget.uploads||results[0].backendSha256!==backendSha256)throw Error('DOC115_SESSION_STOPPED');return results[0];
   }finally{for(const k of Object.keys(secrets))delete secrets[k];if(environment)for(const k of Object.keys(environment))if(/^DOC11[0-5]_/.test(k))delete environment[k];}
 }
+async function repositorySegmented(args,runtime={}){
+  const parsed=parseArgs(args),file=path.resolve(parsed.session),root=path.resolve(__dirname,'../../..');
+  if(fs.statSync(file).size>1024*1024)throw Error('DOC120_SEGMENTED_SCOPE_INVALID');
+  const bytes=fs.readFileSync(file),s=JSON.parse(bytes.toString('utf8').replace(/^\uFEFF/,''));
+  if(s.scenario!=='DOC120-SEGMENTED-REPOSITORY'||!/^[a-f0-9]{32}$/.test(s.runId)||path.resolve(s.runtimeRoot)!==root||s.files?.length!==2)throw Error('DOC120_SEGMENTED_SCOPE_INVALID');
+  const env=Object.fromEntries(Object.entries(process.env).filter(([k])=>!/^DOC(?:11[0-9]|120)_/.test(k)&&!['DEBUG','PWDEBUG','NODE_DEBUG','NODE_DEBUG_NATIVE'].includes(k))),secrets={};
+  const command=['-NoProfile','-ExecutionPolicy','Bypass','-File',path.join(__dirname,'run-doc111-persistence.ps1'),'-Mode','Doc120Segmented','-ResourcesFile',file,'-RuntimeRoot',root];
+  const output=text=>String(text).split(/\r?\n/).filter(line=>/^DOC115_07A_(?:RESULT|FAILURE)=/.test(line)||/^DOC120_SEGMENTED_CHECK=PASS_NOT_EXECUTED$/.test(line)).join('\n')+'\n';
+  const run=runtime.runChild||runChild;
+  let consoleState,consoleFile;
+  const saveConsole=()=>{if(consoleFile)fs.writeFileSync(consoleFile,JSON.stringify(consoleState,null,2));};
+  try{
+    if(parsed.check){const result=await run('powershell.exe',[...command,'-Check'],root,env,{nonInteractiveChild:true,redactOutput:output});if(result.code!==0)throw Error('DOC120_SEGMENTED_CHECK_FAILED');return result;}
+    if(s.approvedByUser!==true)throw Error('DOC120_SEGMENTED_AUTHORIZATION_REQUIRED');
+    (runtime.requireInteractiveConsole||requireInteractiveConsole)();
+    consoleFile=file+'.console-state.json';fs.closeSync(fs.openSync(consoleFile,'wx'));
+    consoleState={runId:s.runId,status:'WAITING_PRIVATE_CREDENTIALS',pid:process.pid,credentialsCleared:false,startedUtc:new Date().toISOString()};saveConsole();
+    // The user approved this bounded window in the active conversation. The
+    // console captures credentials only; it does not request that approval again.
+    console.log('DOC-120 aprobado: perfil E2E24/nivel7/usuario141/empresa2; publicacion vigente validada por SELECT.');
+    console.log('Dos PDF: solo metadatos. Maximo1 preparacion/plan/lote/raiz,2 archivos,3 rollbacks;0 PDF enviados/documentos/expedientes.');
+    console.log('48 llamadas de repositorio,64 SELECT nativos+96 del envoltorio;15min de admision por etapa. Sin reintentos ni cambios de perfil.');
+    const collect=runtime.collectValue||collectValue;
+    await collect(secrets,'readUser','Cuenta MySQL de controles SELECT',{secret:true});
+    await collect(secrets,'readPassword','Clave MySQL SELECT',{secret:true});
+    await collect(secrets,'writeUser','Cuenta MySQL de prueba con escritura en tablas de importacion',{secret:true});
+    await collect(secrets,'writePassword','Clave MySQL de prueba',{secret:true});
+    Object.assign(env,{DOC120_SEGMENTED_AUTHORIZED:'true',DOC120_SEGMENTED_RESOURCES_SHA256:crypto.createHash('sha256').update(bytes).digest('hex'),
+      DOC111_E2E_MYSQL_USER:secrets.readUser,DOC111_E2E_MYSQL_PASSWORD:secrets.readPassword,
+      DOC120_SEGMENTED_WRITER_USER:secrets.writeUser,DOC120_SEGMENTED_WRITER_PASSWORD:secrets.writePassword});
+    consoleState.status='RUNNING';saveConsole();
+    const result=await run('powershell.exe',command,root,env,{nonInteractiveChild:true,redactOutput:output});
+    if(result.code!==0)throw Error('DOC120_SEGMENTED_STOPPED_REVIEW_REQUIRED');consoleState.status='FINISHED';return result;
+  }finally{for(const k of Object.keys(secrets))delete secrets[k];for(const k of Object.keys(env))delete env[k];if(consoleState){if(consoleState.status!=='FINISHED')consoleState.status='STOPPED';consoleState.credentialsCleared=true;consoleState.finishedUtc=new Date().toISOString();saveConsole();}}
+}
 if(require.main===module)main().catch(()=>{console.error('DOC115_SESSION_STOPPED: revise referencias y estado antes de repetir; sin detalle privado.');process.exitCode=2;});
-module.exports={parseArgs,safeLine,main};
+module.exports={parseArgs,safeLine,main,repositorySegmented};

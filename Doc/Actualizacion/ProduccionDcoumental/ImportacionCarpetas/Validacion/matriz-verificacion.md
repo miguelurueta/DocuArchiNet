@@ -1,5 +1,9 @@
 # DOC-120 — matriz única de verificación
 
+## Ventana segmentada aprobada — 2026-11-20
+
+[Ejecutor reutilizado, recursos y límites](doc120-segmentada-ventana-20261120.md). Aprobación expresa tras indicar el corpus y recursos E2E existentes. Perfil 24/nivel 7/141/2; publicación vigente por SELECT, dos PDF solo metadatos/89.570 bytes. 31/31 pruebas locales y check de manifiesto aprobados. Ventana nueva `92158d88c6d94d328c5af9f2cb562d3d`, resultado real aún por observar; no PASS por apertura de consola. 259/270, once abiertas.
+
 ## Preparación del laboratorio segmentado — 2026-11-20
 
 [Arnés, casos y datos necesarios para concretar la ventana](doc120-preparacion-repositorio-plan-20261120.md). Avance parcial de 3.118: entrada explícita para partes/sellado/confirmación concurrentes y tres rollbacks, integrada en la compilación Framework existente. 2/2 pruebas Node envolventes; 16 guardas/comprobaciones internas nuevas sin conexión. MySQL todavía NO_EJECUTADO; faltan laboratorio, manifiesto y consola acotada antes de autorizar. 259/270, once abiertas; no se acredita 3.187 ni capacidad integral.

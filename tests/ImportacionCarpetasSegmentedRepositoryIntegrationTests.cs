@@ -89,8 +89,10 @@ public static partial class ImportacionCarpetasBehaviorTests {
             throw new Exception("DOC120_SEGMENTED_SCOPE_INVALID");
         for(int n=1;n<=2;n++) {
             var files=fixture.Manifiesto.Archivos.Where(f=>f.IdCliente=="a"+n).ToArray();
-            if(files.Length!=1||files[0].RaizIdCliente!="r1"||files[0].Nombre!="0"+n+".pdf"||
-                files[0].RutaRelativa!=root.Nombre+"/"+files[0].Nombre||files[0].Bytes!="7"||files[0].UltimaModificacionLocal!="0")
+            ulong bytes;
+            if(files.Length!=1||files[0].RaizIdCliente!="r1"||String.IsNullOrWhiteSpace(files[0].Nombre)||!files[0].Nombre.EndsWith(".pdf",StringComparison.OrdinalIgnoreCase)||
+                files[0].RutaRelativa!=root.Nombre+"/"+files[0].Nombre||!UInt64.TryParse(files[0].Bytes,NumberStyles.None,CultureInfo.InvariantCulture,out bytes)||
+                bytes==0||bytes>2097152||bytes.ToString(CultureInfo.InvariantCulture)!=files[0].Bytes||files[0].UltimaModificacionLocal!="0")
                 throw new Exception("DOC120_SEGMENTED_SCOPE_INVALID");
         }
     }
@@ -135,10 +137,11 @@ public static partial class ImportacionCarpetasBehaviorTests {
         // before admitting any connection. Publication is rechecked by the repo.
         var plan=Doc120SegmentedPreparedFixture(fixture,DateTime.UtcNow);
         var context=plan.Contexto;
+        var totalBytes=plan.Manifiesto.Archivos.Sum(a=>(long)UInt64.Parse(a.Bytes,CultureInfo.InvariantCulture)).ToString(CultureInfo.InvariantCulture);
         var draft=new PreparacionSegmentadaImportacion{Contexto=ReceiptClone(context),Snapshot=ReceiptClone(plan.Snapshot),
             Clave=runId,CabeceraHash=PlanSegmentadoImportacionJson.HuellaTexto(PerfilImportacionJson.Escribir(new {
                 Contexto=context,Snapshot=plan.Snapshot,Manifiesto=plan.Manifiesto})),TotalRaices=1,TotalArchivos=2,
-            TotalBytes="14",PartesRaices=1,PartesArchivos=2,Estado="BORRADOR",Revision=1,
+            TotalBytes=totalBytes,PartesRaices=1,PartesArchivos=2,Estado="BORRADOR",Revision=1,
             CreadoUtc=plan.CreadoUtc,ExpiraUtc=plan.ExpiraUtc};
         reference("phase","START");
         // A previous draft is never resumed by this entry point. The outer
@@ -161,7 +164,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
         var revision=state.Revision;
         state=window.Call(r=>r.RegistrarParte(context,preparationId,revision,second));
         Check(window.Call(r=>r.RegistrarParte(context,preparationId,revision,second)).Revision==state.Revision,"DOC120_SEGMENTED_PART_REPLAY_CHANGED");
-        var changedFile=ReceiptClone(plan.Manifiesto.Archivos.Single(a=>a.IdCliente=="a2"));changedFile.Bytes="8";
+        var changedFile=ReceiptClone(plan.Manifiesto.Archivos.Single(a=>a.IdCliente=="a2"));changedFile.Bytes=(UInt64.Parse(changedFile.Bytes,CultureInfo.InvariantCulture)+1).ToString(CultureInfo.InvariantCulture);
         var conflict=Doc120Part("ARCHIVOS",2,new List<ArchivoManifiestoImportacion>{changedFile});
         Rejected("CONFLICTO_REVISION",()=>window.Call(r=>r.RegistrarParte(context,preparationId,revision,conflict)));
         revision=state.Revision;
@@ -200,7 +203,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
         var lots=Doc115Pair(()=>window.Call(r=>r.ConfirmarPlan(context,sealedPlan.PlanId,1,sealedPlan.Huella,"left-"+runId)),
             ()=>window.Call(r=>r.ConfirmarPlan(context,sealedPlan.PlanId,1,sealedPlan.Huella,"right-"+runId)));
         var lot=lots[0];
-        Check(lots.All(l=>l.LoteId==lot.LoteId&&l.TotalRaices==1&&l.TotalArchivos==2&&l.TotalBytes=="14"),"DOC120_SEGMENTED_CONFIRMATION_DUPLICATED");
+        Check(lots.All(l=>l.LoteId==lot.LoteId&&l.TotalRaices==1&&l.TotalArchivos==2&&l.TotalBytes==totalBytes),"DOC120_SEGMENTED_CONFIRMATION_DUPLICATED");
         reference("lote",lot.LoteId);
         Check(window.Call(r=>r.ConfirmarPlan(context,sealedPlan.PlanId,1,sealedPlan.Huella,"left-"+runId)).LoteId==lot.LoteId,"DOC120_SEGMENTED_CONFIRMATION_REPLAY_CHANGED");
         Check(window.Count("SELECT COUNT(*) FROM ra_integracion_lote WHERE plan_id=@plan",sealedPlan.PlanId)==1,"DOC120_SEGMENTED_FINAL_LOT_COUNT");
@@ -212,7 +215,8 @@ public static partial class ImportacionCarpetasBehaviorTests {
         reference("phase","FINISHED");
         return new Dictionary<string,object>{{"status","PASS_SEGMENTED_REPOSITORY"},{"preparationId",preparationId},
             {"planId",sealedPlan.PlanId},{"lotId",lot.LoteId},{"repositoryCalls",window.Calls},{"controlSelects",window.Selects},
-            {"rollbackStages",stages},{"roots",1},{"files",2},{"bytes",14},{"documentEffects",0},{"physicalPooling",false}};
+            {"rollbackStages",stages},{"roots",1},{"files",2},{"bytes",totalBytes},{"finalFragments",PlanSegmentadoImportacionJson.Fragmentar(recovered).Count},
+            {"documentEffects",0},{"physicalPooling",false}};
     }
 
     static PlanImportacionCarpetas Doc120SegmentedGuardFixture(string runId) {
@@ -234,7 +238,7 @@ public static partial class ImportacionCarpetasBehaviorTests {
         rejects("DOC120_SEGMENTED_SCOPE_INVALID",()=>RunDoc120SegmentedRepositoryIntegration(true,"PRIVATE_CONNECTION_SENTINEL",null,run,fingerprint,(type,id)=>{}));
         foreach(var change in new Action<PlanImportacionCarpetas>[] {
             p=>p.Contexto.PuedeImportar=false,p=>p.Contexto.UsuarioRef="01",p=>p.PlanId="9",p=>p.EsquemaDoc=2,
-            p=>p.Manifiesto.Raices[0].Nombre="existing-root",p=>p.Manifiesto.Archivos[0].Bytes="8",
+            p=>p.Manifiesto.Raices[0].Nombre="existing-root",p=>p.Manifiesto.Archivos[0].Bytes="0",
             p=>p.Manifiesto.Archivos[0].RutaRelativa="foreign/file.pdf",p=>p.Resultado.UnidadesElegibles.Clear()}) {
             var plan=Doc120SegmentedGuardFixture(run);change(plan);
             rejects("DOC120_SEGMENTED_SCOPE_INVALID",()=>RunDoc120SegmentedRepositoryIntegration(true,"PRIVATE_CONNECTION_SENTINEL",plan,run,fingerprint,(type,id)=>{}));

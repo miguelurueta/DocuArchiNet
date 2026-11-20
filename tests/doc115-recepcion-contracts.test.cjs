@@ -134,3 +134,30 @@ test('RECIB-03 result requires both interrupted transport and the explicit clien
 test('check mode validates synthetic resources without login, SQL or prompting',async()=>{
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'doc115-check-'));try{const file=path.join(dir,'session.json');fs.writeFileSync(file,JSON.stringify(session()));await main(['--session',file,'--check'],{requireInteractiveConsole:()=>{throw Error('must not prompt');}});}finally{assert.equal(path.dirname(dir),path.resolve(os.tmpdir()));assert.ok(path.basename(dir).startsWith('doc115-check-'));fs.rmSync(dir,{recursive:true,force:true});}
 });
+
+test('segmented mode reuses persistence runner; check never prompts and child failure never becomes success',async()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'doc115-segmented-'));
+  try{
+    const file=path.join(dir,'resources.json');fs.writeFileSync(file,JSON.stringify({scenario:'DOC120-SEGMENTED-REPOSITORY',runId:'a'.repeat(32),runtimeRoot:path.resolve(__dirname,'..'),files:[{},{}]}));
+    let calls=0;
+    await main(['--repository-segmented','--session',file,'--check'],{
+      requireInteractiveConsole(){throw Error('must not prompt');},
+      async runChild(command,args){calls++;assert.equal(command,'powershell.exe');assert.ok(args.includes('Doc120Segmented'));assert.ok(args.includes('-Check'));return{code:0};}});
+    assert.equal(calls,1);assert.equal(fs.existsSync(file+'.console-state.json'),false);
+    await assert.rejects(main(['--repository-segmented','--session',file,'--check'],{async runChild(){return{code:1};}}),/CHECK_FAILED/);
+  }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
+
+test('segmented console captures secrets privately, clears them and refuses a second use',async()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'doc115-segmented-private-'));
+  try{
+    const file=path.join(dir,'resources.json');fs.writeFileSync(file,JSON.stringify({scenario:'DOC120-SEGMENTED-REPOSITORY',runId:'b'.repeat(32),approvedByUser:true,runtimeRoot:path.resolve(__dirname,'..'),files:[{},{}]}));
+    let environment;
+    const runtime={requireInteractiveConsole(){},async collectValue(values,key,label,options){assert.equal(options.secret,true);values[key]='PRIVATE_SENTINEL';},
+      async runChild(command,args,cwd,env){environment=env;assert.equal(env.DOC120_SEGMENTED_AUTHORIZED,'true');assert.equal(env.DOC120_SEGMENTED_WRITER_PASSWORD,'PRIVATE_SENTINEL');return{code:1};}};
+    await assert.rejects(main(['--repository-segmented','--session',file],runtime),/STOPPED_REVIEW_REQUIRED/);
+    assert.deepEqual(environment,{});
+    const state=fs.readFileSync(file+'.console-state.json','utf8');assert.doesNotMatch(state,/PRIVATE_SENTINEL/);assert.equal(JSON.parse(state).credentialsCleared,true);
+    await assert.rejects(main(['--repository-segmented','--session',file],runtime),e=>e.code==='EEXIST');
+  }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
