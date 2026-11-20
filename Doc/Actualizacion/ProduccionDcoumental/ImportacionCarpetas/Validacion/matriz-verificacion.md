@@ -2,6 +2,8 @@
 
 ## Revisión final y decisión de salida — 2026-11-20
 
+6.5 completa: revisión/evidencias ligadas a4954ea05,71/72 controles de gobierno PASS; único bloqueo openspec_tasks. Estado268/270: aceptación expresa6.4 y entrega/merge6.6 pendientes, sin archivo/cierre anticipados.
+
 [Revisión técnica6.5](doc120-verificacion-final-20261120.md)/JSON:15 requisitos/114 escenarios inventariados y226/226 pruebas locales finales;154 entradas del PASS nativo siguen iguales. Se corrigen las secciones iniciales de los cinco documentos de gobierno que todavía decían sin cambios de producto. [Matriz de límites/responsables/decisiones](doc120-aceptacion-limites-final-20261120.md): propuesta concreta de aceptación, sin nueva carga o despliegue. No hay defecto técnico crítico abierto hallado;6.4 exige aceptación expresa de los límites y6.6 mantiene merge/archivo pendientes. No se declara aceptación global por esta revisión o por CI.
 
 ## 3.187 — MySQL real aprobado, 2026-11-20

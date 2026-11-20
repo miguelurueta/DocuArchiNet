@@ -2,6 +2,8 @@
 
 ## Revisión final6.4–6.6 — 2026-11-20
 
+6.5 completa por revisión/evidencias reales registradas en4954ea05;71/72 controles de gobierno aprobados, único FAIL openspec_tasks.268/270;6.4 aceptación expresa y6.6 entrega/merge continúan abiertas. El registro final se vincula al SHA documental posterior sin repetir efectos históricos.
+
 [Revisión/huellas y226/226 locales](doc120-verificacion-final-20261120.md)/JSON; sin nueva E2E/SQL/efectos. Cinco documentos de gobierno actualizados al alcance real, fuentes195 selladas y154 del PASS MySQL conservadas. [Aceptación propuesta con responsables](doc120-aceptacion-limites-final-20261120.md): no certificar SII/limpieza reales ni SLA/capacidad máxima, preservar cobertura UI/HTTP/nativa por sus cortes. Aceptación expresa y merge siguen pendientes; no se concede archivo/cierre por casillas o CI.
 
 ## 3.187 — reservas y rollback MySQL aprobados

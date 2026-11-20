@@ -2,6 +2,8 @@
 
 Skill aplicada: openspec-verify-change. Revisión de completitud/corrección/coherencia sobre `aee3fe8eb5023546b134266c6e14ff66b94f8a02` y la consolidación documental de esta revisión. El cambio es spec-driven;15 requisitos/114 escenarios normativos. El SHA final se vincula en los registros locales OPSXJ después del commit, evitando una referencia circular dentro del propio documento.
 
+**Resultado6.5:** OpenSpec estricto/refinement15/15 aprobados. En4954ea05 se registraron revisión y evidencias unit/manual_qa/e2e por sus fuentes reales;71/72 controles de gobierno PASS y únicamente openspec_tasks FAIL por tareas de salida pendientes.6.5 completa,268/270;6.4 y6.6 abiertas. El FAIL global no se presenta como validación integral aprobada. Al registrar este resultado y crear el PR se vuelve a vincular la revisión/evidencia al SHA documental final; no cambian entradas de producto/pruebas ni se renuevan corridas reales.
+
 ## Completitud y compuertas
 
 267/270 tareas estaban completas al iniciar.3.187 tiene PASS MySQL real; quedan aceptación6.4, consolidación/gobierno6.5 y entrega6.6. El trabajo técnico de6.5 se consolida aquí, con evidencia y revisión registradas sobre el SHA de entrega.6.4 no se cierra por redactar la propuesta de límites y6.6 no se presenta como merge/archivo ya realizados. No hay autorización para repetir E2E o borrar datos por esta revisión.

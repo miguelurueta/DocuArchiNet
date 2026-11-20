@@ -2,6 +2,8 @@
 
 ## DOC-120 — revisión final de entrega2026-11-20
 
+Gobierno6.5 completo: revisión/evidencias registradas para4954ea05,71/72 controles PASS, único FAIL openspec_tasks.268/270,6.4 aceptación expresa de límites D-10 y6.6 entrega/merge pendientes. No sustituir esa aceptación por CI; el PR puede prepararse para revisión, sin archivar/cerrar antes del merge. El SHA final documental se registra nuevamente sin repetir E2E reales ni abrir consolas de claves.
+
 Regresión local existente de transiciones226/226 PASS, sin cuentas/HTTP real/SQL/efectos. Revisión15 requisitos/114 escenarios y195 fuentes en `Validacion/doc120-verificacion-final-20261120.md`/JSON; cinco documentos obligatorios de gobierno actualizados. Matriz de aceptación en `doc120-aceptacion-limites-final-20261120.md`, con motivos/responsables/decisiones propuestas:6.4 requiere aceptación expresa según D-10. No volver a probar los1.000 o3.187, ni pedir otras claves por estas tareas finales. Gobierno6.5 debe enlazar SHA/evidencias reales;6.6/archivo/Jira esperan aceptación y merge verificado.
 
 ## DOC-120 —3.187 aprobada en MySQL, 2026-11-20

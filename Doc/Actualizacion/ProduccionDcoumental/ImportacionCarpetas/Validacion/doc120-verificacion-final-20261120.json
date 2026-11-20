@@ -343,9 +343,23 @@
   "sourceCount": 195,
   "releaseGates": {
     "acceptance64": "PENDING_EXPLICIT_ACCEPTANCE",
-    "governance65": "Technical report prepared; bind review/evidence to committed delivery SHA in excluded OPSXJ records.",
+    "governance65": "COMPLETE: strict OpenSpec/refinement and current-SHA review/evidence registered; global gate remains blocked only by incomplete acceptance/delivery tasks.",
     "delivery66": "PR/merge verification pending; no archive or Jira closure."
   },
   "knownCriticalProductDefectsFound": 0,
-  "readyToArchive": false
+  "readyToArchive": false,
+  "governanceSnapshot": {
+    "sha": "4954ea05",
+    "checks": 72,
+    "passed": 71,
+    "failed": [
+      "openspec_tasks"
+    ],
+    "review": "PASS",
+    "unit": "PASS",
+    "manual_qa": "PASS",
+    "e2eRecorded": true,
+    "globalStatus": "FAIL",
+    "finalBinding": "Excluded OPSXJ review/evidence records are rebound to the final documentation commit without reexecuting historical real effects."
+  }
 }

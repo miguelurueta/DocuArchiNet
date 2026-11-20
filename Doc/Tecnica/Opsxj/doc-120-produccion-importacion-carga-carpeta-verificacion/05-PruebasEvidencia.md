@@ -2,6 +2,8 @@
 
 ## Evidencia requerida
 
+Revisión6.5 consolidada:226/226 locales,15 requisitos/114 escenarios inventariados,195 fuentes selladas. En4954ea05, revisión/evidencias unit/manual_qa/e2e registradas;71/72 controles PASS y únicamente tareas de salida pendientes.6.5 completa/268 de270, sin convertir el estado global FAIL en PASS. Las entradas no cambian al vincular nuevamente estos registros al commit documental final del PR.
+
 La evidencia vigente se registra por SHA/fuentes y clase de prueba, sin sumar corridas superpuestas. Primarios principales: doc120-qa-recuperacion-concurrencia-20261119 (HTTP/privacidad/acuse perdido), doc120-guardado-real-resultado-20261119 (cuatro efectos y pausa/cierre), doc120-lote52-control-final-resultado-20261120 (1.000 identidades), doc120-segmentada-resultado-20261120 (persistencia de plan) y doc120-reservas-archivo-resultado-20261120 (reservas por archivo y rollback MySQL). Los CSV de rendimiento conservan versión/corte y la ampliación de beneficiario procede del reporte manual y video del usuario, con255 visible; no se inventa una consulta SQL de ese cambio.
 
 Las evidencias unit/manual_qa de OPSXJ deben corresponder al SHA de entrega y explicar reutilización por huellas, sin atribuir una nueva corrida real al commit documental. La revisión OpenSpec y la aceptación de límites se registran aparte. CI o un documento generado no conceden aceptación integral.
