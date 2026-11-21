@@ -5,6 +5,8 @@
 - Clasificacion: cross_cutting (Transversal)
 ## Evidencia requerida
 
+Continuación de claves 2026-11-21: `Doc/Actualizacion/Importacion/Validacion/doc121-preparacion-indices-20261121.md`/JSON conserva 11 SELECT y agregados saneados. CONTRATOS: 625 filas y cero incidencias de clave, con ALTER 08 preparado para ejecución manual. EGRESOS: 25153 filas, 2 claves vacías, 738 grupos duplicados y 4479 filas excedentes; no se prepara ALTER ejecutable para su clave. Tres archivos nuevos 07–09 pasan 12 controles estáticos; los siete originales se preservan. Cuenta/host/DA del paso 05 y destino efectivo de fuentes requieren confirmación del usuario. No hay DDL/DML, limpieza o permisos aplicados por el agente.
+
 Corte de instalación 2026-11-21: el usuario informa «achivos aplicados». `Doc/Actualizacion/Importacion/Validacion/doc121-verificacion-instalacion-20261121.md`/JSON registra 8 SELECT y 37 comprobaciones aprobadas del esquema 01–03 en la base física local de referencia, sin DDL/DML/HTTP. Índices de fuente todavía no acreditados en esa base y cuenta dedicada sin identificar. La correspondencia autenticada RA/DA y el alcance exacto aplicado siguen por precisar; no se transforma la comprobación parcial en aceptación completa. Los párrafos siguientes conservan el corte contractual del 20/11.
 
 Evidencia local de fase 01 en Doc/Actualizacion/Importacion/Validacion/doc121-revision-fase01-20261120.md/JSON. Auditor reproducible de SQL y contratos; OpenSpec estricto y refinement. Suites existentes de gobierno: npm.cmd --prefix tools/opsxj test -- scripts/lib/refinementService.test.js scripts/lib/legacyGovernanceService.test.js, 19/19 aprobadas. Son pruebas del tooling reutilizado, no del escritor Excel aún inexistente.
