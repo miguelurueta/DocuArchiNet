@@ -1,21 +1,21 @@
-# DOC-121 — archivo y cierre administrativo
+# DOC-121 — OpenSpec archivado, PR integrado y Jira cerrado
 
-El usuario solicitó continuar tras el estado que identificaba archivo OpenSpec, integración del PR133 y cierre Jira como pasos siguientes. Se prepara esa entrega sin ampliar la fase 01 ni realizar nuevas operaciones de base. [Registro estructurado](doc121-archivo-cierre-20261121.json).
+**Jira: Listo**, categoría done, confirmado por lectura posterior el 2026-11-21T21:59:21.678Z. Se utilizó la transición del cliente existente sin enviar comentarios de issue. La continuación fue autorizada por el usuario después del estado que identificaba archivo, merge y cierre como pasos siguientes. [Registro estructurado](doc121-archivo-cierre-20261121.json).
 
-## Archivo y sincronización verificados
+## Integración verificada
 
-Se conservan siete archivos y 16 tareas completas en `openspec/changes/archive/2026-11-21-doc-121-importacion-excel-01-esquema-contratos-configuracion/`. El directorio activo ya no existe. La especificación principal `openspec/specs/importacion-excel-01-esquema-contratos-configuracion/spec.md` recibe los 8 requisitos y 24 escenarios, comparados bloque por bloque; Purpose se conserva. El contexto Jira se archiva como contexto, no como otro contrato normativo.
+El [PR133](https://github.com/miguelurueta/DocuArchiNet/pull/133) está integrado mediante 564a5600c0321eae1e0aa1465bdb00aba8c3c745. El árbol del merge coincide con el HEAD revisado 893ad681e278be8c924d6d8345dc963fea2a9437. [CI](https://github.com/miguelurueta/DocuArchiNet/actions/runs/44953907103) concluyó con 37/37 pasos aprobados sobre ese HEAD. Antes de cerrar Jira se comprobó main local/remoto y el gobierno del SHA integrado; la carpeta principal quedó en main por avance directo, conservando el trabajo local.
 
-El snapshot de reglas de specs se obtuvo antes de escribir la especificación principal. La sincronización se verificó antes de mover y otra vez después. No había enlaces Markdown relativos al directorio activo que exigieran reparación. Los JSON históricos conservan las rutas y huellas de sus entradas originales.
+## Archivo y sincronización
 
-El auditor local ahora resuelve el cambio activo o su archivo único, para seguir funcionando después del movimiento. La validación estricta global aprueba **92/92** elementos; el auditor pasa **27/27** y el refinement archivado **15/15**. Esas verificaciones no acreditan recorridos Excel ni repiten la instalación de SQL.
+Se conservan siete archivos y 16 tareas completas en openspec/changes/archive/2026-11-21-doc-121-importacion-excel-01-esquema-contratos-configuracion/. El directorio activo ya no existe. La especificación principal openspec/specs/importacion-excel-01-esquema-contratos-configuracion/spec.md contiene los 8 requisitos y 24 escenarios, comparados bloque por bloque y con Purpose preservado. El contexto Jira permanece archivado como contexto.
 
-## Integración y condición de cierre
+El snapshot de reglas se obtuvo antes de escribir la especificación. Se verificó la sincronización antes y después de mover. Los siete archivos se trasladaron sin cambiar su contenido. No había enlaces Markdown relativos que reparar; las rutas de JSON históricos siguen identificando sus entradas originales. El auditor local resuelve la ubicación activa o el archivo único.
 
-El archivo se entrega en el [PR133](https://github.com/miguelurueta/DocuArchiNet/pull/133), junto con la fase 01 ya revisada en 0e541db8. El nuevo commit de archivo requiere CI aprobado antes del merge. Jira se leyó como **En curso**; su transición final se ejecutará solo después de comprobar merge, igualdad de main local/remoto y gobierno vinculado al SHA integrado. Se utiliza el cliente de transición existente sin enviar comentarios de issue.
+Validación global estricta **92/92**, auditor local **27/27**, refinement archivado **15/15** y gobierno **72/72** aprobados. Las 195 entradas de ejecución DOC-120 mantienen sus hashes. El registro documental final vuelve a vincular revisión/evidencia al SHA comprometido mediante archivos OPSXJ locales excluidos de Git, sin repetir pruebas de negocio.
 
-El resultado remoto de integración y el estado confirmado de Jira se registrarán después de verificarse. Este corte no afirma que esos pasos ya estén ejecutados.
+## Alcance de la entrega
 
-## Alcance preservado
+Se cierra la fase 01 contractual: esquema, SQL revisable, configuración y request/response. Los 24 escenarios son contratos revisados, no 24 corridas reales. La implementación de conexión, cuenta dedicada, lector Excel, preparación, confirmación e interfaz pertenece a las fases posteriores, conservando sus verificaciones de ambiente y E2E autorizados.
 
-EGRESOS sigue siendo una fuente de pruebas y no se modifica ni condiciona la entrega. El contrato/plantilla de cuenta dedicada está entregado; la prueba operativa de cuenta/host/DA corresponde a la fase de conexión. El índice de CONTRATOS aplicado por autorización expresa conserva su evidencia anterior y sus 625 filas; no se repite su ALTER. Esta operación de archivo no realiza SELECT de base, DDL, DML, sesión de aplicación, E2E, despliegue o limpieza.
+EGRESOS sigue siendo una fuente de pruebas y permanece intacta. No condiciona esta entrega. El índice de CONTRATOS aplicado anteriormente por autorización expresa conserva su evidencia y las 625 filas; esta operación no repitió su ALTER. Archivo/cierre no ejecutaron nuevas consultas de base, DDL, DML, sesiones de aplicación, despliegues o limpieza. Los cortes anteriores conservan sus estados históricos.

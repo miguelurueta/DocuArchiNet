@@ -1,7 +1,7 @@
 {
   "issueKey": "DOC-121",
   "recordedUtc": "2026-11-21T21:51:17.809Z",
-  "status": "ARCHIVE_PREPARED_FOR_PR133",
+  "status": "ARCHIVED_MERGED_JIRA_DONE",
   "archivePath": "openspec/changes/archive/2026-11-21-doc-121-importacion-excel-01-esquema-contratos-configuracion",
   "archivedFiles": 7,
   "completeTasks": 16,
@@ -21,16 +21,39 @@
     "strictGlobalPassed": 92,
     "strictGlobalFailed": 0,
     "staticAuditorPassed": 27,
-    "archivedRefinementPassed": 15
+    "archivedRefinementPassed": 15,
+    "governancePassed": 72,
+    "governanceFailed": 0,
+    "governanceSha": "564a5600c0321eae1e0aa1465bdb00aba8c3c745"
   },
   "reviewedImplementationHead": "0e541db86fb6661a02134e22d5bf81dd6eac4f6e",
   "pr": 133,
   "prUrl": "https://github.com/miguelurueta/DocuArchiNet/pull/133",
-  "integration": "Final archive commit must pass CI before merge.",
+  "integration": {
+    "pr": 133,
+    "url": "https://github.com/miguelurueta/DocuArchiNet/pull/133",
+    "reviewedHead": "893ad681e278be8c924d6d8345dc963fea2a9437",
+    "mergeCommit": "564a5600c0321eae1e0aa1465bdb00aba8c3c745",
+    "merged": true,
+    "mergedAt": "2026-11-21T21:57:20Z",
+    "reviewedTree": "bf3a8aef4e00336a284d9fe4bd450fcd569f7017",
+    "mergeTree": "bf3a8aef4e00336a284d9fe4bd450fcd569f7017",
+    "treesEqual": true,
+    "ciRun": 44953907103,
+    "ciUrl": "https://github.com/miguelurueta/DocuArchiNet/actions/runs/44953907103",
+    "ciConclusion": "success",
+    "ciStepsPassed": 37
+  },
   "jira": {
     "preflightStatus": "En curso",
-    "closed": false,
-    "closureCondition": "Merged PR133, primary main/remote equality and current-SHA governance verified."
+    "before": "En curso",
+    "after": "Listo",
+    "category": "done",
+    "transitionId": "41",
+    "closed": true,
+    "alreadyDone": false,
+    "verifiedUtc": "2026-11-21T21:59:21.678Z",
+    "commentsSent": 0
   },
   "scope": {
     "phase": "01 contracts and reviewable SQL",
@@ -53,5 +76,13 @@
     "openspec/changes/archive/2026-11-21-doc-121-importacion-excel-01-esquema-contratos-configuracion/specs/importacion-excel-01-esquema-contratos-configuracion/jira-context.md": "7a4cc0f31e9858b1d8456d9ae8375effab714d4428f521f1b9da1cb25ae21baa",
     "openspec/changes/archive/2026-11-21-doc-121-importacion-excel-01-esquema-contratos-configuracion/specs/importacion-excel-01-esquema-contratos-configuracion/spec.md": "01e1b0338e4b31101023c546cd0108761d26431ad34b467482e62d16a8d3301e",
     "openspec/changes/archive/2026-11-21-doc-121-importacion-excel-01-esquema-contratos-configuracion/tasks.md": "3a65f0a3216b8dd42545ac847406a6d17111641356e4fc72cd454c5f564f09c0"
-  }
+  },
+  "closedRecordUtc": "2026-11-21T22:00:10.225Z",
+  "workspaceAtClosure": {
+    "root": "D:/imagenesda/DocuachiNet/DocuArchiNet",
+    "branch": "main",
+    "localAndRemoteMain": "564a5600c0321eae1e0aa1465bdb00aba8c3c745",
+    "primaryCheckout": true
+  },
+  "finalRecord": "Documentation-only closure record; final review/evidence bind to its committed SHA in excluded OPSXJ records. Historical execution snapshots are preserved."
 }
