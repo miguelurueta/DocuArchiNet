@@ -4,6 +4,8 @@ DOC-121 formaliza la fase 01 de las siete fases de importación Excel. Las tabla
 
 El usuario eligió los prompts actuales: archivo completo, validación integral, revisión y confirmación transaccional; recuperación por ID. No se agrega pausa ni reanudación por fila. El SQL se entrega para que el usuario lo aplique manualmente.
 
+Delimitación vigente: EGRESOS es una fuente de pruebas, según aclaración del usuario. Adecuar esa tabla no es requisito para entregar DOC-121. La clave única se exige cuando una tabla sea elegida como destino del cargador o creada por él. La provisión efectiva de la cuenta dedicada y los recorridos de aplicación corresponden a las fases posteriores; esta fase entrega su contrato y la plantilla SQL.
+
 ## What Changes
 
 - Inventario y contratos de las fases posteriores reutilizando los tres catálogos `imp01_*`.

@@ -2,6 +2,8 @@
 
 Fecha: 2026-11-20. Cambio `doc-121-importacion-excel-01-esquema-contratos-configuracion`, fase 01 de 7. Documento contractual; no afirma endpoints disponibles ni instalación. Fuente: [exploración aprobada](../Exploracion/carga-excel-csv-tablas-imp-02.md) y [prompt 01](../Exploracion/01-esquema-contratos-y-configuracion.md). El usuario eligió conservar el flujo actual de los prompts y ejecutar manualmente los SQL.
 
+Alcance vigente aclarado por el usuario: EGRESOS es solo de pruebas. Su adecuación o depuración no es requisito para entregar esta fase; se conserva intacta. Una tabla elegida como destino de carga debe cumplir la clave requerida/única cuando vaya a utilizarse. El aprovisionamiento y prueba de cuenta/host/DA se concretan en las fases que implementan la conexión, a partir del contrato y la plantilla 05 entregados aquí.
+
 ## Inventario y compatibilidad — D-01/RQ-01
 
 | Elemento | Evidencia inspeccionada | Regla de compatibilidad |

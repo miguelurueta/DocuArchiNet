@@ -37,6 +37,8 @@ MaxFilasDatos=10000 y MaxArchivoMB=10; MB=1000000 bytes. Enteros positivos, inde
 
 ### D-05 — Clave y fuente de índices (RQ-05)
 
+EGRESOS es únicamente de pruebas por aclaración del usuario. No se requiere modificarla, depurarla o adecuar todos los ejemplos históricos para entregar el esquema y contratos del módulo. La condición de clave única se comprueba sobre una tabla efectivamente elegida como destino de carga o creada por el cargador. Los conteos históricos de EGRESOS describen su elegibilidad como destino, no un bloqueo general de DOC-121. Esta continuación no ejecuta cambios de base.
+
 Tablas nuevas `imp_02_<nombre>` e identificadores ASCII válidos de hasta 64 caracteres. PK técnica histórica opcional. Clave de negocio requerida, sin NULL/vacíos y UNIQUE completo, no un prefijo. Fuente exclusiva: clave; compartida: empresa+clave según autorización. Duplicados comparados con tipo/collation MySQL reales. No reducir longitudes, limpiar datos o cambiar aislamiento en instalación.
 
 Tipos nuevos VARCHAR(250), INT, DECIMAL(18,2), DATE según selección; existentes conservan capacidad real. Contrastar bytes de índice, nulabilidad/defaults/comentarios e índices equivalentes. El generador no acredita datos. Después de confirmar datos, registrar/activar fuente y publicar proveedor por servicios existentes; no conceder autorizaciones mediante semillas SQL.
@@ -56,6 +58,8 @@ AGREGAR rechaza conflictos e inserta por parámetros en agrupaciones acotadas. R
 CREAR es DDL separado, con comentario `ImportacionExcel:<idCarga>` y huella para verificar tabla propia ante acuse perdido. CREATE no tiene rollback DML: puede quedar tabla propia vacía; un nombre ajeno es conflicto, nunca DROP/recreación automática. Agrupaciones INSERT no son commits parciales ni puntos de pausa. Cerrar navegador no autoriza repetir; consulta y confirmación son distintas.
 
 ### D-08 — Evidencia y entrega (RQ-08)
+
+La fase 01 se acepta por sus entregables: contratos, scripts revisables, inventario y verificación proporcionada a ese alcance. La plantilla de concesiones 05 está entregada; su cuenta/host/DA efectivos se vinculan y comprueban en la fase que implementa la conexión y autoridad. No se acredita esa configuración por cerrar la entrega contractual ni se convierte su falta de datos de ambiente en una tarea de limpieza de ejemplos.
 
 Revisión estática SQL/MySQL 5.1, contratos y trazabilidad; no simular aplicación. E2E/build de producto no aplican a documentos/SQL sin compilables. Usar herramientas existentes de gobierno y matriz con SHA/hashes/comandos/resultado/límites. La fase contractual puede entregarse con instalación sin ejecutar; las fases dependientes requieren confirmación y SELECT posterior. Aceptación de capacidad/concurrencia/rollback corresponde a fases ejecutables.
 

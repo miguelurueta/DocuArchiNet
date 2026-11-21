@@ -4,6 +4,8 @@
 
 ## Fuente y alcance
 
+Delimitación confirmada en la conversación: «egresos solo es de pruebas». EGRESOS se conserva sin cambios y no condiciona la terminación de la fase 01. La exigencia de clave única aplica al destino que se seleccione para cargar, no a una adecuación obligatoria de todas las tablas de ejemplo. El contrato y plantilla de cuenta dedicada se entregan en DOC-121; sus valores y prueba operativa se acreditan al implementar las fases dependientes.
+
 Actualización operativa 2026-11-21: después de entregar el índice de CONTRATOS, el usuario autorizó «aplica por mi». La excepción permite únicamente aplicar y comprobar 08 en la base local inspeccionada. La regla manual anterior sigue vigente para los demás scripts y no concede limpieza de datos o privilegios. El resultado está en `Doc/Actualizacion/Importacion/Validacion/doc121-contratos-indice-aplicado-20261121.md`/JSON.
 
 Cambio `doc-121-importacion-excel-01-esquema-contratos-configuracion`, perfil `legacy-webforms-vb`. El usuario eligió implementar los prompts actuales y solicitó continuar la fase 01. Reiteró expresamente que ejecutará los archivos SQL. La aprobación refleja ese alcance y la revisión técnica; no acredita instalación ni aceptación de recorridos futuros.

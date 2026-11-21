@@ -1,0 +1,193 @@
+{
+  "issueKey": "DOC-121",
+  "recordedUtc": "2026-11-21T21:29:24.383Z",
+  "reviewBase": "b45f656e0d952a393babfded173d424656cab49b",
+  "verificationSkill": "openspec-verify-change",
+  "scope": "Phase01 contracts and reviewable SQL delivery",
+  "dimensions": {
+    "completeness": {
+      "complete": 16,
+      "total": 16,
+      "requirements": 8,
+      "scenarios": 24
+    },
+    "correctness": {
+      "requirementsReviewed": 8,
+      "mode": "CONTRACTUAL_PHASE01"
+    },
+    "coherence": {
+      "critical": 0,
+      "warnings": 0
+    }
+  },
+  "requirements": [
+    {
+      "id": "RQ-01",
+      "artifactEvidence": [
+        "Doc/Actualizacion/Importacion/Sql/02-plantilla-da-doc121.sql",
+        "Doc/Actualizacion/Importacion/Diseno/01-contratos-configuracion-doc121.md"
+      ],
+      "verification": "SQL 02 and catalog/consumer inventory",
+      "scenarios": [
+        "Extensión de plantilla",
+        "Plantilla histórica sin clave",
+        "Longitud real de una fuente"
+      ],
+      "coverage": "Contractual phase01 review; future runtime outcomes not claimed."
+    },
+    {
+      "id": "RQ-02",
+      "artifactEvidence": [
+        "Doc/Actualizacion/Importacion/Sql/README.md",
+        "Doc/Actualizacion/Importacion/Sql/00-preflight-doc121.sql",
+        "Doc/Actualizacion/Importacion/Sql/06-verificacion-doc121.sql",
+        "Doc/Actualizacion/Importacion/Validacion/doc121-contratos-indice-aplicado-20261121.json"
+      ],
+      "verification": "Manual SQL guide, read-only controls, explicit SQL08 exception",
+      "scenarios": [
+        "Entrega sin instalación",
+        "Comprobación posterior",
+        "Aplicación parcial"
+      ],
+      "coverage": "Contractual phase01 review; future runtime outcomes not claimed."
+    },
+    {
+      "id": "RQ-03",
+      "artifactEvidence": [
+        "Doc/Actualizacion/Importacion/Sql/03-ejecucion-da-doc121.sql"
+      ],
+      "verification": "Single execution-table schema",
+      "scenarios": [
+        "Archivo recibido",
+        "Preparación íntegra",
+        "Esquema compatible"
+      ],
+      "coverage": "Contractual phase01 review; future runtime outcomes not claimed."
+    },
+    {
+      "id": "RQ-04",
+      "artifactEvidence": [
+        "Doc/Actualizacion/Importacion/Sql/01-permiso-carga-ra-doc121.sql",
+        "Doc/Actualizacion/Importacion/Sql/05-concesiones-da-doc121.sql",
+        "Doc/Actualizacion/Importacion/Diseno/01-contratos-configuracion-doc121.md"
+      ],
+      "verification": "Dedicated permission, grant template and server configuration contract",
+      "scenarios": [
+        "Permiso exclusivo",
+        "Límites efectivos",
+        "Conexión manipulada"
+      ],
+      "coverage": "Contractual phase01 review; future runtime outcomes not claimed."
+    },
+    {
+      "id": "RQ-05",
+      "artifactEvidence": [
+        "Doc/Actualizacion/Importacion/Sql/04-adecuacion-clave-doc121.sql",
+        "Doc/Actualizacion/Importacion/Sql/08-indice-contratos-ncontrato-doc121.sql",
+        "Doc/Actualizacion/Importacion/Validacion/doc121-contratos-indice-aplicado-20261121.json"
+      ],
+      "verification": "Selected-destination key procedure and verified optional example",
+      "scenarios": [
+        "Fuente exclusiva y compartida",
+        "Datos inconsistentes",
+        "Fuente nueva"
+      ],
+      "coverage": "Contractual phase01 review; future runtime outcomes not claimed."
+    },
+    {
+      "id": "RQ-06",
+      "artifactEvidence": [
+        "Doc/Actualizacion/Importacion/Diseno/01-contratos-configuracion-doc121.md"
+      ],
+      "verification": "Typed operation and full-preparation contract",
+      "scenarios": [
+        "Preparar una carga",
+        "Cambio después de preparar",
+        "Preparación sin mutación del destino"
+      ],
+      "coverage": "Contractual phase01 review; future runtime outcomes not claimed."
+    },
+    {
+      "id": "RQ-07",
+      "artifactEvidence": [
+        "Doc/Actualizacion/Importacion/Diseno/01-contratos-configuracion-doc121.md"
+      ],
+      "verification": "Atomic confirmation and structural-recovery contract",
+      "scenarios": [
+        "Commit confirmado con acuse perdido",
+        "Reemplazo fallido",
+        "CREATE con respuesta incierta"
+      ],
+      "coverage": "Contractual phase01 review; future runtime outcomes not claimed."
+    },
+    {
+      "id": "RQ-08",
+      "artifactEvidence": [
+        "Doc/Actualizacion/Importacion/Validacion/revisar-doc121.mjs",
+        "Doc/Actualizacion/Importacion/Validacion/doc121-verificacion-entrega-20261121.md"
+      ],
+      "verification": "Scoped static audit and evidence matrix",
+      "scenarios": [
+        "Fase sin código compilable",
+        "Fases dependientes",
+        "Resultados locales"
+      ],
+      "coverage": "Contractual phase01 review; future runtime outcomes not claimed."
+    }
+  ],
+  "refinement": {
+    "status": "PASS",
+    "checks": 15
+  },
+  "clarification": {
+    "userStatement": "egresos solo es de pruebas",
+    "expensesModificationRequiredForPhase01": false,
+    "expensesModifiedByThisContinuation": false,
+    "dedicatedAccountTemplateDelivered": true,
+    "dedicatedAccountRuntimeConfigurationVerified": false
+  },
+  "retainedEvidence": {
+    "baseSchema": "37 comparisons from8 SELECT in earlier record",
+    "contractsSql08": "One authorized ALTER,15 SELECT,625 rows/all-four-column data hash unchanged",
+    "realExcelE2E": false
+  },
+  "currentContinuation": {
+    "databaseSelect": 0,
+    "ddl": 0,
+    "dml": 0,
+    "applicationHttp": 0
+  },
+  "sourceHashFormat": "SHA256 UTF8 normalized LF; final commit binding in excluded OPSXJ evidence",
+  "sources": {
+    "Doc/Actualizacion/Importacion/Diseno/01-contratos-configuracion-doc121.md": "6472949d20badab6d142017ba357614659895e3b01a6adf033e33a0e9772ae1c",
+    "Doc/Actualizacion/Importacion/Sql/00-preflight-doc121.sql": "47725fee1d207550c1bcd0613137a1a37025da2bbd7fea59bbd75a30ee5ea10b",
+    "Doc/Actualizacion/Importacion/Sql/01-permiso-carga-ra-doc121.sql": "036f213460c3acbcf2c272a9db1285a350c2caf1b4ad807f6ed482476ff8d069",
+    "Doc/Actualizacion/Importacion/Sql/02-plantilla-da-doc121.sql": "7b264326c42ab322c0843f0f5012c859b3385738df4b347e1832755318b081b4",
+    "Doc/Actualizacion/Importacion/Sql/03-ejecucion-da-doc121.sql": "23831428f6767f7ea60690da7ba2ccda27fcc768d19fca0d30d7297e309fe53b",
+    "Doc/Actualizacion/Importacion/Sql/04-adecuacion-clave-doc121.sql": "f0e72a8b0d8ba62d2cb1b5d770ee7f595d64a70046829b96ac5f8258dde49ffb",
+    "Doc/Actualizacion/Importacion/Sql/05-concesiones-da-doc121.sql": "cb0fcd28e06e0c743151c0ec39c8a364503aa26bb6434a3551d6790506a36231",
+    "Doc/Actualizacion/Importacion/Sql/06-verificacion-doc121.sql": "0434e02f101e913d73eed5bf68542ef5229389824880b96fe4a3c70dea0840e2",
+    "Doc/Actualizacion/Importacion/Sql/08-indice-contratos-ncontrato-doc121.sql": "3d3d9199508e858ca4266968c6255f8bcb52190a36dfe4830689f5d183ce403b",
+    "Doc/Actualizacion/Importacion/Sql/README.md": "cd6e4e96b9d0944f1487d3e4738ab084e1d325a7cf123287002299a992485397",
+    "Doc/Actualizacion/Importacion/Validacion/doc121-contratos-indice-aplicado-20261121.json": "668a25f8e7dcf3e08877166a51d007e9ab3bcb9459c59581ef7901a211b538d5",
+    "Doc/Actualizacion/Importacion/Validacion/doc121-verificacion-entrega-20261121.md": "e48c7a03a46beef6b16a94d2c5a07167740effca4bd21690e1090c66eac31228",
+    "Doc/Actualizacion/Importacion/Validacion/revisar-doc121.mjs": "8036ec997c75f3d085be60fdd9d99fa150a824fbe84d525807ffc37ae96431d0",
+    "Doc/Tecnica/Opsxj/doc-121-importacion-excel-01-esquema-contratos-configuracion/01-ResumenTecnico.md": "ae48ccd42d913c321199187b6c1bf5cfc334509dd014e9999930263f5f5f3c66",
+    "Doc/Tecnica/Opsxj/doc-121-importacion-excel-01-esquema-contratos-configuracion/02-ImpactoUI.md": "143f4280b6dfe1b2b5489a1ec4c3eef3f38ee22d0553785498b2be219efc4a24",
+    "Doc/Tecnica/Opsxj/doc-121-importacion-excel-01-esquema-contratos-configuracion/03-ServiciosYReglas.md": "11d41c4990ba6c1d6b661b0839315e25be776abf4bf575c0249a340acb2c9eb4",
+    "Doc/Tecnica/Opsxj/doc-121-importacion-excel-01-esquema-contratos-configuracion/04-ContratosIntegracion.md": "dd8eb692670d70cb1996efa1d48f9dbdc570456d9d56d3056da8eea1b5b709f5",
+    "Doc/Tecnica/Opsxj/doc-121-importacion-excel-01-esquema-contratos-configuracion/05-PruebasEvidencia.md": "9e95290e3231e1e74fc3667c916ef6c0d6f370a77ba123fe5f0f2edfadf70934",
+    "openspec/changes/doc-121-importacion-excel-01-esquema-contratos-configuracion/design.md": "cc322f5b646d827b7a2bab0d11e2ddb4332065ef4b49e61c6c5576a07cb9f7ec",
+    "openspec/changes/doc-121-importacion-excel-01-esquema-contratos-configuracion/proposal.md": "0fe5e1414f519b55f07c8e85e827c5d11ac60db979ef14a762a492c7dda3a4b0",
+    "openspec/changes/doc-121-importacion-excel-01-esquema-contratos-configuracion/refinement.md": "899273462b6c6e70bd945e0407e5403c969f165c9dd7d7fd8c8f0d189e73eed0",
+    "openspec/changes/doc-121-importacion-excel-01-esquema-contratos-configuracion/specs/importacion-excel-01-esquema-contratos-configuracion/jira-context.md": "7a4cc0f31e9858b1d8456d9ae8375effab714d4428f521f1b9da1cb25ae21baa",
+    "openspec/changes/doc-121-importacion-excel-01-esquema-contratos-configuracion/specs/importacion-excel-01-esquema-contratos-configuracion/spec.md": "01e1b0338e4b31101023c546cd0108761d26431ad34b467482e62d16a8d3301e",
+    "openspec/changes/doc-121-importacion-excel-01-esquema-contratos-configuracion/tasks.md": "3a65f0a3216b8dd42545ac847406a6d17111641356e4fc72cd454c5f564f09c0"
+  },
+  "deferredRuntimeChecks": [
+    "Dedicated connection/account and authenticated RA/DA authority in phase02.",
+    "Excel reader/preparation/confirmation/UI and authorized E2E in phases03-07."
+  ],
+  "archivePerformed": false,
+  "jiraClosed": false
+}

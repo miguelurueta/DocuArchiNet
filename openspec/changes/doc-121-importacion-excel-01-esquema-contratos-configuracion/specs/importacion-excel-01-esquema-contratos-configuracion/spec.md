@@ -68,6 +68,8 @@ El contrato SHALL exigir ADMINISTRAR_CARGAS_IMPORTACION y vincular en servidor �
 ### Requirement: D-05 RQ-05 Clave única y fuente compatible
 El contrato SHALL exigir clave requerida con índice UNIQUE completo y comparación MySQL real, respetando aislamiento y metadatos actuales del destino.
 
+Este requisito aplica a la tabla efectivamente seleccionada para una carga o creada por el cargador. La entrega contractual de la fase 01 no exige adecuar tablas históricas de ejemplo como EGRESOS, declarada de pruebas por el usuario.
+
 #### Scenario: Fuente exclusiva y compartida
 - **WHEN** se adecua una fuente de conexión exclusiva o una compartida por columna empresarial
 - **THEN** se revisa respectivamente la clave completa o empresa+clave, sin cambiar el aislamiento existente
