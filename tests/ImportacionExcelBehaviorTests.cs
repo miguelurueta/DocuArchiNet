@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
@@ -144,42 +143,57 @@ public static class ImportacionExcelBehaviorTests {
   var ws=new WebServiceImportacionExcel();var reply=ws.ListarPlantillas(null);
   Check(!reply.ok && reply.operacionId.Length==32 && reply.datos==null,"envelope fails closed without HTTP");
  }
- static void ProtectedConfiguration(){
-  var path=Path.Combine(Environment.CurrentDirectory,"doc122-synthetic.config");
-  var config=ConfigurationManager.OpenMappedExeConfiguration(new ExeConfigurationFileMap{ExeConfigFilename=path},ConfigurationUserLevel.None);
-  config.AppSettings.Settings.Add("ImportacionExcel.Destinos","[{\"empresaId\":2,\"conexionId\":7,\"nombre\":\"Sintética\",\"connectionStringName\":\"ExcelFixture\"}]");
-  config.ConnectionStrings.ConnectionStrings.Clear();
-  var ephemeralPassword=Guid.NewGuid().ToString("N");
-  var builder=new MySql.Data.MySqlClient.MySqlConnectionStringBuilder{Server="fixture",Database="fixture",UserID="dedicated_fixture",Password=ephemeralPassword};
-  config.ConnectionStrings.ConnectionStrings.Add(new ConnectionStringSettings("ExcelFixture",builder.ConnectionString));
+ static void ModuleConnection(){
   var store=new Store{P=Template()};int opened=0;
-  Func<string,DbConnection> factory=_=>{opened++;return new Connection(store);};
-  var adapter=new ImportacionExcelConexionAdapter(config,factory);
-  var w=new Worker();var h=Http(w);var ctx=Context();
-  h.Session["DA_TYPE_DBMS_MODULO"]="mysql";h.Session["DA_IP_SERVER_MODULO"]="fixture";h.Session["DA_DB_NAME_MODULO"]="fixture";h.Session["DA_USER_DBMS_MODULO"]="legacy_fixture";
-  Reject(()=>adapter.Resolver(h,ctx,7),"CAPACIDAD_NO_DISPONIBLE");Check(opened==0,"plaintext config rejected before connection");
-  config.AppSettings.SectionInformation.ProtectSection("DataProtectionConfigurationProvider");
-  config.ConnectionStrings.SectionInformation.ProtectSection("DataProtectionConfigurationProvider");
-  config.Save(ConfigurationSaveMode.Full);
-  config=ConfigurationManager.OpenMappedExeConfiguration(new ExeConfigurationFileMap{ExeConfigFilename=path},ConfigurationUserLevel.None);
-  adapter=new ImportacionExcelConexionAdapter(config,factory);
-  Check(adapter.Limite("MaxFilasDatos",10000)==10000 && adapter.Limite("MaxArchivoMB",10)==10,"positive default limits");
-  var refs=adapter.Referencias(h,ctx);Check(refs.Count==1 && refs[0].ConexionId==7,"protected config resolves authorized catalog");
-  var json=JsonConvert.SerializeObject(refs);Check(!json.Contains(ephemeralPassword)&&!json.Contains("fixture;"),"bootstrap references exclude secrets");
-  int before=opened;Reject(()=>adapter.Resolver(h,ctx,8),"ACCESO_DENEGADO");Check(opened==before,"foreign catalog ID before connection");
-  h.Session["DA_DB_NAME_MODULO"]="other";Reject(()=>adapter.Resolver(h,ctx,7),"ACCESO_DENEGADO");Check(opened==before,"different session DA before connection");h.Session["DA_DB_NAME_MODULO"]="fixture";
-  store.HistoricalDatabase="other";Reject(()=>adapter.Resolver(h,ctx,7),"ACCESO_DENEGADO");store.HistoricalDatabase="fixture";
-  config.AppSettings.Settings.Add("ImportacionExcel.MaxFilasDatos","0");Reject(()=>adapter.Limite("MaxFilasDatos",10000),"CAPACIDAD_NO_DISPONIBLE");
-  config.AppSettings.Settings.Add("ImportacionExcel.MaxArchivoMB","2147483647");Reject(()=>adapter.Limite("MaxArchivoMB",10),"CAPACIDAD_NO_DISPONIBLE");
-  config.AppSettings.Settings["ImportacionExcel.Destinos"].Value="[]";Reject(()=>adapter.Resolver(h,ctx,7),"CAPACIDAD_NO_DISPONIBLE");
-  File.Delete(path);
+  var limits=new Dictionary<string,string>();
+  var ephemeralPassword=Guid.NewGuid().ToString("N");
+  Func<string,DbConnection> factory=connectionString=>{
+   opened++;
+   var cs=new MySql.Data.MySqlClient.MySqlConnectionStringBuilder(connectionString);
+   Check(cs.UserID=="module_fixture" && cs.Password==ephemeralPassword,"uses existing module account");
+   Check(cs.Pooling && cs.MaximumPoolSize==3,"preserves module pool configuration");
+   Check(!cs.PersistSecurityInfo && !cs.AllowUserVariables,"connection does not expose credentials or enable user variables");
+   return new Connection(store);
+  };
+  var adapter=new ImportacionExcelConexionAdapter(factory,key=>limits.ContainsKey(key)?limits[key]:null);
+  var h=Http(new Worker());var ctx=Context();
+  Reject(()=>adapter.Resolver(h,ctx,7),"ACCESO_DENEGADO");Check(opened==0,"missing module context before connection");
+  h.Session["DA_ID_EMPRESA"]="2";h.Session["DA_ID_MODULO"]="9";
+  h.Session["DA_TYPE_DBMS_MODULO"]="mysql";h.Session["DA_IP_SERVER_MODULO"]="fixture";h.Session["DA_DB_NAME_MODULO"]="fixture";
+  h.Session["DA_USER_DBMS_MODULO"]="module_fixture";h.Session["DA_PASW_DBMS_MODULO"]=ephemeralPassword;
+  h.Session["DA_ACTIVA_POOL_DBMS"]="1";h.Session["DA_NUMERO_DBMS_CONEX"]="3";
+  Check(adapter.Limite("MaxFilasDatos",10000)==10000 && adapter.Limite("MaxArchivoMB",10)==10,"default limits without connection config");
+  var refs=adapter.Referencias(h,ctx);Check(refs.Count==1 && refs[0].ConexionId==7,"module resolver supplies matching historical reference");
+  var json=JsonConvert.SerializeObject(refs);Check(!json.Contains(ephemeralPassword)&&!json.Contains("module_fixture"),"references exclude module credentials");
+  Check(store.Sql.Any(sql=>sql.Contains("NOMBRE_DB_DEFAULT=@base")&&sql.Contains("IP_NOMBRE_SERVIDOR=@servidor")),"catalog lookup bound to module DA");
+  Check(store.Sql.All(sql=>!sql.Contains("USUARIO_ADMIN_BD")&&!sql.Contains("PASW_USUARIO_ADMIN_DB")),"does not read historical credentials");
+  Reject(()=>adapter.Resolver(h,ctx,8),"ACCESO_DENEGADO");
+  int before=opened;
+  h.Session["DA_ID_EMPRESA"]="3";Reject(()=>adapter.Resolver(h,ctx,7),"ACCESO_DENEGADO");Check(opened==before,"cross-company DA before connection");h.Session["DA_ID_EMPRESA"]="2";
+  h.Session["DA_ID_MODULO"]="0";Reject(()=>adapter.Resolver(h,ctx,7),"ACCESO_DENEGADO");Check(opened==before,"invalid module before connection");h.Session["DA_ID_MODULO"]="9";
+  h.Session["DA_TYPE_DBMS_MODULO"]="postgresql";Reject(()=>adapter.Resolver(h,ctx,7),"CAPACIDAD_NO_DISPONIBLE");Check(opened==before,"provider mismatch before connection");h.Session["DA_TYPE_DBMS_MODULO"]="mysql";
+  h.Session["DA_PASW_DBMS_MODULO"]=null;Reject(()=>adapter.Resolver(h,ctx,7),"CAPACIDAD_NO_DISPONIBLE");Check(opened==before,"no fallback when module credential absent");h.Session["DA_PASW_DBMS_MODULO"]=ephemeralPassword;
+  store.HistoricalDatabase="other";Reject(()=>adapter.Resolver(h,ctx,7),"ACCESO_DENEGADO");
+  store.HistoricalDatabase="FIXTURE";Reject(()=>adapter.Resolver(h,ctx,7),"ACCESO_DENEGADO");store.HistoricalDatabase="fixture";
+  store.HistoricalServer="other";Reject(()=>adapter.Resolver(h,ctx,7),"ACCESO_DENEGADO");store.HistoricalServer="fixture";
+  store.HistoricalProvider="postgresql";Reject(()=>adapter.Resolver(h,ctx,7),"ACCESO_DENEGADO");store.HistoricalProvider="mysql";
+  store.DuplicateHistorical=true;Reject(()=>adapter.Resolver(h,ctx,7),"CAPACIDAD_NO_DISPONIBLE");store.DuplicateHistorical=false;
+  var repository=adapter.Resolver(h,ctx,7);before=opened;
+  h.Session["DA_ID_MODULO"]="10";Reject(()=>repository.Listar("",1,25),"ACCESO_DENEGADO");Check(opened==before,"captured repository rejects switched module");h.Session["DA_ID_MODULO"]="9";
+  h.Session["DA_PASW_DBMS_MODULO"]=Guid.NewGuid().ToString("N");Reject(()=>repository.Listar("",1,25),"ACCESO_DENEGADO");Check(opened==before,"captured repository rejects changed connection");h.Session["DA_PASW_DBMS_MODULO"]=ephemeralPassword;
+  Check(repository.Listar("",1,25).Plantillas.Count==1,"unchanged session can open repository");
+  store.HideHistorical=true;Reject(()=>adapter.Referencias(h,ctx),"CAPACIDAD_NO_DISPONIBLE");store.HideHistorical=false;
+  limits["ImportacionExcel.MaxFilasDatos"]="0";Reject(()=>adapter.Limite("MaxFilasDatos",10000),"CAPACIDAD_NO_DISPONIBLE");
+  limits["ImportacionExcel.MaxArchivoMB"]="2147483647";Reject(()=>adapter.Limite("MaxArchivoMB",10),"CAPACIDAD_NO_DISPONIBLE");
  }
- public static int Main(){try{Rules();Persistence();GuardAndAuthority();ProtectedConfiguration();Contract();Console.WriteLine("DOC122_NATIVE_PASS checks="+checks+"; synthetic ADO.NET, no MySQL/HTTP");return 0;}catch(Exception e){Console.Error.WriteLine(e.ToString());return 1;}}
+ public static int Main(){try{Rules();Persistence();GuardAndAuthority();ModuleConnection();Contract();Console.WriteLine("DOC122_NATIVE_PASS checks="+checks+"; synthetic ADO.NET, no MySQL/HTTP");return 0;}catch(Exception e){Console.Error.WriteLine(e.ToString());return 1;}}
 
  sealed class Store {
   public PlantillaExcel P;public bool DestinationExists=true,FailField,Active=true,DuplicatePermission;public int Permission=1,Commands,Rollbacks;public string Engine="InnoDB";
   public readonly object Sync=new object();public readonly List<string> Sql=new List<string>();public uint NextField=20;
   public string HistoricalDatabase="fixture";
+  public string HistoricalServer="fixture",HistoricalProvider="mysql";
+  public bool HideHistorical,DuplicateHistorical;
   public int FieldAttempts;
  }
  sealed class Connection:DbConnection {
@@ -218,7 +232,15 @@ public static class ImportacionExcelBehaviorTests {
    throw new Exception("unsupported scalar "+CommandText);
   }
   protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior){Track();
-   if(CommandText.Contains("FROM imp01_xmlconexion"))return Table(new[]{"IP_NOMBRE_SERVIDOR","NOMBRE_DB_DEFAULT","DBMS_BD"},new object[]{"fixture",s.HistoricalDatabase,"mysql"}).CreateDataReader();
+   if(CommandText.Contains("FROM imp01_xmlconexion")){
+    var namesCatalog=new[]{"ID_XMLCONEXION","NOMBRE_CONEXION","IP_NOMBRE_SERVIDOR","NOMBRE_DB_DEFAULT","DBMS_BD"};
+    var rowsCatalog=new List<object[]>();
+    if(!s.HideHistorical&&(!ps.Contains("@id")||Convert.ToUInt32(V("@id"))==7)){
+     var row=new object[]{7,"Catálogo sintético",s.HistoricalServer,s.HistoricalDatabase,s.HistoricalProvider};
+     rowsCatalog.Add(row);if(s.DuplicateHistorical)rowsCatalog.Add(row);
+    }
+    return Table(namesCatalog,rowsCatalog.ToArray()).CreateDataReader();
+   }
    if(CommandText.Contains("ADMINISTRAR_CARGAS_IMPORTACION")){
     var rows=new List<object[]>();if(s.Active && Convert.ToUInt32(V("@empresa"))==2 && Convert.ToUInt32(V("@usuario"))==1){rows.Add(new object[]{s.Permission});if(s.DuplicatePermission)rows.Add(new object[]{s.Permission});}
     return Table(new[]{"permission"},rows.ToArray()).CreateDataReader();

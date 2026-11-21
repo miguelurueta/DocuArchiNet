@@ -1,3 +1,6 @@
+## Revisión autorizada de conexión
+El usuario solicitó continuar reutilizando los recursos de conexión del repositorio tras cuestionar la cuenta adicional en Web.config. DOC122 usa DA_ del módulo y el resolver compartido, sin cuenta separada obligatoria. Esta revisión sustituye la decisión inicial de cuenta dedicada de los prompts conservados debajo como antecedente. No cambia el permiso propio ni el aislamiento por empresa/módulo y destino.
+
 ## Why
 
 IMPORTACION-EXCEL-02-AUTORIZACION-CONEXION-PLANTILLAS. Ver detalle funcional completo del ticket en la seccion Jira Details.

@@ -13,17 +13,21 @@ El sistema SHALL consultar RA en cada operación: usuario activo, empresa y perm
 - **WHEN** está inactivo, cambia empresa o pierde permiso
 - **THEN** se deniega antes de consultar plantillas
 
-### Requirement: RQ-02 Conexión dedicada
+### Requirement: RQ-02 Conexión DA del módulo
 Origen: D-02.
-El sistema SHALL vincular empresa e ID histórico con connectionStrings protegido; comprobar servidor/base con sesión DA_ e imp01_xmlconexion. Sin fallback ni credenciales históricas.
+El sistema SHALL resolver DA mediante ModuleSessionConnectionStringResolver y la sesión del módulo cargada desde gestor_modulos. Exigir empresa/módulo vigentes y correspondencia exacta del ID histórico con servidor/base/proveedor de esa DA. No leer credenciales de imp01_xmlconexion ni exigir otra conexión en Web.config.
 
 #### Scenario: Vínculo manipulado
 - **WHEN** el ID, servidor o base difieren del ámbito autorizado
 - **THEN** se deniega sin revelar secretos
 
 #### Scenario: Configuración ausente
-- **WHEN** falta configuración protegida válida
-- **THEN** se informa capacidad no disponible sin cuenta alternativa
+- **WHEN** falta una sesión DA válida de la empresa y módulo
+- **THEN** se rechaza sin conexiones alternativas ni credenciales del navegador
+
+#### Scenario: Cambio de módulo durante una operación
+- **WHEN** cambia la empresa, módulo o conexión DA antes de abrir el repositorio
+- **THEN** la fábrica capturada deniega el acceso y no reutiliza la conexión anterior
 
 ### Requirement: RQ-03 Contrato y metadatos
 Origen: D-03.

@@ -50,14 +50,14 @@ Transiciones: RECIBIDA pasa a PREPARADA al validar; una validación rechazada co
 | MaxFilasDatos | 10000, entero positivo; filas no vacías de la hoja elegida, sin encabezado. |
 | MaxArchivoMB | 10, entero positivo; 1 MB=1000000 bytes, máximo inicial 10000000 bytes. |
 | Vinculación de destino | Ámbito RA, DA autorizada y IDs de imp01_xmlconexion elegibles resueltos en servidor. |
-| Cuenta dedicada | Referencia a configuración protegida por DA; secreto fuera de Git, HTML, DTO y evidencias. |
+| Cuenta DA del módulo — revisión DOC122 | Resolver sesión DA_ mediante ModuleSessionConnectionStringResolver, desde gestor_modulos. Sin cuenta adicional obligatoria; secreto fuera de Git, HTML, DTO y evidencias. |
 | Almacenamiento privado | Directorio fuera de contenido público, con referencia relativa generada por servidor y ACL apropiada. |
 
 Las claves son contrato; su lectura efectiva se implementa en fase 02, sin agregar entradas a Web.config en DOC-121. Una configuración presente inválida deniega capacidad; no convierte valores cero/negativos en ilimitados. Si falta un límite, se usa su valor inicial positivo. Mostrar los límites efectivos y coordinar IIS/ASP.NET con multipart, sin aumentos globales silenciosos.
 
 Cada operación verifica sesión, usuario activo, empresa RA y ADMINISTRAR_CARGAS_IMPORTACION vigente. El permiso se instala con 0; no habilita cuentas. El usuario con solo ese permiso puede cargar; fuentes/proveedores conservan sus permisos propios. El cliente no envía usuario/empresa como autoridad ni host/base/credenciales. Toda referencia se resuelve otra vez contra el ámbito.
 
-Cuenta DA: SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, CREATE TEMPORARY TABLES; sin DROP o GRANT OPTION. La concesión sobre la base alcanza técnicamente todas sus tablas. El módulo valida prefijo, plantilla, destino e identidad empresarial; no se presenta como aislamiento físico por prefijo.
+Revisión autorizada en DOC122 al pedir reutilizar las conexiones del repositorio: sustituye la cuenta separada inicial por la cuenta del módulo DA. No exige una conexión Excel en Web.config. La revisión del contrato está en el delta de DOC122 y no altera el archivo histórico de DOC121. Facultades requeridas para el módulo completo: SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, CREATE TEMPORARY TABLES. La cuenta compartida puede tener otras facultades; este ajuste no afirma ausencia de DROP/GRANT OPTION ni cambia sus concesiones. La concesión sobre la base alcanza técnicamente todas sus tablas. El módulo valida prefijo, plantilla, destino e identidad empresarial; no se presenta como aislamiento físico por prefijo.
 
 ## Clave y tipos — D-05/RQ-05
 

@@ -1,5 +1,7 @@
 # DOC-122 — Validación local, 2026-11-21
 
+Evidencia histórica del mecanismo inicial de configuración protegida. La revisión vigente de conexión usa los recursos del módulo y está en [doc122-conexion-reutilizada-20261121.md](doc122-conexion-reutilizada-20261121.md), con246 controles y nuevo build. Las afirmaciones de cuenta adicional que siguen describen el corte anterior.
+
 Estado **PASS_LOCAL_REAL_PENDING**. Avance13/14 tareas; integración real abierta. Fuentes y huellas normalizadas UTF8/LF en [el informe JSON](doc122-validacion-local-20261121.json). Base Git de la prueba04e47dada8d85ef216cf765771b452de98aa56a9; la identidad del código probado se conserva por archivo y digest del conjunto, sin fingir un SHA final aún no creado.
 
 ## Resultado

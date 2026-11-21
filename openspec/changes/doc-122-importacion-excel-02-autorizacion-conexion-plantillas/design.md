@@ -20,7 +20,7 @@ Nuevos archivos contrastados con las carpetas existentes; registrar compilación
 - `tests/doc122-importacion-excel-behavior.test.cjs`
 - `tools/e2e/tests/importacion-excel.spec.cjs`
 
-Existentes: Gestion/Class_remit_dest_interno_perfil_produccion.vb y GestionDocumental-Docuarchi.net.vbproj. Reutilizar resolución por sesión y comparación de tokens. No modificar SII.
+Existentes: Gestion/Class_remit_dest_interno_perfil_produccion.vb y GestionDocumental-Docuarchi.net.vbproj. Inspección de conexión previa al ajuste: Defaul/GestorModuleSesion.vb.AsignaAtributosConexionModuloDocuarchi carga DA_ID_EMPRESA/DA_ID_MODULO y cuenta desde gestor_modulos; Infrastructure/Shared/Data/ModuleSessionConnectionStringResolver.vb.Resolve materializa la conexión; Defaul/conect.vb.Dbase_Conction_Mysql_DA usa el mismo origen. Se adapta ImportacionExcelConexionAdapter y sus pruebas; el resolver compartido y los cargadores legacy permanecen intactos. Reutilizar resolución por sesión y comparación de tokens. No modificar SII.
 
 Reutilización E2E solicitada: extender tools/e2e/scripts/run-doc110-profile-session.cjs, inspeccionado junto con interactive-e2e-console.cjs, para modos Excel de lectura/escritura. Conserva perfil local DOC88, autenticación y safePost existentes. Verificación focal en tests/doc122-e2e-reuse.test.cjs; no hay runner paralelo ni nuevas credenciales persistidas.
 
@@ -29,8 +29,8 @@ Reutilización E2E solicitada: extender tools/e2e/scripts/run-doc110-profile-ses
 Consultar RA en cada operación: usuario activo, empresa y permiso exacto ADMINISTRAR_CARGAS_IMPORTACION=1. Indicador de sesión solo para presentación.
 Evidencia: PerfilImportacionContextAdapter.Resolver/AutorizarFuentes.
 
-### D-02 Conexión dedicada
-Vincular empresa e ID histórico con connectionStrings protegido; comprobar servidor/base con sesión DA_ e imp01_xmlconexion. Sin fallback ni credenciales históricas.
+### D-02 Conexión DA del módulo
+Resolver DA mediante ModuleSessionConnectionStringResolver y la sesión del módulo cargada desde gestor_modulos. Exigir empresa/módulo vigentes y correspondencia exacta del ID histórico con servidor/base/proveedor de esa DA. No leer credenciales de imp01_xmlconexion ni exigir otra conexión en Web.config.
 Evidencia: ModuleSessionConnectionStringResolver.Resolve.
 
 ### D-03 Contrato y metadatos
@@ -54,13 +54,15 @@ Build aislado y pruebas nativas sintéticas; E2E reutiliza tools/e2e y requiere 
 Evidencia: AGENTS.md / tools/e2e/AGENT-RUNBOOK.md.
 
 ## Configuración
-ImportacionExcel.Destinos: JSON [{empresaId,conexionId,nombre,connectionStringName}]. appSettings y connectionStrings deben usar ASP.NET Protected Configuration. Sin secretos ni cambios en Web.config durante implementación. Límites ImportacionExcel.MaxFilasDatos y MaxArchivoMB positivos. Nueva ruta web/<guid>.xls[x]; resolución física privada pertenece a fase03. No interpretar rutas históricas enviadas por navegador.
+Actualización aprobada por el usuario al pedir continuar con los recursos de conexión del repositorio: usar la cuenta del módulo DA, sin exigir otra cuenta dedicada. El ajuste sustituye la decisión inicial Web.config/configuración duplicada y queda reflejado en delta DOC121. Límites ImportacionExcel.MaxFilasDatos y MaxArchivoMB opcionales/positivos en appSettings; defaults10000/10 sin exigir cifrar secciones. Nueva ruta web/<guid>.xls[x]; resolución física privada pertenece a fase03.
 
 ## Risks / Trade-offs
+La cuenta de conexión se comparte con el módulo. Ya no se afirma separación física de privilegios por cuenta ni se rechaza automáticamente la cuenta del módulo por su nombre; los límites funcionales se mantienen por autorización y validación de destino. No se elevan ni revocan privilegios existentes. Un cambio de empresa, módulo o configuración de sesión invalida la fábrica de repositorio capturada.
+
 Si catálogos no son InnoDB, guardado falla cerrado; adecuación mediante SQL incremental manual. Bloqueo detecta modificaciones previas; editores antiguos pueden escribir después del commit, por eso preparación/confirmación posteriores deben revalidar huella. No afirmar protección de escritores ajenos al protocolo.
 
 ## Migration Plan
-Sin cuenta dedicada configurada la capacidad queda cerrada. Conservar SQL00–09 DOC121 y datos. Build fuera de bin. Rollback del código conserva esquema aditivo.
+Sin sesión DA de la empresa/módulo o sin correspondencia del ID histórico la capacidad queda cerrada. No modificar credenciales ni privilegios de gestor_modulos. Conservar SQL00–09 DOC121 y datos. Build fuera de bin. Rollback del código conserva esquema aditivo.
 
 ## Open Questions
-Sin decisión funcional pendiente. Configuración protegida y autorización de E2E real pendientes operativos, no impiden implementar ni probar localmente.
+Sin decisión funcional pendiente. Validación del enrutamiento DA y autorización de E2E real pendientes operativos, no impiden implementar ni probar localmente.
