@@ -1,0 +1,157 @@
+{
+  "issueKey": "DOC-121",
+  "recordedUtc": "2026-11-20T23:38:19.645Z",
+  "reviewBase": "02c132e0454cb08dcd589310b502417f432e818e",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "00-preflight-doc121.sql:only_select",
+      "status": "PASS",
+      "detail": "8 SELECT statements"
+    },
+    {
+      "name": "01-permiso-carga-ra-doc121.sql:single_ddl",
+      "status": "PASS"
+    },
+    {
+      "name": "01-permiso-carga-ra-doc121.sql:mysql51_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "permission_default_denied",
+      "status": "PASS"
+    },
+    {
+      "name": "02-plantilla-da-doc121.sql:single_ddl",
+      "status": "PASS"
+    },
+    {
+      "name": "02-plantilla-da-doc121.sql:mysql51_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "only_two_additive_columns",
+      "status": "PASS"
+    },
+    {
+      "name": "03-ejecucion-da-doc121.sql:single_ddl",
+      "status": "PASS"
+    },
+    {
+      "name": "03-ejecucion-da-doc121.sql:mysql51_scope",
+      "status": "PASS"
+    },
+    {
+      "name": "execution_22_columns",
+      "status": "PASS"
+    },
+    {
+      "name": "execution_innodb",
+      "status": "PASS"
+    },
+    {
+      "name": "execution_preparation_nullable",
+      "status": "PASS"
+    },
+    {
+      "name": "execution_primary_and_three_indexes",
+      "status": "PASS"
+    },
+    {
+      "name": "execution_index_bytes_bounded",
+      "status": "PASS",
+      "detail": "Conservative declared ASCII key lengths; not a server measurement."
+    },
+    {
+      "name": "04-adecuacion-clave-doc121.sql:only_select",
+      "status": "PASS",
+      "detail": "1 SELECT statements"
+    },
+    {
+      "name": "key_generator_not_dynamic_execution",
+      "status": "PASS"
+    },
+    {
+      "name": "key_generator_preserves_metadata",
+      "status": "PASS"
+    },
+    {
+      "name": "grants_inert_template",
+      "status": "PASS"
+    },
+    {
+      "name": "grants_scoped_no_secret",
+      "status": "PASS"
+    },
+    {
+      "name": "06-verificacion-doc121.sql:only_select",
+      "status": "PASS",
+      "detail": "7 SELECT statements"
+    },
+    {
+      "name": "eight_requirements",
+      "status": "PASS"
+    },
+    {
+      "name": "twenty_four_scenarios",
+      "status": "PASS"
+    },
+    {
+      "name": "eight_decisions_in_design_spec_tasks",
+      "status": "PASS"
+    },
+    {
+      "name": "operations_defined",
+      "status": "PASS"
+    },
+    {
+      "name": "chosen_limits_and_recovery",
+      "status": "PASS"
+    },
+    {
+      "name": "doc120_execution_inputs_unchanged",
+      "status": "PASS",
+      "detail": "195 prior execution inputs checked"
+    },
+    {
+      "name": "delivery_scope_only",
+      "status": "PASS"
+    }
+  ],
+  "taskCounts": {
+    "complete": 16,
+    "pending": 0
+  },
+  "sources": {
+    "Doc/Actualizacion/Importacion/Sql/00-preflight-doc121.sql": "47725fee1d207550c1bcd0613137a1a37025da2bbd7fea59bbd75a30ee5ea10b",
+    "Doc/Actualizacion/Importacion/Sql/01-permiso-carga-ra-doc121.sql": "036f213460c3acbcf2c272a9db1285a350c2caf1b4ad807f6ed482476ff8d069",
+    "Doc/Actualizacion/Importacion/Sql/02-plantilla-da-doc121.sql": "7b264326c42ab322c0843f0f5012c859b3385738df4b347e1832755318b081b4",
+    "Doc/Actualizacion/Importacion/Sql/03-ejecucion-da-doc121.sql": "23831428f6767f7ea60690da7ba2ccda27fcc768d19fca0d30d7297e309fe53b",
+    "Doc/Actualizacion/Importacion/Sql/04-adecuacion-clave-doc121.sql": "f0e72a8b0d8ba62d2cb1b5d770ee7f595d64a70046829b96ac5f8258dde49ffb",
+    "Doc/Actualizacion/Importacion/Sql/05-concesiones-da-doc121.sql": "cb0fcd28e06e0c743151c0ec39c8a364503aa26bb6434a3551d6790506a36231",
+    "Doc/Actualizacion/Importacion/Sql/06-verificacion-doc121.sql": "0434e02f101e913d73eed5bf68542ef5229389824880b96fe4a3c70dea0840e2",
+    "Doc/Actualizacion/Importacion/Diseno/01-contratos-configuracion-doc121.md": "207318f0722be26b0558cdfa39d0d87df06732405114d5883388c7f8c6f73775",
+    "Doc/Actualizacion/Importacion/Sql/README.md": "1841f18f3337605eb3bdba05308405a860a2a7f304dc3caf757ad80d217b78ae",
+    "Doc/Actualizacion/Importacion/Validacion/revisar-doc121.mjs": "a475db8b82ca8c389b6bd60bb878b6e26d4785fde3b1c08d2f774c9f16d053a7",
+    "openspec/changes/doc-121-importacion-excel-01-esquema-contratos-configuracion/proposal.md": "cd9641295eed46946fa2f0714956100763771605d414969d17ae45daa7464784",
+    "openspec/changes/doc-121-importacion-excel-01-esquema-contratos-configuracion/design.md": "d6db964c56796753c55d0bcd5063f608fcfd31e7c47d4ecd0ccaa18a9d31338a",
+    "openspec/changes/doc-121-importacion-excel-01-esquema-contratos-configuracion/refinement.md": "a2b372a9365dabccc7cc67eae3d9b58695b0e377cbfd8e5a5109b035613d1043",
+    "openspec/changes/doc-121-importacion-excel-01-esquema-contratos-configuracion/tasks.md": "3a65f0a3216b8dd42545ac847406a6d17111641356e4fc72cd454c5f564f09c0",
+    "openspec/changes/doc-121-importacion-excel-01-esquema-contratos-configuracion/specs/importacion-excel-01-esquema-contratos-configuracion/spec.md": "d1ea1f5c1fe73c013d21a034710755a726f64dd46998ef7f507f9acc40bf726f",
+    "Doc/Tecnica/Opsxj/doc-121-importacion-excel-01-esquema-contratos-configuracion/01-ResumenTecnico.md": "ad38c23151e592ebbfedb080153651f7a048c7bb5e08a968ce1df448d24149a9",
+    "Doc/Tecnica/Opsxj/doc-121-importacion-excel-01-esquema-contratos-configuracion/02-ImpactoUI.md": "143f4280b6dfe1b2b5489a1ec4c3eef3f38ee22d0553785498b2be219efc4a24",
+    "Doc/Tecnica/Opsxj/doc-121-importacion-excel-01-esquema-contratos-configuracion/03-ServiciosYReglas.md": "11d41c4990ba6c1d6b661b0839315e25be776abf4bf575c0249a340acb2c9eb4",
+    "Doc/Tecnica/Opsxj/doc-121-importacion-excel-01-esquema-contratos-configuracion/04-ContratosIntegracion.md": "dd8eb692670d70cb1996efa1d48f9dbdc570456d9d56d3056da8eea1b5b709f5",
+    "Doc/Tecnica/Opsxj/doc-121-importacion-excel-01-esquema-contratos-configuracion/05-PruebasEvidencia.md": "c9581342e86550262b1770519f48886114b96c16665bdec08ee995a5ef104436"
+  },
+  "sourceHashFormat": "SHA256 of UTF8 text normalized to LF; working-tree delivery fingerprint, final commit binding in excluded OPSXJ evidence.",
+  "installation": "PENDIENTE_EJECUCION_MANUAL",
+  "databaseConnections": 0,
+  "sqlExecutions": 0,
+  "realE2E": 0,
+  "limitations": [
+    "Lexical/static checks do not parse SQL in MySQL or certify engine behavior.",
+    "No installation, grant, index application or application flow executed.",
+    "Existing DOC-120 source identity is regression evidence, not Excel execution."
+  ]
+}

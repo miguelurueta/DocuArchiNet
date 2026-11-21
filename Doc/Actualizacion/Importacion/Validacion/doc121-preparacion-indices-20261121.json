@@ -1,0 +1,132 @@
+{
+  "issueKey": "DOC-121",
+  "recordedUtc": "2026-11-21T20:50:31.977Z",
+  "baseCommit": "f4b2ec24831abe697eab881de651d459c96678b5",
+  "status": "CONTRATOS_SQL_PREPARADO_EGRESOS_BLOQUEADO",
+  "environment": {
+    "matchesHistorical": true,
+    "fingerprint": "24cce9f4ae03e1b92b7f0cba1e89f395e9b4434f4c108f5ee571ae9515387b91",
+    "authenticatedRaDaMappingVerified": false
+  },
+  "readOnly": {
+    "select": 11,
+    "ddl": 0,
+    "dml": 0,
+    "http": 0,
+    "rawMetadataSha256": "4307c161ab50fbca4fa0f9df75d3506d81f4501feeaa52a6bbc2282093bdfa7f",
+    "businessValuesPublished": false,
+    "credentialsPersisted": false
+  },
+  "quality": [
+    {
+      "table": "imp_02_egresos",
+      "key": "CONSECUTIVO",
+      "rows": 25153,
+      "nulls": 0,
+      "empty": 2,
+      "maxCharacters": 5,
+      "duplicateGroups": 738,
+      "duplicateExcessRows": 4479
+    },
+    {
+      "table": "imp_02_contratos",
+      "key": "NCONTRATO",
+      "rows": 625,
+      "nulls": 0,
+      "empty": 0,
+      "maxCharacters": 7,
+      "duplicateGroups": 0,
+      "duplicateExcessRows": 0
+    }
+  ],
+  "sourcePolicy": {
+    "activeSources": [
+      {
+        "conexion_ref": "DA",
+        "tabla_nombre": "imp_02_egresos",
+        "modo_aislamiento": "CONEXION",
+        "columna_empresa": "",
+        "activo": 1
+      }
+    ],
+    "publishedProviders": [
+      {
+        "conexion_ref": "DA",
+        "tabla_nombre": "imp_02_egresos",
+        "clave_columna": "CONSECUTIVO",
+        "clave_tipo": "TEXTO",
+        "empresa_columna": ""
+      }
+    ],
+    "contractsActiveSourceFound": false,
+    "note": "No source registration implies neither exclusive nor shared authorization; operator must confirm destination and business identity before applying the specific ALTER."
+  },
+  "newSql": {
+    "files": {
+      "07-preflight-claves-doc121.sql": "0f22676c045c56af2ef59892a05749716b210951688f8259d3316ac42f6cc2a0",
+      "08-indice-contratos-ncontrato-doc121.sql": "322a691526b42894df896af385d0818da54b93f74ea8ee08fff645b760f0b25a",
+      "09-verificacion-claves-doc121.sql": "1cd93b20f0af41f7de128e6e650f96ecf78c978bcb0c1d51f596ab8e6d2f5746"
+    },
+    "staticChecks": [
+      {
+        "name": "07-preflight-claves-doc121.sql:scope",
+        "status": "PASS"
+      },
+      {
+        "name": "07-preflight-claves-doc121.sql:no_data_cleanup",
+        "status": "PASS"
+      },
+      {
+        "name": "08-indice-contratos-ncontrato-doc121.sql:scope",
+        "status": "PASS"
+      },
+      {
+        "name": "08-indice-contratos-ncontrato-doc121.sql:no_data_cleanup",
+        "status": "PASS"
+      },
+      {
+        "name": "single_contracts_alter",
+        "status": "PASS"
+      },
+      {
+        "name": "preserves_contracts_type_collation",
+        "status": "PASS"
+      },
+      {
+        "name": "full_unique_contracts_key",
+        "status": "PASS"
+      },
+      {
+        "name": "no_expenses_alter",
+        "status": "PASS"
+      },
+      {
+        "name": "09-verificacion-claves-doc121.sql:scope",
+        "status": "PASS"
+      },
+      {
+        "name": "09-verificacion-claves-doc121.sql:no_data_cleanup",
+        "status": "PASS"
+      },
+      {
+        "name": "contracts_data_eligible_at_observation",
+        "status": "PASS"
+      },
+      {
+        "name": "expenses_block_preserved",
+        "status": "PASS"
+      }
+    ],
+    "passed": 12,
+    "failed": 0,
+    "execution": "NOT_EXECUTED_BY_AGENT",
+    "mysqlSyntaxExecuted": false
+  },
+  "dedicatedAccountGrants": "NO_VERIFICADO_CUENTA_HOST_Y_DA_SOLICITADOS_AL_USUARIO",
+  "pending": [
+    "User confirms intended DA/source for EGRESOS before any data remediation or key change.",
+    "User/DBA identifies dedicated account, allowed host and DA without password.",
+    "User reviews fresh preflight and executes CONTRATOS ALTER manually only if its preconditions remain true.",
+    "No data deletion, normalization, re-keying or new privilege grants authorized to the agent."
+  ]
+}

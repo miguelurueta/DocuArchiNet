@@ -1,0 +1,57 @@
+{
+  "issueKey": "DOC-121",
+  "recordedUtc": "2026-11-21T21:51:17.809Z",
+  "status": "ARCHIVE_PREPARED_FOR_PR133",
+  "archivePath": "openspec/changes/archive/2026-11-21-doc-121-importacion-excel-01-esquema-contratos-configuracion",
+  "archivedFiles": 7,
+  "completeTasks": 16,
+  "pendingTasks": 0,
+  "sync": {
+    "capability": "importacion-excel-01-esquema-contratos-configuracion",
+    "mainSpec": "openspec/specs/importacion-excel-01-esquema-contratos-configuracion/spec.md",
+    "added": 8,
+    "modified": 0,
+    "removed": 0,
+    "renamed": 0,
+    "scenarios": 24,
+    "allRequirementsCompared": true,
+    "purposePreserved": true
+  },
+  "validation": {
+    "strictGlobalPassed": 92,
+    "strictGlobalFailed": 0,
+    "staticAuditorPassed": 27,
+    "archivedRefinementPassed": 15
+  },
+  "reviewedImplementationHead": "0e541db86fb6661a02134e22d5bf81dd6eac4f6e",
+  "pr": 133,
+  "prUrl": "https://github.com/miguelurueta/DocuArchiNet/pull/133",
+  "integration": "Final archive commit must pass CI before merge.",
+  "jira": {
+    "preflightStatus": "En curso",
+    "closed": false,
+    "closureCondition": "Merged PR133, primary main/remote equality and current-SHA governance verified."
+  },
+  "scope": {
+    "phase": "01 contracts and reviewable SQL",
+    "expensesFixtureOnly": true,
+    "expensesModified": false,
+    "dedicatedAccountRuntimeProofDeferred": true,
+    "newDatabaseSelect": 0,
+    "newDdl": 0,
+    "newDml": 0,
+    "newApplicationHttp": 0,
+    "jiraCommentsSent": 0
+  },
+  "sourceHashFormat": "SHA256 UTF8 normalized LF; historical JSON references remain original provenance.",
+  "sources": {
+    "openspec/specs/importacion-excel-01-esquema-contratos-configuracion/spec.md": "81bf40971b7545d81f3937e4e927d554496ad8449db426d291dc8bdd2cdbd142",
+    "openspec/changes/archive/2026-11-21-doc-121-importacion-excel-01-esquema-contratos-configuracion/design.md": "cc322f5b646d827b7a2bab0d11e2ddb4332065ef4b49e61c6c5576a07cb9f7ec",
+    "openspec/changes/archive/2026-11-21-doc-121-importacion-excel-01-esquema-contratos-configuracion/opsxj-governance.json": "c03bf31f0fdefa76c9066ccff99c1239cb67dafd82ac737b057376a03f69f5f2",
+    "openspec/changes/archive/2026-11-21-doc-121-importacion-excel-01-esquema-contratos-configuracion/proposal.md": "0fe5e1414f519b55f07c8e85e827c5d11ac60db979ef14a762a492c7dda3a4b0",
+    "openspec/changes/archive/2026-11-21-doc-121-importacion-excel-01-esquema-contratos-configuracion/refinement.md": "899273462b6c6e70bd945e0407e5403c969f165c9dd7d7fd8c8f0d189e73eed0",
+    "openspec/changes/archive/2026-11-21-doc-121-importacion-excel-01-esquema-contratos-configuracion/specs/importacion-excel-01-esquema-contratos-configuracion/jira-context.md": "7a4cc0f31e9858b1d8456d9ae8375effab714d4428f521f1b9da1cb25ae21baa",
+    "openspec/changes/archive/2026-11-21-doc-121-importacion-excel-01-esquema-contratos-configuracion/specs/importacion-excel-01-esquema-contratos-configuracion/spec.md": "01e1b0338e4b31101023c546cd0108761d26431ad34b467482e62d16a8d3301e",
+    "openspec/changes/archive/2026-11-21-doc-121-importacion-excel-01-esquema-contratos-configuracion/tasks.md": "3a65f0a3216b8dd42545ac847406a6d17111641356e4fc72cd454c5f564f09c0"
+  }
+}
