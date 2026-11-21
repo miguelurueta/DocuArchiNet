@@ -4,7 +4,66 @@ const path=require('node:path');
 const {collectValue,collectConfirmation,requireInteractiveConsole,runChild}=require('./support/interactive-e2e-console.cjs');
 const {sourceFixture}=require('../tests/support/doc110-source-fixture.cjs');
 
+// DOC-122 comparte el perfil local y la consola efímera de esta misma suite.
+function excelProfilePlan(root,profile,args,environment=process.env){
+  const modes=args.filter(arg=>arg==='--excel-read'||arg==='--excel-write');
+  if(modes.length!==1||args.some(arg=>!['--excel-read','--excel-write','--headed'].includes(arg)))throw new Error('DOC122_MODE_CONFLICT');
+  const mode=modes[0]==='--excel-read'?'read':'write';
+  const scopePath=environment.DOC122_E2E_SCOPE_PATH;
+  if(!scopePath||!fs.existsSync(scopePath))throw new Error('DOC122_SCOPE_REQUIRED');
+  let scope;try{scope=JSON.parse(fs.readFileSync(scopePath,'utf8').replace(/^\uFEFF/,''));}catch{throw new Error('DOC122_SCOPE_INVALID');}
+  if(!scope||scope.issue!=='DOC-122'||scope.disposable!==true||scope.baseUrl!==profile.baseUrl||
+     !Number.isSafeInteger(scope.conexionId)||scope.conexionId<1||
+     !Number.isSafeInteger(scope.plantillaId)||scope.plantillaId<1||
+     !Number.isSafeInteger(scope.revisionEsperada)||scope.revisionEsperada<1||
+     !/^[0-9a-f]{64}$/.test(scope.huellaEsperada||'')||
+     !Array.isArray(scope.allowedModes)||!scope.allowedModes.includes(mode)||
+     scope.allowedModes.some(value=>!['read','write'].includes(value)))throw new Error('DOC122_SCOPE_INVALID');
+  const values={
+    DOC122_E2E_BASE_URL:profile.baseUrl,DOC122_E2E_MODULE:profile.module,
+    DOC122_E2E_SCOPE_PATH:scopePath,
+    DOC122_E2E_AUTHORIZED:environment.DOC122_E2E_AUTHORIZED==='YES'?'YES':'NO',
+    DOC10_E2E_IGNORE_HTTPS_ERRORS:String(profile.ignoreHttpsErrors===true)
+  };
+  const aliases={DOC122_E2E_USER:'DOC110_E2E_USER',DOC122_E2E_PASSWORD:'DOC110_E2E_PASSWORD'};
+  if(mode==='read'){
+    aliases.DOC122_E2E_RESTRICTED_USER='DOC110_E2E_SECOND_USER';
+    aliases.DOC122_E2E_RESTRICTED_PASSWORD='DOC110_E2E_SECOND_PASSWORD';
+  }
+  for(const [name,alias]of Object.entries(aliases))if(environment[name]||environment[alias])values[name]=environment[name]||environment[alias];
+  const childArgs=[path.join(root,'node_modules/@playwright/test/cli.js'),'test','tests/importacion-excel.spec.cjs','--grep','@doc122-'+mode,'--reporter=list','--retries=0'];
+  if(args.includes('--headed'))childArgs.push('--headed');
+  return {values,needed:Object.keys(aliases),childArgs,plantillaId:scope.plantillaId,mode};
+}
+async function runExcelProfileSession(root,profile,args){
+  const plan=excelProfilePlan(root,profile,args),values=plan.values;
+  let environment;
+  try{
+    for(const name of plan.needed){
+      if(values[name])continue;
+      requireInteractiveConsole();
+      await collectValue(values,name,name.includes('PASSWORD')?'Contraseña efímera':'Cuenta de prueba autorizada para Excel',{secret:true});
+    }
+    if(values.DOC122_E2E_AUTHORIZED!=='YES'){
+      requireInteractiveConsole();
+      await collectConfirmation(values,'DOC122_CONFIRMACION',
+        'Autoriza DOC-122 en el ambiente del perfil local, con las cuentas seleccionadas y plantilla descartable '+plan.plantillaId+
+        (plan.mode==='write'?' (tres solicitudes de guardado: dos éxitos y un conflicto; revisión +2)':' (lectura y rechazo de acceso; sin guardados)'));
+      values.DOC122_E2E_AUTHORIZED='YES';
+    }
+    environment={...process.env,...values};
+    const result=await runChild(process.execPath,plan.childArgs,root,environment);
+    process.exitCode=result.code;
+  }finally{
+    for(const name of Object.keys(values)){delete values[name];if(environment)delete environment[name];}
+  }
+}
 async function main(){
+  if(process.argv.some(arg=>arg==='--excel-read'||arg==='--excel-write')){
+    const root=path.resolve(__dirname,'..');
+    const profile=JSON.parse(fs.readFileSync(path.join(root,'profiles/doc88-production-document-upload.local.runtime.json'),'utf8').replace(/^\uFEFF/,''));
+    return runExcelProfileSession(root,profile,process.argv.slice(2));
+  }
   if(['--missing-schema','--acceptance','--draft','--publish','--concurrent','--concurrent-publish','--isolation','--permission-revocation','--session-expiry','--source-scope','--source-profile','--source-guards','--source-transactions','--provider-diagnostics','--provider-scope','--inheritance','--matching','--guards','--tabs','--updatepanel','--provider-lifecycle','--provider-profile','--provider-guards','--provider-concurrent','--provider-availability'].filter(flag=>process.argv.includes(flag)).length>1)throw new Error('DOC110_MODE_CONFLICT');
   const tableIndex=process.argv.indexOf('--source-table');
   if(['--resume-source','--cleanup-source','--continue-source'].filter(flag=>process.argv.includes(flag)).length>1)throw new Error('DOC110_SOURCE_ACTION_CONFLICT');
@@ -134,7 +193,9 @@ async function main(){
     for(const name of Object.keys(values)){delete values[name];delete environment[name];}
   }
 }
-main().catch(()=>{
-  console.error('DOC110_SESSION_BLOCKED: faltan credenciales efímeras. Ejecute este comando en su consola interactiva para ingresarlas; no se inició login.');
+module.exports={excelProfilePlan};
+if(require.main===module)main().catch(error=>{
+  console.error(/^DOC122_[A-Z_]+$/.test(error.message)?error.message:
+    'DOC110_SESSION_BLOCKED: faltan credenciales efímeras. Ejecute este comando en su consola interactiva para ingresarlas; no se inició login.');
   process.exitCode=2;
 });

@@ -112,5 +112,27 @@
       "path": "webservice/WebServiceImportacionExcel.asmx.vb",
       "sha256Utf8Lf": "db78e9cd1f8ec260f1126165caf0c6636971dcbc4ab76f81f3d70e1c597aa758"
     }
-  ]
+  ],
+  "e2eReuse": {
+    "state": "PASS_LOCAL_REAL_PENDING",
+    "localTests": 6,
+    "originalInputsUnchanged": 16,
+    "command": "node --test tests/doc122-e2e-reuse.test.cjs",
+    "runner": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+    "modes": [
+      "--excel-read",
+      "--excel-write"
+    ],
+    "realExecution": false,
+    "inputs": [
+      {
+        "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+        "sha256Utf8Lf": "62996f2b8c7ade24f51649b9743e832c55fb590eeaa67ff141da2e5118f38ea2"
+      },
+      {
+        "path": "tests/doc122-e2e-reuse.test.cjs",
+        "sha256Utf8Lf": "6614037da85e4c1b0219f3ed8f6ce9b7f40922287c3bf430e75b6dddc2b74ef5"
+      }
+    ]
+  }
 }

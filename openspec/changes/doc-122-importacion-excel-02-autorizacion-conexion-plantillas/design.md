@@ -22,6 +22,8 @@ Nuevos archivos contrastados con las carpetas existentes; registrar compilación
 
 Existentes: Gestion/Class_remit_dest_interno_perfil_produccion.vb y GestionDocumental-Docuarchi.net.vbproj. Reutilizar resolución por sesión y comparación de tokens. No modificar SII.
 
+Reutilización E2E solicitada: extender tools/e2e/scripts/run-doc110-profile-session.cjs, inspeccionado junto con interactive-e2e-console.cjs, para modos Excel de lectura/escritura. Conserva perfil local DOC88, autenticación y safePost existentes. Verificación focal en tests/doc122-e2e-reuse.test.cjs; no hay runner paralelo ni nuevas credenciales persistidas.
+
 ## Decisions
 ### D-01 Autorización vigente propia
 Consultar RA en cada operación: usuario activo, empresa y permiso exacto ADMINISTRAR_CARGAS_IMPORTACION=1. Indicador de sesión solo para presentación.

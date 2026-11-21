@@ -50,6 +50,15 @@ Conservar SQL00–09 ya entregados para DOC121. Nuevo [10-verificacion-doc122.sq
 Cuenta dedicada, concesiones efectivas, sesión RA/DA y despliegue todavía no acreditados en un recorrido real DOC122. SQL05 es una plantilla de concesiones para revisión/ejecución manual del administrador, no prueba de que la cuenta exista. La evidencia física anterior de CONTRATOS no certifica enrutamiento del sitio ni concede permiso de pruebas sobre esa plantilla.
 
 ## E2E preparado
+Ejecutar desde el runner existente de perfiles:
+
+- Lectura: npm.cmd --prefix tools/e2e run test:doc110:session -- --excel-read
+- Guardado/concurrencia: npm.cmd --prefix tools/e2e run test:doc110:session -- --excel-write
+
+Ambos modos reutilizan profiles/doc88-production-document-upload.local.runtime.json para URL, módulo y HTTPS, igual que la suite de perfiles/carpetas. Reutilizan DOC110_E2E_USER/PASSWORD si están cargados en memoria; lectura admite DOC110_E2E_SECOND_USER/SECOND_PASSWORD como cuenta restringida. Las variables DOC122 explícitas tienen prioridad para cuentas. No hay que volver a suministrar URL o módulo. Si faltan cuentas, la consola existente las recoge de forma enmascarada y efímera.
+
+Se conserva el manifiesto específico DOC122_E2E_SCOPE_PATH para identificar la plantilla Excel descartable y su revisión/huella; el perfil de ambiente y el ID de perfil de importación de carpetas no sustituyen ese vínculo. El runner rechaza modos mixtos, diferencias de ambiente y escritura fuera del alcance. Una autorización antigua DOC110 no habilita la prueba DOC122; admite la autorización específica ya presente o recoge la confirmación en la consola existente. Esta adaptación no ejecutó pruebas reales.
+
 Reutiliza tools/e2e, createWorkflowLoginPageSession, safePost y configuración Playwright existentes. Sin trazas, vídeo, screenshots ni reintentos. Manifest local excluido de Git: issue DOC-122, disposable=true, baseUrl, conexionId, plantillaId, revisionEsperada, huellaEsperada y allowedModes [read] o [read,write].
 
 Configuración efímera: DOC122_E2E_AUTHORIZED=YES tras autorización explícita; DOC122_E2E_SCOPE_PATH, DOC122_E2E_BASE_URL, DOC122_E2E_MODULE, DOC122_E2E_USER/PASSWORD y DOC122_E2E_RESTRICTED_USER/PASSWORD. No versionar ni imprimir valores. Antes de autenticar, leer AGENTS.md y el runbook E2E. La autorización debe identificar ambiente, cuentas y plantilla existente descartable; el permiso debe estar ya instalado/configurado manualmente.
