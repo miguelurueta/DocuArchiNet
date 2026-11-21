@@ -1,41 +1,40 @@
-<!-- opsxj:refinement version=1 state=draft -->
+<!-- opsxj:refinement version=1 state=approved -->
 
-# Refinamiento - doc-122-importacion-excel-02-autorizacion-conexion-plantillas
+# Refinamiento DOC-122
 
 ## Fuente y alcance
-
-- Ticket: `DOC-122` — IMPORTACION-EXCEL-02-AUTORIZACION-CONEXION-PLANTILLAS
-- Cambio OpenSpec: `doc-122-importacion-excel-02-autorizacion-conexion-plantillas`
-- Fuente Jira: `specs/*/jira-context.md`
-- Perfil tecnologico: `legacy-webforms-vb`. Las reglas de framework solo aplican si corresponden a este perfil.
-
-Este artefacto es la compuerta entre el ticket y la implementacion. No se aprueba por generacion automatica: una persona responsable debe confirmar alcance, decisiones, compatibilidad y evidencia de codigo.
+El usuario solicitó iniciar DOC-122 y continuar su implementación sobre el prompt02 previamente elegido. Revisión técnica Codex 2026-11-21; aprobación de alcance no equivale a instalación ni E2E real.
 
 ## Contexto inspeccionado
-
-- [PENDIENTE: rutas, clases, handlers, scripts y datos legacy inspeccionados]
-- [PENDIENTE: comportamiento actual y compatibilidad que se debe preservar]
+- PerfilImportacionContextAdapter.Resolver/AutorizarFuentes: Consultar RA en cada operación: usuario activo, empresa y permiso exacto ADMINISTRAR_CARGAS_IMPORTACION=1. Indicador de sesión solo para presentación.
+- ModuleSessionConnectionStringResolver.Resolve: Vincular empresa e ID histórico con connectionStrings protegido; comprobar servidor/base con sesión DA_ e imp01_xmlconexion. Sin fallback ni credenciales históricas.
+- Class_imp01_plantillaimp / Class_imp01_campos_plantilla: DTO por ID, paginación acotada y destino imp_02_ validado en information_schema. CREAR admite destino ausente; AGREGAR/REEMPLAZAR requieren columnas existentes. Guardar no altera destino.
+- MySqlPerfilImportacionRepository: Transacción InnoDB para cabecera y campos; bloqueo y comparación de revisión más huella vigente. Un ganador, conflicto para el segundo, rollback completo ante fallo.
+- Doc/Actualizacion/Importacion/Diseno/01-contratos-configuracion-doc121.md: Conservar ruta histórica, ID de mapeos y transformaciones no cambiadas. Snapshot v1 canónico DOC121; NULL explícito, orden ordinal, SHA256. Leer sin clave permitido; guardar exige clave mapeada. Flags inconsistentes dan error controlado.
+- PerfilImportacionRequestGuard / WebServiceImportacionCarpetas: POST JSON, mismo origen, CSRF propio ligado a sesión/usuario/empresa; bootstrap valida origen antes de emitir token. DTO de respuesta tipados. Límites positivos con defaults 10000/10MB decimal.
+- AGENTS.md / tools/e2e/AGENT-RUNBOOK.md: Build aislado y pruebas nativas sintéticas; E2E reutiliza tools/e2e y requiere autorización específica. Instalación SQL manual y datos EGRESOS intactos.
 
 ## Decisiones aprobadas
-
 | ID | Decision verificable | Evidencia de codigo | Design | Requirement | Tasks |
-| --- | --- | --- | --- | --- | --- |
-| D-01 | [PENDIENTE: decision concreta] | [PENDIENTE: ruta y simbolo] | D-01 | RQ-01 | Origen: D-01, RQ-01 |
+|---|---|---|---|---|---|
+| D-01 | Consultar RA en cada operación: usuario activo, empresa y permiso exacto ADMINISTRAR_CARGAS_IMPORTACION=1. Indicador de sesión solo para presentación. | PerfilImportacionContextAdapter.Resolver/AutorizarFuentes | D-01 | RQ-01 | Origen: D-01, RQ-01 |
+| D-02 | Vincular empresa e ID histórico con connectionStrings protegido; comprobar servidor/base con sesión DA_ e imp01_xmlconexion. Sin fallback ni credenciales históricas. | ModuleSessionConnectionStringResolver.Resolve | D-02 | RQ-02 | Origen: D-02, RQ-02 |
+| D-03 | DTO por ID, paginación acotada y destino imp_02_ validado en information_schema. CREAR admite destino ausente; AGREGAR/REEMPLAZAR requieren columnas existentes. Guardar no altera destino. | Class_imp01_plantillaimp / Class_imp01_campos_plantilla | D-03 | RQ-03 | Origen: D-03, RQ-03 |
+| D-04 | Transacción InnoDB para cabecera y campos; bloqueo y comparación de revisión más huella vigente. Un ganador, conflicto para el segundo, rollback completo ante fallo. | MySqlPerfilImportacionRepository | D-04 | RQ-04 | Origen: D-04, RQ-04 |
+| D-05 | Conservar ruta histórica, ID de mapeos y transformaciones no cambiadas. Snapshot v1 canónico DOC121; NULL explícito, orden ordinal, SHA256. Leer sin clave permitido; guardar exige clave mapeada. Flags inconsistentes dan error controlado. | Doc/Actualizacion/Importacion/Diseno/01-contratos-configuracion-doc121.md | D-05 | RQ-05 | Origen: D-05, RQ-05 |
+| D-06 | POST JSON, mismo origen, CSRF propio ligado a sesión/usuario/empresa; bootstrap valida origen antes de emitir token. DTO de respuesta tipados. Límites positivos con defaults 10000/10MB decimal. | PerfilImportacionRequestGuard / WebServiceImportacionCarpetas | D-06 | RQ-06 | Origen: D-06, RQ-06 |
+| D-07 | Build aislado y pruebas nativas sintéticas; E2E reutiliza tools/e2e y requiere autorización específica. Instalación SQL manual y datos EGRESOS intactos. | AGENTS.md / tools/e2e/AGENT-RUNBOOK.md | D-07 | RQ-07 | Origen: D-07, RQ-07 |
 
 ## Requisitos verificables
-
 | ID | Resultado observable | Escenario o criterio de aceptacion | Riesgo/compatibilidad |
-| --- | --- | --- | --- |
-| RQ-01 | [PENDIENTE: resultado] | [PENDIENTE: WHEN/THEN] | [PENDIENTE: regresion y rollback] |
-
-## Reglas de trazabilidad obligatorias
-
-1. Cada decision `D-XX` debe estar desarrollada en `design.md`, reflejada en al menos un requirement/scenario de `spec.md` y vinculada a una tarea mediante `Origen: D-XX, RQ-XX`.
-2. Cada tarea con checkbox debe conservar su origen. Las tareas de validacion, rollout y documentacion tambien deben indicar la decision o requisito que verifican.
-3. Las reglas de frontend, WebForms, Node u otro framework solo se agregan cuando el perfil tecnologico y el codigo afectado las justifican.
-4. El estado solo puede cambiar a `approved` cuando no haya marcadores pendientes, las decisiones sean especificas y la matriz sea completa.
+|---|---|---|---|
+| RQ-01 | Consultar RA en cada operación: usuario activo, empresa y permiso exacto ADMINISTRAR_CARGAS_IMPORTACION=1. Indicador de sesión solo para presentación. | Permiso exclusivo; Acceso revocado | Autorización vigente propia |
+| RQ-02 | Vincular empresa e ID histórico con connectionStrings protegido; comprobar servidor/base con sesión DA_ e imp01_xmlconexion. Sin fallback ni credenciales históricas. | Vínculo manipulado; Configuración ausente | Conexión dedicada |
+| RQ-03 | DTO por ID, paginación acotada y destino imp_02_ validado en information_schema. CREAR admite destino ausente; AGREGAR/REEMPLAZAR requieren columnas existentes. Guardar no altera destino. | Consulta acotada; Destino inválido | Contrato y metadatos |
+| RQ-04 | Transacción InnoDB para cabecera y campos; bloqueo y comparación de revisión más huella vigente. Un ganador, conflicto para el segundo, rollback completo ante fallo. | Concurrencia; Fallo de mapeo; Cambio antiguo | Guardado atómico |
+| RQ-05 | Conservar ruta histórica, ID de mapeos y transformaciones no cambiadas. Snapshot v1 canónico DOC121; NULL explícito, orden ordinal, SHA256. Leer sin clave permitido; guardar exige clave mapeada. Flags inconsistentes dan error controlado. | Ruta histórica; Alta web; Flags y clave; Canonización | Compatibilidad histórica |
+| RQ-06 | POST JSON, mismo origen, CSRF propio ligado a sesión/usuario/empresa; bootstrap valida origen antes de emitir token. DTO de respuesta tipados. Límites positivos con defaults 10000/10MB decimal. | Solicitud forjada; Límites | ASMX y solicitud |
+| RQ-07 | Build aislado y pruebas nativas sintéticas; E2E reutiliza tools/e2e y requiere autorización específica. Instalación SQL manual y datos EGRESOS intactos. | Prueba sintética; Operación real | Verificación y límites |
 
 ## Resultado del refinamiento
-
-- Estado: borrador. Sustituya el marcador inicial por el estado `approved` despues de completar y revisar la matriz.
-- Comando: `npm.cmd --prefix tools/opsxj run opsxj:refine -- <ISSUE-KEY> --sync`.
+Diseño/spec/tareas cubren D-01 a D-07 y RQ-01 a RQ-07. Sin marcadores de decisión pendientes. Cuenta protegida y validación real se registran aparte; SQL manual y EGRESOS preservados.

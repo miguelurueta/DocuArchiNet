@@ -8708,6 +8708,14 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Code\MyUtils.vb" />
+    <Compile Include="Modelo\ProduccionDocumental\ImportacionExcel\ImportacionExcelModelos.vb" />
+    <Compile Include="DTOs\ProduccionDocumental\ImportacionExcel\ImportacionExcelDtos.vb" />
+    <Compile Include="Services\ProduccionDocumental\ImportacionExcel\ServicioPlantillasExcel.vb" />
+    <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionExcel\MySqlPlantillaExcelRepository.vb" />
+    <Compile Include="Infrastructure\ProduccionDocumental\ImportacionExcel\ImportacionExcelContextAdapter.vb" />
+    <Compile Include="Infrastructure\ProduccionDocumental\ImportacionExcel\ImportacionExcelConexionAdapter.vb" />
+    <Compile Include="Infrastructure\ProduccionDocumental\ImportacionExcel\ImportacionExcelRequestGuard.vb" />
+    <Compile Include="webservice\WebServiceImportacionExcel.asmx.vb" />
     <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\PerfilImportacionModels.vb" />
     <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\ImportacionCarpetasModels.vb" />
     <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\ControlArchivoIndependienteImportacion.vb" />
@@ -8825,6 +8833,7 @@
     <Compile Include="webservice\WebServiceImportacionCarpetas.asmx.vb" />
     <Compile Include="webservice\WebServiceImportacionCarpetas.Composicion.vb" />
     <Content Include="webservice\WebServiceImportacionCarpetas.asmx" />
+    <Content Include="webservice\WebServiceImportacionExcel.asmx" />
     <Content Include="js\gestion\ImportacionCarpetas\PerfilImportacionEditor.js" />
     <Content Include="js\gestion\ImportacionCarpetas\ProveedorAdminEditor.js" />
     <Content Include="js\gestion\ImportacionCarpetas\FuenteAdminEditor.js" />

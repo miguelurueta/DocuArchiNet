@@ -1,0 +1,116 @@
+{
+  "issue": "DOC-122",
+  "state": "PASS_LOCAL_REAL_PENDING",
+  "recordedAtUtc": "2026-11-21T22:47:04.014Z",
+  "git": {
+    "testedBaseHead": "04e47dada8d85ef216cf765771b452de98aa56a9",
+    "branch": "feature/DOC-122",
+    "inputsDigest": "e0b3452d4f4d25e1f210a8b0d7dd7ee17962f203321950401850b93f38aea228"
+  },
+  "environment": {
+    "os": "Windows",
+    "framework": ".NET Framework 4.6.1",
+    "transport": "synthetic HttpContext",
+    "database": "synthetic ADO.NET; no MySQL connection"
+  },
+  "results": {
+    "build": "PASS",
+    "native": "PASS",
+    "nativeChecks": 191,
+    "existingDoc110Doc120Regression": "PASS",
+    "snapshotVector": "PASS",
+    "refinementChecks": 15,
+    "openspec": "PASS_STRICT",
+    "e2eDiscovery": 2,
+    "e2eReal": "NOT_RUN",
+    "liveDllAndWebConfigPreserved": true
+  },
+  "commands": [
+    "node --test tests/doc122-importacion-excel-behavior.test.cjs",
+    "MSBuild.exe GestionDocumental-Docuarchi.net.vbproj /t:Build /p:Configuration=Debug /p:OutDir=<workspace>/.tmp/doc122-project-build/bin/ /p:BaseIntermediateOutputPath=<workspace>/.tmp/doc122-project-build/obj/ /p:IntermediateOutputPath=<workspace>/.tmp/doc122-project-build/obj/Debug/ /p:DeployOnBuild=false /p:Disable_CopyWebApplication=true /p:UseSharedCompilation=false",
+    "node tools/e2e/node_modules/@playwright/test/cli.js test --config tools/e2e/playwright.config.cjs importacion-excel.spec.cjs --list",
+    "openspec.cmd validate doc-122-importacion-excel-02-autorizacion-conexion-plantillas --strict"
+  ],
+  "effects": {
+    "realSql": 0,
+    "realDdl": 0,
+    "realDml": 0,
+    "realHttp": 0,
+    "authenticatedSessions": 0,
+    "deployment": false,
+    "egresosModified": false
+  },
+  "limits": [
+    "Synthetic ADO.NET validates actual repository branching and transactions but cannot certify MySQL locking, collation, grants or routing.",
+    "E2E discovered only; no browser or authentication.",
+    "Real integration requires dedicated protected account and explicit environment/accounts/disposable-template authorization.",
+    "Existing templates with unsupported flags or unsupported source format return a controlled error; no automatic repair.",
+    "First ordinary build reached compilation but content packaging failed on 18 pre-existing absent static files; isolated code build with Disable_CopyWebApplication=true passed."
+  ],
+  "inputs": [
+    {
+      "path": "DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb",
+      "sha256Utf8Lf": "1510aadcd0c6a42445caec0fee3e1622982b2d7b4acec26d7a977120ab50260a"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Sql/10-verificacion-doc122.sql",
+      "sha256Utf8Lf": "a031d5fbfcd75fc72f6d7ade9fad643d1cf1b390775624a53553ea2efc7689a0"
+    },
+    {
+      "path": "Gestion/Class_remit_dest_interno_perfil_produccion.vb",
+      "sha256Utf8Lf": "4eee5f8da05d88422e331f072024018ad3aaa7b1370be5198f99bfc82258fe53"
+    },
+    {
+      "path": "GestionDocumental-Docuarchi.net.vbproj",
+      "sha256Utf8Lf": "166bd894c34cc02dd4b1edef10c6bff95f5f5b8de8d0685bd8ba8ce5c245a1d0"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelConexionAdapter.vb",
+      "sha256Utf8Lf": "dde4e9bc50970fed88753cb16ae294710a09ec525ae41e3879532324cc6cb90a"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelContextAdapter.vb",
+      "sha256Utf8Lf": "8a89cc86baec4083e89a3d6a3806f7d3bdf371d68b07646cef37dee42e250426"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb",
+      "sha256Utf8Lf": "f4f7c231f320fc5a89f31f33e4a26c7731ef1c17c1b1dcac3dcc47bde799b69a"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb",
+      "sha256Utf8Lf": "e8bed8cb8c29bba6cd41d658343d27772dbc9fd4071fa2cd7b7b212f813bbfa1"
+    },
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb",
+      "sha256Utf8Lf": "ca995b9824813507aab9a15d2b489ca2dff85de67602dbd0154af99020e5dc3a"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioPlantillasExcel.vb",
+      "sha256Utf8Lf": "59ef978bcd35fce4f78fa68fbf712025f6867df9dabf18608ab08d9613fe3974"
+    },
+    {
+      "path": "tests/Fixtures/ProduccionDocumental/doc122-snapshot-v1.json",
+      "sha256Utf8Lf": "68f650295002c7c3103792146f398c798dca08995b00b1110b43d02dbd7b1789"
+    },
+    {
+      "path": "tests/ImportacionExcelBehaviorTests.cs",
+      "sha256Utf8Lf": "f0ed14ba5d2d7b84d973766457718f22d3b1d6af358752a4d5c110988bdadaa3"
+    },
+    {
+      "path": "tests/doc122-importacion-excel-behavior.test.cjs",
+      "sha256Utf8Lf": "ae3a8db39649a2038ae7219ef2b76befebf65ad23f789d70afe4f59b331bf2e0"
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "48376a822fd098e51091c98d3afa1045fd30826641be3289cb0bfef40342140c"
+    },
+    {
+      "path": "webservice/WebServiceImportacionExcel.asmx",
+      "sha256Utf8Lf": "134a40dfcf3273f6f3fb2d8305cc45eb9b46ef05b328f5f6667c7762483004a7"
+    },
+    {
+      "path": "webservice/WebServiceImportacionExcel.asmx.vb",
+      "sha256Utf8Lf": "db78e9cd1f8ec260f1126165caf0c6636971dcbc4ab76f81f3d70e1c597aa758"
+    }
+  ]
+}

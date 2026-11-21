@@ -1,129 +1,98 @@
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07 -->
 ## ADDED Requirements
-### Requirement: IMPORTACION-EXCEL-02-AUTORIZACION-CONEXION-PLANTILLAS
-El sistema SHALL implementar el alcance definido para DOC-122.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-## Perfil tecnologico
 
-- Perfil de revision: legacy-webforms-vb (v1).
-- Alcance: ASP.NET Web Forms, code-behind VB.NET/C# y JavaScript gradual.
-- Este perfil orienta la revision tecnica; no reemplaza los requisitos funcionales ni arquitectonicos del ticket.
+### Requirement: RQ-01 Autorización vigente propia
+Origen: D-01.
+El sistema SHALL consultar RA en cada operación: usuario activo, empresa y permiso exacto ADMINISTRAR_CARGAS_IMPORTACION=1. Indicador de sesión solo para presentación.
 
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
+#### Scenario: Permiso exclusivo
+- **WHEN** solo tiene permiso del cargador
+- **THEN** opera sin permiso de perfiles
 
-#### Scenario: Reglas del ticket
-- Registro del prompt 02
-- Fase 2 de 7 de la implementación de importación Excel en tablas imp_02_. Los siete tickets describen incrementos del mismo cambio funcional y se ejecutan en orden.
-- Proyecto DocuarchiNET (DOC). Sprint solicitado IMPORTAR-ARCHIVOS; nombre existente en Jira IMPOTAR-ARCHIVOS, ID 1927.
-- Dependencias de implementación DOC-121.
-- Origen inmutable dd1091a8d1ad70806509ee86e5fe53df3f2ea866. SHA-256 del prompt normalizado a UTF-8/LF fc882970d44a120ecd9c4f96ff23d4dad01a92e7f2a7e1548d91022a2b6ac19d. Revisión estructural legacy-webforms-vb PASS, con 0 bloqueantes, 0 mayores y 0 menores.
-- Prompt completo en el repositorio
-- Exploración y diseño técnico consolidados
-- Informe de revisión del prompt
-- Contenido íntegro del prompt
-- Prompt 02 — Autorización, conexión y plantillas
-- ROL ESPERADO
-- Desarrollador backend VB.NET con experiencia en autorización empresarial y repositorios MySQL.
-- OBJETIVO
-- Implementar el acceso del cargador y la administración de plantillas sobre los catálogos existentes.
-- DEPENDENCIAS
-- Requiere el esquema y los contratos de la fase 01. Contrastar su disponibilidad en el ambiente seleccionado y avanzar con las verificaciones locales que estén autorizadas.
-- CONTEXTO
-- Trabaja en D:/imagenesda/DocuachiNet/DocuArchiNet, ASP.NET Web Forms con VB.NET, .NET Framework 4.6.1 y MySQL 5.1.37. Lee AGENTS.md y Doc/Actualizacion/Importacion/Exploracion/carga-excel-csv-tablas-imp-02.md, especialmente su diseño técnico resuelto. Estos siete prompts son fases consecutivas del mismo cambio funcional. Reutiliza el cambio OpenSpec y los resultados de las fases anteriores.
-- El alcance aprobado comprende XLS y XLSX, los modos crear/agregar/reemplazar, permiso ADMINISTRAR_CARGAS_IMPORTACION en remit_dest_interno_perfil_produccion, cuenta dedicada sobre la DA autorizada, validación por carga e índice UNIQUE permanente. Agregar rechaza toda la carga ante claves repetidas internas o existentes; reemplazar valida la unicidad del archivo y sustituye el contenido autorizado. Los límites iniciales son 10.000 filas y 10 MB, configurables en servidor; 1 MB equivale a 1.000.000 bytes.
-- Reutiliza imp01_xmlconexion, imp01_plantillaimp, imp01_campos_plantilla y las tablas imp_02_* elegibles. El diseño añade CAMPO_UNICO y REVISION_CARGA a la cabecera y una tabla imp01_carga_ejecucion. Preserva la compatibilidad de las plantillas históricas y sus consumidores de SII e importación de carpetas.
-- PRECONDICIONES DE RUTAS
-- Inventariar los archivos exactos en design.md antes de editar. Contrastar cada ruta propuesta con el código existente y reutilizar las responsabilidades ya implementadas. Aplicar únicamente las modificaciones de la fase actual. Registrar los archivos nuevos de compilación y contenido en GestionDocumental-Docuarchi.net.vbproj según el patrón del proyecto.
-- Responsabilidad
-- Rutas previstas
-- Modelos
-- Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb
-- DTOs y contrato request/response
-- DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb
-- Servicios
-- Services/ProduccionDocumental/ImportacionExcel/ServicioPlantillasExcel.vb, ServicioLecturaExcel.vb, ServicioPreparacionExcel.vb y ServicioConfirmacionExcel.vb en esa misma carpeta
-- Repositorios
-- Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb y MySqlCargaExcelRepository.vb en esa misma carpeta
-- Adaptadores e infraestructura
-- Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelContextAdapter.vb, ImportacionExcelRequestGuard.vb, ImportacionExcelConexionAdapter.vb y LectorArchivoExcel.vb en esa misma carpeta
-- Servicio web
-- webservice/WebServiceImportacionExcel.asmx y webservice/WebServiceImportacionExcel.asmx.vb
-- Receptor de archivo
-- generic_control/ImportacionExcelUpload.ashx y generic_control/ImportacionExcelUpload.ashx.vb
-- Interfaz
-- js/gestion/ImportacionExcel/ImportacionExcelApi.js, js/gestion/ImportacionExcel/ImportacionExcelVista.js y Styles/ImportacionExcel.css
-- Integración existente
-- Gestion/WebFormProducionDocumental.aspx, Gestion/WebFormProducionDocumental.aspx.vb, Gestion/Class_remit_dest_interno_perfil_produccion.vb y js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js
-- Pruebas
-- tests/ImportacionExcelBehaviorTests.cs y tools/e2e/tests/importacion-excel.spec.cjs, ampliando los harness y utilidades existentes cuando corresponda
-- Las rutas propuestas delimitan responsabilidades. Ajustar la división de archivos a la implementación real y registrar la justificación en design.md.
-- RESTRICCIONES CRÍTICAS
-- Mantener la sesión y empresa como autoridad. El navegador envía referencias, nunca un servidor, base o cadena de conexión elegidos libremente.
-- 
-- No imprimir ni persistir credenciales, cookies, tokens o cadenas de conexión en código, documentación o evidencias. Usar secretos efímeros durante pruebas y configuración protegida para la cuenta del servidor.
-- 
-- No modificar AlmacenamientoDocumentoProduccionDocumental ni SII para resolver la carga tabular. Preservar los contratos de los consumidores existentes.
-- 
-- CSV, migración entre gabinetes, omisión de duplicados y actualización automática por coincidencia de clave están fuera de alcance.
-- 
-- El agente genera los cambios SQL en archivos e indica su ejecución manual por el usuario. No debe ejecutar SQL modificador de esquema, datos o permisos ni aplicar archivos SQL directa o indirectamente. La comprobación posterior utiliza exclusivamente SELECT después de la confirmación de ejecución manual.
-- 
-- Conservar los cambios ajenos presentes en el repositorio local y agrupar las entregas conforme al flujo del cambio.
-- 
-- FLUJO OBLIGATORIO DE SQL MANUAL
-- Generar los cambios SQL como archivos nuevos y versionables en Doc/Actualizacion/Importacion/Sql/. Cubrir instalación, tablas, columnas, índices, permisos y cualquier corrección o preparación de datos que se necesite. Conservar los scripts históricos ya aplicados y entregar las correcciones en otro archivo.
-- 
-- Entregar una guía con archivo, orden, destino RA/DA, precondiciones, efectos previstos y consultas SELECT de comprobación. Mantener las credenciales fuera del SQL entregado.
-- 
-- Indicar al usuario qué archivo debe ejecutar manualmente. El agente no debe ejecutar SQL modificador ni aplicar esos archivos, tampoco mediante scripts de arranque, tests o una ruta indirecta de la aplicación.
-- 
-- Esperar la confirmación de ejecución manual del usuario antes de verificar ese cambio en la base. Registrar PENDIENTE_EJECUCION_MANUAL mientras esa confirmación falte y continuar el trabajo local independiente.
-- 
-- Después de la confirmación, revisar el resultado mediante consultas exclusivamente SELECT y evidencia saneada. Registrar diferencias y, si hace falta otra modificación, generar un nuevo archivo para ejecución manual.
-- 
-- La ausencia de errores en un archivo o su entrega no acredita que esté aplicado. La revisión posterior debe comprobar las estructuras, índices, relaciones y permisos observables correspondientes y registrar cualquier aspecto que requiera evidencia del usuario.
-- 
-- El código del cargador implementa los modos funcionales acordados para uso del usuario. La instalación o adecuación de su base sigue esta secuencia manual y debe estar verificada antes de probar las operaciones que dependan de ella.
-- IMPLEMENTACIÓN DE ESTA FASE
-- Crear un contexto de autorización propio. Verificar usuario activo, empresa y ADMINISTRAR_CARGAS_IMPORTACION vigente en cada operación mediante RA. El permiso del cargador determina su acceso funcional.
-- 
-- Integrar el indicador de presentación en Gestion/Class_remit_dest_interno_perfil_produccion.vb siguiendo el patrón existente. La verificación del servidor vuelve a consultar la autoridad vigente.
-- 
-- Resolver la cuenta dedicada de DA desde configuración protegida y comprobar su correspondencia con el ámbito y el ID de imp01_xmlconexion autorizado. Exponer al cliente referencias y nombres descriptivos.
-- 
-- Implementar listado paginado, detalle y guardado de plantillas por ID, con INSERT/UPDATE parametrizados y cabecera/campos en una transacción. Validar nombres de destinos imp_02_* y metadatos reales.
-- 
-- Persistir CAMPO_UNICO y REVISION_CARGA. Exigir que la clave pertenezca al mapeo de campos de destino y registrar una huella completa para detectar modificaciones de herramientas antiguas.
-- 
-- Conservar RUTA_ARCHIVO_FUENTE de las plantillas históricas. En altas web generar una referencia relativa de servidor de hasta 120 caracteres. Guardar la hoja en LIBRO_EXCEL y el formato en CONEXION_FUENTE conforme al diseño.
-- 
-- Adaptar las banderas históricas al modo explícito de la plantilla y tratar los estados o combinaciones inconsistentes con un error controlado.
-- 
-- Exponer las operaciones de plantillas en el servicio ASMX con contrato tipado y validación de solicitud. Completar la composición de dependencias necesaria para que las fases posteriores usen el mismo contexto.
-- 
-- CRITERIOS DE ACEPTACIÓN
-- Un usuario autorizado puede consultar y guardar plantillas de su ámbito.
-- 
-- Se rechazan usuario inactivo, empresa distinta, permiso revocado y referencia de conexión o tabla manipulada.
-- 
-- Dos guardados con la misma revisión producen un ganador y un conflicto informado.
-- 
-- Las plantillas históricas mantienen sus valores y mapeos, incluidos los utilizados por SII.
-- 
-- La referencia relativa de una plantilla web se interpreta exclusivamente mediante el almacenamiento autorizado del servidor.
-- 
-- La compilación y las pruebas focales acreditan el contrato de plantillas y sus estados de error.
-- 
-- PRUEBAS OBLIGATORIAS
-- Realiza la compilación MSBuild o el build pertinente al alcance de esta fase, y pruebas unitarias o QA manual reproducible que acrediten sus criterios. Registra comandos, resultado, SHA, ambiente y límites de evidencia. Las pruebas locales o con transporte simulado se identifican como tales.
-- El E2E del recorrido ejecutable es parte integral del mismo cambio funcional. Reutilizar tools/e2e y su autenticación, configuración, validadores y utilidades existentes, sin infraestructura paralela. Antes de autenticar, leer AGENTS.md y tools/e2e/AGENT-RUNBOOK.md. La ejecución real requiere autorización explícita de ambiente, cuentas y datos descartables. Cubrir control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión del alcance modificado. Los tests no deben instalar, migrar, sembrar, limpiar o reparar la base mediante SQL automático. La instalación se ejecuta manualmente por el usuario y se revisa mediante SELECT antes de los recorridos dependientes. Las verificaciones locales usan fixtures sintéticos sin escrituras en bases reales. Las escrituras funcionales de una prueba real requieren el alcance específico autorizado de esa prueba y no sustituyen la ejecución manual de los archivos SQL.
-- Mantener secretos efímeros y evidencia saneada, con consultas de control solo SELECT. Respetar los gates de autorización vigentes. No habilitar permisos arbitrariamente. El criterio de cierre del cambio exige validación autorizada y registrar cualquier bloqueo explícito. Los mocks, simulaciones y evidencia ficticia no acreditan una ejecución real. Las fases de base técnica documentarán la justificación cuando E2E no aplique todavía a su entrega.
-- DOCUMENTACIÓN TÉCNICA
-- Ubicar y actualizar la documentación existente en Doc/Actualizacion/Importacion/. Conservar la exploración como antecedente y registrar el diseño, las decisiones y los contratos vigentes del cambio OpenSpec. Guardar el SQL revisable en Doc/Actualizacion/Importacion/Sql/, y la evidencia y matriz de verificación en Doc/Actualizacion/Importacion/Validacion/. Añadir únicamente los documentos necesarios para explicar la entrega de esta fase.
-- ENTREGABLE FINAL
-- Contexto, adaptador de conexión, repositorio y servicio de plantillas, DTOs y ASMX compilables, con evidencia focal y documentación del contrato.
+#### Scenario: Acceso revocado
+- **WHEN** está inactivo, cambia empresa o pierde permiso
+- **THEN** se deniega antes de consultar plantillas
+
+### Requirement: RQ-02 Conexión dedicada
+Origen: D-02.
+El sistema SHALL vincular empresa e ID histórico con connectionStrings protegido; comprobar servidor/base con sesión DA_ e imp01_xmlconexion. Sin fallback ni credenciales históricas.
+
+#### Scenario: Vínculo manipulado
+- **WHEN** el ID, servidor o base difieren del ámbito autorizado
+- **THEN** se deniega sin revelar secretos
+
+#### Scenario: Configuración ausente
+- **WHEN** falta configuración protegida válida
+- **THEN** se informa capacidad no disponible sin cuenta alternativa
+
+### Requirement: RQ-03 Contrato y metadatos
+Origen: D-03.
+El sistema SHALL dTO por ID, paginación acotada y destino imp_02_ validado en information_schema. CREAR admite destino ausente; AGREGAR/REEMPLAZAR requieren columnas existentes. Guardar no altera destino.
+
+#### Scenario: Consulta acotada
+- **WHEN** lista o consulta por ID
+- **THEN** recibe solo plantillas de la conexión autorizada
+
+#### Scenario: Destino inválido
+- **WHEN** tabla o columnas no corresponden a metadatos elegibles
+- **THEN** se rechaza sin modificar tablas
+
+### Requirement: RQ-04 Guardado atómico
+Origen: D-04.
+El sistema SHALL transacción InnoDB para cabecera y campos; bloqueo y comparación de revisión más huella vigente. Un ganador, conflicto para el segundo, rollback completo ante fallo.
+
+#### Scenario: Concurrencia
+- **WHEN** dos guardados comparten revisión y huella
+- **THEN** hay un ganador y un CONFLICTO_REVISION
+
+#### Scenario: Fallo de mapeo
+- **WHEN** falla cualquier escritura de campos
+- **THEN** se revierte también cabecera
+
+#### Scenario: Cambio antiguo
+- **WHEN** cambia un campo histórico sin incrementar revisión
+- **THEN** la huella detecta conflicto
+
+### Requirement: RQ-05 Compatibilidad histórica
+Origen: D-05.
+El sistema SHALL conservar ruta histórica, ID de mapeos y transformaciones no cambiadas. Snapshot v1 canónico DOC121; NULL explícito, orden ordinal, SHA256. Leer sin clave permitido; guardar exige clave mapeada. Flags inconsistentes dan error controlado.
+
+#### Scenario: Ruta histórica
+- **WHEN** se edita una plantilla existente
+- **THEN** se conserva RUTA_ARCHIVO_FUENTE
+
+#### Scenario: Alta web
+- **WHEN** se crea plantilla XLS o XLSX
+- **THEN** su ruta relativa es generada en servidor y mide como máximo120 caracteres
+
+#### Scenario: Flags y clave
+- **WHEN** hay flags inconsistentes o se guarda sin clave mapeada
+- **THEN** se rechaza; la lectura legacy sin clave permanece disponible
+
+#### Scenario: Canonización
+- **WHEN** solo cambia el orden SQL de campos
+- **THEN** la huella es idéntica, sin omitir NULL ni transformaciones
+
+### Requirement: RQ-06 ASMX y solicitud
+Origen: D-06.
+El sistema SHALL pOST JSON, mismo origen, CSRF propio ligado a sesión/usuario/empresa; bootstrap valida origen antes de emitir token. DTO de respuesta tipados. Límites positivos con defaults 10000/10MB decimal.
+
+#### Scenario: Solicitud forjada
+- **WHEN** cambia origen, token o contexto
+- **THEN** se rechaza antes de guardar
+
+#### Scenario: Límites
+- **WHEN** faltan límites o son inválidos
+- **THEN** se usan10000/10 o se cierra capacidad respectivamente
+
+### Requirement: RQ-07 Verificación y límites
+Origen: D-07.
+El sistema SHALL build aislado y pruebas nativas sintéticas; E2E reutiliza tools/e2e y requiere autorización específica. Instalación SQL manual y datos EGRESOS intactos.
+
+#### Scenario: Prueba sintética
+- **WHEN** se ejecutan fixtures locales
+- **THEN** no se afirma E2E real ni se escribe en base
+
+#### Scenario: Operación real
+- **WHEN** hace falta instalar o autenticar una prueba
+- **THEN** se respeta SQL manual y autorización específica

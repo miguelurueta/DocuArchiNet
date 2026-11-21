@@ -1,13 +1,11 @@
-# IMPORTACION-EXCEL-02-AUTORIZACION-CONEXION-PLANTILLAS
+# DOC-122 — IMPORTACION-EXCEL-02-AUTORIZACION-CONEXION-PLANTILLAS
 
 - Ticket: DOC-122
 - Cambio OpenSpec: doc-122-importacion-excel-02-autorizacion-conexion-plantillas
-- Clasificacion: cross_cutting (Transversal)
-## Evidencia requerida
+- Clasificacion: cross_cutting
 
-- [ ] unit: comando, resultado, fecha y referencia verificable.
-- [ ] manual_qa: comando, resultado, fecha y referencia verificable.
+## Evidencia requerida
+Build MSBuild aislado en .tmp/doc122-project-build, DeployOnBuild=false y Disable_CopyWebApplication=true; no sobrescribe DLL del sitio ni Web.config. Suite nativa DOC122 usa el harness existente DOC110 y ejecuta su regresión. Fixtures sintéticos ADO.NET prueban rollback tras escritura parcial de campos, revisión concurrente, cambio legacy, metadatos, preservación de ruta/IDs/NULL, configuración protegida, autoridad viva, guardia CSRF y reflexión SOAP. Vector independiente SHA256 de snapshot v1 en tests/Fixtures/ProduccionDocumental/doc122-snapshot-v1.json. Informe saneado en Doc/Actualizacion/Importacion/Validacion/doc122-validacion-local-20261121.md/json.
 
 ## QA/E2E WebForms
-
-Las pruebas E2E automatizadas no se suponen disponibles. Cuando aplique, registrar ambiente, pasos manuales, resultado y limitacion; si hay automatizacion real, adjuntar comando y reporte.
+Dos recorridos preparados en tools/e2e/tests/importacion-excel.spec.cjs sobre autenticación y safePost existentes. Descubrimiento local no inicia navegador ni sesiones. Ejecución real, permisos efectivos, enrutamiento RA/DA y despliegue siguen sin acreditar: requieren cuenta dedicada configurada y autorización de ambiente/cuentas/plantilla descartable. La prueba de concurrencia HTTP usa una sesión ASP.NET y no demuestra dos escritores MySQL paralelos. No se registra manual_qa como aprobada ni se cierra DOC122.
