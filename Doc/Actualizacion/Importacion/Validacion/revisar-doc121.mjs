@@ -6,7 +6,12 @@ import {execFileSync} from 'node:child_process';
 
 const root=process.cwd();
 const change='doc-121-importacion-excel-01-esquema-contratos-configuracion';
-const changeRoot='openspec/changes/'+change;
+const activeRoot='openspec/changes/'+change;
+const archiveParent='openspec/changes/archive';
+const activeExists=await fs.access(path.join(root,activeRoot)).then(()=>true).catch(()=>false);
+const archivedCandidates=activeExists?[]:(await fs.readdir(path.join(root,archiveParent))).filter(name=>/^\d{4}-\d{2}-\d{2}-/.test(name)&&name.endsWith('-'+change));
+if(!activeExists&&archivedCandidates.length!==1)throw Error('DOC121_CHANGE_LOCATION_AMBIGUOUS');
+const changeRoot=activeExists?activeRoot:archiveParent+'/'+archivedCandidates[0];
 const base='Doc/Actualizacion/Importacion/';
 const sqlNames=['00-preflight-doc121.sql','01-permiso-carga-ra-doc121.sql',
  '02-plantilla-da-doc121.sql','03-ejecucion-da-doc121.sql',
@@ -83,7 +88,7 @@ check('doc120_execution_inputs_unchanged',changedInputs.length===0,String(Object
 
 const changed=execFileSync('git',['diff','--name-only','HEAD'],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim().split(/\r?\n/).filter(Boolean);
 const untracked=execFileSync('git',['ls-files','--others','--exclude-standard'],{cwd:root,encoding:'utf8'}).trim().split(/\r?\n/).filter(Boolean);
-const allowed=[changeRoot+'/',base+'Sql/',base+'Diseno/',base+'Validacion/','Doc/Tecnica/Opsxj/'+change+'/'];
+const allowed=[changeRoot+'/',activeRoot+'/','openspec/specs/importacion-excel-01-esquema-contratos-configuracion/',base+'Sql/',base+'Diseno/',base+'Validacion/','Doc/Tecnica/Opsxj/'+change+'/'];
 check('delivery_scope_only',changed.concat(untracked).every(f=>allowed.some(prefix=>f.startsWith(prefix))));
 const docs=[base+'Diseno/01-contratos-configuracion-doc121.md',base+'Sql/README.md',base+'Validacion/revisar-doc121.mjs',
  ...['proposal.md','design.md','refinement.md','tasks.md'].map(n=>changeRoot+'/'+n),specFile,

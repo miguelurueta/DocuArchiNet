@@ -5,6 +5,8 @@
 - Clasificacion: cross_cutting (Transversal)
 ## Evidencia requerida
 
+Archivo administrativo autorizado: `Doc/Actualizacion/Importacion/Validacion/doc121-archivo-cierre-20261121.md`/JSON registra sincronización de 8 requisitos/24 escenarios, siete archivos conservados y 16 tareas. OpenSpec global 92/92, auditor 27/27 y refinement archivado 15/15 aprobados; el gobierno se vuelve a vincular al commit final. Integración del archivo en PR133 y cierre Jira se verifican después de CI. Sin operaciones nuevas de base o aplicación.
+
 Estado vigente de alcance: fase 01 contractual completa, 16 tareas, 8 requisitos y 24 escenarios documentados. El usuario aclaró «egresos solo es de pruebas»; las incidencias de esa tabla no bloquean esta entrega y no se propone modificarla. La cuenta dedicada tiene contrato/plantilla entregados, con comprobación efectiva reservada a la fase de conexión. No se confunde cobertura documental de escenarios con ejecución de 24 recorridos reales. Los cortes inferiores mantienen su evidencia histórica y sus límites.
 
 Aplicación autorizada de 08, 2026-11-21: usuario «aplica por mi», excepción posterior y acotada al índice de CONTRATOS. `Doc/Actualizacion/Importacion/Validacion/doc121-contratos-indice-aplicado-20261121.md`/JSON registra un ALTER reconocido, 15 SELECT, un SET SESSION estricto y cero DML/HTTP. NCONTRATO NOT NULL y UNIQUE completo verificados; 625 filas y huella de las cuatro columnas preservadas. Los otros campos conservan su definición. EGRESOS y concesiones 05 no se modifican ni se acreditan. Los cortes inferiores son históricos.

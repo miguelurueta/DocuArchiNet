@@ -1,5 +1,7 @@
 # DOC-121 — SQL de instalación manual de importación Excel
 
+Estado administrativo: [archivo OpenSpec verificado y cierre en preparación](../Validacion/doc121-archivo-cierre-20261121.md). La sincronización y el movimiento conservan la entrega de fase 01; el PR133 debe integrar el archivo antes de cerrar Jira. No se reaplica ningún SQL por archivar el cambio.
+
 **Alcance de la fase 01:** contratos y scripts entregados, 16 tareas completas. El usuario aclaró que EGRESOS es solo de pruebas; no es necesario modificar esa tabla para entregar el módulo ni condiciona esta fase. Su condición de clave se revisaría únicamente si se elige como destino de carga. La plantilla 05 ya está entregada; cuenta/host/DA se configuran y verifican en la fase de conexión. Esto no certifica todavía la aplicación completa de sus concesiones.
 
 [Verificación de entrega de DOC-121](../Validacion/doc121-verificacion-entrega-20261121.md): 8 requisitos y 24 escenarios revisados como contratos de fase 01, sin presentar las pruebas futuras de aplicación como ejecutadas.
