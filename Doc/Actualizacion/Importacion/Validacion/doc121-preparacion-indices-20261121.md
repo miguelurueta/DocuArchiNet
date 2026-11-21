@@ -1,5 +1,7 @@
 # DOC-121 — preparación de índices específicos, 2026-11-21
 
+Este documento conserva el corte de preparación previo al ALTER. Después el usuario autorizó «aplica por mi» y 08 quedó [aplicado y verificado en CONTRATOS](doc121-contratos-indice-aplicado-20261121.md). El JSON de preparación y sus huellas originales permanecen como antecedentes, no como estado actual de ejecución.
+
 Continuación solicitada después de la [verificación base 01–03](doc121-verificacion-instalacion-20261121.md). El usuario mantiene la ejecución manual de cualquier SQL modificador. Se revisaron metadatos y conteos agregados mediante **11 SELECT**, cero DDL/DML/HTTP. [Resultado saneado y huellas](doc121-preparacion-indices-20261121.json).
 
 ## Resultado observado

@@ -17,6 +17,8 @@ Inventario y contratos en `Doc/Actualizacion/Importacion/Diseno/01-contratos-con
 
 ### D-02 — Instalación incremental manual (RQ-02)
 
+Excepción operativa posterior, 2026-11-21: el usuario indicó «aplica por mi» para el archivo 08 de CONTRATOS. Se aplicó y verificó exclusivamente ese ALTER en la base local inspeccionada, preservando sus 625 filas. Registro: Doc/Actualizacion/Importacion/Validacion/doc121-contratos-indice-aplicado-20261121.md/JSON. Esta autorización no habilita limpieza de EGRESOS, concesiones o aplicación automática de los demás archivos; conserva la regla general de entrega manual siguiente.
+
 Paquete `Doc/Actualizacion/Importacion/Sql/`: 00 preflight SELECT en RA y DA; 01 permiso RA; 02 extensión DA; 03 ejecución DA; 04 adecuación de clave por tabla; 05 concesiones DA; 06 postflight SELECT. DDL de una sola aplicación, después de comprobar ausencia/compatibilidad; no ocultar incompatibilidades mediante IF NOT EXISTS. Un paso ya aplicado se verifica y omite. Un esquema parcial requiere otro archivo revisado.
 
 04 genera una propuesta de ALTER desde metadatos reales, preservando tipo/charset/collation. El usuario la guarda como nuevo SQL específico y la revisa antes de aplicar; controles de datos, aislamiento e índices son precondiciones independientes. 05 es una plantilla administrativa a completar localmente con base/cuenta/host existentes; no contiene contraseñas. Instalación inicial PENDIENTE_EJECUCION_MANUAL. Confirmación y SELECT posterior se acreditan aparte.

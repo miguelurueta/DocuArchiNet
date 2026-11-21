@@ -1,0 +1,116 @@
+{
+  "issueKey": "DOC-121",
+  "recordedUtc": "2026-11-21T21:08:50.460Z",
+  "status": "APPLIED_AND_VERIFIED",
+  "authorization": {
+    "statement": "aplica por mi",
+    "scope": "Explicit later user authorization to apply only delivered SQL08 to CONTRATOS in the inspected local database.",
+    "exceptionToPreviousManualPolicy": true,
+    "doesNotAuthorizeExpensesCleanupOrGrantChanges": true
+  },
+  "environment": {
+    "matchesInspected": true,
+    "fingerprint": "24cce9f4ae03e1b92b7f0cba1e89f395e9b4434f4c108f5ee571ae9515387b91",
+    "serverVersion": "5.1.37-community",
+    "authenticatedRaDaMappingCertified": false
+  },
+  "execution": {
+    "finishedUtc": "2026-11-21T21:05:57.3176957Z",
+    "select": 15,
+    "ddl": 1,
+    "dml": 0,
+    "http": 0,
+    "sessionChanges": 1,
+    "sessionChangeScope": "Append STRICT_ALL_TABLES only in the execution connection; no global setting change.",
+    "ddlAcknowledged": true,
+    "retried": false,
+    "script": "Doc/Actualizacion/Importacion/Sql/08-indice-contratos-ncontrato-doc121.sql",
+    "originalDeliveryCommit": "d3efffbaea1c4fe96b05b244d9ee7b7ce69196f2",
+    "sha256LfAtExecution": "322a691526b42894df896af385d0818da54b93f74ea8ee08fff645b760f0b25a",
+    "currentScriptSha256Lf": "3d3d9199508e858ca4266968c6255f8bcb52190a36dfe4830689f5d183ce403b",
+    "ddlPayloadSha256": "469bf29649da0787a6c7db100dcbb37942d2e749d9584c6f5a67180761f59281",
+    "ddlPayloadUnchanged": true,
+    "rawEvidenceSha256": "a6bfebf22b0458e74695174bb7b64dc63b1ac734b3e10fdb58a0fb64be4470e7",
+    "credentialsPersisted": false
+  },
+  "before": {
+    "key": {
+      "COLUMN_NAME": "NCONTRATO",
+      "COLUMN_TYPE": "varchar(250)",
+      "DATA_TYPE": "varchar",
+      "IS_NULLABLE": "YES",
+      "COLUMN_DEFAULT": null,
+      "CHARACTER_SET_NAME": "latin1",
+      "COLLATION_NAME": "latin1_swedish_ci",
+      "EXTRA": "",
+      "COLUMN_COMMENT": "",
+      "ORDINAL_POSITION": 2
+    },
+    "indexes": [],
+    "counts": {
+      "filas": 625,
+      "nulas": 0,
+      "vacias": 0
+    },
+    "duplicates": {
+      "grupos": 0
+    },
+    "dataFingerprint": {
+      "rows": 625,
+      "sha256": "91b855e99de79b0a0f0c98e8e433b1c8b4e2d6bd85bf1034c445497fd3d45a2c",
+      "format": "DOC121 binary length-delimited UTF8 nullable cells, four columns ordered by NCONTRATO latin1_bin; values not persisted"
+    }
+  },
+  "after": {
+    "key": {
+      "COLUMN_NAME": "NCONTRATO",
+      "COLUMN_TYPE": "varchar(250)",
+      "DATA_TYPE": "varchar",
+      "IS_NULLABLE": "NO",
+      "COLUMN_DEFAULT": null,
+      "CHARACTER_SET_NAME": "latin1",
+      "COLLATION_NAME": "latin1_swedish_ci",
+      "EXTRA": "",
+      "COLUMN_COMMENT": "",
+      "ORDINAL_POSITION": 2
+    },
+    "indexes": [
+      {
+        "INDEX_NAME": "ux_doc121_NCONTRATO",
+        "NON_UNIQUE": 0,
+        "SEQ_IN_INDEX": 1,
+        "COLUMN_NAME": "NCONTRATO",
+        "SUB_PART": null
+      }
+    ],
+    "counts": {
+      "filas": 625,
+      "nulas": 0,
+      "vacias": 0
+    },
+    "duplicates": {
+      "grupos": 0
+    },
+    "dataFingerprint": {
+      "rows": 625,
+      "sha256": "91b855e99de79b0a0f0c98e8e433b1c8b4e2d6bd85bf1034c445497fd3d45a2c",
+      "format": "DOC121 binary length-delimited UTF8 nullable cells, four columns ordered by NCONTRATO latin1_bin; values not persisted"
+    }
+  },
+  "verification": {
+    "structureVerified": true,
+    "notNull": true,
+    "fullUniqueIndex": true,
+    "rowsBefore": 625,
+    "rowsAfter": 625,
+    "dataFingerprintEqual": true,
+    "allFourDataColumnsPreserved": true,
+    "otherColumnDefinitionsPreserved": true
+  },
+  "remaining": {
+    "expenses": "Still blocked by the previous key-quality observation; not modified by this operation.",
+    "dedicatedAccountGrants": "Unverified; account, allowed host and DA requested separately.",
+    "fullInstallationAccepted": false,
+    "excelRuntimeOrE2EExecuted": false
+  }
+}

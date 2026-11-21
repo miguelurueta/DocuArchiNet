@@ -1,6 +1,8 @@
 # DOC-121 — SQL de instalación manual de importación Excel
 
-**Último corte de claves, 2026-11-21:** se preparó 08 para CONTRATOS, con 625 filas sin NULL/vacíos/duplicados al inspeccionar. EGRESOS de esa base queda bloqueado por 2 claves vacías y 738 grupos duplicados. [Evidencia y límites](../Validacion/doc121-preparacion-indices-20261121.md). El ALTER no fue ejecutado por el agente. Confirmar destino y precondiciones con 07, aplicar 08 manualmente solo a CONTRATOS si corresponde y comprobar con 09. El paso 05 requiere identificar cuenta, host y DA; no está verificado.
+**Estado actual de CONTRATOS, 2026-11-21: 08 APLICADO Y VERIFICADO.** El usuario autorizó después «aplica por mi». Se ejecutó un único ALTER en la base local inspeccionada: NCONTRATO NOT NULL y UNIQUE completo, conservando tipo/collation y las 625 filas con la misma huella de datos. [Autorización y resultado](../Validacion/doc121-contratos-indice-aplicado-20261121.md). No repetir 08 en esa base. Los demás scripts mantienen la política manual, salvo otra instrucción expresa.
+
+**Corte anterior de preparación de claves:** 08 se entregó sin aplicar; [evidencia histórica y límites](../Validacion/doc121-preparacion-indices-20261121.md). EGRESOS continúa bloqueado por las incidencias observadas, sin cambios por esta operación. El paso 05 requiere identificar cuenta, host y DA; sigue sin verificarse. 07/09 permiten comprobaciones SELECT, sin ejecutar otro ALTER.
 
 **Corte 2026-11-21: el usuario informó archivos aplicados.** Se verificó la estructura 01–03 mediante 8 SELECT en la base física local previamente inspeccionada: 37 comprobaciones aprobadas. Falta precisar destinos RA/DA, adecuación de índices de 04 y cuenta/concesiones de 05. [Resultado y alcance](../Validacion/doc121-verificacion-instalacion-20261121.md). El agente no ejecutó DDL ni DML; no repetir los pasos compatibles ya instalados.
 
@@ -18,7 +20,7 @@ RA es la autoridad de usuario/empresa/permisos. DA contiene plantillas, ejecucio
 | 05 | [Concesiones](05-concesiones-da-doc121.sql) | DBA, cuenta ya provisionada fuera de Git y destino DA/host confirmados. | Plantilla comentada; completar copia administrativa local antes de ejecutar GRANT. |
 | 06 | [Verificación posterior](06-verificacion-doc121.sql) | Después de aplicar y confirmar 01–03 y los específicos pertinentes. | Solo SELECT: contrastar las definiciones esperadas con el resultado real. |
 | 07 | [Preflight de claves específicas](07-preflight-claves-doc121.sql) | DA real de las fuentes; consulta de catálogo en RA si es distinta. | Solo SELECT: atributos, índices y conteos actuales; no limpia datos. |
-| 08 | [Índice de CONTRATOS](08-indice-contratos-ncontrato-doc121.sql) | Tras 07, confirmar NCONTRATO único global, atributos compatibles y cero incidencias. | ALTER manual de CONTRATOS: NOT NULL y UNIQUE completo; no modifica EGRESOS. |
+| 08 | [Índice de CONTRATOS](08-indice-contratos-ncontrato-doc121.sql) | Aplicado por el agente por autorización expresa posterior; no repetir en la base inspeccionada. | NOT NULL y UNIQUE completo verificados; 625 filas preservadas. No modifica EGRESOS. |
 | 09 | [Verificación de claves](09-verificacion-claves-doc121.sql) | Después de confirmar la aplicación manual del ALTER pertinente. | Solo SELECT: nulabilidad/atributos, índice completo y conteo de CONTRATOS. |
 
 00, 06, 07 y 09 contienen únicamente SELECT; no aplican DDL/DML o ejecución dinámica. No consultan valores de imp01_xmlconexion. Los metadatos de columnas de esa tabla no revelan las credenciales almacenadas en sus filas.

@@ -4,6 +4,8 @@
 
 ## Fuente y alcance
 
+Actualización operativa 2026-11-21: después de entregar el índice de CONTRATOS, el usuario autorizó «aplica por mi». La excepción permite únicamente aplicar y comprobar 08 en la base local inspeccionada. La regla manual anterior sigue vigente para los demás scripts y no concede limpieza de datos o privilegios. El resultado está en `Doc/Actualizacion/Importacion/Validacion/doc121-contratos-indice-aplicado-20261121.md`/JSON.
+
 Cambio `doc-121-importacion-excel-01-esquema-contratos-configuracion`, perfil `legacy-webforms-vb`. El usuario eligió implementar los prompts actuales y solicitó continuar la fase 01. Reiteró expresamente que ejecutará los archivos SQL. La aprobación refleja ese alcance y la revisión técnica; no acredita instalación ni aceptación de recorridos futuros.
 
 ## Contexto inspeccionado

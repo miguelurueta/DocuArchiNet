@@ -1,5 +1,8 @@
--- DOC-121 | SOLO imp_02_contratos.NCONTRATO | EJECUCION MANUAL DEL USUARIO
--- NO EJECUTADO POR EL AGENTE. MySQL 5.1, InnoDB.
+-- DOC-121 | SOLO imp_02_contratos.NCONTRATO | MySQL 5.1, InnoDB.
+-- APLICADO Y VERIFICADO 2026-11-21 por el agente tras la instruccion
+-- expresa del usuario: "aplica por mi". No repetir en esa base.
+-- Se conserva el ALTER entregado; el estado anterior era ejecucion manual.
+-- Evidencia: ../Validacion/doc121-contratos-indice-aplicado-20261121.md
 -- Aplicar UNA VEZ, despues de revisar 07 en la DA correcta.
 -- Base inspeccionada el 2026-11-21: 625 filas, cero NULL/vacios/duplicados.
 -- Esa lectura no garantiza que los datos no cambien despues.
