@@ -1,0 +1,219 @@
+{
+  "issueKey": "DOC-121",
+  "recordedUtc": "2026-11-21T20:40:23.901Z",
+  "reviewedDelivery": "9b35b0fd14ee3b037b4e57ec6b7c292c58e7eb5e",
+  "currentHead": "9b35b0fd14ee3b037b4e57ec6b7c292c58e7eb5e",
+  "userConfirmation": {
+    "statement": "achivos aplicados",
+    "scope": "General execution confirmation; exact scripts, dedicated-account grant and environment still requested separately."
+  },
+  "status": "PASS_SCHEMA_01_03_PARTIAL_INSTALLATION_VERIFICATION",
+  "environment": {
+    "label": "Previously inspected local DOC-120 physical database",
+    "matchesHistorical": true,
+    "fingerprint": "24cce9f4ae03e1b92b7f0cba1e89f395e9b4434f4c108f5ee571ae9515387b91",
+    "authenticatedRaDaMappingVerified": false
+  },
+  "readOnly": {
+    "select": 8,
+    "ddl": 0,
+    "dml": 0,
+    "http": 0,
+    "credentialsPersisted": false,
+    "rawMetadataSha256": "47ef0ef1f032a8411f8eb5f826f1b7af7b13bc4b176ec9ea704759c4088d6db2"
+  },
+  "schema": {
+    "checks": [
+      {
+        "name": "mysql51_environment",
+        "status": "PASS"
+      },
+      {
+        "name": "innodb_available",
+        "status": "PASS"
+      },
+      {
+        "name": "01_permission",
+        "status": "PASS"
+      },
+      {
+        "name": "02_key_column",
+        "status": "PASS"
+      },
+      {
+        "name": "02_revision_column",
+        "status": "PASS"
+      },
+      {
+        "name": "02_legacy_order",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column_count",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:id_carga",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:id_plantilla",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:ambito_ref",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:usuario_ref",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:conexion_ref",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:tabla_destino",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:archivo_nombre",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:archivo_ref",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:archivo_bytes",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:archivo_hash",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:modo",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:revision_plantilla",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:configuracion_doc",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:configuracion_hash",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:esquema_hash",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:estado",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:filas_previstas",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:filas_confirmadas",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:codigo_incidencia",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:creado_utc",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:actualizado_utc",
+        "status": "PASS"
+      },
+      {
+        "name": "03_column:confirmado_utc",
+        "status": "PASS"
+      },
+      {
+        "name": "03_engine",
+        "status": "PASS"
+      },
+      {
+        "name": "03_index:PRIMARY",
+        "status": "PASS"
+      },
+      {
+        "name": "03_index:ix_carga_propietario_fecha",
+        "status": "PASS"
+      },
+      {
+        "name": "03_index:ix_carga_plantilla_fecha",
+        "status": "PASS"
+      },
+      {
+        "name": "03_index:ix_carga_destino_estado",
+        "status": "PASS"
+      },
+      {
+        "name": "03_no_foreign_keys",
+        "status": "PASS"
+      },
+      {
+        "name": "03_no_triggers",
+        "status": "PASS"
+      },
+      {
+        "name": "legacy_foreign_keys_present",
+        "status": "PASS"
+      }
+    ],
+    "passed": 37,
+    "failed": 0,
+    "scripts01to03": "VERIFICADO_SELECT_IN_INSPECTED_PHYSICAL_DATABASE"
+  },
+  "sourceKeys": [
+    {
+      "table": "imp_02_egresos",
+      "key": "CONSECUTIVO",
+      "type": "varchar(250)",
+      "nullable": "YES",
+      "fullUniqueIndex": false,
+      "status": "KEY_ADEQUACY_NOT_ESTABLISHED_IN_INSPECTED_DATABASE"
+    },
+    {
+      "table": "imp_02_contratos",
+      "key": "NCONTRATO",
+      "type": "varchar(250)",
+      "nullable": "YES",
+      "fullUniqueIndex": false,
+      "status": "KEY_ADEQUACY_NOT_ESTABLISHED_IN_INSPECTED_DATABASE"
+    }
+  ],
+  "dedicatedAccountGrants": "NOT_INSPECTED_ACCOUNT_NOT_IDENTIFIED",
+  "beneficiaryInInspectedDatabase": {
+    "type": "varchar(250)",
+    "meaning": "Observation of this physical database only; does not prove regression of the different source/profile expansion previously reported by user."
+  },
+  "installation": "EJECUCION_MANUAL_INFORMADA_BASE_01_03_VERIFICADA_ALCANCE_RESTANTE_POR_CONFIRMAR",
+  "scriptSha256Lf": {
+    "00-preflight-doc121.sql": "47725fee1d207550c1bcd0613137a1a37025da2bbd7fea59bbd75a30ee5ea10b",
+    "01-permiso-carga-ra-doc121.sql": "036f213460c3acbcf2c272a9db1285a350c2caf1b4ad807f6ed482476ff8d069",
+    "02-plantilla-da-doc121.sql": "7b264326c42ab322c0843f0f5012c859b3385738df4b347e1832755318b081b4",
+    "03-ejecucion-da-doc121.sql": "23831428f6767f7ea60690da7ba2ccda27fcc768d19fca0d30d7297e309fe53b",
+    "04-adecuacion-clave-doc121.sql": "f0e72a8b0d8ba62d2cb1b5d770ee7f595d64a70046829b96ac5f8258dde49ffb",
+    "05-concesiones-da-doc121.sql": "cb0fcd28e06e0c743151c0ec39c8a364503aa26bb6434a3551d6790506a36231",
+    "06-verificacion-doc121.sql": "0434e02f101e913d73eed5bf68542ef5229389824880b96fe4a3c70dea0840e2"
+  },
+  "pending": [
+    "Confirm actual applied scripts and RA/DA targets with user.",
+    "Inspect specific source-key ALTERs in the actual authorized DA if different.",
+    "Identify dedicated account before checking grants without revealing credentials.",
+    "No application permission/session, imports, rollback or runtime Excel acceptance certified."
+  ]
+}

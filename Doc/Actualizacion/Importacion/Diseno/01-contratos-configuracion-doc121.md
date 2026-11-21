@@ -20,7 +20,7 @@ Cabecera histórica, en su orden observado: ID_PLANTILLAIMP, IMP01_XMLCONEXION_I
 
 Mapeos históricos: ID_CAMPOS_PLANTILLA, IMP01_PLANTILLAIMP_ID_PLANTILLAIMP, CAMPO_FUENTE, CAMPO_DESTINO, TIPO_CAMPO, REMPLAZA_COMA, REMPLAZA_PUNTO, OPCION_SPLITER, CARACTER_SPLITER, NUMERO_MATRIZ_EXPLITER. Las transformaciones y su numeración se conservan como metadatos; su lectura exacta se acredita en fase 03.
 
-Antecedente físico del 11/11: MySQL 5.1.37, tres catálogos y dos tablas ejemplo InnoDB/latin1_swedish_ci, sin triggers en ese conjunto. No es una lectura actual. El usuario informó una ampliación posterior de BENEFICIARIO y del perfil; ningún SQL de esta entrega restablece su longitud anterior. El preflight decide compatibilidad presente. No se consultó el servidor durante DOC-121.
+Antecedente físico del 11/11: MySQL 5.1.37, tres catálogos y dos tablas ejemplo InnoDB/latin1_swedish_ci, sin triggers en ese conjunto. No es una lectura actual. El usuario informó una ampliación posterior de BENEFICIARIO y del perfil; ningún SQL de esta entrega restablece su longitud anterior. En el corte contractual del 20/11 no se consultó el servidor. El [corte de verificación del 21/11](../Validacion/doc121-verificacion-instalacion-20261121.md) acredita por separado la estructura base instalada en una base física local y conserva las limitaciones de correspondencia RA/DA.
 
 ## Paquete de instalación — D-02/RQ-02
 

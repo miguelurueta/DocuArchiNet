@@ -5,6 +5,8 @@
 - Clasificacion: cross_cutting (Transversal)
 ## Evidencia requerida
 
+Corte de instalación 2026-11-21: el usuario informa «achivos aplicados». `Doc/Actualizacion/Importacion/Validacion/doc121-verificacion-instalacion-20261121.md`/JSON registra 8 SELECT y 37 comprobaciones aprobadas del esquema 01–03 en la base física local de referencia, sin DDL/DML/HTTP. Índices de fuente todavía no acreditados en esa base y cuenta dedicada sin identificar. La correspondencia autenticada RA/DA y el alcance exacto aplicado siguen por precisar; no se transforma la comprobación parcial en aceptación completa. Los párrafos siguientes conservan el corte contractual del 20/11.
+
 Evidencia local de fase 01 en Doc/Actualizacion/Importacion/Validacion/doc121-revision-fase01-20261120.md/JSON. Auditor reproducible de SQL y contratos; OpenSpec estricto y refinement. Suites existentes de gobierno: npm.cmd --prefix tools/opsxj test -- scripts/lib/refinementService.test.js scripts/lib/legacyGovernanceService.test.js, 19/19 aprobadas. Son pruebas del tooling reutilizado, no del escritor Excel aún inexistente.
 
 La revisión manual técnica comprende correspondencia de scripts con destinos RA/DA, tipos MySQL 5.1, claves, nulabilidad inicial y contrato de recuperación. Se vincula la evidencia al SHA comprometido en registros locales OPSXJ. La instalación sigue PENDIENTE_EJECUCION_MANUAL; no se ejecutó SQL ni se consultaron datos reales.

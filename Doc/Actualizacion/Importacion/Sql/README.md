@@ -1,6 +1,8 @@
 # DOC-121 — SQL de instalación manual de importación Excel
 
-**Estado: PENDIENTE_EJECUCION_MANUAL. Ningún archivo de este paquete fue ejecutado por el agente.** Entrega de fase 01, sin endpoints, carga de datos o permisos habilitados. [Contrato y configuración](../Diseno/01-contratos-configuracion-doc121.md).
+**Corte 2026-11-21: el usuario informó archivos aplicados.** Se verificó la estructura 01–03 mediante 8 SELECT en la base física local previamente inspeccionada: 37 comprobaciones aprobadas. Falta precisar destinos RA/DA, adecuación de índices de 04 y cuenta/concesiones de 05. [Resultado y alcance](../Validacion/doc121-verificacion-instalacion-20261121.md). El agente no ejecutó DDL ni DML; no repetir los pasos compatibles ya instalados.
+
+La entrega inicial del 20 de noviembre estaba en PENDIENTE_EJECUCION_MANUAL; ese estado se conserva en su evidencia histórica. Esta fase no agrega endpoints ni acredita cargas o permisos funcionales de cuentas. [Contrato y configuración](../Diseno/01-contratos-configuracion-doc121.md).
 
 RA es la autoridad de usuario/empresa/permisos. DA contiene plantillas, ejecuciones y tablas de datos. El operador selecciona la conexión y base correctas; que una instalación histórica use el mismo esquema físico no permite asumir que siempre coincidan. Conservar respaldo y resultados saneados conforme al procedimiento del ambiente.
 
