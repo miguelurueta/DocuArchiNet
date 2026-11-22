@@ -22,8 +22,8 @@ No se implementó lector, restauraron paquetes, compilaron cambios de producto n
 
 ## Artefactos
 
-- [Refinamiento](../../../../openspec/changes/doc-123-importacion-excel-03-lectura-validacion-xls-xlsx/refinement.md)
-- [Diseño](../../../../openspec/changes/doc-123-importacion-excel-03-lectura-validacion-xls-xlsx/design.md)
-- [Tareas](../../../../openspec/changes/doc-123-importacion-excel-03-lectura-validacion-xls-xlsx/tasks.md)
+- [Refinamiento](../../../../openspec/changes/archive/2026-11-22-doc-123-importacion-excel-03-lectura-validacion-xls-xlsx/refinement.md)
+- [Diseño](../../../../openspec/changes/archive/2026-11-22-doc-123-importacion-excel-03-lectura-validacion-xls-xlsx/design.md)
+- [Tareas](../../../../openspec/changes/archive/2026-11-22-doc-123-importacion-excel-03-lectura-validacion-xls-xlsx/tasks.md)
 
 El contexto Jira original se conserva en specs/importacion-excel-03-lectura-validacion-xls-xlsx/jira-context.md dentro del cambio; la planificación vigente identifica explícitamente las decisiones posteriores de DOC122 que sustituyen la cuenta dedicada inicial.

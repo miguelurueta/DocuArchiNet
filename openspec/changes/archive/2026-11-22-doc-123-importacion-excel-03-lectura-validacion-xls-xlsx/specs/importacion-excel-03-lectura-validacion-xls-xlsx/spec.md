@@ -1,4 +1,8 @@
 <!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12 -->
+## Purpose
+
+Leer y validar libros XLS/XLSX con los mapeos autorizados de importación Excel, conservando contenido y coordenadas físicas y entregando filas tipadas o incidencias precisas antes de preparar una carga. Esta capacidad interna no recibe archivos desde la web ni escribe datos de negocio.
+
 ## ADDED Requirements
 
 ### Requirement: RQ-01 Contrato de lector sin efectos externos
