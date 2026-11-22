@@ -1,0 +1,32 @@
+{
+  "description": "Vector DOC121 snapshot v1: UTF8 sin BOM, escape ASCII minúsculo, NULL explícito y claves ordinales.",
+  "plantilla": {
+    "ID_PLANTILLAIMP": 5,
+    "IMP01_XMLCONEXION_ID_XMLCONEXION": 7,
+    "NOMBRE_PLANTILLA": "imp_02_vector",
+    "CONEXION_FUENTE": "12.0 xlsx",
+    "LIBRO_EXCEL": "Hoja \"ñ\"\n€",
+    "RUTA_ARCHIVO_FUENTE": "Z:\\legado\\original.xlsx",
+    "ELIMINA_TABLA": 0,
+    "ELIMINA_INSERTA_RECORD": 0,
+    "INSERTA_RECORD": 1,
+    "ESTADO_PLANTILLA": 1,
+    "CAMPO_UNICO": "CLAVE",
+    "REVISION_CARGA": 9,
+    "Campos": [
+      {
+        "ID_CAMPOS_PLANTILLA": 10,
+        "CAMPO_FUENTE": "Código",
+        "CAMPO_DESTINO": "CLAVE",
+        "TIPO_CAMPO": "VARCHAR",
+        "REMPLAZA_COMA": 0,
+        "REMPLAZA_PUNTO": null,
+        "OPCION_SPLITER": null,
+        "CARACTER_SPLITER": null,
+        "NUMERO_MATRIZ_EXPLITER": null
+      }
+    ]
+  },
+  "canonicalJson": "{\"CAMPO_UNICO\":\"CLAVE\",\"CONEXION_FUENTE\":\"12.0 xlsx\",\"ELIMINA_INSERTA_RECORD\":0,\"ELIMINA_TABLA\":0,\"ESTADO_PLANTILLA\":1,\"ID_PLANTILLAIMP\":5,\"IMP01_XMLCONEXION_ID_XMLCONEXION\":7,\"INSERTA_RECORD\":1,\"LIBRO_EXCEL\":\"Hoja \\\"\\u00f1\\\"\\n\\u20ac\",\"NOMBRE_PLANTILLA\":\"imp_02_vector\",\"REVISION_CARGA\":9,\"RUTA_ARCHIVO_FUENTE\":\"Z:\\\\legado\\\\original.xlsx\",\"campos\":[{\"CAMPO_DESTINO\":\"CLAVE\",\"CAMPO_FUENTE\":\"C\\u00f3digo\",\"CARACTER_SPLITER\":null,\"ID_CAMPOS_PLANTILLA\":10,\"IMP01_PLANTILLAIMP_ID_PLANTILLAIMP\":5,\"NUMERO_MATRIZ_EXPLITER\":null,\"OPCION_SPLITER\":null,\"REMPLAZA_COMA\":0,\"REMPLAZA_PUNTO\":null,\"TIPO_CAMPO\":\"VARCHAR\"}],\"versionSnapshot\":1}",
+  "sha256": "edcf104e7f51744dd7481016621a13a1f194403ec47dae13db3f1e2b9756e59a"
+}

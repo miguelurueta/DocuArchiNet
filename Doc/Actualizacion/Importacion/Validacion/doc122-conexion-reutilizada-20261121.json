@@ -1,0 +1,79 @@
+{
+  "issue": "DOC-122",
+  "state": "PASS_LOCAL_REAL_PENDING",
+  "recordedAtUtc": "2026-11-21T23:51:33.227Z",
+  "baseHead": "f42388732d1665825e4a7d295c5ba7469b68b220",
+  "branch": "feature/DOC-122",
+  "decision": "Use module DA connection through existing session resolver; remove separate mandatory account and connectionStrings binding.",
+  "results": {
+    "build": "PASS",
+    "nativeChecks": 246,
+    "doc110Doc120Regression": "PASS",
+    "runnerReuseTests": 6,
+    "e2eDiscovered": 2,
+    "e2eReal": "NOT_RUN",
+    "strictOpenSpec": "PASS",
+    "refinement": "15/15",
+    "liveDllAndWebConfigUnchanged": true,
+    "taskProgress": "13/14"
+  },
+  "effects": {
+    "realHttp": 0,
+    "realSql": 0,
+    "authenticatedSessions": 0,
+    "ddl": 0,
+    "dml": 0,
+    "grants": 0,
+    "deployment": false,
+    "egresosModified": false,
+    "excelModified": false
+  },
+  "buildAssemblySha256": "79da3a8841e22d8c5835b2495ceb0179946c67b204effcf326c2d8030c722779",
+  "inputs": [
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelConexionAdapter.vb",
+      "sha256Utf8Lf": "76804b2e9f95d7a30e1569fdfea61271ae042a82ea21cd13f3e14f3706e8f75e"
+    },
+    {
+      "path": "Infrastructure/Shared/Data/ModuleSessionConnectionStringResolver.vb",
+      "sha256Utf8Lf": "97554ace9ea8a356e8cc5fcd24245a2182ca10f88442fd395be8014f971acad2"
+    },
+    {
+      "path": "Defaul/GestorModuleSesion.vb",
+      "sha256Utf8Lf": "5decd8c16fe47d35beebe851cd9bb7d5ea0677fffcf5c69f5b35320949fccf33"
+    },
+    {
+      "path": "Defaul/conect.vb",
+      "sha256Utf8Lf": "f66cf7e5ce91329c4d8d42741439d02d0033f69a564e547b06251d8cf169f2f8"
+    },
+    {
+      "path": "tests/ImportacionExcelBehaviorTests.cs",
+      "sha256Utf8Lf": "cea6c18fd1b3397ed8bfac6f8c8647925b5d557d903406c0a3f520a7631374b7"
+    },
+    {
+      "path": "tests/doc122-importacion-excel-behavior.test.cjs",
+      "sha256Utf8Lf": "ae3a8db39649a2038ae7219ef2b76befebf65ad23f789d70afe4f59b331bf2e0"
+    },
+    {
+      "path": "tests/doc122-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "6614037da85e4c1b0219f3ed8f6ce9b7f40922287c3bf430e75b6dddc2b74ef5"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256Utf8Lf": "62996f2b8c7ade24f51649b9743e832c55fb590eeaa67ff141da2e5118f38ea2"
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "48376a822fd098e51091c98d3afa1045fd30826641be3289cb0bfef40342140c"
+    },
+    {
+      "path": "GestionDocumental-Docuarchi.net.vbproj",
+      "sha256Utf8Lf": "166bd894c34cc02dd4b1edef10c6bff95f5f5b8de8d0685bd8ba8ce5c245a1d0"
+    }
+  ],
+  "limits": [
+    "ADO.NET and HttpContext fixtures only, no actual MySQL or IIS endpoint.",
+    "Shared module account privileges and live routing remain unverified.",
+    "Phase02 manages templates, not reading/importing the user Excel file."
+  ]
+}

@@ -51,6 +51,11 @@ Las demás tablas requieren su propio archivo específico. Las tablas nuevas del
 
 ## Cuenta y permisos
 
+Revisión DOC122 solicitada por el usuario: el importador usa la cuenta DA del módulo mediante el resolver compartido. No exige otra cuenta ni otra conexión en Web.config. SQL05 permanece como antecedente de la propuesta inicial; no aplicarlo automáticamente sobre la cuenta compartida. Los SELECT de10 pueden revisar la cuenta efectiva del módulo, aunque su comentario histórico menciona una cuenta dedicada. No se modifican los scripts ya entregados.
+
+
+DOC-122 añade 10-verificacion-doc122.sql, exclusivamente SELECT. Ejecutar sus bloques RA/DA en la conexión indicada y revisar metadatos de los catálogos y privilegios observables de la cuenta efectiva del módulo. La fase02 no introduce DDL nuevo: conserva los scripts DOC121. El archivo10 está ENTREGADO; no constituye una comprobación real de la cuenta ni habilita permisos.
+
 El DBA completa una copia local de 05 con nombres de ambiente, conserva el secreto fuera de Git y ejecuta la concesión manualmente. Sin host comodín, privilegios globales, DROP o GRANT OPTION. La concesión DA abarca sus tablas actuales y futuras: el filtro imp_02_ lo aplica el servidor y no es aislamiento de privilegios MySQL por prefijo.
 
 La visibilidad de information_schema.SCHEMA_PRIVILEGES depende de la cuenta consultante; ausencia de filas no demuestra ausencia de concesiones de otra cuenta. Registrar lo observable y obtener confirmación administrativa de la cuenta dedicada sin imprimir credenciales. El permiso funcional de usuarios permanece 0; su habilitación requiere gestión autorizada posterior.

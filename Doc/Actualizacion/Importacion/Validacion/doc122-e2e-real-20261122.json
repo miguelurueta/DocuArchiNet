@@ -1,0 +1,132 @@
+{
+  "issue": "DOC-122",
+  "status": "PASS_REAL_DOC122",
+  "runId": "d12247c39c751a5c04cac2af84c002a6",
+  "recordedAtUtc": "2026-11-22T16:40:15.130Z",
+  "startedAtUtc": "2026-11-22T16:33:19.909Z",
+  "finishedAtUtc": "2026-11-22T16:36:52.380Z",
+  "testedBaseHead": "c88d8a3766659fc58bf8a2134822822f39836166",
+  "branch": "feature/DOC-122",
+  "results": {
+    "realTestsPassed": 2,
+    "realTestsSkipped": 0,
+    "realTestsRetried": 0,
+    "tests": [
+      {
+        "mode": "read",
+        "exitCode": 0,
+        "passed": 1,
+        "skipped": 0
+      },
+      {
+        "mode": "write",
+        "exitCode": 0,
+        "passed": 1,
+        "skipped": 0
+      }
+    ],
+    "externalSelectControls": 23,
+    "serviceAttempts": 14,
+    "guardedSaveAttempts": 4,
+    "successfulSaves": 3,
+    "revisionConflicts": 1,
+    "foreignConfigurationAndBusinessFingerprintsEqual": true,
+    "credentialsCleared": true
+  },
+  "deployment": {
+    "status": "DEPLOYED_HEALTHY",
+    "wsdlStatus": 200,
+    "deployedAssemblySha256": "79da3a8841e22d8c5835b2495ceb0179946c67b204effcf326c2d8030c722779",
+    "previousAssemblySha256": "b0b5d0d329f62124aa45ea49248746b90ad40c824a8a0a6adf73291d5d39dc4f",
+    "atomicReplacement": true,
+    "webConfigUnchanged": true,
+    "backupRetainedLocally": true
+  },
+  "effects": {
+    "inactiveTemplateCreated": 1,
+    "mappingRowsCreated": 2,
+    "successfulUpdates": 2,
+    "finalRevision": 3,
+    "destinationTableCreated": false,
+    "businessRowsImported": 0,
+    "excelImported": false,
+    "sqlInstallation": 0,
+    "ddl": 0,
+    "sqlDmlByTests": 0,
+    "grants": 0,
+    "cleanup": false,
+    "egresosFingerprintPreserved": true,
+    "contratosFingerprintPreserved": true,
+    "otherTemplatesAndMappingsPreserved": true
+  },
+  "fixtureReferenceHash": "c651b3a679c619adbc8d55d6755dfac38c55cc32432da182d6f39110721ffcd4",
+  "checkpoints": [
+    {
+      "revision": 1,
+      "fieldsHash": "db31541fe148ce8b7a0de70a0ff586cc03d75402139d2771f97c85dfffed1f80",
+      "pathHash": "32ba19df5f276b520e17e55e4fea8c0cd5edc2a8bdd85d71782550cf3409842d"
+    },
+    {
+      "revision": 1,
+      "fieldsHash": "db31541fe148ce8b7a0de70a0ff586cc03d75402139d2771f97c85dfffed1f80",
+      "pathHash": "32ba19df5f276b520e17e55e4fea8c0cd5edc2a8bdd85d71782550cf3409842d"
+    },
+    {
+      "revision": 3,
+      "fieldsHash": "db31541fe148ce8b7a0de70a0ff586cc03d75402139d2771f97c85dfffed1f80",
+      "pathHash": "32ba19df5f276b520e17e55e4fea8c0cd5edc2a8bdd85d71782550cf3409842d"
+    }
+  ],
+  "protectedFingerprintsBefore": {
+    "headers": "9bd6a5fda9f009c11aa6f486fa73b03df83e696ad6ab4041b712ed2c18e9f76e",
+    "fields": "dca597000f4115bc5197ceda083abeae30eb3590d6e6b54aee6d310fc12cd2ba",
+    "imp_02_egresos": "48bc95a1213db424acaeb6a8c20cc4605d9560d605ee74a1f1a0dbdede241128",
+    "imp_02_contratos": "c48b63b06d966edfa49522c39c91e3ca22e805ab1bd707c1f2f60f70961b50dc"
+  },
+  "sources": [
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "7743f5940ef645fc768e812193b0783ad3885a5abccd1edbed2f7bb724abb862"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256Utf8Lf": "62996f2b8c7ade24f51649b9743e832c55fb590eeaa67ff141da2e5118f38ea2"
+    },
+    {
+      "path": "tools/e2e/scripts/support/interactive-e2e-console.cjs",
+      "sha256Utf8Lf": "9101fb300d92d7c2d14069ed7ec9f907bb74aa1225e191f5676b5e6b022cdf10"
+    },
+    {
+      "path": "tools/e2e/tests/support/authenticated-workflow-session.cjs",
+      "sha256Utf8Lf": "e26634bbbd13aad52de7f207874ae42042fb486cdf590fae298d11f654e55b64"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc110-safe-request.cjs",
+      "sha256Utf8Lf": "c01b90b77c8e3b8cf89d2e9aeaf186e7fc01199f398d2dae5f4f169328248eca"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc32-e2e-odbc.cjs",
+      "sha256Utf8Lf": "4e103b5a42dc1d74dc192405958818136195b2c895d57f9d6d23b61e938afde5"
+    },
+    {
+      "path": "tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1",
+      "sha256Utf8Lf": "30eea8c560fa6a707346da7e4310aed3214ee468041fede6a4d2214c34e37e67"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelConexionAdapter.vb",
+      "sha256Utf8Lf": "76804b2e9f95d7a30e1569fdfea61271ae042a82ea21cd13f3e14f3706e8f75e"
+    }
+  ],
+  "orchestrator": {
+    "localExcludedPath": ".tmp/doc122-launch.cjs",
+    "sha256": "8aec30bd320c2053baea6f6472fe78b56cee34c5fa72be77599e2ccc38f79297",
+    "scopeFileRetainedLocally": true
+  },
+  "limits": [
+    "Uses the existing profile runner, login helper, guarded ASMX client and SELECT-only ODBC helper.",
+    "Inactive fixture was created through the guarded functional API, not SQL seeding. It remains inactive; its identifiers and raw execution state stay excluded from Git.",
+    "Concurrent requests share one ASP.NET session: this proves optimistic revision conflict, not two simultaneous MySQL writers.",
+    "Real test covers authorized/restricted accounts, CSRF, list/detail, save, conflict and preservation. Revocation, inactive-user and cross-company branches remain covered by the native synthetic suite.",
+    "This is phase02 template administration. It does not import the provided Excel or certify later phases."
+  ]
+}
