@@ -1,0 +1,75 @@
+{
+  "issueKey": "DOC-123",
+  "date": "2026-11-22",
+  "scope": "lector interno sintético, sin DB/HTTP real",
+  "sourceBaseSha": "0e7c9a54",
+  "sourceFingerprint": "4df96bf7f0de5d9d2b88026905753a181cbca2e97ddb730343575112b42bef74",
+  "sourceTextNormalization": "UTF8 CRLF to LF, binary unchanged",
+  "sources": {
+    "GestionDocumental-Docuarchi.net.vbproj": "5204465a926d2fc20af25acd528dcf9d74933c9bf05370544ff846aa9698e0fb",
+    "Infrastructure/ProduccionDocumental/ImportacionExcel/InspectorFidelidadExcel.vb": "dc39576bb8646475cd7a7b454eac2ab2e646286608df27de9cc7e302b0187ed5",
+    "Infrastructure/ProduccionDocumental/ImportacionExcel/LectorArchivoExcel.vb": "df4110b988d27c35b6de0a7737dbe7f56fbb150cd927ecb92551c020736b4f39",
+    "Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb": "2315ccffc41d6db35bbb71941b7fe6dd43bfd6df77d10fc366921c8d7b6ae6c8",
+    "Services/ProduccionDocumental/ImportacionExcel/ServicioLecturaExcel.vb": "fa0d6a99a17fff59931ba265814670e3d487b106c8e7229b3d37369afd605295",
+    "packages.config": "8d75ea7f8e308bff2d804ba78b352ef939660215e5cdc4a76f3dabdaa24820f9",
+    "tests/Fixtures/ProduccionDocumental/ImportacionExcel/cache-valido-mini.xls": "a16f7b3ffc46821e778ddaddf47138880e928a45242d3604928f9592cc5632f0",
+    "tests/Fixtures/ProduccionDocumental/ImportacionExcel/cache-valido.xls": "8810c0539f92b3809a9cee78738255297b110c13d3a389877a6b33f396a69af3",
+    "tests/Fixtures/ProduccionDocumental/ImportacionExcel/cache-valido.xlsx": "0446c095f68584e6eadd42294521fd8998cdc62fe1da8d641ec6616b40323156",
+    "tests/Fixtures/ProduccionDocumental/ImportacionExcel/fidelidad-mini.xls": "f56d29a6a845103b7225eeeba3c5997f4e7324a7054088610480768db681fa20",
+    "tests/Fixtures/ProduccionDocumental/ImportacionExcel/fidelidad.xls": "c4c8ca0c39d8669595f32f50254d3b3273f5feaf582a6b20e8bbb4619f9dab66",
+    "tests/Fixtures/ProduccionDocumental/ImportacionExcel/fidelidad.xlsx": "e8eae59a8eb8fb5838ed67fca936bc5aaf589bc6e1419d1af66f5fa42b886c24",
+    "tests/Fixtures/ProduccionDocumental/ImportacionExcel/generar.py": "12cd2e7e290b587c25da84c1fef705597b2d0e2dbfd355055eb6963ee366be97",
+    "tests/Fixtures/ProduccionDocumental/ImportacionExcel/sha256.json": "43fb8824d5279b183e78b14644ec1998b2b1cb7b069cf3193befd721e60d0e1c",
+    "tests/Fixtures/ProduccionDocumental/ImportacionExcel/valido-mini.xls": "dafd2c24aaf5585b43d275b9b0a2f51fa194d5764d2976492cfc49271aa74670",
+    "tests/Fixtures/ProduccionDocumental/ImportacionExcel/valido.xls": "8ac7352231d753e5c85fca24e9059327fb5b1f9ab3f6568ff5bd47a6bed60429",
+    "tests/Fixtures/ProduccionDocumental/ImportacionExcel/valido.xlsx": "82d1d9cc7806ae962b5f5ee20d4f9557cd5843d50473d21d2a326dd929454e6e",
+    "tests/ImportacionExcelBehaviorTests.cs": "2215883c3c03b7167e788dc6f3682af564b4c8edae47766d33e0d2f296adc85f",
+    "tests/ImportacionExcelLecturaTests.cs": "729312a7a086fe42851ee3c44e561291c9220741e844949cf4a3d262522b6b22",
+    "tests/doc122-importacion-excel-behavior.test.cjs": "4326ec90fcc89a1058083b1e63ae62d7eda0b0ff642e3c3a887a36939ae630d4"
+  },
+  "environment": {
+    "os": "Windows",
+    "target": ".NET Framework 4.6.1",
+    "excelDataReader": "3.6.0 net45",
+    "excelNumberFormat": "1.1.0 net20"
+  },
+  "tests": {
+    "command": "node --test tests/doc122-importacion-excel-behavior.test.cjs tests/doc122-e2e-reuse.test.cjs",
+    "pass": 7,
+    "fail": 0,
+    "skip": 0,
+    "readerChecks": 312,
+    "doc122Checks": 246,
+    "inheritedDoc110Doc120Regression": "PASS",
+    "realE2E": "NOT_APPLICABLE"
+  },
+  "build": {
+    "status": "PASS",
+    "errors": 0,
+    "legacyWarnings": 308,
+    "newReaderWarnings": 0,
+    "isolatedDllSha256": "a2b8ca71bd1406552cb8068c25f92f843df9b5d242b752f64688c2214f7cddfb",
+    "deployedDllUnchanged": true,
+    "deployedDllSha256": "79da3a8841e22d8c5835b2495ceb0179946c67b204effcf326c2d8030c722779"
+  },
+  "fixtures": {
+    "valido.xls": "8ac7352231d753e5c85fca24e9059327fb5b1f9ab3f6568ff5bd47a6bed60429",
+    "valido.xlsx": "82d1d9cc7806ae962b5f5ee20d4f9557cd5843d50473d21d2a326dd929454e6e",
+    "fidelidad.xls": "c4c8ca0c39d8669595f32f50254d3b3273f5feaf582a6b20e8bbb4619f9dab66",
+    "fidelidad.xlsx": "e8eae59a8eb8fb5838ed67fca936bc5aaf589bc6e1419d1af66f5fa42b886c24",
+    "cache-valido.xls": "8810c0539f92b3809a9cee78738255297b110c13d3a389877a6b33f396a69af3",
+    "cache-valido.xlsx": "0446c095f68584e6eadd42294521fd8998cdc62fe1da8d641ec6616b40323156",
+    "valido-mini.xls": "dafd2c24aaf5585b43d275b9b0a2f51fa194d5764d2976492cfc49271aa74670",
+    "fidelidad-mini.xls": "f56d29a6a845103b7225eeeba3c5997f4e7324a7054088610480768db681fa20",
+    "cache-valido-mini.xls": "a16f7b3ffc46821e778ddaddf47138880e928a45242d3604928f9592cc5632f0"
+  },
+  "sql": "NO_REQUERIDO",
+  "deployment": "NO_EJECUTADO",
+  "limitations": [
+    "No recalcula fórmulas ni certifica actualización de caché",
+    "No recupera dígitos perdidos en Excel",
+    "No prueba importación MySQL, unicidad por collation, pausa/reanudación ni recorrido de usuario",
+    "Fixtures XLS acreditan BIFF8/CFBv3 (FAT y miniFAT); no matriz exhaustiva de todas las versiones BIFF/CFB",
+    "No acredita rendimiento de fase07 ni cota medida de memoria total"
+  ]
+}

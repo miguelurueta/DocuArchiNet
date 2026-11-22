@@ -117,6 +117,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLDYNANSOFT\DynamicDotNetTWAIN.dll</HintPath>
     </Reference>
+    <Reference Include="ExcelDataReader">
+      <HintPath>packages\ExcelDataReader.3.6.0\lib\net45\ExcelDataReader.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="ExcelNumberFormat">
+      <HintPath>packages\ExcelNumberFormat.1.1.0\lib\net20\ExcelNumberFormat.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.Compression" />
     <Reference Include="FastExcel, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\FastExcel.3.0.13\lib\netstandard2.0\FastExcel.dll</HintPath>
     </Reference>
@@ -8711,6 +8720,9 @@
     <Compile Include="Modelo\ProduccionDocumental\ImportacionExcel\ImportacionExcelModelos.vb" />
     <Compile Include="DTOs\ProduccionDocumental\ImportacionExcel\ImportacionExcelDtos.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionExcel\ServicioPlantillasExcel.vb" />
+    <Compile Include="Services\ProduccionDocumental\ImportacionExcel\ServicioLecturaExcel.vb" />
+    <Compile Include="Infrastructure\ProduccionDocumental\ImportacionExcel\LectorArchivoExcel.vb" />
+    <Compile Include="Infrastructure\ProduccionDocumental\ImportacionExcel\InspectorFidelidadExcel.vb" />
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionExcel\MySqlPlantillaExcelRepository.vb" />
     <Compile Include="Infrastructure\ProduccionDocumental\ImportacionExcel\ImportacionExcelContextAdapter.vb" />
     <Compile Include="Infrastructure\ProduccionDocumental\ImportacionExcel\ImportacionExcelConexionAdapter.vb" />

@@ -87,3 +87,76 @@ Public Interface IPlantillaExcelRepository
     Function Destino(tabla As String) As DestinoPlantillaExcel
     Function Guardar(plantilla As PlantillaExcel, revisionEsperada As UInteger, huellaEsperada As String) As PlantillaExcel
 End Interface
+
+'Contratos internos del lector. No transportan rutas, SQL ni autoridad de sesión.
+Public Class LimitesLecturaExcel
+    Public Property MaxFilasDatos As Integer = 10000
+    Public Property MaxArchivoMB As Integer = 10
+End Class
+Public Class SolicitudLecturaExcel
+    Public Property FormatoEsperado As String
+    Public Property NombreArchivo As String
+    Public Property Hoja As String
+    Public Property Plantilla As PlantillaExcel
+    Public Property Destino As DestinoPlantillaExcel
+    Public Property Limites As New LimitesLecturaExcel
+End Class
+Public Class EncabezadoLecturaExcel
+    Public Property Columna As Integer
+    Public Property Nombre As String
+End Class
+Public Class IncidenciaLecturaExcel
+    Public Property Codigo As String
+    Public Property Mensaje As String
+    Public Property Hoja As String
+    Public Property Fila As Nullable(Of Integer)
+    Public Property Columna As Nullable(Of Integer)
+    Public Property CampoFuente As String
+    Public Property CampoDestino As String
+End Class
+Public Class ValorNormalizadoExcel
+    Public Property Columna As Integer
+    Public Property CampoFuente As String
+    Public Property CampoDestino As String
+    'Tipo semántico; números canónicos evitan limitar DECIMAL65 al Decimal CLR.
+    Public Property Tipo As String
+    Public Property EsNulo As Boolean
+    Public Property Texto As String
+    Public Property NumeroCanonico As String
+    Public Property Fecha As Nullable(Of DateTime)
+End Class
+Public Class FilaNormalizadaExcel
+    Public Property Fila As Integer
+    Public Property Valores As New List(Of ValorNormalizadoExcel)
+End Class
+Public Class ResultadoLecturaExcel
+    Public Property Formato As String
+    Public Property Hoja As String
+    Public Property Hojas As New List(Of String)
+    Public Property Encabezados As New List(Of EncabezadoLecturaExcel)
+    Public Property Filas As New List(Of FilaNormalizadaExcel)
+    Public Property FilasDatosObservadas As Integer
+    Public Property TotalIncidencias As Long
+    Public Property Incidencias As New List(Of IncidenciaLecturaExcel)
+    Public Property LecturaCompleta As Boolean
+    Public ReadOnly Property IncidenciasTruncadas As Boolean
+        Get
+            Return TotalIncidencias > Incidencias.Count
+        End Get
+    End Property
+    Public ReadOnly Property Valido As Boolean
+        Get
+            Return LecturaCompleta AndAlso TotalIncidencias = 0 AndAlso FilasDatosObservadas > 0
+        End Get
+    End Property
+End Class
+Friend Class CeldaLibroExcel
+    Friend Property Columna As Integer
+    Friend Property Valor As Object
+    Friend Property Formato As String
+    Friend Property ErrorCodigo As String
+End Class
+Friend Class FilaLibroExcel
+    Friend Property Fila As Integer
+    Friend Property Celdas As New List(Of CeldaLibroExcel)
+End Class
