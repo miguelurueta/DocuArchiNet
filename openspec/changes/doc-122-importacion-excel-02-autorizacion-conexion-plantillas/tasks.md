@@ -14,4 +14,4 @@
 - [x] 1.11 [M] Ejecutar pruebas nativas y regresión. Área/archivos: `tests/ImportacionExcelBehaviorTests.cs`. Origen: D-07, RQ-07. Verificación: suite sintética PASS.
 - [x] 1.12 [M] Preparar E2E reutilizando autenticación. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs`. Origen: D-07, RQ-07. Verificación: descubrimiento sin autenticación y guardas explícitas.
 - [x] 1.13 [S] Documentar configuración y operación. Área/archivos: `Doc/Actualizacion/Importacion/Diseno/02-autorizacion-plantillas-doc122.md`. Origen: D-02, RQ-02. Verificación: guía sin secretos ni aplicación SQL.
-- [ ] 1.14 [M] Acreditar integración real autorizada. Área/archivos: `Doc/Actualizacion/Importacion/Validacion`. Origen: D-07, RQ-07. Verificación: enrutamiento DA del módulo y E2E de plantilla descartable verificados.
+- [x] 1.14 [M] Acreditar integración real autorizada. Área/archivos: `Doc/Actualizacion/Importacion/Validacion`. Origen: D-07, RQ-07. Verificación: enrutamiento DA del módulo y E2E de plantilla descartable verificados.

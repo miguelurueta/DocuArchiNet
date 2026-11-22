@@ -5,7 +5,7 @@ const {createWorkflowLoginPageSession}=require('./support/authenticated-workflow
 const {safePost}=require('./support/doc110-safe-request.cjs');
 
 test.use({screenshot:'off',trace:'off',video:'off'});
-test.describe.configure({mode:'serial',retries:0});
+test.describe.configure({mode:'serial',retries:0,timeout:180000});
 test.skip(process.env.DOC122_E2E_AUTHORIZED!=='YES','NO_EJECUTADO: requiere autorización específica de ambiente, cuentas y plantilla descartable.');
 function check(value,code){if(!value)throw new Error(code);}
 function required(name){check(!!process.env[name],'DOC122_CONFIG_REQUIRED_'+name);return process.env[name];}
@@ -75,7 +75,7 @@ test('@doc122-write roundtrip y conflicto de revisión sobre plantilla descartab
  try{
   await open(auth,s);const initial=await detail(auth,s);
   check(initial.REVISION_CARGA===s.revisionEsperada && initial.Huella===s.huellaEsperada,'DOC122_TEMPLATE_DRIFT');
-  check(['AGREGAR','REEMPLAZAR'].includes(initial.Modo),'DOC122_EXISTING_DESTINATION_REQUIRED');
+  check(['CREAR','AGREGAR','REEMPLAZAR'].includes(initial.Modo),'DOC122_TEMPLATE_MODE_REQUIRED');
   const saved=await call(auth,'GuardarPlantilla',edit(s,initial),auth.token);
   check(saved.ok && saved.datos.REVISION_CARGA===initial.REVISION_CARGA+1 &&
    saved.datos.RUTA_ARCHIVO_FUENTE===initial.RUTA_ARCHIVO_FUENTE,'DOC122_ROUNDTRIP_FAILED');

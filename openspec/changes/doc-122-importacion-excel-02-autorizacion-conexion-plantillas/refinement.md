@@ -38,3 +38,5 @@ El usuario solicitó iniciar DOC-122 y continuar su implementación sobre el pro
 
 ## Resultado del refinamiento
 Diseño/spec/tareas cubren D-01 a D-07 y RQ-01 a RQ-07. Sin marcadores de decisión pendientes. Enrutamiento del módulo y validación real se registran aparte; SQL manual y EGRESOS preservados.
+
+Aceptación posterior2026-11-22: E2E real2/2 PASS,23 controles exclusivamente SELECT,14 llamadas ASMX, una plantilla inactiva propia/dos mapeos, configuración y datos previos preservados.14/14 tareas. Detalle y límites en Doc/Actualizacion/Importacion/Validacion/doc122-e2e-real-20261122.md/json.

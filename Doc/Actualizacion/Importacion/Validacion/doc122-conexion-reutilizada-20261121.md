@@ -1,5 +1,7 @@
 # DOC-122 — Conexión DA reutilizada
 
+Corte local anterior a la ejecución real. La aceptación real posterior está en [doc122-e2e-real-20261122.md](doc122-e2e-real-20261122.md):2/2 recorridos aprobados y14/14 tareas. Las menciones de integración abierta que siguen describen este corte histórico.
+
 Estado **PASS_LOCAL_REAL_PENDING**. Revisión solicitada por el usuario tras preguntar por qué el importador no utilizaba los recursos de conexión existentes y ordenar continuar. Sustituye el requisito inicial de una cuenta adicional y una conexión Excel en Web.config. La evidencia anterior de configuración protegida se conserva como histórica.
 
 ## Resultado vigente

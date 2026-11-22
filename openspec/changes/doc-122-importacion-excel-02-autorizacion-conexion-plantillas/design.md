@@ -65,4 +65,4 @@ Si catálogos no son InnoDB, guardado falla cerrado; adecuación mediante SQL in
 Sin sesión DA de la empresa/módulo o sin correspondencia del ID histórico la capacidad queda cerrada. No modificar credenciales ni privilegios de gestor_modulos. Conservar SQL00–09 DOC121 y datos. Build fuera de bin. Rollback del código conserva esquema aditivo.
 
 ## Open Questions
-Sin decisión funcional pendiente. Validación del enrutamiento DA y autorización de E2E real pendientes operativos, no impiden implementar ni probar localmente.
+Sin decisión funcional pendiente. Enrutamiento DA y aceptación real acreditados en la ventana2026-11-22:2/2 casos; evidencia doc122-e2e-real-20261122.md/json. El alcance no incluye importar el Excel ni dos escritores MySQL simultáneos.
