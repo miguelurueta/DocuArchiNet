@@ -1,0 +1,74 @@
+{
+  "issueKey": "DOC-122",
+  "status": "COMPLETE",
+  "recordedAtUtc": "2026-11-22T17:08:21.087Z",
+  "archive": {
+    "path": "openspec/changes/archive/2026-11-22-doc-122-importacion-excel-02-autorizacion-conexion-plantillas",
+    "filesPreserved": 8,
+    "tasksComplete": 14,
+    "requirementsReviewed": 8,
+    "scenariosReviewed": 22,
+    "mainSpecs": [
+      {
+        "capability": "importacion-excel-01-esquema-contratos-configuracion",
+        "requirements": 8,
+        "scenarios": 25
+      },
+      {
+        "capability": "importacion-excel-02-autorizacion-conexion-plantillas",
+        "requirements": 7,
+        "scenarios": 18
+      }
+    ]
+  },
+  "pullRequest": {
+    "number": 134,
+    "url": "https://github.com/miguelurueta/DocuArchiNet/pull/134",
+    "reviewedHead": "a5d9bfdc8021a6eb283352c51ecf4b259994f9a3",
+    "mergeCommit": "00c99f6346b0cf7bcf9478e9a55a05c571bf8501",
+    "mergedAt": "2026-11-22T17:04:52Z",
+    "reviewedTree": "d7feb3c6619b5b7534a636ba4690ca61ab636dec",
+    "mergeTree": "d7feb3c6619b5b7534a636ba4690ca61ab636dec",
+    "treesEqual": true
+  },
+  "ci": {
+    "runId": 45046849225,
+    "jobId": 137283238094,
+    "headSha": "a5d9bfdc8021a6eb283352c51ecf4b259994f9a3",
+    "conclusion": "success",
+    "stepsPassed": 37,
+    "stepsTotal": 37,
+    "skipped": 0
+  },
+  "validation": {
+    "globalStrict": "93/93",
+    "governance": "72/72",
+    "nativeChecks": 246,
+    "runnerReuseTests": 6,
+    "realE2ePassed": 2,
+    "realE2eSkipped": 0,
+    "realSelectControls": 23,
+    "realServiceAttempts": 14
+  },
+  "jira": {
+    "status": "Listo",
+    "category": "done",
+    "transitionId": "41",
+    "verifiedUtc": "2026-11-22T17:07:03.214Z",
+    "commentsSent": 0
+  },
+  "deployment": {
+    "assemblySha256": "79da3a8841e22d8c5835b2495ceb0179946c67b204effcf326c2d8030c722779",
+    "webConfigUnchanged": true,
+    "extraDeploymentDuringClosure": false
+  },
+  "retainedTestData": {
+    "inactiveTemplate": 1,
+    "mappingRows": 2,
+    "destinationTables": 0,
+    "businessRowsImported": 0,
+    "foreignDataPreserved": true,
+    "privateReferencesExcludedFromGit": true
+  },
+  "scope": "Phase02 access/template administration only; Excel ingestion is deferred to subsequent phases. No new application requests or database changes during technical closure."
+}

@@ -68,3 +68,6 @@ Configuración efímera: DOC122_E2E_AUTHORIZED=YES tras autorización explícita
 
 ## Estado de validación
 Compilación aislada y suite nativa sintética vigentes en Validacion/doc122-conexion-reutilizada-20261121.md/json, con246 controles. El informe doc122-validacion-local-20261121.md/json conserva el corte histórico. La aceptación real está en Validacion/doc122-e2e-real-20261122.md/json:2/2 tests,14 llamadas de servicio,23 controles SELECT y preservación de datos previos. DOC12214/14 tareas completas. La revisión y archivo del flujo se realizan por separado.
+
+## Cierre técnico2026-11-22
+DOC122 quedó archivado, integrado mediante PR134 y confirmado Listo en Jira. CI37/37, OpenSpec93/93, gobierno72/72 y E2E real2/2. Registro vigente en ../Validacion/doc122-cierre-20261122.md/json. El merge conserva el árbol exacto revisado; el registro administrativo posterior no cambia código ni especificaciones.
