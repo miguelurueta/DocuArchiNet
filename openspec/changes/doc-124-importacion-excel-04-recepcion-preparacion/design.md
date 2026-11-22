@@ -1,148 +1,209 @@
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14 -->
 ## Context
 
-DOC-124: IMPORTACION-EXCEL-04-RECEPCION-PREPARACION
+DOC124 implementa fase04 después de autorización/plantillas DOC122 y lector DOC123. Base integrada87d155b7, rama feature/DOC-124; Web Forms/VB, net461, MySQL5.1.37 y conector actual. Este refinamiento no cambia producto, SQL o despliegue.
 
-## Jira Details
-
-> Registro del prompt 04
-> Fase 4 de 7 de la implementación de importación Excel en tablas imp_02_. Los siete tickets describen incrementos del mismo cambio funcional y se ejecutan en orden.
-> Proyecto DocuarchiNET (DOC). Sprint solicitado IMPORTAR-ARCHIVOS; nombre existente en Jira IMPOTAR-ARCHIVOS, ID 1927.
-> Dependencias de implementación DOC-122, DOC-123.
-> Origen inmutable dd1091a8d1ad70806509ee86e5fe53df3f2ea866. SHA-256 del prompt normalizado a UTF-8/LF bb1af68aa180d89fb795e78f0243cb68eeb943968186ccdf5ab425f92f4b41eb. Revisión estructural legacy-webforms-vb PASS, con 0 bloqueantes, 0 mayores y 0 menores.
-> Prompt completo en el repositorio
-> Exploración y diseño técnico consolidados
-> Informe de revisión del prompt
-> Contenido íntegro del prompt
-> Prompt 04 — Recepción y preparación de cargas
-> ROL ESPERADO
-> Desarrollador de servicios de carga de archivos, preparación de datos y validación MySQL.
-> OBJETIVO
-> Recibir el Excel, validar el archivo completo y dejar una carga identificada y preparada para confirmar.
-> DEPENDENCIAS
-> Requiere autorización y plantillas de la fase 02 y el lector comprobado en la fase 03.
-> CONTEXTO
-> Trabaja en D:/imagenesda/DocuachiNet/DocuArchiNet, ASP.NET Web Forms con VB.NET, .NET Framework 4.6.1 y MySQL 5.1.37. Lee AGENTS.md y Doc/Actualizacion/Importacion/Exploracion/carga-excel-csv-tablas-imp-02.md, especialmente su diseño técnico resuelto. Estos siete prompts son fases consecutivas del mismo cambio funcional. Reutiliza el cambio OpenSpec y los resultados de las fases anteriores.
-> El alcance aprobado comprende XLS y XLSX, los modos crear/agregar/reemplazar, permiso ADMINISTRAR_CARGAS_IMPORTACION en remit_dest_interno_perfil_produccion, cuenta dedicada sobre la DA autorizada, validación por carga e índice UNIQUE permanente. Agregar rechaza toda la carga ante claves repetidas internas o existentes; reemplazar valida la unicidad del archivo y sustituye el contenido autorizado. Los límites iniciales son 10.000 filas y 10 MB, configurables en servidor; 1 MB equivale a 1.000.000 bytes.
-> Reutiliza imp01_xmlconexion, imp01_plantillaimp, imp01_campos_plantilla y las tablas imp_02_* elegibles. El diseño añade CAMPO_UNICO y REVISION_CARGA a la cabecera y una tabla imp01_carga_ejecucion. Preserva la compatibilidad de las plantillas históricas y sus consumidores de SII e importación de carpetas.
-> PRECONDICIONES DE RUTAS
-> Inventariar los archivos exactos en design.md antes de editar. Contrastar cada ruta propuesta con el código existente y reutilizar las responsabilidades ya implementadas. Aplicar únicamente las modificaciones de la fase actual. Registrar los archivos nuevos de compilación y contenido en GestionDocumental-Docuarchi.net.vbproj según el patrón del proyecto.
-> Responsabilidad
-> Rutas previstas
-> Modelos
-> Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb
-> DTOs y contrato request/response
-> DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb
-> Servicios
-> Services/ProduccionDocumental/ImportacionExcel/ServicioPlantillasExcel.vb, ServicioLecturaExcel.vb, ServicioPreparacionExcel.vb y ServicioConfirmacionExcel.vb en esa misma carpeta
-> Repositorios
-> Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb y MySqlCargaExcelRepository.vb en esa misma carpeta
-> Adaptadores e infraestructura
-> Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelContextAdapter.vb, ImportacionExcelRequestGuard.vb, ImportacionExcelConexionAdapter.vb y LectorArchivoExcel.vb en esa misma carpeta
-> Servicio web
-> webservice/WebServiceImportacionExcel.asmx y webservice/WebServiceImportacionExcel.asmx.vb
-> Receptor de archivo
-> generic_control/ImportacionExcelUpload.ashx y generic_control/ImportacionExcelUpload.ashx.vb
-> Interfaz
-> js/gestion/ImportacionExcel/ImportacionExcelApi.js, js/gestion/ImportacionExcel/ImportacionExcelVista.js y Styles/ImportacionExcel.css
-> Integración existente
-> Gestion/WebFormProducionDocumental.aspx, Gestion/WebFormProducionDocumental.aspx.vb, Gestion/Class_remit_dest_interno_perfil_produccion.vb y js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js
-> Pruebas
-> tests/ImportacionExcelBehaviorTests.cs y tools/e2e/tests/importacion-excel.spec.cjs, ampliando los harness y utilidades existentes cuando corresponda
-> Las rutas propuestas delimitan responsabilidades. Ajustar la división de archivos a la implementación real y registrar la justificación en design.md.
-> RESTRICCIONES CRÍTICAS
-> Mantener la sesión y empresa como autoridad. El navegador envía referencias, nunca un servidor, base o cadena de conexión elegidos libremente.
-> 
-> No imprimir ni persistir credenciales, cookies, tokens o cadenas de conexión en código, documentación o evidencias. Usar secretos efímeros durante pruebas y configuración protegida para la cuenta del servidor.
-> 
-> No modificar AlmacenamientoDocumentoProduccionDocumental ni SII para resolver la carga tabular. Preservar los contratos de los consumidores existentes.
-> 
-> CSV, migración entre gabinetes, omisión de duplicados y actualización automática por coincidencia de clave están fuera de alcance.
-> 
-> El agente genera los cambios SQL en archivos e indica su ejecución manual por el usuario. No debe ejecutar SQL modificador de esquema, datos o permisos ni aplicar archivos SQL directa o indirectamente. La comprobación posterior utiliza exclusivamente SELECT después de la confirmación de ejecución manual.
-> 
-> Conservar los cambios ajenos presentes en el repositorio local y agrupar las entregas conforme al flujo del cambio.
-> 
-> FLUJO OBLIGATORIO DE SQL MANUAL
-> Generar los cambios SQL como archivos nuevos y versionables en Doc/Actualizacion/Importacion/Sql/. Cubrir instalación, tablas, columnas, índices, permisos y cualquier corrección o preparación de datos que se necesite. Conservar los scripts históricos ya aplicados y entregar las correcciones en otro archivo.
-> 
-> Entregar una guía con archivo, orden, destino RA/DA, precondiciones, efectos previstos y consultas SELECT de comprobación. Mantener las credenciales fuera del SQL entregado.
-> 
-> Indicar al usuario qué archivo debe ejecutar manualmente. El agente no debe ejecutar SQL modificador ni aplicar esos archivos, tampoco mediante scripts de arranque, tests o una ruta indirecta de la aplicación.
-> 
-> Esperar la confirmación de ejecución manual del usuario antes de verificar ese cambio en la base. Registrar PENDIENTE_EJECUCION_MANUAL mientras esa confirmación falte y continuar el trabajo local independiente.
-> 
-> Después de la confirmación, revisar el resultado mediante consultas exclusivamente SELECT y evidencia saneada. Registrar diferencias y, si hace falta otra modificación, generar un nuevo archivo para ejecución manual.
-> 
-> La ausencia de errores en un archivo o su entrega no acredita que esté aplicado. La revisión posterior debe comprobar las estructuras, índices, relaciones y permisos observables correspondientes y registrar cualquier aspecto que requiera evidencia del usuario.
-> 
-> El código del cargador implementa los modos funcionales acordados para uso del usuario. La instalación o adecuación de su base sigue esta secuencia manual y debe estar verificada antes de probar las operaciones que dependan de ella.
-> IMPLEMENTACIÓN DE ESTA FASE
-> Implementar el receptor ASHX con multipart, permiso vigente, contexto empresarial y protección de solicitud del cargador. Guardar el archivo bajo referencia privada generada por el servidor.
-> 
-> Contar los bytes del archivo y aplicar MaxArchivoMB. Asociar ID de carga, SHA-256 y nombre original descriptivo. Persistir el estado RECIBIDA en imp01_carga_ejecucion.
-> 
-> Implementar Preparar con selección de hoja, revisión de plantilla y modo. Leer todo el contenido mediante el lector de la fase 03 y construir una vista previa acotada y un resumen completo de incidencias.
-> 
-> Comprobar columnas, tipos, charset, nulabilidad y el índice único completo, respetando la autoridad de conexión y la política empresarial del destino.
-> 
-> Comparar claves con el tipo y la collation reales de MySQL mediante una tabla temporal de validación de la conexión. Señalar duplicados internos y, al agregar, coincidencias con el destino autorizado.
-> 
-> En reemplazar, aceptar coincidencias con los datos que serán sustituidos y exigir unicidad del archivo. En crear, comprobar la disponibilidad del nombre y la estructura prevista.
-> 
-> Persistir huellas del archivo, configuración y esquema, revisión de plantilla, modo y filas previstas. Pasar a PREPARADA únicamente cuando todas las validaciones resulten satisfactorias.
-> 
-> La preparación usa lectura sin mutación de los datos del destino. Sus efectos autorizados se limitan al archivo recibido, registro de ejecución y objetos temporales de validación.
-> 
-> CRITERIOS DE ACEPTACIÓN
-> La carga tiene identidad estable desde su recepción y queda asociada al usuario y ámbito autorizados.
-> 
-> Se validan los límites de archivo y filas en servidor, incluyendo los valores exactos de frontera.
-> 
-> Las incidencias distinguen duplicados internos, claves existentes, estructura inválida y tipo/codificación incompatible.
-> 
-> Los datos de destino conservan sus valores después de preparar.
-> 
-> Un cambio de archivo, plantilla o esquema invalida la preparación correspondiente y se presenta como conflicto.
-> 
-> Las pruebas focales acreditan los tres modos y los estados RECIBIDA y PREPARADA.
-> 
-> PRUEBAS OBLIGATORIAS
-> Realiza la compilación MSBuild o el build pertinente al alcance de esta fase, y pruebas unitarias o QA manual reproducible que acrediten sus criterios. Registra comandos, resultado, SHA, ambiente y límites de evidencia. Las pruebas locales o con transporte simulado se identifican como tales.
-> El E2E del recorrido ejecutable es parte integral del mismo cambio funcional. Reutilizar tools/e2e y su autenticación, configuración, validadores y utilidades existentes, sin infraestructura paralela. Antes de autenticar, leer AGENTS.md y tools/e2e/AGENT-RUNBOOK.md. La ejecución real requiere autorización explícita de ambiente, cuentas y datos descartables. Cubrir control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión del alcance modificado. Los tests no deben instalar, migrar, sembrar, limpiar o reparar la base mediante SQL automático. La instalación se ejecuta manualmente por el usuario y se revisa mediante SELECT antes de los recorridos dependientes. Las verificaciones locales usan fixtures sintéticos sin escrituras en bases reales. Las escrituras funcionales de una prueba real requieren el alcance específico autorizado de esa prueba y no sustituyen la ejecución manual de los archivos SQL.
-> Mantener secretos efímeros y evidencia saneada, con consultas de control solo SELECT. Respetar los gates de autorización vigentes. No habilitar permisos arbitrariamente. El criterio de cierre del cambio exige validación autorizada y registrar cualquier bloqueo explícito. Los mocks, simulaciones y evidencia ficticia no acreditan una ejecución real. Las fases de base técnica documentarán la justificación cuando E2E no aplique todavía a su entrega.
-> DOCUMENTACIÓN TÉCNICA
-> Ubicar y actualizar la documentación existente en Doc/Actualizacion/Importacion/. Conservar la exploración como antecedente y registrar el diseño, las decisiones y los contratos vigentes del cambio OpenSpec. Guardar el SQL revisable en Doc/Actualizacion/Importacion/Sql/, y la evidencia y matriz de verificación en Doc/Actualizacion/Importacion/Validacion/. Añadir únicamente los documentos necesarios para explicar la entrega de esta fase.
-> ENTREGABLE FINAL
-> Receptor, servicio de preparación, persistencia de ejecución, contrato de vista previa e incidencias y evidencia del control de acceso y lectura sin mutación del destino.
+Los generadores ya produjeron artefactos iniciales; se sustituyen sus marcadores con decisiones contrastadas. La referencia a cuenta dedicada del prompt original queda superada por la decisión posterior del usuario en DOC122: usar conexión/cuenta DA del módulo. No introducir otra versión de MySql.Data para probar.
 
 ## Goals / Non-Goals
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+Recibir un XLS/XLSX privado con identidad estable, validar contenido completo/metadatos/unicidad y persistir RECIBIDA/PREPARADA. Preparar no altera datos ni esquema permanente del destino. Entregar vista previa/diagnósticos para confirmación futura.
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+Confirmar, crear tabla de negocio, INSERT/DELETE destino, reemplazar, activar fuentes/proveedores, UI y ejecución por bloques con pausa/reanudación quedan fuera. No reutilizar autorizaciones E2E cerradas ni modificar EGRESOS/CONTRATOS. Las correcciones de instalación siguen siendo SQL manual.
+
+## Inventario previo y división de responsabilidades
+
+| Ruta exacta | Estado / responsabilidad |
+|---|---|
+| Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb | Existente; añadir ejecución, política, snapshot y resultado de preparación sin alterar modelos/huella previos. |
+| DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb | Existente; solicitudes de inicio/recepción/preparación/consulta, respuestas tipadas sin filas del navegador. |
+| Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb | Existente, solo JSON; añadir vía multipart con mismo propósito CSRF. |
+| Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelConexionAdapter.vb | Existente; exponer fábrica autorizada para repositorio de cargas sin devolver cadena al cliente. |
+| Infrastructure/ProduccionDocumental/ImportacionExcel/ReferenciaRecepcionExcelCodec.vb | Nuevo; referencia previa protegida con MachineKey, propósito distinto de streaming/CSRF. |
+| Infrastructure/ProduccionDocumental/ImportacionExcel/AlmacenArchivoExcel.vb | Nuevo; almacenamiento Excel privado, archivo completo/retención y copia/hash acotados. |
+| Infrastructure/ProduccionDocumental/ImportacionExcel/PoliticaDestinoCargaExcelAdapter.vb | Nuevo; consulta de aislamiento desde recursos RA existentes con autoridad propia de cargas. |
+| Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb | Nuevo; ejecuciones propias y transiciones transaccionales. Separar metadatos/temporales en archivos parciales si mejora revisión. |
+| Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb | Nuevo; metadatos/índices, comparación temporal y ciclo de conexión. No escribe datos destino. |
+| Services/ProduccionDocumental/ImportacionExcel/ServicioRecepcionExcel.vb | Nuevo; coordinar referencia, archivo y registro RECIBIDA, sin copiar coordinador documental completo. |
+| Services/ProduccionDocumental/ImportacionExcel/ServicioPreparacionExcel.vb | Nuevo; lectura DOC123, validación, snapshot y publicación PREPARADA. |
+| Services/ProduccionDocumental/ImportacionExcel/ServicioLecturaExcel.vb | Existente; reutilizar sin duplicar conversiones. |
+| Infrastructure/ProduccionDocumental/ImportacionExcel/LectorArchivoExcel.vb | Existente; añadir inspección de formato/hojas para recepción sin exigir datos válidos; preservar contrato DOC123. |
+| webservice/WebServiceImportacionExcel.asmx; webservice/WebServiceImportacionExcel.asmx.vb | Existentes; añadir IniciarRecepcionExcel, Preparar, ConsultarCargaExcel y composición. |
+| generic_control/ImportacionExcelUpload.ashx; generic_control/ImportacionExcelUpload.ashx.vb | Nuevos; receptor multipart/sesión, sobre tipado y no-cache. |
+| GestionDocumental-Docuarchi.net.vbproj | Registrar Compile/Content de cada archivo nuevo; conservar framework y referencias vigentes. |
+| generic_control/ImportacionCarpetasUpload.ashx.vb; Infrastructure/ProduccionDocumental/ImportacionCarpetas/AlmacenStagingImportacion.vb | Antecedentes reutilizados por patrón: guardas, retención, fallos. No cambiar PDF, perfiles o estados documentales para cargar Excel. |
+| Infrastructure/Documentos/Streaming/DocumentoStreamingReferencia.vb | Patrón MachineKey ya presente; no transportar rutas del cliente ni reutilizar su propósito de documento. |
+| Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlFuenteImportacionRepository.vb | Antecedente de consulta RA/política CONEXION-COLUMNA; no fingir permisos administrativos para invocarlo. |
+| tests/ImportacionExcelBehaviorTests.cs; tests/ImportacionExcelLecturaTests.cs; tests/doc122-importacion-excel-behavior.test.cjs | Existentes; mismo ejecutable/harness. Puede añadirse archivo C# de preparación al mismo ejecutable por legibilidad. |
+| tools/e2e/tests/importacion-excel.spec.cjs; tools/e2e/scripts/run-doc110-profile-session.cjs | Existentes; extensión DOC124, autenticación y consola privadas existentes. |
+| Doc/Actualizacion/Importacion/Sql/11-preflight-doc124.sql | Nuevo durante implementación: exclusivamente SELECT de instalación, índices, identidad y capacidades observables. |
+| Doc/Actualizacion/Importacion/Diseno/04-recepcion-preparacion-doc124.md; Doc/Actualizacion/Importacion/Validacion/ | Contrato vigente y evidencia, con diferencias entre local/MySQL/E2E. |
+
+La división evita ampliar el receptor de PDF con estado Excel o construir otra plataforma de pruebas. Los nuevos nombres pueden dividirse conservando responsabilidades y registro previo del ajuste. No crear ServicioConfirmacionExcel/JS/CSS en esta fase.
 
 ## Decisions
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-01 / RQ-01 — Autoridad y transporte propios
 
-## Perfil tecnologico
+Verificar en cada operación usuario activo, empresa, permiso exacto ADMINISTRAR_CARGAS_IMPORTACION=1, DA/módulo vigentes y CSRF propio. Extender guarda multipart sin debilitar POST JSON ni exigir permisos de perfiles/fuentes.
 
-- Perfil de revision: legacy-webforms-vb (v1).
-- Alcance: ASP.NET Web Forms, code-behind VB.NET/C# y JavaScript gradual.
-- Este perfil orienta la revision tecnica; no reemplaza los requisitos funcionales ni arquitectonicos del ticket.
+Evidencia inspeccionada: ImportacionExcelContextAdapter.Resolver; ImportacionExcelRequestGuard.Validar/ValidarTransporte; ImportacionCarpetasRequestGuard.LeerMultipart.
 
-## Risks / Trade-offs
+### D-02 / RQ-02 — Archivo privado e inmutable
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+Contar bytes y SHA256 durante copia acotada a archivo .part exclusivo, validar XLS/XLSX real y publicar completo sin sobrescribir. Referencias/rutas generadas por servidor bajo almacenamiento protegido; RECIBIDA exige archivo completo verificable.
 
-## Migration Plan
+Evidencia inspeccionada: AlmacenStagingImportacion.Recibir/ConservarVerificado; LectorArchivoExcel; Sql/03-ejecucion-da-doc121.sql.
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+### D-03 / RQ-03 — ID previo y recuperación del acuse
 
-## Open Questions
+Emitir ID de carga UUID y referencia protegida antes del multipart, sin insertar metadatos ficticios. Repetición explícita del mismo ID/contenido reutiliza recepción propia; conflicto de contenido o escritor activo no se reintenta automáticamente.
 
-- TBD
+Evidencia inspeccionada: DocumentoStreamingReferencia.Emitir/TryResolver (MachineKey); ServicioRecepcionImportacion.Recibir; PK imp01_carga_ejecucion.id_carga.
+
+### D-04 / RQ-04 — Destino y aislamiento de servidor
+
+Resolver DA por recursos del módulo sin otra conexión/conector. Para tabla existente exigir política empresarial explícita de servidor; CONEXION exclusiva o COLUMNA con empresa+clave. No inferir exclusividad por prefijo/nombre de columna ni autoridad desde Excel.
+
+Evidencia inspeccionada: ImportacionExcelConexionAdapter.Resolver; MySqlFuenteImportacionRepository.Cabecera/CargarPoliticaEmpresa; PoliticaFuentesProveedor; MySqlProveedorDatosIndices.ConsultarDatos.
+
+### D-05 / RQ-05 — Lectura completa y límites heredados
+
+Usar ServicioLecturaExcel con límites positivos del servidor10000 filas/10MB decimal, conservando coordenadas/tipos. Ninguna muestra o prefijo acredita validez; errores detienen publicación PREPARADA y mantienen RECIBIDA.
+
+Evidencia inspeccionada: ServicioLecturaExcel.Leer; ResultadoLecturaExcel.Valido/LecturaCompleta; ImportacionExcelConexionAdapter.Limite.
+
+### D-06 / RQ-06 — Índice único y esquema físico
+
+En destinos existentes verificar InnoDB, tipos/longitudes/charset/nulabilidad actuales y UNIQUE de clave completa, o empresa+clave completa. Rechazar índice de prefijo/no único/con columnas adicionales; CREAR solo proyecta estructura y comprueba nombre disponible.
+
+Evidencia inspeccionada: MySqlPlantillaExcelRepository.LeerDestino; ServicioPlantillasExcel.ValidarDestino/TipoCreable; DOC121 D-05 y snapshot de esquema.
+
+### D-07 / RQ-07 — Duplicados con semántica MySQL
+
+Comparar claves mediante temporales de la misma conexión con tipo, charset/collation y unsigned/precisión exactos. Distinguir duplicados internos y claves existentes al AGREGAR; REEMPLAZAR admite coincidencias del ámbito sustituido, CREAR exige unicidad interna.
+
+Evidencia inspeccionada: MySqlProveedorDatosIndices.ConsultarDatos; PerfilImportacionCatalogAdapter.ValorCompatible; manual MySQL5.1 CREATE TEMPORARY TABLE/GROUP BY.
+
+### D-08 / RQ-08 — Snapshot efectivo y detección de cambios
+
+Persistir documento efectivo canónico y hashes de archivo/configuración/esquema, revisión, hoja, modo, aislamiento y filas previstas. Mantener huella v1 de plantilla dentro del documento; relectura final de autoridad/plantilla/esquema invalida cambios observados.
+
+Evidencia inspeccionada: ServicioPlantillasExcel.Huella; DOC121 snapshot v1; imp01_carga_ejecucion.configuracion_doc/configuracion_hash/esquema_hash.
+
+### D-09 / RQ-09 — Estados y concurrencia por carga
+
+Serializar recepción/preparación del mismo ID y publicar estado con transacción InnoDB y relectura propia; sin transacción abierta durante copia/parseo. RECIBIDA→PREPARADA solo tras validar. Fallo conocido no sobrescribe ganador y acuse incierto exige consultar.
+
+Evidencia inspeccionada: ServicioRecepcionImportacion.Recibir; imp01_carga_ejecucion PK/estado; patrones FOR UPDATE de MySqlPlantillaExcelRepository.Guardar.
+
+### D-10 / RQ-10 — Vista previa y consulta acotadas
+
+Preparar devuelve hasta25 filas/25 incidencias con totales observados y truncamiento. ConsultarCargaExcel es lectura propia, nunca prepara/confirma. No devolver rutas, SQL, secretos o recursos ajenos; ninguna tabla destino se modifica.
+
+Evidencia inspeccionada: DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb; WebServiceImportacionExcel.Ejecutar; DOC121 contrato request/response.
+
+### D-11 / RQ-11 — Temporales, pool y recursos recuperables
+
+Liberar temporales y lock y restaurar sql_mode de sesión en Finally; si limpieza no se acredita, descartar conexión del pool. No modificar modo global, cuenta o versión MySql.Data; un lock vencido por tiempo no autoriza tomar un escritor.
+
+Evidencia inspeccionada: ImportacionExcelConexionAdapter.ConexionVigente; AlmacenStagingImportacion; manual MySQL5.1 temporales y locks de conexión.
+
+### D-12 / RQ-12 — SQL manual y compatibilidad
+
+Reutilizar las22 columnas de ejecución y scripts históricos sin reaplicarlos. Entregar preflight SELECT nuevo; diferencias permanentes requieren otro SQL manual y confirmación antes de SELECT posterior. No modificar EGRESOS/CONTRATOS ni consumidores SII/carpetas.
+
+Evidencia inspeccionada: Sql/03-ejecucion-da-doc121.sql; Sql/README.md; AGENTS.md; DOC123 cerrado87d155b7.
+
+### D-13 / RQ-13 — Pruebas locales reutilizadas
+
+Extender el ejecutable/harness DOC122/DOC110 y fixtures DOC123 con fallos entre filesystem/DB, rollback propio, modos, hashes, límites y concurrencia. Build aislado y evidencia distinguen dobles sintéticos de MySQL real.
+
+Evidencia inspeccionada: tests/ImportacionExcelBehaviorTests.cs; tests/ImportacionExcelLecturaTests.cs; tests/doc122-importacion-excel-behavior.test.cjs.
+
+### D-14 / RQ-14 — E2E real de recepción y preparación
+
+Extender tools/e2e existente para ASHX/ASMX reales, sin infraestructura paralela ni heredar autorización DOC122. Acreditar con autorización específica ámbito/cuentas/datos descartables: acceso, tres modos, dos sesiones y destino sin mutación.
+
+Evidencia inspeccionada: tools/e2e/tests/importacion-excel.spec.cjs; run-doc110-profile-session.cjs; AGENTS.md; tools/e2e/AGENT-RUNBOOK.md.
+
+
+## Recepción coherente y recuperación — D-01 / D-02 / D-03
+
+IniciarRecepcionExcel recibe conexión/plantilla/revisión/huella esperadas, verifica autoridad y devuelve UUID servidor más referencia protegida de recepción. No inserta ejecución ni crea archivo. El cliente conoce el ID antes de enviar bytes y puede consultar aunque pierda el acuse. La referencia se protege con MachineKey del entorno existente, propósito propio/versionado, vinculada a usuario/empresa/módulo/conexión/plantilla/ID y vencimiento de30 minutos; no concede autoridad ni sustituye CSRF. No requiere clave nueva en Web.config. Un cambio de clave del entorno puede invalidarla; no se resuelve desactivando protección. La consulta de una fila propia ya registrada depende de autoridad vigente y no del token inicial vencido.
+
+ASHX admite POST multipart, exactamente un archivo y campos idCarga, referenciaRecepcion, conexionId, plantillaId. Validar autoridad/token/origen/Content-Length positivo y límite de cuerpo antes de Form/Files; boundary válido, campos únicos y sin otros campos. La cabecera X-Importacion-Excel-CSRF conserva su propósito. JSON mantiene262144bytes. El cuerpo multipart admite máximo de archivo efectivo más262144bytes de metadatos; esa holgura no aumenta el límite de bytes del archivo. Contar contenido real y rechazar archivo vacío, tamaño inconsistente o exceso.
+
+Inspección local solo de límites HTTP, sin revelar configuración: Web.config actual maxRequestLength102400000KB y maxAllowedContentLength300000000bytes, mayores que10MB. No elevar esos límites ni executionTimeout. La aplicación impone su límite propio; Request.Files puede haber sido bufferizado por ASP.NET. Se promete copia acotada a staging, no streaming de red sin buffer ni reanudación por bytes.
+
+Almacenamiento bajo App_Data/ImportacionExcel separado de carpetas, protegido contra acceso HTTP y fuera de Git. Subrutas por empresa/módulo/ID y referencia servidor, nombre original solo descriptivo (máximo255 compatible con utf8 físico; rechazar caracteres no representables). Canonicalizar raíz y negar traversal/reparse en componentes, con ACL de escritura apropiada; creación exclusiva y publicación sin overwrite. Comprobar formato real/hojas con lector común antes de registrar. Un libro de formato válido con incidencias de datos puede recibirse: su validación de filas pertenece a Preparar.
+
+Nunca insertar bytes=0/hash de ceros para simular recepción. Tras publicar el archivo completo, reautorizar, INSERT transaccional RECIBIDA con bytes/hash reales y32 bytes de hash binario; campos de preparación nulos, filas_confirmadas0. Conexión_ref canónica DA:<moduloId>:<conexionHistoricaId>, sin credenciales y menor de64. Ambito/usuario provienen de RA; tabla_destino de plantilla. Esa referencia se distingue del literal DA que usa el catálogo de fuentes.
+
+Mantener archivo completo si INSERT/commit es incierto; no borrar por timeout ni crear otra carga. Con ID propio, inspección de fila/archivo/actividad puede informar RECIBIDA, OPERACION_EN_CURSO, RESULTADO_INCIERTO o referencia no disponible. Consulta no repara. Un retry solo explícito sobre el mismo ID, autorización/referencia válida, ausencia acreditada de escritor y contenido íntegro idéntico; puede completar el registro de archivo propio o devolver la recepción anterior. Contenido distinto rechaza. Parciales de fallo conocido pueden eliminarse solo si son propios, no referenciados y sin escritor; la limpieza general no pertenece a esta fase.
+
+## Estado, transacción e identidad — D-08 / D-09 / D-10
+
+Estados persistidos de esta fase: RECIBIDA y PREPARADA. Inicio y copia son actividad transitoria, no estados falsos en tabla. El esquema03 tiene22 columnas suficientes; no se planifica otra migración permanente.
+
+Recepción/preparación serializan el mismo ID mediante un lock de operación de conexión, nombre derivado de identidad física DA+ID, acotado a64caracteres, adquisición no bloqueante. No usar tiempo transcurrido o lease como permiso para tomar un escritor. Preparar no bloquea la tabla destino durante lectura. Se usa un único lock nombrado a la vez por conexión; no combinar locks de carga/destino en esa conexión de MySQL5.1. Fase05 definirá el bloqueo de confirmación por destino.
+
+La copia/parseo no mantienen una transacción InnoDB abierta. Publicar RECIBIDA o PREPARADA utiliza transacción corta, fila propia FOR UPDATE y relectura de estado/archivo/contexto; condición de propietario/módulo/conexión obligatoria. Estado CONFIRMADA de fase posterior no se sobrescribe. Una segunda preparación ya equivalente puede devolver resultado vigente solo tras revalidar sus huellas; intención distinta requiere hash esperado y preparación explícita.
+
+Fallo conocido de validación conserva RECIBIDA y codigo_incidencia; limpia en una transición propia los campos preparados que pudieran quedar obsoletos. Un fallo o commit incierto no puede degradar un ganador PREPARADA/CONFIRMADA; consulta obligatoria. No añadir historial o reporte de incidencias persistente inexistente:03 solo guarda código principal en RECIBIDA. Si se pierde una respuesta inválida, la consulta devuelve ese código; el detalle se recalcula con Preparar explícito, no como efecto de consultar.
+
+## Aislamiento y esquema — D-04 / D-06
+
+DA/empresa/módulo y conexión histórica se vuelven a resolver por los recursos de DOC122. No seleccionar credenciales de imp01_xmlconexion ni añadir cuenta/conexión protegida aparte. La cuenta compartida conserva sus facultades; esta fase no afirma mínimos privilegios físicos por prefijo.
+
+Para un destino existente, resolver política explícita en catálogo RA de fuentes por DA/tabla/empresa y revisión. Leer esa política desde adaptador con autoridad propia de cargas, sin fabricar PuedeAdministrar/PuedeAdministrarFuentes ni exigir esos permisos al cargador. CONEXION acredita exclusividad configurada; COLUMNA exige columna empresarial de texto/entero, NOT NULL, mapeada y con cada valor igual a la empresa autorizada según comparación del destino. Excel propone un valor, nunca el ámbito. No rellenar o crear mapeos empresariales silenciosamente.
+
+Fuente inexistente/inactiva/ambigua o política contradictoria para destino existente da POLITICA_DESTINO_NO_DEFINIDA/ESQUEMA_INCOMPATIBLE. No inferir exclusividad por ausencia de columna ni por imp_02_. La política debe prepararse por administración vigente cuando haga falta, sin conceder su permiso al usuario de carga. Fuente cargable y proveedor publicado conservan autorizaciones distintas.
+
+CREAR admite nombre imp_02_ ausente y ámbito DA autorizado; proyecta intención de tabla propia del usuario/empresa, con columnas/charset/collation explícitos del servidor y tipos permitidos DOC121. Preparar no reserva el nombre ni crea/activa fuente; fase05 hará CREATE con procedencia identificable. No declara que la DA física sea exclusiva por poder crear un nombre nuevo.
+
+Metadatos: information_schema.TABLES/COLUMNS/STATISTICS más identidad física del servidor/base. Usar capacidad física actual, no encoger BENEFICIARIO o cambiar FECHA VARCHAR. Índice equivalente: NON_UNIQUE0, SUB_PART nulo en cada componente, columnas exactas y requeridas (clave, o conjunto empresa+clave). Conservar orden físico en hash; orden de los dos componentes puede variar si su conjunto es equivalente. Rechazar índices con otras columnas que permitan repetir la identidad, índices de prefijo/no únicos y PK técnica usada como sustituto sin validación. CREAR comprueba capacidad del índice completo de la estructura proyectada sin ejecutar DDL.
+
+## Lectura, temporales y semántica de claves — D-05 / D-07 / D-11
+
+Abrir original con retención de lectura exclusiva frente a escritura/borrado, verificar bytes/hash antes y después y usar ServicioLecturaExcel. No tomar filas del navegador ni una lista guardada en sesión. El resultado DOC123 válido es condición para comparar claves. Si el lector devuelve incidencias, su Filas está vacía: informar sus totales observados y etapa de duplicados no ejecutada, no inventar cero duplicados o una validación completa.
+
+Para resultado válido, temporales solo en la conexión DA autorizada, con fila física y componentes de identidad definidos exactamente con tipo/unsigned/precisión/escala/charset/collation del destino. Valores parametrizados; DECIMAL65 se pasa como cadena canónica para conversión estricta del servidor, sin Decimal CLR. Identificadores salen de metadatos validados y se escapan; no interpolar cliente, nombres de archivo o SQL libre.
+
+Insertar en grupos acotados por parámetros/bytes y @@max_allowed_packet observado, sin aumentar variables globales. Validar modo SQL estricto de sesión y rechazar conversión/advertencia que afecte datos. Agrupar identidad con comparación MySQL; conservar números físicos de las filas implicadas. No usar HashSet ordinal/JavaScript para acreditar igualdad real.
+
+MySQL5.1 no permite referir dos veces la misma temporal en ciertas consultas. Se permiten dos temporales propias: filas y grupos duplicados, con definiciones explícitas compatibles. Agrupar desde la primera hacia la segunda y hacer join entre ellas sin autojoin de la misma temporal. Para claves existentes, join de temporal de filas contra destino filtrado por empresa. AGREGAR rechaza coincidencia; REEMPLAZAR acepta claves que serán sustituidas dentro del ámbito, pero rechaza duplicados internos; CREAR rechaza duplicados internos/nombre ocupado. Se devuelven códigos y filas, no valores de otra empresa.
+
+Preparar solo lee la tabla destino. Sus escrituras funcionales son archivo privado, fila de ejecución y temporales propias. CREATE TEMPORARY/INSERT temporal/DROP TEMPORARY no son instalación de esquema de negocio, pero sí efectos de aplicación que requieren alcance real autorizado al probarlos. No crear índices con CREATE INDEX fuera de la definición temporal ni mezclar DDL permanente con la publicación transaccional.
+
+En Finally: rollback propio si procede, DROP TEMPORARY explícito de nombres propios, restaurar sql_mode original y RELEASE_LOCK antes de devolver conexión al pool. Rollback no garantiza que desaparezca una temporal. Si no se acredita limpieza/restauración/liberación, descartar conexión/pool correspondiente mediante capacidad del conector vigente antes de Dispose; no ClearAllPools o cambio de conector. Las primitivas de descarte deben verificarse contra la DLL local durante implementación.
+
+## Snapshot y vista previa — D-08 / D-10
+
+Mantener ServicioPlantillasExcel.Huella v1 sin cambiar su formato. Dentro de configuracion_doc persistir documento efectivo versionado con snapshot físico de plantilla y su hash, intención hoja/modo, clave/aislamiento/revisión de política, identidad física DA+módulo/conexión y límites efectivos. configuracion_hash es hash del documento efectivo; no se confunde con la huella de plantilla. Filas previstas provienen de lectura completa; archivo_hash permanece inmutable.
+
+Esquema_hash canónico de motor, columnas usadas y requeridas con atributos físicos, índices y componentes/SEQ_IN_INDEX/NON_UNIQUE/SUB_PART, identidad proyectada si CREAR. Orden ordinal, NULL explícitos, números y escape ASCII/UTF8 sin BOM conforme DOC121; añadir vector sintético independiente. Comparar plantilla/hash/esquema/política antes y al final de preparación. Diferencia observada invalida. No afirmar que PREPARADA congela escritores externos, DDL o datos de proveedores; confirmar en fase05 revalidará.
+
+Respuesta: ID/estado, archivo descriptivo/bytes/hash, plantilla/revisión y hashes efectivos, hoja/modo/destino/clave, filas observadas/previstas, hasta25 filas de muestra y25 incidencias con totales/códigos/coordenadas/truncamiento. Si una etapa no pudo ejecutarse, señalar alcance incompleto. La muestra1000 del lector no altera sus totales; se reduce a25 para transporte. No guardar filas/archivo en sesión ni exponer ruta, excepción SQL, credenciales, token en evidencia o datos masivos.
+
+Preparar primera vez recibe ID, conexión, revisión/huella de plantilla esperadas, hoja y modo. Para cambiar una preparación vigente exige hash efectivo esperado; ConsultarCargaExcel permite recuperarlo como lectura propia. Cada consulta reautoriza, filtra propietario y nunca prepara, confirma, repara o reintenta. ASP.NET ASMX con sesión puede serializar peticiones de una misma sesión; no presentarlas como prueba de escritores concurrentes ni prometer progreso simultáneo en la UI.
+
+## SQL, pruebas y límites del refinamiento — D-12 / D-13 / D-14
+
+Entregar11-preflight-doc124.sql de SELECT y guía que distinga RA/DA, tabla de22 columnas, columnas/índices destino y capacidades observables. Los archivos01–10 históricos no se reescriben. Cualquier diferencia permanente se entrega en otro archivo manual, con PENDIENTE_EJECUCION_MANUAL hasta confirmación; no instalar por startup/test ni simular schema compatible. La confirmación histórica de scripts no acredita una DA nueva de sesión. Sin ejecutar consultas reales en este refinamiento.
+
+Pruebas locales reutilizan ejecutable y compilador DOC122/DOC110, fixtures/lector DOC123; dobles de filesystem y ADO.NET para fallos entre .part/publicación/INSERT/commit, replay, propiedad, límites, CAS, hashes y limpieza. Build con salidas aisladas, sin sustituir DLL de IIS. Verificar fronteras, política COLUMNA/exclusiva, UNIQUE incompleto, mayúsculas/acentos/espacios/números y tres modos; la igualdad de collation definitiva necesita MySQL real.
+
+E2E DOC124 sí aplica al recorrido de servicios ASMX/ASHX, aunque la pantalla se implementará después. Extender importacion-excel.spec.cjs y runner/consola/perfil existentes con modo/alcance DOC124 separado, p.ej. --excel-prepare. Mover skip DOC122 a su propia suite; no autorizar DOC124 por una variable DOC122/DOC110. Reutilizar autenticación y safe request, con secretos efímeros y sin grabaciones/cookies/token en reportes.
+
+Preparar código/E2E y alcance revisable antes de solicitar ejecución. La autorización real debe identificar ambiente, cuentas, plantillas/destinos descartables y efectos permitidos (emisión, archivos, ejecuciones, temporales y guardado de plantilla solo si se incluye). Instalación/índices/fixtures permanentes se ejecutan manualmente por usuario; tests no siembran/limpian/reparan bases. AGREGAR/REEMPLAZAR usan un destino de prueba ya autorizado, CREAR solo un nombre ausente; preparar en ambos conserva filas/esquema destino mediante SELECT de control. No seleccionar EGRESOS por defecto ni usar CONTRATOS como fixture.
+
+Para concurrencia usar dos sesiones autenticadas independientes y confirmar contención MySQL/ganador, no solo serialización ASP.NET. Cargas/pruebas anteriores cerradas no se reabren. Si falta autorización o instalación necesaria, registrar el bloqueo de E2E real y continuar implementación local independiente; no archivar marcando la tarea real como simulada o no aplicable.
+
+## Riesgos y rollback
+
+No hay transacción distribuida filesystem/MySQL: publicación incierta conserva evidencia y usa ID previo. No se promete pausa por fila/byte, reanudación automática o reemplazo en esta fase. Capacidad de10MB/10000 controla trabajo admitido, no acredita tiempo/memoria completos; medir fase07 con lector nuevo. El archivo de usuario con más de10000 filas no eleva límite ni se copia a fixtures.
+
+Rollback futuro del despliegue no elimina archivos/filas existentes; preservar RECIBIDA/PREPARADA consultables para versión compatible y no borrar efectos inciertos. Fallos se resuelven con recuperación explícita de la misma identidad, sin tomar escritores por timeout. Cualquier retirada de referencias/Compile mantiene DOC122/DOC123. Refinamiento completo no acredita implementación, aplicación SQL ni E2E.
+
+Referencias primarias revisadas: [temporales y transacciones MySQL5.1](https://docs.oracle.com/cd/E19078-01/mysql/mysql-refman-5.1/sql-syntax.html#create-table) y [funciones de bloqueo MySQL5.1](https://docs.oracle.com/cd/E19078-01/mysql/mysql-refman-5.1/functions.html#function_get-lock). Se usan como soporte de límites de conexión; las decisiones de producto anteriores se contrastan con el código del repositorio.

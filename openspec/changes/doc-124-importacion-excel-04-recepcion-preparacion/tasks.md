@@ -1,25 +1,44 @@
-## 1. Refinement
+<!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14 -->
+## Plan ejecutable DOC-124
 
-- [ ] 1.1 Consolidar alcance final desde Jira + contexto de codigo.
-- [ ] 1.2 Ajustar design/spec con decisiones y riesgos definitivos.
+Perfil legacy-webforms-vb. El usuario solicitó continuar desde el refinamiento pendiente; se reemplaza el plan genérico por este desglose. Esta entrega completa planificación, no implementación. Las tareas de producto y E2E permanecen abiertas.
 
-## 2. Implementacion
+## 1. Contratos, recepción y preparación
 
-- [ ] 2.1 Implementar cambios funcionales del ticket.
-- [ ] 2.2 Mantener compatibilidad y evitar regresiones.
+- [x] 1.1 [S] Consolidar refinamiento, diseño y criterios trazables de DOC124. Área/archivos: `openspec/changes/doc-124-importacion-excel-04-recepcion-preparacion/`. Origen: D-12, RQ-12. Verificación: OpenSpec estricto y auditoría de refinamiento sin marcadores.
+- [ ] 1.2 [M] Añadir contratos tipados de recepción, preparación, consulta e incidencias. Área/archivos: `Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb; DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb`. Origen: D-10, RQ-10. Verificación: Sobre sin rutas/secretos, muestras25 y totales/truncamiento.
+- [ ] 1.3 [M] Añadir guarda multipart propia conservando la guarda JSON. Área/archivos: `Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb`. Origen: D-01, RQ-01. Verificación: Autoridad/CSRF/origen antes de Form/Files, campo repetido y archivo extra rechazados.
+- [ ] 1.4 [M] Resolver contexto físico y política empresarial del destino sin otro permiso administrativo. Área/archivos: `Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelConexionAdapter.vb; nuevo adaptador de política de destino Excel`. Origen: D-04, RQ-04. Verificación: CONEXION/COLUMNA explícitos, empresa ajena y política ausente rechazadas.
+- [ ] 1.5 [M] Emitir referencia protegida e ID previo de recepción. Área/archivos: `Services/ProduccionDocumental/ImportacionExcel/ServicioRecepcionExcel.vb; codec propio con patrón MachineKey del repositorio`. Origen: D-03, RQ-03. Verificación: ID conocido antes del archivo, contexto/vencimiento/manipulación verificados sin fila falsa.
+- [ ] 1.6 [M] Implementar almacén privado e inmutable del Excel. Área/archivos: `Infrastructure/ProduccionDocumental/ImportacionExcel/AlmacenArchivoExcel.vb`. Origen: D-02, RQ-02. Verificación: Copia acotada/hash, .part exclusivo, publicación sin overwrite y retención verificada.
+- [ ] 1.7 [M] Implementar persistencia de ejecuciones propias y transiciones condicionadas. Área/archivos: `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb`. Origen: D-09, RQ-09. Verificación: Propietario/módulo/ID, FOR UPDATE y rollback propio sin sobrescribir ganador.
+- [ ] 1.8 [M] Componer receptor ASHX y publicación RECIBIDA con metadatos reales. Área/archivos: `generic_control/ImportacionExcelUpload.ashx; generic_control/ImportacionExcelUpload.ashx.vb; Services/ProduccionDocumental/ImportacionExcel/ServicioRecepcionExcel.vb`. Origen: D-02, RQ-02. Verificación: Recepción completa registrada y fallos filesystem/commit sin RECIBIDA ficticia.
+- [ ] 1.9 [M] Inspeccionar esquema e índices únicos completos o estructura proyectada. Área/archivos: `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb`. Origen: D-06, RQ-06. Verificación: Índice equivalente válido, prefijo/nullable/no único/extra columna inválidos y CREAR sin DDL.
+- [ ] 1.10 [M] Integrar inspección de formato/hojas y lectura DOC123 con límites efectivos. Área/archivos: `Services/ProduccionDocumental/ImportacionExcel/ServicioPreparacionExcel.vb; Infrastructure/ProduccionDocumental/ImportacionExcel/LectorArchivoExcel.vb`. Origen: D-05, RQ-05. Verificación: XLS/XLSX, primera/última fila y máximos exactos/excedidos sin prefijo preparado.
+- [ ] 1.11 [M] Comparar claves por tipo/collation en temporales propias de conexión. Área/archivos: `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb`. Origen: D-07, RQ-07. Verificación: Duplicados internos y existentes diferenciados, tres modos y empresa filtrada.
+- [ ] 1.12 [M] Canonizar documento efectivo y esquema sin redefinir huella de plantilla v1. Área/archivos: `Services/ProduccionDocumental/ImportacionExcel/ServicioPreparacionExcel.vb; vector sintético en tests/Fixtures/ProduccionDocumental/ImportacionExcel/`. Origen: D-08, RQ-08. Verificación: Vector independiente con NULL/orden/índices y cambios de hoja/política detectados.
+- [ ] 1.13 [M] Cerrar recursos temporales y lock con restauración de sesión o descarte seguro. Área/archivos: `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb; fábrica vigente de conexión`. Origen: D-11, RQ-11. Verificación: Éxito/fallo/reutilización no dejan temporal, sql_mode o lock a otro solicitante.
+- [ ] 1.14 [M] Publicar preparación tras lectura completa y revalidación final. Área/archivos: `Services/ProduccionDocumental/ImportacionExcel/ServicioPreparacionExcel.vb; MySqlCargaExcelRepository.vb`. Origen: D-09, RQ-09. Verificación: RECIBIDA→PREPARADA solo válida, fallo conocido/no conocido separados y concurrencia con ganador único.
+- [ ] 1.15 [M] Exponer inicio, Preparar y consulta propia sin efectos de confirmación. Área/archivos: `webservice/WebServiceImportacionExcel.asmx.vb; GestionDocumental-Docuarchi.net.vbproj`. Origen: D-10, RQ-10. Verificación: JSON tipado/no-cache y consulta sin mutación; Compile/Content nuevos registrados.
 
-## Perfil tecnologico
+## 2. Verificación y preparación operativa
 
-- Perfil de revision: legacy-webforms-vb (v1).
-- Alcance: ASP.NET Web Forms, code-behind VB.NET/C# y JavaScript gradual.
-- Este perfil orienta la revision tecnica; no reemplaza los requisitos funcionales ni arquitectonicos del ticket.
+- [ ] 2.1 [M] Ampliar harness existente para fallos de recepción, replay y recuperación. Área/archivos: `tests/ImportacionExcelBehaviorTests.cs; tests/doc122-importacion-excel-behavior.test.cjs; nuevo archivo C# dentro del mismo ejecutable si procede`. Origen: D-03, RQ-03. Verificación: Fallos antes/después de publicación/INSERT/commit, token vencido, writer activo e ID ajeno.
+- [ ] 2.2 [M] Verificar localmente preparación, aislamiento, muestras y hashes. Área/archivos: `tests/ImportacionExcelBehaviorTests.cs; tests/ImportacionExcelLecturaTests.cs; fixtures sintéticos existentes`. Origen: D-07, RQ-07. Verificación: Tres modos, índices incompatibles, collation representada por doble identificado, límites y cambios concurrentes.
+- [ ] 2.3 [S] Compilar con salida aislada y ejecutar regresiones afectadas. Área/archivos: `GestionDocumental-Docuarchi.net.vbproj; tests/doc122-importacion-excel-behavior.test.cjs; tests/doc122-e2e-reuse.test.cjs`. Origen: D-13, RQ-13. Verificación: Build net461 y suites DOC122/DOC123/DOC110/DOC120 sin reemplazar DLL IIS.
+- [ ] 2.4 [M] Ampliar E2E de Excel y runner existentes con alcance DOC124 independiente. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; tools/e2e/scripts/run-doc110-profile-session.cjs`. Origen: D-14, RQ-14. Verificación: Descubrimiento/guardas sintéticos sin login; scope DOC124 y separación del skip DOC122.
+- [ ] 2.5 [S] Entregar preflight SELECT y guía de SQL manual de esta fase. Área/archivos: `Doc/Actualizacion/Importacion/Sql/11-preflight-doc124.sql; Doc/Actualizacion/Importacion/Sql/README.md`. Origen: D-12, RQ-12. Verificación: Instalación/índices/capacidades inspeccionables; diferencias permanentes en archivos nuevos sin ejecución automática.
+- [ ] 2.6 [M] Acreditar recorrido real autorizado de recepción y preparación. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; Doc/Actualizacion/Importacion/Validacion/`. Origen: D-14, RQ-14. Verificación: ASHX/ASMX/MySQL/archivo reales, tres modos, dos sesiones y SELECT de destino sin mutación; bloqueo explícito si falta autorización.
 
-## 3. Pruebas
+## 3. Documentación y revisión
 
-- [ ] 3.1 Agregar/ajustar pruebas unitarias e integracion.
-- [ ] 3.2 Ejecutar suite afectada y registrar evidencia.
+- [ ] 3.1 [S] Documentar contrato vigente, recuperación y límites demostrados. Área/archivos: `Doc/Actualizacion/Importacion/Diseno/04-recepcion-preparacion-doc124.md; Doc/Tecnica/Opsxj/doc-124-importacion-excel-04-recepcion-preparacion/`. Origen: D-08, RQ-08. Verificación: Guía refleja snapshots efectivos, acuse incierto y diferencia entre pruebas locales/CI/reales.
+- [ ] 3.2 [S] Revisar requisitos/evidencias y compuertas de entrega. Área/archivos: `openspec/changes/doc-124-importacion-excel-04-recepcion-preparacion/; Doc/Actualizacion/Importacion/Validacion/`. Origen: D-13, RQ-13. Verificación: OpenSpec/refinement/gobierno y revisión semántica; E2E real no sustituida por simulación.
 
-## 4. Cierre
+## Dependencias y trazabilidad
 
-- [ ] 4.1 Validar OpenSpec.
-- [ ] 4.2 Documentar diff final y decisiones de arquitectura.
+1.2/1.3/1.4 preceden transporte y servicios. 1.5 establece ID previo a upload;1.6/1.7 preceden1.8. 1.9/1.10/1.11/1.12/1.13 preceden publicación1.14 y exposición1.15. Las pruebas se añaden junto a su comportamiento;2.3 valida integración local. 2.4/2.5 y alcance concreto revisable preceden solicitud de ejecución real2.6; instalación necesaria se confirma manualmente antes de recorridos dependientes.
+
+D-01/RQ-01: autoridad/transporte. D-02/RQ-02: privado/inmutable. D-03/RQ-03: ID/acuse. D-04/RQ-04: aislamiento. D-05/RQ-05: lector/límites. D-06/RQ-06: esquema/índices. D-07/RQ-07: claves MySQL. D-08/RQ-08: huellas. D-09/RQ-09: estados/concurrencia. D-10/RQ-10: preview/consulta. D-11/RQ-11: recursos/pool. D-12/RQ-12: SQL/compatibilidad. D-13/RQ-13: evidencia local. D-14/RQ-14: E2E real.
+
+No confirmar/importar datos destino, crear tabla permanente, desplegar, conceder permisos o cambiar MySql.Data por estas tareas de refinamiento. La tarea2.6 no se marca no aplicable por ausencia de UI: el recorrido de servicios sí existe en esta fase.
