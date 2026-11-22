@@ -55,4 +55,4 @@ Revisión técnica Codex2026-11-22, solicitada con «y el refinamiento». Plan d
 
 Doce decisiones/requisitos definidos. Primera actividad de producto: caracterizar fidelidad de errores/fórmulas en ambos formatos y resolver su observabilidad antes de integrar. Si3.6.0 oculta errores, el adaptador debe complementarlo con estrategia documentada y probada; no puede afirmar validación completa aceptando errores como vacíos. No se autoriza silenciosamente otra biblioteca, un fork o reflexión de APIs privadas.
 
-La solicitud de refinamiento incluye concretar y sincronizar design/spec/tasks. Implementación permanece abierta; esta revisión no autoriza DDL/DML, nuevos privilegios, autenticación, despliegue o importación de negocio.
+La solicitud de refinamiento incluye concretar y sincronizar design/spec/tasks. El usuario solicitó continuar y la implementación local/verificación de fase03 se registra en evidencia DOC123; esta entrega no incluye DDL/DML, nuevos privilegios, autenticación, despliegue o importación de negocio.

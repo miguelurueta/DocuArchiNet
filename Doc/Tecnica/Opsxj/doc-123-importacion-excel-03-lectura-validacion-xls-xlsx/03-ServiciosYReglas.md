@@ -1,9 +1,9 @@
-# DOC-123 — Servicios y reglas
+# DOC-123 — 03-ServiciosYReglas
 
 - Ticket: DOC-123
 - Cambio OpenSpec: doc-123-importacion-excel-03-lectura-validacion-xls-xlsx
-- Clasificacion: cross_cutting (Transversal)
+- Clasificacion: backend_vb (Backend VB.NET)
 
 ## Servicios y reglas
 
-ServicioLecturaExcel coordinará mapeos y validación pura; LectorArchivoExcel adaptará formato/hojas/celdas de un stream controlado por servidor. Nombres fuente exactos, encabezado físico1, primera/última fila incluidas y huecos conservados. Opciones coma→punto→segmento base0; preservación de otros caracteres. Validar capacidad física con ValorCompatible y complementos DATE/NULL/Unicode. Límites inclusivos con lectura completa obligatoria; errores no se convierten en vacíos válidos. Este documento describe el plan, sin acreditar código o pruebas.
+ServicioLecturaExcel valida mapeos, transformaciones y tipos físicos; LectorArchivoExcel adapta stream/hoja; InspectorFidelidadExcel conserva errores/caché que el paquete oculta. Flujo puro sin DB/HTTP. Preserva posiciones y caracteres, aplica coma→punto→segmento y usa ValorCompatible más reglas DATE/NULL/Unicode. Un error invalida la salida y vacía filas; ausencia de caché interrumpe sin ofrecer prefijos. Límites positivos10000/10MB y diagnósticos acotados1000 con total. Detalle vigente en diseño03 y evidencia local DOC123.

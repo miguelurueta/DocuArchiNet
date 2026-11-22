@@ -147,6 +147,12 @@ API de bajo nivel Read/NextResult sin AsDataSet; no materializar todo el workboo
 
 ## Fidelidad de dependencia y compuerta de integración — D-02
 
+### Ajuste técnico tras caracterización2026-11-22
+
+La ejecución local con libros sintéticos confirmó errores, fórmula con error y fórmula sin resultado como null indistinguibles en ambos formatos; XLSX además pierde el vacío textual de fórmula. Se incorpora `Infrastructure/ProduccionDocumental/ImportacionExcel/InspectorFidelidadExcel.vb` al inventario: observador complementario de errores/caché, no conversor alternativo de valores. Usa XML/ZIP estándar de .NET en XLSX y extrae el flujo Workbook/Book de CFB para examinar registros BIFF de errores/fórmulas en XLS. Todas las conversiones, formatos y fechas siguen en ExcelDataReader3.6.0/ExcelNumberFormat1.1.0. Sin API privada, fork, Office o dependencia nueva. Se revisa este ajuste antes de integrarlo, dentro del alcance autorizado de conservación de datos.
+
+El inspector conserva coordenadas y distingue ERROR_CELDA_EXCEL, FORMULA_SIN_RESULTADO y resultado textual vacío guardado. Rechaza contenedores/registros inconsistentes y cifrado; limita recorridos de sectores al tamaño real del archivo, detecta ciclos y aplica presupuesto de expansión XML/ZIP de40 veces el máximo de bytes configurado. Este presupuesto protege al parser; no modifica los límites de negocio10000/10MB. Su cobertura debe probarse junto al lector con los fixtures que reproducen la pérdida original.
+
 Revisadas el2026-11-22:
 - [Proyecto ExcelDataReader3.6.0](https://raw.githubusercontent.com/ExcelDataReader/ExcelDataReader/v3.6.0/src/ExcelDataReader/ExcelDataReader.csproj): targets net45, con referencias de plataforma System.Data/System.IO.Compression.
 - [Paquete3.6.0](https://www.nuget.org/packages/ExcelDataReader/3.6.0) y [API versionada](https://raw.githubusercontent.com/ExcelDataReader/ExcelDataReader/v3.6.0/README.md): paquete base para Read/NextResult, valores y formatos; no se requiere DataSet ni CodePages adicional del mundo .NET Core.
@@ -159,6 +165,10 @@ El paquete por sí solo no acredita diagnóstico fiel de errores. La primera tar
 Las fórmulas no se recalculan; un resultado guardado válido puede usarse si la caracterización demuestra su observabilidad. Se explicita que podría estar desactualizado. Errores y ausencia de resultado utilizable nunca se publicitan como valores válidos conservados.
 
 ## Autoridad, SQL y continuidad — D-11 / D-12
+
+Resultado de implementación de la compuerta D-02: los fixtures binarios reproducen errores ocultos del paquete y el inspector los identifica con coordenadas en XLS (FAT normal y mini-stream) y XLSX. Fórmula sin caché corta la lectura: en XLS el paquete puede consumir el siguiente registro al buscar STRING, por lo que no se conserva ningún prefijo ni se inventa un total del libro. Fórmula con caché válida se valida sin recalcular; vacío textual de fórmula y NULL real se mantienen distintos. El ajuste fue revisado antes de integrar; no requirió otra dependencia o API privada.
+
+Desglose de pruebas: `tests/ImportacionExcelLecturaTests.cs` es un archivo adicional del mismo ejecutable DOC122, separado por legibilidad; `tests/ImportacionExcelBehaviorTests.cs` invoca su Run y mantiene su regresión. Fixtures y generador stdlib determinista viven en `tests/Fixtures/ProduccionDocumental/ImportacionExcel/`. Esta división no introduce infraestructura paralela. Las expectativas se contrastan leyendo los libros con las dependencias reales.
 
 El consumidor fase04 resolverá usuario/empresa/permiso, DA, plantilla/revisión/huella y esquema del servidor antes de llamar al lector, y repetirá comprobaciones al preparar/confirmar. La función pura no acredita autorización vigente por aceptar un objeto Contexto. No cambiar resolución DA ni cabeceras/DTO/huella v1 fase02.
 
@@ -178,4 +188,4 @@ Registrar por separado diseño revisado, pruebas ejecutadas y pruebas aún abier
 
 Riesgo principal: errores/caché ocultos de3.6.0; compuerta de caracterización anterior a integración. Otros: límites CLR frente DECIMAL65, cultura, formatos visuales y uso de longitud UTF16 conservadora; pruebas de fronteras y validación adicional. Compactación de celdas/filas y cambio accidental de consumidores compartidos se cubren con fixtures/regresión. Las medidas actuales de carpetas no prueban el lector nuevo.
 
-Rollback de producto futuro: revertir solo referencias/Compile y archivos nuevos del lector, preservando DOC122 y datos. No hay migración de esquema ni limpieza de negocio en este cambio. Esta entrega solo modifica documentación y planificación.
+Rollback: revertir solo referencias/Compile y archivos nuevos del lector, preservando DOC122 y datos. No hay migración de esquema ni limpieza de negocio en este cambio. Implementación local2026-11-22: lector y observador compilados, fixtures y pruebas sintéticas; aceptación y límites se registran en Doc/Actualizacion/Importacion/Validacion/doc123-validacion-local-20261122.md/json.

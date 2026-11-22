@@ -2,10 +2,10 @@
   "version": 3,
   "issueKey": "DOC-123",
   "changeName": "doc-123-importacion-excel-03-lectura-validacion-xls-xlsx",
-  "impact": "cross_cutting",
+  "impact": "backend_vb",
   "requiredEvidence": [
     "unit",
-    "manual_qa"
+    "build"
   ],
   "documentation": [
     "Doc/Tecnica/Opsxj/doc-123-importacion-excel-03-lectura-validacion-xls-xlsx/01-ResumenTecnico.md",
@@ -25,7 +25,7 @@
       "identity": {
         "issueKey": "DOC-123",
         "changeName": "doc-123-importacion-excel-03-lectura-validacion-xls-xlsx",
-        "impact": "cross_cutting"
+        "impact": "backend_vb"
       },
       "closureRestrictions": [
         "tbd",
@@ -44,7 +44,7 @@
       "identity": {
         "issueKey": "DOC-123",
         "changeName": "doc-123-importacion-excel-03-lectura-validacion-xls-xlsx",
-        "impact": "cross_cutting"
+        "impact": "backend_vb"
       },
       "closureRestrictions": [
         "tbd",
@@ -62,7 +62,7 @@
       "identity": {
         "issueKey": "DOC-123",
         "changeName": "doc-123-importacion-excel-03-lectura-validacion-xls-xlsx",
-        "impact": "cross_cutting"
+        "impact": "backend_vb"
       },
       "closureRestrictions": [
         "tbd",
@@ -80,7 +80,7 @@
       "identity": {
         "issueKey": "DOC-123",
         "changeName": "doc-123-importacion-excel-03-lectura-validacion-xls-xlsx",
-        "impact": "cross_cutting"
+        "impact": "backend_vb"
       },
       "closureRestrictions": [
         "tbd",
@@ -99,7 +99,7 @@
       "identity": {
         "issueKey": "DOC-123",
         "changeName": "doc-123-importacion-excel-03-lectura-validacion-xls-xlsx",
-        "impact": "cross_cutting"
+        "impact": "backend_vb"
       },
       "closureRestrictions": [
         "tbd",
