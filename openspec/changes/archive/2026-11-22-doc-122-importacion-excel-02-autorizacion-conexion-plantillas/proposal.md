@@ -7,10 +7,10 @@ IMPORTACION-EXCEL-02-AUTORIZACION-CONEXION-PLANTILLAS. Ver detalle funcional com
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-122.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Permiso propio vigente en RA y contrato ASMX tipado con guardia de solicitud.
+- Resolución DA mediante los recursos del módulo existentes, sin conexión adicional obligatoria.
+- Listado, detalle y guardado transaccional de plantillas con revisión/huella y compatibilidad histórica.
+- SQL de comprobación SELECT, suite nativa y E2E real reutilizando herramientas existentes.
 
 ## Jira Details
 
@@ -134,15 +134,17 @@ IMPORTACION-EXCEL-02-AUTORIZACION-CONEXION-PLANTILLAS. Ver detalle funcional com
 ## Capabilities
 
 ### New Capabilities
-- `importacion-excel-02-autorizacion-conexion-plantillas`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `importacion-excel-02-autorizacion-conexion-plantillas`: autorización y administración de plantillas Excel en el ámbito DA del módulo.
 
 ### Modified Capabilities
-- 
+- `importacion-excel-01-esquema-contratos-configuracion`: sustituir la cuenta adicional obligatoria por la conexión DA ya configurada en el módulo.
+
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
+- Contexto, conexión, reglas, repositorio, DTO y servicio ASMX de plantillas; integración de permiso y registro en vbproj.
+- Evidencia nativa y E2E real en Doc/Actualizacion/Importacion/Validacion; datos de ejecución y secretos excluidos de Git.
+- Lectura, recepción, preparación, confirmación de cargas e interfaz se reservan a las fases posteriores.
 
 ## Perfil tecnologico
 

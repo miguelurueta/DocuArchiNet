@@ -1,5 +1,9 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07 -->
-## ADDED Requirements
+# importacion-excel-02-autorizacion-conexion-plantillas
+
+## Purpose
+Administrar el acceso y las plantillas de importación Excel sobre la DA autorizada, conservando los catálogos históricos, la configuración del módulo y la integridad de los guardados. La recepción e importación de archivos pertenecen a las fases posteriores.
+
+## Requirements
 
 ### Requirement: RQ-01 Autorización vigente propia
 Origen: D-01.
@@ -31,7 +35,7 @@ El sistema SHALL resolver DA mediante ModuleSessionConnectionStringResolver y la
 
 ### Requirement: RQ-03 Contrato y metadatos
 Origen: D-03.
-El sistema SHALL dTO por ID, paginación acotada y destino imp_02_ validado en information_schema. CREAR admite destino ausente; AGREGAR/REEMPLAZAR requieren columnas existentes. Guardar no altera destino.
+El sistema SHALL exponer DTO por ID, paginación acotada y destino imp_02_ validado en information_schema. CREAR admite destino ausente; AGREGAR/REEMPLAZAR requieren columnas existentes. Guardar no altera destino.
 
 #### Scenario: Consulta acotada
 - **WHEN** lista o consulta por ID
@@ -43,7 +47,7 @@ El sistema SHALL dTO por ID, paginación acotada y destino imp_02_ validado en i
 
 ### Requirement: RQ-04 Guardado atómico
 Origen: D-04.
-El sistema SHALL transacción InnoDB para cabecera y campos; bloqueo y comparación de revisión más huella vigente. Un ganador, conflicto para el segundo, rollback completo ante fallo.
+El sistema SHALL guardar cabecera y campos en una transacción InnoDB; bloqueo y comparación de revisión más huella vigente. Un ganador, conflicto para el segundo, rollback completo ante fallo.
 
 #### Scenario: Concurrencia
 - **WHEN** dos guardados comparten revisión y huella
@@ -79,7 +83,7 @@ El sistema SHALL conservar ruta histórica, ID de mapeos y transformaciones no c
 
 ### Requirement: RQ-06 ASMX y solicitud
 Origen: D-06.
-El sistema SHALL pOST JSON, mismo origen, CSRF propio ligado a sesión/usuario/empresa; bootstrap valida origen antes de emitir token. DTO de respuesta tipados. Límites positivos con defaults 10000/10MB decimal.
+El sistema SHALL exigir POST JSON, mismo origen, CSRF propio ligado a sesión/usuario/empresa; bootstrap valida origen antes de emitir token. DTO de respuesta tipados. Límites positivos con defaults 10000/10MB decimal.
 
 #### Scenario: Solicitud forjada
 - **WHEN** cambia origen, token o contexto
@@ -91,7 +95,7 @@ El sistema SHALL pOST JSON, mismo origen, CSRF propio ligado a sesión/usuario/e
 
 ### Requirement: RQ-07 Verificación y límites
 Origen: D-07.
-El sistema SHALL build aislado y pruebas nativas sintéticas; E2E reutiliza tools/e2e y requiere autorización específica. Instalación SQL manual y datos EGRESOS intactos.
+El sistema SHALL acreditar un build aislado y pruebas nativas sintéticas; E2E reutiliza tools/e2e y requiere autorización específica. Instalación SQL manual y datos EGRESOS intactos.
 
 #### Scenario: Prueba sintética
 - **WHEN** se ejecutan fixtures locales
