@@ -1,0 +1,64 @@
+{
+  "issueKey": "DOC-123",
+  "status": "COMPLETE",
+  "recordedAtUtc": "2026-11-22T19:05:25.994Z",
+  "archive": {
+    "path": "openspec/changes/archive/2026-11-22-doc-123-importacion-excel-03-lectura-validacion-xls-xlsx",
+    "filesPreserved": 7,
+    "tasksComplete": 21,
+    "requirementsReviewed": 12,
+    "scenariosReviewed": 33,
+    "mainSpec": "openspec/specs/importacion-excel-03-lectura-validacion-xls-xlsx/spec.md",
+    "normativeSyncVerified": true
+  },
+  "pullRequest": {
+    "number": 135,
+    "url": "https://github.com/miguelurueta/DocuArchiNet/pull/135",
+    "reviewedHead": "085e18fba7dd11e80939d0ba5bde0375e43060c9",
+    "reviewedTree": "3d742f53491e5a4d71c91a984859e363cc6cd145",
+    "mergeCommit": "2b97a003c7f9e652e8fd2eb528005c9615e452f4",
+    "mergeTree": "3d742f53491e5a4d71c91a984859e363cc6cd145",
+    "treesEqual": true,
+    "mergedAt": "2026-11-22T19:02:50Z"
+  },
+  "ci": {
+    "runId": 45056961959,
+    "jobId": 137314204167,
+    "headSha": "085e18fba7dd11e80939d0ba5bde0375e43060c9",
+    "conclusion": "success",
+    "stepsPassed": 37,
+    "stepsTotal": 37,
+    "skipped": 0,
+    "scope": "Workflow existente OPSXJ/OpenSpec y regresiones; no ejecuta suite DOC123"
+  },
+  "localValidation": {
+    "globalStrict": "94/94",
+    "governance": "72/72",
+    "nativeReaderChecks": 312,
+    "doc122Checks": 246,
+    "inheritedDoc110Doc120Regression": "PASS",
+    "runnerReuseTests": 6,
+    "nodeTestsPassed": 7,
+    "realE2E": "NOT_APPLICABLE",
+    "build": "PASS net461;0 errores",
+    "sourceFingerprint": "4df96bf7f0de5d9d2b88026905753a181cbca2e97ddb730343575112b42bef74"
+  },
+  "jira": {
+    "status": "Listo",
+    "category": "done",
+    "transitionId": "41",
+    "verifiedUtc": "2026-11-22T19:05:08.912Z",
+    "commentsSent": 0
+  },
+  "deployment": {
+    "extraDeploymentDuringClosure": false,
+    "assemblySha256": "79da3a8841e22d8c5835b2495ceb0179946c67b204effcf326c2d8030c722779"
+  },
+  "database": {
+    "sqlChanges": false,
+    "newMySqlDataDependency": false,
+    "connectionChanged": false,
+    "businessImports": 0
+  },
+  "scope": "Fase03 lector interno. Sin endpoint/UI, autenticación, instalación SQL, importación real o despliegue."
+}

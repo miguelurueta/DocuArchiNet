@@ -49,3 +49,7 @@ Reutiliza `tests/doc122-importacion-excel-behavior.test.cjs`, harness DOC110 y m
 MSBuild usa salida/intermedios propios en .tmp y no despliega. E2E funcional no aplica a esta fase sin recorrido o endpoint nuevo; tools/e2e queda disponible para integración posterior con autorización específica. Pruebas locales y lectura de archivos sintéticos no acreditan importación real ni rendimiento en producción.
 
 Rollback: revertir referencias/Compile y archivos del lector y sus modelos internos preservando contratos DOC122. No necesita migración de base ni limpieza de datos.
+
+## Cierre técnico2026-11-22
+
+DOC123 quedó archivado, integrado mediante PR135 y confirmado Listo en Jira. OpenSpec94/94 y gobierno72/72. Las pruebas del lector son locales; la CI del PR valida el workflow existente y E2E real no aplica al lector sin recorrido. Registro vigente en ../Validacion/doc123-cierre-20261122.md/json. El registro administrativo posterior al merge no modifica fuentes ejecutables ni especificaciones.
