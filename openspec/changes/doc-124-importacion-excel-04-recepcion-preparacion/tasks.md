@@ -44,6 +44,11 @@ Perfil legacy-webforms-vb. El usuario solicitó continuar desde el refinamiento 
   fuente5/revisión2, plantilla28/revisión1/AGREGAR;625 filas y esquema intactos.
   SQL17 y E2E AGREGAR/REEMPLAZAR siguen pendientes; no completa2.6.
 
+  E2E posterior autorizada: PASS_REAL_DOC124_ADD,3/3 casos en1/1 test real;
+  8000 filas PREPARADA y duplicados internos/existentes rechazados,625 registros
+  de CONTRATOS intactos y tres locks libres.69 SELECT externos acumulados.
+  Solo faltan REEMPLAZAR y revisión final; no cerrar2.6 por este PASS parcial.
+
 ## 3. Documentación y revisión
 
 - [x] 3.1 [S] Documentar contrato vigente, recuperación y límites demostrados. Área/archivos: `Doc/Actualizacion/Importacion/Diseno/04-recepcion-preparacion-doc124.md; Doc/Tecnica/Opsxj/doc-124-importacion-excel-04-recepcion-preparacion/`. Origen: D-08, RQ-08. Verificación: Guía refleja snapshots efectivos, acuse incierto y diferencia entre pruebas locales/CI/reales.

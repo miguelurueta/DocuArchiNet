@@ -178,3 +178,13 @@ configuración efectiva, lock libre y conservación de tablas/plantillas/mapeos.
 Se desplegó DLL verificada con dependencias y respaldo; no se crearon tablas ni
 importaron órdenes. Ver Validacion/doc124-e2e-ordenes-resultado-20261123.md/JSON.
 La matriz completa y revisión final siguen pendientes; el caso no cierra DOC124.
+
+## E2E real AGREGAR sobre CONTRATOS
+
+La ventana d28f908a reutilizó `--excel-add` y aprobó3/3 casos:8000 filas
+PREPARADA, duplicado interno por collation y clave existente rechazados. Plantilla28,
+revisión1, fuente5/empresa2;625 registros conservados. Dos sesiones independientes,
+recuperación/replay/CSRF, cuenta restringida, tres archivos y locks verificados.
+28 llamadas Excel y69 SELECT externos acumulados, sin importar filas ni cambiar
+plantillas/fuentes. Ver Validacion/doc124-e2e-agregar-resultado-20261123.md/JSON.
+CREAR y AGREGAR están acreditados; REEMPLAZAR y revisión final siguen pendientes.

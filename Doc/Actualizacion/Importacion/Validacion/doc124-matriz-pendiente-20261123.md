@@ -1,7 +1,8 @@
 # DOC-124: preparación de la matriz restante
 
 Estado:21/23 tareas. El recorrido real de Órdenes está aprobado y cerrado;
-AGREGAR/REEMPLAZAR y los duplicados aún no tienen evidencia real completa.
+AGREGAR ya aprobó3/3 casos reales, incluidos duplicados internos/existentes;
+[resultado](doc124-e2e-agregar-resultado-20261123.md). REEMPLAZAR sigue pendiente.
 Este documento no autoriza otra ventana ni modifica la configuración del ambiente.
 
 ## Recursos y condición pendiente
@@ -42,9 +43,9 @@ el usuario autorizó después «aplica los archivos por mi» y se aplicaron/veri
 | Caso | Destino y contenido | Resultado esperado |
 |---|---|---|
 | CREAR válido | Plantilla27, copia compatible de Órdenes,12759 filas | OK/PREPARADA; tabla física sigue ausente. Ya acreditado individualmente. |
-| AGREGAR válido | CONTRATOS, claves nuevas contrastadas por MySQL | OK/PREPARADA; ninguna fila insertada. |
-| AGREGAR con duplicado interno | Dos claves iguales según tipo/collation físicos | CLAVES_INVALIDAS y CLAVE_DUPLICADA_ARCHIVO; RECIBIDA. |
-| AGREGAR con clave existente | Clave tomada por SELECT privado del destino autorizado | CLAVES_INVALIDAS y CLAVE_EXISTENTE_DESTINO; RECIBIDA. |
+| AGREGAR válido | CONTRATOS,8000 claves nuevas contrastadas por MySQL | PASS real, PREPARADA; ninguna fila insertada. |
+| AGREGAR con duplicado interno | Dos claves iguales según tipo/collation físicos | PASS real, CLAVES_INVALIDAS y CLAVE_DUPLICADA_ARCHIVO; RECIBIDA. |
+| AGREGAR con clave existente | Clave tomada por SELECT privado del destino autorizado | PASS real, CLAVES_INVALIDAS y CLAVE_EXISTENTE_DESTINO; RECIBIDA. |
 | REEMPLAZAR válido | Incluye una coincidencia existente, sin duplicados internos | OK/PREPARADA; se admite coincidencia, sin sustituir datos. |
 | REEMPLAZAR con duplicado interno | Dos claves equivalentes en el archivo | CLAVES_INVALIDAS y CLAVE_DUPLICADA_ARCHIVO; RECIBIDA. |
 

@@ -122,9 +122,10 @@ en esa misma sesión. Cualquier error u otro resultado exige `ROLLBACK;` y revis
 Cerrar la sesión sin COMMIT no acredita aplicación. Confirmar archivo, ID devuelto
 y COMMIT; el agente verificará mediante SELECT antes de la E2E dependiente.
 
-15 y16 ya están aplicados y verificados en este ambiente. **No aplicar17 todavía**:
-se prepara la ventana `--excel-add` sobre plantilla28/revisión1. Tras su PASS/cierre se aplica17,
-se releen revisión2/huella y se prepara otra ventana `--excel-replace`.
+15 y16 ya están aplicados y verificados en este ambiente. La ventana `--excel-add`
+sobre plantilla28/revisión1 ya aprobó3/3 casos y quedó cerrada; [resultado real](../Validacion/doc124-e2e-agregar-resultado-20261123.md).
+El siguiente paso pendiente es17, con plantilla esperada28; después se releen
+revisión2/huella y se prepara otra ventana `--excel-replace`. No repetir AGREGAR.
 Cada ventana usa IDs nuevos, consentimiento explícito y secretos efímeros;
 no guarda plantillas ni aplica SQL. Los PASS parciales se revisan juntos con el
 CREAR de Órdenes; una fase aislada no completa2.6 ni permite archivar DOC124.

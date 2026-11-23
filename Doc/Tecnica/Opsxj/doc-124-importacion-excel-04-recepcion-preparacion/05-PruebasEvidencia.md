@@ -5,9 +5,13 @@
 - Clasificacion: cross_cutting (Transversal)
 
 Estado vigente2026-11-23: E2E real de Órdenes aprobada1/1,12759 filas PREPARADA,
-ventana cerrada y recursos conservados. La matriz completa sigue pendiente. Los
+ventana cerrada y recursos conservados. AGREGAR/CONTRATOS posterior aprobó3/3 casos,
+con8000 filas PREPARADA y duplicados internos/existentes rechazados;625 registros
+destino intactos y tres locks libres. REEMPLAZAR y revisión final siguen pendientes. Los
 cortes locales y de preparación que siguen son históricos; el resultado real
-vigente está en doc124-e2e-ordenes-resultado-20261123.md/JSON.
+vigentes están en doc124-e2e-ordenes-resultado-20261123.md/JSON y
+doc124-e2e-agregar-resultado-20261123.md/JSON. Este último registra28 llamadas Excel
+y69 SELECT externos acumulados. No sustituye la matriz completa;21/23 tareas.
 
 ## Evidencia requerida
 
