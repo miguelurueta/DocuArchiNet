@@ -19,3 +19,11 @@ del control Rows.14/14 pruebas focales aprobadas. El inspector DOC110, modo Doc1
 ejecutó34 SELECT de resolución del módulo/metadatos en su última lectura completa; eso acredita inventario,
 no E2E real. Fuentes consumidas EGRESOS/CRÉDITOS identificadas; condiciones de claves,
 plantillas y actividad se documentan en Validacion/doc124-reutilizacion-recursos-20261123.md.
+
+Nueva solicitud del usuario: plantilla de Órdenes2025 y20000 filas. Alta27/revisión1,
+siete campos, verificada por SELECT mediante repositorio existente; sin tabla física
+o filas importadas. La copia privada con encabezados en fila1 pasó lectura completa:
+12759 órdenes,0 incidencias. Original intacto. Configuración20000 sin override local;
+16/16 pruebas y1054 controles nativos (246+318+490), incluyendo20.000/20.001. Este
+corte sí tiene escritura administrativa de configuración autorizada; no es E2E real.
+Detalle en Validacion/doc124-ordenes-plantilla-20000-20261123.md/JSON.

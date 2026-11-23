@@ -73,7 +73,7 @@ El sistema SHALL cumplir D-04: Resolver DA por recursos del módulo sin otra con
 
 ### Requirement: RQ-05 Lectura completa y límites heredados
 
-El sistema SHALL cumplir D-05: Usar ServicioLecturaExcel con límites positivos del servidor10000 filas/10MB decimal, conservando coordenadas/tipos. Ninguna muestra o prefijo acredita validez; errores detienen publicación PREPARADA y mantienen RECIBIDA.
+El sistema SHALL cumplir D-05: Usar ServicioLecturaExcel con límites positivos del servidor,10000 filas por defecto y20000 configuradas por solicitud del usuario2026-11-23, con10MB decimal, conservando coordenadas/tipos. Ninguna muestra o prefijo acredita validez; errores detienen publicación PREPARADA y mantienen RECIBIDA.
 
 #### Scenario: Fronteras de archivo y filas
 

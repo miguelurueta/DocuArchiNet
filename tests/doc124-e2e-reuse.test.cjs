@@ -24,6 +24,10 @@ test('DOC124 permite reutilizar fuentes DOC110 y tablas existentes sin declararl
  }
  const s=scope();s.disposable=false;s.destinationReadOnly=false;assert.throws(()=>validateScope(s,profile.baseUrl),/DOC124_SCOPE_INVALID/);
 });
+test('DOC124 admite el archivo de órdenes con12759 filas y el máximo configurado20000',()=>{
+ for(const count of [12759,20000]){const s=scope();s.cases.forEach(c=>c.filasEsperadas=count);assert.equal(validateScope(s,profile.baseUrl),s);}
+ const s=scope();s.cases[0].filasEsperadas=20001;assert.throws(()=>validateScope(s,profile.baseUrl),/DOC124_SCOPE_INVALID/);
+});
 test('DOC124 reutiliza huella completa DOC32 para una fuente existente de más de10000 filas',async()=>{
  const table=sourceFixture('imp_02_egresos').table,calls=[];let hash='a'.repeat(64);
  const query=async(sql,args)=>{calls.push({sql,args});assert.match(sql,/^SELECT\b/);assert.deepEqual(args,[table]);if(sql.includes('information_schema.TABLES'))return [{ENGINE:'InnoDB',TABLE_TYPE:'BASE TABLE',TABLE_COLLATION:'latin1_swedish_ci'}];if(sql.includes('information_schema.COLUMNS'))return [{COLUMN_NAME:'CONSECUTIVO',COLUMN_TYPE:'varchar(250)'},{COLUMN_NAME:'BENEFICIARIO',COLUMN_TYPE:'varchar(255)'}];if(sql.includes('information_schema.STATISTICS'))return [];throw Error('unsupported control');};

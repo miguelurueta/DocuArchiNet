@@ -62,6 +62,14 @@ La visibilidad de information_schema.SCHEMA_PRIVILEGES depende de la cuenta cons
 
 ## Confirmación y revisión
 
+[13-plantilla-ordenes-2025-doc124.sql](13-plantilla-ordenes-2025-doc124.sql) documenta
+la plantilla27 creada a solicitud expresa del usuario por el repositorio del proyecto:
+conexión6, Hoja1, clave NROORDEN y siete campos. El alta ya está aplicada y verificada
+por SELECT; no repetirla. El archivo SQL permite revisión o aplicación manual en otro
+ambiente compatible. No crea tabla física ni importa órdenes. El máximo20000 queda
+configurado en Web.config; el original se conserva y se entrega una copia con fila1
+de encabezados, porque la fila1 original es un título.
+
 DOC-124 entrega además [12-preflight-recursos-e2e-doc124.sql](12-preflight-recursos-e2e-doc124.sql),
 solo SELECT sobre las fuentes existentes EGRESOS/CRÉDITOS y sus plantillas/índices.
 No crea tablas de prueba ni corrige/activa datos o configuración. El control completo

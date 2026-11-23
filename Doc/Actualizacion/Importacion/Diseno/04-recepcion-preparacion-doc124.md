@@ -146,3 +146,19 @@ Antes de ejecutar faltan autorización nueva del ambiente/cuentas/efectos, alcan
 concreto de archivos/plantillas sobre los destinos existentes y preflight confirmado. El sitio actual
 mantiene la DLL anterior: el despliegue del build aislado también debe autorizarse
 en el ambiente acordado. Autorizaciones DOC122 cerradas no se reabren.
+
+## Órdenes2025 y límite configurado20000
+
+Solicitud posterior del usuario2026-11-23: crear la plantilla y aumentar a20000 filas.
+Se añade `ImportacionExcel.MaxFilasDatos=20000` en Web.config, reutilizando el mecanismo
+de configuración existente; el valor predeterminado del lector aislado sigue10000.
+El alcance E2E admite hasta20000 y conserva10 MB decimales. La nueva plantilla27,
+`imp_02_ordenes_2025`, usa conexión6, Hoja1 y clave textual NROORDEN; siete campos
+incluyen las dos fechas DATE. Es intención CREAR, sin crear aún la tabla física.
+
+El archivo original contiene un título en fila1 y encabezados en fila2: las órdenes
+reales son12759, no12760; el conteo anterior incluía esa fila de encabezados. Se genera
+una copia local compatible, quitando únicamente el título y ajustando referencias,
+sin cambiar valores, formato o el original. Lector DOC123 sobre esa copia:12759 filas
+completas,0 incidencias con máximo20000. Es validación local, no E2E real de servicios
+ni confirmación/importación. SQL13 y evidencia específica documentan el alta autorizada.

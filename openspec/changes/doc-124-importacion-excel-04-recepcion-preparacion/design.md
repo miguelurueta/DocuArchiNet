@@ -69,7 +69,7 @@ Evidencia inspeccionada: ImportacionExcelConexionAdapter.Resolver; MySqlFuenteIm
 
 ### D-05 / RQ-05 — Lectura completa y límites heredados
 
-Usar ServicioLecturaExcel con límites positivos del servidor10000 filas/10MB decimal, conservando coordenadas/tipos. Ninguna muestra o prefijo acredita validez; errores detienen publicación PREPARADA y mantienen RECIBIDA.
+Usar ServicioLecturaExcel con límites positivos del servidor,10000 filas por defecto y20000 configuradas por solicitud del usuario2026-11-23, con10MB decimal, conservando coordenadas/tipos. Ninguna muestra o prefijo acredita validez; errores detienen publicación PREPARADA y mantienen RECIBIDA.
 
 Evidencia inspeccionada: ServicioLecturaExcel.Leer; ResultadoLecturaExcel.Valido/LecturaCompleta; ImportacionExcelConexionAdapter.Limite.
 
