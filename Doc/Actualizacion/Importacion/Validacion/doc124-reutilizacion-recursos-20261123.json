@@ -1,0 +1,140 @@
+{
+  "issue": "DOC-124",
+  "date": "2026-11-23",
+  "base": "a62db54fdf690d68f340b0332bab7cc3cf9f3cf6",
+  "status": "REUTILIZACION_AJUSTADA_E2E_REAL_PENDIENTE",
+  "request": "Reutilizar E2E existentes y tablas consumidas en este repositorio",
+  "reuse": {
+    "runner": "DOC110",
+    "excelSuite": "DOC122/DOC124",
+    "profile": "DOC88 existente",
+    "authentication": "createWorkflowLoginPageSession",
+    "metadataControl": "DOC32 queryRows",
+    "businessControl": "DOC32 queryFingerprint, todas las filas sin LIMIT",
+    "scope": "destinos existentes conservados mediante destinationReadOnly; no se exige descartarlos",
+    "newInfrastructure": false
+  },
+  "lastCompleteInspection": {
+    "status": "INSPECTED",
+    "finishedUtc": "2026-11-23T13:03:16.3438186Z",
+    "selectCount": 34,
+    "visibleCatalogs": 5,
+    "installedExecutionCatalogs": 1,
+    "reportedSources": [
+      {
+        "table": "imp_02_egresos",
+        "key": "CONSECUTIVO",
+        "consumedByProvider": true,
+        "policy": {
+          "id": 2,
+          "active": 1,
+          "revision": 2,
+          "mode": "CONEXION"
+        },
+        "keyColumn": {
+          "type": "varchar(250)",
+          "nullable": "YES"
+        },
+        "indexes": [],
+        "legacyTemplate": {
+          "id": 2,
+          "connectionId": 2,
+          "name": "EGRESOS",
+          "key": null,
+          "revision": 1,
+          "active": 1
+        }
+      },
+      {
+        "table": "imp_02_creditos",
+        "key": "CONSECUTIVO",
+        "consumedByProvider": true,
+        "policy": {
+          "id": 3,
+          "active": 0,
+          "revision": 6,
+          "mode": "CONEXION"
+        },
+        "keyColumn": {
+          "type": "varchar(250)",
+          "nullable": "YES"
+        },
+        "indexes": [
+          {
+            "name": "PRIMARY",
+            "unique": true,
+            "column": "IMP_02_ID_CLAVE",
+            "prefix": null
+          }
+        ],
+        "legacyTemplate": {
+          "id": 6,
+          "connectionId": 3,
+          "name": "CREDITOS",
+          "key": null,
+          "revision": 1,
+          "active": 1
+        }
+      }
+    ],
+    "matchingModuleConnectionIds": [
+      6
+    ],
+    "runtimeArtifact": "tools/e2e/artifacts/doc124-existing-resources-select.json",
+    "runtimeArtifactSha256": "262b84a4c707deef515f3c59c3567a69f9e2996dcae7b224a6c7b1c6fbcb6f0f",
+    "credentialsInReport": false,
+    "readBusinessRows": false,
+    "http": 0,
+    "authentication": 0,
+    "ddl": 0,
+    "dml": 0,
+    "cleanup": 0,
+    "earlierLegacyCatalogFailure": "1054: diagnosticado y reportado como columnas faltantes; sin migracion"
+  },
+  "tests": {
+    "command": "node --test tests/doc122-e2e-reuse.test.cjs tests/doc124-e2e-reuse.test.cjs",
+    "passed": 14,
+    "failed": 0,
+    "playwrightDiscovery": 3,
+    "realPlaywrightExecuted": 0,
+    "powershellAst": "PASS",
+    "openspecStrict": "PASS",
+    "refinement": "15/15"
+  },
+  "application": {
+    "unchangedFrom": "a62db54fdf690d68f340b0332bab7cc3cf9f3cf6",
+    "deployed": false,
+    "webConfigChanged": false,
+    "backendSha256": "79da3a8841e22d8c5835b2495ceb0179946c67b204effcf326c2d8030c722779"
+  },
+  "sql": {
+    "file": "Doc/Actualizacion/Importacion/Sql/12-preflight-recursos-e2e-doc124.sql",
+    "statements": "SELECT solamente",
+    "status": "ENTREGADO_PARA_EJECUCION_MANUAL"
+  },
+  "pending": {
+    "tasks": [
+      "2.6",
+      "3.2"
+    ],
+    "fullRealE2E": "NO_EJECUTADA",
+    "prerequisites": [
+      "Plantillas existentes legadas sin clave web y con referencias de conexion distintas del modulo inspeccionado",
+      "EGRESOS sin indice unico de CONSECUTIVO",
+      "CREDITOS con fuente inactiva y PK tecnica; sin unicidad natural acreditada",
+      "Fixture DOC122 inactivo; no reactivar o configurar automaticamente",
+      "Despliegue/prueba de servicios en ventana de ambiente/cuentas acordada"
+    ]
+  },
+  "normalizedSourceSha256": {
+    "tools/e2e/scripts/run-doc110-profile-session.cjs": "ed2af0c95853524f5643cbe614a5c12a5143a0ce3ca27dac47de16aaeeb006f0",
+    "tools/e2e/scripts/inspect-doc110-final-prerequisites.ps1": "1f55e77eddbab3dde925c8cccb1b76ea499dfbee2503f37b4e6e1de0707f8a80",
+    "tools/e2e/tests/importacion-excel.spec.cjs": "7ed9830cb0473602c3b454cd4279496ed53cb5f22f5134aa6ac432da2a44faa2",
+    "tools/e2e/tests/support/doc124-excel-scope.cjs": "bd7ad56fcc165af71ce95f96b8c8f5856a0f63b99e49ee5b95b986676ecfefed",
+    "tools/e2e/tests/support/doc110-source-fixture.cjs": "8dd58bb5c041acf7512301fdc479c2b391d773ebf00aa184b7128f23f7c92ca8",
+    "tools/e2e/scripts/support/doc32-e2e-odbc.cjs": "4e103b5a42dc1d74dc192405958818136195b2c895d57f9d6d23b61e938afde5",
+    "tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1": "30eea8c560fa6a707346da7e4310aed3214ee468041fede6a4d2214c34e37e67",
+    "tests/doc124-e2e-reuse.test.cjs": "2908b15a6e481fb737b653dd2c7edd841a0eb4345748955c13ba1d13df150cc3",
+    "Doc/Actualizacion/Importacion/Sql/12-preflight-recursos-e2e-doc124.sql": "e498a3572a9bdfc487f0a21f2cd24dfa8890c962ac5562738b83cf54bd8a624f"
+  }
+}

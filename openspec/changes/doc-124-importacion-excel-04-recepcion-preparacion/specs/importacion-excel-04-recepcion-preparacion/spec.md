@@ -204,11 +204,11 @@ El sistema SHALL cumplir D-13: Extender el ejecutable/harness DOC122/DOC110 y fi
 
 ### Requirement: RQ-14 E2E real de recepción y preparación
 
-El sistema SHALL cumplir D-14: Extender tools/e2e existente para ASHX/ASMX reales, sin infraestructura paralela ni heredar autorización DOC122. Acreditar con autorización específica ámbito/cuentas/datos descartables: acceso, tres modos, dos sesiones y destino sin mutación.
+El sistema SHALL cumplir D-14: Extender tools/e2e existente para ASHX/ASMX reales, sin infraestructura paralela ni heredar autorización DOC122. Reutilizar las tablas consumidas y los controles existentes, conservando los destinos mediante SELECT y huellas completas. Acreditar con autorización específica ámbito/cuentas/archivos y ejecuciones de prueba: acceso, tres modos, dos sesiones y destino sin mutación; no exigir tablas nuevas o declarar descartables las existentes.
 
 #### Scenario: Recorrido real autorizado
 
-- **WHEN** se autoriza ambiente/cuentas/archivos y destinos descartables compatibles
+- **WHEN** se autoriza ambiente/cuentas/archivos y uso de los destinos existentes compatibles sin mutación
 - **THEN** E2E reutilizada ejecuta recepción y preparación reales hasta RECIBIDA/PREPARADA y SELECT acredita destino sin mutación
 
 #### Scenario: Concurrencia independiente y gate

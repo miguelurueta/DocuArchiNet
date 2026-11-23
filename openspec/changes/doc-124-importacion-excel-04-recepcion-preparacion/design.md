@@ -123,7 +123,7 @@ Evidencia inspeccionada: tests/ImportacionExcelBehaviorTests.cs; tests/Importaci
 
 ### D-14 / RQ-14 — E2E real de recepción y preparación
 
-Extender tools/e2e existente para ASHX/ASMX reales, sin infraestructura paralela ni heredar autorización DOC122. Acreditar con autorización específica ámbito/cuentas/datos descartables: acceso, tres modos, dos sesiones y destino sin mutación.
+Extender tools/e2e existente para ASHX/ASMX reales, sin infraestructura paralela ni heredar autorización DOC122. Reutilizar las tablas consumidas y los controles existentes, conservando los destinos mediante SELECT y huellas completas. Acreditar con autorización específica ámbito/cuentas/archivos y ejecuciones de prueba: acceso, tres modos, dos sesiones y destino sin mutación; no exigir tablas nuevas o declarar descartables las existentes.
 
 Evidencia inspeccionada: tools/e2e/tests/importacion-excel.spec.cjs; run-doc110-profile-session.cjs; AGENTS.md; tools/e2e/AGENT-RUNBOOK.md.
 
@@ -196,7 +196,7 @@ Pruebas locales reutilizan ejecutable y compilador DOC122/DOC110, fixtures/lecto
 
 E2E DOC124 sí aplica al recorrido de servicios ASMX/ASHX, aunque la pantalla se implementará después. Extender importacion-excel.spec.cjs y runner/consola/perfil existentes con modo/alcance DOC124 separado, p.ej. --excel-prepare. Mover skip DOC122 a su propia suite; no autorizar DOC124 por una variable DOC122/DOC110. Reutilizar autenticación y safe request, con secretos efímeros y sin grabaciones/cookies/token en reportes.
 
-Preparar código/E2E y alcance revisable antes de solicitar ejecución. La autorización real debe identificar ambiente, cuentas, plantillas/destinos descartables y efectos permitidos (emisión, archivos, ejecuciones, temporales y guardado de plantilla solo si se incluye). Instalación/índices/fixtures permanentes se ejecutan manualmente por usuario; tests no siembran/limpian/reparan bases. AGREGAR/REEMPLAZAR usan un destino de prueba ya autorizado, CREAR solo un nombre ausente; preparar en ambos conserva filas/esquema destino mediante SELECT de control. No seleccionar EGRESOS por defecto ni usar CONTRATOS como fixture.
+Preparar código/E2E y alcance revisable antes de solicitar ejecución. La autorización real debe identificar ambiente, cuentas, plantillas/archivos y efectos permitidos (emisión, archivos, ejecuciones, temporales y guardado de plantilla solo si se incluye). Instalación/índices/fixtures permanentes se ejecutan manualmente por usuario; tests no siembran/limpian/reparan bases. AGREGAR/REEMPLAZAR reutilizan destinos existentes ya consumidos y autorizados, CREAR solo una intención de nombre ausente; preparar en ambos conserva filas/esquema mediante SELECT de control. Instrucción del usuario2026-11-23: no exigir tablas nuevas o descartables; se permite EGRESOS/CRÉDITOS y los demás destinos explícitos en lectura sin modificarlos. No elegir una fuente por defecto ni presentar un rechazo de esquema como PREPARADA válida.
 
 Para concurrencia usar dos sesiones autenticadas independientes y confirmar contención MySQL/ganador, no solo serialización ASP.NET. Cargas/pruebas anteriores cerradas no se reabren. Si falta autorización o instalación necesaria, registrar el bloqueo de E2E real y continuar implementación local independiente; no archivar marcando la tarea real como simulada o no aplicable.
 

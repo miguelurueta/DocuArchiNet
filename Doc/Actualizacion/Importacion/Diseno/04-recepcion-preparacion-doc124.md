@@ -123,7 +123,7 @@ Reutiliza `run-doc110-profile-session.cjs --excel-prepare` y
 `importacion-excel.spec.cjs`. El scope DOC124 debe identificar ambiente, empresa,
 usuario, módulo y al menos cinco casos: CREAR/AGREGAR/REEMPLAZAR válidos, duplicado
 interno y clave existente. Cada caso fija plantilla/revisión/huella, tabla
-descartable, archivo local íntegro/hoja, filas y códigos esperados. Un caso válido
+existente conservada o intención CREAR sin tabla, archivo local íntegro/hoja, filas y códigos esperados. Un caso válido
 de 8000–10000 filas se usa para contención desde dos sesiones independientes; si
 no observa un ganador y OPERACION_EN_CURSO, no acredita concurrencia.
 
@@ -133,7 +133,16 @@ no añade una cuenta ni configuración web. Comprueba identidad propia en ejecuc
 y huellas de filas/esquema/índices del destino antes/después. No instala, siembra,
 guarda plantillas o limpia tablas. La cuenta restringida acredita rechazo.
 
+Corrección por instrucción del usuario2026-11-23: reutilizar las tablas ya consumidas
+por las E2E, incluyendo EGRESOS/CRÉDITOS; se retira la exclusión fija por nombre de
+EGRESOS/CONTRATOS. `destinationReadOnly=true` permite conservar una tabla existente
+sin declararla descartable. Metadatos mediante queryRows y datos mediante
+queryFingerprint DOC32, con orden físico completo y sin muestras/LIMIT. Así una
+fuente con más de10000 filas puede comprobarse sin elevar el límite del Excel.
+El inspector DOC110 incorpora Doc124Excel para reutilizar su conexión de módulo
+y descubrir fuentes/proveedores/catálogos existentes, únicamente por SELECT.
+
 Antes de ejecutar faltan autorización nueva del ambiente/cuentas/efectos, alcance
-concreto de destinos/archivos descartables y preflight confirmado. El sitio actual
+concreto de archivos/plantillas sobre los destinos existentes y preflight confirmado. El sitio actual
 mantiene la DLL anterior: el despliegue del build aislado también debe autorizarse
 en el ambiente acordado. Autorizaciones DOC122 cerradas no se reabren.

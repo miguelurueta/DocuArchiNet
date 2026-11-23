@@ -93,22 +93,16 @@ test('@doc122-write roundtrip y conflicto de revisión sobre plantilla descartab
 });
 
 test.describe('DOC124 recepción y preparación',()=>{
- test.skip(process.env.DOC124_E2E_AUTHORIZED!=='YES','NO_EJECUTADO: falta autorización DOC124 del ambiente, cuentas y datos descartables.');
+ test.skip(process.env.DOC124_E2E_AUTHORIZED!=='YES','NO_EJECUTADO: falta autorización DOC124 del ambiente, cuentas y archivos de prueba; se conservan los destinos existentes.');
  test('@doc124-prepare servicios reales, tres modos, recuperación y dos sesiones',async({browser})=>{
-  const {validateScope,readFixture}=require('./support/doc124-excel-scope.cjs');
-  const {queryRows}=require('../scripts/support/doc32-e2e-odbc.cjs');
-  const path=require('node:path'),crypto=require('node:crypto');
+  const {validateScope,readFixture,snapshotDestination}=require('./support/doc124-excel-scope.cjs');
+  const {queryRows,queryFingerprint}=require('../scripts/support/doc32-e2e-odbc.cjs');
+  const path=require('node:path');
   const s=validateScope(JSON.parse(fs.readFileSync(required('DOC124_E2E_SCOPE_PATH'),'utf8').replace(/^\uFEFF/,'')),required('DOC124_E2E_BASE_URL'));
   //Controles SELECT existentes: sólo se devuelven huellas al reporte, nunca filas o secretos.
   async function snapshot(c){
    const query=(sql,params=[])=>queryRows(sql,params,process.env,s.controlPrefix);
-   const table=await query("SELECT ENGINE,TABLE_TYPE,TABLE_COLLATION FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=?",[c.tabla]);
-   const columns=await query('SELECT COLUMN_NAME,COLUMN_TYPE,IS_NULLABLE,COLUMN_DEFAULT,CHARACTER_SET_NAME,COLLATION_NAME,EXTRA FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=? ORDER BY ORDINAL_POSITION',[c.tabla]);
-   const indexes=await query('SELECT INDEX_NAME,NON_UNIQUE,SEQ_IN_INDEX,COLUMN_NAME,SUB_PART FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=? ORDER BY INDEX_NAME,SEQ_IN_INDEX',[c.tabla]);
-   check((c.modo==='CREAR')===!table.length,'DOC124_DESTINATION_SCOPE_CHANGED');
-   const rows=table.length?await query('SELECT * FROM `'+c.tabla+'`'):[];
-   const canonicalRows=rows.map(r=>JSON.stringify(r)).sort();
-   return crypto.createHash('sha256').update(JSON.stringify({table,columns,indexes,rows:canonicalRows})).digest('hex');
+   return snapshotDestination(query,(sql,marker)=>queryFingerprint(sql,marker,process.env,s.controlPrefix),c.tabla,c.modo!=='CREAR');
   }
   async function emit(auth,c){const r=await call(auth,'IniciarRecepcionExcel',{ConexionId:c.conexionId,PlantillaId:c.plantillaId,RevisionEsperada:c.revisionEsperada,HuellaEsperada:c.huellaEsperada},auth.token);check(r.ok&&r.datos?.IdCarga&&r.datos?.ReferenciaRecepcion,'DOC124_START_FAILED');return r.datos;}
   async function upload(auth,c,i,b){const r=await safePost(auth.context.request,new URL('generic_control/ImportacionExcelUpload.ashx',auth.baseUrl).href,{headers:{'X-Importacion-Excel-CSRF':auth.token},multipart:{idCarga:i.IdCarga,referenciaRecepcion:i.ReferenciaRecepcion,conexionId:String(c.conexionId),plantillaId:String(c.plantillaId),archivo:{name:path.basename(c.archivoPath),mimeType:'application/octet-stream',buffer:b}}},'ExcelUpload');let body;try{body=await r.json();}catch{throw Error('DOC124_UPLOAD_JSON_REQUIRED');}check(r.status()===200&&body.ok&&body.datos?.IdCarga===i.IdCarga&&body.datos.ArchivoHash===c.archivoHash,'DOC124_UPLOAD_FAILED');return body.datos;}

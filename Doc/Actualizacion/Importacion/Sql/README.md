@@ -62,6 +62,13 @@ La visibilidad de information_schema.SCHEMA_PRIVILEGES depende de la cuenta cons
 
 ## Confirmación y revisión
 
+DOC-124 entrega además [12-preflight-recursos-e2e-doc124.sql](12-preflight-recursos-e2e-doc124.sql),
+solo SELECT sobre las fuentes existentes EGRESOS/CRÉDITOS y sus plantillas/índices.
+No crea tablas de prueba ni corrige/activa datos o configuración. El control completo
+de filas durante la E2E reutiliza la huella DOC32, sin el límite10000 de su vía Rows;
+esto no modifica el límite10000 del Excel que se prepara. Los destinos existentes
+pueden usarse en lectura con huellas antes/después, sin declararlos descartables.
+
 DOC-124 entrega [11-preflight-doc124.sql](11-preflight-doc124.sql), únicamente SELECT,
 para ejecutar manualmente por bloques RA/DA. Comprueba metadatos de las 22 columnas,
 índices completos, política empresarial y capacidades observables. **ENTREGADO,
@@ -69,7 +76,7 @@ PENDIENTE_EJECUCION_MANUAL**: no se ha aplicado ni consultado en esta implementa
 No se prevé migración permanente nueva; no reaplicar 01–10. Una diferencia detectada
 requiere otro archivo específico, aplicación manual y confirmación antes de verificar.
 Las temporales propias de Preparar pertenecen a la operación, no a la instalación;
-la E2E necesita autorización independiente. No usa EGRESOS/CONTRATOS como fixture.
+la E2E necesita autorización independiente. Conserva los datos de EGRESOS/CONTRATOS.
 
 Registrar por archivo: ambiente, destino lógico, fecha, aplicado/omitido/error y resultado saneado. Después de la confirmación del usuario el agente revisa exclusivamente SELECT; una diferencia que requiera cambios produce otro archivo para ejecución manual. Distinguir ENTREGADO, EJECUTADO_CONFIRMADO y VERIFICADO_SELECT, sin sustituir un estado por otro.
 
