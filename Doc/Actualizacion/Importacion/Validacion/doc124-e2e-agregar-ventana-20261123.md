@@ -45,3 +45,8 @@ Preparación local:18/18 focales y scope/archivos íntegros aprobados, sin login
 E2E ejecutada a este corte. Plan/libros bajo `.tmp/doc124-real/<ventana>/`, excluidos
 de Git. El resultado real, cuando exista, se documentará por separado. Esta fase
 no sustituye REEMPLAZAR ni completa por sí sola2.6/3.2;21/23 tareas.
+
+Resultado posterior: la ventana inicial se detuvo en el control del propietario,
+con1 SELECT y0 solicitudes Excel. Se cerró y eliminó claves. [Parada y continuación
+preparada](doc124-e2e-agregar-parada-20261123.md): nueva589a3040, cuenta resuelta por
+ID141 y presupuesto previo conservado, sin repetir automáticamente la ventana.
