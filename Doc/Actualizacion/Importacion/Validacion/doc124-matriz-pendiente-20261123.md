@@ -18,15 +18,18 @@ VARCHAR(250); FECHA debe tratarse como texto. No repetir el SQL08.
 El mismo inventario no encontró una política de fuente para CONTRATOS ni una
 plantilla Excel compatible. Es un antecedente, no una verificación nueva de la base.
 
-Se requiere confirmar con el responsable si todos esos datos son de la empresa2.
-No se puede elegir aislamiento CONEXION por ausencia de columna empresarial.
-Si contiene varias empresas, el esquema observado no permite filtrar por empresa:
-esa tabla no es elegible para un éxito con política COLUMNA sin otro diseño
-autorizado. No alterar sus registros para hacer pasar la prueba.
+La investigación posterior solicitada por el usuario resolvió el ámbito:
+[empresa2 comprobada](doc124-empresa-contratos-verificada-20261123.md), por decisión
+previa de empresa única y12 SELECT actuales de empresas/módulos/destino.
+CONTRATOS conserva625 filas,0 claves nulas/vacías y0 grupos duplicados. No hay
+otra empresa configurada ni módulos de otra empresa compartiendo ese destino.
+Corresponde preparar política CONEXION para empresa2; no se deduce de la ausencia
+de columna empresarial ni se activa automáticamente. No alterar los registros
+para hacer pasar la prueba.
 
 Se entrega [SQL14](../Sql/14-preflight-contratos-e2e-doc124.sql), solo SELECT,
 para comprobar RA/DA y preparar la configuración exacta. No se ha ejecutado.
-Confirmado el aislamiento, cualquier alta o adecuación se entrega en otro SQL
+El aislamiento configurado está confirmado; cualquier alta o adecuación se entrega en otro SQL
 manual, con actor/motivo/historial de fuente cuando corresponda. No activar una
 fuente ni publicar un proveedor desde la E2E.
 
@@ -61,7 +64,9 @@ el ID de Órdenes ni reabrir la ventana cerrada para completar la matriz.
 
 Se contrastaron los contratos con `ServicioPreparacionExcel`, el validador MySQL,
 el adaptador de política, el repositorio de plantillas y la suite E2E existente.
-Las verificaciones de esta continuación son locales; no hubo login ni SQL real.
+Las verificaciones iniciales de esta revisión fueron locales. La investigación
+posterior del ámbito añadió12 SELECT reales, documentados por separado; no hubo
+login web ni otra ejecución E2E.
 
 | Requisitos | Evidencia disponible y límite |
 |---|---|

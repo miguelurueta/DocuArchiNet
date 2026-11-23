@@ -82,9 +82,12 @@ pueden usarse en lectura con huellas antes/después, sin declararlos descartable
 prepara la comprobación de CONTRATOS para los casos AGREGAR/REEMPLAZAR. Contiene
 solo SELECT, separados entre RA y DA: política, columnas autorizadas, esquema,
 índice, conteos y plantillas. Estado: ENTREGADO, PENDIENTE_EJECUCION_MANUAL.
-No activa fuentes ni crea plantillas. Antes de entregar una adecuación específica
-se necesita confirmar si CONTRATOS es exclusiva de la empresa2; el esquema sin
-columna empresarial no demuestra exclusividad. Los modos de la plantilla son
+No activa fuentes ni crea plantillas. La [investigación posterior solicitada por
+el usuario](../Validacion/doc124-empresa-contratos-verificada-20261123.md) confirmó
+la empresa2 mediante la decisión previa de empresa única y12 SELECT de la
+configuración actual; el esquema sin columna empresarial por sí solo no demuestra
+exclusividad. La política y la plantilla siguen sin registrar y requieren una
+entrega manual específica. Los modos de la plantilla son
 distintos: una modificación exige revisión/huella nuevas y gestión explícita,
 fuera del recorrido Preparar. [Plan de la matriz pendiente](../Validacion/doc124-matriz-pendiente-20261123.md).
 
