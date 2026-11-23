@@ -1,0 +1,57 @@
+{
+  "issueKey": "DOC-124",
+  "date": "2026-11-23",
+  "pullRequest": {
+    "number": 136,
+    "url": "https://github.com/miguelurueta/DocuArchiNet/pull/136",
+    "state": "closed",
+    "merged": true,
+    "mergedAtUtc": "2026-11-23T18:18:24Z",
+    "reviewedHeadSha": "bec2bb75dd4db496fa715f3c3e2a4a5e502165c2",
+    "mergeSha": "423f0c2387f4965ee4c7313cb0e3fa1d0d148820",
+    "reviewedAndMergedTree": "1b153791d1cd70b035be22481a0750d9e967dc85",
+    "treesIdentical": true
+  },
+  "ci": {
+    "name": "OpenSpec and opsxj tests",
+    "state": "SUCCESS",
+    "url": "https://github.com/miguelurueta/DocuArchiNet/actions/runs/45235765788/job/137906939033",
+    "scope": "Existing OpenSpec/OPSXJ workflow; excludes native and real E2E execution."
+  },
+  "jira": {
+    "url": "https://contasoftcompany.atlassian.net/browse/DOC-124",
+    "priorStatus": "En curso",
+    "transitionId": "41",
+    "status": "Listo",
+    "statusCategory": "done",
+    "verifiedAtUtc": "2026-11-23T18:19:02.754Z",
+    "commentAdded": false
+  },
+  "localIntegrationBeforeAdministrativeRecord": {
+    "branch": "main",
+    "sha": "423f0c2387f4965ee4c7313cb0e3fa1d0d148820",
+    "fastForward": true,
+    "workingTreeClean": true,
+    "aheadOfOriginMain": 0,
+    "behindOriginMain": 0
+  },
+  "acceptance": {
+    "tasks": "23/23",
+    "requirements": 14,
+    "scenarios": 31,
+    "strictOpenSpecGlobal": "95/95",
+    "governance": "72/72",
+    "localTests": "19/19",
+    "nativeSyntheticChecks": 1054,
+    "realE2ECases": 6,
+    "importedBusinessRows": 0,
+    "preservedContracts": 625,
+    "configuredMaxRows": 20000,
+    "largestRealWorkbookRows": 12759,
+    "archive": "openspec/changes/archive/2026-11-23-doc-124-importacion-excel-04-recepcion-preparacion",
+    "repeatedE2EDuringClosure": false,
+    "sqlAppliedDuringClosure": false,
+    "deploymentDuringClosure": false,
+    "remainingProductScope": "Confirmation/import and interface belong to subsequent phases."
+  }
+}

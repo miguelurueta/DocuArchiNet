@@ -6,7 +6,7 @@
 
 ## Objetivo
 
-Recepción privada y preparación verificable sobre DOC122/DOC123, revisada2026-11-23. Servicios y matriz real completos: CREAR/Órdenes1/1, AGREGAR/CONTRATOS3/3 y REEMPLAZAR2/2, incluidos duplicados internos/existentes. La revisión técnica reúne14 requisitos/31 escenarios; especificación sincronizada y cambio archivado. Integración y cierre Jira pendientes.
+Recepción privada y preparación verificable sobre DOC122/DOC123, revisada2026-11-23. Servicios y matriz real completos: CREAR/Órdenes1/1, AGREGAR/CONTRATOS3/3 y REEMPLAZAR2/2, incluidos duplicados internos/existentes. La revisión técnica reúne14 requisitos/31 escenarios; especificación sincronizada y cambio archivado. PR #136 integrado en main y Jira Listo confirmado; registro en Doc/Actualizacion/Importacion/Validacion/doc124-cierre-20261123.md/JSON.
 
 23/23 tareas,19/19 pruebas locales con1054 comprobaciones nativas, refinamiento15/15
 y gobierno72/72; verificación final y límites en Validacion/doc124-verificacion-final-20261123.md/JSON.
