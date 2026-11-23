@@ -96,8 +96,10 @@ fuera del recorrido Preparar. [Plan de la matriz pendiente](../Validacion/doc124
 **SQL15/16 APLICADOS Y VERIFICADOS2026-11-23**, por instrucción posterior expresa
 del usuario «aplica los archivos por mi»: fuente5/revisión2 y plantilla28/revisión1,
 AGREGAR. [Autorización y resultado](../Validacion/doc124-sql15-16-aplicados-20261123.md).
-No repetir15/16 en este ambiente. SQL17 sigue PENDIENTE_EJECUCION_MANUAL, después
-del PASS real de AGREGAR. Esta excepción no autoriza instalaciones desde pruebas
+No repetir15/16 en este ambiente. SQL17 se aplicó después del PASS real de AGREGAR, al continuar el
+usuario la ejecución delegada: plantilla28/revisión2/REEMPLAZAR, con datos/mapeos
+y cargas previas intactos. [Resultado y ventana siguiente](../Validacion/doc124-e2e-reemplazar-ventana-20261123.md).
+No repetir SQL17 en este ambiente. Esta excepción no autoriza instalaciones desde pruebas
 ni concede permiso general para ejecutar otros SQL. No repetir el índice08.
 
 | Orden | Archivo / destino | Efecto previsto |
@@ -124,8 +126,8 @@ y COMMIT; el agente verificará mediante SELECT antes de la E2E dependiente.
 
 15 y16 ya están aplicados y verificados en este ambiente. La ventana `--excel-add`
 sobre plantilla28/revisión1 ya aprobó3/3 casos y quedó cerrada; [resultado real](../Validacion/doc124-e2e-agregar-resultado-20261123.md).
-El siguiente paso pendiente es17, con plantilla esperada28; después se releen
-revisión2/huella y se prepara otra ventana `--excel-replace`. No repetir AGREGAR.
+SQL17 ya está aplicado y verificado, con plantilla28/revisión2 y huella nueva;
+la ventana `--excel-replace` está preparada. No repetir AGREGAR ni SQL17.
 Cada ventana usa IDs nuevos, consentimiento explícito y secretos efímeros;
 no guarda plantillas ni aplica SQL. Los PASS parciales se revisan juntos con el
 CREAR de Órdenes; una fase aislada no completa2.6 ni permite archivar DOC124.

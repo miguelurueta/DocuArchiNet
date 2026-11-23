@@ -49,6 +49,11 @@ Perfil legacy-webforms-vb. El usuario solicitó continuar desde el refinamiento 
   de CONTRATOS intactos y tres locks libres.69 SELECT externos acumulados.
   Solo faltan REEMPLAZAR y revisión final; no cerrar2.6 por este PASS parcial.
 
+  Continuación autorizada: SQL17 aplicado/verificado, plantilla28/revisión2/REEMPLAZAR;
+  datos, campos y cargas anteriores intactos. Ventana519d00f9 preparada con dos
+  archivos validados localmente,8000 filas con una clave existente y duplicado interno.
+  E2E pendiente de confirmación y claves en consola; no se marca completa por abrirla.
+
 ## 3. Documentación y revisión
 
 - [x] 3.1 [S] Documentar contrato vigente, recuperación y límites demostrados. Área/archivos: `Doc/Actualizacion/Importacion/Diseno/04-recepcion-preparacion-doc124.md; Doc/Tecnica/Opsxj/doc-124-importacion-excel-04-recepcion-preparacion/`. Origen: D-08, RQ-08. Verificación: Guía refleja snapshots efectivos, acuse incierto y diferencia entre pruebas locales/CI/reales.
