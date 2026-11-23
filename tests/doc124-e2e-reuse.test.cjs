@@ -14,6 +14,14 @@ test('DOC124 conserva autorización explícita y rechaza modos mezclados',t=>{
  const env={...fixture(t),DOC124_E2E_AUTHORIZED:'YES'};assert.equal(excelPreparationPlan(root,profile,['--excel-prepare','--headed'],env).values.DOC124_E2E_AUTHORIZED,'YES');
  for(const args of [['--excel-read','--excel-prepare'],['--excel-prepare','--source-profile'],['--excel-prepare','--excel-write']])assert.throws(()=>excelPreparationPlan(root,profile,args,env),/DOC124_MODE_CONFLICT/);
 });
+test('DOC124 archivo real usa el mismo runner y no sustituye la matriz completa',t=>{
+ const s=scope();s.escenario='archivo';s.maxFilasDatos=20000;s.cases=[{...s.cases[0],filasEsperadas:12759}];s.concurrencyCase=0;
+ const env={...fixture(t,s),DOC124_E2E_AUTHORIZED:'YES'},plan=excelPreparationPlan(root,profile,['--excel-file'],env);
+ assert.equal(plan.mode,'file');assert.equal(plan.cases,1);assert.equal(plan.childArgs.includes('@doc124-file'),true);
+ assert.throws(()=>excelPreparationPlan(root,profile,['--excel-prepare'],env),/DOC124_SCOPE_INVALID/);
+ assert.throws(()=>excelPreparationPlan(root,profile,['--excel-file','--excel-prepare'],env),/DOC124_MODE_CONFLICT/);
+ for(const change of [x=>delete x.escenario,x=>x.escenario='all',x=>x.cases[0].modo='AGREGAR',x=>x.maxFilasDatos=10000]){const invalid=structuredClone(s);change(invalid);assert.throws(()=>validateScope(invalid,profile.baseUrl),/DOC124_SCOPE_INVALID/);}
+});
 test('DOC124 exige ambiente, cuentas en scope y matriz real de tres modos/duplicados',()=>{
  validateScope(scope(),profile.baseUrl);
  for(const mutate of [s=>s.issue='DOC-122',s=>s.disposable=false,s=>s.baseUrl='https://other.invalid/',s=>s.empresaId=0,s=>s.usuarioId=0,s=>s.moduloId=0,s=>s.cases.pop(),s=>s.cases[0].tabla='imp_02_egresos;DROP',s=>s.cases[0].archivoPath='relative.xlsx',s=>s.cases[0].huellaEsperada='bad',s=>s.cases[1].filasEsperadas=1]){const s=scope();mutate(s);assert.throws(()=>validateScope(s,profile.baseUrl),/DOC124_SCOPE_INVALID/);}

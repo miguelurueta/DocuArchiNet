@@ -30,6 +30,11 @@ Perfil legacy-webforms-vb. El usuario solicitó continuar desde el refinamiento 
 - [x] 2.5 [S] Entregar preflight SELECT y guía de SQL manual de esta fase. Área/archivos: `Doc/Actualizacion/Importacion/Sql/11-preflight-doc124.sql; Doc/Actualizacion/Importacion/Sql/README.md`. Origen: D-12, RQ-12. Verificación: Instalación/índices/capacidades inspeccionables; diferencias permanentes en archivos nuevos sin ejecución automática.
 - [ ] 2.6 [M] Acreditar recorrido real autorizado de recepción y preparación. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; Doc/Actualizacion/Importacion/Validacion/`. Origen: D-14, RQ-14. Verificación: ASHX/ASMX/MySQL/archivo reales, tres modos, dos sesiones y SELECT de destino sin mutación; bloqueo explícito si falta autorización.
 
+  Evidencia parcial2026-11-23: PASS_REAL_DOC124_FILE1/1, plantilla27 y12759 órdenes,
+  recuperación/replay/CSRF, dos sesiones con ganador/OPERACION_EN_CURSO y destino
+  sin mutación;32 SELECT externos explícitos. Matriz completa AGREGAR/REEMPLAZAR y
+  duplicados aún pendiente; este caso CREAR no completa por sí solo2.6.
+
 ## 3. Documentación y revisión
 
 - [x] 3.1 [S] Documentar contrato vigente, recuperación y límites demostrados. Área/archivos: `Doc/Actualizacion/Importacion/Diseno/04-recepcion-preparacion-doc124.md; Doc/Tecnica/Opsxj/doc-124-importacion-excel-04-recepcion-preparacion/`. Origen: D-08, RQ-08. Verificación: Guía refleja snapshots efectivos, acuse incierto y diferencia entre pruebas locales/CI/reales.

@@ -1,0 +1,128 @@
+{
+  "issue": "DOC-124",
+  "status": "PASS_REAL_DOC124_FILE",
+  "scenario": "archivo_CREAR",
+  "runId": "7a82614ded3c44f8b45af3d95ab4e70b",
+  "authorization": "User: lanza la E2E; plantilla27 y copia validada, perfil/cuentas existentes",
+  "baseHead": "113ef57237e58008c44d5b6248c05325f5729c07",
+  "startedUtc": "2026-11-23T13:44:33.110Z",
+  "finishedUtc": "2026-11-23T13:48:02.182Z",
+  "closed": true,
+  "secretsCleared": true,
+  "results": {
+    "passed": 1,
+    "skipped": 0,
+    "retries": 0,
+    "serviceRequests": 12,
+    "authenticatedSessions": 3,
+    "windowExternalSelects": 27,
+    "followupSelects": 5,
+    "totalExplicitSelectControls": 32,
+    "protectedUnchanged": true
+  },
+  "execution": {
+    "status": "VERIFIED_PREPARADA_REAL",
+    "runId": "7a82614ded3c44f8b45af3d95ab4e70b",
+    "loadId": "7c5d70b7-ecb6-45ca-9698-deac40b61db8",
+    "templateId": 27,
+    "companyId": 2,
+    "userId": 141,
+    "moduleId": 11,
+    "connectionId": 6,
+    "state": "PREPARADA",
+    "mode": "CREAR",
+    "rowsExpected": 12759,
+    "rowsConfirmed": 0,
+    "revision": 1,
+    "fileBytes": 607575,
+    "fileSha256": "c3df48b50eec9a1a650f2af354d4a99f36d45801e95506310ceb7174d9cf49c9",
+    "configurationSha256": "994c9cf201e56e32141f51610f3b672d52f7aa56d5466473391af56e3e768f03",
+    "schemaSha256": "4e25087d575a6fbb7250494a185f8ef37a4e931104fa2c87fe9241c5b7cfff66",
+    "maxRows": 20000,
+    "privateFileVerified": true,
+    "configurationDocumentVerified": true,
+    "writerLockFree": true,
+    "destinationTableAbsent": true,
+    "followupSelects": 5,
+    "finishedUtc": "2026-11-23T13:50:04.6593104Z"
+  },
+  "sourceFile": {
+    "copySha256": "c3df48b50eec9a1a650f2af354d4a99f36d45801e95506310ceb7174d9cf49c9",
+    "copyBytes": 607575,
+    "dataRows": 12759,
+    "originalUnchanged": true
+  },
+  "deployment": {
+    "issue": "DOC-124",
+    "runId": "7a82614ded3c44f8b45af3d95ab4e70b",
+    "status": "DEPLOYED_HEALTHY",
+    "recordedUtc": "2026-11-23T13:43:25.7499863Z",
+    "previousAssemblySha256": "79da3a8841e22d8c5835b2495ceb0179946c67b204effcf326c2d8030c722779",
+    "deployedAssemblySha256": "e1767f58a8d784bc0f958b8c141efad7363669a793eb0eb5c164aefed071e730",
+    "files": [
+      {
+        "name": "ExcelDataReader.dll",
+        "existed": false,
+        "sha256": "ea1bcc023ec8b3f076d38d14a708906d57562369391585f8a8c2818d9300b047"
+      },
+      {
+        "name": "ExcelNumberFormat.dll",
+        "existed": false,
+        "sha256": "03ccc71a42833102ef54ae9ecf39d9d62c0491c17359aa37d1d2ef0ec7397d04"
+      },
+      {
+        "name": "GestionDocumental-Docuarchi.net.dll",
+        "existed": true,
+        "sha256": "e1767f58a8d784bc0f958b8c141efad7363669a793eb0eb5c164aefed071e730"
+      }
+    ],
+    "wsdlStatus": 200,
+    "newMethodsPresent": true,
+    "webConfigUnchanged": true,
+    "maxFilasDatos": 20000,
+    "sql": 0,
+    "authenticatedSessions": 0
+  },
+  "protectedBefore": {
+    "headers": "aec0aa88bdfd3f093d6c976e8480d2ae112a11640b065290d626cbb5751edbb4",
+    "fields": "697f0d51d9674502ba486f4efb62782943c837fab1f109e23ef1e2f69f57a9c4",
+    "imp_02_egresos": "48bc95a1213db424acaeb6a8c20cc4605d9560d605ee74a1f1a0dbdede241128",
+    "imp_02_creditos": "3d76a8b0f351ea61cbccd755158754f9b699d8623d1e4f37cf0ca50df884cac2",
+    "imp_02_contratos": "c48b63b06d966edfa49522c39c91e3ca22e805ab1bd707c1f2f60f70961b50dc"
+  },
+  "protectedAfterMatchesBefore": true,
+  "limits": {
+    "serviceRequests": 40,
+    "selects": 60,
+    "minutes": 20
+  },
+  "runtimeArtifacts": {
+    "folder": ".tmp/doc124-real/7a82614ded3c44f8b45af3d95ab4e70b",
+    "actorStateSha256": "f82d3a0fe14212b03ccc39e59eb0daea7d5f2f2a288e907de1d02ba1a5903b4f",
+    "followupReportSha256": "5ba7a4904ceaf7348fd0089ea8e8b3cefa782c1b12e5f49f9dd14c4091033a47"
+  },
+  "localChecks": {
+    "focalPassed": 16,
+    "focalFailed": 0,
+    "playwrightDiscovered": 4
+  },
+  "pending": {
+    "tasks": [
+      "2.6",
+      "3.2"
+    ],
+    "completedTasks": 21,
+    "totalTasks": 23,
+    "matrixComplete": false,
+    "reason": "Caso archivo/CREAR aprobado; matriz AGREGAR/REEMPLAZAR/duplicados pendiente"
+  },
+  "normalizedSourceSha256": {
+    "tests/doc124-e2e-reuse.test.cjs": "bbf9ff676a8aff39ee48fc53d15f6b9d3ad01a403a35efc37fff2c8bf3c9418a",
+    "tools/e2e/scripts/run-doc110-profile-session.cjs": "d132837a0f38c936512974d187f26d2514b8f7acf619fe0d8785c4feda82c4d9",
+    "tools/e2e/tests/importacion-excel.spec.cjs": "a746ba0035b31f650427ba2a8f4e13394256c6d40bb99d3a376cdcb589694508",
+    "tools/e2e/tests/support/doc124-excel-scope.cjs": "579df71ebdcaf698cfc5af47a72f1a5df8e493601ca1519815d392883bd676a1",
+    "tools/e2e/tests/support/authenticated-workflow-session.cjs": "e26634bbbd13aad52de7f207874ae42042fb486cdf590fae298d11f654e55b64",
+    "tools/e2e/scripts/support/doc32-e2e-odbc.cjs": "4e103b5a42dc1d74dc192405958818136195b2c895d57f9d6d23b61e938afde5",
+    "tools/e2e/tests/support/doc110-safe-request.cjs": "c01b90b77c8e3b8cf89d2e9aeaf186e7fc01199f398d2dae5f4f169328248eca"
+  }
+}

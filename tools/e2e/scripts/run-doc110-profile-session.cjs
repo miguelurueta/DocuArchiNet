@@ -6,20 +6,23 @@ const {sourceFixture}=require('../tests/support/doc110-source-fixture.cjs');
 
 //DOC124 conserva autenticación/consola/perfil; autorización y fixtures son propios.
 function excelPreparationPlan(root,profile,args,environment=process.env){
-  if(args.filter(x=>x==='--excel-prepare').length!==1||args.some(x=>!['--excel-prepare','--headed'].includes(x)))throw new Error('DOC124_MODE_CONFLICT');
+  const modes=args.filter(x=>['--excel-prepare','--excel-file'].includes(x));
+  if(modes.length!==1||args.some(x=>!['--excel-prepare','--excel-file','--headed'].includes(x)))throw new Error('DOC124_MODE_CONFLICT');
+  const fileMode=modes[0]==='--excel-file';
   const scopePath=environment.DOC124_E2E_SCOPE_PATH;
   if(!scopePath||!fs.existsSync(scopePath))throw new Error('DOC124_SCOPE_REQUIRED');
   let scope;try{scope=JSON.parse(fs.readFileSync(scopePath,'utf8').replace(/^\uFEFF/,''));}catch{throw new Error('DOC124_SCOPE_INVALID');}
   require('../tests/support/doc124-excel-scope.cjs').validateScope(scope,profile.baseUrl);
+  if(fileMode!==(scope.escenario==='archivo'))throw new Error('DOC124_SCOPE_INVALID');
   const values={DOC124_E2E_BASE_URL:profile.baseUrl,DOC124_E2E_MODULE:profile.module,DOC124_E2E_SCOPE_PATH:scopePath,
     DOC124_E2E_AUTHORIZED:environment.DOC124_E2E_AUTHORIZED==='YES'?'YES':'NO',DOC10_E2E_IGNORE_HTTPS_ERRORS:String(profile.ignoreHttpsErrors===true)};
   const aliases={DOC124_E2E_USER:'DOC110_E2E_USER',DOC124_E2E_PASSWORD:'DOC110_E2E_PASSWORD',DOC124_E2E_RESTRICTED_USER:'DOC110_E2E_SECOND_USER',DOC124_E2E_RESTRICTED_PASSWORD:'DOC110_E2E_SECOND_PASSWORD'};
   for(const [name,alias]of Object.entries(aliases))if(environment[name]||environment[alias])values[name]=environment[name]||environment[alias];
   const controlNames=['ODBC_DSN','MYSQL_USER','MYSQL_PASSWORD'].map(suffix=>scope.controlPrefix+'_'+suffix);
   for(const name of controlNames)if(environment[name])values[name]=environment[name];
-  const childArgs=[path.join(root,'node_modules/@playwright/test/cli.js'),'test','tests/importacion-excel.spec.cjs','--grep','@doc124-prepare','--reporter=list','--retries=0'];
+  const childArgs=[path.join(root,'node_modules/@playwright/test/cli.js'),'test','tests/importacion-excel.spec.cjs','--grep',fileMode?'@doc124-file':'@doc124-prepare','--reporter=list','--retries=0'];
   if(args.includes('--headed'))childArgs.push('--headed');
-  return {values,needed:[...Object.keys(aliases),...controlNames],childArgs,cases:scope.cases.length,mode:'prepare'};
+  return {values,needed:[...Object.keys(aliases),...controlNames],childArgs,cases:scope.cases.length,mode:fileMode?'file':'prepare'};
 }
 async function runExcelPreparation(root,profile,args){
   const plan=excelPreparationPlan(root,profile,args),values=plan.values;let environment;
@@ -87,7 +90,7 @@ async function runExcelProfileSession(root,profile,args){
   }
 }
 async function main(){
-  if(process.argv.includes('--excel-prepare')){
+  if(process.argv.some(x=>['--excel-prepare','--excel-file'].includes(x))){
     const root=path.resolve(__dirname,'..');const profile=JSON.parse(fs.readFileSync(path.join(root,'profiles/doc88-production-document-upload.local.runtime.json'),'utf8').replace(/^\uFEFF/,''));
     return runExcelPreparation(root,profile,process.argv.slice(2));
   }

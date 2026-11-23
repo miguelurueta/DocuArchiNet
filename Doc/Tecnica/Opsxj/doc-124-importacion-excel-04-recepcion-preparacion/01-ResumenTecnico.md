@@ -6,8 +6,8 @@
 
 ## Objetivo
 
-Implementación local de recepción privada y preparación verificable sobre DOC122/DOC123, revisada2026-11-23. Se completan los servicios y sus pruebas locales; la aceptación real y el cierre siguen pendientes.
+Recepción privada y preparación verificable sobre DOC122/DOC123, revisada2026-11-23. Servicios y pruebas locales completos; caso real Órdenes aprobado1/1 con12759 filas. La matriz completa de modos y el cierre siguen pendientes.
 
 ## Alcance y compatibilidad
 
-Estados RECIBIDA/PREPARADA, identidad antes del upload, lectura completa, esquema e igualdad de claves mediante temporales MySQL. Conserva net461, recursos DA del módulo y conector vigente. Build aislado, sin despliegue o cambios de destino/UI/proveedores. Contrato en Doc/Actualizacion/Importacion/Diseno/04-recepcion-preparacion-doc124.md; evidencia local separada de E2E real pendiente.
+Estados RECIBIDA/PREPARADA, identidad antes del upload, lectura completa y temporales MySQL. Conserva net461, recursos DA del módulo y conector vigente. Build aislado y despliegue local verificado para E2E; sin cambios de datos destino/UI/proveedores. Configuración20000 y plantilla27 de Órdenes. Contrato y evidencia real/local separados en Doc/Actualizacion/Importacion/Diseno/04-recepcion-preparacion-doc124.md y Validacion/doc124-e2e-ordenes-resultado-20261123.md.

@@ -10,4 +10,4 @@ Fase04 añade recorrido de servicios ASHX/ASMX, sin pantalla o menú nuevo. La U
 
 ## Validacion visual
 
-La validación visual no aplica porque esta fase no añade pantalla. La E2E real de servicios sí aplica: está preparada en tools/e2e con autorización y alcance DOC124 propios, pendiente de ejecución. Su descubrimiento sintético no acredita servicios, conexión, collation o concurrencia MySQL real.
+La validación visual no aplica porque esta fase no añade pantalla. La E2E de servicios sí aplica: tools/e2e reutilizado aprobó1/1 del archivo Órdenes, con recepción/preparación y dos sesiones reales. La matriz completa sigue pendiente; el descubrimiento sintético se mantiene separado de la evidencia IIS/MySQL. No se presenta este recorrido como aceptación de una UI nueva o de todos los modos.

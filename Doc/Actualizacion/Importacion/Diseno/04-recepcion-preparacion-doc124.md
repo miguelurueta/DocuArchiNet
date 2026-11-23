@@ -1,8 +1,9 @@
 # DOC-124 — Recepción y preparación de Excel
 
-Implementación local del 23 de noviembre de 2026 sobre DOC122/DOC123. Estados
-durables `RECIBIDA` y `PREPARADA`; queda pendiente acreditar el recorrido real
-autorizado. No se desplegó la DLL ni se ejecutó SQL contra RA/DA.
+Implementación del 23 de noviembre de 2026 sobre DOC122/DOC123. Estados durables
+`RECIBIDA` y `PREPARADA`. E2E real del archivo Órdenes aprobada1/1 en IIS local,
+con despliegue verificado y controles SELECT; la matriz completa de modos sigue
+pendiente. No se crea tabla de negocio ni se confirman/importan órdenes.
 
 ## Recorrido de servicios
 
@@ -117,7 +118,7 @@ pruebas sintéticas de MySQL/HTTP real. SQL11 queda entregado para ejecución ma
 no se prevé una nueva migración de las22 columnas. Diferencias requieren otro SQL
 específico antes de ejecutar o verificar. No se alteran EGRESOS/CONTRATOS.
 
-## Ejecución real pendiente
+## Recorrido real y matriz pendiente
 
 Reutiliza `run-doc110-profile-session.cjs --excel-prepare` y
 `importacion-excel.spec.cjs`. El scope DOC124 debe identificar ambiente, empresa,
@@ -142,10 +143,10 @@ fuente con más de10000 filas puede comprobarse sin elevar el límite del Excel.
 El inspector DOC110 incorpora Doc124Excel para reutilizar su conexión de módulo
 y descubrir fuentes/proveedores/catálogos existentes, únicamente por SELECT.
 
-Antes de ejecutar faltan autorización nueva del ambiente/cuentas/efectos, alcance
-concreto de archivos/plantillas sobre los destinos existentes y preflight confirmado. El sitio actual
-mantiene la DLL anterior: el despliegue del build aislado también debe autorizarse
-en el ambiente acordado. Autorizaciones DOC122 cerradas no se reabren.
+La autorización «lanza la E2E» permitió ejecutar el caso Órdenes con cuentas/perfil
+existentes y desplegar la DLL verificada para ese recorrido. Los demás casos de la
+matriz siguen sujetos a destinos/configuración compatibles y alcance autorizado;
+no se reabren las ventanas cerradas DOC122 ni la del archivo aprobado.
 
 ## Órdenes2025 y límite configurado20000
 
@@ -162,3 +163,18 @@ una copia local compatible, quitando únicamente el título y ajustando referenc
 sin cambiar valores, formato o el original. Lector DOC123 sobre esa copia:12759 filas
 completas,0 incidencias con máximo20000. Es validación local, no E2E real de servicios
 ni confirmación/importación. SQL13 y evidencia específica documentan el alta autorizada.
+
+## E2E real del archivo Órdenes
+
+Por instrucción «lanza la E2E» se amplía el mismo runner con `--excel-file` y la misma
+suite con `@doc124-file`. Scope `escenario=archivo`: exactamente un caso CREAR,
+máximo20000 y12759 filas. El scope matriz conserva sus tres modos/cinco casos mínimos;
+los escenarios no pueden usarse indistintamente para acreditar toda la fase.
+
+El recorrido real aprobó1/1 con recuperación/replay, CSRF, cuenta restringida y dos
+sesiones independientes/un ganador. La carga quedó PREPARADA con12759 previstas,
+0 confirmadas y archivo verificado.32 SELECT externos explícitos acreditan identidad,
+configuración efectiva, lock libre y conservación de tablas/plantillas/mapeos.
+Se desplegó DLL verificada con dependencias y respaldo; no se crearon tablas ni
+importaron órdenes. Ver Validacion/doc124-e2e-ordenes-resultado-20261123.md/JSON.
+La matriz completa y revisión final siguen pendientes; el caso no cierra DOC124.
