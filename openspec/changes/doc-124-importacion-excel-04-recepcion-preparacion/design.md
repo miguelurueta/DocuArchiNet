@@ -19,7 +19,7 @@ Confirmar, crear tabla de negocio, INSERT/DELETE destino, reemplazar, activar fu
 | DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb | Existente; solicitudes de inicio/recepción/preparación/consulta, respuestas tipadas sin filas del navegador. |
 | Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb | Existente, solo JSON; añadir vía multipart con mismo propósito CSRF. |
 | Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelConexionAdapter.vb | Existente; exponer fábrica autorizada para repositorio de cargas sin devolver cadena al cliente. |
-| Infrastructure/ProduccionDocumental/ImportacionExcel/ReferenciaRecepcionExcelCodec.vb | Nuevo; referencia previa protegida con MachineKey, propósito distinto de streaming/CSRF. |
+| Infrastructure/ProduccionDocumental/ImportacionExcel/ReferenciaRecepcionExcel.vb | Nuevo; referencia previa protegida con MachineKey, propósito distinto de streaming/CSRF. |
 | Infrastructure/ProduccionDocumental/ImportacionExcel/AlmacenArchivoExcel.vb | Nuevo; almacenamiento Excel privado, archivo completo/retención y copia/hash acotados. |
 | Infrastructure/ProduccionDocumental/ImportacionExcel/PoliticaDestinoCargaExcelAdapter.vb | Nuevo; consulta de aislamiento desde recursos RA existentes con autoridad propia de cargas. |
 | Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb | Nuevo; ejecuciones propias y transiciones transaccionales. Separar metadatos/temporales en archivos parciales si mejora revisión. |
@@ -201,6 +201,8 @@ Preparar código/E2E y alcance revisable antes de solicitar ejecución. La autor
 Para concurrencia usar dos sesiones autenticadas independientes y confirmar contención MySQL/ganador, no solo serialización ASP.NET. Cargas/pruebas anteriores cerradas no se reabren. Si falta autorización o instalación necesaria, registrar el bloqueo de E2E real y continuar implementación local independiente; no archivar marcando la tarea real como simulada o no aplicable.
 
 ## Riesgos y rollback
+
+Implementación local2026-11-23: se añaden también ComposicionCargaExcel.vb, ReglasCargaExcel.vb y SqlCargaExcel.vb para composición autorizada, reglas compartidas y comandos parametrizados. Se conserva el reparto de responsabilidades y se registran Compile/Content. La lectura de políticas activas de la misma tabla niega una exclusividad CONEXION contradictoria entre ámbitos; no devuelve políticas ajenas. Preparar acredita propiedad antes de adquirir lock para no revelar actividad de IDs ajenos. SQL11 queda entregado, sin ejecución real. Evidencia y contrato operativo en Doc/Actualizacion/Importacion/Diseno/04-recepcion-preparacion-doc124.md y Validacion/doc124-validacion-local-20261123.md. E2E real/entrega final siguen pendientes.
 
 No hay transacción distribuida filesystem/MySQL: publicación incierta conserva evidencia y usa ID previo. No se promete pausa por fila/byte, reanudación automática o reemplazo en esta fase. Capacidad de10MB/10000 controla trabajo admitido, no acredita tiempo/memoria completos; medir fase07 con lector nuevo. El archivo de usuario con más de10000 filas no eleva límite ni se copia a fixtures.
 

@@ -6,4 +6,4 @@
 
 ## Servicios y reglas
 
-Se planifican ServicioRecepcionExcel/ServicioPreparacionExcel, almacén privado y repositorio de ejecuciones/metadatos. Reutilizar lector DOC123 y guarda/autoridad DOC122. Publicar RECIBIDA con bytes/hash reales y PREPARADA solo tras validación completa. Aislamiento empresarial explícito, índices completos, temporales con tipos/collation del destino y limpieza de conexión. Snapshot efectivo sin modificar huella de plantilla v1. No se implementaron estos servicios durante el refinamiento.
+ServicioRecepcionExcel emite referencia MachineKey y coordina archivo inmutable/RECIBIDA; ServicioPreparacionExcel reutiliza lector DOC123, verifica metadatos/aislamiento/índices, compara claves mediante temporales y publica PREPARADA con CAS. El repositorio mantiene un lock por ID y transacciones cortas, sin parseo transaccional. Fallos inciertos conservan archivo/ganador; consulta propia no repara. Snapshot efectivo independiente de huella de plantilla v1. Limpieza de temporales/modo/lock o descarte dirigido de pool. Sin DDL o DML de negocio; SQL11 se entrega manualmente.

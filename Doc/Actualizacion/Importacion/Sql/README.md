@@ -62,6 +62,15 @@ La visibilidad de information_schema.SCHEMA_PRIVILEGES depende de la cuenta cons
 
 ## Confirmación y revisión
 
+DOC-124 entrega [11-preflight-doc124.sql](11-preflight-doc124.sql), únicamente SELECT,
+para ejecutar manualmente por bloques RA/DA. Comprueba metadatos de las 22 columnas,
+índices completos, política empresarial y capacidades observables. **ENTREGADO,
+PENDIENTE_EJECUCION_MANUAL**: no se ha aplicado ni consultado en esta implementación.
+No se prevé migración permanente nueva; no reaplicar 01–10. Una diferencia detectada
+requiere otro archivo específico, aplicación manual y confirmación antes de verificar.
+Las temporales propias de Preparar pertenecen a la operación, no a la instalación;
+la E2E necesita autorización independiente. No usa EGRESOS/CONTRATOS como fixture.
+
 Registrar por archivo: ambiente, destino lógico, fecha, aplicado/omitido/error y resultado saneado. Después de la confirmación del usuario el agente revisa exclusivamente SELECT; una diferencia que requiera cambios produce otro archivo para ejecución manual. Distinguir ENTREGADO, EJECUTADO_CONFIRMADO y VERIFICADO_SELECT, sin sustituir un estado por otro.
 
 No ejecutar SQL de instalación desde tests, arranque o rutas indirectas de la aplicación. Las fases dependientes del nuevo esquema esperan confirmación y comprobación posterior antes de sus recorridos. No retirar índices, columnas o historial con un rollback automático; conservar objetos aditivos y generar un nuevo plan revisado si se necesita revertir estructura.

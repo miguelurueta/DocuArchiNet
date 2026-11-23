@@ -1,0 +1,98 @@
+{
+  "issue": "DOC-124",
+  "date": "2026-11-23",
+  "branch": "feature/DOC-124",
+  "base": "87d155b7459c89298b3f77c66b3c8c297d94b636",
+  "status": "IMPLEMENTACION_LOCAL_VERIFICADA_E2E_REAL_PENDIENTE",
+  "tasks": {
+    "total": 23,
+    "complete": 21,
+    "pending": [
+      "2.6",
+      "3.2"
+    ]
+  },
+  "tests": {
+    "command": "node --test tests/doc122-importacion-excel-behavior.test.cjs tests/doc122-e2e-reuse.test.cjs tests/doc124-e2e-reuse.test.cjs",
+    "passed": 12,
+    "failed": 0,
+    "native": {
+      "DOC122": 246,
+      "DOC123": 312,
+      "DOC124": 490,
+      "total": 1048
+    },
+    "inheritedRegression": "DOC110/DOC120: PerfilImportacionTests.exe passed",
+    "logSha256": "d742a92723f00729e3ac4099e24d32e6302be387fe6537aac94c403a9a9078dc"
+  },
+  "build": {
+    "command": "MSBuild net461, DeployOnBuild=false, Disable_CopyWebApplication=true, salida e intermedios .tmp/doc124-build",
+    "errors": 0,
+    "warnings": 308,
+    "importacionExcelWarnings": 0,
+    "installedBackendSha256": "79da3a8841e22d8c5835b2495ceb0179946c67b204effcf326c2d8030c722779",
+    "isolatedBackendSha256": "e1767f58a8d784bc0f958b8c141efad7363669a793eb0eb5c164aefed071e730",
+    "deployed": false
+  },
+  "openspec": {
+    "strict": "PASS",
+    "requirements": 14,
+    "scenarios": 31,
+    "refinement": {
+      "passed": 15,
+      "total": 15
+    }
+  },
+  "e2e": {
+    "discovered": 3,
+    "doc122": 2,
+    "doc124": 1,
+    "status": "NO_EJECUTADA",
+    "authorized": false,
+    "authentication": 0,
+    "http": 0,
+    "realSQL": 0,
+    "reason": "Pendientes autorización nueva, ambiente/cuentas/archivos/destinos descartables, preflight confirmado y despliegue acordado"
+  },
+  "sql": {
+    "file": "Doc/Actualizacion/Importacion/Sql/11-preflight-doc124.sql",
+    "status": "ENTREGADO_PENDIENTE_EJECUCION_MANUAL",
+    "statements": "SELECT solamente",
+    "permanentMigrationExpected": false
+  },
+  "limitations": [
+    "Archivo/lector reales locales con persistencia/autoridad/ADO sintéticos; no acredita collation/concurrencia/pool MySQL real",
+    "Sin medición integral de memoria/tiempo ni pausa/reanudación durante lectura",
+    "Sin aceptación real ni CI de la suite nueva; no archivar/cerrar todavía"
+  ],
+  "normalizedSourceSha256": {
+    "DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb": "3de62e4a1279dd921df04cd7766854f774acaa5b5236261edf9269a9dea3a4a4",
+    "GestionDocumental-Docuarchi.net.vbproj": "58ef256434b24d35c8d8d8ebe7be079d18f1632a0802527d606312d29289d673",
+    "Infrastructure/ProduccionDocumental/ImportacionExcel/AlmacenArchivoExcel.vb": "901b2c3adf0484036cad185625450285082a5e4dd16fa7636524ec915cd1e3d0",
+    "Infrastructure/ProduccionDocumental/ImportacionExcel/ComposicionCargaExcel.vb": "0d8b0954092be28587e32982eb06af512b35ead0663993ec3cdaedaf772ce0ee",
+    "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelConexionAdapter.vb": "3825c39f2ca9b9b90c66e31e1a676e200d26fb13de668195016685b405af1e2f",
+    "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb": "8f5c4a0f55f4eb0bda422d275f0d54488a057b37fb09c8a3a4363d8376439caa",
+    "Infrastructure/ProduccionDocumental/ImportacionExcel/LectorArchivoExcel.vb": "781e902a557f4020f621846942ae7c6e1e6fa091c81859c7d9b20e1a0d697197",
+    "Infrastructure/ProduccionDocumental/ImportacionExcel/PoliticaDestinoCargaExcelAdapter.vb": "9127925277c205060496204aea452aec58a1afae3817100f3eecc956027d73f1",
+    "Infrastructure/ProduccionDocumental/ImportacionExcel/ReferenciaRecepcionExcel.vb": "c400d077e5b0736814990ef49524a9e62ab43c3de1e154d041ad4f8ebff631d7",
+    "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb": "f0045bd148171222c0fd1ee0f941e7e6874ac8b062aae4a6960a95dbd50a5518",
+    "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb": "bc12481a01004a4b4b88381799bdba23ce6de731c0f7492061a65fc1a7bbbee4",
+    "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/SqlCargaExcel.vb": "73bbf7025ae448b6ab80b287a197d9aa1dacd397f3deccc72e8a5861ab72f16d",
+    "Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb": "0444a262ca679aa7fc5ad41b33bd7bc2009b10d8bf371744ee01449f8db7c9de",
+    "Services/ProduccionDocumental/ImportacionExcel/ReglasCargaExcel.vb": "f06bd9661b63f2516450bbf1df2da816c17267fde93cdcf94c61897d7297fff1",
+    "Services/ProduccionDocumental/ImportacionExcel/ServicioPreparacionExcel.vb": "8bf53cbf11e89279b3a65c57e93fb2566ef1fd1c0ad605ae05b2eabb383d9e39",
+    "Services/ProduccionDocumental/ImportacionExcel/ServicioRecepcionExcel.vb": "92b1641c7c9653d9f200aff7f7471140259c8eac2589e058df2fcaeb63def317",
+    "generic_control/ImportacionExcelUpload.ashx": "c7bd875711b2399334e51a335c858058bf1bd2079b0959c0be955146edfa2386",
+    "generic_control/ImportacionExcelUpload.ashx.vb": "b9dd46bdcf92e75a824a995c9997ecf615723182e03d5fe0c8073960049bd6fc",
+    "tests/Fixtures/ProduccionDocumental/ImportacionExcel/doc124-canonico-v1.json": "ea5a268b2f3becfec1d26a9ef0267b183ed216334f3e3a85772e9d1efd9587d5",
+    "tests/ImportacionExcelBehaviorTests.cs": "987a4c0438f086b307eed5fb5b1f3fff3fb6c4a356c08fcc67bc63e723c6c31d",
+    "tests/ImportacionExcelLecturaTests.cs": "c0e65d3d2e0ad2d1a41627b7ffaf53a12e7dd8a9e12aefe1996779a1b10d6c8e",
+    "tests/ImportacionExcelPreparacionTests.cs": "ecb153f2d09c65d7863972970c7df68336c95b5b85a7a8c2a5804b04737a7bf0",
+    "tests/doc122-importacion-excel-behavior.test.cjs": "b1f98d19bd4ba9add6070610a9bf7cc2915b1bd465c17a34302daa159d5872ae",
+    "tests/doc124-e2e-reuse.test.cjs": "16376609ab2138dcfc0127572cde357258bd2ef2309d78b0484fbec6e3b217fc",
+    "tools/e2e/scripts/run-doc110-profile-session.cjs": "ed2af0c95853524f5643cbe614a5c12a5143a0ce3ca27dac47de16aaeeb006f0",
+    "tools/e2e/tests/importacion-excel.spec.cjs": "6951509e877651e697e23880106cc7dad48817156b67d6d1009fed6e51b4fdaa",
+    "tools/e2e/tests/support/doc124-excel-scope.cjs": "f231b58c43625f67547655249ca3d0f0d3e93fb59221fb3a81d3eb3532cc191b",
+    "webservice/WebServiceImportacionExcel.asmx.vb": "038b473c154c543babe0f484cfba9356ccca0350ef85befbd9b2967df5954f4b"
+  }
+}

@@ -160,3 +160,90 @@ Friend Class FilaLibroExcel
     Friend Property Fila As Integer
     Friend Property Celdas As New List(Of CeldaLibroExcel)
 End Class
+
+Public Class ContextoCargaExcel
+    Inherits ContextoImportacionExcel
+    Public Property ModuloId As UInteger
+    Public Property ConexionId As UInteger
+    Public Property IdentidadConexion As String
+    Public ReadOnly Property ConexionRef As String
+        Get
+            Return "DA:" & ModuloId.ToString(Globalization.CultureInfo.InvariantCulture) & ":" & ConexionId.ToString(Globalization.CultureInfo.InvariantCulture)
+        End Get
+    End Property
+End Class
+Public Class ArchivoRecibidoExcel
+    Public Property Nombre As String
+    Public Property Referencia As String
+    Public Property Bytes As Long
+    Public Property Hash As String
+    Public Property Formato As String
+    Public Property Hojas As New List(Of String)
+End Class
+Public Class CargaExcelEjecucion
+    Public Property Id As String
+    Public Property PlantillaId As UInteger
+    Public Property EmpresaId As UInteger
+    Public Property UsuarioId As UInteger
+    Public Property ConexionRef As String
+    Public Property Tabla As String
+    Public Property Archivo As ArchivoRecibidoExcel
+    Public Property Estado As String
+    Public Property Modo As String
+    Public Property RevisionPlantilla As Nullable(Of UInteger)
+    Public Property ConfiguracionDoc As String
+    Public Property ConfiguracionHash As String
+    Public Property EsquemaHash As String
+    Public Property FilasPrevistas As Nullable(Of Integer)
+    Public Property CodigoIncidencia As String
+End Class
+Public Class PoliticaDestinoCargaExcel
+    Public Property FuenteId As String
+    Public Property AmbitoRef As String
+    Public Property Revision As UInteger
+    Public Property Modo As String
+    Public Property ColumnaEmpresa As String
+End Class
+Public Class ComponenteIndiceCargaExcel
+    Public Property Columna As String
+    Public Property Posicion As Integer
+    Public Property Prefijo As Nullable(Of Integer)
+End Class
+Public Class IndiceCargaExcel
+    Public Property Nombre As String
+    Public Property Unico As Boolean
+    Public Property Componentes As New List(Of ComponenteIndiceCargaExcel)
+End Class
+Public Class EsquemaCargaExcel
+    Public Property Destino As DestinoPlantillaExcel
+    Public Property Indices As New List(Of IndiceCargaExcel)
+    Public Property Politica As PoliticaDestinoCargaExcel
+    Public Property IdentidadFisica As String
+    Public Property Hash As String
+End Class
+Public Class IncidenciasClavesExcel
+    Public Property Total As Long
+    Public Property Muestra As New List(Of IncidenciaLecturaExcel)
+End Class
+Public Interface IArchivoRetenidoExcel
+    Inherits IDisposable
+    ReadOnly Property Contenido As IO.Stream
+    Sub Verificar()
+End Interface
+Public Interface IAlmacenArchivoExcel
+    Function Recibir(ctx As ContextoCargaExcel, id As String, nombre As String, formato As String, contenido As IO.Stream, limites As LimitesLecturaExcel) As ArchivoRecibidoExcel
+    Function Retener(ctx As ContextoCargaExcel, id As String, archivo As ArchivoRecibidoExcel) As IArchivoRetenidoExcel
+End Interface
+Public Interface ICargaExcelRepository
+    Function Abrir(ctx As ContextoCargaExcel, id As String) As ISesionCargaExcel
+    Function Consultar(ctx As ContextoCargaExcel, id As String) As CargaExcelEjecucion
+End Interface
+Public Interface ISesionCargaExcel
+    Inherits IDisposable
+    Function Obtener() As CargaExcelEjecucion
+    Function RegistrarRecibida(ejecucion As CargaExcelEjecucion) As CargaExcelEjecucion
+    Function Inspeccionar(plantilla As PlantillaExcel, modo As String) As EsquemaCargaExcel
+    Function ValidarClaves(plantilla As PlantillaExcel, esquema As EsquemaCargaExcel, filas As List(Of FilaNormalizadaExcel), modo As String) As IncidenciasClavesExcel
+    Function Publicar(preparada As CargaExcelEjecucion, hashEsperado As String) As CargaExcelEjecucion
+    Sub Rechazar(hashEsperado As String, codigo As String)
+End Interface

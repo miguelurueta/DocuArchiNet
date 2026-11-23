@@ -45,7 +45,7 @@ public static class ImportacionExcelLecturaTests {
    }finally{CultureInfo.CurrentCulture=prior;}
   }
  }
- static byte[] Book(object[][] rows,string[] headers=null){
+ internal static byte[] Book(object[][] rows,string[] headers=null){
   headers=headers??new[]{"Código","Valor"};
   var xml=new StringBuilder("<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetData>");
   var all=new[]{headers.Cast<object>().ToArray()}.Concat(rows).ToArray();
