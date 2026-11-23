@@ -51,6 +51,94 @@ async function detail(auth,s){
 }
 function edit(s,p){return {ConexionId:s.conexionId,RevisionEsperada:p.REVISION_CARGA,HuellaEsperada:p.Huella,Plantilla:JSON.parse(JSON.stringify(p))};}
 
+test.describe('DOC125 confirmación durable',()=>{
+ test.skip(process.env.DOC125_E2E_AUTHORIZED!=='YES','NO_EJECUTADO: falta autorización escritora DOC125, instalación manual verificada y destinos descartables; DOC124 no autoriza estos efectos.');
+ test('@doc125-confirm modos, rollback, resultado perdido y escritor externo',async({browser})=>{
+  test.setTimeout(300000);
+  const path=require('node:path'),{readScope,readFixture,snapshotDestination,lockNames}=require('./support/doc125-excel-scope.cjs');
+  const {queryRows,queryFingerprint}=require('../scripts/support/doc32-e2e-odbc.cjs');
+  const {startExcelExternalWriter}=require('../scripts/run-doc110-profile-session.cjs');
+  const s=readScope(required('DOC125_E2E_SCOPE_PATH'),required('DOC125_E2E_BASE_URL'));
+  const select=(sql,args=[])=>{console.log('DOC125_CONTROL_SELECT');return queryRows(sql,args,process.env,s.controlPrefix);};
+  const fingerprint=(sql,value)=>{console.log('DOC125_CONTROL_SELECT');return queryFingerprint(sql,value,process.env,s.controlPrefix);};
+  const ident=n=>{check(/^[A-Za-z_][A-Za-z0-9_]{0,63}$/.test(n),'DOC125_CONTROL_IDENTIFIER');return '`'+n+'`';};
+  const count=async table=>Number((await select('SELECT COUNT(*) AS total FROM '+ident(table)))[0].total);
+  const physical=(await select('SELECT @@hostname AS servidor,@@port AS puerto,DATABASE() AS base_ref,@@lower_case_table_names AS minusculas'))[0];
+  const protectedBefore={};for(const table of s.protectedTables)protectedBefore[table]=await snapshotDestination(select,fingerprint,table,true);
+  const a=await session(browser,false,'DOC125');let b,completed=0;
+  try{
+   b=await session(browser,false,'DOC125');await open(a,s.cases[0]);await open(b,s.cases[0]);
+   const cookie=async auth=>(await auth.context.cookies()).find(c=>c.name==='ASP.NET_SessionId')?.value;
+   const ca=await cookie(a),cb=await cookie(b);check(ca&&cb&&ca!==cb,'DOC125_INDEPENDENT_SESSIONS_REQUIRED');
+   for(const c of s.cases){
+    const p=await detail(a,c);check(p.REVISION_CARGA===c.revisionEsperada&&p.Huella===c.huellaEsperada&&p.NOMBRE_PLANTILLA===c.tabla,'DOC125_TEMPLATE_CHANGED');
+    const bytes=readFixture(c),before=await snapshotDestination(select,fingerprint,c.tabla,c.modo!=='CREAR');
+    const beforeCount=c.modo==='CREAR'?0:await count(c.tabla);
+    check(beforeCount===c.filasDestinoEsperadas,'DOC125_DESTINATION_BASELINE_CHANGED');
+    const started=await call(a,'IniciarRecepcionExcel',{ConexionId:c.conexionId,PlantillaId:c.plantillaId,RevisionEsperada:c.revisionEsperada,HuellaEsperada:c.huellaEsperada},a.token);
+    check(started.ok&&started.datos?.IdCarga&&started.datos?.ReferenciaRecepcion,'DOC125_START_FAILED');
+    const i=started.datos;
+    const response=await safePost(a.context.request,new URL('generic_control/ImportacionExcelUpload.ashx',a.baseUrl).href,{headers:{'X-Importacion-Excel-CSRF':a.token},multipart:{idCarga:i.IdCarga,referenciaRecepcion:i.ReferenciaRecepcion,conexionId:String(c.conexionId),plantillaId:String(c.plantillaId),archivo:{name:path.basename(c.archivoPath),mimeType:'application/octet-stream',buffer:bytes}}},'ExcelUpload');
+    let upload;try{upload=await response.json();}catch{throw Error('DOC125_UPLOAD_FAILED');}check(response.status()===200&&upload.ok&&upload.datos?.ArchivoHash===c.archivoHash,'DOC125_UPLOAD_FAILED');
+    const owned=await select('SELECT ambito_ref,usuario_ref,conexion_ref,tabla_destino,HEX(archivo_hash) AS archivo_hash FROM imp01_carga_ejecucion WHERE id_carga=?',[i.IdCarga]);
+    check(owned.length===1&&String(owned[0].ambito_ref)===String(s.empresaId)&&String(owned[0].usuario_ref)===String(s.usuarioId)&&owned[0].conexion_ref==='DA:'+s.moduloId+':'+c.conexionId&&owned[0].tabla_destino===c.tabla&&owned[0].archivo_hash.toLowerCase()===c.archivoHash,'DOC125_OWNER_ENVIRONMENT_CHANGED');
+    const prepared=await call(a,'Preparar',{ConexionId:c.conexionId,PlantillaId:c.plantillaId,IdCarga:i.IdCarga,RevisionEsperada:c.revisionEsperada,HuellaEsperada:c.huellaEsperada,Hoja:c.hoja,Modo:c.modo},a.token);
+    check(prepared.ok&&prepared.datos?.Carga.Estado==='PREPARADA'&&prepared.datos.ValidacionCompleta&&prepared.datos.FilasObservadas===c.filasEsperadas,'DOC125_PREPARATION_FAILED');
+    const e=prepared.datos.Carga,request={ConexionId:c.conexionId,IdCarga:i.IdCarga,ArchivoHash:e.ArchivoHash,ConfiguracionHash:e.ConfiguracionHash,EsquemaHash:e.EsquemaHash,ConfirmacionReemplazo:c.modo==='REEMPLAZAR'};
+    const ownConfig=await select('SELECT configuracion_doc FROM imp01_carga_ejecucion WHERE id_carga=? AND ambito_ref=? AND usuario_ref=? AND conexion_ref=?',[i.IdCarga,String(s.empresaId),String(s.usuarioId),'DA:'+s.moduloId+':'+c.conexionId]);
+    check(ownConfig.length===1&&require('node:crypto').createHash('sha256').update(ownConfig[0].configuracion_doc,'utf8').digest('hex')===e.ConfiguracionHash,'DOC125_CONFIGURATION_HASH_CHANGED');
+    const ownPhysical=JSON.parse(ownConfig[0].configuracion_doc).IdentidadFisica;
+    const locks=lockNames({...physical,fisica:ownPhysical},c.tabla,i.IdCarga);
+    const lockState=async()=> (await select('SELECT IS_FREE_LOCK(?) AS carga_libre,IS_FREE_LOCK(?) AS destino_libre',[locks.id,locks.destination]))[0];
+    const badCsrf=await call(a,'Confirmar',request,'malformed');check(!badCsrf.ok&&badCsrf.codigo==='SOLICITUD_NO_VERIFICADA','DOC125_CSRF_NOT_REJECTED');
+    if(c.modo==='REEMPLAZAR'){const noConsent=await call(a,'Confirmar',{...request,ConfirmacionReemplazo:false},a.token);check(!noConsent.ok&&noConsent.codigo==='CONFIRMACION_REEMPLAZO_REQUERIDA','DOC125_REPLACE_CONSENT_REQUIRED');}
+    let result,excludedBefore;
+    if(c.escenario==='carrera'){
+     check(/^[A-Za-z_][A-Za-z0-9_]{0,63}$/.test(p.CAMPO_UNICO),'DOC125_KEY_IDENTIFIER');
+     const columns=await select('SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE BINARY TABLE_SCHEMA=BINARY DATABASE() AND BINARY TABLE_NAME=BINARY ? ORDER BY ORDINAL_POSITION',[c.tabla]);
+     const sql='SELECT * FROM '+ident(c.tabla)+' WHERE '+ident(p.CAMPO_UNICO)+'<>? ORDER BY '+columns.map(x=>'BINARY '+ident(x.COLUMN_NAME)).join(',');
+     check(Number((await select('SELECT COUNT(*) AS total FROM '+ident(c.tabla)+' WHERE '+ident(p.CAMPO_UNICO)+'=?',[c.claveExterna]))[0].total)===0,'DOC125_EXTERNAL_KEY_ALREADY_EXISTS');
+     excludedBefore=await fingerprint(sql,c.claveExterna);
+     const external=startExcelExternalWriter(s,c,request);await external.ready;
+     const confirming=call(a,'Confirmar',request,a.token);confirming.catch(()=>{});let observed=false;
+     try{
+      for(let n=0;n<4&&!observed;n++){const held=await lockState();observed=Number(held.carga_libre)===0&&Number(held.destino_libre)===0;if(!observed)await new Promise(r=>setTimeout(r,100));}
+      result=await confirming;
+     }finally{await external.done;}
+     check(observed,'DOC125_BOTH_LOCKS_NOT_OBSERVED');
+     check(await fingerprint(sql,c.claveExterna)===excludedBefore&&await count(c.tabla)===beforeCount+1,'DOC125_EXTERNAL_EFFECTS_CHANGED');
+    }else if(c.escenario==='agregar'){
+     const results=await Promise.all([call(a,'Confirmar',request,a.token),call(b,'Confirmar',request,b.token)]);
+     check(results.some(x=>x.ok)&&results.every(x=>x.ok||x.codigo==='OPERACION_EN_CURSO'),'DOC125_CONFIRM_CONTENTION_FAILED');result=results.find(x=>x.ok);
+    }else result=await call(a,'Confirmar',request,a.token);
+    check(result.codigo===c.codigoEsperado,'DOC125_CONFIRM_CODE_MISMATCH');
+    //Acuse ignorado deliberadamente por el cliente: recuperar por ID en otra sesión.
+    //No se presenta como corte físico de red o del commit del servidor.
+    const recovered=await call(b,'ConsultarResultado',{ConexionId:c.conexionId,IdCarga:i.IdCarga},b.token);
+    check(recovered.ok&&recovered.datos?.IdCarga===i.IdCarga,'DOC125_RESULT_QUERY_FAILED');
+    const rows=await select('SELECT estado,filas_confirmadas,codigo_incidencia,(confirmado_utc IS NOT NULL) AS confirmado FROM imp01_carga_ejecucion WHERE id_carga=? AND ambito_ref=? AND usuario_ref=? AND conexion_ref=?',[i.IdCarga,String(s.empresaId),String(s.usuarioId),'DA:'+s.moduloId+':'+c.conexionId]);
+    check(rows.length===1,'DOC125_RESULT_OWNER_CHANGED');
+    if(c.codigoEsperado==='OK'){
+     check(recovered.datos.Estado==='CONFIRMADA'&&recovered.datos.FilasConfirmadas===c.filasEsperadas&&rows[0].estado==='CONFIRMADA'&&Number(rows[0].filas_confirmadas)===c.filasEsperadas&&Number(rows[0].confirmado)===1,'DOC125_DURABLE_RESULT_FAILED');
+     check(await count(c.tabla)===(c.modo==='AGREGAR'?beforeCount+c.filasEsperadas:c.filasEsperadas),'DOC125_ROW_COUNT_FAILED');
+     const confirmed=await snapshotDestination(select,fingerprint,c.tabla,true);
+     const replay=await call(b,'Confirmar',request,b.token);check(replay.ok&&replay.datos.FilasConfirmadas===c.filasEsperadas&&await snapshotDestination(select,fingerprint,c.tabla,true)===confirmed,'DOC125_REPLAY_CHANGED_DESTINATION');
+     const altered=await call(a,'Confirmar',{...request,ConfiguracionHash:'0'.repeat(64)},a.token);check(!altered.ok&&altered.codigo==='CONFLICTO_CONFIRMACION','DOC125_REPLAY_CONTENT_NOT_REJECTED');
+    }else{
+     check(recovered.datos.Estado==='FALLIDA'&&rows[0].estado==='FALLIDA'&&Number(rows[0].filas_confirmadas)===0&&rows[0].codigo_incidencia==='CONFLICTO_CLAVE','DOC125_KNOWN_ROLLBACK_NOT_PROVEN');
+     if(c.escenario==='rollback')check(await snapshotDestination(select,fingerprint,c.tabla,true)===before,'DOC125_REPLACE_ROLLBACK_CHANGED_DESTINATION');
+    }
+    const afterTemplate=await detail(a,c);check(afterTemplate.Huella===p.Huella&&afterTemplate.REVISION_CARGA===p.REVISION_CARGA,'DOC125_CONFIGURATION_CHANGED');
+    const free=await lockState();check(Number(free.carga_libre)===1&&Number(free.destino_libre)===1,'DOC125_OWN_LOCK_NOT_RELEASED');
+    for(const table of s.protectedTables)check(await snapshotDestination(select,fingerprint,table,true)===protectedBefore[table],'DOC125_PROTECTED_DESTINATION_CHANGED');
+    completed++;console.log('DOC125_CASE_PASS scenario='+c.escenario+'; effects preserved; no cleanup');
+   }
+  }finally{await a.context.close();if(b)await b.context.close();}
+  const restricted=await session(browser,true,'DOC125');try{const denied=await call(restricted,'AbrirCargaExcel');check(!denied.ok&&['ACCESO_DENEGADO','SESION_REQUERIDA'].includes(denied.codigo),'DOC125_RESTRICTED_NOT_DENIED');}finally{await restricted.context.close();}
+  console.log('DOC125_REAL_CONFIRM_PASS cases='+completed+'; real services and UNIQUE race; protected fingerprints unchanged; client ignored acknowledgement; no installation/cleanup');
+ });
+});
+
 test.describe('DOC122 autorización y plantillas',()=>{
 test.skip(process.env.DOC122_E2E_AUTHORIZED!=='YES','NO_EJECUTADO: requiere autorización específica de ambiente, cuentas y plantilla descartable.');
 test('@doc122-read permiso propio, lectura estable y sesión restringida',async({browser})=>{

@@ -1,16 +1,16 @@
-# DOC-125 — Confirmación y recuperación
+# DOC-125 — Confirmación transaccional y recuperación
 
 - Ticket: DOC-125
 - Cambio OpenSpec: doc-125-importacion-excel-05-confirmacion-recuperacion
 - Clasificacion: cross_cutting (Transversal)
-- Estado: refinamiento técnico, sin implementación ni E2E escritora ejecutada.
+- Estado: implementación local verificada, aceptación real abierta.
 
 ## Evidencia requerida
 
-El manifiesto exige unit, e2e y manual_qa. Ampliar el harness compilado DOC122 con pruebas nativas de modos, transacciones, scopes, replay, CREATE, rollback e incertidumbre; conservar regresiones DOC122–124/carpetas y build net461. Las pruebas del nuevo comportamiento todavía no se ejecutaron porque el producto aún no está implementado. La auditoría del refinamiento se registra por separado y no sustituye estas evidencias.
+La aceptación local final pasa 27/27 tests. El ejecutable existente reúne DOC122246, DOC123318, DOC124492 y DOC1253292: 4348 comprobaciones con ADO/autoridad sintéticos y libros/lector locales reales. Incluye modos, CAS, SQL estricto, parámetros, rollback, 1062 real del tipo de excepción del conector, CREATE identificado, incertidumbre y limpieza. La regresión heredada DOC110/DOC120 pasó. MSBuild net461 aislado: cero errores, 308 advertencias previas y ninguna de ImportacionExcel; sin despliegue.
 
 ## QA/E2E WebForms
 
-Reutilizar tools/e2e/tests/importacion-excel.spec.cjs, runner DOC110, autenticación privada y controles SELECT DOC32. El nuevo modo de confirmación exige scope DOC125 con ambiente, cuentas, destinos descartables y efectos autorizados. No heredar el permiso de sólo lectura DOC124 ni reabrir sus ventanas. Los 625 contratos y cargas históricas se conservan.
+Se descubrió un test @doc125-confirm con cinco casos, sin abrir navegador o sesión autenticada. Reutiliza runner DOC110, suite importacion-excel, controles SELECT DOC32 y actor externo en el ejecutor DOC115. La autorización DOC125, conteos iniciales, máximos de inserciones/eliminaciones, archivos/hash, destino descartable y DLL se validan; no se hereda un scope de preparación. Los libros se comprueban antes de pedir credenciales.
 
-La matriz acreditará CREAR/AGREGAR/REEMPLAZAR, dos sesiones, replay, acuse perdido, rollback y carrera UNIQUE frente a otro escritor. La E2E no instala, siembra ni limpia bases; fixtures/plantillas/permisos se configuran por archivos manuales si hacen falta. Mantener autorización específica y distinguir datos reales, dobles locales y mediciones de capacidad. SQL18 fue entregado como SELECT, no ejecutado.
+La matriz prepara CREAR1000/AGREGAR1000/REEMPLAZAR1000, rollback300 por UNIQUE VALOR y carrera10 con una fila externa. Se exigirán dos sesiones reales, resultado durable/replay, acuse ignorado recuperado, locks propios observados activos/libres y huellas protegidas. El acuse ignorado no se presenta como corte físico de red o COMMIT incierto real. No se ejecutó aún la matriz; unit/e2e/manual_qa siguen siendo evidencias distintas. SQL19–21 instalan fixtures sólo mediante ejecución manual confirmada; el test no instala, siembra ni limpia. Las mediciones de capacidad de escritura siguen abiertas.

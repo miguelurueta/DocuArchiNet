@@ -1,5 +1,40 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC125 — implementación local; aceptación escritora sin ejecutar
+
+Confirmar/ConsultarResultado y los tres modos están implementados localmente;
+el build net461 es aislado, sin despliegue. La aceptación DOC124 sólo preparó
+cargas y no autoriza importar o reemplazar sus destinos. No reabrir sus ventanas.
+
+Reutilizar `test:doc110:session -- --excel-confirm`, suite importacion-excel,
+consola privada, controles SELECT DOC32 y ejecutor nativo DOC115 con su modo
+ExcelConfirmation. Exigir scope DOC125, autorización específica de ambiente,
+cuentas y efectos, hashes de libros/backend, recursos del módulo y tablas
+descartables `imp_02_doc125_e2e_`. Scope DOC124/readOnly no sirve para escribir.
+
+SQL18 es diagnóstico SELECT; SQL19 instala dos fixtures vacíos en DA, SQL20 dos
+fuentes en RA y SQL21 tres plantillas y tres filas sintéticas iniciales en DA.
+Todos están ENTREGADOS/PENDIENTE_EJECUCION_MANUAL, no aplicados por el agente.
+Confirmar aplicación manual y verificar SELECT antes de la ventana dependiente.
+No aplicar SQL, instalar configuración, sembrar ni limpiar desde los tests.
+No conceder privilegios automáticamente: si falta visibilidad de metadatos, cerrar
+la capacidad y revisar el diagnóstico (SELECT global/TRIGGER en esta implementación).
+
+Cinco casos: CREAR1000, AGREGAR1000, REEMPLAZAR1000, rollback300 por UNIQUE VALOR y
+carrera10 con una sola fila de escritor externo. Identificar conteos iniciales y
+máximos de inserciones/eliminaciones en el manifiesto; rechazar cualquier cambio.
+Conservar todos los efectos/resultados y las huellas de CONTRATOS/destinos protegidos.
+El actor externo mantiene su fila sin commit cinco segundos y luego confirma;
+exigir CONFLICTO_CLAVE, ambos locks observados activos y liberados al terminar.
+Un rechazo previo no acredita carrera UNIQUE. La consulta del acuse ignorado por
+el cliente no se presenta como corte físico de red ni commit incierto real.
+
+Los cinco XLSX sintéticos se generaron y validaron localmente con el lector DOC123;
+su ubicación/manifiesto está en `.tmp/doc125-fixture-location.txt`, excluido de Git.
+La DLL IIS permanece igual. No recuperar contraseñas ni ejecutar una prueba real
+para completar documentación. Estado/evidencia vigentes en
+`Doc/Actualizacion/Importacion/Validacion/doc125-implementacion-local-20261123.md`/JSON.
+
 ## DOC-120 — OpenSpec archivado y Jira Listo
 
 Archivo integrado por [PR132](https://github.com/miguelurueta/DocuArchiNet/pull/132), merge `86e3fd61`; CI 37/37. Conserva 17 archivos y 270 tareas completas, con 15 requisitos y 114 escenarios en la especificación principal. Validación estricta 91/91, refinement 15/15 y gobierno 72/72. Las 195 fuentes de ejecución siguen iguales. Jira **Listo**, categoría `done`, confirmado por lectura posterior el 2026-11-20T22:08:53.584Z. Cero nuevas ejecuciones reales, despliegues o limpieza. Los cortes inferiores mantienen su estado histórico. Fuente: `Validacion/doc120-archivo-cierre-20261120.md`/JSON. No recuperar claves E2E ni reabrir ventanas por pendientes históricos.

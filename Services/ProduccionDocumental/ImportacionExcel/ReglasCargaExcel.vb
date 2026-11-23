@@ -68,7 +68,7 @@ Public NotInheritable Class ReglasCargaExcel
         Return Hash(New UTF8Encoding(False, True).GetBytes(Canonico(documento)))
     End Function
     Public Shared Function Estado(e As CargaExcelEjecucion) As EstadoCargaExcel
-        Return New EstadoCargaExcel With {.IdCarga = e.Id, .PlantillaId = e.PlantillaId, .Estado = e.Estado, .NombreArchivo = e.Archivo.Nombre, .Bytes = e.Archivo.Bytes, .ArchivoHash = e.Archivo.Hash, .Tabla = e.Tabla, .Modo = e.Modo, .RevisionPlantilla = e.RevisionPlantilla, .ConfiguracionHash = e.ConfiguracionHash, .EsquemaHash = e.EsquemaHash, .FilasPrevistas = e.FilasPrevistas, .CodigoIncidencia = e.CodigoIncidencia, .Hojas = e.Archivo.Hojas.ToList()}
+        Return New EstadoCargaExcel With {.IdCarga = e.Id, .PlantillaId = e.PlantillaId, .Estado = e.Estado, .NombreArchivo = e.Archivo.Nombre, .Bytes = e.Archivo.Bytes, .ArchivoHash = e.Archivo.Hash, .Tabla = e.Tabla, .Modo = e.Modo, .RevisionPlantilla = e.RevisionPlantilla, .ConfiguracionHash = e.ConfiguracionHash, .EsquemaHash = e.EsquemaHash, .FilasPrevistas = e.FilasPrevistas, .CodigoIncidencia = e.CodigoIncidencia, .FilasConfirmadas = e.FilasConfirmadas, .ConfirmadoUtc = e.ConfirmadoUtc, .Hojas = e.Archivo.Hojas.ToList()}
     End Function
     Public Shared Function Fallo(codigo As String) As ImportacionExcelException
         Return New ImportacionExcelException(codigo, "Revise el estado de la carga y sus datos (" & codigo & ").")

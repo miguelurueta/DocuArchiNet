@@ -75,8 +75,11 @@ Public Class MySqlPlantillaExcelRepository
         End Try
     End Function
     Private Function Leer(cn As DbConnection, tx As DbTransaction, id As UInteger, bloquear As Boolean) As PlantillaExcel
+        Return LeerCarga(cn, tx, id, _conexionId, bloquear)
+    End Function
+    Public Shared Function LeerCarga(cn As DbConnection, tx As DbTransaction, id As UInteger, conexionId As UInteger, bloquear As Boolean) As PlantillaExcel
         Dim p As PlantillaExcel = Nothing
-        Using q = Cmd(cn, tx, "SELECT " & Cabecera & " FROM imp01_plantillaimp WHERE ID_PLANTILLAIMP=@id AND IMP01_XMLCONEXION_ID_XMLCONEXION=@conexion" & If(bloquear, " FOR UPDATE", ""), "@id", id, "@conexion", _conexionId)
+        Using q = Cmd(cn, tx, "SELECT " & Cabecera & " FROM imp01_plantillaimp WHERE ID_PLANTILLAIMP=@id AND IMP01_XMLCONEXION_ID_XMLCONEXION=@conexion" & If(bloquear, " FOR UPDATE", ""), "@id", id, "@conexion", conexionId)
             Using r = q.ExecuteReader()
                 If Not r.Read() Then Return Nothing
                 p = New PlantillaExcel With {.ID_PLANTILLAIMP = UInt(r, 0), .IMP01_XMLCONEXION_ID_XMLCONEXION = UInt(r, 1), .NOMBRE_PLANTILLA = Texto(r, 2), .CONEXION_FUENTE = Texto(r, 3), .LIBRO_EXCEL = Texto(r, 4), .RUTA_ARCHIVO_FUENTE = Texto(r, 5), .ELIMINA_TABLA = UInt(r, 6), .ELIMINA_INSERTA_RECORD = UInt(r, 7), .INSERTA_RECORD = UInt(r, 8), .ESTADO_PLANTILLA = UInt(r, 9), .CAMPO_UNICO = Texto(r, 10), .REVISION_CARGA = UInt(r, 11)}

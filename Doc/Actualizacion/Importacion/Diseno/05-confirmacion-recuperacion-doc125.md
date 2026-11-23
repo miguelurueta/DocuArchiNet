@@ -1,34 +1,31 @@
 # DOC125 — Confirmación transaccional y recuperación
 
-Estado 2026-11-23: refinamiento técnico; implementación y aceptación real por ejecutar.
-El [diseño OpenSpec](../../../../openspec/changes/doc-125-importacion-excel-05-confirmacion-recuperacion/design.md) contiene el inventario de rutas, quince decisiones y la secuencia. La [especificación](../../../../openspec/changes/doc-125-importacion-excel-05-confirmacion-recuperacion/specs/importacion-excel-05-confirmacion-recuperacion/spec.md) define quince requisitos y 44 escenarios.
+Estado 2026-11-23: backend implementado y verificado localmente; aceptación real abierta (26/31 tareas). [Diseño OpenSpec](../../../../openspec/changes/doc-125-importacion-excel-05-confirmacion-recuperacion/design.md), [quince requisitos/44 escenarios](../../../../openspec/changes/doc-125-importacion-excel-05-confirmacion-recuperacion/specs/importacion-excel-05-confirmacion-recuperacion/spec.md) y [evidencia local](../Validacion/doc125-implementacion-local-20261123.md).
 
 ## Contrato
 
-Confirmar recibe ConexionId, IdCarga, ArchivoHash, ConfiguracionHash, EsquemaHash y ConfirmacionReemplazo. El servidor resuelve autoridad, archivo, plantilla, tabla, modo y política desde los recursos existentes. ConsultarResultado conserva la solicitud de consulta DOC124 y devuelve estado, filas confirmadas, fecha y diagnóstico seguro; no repara ni importa datos.
+Confirmar recibe ConexionId, IdCarga, ArchivoHash, ConfiguracionHash, EsquemaHash y ConfirmacionReemplazo. La sesión y los recursos existentes resuelven autoridad, archivo, plantilla, tabla, modo y política. ConsultarResultado/ConsultarCargaExcel conservan la solicitud ConexionId/IdCarga y devuelven estado, FilasConfirmadas y ConfirmadoUtc sin reparar datos. El estado estructural de una carga CREAR sin confirmar se consulta por SELECT, sin revelar ruta o documento privado.
 
-Una confirmación ya terminada y de contenido idéntico devuelve su resultado histórico antes de leer límites, archivo, plantilla o esquema actuales. La autoridad y propiedad siguen siendo obligatorias. Una carga por ejecutar revalida su archivo completo y snapshots; el destino y las plantillas se bloquean y releen antes de escribir.
+Una confirmación histórica idéntica se devuelve antes de resolver archivo, límites, plantilla o esquema actuales, comprobando autoridad vigente. El bootstrap emite contexto/CSRF con capacidad de carga cerrada si los límites son inválidos; nuevas cargas se siguen rechazando. Una ejecución nueva revalida el archivo completo y los snapshots v1, y relee ejecución/plantilla/campos bloqueados antes de escribir.
 
 ## Escritura y recuperación
 
-AGREGAR rechaza cualquier duplicado y revierte el intento completo. REEMPLAZAR exige confirmación explícita y ejecuta DELETE/INSERT dentro del ámbito autorizado en una sola transacción. CREAR identifica su tabla por UUID/hash en el comentario: el DDL puede sobrevivir a un rollback de filas y se recupera por procedencia/estructura compatible, sin apropiarse de tablas ajenas.
+AGREGAR inserta íntegramente o revierte; un UNIQUE físico protege frente a otro escritor. REEMPLAZAR exige confirmación explícita y ejecuta DELETE/INSERT con la política empresarial vigente. La transacción de datos guarda CONFIRMADA/conteo/UTC en la misma conexión DA. La clave física completa y el motor se conservan. Los comandos tienen hasta 128 parámetros y presupuesto conservador min(65536,max_allowed_packet/2); una fila que no cabe se rechaza antes de borrar o insertar.
 
-En MySQL5.1 los locks por ID y destino requieren conexiones diferentes. La conexión de datos comparte una transacción InnoDB para filas y CONFIRMADA/conteo/UTC. La conexión de lock de destino usa el mismo recurso DA, sin otra cadena en Web.config. Los snapshots v1 y las 22 columnas existentes se conservan.
+MySQL5.1 exige conexiones diferentes para los locks por ID y destino; se reutiliza la fábrica DA. CREAR identifica su tabla por UUID/EsquemaHash en el comentario y compara estructura materializada con la proyección normalizada. CREATE es una fase independiente: puede sobrevivir al rollback DML. No se adopta una tabla ajena ni se elimina una propia para ocultar un fallo. No hay DROP, TRUNCATE, upsert u omisión de filas.
 
-FALLIDA acredita rollback conocido y conserva snapshots para un reintento explícito íntegro. RESULTADO_INCIERTO conserva el ID y exige consulta; no autoriza replay automático. No existe una pausa durable a mitad de filas ni commits parciales. Cerrar la pestaña no acredita cancelación.
+FALLIDA acredita rollback conocido y conserva snapshots para un reintento explícito íntegro. Un error de commit o limpieza conserva RESULTADO_INCIERTO; no degrada una CONFIRMADA. Consultar por ID precede cualquier decisión de repetición. No existe pausa durable a mitad de filas ni commits por agrupación. Cerrar la pestaña/timeout no acredita cancelación o rollback. El ASMX puede serializar una misma sesión; las pruebas concurrentes usan sesiones independientes.
 
-Los métodos ASMX actuales pueden serializar peticiones de una misma sesión ASP.NET:
-no se promete consulta de progreso en vivo desde esa sesión durante Confirmar. La
-aceptación concurrente usa sesiones independientes; un timeout HTTP se recupera
-consultando el ID y no demuestra rollback. Esta fase no añade un trabajo en segundo
-plano ni un protocolo de pausa/reanudación por posición de fila.
+## Prerrequisitos y aceptación real
 
-## SQL y pruebas
+[SQL18](../Sql/18-preflight-doc125.sql) diagnostica por SELECT. [SQL19](../Sql/19-fixtures-da-doc125.sql) instala dos tablas descartables; [SQL20](../Sql/20-fuentes-e2e-ra-doc125.sql) registra dos fuentes y [SQL21](../Sql/21-plantillas-e2e-da-doc125.sql) tres plantillas y tres filas sintéticas iniciales. Todos quedan PENDIENTE_EJECUCION_MANUAL; no se ejecutaron. [Guía, orden y precondiciones](../Sql/README.md). Se reutilizan las 22 columnas de resultado existentes y no se cambia el esquema productivo de resultados.
 
-Se entrega [SQL18](../Sql/18-preflight-doc125.sql), diez SELECT separados por bloques DA/RA, con [guía manual](../Sql/README.md). Estado PENDIENTE_EJECUCION_MANUAL; no se ejecutó. No hay una migración nueva de resultado: filas_confirmadas y confirmado_utc ya existen. Una adecuación que resulte necesaria tendrá otro archivo y confirmación manual.
+La inspección rechaza triggers/FK de tablas que se escriben y exige visibilidad suficiente: TRIGGER efectivo y SELECT global para referencias entrantes desde otras bases en esta implementación. Si no se acredita, cierra la capacidad; estos archivos no conceden permisos ni recomiendan ampliar la cuenta automáticamente. La política de esa cuenta debe revisarse con SQL18.
 
-Se reutilizan harness nativo DOC122–124, runner DOC110, suite importacion-excel y controles SELECT DOC32. La E2E escritora requiere autorización nueva de ambiente, cuentas, destinos descartables y efectos; las cargas previas y los 625 contratos siguen protegidos. El gobierno exige evidencia unit, e2e y manual_qa. No se atribuyen pruebas o importaciones reales a este refinamiento.
+La E2E real reutiliza la infraestructura actual con scope DOC125, autorización de ambiente/cuentas/efectos y tablas imp_02_doc125_e2e_. Se congelan conteos iniciales y máximos de inserción/eliminación; cualquier deriva detiene el caso. El rollback usa VALOR duplicado bajo un segundo UNIQUE después del DELETE; la carrera retiene una fila externa sin commit cinco segundos. Se exige CONFLICTO_CLAVE para acreditarla y se conservan todos los efectos. No se utiliza un endpoint de inyección de fallos.
 
-## Límites
+## Evidencia y límites
 
-Conservar 20000 filas configuradas y 10000000 bytes; el lector mantiene su predeterminado 10000. Los 12759 registros del mayor archivo real DOC124 no acreditan capacidad de escritura para 20000. El índice UNIQUE protege identidad frente a escritores externos; exclusividad completa requiere que éstos cooperen. El mantenimiento DDL externo queda fuera de la garantía del lock. Los metadatos y la visibilidad de triggers/relaciones deben acreditarse antes de habilitar escrituras. La interfaz pertenece a fase06 y la publicación de nuevas fuentes usa sus servicios administrativos existentes.
+27/27 tests locales y build aislado sin errores. Los 4348 checks nativos son sintéticos; la igualdad, rollback y carrera MySQL reales aún requieren la ventana autorizada. Se generaron cinco XLSX sintéticos con el mismo generador DOC123, verificados por su lector: 1000/1000/1000/300/10 filas. La ubicación/manifiesto se conserva en .tmp excluido de Git. El acuse ignorado se distingue de una pérdida física de red/commit, no inducida por esta matriz.
+
+Mantener 20000 filas configuradas y 10000000 bytes; el lector conserva su default 10000. Las pruebas locales cubren presupuesto de agrupación para 20000, rechazo del lector para 20001 y 10MB exactos/exceso; no acreditan capacidad de escritura real para 20000. Los 12759 registros preparados en DOC124 no son benchmark de confirmación. Los 625 contratos anteriores y otras fuentes no fueron modificados por esta implementación ni son fixtures descartables por inferencia. No se desplegó. COLUMNA, fallo intermedio de CREATE y commit incierto tienen cobertura local, no fallos físicos MySQL inducidos. La interfaz y publicación administrativa siguen en sus fases.

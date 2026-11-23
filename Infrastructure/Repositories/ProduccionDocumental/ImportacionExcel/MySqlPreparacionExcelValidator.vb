@@ -12,40 +12,60 @@ Public Class MySqlPreparacionExcelValidator
     Private ReadOnly _cn As DbConnection
     Private ReadOnly _ctx As ContextoCargaExcel
     Private ReadOnly _politica As Func(Of String, PoliticaDestinoCargaExcel)
+    Private _tx As DbTransaction
     Private ReadOnly _temporales As New List(Of String)
     Private _modoOriginal As String
     Private _modoTocado As Boolean
-    Public Sub New(cn As DbConnection, c As ContextoCargaExcel, politica As Func(Of String, PoliticaDestinoCargaExcel))
-        _cn = cn : _ctx = c : _politica = politica
+    Public Sub New(cn As DbConnection, c As ContextoCargaExcel, politica As Func(Of String, PoliticaDestinoCargaExcel), Optional tx As DbTransaction = Nothing)
+        _cn = cn : _ctx = c : _politica = politica : _tx = tx
     End Sub
-    Public Shared Function Identidad(cn As DbConnection) As String
-        Using q = SqlCargaExcel.Cmd(cn, Nothing, "SELECT @@hostname,@@port,DATABASE()"), r = q.ExecuteReader()
+    Public Shared Function Identidad(cn As DbConnection, Optional tx As DbTransaction = Nothing) As String
+        Using q = SqlCargaExcel.Cmd(cn, tx, "SELECT @@hostname,@@port,DATABASE()"), r = q.ExecuteReader()
             If Not r.Read() Then Throw ReglasCargaExcel.Fallo("CAPACIDAD_NO_DISPONIBLE")
             Return ReglasCargaExcel.HashDocumento(New With {.Servidor = SqlCargaExcel.Texto(r, 0), .Puerto = Convert.ToUInt32(r(1), CultureInfo.InvariantCulture), .Base = SqlCargaExcel.Texto(r, 2)})
         End Using
     End Function
+    Public Sub TransaccionActual(tx As DbTransaction)
+        _tx = tx
+    End Sub
     Public Function Inspeccionar(p As PlantillaExcel, modo As String) As EsquemaCargaExcel
         If p Is Nothing OrElse Not ServicioPlantillasExcel.TablaValida(p.NOMBRE_PLANTILLA) Then Throw ReglasCargaExcel.Fallo("DESTINO_INVALIDO")
-        Dim e As New EsquemaCargaExcel With {.Destino = New DestinoPlantillaExcel, .IdentidadFisica = Identidad(_cn)}
-        Using q = SqlCargaExcel.Cmd(_cn, Nothing, "SELECT ENGINE,TABLE_TYPE FROM information_schema.TABLES WHERE BINARY TABLE_SCHEMA=BINARY DATABASE() AND BINARY TABLE_NAME=BINARY @tabla", "@tabla", p.NOMBRE_PLANTILLA), r = q.ExecuteReader()
+        Dim e = Metadatos(p.NOMBRE_PLANTILLA)
+        If Not e.Destino.Existe Then
+            If modo <> "CREAR" Then Throw ReglasCargaExcel.Fallo("DESTINO_INVALIDO")
+            Return Proyectado(p)
+        End If
+        If modo = "CREAR" Then Throw ReglasCargaExcel.Fallo("DESTINO_YA_EXISTE")
+        e.Politica = _politica(p.NOMBRE_PLANTILLA)
+        ValidarEsquema(p, e, modo)
+        e.Hash = HuellaEsquema(e)
+        Return e
+    End Function
+    Public Function Proyectado(p As PlantillaExcel) As EsquemaCargaExcel
+        If p Is Nothing OrElse Not ServicioPlantillasExcel.TablaValida(p.NOMBRE_PLANTILLA) Then Throw ReglasCargaExcel.Fallo("DESTINO_INVALIDO")
+        Dim e As New EsquemaCargaExcel With {.Destino = New DestinoPlantillaExcel, .IdentidadFisica = Identidad(_cn, _tx), .Politica = New PoliticaDestinoCargaExcel With {.Modo = "PROYECTADA"}}
+        Proyectar(p, e)
+        ValidarEsquema(p, e, "CREAR")
+        e.Hash = HuellaEsquema(e)
+        Return e
+    End Function
+    Public Function Metadatos(tabla As String) As EsquemaCargaExcel
+        If Not ServicioPlantillasExcel.TablaValida(tabla) Then Throw ReglasCargaExcel.Fallo("DESTINO_INVALIDO")
+        Dim e As New EsquemaCargaExcel With {.Destino = New DestinoPlantillaExcel, .IdentidadFisica = Identidad(_cn, _tx)}
+        Using q = SqlCargaExcel.Cmd(_cn, _tx, "SELECT ENGINE,TABLE_TYPE FROM information_schema.TABLES WHERE BINARY TABLE_SCHEMA=BINARY DATABASE() AND BINARY TABLE_NAME=BINARY @tabla", "@tabla", tabla), r = q.ExecuteReader()
             If r.Read() Then
                 If SqlCargaExcel.Texto(r, 1) <> "BASE TABLE" Then Throw ReglasCargaExcel.Fallo("ESQUEMA_INCOMPATIBLE")
                 e.Destino.Existe = True : e.Destino.Motor = SqlCargaExcel.Texto(r, 0)
             End If
         End Using
-        If Not e.Destino.Existe Then
-            If modo <> "CREAR" Then Throw ReglasCargaExcel.Fallo("DESTINO_INVALIDO")
-            e.Politica = New PoliticaDestinoCargaExcel With {.FuenteId = Nothing, .Revision = 0, .Modo = "PROYECTADA", .ColumnaEmpresa = Nothing}
-            Proyectar(p, e)
-        Else
-            If modo = "CREAR" Then Throw ReglasCargaExcel.Fallo("DESTINO_YA_EXISTE")
-            e.Politica = _politica(p.NOMBRE_PLANTILLA)
-            Using q = SqlCargaExcel.Cmd(_cn, Nothing, "SELECT COLUMN_NAME,DATA_TYPE,COLUMN_TYPE,CHARACTER_MAXIMUM_LENGTH,IS_NULLABLE,COLUMN_DEFAULT,CHARACTER_SET_NAME,COLLATION_NAME,EXTRA FROM information_schema.COLUMNS WHERE BINARY TABLE_SCHEMA=BINARY DATABASE() AND BINARY TABLE_NAME=BINARY @tabla ORDER BY ORDINAL_POSITION", "@tabla", p.NOMBRE_PLANTILLA), r = q.ExecuteReader()
+
+        If e.Destino.Existe Then
+            Using q = SqlCargaExcel.Cmd(_cn, _tx, "SELECT COLUMN_NAME,DATA_TYPE,COLUMN_TYPE,CHARACTER_MAXIMUM_LENGTH,IS_NULLABLE,COLUMN_DEFAULT,CHARACTER_SET_NAME,COLLATION_NAME,EXTRA FROM information_schema.COLUMNS WHERE BINARY TABLE_SCHEMA=BINARY DATABASE() AND BINARY TABLE_NAME=BINARY @tabla ORDER BY ORDINAL_POSITION", "@tabla", tabla), r = q.ExecuteReader()
                 While r.Read()
                     e.Destino.Columnas.Add(New ColumnaDestinoExcel With {.Nombre = SqlCargaExcel.Texto(r, 0), .Tipo = SqlCargaExcel.Texto(r, 1), .TipoCompleto = SqlCargaExcel.Texto(r, 2), .Longitud = If(r.IsDBNull(3), New Nullable(Of Long), New Nullable(Of Long)(Convert.ToInt64(r(3), CultureInfo.InvariantCulture))), .Nulable = SqlCargaExcel.Texto(r, 4) = "YES", .Predeterminado = SqlCargaExcel.Texto(r, 5), .Charset = SqlCargaExcel.Texto(r, 6), .Collation = SqlCargaExcel.Texto(r, 7), .Extra = SqlCargaExcel.Texto(r, 8)})
                 End While
             End Using
-            Using q = SqlCargaExcel.Cmd(_cn, Nothing, "SELECT INDEX_NAME,NON_UNIQUE,SEQ_IN_INDEX,COLUMN_NAME,SUB_PART FROM information_schema.STATISTICS WHERE BINARY TABLE_SCHEMA=BINARY DATABASE() AND BINARY TABLE_NAME=BINARY @tabla ORDER BY INDEX_NAME,SEQ_IN_INDEX", "@tabla", p.NOMBRE_PLANTILLA), r = q.ExecuteReader()
+            Using q = SqlCargaExcel.Cmd(_cn, _tx, "SELECT INDEX_NAME,NON_UNIQUE,SEQ_IN_INDEX,COLUMN_NAME,SUB_PART FROM information_schema.STATISTICS WHERE BINARY TABLE_SCHEMA=BINARY DATABASE() AND BINARY TABLE_NAME=BINARY @tabla ORDER BY INDEX_NAME,SEQ_IN_INDEX", "@tabla", tabla), r = q.ExecuteReader()
                 While r.Read()
                     Dim nombre = SqlCargaExcel.Texto(r, 0), indice = e.Indices.SingleOrDefault(Function(x) x.Nombre = nombre)
                     If indice Is Nothing Then
@@ -55,18 +75,16 @@ Public Class MySqlPreparacionExcelValidator
                 End While
             End Using
         End If
-        ValidarEsquema(p, e, modo)
-        e.Hash = HuellaEsquema(e)
         Return e
     End Function
     Private Sub Proyectar(p As PlantillaExcel, e As EsquemaCargaExcel)
         Dim charset, collation As String, maxCaracter As Integer
-        Using q = SqlCargaExcel.Cmd(_cn, Nothing, "SELECT @@character_set_database,@@collation_database"), r = q.ExecuteReader()
+        Using q = SqlCargaExcel.Cmd(_cn, _tx, "SELECT @@character_set_database,@@collation_database"), r = q.ExecuteReader()
             If Not r.Read() Then Throw ReglasCargaExcel.Fallo("CAPACIDAD_NO_DISPONIBLE")
             charset = SqlCargaExcel.Texto(r, 0) : collation = SqlCargaExcel.Texto(r, 1)
         End Using
         SqlCargaExcel.Identificador(charset) : SqlCargaExcel.Identificador(collation)
-        Using q = SqlCargaExcel.Cmd(_cn, Nothing, "SELECT MAXLEN FROM information_schema.CHARACTER_SETS WHERE CHARACTER_SET_NAME=@charset", "@charset", charset)
+        Using q = SqlCargaExcel.Cmd(_cn, _tx, "SELECT MAXLEN FROM information_schema.CHARACTER_SETS WHERE CHARACTER_SET_NAME=@charset", "@charset", charset)
             maxCaracter = Convert.ToInt32(q.ExecuteScalar(), CultureInfo.InvariantCulture)
         End Using
         If maxCaracter < 1 OrElse maxCaracter > 4 Then Throw ReglasCargaExcel.Fallo("ESQUEMA_INCOMPATIBLE")
@@ -129,7 +147,7 @@ Public Class MySqlPreparacionExcelValidator
         CrearTemporal(temporalFilas, "_fila INT NOT NULL," & String.Join(",", partes))
         CrearTemporal(temporalGrupos, String.Join(",", partes))
         Dim maxBytes As Long
-        Using q = SqlCargaExcel.Cmd(_cn, Nothing, "SELECT @@max_allowed_packet")
+        Using q = SqlCargaExcel.Cmd(_cn, _tx, "SELECT @@max_allowed_packet")
             maxBytes = Math.Min(65536L, Convert.ToInt64(q.ExecuteScalar(), CultureInfo.InvariantCulture) \ 2)
         End Using
         If maxBytes < 1024 Then Throw ReglasCargaExcel.Fallo("CAPACIDAD_NO_DISPONIBLE")
@@ -138,7 +156,7 @@ Public Class MySqlPreparacionExcelValidator
         If e.Politica.Modo = "COLUMNA" Then
             AgregarConsulta(resultado, "EMPRESA_NO_AUTORIZADA", "SELECT _fila FROM " & temporalFilas & " WHERE k0<>@empresa ORDER BY _fila", _ctx.EmpresaId.ToString(CultureInfo.InvariantCulture))
         End If
-        Using q = SqlCargaExcel.Cmd(_cn, Nothing, "INSERT INTO " & temporalGrupos & " (" & lista & ") SELECT " & lista & " FROM " & temporalFilas & " GROUP BY " & lista & " HAVING COUNT(*)>1")
+        Using q = SqlCargaExcel.Cmd(_cn, _tx, "INSERT INTO " & temporalGrupos & " (" & lista & ") SELECT " & lista & " FROM " & temporalFilas & " GROUP BY " & lista & " HAVING COUNT(*)>1")
             q.ExecuteNonQuery() : SinAdvertencias()
         End Using
         Dim iguales = String.Join(" AND ", nombres.Select(Function(n, i) "f.k" & i.ToString(CultureInfo.InvariantCulture) & "=g.k" & i.ToString(CultureInfo.InvariantCulture)))
@@ -150,9 +168,10 @@ Public Class MySqlPreparacionExcelValidator
         End If
         Return resultado
     End Function
-    Private Sub ActivarModoEstricto()
+    Public Sub ActivarModoEstricto()
         If _modoTocado Then Return
-        Using q = SqlCargaExcel.Cmd(_cn, Nothing, "SELECT @@session.sql_mode")
+        If _modoTocado Then Return
+        Using q = SqlCargaExcel.Cmd(_cn, _tx, "SELECT @@session.sql_mode")
             _modoOriginal = Convert.ToString(q.ExecuteScalar(), CultureInfo.InvariantCulture)
         End Using
         Dim modos = _modoOriginal.Split(","c).Where(Function(x) x.Length > 0).ToList()
@@ -160,23 +179,23 @@ Public Class MySqlPreparacionExcelValidator
             If Not modos.Contains(requerido, StringComparer.OrdinalIgnoreCase) Then modos.Add(requerido)
         Next
         _modoTocado = True
-        Using q = SqlCargaExcel.Cmd(_cn, Nothing, "SET SESSION sql_mode=@modo", "@modo", String.Join(",", modos))
+        Using q = SqlCargaExcel.Cmd(_cn, _tx, "SET SESSION sql_mode=@modo", "@modo", String.Join(",", modos))
             q.ExecuteNonQuery()
         End Using
-        Using q = SqlCargaExcel.Cmd(_cn, Nothing, "SELECT @@session.sql_mode")
+        Using q = SqlCargaExcel.Cmd(_cn, _tx, "SELECT @@session.sql_mode")
             If Not Convert.ToString(q.ExecuteScalar(), CultureInfo.InvariantCulture).Split(","c).Contains("STRICT_ALL_TABLES", StringComparer.OrdinalIgnoreCase) Then Throw ReglasCargaExcel.Fallo("CAPACIDAD_NO_DISPONIBLE")
         End Using
     End Sub
     Private Sub CrearTemporal(nombre As String, columnas As String)
         _temporales.Add(nombre) 'Incluye CREATE de resultado incierto para su DROP propio.
-        Using q = SqlCargaExcel.Cmd(_cn, Nothing, "CREATE TEMPORARY TABLE " & nombre & " (" & columnas & ") ENGINE=InnoDB")
+        Using q = SqlCargaExcel.Cmd(_cn, _tx, "CREATE TEMPORARY TABLE " & nombre & " (" & columnas & ") ENGINE=InnoDB")
             q.ExecuteNonQuery() : SinAdvertencias()
         End Using
     End Sub
     Private Sub Insertar(tabla As String, claves As List(Of String), filas As List(Of FilaNormalizadaExcel), maxBytes As Long)
         Dim indice As Integer = 0
         While indice < filas.Count
-            Using q = SqlCargaExcel.Cmd(_cn, Nothing, "")
+            Using q = SqlCargaExcel.Cmd(_cn, _tx, "")
                 Dim grupos As New List(Of String), bytes As Long = 256
                 While indice < filas.Count AndAlso q.Parameters.Count + claves.Count + 1 <= 128
                     Dim fila = filas(indice), valores = claves.Select(Function(n) fila.Valores.Single(Function(v) v.CampoDestino = n)).ToArray()
@@ -201,12 +220,12 @@ Public Class MySqlPreparacionExcelValidator
         End While
     End Sub
     Private Sub SinAdvertencias()
-        Using q = SqlCargaExcel.Cmd(_cn, Nothing, "SHOW COUNT(*) WARNINGS")
+        Using q = SqlCargaExcel.Cmd(_cn, _tx, "SHOW COUNT(*) WARNINGS")
             If Convert.ToInt64(q.ExecuteScalar(), CultureInfo.InvariantCulture) <> 0 Then Throw ReglasCargaExcel.Fallo("CONVERSION_MYSQL_INVALIDA")
         End Using
     End Sub
     Private Sub AgregarConsulta(resultado As IncidenciasClavesExcel, codigo As String, sql As String, empresa As String)
-        Using q = SqlCargaExcel.Cmd(_cn, Nothing, sql)
+        Using q = SqlCargaExcel.Cmd(_cn, _tx, sql)
             If empresa IsNot Nothing Then ImportacionExcelContextAdapter.Parametro(q, "@empresa", empresa)
             Using r = q.ExecuteReader()
                 While r.Read()
@@ -220,7 +239,7 @@ Public Class MySqlPreparacionExcelValidator
         Dim limpio = True
         For Each nombre In _temporales
             Try
-                Using q = SqlCargaExcel.Cmd(_cn, Nothing, "DROP TEMPORARY TABLE IF EXISTS " & nombre)
+                Using q = SqlCargaExcel.Cmd(_cn, _tx, "DROP TEMPORARY TABLE IF EXISTS " & nombre)
                     q.ExecuteNonQuery()
                 End Using
             Catch
@@ -230,10 +249,10 @@ Public Class MySqlPreparacionExcelValidator
         _temporales.Clear()
         If _modoTocado Then
             Try
-                Using q = SqlCargaExcel.Cmd(_cn, Nothing, "SET SESSION sql_mode=@modo", "@modo", _modoOriginal)
+                Using q = SqlCargaExcel.Cmd(_cn, _tx, "SET SESSION sql_mode=@modo", "@modo", _modoOriginal)
                     q.ExecuteNonQuery()
                 End Using
-                Using q = SqlCargaExcel.Cmd(_cn, Nothing, "SELECT @@session.sql_mode")
+                Using q = SqlCargaExcel.Cmd(_cn, _tx, "SELECT @@session.sql_mode")
                     If Convert.ToString(q.ExecuteScalar(), CultureInfo.InvariantCulture) <> _modoOriginal Then limpio = False
                 End Using
             Catch

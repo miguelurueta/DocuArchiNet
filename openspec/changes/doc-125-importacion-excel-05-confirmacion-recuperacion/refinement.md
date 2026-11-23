@@ -55,4 +55,8 @@ Ticket DOC-125, dependencia DOC124 ya integrada y cerrada. Fuente íntegra conse
 
 ## Resultado del refinamiento
 
-Quince decisiones y quince requisitos vinculados a escenarios y tareas. Los originales generados eran borradores; su existencia no acreditaba implementación. La matriz queda técnicamente definida y lista para auditoría con opsxj:refine -- DOC-125 --sync. Todas las tareas de implementación y aceptación real conservan su estado abierto.
+Quince decisiones y quince requisitos vinculados a escenarios y tareas. Los originales generados eran borradores; su existencia no acreditaba implementación. La matriz técnica pasó la auditoría de refinamiento. La implementación local deja 26/31 tareas completas; el diagnóstico manual, la aceptación real de rollback/carrera/matriz/capacidad y la revisión final siguen abiertos.
+
+## Concreciones durante la implementación
+
+El bootstrap emite contexto autorizado para consultas y marca PermiteNuevaCarga=False si los límites vigentes no permiten nuevas cargas. Los snapshots v1 se conservan. El ejecutor nativo DOC115 amplía su recorrido con un actor externo acotado a una fila de fixture; los efectos y conteos iniciales están congelados en el scope. SQL19–21 entregan los fixtures para aplicación manual, fuera de tests. La inspección requiere visibilidad TRIGGER y SELECT global para acreditar referencias entrantes desde otras bases; si no se acredita cierra la capacidad, sin conceder privilegios. La recepción del acuse ignorado se distingue de un corte físico del commit. La auditoría técnica y las pruebas locales no sustituyen la aceptación real ni autorizan sus escrituras.

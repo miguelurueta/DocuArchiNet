@@ -4,6 +4,52 @@ const path=require('node:path');
 const {collectValue,collectConfirmation,requireInteractiveConsole,runChild}=require('./support/interactive-e2e-console.cjs');
 const {sourceFixture}=require('../tests/support/doc110-source-fixture.cjs');
 
+function excelConfirmationPlan(root,profile,args,environment=process.env){
+ if(!args.includes('--excel-confirm')||args.some(x=>!['--excel-confirm','--headed'].includes(x))||args.filter(x=>x==='--excel-confirm').length!==1)throw Error('DOC125_MODE_CONFLICT');
+ const scopePath=environment.DOC125_E2E_SCOPE_PATH;
+ if(!scopePath||!fs.existsSync(scopePath))throw Error('DOC125_SCOPE_REQUIRED');
+ const s=require('../tests/support/doc125-excel-scope.cjs').readScope(scopePath,profile.baseUrl);
+ const values={DOC125_E2E_BASE_URL:profile.baseUrl,DOC125_E2E_MODULE:profile.module,DOC125_E2E_SCOPE_PATH:scopePath,DOC125_E2E_AUTHORIZED:environment.DOC125_E2E_AUTHORIZED==='YES'?'YES':'NO',DOC10_E2E_IGNORE_HTTPS_ERRORS:String(profile.ignoreHttpsErrors===true)};
+ const aliases={DOC125_E2E_USER:'DOC110_E2E_USER',DOC125_E2E_PASSWORD:'DOC110_E2E_PASSWORD',DOC125_E2E_RESTRICTED_USER:'DOC110_E2E_SECOND_USER',DOC125_E2E_RESTRICTED_PASSWORD:'DOC110_E2E_SECOND_PASSWORD'};
+ for(const [key,alias]of Object.entries(aliases))if(environment[key]||environment[alias])values[key]=environment[key]||environment[alias];
+ const controls=['ODBC_DSN','MYSQL_USER','MYSQL_PASSWORD'].map(x=>s.controlPrefix+'_'+x);
+ for(const key of controls)if(environment[key])values[key]=environment[key];
+ const childArgs=[path.join(root,'node_modules/@playwright/test/cli.js'),'test','tests/importacion-excel.spec.cjs','--grep','@doc125-confirm','--reporter=list','--retries=0'];
+ if(args.includes('--headed'))childArgs.push('--headed');
+ return {values,needed:[...Object.keys(aliases),...controls],childArgs,scope:s};
+}
+async function runExcelConfirmation(root,profile,args){
+ const plan=excelConfirmationPlan(root,profile,args),values=plan.values;let environment;
+ try{for(const item of plan.scope.cases)require('../tests/support/doc125-excel-scope.cjs').readFixture(item);}catch{throw Error('DOC125_FIXTURE_INVALID');}
+ try{
+  for(const name of plan.needed){if(values[name])continue;requireInteractiveConsole();await collectValue(values,name,name.includes('PASSWORD')?'Contraseña efímera':name.endsWith('_ODBC_DSN')?'DSN del control SELECT existente':'Cuenta autorizada para DOC125',{secret:true});}
+  if(values.DOC125_E2E_AUTHORIZED!=='YES'){
+   requireInteractiveConsole();await collectConfirmation(values,'DOC125_CONFIRMACION','Autoriza DOC125: cinco casos sobre tablas imp_02_doc125_e2e_ descartables del manifiesto, CREATE funcional, INSERT/DELETE y resultado, una fila de escritor externo, máximo '+plan.scope.maxBusinessRows+' filas previstas y '+plan.scope.maxDeletedRows+' eliminaciones de fixture; conservar todos los efectos, sin instalar configuración ni limpiar; preservar CONTRATOS y destinos protegidos');values.DOC125_E2E_AUTHORIZED='YES';
+  }
+  const directory=fs.mkdtempSync(path.join(root,'../../.tmp/doc125-native-'));
+  values.DOC125_NATIVE_HARNESS=require('../../../tests/doc122-importacion-excel-behavior.test.cjs').compile(directory).exe;
+  environment={...process.env,...values};const result=await runChild(process.execPath,plan.childArgs,root,environment);process.exitCode=result.code;
+ }finally{for(const name of Object.keys(values)){delete values[name];if(environment)delete environment[name];}}
+}
+function startExcelExternalWriter(scope,item,prepared,environment=process.env){
+ require('../tests/support/doc125-excel-scope.cjs').validateScope(scope,scope.baseUrl);
+ if(environment.DOC125_E2E_AUTHORIZED!=='YES'||item.escenario!=='carrera'||!scope.cases.includes(item)||!environment.DOC125_NATIVE_HARNESS||
+  !/^[a-f0-9-]{36}$/.test(prepared.IdCarga||'')||!['ArchivoHash','ConfiguracionHash','EsquemaHash'].every(k=>/^[a-f0-9]{64}$/.test(prepared[k]||''))||prepared.ArchivoHash!==item.archivoHash)throw Error('DOC125_NATIVE_SCOPE_REQUIRED');
+ const crypto=require('node:crypto'),{spawn}=require('node:child_process');
+ const parent=path.resolve(__dirname,'../../../.tmp/doc125-external');fs.mkdirSync(parent,{recursive:true});
+ const directory=fs.mkdtempSync(path.join(parent,'run-')),file=path.join(directory,'resources.json');
+ const body=JSON.stringify({scope,item,prepared});fs.writeFileSync(file,body,{flag:'wx'});
+ const child=spawn('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',path.join(__dirname,'support/doc115-repository-integration.ps1'),'-ResourcesFile',file,'-RuntimeRoot',scope.runtimeRoot,'-ExcelConfirmation'],{windowsHide:true,env:{...environment,DOC125_NATIVE_RESOURCES_SHA256:crypto.createHash('sha256').update(body).digest('hex')}});
+ let readyResolve,readyReject,doneResolve,doneReject,buffer='',locked=false,committed=false;
+ const ready=new Promise((r,j)=>{readyResolve=r;readyReject=j;}),done=new Promise((r,j)=>{doneResolve=r;doneReject=j;});ready.catch(()=>{});done.catch(()=>{});
+ const timer=setTimeout(()=>{child.kill();readyReject(Error('DOC125_NATIVE_RESULT_UNCERTAIN'));doneReject(Error('DOC125_NATIVE_RESULT_UNCERTAIN'));},60000);
+ child.stdout.on('data',chunk=>{buffer+=String(chunk);let index;while((index=buffer.indexOf('\n'))>=0){const line=buffer.slice(0,index).trim();buffer=buffer.slice(index+1);if(line==='DOC125_EXTERNAL_LOCKED'){locked=true;readyResolve();}else if(line==='DOC125_EXTERNAL_COMMITTED')committed=true;}if(buffer.length>1024)buffer='';});
+ child.stderr.on('data',()=>{});
+ child.on('error',()=>{clearTimeout(timer);readyReject(Error('DOC125_NATIVE_RESULT_UNCERTAIN'));doneReject(Error('DOC125_NATIVE_RESULT_UNCERTAIN'));});
+ child.on('close',code=>{clearTimeout(timer);fs.writeFileSync(path.join(directory,'outcome.json'),JSON.stringify({locked,committed,exitCode:code,effectsPreserved:true}));if(code===0&&locked&&committed)doneResolve();else{readyReject(Error('DOC125_NATIVE_RESULT_UNCERTAIN'));doneReject(Error('DOC125_NATIVE_RESULT_UNCERTAIN'));}});
+ return {ready,done};
+}
+
 //DOC124 conserva autenticación/consola/perfil; autorización y fixtures son propios.
 function excelPreparationPlan(root,profile,args,environment=process.env){
   const scenarios={'--excel-prepare':'matriz','--excel-file':'archivo','--excel-add':'agregar','--excel-replace':'reemplazar'};
@@ -93,6 +139,10 @@ async function runExcelProfileSession(root,profile,args){
   }
 }
 async function main(){
+  if(process.argv.includes('--excel-confirm')){
+    const root=path.resolve(__dirname,'..');const profile=JSON.parse(fs.readFileSync(path.join(root,'profiles/doc88-production-document-upload.local.runtime.json'),'utf8').replace(/^\uFEFF/,''));
+    return runExcelConfirmation(root,profile,process.argv.slice(2));
+  }
   if(process.argv.some(x=>['--excel-prepare','--excel-file','--excel-add','--excel-replace'].includes(x))){
     const root=path.resolve(__dirname,'..');const profile=JSON.parse(fs.readFileSync(path.join(root,'profiles/doc88-production-document-upload.local.runtime.json'),'utf8').replace(/^\uFEFF/,''));
     return runExcelPreparation(root,profile,process.argv.slice(2));
@@ -231,7 +281,7 @@ async function main(){
     for(const name of Object.keys(values)){delete values[name];delete environment[name];}
   }
 }
-module.exports={excelProfilePlan,excelPreparationPlan};
+module.exports={excelProfilePlan,excelPreparationPlan,excelConfirmationPlan,startExcelExternalWriter};
 if(require.main===module)main().catch(error=>{
   console.error(/^DOC12[24]_[A-Z_]+$/.test(error.message)?error.message:
     'DOC110_SESSION_BLOCKED: faltan credenciales efímeras. Ejecute este comando en su consola interactiva para ingresarlas; no se inició login.');

@@ -13,7 +13,7 @@ La ejecución real DOC124 preparó seis casos y conservó 625 contratos. Su auto
 
 ## PRECONDICIONES DE RUTAS
 
-Inventario contrastado con la carpeta principal antes de implementar. Las rutas nuevas son entregables; no existen aún. Se mantiene la división por responsabilidad de DOC124 y se amplían sus harness.
+Inventario contrastado con la carpeta principal antes de implementar. Los archivos de producto nuevos ya están implementados; los SQL de fixture están entregados sin ejecutar. Se mantiene la división por responsabilidad de DOC124 y se amplían sus harness.
 
 | Ruta | Situación | Responsabilidad |
 | --- | --- | --- |
@@ -47,8 +47,12 @@ Inventario contrastado con la carpeta principal antes de implementar. Las rutas 
 | `tests/doc125-e2e-reuse.test.cjs` | nuevo | Guardas locales del nuevo scope en el mismo runner. |
 | `tools/e2e/tests/importacion-excel.spec.cjs` | existente | Ampliar el recorrido real de confirmación. |
 | `tools/e2e/scripts/run-doc110-profile-session.cjs` | existente | Nuevo modo explícito en la consola privada existente. |
+| `tools/e2e/scripts/support/doc115-repository-integration.ps1` | existente | Actor externo acotado de la carrera UNIQUE, usando su ejecutor y catálogo de módulos actuales. |
 | `tools/e2e/tests/support/doc125-excel-scope.cjs` | nuevo | Scope exclusivo de confirmación que reutiliza utilidades DOC124. |
 | `Doc/Actualizacion/Importacion/Sql/18-preflight-doc125.sql` | nuevo | Archivo de diagnóstico exclusivamente SELECT. |
+| `Doc/Actualizacion/Importacion/Sql/19-fixtures-da-doc125.sql` | nuevo | DDL manual de dos tablas descartables para la aceptación, con CREAR aún ausente. |
+| `Doc/Actualizacion/Importacion/Sql/20-fuentes-e2e-ra-doc125.sql` | nuevo | Alta manual de dos fuentes de fixture con ámbito y actor explícitos. |
+| `Doc/Actualizacion/Importacion/Sql/21-plantillas-e2e-da-doc125.sql` | nuevo | Tres plantillas de fixture y tres filas sintéticas iniciales, sólo mediante aplicación manual. |
 | `Doc/Actualizacion/Importacion/Sql/README.md` | existente | Guía manual y diferencia instalación/operación. |
 | `Doc/Actualizacion/Importacion/Diseno/05-confirmacion-recuperacion-doc125.md` | nuevo | Contrato/diseño de fase, enlazado a OpenSpec. |
 | `Doc/Actualizacion/Importacion/Validacion/doc125-refinamiento-20261123.md` | nuevo | Resultado de la revisión y sus límites. |
@@ -159,6 +163,26 @@ Evidencia inspeccionada: `GestionDocumental-Docuarchi.net.vbproj`, pruebas DOC12
 7. Liberar temporales, modo y ambos locks por conexión. Si una limpieza no queda acreditada descartar esa conexión/pool específico; no afirmar resultado fallido después de un commit exitoso.
 
 ## Matriz de estados
+
+La matriz real usa tablas con prefijo `imp_02_doc125_e2e_`. El caso de rollback
+emplea un segundo índice UNIQUE sobre VALOR y una entrada con claves CLAVE únicas
+pero VALOR repetido: preparar puede completarse y el INSERT real produce 1062
+después del DELETE, acreditando rollback sin introducir hooks de fallo en el servidor.
+La carrera conserva una fila insertada por un actor externo autorizado desde el
+ejecutor DOC115 existente. Ese actor no toma el lock cooperativo, mantiene su
+transacción cinco segundos y luego confirma. Sólo se acredita la carrera si el
+cargador recibe CONFLICTO_CLAVE; un simple rechazo previo no se presenta como esa prueba.
+El acuse ignorado por el cliente se consulta en otra sesión; no se presenta como
+un corte físico de red/servidor ni como un COMMIT real de respuesta incierta.
+
+El bootstrap mantiene origen/sesión/permiso y emisión de CSRF, e informa
+`PermiteNuevaCarga=False`/`CodigoCapacidad=CAPACIDAD_NO_DISPONIBLE` si los límites
+actuales son inválidos. Así se puede obtener contexto para consultar historia;
+recepción, preparación y confirmaciones nuevas siguen cerradas. La implementación
+acredita visibilidad de triggers por TRIGGER efectivo y de FK entrantes de cualquier
+base por SELECT global. Si esos permisos existentes no se acreditan, retorna
+METADATOS_NO_ACREDITADOS; no concede privilegios ni recomienda ampliarlos automáticamente.
+Ese requisito de metadatos debe contrastarse con SQL18 antes de la aceptación real.
 
 | Estado observado | Confirmar misma identidad/contenido | Consulta |
 | --- | --- | --- |

@@ -27,6 +27,14 @@ Public Class ImportacionExcelConexionAdapter
         If Not Integer.TryParse(setting, NumberStyles.None, CultureInfo.InvariantCulture, valor) OrElse valor < 1 OrElse (clave = "MaxArchivoMB" AndAlso valor > Integer.MaxValue \ 1000000) Then Throw ServicioPlantillasExcel.ErrorControlado("CAPACIDAD_NO_DISPONIBLE")
         Return valor
     End Function
+    Public Function AperturaLimites() As AperturaImportacionExcel
+        Try
+            Return New AperturaImportacionExcel With {.MaxFilasDatos = Limite("MaxFilasDatos", 10000), .MaxArchivoMB = Limite("MaxArchivoMB", 10)}
+        Catch ex As ImportacionExcelException When ex.Codigo = "CAPACIDAD_NO_DISPONIBLE"
+            'Cerrar nuevas cargas sin impedir emitir el contexto para consultar historia.
+            Return New AperturaImportacionExcel With {.PermiteNuevaCarga = False, .CodigoCapacidad = ex.Codigo}
+        End Try
+    End Function
     Private Shared Function CadenaDA(http As HttpContext, ctx As ContextoImportacionExcel, ByRef moduloId As UInteger) As String
         ServicioPlantillasExcel.Autorizar(ctx)
         If http Is Nothing OrElse http.Session Is Nothing Then Throw ServicioPlantillasExcel.ErrorControlado("SESION_REQUERIDA")

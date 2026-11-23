@@ -10,6 +10,8 @@ Public Class AperturaImportacionExcel
     Public Property CsrfToken As String
     Public Property MaxFilasDatos As Integer
     Public Property MaxArchivoMB As Integer
+    Public Property PermiteNuevaCarga As Boolean = True
+    Public Property CodigoCapacidad As String
     Public Property Conexiones As New List(Of ReferenciaConexionExcel)
 End Class
 Public Class SolicitudListaPlantillasExcel
@@ -78,6 +80,13 @@ Public Class SolicitudConsultaCargaExcel
     Public Property ConexionId As UInteger
     Public Property IdCarga As String
 End Class
+Public Class SolicitudConfirmarExcel
+    Inherits SolicitudConsultaCargaExcel
+    Public Property ArchivoHash As String
+    Public Property ConfiguracionHash As String
+    Public Property EsquemaHash As String
+    Public Property ConfirmacionReemplazo As Boolean
+End Class
 'DTO seguro: no incluye Archivo.Referencia ni documento interno de configuración.
 Public Class EstadoCargaExcel
     Public Property IdCarga As String
@@ -93,6 +102,9 @@ Public Class EstadoCargaExcel
     Public Property EsquemaHash As String
     Public Property FilasPrevistas As Nullable(Of Integer)
     Public Property CodigoIncidencia As String
+    Public Property FilasConfirmadas As Integer
+    Public Property ConfirmadoUtc As Nullable(Of DateTime)
+    Public Property EstadoEstructura As String
     Public Property Hojas As New List(Of String)
 End Class
 Public Class PreparacionCargaExcel

@@ -169,3 +169,41 @@ conservó los 625 contratos; DOC125 requiere autorización específica de ambien
 cuentas, destinos descartables y efectos. El CREATE operativo del modo CREAR se
 implementará en Confirmar con procedencia recuperable; la instalación de sus
 recursos, plantillas, fuentes o permisos conserva el flujo manual.
+
+### Fixtures descartables para la E2E de DOC125
+
+Los siguientes archivos están **ENTREGADOS / PENDIENTE_EJECUCION_MANUAL**; el agente
+no los ha aplicado. Se añaden fixtures porque la aceptación DOC124 conservó todos
+los datos de sus destinos y no autoriza reemplazar CONTRATOS.
+
+| Orden | Archivo y destino | Efecto |
+| --- | --- | --- |
+| 1 | [18-preflight-doc125.sql](18-preflight-doc125.sql), DA/RA | Diagnóstico SELECT y revisión de visibilidad de metadatos. |
+| 2 | [19-fixtures-da-doc125.sql](19-fixtures-da-doc125.sql), DA | Dos tablas **nuevas** `imp_02_doc125_e2e_agregar/reemplazar`, con CLAVE/VALOR y dos índices UNIQUE. El destino `..._crear` permanece ausente. |
+| 3 | [20-fuentes-e2e-ra-doc125.sql](20-fuentes-e2e-ra-doc125.sql), RA | Dos fuentes exclusivas de la empresa real indicada, dos columnas por fuente e historial de alta/activación. Completar empresa y actor reales; no publica proveedores. |
+| 4 | [21-plantillas-e2e-da-doc125.sql](21-plantillas-e2e-da-doc125.sql), DA | Tres plantillas nuevas, hoja Datos, dos campos y tres filas **sintéticas** iniciales en los fixtures. Completar conexión histórica real. |
+
+En SQL19 revisar la ausencia de los tres nombres antes de iniciar el bloque DDL. Una tabla
+preexistente exige detener y revisar; no limpiar ni reapropiarse del nombre.
+El DDL tiene commit implícito: conservar y reportar cualquier estructura parcial.
+SQL20/21 abren transacción y no ejecutan COMMIT. Ante cualquier error o resultado
+distinto de `LISTO_PARA_COMMIT`, hacer ROLLBACK y detener. Sólo confirmar manualmente
+en la misma sesión si ambos controles son correctos. No repetir archivos ya aplicados.
+
+Después de la confirmación manual, las comprobaciones del agente son SELECT.
+La cuenta del módulo debe acreditar visibilidad de TRIGGER y de referencias FK
+entrantes. La implementación actual exige SELECT global para acreditar referencias
+desde otras bases; si no se acredita devuelve `METADATOS_NO_ACREDITADOS`. Estos
+archivos **no conceden ese privilegio**: revisar el diagnóstico y la política de la
+cuenta antes de decidir cualquier adecuación, que tendría su propio archivo/alcance.
+
+El segundo UNIQUE sobre VALOR permite preparar un archivo con CLAVE única y
+rechazar su escritura por VALOR repetido después del DELETE; el test debe conservar
+el contenido previo mediante rollback. El actor externo de la carrera escribe una
+sola fila del fixture autorizado, sin lock cooperativo, y conserva ese efecto.
+No se incluyen endpoints de inyección de fallos ni limpieza de resultados.
+
+El runner sigue siendo `test:doc110:session -- --excel-confirm`, con scope DOC125 y
+consentimiento nuevo de ambiente/cuentas/efectos. La preparación local de libros
+sintéticos reutiliza el generador del harness DOC123. Instalar estos fixtures no
+autoriza aún la ejecución E2E, un despliegue o escrituras sobre tablas anteriores.

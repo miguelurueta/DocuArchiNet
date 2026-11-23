@@ -196,6 +196,8 @@ Public Class CargaExcelEjecucion
     Public Property EsquemaHash As String
     Public Property FilasPrevistas As Nullable(Of Integer)
     Public Property CodigoIncidencia As String
+    Public Property FilasConfirmadas As Integer
+    Public Property ConfirmadoUtc As Nullable(Of DateTime)
 End Class
 Public Class PoliticaDestinoCargaExcel
     Public Property FuenteId As String
@@ -229,6 +231,23 @@ Public Interface IArchivoRetenidoExcel
     Inherits IDisposable
     ReadOnly Property Contenido As IO.Stream
     Sub Verificar()
+End Interface
+
+'La confirmación amplía el repositorio sin cambiar las sesiones de recepción DOC124.
+Public Interface IConfirmacionExcelRepository
+    Function Consultar(ctx As ContextoCargaExcel, id As String) As CargaExcelEjecucion
+    Function AbrirConfirmacion(ctx As ContextoCargaExcel, id As String) As ISesionConfirmacionExcel
+    Function ConsultarEstructura(ctx As ContextoCargaExcel, carga As CargaExcelEjecucion, plantilla As PlantillaExcel) As String
+End Interface
+Public Interface ISesionConfirmacionExcel
+    Inherits IDisposable
+    Function Obtener() As CargaExcelEjecucion
+    Sub BloquearDestino(tabla As String)
+    Function LeerPlantilla(id As UInteger) As PlantillaExcel
+    Function Inspeccionar(p As PlantillaExcel, carga As CargaExcelEjecucion) As EsquemaCargaExcel
+    Function ValidarClaves(p As PlantillaExcel, e As EsquemaCargaExcel, filas As List(Of FilaNormalizadaExcel), modo As String) As IncidenciasClavesExcel
+    Sub AsegurarEstructura(p As PlantillaExcel, carga As CargaExcelEjecucion)
+    Function Ejecutar(carga As CargaExcelEjecucion, filas As List(Of FilaNormalizadaExcel), validar As Action(Of PlantillaExcel, EsquemaCargaExcel)) As CargaExcelEjecucion
 End Interface
 Public Interface IAlmacenArchivoExcel
     Function Recibir(ctx As ContextoCargaExcel, id As String, nombre As String, formato As String, contenido As IO.Stream, limites As LimitesLecturaExcel) As ArchivoRecibidoExcel

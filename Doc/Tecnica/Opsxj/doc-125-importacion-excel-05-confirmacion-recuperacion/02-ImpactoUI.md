@@ -1,14 +1,14 @@
-# DOC-125 — Confirmación y recuperación
+# DOC-125 — Confirmación transaccional y recuperación
 
 - Ticket: DOC-125
 - Cambio OpenSpec: doc-125-importacion-excel-05-confirmacion-recuperacion
 - Clasificacion: cross_cutting (Transversal)
-- Estado: refinamiento técnico, sin implementación ni E2E escritora ejecutada.
+- Estado: implementación local verificada, aceptación real abierta.
 
 ## Superficies UI
 
-Esta fase entrega métodos Confirmar y ConsultarResultado en el ASMX existente y amplía la respuesta segura con conteo/UTC. No crea pantalla, menú o código de vista; fase06 consumirá estos contratos. La recuperación conserva el ID de operación, sin enviar tablas, filas ni conexiones desde el navegador.
+La fase entrega backend, no una nueva pantalla o menú. SolicitudConfirmarExcel contiene las referencias y hashes de la carga, con confirmación explícita para REEMPLAZAR. ConsultarResultado recupera estado, conteo y UTC; ConsultarCargaExcel conserva compatibilidad y usa la misma consulta. El bootstrap informa PermiteNuevaCarga/CodigoCapacidad para permitir contexto de consulta aunque los límites actuales cierren nuevas cargas.
 
 ## Validacion visual
 
-No aplica validación visual nueva a este refinamiento/backend. Las pruebas de transporte, CSRF, autoridad y replay se incorporarán a los harness y E2E existentes. No se presenta una llamada sintética o el CI de OpenSpec como una interfaz terminada.
+No aplica una validación visual nueva: la interfaz corresponde a fase06. La E2E de servicios usa la suite existente y dos sesiones independientes; su código está preparado, sin autenticación real en esta entrega. El bloqueo de sesión ASP.NET puede serializar peticiones de un mismo navegador; no se promete progreso en vivo, cancelación al cerrar la pestaña ni pausa por fila. Recuperar por ID antes de un reintento explícito.
