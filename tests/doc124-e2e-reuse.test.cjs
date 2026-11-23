@@ -52,7 +52,7 @@ test('DOC124 no abre sesión si falta alcance o fixture íntegro',t=>{
  assert.throws(()=>excelPreparationPlan(root,profile,['--excel-prepare'],{}),/DOC124_SCOPE_REQUIRED/);assert.throws(()=>readFixture(scope().cases[0]),/DOC124_FIXTURE_INVALID/);
 });
 test('preflights DOC124 sólo contienen SELECT y mantienen scripts históricos',()=>{
- for(const file of ['11-preflight-doc124.sql','12-preflight-recursos-e2e-doc124.sql']){
+ for(const file of ['11-preflight-doc124.sql','12-preflight-recursos-e2e-doc124.sql','14-preflight-contratos-e2e-doc124.sql']){
   const sql=fs.readFileSync(path.resolve(__dirname,'../Doc/Actualizacion/Importacion/Sql',file),'utf8').replace(/--[^\n]*/g,'');
   const statements=sql.split(';').map(x=>x.trim()).filter(Boolean);assert.ok(statements.length>=10);for(const stmt of statements)assert.match(stmt,/^SELECT\b/);
   assert.doesNotMatch(sql,/\b(?:INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|SET|USE|CALL)\b/i);

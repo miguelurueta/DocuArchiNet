@@ -74,8 +74,19 @@ DOC-124 entrega además [12-preflight-recursos-e2e-doc124.sql](12-preflight-recu
 solo SELECT sobre las fuentes existentes EGRESOS/CRÉDITOS y sus plantillas/índices.
 No crea tablas de prueba ni corrige/activa datos o configuración. El control completo
 de filas durante la E2E reutiliza la huella DOC32, sin el límite10000 de su vía Rows;
-esto no modifica el límite10000 del Excel que se prepara. Los destinos existentes
+esto no modifica el límite del Excel que se prepara (20000 configuradas actualmente;
+10000 por defecto en el lector). Los destinos existentes
 pueden usarse en lectura con huellas antes/después, sin declararlos descartables.
+
+[14-preflight-contratos-e2e-doc124.sql](14-preflight-contratos-e2e-doc124.sql)
+prepara la comprobación de CONTRATOS para los casos AGREGAR/REEMPLAZAR. Contiene
+solo SELECT, separados entre RA y DA: política, columnas autorizadas, esquema,
+índice, conteos y plantillas. Estado: ENTREGADO, PENDIENTE_EJECUCION_MANUAL.
+No activa fuentes ni crea plantillas. Antes de entregar una adecuación específica
+se necesita confirmar si CONTRATOS es exclusiva de la empresa2; el esquema sin
+columna empresarial no demuestra exclusividad. Los modos de la plantilla son
+distintos: una modificación exige revisión/huella nuevas y gestión explícita,
+fuera del recorrido Preparar. [Plan de la matriz pendiente](../Validacion/doc124-matriz-pendiente-20261123.md).
 
 DOC-124 entrega [11-preflight-doc124.sql](11-preflight-doc124.sql), únicamente SELECT,
 para ejecutar manualmente por bloques RA/DA. Comprueba metadatos de las 22 columnas,
