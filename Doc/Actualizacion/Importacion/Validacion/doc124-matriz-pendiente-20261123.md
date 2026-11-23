@@ -31,7 +31,9 @@ Se entrega [SQL14](../Sql/14-preflight-contratos-e2e-doc124.sql), solo SELECT,
 para comprobar RA/DA y preparar la configuración exacta. No se ha ejecutado.
 El aislamiento configurado está confirmado; cualquier alta o adecuación se entrega en otro SQL
 manual, con actor/motivo/historial de fuente cuando corresponda. No activar una
-fuente ni publicar un proveedor desde la E2E.
+fuente ni publicar un proveedor desde la E2E. La configuración concreta ya se
+entregó en SQL15/16/17, [con orden y transacciones manuales](../Sql/README.md#configuración-manual-de-contratos-para-doc124);
+los tres permanecen PENDIENTE_EJECUCION_MANUAL.
 
 ## Casos que debe acreditar el recorrido
 
@@ -50,8 +52,14 @@ con la collation observada. No dar por acreditada esa semántica con un doble lo
 
 La plantilla controla el modo mediante flags históricos:0/0/1 para AGREGAR,
 0/1/0 para REEMPLAZAR. Preparar no permite cambiar esa intención silenciosamente.
-Antes de ejecutar ambos modos hay que acordar la configuración de plantillas o
-las ventanas separadas con cambio explícito de modo y nueva revisión/huella.
+Se usan ventanas separadas con cambio manual explícito de modo y nueva revisión/huella:
+`--excel-add` exige escenario agregar con al menos tres casos (válido, duplicado
+interno y existente); `--excel-replace` exige escenario reemplazar con al menos
+dos (válido y duplicado interno). Ambos exigen destino protegido en lectura,
+una sola identidad/revisión/huella de plantilla por ventana y un caso válido de
+al menos8000 filas para probar contención. El arnés común conserva permisos,
+recuperación, CSRF, dos sesiones y huellas antes/después. Los flags de matriz y
+archivo original conservan sus alcances; no aceptan estas fases como matriz completa.
 No crear dos cabeceras con igual nombre sin revisar los consumidores históricos:
 `Gestion/Class_imp01_plantillaimp.vb` también busca plantillas por nombre.
 
@@ -91,3 +99,16 @@ SQL14 se repitieron solo las suites focales afectadas,16/16. OpenSpec estricto y
 `git diff --check` aprobados. La nueva consulta queda cubierta por la comprobación
 existente que exige exclusivamente SELECT en los preflights; no se presenta esa
 prueba como ejecución SQL real.
+
+Preparación posterior de configuración:18/18 pruebas focales aprobadas y seis
+casos descubiertos por Playwright, sin autenticación. No se modificó producto VB
+ni se desplegó una DLL por incorporar las fases. SQL15 conserva el formato canónico
+del documento de fuente y las revisiones ALTA/ACTIVAR del repositorio existente;
+SQL16/17 conservan los flags, mapeos y revisión de la plantilla. Esta revisión de
+archivos no sustituye su ejecución manual ni la comprobación posterior en MySQL5.1.
+Los dos documentos JSON de historial, con ID sintético123, fueron deserializados
+y recanonizados por PerfilImportacionJson/DocumentoFuenteImportacion reales y
+validados por ReglasFuenteImportacion:2/2 compatibles, sin SQL ni HTTP.
+OpenSpec estricto, auditoría de refinamiento15/15 y diff sin errores completan la
+validación de esta preparación, sobre base Git2e6ad4b1. No se repitió el build VB
+ni las1054 comprobaciones nativas de producto porque ese código no cambió.

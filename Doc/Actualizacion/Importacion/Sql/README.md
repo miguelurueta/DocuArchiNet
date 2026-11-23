@@ -91,6 +91,40 @@ entrega manual específica. Los modos de la plantilla son
 distintos: una modificación exige revisión/huella nuevas y gestión explícita,
 fuera del recorrido Preparar. [Plan de la matriz pendiente](../Validacion/doc124-matriz-pendiente-20261123.md).
 
+## Configuración manual de CONTRATOS para DOC124
+
+Los tres archivos siguientes están **ENTREGADOS, PENDIENTE_EJECUCION_MANUAL**.
+No se ejecutan desde el agente ni desde las pruebas. No repetir el índice08.
+
+| Orden | Archivo / destino | Efecto previsto |
+|---|---|---|
+| Primero | [15-fuente-contratos-doc124.sql](15-fuente-contratos-doc124.sql), RA | Fuente DA/imp_02_contratos de empresa2, aislamiento CONEXION, cuatro columnas autorizadas, ALTA/revisión1 y ACTIVAR/revisión2 con historial. No publica proveedor. |
+| Después | [16-plantilla-contratos-agregar-doc124.sql](16-plantilla-contratos-agregar-doc124.sql), DA del módulo11 | Una plantilla activa de conexión6, Hoja1, clave NCONTRATO, cuatro campos VARCHAR(250) y modo AGREGAR/revisión1. No crea otra tabla. |
+| Tras PASS real AGREGAR | [17-plantilla-contratos-reemplazar-doc124.sql](17-plantilla-contratos-reemplazar-doc124.sql), misma DA | Cambia esa misma plantilla a REEMPLAZAR/revisión2, conservando campos y archivo de referencia. No reemplaza registros. |
+
+En15 completar `@doc124_actor` con el ID real del operador registrado en RA;
+su valor inicial NULL impide escrituras. Confirmar que RA/DA corresponden a los
+módulos12/11 de empresa2 y que referencia6 coincide con el destino ya verificado.
+Las precondiciones de los scripts rechazan configuración existente o incompatible
+en vez de sobrescribirla. Si ya existe fuente/plantilla, inspeccionar y preparar
+una adecuación nueva; no forzar estas altas.
+En17 completar `@doc124_plantilla_esperada` con el ID devuelto por16 y usado en
+el PASS de AGREGAR; también empieza en NULL para impedir cambios sin identificarlo.
+
+Ejecutar cada archivo por separado, en una sesión SQL persistente y sin continuar
+ante errores. Los archivos abren una transacción y **no ejecutan COMMIT**:
+solo si aparece `LISTO_PARA_COMMIT` y no hubo errores, ejecutar `COMMIT;` manualmente
+en esa misma sesión. Cualquier error u otro resultado exige `ROLLBACK;` y revisión.
+Cerrar la sesión sin COMMIT no acredita aplicación. Confirmar archivo, ID devuelto
+y COMMIT; el agente verificará mediante SELECT antes de la E2E dependiente.
+
+Aplicar primero15 y16. **No aplicar17 todavía**: después de verificar15/16 se
+prepara la ventana `--excel-add` sobre revisión1. Tras su PASS/cierre se aplica17,
+se releen revisión2/huella y se prepara otra ventana `--excel-replace`.
+Cada ventana usa IDs nuevos, consentimiento explícito y secretos efímeros;
+no guarda plantillas ni aplica SQL. Los PASS parciales se revisan juntos con el
+CREAR de Órdenes; una fase aislada no completa2.6 ni permite archivar DOC124.
+
 DOC-124 entrega [11-preflight-doc124.sql](11-preflight-doc124.sql), únicamente SELECT,
 para ejecutar manualmente por bloques RA/DA. Comprueba metadatos de las 22 columnas,
 índices completos, política empresarial y capacidades observables. **ENTREGADO,

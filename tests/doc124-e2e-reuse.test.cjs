@@ -26,6 +26,33 @@ test('DOC124 exige ambiente, cuentas en scope y matriz real de tres modos/duplic
  validateScope(scope(),profile.baseUrl);
  for(const mutate of [s=>s.issue='DOC-122',s=>s.disposable=false,s=>s.baseUrl='https://other.invalid/',s=>s.empresaId=0,s=>s.usuarioId=0,s=>s.moduloId=0,s=>s.cases.pop(),s=>s.cases[0].tabla='imp_02_egresos;DROP',s=>s.cases[0].archivoPath='relative.xlsx',s=>s.cases[0].huellaEsperada='bad',s=>s.cases[1].filasEsperadas=1]){const s=scope();mutate(s);assert.throws(()=>validateScope(s,profile.baseUrl),/DOC124_SCOPE_INVALID/);}
 });
+function phaseScope(mode){
+ const s=scope(),c=s.cases[1];s.disposable=false;s.destinationReadOnly=true;
+ s.escenario=mode==='AGREGAR'?'agregar':'reemplazar';s.concurrencyCase=0;
+ s.cases=[{...c,modo:mode},{...c,modo:mode,codigoEsperado:'CLAVES_INVALIDAS',incidenciasEsperadas:['CLAVE_DUPLICADA_ARCHIVO']}];
+ if(mode==='AGREGAR')s.cases.push({...c,modo:mode,codigoEsperado:'CLAVES_INVALIDAS',incidenciasEsperadas:['CLAVE_EXISTENTE_DESTINO']});
+ return s;
+}
+test('DOC124 ejecuta fases explícitas con una plantilla y conserva los gates de matriz y autorización',t=>{
+ for(const [mode,flag,tag]of [['AGREGAR','--excel-add','add'],['REEMPLAZAR','--excel-replace','replace']]){
+  const s=phaseScope(mode),env=fixture(t,s),plan=excelPreparationPlan(root,profile,[flag],env);
+  assert.equal(plan.mode,tag);assert.equal(plan.values.DOC124_E2E_AUTHORIZED,'NO');assert.equal(plan.childArgs.includes('@doc124-'+tag),true);
+  assert.equal(plan.cases,s.cases.length);assert.equal(plan.childArgs.includes('--retries=0'),true);
+  for(const other of ['--excel-prepare','--excel-file',flag==='--excel-add'?'--excel-replace':'--excel-add']){
+   assert.throws(()=>excelPreparationPlan(root,profile,[other],env),/DOC124_SCOPE_INVALID/);
+   assert.throws(()=>excelPreparationPlan(root,profile,[flag,other],env),/DOC124_MODE_CONFLICT/);
+  }
+  const invalid=structuredClone(s);delete invalid.escenario;assert.throws(()=>validateScope(invalid,profile.baseUrl),/DOC124_SCOPE_INVALID/);
+ }
+});
+test('DOC124 fases rechazan drift de plantilla, falta de duplicados, modo mezclado y destino sin protección',()=>{
+ for(const mode of ['AGREGAR','REEMPLAZAR']){
+  for(const mutate of [s=>s.destinationReadOnly=false,s=>s.cases[0].modo='CREAR',s=>s.cases[1].plantillaId++,s=>s.cases[1].revisionEsperada++,s=>s.cases[1].huellaEsperada='c'.repeat(64),s=>s.cases[1].tabla='imp_02_otro',s=>s.cases[0].filasEsperadas=1,s=>s.cases[1].codigoEsperado='OK',s=>s.cases[1].incidenciasEsperadas=[],s=>s.cases[0].codigoEsperado='LECTURA_INVALIDA']){
+   const s=phaseScope(mode);mutate(s);assert.throws(()=>validateScope(s,profile.baseUrl),/DOC124_SCOPE_INVALID/);
+  }
+ }
+ const s=phaseScope('AGREGAR');s.cases[2].incidenciasEsperadas=[];assert.throws(()=>validateScope(s,profile.baseUrl),/DOC124_SCOPE_INVALID/);
+});
 test('DOC124 permite reutilizar fuentes DOC110 y tablas existentes sin declararlas descartables',()=>{
  for(const table of [sourceFixture('imp_02_egresos').table,sourceFixture('imp_02_creditos').table,'imp_02_contratos']){
   const s=scope();s.disposable=false;s.destinationReadOnly=true;s.cases.filter(c=>c.modo!=='CREAR').forEach(c=>c.tabla=table);assert.equal(validateScope(s,profile.baseUrl),s);

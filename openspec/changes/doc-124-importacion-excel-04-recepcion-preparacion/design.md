@@ -200,6 +200,16 @@ Preparar código/E2E y alcance revisable antes de solicitar ejecución. La autor
 
 Para concurrencia usar dos sesiones autenticadas independientes y confirmar contención MySQL/ganador, no solo serialización ASP.NET. Cargas/pruebas anteriores cerradas no se reabren. Si falta autorización o instalación necesaria, registrar el bloqueo de E2E real y continuar implementación local independiente; no archivar marcando la tarea real como simulada o no aplicable.
 
+Preparación posterior2026-11-23: para reutilizar CONTRATOS con una sola plantilla
+y preservar la consulta histórica por nombre, el runner admite --excel-add y
+--excel-replace, escenarios agregar/reemplazar separados. Conservan el mismo
+recorrido, identidad/revisión/huella de plantilla por ventana y controles de destino.
+SQL15 configura la fuente explícita en RA; SQL16 crea la plantilla AGREGAR/revisión1;
+tras PASS/cierre de esa fase, SQL17 cambia manualmente a REEMPLAZAR/revisión2.
+Los scripts no confirman transacciones automáticamente: aplicación/COMMIT del
+usuario y SELECT posterior preceden cada ventana. Un PASS parcial no sustituye
+la revisión de las evidencias de los tres modos ni completa la tarea real.
+
 ## Riesgos y rollback
 
 Implementación local2026-11-23: se añaden también ComposicionCargaExcel.vb, ReglasCargaExcel.vb y SqlCargaExcel.vb para composición autorizada, reglas compartidas y comandos parametrizados. Se conserva el reparto de responsabilidades y se registran Compile/Content. La lectura de políticas activas de la misma tabla niega una exclusividad CONEXION contradictoria entre ámbitos; no devuelve políticas ajenas. Preparar acredita propiedad antes de adquirir lock para no revelar actividad de IDs ajenos. SQL11 queda entregado, sin ejecución real. Evidencia y contrato operativo en Doc/Actualizacion/Importacion/Diseno/04-recepcion-preparacion-doc124.md y Validacion/doc124-validacion-local-20261123.md. E2E real/entrega final siguen pendientes.

@@ -35,6 +35,11 @@ Perfil legacy-webforms-vb. El usuario solicitó continuar desde el refinamiento 
   sin mutación;32 SELECT externos explícitos. Matriz completa AGREGAR/REEMPLAZAR y
   duplicados aún pendiente; este caso CREAR no completa por sí solo2.6.
 
+  Preparación de la matriz restante: empresa2 comprobada por12 SELECT; SQL15/16/17
+  entregados para aplicación manual. El runner y la suite existentes admiten fases
+  --excel-add/--excel-replace sobre una sola plantilla con cambio manual de modo;
+ 18/18 focales y descubrimiento6 casos, sin nueva E2E ni SQL aplicado.
+
 ## 3. Documentación y revisión
 
 - [x] 3.1 [S] Documentar contrato vigente, recuperación y límites demostrados. Área/archivos: `Doc/Actualizacion/Importacion/Diseno/04-recepcion-preparacion-doc124.md; Doc/Tecnica/Opsxj/doc-124-importacion-excel-04-recepcion-preparacion/`. Origen: D-08, RQ-08. Verificación: Guía refleja snapshots efectivos, acuse incierto y diferencia entre pruebas locales/CI/reales.

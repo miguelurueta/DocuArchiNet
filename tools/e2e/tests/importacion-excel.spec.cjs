@@ -96,6 +96,8 @@ test.describe('DOC124 recepción y preparación',()=>{
  test.skip(process.env.DOC124_E2E_AUTHORIZED!=='YES','NO_EJECUTADO: falta autorización DOC124 del ambiente, cuentas y archivos de prueba; se conservan los destinos existentes.');
  test('@doc124-prepare servicios reales, tres modos, recuperación y dos sesiones',async({browser})=>runPreparation(browser,'matriz'));
  test('@doc124-file archivo Órdenes, recuperación y preparación con dos sesiones',async({browser})=>runPreparation(browser,'archivo'));
+ test('@doc124-add agregar y duplicados sobre destino existente sin mutación',async({browser})=>runPreparation(browser,'agregar'));
+ test('@doc124-replace reemplazar y duplicados sobre destino existente sin mutación',async({browser})=>runPreparation(browser,'reemplazar'));
  async function runPreparation(browser,escenario){
   const {validateScope,readFixture,snapshotDestination}=require('./support/doc124-excel-scope.cjs');
   const {queryRows,queryFingerprint}=require('../scripts/support/doc32-e2e-odbc.cjs');
