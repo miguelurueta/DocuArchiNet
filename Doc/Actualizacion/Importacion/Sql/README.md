@@ -86,15 +86,19 @@ No activa fuentes ni crea plantillas. La [investigación posterior solicitada po
 el usuario](../Validacion/doc124-empresa-contratos-verificada-20261123.md) confirmó
 la empresa2 mediante la decisión previa de empresa única y12 SELECT de la
 configuración actual; el esquema sin columna empresarial por sí solo no demuestra
-exclusividad. La política y la plantilla siguen sin registrar y requieren una
-entrega manual específica. Los modos de la plantilla son
+exclusividad. Después se aplicaron15/16 por autorización expresa: fuente5 y
+plantilla28, como se detalla en el apartado siguiente. Los modos de la plantilla son
 distintos: una modificación exige revisión/huella nuevas y gestión explícita,
 fuera del recorrido Preparar. [Plan de la matriz pendiente](../Validacion/doc124-matriz-pendiente-20261123.md).
 
 ## Configuración manual de CONTRATOS para DOC124
 
-Los tres archivos siguientes están **ENTREGADOS, PENDIENTE_EJECUCION_MANUAL**.
-No se ejecutan desde el agente ni desde las pruebas. No repetir el índice08.
+**SQL15/16 APLICADOS Y VERIFICADOS2026-11-23**, por instrucción posterior expresa
+del usuario «aplica los archivos por mi»: fuente5/revisión2 y plantilla28/revisión1,
+AGREGAR. [Autorización y resultado](../Validacion/doc124-sql15-16-aplicados-20261123.md).
+No repetir15/16 en este ambiente. SQL17 sigue PENDIENTE_EJECUCION_MANUAL, después
+del PASS real de AGREGAR. Esta excepción no autoriza instalaciones desde pruebas
+ni concede permiso general para ejecutar otros SQL. No repetir el índice08.
 
 | Orden | Archivo / destino | Efecto previsto |
 |---|---|---|
@@ -118,8 +122,8 @@ en esa misma sesión. Cualquier error u otro resultado exige `ROLLBACK;` y revis
 Cerrar la sesión sin COMMIT no acredita aplicación. Confirmar archivo, ID devuelto
 y COMMIT; el agente verificará mediante SELECT antes de la E2E dependiente.
 
-Aplicar primero15 y16. **No aplicar17 todavía**: después de verificar15/16 se
-prepara la ventana `--excel-add` sobre revisión1. Tras su PASS/cierre se aplica17,
+15 y16 ya están aplicados y verificados en este ambiente. **No aplicar17 todavía**:
+se prepara la ventana `--excel-add` sobre plantilla28/revisión1. Tras su PASS/cierre se aplica17,
 se releen revisión2/huella y se prepara otra ventana `--excel-replace`.
 Cada ventana usa IDs nuevos, consentimiento explícito y secretos efímeros;
 no guarda plantillas ni aplica SQL. Los PASS parciales se revisan juntos con el

@@ -40,6 +40,10 @@ Perfil legacy-webforms-vb. El usuario solicitó continuar desde el refinamiento 
   --excel-add/--excel-replace sobre una sola plantilla con cambio manual de modo;
  18/18 focales y descubrimiento6 casos, sin nueva E2E ni SQL aplicado.
 
+  Aplicación posterior autorizada2026-11-23: SQL15/16 confirmados y verificados,
+  fuente5/revisión2, plantilla28/revisión1/AGREGAR;625 filas y esquema intactos.
+  SQL17 y E2E AGREGAR/REEMPLAZAR siguen pendientes; no completa2.6.
+
 ## 3. Documentación y revisión
 
 - [x] 3.1 [S] Documentar contrato vigente, recuperación y límites demostrados. Área/archivos: `Doc/Actualizacion/Importacion/Diseno/04-recepcion-preparacion-doc124.md; Doc/Tecnica/Opsxj/doc-124-importacion-excel-04-recepcion-preparacion/`. Origen: D-08, RQ-08. Verificación: Guía refleja snapshots efectivos, acuse incierto y diferencia entre pruebas locales/CI/reales.

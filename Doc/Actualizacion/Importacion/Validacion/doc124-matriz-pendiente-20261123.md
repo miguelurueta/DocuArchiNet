@@ -23,9 +23,9 @@ La investigación posterior solicitada por el usuario resolvió el ámbito:
 previa de empresa única y12 SELECT actuales de empresas/módulos/destino.
 CONTRATOS conserva625 filas,0 claves nulas/vacías y0 grupos duplicados. No hay
 otra empresa configurada ni módulos de otra empresa compartiendo ese destino.
-Corresponde preparar política CONEXION para empresa2; no se deduce de la ausencia
-de columna empresarial ni se activa automáticamente. No alterar los registros
-para hacer pasar la prueba.
+Se eligió política CONEXION para empresa2 por esa evidencia, no por la ausencia
+de columna empresarial. Su alta/activación posterior fue autorizada expresamente
+y quedó verificada como fuente5. No alterar los registros para hacer pasar la prueba.
 
 Se entrega [SQL14](../Sql/14-preflight-contratos-e2e-doc124.sql), solo SELECT,
 para comprobar RA/DA y preparar la configuración exacta. No se ha ejecutado.
@@ -33,7 +33,9 @@ El aislamiento configurado está confirmado; cualquier alta o adecuación se ent
 manual, con actor/motivo/historial de fuente cuando corresponda. No activar una
 fuente ni publicar un proveedor desde la E2E. La configuración concreta ya se
 entregó en SQL15/16/17, [con orden y transacciones manuales](../Sql/README.md#configuración-manual-de-contratos-para-doc124);
-los tres permanecen PENDIENTE_EJECUCION_MANUAL.
+el usuario autorizó después «aplica los archivos por mi» y se aplicaron/verificaron
+15/16: [fuente5 y plantilla28](doc124-sql15-16-aplicados-20261123.md), AGREGAR/revisión1.
+17 sigue pendiente hasta cerrar AGREGAR. No repetir las altas ya aplicadas.
 
 ## Casos que debe acreditar el recorrido
 
