@@ -145,3 +145,27 @@ la E2E necesita autorización independiente. Conserva los datos de EGRESOS/CONTR
 Registrar por archivo: ambiente, destino lógico, fecha, aplicado/omitido/error y resultado saneado. Después de la confirmación del usuario el agente revisa exclusivamente SELECT; una diferencia que requiera cambios produce otro archivo para ejecución manual. Distinguir ENTREGADO, EJECUTADO_CONFIRMADO y VERIFICADO_SELECT, sin sustituir un estado por otro.
 
 No ejecutar SQL de instalación desde tests, arranque o rutas indirectas de la aplicación. Las fases dependientes del nuevo esquema esperan confirmación y comprobación posterior antes de sus recorridos. No retirar índices, columnas o historial con un rollback automático; conservar objetos aditivos y generar un nuevo plan revisado si se necesita revertir estructura.
+
+## DOC125: preflight de confirmación
+
+[18-preflight-doc125.sql](18-preflight-doc125.sql) queda **ENTREGADO / PENDIENTE_EJECUCION_MANUAL**.
+Contiene sólo SELECT y no ha sido ejecutado por el agente. Primero ejecutar el
+bloque DA en la base del módulo: capacidades, InnoDB, 22 columnas operativas,
+índices, privilegios observables, triggers y relaciones. Después seleccionar
+manualmente RA y ejecutar su bloque de presencia de permiso/política. No cambia
+datos, esquema, permisos ni sql_mode; no requiere COMMIT.
+
+Comparar las columnas con SQL03 y conservar SQL15–17 ya aplicados. Ejecutar con
+la cuenta que usará la operación: los permisos del administrador no acreditan
+los del escritor. En MySQL5.1 la visibilidad de TRIGGERS depende del privilegio
+TRIGGER; cero filas sin visibilidad suficiente no acredita ausencia. La inspección
+de claves foráneas debe abarcar referencias entrantes desde otras tablas/bases.
+Si no se pueden acreditar metadatos completos, la confirmación queda cerrada;
+cualquier adecuación necesaria se entregará en otro archivo para aplicación manual.
+
+Confirmar archivo, destinos y resultado saneado antes de su revisión SELECT.
+Este preflight no habilita una E2E escritora. DOC124 sólo preparó las cargas y
+conservó los 625 contratos; DOC125 requiere autorización específica de ambiente,
+cuentas, destinos descartables y efectos. El CREATE operativo del modo CREAR se
+implementará en Confirmar con procedencia recuperable; la instalación de sus
+recursos, plantillas, fuentes o permisos conserva el flujo manual.

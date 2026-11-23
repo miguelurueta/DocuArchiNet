@@ -1,25 +1,46 @@
-## 1. Refinement
+<!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14,D-15 -->
+## 1. Contratos y consulta
 
-- [ ] 1.1 Consolidar alcance final desde Jira + contexto de codigo.
-- [ ] 1.2 Ajustar design/spec con decisiones y riesgos definitivos.
+- [ ] 1.1 [S] Extender el resultado con filas confirmadas y fecha UTC existentes. Área/archivos: `Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb; DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb; Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb`. Origen: D-03, RQ-03. Verificación: un SELECT sintético recupera conteo/UTC sin cambiar los campos previos.
+- [ ] 1.2 [S] Definir petición de confirmación y validación de identidad/hashes. Área/archivos: `DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb; Services/ProduccionDocumental/ImportacionExcel/ReglasCargaExcel.vb`. Origen: D-01, RQ-01. Verificación: peticiones manipuladas o sin confirmación de reemplazo se rechazan sin DML.
+- [ ] 1.3 [M] Separar consulta/replay histórico de los límites y lectores actuales. Área/archivos: `Infrastructure/ProduccionDocumental/ImportacionExcel/ComposicionCargaExcel.vb; Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb`. Origen: D-10, RQ-10. Verificación: CONFIRMADA idéntica se devuelve con archivo ausente y configuración actual inválida.
+- [ ] 1.4 [M] Implementar consulta de resultado y estado estructural sin mutación. Área/archivos: `Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb; Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlEstructuraExcel.vb; Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb`. Origen: D-10, RQ-10. Verificación: la consulta sólo emite SELECT y distingue estructura propia de destino ajeno.
 
-## 2. Implementacion
+## 2. Coordinación y revalidación
 
-- [ ] 2.1 Implementar cambios funcionales del ticket.
-- [ ] 2.2 Mantener compatibilidad y evitar regresiones.
+- [ ] 2.1 [M] Implementar lock de destino en una conexión separada de la sesión ID. Área/archivos: `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb`. Origen: D-04, RQ-04. Verificación: doble ADO que modela un lock por sesión conserva ambos y serializa alias del mismo destino.
+- [ ] 2.2 [M] Habilitar lectura bloqueada de plantilla en la transacción compartida. Área/archivos: `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb`. Origen: D-02, RQ-02. Verificación: cabecera y campos usan la conexión/tx de confirmación y detectan edición histórica por huella.
+- [ ] 2.3 [M] Habilitar inspector y comparación de claves bajo DbTransaction explícita. Área/archivos: `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb`. Origen: D-06, RQ-06. Verificación: todos los comandos de revalidación usan la tx activa y conservan igualdad/collation y hashes v1.
+- [ ] 2.4 [M] Revalidar archivo y snapshots antes de efectos y publicación. Área/archivos: `Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb`. Origen: D-02, RQ-02. Verificación: cambio de archivo, revisión, política, esquema o límites impide mutaciones.
+- [ ] 2.5 [M] Verificar motores y bloquear triggers/FK no admitidos. Área/archivos: `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlEstructuraExcel.vb`. Origen: D-11, RQ-11. Verificación: destino o metadatos incompatibles cierran la capacidad antes de DELETE/INSERT.
 
-## Perfil tecnologico
+## 3. Escrituras y recuperación
 
-- Perfil de revision: legacy-webforms-vb (v1).
-- Alcance: ASP.NET Web Forms, code-behind VB.NET/C# y JavaScript gradual.
-- Este perfil orienta la revision tecnica; no reemplaza los requisitos funcionales ni arquitectonicos del ticket.
+- [ ] 3.1 [M] Implementar agrupaciones parametrizadas y control de advertencias. Área/archivos: `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlConfirmacionExcelWriter.vb`. Origen: D-05, RQ-05. Verificación: tipos y presupuestos de 128 parámetros/bytes se preservan y una fila excesiva se rechaza antes de DML.
+- [ ] 3.2 [M] Implementar AGREGAR con rechazo íntegro de conflictos. Área/archivos: `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlConfirmacionExcelWriter.vb`. Origen: D-06, RQ-06. Verificación: clave existente o carrera UNIQUE revierte todas las filas de la carga.
+- [ ] 3.3 [M] Implementar REEMPLAZAR con confirmación y filtro empresarial. Área/archivos: `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlConfirmacionExcelWriter.vb`. Origen: D-07, RQ-07. Verificación: fallo después de DELETE conserva el conjunto anterior y las filas ajenas.
+- [ ] 3.4 [M] Persistir CONFIRMADA y conteo en el commit de datos. Área/archivos: `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb; Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlConfirmacionExcelWriter.vb`. Origen: D-03, RQ-03. Verificación: fallo antes de publicar deja cero efectos; éxito guarda datos y resultado juntos.
+- [ ] 3.5 [M] Implementar CREATE identificado fuera de la transacción DML. Área/archivos: `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlEstructuraExcel.vb`. Origen: D-08, RQ-08. Verificación: el DDL produce InnoDB/UNIQUE/comentario de procedencia sin IF NOT EXISTS ni commit de filas.
+- [ ] 3.6 [M] Resolver recuperación de estructura propia contra proyección normalizada. Área/archivos: `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlEstructuraExcel.vb`. Origen: D-08, RQ-08. Verificación: tabla propia vacía compatible se reutiliza; ajena, alterada o con filas inexplicadas se rechaza.
+- [ ] 3.7 [M] Distinguir rollback conocido, FALLIDA y commit incierto. Área/archivos: `Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb; Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb`. Origen: D-09, RQ-09. Verificación: un fallo inyectado después de commit no degrada CONFIRMADA ni provoca replay automático.
+- [ ] 3.8 [M] Liberar los dos locks y restaurar recursos por conexión. Área/archivos: `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb; Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlConfirmacionExcelWriter.vb`. Origen: D-04, RQ-04. Verificación: cada salida libera su lock/modo/temporales o descarta sólo la conexión no limpia.
+- [ ] 3.9 [S] Integrar Confirmar y ConsultarResultado en el ASMX existente. Área/archivos: `webservice/WebServiceImportacionExcel.asmx.vb; Infrastructure/ProduccionDocumental/ImportacionExcel/ComposicionCargaExcel.vb; GestionDocumental-Docuarchi.net.vbproj`. Origen: D-01, RQ-01. Verificación: métodos nuevos usan las guardas vigentes y los tres archivos VB nuevos están registrados.
 
-## 3. Pruebas
+## 4. Pruebas locales y SQL
 
-- [ ] 3.1 Agregar/ajustar pruebas unitarias e integracion.
-- [ ] 3.2 Ejecutar suite afectada y registrar evidencia.
+- [ ] 4.1 [M] Ampliar el harness nativo con transacciones, estados y modos. Área/archivos: `tests/ImportacionExcelConfirmacionTests.cs; tests/doc122-importacion-excel-behavior.test.cjs; tests/ImportacionExcelBehaviorTests.cs`. Origen: D-03, RQ-03. Verificación: casos sintéticos verifican efectos/commit/rollback y regresiones DOC122–124.
+- [ ] 4.2 [M] Acreditar locks, replay y recuperación incierta con dobles independientes. Área/archivos: `tests/ImportacionExcelConfirmacionTests.cs`. Origen: D-09, RQ-09. Verificación: carreras entre dos sesiones y fallos en CREATE/COMMIT/limpieza conservan las invariantes.
+- [ ] 4.3 [M] Acreditar fronteras y continuidad por ID sin commits parciales. Área/archivos: `tests/ImportacionExcelConfirmacionTests.cs`. Origen: D-12, RQ-12. Verificación: 20000/20001 filas, bytes exactos/exceso y cortes no publican avances parciales.
+- [x] 4.4 [S] Entregar preflight SELECT y guía de instalación manual. Área/archivos: `Doc/Actualizacion/Importacion/Sql/18-preflight-doc125.sql; Doc/Actualizacion/Importacion/Sql/README.md`. Origen: D-13, RQ-13. Verificación: archivo sólo SELECT, sin credenciales y con destino/orden/efectos explicados.
+- [ ] 4.5 [S] Conciliar diagnóstico de base y cualquier adecuación como archivo nuevo. Área/archivos: `Doc/Actualizacion/Importacion/Sql/`. Origen: D-13, RQ-13. Verificación: confirmación manual seguida de SELECT acredita los prerrequisitos o registra PENDIENTE_EJECUCION_MANUAL sin aplicación automática.
+- [ ] 4.6 [M] Ejecutar build y regresiones locales con evidencia por SHA. Área/archivos: `GestionDocumental-Docuarchi.net.vbproj; tests/doc122-importacion-excel-behavior.test.cjs; Doc/Actualizacion/Importacion/Validacion/`. Origen: D-15, RQ-15. Verificación: build net461 y suites afectadas pasan con límites de cobertura explícitos.
 
-## 4. Cierre
+## 5. E2E reutilizada y entrega
 
-- [ ] 4.1 Validar OpenSpec.
-- [ ] 4.2 Documentar diff final y decisiones de arquitectura.
+- [ ] 5.1 [M] Añadir modo de confirmación y scope exclusivo al runner existente. Área/archivos: `tools/e2e/scripts/run-doc110-profile-session.cjs; tools/e2e/tests/support/doc125-excel-scope.cjs; tests/doc125-e2e-reuse.test.cjs`. Origen: D-14, RQ-14. Verificación: scope DOC124/readOnly o autorización ausente nunca permite confirmar.
+- [ ] 5.2 [M] Ampliar la suite existente con la matriz de confirmación. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs`. Origen: D-14, RQ-14. Verificación: tres modos, replay, dos sesiones, pérdida de respuesta y controles SELECT quedan ejecutables sin instalar/sembrar/limpiar.
+- [ ] 5.3 [M] Acreditar rollback y escritor externo con ejecutores nativos existentes. Área/archivos: `tests/ImportacionExcelConfirmacionTests.cs; tools/e2e/scripts/run-doc110-profile-session.cjs`. Origen: D-06, RQ-06. Verificación: conexión independiente gana la clave y el UNIQUE/rollback conserva únicamente los efectos autorizados de ese escritor.
+- [ ] 5.4 [M] Ejecutar la matriz real sólo con ventana y efectos expresamente autorizados. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; Doc/Actualizacion/Importacion/Validacion/`. Origen: D-14, RQ-14. Verificación: resultados reales de modos/rollback/carreras se documentan preservando los 625 contratos y demás destinos protegidos.
+- [ ] 5.5 [M] Registrar capacidad medida y límites de la aceptación. Área/archivos: `Doc/Actualizacion/Importacion/Validacion/`. Origen: D-12, RQ-12. Verificación: mediciones autorizadas separan preparación/escritura/memoria y no atribuyen a 12759 filas una prueba real de 20000.
+- [ ] 5.6 [S] Actualizar contratos y documentos de la fase sin atribuir interfaz futura. Área/archivos: `Doc/Actualizacion/Importacion/Diseno/05-confirmacion-recuperacion-doc125.md; Doc/Tecnica/Opsxj/doc-125-importacion-excel-05-confirmacion-recuperacion/`. Origen: D-15, RQ-15. Verificación: documentación describe los tres modos, incertidumbre y exclusiones fase06/07.
+- [ ] 5.7 [M] Verificar implementación, evidencias y tareas antes de archivo y cierre. Área/archivos: `openspec/changes/doc-125-importacion-excel-05-confirmacion-recuperacion/; Doc/Actualizacion/Importacion/Validacion/`. Origen: D-15, RQ-15. Verificación: requisitos/escenarios trazados, OpenSpec estricto y gobierno pasan sin presentar mocks como E2E real.

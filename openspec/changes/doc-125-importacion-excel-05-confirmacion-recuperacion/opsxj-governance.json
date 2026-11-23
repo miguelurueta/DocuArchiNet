@@ -5,6 +5,7 @@
   "impact": "cross_cutting",
   "requiredEvidence": [
     "unit",
+    "e2e",
     "manual_qa"
   ],
   "documentation": [
