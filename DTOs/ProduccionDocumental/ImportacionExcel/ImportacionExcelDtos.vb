@@ -46,3 +46,82 @@ Public Class RespuestaPlantillaExcel
     Inherits RespuestaImportacionExcel
     Public Property datos As PlantillaExcel
 End Class
+
+Public Class SolicitudInicioRecepcionExcel
+    Inherits SolicitudDetallePlantillaExcel
+    Public Property RevisionEsperada As UInteger
+    Public Property HuellaEsperada As String
+End Class
+Public Class InicioRecepcionExcel
+    Public Property IdCarga As String
+    Public Property ReferenciaRecepcion As String
+    Public Property ExpiraUtc As DateTime
+    Public Property RevisionPlantilla As UInteger
+    Public Property PlantillaHash As String
+    Public Property Formato As String
+End Class
+Public Class SolicitudRecepcionExcel
+    Inherits SolicitudDetallePlantillaExcel
+    Public Property IdCarga As String
+    Public Property ReferenciaRecepcion As String
+End Class
+Public Class SolicitudPrepararExcel
+    Inherits SolicitudDetallePlantillaExcel
+    Public Property IdCarga As String
+    Public Property RevisionEsperada As UInteger
+    Public Property HuellaEsperada As String
+    Public Property PreparacionHashEsperada As String
+    Public Property Hoja As String
+    Public Property Modo As String
+End Class
+Public Class SolicitudConsultaCargaExcel
+    Public Property ConexionId As UInteger
+    Public Property IdCarga As String
+End Class
+'DTO seguro: no incluye Archivo.Referencia ni documento interno de configuración.
+Public Class EstadoCargaExcel
+    Public Property IdCarga As String
+    Public Property PlantillaId As UInteger
+    Public Property Estado As String
+    Public Property NombreArchivo As String
+    Public Property Bytes As Long
+    Public Property ArchivoHash As String
+    Public Property Tabla As String
+    Public Property Modo As String
+    Public Property RevisionPlantilla As Nullable(Of UInteger)
+    Public Property ConfiguracionHash As String
+    Public Property EsquemaHash As String
+    Public Property FilasPrevistas As Nullable(Of Integer)
+    Public Property CodigoIncidencia As String
+    Public Property Hojas As New List(Of String)
+End Class
+Public Class PreparacionCargaExcel
+    Public Property Carga As EstadoCargaExcel
+    Public Property Codigo As String
+    Public Property CampoUnico As String
+    Public Property Hoja As String
+    Public Property LecturaCompleta As Boolean
+    Public Property ValidacionCompleta As Boolean
+    Public Property DuplicadosEvaluados As Boolean
+    Public Property FilasObservadas As Integer
+    Public Property TotalIncidencias As Long
+    Public Property Muestra As New List(Of FilaNormalizadaExcel)
+    Public Property Incidencias As New List(Of IncidenciaLecturaExcel)
+    Public ReadOnly Property IncidenciasTruncadas As Boolean
+        Get
+            Return TotalIncidencias > Incidencias.Count
+        End Get
+    End Property
+End Class
+Public Class RespuestaInicioRecepcionExcel
+    Inherits RespuestaImportacionExcel
+    Public Property datos As InicioRecepcionExcel
+End Class
+Public Class RespuestaEstadoCargaExcel
+    Inherits RespuestaImportacionExcel
+    Public Property datos As EstadoCargaExcel
+End Class
+Public Class RespuestaPreparacionExcel
+    Inherits RespuestaImportacionExcel
+    Public Property datos As PreparacionCargaExcel
+End Class

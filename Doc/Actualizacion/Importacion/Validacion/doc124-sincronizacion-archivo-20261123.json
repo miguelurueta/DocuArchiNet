@@ -1,0 +1,56 @@
+{
+  "status": "SYNCED_AND_ARCHIVED",
+  "authorization": "User: sincroniza, choosing sync-and-archive after explicit OpenSpec archive options",
+  "changeName": "doc-124-importacion-excel-04-recepcion-preparacion",
+  "archivePath": "openspec/changes/archive/2026-11-23-doc-124-importacion-excel-04-recepcion-preparacion",
+  "mainSpec": "openspec/specs/importacion-excel-04-recepcion-preparacion/spec.md",
+  "mainSha256": "7740f08a3a666ea05cbaaa8c285bde156d5cf1576063e1b7268d77c89e11680f",
+  "requirements": 14,
+  "scenarios": 31,
+  "purposeCopiedVerbatim": true,
+  "allDeltaInputsAssessed": true,
+  "contextDocumentPreservedInArchive": true,
+  "archivedFiles": {
+    "design.md": "691b11092c0385b7118e08bd2d9124e3bbb4ff55e41538504916726448b61b62",
+    "opsxj-governance.json": "295f5ec8a3ae316d4c4accbe77720c3db9aa0f5a8f57cfa438db7cad0d908882",
+    "proposal.md": "a81ecfb501007781d2910628c664241d59b9f719e9e724a97d1423ea7199672c",
+    "refinement.md": "ab4c0e4e5f0edeb9cab73c90d17934b7764d59ca7505e8a12b52ea98f73e486a",
+    "specs/importacion-excel-04-recepcion-preparacion/jira-context.md": "b0b72ea846572c8fc2642113447e1f4cbc984dc2d9d71c5cdc02bbff1fd5740b",
+    "specs/importacion-excel-04-recepcion-preparacion/spec.md": "da8e8329485f4a66d2ed6db1892e34742c02f716a4e154da3b72326067145d72",
+    "tasks.md": "d7172205a2b1c4e9663b2db65144a0f7e5cd28875b2e7617df968db3d6443be4"
+  },
+  "allSevenFilesByteIdentical": true,
+  "tasksComplete": 23,
+  "tasksTotal": 23,
+  "openSpecStrict": {
+    "totals": {
+      "items": 95,
+      "passed": 95,
+      "failed": 0
+    },
+    "byType": {
+      "change": {
+        "items": 4,
+        "passed": 4,
+        "failed": 0
+      },
+      "spec": {
+        "items": 91,
+        "passed": 91,
+        "failed": 0
+      }
+    }
+  },
+  "legacyGovernance": {
+    "passed": 72,
+    "total": 72,
+    "environmentOverrideUsed": false
+  },
+  "priorValidationReference": "Doc/Actualizacion/Importacion/Validacion/doc124-verificacion-final-20261123.md",
+  "newE2EExecutions": 0,
+  "sqlStatementsExecuted": 0,
+  "deployments": 0,
+  "recordedUtc": "2026-11-23T17:57:55.884Z",
+  "integrationPending": true,
+  "jiraClosurePending": true
+}

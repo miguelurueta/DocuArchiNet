@@ -1,0 +1,135 @@
+{
+  "status": "PASS_REAL_DOC124_REPLACE",
+  "runId": "468f13144505a8faf2dfdd111bcaddbb",
+  "authorization": "User: lanza de nuevo me equivoque; new window with identical REEMPLAZAR scope after credential-capture interruption; no prior SELECT/HTTP or recovered secrets",
+  "closed": true,
+  "secretsCleared": true,
+  "startedUtc": "2026-11-23T16:50:48.065Z",
+  "finishedUtc": "2026-11-23T16:54:42.920Z",
+  "companyId": 2,
+  "userId": 141,
+  "moduleId": 11,
+  "connectionId": 6,
+  "sourceId": 5,
+  "sourceRevision": 2,
+  "templateId": 28,
+  "templateRevision": 2,
+  "templateHash": "0f0a72e7594cb717db21e8134b01038a5ca4ae7e8e98071136e6ea0b77b7738d",
+  "backendSha256": "e1767f58a8d784bc0f958b8c141efad7363669a793eb0eb5c164aefed071e730",
+  "sourceSha256": {
+    "tools/e2e/scripts/run-doc110-profile-session.cjs": "1f15a8e7a26efeddda55724cec39291e26f1ce5d01441cf0e82556abe678fbac",
+    "tools/e2e/tests/importacion-excel.spec.cjs": "0f5fc98bc397f1fa261c60da20dd3ec3e4388ad75a81122f82a92ff6fcfd0734",
+    "tools/e2e/tests/support/doc124-excel-scope.cjs": "40afc36fac823e19bf2e24fd6588fa4384a093bcec8d8d1d7d9e51ba1efb97f6",
+    "tools/e2e/tests/support/authenticated-workflow-session.cjs": "60c33202ded594541a984ffdbe2ed2929734a5e48595440278039b854b93975b",
+    "tools/e2e/scripts/support/doc32-e2e-odbc.cjs": "d748cfd17cf3c170df4ce5cf7d4daf1959df16a3ed788084754d5ceec0a5a256",
+    "tools/e2e/tests/support/doc110-safe-request.cjs": "c01b90b77c8e3b8cf89d2e9aeaf186e7fc01199f398d2dae5f4f169328248eca",
+    ".tmp/doc124-launch.cjs": "0e1bd8a866444fbc9d394f03249ecd2b92f720deab128015f651682388d4e638",
+    ".tmp/doc124-real/468f13144505a8faf2dfdd111bcaddbb/plan.json": "6db4f9410aa84e7bae158c2bd470281bdb177846324168a4201206e6007d20ba"
+  },
+  "playwright": {
+    "passed": 1,
+    "skipped": 0,
+    "exitCode": 0,
+    "casesCompleted": 2,
+    "elapsedMs": 93846
+  },
+  "cases": [
+    {
+      "rowsObserved": 8000,
+      "fileBytes": 135564,
+      "fileSha256": "2e46c229618e04a316a13668e0543b5870daec08ca7af3cc5adcaae637894066",
+      "expectedCode": "OK",
+      "assertedIncidences": [],
+      "existingDestinationKeyIncluded": true,
+      "execution": {
+        "id": "fed2f477-4a35-4285-9a30-25ceb15389b9",
+        "fileSha256": "2e46c229618e04a316a13668e0543b5870daec08ca7af3cc5adcaae637894066",
+        "state": "PREPARADA",
+        "mode": "REEMPLAZAR",
+        "rowsExpected": "8000",
+        "rowsConfirmed": 0,
+        "incidence": null,
+        "privateFileVerified": true
+      }
+    },
+    {
+      "rowsObserved": 2,
+      "fileBytes": 2216,
+      "fileSha256": "836c1cc798bc2062fbdd986179418784f53552b736d980e58b31621f83802afc",
+      "expectedCode": "CLAVES_INVALIDAS",
+      "assertedIncidences": [
+        "CLAVE_DUPLICADA_ARCHIVO"
+      ],
+      "existingDestinationKeyIncluded": false,
+      "execution": {
+        "id": "69c0a56b-395d-4375-87ef-ef35dabd3ddc",
+        "fileSha256": "836c1cc798bc2062fbdd986179418784f53552b736d980e58b31621f83802afc",
+        "state": "RECIBIDA",
+        "mode": null,
+        "rowsExpected": null,
+        "rowsConfirmed": 0,
+        "incidence": "CLAVES_INVALIDAS",
+        "privateFileVerified": true
+      }
+    }
+  ],
+  "serviceRequests": 20,
+  "externalSelects": {
+    "currentWindow": 48,
+    "previousInterruptedWindow": 0,
+    "afterWindowVerification": 7,
+    "total": 55
+  },
+  "limits": {
+    "serviceRequestsMaximum": 60,
+    "externalSelectsMaximum": 80,
+    "maxDataRows": 20000
+  },
+  "protectedUnchanged": true,
+  "contractsRows": 625,
+  "allWriterLocksFree": true,
+  "afterWindowVerification": {
+    "status": "VERIFIED_PHASE_REAL",
+    "runId": "468f13144505a8faf2dfdd111bcaddbb",
+    "scenario": "reemplazar",
+    "templateId": 28,
+    "companyId": 2,
+    "userId": 141,
+    "moduleId": 11,
+    "connectionId": 6,
+    "loads": [
+      {
+        "loadId": "fed2f477-4a35-4285-9a30-25ceb15389b9",
+        "state": "PREPARADA",
+        "mode": "REEMPLAZAR",
+        "rowsExpected": 8000,
+        "rowsConfirmed": 0,
+        "incidence": null,
+        "fileSha256": "2e46c229618e04a316a13668e0543b5870daec08ca7af3cc5adcaae637894066",
+        "writerLockFree": true
+      },
+      {
+        "loadId": "69c0a56b-395d-4375-87ef-ef35dabd3ddc",
+        "state": "RECIBIDA",
+        "mode": null,
+        "rowsExpected": null,
+        "rowsConfirmed": 0,
+        "incidence": "CLAVES_INVALIDAS",
+        "fileSha256": "836c1cc798bc2062fbdd986179418784f53552b736d980e58b31621f83802afc",
+        "writerLockFree": true
+      }
+    ],
+    "contractsRows": 625,
+    "allWriterLocksFree": true,
+    "privateFilesVerifiedByParent": true,
+    "protectedUnchanged": true,
+    "followupSelects": 7,
+    "finishedUtc": "2026-11-23T16:59:14.8753018Z"
+  },
+  "permanentDDL": 0,
+  "businessRowsImported": 0,
+  "templateWritesDuringE2E": 0,
+  "sourcePolicyWritesDuringE2E": 0,
+  "sql17AppliedDuringE2E": false,
+  "sql17PreviouslyApplied": true
+}

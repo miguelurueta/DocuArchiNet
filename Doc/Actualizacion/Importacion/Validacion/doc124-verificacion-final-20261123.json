@@ -1,0 +1,345 @@
+{
+  "status": "PASS",
+  "reviewer": "Codex",
+  "reviewType": "Local technical review under openspec-verify-change; no human approval or archive implied",
+  "reviewedUtc": "2026-11-23T17:02:41.522Z",
+  "requirements": [
+    {
+      "id": "RQ-01",
+      "name": "RQ-01 Autoridad y transporte propios",
+      "implementation": [
+        "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelContextAdapter.vb",
+        "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb"
+      ],
+      "tests": [
+        "tests/ImportacionExcelPreparacionTests.cs#Multipart",
+        "tests/ImportacionExcelBehaviorTests.cs"
+      ],
+      "scenarios": [
+        "Permiso propio y revocación",
+        "Multipart forjado"
+      ],
+      "coverage": "Guarda/cambio de contexto locales; CSRF y cuenta restringida reales.",
+      "reviewed": true
+    },
+    {
+      "id": "RQ-02",
+      "name": "RQ-02 Archivo privado e inmutable",
+      "implementation": [
+        "Infrastructure/ProduccionDocumental/ImportacionExcel/AlmacenArchivoExcel.vb",
+        "Services/ProduccionDocumental/ImportacionExcel/ServicioRecepcionExcel.vb"
+      ],
+      "tests": [
+        "tests/ImportacionExcelPreparacionTests.cs#Files",
+        "tests/ImportacionExcelPreparacionTests.cs#Reception"
+      ],
+      "scenarios": [
+        "Archivo completo verificado",
+        "Fallo durante recepción",
+        "Formato disfrazado y ruta hostil"
+      ],
+      "coverage": "Fallos/rutas locales; archivos, hashes y replay reales.",
+      "reviewed": true
+    },
+    {
+      "id": "RQ-03",
+      "name": "RQ-03 ID previo y recuperación del acuse",
+      "implementation": [
+        "Infrastructure/ProduccionDocumental/ImportacionExcel/ReferenciaRecepcionExcel.vb",
+        "Services/ProduccionDocumental/ImportacionExcel/ServicioRecepcionExcel.vb"
+      ],
+      "tests": [
+        "tests/ImportacionExcelPreparacionTests.cs#Tokens",
+        "tests/ImportacionExcelPreparacionTests.cs#Reception"
+      ],
+      "scenarios": [
+        "Acuse perdido",
+        "Replay y escritor activo"
+      ],
+      "coverage": "Reloj/protección simulada locales; MachineKey, recuperación y replay reales.",
+      "reviewed": true
+    },
+    {
+      "id": "RQ-04",
+      "name": "RQ-04 Destino y aislamiento de servidor",
+      "implementation": [
+        "Infrastructure/ProduccionDocumental/ImportacionExcel/PoliticaDestinoCargaExcelAdapter.vb",
+        "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb"
+      ],
+      "tests": [
+        "tests/ImportacionExcelPreparacionTests.cs#Metadata",
+        "tests/ImportacionExcelPreparacionTests.cs#Ado"
+      ],
+      "scenarios": [
+        "Política de tabla compartida",
+        "Política ausente o contradictoria",
+        "Nuevo destino"
+      ],
+      "coverage": "CONEXION real para empresa2; COLUMNA/empresa ajena/contradicciones locales.",
+      "reviewed": true
+    },
+    {
+      "id": "RQ-05",
+      "name": "RQ-05 Lectura completa y límites heredados",
+      "implementation": [
+        "Services/ProduccionDocumental/ImportacionExcel/ServicioLecturaExcel.vb",
+        "Infrastructure/ProduccionDocumental/ImportacionExcel/LectorArchivoExcel.vb",
+        "Infrastructure/ProduccionDocumental/ImportacionExcel/InspectorFidelidadExcel.vb"
+      ],
+      "tests": [
+        "tests/ImportacionExcelLecturaTests.cs#Boundaries",
+        "tests/ImportacionExcelLecturaTests.cs#Types",
+        "tests/ImportacionExcelLecturaTests.cs#Reports"
+      ],
+      "scenarios": [
+        "Fronteras de archivo y filas",
+        "Lector inválido"
+      ],
+      "coverage": "Fronteras/formatos/fidelidad locales;12759 y8000 filas reales, límite comunicado20000.",
+      "reviewed": true
+    },
+    {
+      "id": "RQ-06",
+      "name": "RQ-06 Índice único y esquema físico",
+      "implementation": [
+        "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb"
+      ],
+      "tests": [
+        "tests/ImportacionExcelPreparacionTests.cs#Metadata",
+        "tests/ImportacionExcelPreparacionTests.cs#Ado"
+      ],
+      "scenarios": [
+        "Clave física válida",
+        "Índice insuficiente",
+        "Cambio concurrente de estructura"
+      ],
+      "coverage": "Índices inválidos y drift locales; índice completo y proyección CREAR reales.",
+      "reviewed": true
+    },
+    {
+      "id": "RQ-07",
+      "name": "RQ-07 Duplicados con semántica MySQL",
+      "implementation": [
+        "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb"
+      ],
+      "tests": [
+        "tests/ImportacionExcelPreparacionTests.cs#Preparation",
+        "tests/ImportacionExcelPreparacionTests.cs#Ado",
+        "tools/e2e/tests/importacion-excel.spec.cjs"
+      ],
+      "scenarios": [
+        "Igualdad del destino",
+        "Tres modos"
+      ],
+      "coverage": "Tres modos reales; duplicados internos por collation y existentes diferenciados.",
+      "reviewed": true
+    },
+    {
+      "id": "RQ-08",
+      "name": "RQ-08 Snapshot efectivo y detección de cambios",
+      "implementation": [
+        "Services/ProduccionDocumental/ImportacionExcel/ServicioPreparacionExcel.vb",
+        "Services/ProduccionDocumental/ImportacionExcel/ReglasCargaExcel.vb"
+      ],
+      "tests": [
+        "tests/ImportacionExcelPreparacionTests.cs#Metadata",
+        "tests/ImportacionExcelPreparacionTests.cs#Preparation",
+        "tests/Fixtures/ProduccionDocumental/ImportacionExcel/doc124-canonico-v1.json"
+      ],
+      "scenarios": [
+        "Editor antiguo y cambios de hoja",
+        "Archivo o política alterados"
+      ],
+      "coverage": "Vector canónico/drift locales; documentos efectivos y archivos verificados en ejecuciones reales.",
+      "reviewed": true
+    },
+    {
+      "id": "RQ-09",
+      "name": "RQ-09 Estados y concurrencia por carga",
+      "implementation": [
+        "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb",
+        "Services/ProduccionDocumental/ImportacionExcel/ServicioPreparacionExcel.vb"
+      ],
+      "tests": [
+        "tests/ImportacionExcelPreparacionTests.cs#Repository",
+        "tests/ImportacionExcelPreparacionTests.cs#Preparation"
+      ],
+      "scenarios": [
+        "Publicación ganadora",
+        "Interrupción y reintento"
+      ],
+      "coverage": "CAS/commit incierto/CONFIRMADA locales; RECIBIDA/PREPARADA y ganador de dos sesiones reales.",
+      "reviewed": true
+    },
+    {
+      "id": "RQ-10",
+      "name": "RQ-10 Vista previa y consulta acotadas",
+      "implementation": [
+        "Services/ProduccionDocumental/ImportacionExcel/ServicioRecepcionExcel.vb",
+        "DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb"
+      ],
+      "tests": [
+        "tests/ImportacionExcelPreparacionTests.cs#Reception",
+        "tests/ImportacionExcelPreparacionTests.cs#Preparation"
+      ],
+      "scenarios": [
+        "Muestra y totales",
+        "Consulta propia sin efectos"
+      ],
+      "coverage": "Topes/totales locales y muestras reales; consulta filtrada propia sin reparar. Ausencia filtrada: resultado no concluyente sin recursos ajenos.",
+      "reviewed": true
+    },
+    {
+      "id": "RQ-11",
+      "name": "RQ-11 Temporales, pool y recursos recuperables",
+      "implementation": [
+        "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb",
+        "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb"
+      ],
+      "tests": [
+        "tests/ImportacionExcelPreparacionTests.cs#Ado",
+        "tests/ImportacionExcelPreparacionTests.cs#Repository"
+      ],
+      "scenarios": [
+        "Limpieza y reutilización",
+        "Cancelación sin toma de escritor"
+      ],
+      "coverage": "Limpieza/restore/descarte y fallos locales; locks propios libres reales. No se afirma inspección global del pool.",
+      "reviewed": true
+    },
+    {
+      "id": "RQ-12",
+      "name": "RQ-12 SQL manual y compatibilidad",
+      "implementation": [
+        "Doc/Actualizacion/Importacion/Sql/README.md",
+        "Doc/Actualizacion/Importacion/Sql/11-preflight-doc124.sql"
+      ],
+      "tests": [
+        "tests/doc124-e2e-reuse.test.cjs"
+      ],
+      "scenarios": [
+        "Esquema ya instalado",
+        "Diferencia de instalación"
+      ],
+      "coverage": "22 columnas reutilizadas; SQL15–17 aplicados por excepción expresa del usuario, fuera de tests/arranque. Negocio preservado.",
+      "reviewed": true
+    },
+    {
+      "id": "RQ-13",
+      "name": "RQ-13 Pruebas locales reutilizadas",
+      "implementation": [
+        "tests/doc122-importacion-excel-behavior.test.cjs",
+        "GestionDocumental-Docuarchi.net.vbproj"
+      ],
+      "tests": [
+        "tests/ImportacionExcelPreparacionTests.cs",
+        "tests/ImportacionExcelLecturaTests.cs",
+        "tests/ImportacionExcelBehaviorTests.cs",
+        "tests/doc122-e2e-reuse.test.cjs"
+      ],
+      "scenarios": [
+        "Fallos reproducibles",
+        "Regresión y build"
+      ],
+      "coverage": "1054 comprobaciones nativas sintéticas y18/18 focales documentadas; build aislado previo y mismo backend desplegado.",
+      "reviewed": true
+    },
+    {
+      "id": "RQ-14",
+      "name": "RQ-14 E2E real de recepción y preparación",
+      "implementation": [
+        "tools/e2e/tests/importacion-excel.spec.cjs",
+        "tools/e2e/scripts/run-doc110-profile-session.cjs"
+      ],
+      "tests": [
+        "tests/doc124-e2e-reuse.test.cjs"
+      ],
+      "scenarios": [
+        "Recorrido real autorizado",
+        "Concurrencia independiente y gate"
+      ],
+      "coverage": "CREAR1, AGREGAR3, REEMPLAZAR2 casos en tres ventanas cerradas; dos sesiones y destino conservado.",
+      "reviewed": true
+    }
+  ],
+  "requirementsReviewed": 14,
+  "scenariosTraced": 31,
+  "decisionsReviewed": 14,
+  "tasksComplete": 23,
+  "tasksTotal": 23,
+  "realEvidence": [
+    {
+      "reference": "doc124-e2e-ordenes-resultado-20261123.json",
+      "status": "PASS_REAL_DOC124_FILE"
+    },
+    {
+      "reference": "doc124-e2e-agregar-resultado-20261123.json",
+      "status": "PASS_REAL_DOC124_ADD"
+    },
+    {
+      "reference": "doc124-e2e-reemplazar-resultado-20261123.json",
+      "status": "PASS_REAL_DOC124_REPLACE"
+    }
+  ],
+  "realCases": 6,
+  "localNativeChecks": {
+    "DOC122": 246,
+    "DOC123": 318,
+    "DOC124": 490,
+    "total": 1054,
+    "synthetic": true,
+    "rerunForShaSensitiveGovernance": true
+  },
+  "localFocalTests": {
+    "passed": 18,
+    "failed": 0
+  },
+  "sourceSha256": {
+    "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelContextAdapter.vb": "8a89cc86baec4083e89a3d6a3806f7d3bdf371d68b07646cef37dee42e250426",
+    "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb": "8f5c4a0f55f4eb0bda422d275f0d54488a057b37fb09c8a3a4363d8376439caa",
+    "Infrastructure/ProduccionDocumental/ImportacionExcel/AlmacenArchivoExcel.vb": "901b2c3adf0484036cad185625450285082a5e4dd16fa7636524ec915cd1e3d0",
+    "Services/ProduccionDocumental/ImportacionExcel/ServicioRecepcionExcel.vb": "92b1641c7c9653d9f200aff7f7471140259c8eac2589e058df2fcaeb63def317",
+    "Infrastructure/ProduccionDocumental/ImportacionExcel/ReferenciaRecepcionExcel.vb": "c400d077e5b0736814990ef49524a9e62ab43c3de1e154d041ad4f8ebff631d7",
+    "Infrastructure/ProduccionDocumental/ImportacionExcel/PoliticaDestinoCargaExcelAdapter.vb": "9127925277c205060496204aea452aec58a1afae3817100f3eecc956027d73f1",
+    "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb": "bc12481a01004a4b4b88381799bdba23ce6de731c0f7492061a65fc1a7bbbee4",
+    "Services/ProduccionDocumental/ImportacionExcel/ServicioLecturaExcel.vb": "fa0d6a99a17fff59931ba265814670e3d487b106c8e7229b3d37369afd605295",
+    "Infrastructure/ProduccionDocumental/ImportacionExcel/LectorArchivoExcel.vb": "781e902a557f4020f621846942ae7c6e1e6fa091c81859c7d9b20e1a0d697197",
+    "Infrastructure/ProduccionDocumental/ImportacionExcel/InspectorFidelidadExcel.vb": "dc39576bb8646475cd7a7b454eac2ab2e646286608df27de9cc7e302b0187ed5",
+    "Services/ProduccionDocumental/ImportacionExcel/ServicioPreparacionExcel.vb": "8bf53cbf11e89279b3a65c57e93fb2566ef1fd1c0ad605ae05b2eabb383d9e39",
+    "Services/ProduccionDocumental/ImportacionExcel/ReglasCargaExcel.vb": "f06bd9661b63f2516450bbf1df2da816c17267fde93cdcf94c61897d7297fff1",
+    "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb": "f0045bd148171222c0fd1ee0f941e7e6874ac8b062aae4a6960a95dbd50a5518",
+    "DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb": "3de62e4a1279dd921df04cd7766854f774acaa5b5236261edf9269a9dea3a4a4",
+    "Doc/Actualizacion/Importacion/Sql/README.md": "e2310303b5e7b97da48891da7c0781e507475df773072be4a708f75c779cf03e",
+    "Doc/Actualizacion/Importacion/Sql/11-preflight-doc124.sql": "294d6946179de60895bff86fec8df02764de3a7dca1e4823ccd61073da2ad834",
+    "tests/doc122-importacion-excel-behavior.test.cjs": "b1f98d19bd4ba9add6070610a9bf7cc2915b1bd465c17a34302daa159d5872ae",
+    "GestionDocumental-Docuarchi.net.vbproj": "58ef256434b24d35c8d8d8ebe7be079d18f1632a0802527d606312d29289d673",
+    "tools/e2e/tests/importacion-excel.spec.cjs": "0f5fc98bc397f1fa261c60da20dd3ec3e4388ad75a81122f82a92ff6fcfd0734",
+    "tools/e2e/scripts/run-doc110-profile-session.cjs": "1f15a8e7a26efeddda55724cec39291e26f1ce5d01441cf0e82556abe678fbac"
+  },
+  "implementationFindings": [],
+  "limits": [
+    "Preparar does not confirm/import business rows or implement UI; later phases own those operations.",
+    "Real equality covered latin1_swedish_ci and CONEXION/company2; shared-column and malformed schemas covered locally.",
+    "20000 configured and locally boundary-tested; largest real file12759 rows. No throughput/memory or full load-test claim.",
+    "Explicit writer locks verified free; global pooled-connection inspection not claimed.",
+    "Native tests use doubles for commit faults; not claimed as real MySQL fault injection.",
+    "No CI execution of the new native suite asserted; prior isolated local build and matching deployed assembly are documented."
+  ],
+  "remainingGate": null,
+  "governance": {
+    "passed": 72,
+    "total": 72,
+    "environmentOverrideUsed": false,
+    "technicalReviewer": "Codex",
+    "receiptStoredLocally": true
+  },
+  "localCombinedTests": {
+    "passed": 19,
+    "failed": 0,
+    "includesNativeHarness": true,
+    "command": "node --test tests/doc122-importacion-excel-behavior.test.cjs tests/doc122-e2e-reuse.test.cjs tests/doc124-e2e-reuse.test.cjs",
+    "testedProductBaseSha": "b88450fb49b974362f7cab3c84cf835709c0364b",
+    "sqlOrHttpReal": false
+  },
+  "reviewCompletedUtc": "2026-11-23T17:08:37.324Z"
+}

@@ -63,6 +63,27 @@ Public Class ImportacionExcelConexionAdapter
         'La fábrica comprueba de nuevo el origen antes de abrir cada conexión del repositorio.
         Return New MySqlPlantillaExcelRepository(Function() ConexionVigente(http, ctx, modulo, cadena), conexionId)
     End Function
+    Public Function ContextoCarga(http As HttpContext, ctx As ContextoImportacionExcel, conexionId As UInteger) As ContextoCargaExcel
+        Dim modulo As UInteger
+        Dim cadena = CadenaDA(http, ctx, modulo)
+        If conexionId = 0 OrElse LeerReferencias(http, ctx, modulo, cadena, conexionId).Count <> 1 Then Throw ReglasCargaExcel.Fallo("ACCESO_DENEGADO")
+        Dim builder As New MySqlConnectionStringBuilder(cadena)
+        Return New ContextoCargaExcel With {.UsuarioId = ctx.UsuarioId, .EmpresaId = ctx.EmpresaId, .Autorizado = ctx.Autorizado, .ModuloId = modulo, .ConexionId = conexionId, .IdentidadConexion = ReglasCargaExcel.HashDocumento(New With {.Servidor = builder.Server.ToLowerInvariant(), .Puerto = builder.Port, .Base = builder.Database})}
+    End Function
+    Public Sub ValidarModulo(http As HttpContext, ctx As ContextoImportacionExcel)
+        Dim modulo As UInteger
+        CadenaDA(http, ctx, modulo)
+    End Sub
+    Public Function FabricaCarga(http As HttpContext, ctx As ContextoCargaExcel) As Func(Of DbConnection)
+        ReglasCargaExcel.Autorizar(ctx)
+        Dim modulo As UInteger
+        Dim cadena = CadenaDA(http, ctx, modulo)
+        Return Function()
+                   Dim vigente = ContextoCarga(http, New ImportacionExcelContextAdapter().Resolver(http), ctx.ConexionId)
+                   ReglasCargaExcel.MismaAutoridad(ctx, vigente)
+                   Return ConexionVigente(http, ctx, modulo, cadena)
+               End Function
+    End Function
     Private Function LeerReferencias(http As HttpContext, ctx As ContextoImportacionExcel, modulo As UInteger, cadena As String, conexionId As Nullable(Of UInteger)) As List(Of ReferenciaConexionExcel)
         Dim builder As New MySqlConnectionStringBuilder(cadena)
         Dim result As New List(Of ReferenciaConexionExcel)

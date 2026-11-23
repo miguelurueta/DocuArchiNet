@@ -1,0 +1,58 @@
+{
+    "status":  "APPLIED_AND_VERIFIED_SQL15_16",
+    "startedUtc":  "2026-11-23T15:19:35.8646171Z",
+    "authorization":  "User: aplica los archivos por mi; explicit exception for SQL15/16; SQL17 deferred until AGREGAR PASS",
+    "actorId":  141,
+    "companyId":  2,
+    "files":  [
+                  {
+                      "sha":  "2e06bee917842ba2c7b493bc588bb1e8399f732570314854d9d061e9ba379c29",
+                      "name":  "15-fuente-contratos-doc124.sql"
+                  },
+                  {
+                      "sha":  "066d1a9ae072c77a0ba6137a6755773840ee36c8460413233aa09f2130011114",
+                      "name":  "16-plantilla-contratos-agregar-doc124.sql"
+                  }
+              ],
+    "businessBefore":  {
+                           "rows":  625,
+                           "dataSha256":  "141481be48615d10bd7f100cf856b77d26ac9de9edce56bf18585d09b91139e2",
+                           "schemaSha256":  "a430c4c674bd3a478e953a685568eabe1259eb4837451a9374418b7057536cfa"
+                       },
+    "committedFiles":  [
+                           "15",
+                           "16"
+                       ],
+    "source":  {
+                   "sourceId":  "5",
+                   "companyId":  2,
+                   "mode":  "CONEXION",
+                   "active":  1,
+                   "revision":  2,
+                   "columns":  4,
+                   "historyRevisions":  2,
+                   "actorId":  141,
+                   "historyVerified":  true
+               },
+    "template":  {
+                     "templateId":  28,
+                     "connectionId":  6,
+                     "name":  "imp_02_contratos",
+                     "revision":  1,
+                     "active":  1,
+                     "mode":  "AGREGAR",
+                     "sheet":  "Hoja1",
+                     "key":  "NCONTRATO",
+                     "fields":  4,
+                     "templateHash":  "810517a2ab622e34e2e9f7139ec5fc7fb68ac8281b98219ad8a6928b0b36c4b6"
+                 },
+    "businessAfter":  {
+                          "rows":  625,
+                          "dataSha256":  "141481be48615d10bd7f100cf856b77d26ac9de9edce56bf18585d09b91139e2",
+                          "schemaSha256":  "a430c4c674bd3a478e953a685568eabe1259eb4837451a9374418b7057536cfa"
+                      },
+    "preexistingConfigurationUnchanged":  true,
+    "finishedUtc":  "2026-11-23T15:19:36.3220154Z",
+    "sql17Applied":  false,
+    "e2eExecuted":  false
+}

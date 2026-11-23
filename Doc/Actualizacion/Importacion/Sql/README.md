@@ -62,6 +62,86 @@ La visibilidad de information_schema.SCHEMA_PRIVILEGES depende de la cuenta cons
 
 ## Confirmación y revisión
 
+[13-plantilla-ordenes-2025-doc124.sql](13-plantilla-ordenes-2025-doc124.sql) documenta
+la plantilla27 creada a solicitud expresa del usuario por el repositorio del proyecto:
+conexión6, Hoja1, clave NROORDEN y siete campos. El alta ya está aplicada y verificada
+por SELECT; no repetirla. El archivo SQL permite revisión o aplicación manual en otro
+ambiente compatible. No crea tabla física ni importa órdenes. El máximo20000 queda
+configurado en Web.config; el original se conserva y se entrega una copia con fila1
+de encabezados, porque la fila1 original es un título.
+
+DOC-124 entrega además [12-preflight-recursos-e2e-doc124.sql](12-preflight-recursos-e2e-doc124.sql),
+solo SELECT sobre las fuentes existentes EGRESOS/CRÉDITOS y sus plantillas/índices.
+No crea tablas de prueba ni corrige/activa datos o configuración. El control completo
+de filas durante la E2E reutiliza la huella DOC32, sin el límite10000 de su vía Rows;
+esto no modifica el límite del Excel que se prepara (20000 configuradas actualmente;
+10000 por defecto en el lector). Los destinos existentes
+pueden usarse en lectura con huellas antes/después, sin declararlos descartables.
+
+[14-preflight-contratos-e2e-doc124.sql](14-preflight-contratos-e2e-doc124.sql)
+prepara la comprobación de CONTRATOS para los casos AGREGAR/REEMPLAZAR. Contiene
+solo SELECT, separados entre RA y DA: política, columnas autorizadas, esquema,
+índice, conteos y plantillas. Estado: ENTREGADO, PENDIENTE_EJECUCION_MANUAL.
+No activa fuentes ni crea plantillas. La [investigación posterior solicitada por
+el usuario](../Validacion/doc124-empresa-contratos-verificada-20261123.md) confirmó
+la empresa2 mediante la decisión previa de empresa única y12 SELECT de la
+configuración actual; el esquema sin columna empresarial por sí solo no demuestra
+exclusividad. Después se aplicaron15/16 por autorización expresa: fuente5 y
+plantilla28, como se detalla en el apartado siguiente. Los modos de la plantilla son
+distintos: una modificación exige revisión/huella nuevas y gestión explícita,
+fuera del recorrido Preparar. [Plan de la matriz pendiente](../Validacion/doc124-matriz-pendiente-20261123.md).
+
+## Configuración manual de CONTRATOS para DOC124
+
+**SQL15/16 APLICADOS Y VERIFICADOS2026-11-23**, por instrucción posterior expresa
+del usuario «aplica los archivos por mi»: fuente5/revisión2 y plantilla28/revisión1,
+AGREGAR. [Autorización y resultado](../Validacion/doc124-sql15-16-aplicados-20261123.md).
+No repetir15/16 en este ambiente. SQL17 se aplicó después del PASS real de AGREGAR, al continuar el
+usuario la ejecución delegada: plantilla28/revisión2/REEMPLAZAR, con datos/mapeos
+y cargas previas intactos. [Resultado y ventana siguiente](../Validacion/doc124-e2e-reemplazar-ventana-20261123.md).
+No repetir SQL17 en este ambiente. Esta excepción no autoriza instalaciones desde pruebas
+ni concede permiso general para ejecutar otros SQL. No repetir el índice08.
+
+| Orden | Archivo / destino | Efecto previsto |
+|---|---|---|
+| Primero | [15-fuente-contratos-doc124.sql](15-fuente-contratos-doc124.sql), RA | Fuente DA/imp_02_contratos de empresa2, aislamiento CONEXION, cuatro columnas autorizadas, ALTA/revisión1 y ACTIVAR/revisión2 con historial. No publica proveedor. |
+| Después | [16-plantilla-contratos-agregar-doc124.sql](16-plantilla-contratos-agregar-doc124.sql), DA del módulo11 | Una plantilla activa de conexión6, Hoja1, clave NCONTRATO, cuatro campos VARCHAR(250) y modo AGREGAR/revisión1. No crea otra tabla. |
+| Tras PASS real AGREGAR | [17-plantilla-contratos-reemplazar-doc124.sql](17-plantilla-contratos-reemplazar-doc124.sql), misma DA | Cambia esa misma plantilla a REEMPLAZAR/revisión2, conservando campos y archivo de referencia. No reemplaza registros. |
+
+En15 completar `@doc124_actor` con el ID real del operador registrado en RA;
+su valor inicial NULL impide escrituras. Confirmar que RA/DA corresponden a los
+módulos12/11 de empresa2 y que referencia6 coincide con el destino ya verificado.
+Las precondiciones de los scripts rechazan configuración existente o incompatible
+en vez de sobrescribirla. Si ya existe fuente/plantilla, inspeccionar y preparar
+una adecuación nueva; no forzar estas altas.
+En17 completar `@doc124_plantilla_esperada` con el ID devuelto por16 y usado en
+el PASS de AGREGAR; también empieza en NULL para impedir cambios sin identificarlo.
+
+Ejecutar cada archivo por separado, en una sesión SQL persistente y sin continuar
+ante errores. Los archivos abren una transacción y **no ejecutan COMMIT**:
+solo si aparece `LISTO_PARA_COMMIT` y no hubo errores, ejecutar `COMMIT;` manualmente
+en esa misma sesión. Cualquier error u otro resultado exige `ROLLBACK;` y revisión.
+Cerrar la sesión sin COMMIT no acredita aplicación. Confirmar archivo, ID devuelto
+y COMMIT; el agente verificará mediante SELECT antes de la E2E dependiente.
+
+15 y16 ya están aplicados y verificados en este ambiente. La ventana `--excel-add`
+sobre plantilla28/revisión1 ya aprobó3/3 casos y quedó cerrada; [resultado real](../Validacion/doc124-e2e-agregar-resultado-20261123.md).
+SQL17 ya está aplicado y verificado, con plantilla28/revisión2 y huella nueva.
+`--excel-replace` aprobó2/2 casos y quedó cerrada; [resultado real](../Validacion/doc124-e2e-reemplazar-resultado-20261123.md).
+No repetir AGREGAR, REEMPLAZAR ni SQL17 para completar la documentación.
+Cada ventana usa IDs nuevos, consentimiento explícito y secretos efímeros;
+no guarda plantillas ni aplica SQL. Los PASS parciales se revisan juntos con el
+CREAR de Órdenes; una fase aislada no completa2.6 ni permite archivar DOC124.
+
+DOC-124 entrega [11-preflight-doc124.sql](11-preflight-doc124.sql), únicamente SELECT,
+para ejecutar manualmente por bloques RA/DA. Comprueba metadatos de las 22 columnas,
+índices completos, política empresarial y capacidades observables. **ENTREGADO,
+PENDIENTE_EJECUCION_MANUAL**: no se ha aplicado ni consultado en esta implementación.
+No se prevé migración permanente nueva; no reaplicar 01–10. Una diferencia detectada
+requiere otro archivo específico, aplicación manual y confirmación antes de verificar.
+Las temporales propias de Preparar pertenecen a la operación, no a la instalación;
+la E2E necesita autorización independiente. Conserva los datos de EGRESOS/CONTRATOS.
+
 Registrar por archivo: ambiente, destino lógico, fecha, aplicado/omitido/error y resultado saneado. Después de la confirmación del usuario el agente revisa exclusivamente SELECT; una diferencia que requiera cambios produce otro archivo para ejecución manual. Distinguir ENTREGADO, EJECUTADO_CONFIRMADO y VERIFICADO_SELECT, sin sustituir un estado por otro.
 
 No ejecutar SQL de instalación desde tests, arranque o rutas indirectas de la aplicación. Las fases dependientes del nuevo esquema esperan confirmación y comprobación posterior antes de sus recorridos. No retirar índices, columnas o historial con un rollback automático; conservar objetos aditivos y generar un nuevo plan revisado si se necesita revertir estructura.

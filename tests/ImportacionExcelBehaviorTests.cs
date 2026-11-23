@@ -102,14 +102,18 @@ public static class ImportacionExcelBehaviorTests {
  static void Race(ServicioPlantillasExcel s,ContextoImportacionExcel c,SolicitudGuardarPlantillaExcel r,ref int wins,ref int conflicts){
   try{s.Guardar(c,r);Interlocked.Increment(ref wins);}catch(ImportacionExcelException e){if(e.Codigo!="CONFLICTO_REVISION")throw;Interlocked.Increment(ref conflicts);}
  }
- class Worker:SimpleWorkerRequest {
+ public class Worker:SimpleWorkerRequest {
   public string Token,Origin="http://127.0.0.1";public string Verb="POST",Content="application/json";public int Bytes=2;
+  public byte[] Body;
   public Worker():base("/","C:\\","excel.asmx","",new StringWriter()){}
   public override string GetHttpVerbName(){return Verb;}
+  public override byte[] GetPreloadedEntityBody(){return Body??base.GetPreloadedEntityBody();}
+  public override int GetTotalEntityBodyLength(){return Body==null?Bytes:Body.Length;}
+  public override bool IsEntireEntityBodyIsPreloaded(){return Body!=null||base.IsEntireEntityBodyIsPreloaded();}
   public override string GetKnownRequestHeader(int i){if(i==HttpWorkerRequest.HeaderContentType)return Content;if(i==HttpWorkerRequest.HeaderContentLength)return Bytes.ToString();return base.GetKnownRequestHeader(i);}
   public override string[][] GetUnknownRequestHeaders(){return new[]{new[]{"X-Importacion-Excel-CSRF",Token},new[]{"Origin",Origin}};}
  }
- static HttpContext Http(Worker w,HttpContext previous=null){
+ public static HttpContext Http(Worker w,HttpContext previous=null){
   var h=new HttpContext(w);
   var items=new SessionStateItemCollection();if(previous!=null)foreach(string key in previous.Session.Keys)items[key]=previous.Session[key];
   SessionStateUtility.AddHttpSessionStateToContext(h,new HttpSessionStateContainer("doc122-synthetic",items,new HttpStaticObjectsCollection(),20,true,HttpCookieMode.UseCookies,SessionStateMode.InProc,false));
@@ -186,7 +190,7 @@ public static class ImportacionExcelBehaviorTests {
   limits["ImportacionExcel.MaxFilasDatos"]="0";Reject(()=>adapter.Limite("MaxFilasDatos",10000),"CAPACIDAD_NO_DISPONIBLE");
   limits["ImportacionExcel.MaxArchivoMB"]="2147483647";Reject(()=>adapter.Limite("MaxArchivoMB",10),"CAPACIDAD_NO_DISPONIBLE");
  }
- public static int Main(){try{Rules();Persistence();GuardAndAuthority();ModuleConnection();Contract();Console.WriteLine("DOC122_NATIVE_PASS checks="+checks+"; synthetic ADO.NET, no MySQL/HTTP");ImportacionExcelLecturaTests.Run();return 0;}catch(Exception e){Console.Error.WriteLine(e.ToString());return 1;}}
+ public static int Main(){try{Rules();Persistence();GuardAndAuthority();ModuleConnection();Contract();Console.WriteLine("DOC122_NATIVE_PASS checks="+checks+"; synthetic ADO.NET, no MySQL/HTTP");ImportacionExcelLecturaTests.Run();ImportacionExcelPreparacionTests.Run();return 0;}catch(Exception e){Console.Error.WriteLine(e.ToString());return 1;}}
 
  sealed class Store {
   public PlantillaExcel P;public bool DestinationExists=true,FailField,Active=true,DuplicatePermission;public int Permission=1,Commands,Rollbacks;public string Engine="InnoDB";
@@ -273,10 +277,10 @@ public static class ImportacionExcelBehaviorTests {
    throw new Exception("unsupported write "+CommandText);
   }
  }
- sealed class Parameter:DbParameter {
+ public sealed class Parameter:DbParameter {
   public override DbType DbType{get;set;}public override ParameterDirection Direction{get;set;}public override bool IsNullable{get;set;}public override string ParameterName{get;set;}public override string SourceColumn{get;set;}public override object Value{get;set;}public override bool SourceColumnNullMapping{get;set;}public override int Size{get;set;}public override void ResetDbType(){}
  }
- sealed class Params:DbParameterCollection {
+ public sealed class Params:DbParameterCollection {
   readonly List<DbParameter> p=new List<DbParameter>();public override int Count{get{return p.Count;}}public override object SyncRoot{get{return this;}}
   public override int Add(object v){p.Add((DbParameter)v);return p.Count-1;}public override void AddRange(Array a){foreach(var v in a)Add(v);}public override void Clear(){p.Clear();}
   public override bool Contains(object v){return p.Contains((DbParameter)v);}public override bool Contains(string n){return p.Any(x=>x.ParameterName==n);}public override void CopyTo(Array a,int i){((ICollection)p).CopyTo(a,i);}public override IEnumerator GetEnumerator(){return p.GetEnumerator();}

@@ -1,0 +1,38 @@
+{
+  "documento": {
+    "Version": 1,
+    "Tabla": "imp_02_ñ",
+    "Columnas": [
+      {
+        "Nombre": "A",
+        "Tipo": "varchar(5)",
+        "Predeterminado": null
+      },
+      {
+        "Nombre": "Z",
+        "Tipo": "int unsigned",
+        "Predeterminado": "0"
+      }
+    ],
+    "Indices": [
+      {
+        "Nombre": "uq",
+        "Unico": true,
+        "Componentes": [
+          {
+            "Columna": "A",
+            "Posicion": 1,
+            "Prefijo": null
+          },
+          {
+            "Columna": "Z",
+            "Posicion": 2,
+            "Prefijo": null
+          }
+        ]
+      }
+    ]
+  },
+  "canonico": "{\"Columnas\":[{\"Nombre\":\"A\",\"Predeterminado\":null,\"Tipo\":\"varchar(5)\"},{\"Nombre\":\"Z\",\"Predeterminado\":\"0\",\"Tipo\":\"int unsigned\"}],\"Indices\":[{\"Componentes\":[{\"Columna\":\"A\",\"Posicion\":1,\"Prefijo\":null},{\"Columna\":\"Z\",\"Posicion\":2,\"Prefijo\":null}],\"Nombre\":\"uq\",\"Unico\":true}],\"Tabla\":\"imp_02_\\u00f1\",\"Version\":1}",
+  "sha256": "d26b38026ae7425f69727d4e5e23022079618b53ee7ee95cae0a52f697571669"
+}

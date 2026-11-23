@@ -1,0 +1,149 @@
+{
+  "issue": "DOC-124",
+  "date": "2026-11-23",
+  "base": "f6f3db5c6cc86753df3cd90f1eb5116eeac0aca3",
+  "request": "Crear plantilla del archivo aportado y aumentar a20000 filas",
+  "status": "PLANTILLA_CREADA_LIMITE_CONFIGURADO_LECTURA_LOCAL_PASS",
+  "configuration": {
+    "file": "Web.config",
+    "key": "ImportacionExcel.MaxFilasDatos",
+    "value": 20000,
+    "localOverride": false,
+    "standaloneReaderDefault": 10000,
+    "maxFileBytes": 10000000,
+    "effectiveAspNetConfigurationVerified": 20000
+  },
+  "template": {
+    "status": "CREATED_TEMPLATE_ORDENES",
+    "templateId": 27,
+    "name": "imp_02_ordenes_2025",
+    "connectionId": 6,
+    "revision": 1,
+    "active": 1,
+    "sheet": "Hoja1",
+    "key": "NROORDEN",
+    "fields": [
+      {
+        "id": 117,
+        "source": "NOMBRE",
+        "destination": "NOMBRE",
+        "type": "VARCHAR(128)"
+      },
+      {
+        "id": 118,
+        "source": "NIT",
+        "destination": "NIT",
+        "type": "VARCHAR(32)"
+      },
+      {
+        "id": 119,
+        "source": "NROORDEN",
+        "destination": "NROORDEN",
+        "type": "VARCHAR(32)"
+      },
+      {
+        "id": 120,
+        "source": "FECHARECEP",
+        "destination": "FECHARECEP",
+        "type": "DATE"
+      },
+      {
+        "id": 121,
+        "source": "FECHAENTREGA",
+        "destination": "FECHAENTREGA",
+        "type": "DATE"
+      },
+      {
+        "id": 122,
+        "source": "VIN",
+        "destination": "VIN",
+        "type": "VARCHAR(32)"
+      },
+      {
+        "id": 123,
+        "source": "PLACA",
+        "destination": "PLACA",
+        "type": "VARCHAR(16)"
+      }
+    ],
+    "templateHash": "3914cf15a8b2ecd167a1452876953456ecce35c61e512bb90d142782024d7321",
+    "createdHeaders": 1,
+    "createdFields": 7,
+    "businessTableCreated": false,
+    "businessRowsImported": 0,
+    "http": 0,
+    "e2eReal": false,
+    "method": "Existing module resources and MySqlPlantillaExcelRepository.Guardar, explicit administrative creation request",
+    "finishedUtc": "2026-11-23T13:28:24.3626441Z"
+  },
+  "workbook": {
+    "status": "PASS_LOCAL_ORDENES_20000",
+    "originalSha256": "eb085eb90146ba90ac027a4e427d5ad9550c36b9106246535c40751c755393d6",
+    "originalUnchanged": true,
+    "copySha256": "c3df48b50eec9a1a650f2af354d4a99f36d45801e95506310ceb7174d9cf49c9",
+    "copyBytes": 607575,
+    "sheet": "Hoja1",
+    "titleRowsOmitted": 1,
+    "sourceHeaderRow": 2,
+    "copyHeaderRow": 1,
+    "dataRows": 12759,
+    "normalizedRows": 12759,
+    "maxDataRows": 20000,
+    "key": "NROORDEN",
+    "keyOrdinalUnique": true,
+    "columns": [
+      "NOMBRE",
+      "NIT",
+      "NROORDEN",
+      "FECHARECEP",
+      "FECHAENTREGA",
+      "VIN",
+      "PLACA"
+    ],
+    "complete": true,
+    "totalIncidents": 0,
+    "incidentCodes": [],
+    "e2eReal": false,
+    "sql": 0,
+    "http": 0
+  },
+  "localCopy": ".tmp/doc124-ordenes-2025/RELACION_ORDENES_2025_importacion.xlsx",
+  "tests": {
+    "passed": 16,
+    "failed": 0,
+    "native": {
+      "DOC122": 246,
+      "DOC123": 318,
+      "DOC124": 490,
+      "total": 1054
+    },
+    "command": "node --test tests/doc122-importacion-excel-behavior.test.cjs tests/doc122-e2e-reuse.test.cjs tests/doc124-e2e-reuse.test.cjs",
+    "logSha256": "61b0380a769a763afe25d1dc4139767394e2aff2055cf04034fd5ac635b8064c",
+    "changesAreConfigurationAndTestOnly": true,
+    "openspecStrict": "PASS",
+    "refinement": "15/15",
+    "playwrightDiscovered": 3
+  },
+  "sql": {
+    "file": "Doc/Actualizacion/Importacion/Sql/13-plantilla-ordenes-2025-doc124.sql",
+    "creationAppliedViaRepository": true,
+    "permanentTableCreated": false,
+    "ddl": 0
+  },
+  "runtime": {
+    "businessRowsImported": 0,
+    "webAuthentication": 0,
+    "http": 0,
+    "e2eReal": false,
+    "backendDeployed": false,
+    "backendSha256": "79da3a8841e22d8c5835b2495ceb0179946c67b204effcf326c2d8030c722779",
+    "taskProgress": "21/23;2.6/3.2 pendientes"
+  },
+  "normalizedSourceSha256": {
+    "Web.config": "ff9ffb5dda6d51cc7d9d5ed436ba2514993784a00071f9d1f2b6feecfdf30868",
+    "tools/e2e/tests/support/doc124-excel-scope.cjs": "e21075fffbeed65d1ac07ca8dbda3996ff652ed297ea8a5378eecd92bec2f3b6",
+    "tests/doc124-e2e-reuse.test.cjs": "4de2c1f4607c2c3058d6321e77c615ea5e1abcfd5b0894b15ece0bd53151964a",
+    "tests/ImportacionExcelLecturaTests.cs": "bca5dc1962354d85e1f82aa1a2287b15464d94516678156c965433bdf9732c84",
+    "Doc/Actualizacion/Importacion/Sql/13-plantilla-ordenes-2025-doc124.sql": "1bd030823211be9af4edebf05e03a03ed3b832ff133f076b62cdabddeeae465b"
+  }
+}

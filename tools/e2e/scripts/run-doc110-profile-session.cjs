@@ -4,6 +4,40 @@ const path=require('node:path');
 const {collectValue,collectConfirmation,requireInteractiveConsole,runChild}=require('./support/interactive-e2e-console.cjs');
 const {sourceFixture}=require('../tests/support/doc110-source-fixture.cjs');
 
+//DOC124 conserva autenticación/consola/perfil; autorización y fixtures son propios.
+function excelPreparationPlan(root,profile,args,environment=process.env){
+  const scenarios={'--excel-prepare':'matriz','--excel-file':'archivo','--excel-add':'agregar','--excel-replace':'reemplazar'};
+  const modes=args.filter(x=>Object.hasOwn(scenarios,x));
+  if(modes.length!==1||args.some(x=>!Object.hasOwn(scenarios,x)&&x!=='--headed'))throw new Error('DOC124_MODE_CONFLICT');
+  const fileMode=modes[0]==='--excel-file';
+  const scopePath=environment.DOC124_E2E_SCOPE_PATH;
+  if(!scopePath||!fs.existsSync(scopePath))throw new Error('DOC124_SCOPE_REQUIRED');
+  let scope;try{scope=JSON.parse(fs.readFileSync(scopePath,'utf8').replace(/^\uFEFF/,''));}catch{throw new Error('DOC124_SCOPE_INVALID');}
+  require('../tests/support/doc124-excel-scope.cjs').validateScope(scope,profile.baseUrl);
+  const scenario=scenarios[modes[0]];
+  if(scenario!==(scope.escenario||'matriz'))throw new Error('DOC124_SCOPE_INVALID');
+  const values={DOC124_E2E_BASE_URL:profile.baseUrl,DOC124_E2E_MODULE:profile.module,DOC124_E2E_SCOPE_PATH:scopePath,
+    DOC124_E2E_AUTHORIZED:environment.DOC124_E2E_AUTHORIZED==='YES'?'YES':'NO',DOC10_E2E_IGNORE_HTTPS_ERRORS:String(profile.ignoreHttpsErrors===true)};
+  const aliases={DOC124_E2E_USER:'DOC110_E2E_USER',DOC124_E2E_PASSWORD:'DOC110_E2E_PASSWORD',DOC124_E2E_RESTRICTED_USER:'DOC110_E2E_SECOND_USER',DOC124_E2E_RESTRICTED_PASSWORD:'DOC110_E2E_SECOND_PASSWORD'};
+  for(const [name,alias]of Object.entries(aliases))if(environment[name]||environment[alias])values[name]=environment[name]||environment[alias];
+  const controlNames=['ODBC_DSN','MYSQL_USER','MYSQL_PASSWORD'].map(suffix=>scope.controlPrefix+'_'+suffix);
+  for(const name of controlNames)if(environment[name])values[name]=environment[name];
+  const tag={'matriz':'prepare','archivo':'file','agregar':'add','reemplazar':'replace'}[scenario];
+  const childArgs=[path.join(root,'node_modules/@playwright/test/cli.js'),'test','tests/importacion-excel.spec.cjs','--grep','@doc124-'+tag,'--reporter=list','--retries=0'];
+  if(args.includes('--headed'))childArgs.push('--headed');
+  return {values,needed:[...Object.keys(aliases),...controlNames],childArgs,cases:scope.cases.length,mode:fileMode?'file':scenario==='matriz'?'prepare':tag};
+}
+async function runExcelPreparation(root,profile,args){
+  const plan=excelPreparationPlan(root,profile,args),values=plan.values;let environment;
+  try{
+    for(const name of plan.needed){if(values[name])continue;requireInteractiveConsole();await collectValue(values,name,name.includes('PASSWORD')?'Contraseña efímera':name.endsWith('_ODBC_DSN')?'DSN del control SELECT existente':'Cuenta de prueba autorizada para Excel',{secret:true});}
+    if(values.DOC124_E2E_AUTHORIZED!=='YES'){
+      requireInteractiveConsole();await collectConfirmation(values,'DOC124_CONFIRMACION','Autoriza DOC-124: '+plan.cases+' casos de archivo privado/ejecución/temporales, dos sesiones del propietario y cuenta restringida; controles SELECT; sin importar, crear destino, guardar plantilla o limpiar datos');values.DOC124_E2E_AUTHORIZED='YES';
+    }
+    environment={...process.env,...values};const result=await runChild(process.execPath,plan.childArgs,root,environment);process.exitCode=result.code;
+  }finally{for(const name of Object.keys(values)){delete values[name];if(environment)delete environment[name];}}
+}
+
 // DOC-122 comparte el perfil local y la consola efímera de esta misma suite.
 function excelProfilePlan(root,profile,args,environment=process.env){
   const modes=args.filter(arg=>arg==='--excel-read'||arg==='--excel-write');
@@ -59,6 +93,10 @@ async function runExcelProfileSession(root,profile,args){
   }
 }
 async function main(){
+  if(process.argv.some(x=>['--excel-prepare','--excel-file','--excel-add','--excel-replace'].includes(x))){
+    const root=path.resolve(__dirname,'..');const profile=JSON.parse(fs.readFileSync(path.join(root,'profiles/doc88-production-document-upload.local.runtime.json'),'utf8').replace(/^\uFEFF/,''));
+    return runExcelPreparation(root,profile,process.argv.slice(2));
+  }
   if(process.argv.some(arg=>arg==='--excel-read'||arg==='--excel-write')){
     const root=path.resolve(__dirname,'..');
     const profile=JSON.parse(fs.readFileSync(path.join(root,'profiles/doc88-production-document-upload.local.runtime.json'),'utf8').replace(/^\uFEFF/,''));
@@ -193,9 +231,9 @@ async function main(){
     for(const name of Object.keys(values)){delete values[name];delete environment[name];}
   }
 }
-module.exports={excelProfilePlan};
+module.exports={excelProfilePlan,excelPreparationPlan};
 if(require.main===module)main().catch(error=>{
-  console.error(/^DOC122_[A-Z_]+$/.test(error.message)?error.message:
+  console.error(/^DOC12[24]_[A-Z_]+$/.test(error.message)?error.message:
     'DOC110_SESSION_BLOCKED: faltan credenciales efímeras. Ejecute este comando en su consola interactiva para ingresarlas; no se inició login.');
   process.exitCode=2;
 });

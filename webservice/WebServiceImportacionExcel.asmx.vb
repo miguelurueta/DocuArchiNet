@@ -55,6 +55,34 @@ Public Class WebServiceImportacionExcel
             End Function)
     End Function
 
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function IniciarRecepcionExcel(solicitud As SolicitudInicioRecepcionExcel) As RespuestaInicioRecepcionExcel
+        Return Ejecutar(Of RespuestaInicioRecepcionExcel)(Function()
+                                                            ContextoVerificado()
+                                                            If solicitud Is Nothing Then Throw ReglasCargaExcel.Fallo("SOLICITUD_INVALIDA")
+                                                            Dim servicios As New ComposicionCargaExcel(Context, solicitud.ConexionId)
+                                                            Return New RespuestaInicioRecepcionExcel With {.datos = servicios.Recepcion.Iniciar(solicitud)}
+                                                        End Function)
+    End Function
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function Preparar(solicitud As SolicitudPrepararExcel) As RespuestaPreparacionExcel
+        Return Ejecutar(Of RespuestaPreparacionExcel)(Function()
+                                                        ContextoVerificado()
+                                                        If solicitud Is Nothing Then Throw ReglasCargaExcel.Fallo("SOLICITUD_INVALIDA")
+                                                        Dim servicios As New ComposicionCargaExcel(Context, solicitud.ConexionId)
+                                                        Dim datos = servicios.Preparacion.Preparar(solicitud)
+                                                        Return New RespuestaPreparacionExcel With {.datos = datos, .codigo = datos.Codigo}
+                                                    End Function)
+    End Function
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function ConsultarCargaExcel(solicitud As SolicitudConsultaCargaExcel) As RespuestaEstadoCargaExcel
+        Return Ejecutar(Of RespuestaEstadoCargaExcel)(Function()
+                                                        ContextoVerificado()
+                                                        If solicitud Is Nothing Then Throw ReglasCargaExcel.Fallo("SOLICITUD_INVALIDA")
+                                                        Dim servicios As New ComposicionCargaExcel(Context, solicitud.ConexionId)
+                                                        Return New RespuestaEstadoCargaExcel With {.datos = servicios.Recepcion.Consultar(solicitud)}
+                                                    End Function)
+    End Function
     Private Function ContextoVerificado() As ContextoImportacionExcel
         ImportacionExcelRequestGuard.ValidarTransporte(Context)
         Dim ctx = New ImportacionExcelContextAdapter().Resolver(Context)
@@ -72,9 +100,9 @@ Public Class WebServiceImportacionExcel
         Dim operacion = Guid.NewGuid().ToString("N")
         Try
             Dim result = accion()
-            result.ok = True
-            result.codigo = "OK"
-            result.mensaje = "Operación completada."
+            If String.IsNullOrEmpty(result.codigo) Then result.codigo = "OK"
+            result.ok = result.codigo = "OK"
+            result.mensaje = If(result.ok, "Operación completada.", "Revise las incidencias de la preparación.")
             result.operacionId = operacion
             Return result
         Catch ex As ImportacionExcelException

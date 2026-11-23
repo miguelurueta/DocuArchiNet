@@ -1,0 +1,30 @@
+{
+    "status":  "APPLIED_AND_VERIFIED_SQL17",
+    "authorization":  "User aplica los archivos por mi, followed by continua after AGREGAR PASS; conditional SQL17 now eligible",
+    "sqlSha256":  "3085b4bd98bc63ed323066349763afe9a3411ebadb8d080ff465e13f5f448833",
+    "templateId":  28,
+    "companyId":  2,
+    "moduleId":  11,
+    "connectionId":  6,
+    "startedUtc":  "2026-11-23T16:23:17.7175974Z",
+    "businessBefore":  {
+                           "rows":  625,
+                           "dataSha256":  "141481be48615d10bd7f100cf856b77d26ac9de9edce56bf18585d09b91139e2",
+                           "schemaSha256":  "a430c4c674bd3a478e953a685568eabe1259eb4837451a9374418b7057536cfa"
+                       },
+    "committed":  true,
+    "businessAfter":  {
+                          "rows":  625,
+                          "dataSha256":  "141481be48615d10bd7f100cf856b77d26ac9de9edce56bf18585d09b91139e2",
+                          "schemaSha256":  "a430c4c674bd3a478e953a685568eabe1259eb4837451a9374418b7057536cfa"
+                      },
+    "revision":  2,
+    "mode":  "REEMPLAZAR",
+    "templateHash":  "0f0a72e7594cb717db21e8134b01038a5ca4ae7e8e98071136e6ea0b77b7738d",
+    "previousTemplateHash":  "810517a2ab622e34e2e9f7139ec5fc7fb68ac8281b98219ad8a6928b0b36c4b6",
+    "fieldsUnchanged":  true,
+    "otherConfigurationUnchanged":  true,
+    "priorLoadsUnchanged":  true,
+    "e2eExecuted":  false,
+    "finishedUtc":  "2026-11-23T16:23:17.8612612Z"
+}

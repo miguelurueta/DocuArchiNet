@@ -5,6 +5,33 @@ Imports System.Linq
 Imports ExcelDataReader
 
 Public NotInheritable Class LectorArchivoExcel
+    Public Function Inspeccionar(stream As Stream, formato As String, nombre As String, limites As LimitesLecturaExcel) As ResultadoLecturaExcel
+        ReglasCargaExcel.Limites(limites)
+        If stream Is Nothing OrElse Not stream.CanSeek OrElse Not stream.CanRead OrElse stream.Length < 8 Then Throw Fallo("LIBRO_INVALIDO")
+        If stream.Length > CLng(limites.MaxArchivoMB) * 1000000L Then Throw Fallo("LIMITE_ARCHIVO_EXCEDIDO")
+        If (formato <> "XLS" AndAlso formato <> "XLSX") OrElse Not String.Equals(Path.GetExtension(nombre), "." & formato, StringComparison.OrdinalIgnoreCase) Then Throw Fallo("FORMATO_NO_COINCIDE")
+        Dim posicion = stream.Position
+        Try
+            Dim inspeccion = InspectorFidelidadExcel.Inspeccionar(stream, Nothing, CLng(limites.MaxArchivoMB) * 40000000L)
+            If inspeccion.Formato <> formato Then Throw Fallo("FORMATO_NO_COINCIDE")
+            Dim resultado As New ResultadoLecturaExcel With {.Formato = formato}
+            stream.Position = 0
+            Using reader = ExcelReaderFactory.CreateReader(stream, New ExcelReaderConfiguration With {.LeaveOpen = True})
+                Do
+                    If resultado.Hojas.Contains(reader.Name, StringComparer.Ordinal) Then Throw Fallo("LIBRO_INVALIDO")
+                    resultado.Hojas.Add(reader.Name)
+                Loop While reader.NextResult()
+            End Using
+            If resultado.Hojas.Count = 0 Then Throw Fallo("LIBRO_INVALIDO")
+            Return resultado
+        Catch ex As ImportacionExcelException
+            Throw
+        Catch
+            Throw Fallo("LIBRO_INVALIDO")
+        Finally
+            stream.Position = posicion
+        End Try
+    End Function
     Friend Sub Recorrer(stream As Stream, solicitud As SolicitudLecturaExcel, resultado As ResultadoLecturaExcel, procesar As Action(Of FilaLibroExcel))
         If stream Is Nothing OrElse Not stream.CanRead OrElse Not stream.CanSeek Then Throw Fallo("ARCHIVO_INVALIDO")
         Dim posicion = stream.Position
