@@ -188,3 +188,13 @@ recuperación/replay/CSRF, cuenta restringida, tres archivos y locks verificados
 28 llamadas Excel y69 SELECT externos acumulados, sin importar filas ni cambiar
 plantillas/fuentes. Ver Validacion/doc124-e2e-agregar-resultado-20261123.md/JSON.
 CREAR y AGREGAR están acreditados; REEMPLAZAR y revisión final siguen pendientes.
+
+## Resultado posterior REEMPLAZAR y matriz completa
+
+REEMPLAZAR aprobó2/2 casos en la ventana468f1314, con plantilla28/revisión2 después
+de aplicar SQL17 por autorización delegada.8000 filas incluyendo una coincidencia
+existente quedaron PREPARADA,0 confirmadas; el duplicado interno fue rechazado.
+625 registros destino conservados y ambos locks libres;55 SELECT externos.
+La matriz de seis casos de los tres modos está completa. Véanse los resultados
+REEMPLAZAR y la verificación final en Validacion/, sin afirmar confirmación de datos
+ni interfaz nueva. Los cortes pendientes anteriores son históricos.

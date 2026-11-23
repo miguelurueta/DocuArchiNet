@@ -6,7 +6,10 @@
 
 ## Objetivo
 
-Recepción privada y preparación verificable sobre DOC122/DOC123, revisada2026-11-23. Servicios y pruebas locales completos; CREAR/Órdenes aprobado1/1 con12759 filas y AGREGAR/CONTRATOS aprobado3/3 casos, incluidos duplicados internos/existentes. REEMPLAZAR y el cierre siguen pendientes;21/23 tareas.
+Recepción privada y preparación verificable sobre DOC122/DOC123, revisada2026-11-23. Servicios y matriz real completos: CREAR/Órdenes1/1, AGREGAR/CONTRATOS3/3 y REEMPLAZAR2/2, incluidos duplicados internos/existentes. La revisión técnica reúne14 requisitos/31 escenarios; archivo/merge/cierre de Jira no ejecutados.
+
+23/23 tareas,19/19 pruebas locales con1054 comprobaciones nativas, refinamiento15/15
+y gobierno72/72; verificación final y límites en Validacion/doc124-verificacion-final-20261123.md/JSON.
 
 ## Alcance y compatibilidad
 

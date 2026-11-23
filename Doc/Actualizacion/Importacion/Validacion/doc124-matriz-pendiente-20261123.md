@@ -1,8 +1,9 @@
-# DOC-124: preparación de la matriz restante
+# DOC-124: matriz de aceptación y antecedentes de preparación
 
-Estado:21/23 tareas. El recorrido real de Órdenes está aprobado y cerrado;
-AGREGAR ya aprobó3/3 casos reales, incluidos duplicados internos/existentes;
-[resultado](doc124-e2e-agregar-resultado-20261123.md). REEMPLAZAR sigue pendiente.
+Estado final23/23 tareas. La matriz real está completa: CREAR1/1, AGREGAR3/3 y REEMPLAZAR2/2 casos.
+[Resultado REEMPLAZAR](doc124-e2e-reemplazar-resultado-20261123.md) y
+[revisión final](doc124-verificacion-final-20261123.md). Los cortes de preparación
+inferiores se conservan como antecedentes; no autorizan repetir ventanas cerradas.
 Este documento no autoriza otra ventana ni modifica la configuración del ambiente.
 
 ## Recursos y condición pendiente
@@ -46,8 +47,8 @@ el usuario autorizó después «aplica los archivos por mi» y se aplicaron/veri
 | AGREGAR válido | CONTRATOS,8000 claves nuevas contrastadas por MySQL | PASS real, PREPARADA; ninguna fila insertada. |
 | AGREGAR con duplicado interno | Dos claves iguales según tipo/collation físicos | PASS real, CLAVES_INVALIDAS y CLAVE_DUPLICADA_ARCHIVO; RECIBIDA. |
 | AGREGAR con clave existente | Clave tomada por SELECT privado del destino autorizado | PASS real, CLAVES_INVALIDAS y CLAVE_EXISTENTE_DESTINO; RECIBIDA. |
-| REEMPLAZAR válido | Incluye una coincidencia existente, sin duplicados internos | OK/PREPARADA; se admite coincidencia, sin sustituir datos. |
-| REEMPLAZAR con duplicado interno | Dos claves equivalentes en el archivo | CLAVES_INVALIDAS y CLAVE_DUPLICADA_ARCHIVO; RECIBIDA. |
+| REEMPLAZAR válido |8000 filas incluyendo coincidencia existente, sin duplicados internos | PASS real, PREPARADA; se admite coincidencia, sin sustituir datos. |
+| REEMPLAZAR con duplicado interno | Dos claves equivalentes en el archivo | PASS real, CLAVES_INVALIDAS y CLAVE_DUPLICADA_ARCHIVO; RECIBIDA. |
 
 Las claves existentes se usan solo en archivos/evidencia privados excluidos de Git.
 Los casos de igualdad deben incluir mayúsculas/espacios cuando sean compatibles
@@ -71,7 +72,7 @@ CSRF, estado y huellas completas de destino antes/después. La concurrencia usa
 dos sesiones independientes y el caso válido de más de8000 filas. No reutilizar
 el ID de Órdenes ni reabrir la ventana cerrada para completar la matriz.
 
-## Revisión parcial de requisitos
+## Revisión parcial anterior de requisitos
 
 Se contrastaron los contratos con `ServicioPreparacionExcel`, el validador MySQL,
 el adaptador de política, el repositorio de plantillas y la suite E2E existente.

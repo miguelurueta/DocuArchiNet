@@ -1,6 +1,11 @@
 <!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14 -->
 ## Context
 
+Estado vigente2026-11-23: implementación y matriz real completas,23/23 tareas;
+revisión14 requisitos/31 escenarios, sin hallazgos de implementación. Se conservan
+los apartados de refinamiento como antecedentes. Resultado final y límites en
+Doc/Actualizacion/Importacion/Validacion/doc124-verificacion-final-20261123.md/JSON.
+
 DOC124 implementa fase04 después de autorización/plantillas DOC122 y lector DOC123. Base integrada87d155b7, rama feature/DOC-124; Web Forms/VB, net461, MySQL5.1.37 y conector actual. Este refinamiento no cambia producto, SQL o despliegue.
 
 Los generadores ya produjeron artefactos iniciales; se sustituyen sus marcadores con decisiones contrastadas. La referencia a cuenta dedicada del prompt original queda superada por la decisión posterior del usuario en DOC122: usar conexión/cuenta DA del módulo. No introducir otra versión de MySql.Data para probar.

@@ -1,7 +1,7 @@
 <!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14 -->
 ## Plan ejecutable DOC-124
 
-Perfil legacy-webforms-vb. El usuario solicitó continuar desde el refinamiento pendiente; se reemplaza el plan genérico por este desglose. Esta entrega completa planificación, no implementación. Las tareas de producto y E2E permanecen abiertas.
+Perfil legacy-webforms-vb. Plan de implementación ejecutado sobre el refinamiento aprobado. Producto y matriz E2E de servicios verificados; los cortes intermedios inferiores se conservan como antecedentes. Confirmación/importación e interfaz pertenecen a fases posteriores.
 
 ## 1. Contratos, recepción y preparación
 
@@ -28,7 +28,7 @@ Perfil legacy-webforms-vb. El usuario solicitó continuar desde el refinamiento 
 - [x] 2.3 [S] Compilar con salida aislada y ejecutar regresiones afectadas. Área/archivos: `GestionDocumental-Docuarchi.net.vbproj; tests/doc122-importacion-excel-behavior.test.cjs; tests/doc122-e2e-reuse.test.cjs`. Origen: D-13, RQ-13. Verificación: Build net461 y suites DOC122/DOC123/DOC110/DOC120 sin reemplazar DLL IIS.
 - [x] 2.4 [M] Ampliar E2E de Excel y runner existentes con alcance DOC124 independiente. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; tools/e2e/scripts/run-doc110-profile-session.cjs`. Origen: D-14, RQ-14. Verificación: Descubrimiento/guardas sintéticos sin login; scope DOC124 y separación del skip DOC122.
 - [x] 2.5 [S] Entregar preflight SELECT y guía de SQL manual de esta fase. Área/archivos: `Doc/Actualizacion/Importacion/Sql/11-preflight-doc124.sql; Doc/Actualizacion/Importacion/Sql/README.md`. Origen: D-12, RQ-12. Verificación: Instalación/índices/capacidades inspeccionables; diferencias permanentes en archivos nuevos sin ejecución automática.
-- [ ] 2.6 [M] Acreditar recorrido real autorizado de recepción y preparación. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; Doc/Actualizacion/Importacion/Validacion/`. Origen: D-14, RQ-14. Verificación: ASHX/ASMX/MySQL/archivo reales, tres modos, dos sesiones y SELECT de destino sin mutación; bloqueo explícito si falta autorización.
+- [x] 2.6 [M] Acreditar recorrido real autorizado de recepción y preparación. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; Doc/Actualizacion/Importacion/Validacion/`. Origen: D-14, RQ-14. Verificación: ASHX/ASMX/MySQL/archivo reales, tres modos, dos sesiones y SELECT de destino sin mutación; bloqueo explícito si falta autorización.
 
   Evidencia parcial2026-11-23: PASS_REAL_DOC124_FILE1/1, plantilla27 y12759 órdenes,
   recuperación/replay/CSRF, dos sesiones con ganador/OPERACION_EN_CURSO y destino
@@ -57,9 +57,15 @@ Perfil legacy-webforms-vb. El usuario solicitó continuar desde el refinamiento 
 ## 3. Documentación y revisión
 
 - [x] 3.1 [S] Documentar contrato vigente, recuperación y límites demostrados. Área/archivos: `Doc/Actualizacion/Importacion/Diseno/04-recepcion-preparacion-doc124.md; Doc/Tecnica/Opsxj/doc-124-importacion-excel-04-recepcion-preparacion/`. Origen: D-08, RQ-08. Verificación: Guía refleja snapshots efectivos, acuse incierto y diferencia entre pruebas locales/CI/reales.
-- [ ] 3.2 [S] Revisar requisitos/evidencias y compuertas de entrega. Área/archivos: `openspec/changes/doc-124-importacion-excel-04-recepcion-preparacion/; Doc/Actualizacion/Importacion/Validacion/`. Origen: D-13, RQ-13. Verificación: OpenSpec/refinement/gobierno y revisión semántica; E2E real no sustituida por simulación.
+- [x] 3.2 [S] Revisar requisitos/evidencias y compuertas de entrega. Área/archivos: `openspec/changes/doc-124-importacion-excel-04-recepcion-preparacion/; Doc/Actualizacion/Importacion/Validacion/`. Origen: D-13, RQ-13. Verificación: OpenSpec/refinement/gobierno y revisión semántica; E2E real no sustituida por simulación.
 
 ## Dependencias y trazabilidad
+
+Estado final2026-11-23:23/23 tareas. CREAR1/1, AGREGAR3/3 y REEMPLAZAR2/2 casos
+reales;19/19 locales con1054 comprobaciones nativas. Revisión14 requisitos/31
+escenarios y14 decisiones, OpenSpec estricto, refinamiento15/15 y gobierno72/72.
+Resultados y límites en Validacion/doc124-verificacion-final-20261123.md/JSON.
+No implica importar datos, añadir UI, merge, archivo o cierre Jira.
 
 1.2/1.3/1.4 preceden transporte y servicios. 1.5 establece ID previo a upload;1.6/1.7 preceden1.8. 1.9/1.10/1.11/1.12/1.13 preceden publicación1.14 y exposición1.15. Las pruebas se añaden junto a su comportamiento;2.3 valida integración local. 2.4/2.5 y alcance concreto revisable preceden solicitud de ejecución real2.6; instalación necesaria se confirma manualmente antes de recorridos dependientes.
 

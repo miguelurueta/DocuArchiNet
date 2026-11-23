@@ -126,8 +126,9 @@ y COMMIT; el agente verificará mediante SELECT antes de la E2E dependiente.
 
 15 y16 ya están aplicados y verificados en este ambiente. La ventana `--excel-add`
 sobre plantilla28/revisión1 ya aprobó3/3 casos y quedó cerrada; [resultado real](../Validacion/doc124-e2e-agregar-resultado-20261123.md).
-SQL17 ya está aplicado y verificado, con plantilla28/revisión2 y huella nueva;
-la ventana `--excel-replace` está preparada. No repetir AGREGAR ni SQL17.
+SQL17 ya está aplicado y verificado, con plantilla28/revisión2 y huella nueva.
+`--excel-replace` aprobó2/2 casos y quedó cerrada; [resultado real](../Validacion/doc124-e2e-reemplazar-resultado-20261123.md).
+No repetir AGREGAR, REEMPLAZAR ni SQL17 para completar la documentación.
 Cada ventana usa IDs nuevos, consentimiento explícito y secretos efímeros;
 no guarda plantillas ni aplica SQL. Los PASS parciales se revisan juntos con el
 CREAR de Órdenes; una fase aislada no completa2.6 ni permite archivar DOC124.

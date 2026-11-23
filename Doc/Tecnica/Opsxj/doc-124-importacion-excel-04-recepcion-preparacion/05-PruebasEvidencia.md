@@ -7,11 +7,19 @@
 Estado vigente2026-11-23: E2E real de Órdenes aprobada1/1,12759 filas PREPARADA,
 ventana cerrada y recursos conservados. AGREGAR/CONTRATOS posterior aprobó3/3 casos,
 con8000 filas PREPARADA y duplicados internos/existentes rechazados;625 registros
-destino intactos y tres locks libres. REEMPLAZAR y revisión final siguen pendientes. Los
+destino intactos y tres locks libres. REEMPLAZAR posterior aprobó2/2 casos, coincidencia
+existente admitida y duplicado interno rechazado,625 registros intactos y dos locks
+libres. Matriz real completa. Los
 cortes locales y de preparación que siguen son históricos; el resultado real
 vigentes están en doc124-e2e-ordenes-resultado-20261123.md/JSON y
 doc124-e2e-agregar-resultado-20261123.md/JSON. Este último registra28 llamadas Excel
-y69 SELECT externos acumulados. No sustituye la matriz completa;21/23 tareas.
+y69 SELECT externos acumulados. REEMPLAZAR registra20 llamadas/55 SELECT en
+doc124-e2e-reemplazar-resultado-20261123.md/JSON; revisión técnica en
+doc124-verificacion-final-20261123.md/JSON. Los cortes parciales inferiores son históricos.
+
+Cierre técnico de implementación:23/23 tareas,19/19 locales actuales (1054
+comprobaciones nativas sintéticas), OpenSpec estricto, refinamiento15/15 y gobierno72/72.
+La revisión se registra como técnica de Codex, sin aprobación humana ni archivo/merge.
 
 ## Evidencia requerida
 
