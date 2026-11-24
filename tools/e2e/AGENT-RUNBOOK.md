@@ -1,4 +1,19 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
+
+## DOC126 — implementación local: 40/44, 2026-11-24
+
+Menú/diálogo/API implementados; 150 pruebas locales y4505 comprobaciones sintéticos PASS,
+build0 errores/308 advertencias previas. DLL IIS/Web.config intactos, sin E2E real.
+El ASPX tolera la DLL anterior hasta desplegar la candidata compatible.
+E2E existente: --excel-ui-read/--excel-ui-write, scope DOC126 y hashes DLL/assets.
+Usar cuentas exclusiva/restringida; controles DOC32 SELECT DA/RA existentes y
+actor DOC125 con autorización DOC126 propia. No recuperar claves/ventanas DOC125.
+SQL 22 preflight y 23–25 fixtures entregados; PENDIENTE_EJECUCION_MANUAL.
+No reaplicar 18–21, sembrar/limpiar desde tests ni tocar históricos.
+Cinco libros sintéticos verificados; ubicaciones/manifiestos quedan en .tmp.
+Abiertas 6.9/6.10/6.11 y 7.5. Evidencia: Validacion/doc126-implementacion-local-20261124.md/JSON.
+Los cortes DOC125 inferiores conservan su estado histórico.
+
 <!-- doc125:archive-cut -->
 
 ## DOC125 — implementación integrada y archivo local, 2026-11-24

@@ -219,3 +219,37 @@ las claves se eliminaron. Resultado y mediciones en
 [doc125-ejecucion-seguimiento-20261124.md](../Validacion/doc125-ejecucion-seguimiento-20261124.md).
 Los efectos quedan conservados en los fixtures autorizados. Los SQL conservan sus valores NULL de entrega; los IDs reales
 se completaron sólo en la ejecución delegada, sin reeditar los archivos aplicados.
+
+## DOC126 — interfaz y nueva aceptación, pendiente de aplicación manual
+
+La interfaz utiliza el esquema existente. Para su aceptación se entregan fixtures
+separados: los resultados DOC125 permanecen intactos y su tabla CREAR ya contiene
+datos. No reaplicar18–21 ni reutilizar aquella autorización para estos archivos.
+
+| Orden | Archivo y destino | Estado y efectos |
+| --- | --- | --- |
+| 1 | [22-preflight-doc126.sql](22-preflight-doc126.sql), bloques RA/DA | Sólo SELECT. Revisar instalación, referencias y dos cuentas de prueba. Ejecutar cada bloque en su base indicada. |
+| 2 | [23-fixtures-da-doc126.sql](23-fixtures-da-doc126.sql), DA | PENDIENTE_EJECUCION_MANUAL: dos tablas nuevas imp_02_doc126_e2e_agregar/reemplazar; CREAR debe seguir ausente. DDL tiene commit implícito. |
+| 3 | [24-fuentes-e2e-ra-doc126.sql](24-fuentes-e2e-ra-doc126.sql), RA | PENDIENTE_EJECUCION_MANUAL: dos fuentes CONEXION con historial, sin proveedores. Completar empresa/actor reales en copia local. |
+| 4 | [25-plantillas-e2e-da-doc126.sql](25-plantillas-e2e-da-doc126.sql), DA | PENDIENTE_EJECUCION_MANUAL: tres plantillas nuevas y tres filas sintéticas iniciales. Completar conexión histórica del módulo en copia local. |
+
+Revisar ausencia de los tres destinos antes del DDL; si existe alguno, detener.
+No ejecutar con opción de continuar ante errores. SQL24/25 mantienen transacción
+abierta: sólo LISTO_PARA_COMMIT y cero errores permiten COMMIT manual en la misma
+sesión; otro resultado exige ROLLBACK y revisión. Conservar objetos parciales y
+todos los efectos; no hay limpieza automática. Verificar mediante SELECT en una
+sesión nueva después de la confirmación de aplicación del usuario.
+
+La E2E DOC126 exige propietario con ADMINISTRAR_CARGAS_IMPORTACION=1 y los cuatro
+permisos de carpetas/perfiles/fuentes/proveedores en0, más una cuenta restringida
+activa con cargas=0. Tener permisos adicionales no acredita el caso exclusivo.
+Estos archivos no crean usuarios, retiran permisos ni conceden privilegios. Si
+el preflight identifica una adecuación, se entregará como otro archivo revisado
+antes de la ejecución que dependa de ella.
+
+Reutilizar test:doc110:session con --excel-ui-read o --excel-ui-write, el perfil
+existente y recursos DA/RA del repositorio. El scope DOC126 incluye hashes de
+DLL y tres assets, cuentas, archivo/destinos y efectos máximos. Los controles
+SELECT usan los DSN existentes mediante DOC126_DA_E2E y DOC126_RA_E2E; sus datos
+de acceso son efímeros y no modifican Web.config. La instalación se hace fuera
+del test. Esta entrega de archivos no acredita aplicación, despliegue ni E2E real.

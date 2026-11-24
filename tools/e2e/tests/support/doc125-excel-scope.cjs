@@ -1,20 +1,22 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path');
 const {readFixture,snapshotDestination}=require('./doc124-excel-scope.cjs');
-function validateScope(s,baseUrl){
+function validateScope(s,baseUrl,expectedIssue='DOC-125'){
+ if(!['DOC-125','DOC-126'].includes(expectedIssue))throw Error('DOC125_SCOPE_INVALID');
+ const fixturePrefix=expectedIssue==='DOC-125'?'imp_02_doc125_e2e_':'imp_02_doc126_e2e_';
  const positive=n=>Number.isSafeInteger(n)&&n>0&&n<=0xffffffff,hash=x=>/^[a-f0-9]{64}$/.test(x||'');
- if(!s||s.issue!=='DOC-125'||s.disposable!==true||s.destinationReadOnly===true||s.preserveResources!==true||s.baseUrl!==baseUrl||
+ if(!s||s.issue!==expectedIssue||s.disposable!==true||s.destinationReadOnly===true||s.preserveResources!==true||s.baseUrl!==baseUrl||
   !positive(s.empresaId)||!positive(s.usuarioId)||!positive(s.moduloId)||!/^DOC[0-9]+_DA_E2E$/.test(s.controlPrefix||'')||
   !hash(s.environmentHash)||!hash(s.backendSha256)||!path.isAbsolute(s.runtimeRoot||'')||
   !positive(s.maxBusinessRows)||s.maxBusinessRows>100000||!positive(s.maxDeletedRows)||s.maxDeletedRows>100000||!Array.isArray(s.allowedEffects)||
   !['CREATE','INSERT','DELETE','RESULTADO','EXTERNAL_INSERT'].every(x=>s.allowedEffects.includes(x))||
   s.allowedEffects.some(x=>!['CREATE','INSERT','DELETE','RESULTADO','EXTERNAL_INSERT'].includes(x))||
   !Array.isArray(s.protectedTables)||!s.protectedTables.includes('imp_02_contratos')||
-  s.protectedTables.some(t=>!/^imp_02_[A-Za-z0-9_]{1,57}$/.test(t)||t.startsWith('imp_02_doc125_e2e_'))||
+  s.protectedTables.some(t=>!/^imp_02_[A-Za-z0-9_]{1,57}$/.test(t)||t.startsWith(fixturePrefix))||
   !Array.isArray(s.cases)||s.cases.length<5||s.cases.length>8)throw Error('DOC125_SCOPE_INVALID');
  const modes={crear:'CREAR',agregar:'AGREGAR',reemplazar:'REEMPLAZAR',rollback:'REEMPLAZAR',carrera:'AGREGAR'};
  for(const c of s.cases)if(!c||modes[c.escenario]!==c.modo||!positive(c.conexionId)||!positive(c.plantillaId)||!positive(c.revisionEsperada)||!hash(c.huellaEsperada)||!hash(c.archivoHash)||
-  !/^imp_02_doc125_e2e_[A-Za-z0-9_]{1,44}$/.test(c.tabla||'')||!path.isAbsolute(c.archivoPath||'')||!/^\.(?:xls|xlsx)$/i.test(path.extname(c.archivoPath))||
+  !(new RegExp('^'+fixturePrefix+'[A-Za-z0-9_]{1,44}$')).test(c.tabla||'')||!path.isAbsolute(c.archivoPath||'')||!/^\.(?:xls|xlsx)$/i.test(path.extname(c.archivoPath))||
   typeof c.hoja!=='string'||!c.hoja||c.hoja.length>120||!positive(c.filasEsperadas)||c.filasEsperadas>20000||
   !Number.isSafeInteger(c.filasDestinoEsperadas)||c.filasDestinoEsperadas<0||c.filasDestinoEsperadas>100000||(c.modo==='CREAR'&&c.filasDestinoEsperadas!==0)||
   c.codigoEsperado!==(['rollback','carrera'].includes(c.escenario)?'CONFLICTO_CLAVE':'OK'))throw Error('DOC125_SCOPE_INVALID');

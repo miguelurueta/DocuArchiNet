@@ -7,7 +7,7 @@ param(
     [ValidateSet('Fingerprint','Rows')]
     [string]$ResultMode = 'Fingerprint',
 
-    [ValidatePattern('^(?:DOC[0-9]+(?:_DA)?|NOTES)_E2E$')]
+    [ValidatePattern('^(?:DOC[0-9]+(?:_(?:DA|RA))?|NOTES)_E2E$')]
     [string]$EnvironmentPrefix = 'DOC32_E2E'
 )
 
@@ -20,6 +20,13 @@ try {
     $password = [Environment]::GetEnvironmentVariable(('{0}_MYSQL_PASSWORD' -f $EnvironmentPrefix))
     if ([string]::IsNullOrWhiteSpace($dsn) -or [string]::IsNullOrWhiteSpace($user) -or [string]::IsNullOrWhiteSpace($password)) { throw 'missing-input' }
     if ($dsn -notmatch '^[A-Za-z0-9 _.-]+$' -or $Sql -notmatch '^\s*SELECT\b' -or $Sql -match ';|\b(?:INSERT|UPDATE|DELETE|CALL|EXEC|DROP|ALTER|CREATE|REPLACE|TRUNCATE|GRANT|REVOKE|SET|USE|LOAD|OUTFILE|INTO|LOCK|SLEEP|BENCHMARK)\b') { throw 'invalid-input' }
+    $expectedTarget=[Environment]::GetEnvironmentVariable(('{0}_EXPECTED_TARGET_HASH' -f $EnvironmentPrefix))
+    if(-not [string]::IsNullOrWhiteSpace($expectedTarget)){
+        $stage='target'
+        if($expectedTarget -cnotmatch '\A[0-9a-f]{64}\z'){throw 'invalid-target'}
+        . (Join-Path $PSScriptRoot 'support/doc115-readonly-failure.ps1')
+        [void](Resolve-Doc115DsnTarget -Dsn $dsn -ExpectedHash $expectedTarget)
+    }
     $controlParameters=@()
     if($ResultMode -eq 'Rows'){
         $parameterJson=[Environment]::GetEnvironmentVariable(('{0}_SELECT_PARAMETERS' -f $EnvironmentPrefix))

@@ -103,7 +103,7 @@ public static class ImportacionExcelBehaviorTests {
   try{s.Guardar(c,r);Interlocked.Increment(ref wins);}catch(ImportacionExcelException e){if(e.Codigo!="CONFLICTO_REVISION")throw;Interlocked.Increment(ref conflicts);}
  }
  public class Worker:SimpleWorkerRequest {
-  public string Token,Origin="http://127.0.0.1";public string Verb="POST",Content="application/json";public int Bytes=2;
+  public string Token,Recovery,Origin="http://127.0.0.1";public string Verb="POST",Content="application/json";public int Bytes=2;
   public byte[] Body;
   public Worker():base("/","C:\\","excel.asmx","",new StringWriter()){}
   public override string GetHttpVerbName(){return Verb;}
@@ -111,7 +111,7 @@ public static class ImportacionExcelBehaviorTests {
   public override int GetTotalEntityBodyLength(){return Body==null?Bytes:Body.Length;}
   public override bool IsEntireEntityBodyIsPreloaded(){return Body!=null||base.IsEntireEntityBodyIsPreloaded();}
   public override string GetKnownRequestHeader(int i){if(i==HttpWorkerRequest.HeaderContentType)return Content;if(i==HttpWorkerRequest.HeaderContentLength)return Bytes.ToString();return base.GetKnownRequestHeader(i);}
-  public override string[][] GetUnknownRequestHeaders(){return new[]{new[]{"X-Importacion-Excel-CSRF",Token},new[]{"Origin",Origin}};}
+  public override string[][] GetUnknownRequestHeaders(){var headers=new List<string[]>{new[]{"X-Importacion-Excel-CSRF",Token},new[]{"Origin",Origin}};if(Recovery!=null)headers.Add(new[]{"X-Importacion-Excel-Contexto",Recovery});return headers.ToArray();}
  }
  public static HttpContext Http(Worker w,HttpContext previous=null){
   var h=new HttpContext(w);
@@ -138,6 +138,22 @@ public static class ImportacionExcelBehaviorTests {
   h.Session["GA_IDEMPRESA"]="3";Reject(()=>authority.Resolver(h),"ACCESO_DENEGADO");h.Session["GA_IDEMPRESA"]="2";
   state.DuplicatePermission=true;Reject(()=>authority.Resolver(h),"ACCESO_DENEGADO");
   Check(state.Sql.Where(x=>x.Contains("ADMINISTRAR_CARGAS_IMPORTACION")).All(x=>x.Contains("u.Estado_Usuario=1")&&!x.Contains("ADMINISTRAR_PERFILES")),"live own authority query");
+ }
+ static void RecoveryNamespace(){
+  var w=new Worker{Verb="GET"};var h=Http(w);var c=Context();
+  h.Session["GA_LOGINUSUARIOGESTION"]="synthetic-owner";h.Session["DA_ID_EMPRESA"]="2";h.Session["DA_ID_MODULO"]="11";
+  var reference=ImportacionExcelRequestGuard.ReferenciaRecuperacion(h,c);
+  Check(reference.Length==32&&reference==ImportacionExcelRequestGuard.ReferenciaRecuperacion(h,c),"DOC126 GET creates stable opaque namespace without CSRF");
+  Check(h.Session["DOC122_EXCEL_CSRF"]==null,"DOC126 rendering does not emit a CSRF token");
+  foreach(var key in new[]{"GA_LOGINUSUARIOGESTION","RA_IP_SERVER_MODULO","RA_DB_NAME_MODULO","RA_ID_MODULO","DA_ID_MODULO","DA_DB_NAME_MODULO"}){
+   h.Session[key]=Guid.NewGuid().ToString("N");var changed=ImportacionExcelRequestGuard.ReferenciaRecuperacion(h,c);Check(changed!=reference,"DOC126 namespace rotates on "+key);reference=changed;
+  }
+  c.EmpresaId=3;Check(ImportacionExcelRequestGuard.ReferenciaRecuperacion(h,c)!=reference,"DOC126 namespace rotates on company");c.EmpresaId=2;
+  reference=ImportacionExcelRequestGuard.ReferenciaRecuperacion(h,c);w.Verb="POST";w.Recovery=reference;h=Http(w,h);w.Origin=h.Request.Url.GetLeftPart(UriPartial.Authority);
+  var token=ImportacionExcelRequestGuard.Emitir(h,c);w.Token=token;h=Http(w,h);ImportacionExcelRequestGuard.Validar(h,c);
+  Check(token==ImportacionExcelRequestGuard.Emitir(h,c),"DOC126 contextual header preserves current token");
+  h.Session["DA_ID_MODULO"]="22";Reject(()=>ImportacionExcelRequestGuard.Emitir(h,c),"SOLICITUD_NO_VERIFICADA");Reject(()=>ImportacionExcelRequestGuard.Validar(h,c),"SOLICITUD_NO_VERIFICADA");
+  w.Recovery=null;h=Http(w,h);ImportacionExcelRequestGuard.Validar(h,c);Check(true,"DOC122 legacy consumers without contextual header remain compatible");
  }
  static void Contract(){
   var importer=new ServiceDescriptionReflector();importer.Reflect(typeof(WebServiceImportacionExcel),"http://fixture.invalid/excel.asmx");
@@ -190,7 +206,7 @@ public static class ImportacionExcelBehaviorTests {
   limits["ImportacionExcel.MaxFilasDatos"]="0";Reject(()=>adapter.Limite("MaxFilasDatos",10000),"CAPACIDAD_NO_DISPONIBLE");
   limits["ImportacionExcel.MaxArchivoMB"]="2147483647";Reject(()=>adapter.Limite("MaxArchivoMB",10),"CAPACIDAD_NO_DISPONIBLE");
  }
- public static int Main(){try{Rules();Persistence();GuardAndAuthority();ModuleConnection();Contract();Console.WriteLine("DOC122_NATIVE_PASS checks="+checks+"; synthetic ADO.NET, no MySQL/HTTP");ImportacionExcelLecturaTests.Run();ImportacionExcelPreparacionTests.Run();ImportacionExcelConfirmacionTests.Run();return 0;}catch(Exception e){Console.Error.WriteLine(e.ToString());return 1;}}
+ public static int Main(){try{Rules();Persistence();GuardAndAuthority();RecoveryNamespace();ModuleConnection();Contract();Console.WriteLine("DOC122_NATIVE_PASS checks="+checks+"; synthetic ADO.NET, no MySQL/HTTP");ImportacionExcelLecturaTests.Run();ImportacionExcelPreparacionTests.Run();ImportacionExcelConfirmacionTests.Run();return 0;}catch(Exception e){Console.Error.WriteLine(e.ToString());return 1;}}
 
  sealed class Store {
   public PlantillaExcel P;public bool DestinationExists=true,FailField,Active=true,DuplicatePermission;public int Permission=1,Commands,Rollbacks;public string Engine="InnoDB";

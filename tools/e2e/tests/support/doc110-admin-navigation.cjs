@@ -18,3 +18,15 @@ async function openImportAdministrator(page,access,method,timeout=15000){
   return response;
 }
 module.exports={openImportAdministrator};
+
+async function openExcelImporter(page,timeout=15000){
+ const dialog=page.locator('#doc126-excel [role=dialog]');
+ if(await dialog.isVisible())return dialog;
+ const toggle=page.locator('#doc110-navigation-toggle');
+ if(await toggle.getAttribute('aria-expanded')!=='true')await toggle.click({timeout});
+ const pending=page.waitForResponse(r=>r.url().endsWith('/AbrirCargaExcel')&&r.request().method()==='POST',{timeout});
+ await page.locator('[data-doc126=abrir]').click({timeout});const response=await pending;
+ expect(response.status()).toBe(200);await expect(dialog).toBeVisible({timeout});
+ await expect(dialog).toHaveAttribute('aria-busy','false',{timeout});return dialog;
+}
+module.exports.openExcelImporter=openExcelImporter;

@@ -1,0 +1,41 @@
+#doc126-excel .doc126-overlay[hidden],#doc126-excel [hidden]{display:none!important}
+#doc126-excel .doc126-overlay{position:fixed;left:0;top:0;box-sizing:border-box;background:rgba(17,32,53,.58);z-index:1080;display:flex;align-items:center;justify-content:center;padding:12px;color:#20334a;font:14px/1.45 Arial,sans-serif;text-align:left}
+#doc126-excel .doc126-dialog{background:#fff;width:1100px;max-width:100%;max-height:calc(100vh - 24px);display:flex;flex-direction:column;border-radius:12px;box-shadow:0 18px 60px rgba(0,0,0,.24);overflow:hidden}
+#doc126-excel .doc126-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 22px;background:#f0f5fb;border-bottom:1px solid #dce5ef;flex-shrink:0}
+#doc126-excel .doc126-header h2{font-size:22px;font-weight:700;margin:4px 0 6px;color:#17395e}
+#doc126-excel .doc126-header p{margin:0;color:#50657d}
+#doc126-excel .doc126-eyebrow{font-size:10px;font-weight:bold;letter-spacing:1.4px;color:#466889}
+#doc126-excel .doc126-body{padding:16px 22px;overflow:auto;min-height:0}
+#doc126-excel .doc126-status{margin:0;padding:10px 22px;border-bottom:1px solid #e4eaf1;flex-shrink:0;overflow-wrap:anywhere;background:#fafcfe;overflow:auto;box-sizing:border-box}
+#doc126-excel .doc126-status[data-state=INCIDENCIAS],#doc126-excel .doc126-status[data-state=RESULTADO_INCIERTO],#doc126-excel .doc126-status[data-state=CAPACIDAD_CERRADA]{background:#fff4e4;color:#6d4304}
+#doc126-excel .doc126-status[data-state=PREPARADO],#doc126-excel .doc126-status[data-state=CONFIRMADO]{background:#eaf6ee;color:#235331}
+#doc126-excel .doc126-tabs,#doc126-excel .doc126-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 14px}
+#doc126-excel .doc126-button{appearance:none;border:1px solid #b8c7d9;border-radius:6px;padding:8px 12px;background:#fff;color:#244564;font:inherit;cursor:pointer;min-height:36px}
+#doc126-excel .doc126-primary{background:#1c578e;color:#fff;border-color:#1c578e}
+#doc126-excel .doc126-button:hover:not(:disabled){background:#e8f1f9;color:#17395e}
+#doc126-excel button:disabled,#doc126-excel input:disabled,#doc126-excel select:disabled{opacity:.6;cursor:default}
+#doc126-excel :focus-visible{outline:3px solid #e5a22e;outline-offset:2px}
+#doc126-excel .doc126-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:12px 0}
+#doc126-excel .doc126-field{display:flex;flex-direction:column;gap:5px;min-width:0}
+#doc126-excel label{font-weight:600;font-size:13px;margin:0}
+#doc126-excel input,#doc126-excel select{box-sizing:border-box;width:100%;min-height:36px;border:1px solid #b8c7d9;border-radius:5px;padding:7px;background:#fff;color:#20334a;font:inherit}
+#doc126-excel input[type=checkbox]{width:20px;height:20px;min-height:20px;align-self:flex-start}
+#doc126-excel input[type=file]{max-width:100%;font-size:12px}
+#doc126-excel .doc126-summary{padding:12px;background:#f3f7fb;border-left:3px solid #527eaa;overflow-wrap:anywhere}
+#doc126-excel .doc126-limits{color:#52677e;font-size:12px}
+#doc126-excel h3{font-size:17px;color:#244564;margin:18px 0 10px;font-weight:600}
+#doc126-excel .doc126-table-scroll{overflow:auto;max-width:100%;max-height:310px;margin:12px 0;border:1px solid #dce5ef}
+#doc126-excel .doc126-table{border-collapse:collapse;width:100%;font-size:12px;text-align:left}
+#doc126-excel .doc126-table caption{caption-side:top;padding:8px;color:#52677e;text-align:left}
+#doc126-excel .doc126-table th,#doc126-excel .doc126-table td{padding:8px;border:1px solid #dce5ef;vertical-align:top;white-space:pre-wrap;overflow-wrap:anywhere}
+#doc126-excel .doc126-table th{background:#f0f5fb;color:#244564}
+#doc126-excel .doc126-table input,#doc126-excel .doc126-table select{min-width:100px}
+#doc126-excel .doc126-consent{padding:12px;margin:14px 0;background:#fff4e4;border:1px solid #eacb99;border-radius:6px}
+#doc126-excel .doc126-consent p{margin:6px 0}
+#doc126-excel .doc126-footer{padding:9px 22px;background:#f3f7fb;border-top:1px solid #dce5ef;font-size:12px;overflow-wrap:anywhere;flex-shrink:0;overflow:auto;box-sizing:border-box}
+#doc126-excel .doc126-footer p{margin:3px 0}
+#doc126-excel .doc126-entry-notice:empty{display:none}
+#doc126-excel .doc126-dialog[data-compact=true] .doc126-eyebrow,#doc126-excel .doc126-dialog[data-compact=true] .doc126-header p{display:none}
+#doc126-excel .doc126-dialog[data-compact=true] .doc126-header{padding:8px;gap:6px}
+#doc126-excel .doc126-dialog[data-compact=true] h2{font-size:16px;line-height:1.2}
+@media(max-width:700px){#doc126-excel .doc126-grid{grid-template-columns:minmax(0,1fr)}#doc126-excel .doc126-header,#doc126-excel .doc126-body{padding:12px}#doc126-excel .doc126-header h2{font-size:19px}#doc126-excel .doc126-header p{font-size:12px}#doc126-excel .doc126-status{padding:8px 12px}#doc126-excel .doc126-footer{padding:7px 12px}}

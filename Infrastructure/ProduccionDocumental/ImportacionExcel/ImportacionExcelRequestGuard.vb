@@ -9,6 +9,26 @@ Public NotInheritable Class ImportacionExcelRequestGuard
     Public Const MaximoBytesSolicitud As Integer = 262144
     Private Sub New()
     End Sub
+    'Sólo namespace del navegador. La autoridad y el CSRF se verifican aparte.
+    Public Shared Function ReferenciaRecuperacion(http As HttpContext, ctx As ContextoImportacionExcel) As String
+        Dim identidad = Vinculo(http, ctx)
+        Dim referencias As New Collections.Generic.List(Of String) From {identidad}
+        For Each clave In {"GA_LOGINUSUARIOGESTION", "RA_ID_EMPRESA", "RA_ID_MODULO", "RA_IP_SERVER_MODULO", "RA_DB_NAME_MODULO", "RA_TYPE_DBMS_MODULO", "DA_ID_EMPRESA", "DA_ID_MODULO", "DA_IP_SERVER_MODULO", "DA_DB_NAME_MODULO", "DA_TYPE_DBMS_MODULO"}
+            referencias.Add(Convert.ToString(http.Session(clave), Globalization.CultureInfo.InvariantCulture))
+        Next
+        Dim huellaContexto = ReglasCargaExcel.HashDocumento(referencias)
+        Const nombre As String = "DOC126_EXCEL_RECUPERACION"
+        If Not String.Equals(TryCast(http.Session(nombre & "_VINCULO"), String), huellaContexto, StringComparison.Ordinal) OrElse Not Text.RegularExpressions.Regex.IsMatch(If(TryCast(http.Session(nombre), String), ""), "\A[0-9a-f]{32}\z") Then
+            http.Session(nombre & "_VINCULO") = huellaContexto
+            http.Session(nombre) = Guid.NewGuid().ToString("N")
+        End If
+        Return CStr(http.Session(nombre))
+    End Function
+    Public Shared Sub ValidarReferenciaRecuperacion(http As HttpContext, ctx As ContextoImportacionExcel)
+        Dim referencia = http.Request.Headers("X-Importacion-Excel-Contexto")
+        'Los consumidores DOC122–125 sin esta cabecera conservan su contrato.
+        If referencia IsNot Nothing AndAlso Not String.Equals(referencia, ReferenciaRecuperacion(http, ctx), StringComparison.Ordinal) Then Throw Rechazo()
+    End Sub
     Public Shared Sub ValidarTransporte(http As HttpContext)
         If http Is Nothing OrElse http.Request.HttpMethod <> "POST" OrElse Not String.Equals(http.Request.ContentType.Split(";"c)(0).Trim(), "application/json", StringComparison.OrdinalIgnoreCase) OrElse http.Request.ContentLength < 0 OrElse http.Request.ContentLength > MaximoBytesSolicitud Then Throw Rechazo()
         ValidarOrigen(http)
@@ -24,6 +44,7 @@ Public NotInheritable Class ImportacionExcelRequestGuard
     End Sub
     Public Shared Function Emitir(http As HttpContext, ctx As ContextoImportacionExcel) As String
         ValidarTransporte(http)
+        ValidarReferenciaRecuperacion(http, ctx)
         Dim identidad = Vinculo(http, ctx)
         Dim token = TryCast(http.Session(ClaveToken), String)
         If Not String.Equals(TryCast(http.Session(ClaveContexto), String), identidad, StringComparison.Ordinal) OrElse Not PerfilImportacionRequestGuard.CompararTokens(token, token) Then
@@ -42,6 +63,7 @@ Public NotInheritable Class ImportacionExcelRequestGuard
         ValidarToken(http, ctx)
     End Sub
     Private Shared Sub ValidarToken(http As HttpContext, ctx As ContextoImportacionExcel)
+        ValidarReferenciaRecuperacion(http, ctx)
         If Not String.Equals(TryCast(http.Session(ClaveContexto), String), Vinculo(http, ctx), StringComparison.Ordinal) OrElse Not PerfilImportacionRequestGuard.CompararTokens(TryCast(http.Session(ClaveToken), String), http.Request.Headers("X-Importacion-Excel-CSRF")) Then Throw Rechazo()
     End Sub
     'Se invoca antes de acceder a Form/Files: ASP.NET puede almacenar el cuerpo en buffer.

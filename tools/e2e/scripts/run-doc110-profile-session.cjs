@@ -4,6 +4,36 @@ const path=require('node:path');
 const {collectValue,collectConfirmation,requireInteractiveConsole,runChild}=require('./support/interactive-e2e-console.cjs');
 const {sourceFixture}=require('../tests/support/doc110-source-fixture.cjs');
 
+function excelUiPlan(root,profile,args,environment=process.env){
+ const modes=args.filter(x=>['--excel-ui-read','--excel-ui-write'].includes(x));
+ if(modes.length!==1||args.some(x=>!['--excel-ui-read','--excel-ui-write','--headed'].includes(x)))throw Error('DOC126_MODE_CONFLICT');
+ const mode=modes[0]==='--excel-ui-read'?'read':'write',file=environment.DOC126_E2E_SCOPE_PATH;
+ if(!file||!fs.existsSync(file))throw Error('DOC126_SCOPE_REQUIRED');
+ const scope=require('../tests/support/doc126-excel-scope.cjs').readScope(file,profile.baseUrl,mode);
+ const values={DOC126_E2E_BASE_URL:profile.baseUrl,DOC126_E2E_MODULE:profile.module,DOC126_E2E_SCOPE_PATH:file,DOC126_E2E_MODE:mode,
+  DOC126_E2E_AUTHORIZED:environment.DOC126_E2E_AUTHORIZED==='YES'?'YES':'NO',DOC10_E2E_IGNORE_HTTPS_ERRORS:String(profile.ignoreHttpsErrors===true)};
+ const aliases={DOC126_E2E_USER:'DOC110_E2E_USER',DOC126_E2E_PASSWORD:'DOC110_E2E_PASSWORD',DOC126_E2E_RESTRICTED_USER:'DOC110_E2E_SECOND_USER',DOC126_E2E_RESTRICTED_PASSWORD:'DOC110_E2E_SECOND_PASSWORD'};
+ for(const [key,alias]of Object.entries(aliases))if(environment[key]||environment[alias])values[key]=environment[key]||environment[alias];
+ const controls=[scope.controlPrefix,scope.raControlPrefix].flatMap(p=>['ODBC_DSN','MYSQL_USER','MYSQL_PASSWORD'].map(k=>p+'_'+k));
+ for(const key of controls)if(environment[key])values[key]=environment[key];
+ const childArgs=[path.join(root,'node_modules/@playwright/test/cli.js'),'test','tests/importacion-excel.spec.cjs','--grep',mode==='write'?'@doc126-ui-write':'@doc126-ui-read','--reporter=list','--retries=0'];
+ if(args.includes('--headed'))childArgs.push('--headed');
+ return {values,needed:[...Object.keys(aliases),...controls],scope,mode,childArgs};
+}
+async function runExcelUi(root,profile,args){
+ const plan=excelUiPlan(root,profile,args),values=plan.values;let environment;
+ const support=require('../tests/support/doc126-excel-scope.cjs');support.verifyRuntime(plan.scope);
+ if(plan.mode==='write')for(const item of plan.scope.cases)support.readFixture(item);
+ try{
+  for(const name of plan.needed)if(!values[name]){requireInteractiveConsole();await collectValue(values,name,name.includes('PASSWORD')?'Contraseña efímera':name.endsWith('_ODBC_DSN')?'DSN existente del control SELECT':'Cuenta autorizada DOC126',{secret:true});}
+  if(values.DOC126_E2E_AUTHORIZED!=='YES'){
+   requireInteractiveConsole();await collectConfirmation(values,'DOC126_CONFIRMACION',plan.mode==='write'?'Autoriza DOC126 UI: cinco casos, sólo destinos imp_02_doc126_e2e_ del scope, CREATE funcional/INSERT/DELETE/resultado y una fila externa; máximos '+plan.scope.maxBusinessRows+'/'+plan.scope.maxDeletedRows+'; conservar todo sin instalar/sembrar/limpiar.':'Autoriza DOC126 UI: acceso exclusivo/restringido, navegación y consultas de sólo lectura; cero ediciones y confirmaciones.');values.DOC126_E2E_AUTHORIZED='YES';
+  }
+  if(plan.mode==='write'){const directory=fs.mkdtempSync(path.join(root,'../../.tmp/doc125-native-'));values.DOC125_NATIVE_HARNESS=require('../../../tests/doc122-importacion-excel-behavior.test.cjs').compile(directory).exe;}
+  environment={...process.env,...values};const result=await runChild(process.execPath,plan.childArgs,root,environment);process.exitCode=result.code;
+ }finally{for(const key of Object.keys(values)){delete values[key];if(environment)delete environment[key];}}
+}
+
 function excelConfirmationPlan(root,profile,args,environment=process.env){
  if(!args.includes('--excel-confirm')||args.some(x=>!['--excel-confirm','--headed'].includes(x))||args.filter(x=>x==='--excel-confirm').length!==1)throw Error('DOC125_MODE_CONFLICT');
  const scopePath=environment.DOC125_E2E_SCOPE_PATH;
@@ -32,8 +62,9 @@ async function runExcelConfirmation(root,profile,args){
  }finally{for(const name of Object.keys(values)){delete values[name];if(environment)delete environment[name];}}
 }
 function startExcelExternalWriter(scope,item,prepared,environment=process.env){
- require('../tests/support/doc125-excel-scope.cjs').validateScope(scope,scope.baseUrl);
- if(environment.DOC125_E2E_AUTHORIZED!=='YES'||item.escenario!=='carrera'||!scope.cases.includes(item)||!environment.DOC125_NATIVE_HARNESS||
+ const ui=scope.issue==='DOC-126';
+ if(ui)require('../tests/support/doc126-excel-scope.cjs').validateScope(scope,scope.baseUrl,'write');else require('../tests/support/doc125-excel-scope.cjs').validateScope(scope,scope.baseUrl);
+ if(environment[ui?'DOC126_E2E_AUTHORIZED':'DOC125_E2E_AUTHORIZED']!=='YES'||item.escenario!=='carrera'||!scope.cases.includes(item)||!environment.DOC125_NATIVE_HARNESS||
   !/^[a-f0-9-]{36}$/.test(prepared.IdCarga||'')||!['ArchivoHash','ConfiguracionHash','EsquemaHash'].every(k=>/^[a-f0-9]{64}$/.test(prepared[k]||''))||prepared.ArchivoHash!==item.archivoHash)throw Error('DOC125_NATIVE_SCOPE_REQUIRED');
  const crypto=require('node:crypto'),{spawn}=require('node:child_process');
  const parent=path.resolve(__dirname,'../../../.tmp/doc125-external');fs.mkdirSync(parent,{recursive:true});
@@ -139,6 +170,10 @@ async function runExcelProfileSession(root,profile,args){
   }
 }
 async function main(){
+  if(process.argv.some(x=>['--excel-ui-read','--excel-ui-write'].includes(x))){
+    const root=path.resolve(__dirname,'..');const profile=JSON.parse(fs.readFileSync(path.join(root,'profiles/doc88-production-document-upload.local.runtime.json'),'utf8').replace(/^\uFEFF/,''));
+    return runExcelUi(root,profile,process.argv.slice(2));
+  }
   if(process.argv.includes('--excel-confirm')){
     const root=path.resolve(__dirname,'..');const profile=JSON.parse(fs.readFileSync(path.join(root,'profiles/doc88-production-document-upload.local.runtime.json'),'utf8').replace(/^\uFEFF/,''));
     return runExcelConfirmation(root,profile,process.argv.slice(2));
@@ -281,9 +316,9 @@ async function main(){
     for(const name of Object.keys(values)){delete values[name];delete environment[name];}
   }
 }
-module.exports={excelProfilePlan,excelPreparationPlan,excelConfirmationPlan,startExcelExternalWriter};
+module.exports={excelProfilePlan,excelPreparationPlan,excelConfirmationPlan,excelUiPlan,startExcelExternalWriter};
 if(require.main===module)main().catch(error=>{
-  console.error(/^DOC12[24]_[A-Z_]+$/.test(error.message)?error.message:
+  console.error(/^DOC12[2456]_[A-Z_]+$/.test(error.message)?error.message:
     'DOC110_SESSION_BLOCKED: faltan credenciales efímeras. Ejecute este comando en su consola interactiva para ingresarlas; no se inició login.');
   process.exitCode=2;
 });

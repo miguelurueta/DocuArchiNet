@@ -67,6 +67,9 @@
     <form id="form1" runat="server" onkeypress="return caracter_especial(event,this)">
         <%= RenderPerfilImportacion() %>
         <%= RenderImportacionCarpetas() %>
+        <%-- Permite publicar Content antes de la DLL compatible, sin romper la página existente. --%>
+        <% Dim excelRenderer = Me.GetType().GetMethod("RenderImportacionExcel", System.Reflection.BindingFlags.Instance Or System.Reflection.BindingFlags.NonPublic) %>
+        <%= If(excelRenderer Is Nothing, String.Empty, DirectCast(excelRenderer.Invoke(Me, Nothing), String)) %>
         <link href="../js/gestion/ImportacionCarpetas/ImportacionCarpetas.css?v=doc120-consulta-visible-20261119-9" rel="stylesheet" />
         <script src="../js/gestion/ImportacionCarpetas/InventarioImportacion.js?v=doc111-ui-20261028-1"></script>
         <script src="../js/gestion/ImportacionCarpetas/PreparacionSegmentadaImportacion.js?v=doc120-consulta-visible-20261119-9"></script>
@@ -78,6 +81,9 @@
         <script src="../js/gestion/ImportacionCarpetas/ProveedorAdminEditor.js?v=doc110-source-diagnostics-20261027-1"></script>
         <script src="../js/gestion/ImportacionCarpetas/FuenteAdminEditor.js"></script>
         <script src="../js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js?v=doc120-coordinacion-20261115-1"></script>
+        <link href="../Styles/ImportacionExcel.css?v=doc126-1" rel="stylesheet" />
+        <script src="../js/gestion/ImportacionExcel/ImportacionExcelApi.js?v=doc126-1"></script>
+        <script src="../js/gestion/ImportacionExcel/ImportacionExcelVista.js?v=doc126-1"></script>
          <asp:ScriptManager ID="ScriptManager1" runat="server" AsyncPostBackTimeout="9900">
      </asp:ScriptManager>
         <script type="text/javascript" language="javascript">

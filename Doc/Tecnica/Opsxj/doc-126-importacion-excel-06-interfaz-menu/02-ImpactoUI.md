@@ -3,12 +3,12 @@
 - Ticket: DOC-126
 - Cambio OpenSpec: doc-126-importacion-excel-06-interfaz-menu
 - Clasificacion: webforms_ui (WebForms UI)
-- Estado: refinamiento técnico; implementación y aceptación aún sin ejecutar.
+- Estado: implementación local: 40/44; aceptación UI real y cierre abiertos.
 
 ## Superficies UI
 
-Menú Importación único con acceso Cargar datos desde Excel, host propio y diálogo de selección/edición de plantillas, archivo, hoja, modo, límites, validación y resultado. El acceso exclusivo no exige nivel ni permisos de otras capacidades. Reemplazo pide aceptación por intención; cambiar selección invalida preparación/consentimiento.
+Acceso Excel en el único menú Importación, host autorizado independiente de nivel/carpetas y diálogo con selección/edición de plantillas, libro/hoja/modo, límites, preview/incidencias y resultado. Cambiar intención invalida preparación/consentimiento; un estado incierto obliga a consultar el ID. La selección inactiva no recibe archivo.
 
 ## Validacion visual
 
-Planificar teclado/foco/Escape, etiquetas/estados anunciados, viewport320x568/768x1024/1280x720 y zoom200%. Preview e incidencias hasta25, con totales y texto seguro, sin pérdida de ceros/DECIMAL/fecha. Browser local con transporte simulado se identifica por separado del recorrido real autorizado. La recuperación muestra ID y consulta, sin progreso o pausa por filas inventados.
+Browser local con transporte simulado verifica teclado, etiquetas, foco, endRequest, retorno al acceso, tres viewport y zoom 200%, incluyendo el botón de confirmación dentro del scroll. Tipos/XSS/incidencias/timeout se prueban como datos sintéticos. La aceptación física con cuentas exclusiva/restringida y servicios reales sigue abierta. Datos visibles se limitan a decisiones operativas, sin tokens, rutas, hashes o diagnósticos del proveedor.

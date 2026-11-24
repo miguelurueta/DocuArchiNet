@@ -1,0 +1,245 @@
+{
+  "issue": "DOC-126",
+  "recordedUtc": "2026-11-24T18:08:50.458Z",
+  "status": "LOCAL_IMPLEMENTATION_READY_REAL_UI_PENDING",
+  "baseSha": "6dfa1a3b92153c398a735db5077348b02fabdb74",
+  "tasks": {
+    "total": 44,
+    "complete": 40,
+    "pending": [
+      "6.9",
+      "6.10",
+      "6.11",
+      "7.5"
+    ]
+  },
+  "verification": {
+    "command": "node --test tests/doc126-importacion-excel-client.test.cjs tests/doc126-importacion-excel-ui.test.cjs tests/doc126-e2e-reuse.test.cjs tests/doc122-importacion-excel-behavior.test.cjs tests/doc122-e2e-reuse.test.cjs tests/doc124-e2e-reuse.test.cjs tests/doc125-e2e-reuse.test.cjs tests/doc119-navigation.test.cjs tests/doc119-context-menu.test.cjs tests/doc110-perfil-importacion-editor.test.cjs tools/e2e/tests/doc111-importacion-carpetas-driver.test.cjs",
+    "passed": 150,
+    "failed": 0,
+    "nativeChecks": {
+      "DOC122": 259,
+      "DOC123": 318,
+      "DOC124": 492,
+      "DOC125": 3436,
+      "total": 4505,
+      "synthetic": true
+    },
+    "inheritedRegression": "PASS",
+    "build": {
+      "webConfigUnchanged": true,
+      "deployed": false,
+      "exitCode": 0,
+      "assemblySha256": "525ab00555e7be727e4f37bbf316a5b7adaee40a4c683c55e422f4bdeb50d257",
+      "runtimeUnchanged": true,
+      "errors": 0,
+      "warnings": 308
+    },
+    "realE2EExecuted": false,
+    "e2eRegistration": {
+      "read": 1,
+      "write": 1,
+      "executed": false
+    },
+    "fixtures": {
+      "generator": "Existing DOC125 CreateE2EFixtures and DOC123 reader",
+      "synthetic": true,
+      "checks": [
+        {
+          "scenario": "crear",
+          "valid": true,
+          "fullRead": true,
+          "rows": 1000
+        },
+        {
+          "scenario": "agregar",
+          "valid": true,
+          "fullRead": true,
+          "rows": 1000
+        },
+        {
+          "scenario": "reemplazar",
+          "valid": true,
+          "fullRead": true,
+          "rows": 1000
+        },
+        {
+          "scenario": "rollback",
+          "valid": true,
+          "fullRead": true,
+          "rows": 300
+        },
+        {
+          "scenario": "carrera",
+          "valid": true,
+          "fullRead": true,
+          "rows": 10
+        }
+      ],
+      "databaseWrites": 0
+    },
+    "refinement": {
+      "status": "PASS",
+      "checks": 15
+    },
+    "openSpecStrict": {
+      "status": "PASS",
+      "items": 97
+    },
+    "sourceHashesVerified": true
+  },
+  "deployment": {
+    "executed": false,
+    "currentAssemblySha256": "a14034d586facb7f700ff1cdf92c22bf74e607e69b43d3b3ab7a8556efc2e0b0",
+    "candidateAssemblySha256": "525ab00555e7be727e4f37bbf316a5b7adaee40a4c683c55e422f4bdeb50d257",
+    "webConfigChanged": false,
+    "optionalRendererCompatibleWithPreviousBinary": true
+  },
+  "sql": {
+    "status": "PENDIENTE_EJECUCION_MANUAL",
+    "files": [
+      "22-preflight-doc126.sql",
+      "23-fixtures-da-doc126.sql",
+      "24-fuentes-e2e-ra-doc126.sql",
+      "25-plantillas-e2e-da-doc126.sql"
+    ],
+    "applied": false
+  },
+  "realAcceptance": {
+    "authorization": "New DOC126 environment/accounts/effects required; no inherited DOC125 window",
+    "owner": "Only ADMINISTRAR_CARGAS_IMPORTACION among import permissions",
+    "restricted": "Active account with cargas=0",
+    "businessRowsMax": 3311,
+    "deletedRowsMax": 1002,
+    "externalRowsMax": 1,
+    "disposablePrefix": "imp_02_doc126_e2e_",
+    "previousEffectsPreserved": true,
+    "cleanup": false,
+    "readControlOnly": "SELECT",
+    "realPhysicalCapacityClaim": false
+  },
+  "sources": [
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Utf8Lf": "7601078a68775f68b570175b818c7129fb3a10f30b425bff642cee8316b07533"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx.vb",
+      "sha256Utf8Lf": "0db623cee8edb31cf7904c5d06498ea75644c65abbf77e49a3caba448f4287e7"
+    },
+    {
+      "path": "GestionDocumental-Docuarchi.net.vbproj",
+      "sha256Utf8Lf": "02104c5a33e9b19f52e8c63dc0507edd7c41bb369651a6691a504aa4fa217536"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb",
+      "sha256Utf8Lf": "cc12bd1cf3862cfe2b33811e0635491254ec138250d2cbad5ad2d736aeefc344"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+      "sha256Utf8Lf": "84d7f4a3bdd0c28dba359d1e2473c6f448cff27c84a039f14cec722a9f798aa3"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "sha256Utf8Lf": "c8c5425e9c9e8112617a26007e59ce8be9b4a1dd73dcfb26982c95d321f18120"
+    },
+    {
+      "path": "Styles/ImportacionExcel.css",
+      "sha256Utf8Lf": "59bd357754d4ee657206455ad5e602dd249fe9c12f7bef3aac37e94163ca8720"
+    },
+    {
+      "path": "tests/ImportacionExcelBehaviorTests.cs",
+      "sha256Utf8Lf": "017199d788adeb3f186427cb4d66490542cad0c9cfd2ba36af4f96ae691d1424"
+    },
+    {
+      "path": "tests/ImportacionExcelConfirmacionTests.cs",
+      "sha256Utf8Lf": "569314fac250dfbe10b58e6f877673a99399655bb400a01c7f881307cf13c050"
+    },
+    {
+      "path": "tests/doc119-navigation.test.cjs",
+      "sha256Utf8Lf": "998e7f0bd70f8b612e2462935899f5ba8d0c5d90b5df949e22816b2ec465a0f0"
+    },
+    {
+      "path": "tests/doc126-importacion-excel-client.test.cjs",
+      "sha256Utf8Lf": "116bcbc480ed3a6c1c15b901fdddc104a84b2dd75c1f07fd4f9d00e19c19253b"
+    },
+    {
+      "path": "tests/doc126-importacion-excel-ui.test.cjs",
+      "sha256Utf8Lf": "e0d09488d10b07d66cbea281fd7435ccf1ef23ad38b55f02b8de7f4f7ad28d1c"
+    },
+    {
+      "path": "tests/doc126-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "25d13849dc05aa8ef6e2c5c509e09449878af2e96bfb75e9036339329492114b"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256Utf8Lf": "8a394463dec3957fcb01a2462f341727b2bdeac765a8b7da25d40f5472ecb174"
+    },
+    {
+      "path": "tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1",
+      "sha256Utf8Lf": "83d7ae1564a1dd5cf211d47d00455f7b0b49fa3a274ce4fe702b9229987e762a"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc32-e2e-odbc.cjs",
+      "sha256Utf8Lf": "b265e3518c04d2708c551b462eba281801e8bde7b841b6f2eaac3989affd02a4"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc115-repository-integration.ps1",
+      "sha256Utf8Lf": "01c3eba6ab7c023e3a5a95ae6751513a6e78667a5e1308d0f6d70f075e99113f"
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "1dc965e343e672087257612c0398617b8e38b306541cb2a76db7d600eaaddb47"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc110-admin-navigation.cjs",
+      "sha256Utf8Lf": "3904074e69a7346991f08d2cd976a3b419ae6e2e1820b9cddaff8388f426307c"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc125-excel-scope.cjs",
+      "sha256Utf8Lf": "1c50c935ba884fa6267d29042d4202bbffa922ef2401c687ee11c596c1e98023"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+      "sha256Utf8Lf": "abc20d7134dc880f7b759fbcd434e047089b1594f27784b9a050d15627afe239"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Sql/22-preflight-doc126.sql",
+      "sha256Utf8Lf": "772accd4f631036e6da119ea26053934f3b0144dc659987ae38ec8e0714bf8a7"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Sql/23-fixtures-da-doc126.sql",
+      "sha256Utf8Lf": "f68310d3732e74f89b7974a4c96fefdc7a36fc4c43cfef296b8012ef4b46c644"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Sql/24-fuentes-e2e-ra-doc126.sql",
+      "sha256Utf8Lf": "24ff618e8c624cc44eb3199984bcd4d79581d6ea96d49ace040cccc0035e0239"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Sql/25-plantillas-e2e-da-doc126.sql",
+      "sha256Utf8Lf": "bba018f837f76fea9f60ca834a2f403b5769eedbc52444700379d449ab92ac1b"
+    }
+  ],
+  "limits": {
+    "configuredMaxRows": 20000,
+    "maxArchiveBytes": 10000000,
+    "httpMs": 30000,
+    "globalMetadataSqlSeconds": 20,
+    "otherSqlSeconds": 15,
+    "previewMax": 25,
+    "incidenceSampleMax": 25,
+    "partialPause": false,
+    "commitNetworkCutTested": false,
+    "templateUiWritesTestedPhysically": false
+  },
+  "governance": {
+    "complete": false,
+    "pendingTasks": [
+      "6.9",
+      "6.10",
+      "6.11",
+      "7.5"
+    ],
+    "reason": "Real UI acceptance and final review remain pending"
+  }
+}

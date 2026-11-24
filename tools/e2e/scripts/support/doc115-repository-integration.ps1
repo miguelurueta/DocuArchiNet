@@ -4,7 +4,7 @@ if($ExcelPreflight -and -not $ExcelConfirmation){[Console]::Error.WriteLine('DOC
 if($ExcelConfirmation){
     $catalog125=$null;$reader125=$null;$command125=$null;$builder125=$null;$config125=$null;$stage125='AUTHORIZATION'
     try{
-        if($Check -or $Segmented -or $FileReservations -or $InspectFiles -or $FixtureFiles -or $env:DOC125_E2E_AUTHORIZED -ne 'YES'){throw 'DOC125_NATIVE_AUTHORIZATION_REQUIRED'}
+        if($Check -or $Segmented -or $FileReservations -or $InspectFiles -or $FixtureFiles -or ($env:DOC125_E2E_AUTHORIZED -ne 'YES' -and $env:DOC126_E2E_AUTHORIZED -ne 'YES')){throw 'DOC125_NATIVE_AUTHORIZATION_REQUIRED'}
         $stage125='RESOURCES'
         $root125=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../../..'))
         $resources125=[IO.Path]::GetFullPath($ResourcesFile)
@@ -13,7 +13,8 @@ if($ExcelConfirmation){
         if((Get-FileHash -LiteralPath $resources125 -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:DOC125_NATIVE_RESOURCES_SHA256){throw 'DOC125_NATIVE_RESOURCES_CHANGED'}
         $request125=Get-Content -LiteralPath $resources125 -Raw|ConvertFrom-Json
         $scope125=$request125.scope
-        if($scope125.issue -ne 'DOC-125' -or $scope125.disposable -ne $true -or $scope125.preserveResources -ne $true -or $scope125.destinationReadOnly -eq $true -or $scope125.allowedEffects -notcontains 'EXTERNAL_INSERT' -or $scope125.controlPrefix -notmatch '\ADOC[0-9]+_DA_E2E\z' -or $request125.item.escenario -ne 'carrera'){throw 'DOC125_NATIVE_SCOPE_REQUIRED'}
+        $authorized125=($scope125.issue -eq 'DOC-125' -and $env:DOC125_E2E_AUTHORIZED -eq 'YES') -or ($scope125.issue -eq 'DOC-126' -and $scope125.mode -eq 'write' -and $env:DOC126_E2E_AUTHORIZED -eq 'YES')
+        if(-not $authorized125 -or $scope125.disposable -ne $true -or $scope125.preserveResources -ne $true -or $scope125.destinationReadOnly -eq $true -or $scope125.allowedEffects -notcontains 'EXTERNAL_INSERT' -or $scope125.controlPrefix -notmatch '\ADOC[0-9]+_DA_E2E\z' -or $request125.item.escenario -ne 'carrera'){throw 'DOC125_NATIVE_SCOPE_REQUIRED'}
         if([IO.Path]::GetFullPath($RuntimeRoot) -cne [IO.Path]::GetFullPath($scope125.runtimeRoot) -or (Get-FileHash -LiteralPath (Join-Path $RuntimeRoot 'bin/GestionDocumental-Docuarchi.net.dll') -Algorithm SHA256).Hash.ToLowerInvariant() -cne $scope125.backendSha256){throw 'DOC125_NATIVE_BACKEND_CHANGED'}
         $harness125=[IO.Path]::GetFullPath($env:DOC125_NATIVE_HARNESS)
         if(-not $harness125.StartsWith((Join-Path $root125 '.tmp/doc125-native-'),[StringComparison]::OrdinalIgnoreCase) -or [IO.Path]::GetFileName($harness125) -ne 'ImportacionExcelTests.exe'){throw 'DOC125_NATIVE_HARNESS_INVALID'}

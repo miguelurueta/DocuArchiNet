@@ -8851,6 +8851,9 @@
     <Content Include="js\gestion\ImportacionCarpetas\PerfilImportacionApi.js" />
     <Content Include="js\gestion\ImportacionCarpetas\InventarioImportacion.js" />
     <Content Include="js\gestion\ImportacionCarpetas\ImportacionCarpetas.js" />
+    <Content Include="js\gestion\ImportacionExcel\ImportacionExcelApi.js" />
+    <Content Include="js\gestion\ImportacionExcel\ImportacionExcelVista.js" />
+    <Content Include="Styles\ImportacionExcel.css" />
     <Content Include="js\gestion\ImportacionCarpetas\ImportacionCarpetasApi.js" />
     <Content Include="js\gestion\ImportacionCarpetas\PreparacionSegmentadaImportacion.js" />
     <Content Include="js\gestion\ImportacionCarpetas\ImportacionCarpetasVista.js" />
