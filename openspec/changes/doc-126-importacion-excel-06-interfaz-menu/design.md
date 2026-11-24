@@ -251,3 +251,7 @@ Inventario adicional antes de implementación:
 | Existente | `tests/ImportacionExcelLecturaTests.cs` | Reutilizar libros/generador y ampliar casos |
 
 Api/Vista/host/CSS y proyecto ya inventariados reciben cambios acotados. No modificar la lógica de ServicioLecturaExcel, Recepcion, Preparacion, Confirmacion ni repositorios para este asistente. No atribuir aceptación física al transporte simulado; 8.8 requiere una ventana que incluya explícitamente el alta de plantilla.
+
+## Preparación de aceptación del asistente
+
+El runner incorpora --excel-ui-assistant con DOC126_ASSISTANT_E2E_AUTHORIZED independiente y scope exacto de una plantilla/dos campos/1000 filas/cero borrados. El bloqueo de Guardar permanece para lectura y matriz anterior. El helper de locks compartido conserva DOC125 por defecto y admite DOC126 sólo por parámetro explícito desde su adaptador. La DLL validada se publicó con respaldo, WSDL y rechazo anónimo; no equivale a aceptación autenticada ni cierra 8.8. Evidencia de despliegue y preparación en Validacion/doc126-despliegue-e2e-preparada-20261124.md/JSON.

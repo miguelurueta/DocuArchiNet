@@ -36,8 +36,9 @@ function validateScope(s,baseUrl,expectedIssue='DOC-125'){
  return s;
 }
 function readScope(file,baseUrl){try{return validateScope(JSON.parse(fs.readFileSync(file,'utf8').replace(/^\uFEFF/,'')),baseUrl);}catch{throw Error('DOC125_SCOPE_INVALID');}}
-function lockNames(physical,table,id){
- if(!physical||typeof physical.servidor!=='string'||typeof physical.base_ref!=='string'||!Number.isSafeInteger(Number(physical.puerto))||Number(physical.puerto)<1||Number(physical.puerto)>65535||![0,1,2].includes(Number(physical.minusculas))||!/^imp_02_doc125_e2e_[A-Za-z0-9_]{1,44}$/.test(table)||!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(id))throw Error('DOC125_LOCK_IDENTITY_INVALID');
+function lockNames(physical,table,id,expectedIssue='DOC-125'){
+ const prefix=expectedIssue==='DOC-125'?'imp_02_doc125_e2e_':expectedIssue==='DOC-126'?'imp_02_doc126_e2e_':null;
+ if(!prefix||!physical||typeof physical.servidor!=='string'||typeof physical.base_ref!=='string'||!Number.isSafeInteger(Number(physical.puerto))||Number(physical.puerto)<1||Number(physical.puerto)>65535||![0,1,2].includes(Number(physical.minusculas))||!(new RegExp('^'+prefix+'[A-Za-z0-9_]{1,44}$')).test(table)||!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(id))throw Error('DOC125_LOCK_IDENTITY_INVALID');
  const hash=value=>{const obj=Object.fromEntries(Object.keys(value).sort().map(k=>[k,value[k]]));const json=JSON.stringify(obj).replace(/[\u007f-\uffff]/g,c=>'\\u'+c.charCodeAt(0).toString(16).padStart(4,'0'));return require('node:crypto').createHash('sha256').update(json,'utf8').digest('hex');};
  if(physical.fisica!==undefined&&!/^[a-f0-9]{64}$/.test(physical.fisica))throw Error('DOC125_LOCK_IDENTITY_INVALID');
  const fisica=physical.fisica||hash({Servidor:physical.servidor,Puerto:Number(physical.puerto),Base:physical.base_ref});

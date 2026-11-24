@@ -55,3 +55,9 @@ de una plantilla y el destino nuevo, sus efectos máximos y conservación. No
 reutilizar un fixture ya creado ni retirar el bloqueo sin un scope revisado.
 El asistente no requiere otro SQL de instalación; cualquier fixture/adecuación
 adicional que resulte necesario se entrega para aplicación manual separada.
+
+## Corte vigente: desplegado e instrumentado
+
+Ver [evidencia actual](doc126-despliegue-e2e-preparada-20261124.md). La DLL candidata ya se desplegó con respaldo y comprobaciones sin autenticar; el paso de publicación anterior queda acreditado en ese alcance. Queda pendiente la aceptación con cuentas.
+
+El modo --excel-ui-assistant está implementado con autorización propia, una alta exacta de plantilla/dos campos, destino nuevo, 1000 filas y cero borrados. No necesita SQL23–25, sí instalación compatible, conexión/cuentas verificadas y autorización específica. La matriz anterior de cinco casos continúa esperando confirmación de esos SQL. Las dos ventanas juntas permitirían como máximo 4311 filas de entrada (incluidas rechazadas/externa), 1002 borrados intentados y una plantilla de dos campos. No ejecutar por esta documentación: los alcances locales siguen incompletos y no autorizados.

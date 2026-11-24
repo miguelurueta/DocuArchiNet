@@ -1,5 +1,19 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC126 — desplegado y E2E del asistente instrumentada
+
+DLL validada activa, respaldo preservado, WSDL200 y analizador anónimo denegado.
+Web.config intacto; cero SQL y sesiones autenticadas en este despliegue.
+Runner existente: --excel-ui-assistant, autorización DOC126_ASSISTANT_E2E_AUTHORIZED
+y scope propio de una plantilla/dos campos/1000 filas/cero borrados. No hereda
+la autorización de lectura/escritura. Guardar sigue bloqueado en esos modos.
+39/39 pruebas locales afectadas; tres E2E registradas, ninguna ejecutada.
+Corregido el prefijo de locks del adaptador DOC126 conservando contrato DOC125.
+Siguen 47/52, aceptación/gobierno pendientes. Evidencia actual:
+Doc/Actualizacion/Importacion/Validacion/doc126-despliegue-e2e-preparada-20261124.md.
+Los cortes inferiores mantienen su estado histórico.
+
+
 ## DOC126 — asistente implementado localmente, 47/52
 
 Crear plantilla desde Excel añade análisis sin plantilla ni efectos durables.

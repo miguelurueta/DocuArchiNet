@@ -82,9 +82,10 @@ test.describe('DOC126 interfaz Excel con servicios y controles existentes',()=>{
   const fieldsBefore=await fingerprint('SELECT * FROM imp01_campos_plantilla WHERE ?=1 ORDER BY ID_CAMPOS_PLANTILLA',1);
   const physical=(await select('SELECT @@hostname AS servidor,@@port AS puerto,DATABASE() AS base_ref,@@lower_case_table_names AS minusculas'))[0];
   if(mode==='write')for(const item of s.cases)support.readFixture(item);
+  if(mode==='assistant')support.readFixture(s.assistant);
   const denied=await session(browser,true,'DOC126');
   try{check(await denied.page.locator('[data-doc126=abrir]').count()===0,'DOC126_DENIED_MENU_VISIBLE');const r=await call(denied,'AbrirCargaExcel');check(!r.ok&&r.codigo==='ACCESO_DENEGADO','DOC126_DENIED_SERVICE_ALLOWED');}finally{await denied.context.close();}
-  const a=await session(browser,false,'DOC126');let completed=0;
+  const a=await session(browser,false,'DOC126');let completed=0,createdTemplate=0,templateWrites=0,assistantConfirm=null,assistantConfirmCalls=0;
   try{
    let confirmRequests=0;a.page.on('request',r=>{if(r.method()==='POST'&&r.url().endsWith('/Confirmar'))confirmRequests++;});
    check(await a.page.locator('#doc110-perfiles,#doc111-importacion').count()===0,'DOC126_OTHER_IMPORT_PERMISSIONS_PRESENT');
@@ -92,6 +93,16 @@ test.describe('DOC126 interfaz Excel con servicios y controles existentes',()=>{
    const readOps=['AbrirCargaExcel','ListarPlantillas','ConsultarPlantilla','ConsultarResultado','ConsultarCargaExcel'];
    await a.page.route('**/WebServiceImportacionExcel.asmx/*',route=>{
     const operation=new URL(route.request().url()).pathname.split('/').pop();
+    if(operation==='GuardarPlantilla'&&mode==='assistant'){
+     let request;try{request=route.request().postDataJSON().solicitud;}catch{}
+     if(templateWrites!==0||!support.templateRequestAllowed(s,request)){unexpectedMutation=true;return route.abort('blockedbyclient');}
+     templateWrites++;return route.continue();
+    }
+    if(operation==='Confirmar'&&mode==='assistant'){
+     let request;try{request=route.request().postDataJSON().solicitud;}catch{}
+     if(!assistantConfirm||!request||Object.keys(request).length!==Object.keys(assistantConfirm).length||!Object.keys(assistantConfirm).every(k=>request[k]===assistantConfirm[k])||assistantConfirmCalls!==0){unexpectedMutation=true;return route.abort('blockedbyclient');}
+     assistantConfirmCalls++;
+    }
     if((mode==='read'&&!readOps.includes(operation))||operation==='GuardarPlantilla'){unexpectedMutation=true;return route.abort('blockedbyclient');}
     return route.continue();
    });
@@ -115,6 +126,42 @@ test.describe('DOC126 interfaz Excel con servicios y controles existentes',()=>{
     await choose(s.selection);check(await a.page.locator('[data-doc126=destino]').isVisible(),'DOC126_UI_DETAIL_NOT_VISIBLE');
     await a.page.keyboard.press('Escape');check(!await a.page.locator('#doc126-excel [role=dialog]').isVisible(),'DOC126_ESCAPE_FAILED');
     check(!unexpectedMutation,'DOC126_READ_MUTATION_ATTEMPTED');console.log('DOC126_REAL_UI_READ_PASS; exclusive/restricted accounts, existing services and unchanged fingerprints');
+   }else if(mode==='assistant'){
+    check(process.env.DOC126_ASSISTANT_E2E_AUTHORIZED==='YES','DOC126_ASSISTANT_AUTHORIZATION_REQUIRED');
+    const item=s.assistant;support.readFixture(item);
+    check((await select('SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=?',[item.tabla])).length===0,'DOC126_ASSISTANT_TABLE_EXISTS');
+    check((await select('SELECT ID_PLANTILLAIMP FROM imp01_plantillaimp WHERE NOMBRE_PLANTILLA=?',[item.tabla])).length===0,'DOC126_ASSISTANT_TEMPLATE_EXISTS');
+    await openExcelImporter(a.page);
+    if(await a.page.locator('[data-doc126=conexion]').inputValue()!==String(item.conexionId)){const pending=response('ListarPlantillas');await a.page.locator('[data-doc126=conexion]').selectOption(String(item.conexionId));await pending;}
+    await a.page.locator('[data-doc126=crear-desde-excel]').click();
+    await a.page.locator('[data-doc126=analisis-archivo]').setInputFiles(item.archivoPath);
+    const analysis=(await(await clickResponse('analizar','ImportacionExcelAnalisis.ashx')).json());
+    check(analysis.ok&&analysis.datos.ArchivoHash===item.archivoHash&&analysis.datos.Hoja===item.hoja&&analysis.datos.FilasObservadas===1000&&analysis.datos.Campos.length===2&&analysis.datos.Campos.every((c,i)=>['CAMPO_FUENTE','CAMPO_DESTINO','TIPO_CAMPO'].every(k=>c[k]===item.campos[i][k])),'DOC126_ASSISTANT_PROPOSAL_CHANGED');
+    check(await a.page.locator('[data-doc126=analisis-preview]').isVisible(),'DOC126_ASSISTANT_PREVIEW_MISSING');
+    await a.page.locator('[data-doc126=tabla]').fill(item.tabla);await a.page.locator('[data-doc126=analisis-clave]').selectOption(item.campoUnico);
+    const saved=(await(await clickResponse('guardar','GuardarPlantilla')).json()).d;
+    check(saved.ok&&Number.isSafeInteger(saved.datos.ID_PLANTILLAIMP)&&saved.datos.ID_PLANTILLAIMP>0&&saved.datos.NOMBRE_PLANTILLA===item.tabla&&saved.datos.Campos.length===2&&templateWrites===1,'DOC126_ASSISTANT_SAVE_FAILED');
+    createdTemplate=saved.datos.ID_PLANTILLAIMP;
+    const ownTemplate=await select('SELECT ID_PLANTILLAIMP,IMP01_XMLCONEXION_ID_XMLCONEXION,CAMPO_UNICO,REVISION_CARGA FROM imp01_plantillaimp WHERE ID_PLANTILLAIMP=?',[createdTemplate]);
+    check(ownTemplate.length===1&&Number(ownTemplate[0].IMP01_XMLCONEXION_ID_XMLCONEXION)===item.conexionId&&ownTemplate[0].CAMPO_UNICO===item.campoUnico&&Number(ownTemplate[0].REVISION_CARGA)===1,'DOC126_ASSISTANT_TEMPLATE_OWNER_CHANGED');
+    check(Number((await select('SELECT COUNT(*) AS total FROM imp01_campos_plantilla WHERE IMP01_PLANTILLAIMP_ID_PLANTILLAIMP=?',[createdTemplate]))[0].total)===2,'DOC126_ASSISTANT_FIELD_COUNT_CHANGED');
+    check(await a.page.locator('[data-doc126=archivo]').inputValue()===''&&await a.page.locator('[data-doc126=archivo-conservado]').isVisible(),'DOC126_ASSISTANT_FILE_NOT_RETAINED');
+    check((await select('SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=?',[item.tabla])).length===0,'DOC126_ASSISTANT_SAVE_IMPORTED');
+    const uploaded=await(await clickResponse('recibir','ImportacionExcelUpload.ashx')).json();
+    check(uploaded.ok&&uploaded.datos.ArchivoHash===item.archivoHash&&uploaded.datos.PlantillaId===createdTemplate,'DOC126_ASSISTANT_UPLOAD_CHANGED');
+    const id=uploaded.datos.IdCarga;
+    const prepared=(await(await clickResponse('preparar','Preparar')).json()).d;
+    check(prepared.ok&&prepared.datos.ValidacionCompleta&&prepared.datos.LecturaCompleta&&prepared.datos.FilasObservadas===1000,'DOC126_ASSISTANT_PREPARE_FAILED');
+    const records=await select('SELECT ambito_ref,usuario_ref,conexion_ref,id_plantilla,tabla_destino,estado,LOWER(HEX(archivo_hash)) AS archivo_hash,LOWER(HEX(configuracion_hash)) AS configuracion_hash,LOWER(HEX(esquema_hash)) AS esquema_hash FROM imp01_carga_ejecucion WHERE id_carga=?',[id]);
+    check(records.length===1&&String(records[0].ambito_ref)===String(s.empresaId)&&String(records[0].usuario_ref)===String(s.usuarioId)&&records[0].conexion_ref==='DA:'+s.moduloId+':'+item.conexionId&&Number(records[0].id_plantilla)===createdTemplate&&records[0].tabla_destino===item.tabla&&records[0].estado==='PREPARADA'&&records[0].archivo_hash===item.archivoHash,'DOC126_ASSISTANT_LOAD_OWNER_CHANGED');
+    assistantConfirm={ConexionId:item.conexionId,IdCarga:id,ArchivoHash:item.archivoHash,ConfiguracionHash:records[0].configuracion_hash,EsquemaHash:records[0].esquema_hash,ConfirmacionReemplazo:false};
+    const pending=response('Confirmar');await a.page.locator('[data-doc126=confirmar]').dblclick();const confirmed=(await(await pending).json()).d;
+    check(confirmed.ok&&confirmed.datos.Estado==='CONFIRMADA'&&confirmed.datos.FilasConfirmadas===1000&&confirmRequests===1,'DOC126_ASSISTANT_CONFIRM_FAILED');
+    await a.page.waitForFunction(()=>document.querySelector('#doc126-excel [role=dialog]').getAttribute('aria-busy')==='false');
+    await a.page.locator('[data-doc126=tab-consulta]').click();await a.page.locator('[data-doc126=id-carga]').fill(id);
+    const recovered=(await(await clickResponse('consultar','ConsultarResultado')).json()).d;
+    check(recovered.ok&&recovered.datos.Estado==='CONFIRMADA'&&recovered.datos.FilasConfirmadas===1000&&await count(item.tabla)===1000,'DOC126_ASSISTANT_RECOVERY_FAILED');
+    completed=1;
    }else for(const item of s.cases){
     if(await a.page.locator('#doc126-excel [role=dialog]').isVisible())await a.page.locator('[data-doc126=cerrar]').click();
     const previous=await support.snapshotDestination(select,fingerprint,item.tabla,item.modo!=='CREAR');
@@ -156,13 +203,17 @@ test.describe('DOC126 interfaz Excel con servicios y controles existentes',()=>{
    }
    check(!unexpectedMutation,'DOC126_UI_UNAUTHORIZED_MUTATION');
    for(const t of s.protectedTables)check(await support.snapshotDestination(select,fingerprint,t,true)===before[t],'DOC126_PROTECTED_CONTENT_CHANGED');
-   check(await fingerprint('SELECT * FROM imp01_plantillaimp WHERE ?=1 ORDER BY ID_PLANTILLAIMP',1)===configBefore&&await fingerprint('SELECT * FROM imp01_campos_plantilla WHERE ?=1 ORDER BY ID_CAMPOS_PLANTILLA',1)===fieldsBefore,'DOC126_CONFIGURATION_CHANGED');
+   const headerControl=mode==='assistant'?'SELECT * FROM imp01_plantillaimp WHERE ID_PLANTILLAIMP<>? ORDER BY ID_PLANTILLAIMP':'SELECT * FROM imp01_plantillaimp WHERE ?=1 ORDER BY ID_PLANTILLAIMP';
+   const fieldsControl=mode==='assistant'?'SELECT * FROM imp01_campos_plantilla WHERE IMP01_PLANTILLAIMP_ID_PLANTILLAIMP<>? ORDER BY ID_CAMPOS_PLANTILLA':'SELECT * FROM imp01_campos_plantilla WHERE ?=1 ORDER BY ID_CAMPOS_PLANTILLA';
+   check(await fingerprint(headerControl,mode==='assistant'?createdTemplate:1)===configBefore&&await fingerprint(fieldsControl,mode==='assistant'?createdTemplate:1)===fieldsBefore,'DOC126_CONFIGURATION_CHANGED');
+   if(mode==='assistant'){check(completed===1&&createdTemplate>0&&templateWrites===1,'DOC126_ASSISTANT_INCOMPLETE');console.log('DOC126_REAL_UI_ASSISTANT_PASS; one new template/two fields, 1000 rows, explicit receipt/validation/confirmation and preserved previous fingerprints');}
    if(mode==='write')check(completed===5,'DOC126_MATRIX_INCOMPLETE');
    if(mode==='write')console.log('DOC126_REAL_UI_WRITE_PASS cases=5; real UI/services, known rollback and observed external writer; no installation/cleanup');
   }finally{await a.context.close();for(const key of Object.keys(environment))if(/MYSQL_(USER|PASSWORD)$/.test(key))delete environment[key];}
  }
  test('@doc126-ui-read acceso exclusivo, navegación y consultas sin mutación',async({browser})=>{test.skip(process.env.DOC126_E2E_MODE!=='read');await acceptance(browser,'read');});
  test('@doc126-ui-write tres modos, rollback y carrera por controles reales',async({browser})=>{test.skip(process.env.DOC126_E2E_MODE!=='write');await acceptance(browser,'write');});
+ test('@doc126-ui-assistant propuesta, alta de plantilla y carga por controles reales',async({browser})=>{test.skip(process.env.DOC126_E2E_MODE!=='assistant'||process.env.DOC126_ASSISTANT_E2E_AUTHORIZED!=='YES');await acceptance(browser,'assistant');});
 });
 
 test.describe('DOC125 confirmación durable',()=>{
