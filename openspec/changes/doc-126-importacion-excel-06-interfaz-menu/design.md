@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14,D-15 -->
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14,D-15,D-16 -->
 ## Context
 
 DOC126 conecta la interfaz con DOC122–125 ya integrados; DOC125 terminó en main por PR137/138, con aceptación física5/5 de1000filas por modo y31/31tareas. La página todavía carece de host/cliente/vista Excel. El constructor del menú ya existe como utilidad sin dependencia de permisos de carpetas. El parser de perfiles exige otro envelope y no puede usarse como parser Excel. La apertura del servicio emite el token únicamente por POST JSON.
@@ -232,3 +232,22 @@ Revisión técnica de Codex del2026-11-24; no atribuye aprobación humana ni eje
 ## Concreciones verificadas durante implementación
 
 El ASMX conserva sus nueve métodos y DTOs. La cabecera contextual es opcional para consumidores anteriores y obligatoria en el cliente nuevo. El control DOC32 admite alias RA y, cuando el scope lo aporta, contrasta la huella del DSN con el resolver existente antes de abrirlo. El actor DOC125 acepta el scope DOC126 explícito sin heredar su autorización. SQL23–25 reutilizan la preparación administrativa conocida con nombres nuevos; los históricos quedan intactos. El ASPX invoca el renderer opcional por reflexión para que publicar Content antes de la DLL no rompa la página con el binario anterior; con la DLL compatible el permiso vigente es la única autoridad funcional. Los archivos nuevos de prueba y SQL no son Compile/Content de producto. La geometría del diálogo sigue el viewport visual y el zoom; teclado alcanza acciones dentro del scroll de su cuerpo.
+
+### D-16 / RQ-16 — Crear plantilla desde Excel
+
+Asistente aditivo sin plantilla: analizar XLS/XLSX en operación multipart propia, con autoridad/contexto/CSRF y límites actuales. Reutilizar LectorArchivoExcel y sus inspectores, con fila 1 y recorrido completo para proponer hasta 256 campos, tipos conservadores y muestra 25. Para tablas existentes se consultan sus tipos físicos mediante SELECT. No escribir archivos durables, plantillas o ejecuciones en el análisis. Guardar mediante el CAS actual y recibir sólo por acción explícita con el File retenido en memoria del navegador; contrastar hash antes de preparar. No introducir PlantillaId=0 en recepción, estados DB ni migración SQL. Cambiar archivo/hoja/contexto invalida propuestas; una recarga exige seleccionar nuevamente. Se conserva edición manual y el asistente se limita al alta de plantillas.
+
+Alternativa evaluada: una recepción durable previa a la plantilla requiere caducidades, referencias y recuperación adicionales; se difiere para reducir regresión. El coste aceptado es enviar el archivo para análisis y luego por recepción habitual (y volver a analizar al cambiar hoja). No hay una segunda confirmación ni un reintento automático. Un fallo de análisis no es resultado durable incierto.
+
+Inventario adicional antes de implementación:
+
+| Estado | Archivo | Responsabilidad |
+| --- | --- | --- |
+| Nuevo | `Services/ProduccionDocumental/ImportacionExcel/ServicioAnalisisPlantillaExcel.vb` | Propuesta secuencial sin plantilla, con lector existente |
+| Nuevo | `generic_control/ImportacionExcelAnalisis.ashx` | Entrada multipart independiente |
+| Nuevo | `generic_control/ImportacionExcelAnalisis.ashx.vb` | Autoridad, guardas y consulta opcional de destino |
+| Existente | `DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb` | Respuesta aditiva de análisis, sin cambiar DTOs previos |
+| Existente | `tests/doc122-importacion-excel-behavior.test.cjs` | Compilar analizador y entrada en harness actual |
+| Existente | `tests/ImportacionExcelLecturaTests.cs` | Reutilizar libros/generador y ampliar casos |
+
+Api/Vista/host/CSS y proyecto ya inventariados reciben cambios acotados. No modificar la lógica de ServicioLecturaExcel, Recepcion, Preparacion, Confirmacion ni repositorios para este asistente. No atribuir aceptación física al transporte simulado; 8.8 requiere una ventana que incluya explícitamente el alta de plantilla.

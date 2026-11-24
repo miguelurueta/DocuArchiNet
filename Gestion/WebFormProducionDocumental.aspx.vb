@@ -9,6 +9,7 @@ Public Class WebFormProducionDocumental
             Dim referencia = ImportacionExcelRequestGuard.ReferenciaRecuperacion(HttpContext.Current, contexto)
             Return "<div id=""doc126-excel"" data-api=""" & HttpUtility.HtmlAttributeEncode(ResolveUrl("~/webservice/WebServiceImportacionExcel.asmx")) &
                 """ data-upload=""" & HttpUtility.HtmlAttributeEncode(ResolveUrl("~/generic_control/ImportacionExcelUpload.ashx")) &
+                """ data-analisis=""" & HttpUtility.HtmlAttributeEncode(ResolveUrl("~/generic_control/ImportacionExcelAnalisis.ashx")) &
                 """ data-recuperacion=""" & referencia & """></div>"
         Catch ex As Exception
             'Fallo cerrado de esta capacidad, sin interrumpir la página existente.

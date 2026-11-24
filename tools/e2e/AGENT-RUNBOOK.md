@@ -1,5 +1,17 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC126 — asistente implementado localmente, 47/52
+
+Crear plantilla desde Excel añade análisis sin plantilla ni efectos durables.
+160/160 pruebas locales; 4555 checks nativos sintéticos. Build sin errores.
+No se ejecutaron despliegue, SQL ni E2E real. No se requiere migración nueva.
+La E2E existente bloquea GuardarPlantilla: 8.8 necesita ampliar scope, fixture
+y autorización específica antes de recorrer alta de plantilla y carga. No cambiar
+la autorización cerrada del runner para fingir cobertura. Abiertas 6.9/6.10/6.11/7.5/8.8.
+Evidencia actual: Doc/Actualizacion/Importacion/Validacion/doc126-asistente-20261124.md.
+Los cortes inferiores son históricos.
+
+
 ## DOC126 — implementación local: 40/44, 2026-11-24
 
 Menú/diálogo/API implementados; 150 pruebas locales y4505 comprobaciones sintéticos PASS,

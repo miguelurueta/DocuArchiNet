@@ -120,5 +120,43 @@ public static class ImportacionExcelLecturaTests {
   s=Request("xlsx");var large=Enumerable.Range(0,10000).Select(i=>new object[]{"K"+i}).ToArray();r=ReadBytes(Book(large),s);Check(r.Valido&&r.Filas.Count==10000&&r.Filas.Last().Fila==10001,"default10000 boundary includes last row");r=ReadBytes(Book(large.Concat(new[]{new object[]{"excess"}}).ToArray()),s);Has(r,"LIMITE_FILAS_EXCEDIDO",10002);Check(!r.LecturaCompleta,"default10001 never returns prefix");
   s=Request("xlsx");s.Limites.MaxFilasDatos=20000;large=Enumerable.Range(0,20000).Select(i=>new object[]{"K"+i}).ToArray();r=ReadBytes(Book(large),s);Check(r.Valido&&r.Filas.Count==20000&&r.Filas.Last().Fila==20001,"configured20000 boundary includes last row");r=ReadBytes(Book(large.Concat(new[]{new object[]{"excess"}}).ToArray()),s);Has(r,"LIMITE_FILAS_EXCEDIDO",20002);Check(!r.LecturaCompleta&&r.Filas.Count==0,"configured20001 never returns prefix");
  }
- public static void Run(){Fidelity();Valid();Boundaries();Types();Reports();Console.WriteLine("DOC123_NATIVE_PASS checks="+checks+"; synthetic XLS/CFB and XLSX, no MySQL/HTTP");}
+ static AnalisisPlantillaExcel Analyze(byte[] bytes,LimitesLecturaExcel limits=null,DestinoPlantillaExcel target=null){
+  using(var stream=new MemoryStream(bytes)){stream.Position=3;try{return new ServicioAnalisisPlantillaExcel().Analizar(stream,"fixture.xlsx","Datos",limits??new LimitesLecturaExcel(),target);}finally{Check(stream.CanRead&&stream.Position==3,"analysis preserves caller stream on success/failure");}}
+ }
+ static void AnalysisReject(byte[] bytes,string code,LimitesLecturaExcel limits=null){try{Analyze(bytes,limits);}catch(ImportacionExcelException e){Check(e.Codigo==code,"analysis expected "+code+" got "+e.Codigo);return;}throw new Exception("analysis expected "+code);}
+ static void TemplateAnalysis(){
+  var bytes=Book(new[]{new object[]{"00125",1.25},new object[]{"00999",12345.1}},new[]{"Número Orden","Valor"});
+  var r=Analyze(bytes);Check(r.Formato=="XLSX"&&r.Hoja=="Datos"&&r.Hojas.Count==2,"analysis sheets and real format");
+  Check(r.ArchivoHash.Length==64&&r.FilasObservadas==2&&r.Muestra[0][0]=="00125","analysis hash, rows and zeros");
+  Check(r.Campos[0].CAMPO_FUENTE=="Número Orden"&&r.Campos[0].CAMPO_DESTINO=="NUMERO_ORDEN"&&r.Campos[0].TIPO_CAMPO.StartsWith("VARCHAR("),"source exact and SQL name proposed");
+  Check(r.Campos[1].TIPO_CAMPO=="DECIMAL(7,2)"&&r.Campos.All(c=>c.ID_CAMPOS_PLANTILLA==0&&!c.REMPLAZA_COMA.HasValue),"full column precision, no transformations invented");
+  var same=Analyze(bytes);Check(same.ArchivoHash==r.ArchivoHash,"analysis deterministic content hash");
+  var target=new DestinoPlantillaExcel{Existe=true,Motor="InnoDB",Columnas=new List<ColumnaDestinoExcel>{Col("Numero_Orden","varchar","varchar(180)"),Col("Valor","decimal","decimal(18,2)")}};
+  r=Analyze(bytes,null,target);Check(r.Campos[0].CAMPO_DESTINO=="Numero_Orden"&&r.Campos[0].TIPO_CAMPO=="varchar(180)"&&r.Campos[1].TIPO_CAMPO=="decimal(18,2)","existing schema supplies actual names/types");
+  r=Analyze(Book(new[]{new object[]{"A","B"}},new[]{"Número Orden","Numero-Orden"}));Check(r.Campos[0].CAMPO_DESTINO=="NUMERO_ORDEN"&&r.Campos[1].CAMPO_DESTINO=="NUMERO_ORDEN_2","normalized name collision disambiguated");
+  r=Analyze(Book(new[]{new object[]{null,1},new object[]{"0001","texto"}}));Check(r.Campos[1].TIPO_CAMPO.StartsWith("VARCHAR("),"mixed column remains text");
+  r=Analyze(Book(new[]{new object[]{"A",new DateTime(2025,1,2)}}));Check(r.Campos[1].TIPO_CAMPO=="DATE","typed date suggestion");
+  AnalysisReject(Book(new[]{new object[]{"A",new DateTime(2025,1,2,13,14,15)}}),"FECHA_CON_HORA_NO_ADMITIDA");
+  r=Analyze(Book(new[]{new object[]{"A","01/02/2025"}}));Check(r.Campos[1].TIPO_CAMPO.StartsWith("VARCHAR("),"ambiguous textual date is not guessed");
+  var formatted=Book(new[]{new object[]{125,"V"}});string sheetXml;using(var zip=new ZipArchive(new MemoryStream(formatted),ZipArchiveMode.Read))using(var text=new StreamReader(zip.GetEntry("xl/worksheets/sheet1.xml").Open()))sheetXml=text.ReadToEnd();
+  r=Analyze(ReplacePart(formatted,"xl/worksheets/sheet1.xml",sheetXml.Replace("<c r=\"A2\">","<c r=\"A2\" s=\"1\">")));Check(r.Muestra[0][0]=="00125"&&r.Campos[0].TIPO_CAMPO.StartsWith("VARCHAR("),"numeric cell with zero format remains text");
+  AnalysisReject(ReplacePart(formatted,"xl/worksheets/sheet1.xml","<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheetData><row r=\"1\"><c r=\"A1\" t=\"inlineStr\"><is><t>Código</t></is></c><c r=\"IW1\" t=\"inlineStr\"><is><t>Ultima</t></is></c></row></sheetData></worksheet>"),"ENCABEZADOS_INVALIDOS");
+  AnalysisReject(ReplacePart(formatted,"xl/worksheets/sheet1.xml",sheetXml.Replace("<v>125</v>","<f>1+2</f>")),"FORMULA_SIN_RESULTADO");
+  r=Analyze(Book(new[]{new object[]{"A",new string('x',1000)}}));Check(r.Campos[1].TIPO_CAMPO=="VARCHAR(1250)"&&r.Muestra[0][1].Length==120,"full text length with bounded preview");
+  var many=Enumerable.Range(0,20000).Select(i=>new object[]{"K"+i,"V"}).ToArray();
+  r=Analyze(Book(many),new LimitesLecturaExcel{MaxFilasDatos=20000});Check(r.FilasObservadas==20000&&r.Muestra.Count==25,"analysis full20000 bounded sample25");
+  AnalysisReject(Book(many.Concat(new[]{new object[]{"excess","V"}}).ToArray()),"LIMITE_FILAS_EXCEDIDO",new LimitesLecturaExcel{MaxFilasDatos=20000});
+  AnalysisReject(Book(new[]{new object[]{"A","B"}},new[]{"Código","Código"}),"ENCABEZADO_AMBIGUO");
+  AnalysisReject(Book(new[]{new object[]{"A","B"}},new[]{"Código",""}),"ENCABEZADOS_INVALIDOS");
+  AnalysisReject(Book(new[]{new object[]{"A","B"}},new[]{"","Valor"}),"ENCABEZADOS_INVALIDOS");
+  AnalysisReject(Book(new[]{new object[]{"A","B"}},new[]{new string('x',121),"Valor"}),"ENCABEZADOS_INVALIDOS");
+  AnalysisReject(Book(new object[0][]),"LIBRO_SIN_DATOS");AnalysisReject(Book(new[]{new object[]{"A",new string('x',4097)}}),"LONGITUD_NO_ADMITIDA");
+  using(var empty=new MemoryStream(bytes)){try{new ServicioAnalisisPlantillaExcel().Analizar(empty,"fixture.xlsx","Inexistente",new LimitesLecturaExcel());throw new Exception("missing sheet must reject");}catch(ImportacionExcelException e){Check(e.Codigo=="HOJA_NO_ENCONTRADA","analysis missing sheet");}}
+  foreach(var ext in new[]{"xls","xlsx"}){
+   using(var stream=File.OpenRead("excel-fixtures/cache-valido."+ext)){var a=new ServicioAnalisisPlantillaExcel().Analizar(stream,"fixture."+ext,"Casos",new LimitesLecturaExcel());Check(a.FilasObservadas==4&&a.Formato==ext.ToUpperInvariant(),"analysis reuses cached formula fixture "+ext);}
+   try{using(var stream=File.OpenRead("excel-fixtures/fidelidad."+ext))new ServicioAnalisisPlantillaExcel().Analizar(stream,"fixture."+ext,"Casos",new LimitesLecturaExcel());throw new Exception("analysis fidelity must reject");}catch(ImportacionExcelException e){Check(e.Codigo=="ERROR_CELDA_EXCEL","analysis preserves formula error detection "+ext);}
+  }
+  var tooLarge=new byte[1000001];AnalysisReject(tooLarge,"LIMITE_ARCHIVO_EXCEDIDO",new LimitesLecturaExcel{MaxArchivoMB=1});
+ }
+ public static void Run(){Fidelity();Valid();Boundaries();Types();Reports();TemplateAnalysis();Console.WriteLine("DOC123_NATIVE_PASS checks="+checks+"; synthetic XLS/CFB and XLSX, no MySQL/HTTP");}
 }

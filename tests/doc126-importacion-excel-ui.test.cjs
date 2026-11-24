@@ -11,14 +11,15 @@ async function fixture(work,options={}){
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   const calls=[],mode=options.mode||'AGREGAR';let confirmed=false,configuration='b'.repeat(64);
   const template={ID_PLANTILLAIMP:29,IMP01_XMLCONEXION_ID_XMLCONEXION:6,REVISION_CARGA:1,Huella:'a'.repeat(64),NOMBRE_PLANTILLA:'imp_02_fixture',CAMPO_UNICO:'CLAVE',LIBRO_EXCEL:'Datos',Formato:'XLSX',Modo:mode,ESTADO_PLANTILLA:options.inactive?0:1,Campos:[{ID_CAMPOS_PLANTILLA:10,CAMPO_FUENTE:'Código',CAMPO_DESTINO:'CLAVE',TIPO_CAMPO:'VARCHAR',REMPLAZA_COMA:null,REMPLAZA_PUNTO:0,OPCION_SPLITER:null,CARACTER_SPLITER:null,NUMERO_MATRIZ_EXPLITER:null}]};
-  const carga=state=>({IdCarga:id,PlantillaId:29,Estado:state,Tabla:template.NOMBRE_PLANTILLA,Modo:mode,ArchivoHash:'a'.repeat(64),ConfiguracionHash:configuration,EsquemaHash:'c'.repeat(64),FilasPrevistas:1000,FilasConfirmadas:state==='CONFIRMADA'?1000:0,ConfirmadoUtc:'/Date(1735776000000)/',Hojas:['Datos','Otra']});
+  const carga=state=>({IdCarga:id,PlantillaId:template.ID_PLANTILLAIMP,Estado:state,Tabla:template.NOMBRE_PLANTILLA,Modo:template.Modo,ArchivoHash:options.changedFile?'9'.repeat(64):'a'.repeat(64),ConfiguracionHash:configuration,EsquemaHash:'c'.repeat(64),FilasPrevistas:1000,FilasConfirmadas:state==='CONFIRMADA'?1000:0,ConfirmadoUtc:'/Date(1735776000000)/',Hojas:['Datos','Otra']});
   const prepared=()=>({Carga:carga('PREPARADA'),LecturaCompleta:true,ValidacionCompleta:true,DuplicadosEvaluados:true,FilasObservadas:1000,TotalIncidencias:0,Incidencias:[],Muestra:[{Fila:2,Valores:[{CampoDestino:'CLAVE',Tipo:'TEXTO',Texto:'00017'},{CampoDestino:'NUMERO',Tipo:'DECIMAL',NumeroCanonico:'123456789012345678901234567890123456789.123'},{CampoDestino:'FECHA',Tipo:'DATE',Fecha:'/Date(1735776000000)/'},{CampoDestino:'VACIO',Tipo:'TEXTO',EsNulo:true},{CampoDestino:'HTML',Tipo:'TEXTO',Texto:'<img src=x onerror=window.pwned=true>'}]}]});
   if(options.noStorage)await page.addInitScript(()=>Object.defineProperty(window,'sessionStorage',{get(){throw Error('synthetic storage denial');}}));
   await page.route('https://doc126.invalid/**',async route=>{
-   const request=route.request();if(request.method()==='GET')return route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><html><body><form><nav id="menu_var"><ul class="navbar-nav"></ul></nav><div id="doc126-excel" data-api="/excel.asmx" data-upload="/upload.ashx" data-recuperacion="'+'d'.repeat(32)+'"></div></form></body></html>'});
-   const operation=new URL(request.url()).pathname.split('/').pop()==='upload.ashx'?'Upload':new URL(request.url()).pathname.split('/').pop();
-   const body=operation==='Upload'?null:request.postDataJSON().solicitud;
-   calls.push({operation,body});
+   const request=route.request();if(request.method()==='GET')return route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><html><body><form><nav id="menu_var"><ul class="navbar-nav"></ul></nav><div id="doc126-excel" data-api="/excel.asmx" data-upload="/upload.ashx" '+(options.assistant?'data-analisis="/analysis.ashx" ':'')+'data-recuperacion="'+'d'.repeat(32)+'"></div></form></body></html>'});
+   const routeName=new URL(request.url()).pathname.split('/').pop();
+   const operation=routeName==='upload.ashx'?'Upload':routeName==='analysis.ashx'?'Analizar':routeName;
+   const body=['Upload','Analizar'].includes(operation)?null:request.postDataJSON().solicitud;
+   calls.push({operation,body,multipart:body===null?request.postData():null});
    assert.equal(request.headers()['x-importacion-excel-contexto'],'d'.repeat(32));
    if(operation!=='AbrirCargaExcel')assert.equal(request.headers()['x-importacion-excel-csrf'],'synthetic-ui-token');
    let data,ok=true,code='OK';
@@ -29,6 +30,11 @@ async function fixture(work,options={}){
     if(options.conflictSave){ok=false;code='CONFLICTO_REVISION';}
     else if(options.ignoreSave){return route.abort('failed');}
     else {Object.assign(template,body.Plantilla,{ID_PLANTILLAIMP:body.Plantilla.ID_PLANTILLAIMP||30,REVISION_CARGA:2,Huella:'e'.repeat(64)});data=clone(template);}
+   }
+   else if(operation==='Analizar'){
+    if(options.analysisGate)await options.analysisGate;
+    if(options.analysisFailure){ok=false;code='ENCABEZADO_AMBIGUO';}
+    else data={Formato:'XLSX',Hoja:request.postData().includes('\r\nOtra\r\n')?'Otra':'Datos',Hojas:['Datos','Otra'],ArchivoHash:'a'.repeat(64),FilasObservadas:2,Campos:[{CAMPO_FUENTE:'Código',CAMPO_DESTINO:'CLAVE',TIPO_CAMPO:'VARCHAR(100)'},{CAMPO_FUENTE:'Nombre',CAMPO_DESTINO:'NOMBRE',TIPO_CAMPO:'VARCHAR(250)'}],Muestra:[['00017','<img src=x onerror=window.pwned=true>'],[null,'Texto']],Avisos:['PROPUESTA_REQUIERE_REVISION']};
    }
    else if(operation==='IniciarRecepcionExcel')data={IdCarga:id,ReferenciaRecepcion:'synthetic-reference'};
    else if(operation==='Upload')data=carga('RECIBIDA');
@@ -127,3 +133,62 @@ test('DOC126 endRequest se registra una vez y reemplaza sólo su propio host',()
 test('DOC126 posición fraccionaria no se redondea ni se guarda',()=>fixture(async(page,calls)=>{
  await select(page);await page.locator('[data-doc126=tab-plantillas]').click();await page.locator('[data-field=NUMERO_MATRIZ_EXPLITER]').fill('1.5');await page.locator('[data-doc126=guardar]').click();assert.match(await page.locator('[data-doc126=estado]').innerText(),/entero no negativo/);assert.equal(calls.filter(c=>c.operation==='GuardarPlantilla').length,0);
 }));
+
+async function analyzeNew(page){
+ await open(page);await page.locator('[data-doc126=crear-desde-excel]').click();
+ await page.locator('[data-doc126=analisis-archivo]').setInputFiles({name:'propuesta.xlsx',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',buffer:Buffer.from('same synthetic workbook bytes')});
+ await page.locator('[data-doc126=analizar]').click();await page.locator('[data-doc126=analisis-clave] option[value=CLAVE]').waitFor({state:'attached'});
+}
+async function saveAnalysis(page){await page.locator('[data-doc126=tabla]').fill('imp_02_nueva');await page.locator('[data-doc126=analisis-clave]').selectOption('CLAVE');await page.locator('[data-doc126=guardar]').click();await page.locator('[data-doc126=archivo-conservado]').filter({hasText:'propuesta.xlsx'}).waitFor();}
+
+test('DOC126 asistente propone campos y guarda sin importar; recepción explícita conserva el File',()=>fixture(async(page,calls)=>{
+ await analyzeNew(page);assert.equal(await page.locator('[data-field=CAMPO_FUENTE]').first().inputValue(),'Código');assert.equal(await page.locator('[data-field=TIPO_CAMPO]').first().inputValue(),'VARCHAR(100)');
+ assert.match(await page.locator('[data-doc126=analisis-preview]').innerText(),/00017/);assert.equal(await page.locator('[data-doc126=analisis-preview] img').count(),0);assert.equal(await page.evaluate(()=>window.pwned),undefined);
+ await page.setViewportSize({width:320,height:568});await page.locator('[data-doc126=analisis-preview] .doc126-table-scroll').scrollIntoViewIfNeeded();assert.equal(await page.locator('[data-doc126=analisis-preview] .doc126-table-scroll').evaluate(e=>e.getBoundingClientRect().width<=e.closest('.doc126-body').clientWidth),true);await page.setViewportSize({width:1280,height:720});
+ assert.equal(calls.some(c=>['GuardarPlantilla','IniciarRecepcionExcel','Upload','Confirmar'].includes(c.operation)),false);
+ await saveAnalysis(page);const save=calls.find(c=>c.operation==='GuardarPlantilla');assert.equal(save.body.RevisionEsperada,0);assert.equal(save.body.Plantilla.CAMPO_UNICO,'CLAVE');assert.equal(save.body.Plantilla.Campos.length,2);
+ assert.equal(calls.some(c=>c.operation==='Upload'),false);assert.equal(await page.locator('[data-doc126=archivo]').inputValue(),'');assert.equal(await page.locator('[data-doc126=recibir]').isEnabled(),true);
+ await page.locator('[data-doc126=recibir]').dblclick();await page.locator('[data-doc126=hoja] option[value=Datos]').waitFor({state:'attached'});
+ assert.equal(calls.filter(c=>c.operation==='Upload').length,1);for(const c of calls.filter(c=>['Upload','Analizar'].includes(c.operation))){assert.match(c.multipart,/filename="propuesta.xlsx"/);assert.match(c.multipart,/same synthetic workbook bytes/);}
+ await page.locator('[data-doc126=preparar]').click();await page.waitForFunction(()=>document.querySelector('[data-doc126=estado]').getAttribute('data-state')==='PREPARADO');assert.equal(calls.some(c=>c.operation==='Confirmar'),false);
+},{assistant:true}));
+
+test('DOC126 cambiar archivo invalida propuesta y exige analizar de nuevo antes de guardar',()=>fixture(async(page,calls)=>{
+ await analyzeNew(page);await page.locator('[data-doc126=tabla]').fill('imp_02_nueva');await page.locator('[data-doc126=analisis-clave]').selectOption('CLAVE');
+ await page.locator('[data-doc126=analisis-archivo]').setInputFiles({name:'otro.xlsx',buffer:Buffer.from('different synthetic workbook')});await page.locator('[data-doc126=guardar]').click();assert.match(await page.locator('[data-doc126=estado]').innerText(),/Analiza el archivo/);assert.equal(calls.some(c=>c.operation==='GuardarPlantilla'),false);
+ page.on('dialog',d=>d.accept());await page.locator('[data-doc126=analizar]').click();await page.locator('[data-doc126=analisis-clave] option[value=CLAVE]').waitFor({state:'attached'});assert.equal(calls.filter(c=>c.operation==='Analizar').length,2);assert.equal(await page.locator('[data-doc126=clave]').inputValue(),'');
+},{assistant:true}));
+
+test('DOC126 hoja distinta vuelve a analizar y exige renovar la clave',()=>fixture(async(page,calls)=>{
+ await analyzeNew(page);await page.locator('[data-doc126=analisis-clave]').selectOption('CLAVE');page.on('dialog',d=>d.accept());await page.locator('[data-doc126=analisis-hoja]').selectOption('Otra');await page.waitForFunction(()=>document.querySelector('[data-doc126=libro]').value==='Otra');assert.equal(await page.locator('[data-doc126=clave]').inputValue(),'');assert.equal(calls.filter(c=>c.operation==='Analizar').length,2);
+},{assistant:true}));
+
+test('DOC126 hash de recepción distinto bloquea preparación sin confirmar ni repetir upload',()=>fixture(async(page,calls)=>{
+ await analyzeNew(page);await saveAnalysis(page);await page.locator('[data-doc126=recibir]').click();await page.locator('[data-doc126=estado]').filter({hasText:'distinto del analizado'}).waitFor();assert.equal(await page.locator('[data-doc126=preparar]').isDisabled(),true);assert.equal(await page.locator('[data-doc126=confirmar]').isDisabled(),true);assert.equal(calls.filter(c=>c.operation==='Upload').length,1);assert.equal(calls.some(c=>['Preparar','Confirmar'].includes(c.operation)),false);
+},{assistant:true,changedFile:true}));
+
+test('DOC126 cerrar durante análisis descarta respuesta tardía sin crear incertidumbre durable',async()=>{
+ let release;const gate=new Promise(r=>{release=r;});
+ await fixture(async(page,calls)=>{
+  await open(page);await page.locator('[data-doc126=crear-desde-excel]').click();await page.locator('[data-doc126=analisis-archivo]').setInputFiles({name:'propuesta.xlsx',buffer:Buffer.from('synthetic')});await page.locator('[data-doc126=analizar]').dblclick();await page.waitForFunction(()=>document.querySelector('[role=dialog]').getAttribute('aria-busy')==='true');await page.locator('[data-doc126=cerrar]').click();release();await open(page);await page.waitForFunction(()=>document.querySelector('[role=dialog]').getAttribute('aria-busy')==='false');assert.equal(await page.locator('[data-doc126=analisis-clave] option[value=CLAVE]').count(),0);assert.equal(calls.filter(c=>c.operation==='Analizar').length,1);assert.doesNotMatch(await page.locator('[data-doc126=estado]').innerText(),/No se conoce el resultado/);assert.equal(calls.some(c=>c.operation==='GuardarPlantilla'),false);
+ },{assistant:true,analysisGate:gate});
+});
+
+test('DOC126 error de análisis permite corregir el archivo y conserva edición manual',()=>fixture(async(page,calls)=>{
+ await open(page);await page.locator('[data-doc126=crear-desde-excel]').click();await page.locator('[data-doc126=analisis-archivo]').setInputFiles({name:'bad.xlsx',buffer:Buffer.from('synthetic')});await page.locator('[data-doc126=analizar]').click();await page.locator('[data-doc126=estado]').filter({hasText:'encabezados repetidos'}).waitFor();assert.equal(calls.filter(c=>c.operation==='Analizar').length,1);assert.equal(calls.some(c=>c.operation==='IniciarRecepcionExcel'),false);
+ await page.locator('[data-doc126=analisis-archivo]').setInputFiles([]);await page.locator('[data-doc126=tabla]').fill('imp_02_manual');await page.locator('[data-doc126=clave]').fill('CLAVE');await page.locator('[data-field=CAMPO_FUENTE]').fill('Código');await page.locator('[data-field=CAMPO_DESTINO]').fill('CLAVE');await page.locator('[data-field=TIPO_CAMPO]').fill('VARCHAR(100)');await page.locator('[data-doc126=guardar]').click();await page.locator('[data-doc126=destino]').filter({hasText:'imp_02_manual'}).waitFor();assert.equal(calls.filter(c=>c.operation==='GuardarPlantilla').length,1);
+},{assistant:true,analysisFailure:true}));
+
+test('DOC126 editar o quitar un destino renueva las opciones de campo único',()=>fixture(async(page)=>{
+ await analyzeNew(page);await page.locator('[data-doc126=analisis-clave]').selectOption('CLAVE');await page.locator('[data-field=CAMPO_DESTINO]').first().fill('ORDEN');assert.equal(await page.locator('[data-doc126=clave]').inputValue(),'');await page.locator('[data-doc126=analisis-clave]').selectOption('ORDEN');assert.equal(await page.locator('[data-doc126=clave]').inputValue(),'ORDEN');await page.locator('[data-doc126=quitar-campo]').first().click();assert.equal(await page.locator('[data-doc126=clave]').inputValue(),'');assert.equal(await page.locator('[data-doc126=analisis-clave] option[value=ORDEN]').count(),0);
+},{assistant:true}));
+
+test('DOC126 propuesta no persiste el libro y recrear host obliga a seleccionarlo nuevamente',()=>fixture(async(page)=>{
+ await analyzeNew(page);await saveAnalysis(page);assert.equal(await page.locator('[data-doc126=recibir]').isEnabled(),true);assert.doesNotMatch(await page.evaluate(()=>JSON.stringify(Object.values(sessionStorage))),/propuesta.xlsx|synthetic workbook/);
+ await page.locator('[data-doc126=cerrar]').click();await page.evaluate(()=>{const old=document.getElementById('doc126-excel');old.replaceWith(old.cloneNode(false));ImportacionExcelVista.inicializar();});await open(page);await page.locator('[data-doc126=plantilla]').selectOption('29');await page.locator('[data-doc126=destino]').filter({hasText:'imp_02_nueva'}).waitFor();assert.equal(await page.locator('[data-doc126=archivo-conservado]').innerText(),'');assert.equal(await page.locator('[data-doc126=recibir]').isDisabled(),true);
+},{assistant:true}));
+
+test('DOC126 Plantillas ofrece análisis al crear y conserva el editor de una plantilla existente',()=>fixture(async(page,calls)=>{
+ await open(page);await page.locator('[data-doc126=tab-plantillas]').click();assert.equal(await page.locator('[data-doc126=asistente]').isVisible(),true);
+ await page.locator('[data-doc126=tab-carga]').click();await page.locator('[data-doc126=plantilla]').selectOption('29');await page.locator('[data-doc126=destino]').filter({hasText:'imp_02_fixture'}).waitFor();await page.locator('[data-doc126=tab-plantillas]').click();assert.equal(await page.locator('[data-doc126=asistente]').isVisible(),false);assert.equal(await page.locator('[data-field=CAMPO_FUENTE]').inputValue(),'Código');assert.equal(calls.some(c=>c.operation==='Analizar'),false);
+},{assistant:true}));

@@ -16,6 +16,7 @@
 #doc126-excel button:disabled,#doc126-excel input:disabled,#doc126-excel select:disabled{opacity:.6;cursor:default}
 #doc126-excel :focus-visible{outline:3px solid #e5a22e;outline-offset:2px}
 #doc126-excel .doc126-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:12px 0}
+#doc126-excel .doc126-assistant{padding:12px;border:1px solid #c9d9e9;border-radius:8px;margin:12px 0;background:#f5f9fd}
 #doc126-excel .doc126-field{display:flex;flex-direction:column;gap:5px;min-width:0}
 #doc126-excel label{font-weight:600;font-size:13px;margin:0}
 #doc126-excel input,#doc126-excel select{box-sizing:border-box;width:100%;min-height:36px;border:1px solid #b8c7d9;border-radius:5px;padding:7px;background:#fff;color:#20334a;font:inherit}

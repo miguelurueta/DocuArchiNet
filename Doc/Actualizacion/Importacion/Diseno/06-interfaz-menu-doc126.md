@@ -1,6 +1,6 @@
 # DOC126 — Interfaz de carga y menú
 
-Implementación local: 40/44, aceptación real pendiente. Contratos y decisiones en [OpenSpec](../../../../openspec/changes/doc-126-importacion-excel-06-interfaz-menu/design.md). [Evidencia local](../Validacion/doc126-implementacion-local-20261124.md).
+Corte inicial: 40/44. La ampliación del asistente alcanza 47/52; aceptación real pendiente. Contratos y decisiones en [OpenSpec](../../../../openspec/changes/doc-126-importacion-excel-06-interfaz-menu/design.md). [Evidencia local](../Validacion/doc126-implementacion-local-20261124.md).
 
 ## Acceso e integración
 
@@ -21,3 +21,7 @@ Muestra e incidencias acotadas a 25 con totales, números canónicos como texto,
 ## Instalación y límites
 
 [SQL 22–25](../Sql/README.md) se entregan para ejecución manual separada. Reutilizan la instalación y preparan fixtures nuevos, sin tocar históricos. Pruebas no instalan, siembran, limpian ni conceden permisos. Mantener net461/MySQL5.1.37/MySql.Data6.2.3,20000filas/10MB y recursos existentes. E2E real necesita despliegue compatible y scope propio; no se ejecutó en esta entrega. No se publica una fuente RA desde el diálogo ni se altera SII, CSV o almacenamiento documental.
+
+## Asistente autorizado para altas
+
+D-16/RQ-16 añade análisis multipart sin plantilla ni efectos durables, con propuestas revisables y File sólo en memoria. Conserva los contratos del motor y el editor manual; no necesita migración SQL. [Implementación, límites y evidencia actual](../Validacion/doc126-asistente-20261124.md). Las nuevas rutas Compile/Content y la decisión de evitar staging durable figuran en design.md de OpenSpec.

@@ -1,0 +1,203 @@
+{
+  "issue": "DOC-126",
+  "recordedUtc": "2026-11-24T21:08:43.223Z",
+  "status": "ASSISTANT_IMPLEMENTED_LOCALLY_REAL_ACCEPTANCE_PENDING",
+  "baseCommit": "dde363d576645252d2b90fc2e7cefdda8ea70257",
+  "tasks": {
+    "total": 52,
+    "complete": 47,
+    "pending": [
+      "6.9",
+      "6.10",
+      "6.11",
+      "7.5",
+      "8.8"
+    ]
+  },
+  "traceability": {
+    "decisions": 16,
+    "requirements": 16,
+    "scenarios": 49
+  },
+  "tests": {
+    "passed": 160,
+    "failed": 0,
+    "clientAfterFinalAnalysisErrorAdjustment": {
+      "passed": 6,
+      "failed": 0
+    },
+    "nativeChecks": {
+      "DOC122": 259,
+      "DOC123": 368,
+      "DOC124": 492,
+      "DOC125": 3436
+    },
+    "nativeChecksTotal": 4555,
+    "synthetic": true,
+    "realE2EExecuted": false,
+    "presentationAfterFinalLayoutAdjustment": {
+      "passed": 2,
+      "failed": 0
+    }
+  },
+  "build": {
+    "webConfigUnchanged": true,
+    "deployed": false,
+    "exitCode": 0,
+    "assemblySha256": "83f1b3216aa4d682d5e48b55c14b6f9254c378ad7df1803dac0c722b89ee9f70",
+    "runtimeUnchanged": true,
+    "errors": 0,
+    "warnings": 308
+  },
+  "runtime": {
+    "deployed": false,
+    "currentAssemblySha256": "07f02c77da2aa211515d971961ea28555e6697de20d41eb9ceae79ae0cdd0432",
+    "candidateAssemblySha256": "83f1b3216aa4d682d5e48b55c14b6f9254c378ad7df1803dac0c722b89ee9f70",
+    "webConfigChanged": false
+  },
+  "effects": {
+    "sqlMigrationRequired": false,
+    "sqlApplied": false,
+    "databaseWrites": 0,
+    "serverDurableAnalysisFile": false,
+    "newLoadStates": false,
+    "existingReceptionContractChanged": false,
+    "previousDataPreserved": true
+  },
+  "limits": {
+    "maxRowsConfigured": 20000,
+    "maxArchiveBytesConfigured": 10000000,
+    "maxFields": 256,
+    "headerRow": 1,
+    "previewRows": 25,
+    "previewCharactersPerCell": 120,
+    "httpSeconds": 30,
+    "automaticRetry": false,
+    "fullSheetProfile": true,
+    "fullImportValidationStillRequired": true,
+    "browserFilePersistence": false
+  },
+  "scope": {
+    "newTemplatesOnly": true,
+    "manualEditorPreserved": true,
+    "serverLibrary": "Existing ExcelDataReader/LectorArchivoExcel/InspectorFidelidadExcel",
+    "uploadAfterExplicitAction": true,
+    "hashComparedBeforePrepare": true,
+    "existingTableTypesFromSelect": true,
+    "datetimeWithTime": "Rejected for assistant; manual configuration remains available",
+    "unknownOrMixedTypes": "Conservative text suggestion",
+    "physicalPerformanceMeasured": false
+  },
+  "sources": [
+    {
+      "path": "DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb",
+      "sha256Utf8Lf": "6577dd2b00947b74e8d31066e5e408ad559e7e916e14da99d2119bf8196d9abb"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioAnalisisPlantillaExcel.vb",
+      "sha256Utf8Lf": "95f0792181b8ef31a59e09a5654ba65ca9dae517357740d4db5873093c8d72bc"
+    },
+    {
+      "path": "generic_control/ImportacionExcelAnalisis.ashx",
+      "sha256Utf8Lf": "064db5423957a60b143ea5d74a6e6fa0647310d432002382a3263442c54a8c4a"
+    },
+    {
+      "path": "generic_control/ImportacionExcelAnalisis.ashx.vb",
+      "sha256Utf8Lf": "8133a69579660d22c8615c2b78f4de15abc6cf2fe16600bb3d5d6028fcebd363"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Utf8Lf": "58c1559384cf3feaaf6b50ebb78ba5428bc46058481deb871645414e12a4abef"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx.vb",
+      "sha256Utf8Lf": "f301a264202c38325dcda48300feee1631c2cc61923c279a44e45a48f3d4ff32"
+    },
+    {
+      "path": "GestionDocumental-Docuarchi.net.vbproj",
+      "sha256Utf8Lf": "f90901bc19a14061319b72e885c44f1dd0a632ba24c5b68c8a84141a9f45a357"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+      "sha256Utf8Lf": "d776bea4612812fcbf4cf2720e5010c46c83dd2e6e4f45a248783a3f979df302"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "sha256Utf8Lf": "2f8fbea5d52a98ec4a10711c54866bf82058e58898bbbc066e2f1310a447d154"
+    },
+    {
+      "path": "Styles/ImportacionExcel.css",
+      "sha256Utf8Lf": "f3bb3e8d112956615675f24efd73598e5ec96537af19064d5d7e084c26dbc0ab"
+    },
+    {
+      "path": "tests/ImportacionExcelLecturaTests.cs",
+      "sha256Utf8Lf": "6530a1d735e41d90c2f7e7f657bc5c6efa886da11b9d494779fc4074de1b81d2"
+    },
+    {
+      "path": "tests/doc122-importacion-excel-behavior.test.cjs",
+      "sha256Utf8Lf": "de09a98b6db3c55651408d331f830827c1ab27fbeba0e2090c13e3bd379ffac6"
+    },
+    {
+      "path": "tests/doc126-importacion-excel-client.test.cjs",
+      "sha256Utf8Lf": "822ba3a98c5659737e58c0261f882b5b92570e0294ab860f3e71315fd97076ad"
+    },
+    {
+      "path": "tests/doc126-importacion-excel-ui.test.cjs",
+      "sha256Utf8Lf": "083605a828bd5baac23a12658c4c9240fde5573740b40c3a76c557af2872a606"
+    }
+  ],
+  "preservedFiles": [
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioLecturaExcel.vb",
+      "sha256Utf8Lf": "fa0d6a99a17fff59931ba265814670e3d487b106c8e7229b3d37369afd605295"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioRecepcionExcel.vb",
+      "sha256Utf8Lf": "92b1641c7c9653d9f200aff7f7471140259c8eac2589e058df2fcaeb63def317"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioPreparacionExcel.vb",
+      "sha256Utf8Lf": "8bf53cbf11e89279b3a65c57e93fb2566ef1fd1c0ad605ae05b2eabb383d9e39"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb",
+      "sha256Utf8Lf": "22e85ceaf98e8accfbf0d8af8cbbd27045f052ac08be9b48cf7354f19b92df27"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb",
+      "sha256Utf8Lf": "cc12bd1cf3862cfe2b33811e0635491254ec138250d2cbad5ad2d736aeefc344"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ReferenciaRecepcionExcel.vb",
+      "sha256Utf8Lf": "c400d077e5b0736814990ef49524a9e62ab43c3de1e154d041ad4f8ebff631d7"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/AlmacenArchivoExcel.vb",
+      "sha256Utf8Lf": "901b2c3adf0484036cad185625450285082a5e4dd16fa7636524ec915cd1e3d0"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb",
+      "sha256Utf8Lf": "9ddf94a9fad34c40a0fd31fee5dc6d0671d899b03ccd8e8483e68c0ada088332"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb",
+      "sha256Utf8Lf": "47d04d584ab854f14d029bc4bb5cacc400c80825cd9c2014b7eb22c63b90a7f2"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlConfirmacionExcelWriter.vb",
+      "sha256Utf8Lf": "ae431a4d2c487a947f44161cf70b25b9f63d79903778bf5fa94b47cb9d54c124"
+    }
+  ],
+  "verification": {
+    "refinement": {
+      "passed": 15,
+      "failed": 0
+    },
+    "openSpecStrict": {
+      "passed": 97,
+      "failed": 0
+    },
+    "protectedFilesUnchanged": 10,
+    "fullGovernanceComplete": false
+  }
+}

@@ -28,7 +28,9 @@
         DESTINO_INVALIDO:"El destino no es compatible con esta plantilla. Revisa su configuración.",
         SOLICITUD_INVALIDA:"Revisa los campos requeridos antes de continuar."
     };
+    Object.assign(messages, {ENCABEZADOS_INVALIDOS:"La fila 1 debe contener encabezados no vacíos, de hasta 120 caracteres y como máximo 256 columnas. Revisa también las columnas con datos sin encabezado.",ENCABEZADO_AMBIGUO:"Hay encabezados repetidos. Corrígelos en el Excel antes de generar los campos.",LIBRO_SIN_DATOS:"La hoja no contiene filas de datos.",LIMITE_FILAS_EXCEDIDO:"La hoja supera el límite de filas permitido.",LIBRO_INVALIDO:"El archivo no es un libro Excel válido.",FORMULA_SIN_RESULTADO:"Hay fórmulas sin resultado guardado. Calcula y guarda el libro desde Excel.",ERROR_CELDA_EXCEL:"El libro contiene errores de celda. Corrígelos antes de continuar.",LONGITUD_NO_ADMITIDA:"Una columna requiere un tipo de texto mayor que el admitido para crear tablas. Revisa sus valores.",ANALISIS_NO_DISPONIBLE:"No se pudo analizar el libro. Puedes corregirlo o configurar la plantilla manualmente.",ARCHIVO_ALTERADO:"El archivo recibido es distinto del analizado. Inicia una nueva carga y revisa el libro."});
     var modeNames = {CREAR:"Crear tabla", AGREGAR:"Agregar filas", REEMPLAZAR:"Reemplazar contenido autorizado"};
+    messages.FECHA_CON_HORA_NO_ADMITIDA = "Hay fechas con hora. Revisa cómo quieres conservarlas antes de configurar la plantilla manualmente; el asistente propone sólo fechas sin hora.";
     function integer(v) { return typeof v === "number" && isFinite(v) && Math.floor(v) === v && v > 0 && v <= 4294967295; }
     function text(v) { return v === null || v === undefined ? "" : String(v); }
     function copy(v) { return JSON.parse(JSON.stringify(v)); }
@@ -46,11 +48,12 @@
         if (host.doc126Instancia) { return host.doc126Instancia; }
         var doc = host.ownerDocument, scope = host.getAttribute("data-recuperacion");
         if (!/^[a-f0-9]{32}$/.test(scope || "") || !env.ImportacionExcelApi || !env.ImportacionCarpetas) { return null; }
-        var api = env.ImportacionExcelApi.crear({url:host.getAttribute("data-api"), upload:host.getAttribute("data-upload"),recuperacion:scope});
+        var api = env.ImportacionExcelApi.crear({url:host.getAttribute("data-api"), upload:host.getAttribute("data-upload"),analisis:host.getAttribute("data-analisis"),recuperacion:scope});
         var epoch = 0, busy = false, writeBusy = false, destroyed = false, closed = true, opener = null;
         var capability = null, template = null, received = null, prepared = null, frozen = null, preparationHash = "", uncertain = false, blocked = false;
         var pageNumber = 1, listTotal = 0, editorOriginal = null, editorDirty = false, saveUncertain = false, refs = [], storage = null, storageOk = true;
         var namespace = "doc126-excel:" + scope, state = "VACIO", controls = [];
+        var analysis = null, analyzedFile = null, pendingFile = null, pendingHash = "", pendingTemplate = 0;
         function node(tag, content, attrs) {
             var e = doc.createElement(tag);
             if (content !== null && content !== undefined) { e.textContent = content; }
@@ -121,6 +124,8 @@
         var mode = field(fileGrid,"Modo de la plantilla","select","modo");
         loadPanel.appendChild(fileGrid);
         var loadActions = node("div",null,{"class":"doc126-actions"});
+        var createFromExcel = button("Crear plantilla desde Excel","crear-desde-excel",function () { editTemplate(true); if (!editPanel.hidden) { analysisFile.focus(); } });
+        createFromExcel.hidden = !host.getAttribute("data-analisis"); loadActions.appendChild(createFromExcel);
         var uploadButton = button("Recibir archivo","recibir",upload), prepareButton = button("Validar archivo","preparar",prepare,true);
         loadActions.appendChild(uploadButton); loadActions.appendChild(prepareButton); loadActions.appendChild(button("Nueva carga","nueva-carga",newLoad)); loadPanel.appendChild(loadActions);
         var preview = node("div",null,{"data-doc126":"preview"}), incidents = node("div",null,{"data-doc126":"incidencias"}); loadPanel.appendChild(preview); loadPanel.appendChild(incidents);
@@ -135,6 +140,17 @@
         editor.Modo = field(editorGrid,"Modo","select","editor-modo"); Object.keys(modeNames).forEach(function (v) { option(editor.Modo,modeNames[v],v); });
         editor.ESTADO_PLANTILLA = field(editorGrid,"Plantilla activa","input","activa",{type:"checkbox"});
         editPanel.appendChild(node("h3","Configuración de plantilla")); editPanel.appendChild(editorGrid);
+        var assistant = node("section",null,{"data-doc126":"asistente","class":"doc126-assistant",hidden:"hidden"});
+        assistant.appendChild(node("h3","Crear campos desde Excel"));
+        assistant.appendChild(node("p","Encabezados en la fila 1. Los campos y tipos son propuestas editables; elige la clave y revisa la configuración antes de guardar."));
+        var analysisGrid = node("div",null,{"class":"doc126-grid"});
+        var analysisFile = field(analysisGrid,"Excel para generar los campos","input","analisis-archivo",{type:"file",accept:".xls,.xlsx"});
+        var analysisSheet = field(analysisGrid,"Hoja para generar los campos","select","analisis-hoja");
+        var analysisKey = field(analysisGrid,"Elegir campo único de la propuesta","select","analisis-clave");
+        assistant.appendChild(analysisGrid);
+        var analyzeButton = button("Analizar Excel y proponer campos","analizar",analyze,true); assistant.appendChild(analyzeButton);
+        var analysisPreview = node("div",null,{"data-doc126":"analisis-preview"}); assistant.appendChild(analysisPreview); editPanel.appendChild(assistant);
+        var pendingNotice = node("p","",{"data-doc126":"archivo-conservado","class":"doc126-limits"}); loadPanel.appendChild(pendingNotice);
         var fieldsWrap = node("div",null,{"class":"doc126-table-scroll"}), fieldsTable = node("table",null,{"class":"doc126-table"});
         fieldsTable.appendChild(node("caption","Campos y transformaciones de la plantilla"));
         var fieldsHeader = node("tr"); ["Origen","Destino","Tipo","Cambiar coma","Cambiar punto","Separar","Separador","Posición","Acción"].forEach(function (v) { fieldsHeader.appendChild(node("th",v,{scope:"col"})); });
@@ -188,12 +204,15 @@
             controls.forEach(function (c) { c.disabled = busy; }); closeButton.disabled = false;
             if (busy) { return; }
             mode.disabled = true;
-            uploadButton.disabled = !loadAllowed() || uncertain || saveUncertain || !!received || !file.files || file.files.length !== 1;
+            uploadButton.disabled = !loadAllowed() || uncertain || saveUncertain || !!received || (!pendingFile && (!file.files || file.files.length !== 1));
             prepareButton.disabled = !loadAllowed() || !received || uncertain || !sheet.value;
             confirmButton.disabled = !loadAllowed() || !confirmable();
             previous.disabled = !allowed() || pageNumber <= 1; next.disabled = !allowed() || pageNumber * 25 >= listTotal;
             searchButton.disabled = !allowed(); selectTemplate.disabled = !allowed(); connection.disabled = !allowed(); file.disabled = !allowed() || uncertain;
             saveButton.disabled = !allowed() || saveUncertain || !editorOriginal;
+            createFromExcel.disabled = !allowed() || saveUncertain || uncertain;
+            analyzeButton.disabled = !allowed() || saveUncertain || !analysisFile.files || analysisFile.files.length !== 1;
+            analysisKey.disabled = !analysis;
             queryButton.disabled = !capability || blocked;
         }
         function invalidate(resetReceipt) {
@@ -274,22 +293,23 @@
             summary.textContent = "Destino: " + p.NOMBRE_PLANTILLA + " · Clave única: " + p.CAMPO_UNICO + " · Formato: " + p.Formato;
             clear(mode); option(mode,modeNames[p.Modo],p.Modo); state = "VACIO"; notice(loadAllowed() ? "Plantilla seleccionada. El modo pertenece a su configuración." : "La plantilla necesita una clave única y estar activa antes de recibir un archivo. Revisa su configuración.");
         }
-        connection.addEventListener("change",function () { if (writeBusy) { return; } epoch++; busy = false; template = null; invalidate(true); pageNumber = 1; queryConnection.value = connection.value; fetchList(); });
+        connection.addEventListener("change",function () { if (writeBusy) { return; } clearAssistant(); epoch++; busy = false; template = null; invalidate(true); pageNumber = 1; queryConnection.value = connection.value; fetchList(); });
         selectTemplate.addEventListener("change",function () {
-            if (writeBusy) { return; } epoch++; busy = false; invalidate(true); template = null;
+            if (writeBusy) { return; } clearAssistant(); epoch++; busy = false; invalidate(true); template = null;
             var id = Number(selectTemplate.value); if (!integer(id)) { return; }
             run(function () { return api.ejecutar("ConsultarPlantilla",{ConexionId:Number(connection.value),PlantillaId:id}); },function (r) { selected(r.datos); },false);
         });
-        file.addEventListener("change",function () { if (!busy) { invalidate(true); uncertain = false; sync(); } });
+        file.addEventListener("change",function () { if (!busy) { clearPendingFile(); invalidate(true); uncertain = false; sync(); } });
         sheet.addEventListener("change",function () { if (!busy) { invalidate(false); } }); consent.addEventListener("change",sync);
         function newLoad() {
             if (busy) { return; }
             if (uncertain) { notice("Consulta primero el resultado de la operación pendiente antes de iniciar otra carga."); showPanel(queryPanel); return; }
-            received = null; invalidate(true); file.value = ""; notice("Selecciona un libro para una nueva carga. Las referencias anteriores se conservan."); sync();
+            clearAssistant(); received = null; invalidate(true); file.value = ""; notice("Selecciona un libro para una nueva carga. Las referencias anteriores se conservan."); sync();
         }
         function upload() {
-            if (!loadAllowed() || uncertain || received || !file.files || file.files.length !== 1) { return; }
-            var f = file.files[0], p = copy(template), c = Number(connection.value), ticket = epoch;
+            if (!loadAllowed() || uncertain || received || (!pendingFile && (!file.files || file.files.length !== 1))) { return; }
+            var f = pendingFile || file.files[0], expectedHash = pendingFile ? pendingHash : "", p = copy(template), c = Number(connection.value), ticket = epoch;
+            if (pendingFile && pendingTemplate !== p.ID_PLANTILLAIMP) { clearPendingFile(); sync(); return; }
             if (!f.size || f.size > capability.MaxArchivoMB * 1000000 || !new RegExp("\\." + p.Formato + "$","i").test(f.name)) { fail({codigo:"ARCHIVO_INVALIDO"}); sync(); return; }
             invalidate(true);
             run(function () {
@@ -303,6 +323,8 @@
                 var d = r && r.datos;
                 if (!d || !uuid.test(d.IdCarga || "") || d.IdCarga !== queryId.value || d.Estado !== "RECIBIDA" || !Array.isArray(d.Hojas) || !d.Hojas.length) { throw invalid(true); }
                 received = copy(d); clear(sheet); d.Hojas.forEach(function (name) { option(sheet,name,name); });
+                if (expectedHash && d.ArchivoHash !== expectedHash) { received = null; clearPendingFile(); invalidate(true); throw {codigo:"ARCHIVO_ALTERADO",resultadoIncierto:false}; }
+                clearPendingFile();
                 if (d.Hojas.indexOf(p.LIBRO_EXCEL) !== -1) { sheet.value = p.LIBRO_EXCEL; }
                 state = "VACIO"; notice("Archivo recibido. Selecciona su hoja y valida el contenido completo.");
             },true);
@@ -370,10 +392,45 @@
         function editTemplate(isNew) {
             if (busy || !allowed() || !showPanel(editPanel)) { return; }
             if (editorDirty && !env.confirm("Hay cambios sin guardar. ¿Quieres descartarlos?")) { return; }
+            clearAssistant(); assistant.hidden = (!isNew && !!template) || !host.getAttribute("data-analisis");
             editorOriginal = !isNew && template ? copy(template) : {ID_PLANTILLAIMP:0,REVISION_CARGA:0,Huella:"",Formato:"XLSX",Modo:"CREAR",NOMBRE_PLANTILLA:"imp_02_",CAMPO_UNICO:"",LIBRO_EXCEL:"Datos",ESTADO_PLANTILLA:1,Campos:[]};
             Object.keys(editor).forEach(function (k) { if (k === "ESTADO_PLANTILLA") { editor[k].checked = editorOriginal[k] === 1; } else { editor[k].value = editorOriginal[k] || ""; } });
             clear(fieldsBody); editorOriginal.Campos.forEach(addField); if (!fieldsBody.children.length) { addField({}); }
             editorDirty = false; sync(); editor.NOMBRE_PLANTILLA.focus();
+        }
+        function clearPendingFile() {
+            pendingFile = null; pendingHash = ""; pendingTemplate = 0; pendingNotice.textContent = "";
+        }
+        function clearAssistant() {
+            analysis = null; analyzedFile = null; clearPendingFile();
+            analysisFile.value = ""; clear(analysisSheet); clear(analysisKey); clear(analysisPreview);
+        }
+        analysisFile.addEventListener("change",function () {
+            if (busy) { return; } analysis = null; analyzedFile = null; clearPendingFile(); clear(analysisSheet); clear(analysisKey); clear(analysisPreview); invalidate(true);
+        });
+        analysisKey.addEventListener("change",function () { editor.CAMPO_UNICO.value = analysisKey.value; editorDirty = true; invalidate(true); });
+        analysisSheet.addEventListener("change",function () { if (!busy) { analyze(); } });
+        function analyze() {
+            if (busy || !allowed() || saveUncertain || !editorOriginal || editorOriginal.ID_PLANTILLAIMP !== 0 || !analysisFile.files || analysisFile.files.length !== 1) { return; }
+            var f = analysisFile.files[0], selectedSheet = analysisSheet.value;
+            if (!f.size || f.size > capability.MaxArchivoMB * 1000000 || !/\.(?:xls|xlsx)$/i.test(f.name)) { notice(messages.ARCHIVO_INVALIDO); return; }
+            if (editorDirty && Array.prototype.some.call(fieldsBody.querySelectorAll('[data-field="CAMPO_FUENTE"]'),function (c) { return !!c.value; }) && !env.confirm("Se reemplazarán los campos propuestos. ¿Quieres analizar el archivo?")) { analysisSheet.value = analysis ? analysis.Hoja : ""; return; }
+            analysis = null; analyzedFile = null; clearPendingFile(); clear(analysisPreview); clear(analysisKey); invalidate(true);
+            run(function () { return api.analizar({conexionId:Number(connection.value),hoja:selectedSheet,tabla:editor.NOMBRE_PLANTILLA.value,modo:editor.Modo.value},f); },function (r) {
+                var d = r.datos;
+                if (!d || !hash.test(d.ArchivoHash || "") || !Array.isArray(d.Campos) || !d.Campos.length || d.Campos.length > 256 || d.Campos.some(function (c) { return !c || typeof c.CAMPO_FUENTE !== "string" || typeof c.CAMPO_DESTINO !== "string" || typeof c.TIPO_CAMPO !== "string"; }) || !Array.isArray(d.Hojas) || d.Hojas.indexOf(d.Hoja) < 0 || !Array.isArray(d.Muestra) || d.Muestra.some(function (row) { return !Array.isArray(row); }) || !integer(d.FilasObservadas) || d.FilasObservadas > capability.MaxFilasDatos || ["XLS","XLSX"].indexOf(d.Formato) < 0) { throw invalid(false); }
+                analysis = copy(d); analyzedFile = f; editor.Formato.value = d.Formato; editor.LIBRO_EXCEL.value = d.Hoja;
+                clear(analysisSheet); d.Hojas.forEach(function (h) { option(analysisSheet,h,h); }); analysisSheet.value = d.Hoja;
+                clear(fieldsBody); d.Campos.forEach(addField); clear(analysisKey); option(analysisKey,"Selecciona el campo único","");
+                d.Campos.forEach(function (c) { option(analysisKey,c.CAMPO_DESTINO,c.CAMPO_DESTINO); }); editor.CAMPO_UNICO.value = "";
+                analysisPreview.appendChild(node("p",d.FilasObservadas + " filas analizadas · muestra de " + Math.min(25,d.Muestra.length) + " filas (valores abreviados a 120 caracteres). Revisa tipos, longitudes y campo único. No se ha importado el archivo."));
+                if ((d.Avisos || []).indexOf("REVISAR_MAPEO_DESTINO") !== -1) { analysisPreview.appendChild(node("p","Hay columnas sin correspondencia con la tabla existente. Ajusta el destino antes de guardar.")); }
+                var wrap = node("div",null,{"class":"doc126-table-scroll"}), table = node("table",null,{"class":"doc126-table"}), head = node("tr"), tbody = node("tbody"); table.appendChild(node("caption","Muestra del libro analizado"));
+                d.Campos.forEach(function (c) { head.appendChild(node("th",c.CAMPO_FUENTE)); }); var thead = node("thead"); thead.appendChild(head); table.appendChild(thead);
+                d.Muestra.slice(0,25).forEach(function (row) { var tr = node("tr"); row.slice(0,d.Campos.length).forEach(function (v) { tr.appendChild(node("td",v === null ? "NULL" : text(v))); }); tbody.appendChild(tr); });
+                table.appendChild(tbody); wrap.appendChild(table); analysisPreview.appendChild(wrap); editorDirty = true;
+                notice("Campos generados. Elige el campo único, revisa la configuración y guarda la plantilla. La importación se validará después."); analysisKey.focus();
+            },false,"CARGANDO","Analizando el libro para proponer los campos…");
         }
         function addField(f) {
             var tr = node("tr"); tr.doc126Field = copy(f);
@@ -385,12 +442,20 @@
                 else { input.type = k === "NUMERO_MATRIZ_EXPLITER" ? "number" : "text"; input.maxLength = k === "TIPO_CAMPO" ? 64 : k === "CAMPO_DESTINO" ? 64 : 120; if (input.type === "number") { input.min = "0"; input.max = "4294967295"; input.step = "1"; } }
                 input.value = f[k] === null || f[k] === undefined ? "" : String(f[k]); controls.push(input); td.appendChild(input); tr.appendChild(td);
             });
-            var td = node("td"); td.appendChild(button("Quitar","quitar-campo",function () { tr.remove(); editorDirty = true; invalidate(false); })); tr.appendChild(td); fieldsBody.appendChild(tr);
+            var td = node("td"); td.appendChild(button("Quitar","quitar-campo",function () { tr.remove(); editorDirty = true; refreshAnalysisKey(); invalidate(false); })); tr.appendChild(td); fieldsBody.appendChild(tr);
         }
-        editPanel.addEventListener("input",function () { editorDirty = true; invalidate(false); });
-        editPanel.addEventListener("change",function () { editorDirty = true; invalidate(false); });
+        function refreshAnalysisKey() {
+            if (!analysis) { return; }
+            var chosen = editor.CAMPO_UNICO.value, names = [];
+            Array.prototype.forEach.call(fieldsBody.querySelectorAll('[data-field="CAMPO_DESTINO"]'),function (input) { if (input.value && names.indexOf(input.value) === -1) { names.push(input.value); } });
+            clear(analysisKey); option(analysisKey,"Selecciona el campo único",""); names.forEach(function (name) { option(analysisKey,name,name); });
+            if (names.indexOf(chosen) !== -1) { analysisKey.value = chosen; } else { editor.CAMPO_UNICO.value = ""; }
+        }
+        editPanel.addEventListener("input",function (event) { if (!assistant.contains(event.target)) { editorDirty = true; if (event.target.getAttribute("data-field") === "CAMPO_DESTINO") { refreshAnalysisKey(); } invalidate(false); } });
+        editPanel.addEventListener("change",function (event) { if (!assistant.contains(event.target)) { editorDirty = true; invalidate(false); } });
         function saveTemplate() {
             if (!allowed() || busy || saveUncertain || !editorOriginal) { return; }
+            if (!assistant.hidden && analysisFile.files.length && !analysis) { notice("Analiza el archivo seleccionado antes de guardar los campos propuestos."); return; }
             var p = {ID_PLANTILLAIMP:editorOriginal.ID_PLANTILLAIMP,REVISION_CARGA:editorOriginal.REVISION_CARGA,IMP01_XMLCONEXION_ID_XMLCONEXION:Number(connection.value)};
             Object.keys(editor).forEach(function (k) { p[k] = k === "ESTADO_PLANTILLA" ? (editor[k].checked ? 1 : 0) : editor[k].value; });
             p.Campos = Array.prototype.map.call(fieldsBody.children,function (tr) {
@@ -402,8 +467,10 @@
             if (!/^imp_02_[A-Za-z0-9_]+$/.test(p.NOMBRE_PLANTILLA) || !/^[A-Za-z_][A-Za-z0-9_]{0,63}$/.test(p.CAMPO_UNICO) || !p.LIBRO_EXCEL || !p.Campos.length || p.Campos.length > 256 || p.Campos.some(function (f) { return !f.CAMPO_FUENTE || !f.CAMPO_DESTINO || !f.TIPO_CAMPO; })) { notice(messages.CONFIGURACION_INVALIDA); return; }
             var request = {ConexionId:p.IMP01_XMLCONEXION_ID_XMLCONEXION,RevisionEsperada:editorOriginal.REVISION_CARGA,HuellaEsperada:editorOriginal.Huella,Plantilla:p};
             invalidate(true);
+            var keepFile = analyzedFile, keepHash = analysis && analysis.ArchivoHash;
             run(function () { return api.ejecutar("GuardarPlantilla",request).catch(function (e) { if (e.resultadoIncierto) { saveUncertain = true; } throw e; }); },function (r) {
                 editorDirty = false; selected(r.datos); option(selectTemplate,r.datos.NOMBRE_PLANTILLA,r.datos.ID_PLANTILLAIMP); selectTemplate.value = String(r.datos.ID_PLANTILLAIMP); panels.forEach(function (panel) { panel.hidden = panel !== loadPanel; }); notice("Plantilla guardada. Selecciona un archivo para iniciar una carga.");
+                if (keepFile && keepHash) { pendingFile = keepFile; pendingHash = keepHash; pendingTemplate = r.datos.ID_PLANTILLAIMP; pendingNotice.textContent = "Archivo listo: " + keepFile.name + ". Pulsa Recibir archivo para continuar. Al recargar tendrás que seleccionarlo otra vez."; notice("Plantilla guardada. El archivo analizado está listo para recibir y validar; aún no se ha importado."); }
             },true);
         }
         function keydown(event) {
@@ -420,7 +487,7 @@
         access.addEventListener("click",open); overlay.addEventListener("keydown",keydown); overlay.addEventListener("keypress",function (event) { event.stopPropagation(); if (event.key === "Enter" && event.target.tagName === "INPUT" && event.target.type !== "file") { event.preventDefault(); } });
         attachMenu(); history(); sync();
         var instance = {sincronizar:attachMenu, destruir:function () {
-            epoch++; destroyed = true; api.cerrar(); env.removeEventListener("resize",fitViewport);
+            epoch++; destroyed = true; clearAssistant(); api.cerrar(); env.removeEventListener("resize",fitViewport);
             if (env.visualViewport) { env.visualViewport.removeEventListener("resize",fitViewport); } if (viewportObserver) { viewportObserver.disconnect(); }
             if (zoomObserver) { zoomObserver.disconnect(); }
             section.remove(); overlay.remove(); entryNotice.remove(); delete host.doc126Instancia;

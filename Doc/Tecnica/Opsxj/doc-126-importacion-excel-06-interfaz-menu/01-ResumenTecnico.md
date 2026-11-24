@@ -12,3 +12,7 @@ Menú y diálogo Excel conectados con los servicios DOC122–125, con permiso pr
 ## Alcance y compatibilidad
 
 Se preservan plataforma, servicios, transacciones,20k/10MB y consumidores existentes. Tres assets Content y helper contextual en guarda actual; sin nuevas conexiones.150/150 pruebas locales,4505 comprobaciones sintéticos y build0 errores. Evidencia y límites en Doc/Actualizacion/Importacion/Validacion/doc126-implementacion-local-20261124.md/JSON. E2E real, aplicación SQL 22–25 y despliegue no ejecutados; no se presentan como terminados.
+
+## Corte actual: asistente desde Excel
+
+Ampliación D-16/RQ-16 implementada localmente: 47/52 tareas, 160/160 pruebas y build sin errores. Análisis independiente sin plantilla ni efectos durables; propuesta editable, clave explícita y File sólo en memoria hasta recepción habitual con contraste de hash. No requiere migración SQL y preserva los contratos de carga. Evidencia actual y límites en `Doc/Actualizacion/Importacion/Validacion/doc126-asistente-20261124.md`. 8.8 y las cuatro tareas anteriores de aceptación/gobierno siguen abiertas; sin despliegue ni E2E real. Los números anteriores pertenecen al corte inicial.

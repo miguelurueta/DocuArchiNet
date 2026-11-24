@@ -137,3 +137,19 @@ Public Class RespuestaPreparacionExcel
     Inherits RespuestaImportacionExcel
     Public Property datos As PreparacionCargaExcel
 End Class
+
+'Propuesta sin plantilla ni carga durable. No constituye validación de importación.
+Public Class AnalisisPlantillaExcel
+    Public Property Formato As String
+    Public Property Hoja As String
+    Public Property Hojas As New List(Of String)
+    Public Property ArchivoHash As String
+    Public Property FilasObservadas As Integer
+    Public Property Campos As New List(Of CampoPlantillaExcel)
+    Public Property Muestra As New List(Of List(Of String))
+    Public Property Avisos As New List(Of String)
+End Class
+Public Class RespuestaAnalisisPlantillaExcel
+    Inherits RespuestaImportacionExcel
+    Public Property datos As AnalisisPlantillaExcel
+End Class

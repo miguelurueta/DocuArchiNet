@@ -1,11 +1,11 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const factory=require('../js/gestion/ImportacionExcel/ImportacionExcelApi.js');
-function fixture(){
+function fixture(extra={}){
  const requests=[];
  const jq={ajax(settings){const entry={settings};requests.push(entry);return {done(fn){entry.resolve=fn;return this;},fail(fn){entry.reject=fn;return this;}};}};
  class Form{constructor(){this.values=[];}append(...args){this.values.push(args);}}
- const options={url:'/app/webservice/excel.asmx',upload:'/app/upload.ashx',recuperacion:'a'.repeat(32)};
+ const options={url:'/app/webservice/excel.asmx',upload:'/app/upload.ashx',recuperacion:'a'.repeat(32),...extra};
  const api=factory(jq,{FormData:Form}).crear(options);
  async function open(){const p=api.ejecutar('AbrirCargaExcel');requests.at(-1).resolve({d:{ok:true,codigo:'OK',datos:{CsrfToken:'synthetic-fixture',Conexiones:[]}}});await p;}
  return {requests,api,open,options,jq,Form};
@@ -16,6 +16,17 @@ test('DOC126 cliente conserva los datos de una validación rechazada y usa conte
  assert.equal(call.settings.timeout,30000);assert.deepEqual(JSON.parse(call.settings.data),{solicitud:{IdCarga:'synthetic'}});
  const datos={Carga:{IdCarga:'synthetic'},Incidencias:[{Fila:2}],TotalIncidencias:1};call.resolve({d:{ok:false,codigo:'LECTURA_INVALIDA',datos}});
  await assert.rejects(pending,e=>e.codigo==='LECTURA_INVALIDA'&&e.datos===datos&&!e.resultadoIncierto);
+});
+
+test('DOC126 análisis es opcional, independiente del upload y no genera incertidumbre durable',async()=>{
+ const previous=fixture();await previous.open();await assert.rejects(previous.api.analizar({}, {name:'book.xlsx'}),e=>e.codigo==='ANALISIS_NO_DISPONIBLE');assert.equal(previous.requests.length,1);
+ for(const analisis of ['/app/analysis.ashx','//outside.invalid/analysis','/app/../analysis']){
+  const f=fixture({analisis});await f.open();const p=f.api.analizar({conexionId:6,hoja:'Datos',tabla:'imp_02_fixture',modo:'CREAR'},{name:'book.xlsx'});
+  if(analisis!=='/app/analysis.ashx'){await assert.rejects(p);assert.equal(f.requests.length,1);continue;}
+  const call=f.requests.at(-1);assert.equal(call.settings.url,analisis);assert.equal(call.settings.contentType,false);assert.equal(call.settings.headers['X-Importacion-Excel-CSRF'],'synthetic-fixture');
+  assert.deepEqual(call.settings.data.values.map(v=>v[0]),['conexionId','hoja','tabla','modo','archivo']);call.reject({status:0});await assert.rejects(p,e=>!e.resultadoIncierto);assert.equal(f.requests.length,2);
+  const controlled=f.api.analizar({conexionId:6,modo:'CREAR'},{name:'book.xlsx'});f.requests.at(-1).resolve({ok:false,codigo:'RESULTADO_INCIERTO'});await assert.rejects(controlled,e=>!e.resultadoIncierto);assert.equal(f.requests.length,3);
+ }
 });
 test('DOC126 un acuse inválido o perdido de Confirmar queda incierto sin retry',async()=>{
  for(const broken of ['invalid','network','controlled']){const f=fixture();await f.open();const p=f.api.ejecutar('Confirmar',{IdCarga:'synthetic'});const call=f.requests.at(-1);

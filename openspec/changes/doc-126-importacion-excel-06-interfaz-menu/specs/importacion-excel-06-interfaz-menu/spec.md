@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14,D-15 -->
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14,D-15,D-16 -->
 ## Purpose
 
 Permitir a las personas autorizadas administrar plantillas y cargar libros Excel desde Producción Documental, revisar su validación y recuperar el resultado durable, conservando los permisos, límites y datos de las capacidades existentes.
@@ -244,3 +244,23 @@ El sistema SHALL entregar la interfaz compatible con los consumidores y la plata
 #### Scenario: Reversión de entrega
 - **WHEN** se debe retirar la interfaz desplegada
 - **THEN** se restauran assets/bin compatibles sin eliminar tablas, configuración, cargas ni resultados
+
+### Requirement: RQ-16 — Crear plantilla desde Excel sin alterar la carga
+
+El sistema SHALL permitir generar una propuesta editable de plantilla desde un XLS/XLSX sin plantilla previa, manteniendo autoridad y límites vigentes, sin efectos durables durante el análisis y conservando los contratos actuales de guardado, recepción y confirmación. Trazabilidad: D-16.
+
+#### Scenario: Generación de campos y selección de clave
+- **WHEN** el usuario analiza una hoja de un libro válido con encabezados en fila 1
+- **THEN** obtiene campos de origen exactos, destinos únicos válidos, tipos conservadores y muestra acotada; elige la clave y guarda explícitamente mediante el CAS existente
+
+#### Scenario: Archivo incompatible o ambiguo
+- **WHEN** el archivo excede límites, contiene encabezados vacíos o repetidos, datos sin encabezado o errores de celda
+- **THEN** se rechaza la propuesta sin registrar carga ni guardar plantilla y se conserva la posibilidad de edición manual
+
+#### Scenario: Continuación explícita con el mismo archivo
+- **WHEN** se guarda una propuesta analizada y se pulsa recibir
+- **THEN** se utiliza el File retenido sólo en memoria, se contrasta el hash recibido y se exige la preparación actual antes de confirmar; no se importa al guardar y una recarga requiere seleccionar de nuevo
+
+#### Scenario: Cambio de intención y compatibilidad
+- **WHEN** cambia el archivo, hoja o contexto, se cierra durante análisis o se edita una plantilla existente
+- **THEN** no se aplican respuestas obsoletas, una propuesta invalidada no se guarda como vigente y los contratos previos y su edición manual permanecen disponibles

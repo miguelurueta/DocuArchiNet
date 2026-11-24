@@ -16,7 +16,7 @@ ni carga sin autorización explícita para el ambiente y las cuentas de prueba»
    y conservar los IDs resultantes. No reaplicar 18–21 ni tocar sus datos.
 3. Autorizar despliegue local de la DLL candidata con respaldo y comprobación
    WSDL, conservando Web.config/recursos actuales. Candidata:
-   `525ab00555e7be727e4f37bbf316a5b7adaee40a4c683c55e422f4bdeb50d257`.
+   `83f1b3216aa4d682d5e48b55c14b6f9254c378ad7df1803dac0c722b89ee9f70`.
    Los tres assets, ASPX y namespace contextual pertenecen a la misma entrega.
    Preparar scope con sus hashes exactos y las referencias verificadas, sin claves.
 4. Autorizar lectura real con las dos cuentas y recursos existentes mediante
@@ -44,3 +44,14 @@ con huellas completas SELECT. No instalar, sembrar, reparar ni limpiar desde tes
 
 Hasta confirmar esos requisitos,6.9/6.10/6.11 y 7.5 permanecen abiertas; Jira y archivo
 OpenSpec no se cierran. Esta preparación no es evidencia de una ejecución real.
+
+## Ampliación del asistente — pendiente
+
+El corte local actual es 47/52 y 160 pruebas. Ver doc126-asistente-20261124.md.
+La candidata anterior se sustituye por el hash indicado arriba; preparar scope con
+DLL/assets vigentes. La matriz de cinco casos no cubre 8.8 y su scope bloquea
+GuardarPlantilla. Antes de ampliar la E2E se debe autorizar específicamente el alta
+de una plantilla y el destino nuevo, sus efectos máximos y conservación. No
+reutilizar un fixture ya creado ni retirar el bloqueo sin un scope revisado.
+El asistente no requiere otro SQL de instalación; cualquier fixture/adecuación
+adicional que resulte necesario se entrega para aplicación manual separada.

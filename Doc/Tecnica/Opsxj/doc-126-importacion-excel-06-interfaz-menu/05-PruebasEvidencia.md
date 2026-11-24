@@ -12,3 +12,7 @@
 ## QA/E2E WebForms
 
 Dos tests DOC126 registrados en importacion-excel.spec.cjs mediante flags del runner DOC110, sin ejecución real. Control SELECT DOC32 extendido a RA y huella de DSN opcional; actor DOC125 acepta sólo el scope/autorización DOC126 explícitos para esa fase. Libros sintéticos: 1000/1000/1000/300/10leídos completos con lector real; cero escrituras en DB. SQL 22–25 entregados y no aplicados. Quedan 6.9/6.10/6.11 y 7.5: nueva autorización/cuentas/fixtures, aceptación física y revisión final. Mocks y UI local no son evidencia de IIS/MySQL.
+
+## Corte actual: asistente desde Excel
+
+Ampliación D-16/RQ-16 implementada localmente: 47/52 tareas, 160/160 pruebas y build sin errores. Análisis independiente sin plantilla ni efectos durables; propuesta editable, clave explícita y File sólo en memoria hasta recepción habitual con contraste de hash. No requiere migración SQL y preserva los contratos de carga. Evidencia actual y límites en `Doc/Actualizacion/Importacion/Validacion/doc126-asistente-20261124.md`. 8.8 y las cuatro tareas anteriores de aceptación/gobierno siguen abiertas; sin despliegue ni E2E real. Los números anteriores pertenecen al corte inicial.

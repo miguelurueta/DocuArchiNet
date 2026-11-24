@@ -8,6 +8,7 @@ El backend Excel de DOC122–125 ya recibe, prepara y confirma cargas con result
 - Administración de plantillas con los servicios existentes, selección de XLS/XLSX y hoja, validación completa, preview/incidencias acotadas y confirmación explícita de reemplazo.
 - Estados operativos, protección contra doble envío/respuestas tardías y recuperación del resultado sin reimportar automáticamente.
 - Interacción accesible y E2E integrada que reutiliza autenticación, conexiones, verificadores y actor existentes, con autorización DOC126 propia.
+- Ampliación autorizada: Crear plantilla desde Excel mediante análisis previo sin plantilla, propuesta editable y conservación del File sólo en memoria; guardar y recibir siguen siendo acciones explícitas sobre los contratos actuales.
 
 ## Capabilities
 
@@ -15,7 +16,7 @@ El backend Excel de DOC122–125 ya recibe, prepara y confirma cargas con result
 - `importacion-excel-06-interfaz-menu`: interacción autorizada para administrar plantillas y cargar/consultar Excel desde Producción Documental.
 
 ### Modified Capabilities
-Sin cambios de requisitos de backend: se reutilizan los contratos y la semántica DOC122–125.
+Se conservan los contratos y la semántica DOC122–125. La ampliación del asistente añade una operación de análisis sin efectos durables, independiente del receptor actual y sin cambios de esquema SQL.
 
 ## Impact
 

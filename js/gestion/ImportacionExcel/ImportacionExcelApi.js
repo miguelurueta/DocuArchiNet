@@ -24,11 +24,11 @@
         function request(operation, data, multipart) {
             var mutation = mutations.indexOf(operation) !== -1;
             return new Promise(function (resolve, reject) {
-                if ((operations.indexOf(operation) === -1 && operation !== "Upload") ||
+                if ((operations.indexOf(operation) === -1 && operation !== "Upload" && operation !== "Analizar") ||
                     (operation !== "AbrirCargaExcel" && (closed || !token))) {
                     reject(failure("SESION_REQUERIDA", false)); return;
                 }
-                var settings = {url: multipart ? options.upload : options.url + "/" + operation, type:"POST", dataType:"json", timeout:30000, cache:false,
+                var settings = {url: operation === "Analizar" ? options.analisis : multipart ? options.upload : options.url + "/" + operation, type:"POST", dataType:"json", timeout:30000, cache:false,
                     headers: {"X-Importacion-Excel-Contexto":options.recuperacion}};
                 if (operation !== "AbrirCargaExcel") { settings.headers["X-Importacion-Excel-CSRF"] = token; }
                 try {
@@ -39,7 +39,7 @@
                         if (!r) { reject(failure("RESPUESTA_INVALIDA", mutation, 200)); return; }
                         if (!r.ok) {
                             if (["SESION_REQUERIDA","ACCESO_DENEGADO","SOLICITUD_NO_VERIFICADA"].indexOf(r.codigo) !== -1) { closed = true; token = ""; }
-                            reject(failure(r.codigo, r.codigo === "RESULTADO_INCIERTO", 200, r.datos)); return;
+                            reject(failure(r.codigo, operation !== "Analizar" && r.codigo === "RESULTADO_INCIERTO", 200, r.datos)); return;
                         }
                         if (operation === "AbrirCargaExcel") {
                             if (!r.datos || typeof r.datos.CsrfToken !== "string" || !r.datos.CsrfToken || r.datos.CsrfToken.length > 256) {
@@ -71,6 +71,13 @@
                 ["idCarga","referenciaRecepcion","conexionId","plantillaId"].forEach(function (key) { form.append(key, String(data[key])); });
                 form.append("archivo", file, file.name);
                 return request("Upload", form, true);
+            },
+            analizar: function (data, file) {
+                if (!route(options.analisis) || !data || !file || typeof env.FormData !== "function") { return Promise.reject(failure("ANALISIS_NO_DISPONIBLE", false)); }
+                var form = new env.FormData();
+                ["conexionId","hoja","tabla","modo"].forEach(function (key) { form.append(key, String(data[key] === undefined ? "" : data[key])); });
+                form.append("archivo",file,file.name);
+                return request("Analizar",form,true);
             },
             cerrar: function () { token = ""; closed = true; }
         };
