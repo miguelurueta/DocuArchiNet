@@ -1,0 +1,350 @@
+{
+  "issue": "DOC-125",
+  "reviewedUtc": "2026-11-24T14:43:15.282Z",
+  "reviewer": "Codex",
+  "technicalReview": true,
+  "humanApproval": false,
+  "status": "PASS_IMPLEMENTATION_REVIEW",
+  "dimensions": {
+    "completeness": {
+      "requirements": 15,
+      "scenarios": 44,
+      "tasks": 31
+    },
+    "correctness": {
+      "requirementsMapped": 15,
+      "scenariosReviewed": 44,
+      "allScenariosPhysical": false
+    },
+    "coherence": {
+      "decisionsReviewed": 15,
+      "compatible": true
+    }
+  },
+  "issues": {
+    "critical": [],
+    "warning": [],
+    "suggestion": []
+  },
+  "requirements": [
+    {
+      "id": "RQ-01",
+      "implementation": "ServicioConfirmacionExcel.vb:Contexto/Identidad; ImportacionExcelRequestGuard.vb:Validar",
+      "evidence": "Rejections, Transactions; controles HTTP de CSRF, cuenta restringida y hashes",
+      "coverageLimit": "Permiso revocado a mitad de escritura: sintético."
+    },
+    {
+      "id": "RQ-02",
+      "implementation": "ServicioConfirmacionExcel.vb:Documento/ValidarActual/Confirmar; AlmacenArchivoExcel.vb:Retener",
+      "evidence": "Rejections; lector real y snapshots v1; preconfirmación SELECT de 1000 filas",
+      "coverageLimit": "Mutaciones de archivo/configuración: local."
+    },
+    {
+      "id": "RQ-03",
+      "implementation": "MySqlConfirmacionExcelWriter.vb:Sesion.Ejecutar; MySqlPlantillaExcelRepository.vb:LeerCarga",
+      "evidence": "Modes, Transactions; tres commits físicos y rollback físico",
+      "coverageLimit": "Bloqueo de edición de plantilla: ADO sintético."
+    },
+    {
+      "id": "RQ-04",
+      "implementation": "MySqlConfirmacionExcelWriter.vb:BloquearDestino/VerificarLocks; MySqlCargaExcelRepository.vb:NombreLockDestino",
+      "evidence": "Locks; dos sesiones HTTP independientes en AGREGAR; ambos locks observados/liberados en carrera",
+      "coverageLimit": "Alias y destinos diferentes: sintético."
+    },
+    {
+      "id": "RQ-05",
+      "implementation": "MySqlConfirmacionExcelWriter.vb:Agrupar/Escribir/SinAdvertencias",
+      "evidence": "BoundariesAndTypes, Transactions; texto físico de 1000 filas por modo",
+      "coverageLimit": "DATE/DECIMAL/NULL y advertencias del proveedor: sintético."
+    },
+    {
+      "id": "RQ-06",
+      "implementation": "ServicioConfirmacionExcel.vb:Confirmar; MySqlConfirmacionExcelWriter.vb:Ejecutar",
+      "evidence": "Modes, Transactions; AGREGAR real y escritor externo con INSERT observado/commit/1062",
+      "coverageLimit": "Igualdad efectiva y conflictos previos: harness DOC124; carrera física acreditada."
+    },
+    {
+      "id": "RQ-07",
+      "implementation": "MySqlConfirmacionExcelWriter.vb:Escribir",
+      "evidence": "Rejections, Transactions, BoundariesAndTypes; REEMPLAZAR físico y rollback tras DELETE",
+      "coverageLimit": "Política COLUMNA: local; ambiente real usa CONEXION."
+    },
+    {
+      "id": "RQ-08",
+      "implementation": "MySqlEstructuraExcel.vb:Marca/ConsultarPropia/Asegurar",
+      "evidence": "Creation, Transactions; CREATE físico con marca de 56 ASCII",
+      "coverageLimit": "Pérdida de respuesta DDL, tabla ajena y supervivencia tras rollback: sintético."
+    },
+    {
+      "id": "RQ-09",
+      "implementation": "MySqlConfirmacionExcelWriter.vb:Ejecutar/RegistrarFallo; MySqlCargaExcelRepository.vb:Dispose",
+      "evidence": "Transactions; dos fallos físicos con CONFLICTO_CLAVE y cero filas propias",
+      "coverageLimit": "COMMIT incierto y fallo de limpieza: sintético."
+    },
+    {
+      "id": "RQ-10",
+      "implementation": "ServicioConfirmacionExcel.vb:Confirmar/ConsultarResultado/Historico; ComposicionCargaExcel.vb",
+      "evidence": "Modes; consulta/replay físicos de tres IDs históricos y rechazo de hashes diferentes",
+      "coverageLimit": "Archivo ausente o límites posteriores inválidos: local."
+    },
+    {
+      "id": "RQ-11",
+      "implementation": "MySqlEstructuraExcel.vb:VerificarSeguridad; MySqlPreparacionExcelValidator.vb",
+      "evidence": "Rejections, Modes; diez controles SELECT SQL18; FK por operación y relectura de TRIGGER",
+      "coverageLimit": "Motores/índices/FK/TRIGGER adversos: sintético; sin DDL administrativo concurrente."
+    },
+    {
+      "id": "RQ-12",
+      "implementation": "ServicioConfirmacionExcel.vb:ValidarActual/Confirmar; MySqlConfirmacionExcelWriter.vb:Agrupar",
+      "evidence": "BoundariesAndTypes; tiempos reales y recuperación por ID entre ventanas",
+      "coverageLimit": "20000/20001 local; confirmación física medida en 1000 filas por modo, sin pausa parcial."
+    },
+    {
+      "id": "RQ-13",
+      "implementation": "Sql/18-preflight-doc125.sql; 19-fixtures-da-doc125.sql; 20-fuentes-e2e-ra-doc125.sql; 21-plantillas-e2e-da-doc125.sql",
+      "evidence": "Aplicación delegada fuera de tests, relecturas SELECT en sesiones nuevas y huellas íntegras",
+      "coverageLimit": "No grants, instalación desde tests ni reedición de SQL aplicados."
+    },
+    {
+      "id": "RQ-14",
+      "implementation": "importacion-excel.spec.cjs; run-doc110-profile-session.cjs; doc125-excel-scope.cjs; doc115-repository-integration.ps1",
+      "evidence": "Suite real PASS 5/5; tests/doc125-e2e-reuse.test.cjs; controles DOC32 existentes",
+      "coverageLimit": "Acuse ignorado por cliente no acredita corte físico de red."
+    },
+    {
+      "id": "RQ-15",
+      "implementation": "GestionDocumental-Docuarchi.net.vbproj; documentos técnicos y evidencia actual",
+      "evidence": "Build net461, 94/94 tests, 4492 checks nativos sintéticos y regresión heredada",
+      "coverageLimit": "Sin UI fase06, CSV ni publicación automática de fuentes."
+    }
+  ],
+  "scenarios": [
+    "Permiso revocado",
+    "Petición manipulada",
+    "Contenido coincidente",
+    "Archivo o configuración cambiados",
+    "Lectura completa",
+    "Carga DOC124 vigente",
+    "Commit exitoso",
+    "Fallo intermedio",
+    "Edición concurrente",
+    "Mismo ID concurrente",
+    "IDs distintos y mismo destino",
+    "Destinos distintos",
+    "Tipos preservados",
+    "Fila demasiado grande",
+    "Advertencia del proveedor",
+    "Archivo íntegramente nuevo",
+    "Conflicto por collation",
+    "Escritor externo",
+    "Confirmación ausente",
+    "Filtro empresarial",
+    "Fallo después de borrar",
+    "Destino ausente",
+    "Respuesta perdida de CREATE",
+    "Tabla ajena o alterada",
+    "Estructura propia después de rollback",
+    "Rollback acreditado",
+    "Commit de respuesta incierta",
+    "Limpieza posterior fallida",
+    "Cambios posteriores",
+    "Replay diferente",
+    "Consulta en curso o ausente",
+    "Motor o clave incompatibles",
+    "Efectos relacionados",
+    "Metadatos no acreditados",
+    "Frontera de filas",
+    "Límite modificado o tamaño excedido",
+    "Interrupción del cliente",
+    "Esquema existente compatible",
+    "Adecuación requerida",
+    "Reutilización del recorrido",
+    "Scope de sólo lectura",
+    "Matriz real autorizada",
+    "Compatibilidad local",
+    "Fase de confirmación"
+  ],
+  "sources": [
+    {
+      "path": "DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb",
+      "sha256Utf8Lf": "f5a0f3ede60f148a3ff6cd15c10d71d978e9f842f009874c1ee491cdaeacd6bf"
+    },
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb",
+      "sha256Utf8Lf": "fbf8801d850d5988fd94fedaab9b4ae08a649cf44871490b3378635ea8f52a06"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb",
+      "sha256Utf8Lf": "22e85ceaf98e8accfbf0d8af8cbbd27045f052ac08be9b48cf7354f19b92df27"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ReglasCargaExcel.vb",
+      "sha256Utf8Lf": "763809e3da2d6749ff95fcba7a5b52a95198bcdcf21e77cc77d931657db8435f"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioPreparacionExcel.vb",
+      "sha256Utf8Lf": "8bf53cbf11e89279b3a65c57e93fb2566ef1fd1c0ad605ae05b2eabb383d9e39"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioLecturaExcel.vb",
+      "sha256Utf8Lf": "fa0d6a99a17fff59931ba265814670e3d487b106c8e7229b3d37369afd605295"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ComposicionCargaExcel.vb",
+      "sha256Utf8Lf": "463c45d82f7b736d1f7bcb366b71005be9e62391c54b3a22d4398231c2a2e977"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelConexionAdapter.vb",
+      "sha256Utf8Lf": "1f772b8f0d4a515a313907a030da1ea91b480b7c9b7283aaea13a62b71831ef3"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelContextAdapter.vb",
+      "sha256Utf8Lf": "8a89cc86baec4083e89a3d6a3806f7d3bdf371d68b07646cef37dee42e250426"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb",
+      "sha256Utf8Lf": "8f5c4a0f55f4eb0bda422d275f0d54488a057b37fb09c8a3a4363d8376439caa"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/AlmacenArchivoExcel.vb",
+      "sha256Utf8Lf": "901b2c3adf0484036cad185625450285082a5e4dd16fa7636524ec915cd1e3d0"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb",
+      "sha256Utf8Lf": "47d04d584ab854f14d029bc4bb5cacc400c80825cd9c2014b7eb22c63b90a7f2"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlConfirmacionExcelWriter.vb",
+      "sha256Utf8Lf": "ae431a4d2c487a947f44161cf70b25b9f63d79903778bf5fa94b47cb9d54c124"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlEstructuraExcel.vb",
+      "sha256Utf8Lf": "a281c891106e3bcf0c50fc94875246616c7c665d65b872171972c522f828a820"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb",
+      "sha256Utf8Lf": "4995f41c45cdfd2fcb031b69e38da40c0768bbe22e9dbd4a54d0d3c24d9bb01b"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb",
+      "sha256Utf8Lf": "9ddf94a9fad34c40a0fd31fee5dc6d0671d899b03ccd8e8483e68c0ada088332"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/SqlCargaExcel.vb",
+      "sha256Utf8Lf": "73bbf7025ae448b6ab80b287a197d9aa1dacd397f3deccc72e8a5861ab72f16d"
+    },
+    {
+      "path": "webservice/WebServiceImportacionExcel.asmx.vb",
+      "sha256Utf8Lf": "92d5a3289769273ee134964916ed186b4fb6130bd64247d04d354d1210f4acf9"
+    },
+    {
+      "path": "GestionDocumental-Docuarchi.net.vbproj",
+      "sha256Utf8Lf": "7b4bcbc152600a8188a7db7245da862072e3a0a574e2589805a6a7a2bffbd975"
+    },
+    {
+      "path": "tests/ImportacionExcelBehaviorTests.cs",
+      "sha256Utf8Lf": "83d2995bf3d195587339511622e19420a6617c48b6711c2d1bbb43a88675de64"
+    },
+    {
+      "path": "tests/ImportacionExcelConfirmacionTests.cs",
+      "sha256Utf8Lf": "7291b61cc5d72a598a4c03f7e730b3015b9e01b0c974592ca9185de381301b2a"
+    },
+    {
+      "path": "tests/ImportacionExcelPreparacionTests.cs",
+      "sha256Utf8Lf": "0f142aade7a67fb4516c0b886c847d81b533b934dabd6bbf7e4fff600ced9e20"
+    },
+    {
+      "path": "tests/ImportacionExcelLecturaTests.cs",
+      "sha256Utf8Lf": "bca5dc1962354d85e1f82aa1a2287b15464d94516678156c965433bdf9732c84"
+    },
+    {
+      "path": "tests/doc122-importacion-excel-behavior.test.cjs",
+      "sha256Utf8Lf": "42f21deff4d4790c3d08f054aeff564d23682f8bf2e157ce22df9c40b16fb755"
+    },
+    {
+      "path": "tests/doc122-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "6614037da85e4c1b0219f3ed8f6ce9b7f40922287c3bf430e75b6dddc2b74ef5"
+    },
+    {
+      "path": "tests/doc124-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "31f37537bd1988866f17dc8846b7745ac0a5db57377f27f1fa8e4451133c47e2"
+    },
+    {
+      "path": "tests/doc125-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "6594d5edd7b888fa8fc356b875929aeb0886effce223c7e8195bab4fdce79d87"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256Utf8Lf": "d564e973ef6f3252c4f1a0ff5e9a0bcd31749d0df5613f58b2b1b9e9c5a2b1f2"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc115-repository-integration.ps1",
+      "sha256Utf8Lf": "ce992ba2636fee135d2873c5ab67bb87976da79c9daddd1272c02be831f59268"
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "752e9130498fa8f365c3d68a4c0b11986b872b46ebe7f1000cee4be1212dbe79"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc125-excel-scope.cjs",
+      "sha256Utf8Lf": "b1cf0c120c2ee4cb250eee9b6d912ab55d4a260ccede2d08cdb27c9f0484978d"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc124-excel-scope.cjs",
+      "sha256Utf8Lf": "40afc36fac823e19bf2e24fd6588fa4384a093bcec8d8d1d7d9e51ba1efb97f6"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc32-e2e-odbc.cjs",
+      "sha256Utf8Lf": "4e103b5a42dc1d74dc192405958818136195b2c895d57f9d6d23b61e938afde5"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc111-importacion-carpetas.cjs",
+      "sha256Utf8Lf": "e0a0825fc0d0fb165feab50e25a271fe29de2e9b54e489e3098f40e7f842b1a5"
+    }
+  ],
+  "acceptance": {
+    "status": "PASS_REAL_MATRIX",
+    "cases": [
+      "crear",
+      "agregar",
+      "reemplazar",
+      "rollback",
+      "carrera"
+    ],
+    "windowMs": 427861,
+    "controlsInFinalSuite": 136,
+    "freshImportsInFinalWindow": false,
+    "positiveWindow": 5,
+    "rollbackWindow": 6,
+    "raceWindow": 7,
+    "finalCounts": {
+      "imp_02_doc125_e2e_crear": 1000,
+      "imp_02_doc125_e2e_agregar": 1002,
+      "imp_02_doc125_e2e_reemplazar": 1000
+    },
+    "externalWriter": {
+      "locked": true,
+      "importWaitObserved": true,
+      "committed": true,
+      "diagnostic": null,
+      "exitCode": 0,
+      "effectsPreserved": true
+    },
+    "protectedUnchanged": true
+  },
+  "governance": "Registrar revisión/evidencias y ejecutar gobierno por el SHA comprometido; sin bypass de entorno. Registros locales excluidos de Git.",
+  "archiveExecuted": false,
+  "jiraClosed": false,
+  "validation": {
+    "openSpecStrict": {
+      "items": 96,
+      "passed": 96,
+      "failed": 0
+    },
+    "refinement": {
+      "status": "PASS",
+      "checks": 15
+    },
+    "diffCheck": "PASS"
+  }
+}

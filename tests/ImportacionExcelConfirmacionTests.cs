@@ -40,18 +40,31 @@ public static class ImportacionExcelConfirmacionTests {
   public SolicitudConfirmarExcel Request(){return new SolicitudConfirmarExcel{ConexionId=7,IdCarga=Db.Row.Id,ArchivoHash=Db.Row.Archivo.Hash,ConfiguracionHash=Db.Row.ConfiguracionHash,EsquemaHash=Db.Row.EsquemaHash,ConfirmacionReemplazo=true};}
  }
  static void Modes(){
+  var observations=0;WaitForImportInsert(()=>++observations==3,_=>{},1000);
+  Check(observations==3,"external writer waits for observed importer INSERT, independent of preflight latency");
+  observations=0;try{WaitForImportInsert(()=>{observations++;return false;},_=>{},0);throw new Exception("barrier accepted expired window");}catch(InvalidOperationException){Check(observations==0,"expired barrier never authorizes external COMMIT");}
   foreach(var mode in new[]{"AGREGAR","REEMPLAZAR","CREAR"}){
    var f=new Fixture(mode);if(mode!="CREAR")f.Db.Rows.Add(new Dictionary<string,object>{{"CLAVE","old"}});
    var result=f.Service().Confirmar(f.Request());
    Check(result.Estado=="CONFIRMADA"&&result.FilasConfirmadas==2&&result.ConfirmadoUtc.HasValue,"durable result "+mode);
    Check(f.Db.Rows.Count==(mode=="AGREGAR"?3:2),"mode effects "+mode);
    Check(f.Db.Locks.Count==0&&f.Db.OpenTransactions==0&&f.Db.Modes.All(x=>x=="ANSI_QUOTES"),"resources released "+mode);
+   Check(f.Db.Sql.Count(x=>x.Contains("information_schema.KEY_COLUMN_USAGE"))==1,"one complete incoming/outgoing FK inspection per confirmation "+mode);
+   Check(f.Db.Sql.Count(x=>x.Contains("information_schema.TRIGGERS"))>1,"trigger visibility and effects rechecked "+mode);
    Check(f.Db.Sql.Any(x=>x.Contains("FROM imp01_plantillaimp")&&x.EndsWith("FOR UPDATE"))&&f.Db.Sql.Any(x=>x.Contains("FROM imp01_campos_plantilla")&&x.EndsWith("FOR UPDATE")),"header and fields locked in data transaction "+mode);
    Check(f.Db.Sql.Where(x=>x.StartsWith("INSERT INTO `imp_02_")||x.StartsWith("DELETE FROM `imp_02_")||x.Contains("estado='CONFIRMADA'")).All(x=>!x.Contains("K000")),"parameterized content "+mode);
    var writes=f.Db.BusinessInserts;var history=new ServicioConfirmacionExcel(()=>f.C,f.Repo,(Func<IAlmacenArchivoExcel>)(()=>{throw new Exception("no historical file access");}),()=>{throw new Exception("no historical limit access");});
    f.Db.P.REVISION_CARGA++;Check(history.Confirmar(f.Request()).FilasConfirmadas==2&&history.ConsultarResultado(f.Request()).Estado=="CONFIRMADA"&&f.Db.BusinessInserts==writes,"historical replay avoids new configuration "+mode);
    var forged=f.Request();forged.ArchivoHash=new string('b',64);Reject(()=>history.Confirmar(forged),"CONFLICTO_CONFIRMACION");
    if(mode=="CREAR")Check(f.Db.Comment==MySqlEstructuraExcel.Marca(f.Db.Row)&&f.Db.Creates==1,"identified create once");
+   if(mode=="AGREGAR"){
+    f.Db.ForeignKeys=1;
+    using(var next=f.Repo.AbrirConfirmacion(f.C,f.Db.Row.Id)){
+     next.BloquearDestino(f.Db.Row.Tabla);
+     Reject(()=>next.Inspeccionar(f.Db.P,f.Db.Row),"EFECTOS_RELACIONADOS_NO_ADMITIDOS");
+    }
+    Check(f.Db.Sql.Count(x=>x.Contains("information_schema.KEY_COLUMN_USAGE"))==2,"FK accreditation never reused by another confirmation session");
+   }
   }
  }
  static void Rejections(){
@@ -77,6 +90,12 @@ public static class ImportacionExcelConfirmacionTests {
   var warning=new Fixture("REEMPLAZAR");warning.Db.Rows.Add(new Dictionary<string,object>{{"CLAVE","old"}});warning.Db.Warning=true;Reject(()=>warning.Service().Confirmar(warning.Request()),"CONVERSION_MYSQL_INVALIDA");Check(warning.Db.Rows.Count==1&&(string)warning.Db.Rows[0]["CLAVE"]=="old","conversion warnings rollback replacement");
  }
  static void Creation(){
+  var binding=new Fixture("CREAR");var marker=MySqlEstructuraExcel.Marca(binding.Db.Row);
+  Check(marker.Length==56&&Encoding.UTF8.GetByteCount(marker)==56,"provenance fits MySQL 5.1 60-character table comment without truncation");
+  var other=Copy(binding.Db.Row);other.Id=Guid.NewGuid().ToString("D");Check(MySqlEstructuraExcel.Marca(other)!=marker,"compact provenance binds entire load UUID");
+  other=Copy(binding.Db.Row);other.EsquemaHash=other.EsquemaHash.Substring(0,63)+(other.EsquemaHash[63]=='0'?"1":"0");Check(MySqlEstructuraExcel.Marca(other)!=marker,"compact provenance binds last nibble of complete schema hash");
+  binding.Db.Exists=true;binding.Db.Comment="docuarchi-excel/v1/"+binding.Db.Row.Id+"/"+binding.Db.Row.EsquemaHash;
+  Check(binding.Service().Confirmar(binding.Request()).Estado=="CONFIRMADA"&&binding.Db.Creates==0,"exact legacy provenance remains recoverable without ALTER or CREATE");
   var f=new Fixture("CREAR");f.Db.CreateFailure=true;Reject(()=>f.Service().Confirmar(f.Request()),"RESULTADO_INCIERTO");Check(f.Db.Exists&&f.Db.Rows.Count==0&&f.Db.Row.Estado=="PREPARADA","uncertain DDL preserves identity");Check(f.Service().ConsultarResultado(f.Request()).EstadoEstructura=="PROPIA_COMPATIBLE","read only structural recovery");f.Db.CreateFailure=false;Check(f.Service().Confirmar(f.Request()).Estado=="CONFIRMADA"&&f.Db.Creates==1,"recover DDL without recreate");
   f=new Fixture("CREAR");f.Db.Exists=true;f.Db.Comment="foreign";Reject(()=>f.Service().Confirmar(f.Request()),"CONFLICTO_ESTRUCTURA");Check(f.Db.Creates==0&&f.Db.BusinessInserts==0,"foreign table preserved");
   f=new Fixture("CREAR");f.Db.Exists=true;f.Db.Comment=MySqlEstructuraExcel.Marca(f.Db.Row);f.Db.Rows.Add(new Dictionary<string,object>{{"CLAVE","unexplained"}});Reject(()=>f.Service().Confirmar(f.Request()),"CONFLICTO_ESTRUCTURA");Check(f.Db.Rows.Count==1,"do not empty surviving structure");
@@ -130,6 +149,12 @@ public static class ImportacionExcelConfirmacionTests {
  //Invocado sólo por la ventana DOC125 del ejecutor nativo DOC115 existente.
  //Una operación de escritor externo; sin instalación, siembra ni limpieza.
  public static void RunExternalWriter(bool authorized,string registeredConnection,string json){
+  ExternalWriter(authorized,registeredConnection,json,true);
+ }
+ public static void CheckExternalWriter(bool authorized,string registeredConnection,string json){
+  ExternalWriter(authorized,registeredConnection,json,false);
+ }
+ static void ExternalWriter(bool authorized,string registeredConnection,string json,bool write){
   if(!authorized)throw new InvalidOperationException("DOC125_NATIVE_SCOPE_REQUIRED");
   var r=Newtonsoft.Json.Linq.JObject.Parse(json);var s=r["scope"];var item=r["item"];var req=r["prepared"].ToObject<SolicitudConfirmarExcel>();
   if(!authorized||(string)s["issue"]!="DOC-125"||(bool?)s["disposable"]!=true||(bool?)s["preserveResources"]!=true||(string)item["escenario"]!="carrera"||(string)item["modo"]!="AGREGAR"||!System.Text.RegularExpressions.Regex.IsMatch((string)item["tabla"]??"",@"\Aimp_02_doc125_e2e_[A-Za-z0-9_]{1,44}\z"))throw new InvalidOperationException("DOC125_NATIVE_SCOPE_REQUIRED");
@@ -151,13 +176,31 @@ public static class ImportacionExcelConfirmacionTests {
    ResultadoLecturaExcel read;using(var stream=new MemoryStream(bytes))read=new ServicioLecturaExcel().Leer(stream,new SolicitudLecturaExcel{NombreArchivo=e.Archivo.Nombre,FormatoEsperado=ServicioPlantillasExcel.FormatoHistorico(p.CONEXION_FUENTE),Hoja=(string)doc["Hoja"],Plantilla=p,Destino=schema.Destino,Limites=new LimitesLecturaExcel{MaxFilasDatos=20000,MaxArchivoMB=10}});
    if(!read.Valido||read.FilasDatosObservadas!=(int)item["filasEsperadas"]||read.FilasDatosObservadas>1000)throw new InvalidOperationException("DOC125_NATIVE_FILE_INVALID");
    if(read.Filas[0].Valores.Single(v=>v.CampoDestino==p.CAMPO_UNICO).Texto!=(string)item["claveExterna"])throw new InvalidOperationException("DOC125_NATIVE_KEY_CHANGED");
+   if(!write){Console.WriteLine("DOC125_EXTERNAL_PREFLIGHT_PASS");return;}
    //No GET_LOCK: este actor verifica la protección física del UNIQUE.
    using(var tx=cn.BeginTransaction()){
     var w=new MySqlConfirmacionExcelWriter(cn,tx);var one=read.Filas.Take(1).ToList();w.Escribir(ctx,p,schema,"AGREGAR",w.Agrupar(p,one));
     Console.WriteLine("DOC125_EXTERNAL_LOCKED");Console.Out.Flush();
-    System.Threading.Thread.Sleep(5000);tx.Commit();Console.WriteLine("DOC125_EXTERNAL_COMMITTED");Console.Out.Flush();
+    var loadLock="dx"+ReglasCargaExcel.HashDocumento(new{Fisica=(string)doc["IdentidadFisica"],Id=e.Id}).Substring(0,62);
+    WaitForImportInsert(()=>{
+     using(var q=cn.CreateCommand()){
+      q.Transaction=tx;q.CommandTimeout=2;
+      q.CommandText="SELECT COUNT(*) FROM information_schema.PROCESSLIST WHERE ID=IS_USED_LOCK(@lock) AND LEFT(INFO,CHAR_LENGTH(@prefix))=@prefix";
+      var lockParameter=q.CreateParameter();lockParameter.ParameterName="@lock";lockParameter.Value=loadLock;q.Parameters.Add(lockParameter);
+      var prefixParameter=q.CreateParameter();prefixParameter.ParameterName="@prefix";prefixParameter.Value="INSERT INTO `"+p.NOMBRE_PLANTILLA+"`";q.Parameters.Add(prefixParameter);
+      return Convert.ToInt32(q.ExecuteScalar())==1;
+     }
+    },System.Threading.Thread.Sleep,20000);
+    Console.WriteLine("DOC125_EXTERNAL_IMPORT_WAIT_OBSERVED");Console.Out.Flush();
+    tx.Commit();Console.WriteLine("DOC125_EXTERNAL_COMMITTED");Console.Out.Flush();
    }
   }
+ }
+
+ static void WaitForImportInsert(Func<bool> observed,Action<int> pause,int timeoutMs){
+  var clock=System.Diagnostics.Stopwatch.StartNew();
+  while(clock.ElapsedMilliseconds<timeoutMs){if(observed())return;pause(50);}
+  throw new InvalidOperationException("DOC125_IMPORT_INSERT_NOT_OBSERVED");
  }
 
  sealed class State {
@@ -199,7 +242,7 @@ public static class ImportacionExcelConfirmacionTests {
   public override int ExecuteNonQuery(){Track();
    if(CommandText.StartsWith("SET SESSION")){c.Mode=(string)V("@modo");return 0;}
    if(CommandText.StartsWith("CREATE TEMPORARY")||CommandText.StartsWith("DROP TEMPORARY")||CommandText.StartsWith("INSERT INTO dx_"))return 0;
-   if(CommandText.StartsWith("CREATE TABLE `imp_02_")){Check(c.Active==null,"DDL outside data transaction");c.S.Creates++;c.S.Exists=true;c.S.Comment=(string)V("@marca");if(c.S.CreateFailure)throw new SyntheticDbError();return 0;}
+   if(CommandText.StartsWith("CREATE TABLE `imp_02_")){Check(c.Active==null,"DDL outside data transaction");Check(((string)V("@marca")).Length<=60,"server 5.1 table comment length");c.S.Creates++;c.S.Exists=true;c.S.Comment=(string)V("@marca");if(c.S.CreateFailure)throw new SyntheticDbError();return 0;}
    if(CommandText.StartsWith("DELETE FROM `imp_02_")){Check(c.Active!=null,"delete transactional");c.S.Deletes++;if(CommandText.Contains("WHERE")){var n=Rows.RemoveAll(x=>Convert.ToString(x["EMPRESA"])==Convert.ToString(V("@empresa")));return n;}var count=Rows.Count;Rows.Clear();return count;}
    if(CommandText.StartsWith("INSERT INTO `imp_02_")){
     Check(c.Active!=null,"insert transactional");if(c.S.FailInsertAfter>=0&&c.S.BusinessInserts>=c.S.FailInsertAfter)throw new SyntheticDbError();c.S.BusinessInserts++;

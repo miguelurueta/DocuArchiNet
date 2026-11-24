@@ -19,14 +19,21 @@ function scope(){
 }
 async function session(browser,restricted=false,prefix='DOC122'){
  const baseUrl=required(prefix+'_E2E_BASE_URL').replace(/\/?$/,'/');
+ let loginIssue;
+ const loginCodes=require('./support/doc111-importacion-carpetas.cjs');
  const auth=await createWorkflowLoginPageSession(browser,{
   baseUrl,moduleEnvironmentVariable:prefix+'_E2E_MODULE',
   userEnvironmentVariable:prefix+(restricted?'_E2E_RESTRICTED_USER':'_E2E_USER'),
   passwordEnvironmentVariable:prefix+(restricted?'_E2E_RESTRICTED_PASSWORD':'_E2E_PASSWORD'),
-  ignoreHTTPSErrors:process.env.DOC10_E2E_IGNORE_HTTPS_ERRORS==='true'
+  ignoreHTTPSErrors:process.env.DOC10_E2E_IGNORE_HTTPS_ERRORS==='true',
+  ...(prefix==='DOC125'?{
+   onPostbackCompleted:async(_page,response)=>{const code=await loginCodes.classifyLoginPostbackResponse(response);if(code)loginIssue=code;},
+   onDialogCompleted:async(_page,message)=>{const code=loginCodes.classifyLoginMessage(message);if(code)loginIssue=code;}
+  }:{})
  });
+ if(loginIssue){await auth.context.close();throw Error('DOC125_'+loginIssue);}
  try{
-  await auth.page.goto(new URL('Gestion/WebFormProducionDocumental.aspx',baseUrl).href);
+  await auth.page.goto(new URL('Gestion/WebFormProducionDocumental.aspx',baseUrl).href,{waitUntil:'domcontentloaded'});
   return {...auth,baseUrl};
  }catch{await auth.context.close();throw new Error('DOC122_SESSION_FAILED');}
 }
@@ -41,6 +48,7 @@ async function call(auth,method,payload,token){
 }
 async function open(auth,s){
  const r=await call(auth,'AbrirCargaExcel');
+ if(!r.ok)throw Error('DOC122_OPEN_FAILED_'+(/^[A-Z_]{1,60}$/.test(r.codigo||'')?r.codigo:'UNCLASSIFIED'));
  check(r.ok && r.datos && typeof r.datos.CsrfToken==='string' && r.datos.Conexiones.some(c=>c.ConexionId===s.conexionId),'DOC122_OPEN_FAILED');
  auth.token=r.datos.CsrfToken;
  return r.datos;
@@ -54,8 +62,10 @@ function edit(s,p){return {ConexionId:s.conexionId,RevisionEsperada:p.REVISION_C
 test.describe('DOC125 confirmación durable',()=>{
  test.skip(process.env.DOC125_E2E_AUTHORIZED!=='YES','NO_EJECUTADO: falta autorización escritora DOC125, instalación manual verificada y destinos descartables; DOC124 no autoriza estos efectos.');
  test('@doc125-confirm modos, rollback, resultado perdido y escritor externo',async({browser})=>{
-  test.setTimeout(300000);
-  const path=require('node:path'),{readScope,readFixture,snapshotDestination,lockNames}=require('./support/doc125-excel-scope.cjs');
+  // Cinco casos y controles SELECT PowerShell medidos: presupuesto de prueba15min.
+  // Cada HTTP conserva30s y cero reintentos; no amplía el presupuesto de importación.
+  test.setTimeout(900000);
+  const path=require('node:path'),{readScope,readFixture,snapshotDestination,lockNames,resumeRequest}=require('./support/doc125-excel-scope.cjs');
   const {queryRows,queryFingerprint}=require('../scripts/support/doc32-e2e-odbc.cjs');
   const {startExcelExternalWriter}=require('../scripts/run-doc110-profile-session.cjs');
   const s=readScope(required('DOC125_E2E_SCOPE_PATH'),required('DOC125_E2E_BASE_URL'));
@@ -72,19 +82,50 @@ test.describe('DOC125 confirmación durable',()=>{
    const ca=await cookie(a),cb=await cookie(b);check(ca&&cb&&ca!==cb,'DOC125_INDEPENDENT_SESSIONS_REQUIRED');
    for(const c of s.cases){
     const p=await detail(a,c);check(p.REVISION_CARGA===c.revisionEsperada&&p.Huella===c.huellaEsperada&&p.NOMBRE_PLANTILLA===c.tabla,'DOC125_TEMPLATE_CHANGED');
+    if(c.reanudarConfirmada||c.reanudarFallida){
+     const resume=c.reanudarConfirmada||c.reanudarFallida,confirmed=!!c.reanudarConfirmada;
+     readFixture(c);
+     const owned=await select('SELECT id_carga,id_plantilla,ambito_ref,usuario_ref,conexion_ref,tabla_destino,estado,modo,filas_previstas,filas_confirmadas,codigo_incidencia,(confirmado_utc IS NOT NULL) AS confirmado,LOWER(HEX(archivo_hash)) AS archivo_hash,LOWER(HEX(configuracion_hash)) AS configuracion_hash,LOWER(HEX(esquema_hash)) AS esquema_hash FROM imp01_carga_ejecucion WHERE id_carga=? AND ambito_ref=? AND usuario_ref=? AND conexion_ref=?',[resume.idCarga,String(s.empresaId),String(s.usuarioId),'DA:'+s.moduloId+':'+c.conexionId]);
+     check(owned.length===1,'DOC125_RESUME_NOT_FOUND');const request=resumeRequest(s,c,owned[0]);
+     const before=await snapshotDestination(select,fingerprint,c.tabla,true);
+     check(before===resume.huellaDestino&&await count(c.tabla)===(confirmed?(c.modo==='AGREGAR'?c.filasDestinoEsperadas+c.filasEsperadas:c.filasEsperadas):c.filasDestinoEsperadas),'DOC125_RESUME_DESTINATION_CHANGED');
+     const csrf=await call(a,'Confirmar',request,'malformed');check(!csrf.ok&&csrf.codigo==='SOLICITUD_NO_VERIFICADA','DOC125_CSRF_NOT_REJECTED');
+     if(c.modo==='REEMPLAZAR'){const denied=await call(a,'Confirmar',{...request,ConfirmacionReemplazo:false},a.token);check(!denied.ok&&denied.codigo==='CONFIRMACION_REEMPLAZO_REQUERIDA','DOC125_REPLACE_CONSENT_NOT_REQUIRED');}
+     const queried=await call(a,'ConsultarResultado',{ConexionId:c.conexionId,IdCarga:request.IdCarga},a.token);
+     const replay=await call(b,confirmed?'Confirmar':'ConsultarResultado',confirmed?request:{ConexionId:c.conexionId,IdCarga:request.IdCarga},b.token);
+     check(queried.ok&&queried.datos?.Estado===(confirmed?'CONFIRMADA':'FALLIDA')&&queried.datos.FilasConfirmadas===(confirmed?c.filasEsperadas:0)&&replay.ok&&replay.datos?.IdCarga===request.IdCarga&&replay.datos.FilasConfirmadas===(confirmed?c.filasEsperadas:0),'DOC125_RESUME_DURABLE_RESULT_FAILED');
+     const changed=await call(a,'Confirmar',{...request,ConfiguracionHash:'0'.repeat(64)},a.token);check(!changed.ok&&changed.codigo==='CONFLICTO_CONFIRMACION','DOC125_REPLAY_CONTENT_NOT_REJECTED');
+     check(await snapshotDestination(select,fingerprint,c.tabla,true)===before,'DOC125_RESUME_REPLAY_CHANGED_DESTINATION');
+     const saved=await select('SELECT configuracion_doc FROM imp01_carga_ejecucion WHERE id_carga=? AND ambito_ref=? AND usuario_ref=? AND conexion_ref=?',[request.IdCarga,String(s.empresaId),String(s.usuarioId),'DA:'+s.moduloId+':'+c.conexionId]);
+     check(saved.length===1&&require('node:crypto').createHash('sha256').update(saved[0].configuracion_doc,'utf8').digest('hex')===request.ConfiguracionHash,'DOC125_RESUME_CONFIGURATION_CHANGED');
+     const names=lockNames({...physical,fisica:JSON.parse(saved[0].configuracion_doc).IdentidadFisica},c.tabla,request.IdCarga);
+     const free=(await select('SELECT IS_FREE_LOCK(?) AS carga_libre,IS_FREE_LOCK(?) AS destino_libre',[names.id,names.destination]))[0];
+     check(Number(free.carga_libre)===1&&Number(free.destino_libre)===1,'DOC125_OWN_LOCK_NOT_RELEASED');
+     for(const table of s.protectedTables)check(await snapshotDestination(select,fingerprint,table,true)===protectedBefore[table],'DOC125_PROTECTED_DESTINATION_CHANGED');
+     completed++;console.log('DOC125_CASE_PASS scenario='+c.escenario+'; durable result recovered by ID; no repeated effects');continue;
+    }
     const bytes=readFixture(c),before=await snapshotDestination(select,fingerprint,c.tabla,c.modo!=='CREAR');
     const beforeCount=c.modo==='CREAR'?0:await count(c.tabla);
     check(beforeCount===c.filasDestinoEsperadas,'DOC125_DESTINATION_BASELINE_CHANGED');
+    let i,e;
+    if(c.continuarPreparada){
+     const frozen=c.continuarPreparada;
+     const owned=await select('SELECT id_carga,id_plantilla,ambito_ref,usuario_ref,conexion_ref,tabla_destino,estado,modo,filas_previstas,filas_confirmadas,codigo_incidencia,(confirmado_utc IS NOT NULL) AS confirmado,LOWER(HEX(archivo_hash)) AS archivo_hash,LOWER(HEX(configuracion_hash)) AS configuracion_hash,LOWER(HEX(esquema_hash)) AS esquema_hash FROM imp01_carga_ejecucion WHERE id_carga=? AND ambito_ref=? AND usuario_ref=? AND conexion_ref=?',[frozen.idCarga,String(s.empresaId),String(s.usuarioId),'DA:'+s.moduloId+':'+c.conexionId]);
+     check(owned.length===1&&before===frozen.huellaDestino,'DOC125_PENDING_RESUME_CHANGED');
+     const request=resumeRequest(s,c,owned[0]);i={IdCarga:request.IdCarga};e={IdCarga:request.IdCarga,ArchivoHash:request.ArchivoHash,ConfiguracionHash:request.ConfiguracionHash,EsquemaHash:request.EsquemaHash};
+    }else{
     const started=await call(a,'IniciarRecepcionExcel',{ConexionId:c.conexionId,PlantillaId:c.plantillaId,RevisionEsperada:c.revisionEsperada,HuellaEsperada:c.huellaEsperada},a.token);
     check(started.ok&&started.datos?.IdCarga&&started.datos?.ReferenciaRecepcion,'DOC125_START_FAILED');
-    const i=started.datos;
+    i=started.datos;
     const response=await safePost(a.context.request,new URL('generic_control/ImportacionExcelUpload.ashx',a.baseUrl).href,{headers:{'X-Importacion-Excel-CSRF':a.token},multipart:{idCarga:i.IdCarga,referenciaRecepcion:i.ReferenciaRecepcion,conexionId:String(c.conexionId),plantillaId:String(c.plantillaId),archivo:{name:path.basename(c.archivoPath),mimeType:'application/octet-stream',buffer:bytes}}},'ExcelUpload');
     let upload;try{upload=await response.json();}catch{throw Error('DOC125_UPLOAD_FAILED');}check(response.status()===200&&upload.ok&&upload.datos?.ArchivoHash===c.archivoHash,'DOC125_UPLOAD_FAILED');
     const owned=await select('SELECT ambito_ref,usuario_ref,conexion_ref,tabla_destino,HEX(archivo_hash) AS archivo_hash FROM imp01_carga_ejecucion WHERE id_carga=?',[i.IdCarga]);
     check(owned.length===1&&String(owned[0].ambito_ref)===String(s.empresaId)&&String(owned[0].usuario_ref)===String(s.usuarioId)&&owned[0].conexion_ref==='DA:'+s.moduloId+':'+c.conexionId&&owned[0].tabla_destino===c.tabla&&owned[0].archivo_hash.toLowerCase()===c.archivoHash,'DOC125_OWNER_ENVIRONMENT_CHANGED');
     const prepared=await call(a,'Preparar',{ConexionId:c.conexionId,PlantillaId:c.plantillaId,IdCarga:i.IdCarga,RevisionEsperada:c.revisionEsperada,HuellaEsperada:c.huellaEsperada,Hoja:c.hoja,Modo:c.modo},a.token);
     check(prepared.ok&&prepared.datos?.Carga.Estado==='PREPARADA'&&prepared.datos.ValidacionCompleta&&prepared.datos.FilasObservadas===c.filasEsperadas,'DOC125_PREPARATION_FAILED');
-    const e=prepared.datos.Carga,request={ConexionId:c.conexionId,IdCarga:i.IdCarga,ArchivoHash:e.ArchivoHash,ConfiguracionHash:e.ConfiguracionHash,EsquemaHash:e.EsquemaHash,ConfirmacionReemplazo:c.modo==='REEMPLAZAR'};
+    e=prepared.datos.Carga;
+    }
+    const request={ConexionId:c.conexionId,IdCarga:i.IdCarga,ArchivoHash:e.ArchivoHash,ConfiguracionHash:e.ConfiguracionHash,EsquemaHash:e.EsquemaHash,ConfirmacionReemplazo:c.modo==='REEMPLAZAR'};
     const ownConfig=await select('SELECT configuracion_doc FROM imp01_carga_ejecucion WHERE id_carga=? AND ambito_ref=? AND usuario_ref=? AND conexion_ref=?',[i.IdCarga,String(s.empresaId),String(s.usuarioId),'DA:'+s.moduloId+':'+c.conexionId]);
     check(ownConfig.length===1&&require('node:crypto').createHash('sha256').update(ownConfig[0].configuracion_doc,'utf8').digest('hex')===e.ConfiguracionHash,'DOC125_CONFIGURATION_HASH_CHANGED');
     const ownPhysical=JSON.parse(ownConfig[0].configuracion_doc).IdentidadFisica;
@@ -111,7 +152,7 @@ test.describe('DOC125 confirmación durable',()=>{
      const results=await Promise.all([call(a,'Confirmar',request,a.token),call(b,'Confirmar',request,b.token)]);
      check(results.some(x=>x.ok)&&results.every(x=>x.ok||x.codigo==='OPERACION_EN_CURSO'),'DOC125_CONFIRM_CONTENTION_FAILED');result=results.find(x=>x.ok);
     }else result=await call(a,'Confirmar',request,a.token);
-    check(result.codigo===c.codigoEsperado,'DOC125_CONFIRM_CODE_MISMATCH');
+    check(result.codigo===c.codigoEsperado,'DOC125_CONFIRM_CODE_MISMATCH_'+(/^[A-Z_]{1,60}$/.test(result.codigo||'')?result.codigo:'UNCLASSIFIED'));
     //Acuse ignorado deliberadamente por el cliente: recuperar por ID en otra sesión.
     //No se presenta como corte físico de red o del commit del servidor.
     const recovered=await call(b,'ConsultarResultado',{ConexionId:c.conexionId,IdCarga:i.IdCarga},b.token);
@@ -135,7 +176,7 @@ test.describe('DOC125 confirmación durable',()=>{
    }
   }finally{await a.context.close();if(b)await b.context.close();}
   const restricted=await session(browser,true,'DOC125');try{const denied=await call(restricted,'AbrirCargaExcel');check(!denied.ok&&['ACCESO_DENEGADO','SESION_REQUERIDA'].includes(denied.codigo),'DOC125_RESTRICTED_NOT_DENIED');}finally{await restricted.context.close();}
-  console.log('DOC125_REAL_CONFIRM_PASS cases='+completed+'; real services and UNIQUE race; protected fingerprints unchanged; client ignored acknowledgement; no installation/cleanup');
+  console.log('DOC125_REAL_CONFIRM_PASS cases='+completed+'; real services, retained confirmations and UNIQUE race; protected fingerprints unchanged; client ignored acknowledgement; no installation/cleanup');
  });
 });
 

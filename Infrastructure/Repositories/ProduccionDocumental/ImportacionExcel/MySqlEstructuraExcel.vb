@@ -1,5 +1,6 @@
 Option Strict On
 Imports System
+Imports System.Collections.Generic
 Imports System.Data.Common
 Imports System.Globalization
 Imports System.Linq
@@ -7,14 +8,24 @@ Imports System.Text.RegularExpressions
 
 Public Class MySqlEstructuraExcel
     Private ReadOnly _cn As DbConnection
-    Private ReadOnly _tx As DbTransaction
+    Private _tx As DbTransaction
     Private ReadOnly _validador As MySqlPreparacionExcelValidator
+    Private ReadOnly _relacionesVerificadas As New HashSet(Of String)(StringComparer.Ordinal)
     Public Sub New(cn As DbConnection, validador As MySqlPreparacionExcelValidator, Optional tx As DbTransaction = Nothing)
         _cn = cn : _validador = validador : _tx = tx
     End Sub
+    Public Sub TransaccionActual(tx As DbTransaction)
+        _tx = tx
+    End Sub
     Public Shared Function Marca(e As CargaExcelEjecucion) As String
         If Not ReglasCargaExcel.IdValido(e.Id) OrElse Not ReglasCargaExcel.HashValido(e.EsquemaHash) Then Throw ReglasCargaExcel.Fallo("CONFIGURACION_INVALIDA")
-        Return "docuarchi-excel/v1/" & e.Id & "/" & e.EsquemaHash
+        'MySQL 5.1 limita TABLE COMMENT a 60 caracteres. Vincular el UUID y
+        'la huella completa mediante SHA256/base64url, sin truncar ninguno.
+        Dim vinculo = ReglasCargaExcel.HashDocumento(New With {.Carga = e.Id, .Esquema = e.EsquemaHash})
+        Return "docuarchi/x1/" & Convert.ToBase64String(SqlCargaExcel.Binario(vinculo)).TrimEnd("="c).Replace("+", "-").Replace("/", "_")
+    End Function
+    Private Shared Function MarcaPropia(comentario As String, e As CargaExcelEjecucion) As Boolean
+        Return comentario = Marca(e) OrElse comentario = "docuarchi-excel/v1/" & e.Id & "/" & e.EsquemaHash
     End Function
     Public Shared Function HuellaCreable(e As EsquemaCargaExcel) As String
         Return ReglasCargaExcel.HashDocumento(New With {
@@ -36,7 +47,7 @@ Public Class MySqlEstructuraExcel
     Public Function ConsultarPropia(p As PlantillaExcel, carga As CargaExcelEjecucion) As String
         Dim actual = _validador.Metadatos(p.NOMBRE_PLANTILLA)
         If Not actual.Destino.Existe Then Return "NO_CREADA"
-        If Comentario(p.NOMBRE_PLANTILLA) <> Marca(carga) Then Return "AJENA"
+        If Not MarcaPropia(Comentario(p.NOMBRE_PLANTILLA), carga) Then Return "AJENA"
         If HuellaCreable(actual) <> HuellaCreable(_validador.Proyectado(p)) Then Return "INCOMPATIBLE"
         Return "PROPIA_COMPATIBLE"
     End Function
@@ -107,8 +118,18 @@ Public Class MySqlEstructuraExcel
         Using q = SqlCargaExcel.Cmd(_cn, _tx, "SELECT COUNT(*) FROM information_schema.TRIGGERS WHERE BINARY EVENT_OBJECT_SCHEMA=BINARY DATABASE() AND (BINARY EVENT_OBJECT_TABLE=BINARY @tabla OR EVENT_OBJECT_TABLE='imp01_carga_ejecucion')", "@tabla", tabla)
             If Convert.ToInt64(q.ExecuteScalar(), CultureInfo.InvariantCulture) <> 0 Then Throw ReglasCargaExcel.Fallo("EFECTOS_RELACIONADOS_NO_ADMITIDOS")
         End Using
-        Using q = SqlCargaExcel.Cmd(_cn, _tx, "SELECT COUNT(*) FROM information_schema.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_NAME IS NOT NULL AND ((BINARY TABLE_SCHEMA=BINARY DATABASE() AND (BINARY TABLE_NAME=BINARY @tabla OR TABLE_NAME='imp01_carga_ejecucion')) OR (BINARY REFERENCED_TABLE_SCHEMA=BINARY DATABASE() AND (BINARY REFERENCED_TABLE_NAME=BINARY @tabla OR REFERENCED_TABLE_NAME='imp01_carga_ejecucion')))", "@tabla", tabla)
-            If Convert.ToInt64(q.ExecuteScalar(), CultureInfo.InvariantCulture) <> 0 Then Throw ReglasCargaExcel.Fallo("EFECTOS_RELACIONADOS_NO_ADMITIDOS")
-        End Using
+        'Acreditación acotada a esta operación/conexión/destino. MySQL 5.1 recorre
+        'todas las bases al buscar FK entrantes. El mantenimiento DDL concurrente
+        'está excluido; el CREATE propio no define FK. Nunca compartir entre cargas.
+        Dim claveRelaciones = _cn.Database & "|" & tabla
+        If Not _relacionesVerificadas.Contains(claveRelaciones) Then
+            Using q = SqlCargaExcel.Cmd(_cn, _tx, "SELECT COUNT(*) FROM information_schema.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_NAME IS NOT NULL AND ((BINARY TABLE_SCHEMA=BINARY DATABASE() AND (BINARY TABLE_NAME=BINARY @tabla OR TABLE_NAME='imp01_carga_ejecucion')) OR (BINARY REFERENCED_TABLE_SCHEMA=BINARY DATABASE() AND (BINARY REFERENCED_TABLE_NAME=BINARY @tabla OR REFERENCED_TABLE_NAME='imp01_carga_ejecucion')))", "@tabla", tabla)
+                'El barrido completo medido alcanza 15s. Presupuesto específico,
+                'una vez por operación, dentro del límite HTTP existente de 30s.
+                q.CommandTimeout = 20
+                If Convert.ToInt64(q.ExecuteScalar(), CultureInfo.InvariantCulture) <> 0 Then Throw ReglasCargaExcel.Fallo("EFECTOS_RELACIONADOS_NO_ADMITIDOS")
+            End Using
+            _relacionesVerificadas.Add(claveRelaciones)
+        End If
     End Sub
 End Class

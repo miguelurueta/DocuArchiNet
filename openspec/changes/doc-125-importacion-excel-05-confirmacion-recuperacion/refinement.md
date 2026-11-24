@@ -55,8 +55,16 @@ Ticket DOC-125, dependencia DOC124 ya integrada y cerrada. Fuente íntegra conse
 
 ## Resultado del refinamiento
 
-Quince decisiones y quince requisitos vinculados a escenarios y tareas. Los originales generados eran borradores; su existencia no acreditaba implementación. La matriz técnica pasó la auditoría de refinamiento. La implementación local deja 26/31 tareas completas; el diagnóstico manual, la aceptación real de rollback/carrera/matriz/capacidad y la revisión final siguen abiertos.
+Quince decisiones y quince requisitos vinculados a escenarios y tareas. Los originales generados eran borradores; su existencia no acreditaba implementación. La matriz técnica pasó la auditoría de refinamiento. El corte inicial dejó 26/31 tareas completas. El corte final 2026-11-24 acredita las31 tareas, diagnóstico aplicado/verificado, matriz física5/5 y revisión técnica final; los intentos previos conservan su estado histórico.
 
 ## Concreciones durante la implementación
 
 El bootstrap emite contexto autorizado para consultas y marca PermiteNuevaCarga=False si los límites vigentes no permiten nuevas cargas. Los snapshots v1 se conservan. El ejecutor nativo DOC115 amplía su recorrido con un actor externo acotado a una fila de fixture; los efectos y conteos iniciales están congelados en el scope. SQL19–21 entregan los fixtures para aplicación manual, fuera de tests. La inspección requiere visibilidad TRIGGER y SELECT global para acreditar referencias entrantes desde otras bases; si no se acredita cierra la capacidad, sin conceder privilegios. La recepción del acuse ignorado se distingue de un corte físico del commit. La auditoría técnica y las pruebas locales no sustituyen la aceptación real ni autorizan sus escrituras.
+
+## Concreciones verificadas el 2026-11-24
+
+Revisión técnica de Codex sobre D-08/D-11/D-14: marca de procedencia56ASCII que vincula íntegramente UUID y EsquemaHash (con reconocimiento exacto de la marca literal anterior), acreditación FK una vez por operación/conexión/base/destino sin caché entre sesiones, presupuesto20s sólo para esa inspección global y relectura de permisos/TRIGGER/motor/esquema/autoridad/locks. DDL administrativo concurrente continúa excluido. El actor observa mediante SELECT el INSERT del importador antes de confirmar, en vez de depender de una pausa fija.
+
+La recuperación E2E admite únicamente las identidades/estados/hashes/huellas congelados, conservando las tres confirmaciones y el rollback previos sin volver a escribirlos. La carrera posterior se ejecutó sobre el mismo ID PREPARADA. Preflight nativo sólo lectura y parámetros ODBC BigInt/Int64 acreditan los recursos actuales. Se conservan HTTP30s y cero reintentos; el presupuesto del test15min cubre los controles SELECT. SQL19–21 fueron aplicados por delegación expresa «ejecuta» y aprobación de herramienta fuera de tests, sin grants ni cambio del Web.config.
+
+Matriz física5/5, build0errores,94/94tests y4492checks sintéticos. Capacidad física medida1000filas por modo;20k y fallos físicos de COMMIT/DDL no se certifican. Detalle y trazabilidad en Validacion/doc125-verificacion-final-20261124.md/JSON. Esta revisión sigue siendo técnica; no declara aprobación humana ni amplía los efectos autorizados.

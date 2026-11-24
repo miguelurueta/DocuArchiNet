@@ -172,9 +172,17 @@ recursos, plantillas, fuentes o permisos conserva el flujo manual.
 
 ### Fixtures descartables para la E2E de DOC125
 
-Los siguientes archivos están **ENTREGADOS / PENDIENTE_EJECUCION_MANUAL**; el agente
-no los ha aplicado. Se añaden fixtures porque la aceptación DOC124 conservó todos
-los datos de sus destinos y no autoriza reemplazar CONTRATOS.
+**Aplicados y verificados el 2026-11-23**, por delegación expresa del usuario
+«ejecuta», fuera de los tests. SQL18: diez controles SELECT; SQL19: dos tablas
+descartables; SQL20: fuentes6/7 activas revisión2; SQL21: plantillas29/30/31
+revisión1, conexión6 y tres filas sintéticas. SQL20/21 se confirmaron únicamente
+tras LISTO_PARA_COMMIT. Relecturas en sesiones nuevas y huellas de configuración
+previa, CONTRATOS625, EGRESOS y CRÉDITOS intactas. No volver a aplicar estos archivos.
+Evidencia en [doc125-instalacion-ejecucion-20261123.md](../Validacion/doc125-instalacion-ejecucion-20261123.md).
+Los intentos reales detenidos y la corrección del barrido global se registran en
+[doc125-e2e-parada-correccion-20261124.md](../Validacion/doc125-e2e-parada-correccion-20261124.md).
+Se añadieron fixtures porque la aceptación DOC124 conservó todos los datos de sus
+destinos; la autorización DOC125 sólo escribe en sus fixtures descartables.
 
 | Orden | Archivo y destino | Efecto |
 | --- | --- | --- |
@@ -204,6 +212,10 @@ sola fila del fixture autorizado, sin lock cooperativo, y conserva ese efecto.
 No se incluyen endpoints de inyección de fallos ni limpieza de resultados.
 
 El runner sigue siendo `test:doc110:session -- --excel-confirm`, con scope DOC125 y
-consentimiento nuevo de ambiente/cuentas/efectos. La preparación local de libros
-sintéticos reutiliza el generador del harness DOC123. Instalar estos fixtures no
-autoriza aún la ejecución E2E, un despliegue o escrituras sobre tablas anteriores.
+consentimiento específico de ambiente/cuentas/efectos, recibido con «ejecuta».
+La preparación local de libros sintéticos reutiliza el generador del harness
+DOC123. La DLL ya está desplegada y la matriz real pasó5/5; las sesiones terminaron y
+las claves se eliminaron. Resultado y mediciones en
+[doc125-ejecucion-seguimiento-20261124.md](../Validacion/doc125-ejecucion-seguimiento-20261124.md).
+Los efectos quedan conservados en los fixtures autorizados. Los SQL conservan sus valores NULL de entrega; los IDs reales
+se completaron sólo en la ejecución delegada, sin reeditar los archivos aplicados.

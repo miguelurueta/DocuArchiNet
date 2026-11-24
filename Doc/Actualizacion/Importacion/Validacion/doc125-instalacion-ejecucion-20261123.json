@@ -1,0 +1,219 @@
+{
+  "issue": "DOC-125",
+  "date": "2026-11-23",
+  "status": "SQL_APLICADO_DESPLEGADO_E2E_ESPERA_CREDENCIALES",
+  "authorization": {
+    "userInstruction": "ejecuta",
+    "scope": "Ambiente IIS local existente, empresa2, propietario141, DA11/RA12, conexión6; SQL19–21, despliegue y cinco casos DOC125 descartables",
+    "manualSqlDelegated": true,
+    "installationOutsideTests": true
+  },
+  "preflight": {
+    "utc": "2026-11-23T23:38:34.3969341Z",
+    "selectControls": 10,
+    "version": "5.1.37-community",
+    "maxAllowedPacket": 1048576,
+    "operationalColumns": 22,
+    "globalSelect": true,
+    "triggerVisibility": true,
+    "executionTriggers": 0,
+    "executionForeignKeys": 0,
+    "databaseWrites": 0
+  },
+  "installation": {
+    "utc": "2026-11-23T23:41:45.1288159Z",
+    "status": "APPLIED_VERIFIED_SQL19_21",
+    "sqlHashes": {
+      "19-fixtures-da-doc125.sql": "1d25d865b03cb35d683f40dfe9f567b9b6fe3aa06a02c05d281ff9aa77acfff9",
+      "20-fuentes-e2e-ra-doc125.sql": "7dd2ce9925ba2e1395b8b68cef226ed688d4f8198b71bcc54219e45e126591e0",
+      "21-plantillas-e2e-da-doc125.sql": "608771ad35502bf3d9566f676dc2ea2912af51524291692c4c78cfce6a9e0ffc"
+    },
+    "createdTables": [
+      "imp_02_doc125_e2e_agregar",
+      "imp_02_doc125_e2e_reemplazar"
+    ],
+    "sourceIds": [
+      "6",
+      "7"
+    ],
+    "sources": [
+      {
+        "fuente_id": 6,
+        "ambito_ref": "2",
+        "conexion_ref": "DA",
+        "tabla_nombre": "imp_02_doc125_e2e_agregar",
+        "modo_aislamiento": "CONEXION",
+        "columna_empresa": "",
+        "activo": 1,
+        "revision": 2
+      },
+      {
+        "fuente_id": 7,
+        "ambito_ref": "2",
+        "conexion_ref": "DA",
+        "tabla_nombre": "imp_02_doc125_e2e_reemplazar",
+        "modo_aislamiento": "CONEXION",
+        "columna_empresa": "",
+        "activo": 1,
+        "revision": 2
+      }
+    ],
+    "templates": [
+      {
+        "templateId": 29,
+        "name": "imp_02_doc125_e2e_crear",
+        "mode": "CREAR",
+        "revision": 1,
+        "hash": "a38a932343ef4651f865458ced68660d7c239b9da62c99fb6d97e62a2897232a",
+        "fields": 2
+      },
+      {
+        "templateId": 30,
+        "name": "imp_02_doc125_e2e_agregar",
+        "mode": "AGREGAR",
+        "revision": 1,
+        "hash": "1fee33a1f48f10671e780d3702bd32eb99887c235274cda7a33c03e92fde5056",
+        "fields": 2
+      },
+      {
+        "templateId": 31,
+        "name": "imp_02_doc125_e2e_reemplazar",
+        "mode": "REEMPLAZAR",
+        "revision": 1,
+        "hash": "2f7eb2e7718f253295d962f5e10c1260909f09b898a87d05c2e210f10d4feff6",
+        "fields": 2
+      }
+    ],
+    "baselineSyntheticRows": 3,
+    "protectedBefore": {
+      "imp_02_contratos": {
+        "rows": 625,
+        "sha256": "954c81690f4e9c26edd55037a4eab01a48af0706cc3e0c96e0500bbf6e42e471",
+        "schemaHash": "caa6ca86ed9305944d5c2384ce0c86d75ae79d10d0424e5a94bea742f5ed771e"
+      },
+      "imp_02_egresos": {
+        "rows": 25153,
+        "sha256": "418e439865904814832115c0a0bfa6059f7377d4771a858a466f7de40ba3a761",
+        "schemaHash": "0bba31842f08d3a6387e1c502e245bb8291050d0beb50e1a3e793d6a08223b79"
+      },
+      "imp_02_creditos": {
+        "rows": 12,
+        "sha256": "f5dd71dcab6b9a3bf647dcf6c6c5f48af958bd4dda6728d75577ffed7e6f61cb",
+        "schemaHash": "a5b58284fe23c0fe3b06f0f7cea68dcd46013272021df6994e80429ab9c04687"
+      },
+      "headers": {
+        "rows": 22,
+        "sha256": "8357c22546003d1260385d46e2fb43cfa5e669b06cd5db1d1d248b49cb3c4a1e"
+      },
+      "fields": {
+        "rows": 97,
+        "sha256": "3f083b51069cbf66329e8a654fabac5743a73b9827d683d4587b0eced811d35f"
+      },
+      "ra_integracion_fuente": {
+        "rows": 4,
+        "sha256": "cffa0567d038ba152594c87aa876402f5f4528fac413c3f83963a9bd1f5bd453"
+      },
+      "ra_integracion_fuente_columna": {
+        "rows": 12,
+        "sha256": "43ae1b648a643ac022c29525de6773e8e86e305f7f6fef58ef52543094797dc2"
+      },
+      "ra_integracion_fuente_historial": {
+        "rows": 12,
+        "sha256": "188be1c821c519c477e4ad743e94be60acf1d4941fba44dbbff701b144929875"
+      }
+    },
+    "protectedAfter": {
+      "imp_02_contratos": {
+        "rows": 625,
+        "sha256": "954c81690f4e9c26edd55037a4eab01a48af0706cc3e0c96e0500bbf6e42e471",
+        "schemaHash": "caa6ca86ed9305944d5c2384ce0c86d75ae79d10d0424e5a94bea742f5ed771e"
+      },
+      "imp_02_egresos": {
+        "rows": 25153,
+        "sha256": "418e439865904814832115c0a0bfa6059f7377d4771a858a466f7de40ba3a761",
+        "schemaHash": "0bba31842f08d3a6387e1c502e245bb8291050d0beb50e1a3e793d6a08223b79"
+      },
+      "imp_02_creditos": {
+        "rows": 12,
+        "sha256": "f5dd71dcab6b9a3bf647dcf6c6c5f48af958bd4dda6728d75577ffed7e6f61cb",
+        "schemaHash": "a5b58284fe23c0fe3b06f0f7cea68dcd46013272021df6994e80429ab9c04687"
+      },
+      "headers": {
+        "rows": 22,
+        "sha256": "8357c22546003d1260385d46e2fb43cfa5e669b06cd5db1d1d248b49cb3c4a1e"
+      },
+      "fields": {
+        "rows": 97,
+        "sha256": "3f083b51069cbf66329e8a654fabac5743a73b9827d683d4587b0eced811d35f"
+      },
+      "ra_integracion_fuente": {
+        "rows": 4,
+        "sha256": "cffa0567d038ba152594c87aa876402f5f4528fac413c3f83963a9bd1f5bd453"
+      },
+      "ra_integracion_fuente_columna": {
+        "rows": 12,
+        "sha256": "43ae1b648a643ac022c29525de6773e8e86e305f7f6fef58ef52543094797dc2"
+      },
+      "ra_integracion_fuente_historial": {
+        "rows": 12,
+        "sha256": "188be1c821c519c477e4ad743e94be60acf1d4941fba44dbbff701b144929875"
+      }
+    },
+    "protectedUnchanged": true,
+    "preexistingConfigurationUnchanged": true,
+    "grants": 0,
+    "cleanup": 0
+  },
+  "deployment": {
+    "utc": "2026-11-23T23:43:31.3275861Z",
+    "previousAssemblySha256": "e1767f58a8d784bc0f958b8c141efad7363669a793eb0eb5c164aefed071e730",
+    "deployedAssemblySha256": "0646c354af0d6a7b1aaa5f61e3a880b9c58697a1a0e75a6e055d833e221d34c9",
+    "wsdlStatus": 200,
+    "methodsPresent": true,
+    "webConfigUnchanged": true,
+    "files": [
+      {
+        "name": "GestionDocumental-Docuarchi.net.dll",
+        "existed": true,
+        "sha256": "0646c354af0d6a7b1aaa5f61e3a880b9c58697a1a0e75a6e055d833e221d34c9"
+      }
+    ]
+  },
+  "realE2E": {
+    "executed": false,
+    "reason": "Ventana privada abierta; pendientes credenciales vigentes, no recuperar secretos anteriores",
+    "plannedCases": 5,
+    "scope": {
+      "company": 2,
+      "owner": 141,
+      "module": 11,
+      "connection": 6,
+      "plannedRows": [
+        1000,
+        1000,
+        1000,
+        300,
+        10
+      ],
+      "maxBusinessRows": 4000,
+      "maxDeletedRows": 1002,
+      "externalWriterRows": 1,
+      "preserveEffects": true,
+      "protectedTables": [
+        "imp_02_contratos",
+        "imp_02_egresos",
+        "imp_02_creditos"
+      ]
+    }
+  },
+  "tasks": {
+    "complete": 27,
+    "total": 31,
+    "pending": [
+      "5.3",
+      "5.4",
+      "5.5",
+      "5.7"
+    ]
+  }
+}

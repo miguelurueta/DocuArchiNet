@@ -18,6 +18,13 @@ function validateScope(s,baseUrl){
   typeof c.hoja!=='string'||!c.hoja||c.hoja.length>120||!positive(c.filasEsperadas)||c.filasEsperadas>20000||
   !Number.isSafeInteger(c.filasDestinoEsperadas)||c.filasDestinoEsperadas<0||c.filasDestinoEsperadas>100000||(c.modo==='CREAR'&&c.filasDestinoEsperadas!==0)||
   c.codigoEsperado!==(['rollback','carrera'].includes(c.escenario)?'CONFLICTO_CLAVE':'OK'))throw Error('DOC125_SCOPE_INVALID');
+ for(const c of s.cases){
+  const options=['reanudarConfirmada','reanudarFallida','continuarPreparada'].filter(k=>c[k]!==undefined);
+  if(options.length>1)throw Error('DOC125_SCOPE_INVALID');
+  if(!options.length)continue;
+  const name=options[0],r=c[name],allowed=name==='reanudarConfirmada'?['crear','agregar','reemplazar']:name==='reanudarFallida'?['rollback']:['carrera'];
+  if(!allowed.includes(c.escenario)||!r||!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(r.idCarga||'')||!hash(r.configuracionHash)||!hash(r.esquemaHash)||!hash(r.huellaDestino))throw Error('DOC125_SCOPE_INVALID');
+ }
  for(const name of Object.keys(modes))if(s.cases.filter(c=>c.escenario===name).length!==1)throw Error('DOC125_SCOPE_INVALID');
  if(s.cases.length!==5||s.cases.reduce((n,c)=>n+c.filasEsperadas,0)+1>s.maxBusinessRows||s.cases.find(c=>c.escenario==='agregar').filasEsperadas<1000)throw Error('DOC125_SCOPE_INVALID');
  if(s.cases.map(c=>c.escenario).join(',')!=='crear,agregar,reemplazar,rollback,carrera'||s.cases.filter(c=>c.modo==='REEMPLAZAR').reduce((n,c)=>n+c.filasDestinoEsperadas,0)>s.maxDeletedRows)throw Error('DOC125_SCOPE_INVALID');
@@ -35,4 +42,9 @@ function lockNames(physical,table,id){
  const fold=Number(physical.minusculas)!==0;
  return {id:'dx'+hash({Fisica:fisica,Id:id}).slice(0,62),destination:'dt'+hash({Servidor:physical.servidor,Puerto:Number(physical.puerto),Base:fold?physical.base_ref.toLowerCase():physical.base_ref,Tabla:fold?table.toLowerCase():table}).slice(0,62)};
 }
-module.exports={validateScope,readScope,readFixture,snapshotDestination,lockNames};
+function resumeRequest(s,c,row){
+ const r=c.reanudarConfirmada||c.reanudarFallida||c.continuarPreparada,confirmed=!!c.reanudarConfirmada,failed=!!c.reanudarFallida;
+ if(!r||!row||row.id_carga!==r.idCarga||row.estado!==(confirmed?'CONFIRMADA':failed?'FALLIDA':'PREPARADA')||row.modo!==c.modo||Number(row.id_plantilla)!==c.plantillaId||String(row.ambito_ref)!==String(s.empresaId)||String(row.usuario_ref)!==String(s.usuarioId)||row.conexion_ref!=='DA:'+s.moduloId+':'+c.conexionId||row.tabla_destino!==c.tabla||row.archivo_hash!==c.archivoHash||row.configuracion_hash!==r.configuracionHash||row.esquema_hash!==r.esquemaHash||Number(row.filas_previstas)!==c.filasEsperadas||Number(row.filas_confirmadas)!==(confirmed?c.filasEsperadas:0)||Number(row.confirmado)!==(confirmed?1:0)||(failed&&row.codigo_incidencia!=='CONFLICTO_CLAVE')||(!confirmed&&!failed&&row.codigo_incidencia))throw Error('DOC125_RESUME_OWNER_RESULT_CHANGED');
+ return {ConexionId:c.conexionId,IdCarga:r.idCarga,ArchivoHash:c.archivoHash,ConfiguracionHash:r.configuracionHash,EsquemaHash:r.esquemaHash,ConfirmacionReemplazo:c.modo==='REEMPLAZAR'};
+}
+module.exports={validateScope,readScope,readFixture,snapshotDestination,lockNames,resumeRequest};

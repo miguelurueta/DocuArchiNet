@@ -40,13 +40,13 @@ function startExcelExternalWriter(scope,item,prepared,environment=process.env){
  const directory=fs.mkdtempSync(path.join(parent,'run-')),file=path.join(directory,'resources.json');
  const body=JSON.stringify({scope,item,prepared});fs.writeFileSync(file,body,{flag:'wx'});
  const child=spawn('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',path.join(__dirname,'support/doc115-repository-integration.ps1'),'-ResourcesFile',file,'-RuntimeRoot',scope.runtimeRoot,'-ExcelConfirmation'],{windowsHide:true,env:{...environment,DOC125_NATIVE_RESOURCES_SHA256:crypto.createHash('sha256').update(body).digest('hex')}});
- let readyResolve,readyReject,doneResolve,doneReject,buffer='',locked=false,committed=false;
+ let readyResolve,readyReject,doneResolve,doneReject,buffer='',errorBuffer='',diagnostic=null,locked=false,committed=false,importWaitObserved=false;
  const ready=new Promise((r,j)=>{readyResolve=r;readyReject=j;}),done=new Promise((r,j)=>{doneResolve=r;doneReject=j;});ready.catch(()=>{});done.catch(()=>{});
  const timer=setTimeout(()=>{child.kill();readyReject(Error('DOC125_NATIVE_RESULT_UNCERTAIN'));doneReject(Error('DOC125_NATIVE_RESULT_UNCERTAIN'));},60000);
- child.stdout.on('data',chunk=>{buffer+=String(chunk);let index;while((index=buffer.indexOf('\n'))>=0){const line=buffer.slice(0,index).trim();buffer=buffer.slice(index+1);if(line==='DOC125_EXTERNAL_LOCKED'){locked=true;readyResolve();}else if(line==='DOC125_EXTERNAL_COMMITTED')committed=true;}if(buffer.length>1024)buffer='';});
- child.stderr.on('data',()=>{});
+ child.stdout.on('data',chunk=>{buffer+=String(chunk);let index;while((index=buffer.indexOf('\n'))>=0){const line=buffer.slice(0,index).trim();buffer=buffer.slice(index+1);if(line==='DOC125_EXTERNAL_LOCKED'){locked=true;readyResolve();}else if(line==='DOC125_EXTERNAL_IMPORT_WAIT_OBSERVED')importWaitObserved=true;else if(line==='DOC125_EXTERNAL_COMMITTED')committed=true;}if(buffer.length>1024)buffer='';});
+ child.stderr.on('data',chunk=>{errorBuffer+=String(chunk);let index;while((index=errorBuffer.indexOf('\n'))>=0){const line=errorBuffer.slice(0,index).trim();errorBuffer=errorBuffer.slice(index+1);if(!line.startsWith('DOC125_NATIVE_DIAGNOSTIC '))continue;try{const d=JSON.parse(line.slice('DOC125_NATIVE_DIAGNOSTIC '.length));if(/^DOC(?:115|125)_[A-Z_]{1,90}$/.test(d.code||'')&&/^[A-Z_]{1,40}$/.test(d.stage||'')&&/^[A-Za-z0-9_]{1,80}$/.test(d.type||''))diagnostic={code:d.code,stage:d.stage,type:d.type,native:Number.isSafeInteger(d.native)?d.native:null};}catch{}}if(errorBuffer.length>2048)errorBuffer='';});
  child.on('error',()=>{clearTimeout(timer);readyReject(Error('DOC125_NATIVE_RESULT_UNCERTAIN'));doneReject(Error('DOC125_NATIVE_RESULT_UNCERTAIN'));});
- child.on('close',code=>{clearTimeout(timer);fs.writeFileSync(path.join(directory,'outcome.json'),JSON.stringify({locked,committed,exitCode:code,effectsPreserved:true}));if(code===0&&locked&&committed)doneResolve();else{readyReject(Error('DOC125_NATIVE_RESULT_UNCERTAIN'));doneReject(Error('DOC125_NATIVE_RESULT_UNCERTAIN'));}});
+ child.on('close',code=>{clearTimeout(timer);fs.writeFileSync(path.join(directory,'outcome.json'),JSON.stringify({locked,importWaitObserved,committed,diagnostic,exitCode:code,effectsPreserved:true}));if(code===0&&locked&&importWaitObserved&&committed)doneResolve();else{readyReject(Error('DOC125_NATIVE_RESULT_UNCERTAIN'));doneReject(Error('DOC125_NATIVE_RESULT_UNCERTAIN'));}});
  return {ready,done};
 }
 

@@ -1,9 +1,11 @@
-param([Parameter(Mandatory=$true)][string]$ResourcesFile,[Parameter(Mandatory=$true)][string]$RuntimeRoot,[switch]$Check,[switch]$Segmented,[switch]$FileReservations,[switch]$InspectFiles,[switch]$FixtureFiles,[switch]$ExcelConfirmation)
+param([Parameter(Mandatory=$true)][string]$ResourcesFile,[Parameter(Mandatory=$true)][string]$RuntimeRoot,[switch]$Check,[switch]$Segmented,[switch]$FileReservations,[switch]$InspectFiles,[switch]$FixtureFiles,[switch]$ExcelConfirmation,[switch]$ExcelPreflight)
 $ErrorActionPreference='Stop'
+if($ExcelPreflight -and -not $ExcelConfirmation){[Console]::Error.WriteLine('DOC125_NATIVE_PREFLIGHT_SCOPE_REQUIRED');exit 1}
 if($ExcelConfirmation){
-    $catalog125=$null;$reader125=$null;$command125=$null;$builder125=$null;$config125=$null
+    $catalog125=$null;$reader125=$null;$command125=$null;$builder125=$null;$config125=$null;$stage125='AUTHORIZATION'
     try{
         if($Check -or $Segmented -or $FileReservations -or $InspectFiles -or $FixtureFiles -or $env:DOC125_E2E_AUTHORIZED -ne 'YES'){throw 'DOC125_NATIVE_AUTHORIZATION_REQUIRED'}
+        $stage125='RESOURCES'
         $root125=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../../..'))
         $resources125=[IO.Path]::GetFullPath($ResourcesFile)
         $resourcesPrefix125=[IO.Path]::GetFullPath((Join-Path $root125 '.tmp/doc125-external'))+[IO.Path]::DirectorySeparatorChar
@@ -18,14 +20,15 @@ if($ExcelConfirmation){
         . (Join-Path $PSScriptRoot 'doc115-readonly-failure.ps1')
         $dsn125=[Environment]::GetEnvironmentVariable($scope125.controlPrefix+'_ODBC_DSN')
         $target125=Resolve-Doc115DsnTarget -Dsn $dsn125 -ExpectedHash $scope125.environmentHash
+        $stage125='MODULE_RESOLUTION'
         Add-Type -Path (Join-Path (Split-Path -Parent $harness125) 'MySql.Data.dll')
         $config125=[xml](Get-Content -LiteralPath (Join-Path $RuntimeRoot 'Web.config') -Raw)
         $catalog125=New-Object Data.Odbc.OdbcConnection
         $catalog125.ConnectionString=($config125.configuration.connectionStrings.add|Where-Object name -eq 'OdbcServicesGestor').connectionString
         $catalog125.Open();$command125=$catalog125.CreateCommand()
         $command125.CommandText='SELECT IP_SERVER_MODULO,DB_NAME_MODULO,USER_DBMS_MODULO,PASW_DBMS_MODULO FROM gestor_modulos WHERE ESTADO_MODULO=1 AND ID_MODULO=? AND EMPRESA_GESTION_DOCUMENTAL_ID_EMPRESA=?'
-        [void]$command125.Parameters.AddWithValue('modulo',[uint32]$scope125.moduloId)
-        [void]$command125.Parameters.AddWithValue('empresa',[uint32]$scope125.empresaId)
+        $parameter125=$command125.Parameters.Add('modulo',[Data.Odbc.OdbcType]::BigInt);$parameter125.Value=[int64]$scope125.moduloId
+        $parameter125=$command125.Parameters.Add('empresa',[Data.Odbc.OdbcType]::BigInt);$parameter125.Value=[int64]$scope125.empresaId
         $reader125=$command125.ExecuteReader()
         if(-not $reader125.Read()){throw 'DOC125_NATIVE_MODULE_REQUIRED'}
         $builder125=New-Object MySql.Data.MySqlClient.MySqlConnectionStringBuilder
@@ -33,12 +36,20 @@ if($ExcelConfirmation){
         if($reader125.Read()){throw 'DOC125_NATIVE_MODULE_AMBIGUOUS'}
         if($builder125.Server -cne $target125.server -or $builder125.Database -cne $target125.database){throw 'DOC125_NATIVE_MODULE_TARGET_CHANGED'}
         $reader125.Dispose();$reader125=$null;$command125.Dispose();$command125=$null;$catalog125.Dispose();$catalog125=$null
+        $stage125='LOAD_HARNESS'
         [void][Reflection.Assembly]::LoadFrom((Join-Path (Split-Path -Parent $harness125) 'ImportacionExcel.dll'))
         [void][Reflection.Assembly]::LoadFrom($harness125)
-        [ImportacionExcelConfirmacionTests]::RunExternalWriter($true,$builder125.ConnectionString,[IO.File]::ReadAllText($resources125))
+        $stage125='WRITER'
+        if($ExcelPreflight){[ImportacionExcelConfirmacionTests]::CheckExternalWriter($true,$builder125.ConnectionString,[IO.File]::ReadAllText($resources125))}else{[ImportacionExcelConfirmacionTests]::RunExternalWriter($true,$builder125.ConnectionString,[IO.File]::ReadAllText($resources125))}
         exit 0
     }catch{
         [Console]::Error.WriteLine('DOC125_NATIVE_EXTERNAL_FAILED_RESULT_UNCERTAIN')
+        if($env:DOC125_E2E_AUTHORIZED -eq 'YES'){
+            $cause125=$_.Exception;$native125=$null
+            while($cause125.InnerException){if($cause125.PSObject.Properties['Number']){$native125=[int]$cause125.Number};$cause125=$cause125.InnerException}
+            $code125=if($cause125.Message -cmatch '\ADOC(?:115|125)_[A-Z_]{1,90}\z'){$cause125.Message}else{'DOC125_NATIVE_PROVIDER_REJECTED'}
+            [Console]::Error.WriteLine('DOC125_NATIVE_DIAGNOSTIC '+(@{stage=$stage125;code=$code125;type=$cause125.GetType().Name;native=$native125}|ConvertTo-Json -Compress))
+        }
         exit 1
     }finally{
         if($reader125){$reader125.Dispose()};if($command125){$command125.Dispose()};if($catalog125){$catalog125.Dispose()}

@@ -13,7 +13,7 @@ La ejecución real DOC124 preparó seis casos y conservó 625 contratos. Su auto
 
 ## PRECONDICIONES DE RUTAS
 
-Inventario contrastado con la carpeta principal antes de implementar. Los archivos de producto nuevos ya están implementados; los SQL de fixture están entregados sin ejecutar. Se mantiene la división por responsabilidad de DOC124 y se amplían sus harness.
+Inventario contrastado con la carpeta principal antes de implementar. Los archivos de producto nuevos están implementados; SQL18–21 se aplicaron y verificaron fuera de los tests por delegación expresa «ejecuta», con fuentes6/7 y plantillas29/30/31. Se mantiene la división por responsabilidad de DOC124 y se amplían sus harness. Los resultados de ejecución se documentan en Validacion sin presentar los intentos detenidos como aceptación real.
 
 | Ruta | Situación | Responsabilidad |
 | --- | --- | --- |
@@ -49,6 +49,7 @@ Inventario contrastado con la carpeta principal antes de implementar. Los archiv
 | `tools/e2e/scripts/run-doc110-profile-session.cjs` | existente | Nuevo modo explícito en la consola privada existente. |
 | `tools/e2e/scripts/support/doc115-repository-integration.ps1` | existente | Actor externo acotado de la carrera UNIQUE, usando su ejecutor y catálogo de módulos actuales. |
 | `tools/e2e/tests/support/doc125-excel-scope.cjs` | nuevo | Scope exclusivo de confirmación que reutiliza utilidades DOC124. |
+| `tools/e2e/tests/support/doc111-importacion-carpetas.cjs` | reutilización | Clasificación saneada de login/redirecciones existente, compartida por la E2E Excel. |
 | `Doc/Actualizacion/Importacion/Sql/18-preflight-doc125.sql` | nuevo | Archivo de diagnóstico exclusivamente SELECT. |
 | `Doc/Actualizacion/Importacion/Sql/19-fixtures-da-doc125.sql` | nuevo | DDL manual de dos tablas descartables para la aceptación, con CREAR aún ausente. |
 | `Doc/Actualizacion/Importacion/Sql/20-fuentes-e2e-ra-doc125.sql` | nuevo | Alta manual de dos fuentes de fixture con ámbito y actor explícitos. |
@@ -104,7 +105,7 @@ Evidencia inspeccionada: `PoliticaDestinoCargaExcelAdapter.Seleccionar`, `MySqlP
 
 ### D-08 / RQ-08 — Crear con procedencia recuperable
 
-CREAR tiene una fase estructural anterior a la transacción DML: InnoDB, tipos proyectados, charset/collation autorizado, clave NOT NULL y UNIQUE completo. Incluir en el mismo CREATE TABLE un comentario versionado con UUID y EsquemaHash preparado; no usar IF NOT EXISTS ni apropiarse de tablas existentes. Comparar estructura materializada con la proyección normalizando sólo representaciones equivalentes de MySQL (p. ej., ancho de visualización INT y NUMERIC/DECIMAL), sin ignorar precisión, longitud, nullabilidad, índices, charset o collation. Conservar el hash v1 original. Una tabla propia compatible y vacía permite reintento; una tabla ajena, alterada o con filas no explicadas produce conflicto. No DROP, TRUNCATE ni limpieza automática.
+CREAR tiene una fase estructural anterior a la transacción DML: InnoDB, tipos proyectados, charset/collation autorizado, clave NOT NULL y UNIQUE completo. Incluir en el mismo CREATE TABLE un comentario versionado que vincula el UUID y EsquemaHash completos mediante SHA256/base64url: `docuarchi/x1/<digest>`,56 caracteres ASCII, compatible con el límite60 anterior a MySQL5.5.3. No se truncó ninguna identidad/huella. Se reconoce además la marca literal anterior sólo si coincide íntegramente con la misma carga/esquema; no hay ALTER de comentarios. No usar IF NOT EXISTS ni apropiarse de tablas existentes. Comparar estructura materializada con la proyección normalizando sólo representaciones equivalentes de MySQL (p. ej., ancho de visualización INT y NUMERIC/DECIMAL), sin ignorar precisión, longitud, nullabilidad, índices, charset o collation. Conservar el hash v1 original. Una tabla propia compatible y vacía permite reintento; una tabla ajena, alterada o con filas no explicadas produce conflicto. No DROP, TRUNCATE ni limpieza automática.
 
 Evidencia inspeccionada: `MySqlPreparacionExcelValidator.Proyectar/HuellaEsquema`, `ServicioPreparacionExcel.Documento` y reglas de creación de DOC121.
 
@@ -123,6 +124,8 @@ Evidencia inspeccionada: `ComposicionCargaExcel.New`, `ServicioRecepcionExcel.Co
 ### D-11 / RQ-11 — Elegibilidad física antes de escribir
 
 La confirmación acredita InnoDB en tablas de ejecución/configuración/destino, tabla base, clave completa no nula y esquema compatible. Inspeccionar triggers y claves foráneas entrantes/salientes tanto del destino como del registro de ejecución: cualquier trigger o FK de las tablas que se escriben bloquea la confirmación en esta fase. Comprobar visibilidad suficiente de metadatos, incluido privilegio TRIGGER efectivo; un resultado vacío sin ese privilegio no demuestra ausencia. La inspección de relaciones debe cubrir también referencias desde otras tablas, no sólo las visibles por permisos parciales. Si no puede acreditarse la inspección, cerrar la capacidad y entregar la adecuación de permisos como SQL manual específico. Extender inspección de confirmación sin cambiar la huella v1 de preparación. No autorizar mantenimiento DDL concurrente; el módulo no ofrece exclusión frente a administradores que lo ignoren.
+
+El diagnóstico real encontró que la inspección global de FK tarda10–15segundos en MySQL5.1 y puede alcanzar el presupuesto general SQL15s. Se conserva su consulta completa y se acredita una vez por conexión, base, destino y sesión de confirmación; únicamente un resultado exitoso permite reutilizar esa acreditación durante la misma operación. Esa sola consulta dispone de20s; las restantes conservan15s y HTTP conserva30s. No existe caché global ni compartida entre cargas. El CREATE propio no define FK; el mantenimiento DDL concurrente permanece excluido. Permisos, TRIGGER, motores, esquema, autoridad y locks se vuelven a comprobar en sus puntos anteriores. Las relecturas transaccionales conservan su DbTransaction; el mismo inspector se reasocia al iniciar/finalizar la transacción, sin guardar un objeto de transacción ya cerrado. La capacidad medida no garantiza que todo archivo de20000filas termine dentro de30s; un corte requiere consultar el mismo ID antes de decidir otro intento.
 
 Evidencia inspeccionada: `MySqlPreparacionExcelValidator.ValidarEsquema/HuellaEsquema`, `SqlCargaExcel.Identificador` y metadatos information_schema.
 
@@ -144,6 +147,8 @@ Extender importacion-excel.spec.cjs, run-doc110-profile-session.cjs, controles S
 
 Evidencia inspeccionada: `tools/e2e/tests/importacion-excel.spec.cjs`, runner DOC110, `doc124-excel-scope.cjs`, `tests/ImportacionExcelPreparacionTests.cs` y runbook.
 
+La continuación E2E es explícita y mutuamente excluyente por caso: reanudarConfirmada sólo para los tres positivos, reanudarFallida sólo para rollback ya acreditado y continuarPreparada sólo para la carrera pendiente. Se congelan ID, propietario/empresa/módulo/conexión, plantilla, modo, hashes, conteos, incidencia y huella íntegra del destino; cualquier diferencia detiene el recorrido. Un resultado previo no se promueve de estado ni vuelve a importar. El test dispone de900s para cinco casos y controles SELECT; cada HTTP mantiene30s y cero reintentos. El actor espera como máximo20s a observar el INSERT del importador antes de confirmar su única fila.
+
 ### D-15 / RQ-15 — Compatibilidad y entrega verificable
 
 Conservar net461, MySQL5.1.37, MySql.Data6.2.3, lector DOC123 y resolución RA/DA vigente. Registrar archivos nuevos de compilación en vbproj y ampliar el mismo harness con pruebas de confirmación, dobles ADO independientes y regresiones DOC122–124/carpetas. Actualizar documentos de la fase y evidencia por SHA. La interfaz y registro administrativo de fuentes nuevas siguen en sus fases; no modificar SII, perfiles de carpetas, menús ni proveedores para implementar esta confirmación.
@@ -157,7 +162,7 @@ Evidencia inspeccionada: `GestionDocumental-Docuarchi.net.vbproj`, pruebas DOC12
 1. Validar transporte/CSRF, autoridad, identidad y propiedad. Si CONFIRMADA y contenido coincide, devolver el resultado persistido sin resolver límites, plantilla, archivo ni esquema actuales.
 2. Para PREPARADA/FALLIDA: adquirir sesión ID; adquirir bloqueo de destino en otra conexión con la misma identidad física; releer estado. Si ahora CONFIRMADA, resolver replay. RECIBIDA no es confirmable.
 3. Verificar snapshots v1, límites actuales, plantilla completa, archivo retenido y lectura completa; inspeccionar elegibilidad física, política, claves y presupuesto de parámetros antes de modificar datos. Todo acceso bajo transacción debe usar su DbTransaction, incluidos inspector y validación temporal.
-4. CREAR: verificar ausencia/procedencia; realizar DDL independiente con comentario `docuarchi-excel/v1/<UUID>/<EsquemaHash>`; inspeccionar estructura propia y exigir ausencia de filas inexplicadas. No mantener transacción de filas o locks FOR UPDATE a través de CREATE; sus commits implícitos se reconocen. Revalidar después del DDL.
+4. CREAR: verificar ausencia/procedencia; realizar DDL independiente con comentario `docuarchi/x1/<base64url(SHA256(Canonico({Carga:UUID,Esquema:EsquemaHash})))>`; inspeccionar estructura propia y exigir ausencia de filas inexplicadas. No mantener transacción de filas o locks FOR UPDATE a través de CREATE; sus commits implícitos se reconocen. Revalidar después del DDL.
 5. Abrir transacción de datos; bloquear ejecución, cabecera y campos; releer y validar snapshots/autoridad/política y esquema. Repetir la comprobación de claves contra el destino con la transacción actual. Ejecutar DML por modo y publicar CONFIRMADA/conteo/UTC mediante CAS en esa misma transacción.
 6. Verificar integridad del archivo retenido y autoridad/política vigentes antes del commit. Ante rollback conocido registrar FALLIDA en tx corta sin sustituir una confirmación concurrente. Ante commit incierto conservar ID y pedir consulta; nunca replay automático.
 7. Liberar temporales, modo y ambos locks por conexión. Si una limpieza no queda acreditada descartar esa conexión/pool específico; no afirmar resultado fallido después de un commit exitoso.
@@ -170,7 +175,11 @@ pero VALOR repetido: preparar puede completarse y el INSERT real produce 1062
 después del DELETE, acreditando rollback sin introducir hooks de fallo en el servidor.
 La carrera conserva una fila insertada por un actor externo autorizado desde el
 ejecutor DOC115 existente. Ese actor no toma el lock cooperativo, mantiene su
-transacción cinco segundos y luego confirma. Sólo se acredita la carrera si el
+transacción mientras observa por SELECT el INSERT del dueño del lock de carga
+sobre el destino exacto, con espera máxima20s. Sólo entonces confirma su fila;
+si no observa ese INSERT, descarta su transacción y no acredita el caso. Esta
+barrera reemplaza la pausa fija de cinco segundos, insuficiente ante el barrido
+global de metadatos medido en el ambiente real. Sólo se acredita la carrera si el
 cargador recibe CONFLICTO_CLAVE; un simple rechazo previo no se presenta como esa prueba.
 El acuse ignorado por el cliente se consulta en otra sesión; no se presenta como
 un corte físico de red/servidor ni como un COMMIT real de respuesta incierta.

@@ -109,6 +109,12 @@ Partial Public Class MySqlCargaExcelRepository
         Private _destino As DbConnection
         Private _lockDestino As String
         Private _tablaBloqueada As String
+        Private _estructuraConfirmacion As MySqlEstructuraExcel
+        Private Function EstructuraActual(Optional tx As DbTransaction = Nothing) As MySqlEstructuraExcel
+            If _estructuraConfirmacion Is Nothing Then _estructuraConfirmacion = New MySqlEstructuraExcel(_cn, _validador)
+            _estructuraConfirmacion.TransaccionActual(tx)
+            Return _estructuraConfirmacion
+        End Function
         Public Sub BloquearDestino(tabla As String) Implements ISesionConfirmacionExcel.BloquearDestino
             If _destino IsNot Nothing Then Throw ReglasCargaExcel.Fallo("CONFIGURACION_INVALIDA")
             Using q = SqlCargaExcel.Cmd(_cn, Nothing, "SELECT @@hostname,@@port,DATABASE(),@@lower_case_table_names"), r = q.ExecuteReader()
@@ -141,12 +147,12 @@ Partial Public Class MySqlCargaExcelRepository
         Public Function Inspeccionar(p As PlantillaExcel, e As CargaExcelEjecucion) As EsquemaCargaExcel Implements ISesionConfirmacionExcel.Inspeccionar
             VerificarLocks()
             If e.Tabla <> _tablaBloqueada Then Throw ReglasCargaExcel.Fallo("CONFLICTO_CONFIRMACION")
-            Return New MySqlEstructuraExcel(_cn, _validador).Inspeccionar(p, e)
+            Return EstructuraActual().Inspeccionar(p, e)
         End Function
         Public Sub AsegurarEstructura(p As PlantillaExcel, e As CargaExcelEjecucion) Implements ISesionConfirmacionExcel.AsegurarEstructura
             VerificarLocks()
             If e.Tabla <> _tablaBloqueada Then Throw ReglasCargaExcel.Fallo("CONFLICTO_CONFIRMACION")
-            Dim estructura As New MySqlEstructuraExcel(_cn, _validador)
+            Dim estructura = EstructuraActual()
             estructura.Asegurar(p, e)
         End Sub
         Public Function Ejecutar(e As CargaExcelEjecucion, filas As List(Of FilaNormalizadaExcel), validar As Action(Of PlantillaExcel, EsquemaCargaExcel)) As CargaExcelEjecucion Implements ISesionConfirmacionExcel.Ejecutar
@@ -165,7 +171,7 @@ Partial Public Class MySqlCargaExcelRepository
                 Else
                     If actual.Estado <> "PREPARADA" AndAlso actual.Estado <> "FALLIDA" Then Throw ReglasCargaExcel.Fallo("ESTADO_NO_CONFIRMABLE")
                     Dim p = MySqlPlantillaExcelRepository.LeerCarga(_cn, tx, e.PlantillaId, _ctx.ConexionId, True)
-                    Dim estructura As New MySqlEstructuraExcel(_cn, _validador, tx)
+                    Dim estructura = EstructuraActual(tx)
                     Dim esquema = estructura.Inspeccionar(p, e)
                     validar(p, esquema)
                     _validador.ActivarModoEstricto()
@@ -202,6 +208,7 @@ Partial Public Class MySqlCargaExcelRepository
                 End If
             Finally
                 _validador.TransaccionActual(Nothing)
+                If _estructuraConfirmacion IsNot Nothing Then _estructuraConfirmacion.TransaccionActual(Nothing)
                 If tx IsNot Nothing Then
                     Try
                         tx.Dispose()
