@@ -32,6 +32,8 @@ Página/menú y lifecycle actuales, autoridad Excel/guards, DTOs y nueve método
 
 | D-16 | Asistente aditivo sin plantilla: analizar XLS/XLSX en operación multipart propia, con autoridad/contexto/CSRF y límites actuales. Reutilizar LectorArchivoExcel y sus inspectores, con fila 1 y recorrido completo para proponer hasta 256 campos, tipos conservadores y muestra 25. Para tablas existentes se consultan sus tipos físicos mediante SELECT. No escribir archivos durables, plantillas o ejecuciones en el análisis. Guardar mediante el CAS actual y recibir sólo por acción explícita con el File retenido en memoria del navegador; contrastar hash antes de preparar. No introducir PlantillaId=0 en recepción, estados DB ni migración SQL. Cambiar archivo/hoja/contexto invalida propuestas; una recarga exige seleccionar nuevamente. Se conserva edición manual y el asistente se limita al alta de plantillas. | LectorArchivoExcel, ServicioPlantillasExcel, ImportacionExcelRequestGuard y File API actuales. | D-16 | RQ-16 | Origen: D-16, RQ-16 |
 
+| D-17 | Diagnóstico de configuración aditivo y tipado: mantener códigos y solicitudes, añadir validacion/totalValidacion con campo, fila, regla y límites seguros. El repositorio contrasta toda la matriz con metadatos antes de modificar; no relajar NOT NULL ni truncar valores. El analizador y campos nuevos proponen opciones explícitas No/No/No y posición 0; preservar NULL históricos. Cliente interpreta reglas cerradas y muestra causa/corrección, estado de guardado acreditado y enlaces con foco. Respuestas sin detalle no autorizan inventar causas o repetir altas. No exponer SQL, valores de celda, secretos ni mensajes de proveedor. La comprobación de metadatos usa recursos actuales y sólo SELECT; publicación con respaldo y sin E2E autenticada implícita. | Metadatos SELECT del módulo existente, validador y harness actuales. | D-17 | RQ-17 | Origen: D-17, RQ-17 |
+
 ## Requisitos verificables
 
 | ID | Resultado observable | Escenario o criterio de aceptacion | Riesgo/compatibilidad |
@@ -54,6 +56,8 @@ Página/menú y lifecycle actuales, autoridad Excel/guards, DTOs y nueve método
 
 | RQ-16 | El sistema SHALL generar una propuesta editable desde Excel sin plantilla previa ni efectos durables, conservando contratos y autoridad. | Generación de campos y selección de clave; Archivo incompatible o ambiguo; Continuación explícita con el mismo archivo; Cambio de intención y compatibilidad; Nombre de destino sugerido y corrección de campos requeridos | D-16; ampliación autorizada por el usuario. |
 
+| RQ-17 | El sistema SHALL explicar rechazos con campo/fila/regla/corrección y estado acreditado sin secretos o coerción de históricos. | Opciones nuevas compatibles con la instalación; Configuración rechazada antes de modificar; Causa y corrección accesibles; Respuesta sin causa acreditada | D-17; ampliación explicativa solicitada. |
+
 ## Resultado del refinamiento
 
 15decisiones y15requisitos,45escenarios y44tareas atómicas (10S/34M/0L), todas de implementación/validación aún abiertas. El usuario autorizó continuar el refinamiento; se sustituyen los borradores genéricos por artefactos verificables, sin marcar implementación terminada. La auditoría de refinamiento y OpenSpec estricto se ejecutan sobre esta entrega. SQLmanual y aceptación real conservan su secuencia específica de autorización y evidencia.
@@ -71,3 +75,9 @@ Corte del asistente: 47/52 tareas completas; pruebas locales 160/160, 4555 check
 ## Corrección observada en video — 2026-11-24
 
 Tarea 8.9 cerrada con regresión browser existente 55/55 y assets doc126-3 contrastados por HTTP anónimo en IIS. El requisito RQ-16 incorpora el escenario de nombre sugerido y corrección accesible de campos. Corte: 16 decisiones, 16 requisitos, 50 escenarios y 53 tareas; 48 completas, cinco de aceptación/gobierno abiertas. El video acredita observación manual de análisis, no guardado/importación ni una E2E del agente. No se modificó ni reemplazó la DLL de ejecución.
+
+## Ampliación de diagnóstico solicitada
+
+El usuario solicita errores muy explicativos tras el video 175719. D-17/RQ-17 incorporan cuatro escenarios y tareas 9.1–9.4; total 17 decisiones, 17 requisitos, 54 escenarios y 57 tareas. Se conservan cortes anteriores y las cinco tareas de aceptación/gobierno pendientes. El diagnóstico real se limita a metadatos SELECT y no autoriza E2E autenticada o carga.
+
+Corte del diagnóstico: 52/57 tareas, 171/171 pruebas y 4603 checks sintéticos. Publicación con respaldo y comprobación sin sesión; sin SQL modificador o E2E autenticada. Evidencia actual en `Doc/Actualizacion/Importacion/Validacion/doc126-diagnostico-configuracion-20261124.md`.

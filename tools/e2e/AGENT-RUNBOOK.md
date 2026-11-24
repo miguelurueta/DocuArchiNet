@@ -1,5 +1,20 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC126 — diagnóstico explicativo y defaults nuevos compatibles, v4
+
+SELECT acreditó cuatro opciones NOT NULL. Campos nuevos usan No/No/No y posición0;
+históricos conservan NULL, sin relajar restricciones o aplicar SQL. Respuestas
+añaden reglas tipadas campo/fila/límite/tipo: máximo25 y total. Matriz validada
+antes de modificar, panel Qué ocurre/Cómo corregirlo y foco; sin causa acreditada
+se conserva formulario y se exige consulta antes de reenviar. Sin mensajes crudos.
+171/171 regresión, 4603 checks sintéticos, build0 errores; DLL publicada con
+respaldo, WSDL/esquema y rechazo anónimo verificados. Assets doc126-4 contrastados.
+Cero SQL modificador y sesiones de aplicación autenticadas. 52/57 tareas; cinco
+de aceptación/gobierno abiertas. Evidencia vigente:
+Doc/Actualizacion/Importacion/Validacion/doc126-diagnostico-configuracion-20261124.md.
+Los cortes inferiores son históricos; renovar hashes antes de una E2E autorizada.
+
+
 ## DOC126 — corrección de guardado del video, assets v3
 
 Tabla quedaba sólo en imp_02_; ahora se propone nombre editable desde el Excel

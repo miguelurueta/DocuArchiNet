@@ -75,7 +75,7 @@ Public NotInheritable Class ServicioAnalisisPlantillaExcel
                         While Not nombres.Add(candidato)
                             sufijo += 1 : candidato = propuesto.Substring(0, Math.Min(propuesto.Length, 54)) & "_" & sufijo.ToString(Inv)
                         End While
-                        salida.Campos.Add(New CampoPlantillaExcel With {.CAMPO_FUENTE = fuente, .CAMPO_DESTINO = candidato})
+                        salida.Campos.Add(New CampoPlantillaExcel With {.CAMPO_FUENTE = fuente, .CAMPO_DESTINO = candidato, .REMPLAZA_COMA = 0, .REMPLAZA_PUNTO = 0, .OPCION_SPLITER = 0, .NUMERO_MATRIZ_EXPLITER = 0})
                         perfiles.Add(New Perfil)
                     Next
                     Return

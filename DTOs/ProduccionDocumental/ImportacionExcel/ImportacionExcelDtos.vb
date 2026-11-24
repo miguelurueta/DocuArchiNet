@@ -35,6 +35,8 @@ Public Class RespuestaImportacionExcel
     Public Property codigo As String
     Public Property mensaje As String
     Public Property operacionId As String
+    Public Property validacion As New List(Of DetalleConfiguracionExcel)
+    Public Property totalValidacion As Integer
 End Class
 Public Class RespuestaAperturaExcel
     Inherits RespuestaImportacionExcel

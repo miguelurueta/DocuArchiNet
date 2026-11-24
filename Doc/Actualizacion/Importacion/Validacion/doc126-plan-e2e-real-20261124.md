@@ -16,7 +16,7 @@ ni carga sin autorización explícita para el ambiente y las cuentas de prueba»
    y conservar los IDs resultantes. No reaplicar 18–21 ni tocar sus datos.
 3. Autorizar despliegue local de la DLL candidata con respaldo y comprobación
    WSDL, conservando Web.config/recursos actuales. Candidata:
-   `83f1b3216aa4d682d5e48b55c14b6f9254c378ad7df1803dac0c722b89ee9f70`.
+   `edd033a113b57950cac1661b1a5cc01ff114fc8ea0676082c0f9e590aa3e957a`.
    Los tres assets, ASPX y namespace contextual pertenecen a la misma entrega.
    Preparar scope con sus hashes exactos y las referencias verificadas, sin claves.
 4. Autorizar lectura real con las dos cuentas y recursos existentes mediante
@@ -61,3 +61,7 @@ adicional que resulte necesario se entrega para aplicación manual separada.
 Ver [evidencia actual](doc126-despliegue-e2e-preparada-20261124.md). La DLL candidata ya se desplegó con respaldo y comprobaciones sin autenticar; el paso de publicación anterior queda acreditado en ese alcance. Queda pendiente la aceptación con cuentas.
 
 El modo --excel-ui-assistant está implementado con autorización propia, una alta exacta de plantilla/dos campos, destino nuevo, 1000 filas y cero borrados. No necesita SQL23–25, sí instalación compatible, conexión/cuentas verificadas y autorización específica. La matriz anterior de cinco casos continúa esperando confirmación de esos SQL. Las dos ventanas juntas permitirían como máximo 4311 filas de entrada (incluidas rechazadas/externa), 1002 borrados intentados y una plantilla de dos campos. No ejecutar por esta documentación: los alcances locales siguen incompletos y no autorizados.
+
+## Corte vigente: diagnóstico v4 publicado
+
+DLL y assets actuales en doc126-diagnostico-configuracion-20261124.md/JSON. El scope exacto de alta requiere No/No/No y posición0 en campos nuevos, preserva históricos y conserva límites/autoridad. Refrescar hashes y preflight antes de cualquier ventana. SQL23–25 siguen pendientes de confirmación para la matriz previa; no se requiere otro SQL para este diagnóstico. 52/57 tareas, cinco de aceptación/gobierno pendientes.

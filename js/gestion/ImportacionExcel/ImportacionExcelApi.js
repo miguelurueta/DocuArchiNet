@@ -15,8 +15,11 @@
         return r && typeof r === "object" && !Array.isArray(r) && typeof r.ok === "boolean" &&
             /^[A-Z_]{1,80}$/.test(r.codigo || "") ? r : null;
     }
-    function failure(code, uncertain, status, data) {
-        return {ok:false, codigo:code, resultadoIncierto:!!uncertain, httpStatus:status || 0, datos:data || null};
+    function failure(code, uncertain, status, data, details, total) {
+        var validation = Array.isArray(details) ? details.slice(0,25).filter(function (d) { return d && /^[A-Za-z_]{1,64}$/.test(d.Campo || "") && /^[A-Z_]{1,64}$/.test(d.Regla || "") && (d.FilaCampo === null || d.FilaCampo === undefined || (Number.isInteger(d.FilaCampo) && d.FilaCampo >= 1 && d.FilaCampo <= 256)); }).map(function (d) {
+            return {Campo:d.Campo,Regla:d.Regla,FilaCampo:d.FilaCampo || null,CampoDestino:/^[A-Za-z_][A-Za-z0-9_]{0,63}$/.test(d.CampoDestino || "") ? d.CampoDestino : "",Limite:Number.isInteger(d.Limite) && d.Limite > 0 && d.Limite <= 2147483647 ? d.Limite : null,LongitudActual:Number.isInteger(d.LongitudActual) && d.LongitudActual >= 0 && d.LongitudActual <= 2147483647 ? d.LongitudActual : null,TipoEsperado:/^(?:TINYINT|SMALLINT|MEDIUMINT|INT|INTEGER|BIGINT|DATE|CHAR|VARCHAR|DECIMAL|NUMERIC)(?:\([0-9]+(?:,[0-9]+)?\))?(?: UNSIGNED)?$/i.test(d.TipoEsperado || "") ? d.TipoEsperado : ""};
+        }) : [];
+        return {ok:false, codigo:code, resultadoIncierto:!!uncertain, httpStatus:status || 0, datos:data || null,validacion:validation,totalValidacion:Number.isInteger(total) && total >= validation.length && total <= 4096 ? total : validation.length};
     }
     function create(options) {
         if (!options || !route(options.url) || !route(options.upload) || !/^[a-f0-9]{32}$/.test(options.recuperacion || "")) { throw new Error("Contexto Excel inválido."); }
@@ -39,7 +42,7 @@
                         if (!r) { reject(failure("RESPUESTA_INVALIDA", mutation, 200)); return; }
                         if (!r.ok) {
                             if (["SESION_REQUERIDA","ACCESO_DENEGADO","SOLICITUD_NO_VERIFICADA"].indexOf(r.codigo) !== -1) { closed = true; token = ""; }
-                            reject(failure(r.codigo, operation !== "Analizar" && r.codigo === "RESULTADO_INCIERTO", 200, r.datos)); return;
+                            reject(failure(r.codigo, operation !== "Analizar" && r.codigo === "RESULTADO_INCIERTO", 200, r.datos, r.validacion, r.totalValidacion)); return;
                         }
                         if (operation === "AbrirCargaExcel") {
                             if (!r.datos || typeof r.datos.CsrfToken !== "string" || !r.datos.CsrfToken || r.datos.CsrfToken.length > 256) {
@@ -53,7 +56,7 @@
                         if (status === 401 || status === 403) { closed = true; token = ""; }
                         if (r && ["SESION_REQUERIDA","ACCESO_DENEGADO","SOLICITUD_NO_VERIFICADA"].indexOf(r.codigo) !== -1) { closed = true; token = ""; }
                         reject(failure(r ? r.codigo : status === 401 ? "SESION_REQUERIDA" : status === 403 ? "ACCESO_DENEGADO" : "ERROR_TRANSPORTE",
-                            mutation && (status === 0 || status >= 500 || (r && r.codigo === "RESULTADO_INCIERTO")), status, r && r.datos));
+                            mutation && (status === 0 || status >= 500 || (r && r.codigo === "RESULTADO_INCIERTO")), status, r && r.datos, r && r.validacion, r && r.totalValidacion));
                     });
                 } catch (_) { reject(failure("ERROR_TRANSPORTE", mutation)); }
             });

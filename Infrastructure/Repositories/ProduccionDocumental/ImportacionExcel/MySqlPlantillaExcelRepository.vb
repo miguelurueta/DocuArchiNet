@@ -146,6 +146,15 @@ Public Class MySqlPlantillaExcelRepository
                         ServicioPlantillasExcel.ValidarDestino(p, LeerDestino(cn, tx, p.NOMBRE_PLANTILLA))
                         Dim valores = ValoresCabecera(p)
                         ValidarTextos(cn, tx, "imp01_plantillaimp", valores)
+                        'Validar todos los campos antes de escribir la cabecera o un prefijo de filas.
+                        Dim errores As New List(Of DetalleConfiguracionExcel)
+                        For i = 0 To p.Campos.Count - 1
+                            ValidarTextos(cn, tx, "imp01_campos_plantilla", ValoresCampo(p, p.Campos(i)), errores, i + 1, p.Campos(i).CAMPO_DESTINO)
+                        Next
+                        If errores.Count > 0 Then
+                            Dim rechazo = ServicioPlantillasExcel.ErrorControlado("CONFIGURACION_INVALIDA")
+                            rechazo.Detalles = errores : Throw rechazo
+                        End If
                         Dim columnas = Cabecera.Split(","c).Skip(1).ToArray()
                         Dim sql As String
                         If anterior Is Nothing Then
@@ -199,9 +208,7 @@ Public Class MySqlPlantillaExcelRepository
         Dim recibidos As New HashSet(Of UInteger)
         For Each c In p.Campos
             If c.ID_CAMPOS_PLANTILLA <> 0 AndAlso (Not recibidos.Add(c.ID_CAMPOS_PLANTILLA) OrElse Not existentes.Any(Function(x) x.ID_CAMPOS_PLANTILLA = c.ID_CAMPOS_PLANTILLA)) Then Throw ServicioPlantillasExcel.ErrorControlado("SOLICITUD_INVALIDA")
-            Dim valores As New Dictionary(Of String, Object)(StringComparer.Ordinal) From {
-                {"IMP01_PLANTILLAIMP_ID_PLANTILLAIMP", p.ID_PLANTILLAIMP}, {"CAMPO_FUENTE", c.CAMPO_FUENTE}, {"CAMPO_DESTINO", c.CAMPO_DESTINO}, {"TIPO_CAMPO", c.TIPO_CAMPO}, {"REMPLAZA_COMA", c.REMPLAZA_COMA}, {"REMPLAZA_PUNTO", c.REMPLAZA_PUNTO}, {"OPCION_SPLITER", c.OPCION_SPLITER}, {"CARACTER_SPLITER", c.CARACTER_SPLITER}, {"NUMERO_MATRIZ_EXPLITER", c.NUMERO_MATRIZ_EXPLITER}}
-            ValidarTextos(cn, tx, "imp01_campos_plantilla", valores)
+            Dim valores = ValoresCampo(p, c)
             Dim columnas = Campos.Split(","c).Skip(1).ToArray()
             Dim sql = If(c.ID_CAMPOS_PLANTILLA = 0, "INSERT INTO imp01_campos_plantilla (" & String.Join(",", columnas) & ") VALUES (" & String.Join(",", columnas.Select(Function(x) "@" & x)) & ")", "UPDATE imp01_campos_plantilla SET " & String.Join(",", columnas.Select(Function(x) x & "=@" & x)) & " WHERE ID_CAMPOS_PLANTILLA=@campoId AND IMP01_PLANTILLAIMP_ID_PLANTILLAIMP=@plantillaId")
             Using q = Cmd(cn, tx, sql)
@@ -227,7 +234,12 @@ Public Class MySqlPlantillaExcelRepository
         Return New Dictionary(Of String, Object)(StringComparer.Ordinal) From {
             {"IMP01_XMLCONEXION_ID_XMLCONEXION", p.IMP01_XMLCONEXION_ID_XMLCONEXION}, {"NOMBRE_PLANTILLA", p.NOMBRE_PLANTILLA}, {"CONEXION_FUENTE", p.CONEXION_FUENTE}, {"LIBRO_EXCEL", p.LIBRO_EXCEL}, {"RUTA_ARCHIVO_FUENTE", p.RUTA_ARCHIVO_FUENTE}, {"ELIMINA_TABLA", p.ELIMINA_TABLA}, {"ELIMINA_INSERTA_RECORD", p.ELIMINA_INSERTA_RECORD}, {"INSERTA_RECORD", p.INSERTA_RECORD}, {"ESTADO_PLANTILLA", p.ESTADO_PLANTILLA}, {"CAMPO_UNICO", p.CAMPO_UNICO}, {"REVISION_CARGA", p.REVISION_CARGA}}
     End Function
-    Private Shared Sub ValidarTextos(cn As DbConnection, tx As DbTransaction, tabla As String, valores As Dictionary(Of String, Object))
+    Private Shared Function ValoresCampo(p As PlantillaExcel, c As CampoPlantillaExcel) As Dictionary(Of String, Object)
+        Return New Dictionary(Of String, Object)(StringComparer.Ordinal) From {
+            {"IMP01_PLANTILLAIMP_ID_PLANTILLAIMP", p.ID_PLANTILLAIMP}, {"CAMPO_FUENTE", c.CAMPO_FUENTE}, {"CAMPO_DESTINO", c.CAMPO_DESTINO}, {"TIPO_CAMPO", c.TIPO_CAMPO}, {"REMPLAZA_COMA", c.REMPLAZA_COMA}, {"REMPLAZA_PUNTO", c.REMPLAZA_PUNTO}, {"OPCION_SPLITER", c.OPCION_SPLITER}, {"CARACTER_SPLITER", c.CARACTER_SPLITER}, {"NUMERO_MATRIZ_EXPLITER", c.NUMERO_MATRIZ_EXPLITER}}
+    End Function
+    Private Shared Sub ValidarTextos(cn As DbConnection, tx As DbTransaction, tabla As String, valores As Dictionary(Of String, Object), Optional compartidos As List(Of DetalleConfiguracionExcel) = Nothing, Optional fila As Nullable(Of Integer) = Nothing, Optional destino As String = Nothing)
+        Dim errores = If(compartidos, New List(Of DetalleConfiguracionExcel))
         Using q = Cmd(cn, tx, "SELECT COLUMN_NAME,CHARACTER_MAXIMUM_LENGTH,IS_NULLABLE,CHARACTER_SET_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=@tabla", "@tabla", tabla)
             Dim vistas As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
             Using r = q.ExecuteReader()
@@ -237,18 +249,26 @@ Public Class MySqlPlantillaExcelRepository
                     vistas.Add(nombre)
                     Dim value = valores(nombre)
                     If value Is Nothing Then
-                        If Texto(r, 2) <> "YES" Then Throw ServicioPlantillasExcel.ErrorControlado("CONFIGURACION_INVALIDA")
+                        If Texto(r, 2) <> "YES" Then errores.AddRange(ServicioPlantillasExcel.ErrorConfiguracion("CONFIGURACION_INVALIDA", nombre, "REQUERIDO", fila, destino).Detalles)
                         Continue While
                     End If
                     If Not TypeOf value Is String Then Continue While
                     Dim contenido = CStr(value)
-                    If Not r.IsDBNull(1) AndAlso contenido.Length > Convert.ToInt64(r(1), CultureInfo.InvariantCulture) Then Throw ServicioPlantillasExcel.ErrorControlado("CONFIGURACION_INVALIDA")
+                    If Not r.IsDBNull(1) AndAlso contenido.Length > Convert.ToInt64(r(1), CultureInfo.InvariantCulture) Then errores.AddRange(ServicioPlantillasExcel.ErrorConfiguracion("CONFIGURACION_INVALIDA", nombre, "LONGITUD_EXCEDIDA", fila, destino, CInt(Math.Min(Integer.MaxValue, Convert.ToInt64(r(1), CultureInfo.InvariantCulture))), contenido.Length).Detalles)
                     Dim charset = Texto(r, 3)
-                    ValidarCharset(contenido, charset)
+                    Try
+                        ValidarCharset(contenido, charset)
+                    Catch ex As ImportacionExcelException When ex.Codigo = "CONFIGURACION_INVALIDA"
+                        errores.AddRange(ServicioPlantillasExcel.ErrorConfiguracion("CONFIGURACION_INVALIDA", nombre, "CARACTERES_INCOMPATIBLES", fila, destino).Detalles)
+                    End Try
                 End While
             End Using
             If valores.Keys.Any(Function(k) Not vistas.Contains(k)) Then Throw ServicioPlantillasExcel.ErrorControlado("CAPACIDAD_NO_DISPONIBLE")
         End Using
+        If compartidos Is Nothing AndAlso errores.Count > 0 Then
+            Dim rechazo = ServicioPlantillasExcel.ErrorControlado("CONFIGURACION_INVALIDA")
+            rechazo.Detalles = errores : Throw rechazo
+        End If
     End Sub
     Private Shared Function Texto(r As DbDataReader, i As Integer) As String
         Return If(r.IsDBNull(i), Nothing, Convert.ToString(r(i), CultureInfo.InvariantCulture))

@@ -106,6 +106,7 @@
         tabs.appendChild(button("Cargar archivo","tab-carga",function () { showPanel(loadPanel); }));
         tabs.appendChild(button("Plantillas","tab-plantillas",function () { editTemplate(false); }));
         tabs.appendChild(button("Consultar resultado","tab-consulta",function () { showPanel(queryPanel); })); body.appendChild(tabs);
+        var diagnostics = node("section",null,{"data-doc126":"diagnostico-configuracion","class":"doc126-diagnostics",hidden:"hidden",tabindex:"-1","aria-label":"Detalle del error de configuración"}); body.appendChild(diagnostics);
         var selection = node("div",null,{"class":"doc126-grid"});
         var connection = field(selection,"Conexión autorizada","select","conexion");
         var search = field(selection,"Buscar plantilla","input","buscar",{type:"search",maxlength:"120"});
@@ -231,7 +232,67 @@
                 uncertain = true;
             }
             else { state = "INCIDENCIAS"; }
+            if (!editPanel.hidden && writeBusy && state === "INCIDENCIAS" && showConfigurationErrors(error)) { return; }
             notice((messages[error.codigo] || "No se pudo completar la operación. Revisa la selección o consulta su resultado.") + (uncertain ? " Conserva el ID de carga y consulta antes de repetir." : ""));
+        }
+        function clearConfigurationErrors() {
+            clear(diagnostics); diagnostics.hidden = true;
+            Array.prototype.forEach.call(editPanel.querySelectorAll('[aria-invalid="true"]'),function (input) { input.removeAttribute("aria-invalid"); input.removeAttribute("aria-describedby"); });
+        }
+        function configurationExplanation(d) {
+            var toggles = ["REMPLAZA_COMA","REMPLAZA_PUNTO","OPCION_SPLITER"];
+            if (d.Regla === "REQUERIDO" && toggles.indexOf(d.Campo) >= 0) { var effect = {REMPLAZA_COMA:"elimina las comas de cada valor",REMPLAZA_PUNTO:"elimina los puntos de cada valor",OPCION_SPLITER:"divide cada valor usando el separador y conserva el segmento indicado"}; return ["Se envió «Sin configurar» (sin valor), pero esta instalación exige una elección explícita.","Selecciona «No» para conservar los valores. «Sí» " + effect[d.Campo] + ". Revisa esta misma opción en los demás campos."]; }
+            if (d.Regla === "REQUERIDO" && d.Campo === "NUMERO_MATRIZ_EXPLITER") { return ["La posición quedó sin valor. Esta instalación exige un número incluso cuando no se separan valores.","Escribe 0 si «Separar valor» está en «No». Si está en «Sí», indica el segmento: 0 es el primero, 1 el segundo, y así sucesivamente."]; }
+            var rules = {
+                REQUERIDO:["Falta un valor obligatorio en esta configuración.","Completa el campo indicado antes de volver a guardar."],
+                LONGITUD_EXCEDIDA:["La configuración admite un máximo de " + (d.Limite === null ? "caracteres definido por la instalación" : d.Limite + " caracteres") + (d.LongitudActual === null ? "." : "; se enviaron " + d.LongitudActual + "."),"Revisa y ajusta el nombre o la configuración. Si necesitas conservar ese valor completo, solicita al administrador revisar el límite; no recortes datos del Excel automáticamente."],
+                CARACTERES_INCOMPATIBLES:["Uno o más caracteres no pueden guardarse con la codificación de esta instalación.","Revisa el nombre o texto de configuración. Si debes conservar esos caracteres, solicita al administrador revisar la codificación."],
+                CARACTERES_CONTROL:["El texto contiene un salto de línea u otro carácter de control no permitido.","Corrige el nombre o encabezado indicado y vuelve a revisar la plantilla."],
+                NOMBRE_TABLA_INVALIDO:["El nombre de tabla está incompleto o no tiene el formato permitido.","Usa imp_02_ seguido de letras, números o guion bajo, hasta 64 caracteres. Ejemplo: imp_02_ordenes_repara."],
+                IDENTIFICADOR_INVALIDO:["El nombre de columna de destino no es válido.","Empieza con una letra o guion bajo y usa sólo letras, números o guion bajo, hasta 64 caracteres. Mantén el encabezado original en Origen."],
+                DESTINO_DUPLICADO:["Dos campos usan la misma columna de destino.","Cambia uno de los destinos o retira el campo duplicado. Cada destino debe aparecer una sola vez."],
+                CLAVE_NO_MAPEADA:["El campo único no coincide con ninguna columna de destino de la plantilla.","Selecciona una columna existente en «Elegir campo único». Si cambiaste su nombre, vuelve a elegirla."],
+                OPCION_INVALIDA:["La opción tiene un valor no admitido.","Selecciona una opción de la lista. Las transformaciones admiten «Sí» o «No»; la instalación determina si permite «Sin configurar»."],
+                SEPARADOR_REQUERIDO:["Activaste «Separar valor» sin indicar un separador.","Escribe el separador que contiene el Excel, por ejemplo / o -, o selecciona «No» si no necesitas dividir el valor."],
+                POSICION_REQUERIDA:["Activaste «Separar valor» sin elegir el segmento.","Indica un entero no negativo: 0 para el primer segmento, 1 para el segundo. Revisa también el separador."],
+                TIPO_NO_ADMITIDO:["El tipo indicado no se admite para crear esta tabla.","Usa un tipo permitido, por ejemplo VARCHAR(120), CHAR(20), INT, BIGINT, DECIMAL(18,2) o DATE. VARCHAR admite hasta 4096 caracteres; DECIMAL hasta 65 dígitos totales y 30 decimales. No cambies un código con ceros iniciales a número sin revisarlo."],
+                TIPO_DESTINO_INCOMPATIBLE:["El tipo configurado no coincide con el de la columna existente" + (d.TipoEsperado ? ": se espera " + d.TipoEsperado + "." : "."),"Ajusta Tipo al de la columna existente, o elige otra columna compatible. Este guardado no cambia la estructura de la tabla."],
+                COLUMNA_NO_EXISTE:["La columna indicada no existe en la tabla elegida.","Corrige Destino para que coincida con una columna real, o selecciona una tabla compatible."],
+                COLUMNA_AUTOMATICA:["La columna elegida se genera automáticamente y no admite este mapeo.","Usa otra columna de destino. No intentes escribir sobre una columna automática."],
+                COLUMNA_OBLIGATORIA_NO_MAPEADA:["La tabla requiere una columna que la plantilla no está llenando.","Añade un campo que asigne un origen a esa columna o solicita al administrador revisar su configuración."],
+                TABLA_NO_EXISTE:["La tabla elegida todavía no existe y el modo es agregar o reemplazar.","Selecciona una tabla existente. Si necesitas una tabla nueva, configura explícitamente el modo Crear tabla."],
+                TABLA_YA_EXISTE:["El nombre elegido ya corresponde a una tabla y el modo es Crear tabla.","Elige otro nombre para crear una tabla nueva, o revisa la compatibilidad y selecciona Agregar filas o Reemplazar contenido. Reemplazar exige consentimiento al confirmar."],
+                MOTOR_NO_ADMITIDO:["La tabla elegida no permite la transacción requerida por el cargador.","Selecciona una tabla InnoDB compatible o solicita al administrador revisar el destino."],
+                CANTIDAD_CAMPOS:["La plantilla no contiene campos o supera el máximo de 256.","Añade al menos un campo y conserva como máximo 256 mapeos."]
+            };
+            return rules[d.Regla] || null;
+        }
+        function showConfigurationErrors(error) {
+            if (["CONFIGURACION_INVALIDA","DESTINO_INVALIDO","DESTINO_YA_EXISTE"].indexOf(error.codigo) < 0) { return false; }
+            var labels = {NOMBRE_PLANTILLA:"Tabla de destino",CAMPO_UNICO:"Campo único",LIBRO_EXCEL:"Hoja predeterminada",Formato:"Formato",Modo:"Modo",ESTADO_PLANTILLA:"Plantilla activa",Campos:"Campos de la plantilla",CAMPO_FUENTE:"Origen",CAMPO_DESTINO:"Destino",TIPO_CAMPO:"Tipo de dato",REMPLAZA_COMA:"Cambiar coma",REMPLAZA_PUNTO:"Cambiar punto",OPCION_SPLITER:"Separar valor",CARACTER_SPLITER:"Separador",NUMERO_MATRIZ_EXPLITER:"Posición",RUTA_ARCHIVO_FUENTE:"Referencia generada de la plantilla"};
+            var details = (error.validacion || []).filter(function (d) { return Object.prototype.hasOwnProperty.call(labels,d.Campo) && configurationExplanation(d); });
+            if (!details.length && error.codigo === "DESTINO_YA_EXISTE") { details = [{Campo:"NOMBRE_PLANTILLA",Regla:"TABLA_YA_EXISTE"}]; }
+            if (!details.length && ["CONFIGURACION_INVALIDA","DESTINO_INVALIDO","DESTINO_YA_EXISTE"].indexOf(error.codigo) < 0) { return false; }
+            clearConfigurationErrors(); diagnostics.hidden = false; diagnostics.appendChild(node("h3",details.length ? "No se pudo guardar la plantilla" : "El servidor no detalló el error de configuración"));
+            if (details.length) { diagnostics.appendChild(node("p","No se guardaron los cambios de esta solicitud ni se importaron datos. Corrige la configuración y vuelve a pulsar Guardar plantilla.")); }
+            if (!details.length) {
+                diagnostics.appendChild(node("p","El servidor rechazó la configuración, pero su respuesta no identifica el campo ni la regla. No es posible afirmar una causa concreta con esa respuesta."));
+                diagnostics.appendChild(node("p","El estado final del guardado no queda acreditado por esta respuesta. Consulta la lista y abre el detalle de la plantilla antes de reenviar para evitar un alta duplicada. Conservamos tu formulario."));
+                diagnostics.appendChild(node("p","Revisa las opciones sin configurar, los nombres de origen y destino, los tipos y la clave. Si todo parece correcto, informa al administrador el código de validación para revisar la instalación; no cambies datos del Excel por suposición."));
+                saveUncertain = true; state = "RESULTADO_INCIERTO";
+            }
+            details.forEach(function (d,index) {
+                var explanation = configurationExplanation(d), title = labels[d.Campo], control = editor[d.Campo];
+                if (d.FilaCampo) { var row = fieldsBody.children[d.FilaCampo - 1]; control = row && row.querySelector('[data-field="' + d.Campo + '"]'); title = "Campo " + d.FilaCampo + (d.CampoDestino ? " · " + d.CampoDestino : "") + " — " + title; }
+                else if (d.CampoDestino) { title += " · " + d.CampoDestino; }
+                var item = node("article",null,{"class":"doc126-diagnostic-item",id:"doc126-error-" + index}); item.appendChild(node("h4",title)); item.appendChild(node("p","Qué ocurre: " + explanation[0])); item.appendChild(node("p","Cómo corregirlo: " + explanation[1]));
+                if (control) { control.setAttribute("aria-invalid","true"); control.setAttribute("aria-describedby",item.id); item.appendChild(button("Corregir " + labels[d.Campo],"corregir-configuracion",function () { control.scrollIntoView({block:"center",inline:"nearest"}); control.focus(); })); }
+                diagnostics.appendChild(item);
+            });
+            if (error.totalValidacion > details.length) { diagnostics.appendChild(node("p","Se muestran " + details.length + " de " + error.totalValidacion + " observaciones. Revisa también las mismas opciones en los demás campos y vuelve a guardar para comprobarlas.")); }
+            diagnostics.appendChild(node("p","Código de validación: " + (/^[A-Z_]{1,80}$/.test(error.codigo || "") ? error.codigo : "CONFIGURACION_INVALIDA")));
+            notice(details.length ? "La plantilla no se guardó. " + details.length + " observaciones detalladas; revisa Qué ocurre y Cómo corregirlo." : "El guardado no está acreditado y el servidor no identificó el campo. Consulta la lista y el detalle antes de reenviar.");
+            diagnostics.scrollIntoView({block:"start",inline:"nearest"}); diagnostics.focus(); return true;
         }
         function run(work, success, isWrite, phase, message) {
             if (busy || destroyed) { return Promise.resolve(); }
@@ -393,6 +454,7 @@
             if (busy || !allowed() || !showPanel(editPanel)) { return; }
             if (editorDirty && !env.confirm("Hay cambios sin guardar. ¿Quieres descartarlos?")) { return; }
             clearAssistant(); assistant.hidden = (!isNew && !!template) || !host.getAttribute("data-analisis");
+            clearConfigurationErrors();
             [editor.NOMBRE_PLANTILLA,editor.CAMPO_UNICO].forEach(function (control) { control.removeAttribute("aria-invalid"); control.removeAttribute("aria-describedby"); });
             editorOriginal = !isNew && template ? copy(template) : {ID_PLANTILLAIMP:0,REVISION_CARGA:0,Huella:"",Formato:"XLSX",Modo:"CREAR",NOMBRE_PLANTILLA:"imp_02_",CAMPO_UNICO:"",LIBRO_EXCEL:"Datos",ESTADO_PLANTILLA:1,Campos:[]};
             Object.keys(editor).forEach(function (k) { if (k === "ESTADO_PLANTILLA") { editor[k].checked = editorOriginal[k] === 1; } else { editor[k].value = editorOriginal[k] || ""; } });
@@ -404,6 +466,7 @@
         }
         function clearAssistant() {
             analysis = null; analyzedFile = null; suggestedTable = ""; clearPendingFile();
+            clearConfigurationErrors();
             analysisFile.value = ""; clear(analysisSheet); clear(analysisKey); clear(analysisPreview);
         }
         analysisFile.addEventListener("change",function () {
@@ -424,6 +487,7 @@
             var f = analysisFile.files[0], selectedSheet = analysisSheet.value;
             if (!f.size || f.size > capability.MaxArchivoMB * 1000000 || !/\.(?:xls|xlsx)$/i.test(f.name)) { notice(messages.ARCHIVO_INVALIDO); return; }
             if (editorDirty && Array.prototype.some.call(fieldsBody.querySelectorAll('[data-field="CAMPO_FUENTE"]'),function (c) { return !!c.value; }) && !env.confirm("Se reemplazarán los campos propuestos. ¿Quieres analizar el archivo?")) { analysisSheet.value = analysis ? analysis.Hoja : ""; return; }
+            clearConfigurationErrors();
             analysis = null; analyzedFile = null; clearPendingFile(); clear(analysisPreview); clear(analysisKey); invalidate(true);
             run(function () { return api.analizar({conexionId:Number(connection.value),hoja:selectedSheet,tabla:editor.NOMBRE_PLANTILLA.value,modo:editor.Modo.value},f); },function (r) {
                 var d = r.datos;
@@ -443,6 +507,8 @@
             },false,"CARGANDO","Analizando el libro para proponer los campos…");
         }
         function addField(f) {
+            f = copy(f);
+            if (!f.ID_CAMPOS_PLANTILLA) { ["REMPLAZA_COMA","REMPLAZA_PUNTO","OPCION_SPLITER","NUMERO_MATRIZ_EXPLITER"].forEach(function (key) { if (f[key] === null || f[key] === undefined) { f[key] = 0; } }); }
             var tr = node("tr"); tr.doc126Field = copy(f);
             ["CAMPO_FUENTE","CAMPO_DESTINO","TIPO_CAMPO","REMPLAZA_COMA","REMPLAZA_PUNTO","OPCION_SPLITER","CARACTER_SPLITER","NUMERO_MATRIZ_EXPLITER"].forEach(function (k) {
                 var td = node("td"), select = ["REMPLAZA_COMA","REMPLAZA_PUNTO","OPCION_SPLITER"].indexOf(k) !== -1;
@@ -452,7 +518,7 @@
                 else { input.type = k === "NUMERO_MATRIZ_EXPLITER" ? "number" : "text"; input.maxLength = k === "TIPO_CAMPO" ? 64 : k === "CAMPO_DESTINO" ? 64 : 120; if (input.type === "number") { input.min = "0"; input.max = "4294967295"; input.step = "1"; } }
                 input.value = f[k] === null || f[k] === undefined ? "" : String(f[k]); controls.push(input); td.appendChild(input); tr.appendChild(td);
             });
-            var td = node("td"); td.appendChild(button("Quitar","quitar-campo",function () { tr.remove(); editorDirty = true; refreshAnalysisKey(); invalidate(false); })); tr.appendChild(td); fieldsBody.appendChild(tr);
+            var td = node("td"); td.appendChild(button("Quitar","quitar-campo",function () { clearConfigurationErrors(); tr.remove(); editorDirty = true; refreshAnalysisKey(); invalidate(false); })); tr.appendChild(td); fieldsBody.appendChild(tr);
         }
         function refreshAnalysisKey() {
             if (!analysis) { return; }
@@ -465,6 +531,7 @@
         editPanel.addEventListener("change",function (event) { if (!assistant.contains(event.target)) { editorDirty = true; invalidate(false); } });
         function saveTemplate() {
             if (!allowed() || busy || saveUncertain || !editorOriginal) { return; }
+            clearConfigurationErrors();
             if (!assistant.hidden && analysisFile.files.length && !analysis) { notice("Analiza el archivo seleccionado antes de guardar los campos propuestos."); return; }
             var p = {ID_PLANTILLAIMP:editorOriginal.ID_PLANTILLAIMP,REVISION_CARGA:editorOriginal.REVISION_CARGA,IMP01_XMLCONEXION_ID_XMLCONEXION:Number(connection.value)};
             Object.keys(editor).forEach(function (k) { p[k] = k === "ESTADO_PLANTILLA" ? (editor[k].checked ? 1 : 0) : editor[k].value; });

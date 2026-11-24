@@ -51,26 +51,46 @@ Public Class ServicioPlantillasExcel
             'Nunca aceptar la ruta que un navegador presenta como autoridad.
             p.RUTA_ARCHIVO_FUENTE = Nothing
         End If
-        If Not TablaValida(p.NOMBRE_PLANTILLA) OrElse Not IdentificadorValido(p.CAMPO_UNICO) OrElse String.IsNullOrWhiteSpace(p.LIBRO_EXCEL) OrElse p.LIBRO_EXCEL.Length > 120 OrElse p.LIBRO_EXCEL.Any(Function(c) Char.IsControl(c)) OrElse p.ESTADO_PLANTILLA > 1 Then Throw ErrorControlado("CONFIGURACION_INVALIDA")
+        If Not TablaValida(p.NOMBRE_PLANTILLA) Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "NOMBRE_PLANTILLA", "NOMBRE_TABLA_INVALIDO", limite:=64)
+        If Not IdentificadorValido(p.CAMPO_UNICO) Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "CAMPO_UNICO", "CLAVE_NO_MAPEADA")
+        If String.IsNullOrWhiteSpace(p.LIBRO_EXCEL) Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "LIBRO_EXCEL", "REQUERIDO")
+        If p.LIBRO_EXCEL.Length > 120 Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "LIBRO_EXCEL", "LONGITUD_EXCEDIDA", limite:=120, longitud:=p.LIBRO_EXCEL.Length)
+        If p.LIBRO_EXCEL.Any(Function(c) Char.IsControl(c)) Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "LIBRO_EXCEL", "CARACTERES_CONTROL")
+        If p.ESTADO_PLANTILLA > 1 Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "ESTADO_PLANTILLA", "OPCION_INVALIDA")
         Select Case p.Formato
             Case "XLS" : p.CONEXION_FUENTE = "8.0 xls"
             Case "XLSX" : p.CONEXION_FUENTE = "12.0 xlsx"
-            Case Else : Throw ErrorControlado("CONFIGURACION_INVALIDA")
+            Case Else : Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "Formato", "FORMATO_NO_ADMITIDO")
         End Select
         p.ELIMINA_TABLA = 0
         Select Case p.Modo
             Case "CREAR", "AGREGAR" : p.ELIMINA_INSERTA_RECORD = 0 : p.INSERTA_RECORD = 1
             Case "REEMPLAZAR" : p.ELIMINA_INSERTA_RECORD = 1 : p.INSERTA_RECORD = 0
-            Case Else : Throw ErrorControlado("CONFIGURACION_INVALIDA")
+            Case Else : Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "Modo", "MODO_NO_ADMITIDO")
         End Select
-        If p.Campos Is Nothing OrElse p.Campos.Count = 0 OrElse p.Campos.Count > 256 Then Throw ErrorControlado("CONFIGURACION_INVALIDA")
+        If p.Campos Is Nothing OrElse p.Campos.Count = 0 OrElse p.Campos.Count > 256 Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "Campos", "CANTIDAD_CAMPOS", limite:=256)
         Dim nombres As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
-        For Each campo In p.Campos
-            If campo Is Nothing OrElse Not IdentificadorValido(campo.CAMPO_DESTINO) OrElse Not nombres.Add(campo.CAMPO_DESTINO) OrElse String.IsNullOrWhiteSpace(campo.CAMPO_FUENTE) OrElse campo.CAMPO_FUENTE.Length > 120 OrElse campo.CAMPO_FUENTE.Any(Function(c) Char.IsControl(c)) OrElse String.IsNullOrWhiteSpace(campo.TIPO_CAMPO) OrElse campo.TIPO_CAMPO.Length > 64 OrElse If(campo.CARACTER_SPLITER, "").Length > 120 Then Throw ErrorControlado("CONFIGURACION_INVALIDA")
-            If (campo.REMPLAZA_COMA.HasValue AndAlso campo.REMPLAZA_COMA.Value > 1) OrElse (campo.REMPLAZA_PUNTO.HasValue AndAlso campo.REMPLAZA_PUNTO.Value > 1) OrElse (campo.OPCION_SPLITER.HasValue AndAlso campo.OPCION_SPLITER.Value > 1) Then Throw ErrorControlado("CONFIGURACION_INVALIDA")
-            If campo.OPCION_SPLITER.GetValueOrDefault() = 1 AndAlso (String.IsNullOrEmpty(campo.CARACTER_SPLITER) OrElse Not campo.NUMERO_MATRIZ_EXPLITER.HasValue) Then Throw ErrorControlado("CONFIGURACION_INVALIDA")
+        For i = 0 To p.Campos.Count - 1
+            Dim campo = p.Campos(i), fila = i + 1
+            If campo Is Nothing Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "Campos", "REQUERIDO", fila)
+            If Not IdentificadorValido(campo.CAMPO_DESTINO) Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "CAMPO_DESTINO", "IDENTIFICADOR_INVALIDO", fila)
+            If Not nombres.Add(campo.CAMPO_DESTINO) Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "CAMPO_DESTINO", "DESTINO_DUPLICADO", fila, campo.CAMPO_DESTINO)
+            If String.IsNullOrWhiteSpace(campo.CAMPO_FUENTE) Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "CAMPO_FUENTE", "REQUERIDO", fila, campo.CAMPO_DESTINO)
+            If campo.CAMPO_FUENTE.Length > 120 Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "CAMPO_FUENTE", "LONGITUD_EXCEDIDA", fila, campo.CAMPO_DESTINO, 120, campo.CAMPO_FUENTE.Length)
+            If campo.CAMPO_FUENTE.Any(Function(c) Char.IsControl(c)) Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "CAMPO_FUENTE", "CARACTERES_CONTROL", fila, campo.CAMPO_DESTINO)
+            If String.IsNullOrWhiteSpace(campo.TIPO_CAMPO) Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "TIPO_CAMPO", "REQUERIDO", fila, campo.CAMPO_DESTINO)
+            If campo.TIPO_CAMPO.Length > 64 Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "TIPO_CAMPO", "LONGITUD_EXCEDIDA", fila, campo.CAMPO_DESTINO, 64, campo.TIPO_CAMPO.Length)
+            If If(campo.CARACTER_SPLITER, "").Length > 120 Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "CARACTER_SPLITER", "LONGITUD_EXCEDIDA", fila, campo.CAMPO_DESTINO, 120, campo.CARACTER_SPLITER.Length)
+            For Each opcion In New String() {"REMPLAZA_COMA", "REMPLAZA_PUNTO", "OPCION_SPLITER"}
+                Dim valor = If(opcion = "REMPLAZA_COMA", campo.REMPLAZA_COMA, If(opcion = "REMPLAZA_PUNTO", campo.REMPLAZA_PUNTO, campo.OPCION_SPLITER))
+                If valor.HasValue AndAlso valor.Value > 1 Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", opcion, "OPCION_INVALIDA", fila, campo.CAMPO_DESTINO)
+            Next
+            If campo.OPCION_SPLITER.GetValueOrDefault() = 1 Then
+                If String.IsNullOrEmpty(campo.CARACTER_SPLITER) Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "CARACTER_SPLITER", "SEPARADOR_REQUERIDO", fila, campo.CAMPO_DESTINO)
+                If Not campo.NUMERO_MATRIZ_EXPLITER.HasValue Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "NUMERO_MATRIZ_EXPLITER", "POSICION_REQUERIDA", fila, campo.CAMPO_DESTINO)
+            End If
         Next
-        If Not p.Campos.Any(Function(c) String.Equals(c.CAMPO_DESTINO, p.CAMPO_UNICO, StringComparison.Ordinal)) Then Throw ErrorControlado("CONFIGURACION_INVALIDA")
+        If Not p.Campos.Any(Function(c) String.Equals(c.CAMPO_DESTINO, p.CAMPO_UNICO, StringComparison.Ordinal)) Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "CAMPO_UNICO", "CLAVE_NO_MAPEADA")
         ValidarDestino(p, _repo.Destino(p.NOMBRE_PLANTILLA))
         Dim guardada = _repo.Guardar(p, s.RevisionEsperada, s.HuellaEsperada)
         guardada.Modo = p.Modo
@@ -81,20 +101,24 @@ Public Class ServicioPlantillasExcel
     Public Shared Sub ValidarDestino(p As PlantillaExcel, destino As DestinoPlantillaExcel)
         If destino Is Nothing Then Throw ErrorControlado("CAPACIDAD_NO_DISPONIBLE")
         If Not destino.Existe Then
-            If p.Modo <> "CREAR" Then Throw ErrorControlado("DESTINO_INVALIDO")
-            For Each c In p.Campos
-                If Not TipoCreable(c.TIPO_CAMPO) Then Throw ErrorControlado("CONFIGURACION_INVALIDA")
+            If p.Modo <> "CREAR" Then Throw ErrorConfiguracion("DESTINO_INVALIDO", "NOMBRE_PLANTILLA", "TABLA_NO_EXISTE")
+            For i = 0 To p.Campos.Count - 1
+                Dim c = p.Campos(i)
+                If Not TipoCreable(c.TIPO_CAMPO) Then Throw ErrorConfiguracion("CONFIGURACION_INVALIDA", "TIPO_CAMPO", "TIPO_NO_ADMITIDO", i + 1, c.CAMPO_DESTINO)
             Next
             Return
         End If
-        If p.Modo = "CREAR" Then Throw ErrorControlado("DESTINO_YA_EXISTE")
-        If Not String.Equals(destino.Motor, "InnoDB", StringComparison.OrdinalIgnoreCase) Then Throw ErrorControlado("DESTINO_INVALIDO")
-        For Each c In p.Campos
+        If p.Modo = "CREAR" Then Throw ErrorConfiguracion("DESTINO_YA_EXISTE", "NOMBRE_PLANTILLA", "TABLA_YA_EXISTE")
+        If Not String.Equals(destino.Motor, "InnoDB", StringComparison.OrdinalIgnoreCase) Then Throw ErrorConfiguracion("DESTINO_INVALIDO", "NOMBRE_PLANTILLA", "MOTOR_NO_ADMITIDO")
+        For i = 0 To p.Campos.Count - 1
+            Dim c = p.Campos(i)
             Dim columna = destino.Columnas.SingleOrDefault(Function(x) String.Equals(x.Nombre, c.CAMPO_DESTINO, StringComparison.Ordinal))
-            If columna Is Nothing OrElse Not String.IsNullOrEmpty(columna.Extra) OrElse Not TipoCompatible(c.TIPO_CAMPO, columna) Then Throw ErrorControlado("DESTINO_INVALIDO")
+            If columna Is Nothing Then Throw ErrorConfiguracion("DESTINO_INVALIDO", "CAMPO_DESTINO", "COLUMNA_NO_EXISTE", i + 1, c.CAMPO_DESTINO)
+            If Not String.IsNullOrEmpty(columna.Extra) Then Throw ErrorConfiguracion("DESTINO_INVALIDO", "CAMPO_DESTINO", "COLUMNA_AUTOMATICA", i + 1, c.CAMPO_DESTINO)
+            If Not TipoCompatible(c.TIPO_CAMPO, columna) Then Throw ErrorConfiguracion("DESTINO_INVALIDO", "TIPO_CAMPO", "TIPO_DESTINO_INCOMPATIBLE", i + 1, c.CAMPO_DESTINO, tipoEsperado:=columna.TipoCompleto)
         Next
         For Each columna In destino.Columnas
-            If Not columna.Nulable AndAlso columna.Predeterminado Is Nothing AndAlso String.IsNullOrEmpty(columna.Extra) AndAlso Not p.Campos.Any(Function(c) c.CAMPO_DESTINO = columna.Nombre) Then Throw ErrorControlado("DESTINO_INVALIDO")
+            If Not columna.Nulable AndAlso columna.Predeterminado Is Nothing AndAlso String.IsNullOrEmpty(columna.Extra) AndAlso Not p.Campos.Any(Function(c) c.CAMPO_DESTINO = columna.Nombre) Then Throw ErrorConfiguracion("DESTINO_INVALIDO", "Campos", "COLUMNA_OBLIGATORIA_NO_MAPEADA", destino:=columna.Nombre)
         Next
     End Sub
     Private Shared Function TipoCompatible(tipo As String, columna As ColumnaDestinoExcel) As Boolean
@@ -174,6 +198,13 @@ Public Class ServicioPlantillasExcel
         End If
         If TypeOf token Is JArray Then Return New JArray(DirectCast(token, JArray).Select(Function(x) Canonico(x)))
         Return token.DeepClone()
+    End Function
+    Public Shared Function ErrorConfiguracion(codigo As String, campo As String, regla As String, Optional fila As Nullable(Of Integer) = Nothing, Optional destino As String = Nothing, Optional limite As Nullable(Of Integer) = Nothing, Optional longitud As Nullable(Of Integer) = Nothing, Optional tipoEsperado As String = Nothing) As ImportacionExcelException
+        Dim salida = ErrorControlado(codigo)
+        If Not IdentificadorValido(destino) Then destino = Nothing
+        If tipoEsperado IsNot Nothing AndAlso Not Regex.IsMatch(tipoEsperado, "\A[A-Za-z0-9(), ]{1,64}\z") Then tipoEsperado = Nothing
+        salida.Detalles.Add(New DetalleConfiguracionExcel With {.Campo = campo, .Regla = regla, .FilaCampo = fila, .CampoDestino = destino, .Limite = limite, .LongitudActual = longitud, .TipoEsperado = tipoEsperado})
+        Return salida
     End Function
     Public Shared Function ErrorControlado(codigo As String) As ImportacionExcelException
         Dim mensaje As String

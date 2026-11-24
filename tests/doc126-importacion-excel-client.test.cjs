@@ -51,3 +51,9 @@ test('DOC126 bootstrap no envía token heredado y no acepta operaciones/rutas li
  await assert.rejects(f.api.ejecutar('EjecutarSql',{}),e=>e.codigo==='SOLICITUD_INVALIDA');assert.equal(f.requests.length,1);
  for(const url of ['https://outside.invalid/api','//outside.invalid/api','/app/../api','/app/api?x=1'])assert.throws(()=>factory(f.jq,{}).crear({...f.options,url}));
 });
+
+test('DOC126 transporte conserva sólo descriptores de validación tipados, acotados y sin mensajes crudos',async()=>{
+ const f=fixture();await f.open();const p=f.api.ejecutar('GuardarPlantilla',{ConexionId:6});
+ f.requests.at(-1).resolve({d:{ok:false,codigo:'CONFIGURACION_INVALIDA',mensaje:'private provider detail',totalValidacion:40,validacion:[{Campo:'REMPLAZA_COMA',Regla:'REQUERIDO',FilaCampo:1,CampoDestino:'CLAVE',Mensaje:'private provider detail'},{Campo:'<img>',Regla:'REQUERIDO'},{Campo:'TIPO_CAMPO',Regla:'TIPO_DESTINO_INCOMPATIBLE',FilaCampo:2,TipoEsperado:'varchar(250)',LongitudActual:11,Limite:10}]}});
+ await assert.rejects(p,e=>{assert.equal(e.validacion.length,2);assert.equal(e.totalValidacion,40);assert.equal(e.validacion[1].TipoEsperado,'varchar(250)');assert.doesNotMatch(JSON.stringify(e),/private provider|<img>/);return !e.resultadoIncierto;});
+});

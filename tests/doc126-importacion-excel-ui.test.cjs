@@ -22,12 +22,13 @@ async function fixture(work,options={}){
    calls.push({operation,body,multipart:body===null?request.postData():null});
    assert.equal(request.headers()['x-importacion-excel-contexto'],'d'.repeat(32));
    if(operation!=='AbrirCargaExcel')assert.equal(request.headers()['x-importacion-excel-csrf'],'synthetic-ui-token');
-   let data,ok=true,code='OK';
+   let data,ok=true,code='OK',validation=[],totalValidation=0;
    if(operation==='AbrirCargaExcel')data={CsrfToken:'synthetic-ui-token',Conexiones:[{ConexionId:6,Nombre:'Fixture autorizada'}],PermiteNuevaCarga:!options.closedCapacity,MaxFilasDatos:20000,MaxArchivoMB:10};
    else if(operation==='ListarPlantillas')data={Total:1,Pagina:1,TamanoPagina:25,Plantillas:[{PlantillaId:29,Nombre:template.NOMBRE_PLANTILLA,Activa:true}]};
    else if(operation==='ConsultarPlantilla'){if(options.detailGate)await options.detailGate;data=clone(template);}
    else if(operation==='GuardarPlantilla'){
-    if(options.conflictSave){ok=false;code='CONFLICTO_REVISION';}
+    if(options.configErrors&&(!options.errorsOnce||calls.filter(c=>c.operation==='GuardarPlantilla').length===1)){ok=false;code='CONFIGURACION_INVALIDA';validation=options.configErrors;totalValidation=options.validationTotal||validation.length;}
+    else if(options.conflictSave){ok=false;code='CONFLICTO_REVISION';}
     else if(options.ignoreSave){return route.abort('failed');}
     else {Object.assign(template,body.Plantilla,{ID_PLANTILLAIMP:body.Plantilla.ID_PLANTILLAIMP||30,REVISION_CARGA:2,Huella:'e'.repeat(64)});data=clone(template);}
    }
@@ -48,7 +49,7 @@ async function fixture(work,options={}){
    }
    else if(operation==='ConsultarResultado')data=carga(confirmed?'CONFIRMADA':'PREPARADA');
    else throw Error('Operación local no prevista '+operation);
-   const payload={ok,codigo:code,mensaje:'fixture',datos:data};
+   const payload={ok,codigo:code,mensaje:'private provider detail must not escape',datos:data,validacion:validation,totalValidacion:totalValidation};
    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(operation==='Upload'?payload:{d:payload})});
   });
   await page.goto('https://doc126.invalid/production');
@@ -195,9 +196,25 @@ test('DOC126 Plantillas ofrece análisis al crear y conserva el editor de una pl
 
 test('DOC126 video crear plantilla: sugiere tabla desde RELACIÓN ORDENES y guarda al elegir clave',()=>fixture(async(page,calls)=>{
  await analyzeNew(page,'RELACIÓN ORDENES 2025.xlsx');assert.equal(await page.locator('[data-doc126=tabla]').inputValue(),'imp_02_relacion_ordenes_2025');
+ assert.equal(await page.locator('[data-field=REMPLAZA_COMA]').first().inputValue(),'0');assert.equal(await page.locator('[data-field=REMPLAZA_PUNTO]').first().inputValue(),'0');assert.equal(await page.locator('[data-field=OPCION_SPLITER]').first().inputValue(),'0');assert.equal(await page.locator('[data-field=NUMERO_MATRIZ_EXPLITER]').first().inputValue(),'0');
  await page.locator('[data-doc126=analisis-clave]').selectOption('CLAVE');await page.locator('[data-doc126=guardar]').click();await page.locator('[data-doc126=destino]').filter({hasText:'imp_02_relacion_ordenes_2025'}).waitFor();
  assert.equal(calls.filter(c=>c.operation==='GuardarPlantilla').length,1);assert.equal(calls.some(c=>['Upload','Preparar','Confirmar'].includes(c.operation)),false);
 },{assistant:true}));
+
+test('DOC126 errores explican opción/fila/regla/corrección y permiten volver al control indicado',()=>fixture(async(page,calls)=>{
+ await analyzeNew(page);await page.locator('[data-doc126=analisis-clave]').selectOption('CLAVE');await page.locator('[data-field=REMPLAZA_COMA]').first().selectOption('');await page.locator('[data-doc126=guardar]').click();
+ const panel=page.locator('[data-doc126=diagnostico-configuracion]');await panel.waitFor();assert.match(await panel.innerText(),/Campo 1 · CLAVE — Cambiar coma/);assert.match(await panel.innerText(),/Sin configurar.*instalación exige/);assert.match(await panel.innerText(),/Cómo corregirlo: Selecciona «No»/);assert.match(await panel.innerText(),/Escribe 0 si «Separar valor»/);assert.match(await panel.innerText(),/2 de 5 observaciones/);assert.doesNotMatch(await panel.innerText(),/private provider|provider-password/);
+ await page.setViewportSize({width:320,height:568});await panel.getByRole('button',{name:'Corregir Cambiar coma',exact:true}).click();assert.equal(await page.locator('[data-field=REMPLAZA_COMA]').first().evaluate(e=>e===document.activeElement),true);assert.equal(await page.locator('[data-field=REMPLAZA_COMA]').first().getAttribute('aria-invalid'),'true');
+ await page.locator('[data-field=REMPLAZA_COMA]').first().selectOption('0');await page.locator('[data-doc126=guardar]').click();await page.locator('[data-doc126=archivo-conservado]').filter({hasText:'propuesta.xlsx'}).waitFor();assert.equal(calls.filter(c=>c.operation==='GuardarPlantilla').length,2);assert.equal(await panel.isVisible(),false);
+},{assistant:true,configErrors:[{Campo:'REMPLAZA_COMA',FilaCampo:1,CampoDestino:'CLAVE',Regla:'REQUERIDO',Mensaje:'provider-password'},{Campo:'NUMERO_MATRIZ_EXPLITER',FilaCampo:2,CampoDestino:'NOMBRE',Regla:'REQUERIDO'}],validationTotal:5,errorsOnce:true}));
+
+test('DOC126 rechazo sin detalle reconoce la incertidumbre y conserva formulario sin inventar una causa',()=>fixture(async(page,calls)=>{
+ await analyzeNew(page);await page.locator('[data-doc126=analisis-clave]').selectOption('CLAVE');await page.locator('[data-doc126=guardar]').click();const panel=page.locator('[data-doc126=diagnostico-configuracion]');await panel.waitFor();assert.match(await panel.innerText(),/No es posible afirmar una causa concreta/);assert.match(await panel.innerText(),/Consulta la lista y abre el detalle/);assert.doesNotMatch(await panel.innerText(),/No se guardaron los cambios|private provider/);assert.equal(await page.locator('[data-doc126=guardar]').isDisabled(),true);assert.equal(await page.locator('[data-doc126=tabla]').inputValue(),'imp_02_propuesta');assert.equal(calls.filter(c=>c.operation==='GuardarPlantilla').length,1);
+},{assistant:true,configErrors:[{Campo:'__proto__',Regla:'REQUERIDO'}]}));
+
+test('DOC126 tipo y longitud incompatibles explican los límites sin mostrar valores sensibles',()=>fixture(async(page)=>{
+ await analyzeNew(page);await page.locator('[data-doc126=analisis-clave]').selectOption('CLAVE');await page.locator('[data-doc126=guardar]').click();const panel=page.locator('[data-doc126=diagnostico-configuracion]');await panel.waitFor();assert.match(await panel.innerText(),/máximo de 10 caracteres; se enviaron 11/);assert.match(await panel.innerText(),/se espera varchar\(250\)/);assert.match(await panel.innerText(),/Este guardado no cambia la estructura/);assert.equal(await page.locator('[data-field=TIPO_CAMPO]').first().getAttribute('aria-invalid'),'true');
+},{assistant:true,configErrors:[{Campo:'TIPO_CAMPO',FilaCampo:1,CampoDestino:'CLAVE',Regla:'LONGITUD_EXCEDIDA',Limite:10,LongitudActual:11},{Campo:'TIPO_CAMPO',FilaCampo:2,CampoDestino:'NOMBRE',Regla:'TIPO_DESTINO_INCOMPATIBLE',TipoEsperado:'varchar(250)'}]}));
 
 test('DOC126 propuesta de nombre cambia con el archivo y conserva un destino escrito por el usuario',()=>fixture(async(page)=>{
  await analyzeNew(page);page.on('dialog',d=>d.accept());

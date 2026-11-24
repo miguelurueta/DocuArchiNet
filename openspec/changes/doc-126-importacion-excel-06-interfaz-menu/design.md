@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14,D-15,D-16 -->
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14,D-15,D-16,D-17 -->
 ## Context
 
 DOC126 conecta la interfaz con DOC122–125 ya integrados; DOC125 terminó en main por PR137/138, con aceptación física5/5 de1000filas por modo y31/31tareas. La página todavía carece de host/cliente/vista Excel. El constructor del menú ya existe como utilidad sin dependencia de permisos de carpetas. El parser de perfiles exige otro envelope y no puede usarse como parser Excel. La apertura del servicio emite el token únicamente por POST JSON.
@@ -259,3 +259,9 @@ El runner incorpora --excel-ui-assistant con DOC126_ASSISTANT_E2E_AUTHORIZED ind
 ## Corrección del video de creación — tarea 8.9
 
 El video del usuario muestra análisis de 12759 filas y elección de NROORDEN, pero la tabla queda en el prefijo imp_02_; el guardado se detiene en el cliente con un mensaje genérico. Se propone un nombre editable desde el archivo al crear, normalizando acentos/separadores y acotando a 64 caracteres. Sólo se reemplaza el prefijo vacío o una sugerencia anterior sin editar; se preservan nombres manuales y modos agregar/reemplazar. Tabla incompleta y clave no mapeada tienen mensaje propio, aria-invalid y foco; el servidor conserva su validación y autoridad. Quitar queda en una línea. Assets doc126-3, sin cambios VB, contratos, SQL o DLL por esta corrección. Evidencia en Validacion/doc126-correccion-video-crear-plantilla-20261124.md/JSON.
+
+### D-17 / RQ-17 — Diagnóstico explicativo de configuración
+
+Diagnóstico de configuración aditivo y tipado: mantener códigos y solicitudes, añadir validacion/totalValidacion con campo, fila, regla y límites seguros. El repositorio contrasta toda la matriz con metadatos antes de modificar; no relajar NOT NULL ni truncar valores. El analizador y campos nuevos proponen opciones explícitas No/No/No y posición 0; preservar NULL históricos. Cliente interpreta reglas cerradas y muestra causa/corrección, estado de guardado acreditado y enlaces con foco. Respuestas sin detalle no autorizan inventar causas o repetir altas. No exponer SQL, valores de celda, secretos ni mensajes de proveedor. La comprobación de metadatos usa recursos actuales y sólo SELECT; publicación con respaldo y sin E2E autenticada implícita.
+
+El video muestra tabla/clave válidas y rechazo genérico. SELECT de metadatos acreditó cuatro opciones de campo NOT NULL; Sin configurar se enviaba como NULL. No se requiere adecuación SQL: se corrigen defaults de alta conservando semántica e históricos. Inventario existente editado: modelos/DTO de error, ServicioPlantillasExcel, MySqlPlantillaExcelRepository y ASMX, analizador, Api/Vista/CSS/ASPX, harness nativo/browser y scope DOC126. No se añaden repositorios, conexiones o métodos públicos ASMX. Detalle máximo25 y total; propiedades nuevas de respuesta, sin cambio de códigos o forma de solicitudes.

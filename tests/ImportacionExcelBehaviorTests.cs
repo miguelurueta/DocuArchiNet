@@ -206,7 +206,27 @@ public static class ImportacionExcelBehaviorTests {
   limits["ImportacionExcel.MaxFilasDatos"]="0";Reject(()=>adapter.Limite("MaxFilasDatos",10000),"CAPACIDAD_NO_DISPONIBLE");
   limits["ImportacionExcel.MaxArchivoMB"]="2147483647";Reject(()=>adapter.Limite("MaxArchivoMB",10),"CAPACIDAD_NO_DISPONIBLE");
  }
- public static int Main(){try{Rules();Persistence();GuardAndAuthority();RecoveryNamespace();ModuleConnection();Contract();Console.WriteLine("DOC122_NATIVE_PASS checks="+checks+"; synthetic ADO.NET, no MySQL/HTTP");ImportacionExcelLecturaTests.Run();ImportacionExcelPreparacionTests.Run();ImportacionExcelConfirmacionTests.Run();return 0;}catch(Exception e){Console.Error.WriteLine(e.ToString());return 1;}}
+ static void ConfigurationDiagnostics(){
+  var store=new Store{P=Template(),DestinationExists=false,RequiredOptions=true};var repo=new MySqlPlantillaExcelRepository(()=>new Connection(store),7);var svc=new ServicioPlantillasExcel(repo,7);
+  var p=Template();p.ID_PLANTILLAIMP=0;p.Modo="CREAR";p.Formato="XLSX";p.NOMBRE_PLANTILLA="imp_02_diagnostico";
+  foreach(var c in p.Campos){c.ID_CAMPOS_PLANTILLA=0;c.TIPO_CAMPO="VARCHAR(250)";c.REMPLAZA_COMA=null;c.REMPLAZA_PUNTO=null;c.OPCION_SPLITER=null;c.NUMERO_MATRIZ_EXPLITER=null;}
+  var request=new SolicitudGuardarPlantillaExcel{ConexionId=7,RevisionEsperada=0,HuellaEsperada="",Plantilla=p};var before=ServicioPlantillasExcel.Huella(store.P);ImportacionExcelException issue=null;
+  try{svc.Guardar(Context(),request);throw new Exception("required options must reject");}catch(ImportacionExcelException e){issue=e;Check(e.Codigo=="CONFIGURACION_INVALIDA"&&e.Detalles.Count==8,"all required options identified across both fields");Check(e.Detalles.All(d=>d.Regla=="REQUERIDO"&&d.FilaCampo>=1&&d.FilaCampo<=2&&d.CampoDestino!=null),"diagnostics identify rule/row/column without raw values");}
+  Check(before==ServicioPlantillasExcel.Huella(store.P)&&!store.Sql.Any(q=>q.StartsWith("INSERT")||q.StartsWith("UPDATE")||q.StartsWith("DELETE")),"configuration rejection occurs before all modifying statements");
+  foreach(var c in p.Campos){c.REMPLAZA_COMA=0;c.REMPLAZA_PUNTO=0;c.OPCION_SPLITER=0;c.NUMERO_MATRIZ_EXPLITER=0;}
+  var saved=svc.Guardar(Context(),request);Check(saved.REVISION_CARGA==1&&saved.Campos.Count==2,"explicit disabled options save on NOT NULL installation");
+  var limited=new Store{P=Template(),SourceLimit=3};var limitedSvc=new ServicioPlantillasExcel(new MySqlPlantillaExcelRepository(()=>new Connection(limited),7),7);var edit=Edit(limited.P);edit.Plantilla.Modo="AGREGAR";edit.Plantilla.Formato="XLSX";
+  try{limitedSvc.Guardar(Context(),edit);throw new Exception("length must reject");}catch(ImportacionExcelException e){Check(e.Detalles.Any(d=>d.Campo=="CAMPO_FUENTE"&&d.Regla=="LONGITUD_EXCEDIDA"&&d.Limite==3&&d.LongitudActual==6),"physical length and actual count explain the failure");}
+  var charset=new Store{P=Template()};var charsetSvc=new ServicioPlantillasExcel(new MySqlPlantillaExcelRepository(()=>new Connection(charset),7),7);edit=Edit(charset.P);edit.Plantilla.Modo="AGREGAR";edit.Plantilla.Formato="XLSX";edit.Plantilla.Campos[0].CAMPO_FUENTE="漢";
+  try{charsetSvc.Guardar(Context(),edit);throw new Exception("charset must reject");}catch(ImportacionExcelException e){Check(e.Detalles.Any(d=>d.Regla=="CARACTERES_INCOMPATIBLES"&&d.Campo=="CAMPO_FUENTE"),"charset error identifies configuration field");Check(!JsonConvert.SerializeObject(e.Detalles).Contains("漢"),"diagnostics do not echo unsupported submitted content");}
+  var typed=Template();typed.Modo="CREAR";typed.Campos[0].TIPO_CAMPO="TEXT";
+  try{ServicioPlantillasExcel.ValidarDestino(typed,new DestinoPlantillaExcel{Existe=false});throw new Exception("unsupported type must reject");}catch(ImportacionExcelException e){Check(e.Detalles.Single().Campo=="TIPO_CAMPO"&&e.Detalles.Single().Regla=="TIPO_NO_ADMITIDO","unsupported creation type names row and action target");}
+  var method=typeof(WebServiceImportacionExcel).GetMethod("Ejecutar",BindingFlags.Instance|BindingFlags.NonPublic).MakeGenericMethod(typeof(RespuestaPlantillaExcel));
+  while(issue.Detalles.Count<40)issue.Detalles.Add(issue.Detalles[0]);Func<RespuestaPlantillaExcel> failed=()=>{throw issue;};
+  var response=(RespuestaPlantillaExcel)method.Invoke(new WebServiceImportacionExcel(),new object[]{failed});Check(!response.ok&&response.codigo=="CONFIGURACION_INVALIDA"&&response.validacion.Count==25&&response.totalValidacion==40&&response.datos==null,"ASMX preserves legacy code and bounds validation sample with total");
+  Func<RespuestaPlantillaExcel> unexpected=()=>{throw new Failure();};response=(RespuestaPlantillaExcel)method.Invoke(new WebServiceImportacionExcel(),new object[]{unexpected});Check(response.validacion.Count==0&&!JsonConvert.SerializeObject(response).Contains("synthetic provider"),"provider diagnostics never become configuration details");
+ }
+ public static int Main(){try{Rules();Persistence();GuardAndAuthority();RecoveryNamespace();ModuleConnection();Contract();ConfigurationDiagnostics();Console.WriteLine("DOC122_NATIVE_PASS checks="+checks+"; synthetic ADO.NET, no MySQL/HTTP");ImportacionExcelLecturaTests.Run();ImportacionExcelPreparacionTests.Run();ImportacionExcelConfirmacionTests.Run();return 0;}catch(Exception e){Console.Error.WriteLine(e.ToString());return 1;}}
 
  sealed class Store {
   public PlantillaExcel P;public bool DestinationExists=true,FailField,Active=true,DuplicatePermission;public int Permission=1,Commands,Rollbacks;public string Engine="InnoDB";
@@ -215,6 +235,7 @@ public static class ImportacionExcelBehaviorTests {
   public string HistoricalServer="fixture",HistoricalProvider="mysql";
   public bool HideHistorical,DuplicateHistorical;
   public int FieldAttempts;
+  public bool RequiredOptions;public int SourceLimit=120;
  }
  sealed class Connection:DbConnection {
   readonly Store s;ConnectionState state;public Connection(Store x){s=x;}
@@ -269,7 +290,7 @@ public static class ImportacionExcelBehaviorTests {
     var table=Convert.ToString(V("@tabla"));
     if(CommandText.Contains("COLUMN_TYPE"))return Table(new[]{"COLUMN_NAME","DATA_TYPE","COLUMN_TYPE","CHARACTER_MAXIMUM_LENGTH","IS_NULLABLE","COLUMN_DEFAULT","CHARACTER_SET_NAME","COLLATION_NAME","EXTRA"},new object[]{"CLAVE","varchar","varchar(250)",250,"NO",DBNull.Value,"latin1","latin1_swedish_ci",""},new object[]{"BENEFICIARIO","varchar","varchar(2000)",2000,"YES",DBNull.Value,"latin1","latin1_swedish_ci",""}).CreateDataReader();
     var type=table=="imp01_plantillaimp"?typeof(PlantillaExcel):typeof(CampoPlantillaExcel);
-    var rows=type.GetProperties().Where(p=>p.Name==p.Name.ToUpperInvariant()).Select(p=>new object[]{p.Name,120,"YES","latin1"}).ToList();
+    var rows=type.GetProperties().Where(p=>p.Name==p.Name.ToUpperInvariant()).Select(p=>new object[]{p.Name,p.Name=="CAMPO_FUENTE"?s.SourceLimit:120,table=="imp01_campos_plantilla"&&s.RequiredOptions&&new[]{"REMPLAZA_COMA","REMPLAZA_PUNTO","OPCION_SPLITER","NUMERO_MATRIZ_EXPLITER"}.Contains(p.Name)?"NO":"YES","latin1"}).ToList();
     if(table=="imp01_campos_plantilla")rows.Add(new object[]{"IMP01_PLANTILLAIMP_ID_PLANTILLAIMP",DBNull.Value,"NO",DBNull.Value});
     return Table(new[]{"COLUMN_NAME","CHARACTER_MAXIMUM_LENGTH","IS_NULLABLE","CHARACTER_SET_NAME"},rows.ToArray()).CreateDataReader();
    }

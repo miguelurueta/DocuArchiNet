@@ -129,7 +129,7 @@ public static class ImportacionExcelLecturaTests {
   var r=Analyze(bytes);Check(r.Formato=="XLSX"&&r.Hoja=="Datos"&&r.Hojas.Count==2,"analysis sheets and real format");
   Check(r.ArchivoHash.Length==64&&r.FilasObservadas==2&&r.Muestra[0][0]=="00125","analysis hash, rows and zeros");
   Check(r.Campos[0].CAMPO_FUENTE=="Número Orden"&&r.Campos[0].CAMPO_DESTINO=="NUMERO_ORDEN"&&r.Campos[0].TIPO_CAMPO.StartsWith("VARCHAR("),"source exact and SQL name proposed");
-  Check(r.Campos[1].TIPO_CAMPO=="DECIMAL(7,2)"&&r.Campos.All(c=>c.ID_CAMPOS_PLANTILLA==0&&!c.REMPLAZA_COMA.HasValue),"full column precision, no transformations invented");
+  Check(r.Campos[1].TIPO_CAMPO=="DECIMAL(7,2)"&&r.Campos.All(c=>c.ID_CAMPOS_PLANTILLA==0&&c.REMPLAZA_COMA==0&&c.REMPLAZA_PUNTO==0&&c.OPCION_SPLITER==0&&c.NUMERO_MATRIZ_EXPLITER==0),"full column precision, explicit disabled transformations for new templates");
   var same=Analyze(bytes);Check(same.ArchivoHash==r.ArchivoHash,"analysis deterministic content hash");
   var target=new DestinoPlantillaExcel{Existe=true,Motor="InnoDB",Columnas=new List<ColumnaDestinoExcel>{Col("Numero_Orden","varchar","varchar(180)"),Col("Valor","decimal","decimal(18,2)")}};
   r=Analyze(bytes,null,target);Check(r.Campos[0].CAMPO_DESTINO=="Numero_Orden"&&r.Campos[0].TIPO_CAMPO=="varchar(180)"&&r.Campos[1].TIPO_CAMPO=="decimal(18,2)","existing schema supplies actual names/types");

@@ -32,6 +32,6 @@ function templateRequestAllowed(s,request){
  if(!s||s.mode!=='assistant'||!request||request.ConexionId!==s.assistant.conexionId||request.RevisionEsperada!==0||request.HuellaEsperada!=='')return false;
  const p=request.Plantilla,a=s.assistant;
  return Object.keys(request).length===4&&!!p&&Object.keys(p).length===10&&p.ID_PLANTILLAIMP===0&&p.REVISION_CARGA===0&&p.IMP01_XMLCONEXION_ID_XMLCONEXION===a.conexionId&&p.NOMBRE_PLANTILLA===a.tabla&&p.CAMPO_UNICO===a.campoUnico&&p.LIBRO_EXCEL===a.hoja&&p.Formato==='XLSX'&&p.Modo==='CREAR'&&p.ESTADO_PLANTILLA===1&&
-  Array.isArray(p.Campos)&&p.Campos.length===2&&p.Campos.every((c,i)=>c&&Object.keys(c).length===9&&c.ID_CAMPOS_PLANTILLA===0&&['CAMPO_FUENTE','CAMPO_DESTINO','TIPO_CAMPO'].every(k=>c[k]===a.campos[i][k])&&['REMPLAZA_COMA','REMPLAZA_PUNTO','OPCION_SPLITER','NUMERO_MATRIZ_EXPLITER'].every(k=>c[k]===null)&&(c.CARACTER_SPLITER===null||c.CARACTER_SPLITER===''));
+  Array.isArray(p.Campos)&&p.Campos.length===2&&p.Campos.every((c,i)=>c&&Object.keys(c).length===9&&c.ID_CAMPOS_PLANTILLA===0&&['CAMPO_FUENTE','CAMPO_DESTINO','TIPO_CAMPO'].every(k=>c[k]===a.campos[i][k])&&['REMPLAZA_COMA','REMPLAZA_PUNTO','OPCION_SPLITER','NUMERO_MATRIZ_EXPLITER'].every(k=>c[k]===0)&&(c.CARACTER_SPLITER===null||c.CARACTER_SPLITER===''));
 }
 module.exports={validateScope,readScope,verifyRuntime,assetPaths,templateRequestAllowed,readFixture:previous.readFixture,snapshotDestination:previous.snapshotDestination,lockNames:(physical,table,id)=>previous.lockNames(physical,table,id,'DOC-126')};

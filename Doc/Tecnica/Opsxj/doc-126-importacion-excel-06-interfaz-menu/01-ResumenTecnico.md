@@ -20,3 +20,7 @@ Ampliación D-16/RQ-16 implementada localmente: 47/52 tareas, 160/160 pruebas y 
 ## Despliegue y preparación posteriores
 
 DLL validada desplegada en IIS local con respaldo, WSDL200, rechazo anónimo del analizador y Web.config intacto. Se amplió la E2E existente con modo de asistente y autorización propia; 39/39 pruebas locales afectadas, tres casos registrados, ninguno ejecutado realmente. 47/52 tareas; pendientes cuentas, alcances y aceptación/gobierno. Ver `Doc/Actualizacion/Importacion/Validacion/doc126-despliegue-e2e-preparada-20261124.md`.
+
+## Diagnóstico explicativo posterior — D-17/RQ-17
+
+Metadatos SELECT acreditan opciones obligatorias; campos nuevos usan ceros explícitos, históricos conservan NULL. Validación por campo/fila/regla/límite/tipo y panel de causa/corrección con foco; hasta25 y total, sin valores de celda o textos del proveedor. Respuesta aditiva, códigos/solicitudes conservados y matriz verificada antes de escribir. Sin regla acreditada, no se inventa causa o resultado y no se repite el alta. 171/171 regresión y 4603 checks sintéticos; DLL/assets v4 publicados con respaldo y salud sin sesión. 52/57 tareas; aceptación/gobierno pendientes. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-diagnostico-configuracion-20261124.md`.

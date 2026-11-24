@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14,D-15,D-16 -->
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14,D-15,D-16,D-17 -->
 ## Purpose
 
 Permitir a las personas autorizadas administrar plantillas y cargar libros Excel desde Producción Documental, revisar su validación y recuperar el resultado durable, conservando los permisos, límites y datos de las capacidades existentes.
@@ -268,3 +268,23 @@ El sistema SHALL permitir generar una propuesta editable de plantilla desde un X
 #### Scenario: Nombre de destino sugerido y corrección de campos requeridos
 - **WHEN** se generan campos para una plantilla nueva en modo crear o se intenta guardar con destino incompleto o clave no mapeada
 - **THEN** se propone un nombre válido y editable desde el archivo conservando elecciones manuales, y el guardado inválido se detiene con un mensaje específico y foco en el campo correspondiente
+
+### Requirement: RQ-17 — Diagnóstico explicativo de configuración
+
+El sistema SHALL explicar los rechazos de configuración mediante reglas acreditadas por el servidor, identificando campo y fila, causa y corrección, conservando contratos, estado de guardado y valores históricos sin revelar información sensible. Trazabilidad: D-17.
+
+#### Scenario: Opciones nuevas compatibles con la instalación
+- **WHEN** se generan o añaden campos nuevos
+- **THEN** se proponen opciones No/No/No y posición 0; los NULL de campos históricos permanecen intactos y el servidor conserva las restricciones físicas
+
+#### Scenario: Configuración rechazada antes de modificar
+- **WHEN** la matriz contiene opciones nulas no admitidas, longitud o codificación incompatible
+- **THEN** el servidor identifica las filas y reglas antes de escribir, conserva el código anterior y devuelve hasta 25 detalles con el total
+
+#### Scenario: Causa y corrección accesibles
+- **WHEN** llega una regla de validación reconocida
+- **THEN** la interfaz explica Qué ocurre y Cómo corregirlo, identifica la configuración y permite llevar el foco a su control sin perder el formulario ni mostrar valores de celda o mensajes del proveedor
+
+#### Scenario: Respuesta sin causa acreditada
+- **WHEN** el rechazo no identifica una regla utilizable o el guardado es incierto
+- **THEN** se reconoce la limitación, se conserva el formulario y se exige consultar antes de repetir un alta, sin afirmar una causa o un resultado no acreditados

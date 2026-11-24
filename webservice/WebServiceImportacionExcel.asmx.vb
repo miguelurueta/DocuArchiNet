@@ -3,6 +3,7 @@ Imports System
 Imports System.Web
 Imports System.Web.Services
 Imports System.Web.Script.Services
+Imports System.Linq
 
 <WebService(Namespace:="urn:docuarchi:importacion-excel"), WebServiceBinding(ConformsTo:=WsiProfiles.BasicProfile1_1), ScriptService>
 Public Class WebServiceImportacionExcel
@@ -120,7 +121,7 @@ Public Class WebServiceImportacionExcel
             result.operacionId = operacion
             Return result
         Catch ex As ImportacionExcelException
-            Return New T With {.ok = False, .codigo = ex.Codigo, .mensaje = ex.Message, .operacionId = operacion}
+            Return New T With {.ok = False, .codigo = ex.Codigo, .mensaje = ex.Message, .operacionId = operacion, .validacion = ex.Detalles.Take(25).ToList(), .totalValidacion = ex.Detalles.Count}
         Catch ex As Exception
             'Sin mensajes del proveedor o configuración en respuesta o trazas.
             Return New T With {.ok = False, .codigo = "CAPACIDAD_NO_DISPONIBLE", .mensaje = "La operación no está disponible.", .operacionId = operacion}
