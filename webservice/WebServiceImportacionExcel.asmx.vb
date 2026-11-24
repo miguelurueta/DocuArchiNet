@@ -15,10 +15,8 @@ Public Class WebServiceImportacionExcel
                 ImportacionExcelRequestGuard.ValidarTransporte(Context)
                 Dim ctx = New ImportacionExcelContextAdapter().Resolver(Context)
                 Dim adaptador As New ImportacionExcelConexionAdapter()
-                Dim datos As New AperturaImportacionExcel With {
-                    .MaxFilasDatos = adaptador.Limite("MaxFilasDatos", 10000),
-                    .MaxArchivoMB = adaptador.Limite("MaxArchivoMB", 10),
-                    .Conexiones = adaptador.Referencias(Context, ctx)}
+                Dim datos = adaptador.AperturaLimites()
+                datos.Conexiones = adaptador.Referencias(Context, ctx)
                 datos.CsrfToken = ImportacionExcelRequestGuard.Emitir(Context, ctx)
                 Return New RespuestaAperturaExcel With {.datos = datos}
             End Function)
@@ -80,7 +78,23 @@ Public Class WebServiceImportacionExcel
                                                         ContextoVerificado()
                                                         If solicitud Is Nothing Then Throw ReglasCargaExcel.Fallo("SOLICITUD_INVALIDA")
                                                         Dim servicios As New ComposicionCargaExcel(Context, solicitud.ConexionId)
-                                                        Return New RespuestaEstadoCargaExcel With {.datos = servicios.Recepcion.Consultar(solicitud)}
+                                                        Return New RespuestaEstadoCargaExcel With {.datos = servicios.Confirmacion.ConsultarResultado(solicitud)}
+                                                    End Function)
+    End Function
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function Confirmar(solicitud As SolicitudConfirmarExcel) As RespuestaEstadoCargaExcel
+        Return Ejecutar(Of RespuestaEstadoCargaExcel)(Function()
+                                                        ContextoVerificado()
+                                                        If solicitud Is Nothing Then Throw ReglasCargaExcel.Fallo("SOLICITUD_INVALIDA")
+                                                        Return New RespuestaEstadoCargaExcel With {.datos = New ComposicionCargaExcel(Context, solicitud.ConexionId).Confirmacion.Confirmar(solicitud)}
+                                                    End Function)
+    End Function
+    <WebMethod(EnableSession:=True), ScriptMethod(UseHttpGet:=False, ResponseFormat:=ResponseFormat.Json)>
+    Public Function ConsultarResultado(solicitud As SolicitudConsultaCargaExcel) As RespuestaEstadoCargaExcel
+        Return Ejecutar(Of RespuestaEstadoCargaExcel)(Function()
+                                                        ContextoVerificado()
+                                                        If solicitud Is Nothing Then Throw ReglasCargaExcel.Fallo("SOLICITUD_INVALIDA")
+                                                        Return New RespuestaEstadoCargaExcel With {.datos = New ComposicionCargaExcel(Context, solicitud.ConexionId).Confirmacion.ConsultarResultado(solicitud)}
                                                     End Function)
     End Function
     Private Function ContextoVerificado() As ContextoImportacionExcel

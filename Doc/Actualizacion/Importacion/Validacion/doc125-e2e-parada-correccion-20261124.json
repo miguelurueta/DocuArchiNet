@@ -1,0 +1,214 @@
+{
+  "issue": "DOC-125",
+  "recordedUtc": "2026-11-24T12:03:58.773Z",
+  "status": "CORRECCION_VERIFICADA_DESPLEGADA_SEGUNDA_VENTANA_PENDIENTE",
+  "baseSha": "7a4247c96639097b75f887183dd0a2343458d25b",
+  "firstRealAttempt": {
+    "executed": true,
+    "passed": false,
+    "startedUtc": "2026-11-23T23:46:02.981Z",
+    "finishedUtc": "2026-11-23T23:48:02.937Z",
+    "durationMs": 119954,
+    "exitCode": 1,
+    "casePassCount": 0,
+    "externalControlSelects": 20,
+    "safeTransportFailure": "DOC110_TRANSPORT_FAILED: Confirmar",
+    "httpTimeoutMs": 30000,
+    "originalTransportCauseRetained": false,
+    "loads": [
+      {
+        "id_carga": "b7e59760-2867-4dcc-9eb9-b2411305733c",
+        "id_plantilla": 29,
+        "ambito_ref": "2",
+        "usuario_ref": "141",
+        "estado": "PREPARADA",
+        "modo": "CREAR",
+        "filas_previstas": 1000,
+        "filas_confirmadas": 0,
+        "codigo_incidencia": null,
+        "archivo_presente": 1,
+        "configuracion_presente": 1,
+        "creado_utc": "/Date(1795495647000)/",
+        "actualizado_utc": "/Date(1795495650000)/"
+      }
+    ],
+    "createStructureAbsent": true,
+    "confirmedRows": 0,
+    "baselineCounts": {
+      "imp_02_doc125_e2e_agregar": 1,
+      "imp_02_doc125_e2e_reemplazar": 2,
+      "imp_02_contratos": 625
+    },
+    "secretsCleared": true,
+    "automaticRequestRetry": false
+  },
+  "protectedPostStop": {
+    "recordedUtc": "2026-11-24T12:01:47.8315673Z",
+    "unchanged": true,
+    "snapshot": {
+      "imp_02_contratos": {
+        "rows": 625,
+        "sha256": "954c81690f4e9c26edd55037a4eab01a48af0706cc3e0c96e0500bbf6e42e471",
+        "schemaHash": "caa6ca86ed9305944d5c2384ce0c86d75ae79d10d0424e5a94bea742f5ed771e"
+      },
+      "imp_02_egresos": {
+        "rows": 25153,
+        "sha256": "418e439865904814832115c0a0bfa6059f7377d4771a858a466f7de40ba3a761",
+        "schemaHash": "0bba31842f08d3a6387e1c502e245bb8291050d0beb50e1a3e793d6a08223b79"
+      },
+      "imp_02_creditos": {
+        "rows": 12,
+        "sha256": "f5dd71dcab6b9a3bf647dcf6c6c5f48af958bd4dda6728d75577ffed7e6f61cb",
+        "schemaHash": "a5b58284fe23c0fe3b06f0f7cea68dcd46013272021df6994e80429ab9c04687"
+      },
+      "headers": {
+        "rows": 22,
+        "sha256": "8357c22546003d1260385d46e2fb43cfa5e669b06cd5db1d1d248b49cb3c4a1e"
+      },
+      "fields": {
+        "rows": 97,
+        "sha256": "3f083b51069cbf66329e8a654fabac5743a73b9827d683d4587b0eced811d35f"
+      },
+      "ra_integracion_fuente": {
+        "rows": 4,
+        "sha256": "cffa0567d038ba152594c87aa876402f5f4528fac413c3f83963a9bd1f5bd453"
+      },
+      "ra_integracion_fuente_columna": {
+        "rows": 12,
+        "sha256": "43ae1b648a643ac022c29525de6773e8e86e305f7f6fef58ef52543094797dc2"
+      },
+      "ra_integracion_fuente_historial": {
+        "rows": 12,
+        "sha256": "188be1c821c519c477e4ad743e94be60acf1d4941fba44dbbff701b144929875"
+      }
+    }
+  },
+  "diagnosis": {
+    "globalMetadataBenchmark": [
+      {
+        "query": "Trigger",
+        "ms": 35,
+        "count": 0
+      },
+      {
+        "query": "CurrentFK",
+        "ms": 10092,
+        "count": 0
+      },
+      {
+        "query": "ConstraintFK",
+        "ms": 10146,
+        "count": 0
+      }
+    ],
+    "nativeOptimized": {
+      "status": "PASS_READONLY_NATIVE_DIAGNOSTIC",
+      "steps": [
+        {
+          "stage": "Consultar",
+          "ms": 24
+        },
+        {
+          "stage": "AbrirConfirmacion",
+          "ms": 8
+        },
+        {
+          "stage": "BloquearDestino",
+          "ms": 8
+        },
+        {
+          "stage": "LeerPlantilla",
+          "ms": 5
+        },
+        {
+          "stage": "Inspeccionar",
+          "ms": 10182
+        },
+        {
+          "stage": "Inspeccionar2",
+          "ms": 49
+        },
+        {
+          "stage": "Inspeccionar3",
+          "ms": 47
+        }
+      ],
+      "businessWrites": 0,
+      "createCalls": 0,
+      "requestRetries": 0
+    },
+    "scope": "Primera acreditación global FK completa por operación/conexión/base/destino; éxito reutilizado sólo en esa sesión; nueva sesión obliga nuevo barrido",
+    "security": "Permisos/TRIGGER/motores/esquema/autoridad/locks siguen revalidados; mantenimiento DDL concurrente permanece excluido; CREATE propio no declara FK",
+    "transaction": "Inspector reutilizado con DbTransaction activa, restablecida al finalizar",
+    "businessWrites": 0,
+    "functionalCreateCalls": 0,
+    "timeoutIncreased": false
+  },
+  "verification": {
+    "command": "node --test tests/doc122-importacion-excel-behavior.test.cjs tests/doc122-e2e-reuse.test.cjs tests/doc124-e2e-reuse.test.cjs tests/doc125-e2e-reuse.test.cjs",
+    "testsPassed": 27,
+    "testsFailed": 0,
+    "nativeChecks": {
+      "DOC122": 246,
+      "DOC123": 318,
+      "DOC124": 492,
+      "DOC125": 3247,
+      "total": 4303,
+      "synthetic": true
+    },
+    "inheritedRegression": "PASS",
+    "isolatedBuild": {
+      "errors": 0,
+      "warnings": 308,
+      "importacionExcelWarnings": 0,
+      "backendSha256": "755567774ad99dbebfa840ad2c3ec1d05a843eb1396d77ca0080c3042cb9e384"
+    }
+  },
+  "deployment": {
+    "recordedUtc": "2026-11-24T00:02:50.5889612Z",
+    "previousSha256": "0646c354af0d6a7b1aaa5f61e3a880b9c58697a1a0e75a6e055d833e221d34c9",
+    "backendSha256": "755567774ad99dbebfa840ad2c3ec1d05a843eb1396d77ca0080c3042cb9e384",
+    "wsdlStatus": 200,
+    "webConfigUnchanged": true,
+    "files": [
+      {
+        "name": "GestionDocumental-Docuarchi.net.dll",
+        "existed": true,
+        "sha256": "755567774ad99dbebfa840ad2c3ec1d05a843eb1396d77ca0080c3042cb9e384"
+      }
+    ]
+  },
+  "secondWindow": {
+    "statusAtRecord": "RUNNING_REAL_E2E",
+    "e2eStartedAtRecord": true,
+    "casePassCountAtRecord": 0,
+    "sourceFrozen": true,
+    "sqlReapplied": false,
+    "previousPreparedLoadPreserved": true,
+    "credentialsRecovered": false
+  },
+  "tasks": {
+    "completed": 27,
+    "total": 31,
+    "pending": [
+      "5.3",
+      "5.4",
+      "5.5",
+      "5.7"
+    ]
+  },
+  "sources": [
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlConfirmacionExcelWriter.vb",
+      "sha256Utf8Lf": "ae431a4d2c487a947f44161cf70b25b9f63d79903778bf5fa94b47cb9d54c124"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlEstructuraExcel.vb",
+      "sha256Utf8Lf": "b56e90b2100270a53d35bb78ffcd14ce4c4e502a2bf9945f393253a8b0a46081"
+    },
+    {
+      "path": "tests/ImportacionExcelConfirmacionTests.cs",
+      "sha256Utf8Lf": "72f57521b1481c7b233c8a5fd1e066cdbe908cbcc17debaaad71ac3d4b975929"
+    }
+  ]
+}

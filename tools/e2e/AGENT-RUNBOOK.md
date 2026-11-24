@@ -1,5 +1,116 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC125 — aceptación real cerrada5/5, 2026-11-24
+
+Corte vigente: CREAR/AGREGAR/REEMPLAZAR1000filas cada uno, rollback300 y carrera10
+verificados en ventanas5/6/7. La ventana7 conserva los IDs ya confirmados y el
+rollback acreditado; sólo continúa la misma carrera pendiente y pasa5/5 en
+427861ms con136controles SELECT. El actor externo observó el INSERT del dueño
+del lock, confirmó una fila y el módulo terminó FALLIDA/CONFLICTO_CLAVE,0filas
+propias; ambos locks quedaron libres. Conteos finales: CREAR1000, AGREGAR1002
+(semilla1+carga1000+externa1), REEMPLAZAR1000. No son cinco importaciones nuevas.
+
+31/31 tareas revisadas.94/94tests,4492checks nativos sintéticos; build0errores,
+308advertencias previas. DLL desplegada SHA
+a14034d586facb7f700ff1cdf92c22bf74e607e69b43d3b3ab7a8556efc2e0b0,
+WSDL200 y Web.config intacto. Marca56ASCII compatible con MySQL5.1. Barrido
+globalFK20s sólo una vez por operación; otrasSQL15s, HTTP30s y test900s.
+Capacidad física medida1000filas por modo, no20000. Acuse ignorado no es corte
+físico de COMMIT/red. Preflight propietario/restringido y recursos actuales.
+
+SQL18–21 aplicados/verificados: no repetirlos. CONTRATOS625, EGRESOS25153,
+CRÉDITOS12 y configuración previa conservan hashes completos. Conservar todos
+los efectos/resultados y cargas PREPARADA anteriores; no limpiar ni reejecutar
+por pendientes históricos. Consolas cerradas a efectos de ejecución y claves
+eliminadas. No recuperar credenciales de ventanas anteriores.
+Evidencia: Validacion/doc125-ejecucion-seguimiento-20261124.md/JSON y
+doc125-verificacion-final-20261124.md/JSON. Archivo y Jira siguen sin cierre.
+Los apartados inferiores son cortes históricos.
+
+
+## DOC125 — corte histórico: dos intentos detenidos y corrección desplegada, 2026-11-24
+
+SQL18–21 aplicados por delegación «ejecuta» y verificados: no repetirlos. Primer
+intento real detenido en transporte Confirmar, timeout configurado30s, cero casos
+completos; carga b7e59760-2867-4dcc-9eb9-b2411305733c PREPARADA/CREAR1000 y0
+confirmadas, destino CREAR ausente. Huellas completas posteriores de CONTRATOS625,
+EGRESOS, CRÉDITOS y configuración anterior intactas. Segundo intento detenido en
+AbrirCargaExcel, antes de otra recepción. Ambos cerrados, claves eliminadas.
+
+El barrido global FK real tarda unos10s. Corrección: acreditar una vez por
+operación/conexión/base/destino, sin compartir entre sesiones; mantener relectura
+de permisos/TRIGGER/motores/esquema/autoridad/locks y transacción activa. DDL
+administrativo concurrente sigue excluido. Diagnóstico real:10182ms primera
+inspección,49/47ms siguientes, cero DML de negocio/CREATE. No subir timeout.
+Build y27/27 locales pasan; DLL corregida755567774ad99dbebfa840ad2c3ec1d05a843eb1396d77ca0080c3042cb9e384
+desplegada con respaldo, WSDL200, Web.config intacto. Esto no acredita la matriz.
+
+Tercera consola valida primero la clave de aplicación de la cuenta exacta ID141;
+reutiliza clasificación de login DOC111 y no solicita claves MySQL hasta obtener
+contexto Excel autorizado. Estado local `.tmp/doc125-real-20261123-03/state.json`.
+La carrera ahora observa el INSERT del dueño del lock mediante SELECT PROCESSLIST
+y sólo entonces confirma la fila externa, espera máxima20s; sin GET_LOCK del actor,
+sin pausa fija ni consulta/exportación de INFO. Exigir marcador
+DOC125_EXTERNAL_IMPORT_WAIT_OBSERVED, CONFLICTO_CLAVE, rollback y huellas intactas.
+No reintentar automáticamente peticiones ni limpiar cargas/resultados anteriores.
+Evidencia en Validacion/doc125-e2e-parada-correccion-20261124.md/JSON y cortes
+posteriores; tareas27/31 hasta acreditación real. Apartados inferiores históricos.
+
+## DOC125 — corte histórico: SQL aplicado y DLL desplegada; consola privada abierta
+
+El usuario indicó «ejecuta» el 2026-11-23: delegó los SQL19–21 y el despliegue
+necesarios para los cinco casos locales anunciados. Aplicación administrativa
+fuera de los tests, tras diez controles SELECT de SQL18 con la cuenta del módulo.
+No se concedieron privilegios. Fuentes6/7 activas revisión2, plantillas29/30/31
+revisión1, conexión6, Datos; dos tablas descartables y tres filas sintéticas.
+Destino CREAR ausente. Relecturas tras COMMIT y huellas de configuración previa,
+625 contratos, EGRESOS y CRÉDITOS sin cambios. No repetir SQL19–21.
+
+DLL de aplicación desplegada con respaldo, SHA0646c354af0d6a7b1aaa5f61e3a880b9c58697a1a0e75a6e055d833e221d34c9,
+WSDL200 y Web.config intacto. Consola DOC125 abierta para credenciales vigentes;
+todavía no acredita casos reales. No recuperar claves de ventanas anteriores.
+Scope local `.tmp/doc125-real-20261123/scope.json`: empresa2/usuario141/DA11/
+conexión6; cinco casos y efectos limitados a fixtures imp_02_doc125_e2e_.
+Conservar resultados y efectos, sin reintento automático ni limpieza. Estado
+local `.tmp/doc125-real-20261123/state.json`; consultar sólo sus campos seguros.
+Evidencia pública `Validacion/doc125-instalacion-ejecucion-20261123.md`/JSON,
+27/31 tareas. Los apartados inferiores conservan cortes históricos.
+
+## DOC125 — corte histórico: implementación local; aceptación escritora sin ejecutar
+
+Confirmar/ConsultarResultado y los tres modos están implementados localmente;
+el build net461 es aislado, sin despliegue. La aceptación DOC124 sólo preparó
+cargas y no autoriza importar o reemplazar sus destinos. No reabrir sus ventanas.
+
+Reutilizar `test:doc110:session -- --excel-confirm`, suite importacion-excel,
+consola privada, controles SELECT DOC32 y ejecutor nativo DOC115 con su modo
+ExcelConfirmation. Exigir scope DOC125, autorización específica de ambiente,
+cuentas y efectos, hashes de libros/backend, recursos del módulo y tablas
+descartables `imp_02_doc125_e2e_`. Scope DOC124/readOnly no sirve para escribir.
+
+SQL18 es diagnóstico SELECT; SQL19 instala dos fixtures vacíos en DA, SQL20 dos
+fuentes en RA y SQL21 tres plantillas y tres filas sintéticas iniciales en DA.
+Todos están ENTREGADOS/PENDIENTE_EJECUCION_MANUAL, no aplicados por el agente.
+Confirmar aplicación manual y verificar SELECT antes de la ventana dependiente.
+No aplicar SQL, instalar configuración, sembrar ni limpiar desde los tests.
+No conceder privilegios automáticamente: si falta visibilidad de metadatos, cerrar
+la capacidad y revisar el diagnóstico (SELECT global/TRIGGER en esta implementación).
+
+Cinco casos: CREAR1000, AGREGAR1000, REEMPLAZAR1000, rollback300 por UNIQUE VALOR y
+carrera10 con una sola fila de escritor externo. Identificar conteos iniciales y
+máximos de inserciones/eliminaciones en el manifiesto; rechazar cualquier cambio.
+Conservar todos los efectos/resultados y las huellas de CONTRATOS/destinos protegidos.
+El actor externo mantiene su fila sin commit cinco segundos y luego confirma;
+exigir CONFLICTO_CLAVE, ambos locks observados activos y liberados al terminar.
+Un rechazo previo no acredita carrera UNIQUE. La consulta del acuse ignorado por
+el cliente no se presenta como corte físico de red ni commit incierto real.
+
+Los cinco XLSX sintéticos se generaron y validaron localmente con el lector DOC123;
+su ubicación/manifiesto está en `.tmp/doc125-fixture-location.txt`, excluido de Git.
+La DLL IIS permanece igual. No recuperar contraseñas ni ejecutar una prueba real
+para completar documentación. Estado/evidencia vigentes en
+`Doc/Actualizacion/Importacion/Validacion/doc125-implementacion-local-20261123.md`/JSON.
+
 ## DOC-120 — OpenSpec archivado y Jira Listo
 
 Archivo integrado por [PR132](https://github.com/miguelurueta/DocuArchiNet/pull/132), merge `86e3fd61`; CI 37/37. Conserva 17 archivos y 270 tareas completas, con 15 requisitos y 114 escenarios en la especificación principal. Validación estricta 91/91, refinement 15/15 y gobierno 72/72. Las 195 fuentes de ejecución siguen iguales. Jira **Listo**, categoría `done`, confirmado por lectura posterior el 2026-11-20T22:08:53.584Z. Cero nuevas ejecuciones reales, despliegues o limpieza. Los cortes inferiores mantienen su estado histórico. Fuente: `Validacion/doc120-archivo-cierre-20261120.md`/JSON. No recuperar claves E2E ni reabrir ventanas por pendientes históricos.

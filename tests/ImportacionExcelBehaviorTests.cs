@@ -190,7 +190,7 @@ public static class ImportacionExcelBehaviorTests {
   limits["ImportacionExcel.MaxFilasDatos"]="0";Reject(()=>adapter.Limite("MaxFilasDatos",10000),"CAPACIDAD_NO_DISPONIBLE");
   limits["ImportacionExcel.MaxArchivoMB"]="2147483647";Reject(()=>adapter.Limite("MaxArchivoMB",10),"CAPACIDAD_NO_DISPONIBLE");
  }
- public static int Main(){try{Rules();Persistence();GuardAndAuthority();ModuleConnection();Contract();Console.WriteLine("DOC122_NATIVE_PASS checks="+checks+"; synthetic ADO.NET, no MySQL/HTTP");ImportacionExcelLecturaTests.Run();ImportacionExcelPreparacionTests.Run();return 0;}catch(Exception e){Console.Error.WriteLine(e.ToString());return 1;}}
+ public static int Main(){try{Rules();Persistence();GuardAndAuthority();ModuleConnection();Contract();Console.WriteLine("DOC122_NATIVE_PASS checks="+checks+"; synthetic ADO.NET, no MySQL/HTTP");ImportacionExcelLecturaTests.Run();ImportacionExcelPreparacionTests.Run();ImportacionExcelConfirmacionTests.Run();return 0;}catch(Exception e){Console.Error.WriteLine(e.ToString());return 1;}}
 
  sealed class Store {
   public PlantillaExcel P;public bool DestinationExists=true,FailField,Active=true,DuplicatePermission;public int Permission=1,Commands,Rollbacks;public string Engine="InnoDB";

@@ -8724,6 +8724,9 @@
     <Compile Include="Services\ProduccionDocumental\ImportacionExcel\ReglasCargaExcel.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionExcel\ServicioRecepcionExcel.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionExcel\ServicioPreparacionExcel.vb" />
+    <Compile Include="Services\ProduccionDocumental\ImportacionExcel\ServicioConfirmacionExcel.vb" />
+    <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionExcel\MySqlConfirmacionExcelWriter.vb" />
+    <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionExcel\MySqlEstructuraExcel.vb" />
     <Compile Include="Infrastructure\ProduccionDocumental\ImportacionExcel\ReferenciaRecepcionExcel.vb" />
     <Compile Include="Infrastructure\ProduccionDocumental\ImportacionExcel\AlmacenArchivoExcel.vb" />
     <Compile Include="Infrastructure\ProduccionDocumental\ImportacionExcel\ComposicionCargaExcel.vb" />

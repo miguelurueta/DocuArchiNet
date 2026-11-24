@@ -1,0 +1,284 @@
+{
+  "issue": "DOC-125",
+  "date": "2026-11-23",
+  "reviewer": "Codex",
+  "humanApprovalClaimed": false,
+  "status": "IMPLEMENTACION_LOCAL_VERIFICADA_E2E_REAL_PENDIENTE",
+  "baseSha": "1b080401e257fbd5a324693e8674819051003995",
+  "tasks": {
+    "total": 31,
+    "completed": 26,
+    "pending": [
+      "4.5",
+      "5.3",
+      "5.4",
+      "5.5",
+      "5.7"
+    ]
+  },
+  "tests": {
+    "command": "node --test tests/doc122-importacion-excel-behavior.test.cjs tests/doc122-e2e-reuse.test.cjs tests/doc124-e2e-reuse.test.cjs tests/doc125-e2e-reuse.test.cjs",
+    "passed": 27,
+    "failed": 0,
+    "native": {
+      "DOC122": 246,
+      "DOC123": 318,
+      "DOC124": 492,
+      "DOC125": 3292,
+      "total": 4348,
+      "synthetic": true
+    },
+    "inheritedRegression": "PerfilImportacionTests.exe passed",
+    "logSha256Utf8Lf": "4253c7c0700033f4b87a804865a493382e3f96885cc1cf05093406c6ca68bc49"
+  },
+  "build": {
+    "framework": "net461",
+    "errors": 0,
+    "warnings": 308,
+    "importacionExcelWarnings": 0,
+    "isolated": true,
+    "deployed": false,
+    "installedUnchangedSha256": "e1767f58a8d784bc0f958b8c141efad7363669a793eb0eb5c164aefed071e730",
+    "isolatedBackendSha256": "0646c354af0d6a7b1aaa5f61e3a880b9c58697a1a0e75a6e055d833e221d34c9",
+    "logSha256Utf8Lf": "500d07fba968c13fbc0770c95b7b4d88518960265a2540b73fb8ab67ea3050b4"
+  },
+  "realE2E": {
+    "executed": false,
+    "authenticatedSessions": 0,
+    "http": 0,
+    "sqlConnections": 0,
+    "discoveredTests": 1,
+    "plannedCases": 5,
+    "reason": "Manual SQL confirmation, SELECT verification, deploy and specific writer authorization not yet completed",
+    "fixtures": {
+      "issue": "DOC-125",
+      "realExecution": false,
+      "reader": "Existing DOC123",
+      "results": [
+        {
+          "scenario": "crear",
+          "valid": true,
+          "rows": 1000,
+          "sha256": "beb526e337abd2be0225c946f2480a61c69e4dfedf8bbfcdafd5d18b7c788b75"
+        },
+        {
+          "scenario": "agregar",
+          "valid": true,
+          "rows": 1000,
+          "sha256": "b2a4792966281b59ae15133de6dbd5bfbe027dc12a8d4dde453b4b15286f3612"
+        },
+        {
+          "scenario": "reemplazar",
+          "valid": true,
+          "rows": 1000,
+          "sha256": "4b10c79af5a278351407857247857e1d31c11de5e84af6526ae9d6ddca94263c"
+        },
+        {
+          "scenario": "rollback",
+          "valid": true,
+          "rows": 300,
+          "sha256": "d1dcb03545c1a29e512d961f8a4b2026f0a41c750579e14899f9f35a24398a2b"
+        },
+        {
+          "scenario": "carrera",
+          "valid": true,
+          "rows": 10,
+          "sha256": "65780217e272ac7228f8a8fa2bff95b092dc8e8a63ff5fadd6b0f70e402f207b"
+        }
+      ]
+    },
+    "pendingActions": [
+      "Confirm manual SQL18 results and verify SELECT.",
+      "Apply manual fixture SQL19/20/21 only after review; verify SELECT.",
+      "Deploy reviewed isolated build when authorized.",
+      "Freeze real scope with account IDs, template revisions/hashes, baseline counts and effects.",
+      "Authorize writer window and execute five cases through existing runner."
+    ]
+  },
+  "sql": [
+    {
+      "path": "Doc/Actualizacion/Importacion/Sql/18-preflight-doc125.sql",
+      "status": "PENDIENTE_EJECUCION_MANUAL",
+      "executed": false,
+      "sha256Utf8Lf": "4948082ac9a89943289bcd4fc8bb980dc5ea061e7b608a8684637f88b0000e42"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Sql/19-fixtures-da-doc125.sql",
+      "status": "PENDIENTE_EJECUCION_MANUAL",
+      "executed": false,
+      "sha256Utf8Lf": "1d25d865b03cb35d683f40dfe9f567b9b6fe3aa06a02c05d281ff9aa77acfff9"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Sql/20-fuentes-e2e-ra-doc125.sql",
+      "status": "PENDIENTE_EJECUCION_MANUAL",
+      "executed": false,
+      "sha256Utf8Lf": "7dd2ce9925ba2e1395b8b68cef226ed688d4f8198b71bcc54219e45e126591e0"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Sql/21-plantillas-e2e-da-doc125.sql",
+      "status": "PENDIENTE_EJECUCION_MANUAL",
+      "executed": false,
+      "sha256Utf8Lf": "608771ad35502bf3d9566f676dc2ea2912af51524291692c4c78cfce6a9e0ffc"
+    }
+  ],
+  "sources": [
+    {
+      "path": "DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb",
+      "sha256Utf8Lf": "f5a0f3ede60f148a3ff6cd15c10d71d978e9f842f009874c1ee491cdaeacd6bf"
+    },
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb",
+      "sha256Utf8Lf": "fbf8801d850d5988fd94fedaab9b4ae08a649cf44871490b3378635ea8f52a06"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb",
+      "sha256Utf8Lf": "22e85ceaf98e8accfbf0d8af8cbbd27045f052ac08be9b48cf7354f19b92df27"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ReglasCargaExcel.vb",
+      "sha256Utf8Lf": "763809e3da2d6749ff95fcba7a5b52a95198bcdcf21e77cc77d931657db8435f"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioPreparacionExcel.vb",
+      "sha256Utf8Lf": "8bf53cbf11e89279b3a65c57e93fb2566ef1fd1c0ad605ae05b2eabb383d9e39"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioLecturaExcel.vb",
+      "sha256Utf8Lf": "fa0d6a99a17fff59931ba265814670e3d487b106c8e7229b3d37369afd605295"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ComposicionCargaExcel.vb",
+      "sha256Utf8Lf": "463c45d82f7b736d1f7bcb366b71005be9e62391c54b3a22d4398231c2a2e977"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelConexionAdapter.vb",
+      "sha256Utf8Lf": "1f772b8f0d4a515a313907a030da1ea91b480b7c9b7283aaea13a62b71831ef3"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelContextAdapter.vb",
+      "sha256Utf8Lf": "8a89cc86baec4083e89a3d6a3806f7d3bdf371d68b07646cef37dee42e250426"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb",
+      "sha256Utf8Lf": "8f5c4a0f55f4eb0bda422d275f0d54488a057b37fb09c8a3a4363d8376439caa"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/AlmacenArchivoExcel.vb",
+      "sha256Utf8Lf": "901b2c3adf0484036cad185625450285082a5e4dd16fa7636524ec915cd1e3d0"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb",
+      "sha256Utf8Lf": "47d04d584ab854f14d029bc4bb5cacc400c80825cd9c2014b7eb22c63b90a7f2"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlConfirmacionExcelWriter.vb",
+      "sha256Utf8Lf": "240af60db9008bc6f583e2854fb8500b5363224d9ff73ad7e8d56425f826385e"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlEstructuraExcel.vb",
+      "sha256Utf8Lf": "66e59686ab6a45bf661a00fcb92af161855c9ad85dc2025bea8727bcee088d84"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb",
+      "sha256Utf8Lf": "4995f41c45cdfd2fcb031b69e38da40c0768bbe22e9dbd4a54d0d3c24d9bb01b"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb",
+      "sha256Utf8Lf": "9ddf94a9fad34c40a0fd31fee5dc6d0671d899b03ccd8e8483e68c0ada088332"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/SqlCargaExcel.vb",
+      "sha256Utf8Lf": "73bbf7025ae448b6ab80b287a197d9aa1dacd397f3deccc72e8a5861ab72f16d"
+    },
+    {
+      "path": "webservice/WebServiceImportacionExcel.asmx.vb",
+      "sha256Utf8Lf": "92d5a3289769273ee134964916ed186b4fb6130bd64247d04d354d1210f4acf9"
+    },
+    {
+      "path": "GestionDocumental-Docuarchi.net.vbproj",
+      "sha256Utf8Lf": "7b4bcbc152600a8188a7db7245da862072e3a0a574e2589805a6a7a2bffbd975"
+    },
+    {
+      "path": "tests/ImportacionExcelBehaviorTests.cs",
+      "sha256Utf8Lf": "83d2995bf3d195587339511622e19420a6617c48b6711c2d1bbb43a88675de64"
+    },
+    {
+      "path": "tests/ImportacionExcelConfirmacionTests.cs",
+      "sha256Utf8Lf": "2ff2d092f9d5cbb37f4f1aa1ab19f0b1e34c26d13ca9abeafb2227773ce9b459"
+    },
+    {
+      "path": "tests/ImportacionExcelPreparacionTests.cs",
+      "sha256Utf8Lf": "0f142aade7a67fb4516c0b886c847d81b533b934dabd6bbf7e4fff600ced9e20"
+    },
+    {
+      "path": "tests/ImportacionExcelLecturaTests.cs",
+      "sha256Utf8Lf": "bca5dc1962354d85e1f82aa1a2287b15464d94516678156c965433bdf9732c84"
+    },
+    {
+      "path": "tests/doc122-importacion-excel-behavior.test.cjs",
+      "sha256Utf8Lf": "42f21deff4d4790c3d08f054aeff564d23682f8bf2e157ce22df9c40b16fb755"
+    },
+    {
+      "path": "tests/doc122-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "6614037da85e4c1b0219f3ed8f6ce9b7f40922287c3bf430e75b6dddc2b74ef5"
+    },
+    {
+      "path": "tests/doc124-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "31f37537bd1988866f17dc8846b7745ac0a5db57377f27f1fa8e4451133c47e2"
+    },
+    {
+      "path": "tests/doc125-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "ac0cdad6e0bdc11f0dd1e7ef294d607458c928fbb027cdcd279b154cfe699db4"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256Utf8Lf": "de83888d9da48dd058c21fa25478df51887e36bfccbad3274c8f581b7b43beb1"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc115-repository-integration.ps1",
+      "sha256Utf8Lf": "c537a6e1048d3315573d93ddaf5b2b2c17704c7fe917296caa46d1cc234fa94d"
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "ef45deb4b5d1558bcaafd33148000bedc9735de9914927669ce163c6e4f4a240"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc125-excel-scope.cjs",
+      "sha256Utf8Lf": "c99eab094e2fdb7fb3cb6b3537b6b32f99eaaaa1e81a185709eafc0aa68f29d0"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc124-excel-scope.cjs",
+      "sha256Utf8Lf": "40afc36fac823e19bf2e24fd6588fa4384a093bcec8d8d1d7d9e51ba1efb97f6"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc32-e2e-odbc.cjs",
+      "sha256Utf8Lf": "4e103b5a42dc1d74dc192405958818136195b2c895d57f9d6d23b61e938afde5"
+    }
+  ],
+  "limits": [
+    "Native ADO is synthetic; does not accredit physical MySQL behavior.",
+    "Real acceptance is required and has not been executed.",
+    "No SQL or deployment executed by this delivery.",
+    "No durable pause or partial commit; recover by load ID.",
+    "No real capacity guarantee for 20000 rows.",
+    "COLUMNA and CREATE/commit faults have local coverage only.",
+    "Planned ignored acknowledgement is not a physical network or commit fault.",
+    "Current metadata policy requires effective TRIGGER and global SELECT; no grants are automatic.",
+    "Existing folders/SII consumers still read current source data; no data-version freeze introduced."
+  ],
+  "checkedAtUtc": "2026-11-23T23:19:47.644Z",
+  "planning": {
+    "refinement": {
+      "status": "PASS",
+      "passed": 15,
+      "failed": 0
+    },
+    "strictOpenSpec": {
+      "items": 96,
+      "passed": 96,
+      "failed": 0
+    },
+    "requirements": 15,
+    "scenarios": 44
+  }
+}

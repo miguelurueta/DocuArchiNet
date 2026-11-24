@@ -145,3 +145,77 @@ la E2E necesita autorización independiente. Conserva los datos de EGRESOS/CONTR
 Registrar por archivo: ambiente, destino lógico, fecha, aplicado/omitido/error y resultado saneado. Después de la confirmación del usuario el agente revisa exclusivamente SELECT; una diferencia que requiera cambios produce otro archivo para ejecución manual. Distinguir ENTREGADO, EJECUTADO_CONFIRMADO y VERIFICADO_SELECT, sin sustituir un estado por otro.
 
 No ejecutar SQL de instalación desde tests, arranque o rutas indirectas de la aplicación. Las fases dependientes del nuevo esquema esperan confirmación y comprobación posterior antes de sus recorridos. No retirar índices, columnas o historial con un rollback automático; conservar objetos aditivos y generar un nuevo plan revisado si se necesita revertir estructura.
+
+## DOC125: preflight de confirmación
+
+[18-preflight-doc125.sql](18-preflight-doc125.sql) queda **ENTREGADO / PENDIENTE_EJECUCION_MANUAL**.
+Contiene sólo SELECT y no ha sido ejecutado por el agente. Primero ejecutar el
+bloque DA en la base del módulo: capacidades, InnoDB, 22 columnas operativas,
+índices, privilegios observables, triggers y relaciones. Después seleccionar
+manualmente RA y ejecutar su bloque de presencia de permiso/política. No cambia
+datos, esquema, permisos ni sql_mode; no requiere COMMIT.
+
+Comparar las columnas con SQL03 y conservar SQL15–17 ya aplicados. Ejecutar con
+la cuenta que usará la operación: los permisos del administrador no acreditan
+los del escritor. En MySQL5.1 la visibilidad de TRIGGERS depende del privilegio
+TRIGGER; cero filas sin visibilidad suficiente no acredita ausencia. La inspección
+de claves foráneas debe abarcar referencias entrantes desde otras tablas/bases.
+Si no se pueden acreditar metadatos completos, la confirmación queda cerrada;
+cualquier adecuación necesaria se entregará en otro archivo para aplicación manual.
+
+Confirmar archivo, destinos y resultado saneado antes de su revisión SELECT.
+Este preflight no habilita una E2E escritora. DOC124 sólo preparó las cargas y
+conservó los 625 contratos; DOC125 requiere autorización específica de ambiente,
+cuentas, destinos descartables y efectos. El CREATE operativo del modo CREAR se
+implementará en Confirmar con procedencia recuperable; la instalación de sus
+recursos, plantillas, fuentes o permisos conserva el flujo manual.
+
+### Fixtures descartables para la E2E de DOC125
+
+**Aplicados y verificados el 2026-11-23**, por delegación expresa del usuario
+«ejecuta», fuera de los tests. SQL18: diez controles SELECT; SQL19: dos tablas
+descartables; SQL20: fuentes6/7 activas revisión2; SQL21: plantillas29/30/31
+revisión1, conexión6 y tres filas sintéticas. SQL20/21 se confirmaron únicamente
+tras LISTO_PARA_COMMIT. Relecturas en sesiones nuevas y huellas de configuración
+previa, CONTRATOS625, EGRESOS y CRÉDITOS intactas. No volver a aplicar estos archivos.
+Evidencia en [doc125-instalacion-ejecucion-20261123.md](../Validacion/doc125-instalacion-ejecucion-20261123.md).
+Los intentos reales detenidos y la corrección del barrido global se registran en
+[doc125-e2e-parada-correccion-20261124.md](../Validacion/doc125-e2e-parada-correccion-20261124.md).
+Se añadieron fixtures porque la aceptación DOC124 conservó todos los datos de sus
+destinos; la autorización DOC125 sólo escribe en sus fixtures descartables.
+
+| Orden | Archivo y destino | Efecto |
+| --- | --- | --- |
+| 1 | [18-preflight-doc125.sql](18-preflight-doc125.sql), DA/RA | Diagnóstico SELECT y revisión de visibilidad de metadatos. |
+| 2 | [19-fixtures-da-doc125.sql](19-fixtures-da-doc125.sql), DA | Dos tablas **nuevas** `imp_02_doc125_e2e_agregar/reemplazar`, con CLAVE/VALOR y dos índices UNIQUE. El destino `..._crear` permanece ausente. |
+| 3 | [20-fuentes-e2e-ra-doc125.sql](20-fuentes-e2e-ra-doc125.sql), RA | Dos fuentes exclusivas de la empresa real indicada, dos columnas por fuente e historial de alta/activación. Completar empresa y actor reales; no publica proveedores. |
+| 4 | [21-plantillas-e2e-da-doc125.sql](21-plantillas-e2e-da-doc125.sql), DA | Tres plantillas nuevas, hoja Datos, dos campos y tres filas **sintéticas** iniciales en los fixtures. Completar conexión histórica real. |
+
+En SQL19 revisar la ausencia de los tres nombres antes de iniciar el bloque DDL. Una tabla
+preexistente exige detener y revisar; no limpiar ni reapropiarse del nombre.
+El DDL tiene commit implícito: conservar y reportar cualquier estructura parcial.
+SQL20/21 abren transacción y no ejecutan COMMIT. Ante cualquier error o resultado
+distinto de `LISTO_PARA_COMMIT`, hacer ROLLBACK y detener. Sólo confirmar manualmente
+en la misma sesión si ambos controles son correctos. No repetir archivos ya aplicados.
+
+Después de la confirmación manual, las comprobaciones del agente son SELECT.
+La cuenta del módulo debe acreditar visibilidad de TRIGGER y de referencias FK
+entrantes. La implementación actual exige SELECT global para acreditar referencias
+desde otras bases; si no se acredita devuelve `METADATOS_NO_ACREDITADOS`. Estos
+archivos **no conceden ese privilegio**: revisar el diagnóstico y la política de la
+cuenta antes de decidir cualquier adecuación, que tendría su propio archivo/alcance.
+
+El segundo UNIQUE sobre VALOR permite preparar un archivo con CLAVE única y
+rechazar su escritura por VALOR repetido después del DELETE; el test debe conservar
+el contenido previo mediante rollback. El actor externo de la carrera escribe una
+sola fila del fixture autorizado, sin lock cooperativo, y conserva ese efecto.
+No se incluyen endpoints de inyección de fallos ni limpieza de resultados.
+
+El runner sigue siendo `test:doc110:session -- --excel-confirm`, con scope DOC125 y
+consentimiento específico de ambiente/cuentas/efectos, recibido con «ejecuta».
+La preparación local de libros sintéticos reutiliza el generador del harness
+DOC123. La DLL ya está desplegada y la matriz real pasó5/5; las sesiones terminaron y
+las claves se eliminaron. Resultado y mediciones en
+[doc125-ejecucion-seguimiento-20261124.md](../Validacion/doc125-ejecucion-seguimiento-20261124.md).
+Los efectos quedan conservados en los fixtures autorizados. Los SQL conservan sus valores NULL de entrega; los IDs reales
+se completaron sólo en la ejecución delegada, sin reeditar los archivos aplicados.

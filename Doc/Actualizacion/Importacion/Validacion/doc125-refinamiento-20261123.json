@@ -1,0 +1,178 @@
+{
+  "date": "2026-11-23",
+  "issueKey": "DOC-125",
+  "changeName": "doc-125-importacion-excel-05-confirmacion-recuperacion",
+  "reviewer": "Codex",
+  "reviewType": "Technical refinement from authorized prompt and inspected repository",
+  "humanApprovalClaimed": false,
+  "decisions": 15,
+  "requirements": 15,
+  "scenarios": 44,
+  "tasks": 31,
+  "completedTasks": [
+    "4.4"
+  ],
+  "complexities": {
+    "S": 6,
+    "M": 25
+  },
+  "sql": {
+    "file": "Doc/Actualizacion/Importacion/Sql/18-preflight-doc125.sql",
+    "sha256": "4948082ac9a89943289bcd4fc8bb980dc5ea061e7b608a8684637f88b0000e42",
+    "statements": 10,
+    "selectOnly": true,
+    "state": "PENDIENTE_EJECUCION_MANUAL",
+    "executed": false
+  },
+  "productCodeChanged": false,
+  "realE2ERun": false,
+  "sqlExecuted": false,
+  "deployed": false,
+  "existingTestsReusedByPlan": true,
+  "requiredEvidence": [
+    "unit",
+    "e2e",
+    "manual_qa"
+  ],
+  "reviewedAtUtc": "2026-11-23T22:11:20.372Z",
+  "inspectedBaseSha": "66643d848c4324291ed2c11cb2f4eeddcbe899ea",
+  "validation": {
+    "refinement": {
+      "status": "PASS",
+      "passed": 15,
+      "failed": 0,
+      "command": "npm.cmd --prefix tools/opsxj run opsxj:refine -- DOC-125 --sync --json"
+    },
+    "strictOpenSpec": {
+      "items": 96,
+      "passed": 96,
+      "failed": 0,
+      "command": "openspec.cmd validate --all --strict --json"
+    },
+    "atomicTaskMap": {
+      "decisions": 15,
+      "requirements": 15,
+      "scenarios": 44,
+      "taskCount": 31,
+      "completed": 1,
+      "open": 30,
+      "complexities": {
+        "S": 6,
+        "M": 25
+      },
+      "status": "PASS"
+    },
+    "productSourcesUnchanged": true,
+    "jiraContextUnchanged": true
+  },
+  "artifacts": [
+    {
+      "path": "openspec/changes/doc-125-importacion-excel-05-confirmacion-recuperacion/proposal.md",
+      "sha256Utf8Lf": "6fb43c874fb6431471109f28a8def28cf252ee478f325034e7678c47f9366601"
+    },
+    {
+      "path": "openspec/changes/doc-125-importacion-excel-05-confirmacion-recuperacion/design.md",
+      "sha256Utf8Lf": "b89e8fd795b2bdd31c59cc07a1feb7429b6affcbd105f0c836b1f2846f5279b6"
+    },
+    {
+      "path": "openspec/changes/doc-125-importacion-excel-05-confirmacion-recuperacion/refinement.md",
+      "sha256Utf8Lf": "ce9bfa826acff615b4ad17d370ad7587e0f99e568fd7eaad2d03f1480cbd31ed"
+    },
+    {
+      "path": "openspec/changes/doc-125-importacion-excel-05-confirmacion-recuperacion/tasks.md",
+      "sha256Utf8Lf": "bb337ac5f250e84183beef772e3efe86517b2afb4085360d19ff3854e4d71a16"
+    },
+    {
+      "path": "openspec/changes/doc-125-importacion-excel-05-confirmacion-recuperacion/opsxj-governance.json",
+      "sha256Utf8Lf": "a13c6eb3c557cdedc9c16290a0ccbf7f730735008e38ca30bff75becf220ddb9"
+    },
+    {
+      "path": "openspec/changes/doc-125-importacion-excel-05-confirmacion-recuperacion/specs/importacion-excel-05-confirmacion-recuperacion/spec.md",
+      "sha256Utf8Lf": "e1fde3043f9a28d43c3bf1b2e6f1f86295676e72c29ea761c3a7ec121067be0f"
+    },
+    {
+      "path": "openspec/changes/doc-125-importacion-excel-05-confirmacion-recuperacion/specs/importacion-excel-05-confirmacion-recuperacion/jira-context.md",
+      "sha256Utf8Lf": "f3c22cc9786ba39b16b0f82888d2546d2af159cf561350b730fabf6a1090b48f"
+    }
+  ],
+  "inspectedSources": [
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb",
+      "sha256Utf8Lf": "0444a262ca679aa7fc5ad41b33bd7bc2009b10d8bf371744ee01449f8db7c9de"
+    },
+    {
+      "path": "DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb",
+      "sha256Utf8Lf": "3de62e4a1279dd921df04cd7766854f774acaa5b5236261edf9269a9dea3a4a4"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioPreparacionExcel.vb",
+      "sha256Utf8Lf": "8bf53cbf11e89279b3a65c57e93fb2566ef1fd1c0ad605ae05b2eabb383d9e39"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioRecepcionExcel.vb",
+      "sha256Utf8Lf": "92b1641c7c9653d9f200aff7f7471140259c8eac2589e058df2fcaeb63def317"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb",
+      "sha256Utf8Lf": "f0045bd148171222c0fd1ee0f941e7e6874ac8b062aae4a6960a95dbd50a5518"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb",
+      "sha256Utf8Lf": "bc12481a01004a4b4b88381799bdba23ce6de731c0f7492061a65fc1a7bbbee4"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb",
+      "sha256Utf8Lf": "e8bed8cb8c29bba6cd41d658343d27772dbc9fd4071fa2cd7b7b212f813bbfa1"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ComposicionCargaExcel.vb",
+      "sha256Utf8Lf": "0d8b0954092be28587e32982eb06af512b35ead0663993ec3cdaedaf772ce0ee"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelConexionAdapter.vb",
+      "sha256Utf8Lf": "3825c39f2ca9b9b90c66e31e1a676e200d26fb13de668195016685b405af1e2f"
+    },
+    {
+      "path": "webservice/WebServiceImportacionExcel.asmx.vb",
+      "sha256Utf8Lf": "038b473c154c543babe0f484cfba9356ccca0350ef85befbd9b2967df5954f4b"
+    },
+    {
+      "path": "tests/ImportacionExcelPreparacionTests.cs",
+      "sha256Utf8Lf": "ecb153f2d09c65d7863972970c7df68336c95b5b85a7a8c2a5804b04737a7bf0"
+    },
+    {
+      "path": "tests/doc122-importacion-excel-behavior.test.cjs",
+      "sha256Utf8Lf": "b1f98d19bd4ba9add6070610a9bf7cc2915b1bd465c17a34302daa159d5872ae"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256Utf8Lf": "f5d4f1b450441f30cc8ea7722b08530e10d8d41fbbd2807d8f01b886ef9f6162"
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "0f5fc98bc397f1fa261c60da20dd3ec3e4388ad75a81122f82a92ff6fcfd0734"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc124-excel-scope.cjs",
+      "sha256Utf8Lf": "40afc36fac823e19bf2e24fd6588fa4384a093bcec8d8d1d7d9e51ba1efb97f6"
+    },
+    {
+      "path": "GestionDocumental-Docuarchi.net.vbproj",
+      "sha256Utf8Lf": "58ef256434b24d35c8d8d8ebe7be079d18f1632a0802527d606312d29289d673"
+    },
+    {
+      "path": "Web.config",
+      "sha256Utf8Lf": "ff9ffb5dda6d51cc7d9d5ed436ba2514993784a00071f9d1f2b6feecfdf30868"
+    }
+  ],
+  "limits": [
+    "Technical refinement only; no human approval fabricated.",
+    "No application build or product tests rerun for this documentation/SQL-SELECT delivery.",
+    "New confirmation behavior is not implemented or accredited by DOC124 acceptance.",
+    "SQL18 is delivered for manual execution and was not executed.",
+    "No real E2E, business writes, schema changes or deployment during refinement.",
+    "Closed DOC124 windows and read-only scopes do not authorize DOC125 writes.",
+    "No durable pause inside a transaction; recovery is by load ID.",
+    "Configured 20000 rows are not a measured real confirmation capacity."
+  ]
+}

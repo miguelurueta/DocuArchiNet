@@ -78,6 +78,13 @@ function classifyLoginPostback(body){
   for(const match of scripts){const code=classifyLoginMessage(match[2]);if(code)return code;}
   return null;
 }
+async function classifyLoginPostbackResponse(response){
+  const status=response.status();
+  if(status>=400)return 'LOGIN_HTTP_REJECTED';
+  // Las redirecciones legítimas de Web Forms no tienen cuerpo retenido.
+  if(status>=300&&status<400)return null;
+  try{return classifyLoginPostback(await response.text());}catch{return null;}
+}
 function loginObservation(value){
   if(!value||typeof value!=='object')return null;
   const enums={finish:['NOT_OBSERVED','COMPLETE','UNAVAILABLE'],body:['NOT_OBSERVED','AVAILABLE','UNAVAILABLE','REDIRECT'],unavailableAt:['NONE','FINISH','BODY'],category:['NONE','TARGET_CLOSED','NAVIGATION_ABORTED','BODY_NOT_RETAINED','TIMEOUT','UNCLASSIFIED'],postedFields:['NOT_OBSERVED','MATCHED','MISSING','DIFFERENT']};
@@ -523,4 +530,4 @@ async function prepareFileReservationFixture(driver,profile,bytes,runId,referenc
     const fixed=await driver.request('AvanzarLote',{loteId:lot.loteId,recursoId:file.recursoId,fase:'MATERIALIZAR_VALORES',revisionEsperada:fresh.revision,claveOperacion:crypto.randomBytes(16).toString('hex')});check(fixed.estado==='CONFIRMADO','PHASE_NOT_CONFIRMED');}
   return{planId:plan.planId,lotId:lot.loteId,files:ordered.map(f=>f.recursoId),expedientId:created.expedienteId,relationId:created.relacionNivelId};
 }
-module.exports={MODES,FILE_NAME,validateProfile,readFixture,assertAuthorizations,classifyLoginMessage,classifyLoginPostback,loginObservation,openSession,createDriver,createSelectControls,runRec,runResume,runReconciliationResume,runCompletedVerification,prepareFileReservationFixture};
+module.exports={MODES,FILE_NAME,validateProfile,readFixture,assertAuthorizations,classifyLoginMessage,classifyLoginPostback,classifyLoginPostbackResponse,loginObservation,openSession,createDriver,createSelectControls,runRec,runResume,runReconciliationResume,runCompletedVerification,prepareFileReservationFixture};

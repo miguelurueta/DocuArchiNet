@@ -6,12 +6,12 @@ Imports System.Globalization
 Imports System.IO
 Imports MySql.Data.MySqlClient
 
-Public Class MySqlCargaExcelRepository
-    Implements ICargaExcelRepository
+Partial Public Class MySqlCargaExcelRepository
+    Implements ICargaExcelRepository, IConfirmacionExcelRepository
     Private ReadOnly _fabrica As Func(Of DbConnection)
     Private ReadOnly _politica As Func(Of String, PoliticaDestinoCargaExcel)
     Private ReadOnly _descartar As Action(Of DbConnection)
-    Private Const Columnas As String = "id_carga,id_plantilla,ambito_ref,usuario_ref,conexion_ref,tabla_destino,archivo_nombre,archivo_ref,archivo_bytes,archivo_hash,modo,revision_plantilla,configuracion_doc,configuracion_hash,esquema_hash,estado,filas_previstas,codigo_incidencia"
+    Private Const Columnas As String = "id_carga,id_plantilla,ambito_ref,usuario_ref,conexion_ref,tabla_destino,archivo_nombre,archivo_ref,archivo_bytes,archivo_hash,modo,revision_plantilla,configuracion_doc,configuracion_hash,esquema_hash,estado,filas_previstas,codigo_incidencia,filas_confirmadas,confirmado_utc"
     Public Sub New(fabrica As Func(Of DbConnection), politica As Func(Of String, PoliticaDestinoCargaExcel), Optional descartar As Action(Of DbConnection) = Nothing)
         _fabrica = fabrica : _politica = politica
         _descartar = If(descartar, AddressOf DescartarConexion)
@@ -25,7 +25,7 @@ Public Class MySqlCargaExcelRepository
         If Not ReglasCargaExcel.IdValido(id) Then Throw ReglasCargaExcel.Fallo("REFERENCIA_NO_DISPONIBLE")
         Return New Sesion(_fabrica, _politica, _descartar, c, id)
     End Function
-    Public Function Consultar(c As ContextoCargaExcel, id As String) As CargaExcelEjecucion Implements ICargaExcelRepository.Consultar
+    Public Function Consultar(c As ContextoCargaExcel, id As String) As CargaExcelEjecucion Implements ICargaExcelRepository.Consultar, IConfirmacionExcelRepository.Consultar
         ReglasCargaExcel.Autorizar(c)
         If Not ReglasCargaExcel.IdValido(id) Then Throw ReglasCargaExcel.Fallo("REFERENCIA_NO_DISPONIBLE")
         Using cn = _fabrica()
@@ -37,13 +37,13 @@ Public Class MySqlCargaExcelRepository
         Using q = SqlCargaExcel.Cmd(cn, tx, "SELECT " & Columnas & " FROM imp01_carga_ejecucion WHERE id_carga=@id AND ambito_ref=@empresa AND usuario_ref=@usuario AND conexion_ref=@conexion" & If(bloquear, " FOR UPDATE", ""), "@id", id, "@empresa", c.EmpresaId.ToString(CultureInfo.InvariantCulture), "@usuario", c.UsuarioId.ToString(CultureInfo.InvariantCulture), "@conexion", c.ConexionRef)
             Using r = q.ExecuteReader()
                 If Not r.Read() Then Return Nothing
-                Dim e As New CargaExcelEjecucion With {.Id = SqlCargaExcel.Texto(r, 0), .PlantillaId = Convert.ToUInt32(r(1), CultureInfo.InvariantCulture), .EmpresaId = c.EmpresaId, .UsuarioId = c.UsuarioId, .ConexionRef = SqlCargaExcel.Texto(r, 4), .Tabla = SqlCargaExcel.Texto(r, 5), .Archivo = New ArchivoRecibidoExcel With {.Nombre = SqlCargaExcel.Texto(r, 6), .Referencia = SqlCargaExcel.Texto(r, 7), .Bytes = Convert.ToInt64(r(8), CultureInfo.InvariantCulture), .Hash = SqlCargaExcel.Huella(r, 9)}, .Modo = SqlCargaExcel.Texto(r, 10), .RevisionPlantilla = If(r.IsDBNull(11), New Nullable(Of UInteger), New Nullable(Of UInteger)(Convert.ToUInt32(r(11), CultureInfo.InvariantCulture))), .ConfiguracionDoc = SqlCargaExcel.Texto(r, 12), .ConfiguracionHash = SqlCargaExcel.Huella(r, 13), .EsquemaHash = SqlCargaExcel.Huella(r, 14), .Estado = SqlCargaExcel.Texto(r, 15), .FilasPrevistas = If(r.IsDBNull(16), New Nullable(Of Integer), New Nullable(Of Integer)(Convert.ToInt32(r(16), CultureInfo.InvariantCulture))), .CodigoIncidencia = SqlCargaExcel.Texto(r, 17)}
+                Dim e As New CargaExcelEjecucion With {.Id = SqlCargaExcel.Texto(r, 0), .PlantillaId = Convert.ToUInt32(r(1), CultureInfo.InvariantCulture), .EmpresaId = c.EmpresaId, .UsuarioId = c.UsuarioId, .ConexionRef = SqlCargaExcel.Texto(r, 4), .Tabla = SqlCargaExcel.Texto(r, 5), .Archivo = New ArchivoRecibidoExcel With {.Nombre = SqlCargaExcel.Texto(r, 6), .Referencia = SqlCargaExcel.Texto(r, 7), .Bytes = Convert.ToInt64(r(8), CultureInfo.InvariantCulture), .Hash = SqlCargaExcel.Huella(r, 9)}, .Modo = SqlCargaExcel.Texto(r, 10), .RevisionPlantilla = If(r.IsDBNull(11), New Nullable(Of UInteger), New Nullable(Of UInteger)(Convert.ToUInt32(r(11), CultureInfo.InvariantCulture))), .ConfiguracionDoc = SqlCargaExcel.Texto(r, 12), .ConfiguracionHash = SqlCargaExcel.Huella(r, 13), .EsquemaHash = SqlCargaExcel.Huella(r, 14), .Estado = SqlCargaExcel.Texto(r, 15), .FilasPrevistas = If(r.IsDBNull(16), New Nullable(Of Integer), New Nullable(Of Integer)(Convert.ToInt32(r(16), CultureInfo.InvariantCulture))), .CodigoIncidencia = SqlCargaExcel.Texto(r, 17), .FilasConfirmadas = Convert.ToInt32(r(18), CultureInfo.InvariantCulture), .ConfirmadoUtc = If(r.IsDBNull(19), New Nullable(Of DateTime), New Nullable(Of DateTime)(DateTime.SpecifyKind(Convert.ToDateTime(r(19), CultureInfo.InvariantCulture), DateTimeKind.Utc)))}
                 e.Archivo.Formato = Path.GetExtension(e.Archivo.Nombre).TrimStart("."c).ToUpperInvariant()
                 Return e
             End Using
         End Using
     End Function
-    Private Class Sesion
+    Partial Private Class Sesion
         Implements ISesionCargaExcel
         Private ReadOnly _cn As DbConnection
         Private ReadOnly _ctx As ContextoCargaExcel
@@ -53,7 +53,7 @@ Public Class MySqlCargaExcelRepository
         Private _lock As String
         Private _cerrada As Boolean
         Public Sub New(fabrica As Func(Of DbConnection), politica As Func(Of String, PoliticaDestinoCargaExcel), descartar As Action(Of DbConnection), c As ContextoCargaExcel, id As String)
-            _ctx = c : _id = id : _cn = fabrica() : _descartar = descartar
+            _ctx = c : _id = id : _cn = fabrica() : _descartar = descartar : _abrirDestino = fabrica
             Try
                 _cn.Open()
                 Dim fisica = MySqlPreparacionExcelValidator.Identidad(_cn)
@@ -70,7 +70,7 @@ Public Class MySqlCargaExcelRepository
                 Dispose() : Throw
             End Try
         End Sub
-        Public Function Obtener() As CargaExcelEjecucion Implements ISesionCargaExcel.Obtener
+        Public Function Obtener() As CargaExcelEjecucion Implements ISesionCargaExcel.Obtener, ISesionConfirmacionExcel.Obtener
             Return Leer(_cn, Nothing, _ctx, _id, False)
         End Function
         Public Function RegistrarRecibida(e As CargaExcelEjecucion) As CargaExcelEjecucion Implements ISesionCargaExcel.RegistrarRecibida
@@ -99,7 +99,7 @@ Public Class MySqlCargaExcelRepository
         Public Function Inspeccionar(p As PlantillaExcel, modo As String) As EsquemaCargaExcel Implements ISesionCargaExcel.Inspeccionar
             Return _validador.Inspeccionar(p, modo)
         End Function
-        Public Function ValidarClaves(p As PlantillaExcel, e As EsquemaCargaExcel, filas As Collections.Generic.List(Of FilaNormalizadaExcel), modo As String) As IncidenciasClavesExcel Implements ISesionCargaExcel.ValidarClaves
+        Public Function ValidarClaves(p As PlantillaExcel, e As EsquemaCargaExcel, filas As Collections.Generic.List(Of FilaNormalizadaExcel), modo As String) As IncidenciasClavesExcel Implements ISesionCargaExcel.ValidarClaves, ISesionConfirmacionExcel.ValidarClaves
             Return _validador.Validar(p, e, filas, modo)
         End Function
         Public Function Publicar(e As CargaExcelEjecucion, hashEsperado As String) As CargaExcelEjecucion Implements ISesionCargaExcel.Publicar
@@ -155,13 +155,18 @@ Public Class MySqlCargaExcelRepository
                 limpia = False
             Finally
                 Try
-                    If Not limpia Then _descartar(_cn)
-                Catch
-                    Throw ReglasCargaExcel.Fallo("RESULTADO_INCIERTO")
+                    CerrarDestino()
                 Finally
-                    _cn.Dispose()
+                    Try
+                        If Not limpia Then _descartar(_cn)
+                    Catch
+                        Throw ReglasCargaExcel.Fallo("RESULTADO_INCIERTO")
+                    Finally
+                        _cn.Dispose()
+                    End Try
                 End Try
             End Try
+            If _tablaBloqueada IsNot Nothing AndAlso Not limpia Then Throw ReglasCargaExcel.Fallo("RESULTADO_INCIERTO")
         End Sub
     End Class
 End Class
