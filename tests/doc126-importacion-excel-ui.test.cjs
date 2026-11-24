@@ -134,9 +134,9 @@ test('DOC126 posición fraccionaria no se redondea ni se guarda',()=>fixture(asy
  await select(page);await page.locator('[data-doc126=tab-plantillas]').click();await page.locator('[data-field=NUMERO_MATRIZ_EXPLITER]').fill('1.5');await page.locator('[data-doc126=guardar]').click();assert.match(await page.locator('[data-doc126=estado]').innerText(),/entero no negativo/);assert.equal(calls.filter(c=>c.operation==='GuardarPlantilla').length,0);
 }));
 
-async function analyzeNew(page){
+async function analyzeNew(page,filename='propuesta.xlsx'){
  await open(page);await page.locator('[data-doc126=crear-desde-excel]').click();
- await page.locator('[data-doc126=analisis-archivo]').setInputFiles({name:'propuesta.xlsx',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',buffer:Buffer.from('same synthetic workbook bytes')});
+ await page.locator('[data-doc126=analisis-archivo]').setInputFiles({name:filename,mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',buffer:Buffer.from('same synthetic workbook bytes')});
  await page.locator('[data-doc126=analizar]').click();await page.locator('[data-doc126=analisis-clave] option[value=CLAVE]').waitFor({state:'attached'});
 }
 async function saveAnalysis(page){await page.locator('[data-doc126=tabla]').fill('imp_02_nueva');await page.locator('[data-doc126=analisis-clave]').selectOption('CLAVE');await page.locator('[data-doc126=guardar]').click();await page.locator('[data-doc126=archivo-conservado]').filter({hasText:'propuesta.xlsx'}).waitFor();}
@@ -191,4 +191,23 @@ test('DOC126 propuesta no persiste el libro y recrear host obliga a seleccionarl
 test('DOC126 Plantillas ofrece análisis al crear y conserva el editor de una plantilla existente',()=>fixture(async(page,calls)=>{
  await open(page);await page.locator('[data-doc126=tab-plantillas]').click();assert.equal(await page.locator('[data-doc126=asistente]').isVisible(),true);
  await page.locator('[data-doc126=tab-carga]').click();await page.locator('[data-doc126=plantilla]').selectOption('29');await page.locator('[data-doc126=destino]').filter({hasText:'imp_02_fixture'}).waitFor();await page.locator('[data-doc126=tab-plantillas]').click();assert.equal(await page.locator('[data-doc126=asistente]').isVisible(),false);assert.equal(await page.locator('[data-field=CAMPO_FUENTE]').inputValue(),'Código');assert.equal(calls.some(c=>c.operation==='Analizar'),false);
+},{assistant:true}));
+
+test('DOC126 video crear plantilla: sugiere tabla desde RELACIÓN ORDENES y guarda al elegir clave',()=>fixture(async(page,calls)=>{
+ await analyzeNew(page,'RELACIÓN ORDENES 2025.xlsx');assert.equal(await page.locator('[data-doc126=tabla]').inputValue(),'imp_02_relacion_ordenes_2025');
+ await page.locator('[data-doc126=analisis-clave]').selectOption('CLAVE');await page.locator('[data-doc126=guardar]').click();await page.locator('[data-doc126=destino]').filter({hasText:'imp_02_relacion_ordenes_2025'}).waitFor();
+ assert.equal(calls.filter(c=>c.operation==='GuardarPlantilla').length,1);assert.equal(calls.some(c=>['Upload','Preparar','Confirmar'].includes(c.operation)),false);
+},{assistant:true}));
+
+test('DOC126 propuesta de nombre cambia con el archivo y conserva un destino escrito por el usuario',()=>fixture(async(page)=>{
+ await analyzeNew(page);page.on('dialog',d=>d.accept());
+ await page.locator('[data-doc126=analisis-archivo]').setInputFiles({name:'Á'.repeat(100)+'.xlsx',buffer:Buffer.from('synthetic')});await page.locator('[data-doc126=analizar]').click();await page.waitForFunction(()=>document.querySelector('[data-doc126=tabla]').value==='imp_02_'+'a'.repeat(57));
+ await page.locator('[data-doc126=tabla]').fill('imp_02_mi_destino');await page.locator('[data-doc126=analisis-archivo]').setInputFiles({name:'Otro archivo.xlsx',buffer:Buffer.from('synthetic')});await page.locator('[data-doc126=analizar]').click();await page.locator('[data-doc126=analisis-clave] option[value=CLAVE]').waitFor({state:'attached'});assert.equal(await page.locator('[data-doc126=tabla]').inputValue(),'imp_02_mi_destino');
+},{assistant:true}));
+
+test('DOC126 destino incompleto y clave ausente se señalan con foco sin enviar GuardarPlantilla',()=>fixture(async(page,calls)=>{
+ await analyzeNew(page);const removeBox=await page.locator('[data-doc126=quitar-campo]').first().boundingBox();assert.ok(removeBox.height<=48,'Quitar se mantiene en una línea');
+ await page.locator('[data-doc126=tabla]').fill('imp_02_');await page.locator('[data-doc126=analisis-clave]').selectOption('CLAVE');await page.locator('[data-doc126=guardar]').click();assert.match(await page.locator('[data-doc126=estado]').innerText(),/Completa Tabla de destino/);assert.equal(await page.locator('[data-doc126=tabla]').getAttribute('aria-invalid'),'true');assert.equal(await page.locator('[data-doc126=tabla]').evaluate(e=>e===document.activeElement),true);assert.equal(calls.some(c=>c.operation==='GuardarPlantilla'),false);
+ await page.locator('[data-doc126=tabla]').fill('imp_02_corregida');await page.locator('[data-doc126=clave]').fill('NO_EXISTE');await page.locator('[data-doc126=guardar]').click();assert.match(await page.locator('[data-doc126=estado]').innerText(),/campo único que exista/);assert.equal(await page.locator('[data-doc126=clave]').getAttribute('aria-invalid'),'true');assert.equal(await page.locator('[data-doc126=clave]').evaluate(e=>e===document.activeElement),true);assert.equal(calls.some(c=>c.operation==='GuardarPlantilla'),false);
+ await page.locator('[data-doc126=analisis-clave]').selectOption('CLAVE');assert.equal(await page.locator('[data-doc126=clave]').getAttribute('aria-invalid'),null);await page.locator('[data-doc126=guardar]').click();await page.locator('[data-doc126=destino]').filter({hasText:'imp_02_corregida'}).waitFor();assert.equal(calls.filter(c=>c.operation==='GuardarPlantilla').length,1);
 },{assistant:true}));

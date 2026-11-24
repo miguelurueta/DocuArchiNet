@@ -31,6 +31,8 @@
 #doc126-excel .doc126-table th,#doc126-excel .doc126-table td{padding:8px;border:1px solid #dce5ef;vertical-align:top;white-space:pre-wrap;overflow-wrap:anywhere}
 #doc126-excel .doc126-table th{background:#f0f5fb;color:#244564}
 #doc126-excel .doc126-table input,#doc126-excel .doc126-table select{min-width:100px}
+#doc126-excel .doc126-table [data-doc126=quitar-campo]{white-space:nowrap;min-width:68px;overflow-wrap:normal}
+#doc126-excel input[aria-invalid=true]{border-color:#b63737;box-shadow:0 0 0 1px #b63737}
 #doc126-excel .doc126-consent{padding:12px;margin:14px 0;background:#fff4e4;border:1px solid #eacb99;border-radius:6px}
 #doc126-excel .doc126-consent p{margin:6px 0}
 #doc126-excel .doc126-footer{padding:9px 22px;background:#f3f7fb;border-top:1px solid #dce5ef;font-size:12px;overflow-wrap:anywhere;flex-shrink:0;overflow:auto;box-sizing:border-box}

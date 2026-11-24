@@ -255,3 +255,7 @@ Api/Vista/host/CSS y proyecto ya inventariados reciben cambios acotados. No modi
 ## Preparación de aceptación del asistente
 
 El runner incorpora --excel-ui-assistant con DOC126_ASSISTANT_E2E_AUTHORIZED independiente y scope exacto de una plantilla/dos campos/1000 filas/cero borrados. El bloqueo de Guardar permanece para lectura y matriz anterior. El helper de locks compartido conserva DOC125 por defecto y admite DOC126 sólo por parámetro explícito desde su adaptador. La DLL validada se publicó con respaldo, WSDL y rechazo anónimo; no equivale a aceptación autenticada ni cierra 8.8. Evidencia de despliegue y preparación en Validacion/doc126-despliegue-e2e-preparada-20261124.md/JSON.
+
+## Corrección del video de creación — tarea 8.9
+
+El video del usuario muestra análisis de 12759 filas y elección de NROORDEN, pero la tabla queda en el prefijo imp_02_; el guardado se detiene en el cliente con un mensaje genérico. Se propone un nombre editable desde el archivo al crear, normalizando acentos/separadores y acotando a 64 caracteres. Sólo se reemplaza el prefijo vacío o una sugerencia anterior sin editar; se preservan nombres manuales y modos agregar/reemplazar. Tabla incompleta y clave no mapeada tienen mensaje propio, aria-invalid y foco; el servidor conserva su validación y autoridad. Quitar queda en una línea. Assets doc126-3, sin cambios VB, contratos, SQL o DLL por esta corrección. Evidencia en Validacion/doc126-correccion-video-crear-plantilla-20261124.md/JSON.

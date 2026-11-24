@@ -53,7 +53,7 @@
         var capability = null, template = null, received = null, prepared = null, frozen = null, preparationHash = "", uncertain = false, blocked = false;
         var pageNumber = 1, listTotal = 0, editorOriginal = null, editorDirty = false, saveUncertain = false, refs = [], storage = null, storageOk = true;
         var namespace = "doc126-excel:" + scope, state = "VACIO", controls = [];
-        var analysis = null, analyzedFile = null, pendingFile = null, pendingHash = "", pendingTemplate = 0;
+        var analysis = null, analyzedFile = null, pendingFile = null, pendingHash = "", pendingTemplate = 0, suggestedTable = "";
         function node(tag, content, attrs) {
             var e = doc.createElement(tag);
             if (content !== null && content !== undefined) { e.textContent = content; }
@@ -99,7 +99,7 @@
         heading.appendChild(node("h2","Cargar datos desde Excel",{id:"doc126-title"}));
         heading.appendChild(node("p","Selecciona tu plantilla y revisa el archivo antes de confirmar.",{id:"doc126-intro"})); header.appendChild(heading);
         var closeButton = button("Cerrar","cerrar",close); header.appendChild(closeButton); dialog.appendChild(header);
-        var status = node("p","",{role:"status","aria-live":"polite",tabindex:"0","class":"doc126-status","data-doc126":"estado"}); dialog.appendChild(status);
+        var status = node("p","",{id:"doc126-status-message",role:"status","aria-live":"polite",tabindex:"0","class":"doc126-status","data-doc126":"estado"}); dialog.appendChild(status);
         var body = node("div",null,{"class":"doc126-body"}), tabs = node("nav",null,{"aria-label":"Opciones de carga","class":"doc126-tabs"});
         var loadPanel = node("section",null,{"data-doc126":"carga"}), editPanel = node("section",null,{"data-doc126":"editor",hidden:"hidden"}), queryPanel = node("section",null,{"data-doc126":"consulta",hidden:"hidden"});
         var panels = [loadPanel,editPanel,queryPanel];
@@ -393,6 +393,7 @@
             if (busy || !allowed() || !showPanel(editPanel)) { return; }
             if (editorDirty && !env.confirm("Hay cambios sin guardar. ¿Quieres descartarlos?")) { return; }
             clearAssistant(); assistant.hidden = (!isNew && !!template) || !host.getAttribute("data-analisis");
+            [editor.NOMBRE_PLANTILLA,editor.CAMPO_UNICO].forEach(function (control) { control.removeAttribute("aria-invalid"); control.removeAttribute("aria-describedby"); });
             editorOriginal = !isNew && template ? copy(template) : {ID_PLANTILLAIMP:0,REVISION_CARGA:0,Huella:"",Formato:"XLSX",Modo:"CREAR",NOMBRE_PLANTILLA:"imp_02_",CAMPO_UNICO:"",LIBRO_EXCEL:"Datos",ESTADO_PLANTILLA:1,Campos:[]};
             Object.keys(editor).forEach(function (k) { if (k === "ESTADO_PLANTILLA") { editor[k].checked = editorOriginal[k] === 1; } else { editor[k].value = editorOriginal[k] || ""; } });
             clear(fieldsBody); editorOriginal.Campos.forEach(addField); if (!fieldsBody.children.length) { addField({}); }
@@ -402,14 +403,22 @@
             pendingFile = null; pendingHash = ""; pendingTemplate = 0; pendingNotice.textContent = "";
         }
         function clearAssistant() {
-            analysis = null; analyzedFile = null; clearPendingFile();
+            analysis = null; analyzedFile = null; suggestedTable = ""; clearPendingFile();
             analysisFile.value = ""; clear(analysisSheet); clear(analysisKey); clear(analysisPreview);
         }
         analysisFile.addEventListener("change",function () {
             if (busy) { return; } analysis = null; analyzedFile = null; clearPendingFile(); clear(analysisSheet); clear(analysisKey); clear(analysisPreview); invalidate(true);
         });
-        analysisKey.addEventListener("change",function () { editor.CAMPO_UNICO.value = analysisKey.value; editorDirty = true; invalidate(true); });
+        analysisKey.addEventListener("change",function () { editor.CAMPO_UNICO.value = analysisKey.value; editor.CAMPO_UNICO.removeAttribute("aria-invalid"); editor.CAMPO_UNICO.removeAttribute("aria-describedby"); editorDirty = true; invalidate(true); });
         analysisSheet.addEventListener("change",function () { if (!busy) { analyze(); } });
+        function suggestDestination(filename) {
+            var currentName = editor.NOMBRE_PLANTILLA.value;
+            if (editor.Modo.value !== "CREAR" || (currentName.trim() && currentName.trim() !== "imp_02_" && currentName !== suggestedTable)) { return; }
+            var stem = filename.replace(/\.(?:xls|xlsx)$/i, "");
+            if (typeof stem.normalize === "function") { stem = stem.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+            stem = stem.toLowerCase().replace(/[^a-z0-9_]+/g,"_").replace(/^_+|_+$/g,"");
+            suggestedTable = "imp_02_" + (stem || "datos_excel").slice(0,57); editor.NOMBRE_PLANTILLA.value = suggestedTable;
+        }
         function analyze() {
             if (busy || !allowed() || saveUncertain || !editorOriginal || editorOriginal.ID_PLANTILLAIMP !== 0 || !analysisFile.files || analysisFile.files.length !== 1) { return; }
             var f = analysisFile.files[0], selectedSheet = analysisSheet.value;
@@ -420,6 +429,7 @@
                 var d = r.datos;
                 if (!d || !hash.test(d.ArchivoHash || "") || !Array.isArray(d.Campos) || !d.Campos.length || d.Campos.length > 256 || d.Campos.some(function (c) { return !c || typeof c.CAMPO_FUENTE !== "string" || typeof c.CAMPO_DESTINO !== "string" || typeof c.TIPO_CAMPO !== "string"; }) || !Array.isArray(d.Hojas) || d.Hojas.indexOf(d.Hoja) < 0 || !Array.isArray(d.Muestra) || d.Muestra.some(function (row) { return !Array.isArray(row); }) || !integer(d.FilasObservadas) || d.FilasObservadas > capability.MaxFilasDatos || ["XLS","XLSX"].indexOf(d.Formato) < 0) { throw invalid(false); }
                 analysis = copy(d); analyzedFile = f; editor.Formato.value = d.Formato; editor.LIBRO_EXCEL.value = d.Hoja;
+                suggestDestination(f.name);
                 clear(analysisSheet); d.Hojas.forEach(function (h) { option(analysisSheet,h,h); }); analysisSheet.value = d.Hoja;
                 clear(fieldsBody); d.Campos.forEach(addField); clear(analysisKey); option(analysisKey,"Selecciona el campo único","");
                 d.Campos.forEach(function (c) { option(analysisKey,c.CAMPO_DESTINO,c.CAMPO_DESTINO); }); editor.CAMPO_UNICO.value = "";
@@ -429,7 +439,7 @@
                 d.Campos.forEach(function (c) { head.appendChild(node("th",c.CAMPO_FUENTE)); }); var thead = node("thead"); thead.appendChild(head); table.appendChild(thead);
                 d.Muestra.slice(0,25).forEach(function (row) { var tr = node("tr"); row.slice(0,d.Campos.length).forEach(function (v) { tr.appendChild(node("td",v === null ? "NULL" : text(v))); }); tbody.appendChild(tr); });
                 table.appendChild(tbody); wrap.appendChild(table); analysisPreview.appendChild(wrap); editorDirty = true;
-                notice("Campos generados. Elige el campo único, revisa la configuración y guarda la plantilla. La importación se validará después."); analysisKey.focus();
+                notice("Campos generados. Revisa el nombre de tabla, elige el campo único y guarda la plantilla. La importación se validará después."); analysisKey.focus();
             },false,"CARGANDO","Analizando el libro para proponer los campos…");
         }
         function addField(f) {
@@ -451,7 +461,7 @@
             clear(analysisKey); option(analysisKey,"Selecciona el campo único",""); names.forEach(function (name) { option(analysisKey,name,name); });
             if (names.indexOf(chosen) !== -1) { analysisKey.value = chosen; } else { editor.CAMPO_UNICO.value = ""; }
         }
-        editPanel.addEventListener("input",function (event) { if (!assistant.contains(event.target)) { editorDirty = true; if (event.target.getAttribute("data-field") === "CAMPO_DESTINO") { refreshAnalysisKey(); } invalidate(false); } });
+        editPanel.addEventListener("input",function (event) { event.target.removeAttribute("aria-invalid"); event.target.removeAttribute("aria-describedby"); if (event.target === editor.NOMBRE_PLANTILLA) { suggestedTable = ""; } if (!assistant.contains(event.target)) { editorDirty = true; if (event.target.getAttribute("data-field") === "CAMPO_DESTINO") { refreshAnalysisKey(); } invalidate(false); } });
         editPanel.addEventListener("change",function (event) { if (!assistant.contains(event.target)) { editorDirty = true; invalidate(false); } });
         function saveTemplate() {
             if (!allowed() || busy || saveUncertain || !editorOriginal) { return; }
@@ -464,7 +474,10 @@
             });
             var invalidNumber = p.Campos.some(function (f) { return ["REMPLAZA_COMA","REMPLAZA_PUNTO","OPCION_SPLITER","NUMERO_MATRIZ_EXPLITER"].some(function (key) { var n = f[key]; return n !== null && (!isFinite(n) || Math.floor(n) !== n || n < 0 || n > (key === "NUMERO_MATRIZ_EXPLITER" ? 4294967295 : 1)); }); });
             if (invalidNumber) { notice("La posición debe ser un entero no negativo. Revisa las opciones de transformación."); return; }
-            if (!/^imp_02_[A-Za-z0-9_]+$/.test(p.NOMBRE_PLANTILLA) || !/^[A-Za-z_][A-Za-z0-9_]{0,63}$/.test(p.CAMPO_UNICO) || !p.LIBRO_EXCEL || !p.Campos.length || p.Campos.length > 256 || p.Campos.some(function (f) { return !f.CAMPO_FUENTE || !f.CAMPO_DESTINO || !f.TIPO_CAMPO; })) { notice(messages.CONFIGURACION_INVALIDA); return; }
+            [editor.NOMBRE_PLANTILLA,editor.CAMPO_UNICO].forEach(function (control) { control.removeAttribute("aria-invalid"); control.removeAttribute("aria-describedby"); });
+            if (!/^imp_02_[A-Za-z0-9_]+$/.test(p.NOMBRE_PLANTILLA) || p.NOMBRE_PLANTILLA.length > 64) { editorProblem(editor.NOMBRE_PLANTILLA,"Completa Tabla de destino: escribe un nombre después de imp_02_, usando letras, números o guion bajo, hasta 64 caracteres. Por ejemplo: imp_02_relacion_ordenes_2025."); return; }
+            if (!/^[A-Za-z_][A-Za-z0-9_]{0,63}$/.test(p.CAMPO_UNICO) || !p.Campos.some(function (f) { return f.CAMPO_DESTINO === p.CAMPO_UNICO; })) { editorProblem(editor.CAMPO_UNICO,"Elige un campo único que exista entre las columnas de destino de la plantilla."); return; }
+            if (!p.LIBRO_EXCEL || !p.Campos.length || p.Campos.length > 256 || p.Campos.some(function (f) { return !f.CAMPO_FUENTE || !f.CAMPO_DESTINO || !f.TIPO_CAMPO; })) { notice(messages.CONFIGURACION_INVALIDA); return; }
             var request = {ConexionId:p.IMP01_XMLCONEXION_ID_XMLCONEXION,RevisionEsperada:editorOriginal.REVISION_CARGA,HuellaEsperada:editorOriginal.Huella,Plantilla:p};
             invalidate(true);
             var keepFile = analyzedFile, keepHash = analysis && analysis.ArchivoHash;
@@ -472,6 +485,10 @@
                 editorDirty = false; selected(r.datos); option(selectTemplate,r.datos.NOMBRE_PLANTILLA,r.datos.ID_PLANTILLAIMP); selectTemplate.value = String(r.datos.ID_PLANTILLAIMP); panels.forEach(function (panel) { panel.hidden = panel !== loadPanel; }); notice("Plantilla guardada. Selecciona un archivo para iniciar una carga.");
                 if (keepFile && keepHash) { pendingFile = keepFile; pendingHash = keepHash; pendingTemplate = r.datos.ID_PLANTILLAIMP; pendingNotice.textContent = "Archivo listo: " + keepFile.name + ". Pulsa Recibir archivo para continuar. Al recargar tendrás que seleccionarlo otra vez."; notice("Plantilla guardada. El archivo analizado está listo para recibir y validar; aún no se ha importado."); }
             },true);
+        }
+        function editorProblem(control,message) {
+            control.setAttribute("aria-invalid","true"); control.setAttribute("aria-describedby",status.id); state = "INCIDENCIAS"; notice(message); sync();
+            control.scrollIntoView({block:"center",inline:"nearest"}); control.focus();
         }
         function keydown(event) {
             if (closed) { return; }

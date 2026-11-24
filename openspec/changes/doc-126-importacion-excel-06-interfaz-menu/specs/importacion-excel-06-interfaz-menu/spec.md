@@ -264,3 +264,7 @@ El sistema SHALL permitir generar una propuesta editable de plantilla desde un X
 #### Scenario: Cambio de intención y compatibilidad
 - **WHEN** cambia el archivo, hoja o contexto, se cierra durante análisis o se edita una plantilla existente
 - **THEN** no se aplican respuestas obsoletas, una propuesta invalidada no se guarda como vigente y los contratos previos y su edición manual permanecen disponibles
+
+#### Scenario: Nombre de destino sugerido y corrección de campos requeridos
+- **WHEN** se generan campos para una plantilla nueva en modo crear o se intenta guardar con destino incompleto o clave no mapeada
+- **THEN** se propone un nombre válido y editable desde el archivo conservando elecciones manuales, y el guardado inválido se detiene con un mensaje específico y foco en el campo correspondiente

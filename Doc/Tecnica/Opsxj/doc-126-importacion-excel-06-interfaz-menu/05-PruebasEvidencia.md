@@ -20,3 +20,7 @@ Ampliación D-16/RQ-16 implementada localmente: 47/52 tareas, 160/160 pruebas y 
 ## Despliegue y preparación posteriores
 
 DLL validada desplegada en IIS local con respaldo, WSDL200, rechazo anónimo del analizador y Web.config intacto. Se amplió la E2E existente con modo de asistente y autorización propia; 39/39 pruebas locales afectadas, tres casos registrados, ninguno ejecutado realmente. 47/52 tareas; pendientes cuentas, alcances y aceptación/gobierno. Ver `Doc/Actualizacion/Importacion/Validacion/doc126-despliegue-e2e-preparada-20261124.md`.
+
+## Corrección de creación observada en video
+
+Destino sugerido y editable desde el nombre del Excel, mensajes de tabla/clave con foco y acción Quitar legible. Sólo frontend/ASPX, sin SQL o reemplazo de DLL. 55/55 pruebas locales y assets v3 contrastados por HTTP sin sesión. 48/53 tareas; aceptación real pendiente. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-correccion-video-crear-plantilla-20261124.md`.

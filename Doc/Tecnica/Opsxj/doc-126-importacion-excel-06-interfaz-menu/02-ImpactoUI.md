@@ -16,3 +16,7 @@ Browser local con transporte simulado verifica teclado, etiquetas, foco, endRequ
 ## Corte actual: asistente desde Excel
 
 Ampliación D-16/RQ-16 implementada localmente: 47/52 tareas, 160/160 pruebas y build sin errores. Análisis independiente sin plantilla ni efectos durables; propuesta editable, clave explícita y File sólo en memoria hasta recepción habitual con contraste de hash. No requiere migración SQL y preserva los contratos de carga. Evidencia actual y límites en `Doc/Actualizacion/Importacion/Validacion/doc126-asistente-20261124.md`. 8.8 y las cuatro tareas anteriores de aceptación/gobierno siguen abiertas; sin despliegue ni E2E real. Los números anteriores pertenecen al corte inicial.
+
+## Corrección de creación observada en video
+
+Destino sugerido y editable desde el nombre del Excel, mensajes de tabla/clave con foco y acción Quitar legible. Sólo frontend/ASPX, sin SQL o reemplazo de DLL. 55/55 pruebas locales y assets v3 contrastados por HTTP sin sesión. 48/53 tareas; aceptación real pendiente. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-correccion-video-crear-plantilla-20261124.md`.

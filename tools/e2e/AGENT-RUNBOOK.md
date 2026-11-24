@@ -1,5 +1,16 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC126 — corrección de guardado del video, assets v3
+
+Tabla quedaba sólo en imp_02_; ahora se propone nombre editable desde el Excel
+y se señalan tabla/clave inválidas con foco, sin enviar un guardado incorrecto.
+55/55 pruebas locales y JS/CSS doc126-3 servidos por IIS, comprobados sin sesión.
+Sin SQL ni reemplazo de DLL; conservar cualquier binario local ajeno.
+48/53 tareas, cinco de aceptación/gobierno pendientes. Evidencia actual:
+Doc/Actualizacion/Importacion/Validacion/doc126-correccion-video-crear-plantilla-20261124.md.
+Los cortes inferiores son históricos; renovar hashes del scope antes de E2E.
+
+
 ## DOC126 — desplegado y E2E del asistente instrumentada
 
 DLL validada activa, respaldo preservado, WSDL200 y analizador anónimo denegado.

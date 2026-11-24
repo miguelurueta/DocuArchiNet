@@ -1,0 +1,112 @@
+{
+  "issue": "DOC-126",
+  "recordedUtc": "2026-11-24T22:45:45.749Z",
+  "baseCommit": "73df802cf95c3f893a69ce2854b7ced90de867f4",
+  "status": "VIDEO_SAVE_BLOCK_CORRECTED_STATIC_V3_SERVED",
+  "tasks": {
+    "total": 53,
+    "complete": 48,
+    "pending": [
+      "6.9",
+      "6.10",
+      "6.11",
+      "7.5",
+      "8.8"
+    ]
+  },
+  "observation": {
+    "videoName": "Grabación 2026-11-24 173624-crear-plantilla.mp4",
+    "sha256": "ffea4f175b4ce8c461bb97b3e68dad3e5600ee537e1beeedcae468e4036bb4a6",
+    "uiAnalysisRows": 12759,
+    "sourceWorkbook": "RELACIÓN ORDENES 2025.xlsx",
+    "chosenKey": "NROORDEN",
+    "destinationShown": "imp_02_",
+    "saveOrImportAccreditedByVideo": false,
+    "agentAuthenticatedE2E": false
+  },
+  "correction": {
+    "suggestedDestination": "imp_02_relacion_ordenes_2025",
+    "onlyNewCreateTemplates": true,
+    "preservesManualNames": true,
+    "serverValidationPreserved": true,
+    "invalidFieldMessageAndFocus": true,
+    "invalidSaveNotSent": true,
+    "removeActionSingleLine": true,
+    "cacheVersion": "doc126-3"
+  },
+  "verification": {
+    "localBrowserContractAndNavigation": {
+      "passed": 55,
+      "failed": 0,
+      "syntheticTransport": true
+    },
+    "http": {
+      "realE2EExecuted": false,
+      "sql": 0,
+      "authenticatedSessions": 0,
+      "assets": [
+        {
+          "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+          "httpStatus": 200,
+          "sha256": "431c47d5fb44a2c9e8eaff19b1a37b39ad412051f02df8b4914557f9699e89fe"
+        },
+        {
+          "path": "Styles/ImportacionExcel.css",
+          "httpStatus": 200,
+          "sha256": "5f597e2c74fdd865def9177fcf938e6782266f3b902b8ec8cace47f1781887f4"
+        }
+      ],
+      "backendChangedByAgent": false,
+      "status": "STATIC_ASSETS_V3_VERIFIED",
+      "recordedUtc": "2026-11-24T22:44:20.9791085Z",
+      "backendObservedSha256": "09a5bffa9ba1f4a6b6a44b42c226b73ba888ca880b44e1fc26adc57e8b1a91d3"
+    },
+    "realAuthenticatedE2EExecuted": false,
+    "sqlWrites": 0,
+    "newSqlRequired": false,
+    "backendTrackedChanges": false,
+    "backendReplacedByAgent": false,
+    "refinement": {
+      "passed": 15,
+      "failed": 0
+    },
+    "openSpecStrict": {
+      "passed": 97,
+      "failed": 0
+    }
+  },
+  "sources": [
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "sha256Utf8Lf": "431c47d5fb44a2c9e8eaff19b1a37b39ad412051f02df8b4914557f9699e89fe"
+    },
+    {
+      "path": "Styles/ImportacionExcel.css",
+      "sha256Utf8Lf": "5f597e2c74fdd865def9177fcf938e6782266f3b902b8ec8cace47f1781887f4"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Utf8Lf": "f75ded014fdd4e9cc8c7ac4a35860a2ee657d02bed100f64aeb2945089d8991f"
+    },
+    {
+      "path": "tests/doc126-importacion-excel-ui.test.cjs",
+      "sha256Utf8Lf": "25f50caa523d06ab15e1f1dbfd4b2492940c6bb731bdc0a7a8c9c1a9805236de"
+    },
+    {
+      "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/tasks.md",
+      "sha256Utf8Lf": "d432ecc7bf95f93e598e870d4bf139f6d13723f0df33bb11727e66aa1a04bab8"
+    },
+    {
+      "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/specs/importacion-excel-06-interfaz-menu/spec.md",
+      "sha256Utf8Lf": "f40e3c1c90f02a133e5fc47474617aedbb888b36dbb762fc02bb37f98e51a9c4"
+    },
+    {
+      "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/design.md",
+      "sha256Utf8Lf": "a55580507c182711a80c58d1c77bfc35436b6dcde1a59472fc6d211c03dc32b9"
+    },
+    {
+      "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/refinement.md",
+      "sha256Utf8Lf": "0920d768952012f216393cbccd481c63a6831b5483297a3a620061714f8576de"
+    }
+  ]
+}

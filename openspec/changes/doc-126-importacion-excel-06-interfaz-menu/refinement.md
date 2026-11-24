@@ -52,7 +52,7 @@ Página/menú y lifecycle actuales, autoridad Excel/guards, DTOs y nueve método
 | RQ-14 | El sistema SHALL acreditar los recorridos de interfaz con las E2E y recursos existentes, distinguiendo ejecución local de real y exigiendo autorización específica para cuentas, ambiente y efectos. | Lectura y permiso exclusivo; Escritura de interfaz autorizada; Scope ajeno o incompleto | D-14; decisiones y límites contrastados en design.md. |
 | RQ-15 | El sistema SHALL entregar la interfaz compatible con los consumidores y la plataforma actuales, con compilación, regresión y evidencia que declaren el alcance real y permitan revertir el despliegue sin borrar datos. | Compatibilidad de la entrega; Evidencia diferenciada; Reversión de entrega | D-15; decisiones y límites contrastados en design.md. |
 
-| RQ-16 | El sistema SHALL generar una propuesta editable desde Excel sin plantilla previa ni efectos durables, conservando contratos y autoridad. | Generación de campos y selección de clave; Archivo incompatible o ambiguo; Continuación explícita con el mismo archivo; Cambio de intención y compatibilidad | D-16; ampliación autorizada por el usuario. |
+| RQ-16 | El sistema SHALL generar una propuesta editable desde Excel sin plantilla previa ni efectos durables, conservando contratos y autoridad. | Generación de campos y selección de clave; Archivo incompatible o ambiguo; Continuación explícita con el mismo archivo; Cambio de intención y compatibilidad; Nombre de destino sugerido y corrección de campos requeridos | D-16; ampliación autorizada por el usuario. |
 
 ## Resultado del refinamiento
 
@@ -67,3 +67,7 @@ La implementación local alcanza 40/44 tareas. Pasaron 150/150 pruebas, 4505 com
 Instrucción del usuario: agregar tareas quirúrgicamente e implementar el asistente previamente analizado. D-16/RQ-16 añaden cuatro escenarios y ocho tareas; total 16 decisiones, 16 requisitos, 49 escenarios y 52 tareas. Se conserva el corte histórico anterior. La autorización cubre implementación y pruebas locales; no sustituye la autorización específica de ambiente/cuentas/efectos para 8.8 ni cierra 6.9–6.11/7.5. No se modifica el contexto Jira original.
 
 Corte del asistente: 47/52 tareas completas; pruebas locales 160/160, 4555 checks sintéticos y build sin errores. Evidencia actual en `Doc/Actualizacion/Importacion/Validacion/doc126-asistente-20261124.md`. Las cinco tareas de aceptación/gobierno pendientes se conservan explícitas.
+
+## Corrección observada en video — 2026-11-24
+
+Tarea 8.9 cerrada con regresión browser existente 55/55 y assets doc126-3 contrastados por HTTP anónimo en IIS. El requisito RQ-16 incorpora el escenario de nombre sugerido y corrección accesible de campos. Corte: 16 decisiones, 16 requisitos, 50 escenarios y 53 tareas; 48 completas, cinco de aceptación/gobierno abiertas. El video acredita observación manual de análisis, no guardado/importación ni una E2E del agente. No se modificó ni reemplazó la DLL de ejecución.
