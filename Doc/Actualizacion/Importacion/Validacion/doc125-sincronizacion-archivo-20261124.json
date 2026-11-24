@@ -1,0 +1,81 @@
+{
+  "issue": "DOC-125",
+  "recordedUtc": "2026-11-24T15:43:35.639Z",
+  "implementationMerge": "63e5e25ed3d9cdbfe8fa2de9c6f9cbedf5ce1bbf",
+  "implementationPr": "https://github.com/miguelurueta/DocuArchiNet/pull/137",
+  "archive": "openspec/changes/archive/2026-11-24-doc-125-importacion-excel-05-confirmacion-recuperacion",
+  "synced": true,
+  "requirements": 15,
+  "scenarios": 44,
+  "tasks": 31,
+  "sourcesVerified": 34,
+  "noRuntimeEffects": true,
+  "status": "ARCHIVED_LOCALLY_AND_SYNCED",
+  "implementation": {
+    "pr": 137,
+    "url": "https://github.com/miguelurueta/DocuArchiNet/pull/137",
+    "mergeSha": "63e5e25ed3d9cdbfe8fa2de9c6f9cbedf5ce1bbf",
+    "validatedHead": "0ffc96f6aef3f784ca125f7318370d0f3a63f947",
+    "ciRunId": 45422559817,
+    "ciStepsPassed": 37
+  },
+  "strict": {
+    "items": 96,
+    "passed": 96,
+    "failed": 0
+  },
+  "governanceBeforeArchive": {
+    "sha": "0ffc96f6aef3f784ca125f7318370d0f3a63f947",
+    "passed": 73,
+    "failed": 0
+  },
+  "review": {
+    "technical": true,
+    "humanApproval": false,
+    "sourcesVerified": 34,
+    "sourceEvidence": "doc125-verificacion-final-20261124.json"
+  },
+  "artifacts": [
+    {
+      "path": "openspec/changes/archive/2026-11-24-doc-125-importacion-excel-05-confirmacion-recuperacion/design.md",
+      "sha256Utf8Lf": "5654cf5023760a488dd195f75a7c8e2477ca91b31a49c94253d5e68c81e5a55b"
+    },
+    {
+      "path": "openspec/changes/archive/2026-11-24-doc-125-importacion-excel-05-confirmacion-recuperacion/opsxj-governance.json",
+      "sha256Utf8Lf": "a13c6eb3c557cdedc9c16290a0ccbf7f730735008e38ca30bff75becf220ddb9"
+    },
+    {
+      "path": "openspec/changes/archive/2026-11-24-doc-125-importacion-excel-05-confirmacion-recuperacion/proposal.md",
+      "sha256Utf8Lf": "6fb43c874fb6431471109f28a8def28cf252ee478f325034e7678c47f9366601"
+    },
+    {
+      "path": "openspec/changes/archive/2026-11-24-doc-125-importacion-excel-05-confirmacion-recuperacion/refinement.md",
+      "sha256Utf8Lf": "0c1554fe16504b199240906912f380914dc18edc85e51af0b14ba98588bb1e91"
+    },
+    {
+      "path": "openspec/changes/archive/2026-11-24-doc-125-importacion-excel-05-confirmacion-recuperacion/specs/importacion-excel-05-confirmacion-recuperacion/jira-context.md",
+      "sha256Utf8Lf": "f3c22cc9786ba39b16b0f82888d2546d2af159cf561350b730fabf6a1090b48f"
+    },
+    {
+      "path": "openspec/changes/archive/2026-11-24-doc-125-importacion-excel-05-confirmacion-recuperacion/specs/importacion-excel-05-confirmacion-recuperacion/spec.md",
+      "sha256Utf8Lf": "e1fde3043f9a28d43c3bf1b2e6f1f86295676e72c29ea761c3a7ec121067be0f"
+    },
+    {
+      "path": "openspec/changes/archive/2026-11-24-doc-125-importacion-excel-05-confirmacion-recuperacion/tasks.md",
+      "sha256Utf8Lf": "f7bdbcbdb97ee77153243baf58274469abb0d2c003ad6b1028d5cfcb4d4ce182"
+    }
+  ],
+  "mainSpec": "openspec/specs/importacion-excel-05-confirmacion-recuperacion/spec.md",
+  "jira": {
+    "issue": "DOC-125",
+    "summary": "IMPORTACION-EXCEL-05-CONFIRMACION-RECUPERACION",
+    "status": "Listo",
+    "statusCategory": "done",
+    "recordedUtc": "2026-11-24T15:43:14.713Z"
+  },
+  "documentationIntegration": "Pending PR integration at this recorded cut; implementation PR137 is already merged",
+  "newRealE2E": false,
+  "newSql": false,
+  "newDeploy": false,
+  "cleanup": false
+}
