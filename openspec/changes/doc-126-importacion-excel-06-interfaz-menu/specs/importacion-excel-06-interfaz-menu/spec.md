@@ -1,129 +1,246 @@
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14,D-15 -->
+## Purpose
+
+Permitir a las personas autorizadas administrar plantillas y cargar libros Excel desde Producción Documental, revisar su validación y recuperar el resultado durable, conservando los permisos, límites y datos de las capacidades existentes.
+
 ## ADDED Requirements
-### Requirement: IMPORTACION-EXCEL-06-INTERFAZ-MENU
-El sistema SHALL implementar el alcance definido para DOC-126.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-## Perfil tecnologico
 
-- Perfil de revision: legacy-webforms-vb (v1).
-- Alcance: ASP.NET Web Forms, code-behind VB.NET/C# y JavaScript gradual.
-- Este perfil orienta la revision tecnica; no reemplaza los requisitos funcionales ni arquitectonicos del ticket.
+### Requirement: RQ-01 — Acceso exclusivo y bootstrap autorizado
 
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
+El sistema SHALL ofrecer y autorizar la carga Excel por su propio permiso vigente, sin exigir capacidades administrativas o de importación de carpetas adicionales. Trazabilidad: D-01.
 
-#### Scenario: Reglas del ticket
-- Registro del prompt 06
-- Fase 6 de 7 de la implementación de importación Excel en tablas imp_02_. Los siete tickets describen incrementos del mismo cambio funcional y se ejecutan en orden.
-- Proyecto DocuarchiNET (DOC). Sprint solicitado IMPORTAR-ARCHIVOS; nombre existente en Jira IMPOTAR-ARCHIVOS, ID 1927.
-- Dependencias de implementación DOC-122, DOC-123, DOC-124, DOC-125.
-- Origen inmutable dd1091a8d1ad70806509ee86e5fe53df3f2ea866. SHA-256 del prompt normalizado a UTF-8/LF 760868e0723ccc963a207c0bb5c6efeb550e7770baf709f621a3020a2b693017. Revisión estructural legacy-webforms-vb PASS, con 0 bloqueantes, 0 mayores y 0 menores.
-- Prompt completo en el repositorio
-- Exploración y diseño técnico consolidados
-- Informe de revisión del prompt
-- Contenido íntegro del prompt
-- Prompt 06 — Interfaz de carga e integración del menú
-- ROL ESPERADO
-- Desarrollador Web Forms y especialista de interacción accesible para herramientas administrativas.
-- OBJETIVO
-- Integrar el recorrido del cargador en la navegación habitual con acceso por su propio permiso.
-- DEPENDENCIAS
-- Requiere los servicios funcionales de las fases 02 a 05 y sus contratos de estados y errores.
-- CONTEXTO
-- Trabaja en D:/imagenesda/DocuachiNet/DocuArchiNet, ASP.NET Web Forms con VB.NET, .NET Framework 4.6.1 y MySQL 5.1.37. Lee AGENTS.md y Doc/Actualizacion/Importacion/Exploracion/carga-excel-csv-tablas-imp-02.md, especialmente su diseño técnico resuelto. Estos siete prompts son fases consecutivas del mismo cambio funcional. Reutiliza el cambio OpenSpec y los resultados de las fases anteriores.
-- El alcance aprobado comprende XLS y XLSX, los modos crear/agregar/reemplazar, permiso ADMINISTRAR_CARGAS_IMPORTACION en remit_dest_interno_perfil_produccion, cuenta dedicada sobre la DA autorizada, validación por carga e índice UNIQUE permanente. Agregar rechaza toda la carga ante claves repetidas internas o existentes; reemplazar valida la unicidad del archivo y sustituye el contenido autorizado. Los límites iniciales son 10.000 filas y 10 MB, configurables en servidor; 1 MB equivale a 1.000.000 bytes.
-- Reutiliza imp01_xmlconexion, imp01_plantillaimp, imp01_campos_plantilla y las tablas imp_02_* elegibles. El diseño añade CAMPO_UNICO y REVISION_CARGA a la cabecera y una tabla imp01_carga_ejecucion. Preserva la compatibilidad de las plantillas históricas y sus consumidores de SII e importación de carpetas.
-- PRECONDICIONES DE RUTAS
-- Inventariar los archivos exactos en design.md antes de editar. Contrastar cada ruta propuesta con el código existente y reutilizar las responsabilidades ya implementadas. Aplicar únicamente las modificaciones de la fase actual. Registrar los archivos nuevos de compilación y contenido en GestionDocumental-Docuarchi.net.vbproj según el patrón del proyecto.
-- Responsabilidad
-- Rutas previstas
-- Modelos
-- Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb
-- DTOs y contrato request/response
-- DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb
-- Servicios
-- Services/ProduccionDocumental/ImportacionExcel/ServicioPlantillasExcel.vb, ServicioLecturaExcel.vb, ServicioPreparacionExcel.vb y ServicioConfirmacionExcel.vb en esa misma carpeta
-- Repositorios
-- Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb y MySqlCargaExcelRepository.vb en esa misma carpeta
-- Adaptadores e infraestructura
-- Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelContextAdapter.vb, ImportacionExcelRequestGuard.vb, ImportacionExcelConexionAdapter.vb y LectorArchivoExcel.vb en esa misma carpeta
-- Servicio web
-- webservice/WebServiceImportacionExcel.asmx y webservice/WebServiceImportacionExcel.asmx.vb
-- Receptor de archivo
-- generic_control/ImportacionExcelUpload.ashx y generic_control/ImportacionExcelUpload.ashx.vb
-- Interfaz
-- js/gestion/ImportacionExcel/ImportacionExcelApi.js, js/gestion/ImportacionExcel/ImportacionExcelVista.js y Styles/ImportacionExcel.css
-- Integración existente
-- Gestion/WebFormProducionDocumental.aspx, Gestion/WebFormProducionDocumental.aspx.vb, Gestion/Class_remit_dest_interno_perfil_produccion.vb y js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js
-- Pruebas
-- tests/ImportacionExcelBehaviorTests.cs y tools/e2e/tests/importacion-excel.spec.cjs, ampliando los harness y utilidades existentes cuando corresponda
-- Las rutas propuestas delimitan responsabilidades. Ajustar la división de archivos a la implementación real y registrar la justificación en design.md.
-- RESTRICCIONES CRÍTICAS
-- Mantener la sesión y empresa como autoridad. El navegador envía referencias, nunca un servidor, base o cadena de conexión elegidos libremente.
-- 
-- No imprimir ni persistir credenciales, cookies, tokens o cadenas de conexión en código, documentación o evidencias. Usar secretos efímeros durante pruebas y configuración protegida para la cuenta del servidor.
-- 
-- No modificar AlmacenamientoDocumentoProduccionDocumental ni SII para resolver la carga tabular. Preservar los contratos de los consumidores existentes.
-- 
-- CSV, migración entre gabinetes, omisión de duplicados y actualización automática por coincidencia de clave están fuera de alcance.
-- 
-- El agente genera los cambios SQL en archivos e indica su ejecución manual por el usuario. No debe ejecutar SQL modificador de esquema, datos o permisos ni aplicar archivos SQL directa o indirectamente. La comprobación posterior utiliza exclusivamente SELECT después de la confirmación de ejecución manual.
-- 
-- Conservar los cambios ajenos presentes en el repositorio local y agrupar las entregas conforme al flujo del cambio.
-- 
-- FLUJO OBLIGATORIO DE SQL MANUAL
-- Generar los cambios SQL como archivos nuevos y versionables en Doc/Actualizacion/Importacion/Sql/. Cubrir instalación, tablas, columnas, índices, permisos y cualquier corrección o preparación de datos que se necesite. Conservar los scripts históricos ya aplicados y entregar las correcciones en otro archivo.
-- 
-- Entregar una guía con archivo, orden, destino RA/DA, precondiciones, efectos previstos y consultas SELECT de comprobación. Mantener las credenciales fuera del SQL entregado.
-- 
-- Indicar al usuario qué archivo debe ejecutar manualmente. El agente no debe ejecutar SQL modificador ni aplicar esos archivos, tampoco mediante scripts de arranque, tests o una ruta indirecta de la aplicación.
-- 
-- Esperar la confirmación de ejecución manual del usuario antes de verificar ese cambio en la base. Registrar PENDIENTE_EJECUCION_MANUAL mientras esa confirmación falte y continuar el trabajo local independiente.
-- 
-- Después de la confirmación, revisar el resultado mediante consultas exclusivamente SELECT y evidencia saneada. Registrar diferencias y, si hace falta otra modificación, generar un nuevo archivo para ejecución manual.
-- 
-- La ausencia de errores en un archivo o su entrega no acredita que esté aplicado. La revisión posterior debe comprobar las estructuras, índices, relaciones y permisos observables correspondientes y registrar cualquier aspecto que requiera evidencia del usuario.
-- 
-- El código del cargador implementa los modos funcionales acordados para uso del usuario. La instalación o adecuación de su base sigue esta secuencia manual y debe estar verificada antes de probar las operaciones que dependan de ella.
-- IMPLEMENTACIÓN DE ESTA FASE
-- Añadir Cargar datos desde Excel al menú Importación de Producción Documental. Construir o reutilizar el menú desde la navegación común, de modo que funcione con exclusivamente ADMINISTRAR_CARGAS_IMPORTACION.
-- 
-- Implementar el diálogo de plantilla, archivo XLS/XLSX, hoja y modo. Mostrar destino y clave única configurada, límites efectivos y estado de la operación.
-- 
-- Conectar la administración de plantillas con los servicios de la fase 02. Presentar los estados vacío, cargando, con incidencias, preparado, confirmando, confirmado y resultado incierto.
-- 
-- Presentar la vista previa acotada y las incidencias numeradas. Permitir confirmar después de validar y exigir una confirmación explícita del contenido afectado al reemplazar.
-- 
-- Conservar el ID de carga y consultar el resultado cuando se pierda una respuesta. Prevenir confirmaciones accidentales repetidas y respuestas de red antiguas que sustituyan una selección reciente.
-- 
-- Incorporar foco inicial, etiquetas accesibles, navegación por teclado, Escape y retorno del foco. Comprobar que el diálogo y sus controles sean visibles en el área disponible.
-- 
-- Coordinar el acceso con el menú resultante de los trabajos vigentes de navegación, reutilizando su implementación. Preservar perfiles, fuentes, proveedores e importación de carpetas según sus permisos.
-- 
-- Exponer solo los datos necesarios para decidir y actuar, con errores saneados y mensajes operativos.
-- 
-- CRITERIOS DE ACEPTACIÓN
-- Un usuario con el permiso exclusivo del cargador encuentra y usa su acceso.
-- 
-- Crear, agregar y reemplazar pueden recorrerse desde la interfaz hasta consultar el resultado.
-- 
-- El usuario distingue las incidencias, el rechazo de duplicados y un resultado incierto recuperable.
-- 
-- Se acreditan teclado/foco y la visibilidad de los controles.
-- 
-- La regresión conserva los accesos existentes y los permisos de cada capacidad.
-- 
-- El E2E integrado utiliza los servicios reales del cambio en la ejecución autorizada. Los recorridos locales con transporte simulado se registran por separado como evidencia local.
-- 
-- PRUEBAS OBLIGATORIAS
-- Realiza la compilación MSBuild o el build pertinente al alcance de esta fase, y pruebas unitarias o QA manual reproducible que acrediten sus criterios. Registra comandos, resultado, SHA, ambiente y límites de evidencia. Las pruebas locales o con transporte simulado se identifican como tales.
-- El E2E del recorrido ejecutable es parte integral del mismo cambio funcional. Reutilizar tools/e2e y su autenticación, configuración, validadores y utilidades existentes, sin infraestructura paralela. Antes de autenticar, leer AGENTS.md y tools/e2e/AGENT-RUNBOOK.md. La ejecución real requiere autorización explícita de ambiente, cuentas y datos descartables. Cubrir control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión del alcance modificado. Los tests no deben instalar, migrar, sembrar, limpiar o reparar la base mediante SQL automático. La instalación se ejecuta manualmente por el usuario y se revisa mediante SELECT antes de los recorridos dependientes. Las verificaciones locales usan fixtures sintéticos sin escrituras en bases reales. Las escrituras funcionales de una prueba real requieren el alcance específico autorizado de esa prueba y no sustituyen la ejecución manual de los archivos SQL.
-- Mantener secretos efímeros y evidencia saneada, con consultas de control solo SELECT. Respetar los gates de autorización vigentes. No habilitar permisos arbitrariamente. El criterio de cierre del cambio exige validación autorizada y registrar cualquier bloqueo explícito. Los mocks, simulaciones y evidencia ficticia no acreditan una ejecución real. Las fases de base técnica documentarán la justificación cuando E2E no aplique todavía a su entrega.
-- DOCUMENTACIÓN TÉCNICA
-- Ubicar y actualizar la documentación existente en Doc/Actualizacion/Importacion/. Conservar la exploración como antecedente y registrar el diseño, las decisiones y los contratos vigentes del cambio OpenSpec. Guardar el SQL revisable en Doc/Actualizacion/Importacion/Sql/, y la evidencia y matriz de verificación en Doc/Actualizacion/Importacion/Validacion/. Añadir únicamente los documentos necesarios para explicar la entrega de esta fase.
-- ENTREGABLE FINAL
-- Interfaz, cliente API y navegación integrados, contratos de interacción documentados y evidencia de accesibilidad y recorridos.
+#### Scenario: Permiso exclusivo
+- **WHEN** una cuenta tiene únicamente el permiso del cargador
+- **THEN** encuentra el acceso y abre el recorrido sin un nivel seleccionado ni permisos de otras capacidades
+
+#### Scenario: Acceso denegado o revocado
+- **WHEN** falta el permiso o se revoca durante el uso
+- **THEN** el servidor rechaza la operación, el cliente cierra su capacidad y no envía nuevas mutaciones
+
+#### Scenario: Apertura válida y capacidad cerrada
+- **WHEN** se abre la pantalla con límites inválidos para nuevas cargas
+- **THEN** se conserva la consulta autorizada de resultados y se impiden nuevas recepciones
+
+### Requirement: RQ-02 — Menú común y coexistencia
+
+El sistema SHALL integrar el acceso Excel en el menú de Importación vigente, manteniendo un único menú y los accesos existentes según sus permisos. Trazabilidad: D-02.
+
+#### Scenario: Menú único
+- **WHEN** conviven Excel y las capacidades ya instaladas
+- **THEN** cada acceso aparece una sola vez en el menú común y conserva su permiso
+
+#### Scenario: Reinicialización
+- **WHEN** se repite el montaje o se actualiza parcialmente la página
+- **THEN** se preserva un único acceso Excel y no se duplican listeners ni operaciones
+
+#### Scenario: Ausencia de otras capacidades
+- **WHEN** Excel es la única capacidad disponible
+- **THEN** su acceso funciona y no depende de crear una importación de carpetas
+
+### Requirement: RQ-03 — Cliente del contrato Excel y transporte cerrado
+
+El sistema SHALL transportar las solicitudes y respuestas Excel actuales sin perder los datos de validación fallida ni repetir automáticamente operaciones de resultado desconocido. Trazabilidad: D-03.
+
+#### Scenario: Preparación con incidencias
+- **WHEN** el servidor devuelve rechazo con el detalle de validación
+- **THEN** el cliente presenta el detalle y conserva el ID en vez de tratarlo como una respuesta ilegible
+
+#### Scenario: Respuesta inválida o timeout
+- **WHEN** una mutación pierde su respuesta o recibe contenido no interpretable
+- **THEN** se conserva su referencia y se exige consultar sin reintento automático
+
+#### Scenario: Transporte propio
+- **WHEN** se envía una operación del cargador
+- **THEN** usa rutas y referencias autorizadas, sin permitir un destino de conexión o una operación arbitrarios
+
+### Requirement: RQ-04 — Administración de plantillas existente y CAS
+
+El sistema SHALL permitir administrar las plantillas mediante sus contratos actuales, conservando revisiones, transformaciones admitidas y compatibilidad de las plantillas históricas. Trazabilidad: D-04.
+
+#### Scenario: Selección paginada
+- **WHEN** se busca o selecciona una plantilla
+- **THEN** se muestra su detalle vigente, destino, formato y clave única dentro de la conexión autorizada
+
+#### Scenario: Edición concurrente
+- **WHEN** otro editor cambia la plantilla antes de guardar
+- **THEN** se rechaza el guardado obsoleto sin sobrescribir la revisión nueva
+
+#### Scenario: Guardado incierto
+- **WHEN** se pierde la respuesta de un alta o edición
+- **THEN** la interfaz conserva el formulario, informa incertidumbre y evita repetir la mutación automáticamente
+
+### Requirement: RQ-05 — Recepción única, límites y hojas reales
+
+El sistema SHALL recibir un único libro compatible y permitir elegir una hoja disponible, mostrando los límites efectivos y sometiendo su validación completa al servidor. Trazabilidad: D-05.
+
+#### Scenario: Archivo incompatible
+- **WHEN** la selección supera el tamaño visible o tiene extensión incompatible con la plantilla
+- **THEN** se informa el problema y no se inicia una recepción incompatible
+
+#### Scenario: Hojas recibidas
+- **WHEN** la recepción termina correctamente
+- **THEN** se muestran las hojas acreditadas y se prepara únicamente una selección válida
+
+#### Scenario: Respuesta de recepción perdida
+- **WHEN** se pierde el acuse del archivo recibido
+- **THEN** se conserva el ID para consulta y no se envía otra copia automáticamente
+
+### Requirement: RQ-06 — Intención y preparación vigentes
+
+El sistema SHALL preparar exactamente la intención seleccionada y habilitar la confirmación sólo para una validación completa vigente, invalidándola ante cambios relevantes. Trazabilidad: D-06.
+
+#### Scenario: Preparación íntegra
+- **WHEN** el servidor acredita lectura y validación completas sin incidencias
+- **THEN** se habilita confirmar únicamente esa intención y sus hashes
+
+#### Scenario: Selección modificada
+- **WHEN** se cambia un dato que determina la carga después de prepararla
+- **THEN** se deshabilita confirmar y se descarta el consentimiento anterior
+
+#### Scenario: Preparación obsoleta
+- **WHEN** se intenta sustituir una preparación con una huella anterior
+- **THEN** se rechaza el cambio y se exige revisar el estado vigente
+
+### Requirement: RQ-07 — Vista previa e incidencias acotadas
+
+El sistema SHALL presentar una vista previa y un listado de incidencias acotados, conservando el significado de los valores y distinguiendo muestras de totales. Trazabilidad: D-07.
+
+#### Scenario: Valores significativos
+- **WHEN** la muestra contiene ceros iniciales, decimales amplios, fechas y nulos
+- **THEN** se muestran sin pérdida de precisión, interpretación HTML ni cambio de fecha
+
+#### Scenario: Incidencias truncadas
+- **WHEN** hay más incidencias que las enviadas
+- **THEN** se muestra el total y la limitación de la muestra con sus ubicaciones conocidas
+
+#### Scenario: Muestra parcial
+- **WHEN** se presenta una preparación válida de muchas filas
+- **THEN** la pantalla distingue filas observadas, muestra visible y validación completa
+
+### Requirement: RQ-08 — Estado de interacción y respuestas tardías
+
+El sistema SHALL mantener una interacción coherente ante concurrencia de respuestas, doble activación y recreación de la página, sin atribuir cancelación a un cierre de ventana. Trazabilidad: D-08.
+
+#### Scenario: Respuesta antigua
+- **WHEN** una selección nueva precede a la respuesta de la anterior
+- **THEN** la respuesta tardía no cambia controles, vista previa ni intención confirmable
+
+#### Scenario: Doble activación
+- **WHEN** se activa rápidamente dos veces una mutación
+- **THEN** se envía una sola solicitud de esa vista
+
+#### Scenario: Cierre durante actividad
+- **WHEN** se cierra el diálogo o se reemplaza su host mientras el servidor trabaja
+- **THEN** no se promete cancelación, se conserva el ID y los callbacks antiguos no alteran la vista nueva
+
+### Requirement: RQ-09 — Confirmación explícita y resultado durable
+
+El sistema SHALL confirmar únicamente la preparación vigente y exigir consentimiento específico para reemplazar, mostrando el resultado durable acreditado por el servidor. Trazabilidad: D-09.
+
+#### Scenario: Reemplazo consentido
+- **WHEN** el usuario confirma la sustitución para la intención mostrada
+- **THEN** se envía una sola confirmación con sus hashes y consentimiento específico
+
+#### Scenario: Reemplazo no consentido
+- **WHEN** falta aceptación o cambia la intención después de aceptarla
+- **THEN** no se envía una confirmación destructiva
+
+#### Scenario: Resultado durable
+- **WHEN** el servidor acredita la confirmación o un rollback conocido
+- **THEN** la interfaz muestra el estado y conteo acreditados sin convertir un fallo en éxito
+
+### Requirement: RQ-10 — Recuperación contextual sin secretos
+
+El sistema SHALL conservar una referencia de carga para recuperar su resultado autorizado sin duplicar efectos, aislarla por contexto y evitar persistir secretos o el libro en el navegador. Trazabilidad: D-10.
+
+#### Scenario: Acuse perdido
+- **WHEN** se pierde una respuesta de confirmación
+- **THEN** se consulta el mismo ID y se muestra el resultado observado sin reimportar
+
+#### Scenario: Recarga o cambio de contexto
+- **WHEN** se recarga la página o cambia la cuenta, empresa o módulo
+- **THEN** se recuperan sólo referencias del contexto vigente y no se confirman cargas desde referencias incompletas
+
+#### Scenario: Almacenamiento no disponible
+- **WHEN** el navegador rechaza guardar referencias
+- **THEN** se conserva la referencia en memoria, se ofrece consulta manual y se informa la limitación antes de recargar
+
+### Requirement: RQ-11 — Diálogo accesible y visibilidad
+
+El sistema SHALL permitir operar el diálogo mediante teclado y mantener sus controles accesibles y visibles en el área disponible. Trazabilidad: D-11.
+
+#### Scenario: Recorrido de teclado
+- **WHEN** se abre, recorre y cierra el diálogo por teclado
+- **THEN** el foco queda contenido, las etiquetas son identificables y vuelve al acceso adecuado
+
+#### Scenario: Área reducida o zoom
+- **WHEN** se usa un viewport reducido o zoom aumentado
+- **THEN** las acciones y mensajes siguen alcanzables sin quedar recortados
+
+#### Scenario: Estados anunciados
+- **WHEN** una operación cambia de estado o devuelve incidencias
+- **THEN** el cambio se anuncia de manera accesible sin depender sólo de color o animación
+
+### Requirement: RQ-12 — Información operativa y salida segura
+
+El sistema SHALL exponer únicamente información operativa necesaria y renderizar datos y errores de forma segura, sin revelar secretos ni diagnósticos internos. Trazabilidad: D-12.
+
+#### Scenario: Dato con marcado
+- **WHEN** un nombre, celda o incidencia contiene texto con apariencia HTML
+- **THEN** se muestra como texto y no ejecuta contenido
+
+#### Scenario: Error inesperado
+- **WHEN** el transporte o servidor devuelve un fallo no reconocido
+- **THEN** se presenta un mensaje operativo y una acción de consulta o recarga sin detalles internos
+
+#### Scenario: Información para decidir
+- **WHEN** se prepara un reemplazo o se consulta un resultado
+- **THEN** se muestran destino, clave, intención y referencia útiles sin rutas privadas, tokens ni cadenas de conexión
+
+### Requirement: RQ-13 — SQL manual y reutilización de instalación
+
+El sistema SHALL reutilizar la instalación compatible y entregar cualquier adecuación o preparación administrativa necesaria como SQL revisable de ejecución manual separada de las pruebas. Trazabilidad: D-13.
+
+#### Scenario: Instalación compatible
+- **WHEN** el preflight acredita los recursos actuales
+- **THEN** la interfaz los utiliza sin instalar ni cambiar el esquema automáticamente
+
+#### Scenario: Adecuación identificada
+- **WHEN** se necesita corregir configuración o preparar nuevos datos de prueba
+- **THEN** se entrega un archivo nuevo y el recorrido dependiente espera aplicación manual confirmada y comprobación posterior
+
+#### Scenario: Prueba sin instalación
+- **WHEN** se ejecuta la aceptación de interfaz
+- **THEN** no instala, siembra, limpia ni concede permisos como parte del test
+
+### Requirement: RQ-14 — Aceptación UI con E2E existentes
+
+El sistema SHALL acreditar los recorridos de interfaz con las E2E y recursos existentes, distinguiendo ejecución local de real y exigiendo autorización específica para cuentas, ambiente y efectos. Trazabilidad: D-14.
+
+#### Scenario: Lectura y permiso exclusivo
+- **WHEN** se autoriza un recorrido real de sólo lectura con cuentas acotadas
+- **THEN** se comprueban menú y acceso exclusivo/restringido sin confirmar cargas ni editar configuración
+
+#### Scenario: Escritura de interfaz autorizada
+- **WHEN** se autoriza el alcance descartable de escritura DOC126 y su instalación está acreditada
+- **THEN** los tres modos y fallos previstos se recorren por controles reales, conservando huellas de destinos ajenos
+
+#### Scenario: Scope ajeno o incompleto
+- **WHEN** se intenta usar autorización de otra fase o faltan límites de efectos
+- **THEN** el runner se detiene antes de autenticar o abrir una ventana escritora
+
+### Requirement: RQ-15 — Compatibilidad y entrega verificable
+
+El sistema SHALL entregar la interfaz compatible con los consumidores y la plataforma actuales, con compilación, regresión y evidencia que declaren el alcance real y permitan revertir el despliegue sin borrar datos. Trazabilidad: D-15.
+
+#### Scenario: Compatibilidad de la entrega
+- **WHEN** se compila y verifica la interfaz y sus regresiones
+- **THEN** se conservan recepción, preparación, confirmación, navegación y consumidores existentes
+
+#### Scenario: Evidencia diferenciada
+- **WHEN** se registra el resultado de validaciones locales o reales
+- **THEN** cada resultado declara SHA, ambiente, alcance y límites sin atribuir ejecución real a mocks
+
+#### Scenario: Reversión de entrega
+- **WHEN** se debe retirar la interfaz desplegada
+- **THEN** se restauran assets/bin compatibles sin eliminar tablas, configuración, cargas ni resultados
