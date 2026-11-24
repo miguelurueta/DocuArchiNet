@@ -6,12 +6,13 @@
 PR137 integrado en main por63e5e25e; CI37/37. Archivo local verificado en
 openspec/changes/archive/2026-11-24-doc-125-importacion-excel-05-confirmacion-recuperacion;
 principal:15requisitos/44escenarios,31/31tareas y OpenSpec96/96. Las34fuentes
-de aceptación permanecen idénticas. Jira al corte 2026-11-24T15:13:01.047Z:
-En curso, categoríaindeterminate. Integración documental pendiente al corte.
+de aceptación permanecen idénticas. Jira al corte 2026-11-24T15:43:14.713Z:
+Listo, categoríadone. Integración documental pendiente al corte.
 Evidencia: Validacion/doc125-sincronizacion-archivo-20261124.md/JSON. No repetir
 E2E/SQL/despliegues ni limpiar; preservar todos los resultados y secretos excluidos.
 Los apartados inferiores conservan cortes históricos.
 <!-- /doc125:archive-cut -->
+
 
 
 ## DOC125 — aceptación real cerrada5/5, 2026-11-24

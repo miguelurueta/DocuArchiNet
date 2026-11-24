@@ -1,6 +1,6 @@
 {
   "issue": "DOC-125",
-  "recordedUtc": "2026-11-24T15:19:03.523Z",
+  "recordedUtc": "2026-11-24T15:43:35.639Z",
   "implementationMerge": "63e5e25ed3d9cdbfe8fa2de9c6f9cbedf5ce1bbf",
   "implementationPr": "https://github.com/miguelurueta/DocuArchiNet/pull/137",
   "archive": "openspec/changes/archive/2026-11-24-doc-125-importacion-excel-05-confirmacion-recuperacion",
@@ -69,9 +69,9 @@
   "jira": {
     "issue": "DOC-125",
     "summary": "IMPORTACION-EXCEL-05-CONFIRMACION-RECUPERACION",
-    "status": "En curso",
-    "statusCategory": "indeterminate",
-    "recordedUtc": "2026-11-24T15:13:01.047Z"
+    "status": "Listo",
+    "statusCategory": "done",
+    "recordedUtc": "2026-11-24T15:43:14.713Z"
   },
   "documentationIntegration": "Pending PR integration at this recorded cut; implementation PR137 is already merged",
   "newRealE2E": false,
