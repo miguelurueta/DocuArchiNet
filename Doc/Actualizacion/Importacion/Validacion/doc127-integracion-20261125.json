@@ -1,0 +1,177 @@
+{
+  "issue": "DOC-127",
+  "recordedUtc": "2026-11-25T14:39:16.485Z",
+  "baseCommit": "17bdf09e4f46efb43cbe4771d4de99ee8a308628",
+  "status": "LOCAL_INTEGRATION_PASS_REAL_READ_PENDING_AUTHORIZATION",
+  "tasks": {
+    "complete": 20,
+    "total": 33,
+    "integralAcceptanceStillOpen": true
+  },
+  "regression": {
+    "command": "node --test --test-concurrency=2 tests/doc119-navigation.test.cjs tests/doc120-produccion-barra.test.cjs tests/doc120-importacion-arbol.test.cjs tests/doc120-coordinacion-browser.test.cjs tests/doc110-perfil-importacion-editor.test.cjs tests/doc110-fuente-admin-editor.test.cjs tests/doc110-proveedor-admin-editor.test.cjs tests/doc126-importacion-excel-ui.test.cjs tests/doc126-importacion-excel-client.test.cjs tests/doc126-e2e-reuse.test.cjs tests/doc127-e2e-reuse.test.cjs",
+    "tests": 141,
+    "pass": 141,
+    "fail": 0,
+    "durationMs": 62717.8394,
+    "source": "Chromium/JSDOM/transportes sinteticos, sin IIS/MySQL autenticados",
+    "suites": [
+      "tests/doc119-navigation.test.cjs",
+      "tests/doc120-produccion-barra.test.cjs",
+      "tests/doc120-importacion-arbol.test.cjs",
+      "tests/doc120-coordinacion-browser.test.cjs",
+      "tests/doc110-perfil-importacion-editor.test.cjs",
+      "tests/doc110-fuente-admin-editor.test.cjs",
+      "tests/doc110-proveedor-admin-editor.test.cjs",
+      "tests/doc126-importacion-excel-ui.test.cjs",
+      "tests/doc126-importacion-excel-client.test.cjs",
+      "tests/doc126-e2e-reuse.test.cjs",
+      "tests/doc127-e2e-reuse.test.cjs"
+    ],
+    "logSha256Utf8Lf": "9e1815cdd8d569b9c29b6b401d67ff8dcaf9d1b88e8c8cabd73a13e37f1aa855"
+  },
+  "sharedCheck": {
+    "path": "tools/e2e/tests/support/doc110-admin-navigation.cjs",
+    "export": "verifyExcelFormIsolation",
+    "checks": [
+      "form1 existe y mantiene la validacion nativa",
+      "Los controles Excel tienen propietario conectado fuera de form1",
+      "Falla si un control vuelve a form1 o se desactiva globalmente la validacion"
+    ],
+    "localBehaviorVerified": true,
+    "realReadIntegration": {
+      "suite": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "mode": "read",
+      "acceptanceIssue": "DOC-127",
+      "when": [
+        "antes de abrir Excel",
+        "despues de cerrar con Escape"
+      ],
+      "realExecuted": false,
+      "postbacksSent": 0
+    }
+  },
+  "currentPreflight": {
+    "recordedUtc": "2026-11-25T14:34:11.7225960Z",
+    "selects": 11,
+    "writes": 0,
+    "empresaId": 2,
+    "daModuloId": 11,
+    "raModuloId": 12,
+    "accounts": [
+      {
+        "id": 141,
+        "activo": 1,
+        "cargas": 1,
+        "carpetas": 1,
+        "perfiles": 1,
+        "fuentes": 1,
+        "proveedores": 1
+      },
+      {
+        "id": 194,
+        "activo": 1,
+        "cargas": 1,
+        "carpetas": 0,
+        "perfiles": 0,
+        "fuentes": 0,
+        "proveedores": 0
+      },
+      {
+        "id": 196,
+        "activo": 1,
+        "cargas": 0,
+        "carpetas": 0,
+        "perfiles": 0,
+        "fuentes": 0,
+        "proveedores": 0
+      }
+    ],
+    "fixtureCounts": [
+      {
+        "tabla": "imp_02_doc126_e2e_agregar",
+        "filas": 1002
+      },
+      {
+        "tabla": "imp_02_doc126_e2e_reemplazar",
+        "filas": 1000
+      }
+    ]
+  },
+  "readProposal": {
+    "status": "DRAFT_NOT_AUTHORIZED",
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-lectura-propuesta-20261125.md",
+    "protectedTables": 32,
+    "scopeSha256": "46836708947c2e441fd424342e87a2daa83bf49aa6daa436154dcbe3ae4b7eb4",
+    "credentialsStored": false,
+    "sessionGuardChecked": "DOC127_READ_NOT_AUTHORIZED before connections or password prompts"
+  },
+  "sources": [
+    {
+      "path": "tests/doc119-navigation.test.cjs",
+      "sha256Utf8Lf": "998e7f0bd70f8b612e2462935899f5ba8d0c5d90b5df949e22816b2ec465a0f0"
+    },
+    {
+      "path": "tests/doc120-produccion-barra.test.cjs",
+      "sha256Utf8Lf": "e03a2e3e979016f33a887350f3c9afab1fb5684910a6814f8215a8db3a9bbf83"
+    },
+    {
+      "path": "tests/doc120-importacion-arbol.test.cjs",
+      "sha256Utf8Lf": "6a4a8a423eecc1ec049c7b7ad08f8bf7bcb67363bc5ea813c47e3411cb12440d"
+    },
+    {
+      "path": "tests/doc120-coordinacion-browser.test.cjs",
+      "sha256Utf8Lf": "7cc6bba509b2fb5c8cda11c7818ba6e4909f115c6ee801d0ddd93908175b0c17"
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-editor.test.cjs",
+      "sha256Utf8Lf": "9eb29937b10117d0f537b61a9242102e67a0080635f3b2d2ed9016038901e220"
+    },
+    {
+      "path": "tests/doc110-fuente-admin-editor.test.cjs",
+      "sha256Utf8Lf": "9c207333439e6f8e3aafc3831523cb38432da2eac5f994c41c2623d14eace6fd"
+    },
+    {
+      "path": "tests/doc110-proveedor-admin-editor.test.cjs",
+      "sha256Utf8Lf": "c8631c479a72e51853037e1327977e7860441be8c83d92f90ebbceed497091b0"
+    },
+    {
+      "path": "tests/doc126-importacion-excel-ui.test.cjs",
+      "sha256Utf8Lf": "913e05e4360ddcd2168940b27079386780afa50db6f8ae2d1441e5220b25a457"
+    },
+    {
+      "path": "tests/doc126-importacion-excel-client.test.cjs",
+      "sha256Utf8Lf": "d996e59f1060b9ae7cded4a5d243ba3df0db9cafcc4fd795a0bb106ecab37f84"
+    },
+    {
+      "path": "tests/doc126-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "93c813cd64654171284eaabab672da48deb01b639af816c7323448c0b502134e"
+    },
+    {
+      "path": "tests/doc127-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "d5949b669b788da1a92f606abe90f46abbed23133185d92b94967ee59ce33048"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc110-admin-navigation.cjs",
+      "sha256Utf8Lf": "dcbd973a3d8eedea832ea9e421575e2d37cd353d4daa192815d4d5d6897011bf"
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "61ee704cb56724fb09279e2e984a4e718fad436a0587a01652c3a6aa3911a2c7"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "sha256Utf8Lf": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Utf8Lf": "4a80a5aacd92e6cc78152ff014ec75130539e9d52a1223436d3599a35060d85b"
+    }
+  ],
+  "limitations": [
+    "La regresion amplia comprueba integracion local; no es una E2E autenticada ni aceptacion integral.",
+    "La correccion productiva permanece en17bdf09e; esta entrega amplía infraestructura/evidencia.",
+    "La lectura propuesta requiere autorizacion explicita y credenciales efimeras en consola privada.",
+    "Las18 ventanas de capacidad, EXPLAIN29 y cierre siguen pendientes."
+  ]
+}

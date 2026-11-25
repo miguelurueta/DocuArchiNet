@@ -2,6 +2,8 @@
 
 ## DOC127: capacidad preparada, sin ejecución real nueva — 2026-11-25
 
+Continuación de integración:141/141 locales PASS en11 suites. La E2E Excel `read` existente aplica `verifyExcelFormIsolation` antes de abrir y después de cerrar sólo para scopes con `acceptanceIssue=DOC-127`. Propuesta actual: `Doc/Actualizacion/Importacion/Validacion/doc127-lectura-propuesta-20261125.md`; scope/consola privados nuevos bloqueados sin autorización. Cuentas194/196, plantilla60,32 tablas protegidas, cero importaciones. No reutilizar scopes/contraseñas ni la autorización de lecturas anteriores. Evidencia local: `doc127-integracion-20261125.md/json`;20/33 tareas.
+
 Corrección posterior del bloqueo de `form1`: script **doc127-1**. Los controles Excel conservan sus restricciones y validación explícita, asociados a un formulario auxiliar fuera del formulario ASP.NET.81/81 pruebas locales PASS; GET del script servido coincide con el candidato. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-correccion-formulario-20261125.md/json`. Antes de una ventana real, renovar sus huellas del script y página; los scopes anteriores no autorizan esta versión por herencia. No se ha ejecutado aceptación autenticada nueva.
 
 **19/33 tareas.** Build net461 aislado y regresión local verificados; 18 libros sintéticos pasaron por el lector de producto sin MySQL/HTTP. Se reutilizan runner DOC110, suite Excel, controles SELECT DOC32 y verificación de cuentas/runtime DOC126. Ver `Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.md`.

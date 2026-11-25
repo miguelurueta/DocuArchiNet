@@ -10,6 +10,8 @@ Build MSBuild net461 aislado, harness nativo DOC122–125, UI/cliente/adaptadore
 
 ## QA/E2E WebForms
 
+Ampliación de integración:141/141 locales PASS en11 suites existentes de gestor, carpetas, administración y Excel. Se comparte la guarda de aislamiento con la E2E de lectura DOC127; propuesta de cuentas194/196 y32 tablas pendiente de autorización. Cero ejecuciones autenticadas nuevas y avance20/33. Ver `Doc/Actualizacion/Importacion/Validacion/doc127-integracion-20261125.md/json` y `doc127-lectura-propuesta-20261125.md`.
+
 Corrección posterior de `form1`: Excel recibe un propietario de formulario independiente para sus controles; required y restricciones numéricas dejan de bloquear el árbol del gestor. Script doc127-1;81/81 regresiones locales PASS y huella HTTP estática coincidente. No acredita E2E autenticada nueva. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-correccion-formulario-20261125.md/json`. Avance20/33;7.1 mantiene pendiente el corte integral.
 
 Aplicación posterior delegada,2026-11-25: **20/33 tareas**, con4.1 completada. SQL30–32 aplicados y COMMIT confirmados fuera de E2E; SQL33 posterior y119 comprobaciones PASS. Dos tablas vacías, fuentes10/11 y plantillas61–68 con16 campos;30 tablas y78 perfiles anteriores conservan sus huellas. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-aplicacion-recursos-20261125.md/json`. No se ejecutaron E2E real ni EXPLAIN29; los siguientes párrafos conservan los cortes históricos.

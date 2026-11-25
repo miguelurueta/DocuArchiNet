@@ -2,6 +2,7 @@
 // Browser real, transporte y respuestas sintéticos. No acredita IIS/MySQL/E2E real.
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium}=require('../tools/e2e/node_modules/playwright');
+const {verifyExcelFormIsolation}=require('../tools/e2e/tests/support/doc110-admin-navigation.cjs');
 const root=path.resolve(__dirname,'..'),id='10000000-0000-4000-8000-000000000001';
 const clone=v=>JSON.parse(JSON.stringify(v));
 async function fixture(work,options={}){
@@ -79,6 +80,7 @@ test('DOC127 Excel oculto permite enviar form1 al seleccionar dos expedientes co
  });
  await page.addScriptTag({content:'var SELECCION_TREVIEW_ID="";'+onNode+'\n'+parent+'\n$("#TreeViewArchivo").on("click",this,OnNodeClicked);'});
  assert.equal(await page.locator('[role=dialog]').isVisible(),false);
+ await verifyExcelFormIsolation(page);
  assert.equal(await page.locator('#form1').evaluate(e=>e.checkValidity()&&!e.noValidate),true);
  assert.equal(await page.locator('#doc126-tabla').evaluate(e=>e.required&&e.form!==document.getElementById('form1')&&e.form.parentElement===document.body),true);
  await page.locator('#TreeViewArchivot0').click();await page.locator('#TreeViewArchivot1').click();
@@ -91,6 +93,7 @@ test('DOC127 cerrar Excel con una posición inválida conserva el envío y los v
  await page.locator('[data-doc126=guardar]').click();await page.locator('[data-doc126=estado]').filter({hasText:'entero no negativo'}).waitFor();
  assert.equal(calls.some(c=>c.operation==='GuardarPlantilla'),false);
  await page.locator('[data-doc126=cerrar]').click();
+ await verifyExcelFormIsolation(page);
  await page.evaluate(()=>{window.gestorSubmits=0;document.getElementById('form1').addEventListener('submit',e=>{e.preventDefault();gestorSubmits++;});});
  await page.locator('#gestor-submit').click();assert.equal(await page.evaluate(()=>gestorSubmits),1);
  await page.evaluate(()=>document.getElementById('form1').insertAdjacentHTML('beforeend','<input id="gestor-required" required>'));
@@ -102,6 +105,15 @@ for(const missing of ['tabla','clave','libro'])test('DOC127 Guardar plantilla re
  await page.locator('[data-doc126=guardar]').click();
  assert.equal(calls.some(c=>c.operation==='GuardarPlantilla'),false);
  assert.match(await page.locator('[data-doc126=estado]').innerText(),missing==='tabla'?/Completa Tabla de destino/:missing==='clave'?/campo único que exista/:/configuración de la plantilla/);
+}));
+test('DOC127 comprobación compartida con E2E real detecta un control reasociado a form1 o novalidate global',()=>fixture(async(page,calls)=>{
+ await verifyExcelFormIsolation(page);
+ await page.locator('#doc126-tabla').evaluate(e=>{e.dataset.originalOwner=e.getAttribute('form');e.setAttribute('form','form1');});
+ await assert.rejects(()=>verifyExcelFormIsolation(page),/DOC127_WEBFORMS_ISOLATION_REQUIRED/);
+ await page.locator('#doc126-tabla').evaluate(e=>e.setAttribute('form',e.dataset.originalOwner));
+ await page.locator('#form1').evaluate(e=>e.noValidate=true);
+ await assert.rejects(()=>verifyExcelFormIsolation(page),/DOC127_WEBFORMS_ISOLATION_REQUIRED/);
+ assert.deepEqual(calls,[]);
 }));
 test('DOC126 semáforo guía cada acción y reutiliza CREAR como AGREGAR tras consultar la misma plantilla',()=>fixture(async(page,calls)=>{
  await open(page);assert.deepEqual(await stepTones(page),['amber','gray','gray','gray']);

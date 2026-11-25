@@ -132,7 +132,7 @@ test.describe('DOC126 interfaz Excel con servicios y controles existentes',()=>{
  test.skip(process.env.DOC126_E2E_AUTHORIZED!=='YES','NO_EJECUTADO: autorización, instalación y scope DOC126 propios requeridos. No heredar ventanas anteriores.');
  async function acceptance(browser,mode){
   test.setTimeout(900000);
-  const support=require('./support/doc126-excel-scope.cjs'),{openExcelImporter}=require('./support/doc110-admin-navigation.cjs');
+  const support=require('./support/doc126-excel-scope.cjs'),{openExcelImporter,verifyExcelFormIsolation}=require('./support/doc110-admin-navigation.cjs');
   const {queryRows,queryFingerprint}=require('../scripts/support/doc32-e2e-odbc.cjs');
   const {startExcelExternalWriter}=require('../scripts/run-doc110-profile-session.cjs');
   const s=support.readScope(required('DOC126_E2E_SCOPE_PATH'),required('DOC126_E2E_BASE_URL'),mode);support.verifyRuntime(s);
@@ -192,8 +192,10 @@ test.describe('DOC126 interfaz Excel con servicios y controles existentes',()=>{
     return r.datos;
    }
    if(mode==='read'){
+    if(s.acceptanceIssue==='DOC-127')await verifyExcelFormIsolation(a.page);
     await choose(s.selection);check(await a.page.locator('[data-doc126=destino]').isVisible(),'DOC126_UI_DETAIL_NOT_VISIBLE');
     await a.page.keyboard.press('Escape');check(!await a.page.locator('#doc126-excel [role=dialog]').isVisible(),'DOC126_ESCAPE_FAILED');
+    if(s.acceptanceIssue==='DOC-127'){await verifyExcelFormIsolation(a.page);console.log('DOC127_WEBFORMS_ISOLATION_PASS; mounted and closed Excel controls excluded from form1; no postback sent');}
     check(!unexpectedMutation,'DOC126_READ_MUTATION_ATTEMPTED');console.log('DOC126_REAL_UI_READ_PASS; exclusive/restricted accounts, existing services and unchanged fingerprints');
    }else if(mode==='assistant'){
     check(process.env.DOC126_ASSISTANT_E2E_AUTHORIZED==='YES','DOC126_ASSISTANT_AUTHORIZATION_REQUIRED');
