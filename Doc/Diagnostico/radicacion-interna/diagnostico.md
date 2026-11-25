@@ -1,13 +1,13 @@
 # Diagnóstico de radicación interna desde Producción documental
 
-La radicación interna puede mejorar sustancialmente su claridad, pero necesita una revisión de comportamiento además del cambio visual. El formulario actual combina selección de documentos, una plantilla dinámica, asignación Workflow y una operación con varias etapas de persistencia. La modernización debe conservar esa configuración y distinguir lo registrado de los efectos posteriores que puedan fallar.
+La radicación interna puede mejorar sustancialmente su claridad, pero necesita una revisión de comportamiento además del cambio visual. El formulario actual combina selección de documentos, una plantilla dinámica, asignación Workflow y una operación con varias etapas de persistencia. La modernización debe conservar esa configuración y distinguir lo registrado de los efectos posteriores que puedan fallar. El alcance funcional confirmado incluye radicar a nombre de un tercero como remitente, conservando al usuario autenticado como ejecutor en auditoría.
 
 **Recomendación:** corregir primero las inconsistencias verificadas de dependencias, estado y comunicación del modal; después reorganizar la interfaz manteniendo los IDs, metadatos y reglas de la plantilla. El backend de registro requiere un trabajo separado y acotado para contexto, autorización y resultados parciales.
 
 | Referencia | Valor |
 |---|---|
 | Fecha | 2026-11-25 |
-| Versión | 0.1 |
+| Versión | 0.2 |
 | Base local | Commit `0c7beb83` |
 | Grabación | `Grabación 2026-11-25 113145-radicacion-interna-revisa.mp4` |
 | Duración | 78,80 segundos |
@@ -144,6 +144,36 @@ Debe definirse el significado funcional de cero días: trámite sin vencimiento,
 
 La fecha del documento del video es heredada del documento seleccionado; no se concluye que sea errónea por ser antigua. Es distinta de la fecha límite de respuesta calculada a partir del trámite y calendario de días laborales.
 
+## Decisión aprobada sobre radicación a nombre de terceros
+
+**D-RI-01. Aprobada por el usuario el 2026-11-25:** permitir radicar a nombre de un tercero que figure como remitente del radicado, manteniendo al usuario autenticado como quien ejecutó la operación. Esta capacidad se suma a la selección de usuarios internos existente. La aprobación define el comportamiento funcional; las decisiones de catálogo, permisos y contrato técnico se refinan antes de implementar.
+
+| Rol | Identidad y función |
+|---|---|
+| Ejecutor | Usuario autenticado que realiza la operación y conserva su identificación en auditoría. |
+| Remitente | Usuario interno o tercero en cuyo nombre se radica. El tercero seleccionado debe quedar relacionado como remitente del radicado. |
+| Responsable del trámite | Usuario o grupo que recibe la asignación de Workflow, determinado por sus propias reglas. Elegir un tercero como remitente no lo convierte en responsable. |
+
+### Implicaciones técnicas y propuesta de interacción
+
+El selector actual consulta `remit_dest_interno` mediante `Solicita_lista_usuarios_gestion` o `Solicita_lista_usuario_gestion`. Al confirmar, `Registra_Radicacion_entrante_interna` pasa su valor a `Registra_usuario_gestion_remitente_externo`, que espera un ID de usuario de gestión y resuelve su relación con la plantilla del remitente. Incorporar terceros requiere adaptar esa resolución y la persistencia; ampliar las opciones del combo por sí solo no satisface la decisión.
+
+El repositorio contiene gestión de terceros por plantillas y la función `Solicita_datos_auto_complete_tercero_plantilla` en `Class_plantilla_validacion.vb`. Su reutilización depende del catálogo autorizado para esta entrada y de sus validaciones. Debe distinguirse el tipo de identidad junto con su identificador para evitar confundir un usuario interno y un tercero con el mismo ID numérico. Los nombres concretos del contrato quedan para el diseño técnico.
+
+Se propone «Radicar en nombre de» con elección de usuario interno o tercero, búsqueda en el catálogo correspondiente y una ficha con los datos identificativos disponibles. El resumen de confirmación debe mostrar ejecutor, remitente y responsable. Al cambiar de tipo se debe invalidar la selección anterior y resolver la nueva en servidor; la identidad del ejecutor procede de la autenticación.
+
+### Definiciones pendientes de refinamiento
+
+| Referencia | Definición pendiente | Consecuencia |
+|---|---|---|
+| Q-RI-01 | Catálogo de terceros aplicable: plantilla, empresa y ámbito de consulta. | Determina qué registros se pueden buscar y relacionar; evita asumir un catálogo global. |
+| Q-RI-02 | Tipos de terceros admitidos y datos identificativos que se mostrarán. | Determina si se admiten personas naturales, jurídicas o ambas y cómo distinguir coincidencias. |
+| Q-RI-03 | Permiso para radicar a nombre de terceros y su relación con la capacidad actual de representar usuarios internos. | Define quién puede utilizar cada opción y qué autoridad se revalida al confirmar. |
+| Q-RI-04 | Selección de terceros existentes o posibilidad de crearlos desde este recorrido. | La decisión aprobada no incluye automáticamente alta ni edición de terceros. |
+| Q-RI-05 | Datos del tercero que deben aparecer en impresión, consultas y notificaciones. | Exige revisar consumidores del remitente y destinatarios de correo sin cambiar silenciosamente el enrutamiento. |
+
+La aceptación de D-RI-01 debe comprobar la relación del tercero como remitente y la identidad del ejecutor en auditoría, además de la conservación del recorrido con usuarios internos. La representación de terceros amplía el alcance de backend y debe contemplarse al estimar la modernización.
+
 ## Propuesta de organización de la interfaz
 
 La recomendación es conservar inicialmente el contenedor y la generación por plantilla, añadiendo una presentación por secciones con una sola área de desplazamiento útil. Una reescritura del registro no debe esconderse dentro de una tarea de CSS.
@@ -151,6 +181,7 @@ La recomendación es conservar inicialmente el contenedor y la generación por p
 | Sección | Contenido | Comportamiento propuesto |
 |---|---|---|
 | Contexto de la operación | Expediente, principal, actor y plantilla | Resumen visible y verificable; no una banda con texto diminuto de la entidad. |
+| Remitente | Radicar a nombre de usuario interno o tercero | Búsqueda según tipo y ámbito autorizado; distinguir remitente, ejecutor y responsable conforme a D-RI-01. |
 | Documentos | Principal y lista de anexos con cantidad | Roles explícitos; nombres completos y posibilidad de revisar la elección antes de confirmar. |
 | Datos del radicado | Trámite, asunto, fecha del documento, folios y cita cuando aplique | Etiquetas legibles, obligatoriedad de la plantilla y mensajes junto al campo. |
 | Trámite y destino | Fecha límite, flujo, actividad/asignación, grupo y responsable | Controles dependientes, estado de carga, valores anteriores invalidados y búsqueda en catálogos largos. |
@@ -159,7 +190,7 @@ La recomendación es conservar inicialmente el contenedor y la generación por p
 
 La lista de usuarios necesita búsqueda por nombre/cargo y ámbito autorizado. La fecha límite debe explicar su origen y si puede editarse. «Ver..» debe expresar qué flujo o diagrama abrirá y estar disponible solo para un flujo válido. El modo de radicación, relaciones y consultas existentes se preservan según la configuración real, aunque algunos paneles estén ocultos en esta entrada.
 
-No se han aprobado aquí cambios de reglas, campos obligatorios, actor representado, cálculo de plazos o alcance de radicación. Esas decisiones se refinan por entrega antes de modificar el comportamiento correspondiente.
+La ampliación a terceros como remitentes está aprobada en D-RI-01. Las definiciones pendientes de esa capacidad y los demás cambios de reglas, campos obligatorios, cálculo de plazos o alcance de radicación se refinan por entrega antes de modificar el comportamiento correspondiente.
 
 ## Operaciones que deben preservarse
 
@@ -168,7 +199,7 @@ No se han aprobado aquí cambios de reglas, campos obligatorios, actor represent
 | Origen documental | Principal, anexos, expediente, estado abierto/cerrado y rechazo de documentos ya relacionados cuando corresponda. |
 | Plantilla | Campos de sistema y adicionales, orden, tipos, catálogos, scripts, obligatoriedad, folios, fechas y cita. |
 | Trámite | Catálogo interno, calendario laboral, plazo y dependencias de flujo/actividad. |
-| Responsables | Usuario actual/representado, asignación directa o a grupo, usuario de grupo y validación de autoridad. |
+| Identidades y responsables | Ejecutor autenticado, remitente interno o tercero conforme a D-RI-01, asignación directa o a grupo, usuario de grupo y validación de autoridad. |
 | Workflow | Flujo, actividad de inicio, responsable y consulta del diagrama. |
 | Relacionados | Nuevo radicado, anexo/relacionado y expediente/consulta previa cuando estén habilitados en este recorrido. |
 | Persistencia | Consecutivo, datos, relación principal, anexos y estados intermedios reales. |
@@ -196,6 +227,7 @@ También pasó `node --test tests/bootstrap-table-global-contract.test.cjs`: cua
 
 - Solo casillas, solo fila principal, principal también marcado y anexos excluidos/duplicados; resumen de la selección que realmente se enviará.
 - Documento ya radicado, expediente cerrado, permiso retirado, usuario representado no autorizado y cambio de contexto en otra pestaña.
+- Tercero como remitente con ejecutor autenticado en auditoría; recorrido existente con usuarios internos; IDs numéricos coincidentes entre catálogos; cambio de tipo sin conservar otra identidad; validación de permiso y ámbito al confirmar. El responsable Workflow debe seguir sus propias reglas.
 - Plantillas con opciones de fecha/cita/radicado distintas y campos adicionales de todos los tipos utilizados.
 - Cambiar trámite después de elegir responsable; grupo con un usuario, varios o ninguno; valor visible coherente con oculto y servidor.
 - Trámite de cero días y calendario laboral, sin imponer una interpretación de negocio nueva.
@@ -210,7 +242,7 @@ Las pruebas reales requieren autorización expresa de ambiente, cuentas y datos 
 
 1. **Estabilización funcional acotada:** dependencias, registro único de eventos, callback del modal, sincronización de selecciones y opciones de plantilla. Verificar con la configuración real antes de ampliar la interfaz.
 2. **Claridad y presentación:** principal/anexos explícitos, secciones, catálogos buscables, mensajes por campo y resultado visible. Conservar plantilla y contratos de la operación.
-3. **Contexto y resultado de backend:** identidad de apertura, autoridad al confirmar, correlación y recuperación de efectos parciales. Ajustar por responsabilidades y consumidores, sin reescribir indiscriminadamente el motor de radicación.
+3. **Contexto y resultado de backend:** identidad de apertura, autoridad al confirmar, representación de terceros conforme a D-RI-01, correlación y recuperación de efectos parciales. Ajustar por responsabilidades y consumidores, sin reescribir indiscriminadamente el motor de radicación.
 4. **Aceptación integral:** controles dinámicos, distintas plantillas, casos de concurrencia y fallos parciales, pruebas autorizadas y revisión de todos los accesos.
 
 El módulo tiene dependencias más amplias que una mejora visual aislada. Un presupuesto de tiempo para implementarlo debe considerar las decisiones de plantillas, representación de usuario y recuperación del registro, además de la distribución del formulario.
