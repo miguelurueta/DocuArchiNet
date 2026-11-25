@@ -1,154 +1,239 @@
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14 -->
+# DOC-127 — Verificación integral, capacidad y cierre
+
+Base inspeccionada: `d1d143954bcd0dc45198b862437d241e6dcc5643`; producto integrado desde `15ef5bb711fe5e3cdbf302efaeefd067cc51aa9d` (DOC126). Perfil `legacy-webforms-vb`, net461, MySQL5.1.37 y MySql.Data6.2.3. La fase acredita la capacidad existente y corrige brechas demostradas; no reconstruye importación, conexiones ni E2E.
+
 ## Context
 
-DOC-127: IMPORTACION-EXCEL-07-VERIFICACION-INTEGRAL-CIERRE
-
-## Jira Details
-
-> Registro del prompt 07
-> Fase 7 de 7 de la implementación de importación Excel en tablas imp_02_. Los siete tickets describen incrementos del mismo cambio funcional y se ejecutan en orden.
-> Proyecto DocuarchiNET (DOC). Sprint solicitado IMPORTAR-ARCHIVOS; nombre existente en Jira IMPOTAR-ARCHIVOS, ID 1927.
-> Dependencias de implementación DOC-121, DOC-122, DOC-123, DOC-124, DOC-125, DOC-126.
-> Origen inmutable dd1091a8d1ad70806509ee86e5fe53df3f2ea866. SHA-256 del prompt normalizado a UTF-8/LF 984b36b3c4fcd9b4fffd80306763219f4589525e7e6ddc46674dabfbab171ba1. Revisión estructural legacy-webforms-vb PASS, con 0 bloqueantes, 0 mayores y 0 menores.
-> Prompt completo en el repositorio
-> Exploración y diseño técnico consolidados
-> Informe de revisión del prompt
-> Contenido íntegro del prompt
-> Prompt 07 — Verificación integral, capacidad y cierre
-> ROL ESPERADO
-> Arquitecto de validación y QA .NET/MySQL para aceptación de una capacidad de importación.
-> OBJETIVO
-> Acreditar la entrega integrada y resolver las brechas reproducibles de integridad, autoridad, compatibilidad y recuperación.
-> DEPENDENCIAS
-> Requiere las fases 01 a 06 implementadas y sus resultados focales. Verificar el SHA real que se evaluará.
-> CONTEXTO
-> Trabaja en D:/imagenesda/DocuachiNet/DocuArchiNet, ASP.NET Web Forms con VB.NET, .NET Framework 4.6.1 y MySQL 5.1.37. Lee AGENTS.md y Doc/Actualizacion/Importacion/Exploracion/carga-excel-csv-tablas-imp-02.md, especialmente su diseño técnico resuelto. Estos siete prompts son fases consecutivas del mismo cambio funcional. Reutiliza el cambio OpenSpec y los resultados de las fases anteriores.
-> El alcance aprobado comprende XLS y XLSX, los modos crear/agregar/reemplazar, permiso ADMINISTRAR_CARGAS_IMPORTACION en remit_dest_interno_perfil_produccion, cuenta dedicada sobre la DA autorizada, validación por carga e índice UNIQUE permanente. Agregar rechaza toda la carga ante claves repetidas internas o existentes; reemplazar valida la unicidad del archivo y sustituye el contenido autorizado. Los límites iniciales son 10.000 filas y 10 MB, configurables en servidor; 1 MB equivale a 1.000.000 bytes.
-> Reutiliza imp01_xmlconexion, imp01_plantillaimp, imp01_campos_plantilla y las tablas imp_02_* elegibles. El diseño añade CAMPO_UNICO y REVISION_CARGA a la cabecera y una tabla imp01_carga_ejecucion. Preserva la compatibilidad de las plantillas históricas y sus consumidores de SII e importación de carpetas.
-> PRECONDICIONES DE RUTAS
-> Inventariar los archivos exactos en design.md antes de editar. Contrastar cada ruta propuesta con el código existente y reutilizar las responsabilidades ya implementadas. Aplicar únicamente las modificaciones de la fase actual. Registrar los archivos nuevos de compilación y contenido en GestionDocumental-Docuarchi.net.vbproj según el patrón del proyecto.
-> Responsabilidad
-> Rutas previstas
-> Modelos
-> Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb
-> DTOs y contrato request/response
-> DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb
-> Servicios
-> Services/ProduccionDocumental/ImportacionExcel/ServicioPlantillasExcel.vb, ServicioLecturaExcel.vb, ServicioPreparacionExcel.vb y ServicioConfirmacionExcel.vb en esa misma carpeta
-> Repositorios
-> Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb y MySqlCargaExcelRepository.vb en esa misma carpeta
-> Adaptadores e infraestructura
-> Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelContextAdapter.vb, ImportacionExcelRequestGuard.vb, ImportacionExcelConexionAdapter.vb y LectorArchivoExcel.vb en esa misma carpeta
-> Servicio web
-> webservice/WebServiceImportacionExcel.asmx y webservice/WebServiceImportacionExcel.asmx.vb
-> Receptor de archivo
-> generic_control/ImportacionExcelUpload.ashx y generic_control/ImportacionExcelUpload.ashx.vb
-> Interfaz
-> js/gestion/ImportacionExcel/ImportacionExcelApi.js, js/gestion/ImportacionExcel/ImportacionExcelVista.js y Styles/ImportacionExcel.css
-> Integración existente
-> Gestion/WebFormProducionDocumental.aspx, Gestion/WebFormProducionDocumental.aspx.vb, Gestion/Class_remit_dest_interno_perfil_produccion.vb y js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js
-> Pruebas
-> tests/ImportacionExcelBehaviorTests.cs y tools/e2e/tests/importacion-excel.spec.cjs, ampliando los harness y utilidades existentes cuando corresponda
-> Las rutas propuestas delimitan responsabilidades. Ajustar la división de archivos a la implementación real y registrar la justificación en design.md.
-> RESTRICCIONES CRÍTICAS
-> Mantener la sesión y empresa como autoridad. El navegador envía referencias, nunca un servidor, base o cadena de conexión elegidos libremente.
-> 
-> No imprimir ni persistir credenciales, cookies, tokens o cadenas de conexión en código, documentación o evidencias. Usar secretos efímeros durante pruebas y configuración protegida para la cuenta del servidor.
-> 
-> No modificar AlmacenamientoDocumentoProduccionDocumental ni SII para resolver la carga tabular. Preservar los contratos de los consumidores existentes.
-> 
-> CSV, migración entre gabinetes, omisión de duplicados y actualización automática por coincidencia de clave están fuera de alcance.
-> 
-> El agente genera los cambios SQL en archivos e indica su ejecución manual por el usuario. No debe ejecutar SQL modificador de esquema, datos o permisos ni aplicar archivos SQL directa o indirectamente. La comprobación posterior utiliza exclusivamente SELECT después de la confirmación de ejecución manual.
-> 
-> Conservar los cambios ajenos presentes en el repositorio local y agrupar las entregas conforme al flujo del cambio.
-> 
-> FLUJO OBLIGATORIO DE SQL MANUAL
-> Generar los cambios SQL como archivos nuevos y versionables en Doc/Actualizacion/Importacion/Sql/. Cubrir instalación, tablas, columnas, índices, permisos y cualquier corrección o preparación de datos que se necesite. Conservar los scripts históricos ya aplicados y entregar las correcciones en otro archivo.
-> 
-> Entregar una guía con archivo, orden, destino RA/DA, precondiciones, efectos previstos y consultas SELECT de comprobación. Mantener las credenciales fuera del SQL entregado.
-> 
-> Indicar al usuario qué archivo debe ejecutar manualmente. El agente no debe ejecutar SQL modificador ni aplicar esos archivos, tampoco mediante scripts de arranque, tests o una ruta indirecta de la aplicación.
-> 
-> Esperar la confirmación de ejecución manual del usuario antes de verificar ese cambio en la base. Registrar PENDIENTE_EJECUCION_MANUAL mientras esa confirmación falte y continuar el trabajo local independiente.
-> 
-> Después de la confirmación, revisar el resultado mediante consultas exclusivamente SELECT y evidencia saneada. Registrar diferencias y, si hace falta otra modificación, generar un nuevo archivo para ejecución manual.
-> 
-> La ausencia de errores en un archivo o su entrega no acredita que esté aplicado. La revisión posterior debe comprobar las estructuras, índices, relaciones y permisos observables correspondientes y registrar cualquier aspecto que requiera evidencia del usuario.
-> 
-> El código del cargador implementa los modos funcionales acordados para uso del usuario. La instalación o adecuación de su base sigue esta secuencia manual y debe estar verificada antes de probar las operaciones que dependan de ella.
-> IMPLEMENTACIÓN Y VERIFICACIÓN DE ESTA FASE
-> Compilar GestionDocumental-Docuarchi.net.vbproj con MSBuild y ejecutar las pruebas focales vigentes. Resolver los fallos pertinentes y registrar comandos y resultados del SHA evaluado.
-> 
-> Entregar los archivos SQL de instalación o adecuación y su guía de ejecución manual, con destinos RA/DA, orden, precondiciones y efectos previstos. Solicitar al usuario su ejecución manual y esperar su confirmación. Después revisar mediante SELECT las columnas, tabla de ejecuciones, claves, índices y permisos observables. Registrar cualquier diferencia y generar otro archivo si requiere corrección SQL.
-> 
-> Completar E2E como parte integral del mismo cambio con tools/e2e, sus validadores y las cuentas y datos descartables expresamente autorizados para el ambiente.
-> 
-> Acreditar permiso exclusivo del cargador, denegación/revocación, empresa distinta, referencias manipuladas y lectura sin mutación durante la preparación.
-> 
-> Acreditar plantillas históricas y altas web, XLS/XLSX, tres modos, duplicados por collation, clave requerida y escrituras autorizadas.
-> 
-> Acreditar rollback de reemplazo, confirmación repetida, respuesta perdida, recuperación de CREATE y concurrencia sobre la misma clave.
-> 
-> Medir 1.000, 5.000 y 10.000 filas por cada formato en los recorridos funcionales específicamente autorizados, con tiempo de preparación/escritura, memoria y resultados. Cubrir exactamente 10 MB y 10.000 filas, sus excesos y cambios de configuración. Entregar la consulta EXPLAIN para ejecución manual y revisar el plan aportado junto con los metadatos consultados mediante SELECT.
-> 
-> Revisar la regresión de los consumidores identificados de SII, de los perfiles/proveedores y de la importación de carpetas. Reutilizar evidencia vigente cuando la huella del componente lo permita.
-> 
-> Actualizar la guía operativa, el procedimiento de instalación y la matriz requisito-caso-prueba-SHA-ambiente-resultado. Registrar como pendientes las comprobaciones realmente no ejecutadas con su impacto.
-> 
-> Corregir las brechas reproducibles de código y ejecutar la regresión afectada. Si la corrección requiere SQL, entregar otro archivo para ejecución manual y revisar después mediante SELECT. Evaluar el criterio de cierre del cambio conforme a su flujo OpenSpec/OPSXJ.
-> 
-> CRITERIOS DE ACEPTACIÓN
-> El build y los controles locales pertinentes pasan sobre el SHA evaluado.
-> 
-> La matriz diferencia evidencia estática, local, integrada y real.
-> 
-> Las modificaciones SQL tienen archivo entregado, confirmación de ejecución manual y comprobación SELECT posterior. Un archivo generado conserva el estado PENDIENTE_EJECUCION_MANUAL hasta que el usuario confirme que lo aplicó.
-> 
-> Las brechas críticas de autoridad, integridad o recuperación quedan resueltas y verificadas.
-> 
-> Los límites configurados quedan acreditados en el ambiente de aceptación o registrados con su limitación real.
-> 
-> El cierre identifica explícitamente cualquier bloqueo y su impacto. No cerrar sin validación autorizada ni atribuir resultados simulados a una ejecución real.
-> 
-> El repositorio local contiene el código, los contratos, el SQL y la evidencia saneada conforme al flujo establecido.
-> 
-> PRUEBAS OBLIGATORIAS
-> Realiza la compilación MSBuild o el build pertinente al alcance de esta fase, y pruebas unitarias o QA manual reproducible que acrediten sus criterios. Registra comandos, resultado, SHA, ambiente y límites de evidencia. Las pruebas locales o con transporte simulado se identifican como tales.
-> El E2E del recorrido ejecutable es parte integral del mismo cambio funcional. Reutilizar tools/e2e y su autenticación, configuración, validadores y utilidades existentes, sin infraestructura paralela. Antes de autenticar, leer AGENTS.md y tools/e2e/AGENT-RUNBOOK.md. La ejecución real requiere autorización explícita de ambiente, cuentas y datos descartables. Cubrir control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión del alcance modificado. Los tests no deben instalar, migrar, sembrar, limpiar o reparar la base mediante SQL automático. La instalación se ejecuta manualmente por el usuario y se revisa mediante SELECT antes de los recorridos dependientes. Las verificaciones locales usan fixtures sintéticos sin escrituras en bases reales. Las escrituras funcionales de una prueba real requieren el alcance específico autorizado de esa prueba y no sustituyen la ejecución manual de los archivos SQL.
-> Mantener secretos efímeros y evidencia saneada, con consultas de control solo SELECT. Respetar los gates de autorización vigentes. No habilitar permisos arbitrariamente. El criterio de cierre del cambio exige validación autorizada y registrar cualquier bloqueo explícito. Los mocks, simulaciones y evidencia ficticia no acreditan una ejecución real. Las fases de base técnica documentarán la justificación cuando E2E no aplique todavía a su entrega.
-> DOCUMENTACIÓN TÉCNICA
-> Ubicar y actualizar la documentación existente en Doc/Actualizacion/Importacion/. Conservar la exploración como antecedente y registrar el diseño, las decisiones y los contratos vigentes del cambio OpenSpec. Guardar el SQL revisable en Doc/Actualizacion/Importacion/Sql/, y la evidencia y matriz de verificación en Doc/Actualizacion/Importacion/Validacion/. Añadir únicamente los documentos necesarios para explicar la entrega de esta fase.
-> ENTREGABLE FINAL
-> Informe final de aceptación y capacidad, matriz de evidencia, guía operativa/despliegue y estado verificable de las tareas y del cambio.
+Antecedente: `Doc/Actualizacion/Importacion/Exploracion/carga-excel-csv-tablas-imp-02.md`. El prompt conserva10000 iniciales; DOC124 elevó expresamente la configuración a20000 y DOC125/126 la preservaron. El fallback del lector sigue10000 y el tamaño predeterminado10MB equivale a10000000bytes. La ejecución utiliza la conexión DA del módulo y los recursos del repo, según la decisión DOC122; no se añade otra cadena en Web.config.
 
 ## Goals / Non-Goals
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+Acreditar integración, capacidad, límites y recuperación con matriz saneada; resolver brechas reproducibles y entregar operación/instalación verificables. Fuera de alcance: CSV, upsert, omisión de duplicados, migración entre gabinetes, pausa por fila, publicación automática de fuentes/proveedores, cambio de framework/conector y modificaciones a SII o AlmacenamientoDocumentoProduccionDocumental.
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+## Inventario exacto previo a cualquier cambio de producto
+
+Las rutas siguientes existen. Su inventario y hashes no afirman que se hayan ejecutado de nuevo ni que requieran edición. Inspección focal de responsabilidades, símbolos y evidencias; una corrección futura exige leer completamente el archivo afectado antes de editarlo. Las clases adicionales a las previstas por Jira (recepción, análisis, writer y estructura) ya separan responsabilidades y se reutilizan.
+
+### Modelos y contratos
+
+- `Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb`
+- `DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb`
+
+### Servicios
+
+- `Services/ProduccionDocumental/ImportacionExcel/ServicioPlantillasExcel.vb`
+- `Services/ProduccionDocumental/ImportacionExcel/ServicioLecturaExcel.vb`
+- `Services/ProduccionDocumental/ImportacionExcel/ServicioRecepcionExcel.vb`
+- `Services/ProduccionDocumental/ImportacionExcel/ServicioPreparacionExcel.vb`
+- `Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb`
+- `Services/ProduccionDocumental/ImportacionExcel/ServicioAnalisisPlantillaExcel.vb`
+- `Services/ProduccionDocumental/ImportacionExcel/ReglasCargaExcel.vb`
+
+### Infraestructura
+
+- `Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelContextAdapter.vb`
+- `Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelConexionAdapter.vb`
+- `Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb`
+- `Infrastructure/ProduccionDocumental/ImportacionExcel/LectorArchivoExcel.vb`
+- `Infrastructure/ProduccionDocumental/ImportacionExcel/InspectorFidelidadExcel.vb`
+- `Infrastructure/ProduccionDocumental/ImportacionExcel/AlmacenArchivoExcel.vb`
+- `Infrastructure/ProduccionDocumental/ImportacionExcel/ReferenciaRecepcionExcel.vb`
+- `Infrastructure/ProduccionDocumental/ImportacionExcel/PoliticaDestinoCargaExcelAdapter.vb`
+- `Infrastructure/ProduccionDocumental/ImportacionExcel/ComposicionCargaExcel.vb`
+
+### Repositorios
+
+- `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb`
+- `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb`
+- `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb`
+- `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlConfirmacionExcelWriter.vb`
+- `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlEstructuraExcel.vb`
+- `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/SqlCargaExcel.vb`
+
+### HTTP
+
+- `webservice/WebServiceImportacionExcel.asmx`
+- `webservice/WebServiceImportacionExcel.asmx.vb`
+- `generic_control/ImportacionExcelUpload.ashx`
+- `generic_control/ImportacionExcelUpload.ashx.vb`
+- `generic_control/ImportacionExcelAnalisis.ashx`
+- `generic_control/ImportacionExcelAnalisis.ashx.vb`
+
+### Interfaz e integración
+
+- `js/gestion/ImportacionExcel/ImportacionExcelApi.js`
+- `js/gestion/ImportacionExcel/ImportacionExcelVista.js`
+- `Styles/ImportacionExcel.css`
+- `Gestion/WebFormProducionDocumental.aspx`
+- `Gestion/WebFormProducionDocumental.aspx.vb`
+- `Gestion/Class_remit_dest_interno_perfil_produccion.vb`
+- `js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js`
+
+### Consumidores
+
+- `Infrastructure/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorDatosIndices.vb`
+- `Infrastructure/ProduccionDocumental/ImportacionCarpetas/PoliticaFuentesProveedor.vb`
+- `Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorIndicesRepository.vb`
+- `Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportProvider.vb`
+
+### Pruebas
+
+- `tests/ImportacionExcelBehaviorTests.cs`
+- `tests/ImportacionExcelLecturaTests.cs`
+- `tests/ImportacionExcelPreparacionTests.cs`
+- `tests/ImportacionExcelConfirmacionTests.cs`
+- `tests/doc122-importacion-excel-behavior.test.cjs`
+- `tests/doc122-e2e-reuse.test.cjs`
+- `tests/doc124-e2e-reuse.test.cjs`
+- `tests/doc125-e2e-reuse.test.cjs`
+- `tests/doc126-e2e-reuse.test.cjs`
+- `tests/doc126-importacion-excel-ui.test.cjs`
+- `tests/doc126-importacion-excel-client.test.cjs`
+- `tools/e2e/tests/importacion-excel.spec.cjs`
+- `tools/e2e/scripts/run-doc110-profile-session.cjs`
+- `tools/e2e/tests/support/doc124-excel-scope.cjs`
+- `tools/e2e/tests/support/doc125-excel-scope.cjs`
+- `tools/e2e/tests/support/doc126-excel-scope.cjs`
+
+### Proyecto y operación
+
+- `GestionDocumental-Docuarchi.net.vbproj`
+- `Web.config`
+- `tools/e2e/AGENT-RUNBOOK.md`
+- `Doc/Actualizacion/Importacion/Sql/README.md`
+
+No se propone código de producto nuevo durante el refinamiento. Extensiones de scope/muestreo se incorporarán al runner y suite existentes, con su inventario antes de editar. Un nuevo archivo VB/content se registra en el vbproj sólo cuando pertenezca al producto compilado; documentación y evidencia no requieren Compile/Content artificiales.
+
+## Corte de evidencia y brechas
+
+| Evidencia previa | Resultado acreditado | Límite que conserva DOC127 |
+| --- | --- | --- |
+| DOC122/123 | autorización/plantillas y lector/harness | lector local; no E2E física de fase03 |
+| DOC124 | CREAR12759, AGREGAR8000 y REEMPLAZAR8000 preparados | cero filas confirmadas en esos recorridos; no benchmark |
+| DOC125 |1000 confirmadas por cada modo; rollback/carrera reales; tiempos por etapa y muestras IIS | no5000/10000 por formato; memoria agregada parcial; COMMIT/DDL adverso principalmente local |
+| DOC126 | tres modos UI1000, asistente, rollback/carrera y lectura exclusiva/restringida v6 | ajuste final v7 sólo local; no atribuir lectura real v7 ni20000 confirmadas |
+
+Cada resultado conserva SHA/runtime/hashes originales. Comparar las fuentes de evidencia con el corte actual; el backend histórico distinto no invalida automáticamente toda evidencia de un consumidor intacto ni acredita cambios nuevos. Conservar las cinco cargas y tablas DOC126 y sus78 perfiles; las tablas de prueba contienen claves consumidas. Toda reutilización futura exige nuevos IDs/rangos, huellas y consentimiento específico. Los datos EGRESOS/CONTRATOS/CRÉDITOS se protegen; no son descartables por su nombre.
 
 ## Decisions
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-01 — Base y reutilización de evidencia (RQ-01)
 
-## Perfil tecnologico
+Fijar SHA, hashes normalizados de fuentes, hashes binarios del runtime, configuración efectiva y alcance por caso. Reutilizar resultados anteriores sólo con correspondencia de componente y condiciones; conservar diferencias y fechas.
 
-- Perfil de revision: legacy-webforms-vb (v1).
-- Alcance: ASP.NET Web Forms, code-behind VB.NET/C# y JavaScript gradual.
-- Este perfil orienta la revision tecnica; no reemplaza los requisitos funcionales ni arquitectonicos del ticket.
+Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-verificacion-final-20261125.json; doc125-verificacion-final-20261124.json`. Resultado exigido: Una matriz identifica origen, caso, SHA, ambiente, tipo de evidencia, resultado y limitación. La aceptación histórica no equivale a una ejecución actual.
+
+### D-02 — Infraestructura E2E compartida (RQ-02)
+
+Extender el runner DOC110, la suite Excel y los validadores DOC124–126. Crear alcances DOC127 cerrados por ventana; no reabrir scopes, IDs ni carreras consumidas.
+
+Evidencia: `tools/e2e/scripts/run-doc110-profile-session.cjs; tools/e2e/tests/importacion-excel.spec.cjs; tools/e2e/tests/support/doc126-excel-scope.cjs`. Resultado exigido: Cada ejecución real identifica autorización, recursos, efectos y presupuesto antes de autenticar. Las credenciales siguen efímeras; los controles externos son SELECT.
+
+### D-03 — Autoridad y preparación (RQ-03)
+
+Comprobar permiso exclusivo, denegado y revocado; empresa, propietario, CSRF y referencias. Preparar conserva tablas de negocio y configuración, aunque registra la ejecución y usa temporales propias.
+
+Evidencia: `Services/ProduccionDocumental/ImportacionExcel/ReglasCargaExcel.vb:Autorizar/MismaAutoridad; Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb:Validar`. Resultado exigido: Se rechazan referencias ajenas y operaciones sin autoridad sin efectos funcionales. Revocación real necesita gestión manual autorizada; la cobertura sintética se distingue.
+
+### D-04 — Instalación y SQL manual (RQ-04)
+
+Revisar instalación existente sin reaplicar SQL00–27. Entregar un preflight DOC127 de SELECT y archivos nuevos específicos sólo para diferencias demostradas; el usuario aplica y confirma cada cambio antes del SELECT posterior.
+
+Evidencia: `Doc/Actualizacion/Importacion/Sql/README.md; 03-ejecucion-da-doc121.sql; 22-preflight-doc126.sql`. Resultado exigido: El estado distingue ENTREGADO, EJECUTADO_CONFIRMADO y VERIFICADO_SELECT por archivo y destino RA/DA. Las excepciones históricas delegadas no autorizan otras aplicaciones.
+
+### D-05 — Formatos, plantillas y modos (RQ-05)
+
+Reutilizar el lector XLS/XLSX y las plantillas históricas/web. Verificar crear/agregar/reemplazar conservando revisión, mapeos y modo histórico; cada formato queda identificado.
+
+Evidencia: `Services/ProduccionDocumental/ImportacionExcel/ServicioLecturaExcel.vb:Leer; ServicioPlantillasExcel.vb:ModoHistorico/FormatoHistorico`. Resultado exigido: Los casos trazan formato, plantilla, hoja, clave, revisión, modo y filas efectivas. CSV, upsert y omisión de duplicados continúan excluidos.
+
+### D-06 — Integridad del destino (RQ-06)
+
+Verificar claves requeridas y comparación efectiva MySQL según tipo/collation, índice UNIQUE completo, motor, política empresarial y compatibilidad de columnas. Agregar falla íntegramente ante duplicados; reemplazar conserva aislamiento.
+
+Evidencia: `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb:Validar/Inspeccionar; MySqlConfirmacionExcelWriter.vb:Escribir`. Resultado exigido: Los rechazos conservan las filas de negocio y señalan su código y fase. No truncar datos ni alterar collation, índices históricos o BENEFICIARIO para adaptar la prueba.
+
+### D-07 — Recuperación y concurrencia (RQ-07)
+
+Conservar confirmación por ID, consulta histórica, locks de carga/destino y marca CREATE. Diferenciar replay/acuse ignorado de cortes físicos de COMMIT/red; comprobar rollback y carrera con observación del escritor activo.
+
+Evidencia: `Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb:Confirmar/ConsultarResultado; Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlConfirmacionExcelWriter.vb:Ejecutar; MySqlEstructuraExcel.vb:Marca/Asegurar`. Resultado exigido: No se duplica una carga confirmada y la incertidumbre exige consulta antes de reintentar. CREATE DDL no es reversible como el DML; no borrar tablas para simular recuperación.
+
+### D-08 — Límites efectivos (RQ-08)
+
+Conservar MaxFilasDatos=20000 vigente y 10 MB decimales por defecto; el lector mantiene fallback10000. Cubrir 10000/10001 bajo configuración10000 y 20000/20001 bajo20000, además de 10000000/10000001 bytes y cambios entre fases.
+
+Evidencia: `Infrastructure/ProduccionDocumental/ImportacionExcel/ComposicionCargaExcel.vb:New; Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb:ValidarActual; Web.config:ImportacionExcel.MaxFilasDatos`. Resultado exigido: La frontera se interpreta según configuración del servidor y se informa el máximo efectivo. Los cambios de configuración se prueban localmente; cualquier ajuste real requiere alcance propio y restauración verificada.
+
+### D-09 — Capacidad medible (RQ-09)
+
+Completar seis celdas formato/tamaño: XLS y XLSX por1000/5000/10000, separadas por modo ejecutado. Medir preparación, confirmación y memoria con metodología, baseline, intervalo y cobertura; no extrapolar a20000.
+
+Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc125-ejecucion-seguimiento-20261124.md; tools/e2e/tests/importacion-excel.spec.cjs`. Resultado exigido: El informe presenta filas, bytes, tiempos, memoria, resultado y huecos por celda y modo. Los tiempos HTTP incluyen metadatos y transporte; memoria agregada IIS no es asignación exclusiva por carga.
+
+### D-10 — Fuentes de índices y consumidores (RQ-10)
+
+Verificar la lectura existente por clave y la regresión de perfiles/proveedores, SII y carpetas. Importar una tabla no publica una fuente ni un proveedor: siguen su configuración/autorización propias. Entregar EXPLAIN para ejecución manual sobre la consulta real.
+
+Evidencia: `Infrastructure/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorDatosIndices.vb:ConsultarDatos; PoliticaFuentesProveedor.vb:PermiteOperativa; Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorIndicesRepository.vb:ObtenerVersion`. Resultado exigido: El plan y metadatos acreditan la consulta por igualdad con filtro empresarial cuando aplica y LIMIT2. No ejecutar EXPLAIN desde el agente; SELECT sólo para controles posteriores. No cambiar SII/almacenamiento para esta fase.
+
+### D-11 — Interfaz vigente (RQ-11)
+
+Preservar semáforo, asistente, errores explicativos, recuperación por ID y foco/Cerrar/Escape. Distinguir positivos reales v5, lectura real v6 y ajuste v7 cubierto localmente; evaluar una lectura v7 sólo en ventana autorizada.
+
+Evidencia: `js/gestion/ImportacionExcel/ImportacionExcelVista.js; ImportacionExcelApi.js; tests/doc126-importacion-excel-ui.test.cjs`. Resultado exigido: El usuario ve prerrequisitos, acciones habilitadas y diagnóstico accionable sin perder cierre o consulta. La evidencia manual previa no cubre automáticamente toda corrección posterior.
+
+### D-12 — Build y correcciones focales (RQ-12)
+
+Compilar net461 con MSBuild en salida aislada y ejecutar los harness vigentes. Corregir únicamente brechas reproducibles con prueba de reproducción; vincular nueva evidencia a las huellas cambiadas sin desplegar automáticamente.
+
+Evidencia: `GestionDocumental-Docuarchi.net.vbproj; tests/doc122-importacion-excel-behavior.test.cjs:compile; tests/ImportacionExcelConfirmacionTests.cs`. Resultado exigido: El build y la regresión relevante se ejecutan en el corte evaluado y sus logs son verificables. Conservar DLL IIS, fuentes ajenas y versiones MySQL5.1.37/MySql.Data6.2.3.
+
+### D-13 — Guía de operación y despliegue (RQ-13)
+
+Actualizar documentación existente con instalación RA/DA, confirmación manual, preflight, operación y recuperación. La carga confirma atómicamente; consultar/reintentar por ID no ofrece pausa por fila ni migración parcial.
+
+Evidencia: `Doc/Actualizacion/Importacion/Sql/README.md; Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb:Confirmar`. Resultado exigido: La guía permite instalar/verificar y operar con límites y procedimientos de recuperación explícitos. No retirar estructuras ni limpiar fixtures/resultados para preparar el cierre.
+
+### D-14 — Cierre verificable (RQ-14)
+
+Entregar matriz requisito-caso-prueba-SHA-ambiente-resultado, informe de capacidad y restricciones. Revisión, validación, publicación y archivo siguen OPSXJ por el SHA; los huecos críticos impiden cierre.
+
+Evidencia: `tools/opsxj/README.md:Compuerta de refinement; openspec/changes/archive/2026-11-25-doc-126-importacion-excel-06-interfaz-menu/tasks.md`. Resultado exigido: Cada tarea cerrada tiene evidencia del resultado y los bloqueos conservan impacto y siguiente acción. No convertir aprobación técnica de planificación en aceptación humana, aplicación SQL o ejecución real.
+
+## Protocolo de capacidad
+
+Comandos locales previstos, sin ejecutar durante el refinamiento:
+
+```powershell
+node --test tests/doc122-importacion-excel-behavior.test.cjs
+node --test tests/doc122-e2e-reuse.test.cjs tests/doc124-e2e-reuse.test.cjs tests/doc125-e2e-reuse.test.cjs tests/doc126-e2e-reuse.test.cjs
+node --test tests/doc126-importacion-excel-client.test.cjs tests/doc126-importacion-excel-ui.test.cjs
+```
+
+La primera orden compila el harness VB/C# y ejecuta también su regresión heredada; no sustituye el build MSBuild del proyecto completo. Resolver MSBuild desde la instalación local y usar salidas absolutas bajo `.tmp/doc127-build/bin/` y `.tmp/doc127-build/obj/`, con despliegue desactivado. Registrar el comando real resuelto y la huella de IIS antes/después. La selección de regresiones de consumidores se obtiene del harness DOC110 y del contrato SII vigente, evitando ejecutar recorridos autenticados por una coincidencia de nombre.
+
+La matriz tiene seis celdas formato/tamaño; dentro de cada una se registra cada modo CREAR/AGREGAR/REEMPLAZAR. Puede haber hasta18 recorridos si ninguno es reutilizable. Esa cifra es un plan de cobertura, no una autorización de18 escrituras. Cada celda/método tiene estado propio y el formato del archivo histórico se comprueba antes de reutilizarlo. No sustituir5000 o10000 por8000/12759, ni preparación por confirmación.
+
+Generar archivos sintéticos mediante utilidades/fixtures vigentes, con SHA/bytes y claves nuevas. El scope declara cuenta, empresa, RA/DA, plantilla/revisión/huella, archivo, tabla, filas previas/previstas y efectos máximos. La elección concreta de recursos se resuelve por SELECT y autorización antes de ejecutar; no presumir que una tabla actual está vacía. Si necesita fixtures o políticas nuevos, entregar SQL manual primero. Los cambios de permisos tampoco se hacen desde tests.
+
+Cronometrar preparar/confirmar individualmente; distinguir transporte, preflight y DML. Reutilizar muestreo IIS existente y ampliar su cobertura, con baseline/intervalo/procesos y picos observados. No atribuir memoria total compartida a una carga. El presupuesto se acuerda por ventana a partir de evidencia disponible; excederlo detiene nuevos efectos y deriva a consulta por ID. No aumentar HTTP30s ni SQL/locks/lotes sin evidencia, decisión explícita y regresión afectada.
+
+Exactamente10MB exige un documento reconocido por el lector, con hash y contenedor verificados; no usar padding inválido para confundir tamaño con corrupción. Fronteras10000/20000 y cambio de configuración tienen primero cobertura sintética sin tocar IIS. La confirmación física de20000 sólo puede anunciarse si se ejecuta aparte con alcance autorizado.
+
+## Consulta de índices y EXPLAIN
+
+La consulta existente en MySqlProveedorDatosIndices.ConsultarDatos es SELECT de propiedades autorizadas FROM tabla WHERE clave=@clave, con AND empresa=@empresa si aplica y LIMIT2. La clave procede de la configuración del proveedor y del valor resuelto por el perfil; el importador no cambia ese contrato. Generar EXPLAIN de la misma proyección/predicados y tipo de valor, con identificadores elegidos en servidor y un valor sintético saneado. El usuario ejecuta el plan manualmente. Revisar key/possible_keys/type/rows y el índice completo con SELECT; no asegurar uso del índice sólo porque exista. No crear proveedor/fuente ni ejecutar una importación de carpetas/SII con efectos para acreditar una lectura.
 
 ## Risks / Trade-offs
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+La fase exige más capacidad que la evidencia anterior: constituye trabajo de aceptación, no un defecto probado. Las pruebas de revocación, COMMIT incierto y recuperación DDL reales requieren una ventana y mecanismo concreto adicionales; hasta entonces conservan su cobertura local y limitación explícita. El ajuste v7 no se anuncia real por tener HTTP200 o49 tests locales. DDL CREATE puede sobrevivir al rollback DML y sólo su marca/esquema permite recuperación segura.
 
 ## Migration Plan
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+No se necesita una migración nueva para refinar. Inventariar aplicación previa y revisar metadatos; nunca aplicar en lote00–27. Entregar preflight SELECT y EXPLAIN manual en archivos DOC127 nuevos. Si hay diferencias, producir un archivo específico y guía RA/DA con precondiciones, efectos, confirmación y SELECT posterior. No automatizar limpieza o reversión de esquema; preservar cambios ajenos y evidencia previa. Compilar/suite en salida aislada no despliega la DLL. Cualquier despliegue futuro deberá identificar hashes y preservar el binario del usuario mediante el procedimiento autorizado.
 
 ## Open Questions
 
-- TBD
+No hay decisión de producto sin resolver para iniciar la aceptación local. La autorización de ventanas reales, la elección verificable de recursos y la aplicación/plan SQL son dependencias operativas explícitas de las tareas, no autorizaciones inferidas del refinamiento.

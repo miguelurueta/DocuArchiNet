@@ -1,25 +1,60 @@
-## 1. Refinement
+<!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14 -->
+# Tareas DOC-127
 
-- [ ] 1.1 Consolidar alcance final desde Jira + contexto de codigo.
-- [ ] 1.2 Ajustar design/spec con decisiones y riesgos definitivos.
+Plan de aceptación posterior al refinamiento: todas las tareas empiezan abiertas. No se vuelven a implementar las fases DOC121–126. Cada resultado puede reutilizar evidencia compatible y debe conservar su alcance; la planificación no declara una ejecución nueva. Perfil legacy-webforms-vb.
 
-## 2. Implementacion
+Complejidad relativa S/M; no es una estimación de horas. Dependencias: sección1 antes de clasificar aceptación; SQL/capacidad física esperan confirmación y autorización de sus ventanas. Las secciones locales y de documentación pueden avanzar sin autenticar. Una tarea dependiente conserva su estado abierto mientras falte evidencia, aunque su guía/archivo ya esté entregado.
 
-- [ ] 2.1 Implementar cambios funcionales del ticket.
-- [ ] 2.2 Mantener compatibilidad y evitar regresiones.
+## 1. Corte y reutilización
 
-## Perfil tecnologico
+- [ ] 1.1 [S] Fijar el manifiesto del corte de aceptación. Área/archivos: `Doc/Actualizacion/Importacion/Validacion/; fuentes inventariadas en design.md`. Origen: D-01, RQ-01. Verificación: SHA, fuentes, runtime y configuración efectivos identificados sin secretos.
+- [ ] 1.2 [M] Clasificar la evidencia DOC121–126 por vigencia de componente. Área/archivos: `Doc/Actualizacion/Importacion/Validacion/doc12*.md/json`. Origen: D-01, RQ-01. Verificación: cada resultado reutilizado conserva caso, formato, SHA, ambiente y limitación; diferencias de huella justificadas.
+- [ ] 1.3 [S] Inventariar aplicación previa de SQL y sus destinos RA/DA. Área/archivos: `Doc/Actualizacion/Importacion/Sql/README.md; evidencia histórica de instalación`. Origen: D-04, RQ-04. Verificación: cada archivo pertinente tiene aplicación confirmada, verificación o dependencia documentada sin reaplicarlo.
 
-- Perfil de revision: legacy-webforms-vb (v1).
-- Alcance: ASP.NET Web Forms, code-behind VB.NET/C# y JavaScript gradual.
-- Este perfil orienta la revision tecnica; no reemplaza los requisitos funcionales ni arquitectonicos del ticket.
+## 2. SQL revisable y plan de consulta
 
-## 3. Pruebas
+- [ ] 2.1 [M] Entregar el preflight DOC127 exclusivamente SELECT. Área/archivos: `Doc/Actualizacion/Importacion/Sql/; metadatos RA/DA existentes`. Origen: D-04, RQ-04. Verificación: comprueba columnas, ejecuciones, índices completos, política y permisos observables sin leer secretos ni modificar base.
+- [ ] 2.2 [M] Entregar el EXPLAIN de la consulta efectiva del proveedor para ejecución manual. Área/archivos: `Doc/Actualizacion/Importacion/Sql/; MySqlProveedorDatosIndices.vb:ConsultarDatos`. Origen: D-10, RQ-10. Verificación: archivo revisable reproduce proyección, igualdad, tipo de clave, filtro empresarial aplicable y LIMIT2.
+- [ ] 2.3 [M] Registrar la comprobación SELECT de la instalación confirmada y resolver diferencias de forma manual. Área/archivos: `Doc/Actualizacion/Importacion/Validacion/; Sql/README.md`. Origen: D-04, RQ-04. Verificación: cada diferencia tiene archivo nuevo y estado; ningún SELECT posterior a una modificación se anuncia antes de su confirmación.
+- [ ] 2.4 [S] Revisar el plan EXPLAIN aportado y sus metadatos. Área/archivos: `Doc/Actualizacion/Importacion/Validacion/; SELECT de índices del destino autorizado`. Origen: D-10, RQ-10. Verificación: key/type/rows y componentes del índice se contrastan con consulta y datos; ausencia del plan queda explícita.
 
-- [ ] 3.1 Agregar/ajustar pruebas unitarias e integracion.
-- [ ] 3.2 Ejecutar suite afectada y registrar evidencia.
+## 3. Verificación local del corte
 
-## 4. Cierre
+- [ ] 3.1 [M] Compilar net461 mediante MSBuild con salida aislada. Área/archivos: `GestionDocumental-Docuarchi.net.vbproj; .tmp/ excluido`. Origen: D-12, RQ-12. Verificación: log identifica comando/SHA y errores/advertencias; bin de IIS conserva su huella.
+- [ ] 3.2 [M] Ejecutar el harness nativo vigente de Excel y su regresión heredada. Área/archivos: `tests/doc122-importacion-excel-behavior.test.cjs; tests/ImportacionExcel*Tests.cs`. Origen: D-12, RQ-12. Verificación: resultados DOC122–125 y checks nativos registrados como pruebas sintéticas sin base/HTTP reales.
+- [ ] 3.3 [M] Ejecutar la regresión existente de UI, cliente y validadores E2E. Área/archivos: `tests/doc126-importacion-excel-ui.test.cjs; tests/doc126-importacion-excel-client.test.cjs; tests/doc12*-e2e-reuse.test.cjs`. Origen: D-11, RQ-11. Verificación: semáforo, diagnósticos y Cerrar/Escape v7 pasan con transporte sintético identificado.
+- [ ] 3.4 [M] Verificar los contratos de fuentes/proveedores, perfiles, SII y carpetas. Área/archivos: `tests/ProveedorIndicesBehaviorTests.cs; tests/FuenteImportacionBehaviorTests.cs; harness DOC110 y regresión SII existente`. Origen: D-10, RQ-10. Verificación: cada consumidor tiene huella y cobertura vigente o regresión afectada ejecutada; sin publicación ni efectos reales nuevos.
+- [ ] 3.5 [M] Acreditar fronteras de filas y configuración con el harness existente. Área/archivos: `tests/ImportacionExcelLecturaTests.cs; tests/ImportacionExcelConfirmacionTests.cs`. Origen: D-08, RQ-08. Verificación: 10000/10001 y20000/20001 según configuración, cambio entre preparar/confirmar y consulta histórica tienen resultado local verificable.
+- [ ] 3.6 [M] Acreditar la frontera decimal de tamaño con documentos reconocidos. Área/archivos: `tests/Fixtures/ProduccionDocumental/ImportacionExcel/; tests/ImportacionExcelLecturaTests.cs y pruebas de recepción existentes`. Origen: D-08, RQ-08. Verificación: 10000000 y10000001 bytes se distinguen por límite y no por archivo corrupto; se explican fronteras HTTP.
 
-- [ ] 4.1 Validar OpenSpec.
-- [ ] 4.2 Documentar diff final y decisiones de arquitectura.
+## 4. Preparación de E2E y capacidad
+
+- [ ] 4.1 [M] Resolver recursos descartables y precondiciones de las ventanas DOC127. Área/archivos: `tools/e2e/tests/support/doc124-excel-scope.cjs; Sql/; evidencia SELECT existente`. Origen: D-02, RQ-02. Verificación: cuentas, empresa, destinos, claves nuevas y filas previas están identificados; cualquier adecuación se entrega fuera de tests y espera confirmación.
+- [ ] 4.2 [M] Extender la validación de alcances DOC127 en el soporte existente. Área/archivos: `tools/e2e/tests/support/doc125-excel-scope.cjs; tools/e2e/tests/support/doc126-excel-scope.cjs; runner DOC110`. Origen: D-02, RQ-02. Verificación: pruebas locales rechazan scope sin autorización, consumido, con hash distinto o efectos fuera de presupuesto antes de autenticar.
+- [ ] 4.3 [M] Parametrizar los casos de capacidad en la suite Excel existente. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; tools/e2e/scripts/run-doc110-profile-session.cjs`. Origen: D-09, RQ-09. Verificación: selección local identifica formato/tamaño/modo y no repite IDs ni filas ya consumidas; no instala/siembra/limpia SQL.
+- [ ] 4.4 [M] Ampliar el registro de mediciones de las ventanas existentes. Área/archivos: `tools/e2e/scripts/run-doc110-profile-session.cjs; utilidades de muestreo IIS existentes`. Origen: D-09, RQ-09. Verificación: salida saneada separa preparar/confirmar, baseline/intervalo/cobertura de memoria y resultado; no atribuye RSS compartida a una carga.
+
+## 5. Aceptación funcional autorizada
+
+- [ ] 5.1 [M] Acreditar autoridad y lectura sin cambios de negocio en el runtime vigente. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; soporte DOC126; cuentas exclusiva/restringida autorizadas`. Origen: D-03, RQ-03. Verificación: permisos y referencias válidas/ajenas, CSRF y preparación tienen evidencia clasificada; huellas completas antes/después conservadas; revocación física sólo con gestión autorizada.
+- [ ] 5.2 [M] Acreditar plantillas históricas y creación web por formato y modo. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; ServicioPlantillasExcel; ServicioAnalisisPlantillaExcel`. Origen: D-05, RQ-05. Verificación: matriz identifica XLS/XLSX, hoja, clave, revisión y tres modos; incorpora evidencia histórica compatible y enumera cruces sin ejecución.
+- [ ] 5.3 [M] Acreditar el rechazo íntegro por claves y estructura incompatible. Área/archivos: `tests/ImportacionExcelPreparacionTests.cs; tests/ImportacionExcelConfirmacionTests.cs; suite Excel existente`. Origen: D-06, RQ-06. Verificación: nulos/vacíos, duplicados por collation, existentes e índices/políticas incompatibles tienen resultado y huellas; nivel local/real declarado.
+- [ ] 5.4 [M] Acreditar recuperación y exclusión de escritores sin repetir cargas aceptadas. Área/archivos: `tests/ImportacionExcelConfirmacionTests.cs; suite Excel; actor externo DOC125 existente`. Origen: D-07, RQ-07. Verificación: replay, acuse perdido, CREATE, rollback y carrera se trazan por alcance; carrera real sólo con escritor activo observado; COMMIT/red físicos sin ejecutar no se atribuyen.
+
+## 6. Capacidad por formato y tamaño
+
+- [ ] 6.1 [M] Completar la celda de capacidad XLS de1000 filas. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; Doc/Actualizacion/Importacion/Validacion/`. Origen: D-09, RQ-09. Verificación: informe por CREAR/AGREGAR/REEMPLAZAR con huellas, filas, bytes, preparar/confirmar y memoria; reutilización compatible justificada; ejecución nueva sólo en ventana expresamente autorizada.
+- [ ] 6.2 [M] Completar la celda de capacidad XLS de5000 filas. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; Doc/Actualizacion/Importacion/Validacion/`. Origen: D-09, RQ-09. Verificación: informe por CREAR/AGREGAR/REEMPLAZAR con huellas, filas, bytes, preparar/confirmar y memoria; reutilización compatible justificada; ejecución nueva sólo en ventana expresamente autorizada.
+- [ ] 6.3 [M] Completar la celda de capacidad XLS de10000 filas. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; Doc/Actualizacion/Importacion/Validacion/`. Origen: D-09, RQ-09. Verificación: informe por CREAR/AGREGAR/REEMPLAZAR con huellas, filas, bytes, preparar/confirmar y memoria; reutilización compatible justificada; ejecución nueva sólo en ventana expresamente autorizada.
+- [ ] 6.4 [M] Completar la celda de capacidad XLSX de1000 filas. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; Doc/Actualizacion/Importacion/Validacion/`. Origen: D-09, RQ-09. Verificación: informe por CREAR/AGREGAR/REEMPLAZAR con huellas, filas, bytes, preparar/confirmar y memoria; reutilización compatible justificada; ejecución nueva sólo en ventana expresamente autorizada.
+- [ ] 6.5 [M] Completar la celda de capacidad XLSX de5000 filas. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; Doc/Actualizacion/Importacion/Validacion/`. Origen: D-09, RQ-09. Verificación: informe por CREAR/AGREGAR/REEMPLAZAR con huellas, filas, bytes, preparar/confirmar y memoria; reutilización compatible justificada; ejecución nueva sólo en ventana expresamente autorizada.
+- [ ] 6.6 [M] Completar la celda de capacidad XLSX de10000 filas. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; Doc/Actualizacion/Importacion/Validacion/`. Origen: D-09, RQ-09. Verificación: informe por CREAR/AGREGAR/REEMPLAZAR con huellas, filas, bytes, preparar/confirmar y memoria; reutilización compatible justificada; ejecución nueva sólo en ventana expresamente autorizada.
+- [ ] 6.7 [M] Consolidar la capacidad efectiva y sus fronteras de aceptación. Área/archivos: `Doc/Actualizacion/Importacion/Validacion/; resultados por celda y configuración`. Origen: D-09, RQ-09. Verificación: seis celdas y modos tienen estado, mediciones o vacío explícito; no se extrapolan8000/12759 preparadas ni1000 confirmadas a20000 físicas.
+
+## 7. Correcciones, documentación y entrega
+
+- [ ] 7.1 [M] Resolver los hallazgos reproducibles del corte de aceptación. Área/archivos: `archivos exactos de producto identificados por cada reproducción; tests afectados`. Origen: D-12, RQ-12. Verificación: registro de hallazgos cerrado o sin defectos demostrados; cada corrección tiene prueba focal y huellas nuevas; SQL adicional sólo manual.
+- [ ] 7.2 [M] Actualizar la guía de instalación y verificación RA/DA. Área/archivos: `Doc/Actualizacion/Importacion/Sql/README.md; documentación operativa existente`. Origen: D-13, RQ-13. Verificación: orden, destino, precondiciones, efectos y estados por archivo permiten omitir lo ya aplicado y verificar sólo después de confirmación.
+- [ ] 7.3 [M] Actualizar la guía de operación y recuperación por ID. Área/archivos: `Doc/Actualizacion/Importacion/; documentación operativa existente`. Origen: D-13, RQ-13. Verificación: guía explica semáforo, modos, límites, errores, consulta/reintento y recuperación; no promete pausa por fila ni reversión DDL automática.
+- [ ] 7.4 [M] Publicar matriz e informe final de aceptación con restricciones. Área/archivos: `Doc/Actualizacion/Importacion/Validacion/; Doc/Tecnica/Opsxj/doc-127-importacion-excel-07-verificacion-integral-cierre/`. Origen: D-14, RQ-14. Verificación: cada RQ/caso contiene prueba, SHA, ambiente, tipo/resultado/limitación; cada bloqueo conserva impacto y acción concreta.
+- [ ] 7.5 [M] Verificar los gates OPSXJ/OpenSpec y preparar la entrega del SHA evaluado. Área/archivos: `openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/; gobierno local excluido; Git`. Origen: D-14, RQ-14. Verificación: revisión técnica y validaciones son trazables; código en carpeta principal y remoto comprobado; no archivar/cerrar con brechas críticas o aceptación no autorizada.

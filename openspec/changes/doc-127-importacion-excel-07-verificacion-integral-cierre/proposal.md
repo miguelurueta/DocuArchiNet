@@ -1,13 +1,13 @@
 ## Why
 
-IMPORTACION-EXCEL-07-VERIFICACION-INTEGRAL-CIERRE. Ver detalle funcional completo del ticket en la seccion Jira Details.
+Las fases DOC121–126 ya integran la importación XLS/XLSX. Falta consolidar aceptación, capacidad y límites sobre sus huellas reales, cubrir los huecos identificados y entregar una guía verificable sin repetir pruebas aceptadas innecesariamente.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-127.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Reutilizar evidencia y E2E existentes con trazabilidad por SHA, runtime, formato, modo y ambiente.
+- Completar capacidad1000/5000/10000 por formato, fronteras de configuración y revisión manual del plan de consulta por clave.
+- Verificar autoridad, integridad, recuperación y regresión de consumidores; corregir únicamente fallos demostrados.
+- Entregar matriz e informe de aceptación y guía operativa/instalación con SQL manual y estados reales.
 
 ## Jira Details
 
@@ -137,15 +137,14 @@ IMPORTACION-EXCEL-07-VERIFICACION-INTEGRAL-CIERRE. Ver detalle funcional complet
 ## Capabilities
 
 ### New Capabilities
-- `importacion-excel-07-verificacion-integral-cierre`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `importacion-excel-07-verificacion-integral-cierre`: aceptación integrada y trazabilidad de capacidad/recuperación del cargador existente.
 
 ### Modified Capabilities
-- 
+- Ningún contrato funcional se altera por este refinamiento. Una brecha reproducible requerirá el cambio focal correspondiente.
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
+Planificación y documentación de validación. Implementación posterior sobre harness, archivos SQL manuales y evidencias de `Doc/Actualizacion/Importacion/`; producto sólo si una reproducción lo justifica. Preservar20000filas,10MB decimales, conexión compartida del módulo, SII y carpetas. No se autoriza E2E real, aplicación SQL ni despliegue por generar estos artefactos.
 
 ## Perfil tecnologico
 

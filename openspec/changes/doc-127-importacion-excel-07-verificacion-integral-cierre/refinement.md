@@ -1,41 +1,59 @@
-<!-- opsxj:refinement version=1 state=draft -->
+<!-- opsxj:refinement version=1 state=approved -->
 
-# Refinamiento - doc-127-importacion-excel-07-verificacion-integral-cierre
+# Refinamiento — DOC-127
 
 ## Fuente y alcance
 
-- Ticket: `DOC-127` — IMPORTACION-EXCEL-07-VERIFICACION-INTEGRAL-CIERRE
-- Cambio OpenSpec: `doc-127-importacion-excel-07-verificacion-integral-cierre`
-- Fuente Jira: `specs/*/jira-context.md`
-- Perfil tecnologico: `legacy-webforms-vb`. Las reglas de framework solo aplican si corresponden a este perfil.
-
-Este artefacto es la compuerta entre el ticket y la implementacion. No se aprueba por generacion automatica: una persona responsable debe confirmar alcance, decisiones, compatibilidad y evidencia de codigo.
+Ticket DOC-127; contexto Jira íntegro en `specs/importacion-excel-07-verificacion-integral-cierre/jira-context.md`. Revisión técnica de Codex del2026-11-25 tras la instrucción «continua»; no declara aprobación humana global, ejecución SQL, despliegue ni autorización de E2E real. El marcador approved identifica esta revisión técnica de planificación, sustentada en decisiones y rutas existentes.
 
 ## Contexto inspeccionado
 
-- [PENDIENTE: rutas, clases, handlers, scripts y datos legacy inspeccionados]
-- [PENDIENTE: comportamiento actual y compatibilidad que se debe preservar]
+Base inspeccionada: `d1d143954bcd0dc45198b862437d241e6dcc5643`; producto integrado desde `15ef5bb711fe5e3cdbf302efaeefd067cc51aa9d` (DOC126). Perfil `legacy-webforms-vb`, net461, MySQL5.1.37 y MySql.Data6.2.3. La fase acredita la capacidad existente y corrige brechas demostradas; no reconstruye importación, conexiones ni E2E.
+
+Se contrastaron servicios de lectura/preparación/confirmación, límites del servidor, transacción/locks y recuperación, consulta del proveedor por clave, harness existente y evidencias DOC121–126. El inventario exacto y la profundidad de reutilización están en design.md; los hashes identifican fuentes, no nuevas ejecuciones.
 
 ## Decisiones aprobadas
 
-| ID | Decision verificable | Evidencia de codigo | Design | Requirement | Tasks |
+| ID | Decisión verificable | Evidencia de código o contrato | Design | Requirement | Tasks |
 | --- | --- | --- | --- | --- | --- |
-| D-01 | [PENDIENTE: decision concreta] | [PENDIENTE: ruta y simbolo] | D-01 | RQ-01 | Origen: D-01, RQ-01 |
+| D-01 | Fijar SHA, hashes normalizados de fuentes, hashes binarios del runtime, configuración efectiva y alcance por caso. Reutilizar resultados anteriores sólo con correspondencia de componente y condiciones; conservar diferencias y fechas. | `Doc/Actualizacion/Importacion/Validacion/doc126-verificacion-final-20261125.json; doc125-verificacion-final-20261124.json` | D-01 | RQ-01 | Origen: D-01, RQ-01 |
+| D-02 | Extender el runner DOC110, la suite Excel y los validadores DOC124–126. Crear alcances DOC127 cerrados por ventana; no reabrir scopes, IDs ni carreras consumidas. | `tools/e2e/scripts/run-doc110-profile-session.cjs; tools/e2e/tests/importacion-excel.spec.cjs; tools/e2e/tests/support/doc126-excel-scope.cjs` | D-02 | RQ-02 | Origen: D-02, RQ-02 |
+| D-03 | Comprobar permiso exclusivo, denegado y revocado; empresa, propietario, CSRF y referencias. Preparar conserva tablas de negocio y configuración, aunque registra la ejecución y usa temporales propias. | `Services/ProduccionDocumental/ImportacionExcel/ReglasCargaExcel.vb:Autorizar/MismaAutoridad; Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb:Validar` | D-03 | RQ-03 | Origen: D-03, RQ-03 |
+| D-04 | Revisar instalación existente sin reaplicar SQL00–27. Entregar un preflight DOC127 de SELECT y archivos nuevos específicos sólo para diferencias demostradas; el usuario aplica y confirma cada cambio antes del SELECT posterior. | `Doc/Actualizacion/Importacion/Sql/README.md; 03-ejecucion-da-doc121.sql; 22-preflight-doc126.sql` | D-04 | RQ-04 | Origen: D-04, RQ-04 |
+| D-05 | Reutilizar el lector XLS/XLSX y las plantillas históricas/web. Verificar crear/agregar/reemplazar conservando revisión, mapeos y modo histórico; cada formato queda identificado. | `Services/ProduccionDocumental/ImportacionExcel/ServicioLecturaExcel.vb:Leer; ServicioPlantillasExcel.vb:ModoHistorico/FormatoHistorico` | D-05 | RQ-05 | Origen: D-05, RQ-05 |
+| D-06 | Verificar claves requeridas y comparación efectiva MySQL según tipo/collation, índice UNIQUE completo, motor, política empresarial y compatibilidad de columnas. Agregar falla íntegramente ante duplicados; reemplazar conserva aislamiento. | `Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb:Validar/Inspeccionar; MySqlConfirmacionExcelWriter.vb:Escribir` | D-06 | RQ-06 | Origen: D-06, RQ-06 |
+| D-07 | Conservar confirmación por ID, consulta histórica, locks de carga/destino y marca CREATE. Diferenciar replay/acuse ignorado de cortes físicos de COMMIT/red; comprobar rollback y carrera con observación del escritor activo. | `Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb:Confirmar/ConsultarResultado; Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlConfirmacionExcelWriter.vb:Ejecutar; MySqlEstructuraExcel.vb:Marca/Asegurar` | D-07 | RQ-07 | Origen: D-07, RQ-07 |
+| D-08 | Conservar MaxFilasDatos=20000 vigente y 10 MB decimales por defecto; el lector mantiene fallback10000. Cubrir 10000/10001 bajo configuración10000 y 20000/20001 bajo20000, además de 10000000/10000001 bytes y cambios entre fases. | `Infrastructure/ProduccionDocumental/ImportacionExcel/ComposicionCargaExcel.vb:New; Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb:ValidarActual; Web.config:ImportacionExcel.MaxFilasDatos` | D-08 | RQ-08 | Origen: D-08, RQ-08 |
+| D-09 | Completar seis celdas formato/tamaño: XLS y XLSX por1000/5000/10000, separadas por modo ejecutado. Medir preparación, confirmación y memoria con metodología, baseline, intervalo y cobertura; no extrapolar a20000. | `Doc/Actualizacion/Importacion/Validacion/doc125-ejecucion-seguimiento-20261124.md; tools/e2e/tests/importacion-excel.spec.cjs` | D-09 | RQ-09 | Origen: D-09, RQ-09 |
+| D-10 | Verificar la lectura existente por clave y la regresión de perfiles/proveedores, SII y carpetas. Importar una tabla no publica una fuente ni un proveedor: siguen su configuración/autorización propias. Entregar EXPLAIN para ejecución manual sobre la consulta real. | `Infrastructure/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorDatosIndices.vb:ConsultarDatos; PoliticaFuentesProveedor.vb:PermiteOperativa; Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorIndicesRepository.vb:ObtenerVersion` | D-10 | RQ-10 | Origen: D-10, RQ-10 |
+| D-11 | Preservar semáforo, asistente, errores explicativos, recuperación por ID y foco/Cerrar/Escape. Distinguir positivos reales v5, lectura real v6 y ajuste v7 cubierto localmente; evaluar una lectura v7 sólo en ventana autorizada. | `js/gestion/ImportacionExcel/ImportacionExcelVista.js; ImportacionExcelApi.js; tests/doc126-importacion-excel-ui.test.cjs` | D-11 | RQ-11 | Origen: D-11, RQ-11 |
+| D-12 | Compilar net461 con MSBuild en salida aislada y ejecutar los harness vigentes. Corregir únicamente brechas reproducibles con prueba de reproducción; vincular nueva evidencia a las huellas cambiadas sin desplegar automáticamente. | `GestionDocumental-Docuarchi.net.vbproj; tests/doc122-importacion-excel-behavior.test.cjs:compile; tests/ImportacionExcelConfirmacionTests.cs` | D-12 | RQ-12 | Origen: D-12, RQ-12 |
+| D-13 | Actualizar documentación existente con instalación RA/DA, confirmación manual, preflight, operación y recuperación. La carga confirma atómicamente; consultar/reintentar por ID no ofrece pausa por fila ni migración parcial. | `Doc/Actualizacion/Importacion/Sql/README.md; Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb:Confirmar` | D-13 | RQ-13 | Origen: D-13, RQ-13 |
+| D-14 | Entregar matriz requisito-caso-prueba-SHA-ambiente-resultado, informe de capacidad y restricciones. Revisión, validación, publicación y archivo siguen OPSXJ por el SHA; los huecos críticos impiden cierre. | `tools/opsxj/README.md:Compuerta de refinement; openspec/changes/archive/2026-11-25-doc-126-importacion-excel-06-interfaz-menu/tasks.md` | D-14 | RQ-14 | Origen: D-14, RQ-14 |
 
 ## Requisitos verificables
 
-| ID | Resultado observable | Escenario o criterio de aceptacion | Riesgo/compatibilidad |
+| ID | Resultado observable | Escenario o criterio | Riesgo/compatibilidad |
 | --- | --- | --- | --- |
-| RQ-01 | [PENDIENTE: resultado] | [PENDIENTE: WHEN/THEN] | [PENDIENTE: regresion y rollback] |
+| RQ-01 | Una matriz identifica origen, caso, SHA, ambiente, tipo de evidencia, resultado y limitación. | Resultado histórico compatible; Componente distinto; Declaración manual previa | La aceptación histórica no equivale a una ejecución actual. |
+| RQ-02 | Cada ejecución real identifica autorización, recursos, efectos y presupuesto antes de autenticar. | Ventana autorizada; Ventana incompatible; Separación administrativa | Las credenciales siguen efímeras; los controles externos son SELECT. |
+| RQ-03 | Se rechazan referencias ajenas y operaciones sin autoridad sin efectos funcionales. | Permiso exclusivo y denegado; Revocación y referencias ajenas; Preparación sin escritura de negocio | Revocación real necesita gestión manual autorizada; la cobertura sintética se distingue. |
+| RQ-04 | El estado distingue ENTREGADO, EJECUTADO_CONFIRMADO y VERIFICADO_SELECT por archivo y destino RA/DA. | Instalación compatible; Diferencia de esquema o permiso; Confirmación de aplicación | Las excepciones históricas delegadas no autorizan otras aplicaciones. |
+| RQ-05 | Los casos trazan formato, plantilla, hoja, clave, revisión, modo y filas efectivas. | Plantilla histórica; Plantilla creada en web; Dos formatos y tres modos | CSV, upsert y omisión de duplicados continúan excluidos. |
+| RQ-06 | Los rechazos conservan las filas de negocio y señalan su código y fase. | Clave nula, vacía o repetida; Estructura incompatible; Reemplazo autorizado | No truncar datos ni alterar collation, índices históricos o BENEFICIARIO para adaptar la prueba. |
+| RQ-07 | No se duplica una carga confirmada y la incertidumbre exige consulta antes de reintentar. | Confirmación repetida o respuesta perdida; CREATE recuperable; Rollback y carrera | CREATE DDL no es reversible como el DML; no borrar tablas para simular recuperación. |
+| RQ-08 | La frontera se interpreta según configuración del servidor y se informa el máximo efectivo. | Fronteras de filas; Frontera de bytes; Configuración cambiante | Los cambios de configuración se prueban localmente; cualquier ajuste real requiere alcance propio y restauración verificada. |
+| RQ-09 | El informe presenta filas, bytes, tiempos, memoria, resultado y huecos por celda y modo. | Matriz por formato y tamaño; Medición acotada; Saturación o presupuesto agotado | Los tiempos HTTP incluyen metadatos y transporte; memoria agregada IIS no es asignación exclusiva por carga. |
+| RQ-10 | El plan y metadatos acreditan la consulta por igualdad con filtro empresarial cuando aplica y LIMIT2. | Tabla como fuente elegible; Plan manual de consulta; Regresión de consumidores | No ejecutar EXPLAIN desde el agente; SELECT sólo para controles posteriores. No cambiar SII/almacenamiento para esta fase. |
+| RQ-11 | El usuario ve prerrequisitos, acciones habilitadas y diagnóstico accionable sin perder cierre o consulta. | Guía de acciones y diagnóstico; Cerrar durante consulta; Corte de assets | La evidencia manual previa no cubre automáticamente toda corrección posterior. |
+| RQ-12 | El build y la regresión relevante se ejecutan en el corte evaluado y sus logs son verificables. | Build aislado; Suites existentes; Brecha reproducible | Conservar DLL IIS, fuentes ajenas y versiones MySQL5.1.37/MySql.Data6.2.3. |
+| RQ-13 | La guía permite instalar/verificar y operar con límites y procedimientos de recuperación explícitos. | Instalación en otro ambiente; Interrupción de una carga; Actualización y reversión | No retirar estructuras ni limpiar fixtures/resultados para preparar el cierre. |
+| RQ-14 | Cada tarea cerrada tiene evidencia del resultado y los bloqueos conservan impacto y siguiente acción. | Resultado limitado; Cierre técnico; Bloqueo de aceptación | No convertir aprobación técnica de planificación en aceptación humana, aplicación SQL o ejecución real. |
 
-## Reglas de trazabilidad obligatorias
+## Reglas de trazabilidad
 
-1. Cada decision `D-XX` debe estar desarrollada en `design.md`, reflejada en al menos un requirement/scenario de `spec.md` y vinculada a una tarea mediante `Origen: D-XX, RQ-XX`.
-2. Cada tarea con checkbox debe conservar su origen. Las tareas de validacion, rollout y documentacion tambien deben indicar la decision o requisito que verifican.
-3. Las reglas de frontend, WebForms, Node u otro framework solo se agregan cuando el perfil tecnologico y el codigo afectado las justifican.
-4. El estado solo puede cambiar a `approved` cuando no haya marcadores pendientes, las decisiones sean especificas y la matriz sea completa.
+Cada D-XX se desarrolla en design, un requirement RQ-XX con escenarios y tareas con Origen. Los resultados se incorporan después de su comprobación; todas las tareas de aceptación empiezan sin completar. Se preservan el Jira original, la exploración histórica y los scripts ya aplicados.
 
 ## Resultado del refinamiento
 
-- Estado: borrador. Sustituya el marcador inicial por el estado `approved` despues de completar y revisar la matriz.
-- Comando: `npm.cmd --prefix tools/opsxj run opsxj:refine -- <ISSUE-KEY> --sync`.
+14 decisiones y14 requisitos técnicos revisados. La capacidad física, EXPLAIN manual, cobertura real adicional y revisión final tienen tareas propias. Su estado de ejecución se informa en la matriz sin confundir planificación con aceptación. Auditoría: `npm.cmd --prefix tools/opsxj run opsxj:refine -- DOC-127 --sync`.
