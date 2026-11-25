@@ -253,3 +253,7 @@ DLL y tres assets, cuentas, archivo/destinos y efectos máximos. Los controles
 SELECT usan los DSN existentes mediante DOC126_DA_E2E y DOC126_RA_E2E; sus datos
 de acceso son efímeros y no modifican Web.config. La instalación se hace fuera
 del test. Esta entrega de archivos no acredita aplicación, despliegue ni E2E real.
+
+## Recorrido funcional con cuenta existente — 2026-11-24
+
+57/62 tareas: completada la adaptación 6.12; pendientes 6.9, 6.10, 6.11, 7.5 y 8.8. Usuario 141 activo y autorizado con sus cinco permisos vigentes, conservados. Modo funcional de agregar/reemplazar separado de exclusividad/restricción; 88/88 pruebas locales y cuatro E2E registradas, sin ejecutar la nueva ventana real. Preflight SELECT: faltan tablas, políticas y plantillas DOC126. Copias SQL23–25 parametrizadas en .tmp/doc126-functional-preparacion, sin aplicar. Ver `Doc/Actualizacion/Importacion/Validacion/doc126-cuenta-existente-funcional-20261124.md`.

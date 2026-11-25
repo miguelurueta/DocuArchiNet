@@ -229,6 +229,10 @@ El sistema SHALL acreditar los recorridos de interfaz con las E2E y recursos exi
 - **WHEN** se intenta usar autorización de otra fase o faltan límites de efectos
 - **THEN** el runner se detiene antes de autenticar o abrir una ventana escritora
 
+#### Scenario: Cuenta existente para agregar y reemplazar
+- **WHEN** el usuario autoriza su cuenta vigente para la prueba funcional y sus destinos de prueba están preparados
+- **THEN** el runner reutiliza la interfaz y controles existentes para agregar y reemplazar con identidad, permisos y efectos fijados, sin exigir ni modificar permisos exclusivos; ese recorrido no acredita el caso de acceso exclusivo o restringido
+
 ### Requirement: RQ-15 — Compatibilidad y entrega verificable
 
 El sistema SHALL entregar la interfaz compatible con los consumidores y la plataforma actuales, con compilación, regresión y evidencia que declaren el alcance real y permitan revertir el despliegue sin borrar datos. Trazabilidad: D-15.

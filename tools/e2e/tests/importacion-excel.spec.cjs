@@ -72,23 +72,23 @@ test.describe('DOC126 interfaz Excel con servicios y controles existentes',()=>{
   const fingerprint=(sql,v)=>queryFingerprint(sql,v,environment,s.controlPrefix);
   const quote=t=>{check(/^imp_02_[A-Za-z0-9_]{1,57}$/.test(t),'DOC126_TABLE_SCOPE');return '`'+t+'`';};
   const count=async t=>Number((await select('SELECT COUNT(*) AS total FROM '+quote(t)))[0].total);
-  // Se acredita la cuenta exclusiva antes de abrir una sesión de aplicación.
+  // El perfil exclusivo y el funcional con cuenta existente se acreditan por separado.
   const accounts=await ra('SELECT u.id_Remit_Dest_Int AS id,u.Login_Usuario AS login_ref,u.Estado_Usuario AS activo,p.ADMINISTRAR_CARGAS_IMPORTACION AS cargas,p.IMPORTAR_CARPETAS AS carpetas,p.ADMINISTRAR_PERFILES_IMPORTACION AS perfiles,p.ADMINISTRAR_FUENTES_IMPORTACION AS fuentes,p.ADMINISTRAR_PROVEEDORES_IMPORTACION AS proveedores FROM remit_dest_interno u INNER JOIN remit_dest_interno_perfil_produccion p ON p.remit_dest_interno_idremit_dest_interno=u.id_Remit_Dest_Int WHERE u.Empresa_Gestion_Documental_id_empresa=? AND u.id_Remit_Dest_Int IN (?,?)',[s.empresaId,s.usuarioId,s.restrictedUsuarioId]);
-  const owner=accounts.filter(a=>Number(a.id)===s.usuarioId),restrictedRows=accounts.filter(a=>Number(a.id)===s.restrictedUsuarioId);
-  check(accounts.length===2&&owner.length===1&&restrictedRows.length===1&&Number(owner[0].activo)===1&&Number(owner[0].cargas)===1&&['carpetas','perfiles','fuentes','proveedores'].every(k=>Number(owner[0][k])===0),'DOC126_EXCLUSIVE_ACCOUNT_REQUIRED');
-  check(String(owner[0].login_ref).toLowerCase()===required('DOC126_E2E_USER').toLowerCase()&&String(restrictedRows[0].login_ref).toLowerCase()===required('DOC126_E2E_RESTRICTED_USER').toLowerCase()&&Number(restrictedRows[0].activo)===1&&Number(restrictedRows[0].cargas)===0,'DOC126_ACCOUNT_SCOPE_CHANGED');
+  support.verifyAccounts(s,accounts,required('DOC126_E2E_USER'),mode==='functional'?null:required('DOC126_E2E_RESTRICTED_USER'));
   const before={};for(const t of s.protectedTables)before[t]=await support.snapshotDestination(select,fingerprint,t,true);
   const configBefore=await fingerprint('SELECT * FROM imp01_plantillaimp WHERE ?=1 ORDER BY ID_PLANTILLAIMP',1);
   const fieldsBefore=await fingerprint('SELECT * FROM imp01_campos_plantilla WHERE ?=1 ORDER BY ID_CAMPOS_PLANTILLA',1);
   const physical=(await select('SELECT @@hostname AS servidor,@@port AS puerto,DATABASE() AS base_ref,@@lower_case_table_names AS minusculas'))[0];
-  if(mode==='write')for(const item of s.cases)support.readFixture(item);
+  if(['write','functional'].includes(mode))for(const item of s.cases)support.readFixture(item);
   if(mode==='assistant')support.readFixture(s.assistant);
-  const denied=await session(browser,true,'DOC126');
-  try{check(await denied.page.locator('[data-doc126=abrir]').count()===0,'DOC126_DENIED_MENU_VISIBLE');const r=await call(denied,'AbrirCargaExcel');check(!r.ok&&r.codigo==='ACCESO_DENEGADO','DOC126_DENIED_SERVICE_ALLOWED');}finally{await denied.context.close();}
+  if(mode!=='functional'){
+   const denied=await session(browser,true,'DOC126');
+   try{check(await denied.page.locator('[data-doc126=abrir]').count()===0,'DOC126_DENIED_MENU_VISIBLE');const r=await call(denied,'AbrirCargaExcel');check(!r.ok&&r.codigo==='ACCESO_DENEGADO','DOC126_DENIED_SERVICE_ALLOWED');}finally{await denied.context.close();}
+  }
   const a=await session(browser,false,'DOC126');let completed=0,createdTemplate=0,templateWrites=0,assistantConfirm=null,assistantConfirmCalls=0;
   try{
    let confirmRequests=0;a.page.on('request',r=>{if(r.method()==='POST'&&r.url().endsWith('/Confirmar'))confirmRequests++;});
-   check(await a.page.locator('#doc110-perfiles,#doc111-importacion').count()===0,'DOC126_OTHER_IMPORT_PERMISSIONS_PRESENT');
+   if(mode!=='functional')check(await a.page.locator('#doc110-perfiles,#doc111-importacion').count()===0,'DOC126_OTHER_IMPORT_PERMISSIONS_PRESENT');
    let unexpectedMutation=false;
    const readOps=['AbrirCargaExcel','ListarPlantillas','ConsultarPlantilla','ConsultarResultado','ConsultarCargaExcel'];
    await a.page.route('**/WebServiceImportacionExcel.asmx/*',route=>{
@@ -119,7 +119,7 @@ test.describe('DOC126 interfaz Excel con servicios y controles existentes',()=>{
     const pending=response('ConsultarPlantilla');await a.page.locator('[data-doc126=plantilla]').selectOption(String(item.plantillaId));const r=(await(await pending).json()).d;
     await a.page.waitForFunction(()=>document.querySelector('#doc126-excel [role=dialog]').getAttribute('aria-busy')==='false');
     check(r.ok&&r.datos.ID_PLANTILLAIMP===item.plantillaId,'DOC126_UI_TEMPLATE_REQUIRED');
-    if(mode==='write')check(r.datos.Huella===item.huellaEsperada&&r.datos.REVISION_CARGA===item.revisionEsperada&&r.datos.NOMBRE_PLANTILLA===item.tabla&&r.datos.Modo===item.modo,'DOC126_TEMPLATE_CHANGED');
+    if(['write','functional'].includes(mode))check(r.datos.Huella===item.huellaEsperada&&r.datos.REVISION_CARGA===item.revisionEsperada&&r.datos.NOMBRE_PLANTILLA===item.tabla&&r.datos.Modo===item.modo,'DOC126_TEMPLATE_CHANGED');
     return r.datos;
    }
    if(mode==='read'){
@@ -209,11 +209,13 @@ test.describe('DOC126 interfaz Excel con servicios y controles existentes',()=>{
    if(mode==='assistant'){check(completed===1&&createdTemplate>0&&templateWrites===1,'DOC126_ASSISTANT_INCOMPLETE');console.log('DOC126_REAL_UI_ASSISTANT_PASS; one new template/two fields, 1000 rows, explicit receipt/validation/confirmation and preserved previous fingerprints');}
    if(mode==='write')check(completed===5,'DOC126_MATRIX_INCOMPLETE');
    if(mode==='write')console.log('DOC126_REAL_UI_WRITE_PASS cases=5; real UI/services, known rollback and observed external writer; no installation/cleanup');
+   if(mode==='functional'){check(completed===2,'DOC126_FUNCTIONAL_INCOMPLETE');console.log('DOC126_REAL_UI_FUNCTIONAL_PASS cases=2; authorized existing account, add/replace with preserved fingerprints; exclusive permission not tested');}
   }finally{await a.context.close();for(const key of Object.keys(environment))if(/MYSQL_(USER|PASSWORD)$/.test(key))delete environment[key];}
  }
  test('@doc126-ui-read acceso exclusivo, navegación y consultas sin mutación',async({browser})=>{test.skip(process.env.DOC126_E2E_MODE!=='read');await acceptance(browser,'read');});
  test('@doc126-ui-write tres modos, rollback y carrera por controles reales',async({browser})=>{test.skip(process.env.DOC126_E2E_MODE!=='write');await acceptance(browser,'write');});
  test('@doc126-ui-assistant propuesta, alta de plantilla y carga por controles reales',async({browser})=>{test.skip(process.env.DOC126_E2E_MODE!=='assistant'||process.env.DOC126_ASSISTANT_E2E_AUTHORIZED!=='YES');await acceptance(browser,'assistant');});
+ test('@doc126-ui-functional agregar y reemplazar con cuenta existente autorizada',async({browser})=>{test.skip(process.env.DOC126_E2E_MODE!=='functional'||process.env.DOC126_FUNCTIONAL_E2E_AUTHORIZED!=='YES');await acceptance(browser,'functional');});
 });
 
 test.describe('DOC125 confirmación durable',()=>{

@@ -65,3 +65,7 @@ El modo --excel-ui-assistant está implementado con autorización propia, una al
 ## Corte vigente: diagnóstico v4 publicado
 
 DLL y assets actuales en doc126-diagnostico-configuracion-20261124.md/JSON. El scope exacto de alta requiere No/No/No y posición0 en campos nuevos, preserva históricos y conserva límites/autoridad. Refrescar hashes y preflight antes de cualquier ventana. SQL23–25 siguen pendientes de confirmación para la matriz previa; no se requiere otro SQL para este diagnóstico. 52/57 tareas, cinco de aceptación/gobierno pendientes.
+
+## Recorrido funcional con cuenta existente — 2026-11-24
+
+57/62 tareas: completada la adaptación 6.12; pendientes 6.9, 6.10, 6.11, 7.5 y 8.8. Usuario 141 activo y autorizado con sus cinco permisos vigentes, conservados. Modo funcional de agregar/reemplazar separado de exclusividad/restricción; 88/88 pruebas locales y cuatro E2E registradas, sin ejecutar la nueva ventana real. Preflight SELECT: faltan tablas, políticas y plantillas DOC126. Copias SQL23–25 parametrizadas en .tmp/doc126-functional-preparacion, sin aplicar. Ver `Doc/Actualizacion/Importacion/Validacion/doc126-cuenta-existente-funcional-20261124.md`.

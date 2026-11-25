@@ -5,32 +5,35 @@ const {collectValue,collectConfirmation,requireInteractiveConsole,runChild}=requ
 const {sourceFixture}=require('../tests/support/doc110-source-fixture.cjs');
 
 function excelUiPlan(root,profile,args,environment=process.env){
- const modes=args.filter(x=>['--excel-ui-read','--excel-ui-write','--excel-ui-assistant'].includes(x));
- if(modes.length!==1||args.some(x=>!['--excel-ui-read','--excel-ui-write','--excel-ui-assistant','--headed'].includes(x)))throw Error('DOC126_MODE_CONFLICT');
- const mode=modes[0]==='--excel-ui-read'?'read':modes[0]==='--excel-ui-write'?'write':'assistant',file=environment.DOC126_E2E_SCOPE_PATH;
+ const modes=args.filter(x=>['--excel-ui-read','--excel-ui-write','--excel-ui-assistant','--excel-ui-functional'].includes(x));
+ if(modes.length!==1||args.some(x=>!['--excel-ui-read','--excel-ui-write','--excel-ui-assistant','--excel-ui-functional','--headed'].includes(x)))throw Error('DOC126_MODE_CONFLICT');
+ const mode=modes[0].slice('--excel-ui-'.length),file=environment.DOC126_E2E_SCOPE_PATH;
  if(!file||!fs.existsSync(file))throw Error('DOC126_SCOPE_REQUIRED');
  const scope=require('../tests/support/doc126-excel-scope.cjs').readScope(file,profile.baseUrl,mode);
  const values={DOC126_E2E_BASE_URL:profile.baseUrl,DOC126_E2E_MODULE:profile.module,DOC126_E2E_SCOPE_PATH:file,DOC126_E2E_MODE:mode,
-  DOC126_E2E_AUTHORIZED:(mode==='assistant'?environment.DOC126_ASSISTANT_E2E_AUTHORIZED:environment.DOC126_E2E_AUTHORIZED)==='YES'?'YES':'NO',DOC10_E2E_IGNORE_HTTPS_ERRORS:String(profile.ignoreHttpsErrors===true)};
+  DOC126_E2E_AUTHORIZED:(mode==='assistant'?environment.DOC126_ASSISTANT_E2E_AUTHORIZED:mode==='functional'?environment.DOC126_FUNCTIONAL_E2E_AUTHORIZED:environment.DOC126_E2E_AUTHORIZED)==='YES'?'YES':'NO',DOC10_E2E_IGNORE_HTTPS_ERRORS:String(profile.ignoreHttpsErrors===true)};
  if(mode==='assistant')values.DOC126_ASSISTANT_E2E_AUTHORIZED=values.DOC126_E2E_AUTHORIZED;
+ if(mode==='functional')values.DOC126_FUNCTIONAL_E2E_AUTHORIZED=values.DOC126_E2E_AUTHORIZED;
  const aliases={DOC126_E2E_USER:'DOC110_E2E_USER',DOC126_E2E_PASSWORD:'DOC110_E2E_PASSWORD',DOC126_E2E_RESTRICTED_USER:'DOC110_E2E_SECOND_USER',DOC126_E2E_RESTRICTED_PASSWORD:'DOC110_E2E_SECOND_PASSWORD'};
+ if(mode==='functional'){delete aliases.DOC126_E2E_RESTRICTED_USER;delete aliases.DOC126_E2E_RESTRICTED_PASSWORD;}
  for(const [key,alias]of Object.entries(aliases))if(environment[key]||environment[alias])values[key]=environment[key]||environment[alias];
  const controls=[scope.controlPrefix,scope.raControlPrefix].flatMap(p=>['ODBC_DSN','MYSQL_USER','MYSQL_PASSWORD'].map(k=>p+'_'+k));
  for(const key of controls)if(environment[key])values[key]=environment[key];
- const childArgs=[path.join(root,'node_modules/@playwright/test/cli.js'),'test','tests/importacion-excel.spec.cjs','--grep',mode==='write'?'@doc126-ui-write':mode==='assistant'?'@doc126-ui-assistant':'@doc126-ui-read','--reporter=list','--retries=0'];
+ const childArgs=[path.join(root,'node_modules/@playwright/test/cli.js'),'test','tests/importacion-excel.spec.cjs','--grep','@doc126-ui-'+mode,'--reporter=list','--retries=0'];
  if(args.includes('--headed'))childArgs.push('--headed');
  return {values,needed:[...Object.keys(aliases),...controls],scope,mode,childArgs};
 }
 async function runExcelUi(root,profile,args){
  const plan=excelUiPlan(root,profile,args),values=plan.values;let environment;
  const support=require('../tests/support/doc126-excel-scope.cjs');support.verifyRuntime(plan.scope);
- if(plan.mode==='write')for(const item of plan.scope.cases)support.readFixture(item);
+ if(['write','functional'].includes(plan.mode))for(const item of plan.scope.cases)support.readFixture(item);
  if(plan.mode==='assistant')support.readFixture(plan.scope.assistant);
  try{
   for(const name of plan.needed)if(!values[name]){requireInteractiveConsole();await collectValue(values,name,name.includes('PASSWORD')?'Contraseña efímera':name.endsWith('_ODBC_DSN')?'DSN existente del control SELECT':'Cuenta autorizada DOC126',{secret:true});}
   if(values.DOC126_E2E_AUTHORIZED!=='YES'){
-   requireInteractiveConsole();await collectConfirmation(values,'DOC126_CONFIRMACION',plan.mode==='assistant'?'Autoriza DOC126 asistente: una plantilla nueva de dos campos, destino '+plan.scope.assistant.tabla+', 1000 filas y resultado; cero DELETE, sin instalar/sembrar/limpiar y conservar todos los efectos.':plan.mode==='write'?'Autoriza DOC126 UI: cinco casos, sólo destinos imp_02_doc126_e2e_ del scope, CREATE funcional/INSERT/DELETE/resultado y una fila externa; máximos '+plan.scope.maxBusinessRows+'/'+plan.scope.maxDeletedRows+'; conservar todo sin instalar/sembrar/limpiar.':'Autoriza DOC126 UI: acceso exclusivo/restringido, navegación y consultas de sólo lectura; cero ediciones y confirmaciones.');values.DOC126_E2E_AUTHORIZED='YES';
+   requireInteractiveConsole();await collectConfirmation(values,'DOC126_CONFIRMACION',plan.mode==='functional'?'Autoriza DOC126 funcional con la cuenta existente: agregar 1000 filas y reemplazar dos filas de fixture por 1000; sólo los dos destinos DOC126 del scope, sin cambiar permisos, guardar plantillas, instalar ni limpiar. No acredita permiso exclusivo.':plan.mode==='assistant'?'Autoriza DOC126 asistente: una plantilla nueva de dos campos, destino '+plan.scope.assistant.tabla+', 1000 filas y resultado; cero DELETE, sin instalar/sembrar/limpiar y conservar todos los efectos.':plan.mode==='write'?'Autoriza DOC126 UI: cinco casos, sólo destinos imp_02_doc126_e2e_ del scope, CREATE funcional/INSERT/DELETE/resultado y una fila externa; máximos '+plan.scope.maxBusinessRows+'/'+plan.scope.maxDeletedRows+'; conservar todo sin instalar/sembrar/limpiar.':'Autoriza DOC126 UI: acceso exclusivo/restringido, navegación y consultas de sólo lectura; cero ediciones y confirmaciones.');values.DOC126_E2E_AUTHORIZED='YES';
    if(plan.mode==='assistant')values.DOC126_ASSISTANT_E2E_AUTHORIZED='YES';
+   if(plan.mode==='functional')values.DOC126_FUNCTIONAL_E2E_AUTHORIZED='YES';
   }
   if(plan.mode==='write'){const directory=fs.mkdtempSync(path.join(root,'../../.tmp/doc125-native-'));values.DOC125_NATIVE_HARNESS=require('../../../tests/doc122-importacion-excel-behavior.test.cjs').compile(directory).exe;}
   environment={...process.env,...values};const result=await runChild(process.execPath,plan.childArgs,root,environment);process.exitCode=result.code;
@@ -173,7 +176,7 @@ async function runExcelProfileSession(root,profile,args){
   }
 }
 async function main(){
-  if(process.argv.some(x=>['--excel-ui-read','--excel-ui-write','--excel-ui-assistant'].includes(x))){
+  if(process.argv.some(x=>['--excel-ui-read','--excel-ui-write','--excel-ui-assistant','--excel-ui-functional'].includes(x))){
     const root=path.resolve(__dirname,'..');const profile=JSON.parse(fs.readFileSync(path.join(root,'profiles/doc88-production-document-upload.local.runtime.json'),'utf8').replace(/^\uFEFF/,''));
     return runExcelUi(root,profile,process.argv.slice(2));
   }

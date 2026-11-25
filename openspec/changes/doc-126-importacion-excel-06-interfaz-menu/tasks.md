@@ -58,6 +58,8 @@
 
 Preflight de 6.9 realizado con recursos actuales: empresa 2/módulo 11, seis SELECT y cero modificaciones/sesiones de aplicación. No se encontró una cuenta activa con permiso exclusivo de cargas; existen 74 perfiles restringidos y un perfil con cargas que no es exclusivo. Falta identificar la cuenta de prueba dedicada antes de preparar su adecuación manual y ejecutar la E2E. No se retiran permisos a la cuenta actual ni se elige otro usuario arbitrariamente. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-preflight-permisos-20261124.md`. La prueba funcional manual del asistente sigue completada por el usuario.
 
+- [x] 6.12 [M] Separar el recorrido funcional con cuenta existente de la aceptación exclusiva. Área/archivos: `tools/e2e/scripts/run-doc110-profile-session.cjs; tools/e2e/tests/importacion-excel.spec.cjs; tools/e2e/tests/support/doc126-excel-scope.cjs; tests/doc126-e2e-reuse.test.cjs; Doc/Actualizacion/Importacion/Validacion/`. Origen: D-14, RQ-14. Verificación: Modo funcional propio para agregar/reemplazar con la cuenta autorizada, permisos vigentes fijados y cero cambios de permisos; conserva acceso exclusivo/restringido en modos anteriores, efectos/destinos acotados y guardado bloqueado. Regresión y preflight de instalación independientes de la ejecución real; SQL parametrizado entregado para aplicación manual si faltan fixtures.
+
 ## 7. Instalación, compatibilidad y entrega
 
 - [x] 7.1 [S] Entregar el preflight SQL de sólo lectura. Área/archivos: `Doc/Actualizacion/Importacion/Sql/22-preflight-doc126.sql; Doc/Actualizacion/Importacion/Sql/README.md`. Origen: D-13, RQ-13. Verificación: Archivo SELECT identifica RA/DA y precondiciones de permiso/recursos/fixtures sin modificar datos o privilegios.

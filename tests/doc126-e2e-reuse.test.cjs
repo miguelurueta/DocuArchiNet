@@ -10,6 +10,7 @@ function scope(mode='read'){
   destinationReadOnly:mode==='read',maxBusinessRows:mode==='read'?0:4000,maxDeletedRows:mode==='read'?0:2002,allowedEffects:mode==='read'?[]:['CREATE','INSERT','DELETE','RESULTADO','EXTERNAL_INSERT'],cases:[],selection:{conexionId:6,plantillaId:29}};
  if(mode==='write')s.cases=['crear','agregar','reemplazar','rollback','carrera'].map((name,i)=>({escenario:name,modo:['CREAR','AGREGAR','REEMPLAZAR','REEMPLAZAR','AGREGAR'][i],conexionId:6,plantillaId:[29,30,31,31,30][i],revisionEsperada:1,huellaEsperada:'e'.repeat(64),archivoHash:'f'.repeat(64),archivoPath:path.join(root,'.tmp','fixture-'+name+'.xlsx'),tabla:'imp_02_doc126_e2e_'+['crear','agregar','reemplazar','reemplazar','agregar'][i],hoja:'Datos',filasEsperadas:[1000,1000,1000,300,10][i],filasDestinoEsperadas:[0,1,2,1000,1001][i],codigoEsperado:i>=3?'CONFLICTO_CLAVE':'OK',...(name==='carrera'?{claveExterna:'DOC125R_synthetic',valorExterno:'synthetic-external'}:{})}));
  if(mode==='assistant')Object.assign(s,{maxBusinessRows:1000,maxDeletedRows:0,maxTemplateCreates:1,maxTemplateFieldCreates:2,analysisHandlerSha256:'e'.repeat(64),allowedEffects:['TEMPLATE_CREATE','CREATE','INSERT','RESULTADO'],assistant:{conexionId:6,tabla:'imp_02_doc126_e2e_asistente_1234abcd',archivoPath:path.join(root,'.tmp','fixture-assistant.xlsx'),archivoHash:'f'.repeat(64),hoja:'Datos',filasEsperadas:1000,campoUnico:'CLAVE',campos:['CLAVE','VALOR'].map(n=>({CAMPO_FUENTE:n,CAMPO_DESTINO:n,TIPO_CAMPO:'VARCHAR(100)'}))}});
+ if(mode==='functional')Object.assign(s,{exclusiveAccountRequired:false,accountPolicy:'EXISTING_AUTHORIZED',restrictedUsuarioId:null,expectedImportPermissions:{cargas:1,carpetas:1,perfiles:1,fuentes:1,proveedores:1},maxBusinessRows:2000,maxDeletedRows:2,allowedEffects:['INSERT','DELETE','RESULTADO'],cases:['agregar','reemplazar'].map((name,i)=>({escenario:name,modo:i?'REEMPLAZAR':'AGREGAR',conexionId:6,plantillaId:30+i,revisionEsperada:1,huellaEsperada:'e'.repeat(64),archivoHash:'f'.repeat(64),archivoPath:path.join(root,'.tmp','fixture-'+name+'.xlsx'),tabla:'imp_02_doc126_e2e_'+name,hoja:'Datos',filasEsperadas:1000,filasDestinoEsperadas:i+1,codigoEsperado:'OK'}))});
  return s;
 }
 function env(t,s){const directory=fs.mkdtempSync(path.join(root,'.tmp','doc126-scope-')),file=path.join(directory,'scope.json');fs.writeFileSync(file,JSON.stringify(s));t.after(()=>{fs.unlinkSync(file);fs.rmdirSync(directory);});return {DOC126_E2E_SCOPE_PATH:file};}
@@ -70,4 +71,29 @@ test('DOC126 usa nombres de locks del destino propio manteniendo el contrato DOC
  assert.equal(locks.destination,'dt947a94d25b4278c6ed284659f052cfbd7ca62e408b15ffc4a7378a4ba13398');assert.equal(locks.id,'dx869344d7358066a12d2c04053db27211e5b1c6d084ca368e5f4d5c07f0bdc1');
  assert.throws(()=>previous.lockNames(physical,'imp_02_doc126_e2e_agregar',id),/DOC125_LOCK_IDENTITY_INVALID/);assert.throws(()=>support.lockNames(physical,'imp_02_doc125_e2e_agregar',id),/DOC125_LOCK_IDENTITY_INVALID/);assert.throws(()=>previous.lockNames(physical,'imp_02_doc126_e2e_agregar',id,'OTHER'),/DOC125_LOCK_IDENTITY_INVALID/);
  assert.equal(support.lockNames({...physical,base_ref:'da'},'imp_02_doc126_e2e_agregar',id).destination,locks.destination);
+});
+
+test('DOC126 funcional reutiliza la cuenta autorizada sin exigir otra cuenta o heredar otra ventana',t=>{
+ const s=scope('functional'),e={...env(t,s),DOC126_E2E_AUTHORIZED:'YES',DOC126_ASSISTANT_E2E_AUTHORIZED:'YES'};
+ const plan=excelUiPlan(root,profile,['--excel-ui-functional'],e);
+ assert.equal(plan.mode,'functional');assert.equal(plan.values.DOC126_E2E_AUTHORIZED,'NO');assert.equal(plan.needed.length,8);
+ assert.equal(plan.needed.some(n=>n.includes('RESTRICTED')),false);assert.ok(plan.childArgs.includes('@doc126-ui-functional'));
+ const authorized=excelUiPlan(root,profile,['--excel-ui-functional'],{...e,DOC126_FUNCTIONAL_E2E_AUTHORIZED:'YES'});assert.equal(authorized.values.DOC126_E2E_AUTHORIZED,'YES');
+ for(const extra of ['--excel-ui-read','--excel-ui-write','--excel-ui-assistant'])assert.throws(()=>excelUiPlan(root,profile,['--excel-ui-functional',extra],e),/DOC126_MODE_CONFLICT/);
+});
+test('DOC126 funcional mantiene dos destinos y límites exactos sin crear, editar, escritor externo o reanudar',()=>{
+ const s=scope('functional');assert.equal(support.validateScope(s,s.baseUrl,'functional'),s);
+ for(const mutate of [x=>x.mode='read',x=>x.exclusiveAccountRequired=true,x=>delete x.accountPolicy,x=>x.restrictedUsuarioId=142,x=>x.expectedImportPermissions.cargas=0,x=>x.expectedImportPermissions.perfiles=2,x=>x.expectedImportPermissions.extra=1,x=>x.maxBusinessRows=2001,x=>x.maxDeletedRows=3,x=>x.allowedEffects.push('CREATE'),x=>x.allowedEffects=['INSERT','DELETE','DELETE'],x=>x.cases.reverse(),x=>x.cases[0].tabla='imp_02_egresos',x=>x.cases[0].filasEsperadas=1001,x=>x.cases[1].filasDestinoEsperadas=3,x=>x.cases[0].reanudarConfirmada={},x=>x.cases[0].claveExterna='untrusted',x=>x.cases.push({...x.cases[0]})]){
+  const changed=JSON.parse(JSON.stringify(s));mutate(changed);assert.throws(()=>support.validateScope(changed,s.baseUrl,'functional'),/DOC126_SCOPE_INVALID/);
+ }
+});
+test('DOC126 cuenta funcional se coteja con identidad y permisos actuales; exclusivo conserva su cierre',()=>{
+ const s=scope('functional'),owner={id:141,login_ref:'Synthetic.Owner',activo:1,...s.expectedImportPermissions};
+ assert.doesNotThrow(()=>support.verifyAccounts(s,[owner],'synthetic.owner',null));
+ const invalidAccounts=[[[owner,{...owner,id:142}],'synthetic.owner'],[[{...owner,activo:0}],'synthetic.owner'],[[{...owner,fuentes:0}],'synthetic.owner'],[[{...owner,id:142}],'synthetic.owner'],[[owner],'other']];
+ for(const [rows,login]of invalidAccounts)assert.throws(()=>support.verifyAccounts(s,rows,login,null),/DOC126_ACCOUNT_SCOPE_CHANGED/);
+ const restricted={id:142,login_ref:'Synthetic.Restricted',activo:1,cargas:0};
+ assert.throws(()=>support.verifyAccounts(scope(),[owner,restricted],'synthetic.owner','synthetic.restricted'),/DOC126_EXCLUSIVE_ACCOUNT_REQUIRED/);
+ assert.doesNotThrow(()=>support.verifyAccounts(scope(),[{...owner,carpetas:0,perfiles:0,fuentes:0,proveedores:0},restricted],'synthetic.owner','synthetic.restricted'));
+ assert.throws(()=>support.verifyAccounts(scope(),[{...owner,carpetas:0,perfiles:0,fuentes:0,proveedores:0},{...restricted,cargas:1}],'synthetic.owner','synthetic.restricted'),/DOC126_ACCOUNT_SCOPE_CHANGED/);
 });
