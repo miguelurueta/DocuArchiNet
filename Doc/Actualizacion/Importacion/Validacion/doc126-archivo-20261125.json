@@ -1,0 +1,67 @@
+{
+  "status": "ARCHIVED_WITH_VERIFIED_SPEC_SYNC",
+  "recordedUtc": "2026-11-25T11:19:06.763Z",
+  "changeName": "doc-126-importacion-excel-06-interfaz-menu",
+  "archive": "openspec/changes/archive/2026-11-25-doc-126-importacion-excel-06-interfaz-menu",
+  "mainSpec": "openspec/specs/importacion-excel-06-interfaz-menu/spec.md",
+  "requirements": 18,
+  "scenarios": 59,
+  "tasks": {
+    "complete": 62,
+    "total": 62
+  },
+  "preservedArtifactFiles": 7,
+  "sourceFiles": [
+    {
+      "path": "design.md",
+      "sha256": "30293d2a2017651ce37c940a26a4ff1a6bb94369f46c491ae8165cf82bd54027"
+    },
+    {
+      "path": "opsxj-governance.json",
+      "sha256": "83cfeec8814cff2e6c3b3645a3b507bab8f4c9825ac9cd5b21f31a90b4520367"
+    },
+    {
+      "path": "proposal.md",
+      "sha256": "4165298d794332daeba793063885b6e3dd28c6bdc93e278a631e64f5fd9c101f"
+    },
+    {
+      "path": "refinement.md",
+      "sha256": "b35b2a5eaee867bc38a5da4f8c63cf120ef21476732f2f6f94546744fb21fb3d"
+    },
+    {
+      "path": "specs/importacion-excel-06-interfaz-menu/jira-context.md",
+      "sha256": "1baa226f44e8f500fa1d71e1b9dde42030caa29cd0f8cf063d03e7aadc839575"
+    },
+    {
+      "path": "specs/importacion-excel-06-interfaz-menu/spec.md",
+      "sha256": "7df302a9c0916394cf1d2b9fdc1a4a33a78b76104cb5f0cea49675c1b3c93bf7"
+    },
+    {
+      "path": "tasks.md",
+      "sha256": "147906d3084cb9ca864ff30304a09a20d89fa3ddddaf868613f252c6e972a558"
+    }
+  ],
+  "mainSpecSha256": "8103f49169d2b820a9ec5be99f30377962a2123c762be4e3187cd9bc50168127",
+  "strict": {
+    "items": 97,
+    "passed": 97,
+    "failed": 0
+  },
+  "otherCapabilitiesChanged": 0,
+  "behaviorChangesDuringArchive": false,
+  "baseCommit": "97e552f41f8aa40abb803566abbc36c1116f32c8",
+  "authorization": "El usuario indicó continua después de la elección concreta de sincronizar, archivar, publicar el PR y comentar su enlace en Jira.",
+  "governance": {
+    "status": "PASS",
+    "checks": 62,
+    "archivedChangeResolved": true
+  },
+  "release": {
+    "pr": "PUBLISH_AFTER_COMMIT",
+    "jiraComment": "AUTHORIZED_AFTER_PR_PUBLICATION",
+    "merge": "NOT_PERFORMED_IN_THIS_ARCHIVE_STEP"
+  },
+  "runtimeChanges": false,
+  "databaseChanges": false,
+  "realTestsRepeated": false
+}
