@@ -77,6 +77,8 @@
 
 Instrumentación de 8.8 preparada: modo propio del runner, alta exacta acotada y caso registrado; sigue pendiente su ejecución real. DLL desplegada con salud sin sesión. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-despliegue-e2e-preparada-20261124.md`. No se marca aceptación por la preparación local.
 
+Validación funcional manual del asistente completada por el usuario: confirmó «importado» y posteriormente «4 el cuatro ya lo hice completo», referido a crear plantilla desde Excel e importar. Este recorrido manual ya está realizado y no se solicita repetirlo. Evidencia declarativa: `Doc/Actualizacion/Importacion/Validacion/doc126-validacion-manual-asistente-20261124.md`. La tarea 8.8 conserva pendiente únicamente la acreditación automatizada y sus controles SELECT; la confirmación manual no acredita una ejecución del runner ni esos controles.
+
 - [x] 8.9 [M] Corregir el guardado señalado en el video de creación. Área/archivos: `js/gestion/ImportacionExcel/ImportacionExcelVista.js; Styles/ImportacionExcel.css; Gestion/WebFormProducionDocumental.aspx; tests/doc126-importacion-excel-ui.test.cjs`. Origen: D-16, RQ-16. Verificación: Propone un destino válido y editable desde el nombre del Excel sólo al crear, conserva nombres manuales, señala tabla/clave inválida con foco sin enviar guardado y mantiene Quitar legible. Regresión browser existente y caché renovada; sin SQL, cambio de contratos o ejecución autenticada automática.
 
 ## 9. Diagnóstico explicativo de configuración — video del usuario
