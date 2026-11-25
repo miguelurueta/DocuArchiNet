@@ -9,7 +9,7 @@ La radicación interna puede mejorar sustancialmente su claridad, pero necesita 
 | Referencia | Valor |
 |---|---|
 | Fecha | 2026-11-25 |
-| Versión | 0.3 |
+| Versión | 0.4 |
 | Base local | Commit `0c7beb83` |
 | Grabación | `Grabación 2026-11-25 113145-radicacion-interna-revisa.mp4` |
 | Duración | 78,80 segundos |
@@ -196,25 +196,41 @@ La ampliación a terceros como remitentes está aprobada en D-RI-01. Las definic
 
 ## Maqueta HTML de la radicación actualizada
 
-La [maqueta](maqueta.html) organiza el contexto, remitente, documentos, datos del radicado, destino y campos adicionales. En escritorio agrupa las secciones en dos columnas de trabajo y mantiene el resumen visible al desplazarse; en pantallas pequeñas presenta una sola columna. Un diálogo reúne todos los datos antes de confirmar la simulación.
+La [maqueta simplificada](maqueta.html) presenta un formulario compacto con remitente, documento principal, datos por completar y destino. El resumen completo aparece al confirmar. Fecha, folios, descripción de anexos y ruta continúan disponibles en secciones desplegables; un error en un dato dentro de ellas abre la sección correspondiente.
+
+### Revisión de facilidad de uso
+
+La revisión visual de `Grabación 2026-11-25 173909-mas-facil-para-usuario.mp4`, de 87,20 segundos, muestra el recorrido sobre la primera maqueta: edición/búsqueda del propio usuario, desplazamientos entre bloques y selección de trámite, actividad y responsable. La repetición del remitente en buscador, ficha y resumen, junto con los selectores de ruta siempre visibles, dificulta identificar qué falta por hacer.
+
+La nueva presentación concentra las acciones habituales:
+
+- **A nombre de:** muestra el usuario actual desde el inicio. **Cambiar** abre la búsqueda de otro usuario o tercero. El cambio solo se aplica con **Usar este remitente**; cancelar conserva la identidad anterior.
+- **Documento:** una línea identifica el principal y la cantidad de anexos. Al desplegarla se accede al visor, la selección y la descripción editable.
+- **Datos del documento:** mantiene visibles trámite, asunto y campos obligatorios de la plantilla. Fecha y folios heredados se pueden revisar sin ocupar el recorrido inicial.
+- **Enviar a:** reúne personas y grupos en un selector. Elegir una persona configura asignación directa; elegir un grupo pide quién recibe dentro de él. Ambas opciones conservan valores separados de asignación, grupo y responsable.
+- **Ruta del trámite:** muestra la ruta vigente en un resumen y permite abrir flujo, actividad y configuración de asignación cuando se necesitan. La barra final indica los datos pendientes y conserva la revisión antes de confirmar.
+
+No se incorpora un asistente obligatorio por pasos. La ruta precargada pertenece al ejemplo: en integración debe proceder de configuración válida. Si el sistema no puede determinar una ruta o exige una elección entre alternativas, debe presentar esa elección y bloquear la confirmación hasta resolverla; ocultar controles no autoriza elegir automáticamente la primera opción.
+
+Con el mismo estado inicial en Chromium a **1440 × 900**, la altura del formulario pasó de **1660 a 615 píxeles**, una reducción del **63 %** frente a la versión `8cd7775a`. Los campos editables visibles al inicio pasaron de **13 a 5**; el cierre del formulario queda en la coordenada vertical 826. Son medidas de distribución del prototipo, no una medición del tiempo de tarea ni una prueba de usabilidad con usuarios.
 
 ### Recorrido de revisión
 
-1. Abrir `maqueta.html` en un navegador. La selección inicial corresponde al usuario interno ficticio Laura Martínez, también identificado como ejecutor autenticado del ejemplo.
-2. Seleccionar **Tercero**, buscar **Camila** o **Parque** y elegir un resultado. La selección anterior se descarta. El remitente cambia y el ejecutor sigue siendo Laura Martínez. El buscador admite flechas, Enter y Escape.
-3. Usar **Revisar selección** para distinguir principal y anexos; elegir un principal no lo incorpora como anexo. **Ver** abre una representación del acceso al visor. Los archivos mostrados son ficticios.
-4. Completar **Campo Placa** y seleccionar un responsable. Probar otro grupo, actividad, flujo o trámite: la selección de responsable se invalida. El grupo vacío del ejemplo impide confirmar. La asignación directa ofrece su propio catálogo.
-5. Pulsar **Revisar y radicar** para comprobar ejecutor, remitente, documentos, datos y destino. **Simular radicación** presenta el resultado seleccionado en las opciones del ejemplo.
+1. Abrir `maqueta.html` en un navegador. **A nombre de** ya muestra al usuario ficticio Laura Martínez; no es necesario buscarse para continuar.
+2. Para radicar a nombre de un tercero, pulsar **Cambiar**, seleccionar **Tercero**, buscar **Camila** y elegirla. Pulsar **Usar este remitente**. **Usar mi usuario** permite volver al actor del ejemplo.
+3. Completar **Placa** y elegir quién recibe en el grupo, o escoger una persona directamente en **Enviar a**. Pulsar **Revisar radicación** para comprobar el resumen con ejecutor, remitente y responsable distintos.
+4. Si hace falta, desplegar la línea del documento para revisar principal/anexos; **Fecha, folios y otros datos** para ajustar datos heredados; y **Ruta del trámite** para consultar o modificar flujo/actividad. Cambiar esas dependencias invalida el responsable previo.
+5. **Simular radicación** presenta el resultado del ejemplo. Un registro confirmado o incierto impide volver a enviar el mismo formulario; la respuesta perdida requiere consultar el estado simulado.
 6. Desplegar **Opciones de la maqueta** para cambiar de plantilla, probar un rechazo, un resultado incierto o pendientes de correo, Workflow o anexos. **Reiniciar maqueta** restablece exclusivamente el ejemplo local.
 
 ### Correspondencia con el módulo
 
 | Área | Tratamiento en la maqueta | Condición para integrar |
 |---|---|---|
-| Usuario que radica | Ejecutor visible y selector separado de usuario interno o tercero como remitente. | Adaptar la resolución del remitente, revalidar autoridad y conservar auditoría conforme a D-RI-01. |
-| Principal y anexos | Selección explícita, sin contar el principal dos veces; descripción editable con límite ilustrado de 240 caracteres. | Conservar el contexto documental y verificar la selección en servidor. El permiso para cambiar documentos dentro del modal se refina al integrar. |
-| Datos del radicado | Trámite, asunto, fecha del documento, folios, fecha límite y cita cuando la plantilla la muestra. | Conservar reglas de plantilla y calendario. El plazo de la maqueta es ilustrativo; su lectura sin edición no decide la política final. |
-| Destino Workflow | Flujo, consulta ilustrativa del recorrido, actividad, asignación directa/grupo y responsable. | Preservar catálogos autorizados y sincronizar las dependencias con el servidor. |
+| Usuario que radica | Usuario propio precargado; cambio de remitente en un diálogo con aplicar/cancelar. Ejecutor identificado en la sesión y el resumen final. | Adaptar la resolución del remitente, revalidar autoridad y conservar auditoría conforme a D-RI-01. |
+| Principal y anexos | Resumen en una línea; al desplegar, selección explícita sin contar el principal dos veces y descripción editable de hasta 240 caracteres. | Conservar el contexto documental y verificar la selección en servidor. El permiso para cambiar documentos dentro del modal se refina al integrar. |
+| Datos del radicado | Trámite, asunto y campos adicionales visibles; fecha del documento, folios, fecha límite y cita disponibles al desplegar. | Conservar obligatoriedad, valores heredados y calendario. Revelar cualquier dato inválido. El plazo y su lectura sin edición son ilustrativos. |
+| Destino Workflow | Enviar a persona/grupo, selección de persona del grupo cuando aplica y ruta editable bajo demanda. | Traducir a los contratos actuales de asignación, grupo y responsable; preservar catálogos autorizados y descartar identidades anteriores al cambiar dependencias. |
 | Campos adicionales | Dos esquemas locales de ejemplo: uno con Placa y otro con catálogo y referencia. | Seguir generando campos desde metadatos reales; estos ejemplos no definen los tipos ni las reglas de todas las plantillas. |
 | Confirmación y resultado | Resumen, espera, rechazo, registro completo, pendientes y consulta simulada de un intento sin confirmación. | Definir estados y recuperación reales. La constancia descargable es un TXT de ejemplo sin validez; no sustituye la impresión existente. |
 | Cierre | Cerrar y volver conserva el estado del ejemplo; cerrar un resultado no lo revierte. | Integrar con el modal correcto y la actualización de Producción documental. |
@@ -223,9 +239,9 @@ Las preguntas Q-RI-01 a Q-RI-05 siguen pendientes. Las personas naturales/juríd
 
 ### Verificación de la maqueta
 
-Pasaron doce grupos de comprobaciones locales en Chromium: carga; tercero por teclado con ID coincidente entre catálogos; búsqueda y validación; consulta de flujo/visor; principal y anexos; invalidación de responsables y grupos vacíos; cambio de plantilla y escape de texto; adaptación a seis anchos entre 320 y 1920 píxeles; consulta de resultado incierto y constancia; cierre/reapertura; rechazo y resultados parciales; y retorno de tercero a usuario interno. No se detectaron errores de ejecución JavaScript ni solicitudes HTTP externas.
+Pasaron trece grupos de comprobaciones locales en Chromium: estado inicial y comparación de distribución; cambio/cancelación de remitente por teclado; asignación directa con tres identidades distintas en el resumen; grupos y responsables; ruta y dependencias; principal/anexos y errores dentro de desplegables; fecha/folios; plantillas y escape de texto; adaptación a siete anchos entre 320 y 1920 píxeles; resultado incierto y constancia; cierre/reapertura; rechazo y resultados parciales; y retorno desde tercero jurídico al propio usuario. No se detectaron errores JavaScript ni solicitudes HTTP externas.
 
-El arnés, las capturas y los resultados están excluidos de Git en `.tmp/diagnostico-radicacion-interna-20261125/`: `verificar-maqueta.cjs`, `verificacion-maqueta.json` y `maqueta-*.png`. La comprobación corresponde al HTML local; no valida integración con WebForms ni ausencia de regresiones del módulo real.
+El arnés, las capturas y los resultados actuales están excluidos de Git en `.tmp/diagnostico-radicacion-interna-20261125/`: `verificar-maqueta-simple.cjs`, `verificacion-maqueta-simple.json` y `simple-*.png`. Los fotogramas de revisión están en `video-simplificacion/`. La comprobación corresponde al HTML local; no valida integración con WebForms ni ausencia de regresiones del módulo real.
 
 ## Operaciones que deben preservarse
 
