@@ -6,7 +6,7 @@ La alternativa recomendada es conservar el `asp:TreeView`, modernizar su present
 
 | Control de la exploración | Valor |
 |---|---|
-| Versión | 0.2 |
+| Versión | 0.3 |
 | Fecha | 2026-11-25 |
 | Estado | En exploración |
 | Responsable de aprobación funcional | Usuario solicitante |
@@ -21,6 +21,7 @@ Referencias de la propuesta:
 - [Maqueta interactiva](maqueta.html).
 - [Diagnóstico técnico e inventario completo de operaciones](diagnostico.html).
 - [Guía y prompts de implementación](prompts/00-guia-ejecucion.md).
+- [Revisión estructural de los prompts](revision-prompts.md).
 
 ## Cómo utilizar y mantener la exploración
 
@@ -31,6 +32,8 @@ El interés expresado por la mejora autoriza esta exploración; no equivale a ap
 3. Registrar la respuesta explícita del usuario y la opción elegida.
 4. Actualizar las decisiones dependientes y el alcance de los futuros prompts.
 5. Continuar con la siguiente decisión, conservando el historial.
+
+Este ciclo puede realizarse al abrir cada prompt, según lo planteado en la revisión del flujo de trabajo. No hace falta aprobar todas las decisiones para iniciar su refinamiento. Antes de modificar la parte de aplicación afectada se resuelven sus decisiones necesarias; los detalles técnicos dentro del alcance autorizado se justifican y los cambios funcionales o de reglas se presentan al usuario. Refinar una decisión no equivale a marcarla aprobada.
 
 Los estados de una decisión son `PENDIENTE`, `APROBADA`, `RECHAZADA`, `DIFERIDA` y `REABIERTA`. Una respuesta que modifica la propuesta genera una nueva revisión de esa decisión; no se interpreta como aceptación de las demás. El silencio no cambia el estado.
 
@@ -516,7 +519,7 @@ Cada prompt posterior debe contener:
 9. Pruebas de integración autorizadas, evidencia esperada y condiciones que impiden afirmar aceptación.
 10. Estrategia de reversión de la entrega sin descartar cambios locales ni revertir escrituras de dominio por una corrección visual.
 
-Un borrador se habilita para implementar cuando sus propias decisiones y dependencias estén resueltas y exista autorización de ejecución. Las decisiones diferidas se excluyen expresamente; no se rellenan con valores predeterminados que aparenten aprobación. Si una opción aprobada difiere del borrador recomendado, se revisa ese prompt antes de utilizarlo. La implementación no se inicia al aprobar una preferencia visual.
+Cada prompt puede comenzar por refinar sus decisiones y dependencias. La parte que modifica aplicación se habilita cuando sus decisiones necesarias están resueltas y existe autorización de implementación. Las decisiones diferidas se excluyen expresamente; no se rellenan con valores predeterminados que aparenten aprobación. Si una opción aprobada difiere de la recomendada, se revisa esa parte del prompt. Aprobar una preferencia visual no inicia por sí solo la implementación.
 
 ## Historial de revisión y aprobaciones
 
@@ -525,5 +528,6 @@ Un borrador se habilita para implementar cuando sus propias decisiones y depende
 | 2026-11-25 | Versión 0.1 | Creación de exploración, respuestas T01 a T20, decisiones D01 a D18 y mapa de paquetes posteriores | No aplica a una aprobación funcional |
 | 2026-11-25 | D01 revisión 1 | Primera decisión presentada para revisión individual; conserva estado PENDIENTE hasta respuesta explícita | Pendiente |
 | 2026-11-25 | Versión 0.2 | El usuario solicita crear los prompts; se redactan ocho borradores, guía y contexto común. Se conserva el estado de todas las decisiones y se distingue preparación de ejecución | Solicitud de redacción; no es aprobación de diseño |
+| 2026-11-25 | Versión 0.3 | Se ejecuta la suite solicitada, se revisan y corrigen los ocho prompts con perfil WebForms y se explicita refinamiento por paquete antes del código afectado; ver informe de revisión | Revisión documental; no aprueba las decisiones pendientes |
 
 **Siguiente paso de revisión:** resolver D01. Después, revisar D02 y D10 para fijar la identidad visual y técnica antes de cerrar las acciones y su integración de backend.

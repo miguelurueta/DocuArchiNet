@@ -2,13 +2,13 @@
 
 Estos prompts convierten la [exploración](../exploracion.md) en entregas concretas de implementación. Se preparan por solicitud del usuario del 25 de noviembre de 2026, sobre las alternativas recomendadas. La solicitud de redactarlos no cambia el estado de aprobación de las decisiones D01 a D18.
 
-**Estado de la serie:** borradores completos para revisión. Las 18 decisiones permanecen pendientes en la exploración al crear esta versión. PB00 permite preparar un inventario sin modificar la aplicación; los otros paquetes requieren las decisiones de su alcance y autorización posterior para implementar.
+**Estado de la serie:** los ocho prompts pasan la revisión estructural con perfil `legacy-webforms-vb`; ver [el informe](../revision-prompts.md). Las 18 decisiones continúan pendientes de refinamiento. Se puede comenzar el refinamiento de cada paquete sin cerrar todas las decisiones; modificar código exige resolver las que afecten a esa parte y contar con autorización de implementación. PB00 es un inventario documental.
 
 ## Cómo utilizar un prompt
 
 1. Leer [contexto-comun.md](contexto-comun.md), la exploración vigente y el prompt elegido.
-2. Comprobar las decisiones y dependencias del paquete. Si una decisión cambió de opción o revisión, adaptar el prompt antes de ejecutarlo. No convertir una recomendación en aprobación.
-3. Solicitar la ejecución del paquete concreto. No pegar toda la serie como una instrucción para implementar sin pausas de verificación entre entregas.
+2. Refinar las decisiones y dependencias del paquete al abrirlo. Justificar los detalles técnicos dentro del alcance acordado; presentar al usuario cambios de comportamiento, reglas o alcance. Si una decisión cambió de opción o revisión, adaptar el prompt antes de modificar el código afectado.
+3. Registrar lo acordado y ejecutar únicamente la parte habilitada del paquete. No convertir recomendaciones en aprobaciones ni pegar toda la serie como una instrucción para implementar sin verificaciones entre entregas.
 4. Revisar código, contratos y evidencia al finalizar cada paquete. Registrar lo implementado, lo omitido y las limitaciones.
 5. Actualizar la exploración y esta guía si cambia el alcance. La exploración conserva las aprobaciones; esta guía organiza su ejecución.
 
@@ -33,9 +33,9 @@ PF01 puede revisarse como primera mejora de presentación. No resuelve por sí s
 
 PB03 es opcional: si el contenido directo y la presentación de permisos se resuelven correctamente con datos ya disponibles, se registra la omisión y se adapta PF02. No se construye una API solo para completar la numeración.
 
-## Decisiones que habilitan cada alcance
+## Decisiones que se refinan antes del código afectado
 
-La lista incluye dependencias transitivas relevantes. Leer siempre la redacción y las opciones aceptadas en la exploración.
+La lista incluye dependencias transitivas relevantes. Es una guía para refinar cada paquete, no una exigencia de aprobar las 18 decisiones antes de comenzar. Leer siempre la redacción y las opciones aceptadas en la exploración.
 
 | Paquete | Decisiones necesarias para la alternativa redactada |
 |---|---|
@@ -48,7 +48,7 @@ La lista incluye dependencias transitivas relevantes. Leer siempre la redacción
 | PB04 | Decisiones de los paquetes integrados y D13 |
 | PB05 | Decisiones de cada función incluida, D16/D17 aplicables y aceptación de D18 |
 
-Una decisión diferida se excluye expresamente de la entrega. Si su ausencia impide cumplir un contrato necesario, el paquete dependiente no se presenta como habilitado. PB00 puede documentar una firma propuesta sin que eso autorice implementarla.
+Una decisión diferida se excluye expresamente de la entrega. Si su ausencia impide cumplir un contrato necesario, esa parte no se modifica; puede continuar el refinamiento independiente. PB00 puede documentar una firma propuesta sin que eso autorice implementarla.
 
 ## Reglas para mantener la serie
 
@@ -77,4 +77,4 @@ Los documentos anteriores contienen contratos y resultados resumidos sin secreto
 
 ## Próximo paso
 
-Resolver D01 y el alcance de la primera entrega. PB00 puede utilizarse para afinar los contratos mientras continúan las aprobaciones. Los prompts están redactados; la aplicación todavía no se ha modificado por esta serie.
+Al abrir el siguiente paquete, iniciar su refinamiento. D01 determina la arquitectura de la alternativa inicial y se resuelve antes de cambiar el control. PB00 puede utilizarse para afinar los contratos mientras continúan las aprobaciones. Pasar el revisor no inicia implementación ni sustituye esos acuerdos.

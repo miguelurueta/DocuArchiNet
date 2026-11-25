@@ -6,7 +6,9 @@ Este archivo forma parte de todos los prompts de la serie. Actúa como arquitect
 
 Lee completos los `AGENTS.md` aplicables, [la exploración](../exploracion.md), [la guía](00-guia-ejecucion.md), el prompt elegido y los resultados de sus dependencias. Consulta [el diagnóstico](../diagnostico.html) y [la maqueta](../maqueta.html) para entender la experiencia y los consumidores actuales.
 
-Las decisiones D01 a D18 se toman de la exploración vigente y de instrucciones explícitas posteriores del usuario. Al preparar esta serie estaban pendientes. Antes de modificar aplicación, registra qué decisiones habilitan el paquete y qué revisión/opción se ejecutará. Si falta una decisión necesaria, identifica el punto concreto y continúa solo con el análisis independiente de ella. No declares aprobación por haber recibido el archivo del prompt ni por estar presente la maqueta.
+Las decisiones D01 a D18 se toman de la exploración vigente y de instrucciones explícitas posteriores del usuario. Al preparar esta serie estaban pendientes. Comienza cada paquete con refinamiento de sus decisiones, sin exigir aprobación global de las 18. Antes de modificar aplicación, registra las decisiones de esa parte y qué revisión/opción se ejecutará. Si falta una decisión necesaria, identifica el punto concreto y continúa el análisis independiente. No declares aprobación por haber recibido el archivo del prompt ni por estar presente la maqueta.
+
+El refinamiento contrasta código y dependencias, justifica detalles técnicos dentro del alcance autorizado y presenta al usuario las alternativas que cambian comportamiento, permisos, semántica o alcance. Registra las respuestas explícitas y después implementa/verifica la parte acordada. Las decisiones permanecen centralizadas en la exploración y no se marcan aprobadas por defecto.
 
 No vuelvas a pedir una aprobación que ya consta en la sesión o la exploración. Las autorizaciones de diseño, implementación, pruebas autenticadas y despliegue tienen alcances distintos; utiliza la que corresponde a la acción. La solicitud inicial de esta serie autoriza redactar prompts, no ejecutarlos.
 
