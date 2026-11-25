@@ -4,10 +4,12 @@ La radicación interna puede mejorar sustancialmente su claridad, pero necesita 
 
 **Recomendación:** corregir primero las inconsistencias verificadas de dependencias, estado y comunicación del modal; después reorganizar la interfaz manteniendo los IDs, metadatos y reglas de la plantilla. El backend de registro requiere un trabajo separado y acotado para contexto, autorización y resultados parciales.
 
+[Abrir maqueta HTML interactiva](maqueta.html). El archivo funciona directamente en un navegador y utiliza exclusivamente datos ficticios.
+
 | Referencia | Valor |
 |---|---|
 | Fecha | 2026-11-25 |
-| Versión | 0.2 |
+| Versión | 0.3 |
 | Base local | Commit `0c7beb83` |
 | Grabación | `Grabación 2026-11-25 113145-radicacion-interna-revisa.mp4` |
 | Duración | 78,80 segundos |
@@ -191,6 +193,39 @@ La recomendación es conservar inicialmente el contenedor y la generación por p
 La lista de usuarios necesita búsqueda por nombre/cargo y ámbito autorizado. La fecha límite debe explicar su origen y si puede editarse. «Ver..» debe expresar qué flujo o diagrama abrirá y estar disponible solo para un flujo válido. El modo de radicación, relaciones y consultas existentes se preservan según la configuración real, aunque algunos paneles estén ocultos en esta entrada.
 
 La ampliación a terceros como remitentes está aprobada en D-RI-01. Las definiciones pendientes de esa capacidad y los demás cambios de reglas, campos obligatorios, cálculo de plazos o alcance de radicación se refinan por entrega antes de modificar el comportamiento correspondiente.
+
+## Maqueta HTML de la radicación actualizada
+
+La [maqueta](maqueta.html) organiza el contexto, remitente, documentos, datos del radicado, destino y campos adicionales. En escritorio agrupa las secciones en dos columnas de trabajo y mantiene el resumen visible al desplazarse; en pantallas pequeñas presenta una sola columna. Un diálogo reúne todos los datos antes de confirmar la simulación.
+
+### Recorrido de revisión
+
+1. Abrir `maqueta.html` en un navegador. La selección inicial corresponde al usuario interno ficticio Laura Martínez, también identificado como ejecutor autenticado del ejemplo.
+2. Seleccionar **Tercero**, buscar **Camila** o **Parque** y elegir un resultado. La selección anterior se descarta. El remitente cambia y el ejecutor sigue siendo Laura Martínez. El buscador admite flechas, Enter y Escape.
+3. Usar **Revisar selección** para distinguir principal y anexos; elegir un principal no lo incorpora como anexo. **Ver** abre una representación del acceso al visor. Los archivos mostrados son ficticios.
+4. Completar **Campo Placa** y seleccionar un responsable. Probar otro grupo, actividad, flujo o trámite: la selección de responsable se invalida. El grupo vacío del ejemplo impide confirmar. La asignación directa ofrece su propio catálogo.
+5. Pulsar **Revisar y radicar** para comprobar ejecutor, remitente, documentos, datos y destino. **Simular radicación** presenta el resultado seleccionado en las opciones del ejemplo.
+6. Desplegar **Opciones de la maqueta** para cambiar de plantilla, probar un rechazo, un resultado incierto o pendientes de correo, Workflow o anexos. **Reiniciar maqueta** restablece exclusivamente el ejemplo local.
+
+### Correspondencia con el módulo
+
+| Área | Tratamiento en la maqueta | Condición para integrar |
+|---|---|---|
+| Usuario que radica | Ejecutor visible y selector separado de usuario interno o tercero como remitente. | Adaptar la resolución del remitente, revalidar autoridad y conservar auditoría conforme a D-RI-01. |
+| Principal y anexos | Selección explícita, sin contar el principal dos veces; descripción editable con límite ilustrado de 240 caracteres. | Conservar el contexto documental y verificar la selección en servidor. El permiso para cambiar documentos dentro del modal se refina al integrar. |
+| Datos del radicado | Trámite, asunto, fecha del documento, folios, fecha límite y cita cuando la plantilla la muestra. | Conservar reglas de plantilla y calendario. El plazo de la maqueta es ilustrativo; su lectura sin edición no decide la política final. |
+| Destino Workflow | Flujo, consulta ilustrativa del recorrido, actividad, asignación directa/grupo y responsable. | Preservar catálogos autorizados y sincronizar las dependencias con el servidor. |
+| Campos adicionales | Dos esquemas locales de ejemplo: uno con Placa y otro con catálogo y referencia. | Seguir generando campos desde metadatos reales; estos ejemplos no definen los tipos ni las reglas de todas las plantillas. |
+| Confirmación y resultado | Resumen, espera, rechazo, registro completo, pendientes y consulta simulada de un intento sin confirmación. | Definir estados y recuperación reales. La constancia descargable es un TXT de ejemplo sin validez; no sustituye la impresión existente. |
+| Cierre | Cerrar y volver conserva el estado del ejemplo; cerrar un resultado no lo revierte. | Integrar con el modal correcto y la actualización de Producción documental. |
+
+Las preguntas Q-RI-01 a Q-RI-05 siguen pendientes. Las personas naturales/jurídicas, permisos y catálogos de la maqueta ilustran posibilidades; no amplían las decisiones aprobadas. No se ofrece creación de terceros. Los modos y consultas que estén ocultos o condicionados en el módulo requieren revisión específica antes de integrar; la maqueta representa el recorrido de la grabación.
+
+### Verificación de la maqueta
+
+Pasaron doce grupos de comprobaciones locales en Chromium: carga; tercero por teclado con ID coincidente entre catálogos; búsqueda y validación; consulta de flujo/visor; principal y anexos; invalidación de responsables y grupos vacíos; cambio de plantilla y escape de texto; adaptación a seis anchos entre 320 y 1920 píxeles; consulta de resultado incierto y constancia; cierre/reapertura; rechazo y resultados parciales; y retorno de tercero a usuario interno. No se detectaron errores de ejecución JavaScript ni solicitudes HTTP externas.
+
+El arnés, las capturas y los resultados están excluidos de Git en `.tmp/diagnostico-radicacion-interna-20261125/`: `verificar-maqueta.cjs`, `verificacion-maqueta.json` y `maqueta-*.png`. La comprobación corresponde al HTML local; no valida integración con WebForms ni ausencia de regresiones del módulo real.
 
 ## Operaciones que deben preservarse
 

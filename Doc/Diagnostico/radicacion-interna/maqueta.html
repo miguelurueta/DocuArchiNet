@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Radicación interna · Maqueta DocuArchi</title>
+<style>
+:root{font:16px/1.5 "Segoe UI",Arial,sans-serif;color:#24334a;background:#f3f6fa;--navy:#12243e;--blue:#2459bd;--teal:#087e80;--line:#dfe6ef;--muted:#5b6d84;--radius:12px}
+*{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit;color:inherit}button,a,input,select,textarea,summary{outline-offset:3px}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #c07513}button{cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:9px 14px;border:1px solid #cbd6e3;border-radius:8px;background:#fff;font-size:.875rem;font-weight:600;line-height:1.35}button:hover:not(:disabled){background:#edf3fc;border-color:#88a9d6}button:disabled{cursor:default;opacity:.55}.primary{background:var(--blue);color:white;border-color:var(--blue)}.primary:hover:not(:disabled){background:#194ba7}.quiet{border-color:transparent;background:transparent}.small{min-height:36px;padding:6px 10px}.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}a{color:#2459ad}h1,h2,h3,p{margin:0}h1{font-size:1.9rem;letter-spacing:-.8px;line-height:1.25;font-weight:650}h2{font-size:1.08rem;font-weight:650;letter-spacing:-.2px}h3{font-size:1rem}p{line-height:1.6}.muted,.hint{color:var(--muted)}.hint{font-size:.875rem;margin-top:6px}.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[hidden]{display:none!important}.skip{position:fixed;top:-80px;left:15px;z-index:50;background:white;padding:12px}.skip:focus{top:8px}
+.top{background:var(--navy);color:white;padding:14px 32px;display:flex;align-items:center;gap:24px;min-height:68px}.brand{display:flex;align-items:center;gap:10px;font-size:1.25rem;font-weight:700;letter-spacing:-.5px}.brandmark{display:grid;place-items:center;width:34px;height:34px;border-radius:8px;background:#2f697f;border:1px solid #588c9d}.top-section{font-size:.875rem;color:#d1ddeb;border-left:1px solid #4b5d72;padding-left:23px}.account{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:.875rem}.account small{display:block;color:#c2cfdf;font-size:.8125rem}.avatar{display:grid;place-items:center;width:36px;height:36px;background:#e4eefc;color:#22476c;border-radius:50%;font-size:.8125rem;font-weight:700}.demo{background:#eaf1fb;border-bottom:1px solid #d1e0f4;padding:9px 32px;display:flex;gap:12px;align-items:center;color:#345372;font-size:.875rem}.demo strong{white-space:nowrap}.demo a{margin-left:auto;white-space:nowrap}.page{max-width:1440px;margin:auto;padding:24px 32px 35px}.breadcrumbs{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:.875rem;color:var(--muted);margin-bottom:14px}.breadcrumbs .icon{width:13px;height:13px}.page-heading{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:22px}.page-heading p{color:var(--muted);margin-top:6px;font-size:.9375rem}.badge{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;background:#e8f3ef;border:1px solid #cde5d9;color:#28634a;font-size:.8125rem;font-weight:650;border-radius:6px;padding:4px 8px}.badge.blue{background:#ecf2fe;border-color:#d9e5fb;color:#315ba5}.badge.neutral{background:#f2f5f8;border-color:#dfe6ed;color:#506277}.layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:22px;align-items:start}.form-stack{display:grid;gap:18px;min-width:0}fieldset.form-body{border:0;padding:0;margin:0;min-width:0}.card{background:white;border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 3px 12px #16395c03;min-width:0}.card-head{padding:18px 22px 14px;display:flex;align-items:center;justify-content:space-between;gap:15px}.card-title{display:flex;align-items:center;gap:10px}.card-title>.icon{color:#49708e}.card-body{padding:0 22px 22px}.card-head+.card-body>.hint:first-child{margin-top:-5px;margin-bottom:16px}.context{padding:17px 22px;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:18px;border-left:3px solid var(--teal)}.eyebrow{font-size:.8125rem;font-weight:650;color:var(--muted);margin-bottom:4px}.context strong{font-weight:650;font-size:.9375rem}.context small{display:block;font-size:.875rem;color:var(--muted);margin-top:2px}.remitter{border-color:#c5d7f1}.remitter .card-head{background:linear-gradient(100deg,#f2f7ff,#fff);border-radius:var(--radius) var(--radius) 0 0;padding-bottom:16px;margin-bottom:17px}.segmented{display:flex;gap:4px;background:#eef2f7;border:1px solid #dce4ee;border-radius:9px;padding:4px;margin-bottom:18px;width:fit-content;max-width:100%}.segment{position:relative;display:flex}.segment input{position:absolute;opacity:0;width:1px;height:1px}.segment span{display:flex;gap:8px;align-items:center;padding:9px 19px;border-radius:6px;cursor:pointer;font-size:.875rem;font-weight:600;border:1px solid transparent}.segment input:checked+span{background:white;color:#204f9c;box-shadow:0 1px 4px #23436916;border-color:#d5e1f1}.segment input:focus-visible+span{outline:3px solid #c07513}.field label,.field-label{display:block;font-size:.875rem;font-weight:600;margin-bottom:6px}.required{color:#aa3740}.field input,.field select,.field textarea{width:100%;min-height:44px;border:1px solid #becbdb;background:white;border-radius:7px;padding:9px 11px;font-size:.9375rem}.field textarea{resize:vertical;min-height:80px}.field select{appearance:none;padding-right:35px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='m1 1 5 5 5-5' fill='none' stroke='%235b6d84' stroke-width='1.8'/%3E%3C/svg%3E");background-position:right 12px center;background-repeat:no-repeat}.field input:disabled,.field select:disabled,.field input[readonly]{background:#f3f6fa;color:#51637a}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.span2{grid-column:1/-1}.search-wrap{position:relative}.search-wrap>.icon{position:absolute;left:13px;top:13px;color:#70839a}.search-wrap input{padding-left:41px;padding-right:42px}.search-wrap .search-clear{position:absolute;right:5px;top:5px;min-height:34px;width:34px;padding:4px}.results{position:absolute;left:0;right:0;top:calc(100% + 5px);z-index:5;background:#fff;border:1px solid #b5c9e5;border-radius:9px;box-shadow:0 12px 28px #162f5126;max-height:290px;overflow:auto;padding:5px}.result-option{display:flex;width:100%;justify-content:flex-start;text-align:left;border:0;background:white;border-radius:6px;font-weight:400;padding:11px;gap:11px}.result-option[aria-selected=true]{background:#edf4ff;outline:2px solid #789fda;outline-offset:-2px}.result-option small{display:block;color:var(--muted);font-size:.8125rem;margin-top:2px}.result-option strong{font-size:.9375rem;font-weight:600}.no-results{padding:16px;font-size:.875rem;color:var(--muted)}.identity{display:flex;align-items:center;gap:12px;border:1px solid #d5e3f5;background:#f5f9ff;padding:14px;border-radius:9px;margin-top:12px;min-width:0}.identity .avatar{background:#e2ecfc;flex:none}.identity strong{font-size:.9375rem;font-weight:650;display:block;overflow-wrap:anywhere}.identity small{display:block;color:var(--muted);font-size:.875rem}.identity .badge{margin-left:auto}.empty-identity{margin-top:12px;border:1px dashed #bfcddd;border-radius:8px;padding:12px 14px;font-size:.875rem;color:var(--muted)}.inline-note{display:flex;align-items:flex-start;gap:8px;font-size:.875rem;color:#51637a;margin-top:14px}.inline-note .icon{width:17px;height:17px;margin-top:2px;color:#50769b}
+.document{display:flex;align-items:center;gap:12px;border:1px solid #dce5ef;border-radius:9px;padding:13px 14px}.file-icon{display:grid;place-items:center;width:39px;height:44px;background:#eef3fb;color:#4268a7;border-radius:7px;flex:none}.document-text{min-width:0;flex:1}.document-text strong{display:block;font-size:.9375rem;font-weight:600;overflow-wrap:anywhere}.document-text small{display:block;color:var(--muted);font-size:.8125rem}.document .badge{margin-bottom:3px}.doc-label{font-size:.875rem;font-weight:600;margin-bottom:8px}.annex-heading{display:flex;align-items:center;gap:8px;margin:17px 0 9px;font-size:.875rem;font-weight:600}.count{display:inline-grid;place-items:center;min-width:24px;height:23px;background:#edf2f8;color:#4d6381;border-radius:6px;font-size:.8125rem}.annex-list{display:grid;gap:8px}.annex{display:flex;align-items:center;gap:9px;font-size:.875rem;padding:8px 11px;border:1px solid #e5ebf2;border-radius:7px}.annex .icon{color:#788ba2;width:17px;height:17px}.annex span{overflow-wrap:anywhere}.annex small{margin-left:auto;white-space:nowrap;color:var(--muted)}.divider{height:1px;background:#e6ebf2;margin:20px 0}.flow-line{display:flex;align-items:end;gap:10px}.flow-line .field{flex:1;min-width:0}.flow-line button{margin-bottom:1px}.deadline{border-left:3px solid #a9c1e3;background:#f3f7fd;padding:10px 13px;border-radius:0 7px 7px 0;font-size:.875rem;margin-top:15px}.deadline strong{font-weight:650}.metadata-caption{font-size:.875rem;color:var(--muted);margin-bottom:15px}.error{color:#9b283b;font-size:.875rem;margin-top:6px}.error-summary{border:1px solid #e0b5bc;border-left:4px solid #b43950;background:#fff5f6;padding:15px 18px;border-radius:9px;margin-bottom:18px}.error-summary p{font-size:.875rem;margin-top:3px}.field [aria-invalid=true]{border-color:#b43950;box-shadow:0 0 0 1px #b43950}.actionbar{display:flex;align-items:center;justify-content:space-between;gap:15px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:15px 19px}.actionbar p{font-size:.875rem;color:var(--muted)}.actionbar .actions{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+.sidebar{position:sticky;top:20px;display:grid;gap:15px}.summary-head{border-bottom:1px solid #e5ebf2;padding:18px 19px}.summary-body{padding:17px 19px}.summary-item{padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid #e9edf3}.summary-item:last-child{border:0;margin:0;padding:0}.summary-label{font-size:.8125rem;color:var(--muted);margin-bottom:3px}.summary-value{font-size:.9375rem;font-weight:600;overflow-wrap:anywhere}.summary-detail{font-size:.8125rem;color:var(--muted);margin-top:3px;overflow-wrap:anywhere}.actor-line{display:flex;align-items:center;gap:9px}.actor-line .avatar{width:32px;height:32px;font-size:.75rem}.actor-note{font-size:.8125rem;color:#49647e;padding:10px 12px;background:#edf4fb;border-radius:7px;margin-top:11px}.checklist{margin:0;padding:0;list-style:none;display:grid;gap:9px}.checklist li{font-size:.875rem;display:flex;align-items:center;gap:9px;color:#60718a}.check-mark{width:19px;height:19px;border:1px solid #c6d1df;background:#f4f6fa;color:transparent;display:grid;place-items:center;border-radius:50%;font-size:.8125rem;flex:none}.checklist li.done{color:#29604e}.checklist li.done .check-mark{background:#e9f5ed;border-color:#b9dac5;color:#2f7755}.side-help{padding:14px 17px;font-size:.875rem;color:var(--muted);background:#edf2f8;border:1px solid #dce4ee;border-radius:9px}.side-help strong{display:block;color:#3e5572;margin-bottom:3px}.demo-options{margin-top:25px;border-top:1px solid #d8e2ee;padding-top:17px;color:var(--muted);font-size:.875rem}.demo-options summary{cursor:pointer;width:fit-content;font-weight:600}.demo-options .grid{margin-top:15px;max-width:860px;grid-template-columns:1fr 1fr auto;align-items:end}.demo-options p{margin-top:11px;font-size:.875rem;max-width:1000px}.footer-note{margin-top:18px;color:var(--muted);font-size:.8125rem}
+dialog{border:1px solid #ccd9e9;border-radius:15px;padding:0;max-width:min(700px,calc(100vw - 30px));width:700px;color:var(--navy);box-shadow:0 25px 90px #12243e40;max-height:calc(100dvh - 40px)}dialog::backdrop{background:#10233b88;backdrop-filter:blur(2px)}.dialog-head{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid var(--line);gap:14px}.dialog-head h2{font-size:1.2rem}.close{min-height:34px;width:34px;padding:5px;font-size:1.25rem}.dialog-body{padding:22px 24px;overflow-wrap:anywhere}.dialog-foot{padding:16px 24px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;background:#f8fafd}.review-list{display:grid;grid-template-columns:155px 1fr;gap:13px 18px;font-size:.9375rem;margin:18px 0 0}.review-list dt{color:var(--muted)}.review-list dd{margin:0;font-weight:600;overflow-wrap:anywhere}.review-notice{padding:11px 13px;background:#edf4fc;border-radius:8px;font-size:.875rem;margin-top:19px;color:#405e80}.picker-list{display:grid;gap:11px;margin-top:17px}.picker-row{display:grid;grid-template-columns:1fr auto auto;gap:18px;align-items:center;padding:13px;border:1px solid var(--line);border-radius:8px;font-size:.875rem}.picker-row strong{display:block;font-size:.9375rem;font-weight:600}.picker-row small{color:var(--muted)}.picker-choice{display:flex;align-items:center;gap:6px;cursor:pointer}.picker-choice input{width:18px;height:18px;accent-color:var(--blue)}.flow-diagram{display:flex;flex-direction:column;align-items:center;margin:18px 0}.flow-node{border:1px solid #cbd9eb;background:#f5f8fe;padding:14px 20px;border-radius:9px;text-align:center;width:100%;max-width:360px;font-size:.9375rem}.flow-connector{height:24px;border-left:2px solid #b2c6e2}.result-panel{border:1px solid #bfdccd;background:#f5fcf7;border-radius:12px;padding:24px;margin-bottom:20px}.result-panel.warning{border-color:#e2cea6;background:#fffbf2}.result-panel.failure{border-color:#e4bdc5;background:#fff6f7}.result-top{display:flex;align-items:center;gap:14px}.result-symbol{display:grid;place-items:center;width:46px;height:46px;flex:none;border-radius:50%;background:#dff0e5;color:#28724e;font-size:1.35rem}.warning .result-symbol{background:#faebc9;color:#8a5d0f}.failure .result-symbol{background:#f7e1e6;color:#9d3146}.result-panel h2{font-size:1.2rem}.result-panel p{font-size:.9375rem;margin-top:6px}.result-steps{margin:19px 0;padding:0;list-style:none;display:grid;gap:9px;font-size:.875rem}.result-steps li{display:flex;gap:9px}.step-state{font-weight:650;min-width:85px}.result-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.result-tag{margin-bottom:5px;font-size:.8125rem;color:#48664e;font-weight:650}.closed-view{text-align:center;padding:70px 25px}.closed-view p{margin:12px 0 22px;color:var(--muted)}.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);padding:12px 18px;background:#17324d;color:white;font-size:.875rem;border-radius:9px;box-shadow:0 5px 20px #132b3e25;z-index:20;max-width:calc(100vw - 30px);width:max-content}
+@media(min-width:1500px){.page{padding-top:30px}}@media(max-width:1080px){.layout{grid-template-columns:minmax(0,1fr) 285px;gap:16px}.page{padding:22px}.top,.demo{padding-left:22px;padding-right:22px}.card-body{padding:0 18px 18px}.card-head{padding:17px 18px 14px}.grid{gap:15px}.flow-line{align-items:stretch;flex-direction:column}.flow-line button{align-self:flex-start}.actionbar{align-items:flex-start;flex-direction:column}.actionbar .actions{align-self:flex-end}}@media(max-width:800px){.layout{grid-template-columns:1fr}.sidebar{position:static;grid-template-columns:1fr 1fr}.sidebar .side-help{grid-column:1/-1}.page-heading{align-items:flex-start}.page-heading h1{font-size:1.65rem}.top-section{display:none}.demo{flex-wrap:wrap;gap:4px 10px}.demo a{margin-left:0}.demo span{flex:1;min-width:190px}.summary-item{padding-bottom:12px;margin-bottom:12px}.context{grid-template-columns:1.3fr 1fr}.demo-options .grid{grid-template-columns:1fr 1fr}.demo-options .grid>button{grid-column:1/-1;justify-self:start}}@media(max-width:540px){.page{padding:18px 14px 25px}.top{padding:12px 15px;gap:12px}.account small{display:none}.account .account-name{display:none}.demo{padding:9px 15px;font-size:.8125rem}.demo a{display:none}.page-heading{gap:10px;flex-direction:column}.page-heading>button{align-self:flex-start}.grid,.context,.sidebar{grid-template-columns:1fr}.span2{grid-column:auto}.sidebar .side-help{grid-column:auto}.card-head{gap:8px;padding:16px}.card-body{padding:0 16px 18px}.card-head h2{font-size:1rem}.card-head>.badge{font-size:.75rem}.segment span{padding:9px 12px}.identity{align-items:flex-start;flex-wrap:wrap}.identity .badge{margin-left:48px}.document{gap:9px;padding:11px}.document>button{padding:6px;width:34px;min-height:34px}.document>button .button-text{display:none}.annex small{display:none}.actionbar{padding:15px}.actionbar .actions{width:100%}.actionbar .actions button{flex:1}.picker-row{grid-template-columns:1fr 1fr;gap:10px}.picker-row>div{grid-column:1/-1}.review-list{grid-template-columns:1fr;gap:4px}.review-list dd{margin-bottom:11px}.dialog-body,.dialog-head,.dialog-foot{padding:17px}.demo-options .grid{grid-template-columns:1fr}.result-panel{padding:18px}.result-top{align-items:flex-start}.result-symbol{width:36px;height:36px}.page-heading p{font-size:.875rem}.flow-line button{width:100%}.sidebar{gap:14px}.footer-note{line-height:1.6}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}@media print{.top,.demo,.demo-options,.actionbar,.sidebar,.page-heading>button,dialog,.toast,.footer-note{display:none!important}.layout{display:block}.page{padding:0;max-width:none}.card,.result-panel{break-inside:avoid;box-shadow:none}.form-stack{gap:12px}body{background:white}.card-head button,.document button{display:none}}
+input[type=search]::-webkit-search-cancel-button{appearance:none}
+.identity{display:grid;grid-template-columns:36px minmax(0,1fr);align-items:start}
+.identity>div{min-width:0}.identity>.badge{grid-column:2;justify-self:start;margin:0!important}
+/* Dos columnas de trabajo en escritorio: el origen y la selección se revisan juntos. */
+@media(min-width:1200px){
+ .form-stack{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
+ .form-stack>.context,.form-stack>section:last-child{grid-column:1/-1}
+ .form-stack>.card:not(.context){height:100%}
+ .card-head{flex-wrap:wrap;gap:9px}.card-head h2{font-size:1rem}
+ .remitter .identity{flex-wrap:wrap;align-items:flex-start}.remitter .identity>div{flex:1;min-width:150px}
+ .remitter .identity>.badge{margin-left:48px}.remitter .segmented{width:100%}.remitter .segment{flex:1}
+ .remitter .segment span{padding:9px 11px;width:100%;justify-content:center}
+ .flow-line{align-items:stretch;flex-direction:column}.flow-line button{align-self:flex-start}
+ .document{align-items:flex-start}.document .file-icon{width:32px;height:38px}.document>button .button-text{display:none}
+ .annex small{display:none}.card-body>.grid{gap:16px 13px}
+}
+</style>
+</head>
+<body>
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden" xmlns="http://www.w3.org/2000/svg">
+<symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M8 13h8M8 17h6"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></symbol>
+<symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V5h11v16M15 11h5v10M2 21h20M8 9h3M8 13h3M8 17h3"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+<symbol id="i-route" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="5" rx="1"/><rect x="2" y="17" width="7" height="5" rx="1"/><rect x="15" y="17" width="7" height="5" rx="1"/><path d="M12 7v5M5.5 17v-5h13v5"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v1"/></symbol>
+<symbol id="i-fields" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></symbol>
+<symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7V5h6l2 3h10v12H3z"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+<symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12"/><circle cx="12" cy="12" r="3"/></symbol>
+</svg>
+<a class="skip" href="#main">Ir al formulario</a>
+<header class="top">
+ <div class="brand"><span class="brandmark"><svg class="icon"><use href="#i-doc"/></svg></span>DocuArchi</div>
+ <div class="top-section">Gestión de documentos electrónicos</div>
+ <div class="account"><div class="avatar" aria-hidden="true">LM</div><div><span class="account-name">Laura Martínez</span><small>Auxiliar administrativa · Usuario de ejemplo</small></div></div>
+</header>
+<div class="demo"><strong>Maqueta interactiva</strong><span>Datos ficticios. Las acciones se simulan en este navegador.</span><a href="diagnostico.md">Consultar diagnóstico</a></div>
+<main class="page" id="main">
+ <div class="breadcrumbs"><span>Producción documental</span><svg class="icon" aria-hidden="true"><use href="#i-chevron"/></svg><span>Expediente EXP-DEMO-024</span><svg class="icon" aria-hidden="true"><use href="#i-chevron"/></svg><span aria-current="page">Radicación interna</span></div>
+ <div class="page-heading"><div><h1>Radicación interna</h1><p>Revise los documentos, identifique al remitente y defina el destino del trámite.</p></div><button type="button" id="exit-view">Cerrar radicación</button></div>
+ <section id="closed-view" class="closed-view card" hidden><h2>Vista de radicación cerrada</h2><p id="closed-message">Puede volver al ejemplo y continuar la revisión.</p><button type="button" class="primary" id="reopen">Volver a la maqueta</button></section>
+ <div id="workspace">
+ <section id="result-panel" class="result-panel" role="status" aria-live="polite" aria-atomic="true" hidden tabindex="-1"></section>
+ <div class="layout">
+ <form id="registration-form" novalidate>
+  <div id="error-summary" class="error-summary" role="alert" hidden tabindex="-1"><strong>Revise los campos indicados</strong><p id="error-count"></p></div>
+  <fieldset class="form-body" id="form-fields"><legend class="sr">Datos de la radicación interna</legend>
+  <div class="form-stack">
+   <section class="card context" aria-label="Contexto de origen"><div><div class="eyebrow">Expediente de origen</div><strong>EXP-DEMO-024 · Solicitudes administrativas</strong><small>Nivel: Gestión administrativa / Solicitudes</small></div><div><div class="eyebrow">Plantilla de radicación</div><strong id="template-name">RAD_GESTION · Ejemplo</strong><small>Expediente abierto · Contexto de ejemplo</small></div></section>
+   <section class="card remitter" aria-labelledby="remitter-heading">
+    <div class="card-head"><div class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg><h2 id="remitter-heading">¿A nombre de quién se radica?</h2></div><span class="badge blue">Remitente</span></div>
+    <div class="card-body">
+     <fieldset style="border:0;padding:0;margin:0;min-width:0"><legend class="sr">Tipo de remitente</legend><div class="segmented"><label class="segment"><input type="radio" name="remitter-kind" value="internal" checked><span><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg>Usuario interno</span></label><label class="segment"><input type="radio" name="remitter-kind" value="third"><span><svg class="icon" aria-hidden="true"><use href="#i-building"/></svg>Tercero</span></label></div></fieldset>
+     <div class="field"><label id="remitter-search-label" for="remitter-search">Buscar usuario interno <span class="required">*</span></label><div class="search-wrap"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><input id="remitter-search" type="search" placeholder="Buscar por nombre o cargo" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="remitter-results" aria-describedby="remitter-help remitter-error" aria-required="true"><button type="button" class="quiet search-clear" id="clear-remitter" aria-label="Limpiar selección de remitente">×</button><div id="remitter-results" class="results" role="listbox" aria-label="Resultados de remitentes" hidden></div></div><p class="hint" id="remitter-help">Seleccione un usuario del catálogo de ejemplo.</p><p class="error" id="remitter-error" hidden></p></div>
+     <div class="identity" id="selected-remitter"></div><div class="empty-identity" id="empty-remitter" hidden>Ningún remitente seleccionado. Busque y elija un resultado.</div>
+     <div class="inline-note"><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg><p>La operación la realiza <strong>Laura Martínez</strong>. Su identidad se conserva en auditoría aunque el remitente sea otra persona.</p></div>
+    </div>
+   </section>
+   <section class="card" aria-labelledby="documents-heading"><div class="card-head"><div class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-doc"/></svg><h2 id="documents-heading">Documentos de la radicación</h2></div><button type="button" class="small" id="edit-documents">Revisar selección</button></div><div class="card-body"><p class="hint">Un documento principal y sus anexos, con funciones distintas.</p><p class="doc-label">Documento principal</p><div id="principal-document"></div><div class="annex-heading">Anexos <span class="count" id="annex-count">2</span></div><div class="annex-list" id="annex-list"></div><div class="field" style="margin-top:17px"><label for="annex-description">Descripción de anexos <span class="required">*</span></label><textarea id="annex-description" rows="2" maxlength="240" aria-describedby="annex-description-help annex-description-error"></textarea><p class="hint" id="annex-description-help">Texto descriptivo de ejemplo. Revíselo si cambia los documentos. Máximo 240 caracteres.</p><p class="error" id="annex-description-error" hidden></p></div></div></section>
+   <section class="card" aria-labelledby="details-heading"><div class="card-head"><div class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-fields"/></svg><h2 id="details-heading">Datos del radicado</h2></div><span class="muted" style="font-size:.8125rem">* Campo obligatorio</span></div><div class="card-body"><div class="grid">
+    <div class="field span2"><label for="procedure">Trámite del documento <span class="required">*</span></label><select id="procedure" aria-describedby="procedure-error"><option value="request">Solicitud administrativa · Ejemplo</option><option value="review">Revisión documental · Ejemplo</option></select><p class="error" id="procedure-error" hidden></p></div>
+    <div class="field span2"><label for="subject">Asunto <span class="required">*</span></label><textarea id="subject" rows="2" maxlength="240" aria-describedby="subject-error">Solicitud de revisión de documentación administrativa</textarea><p class="error" id="subject-error" hidden></p></div>
+    <div class="field"><label for="document-date">Fecha del documento <span class="required">*</span></label><input id="document-date" type="date" value="2026-11-24" aria-describedby="document-date-help document-date-error"><p class="hint" id="document-date-help">Fecha del documento de origen.</p><p class="error" id="document-date-error" hidden></p></div>
+    <div class="field"><label for="folios">Número de folios <span class="required">*</span></label><input id="folios" type="number" min="1" step="1" value="20" aria-describedby="folios-error"><p class="error" id="folios-error" hidden></p></div>
+    <div class="field"><label for="deadline">Fecha límite de respuesta <span class="required">*</span></label><input id="deadline" type="date" readonly aria-describedby="deadline-help"><p class="hint" id="deadline-help">Plazo ilustrativo de la maqueta.</p></div>
+    <div class="field" id="appointment-field"><label for="appointment">Cita de radicado</label><input id="appointment" type="text" maxlength="80" placeholder="Referencia, si corresponde"><p class="hint">Se muestra según la plantilla del ejemplo.</p></div>
+   </div><div class="deadline" id="deadline-note"></div></div></section>
+   <section class="card" aria-labelledby="workflow-heading"><div class="card-head"><div class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-route"/></svg><h2 id="workflow-heading">Trámite y destino</h2></div><span class="badge neutral">Workflow</span></div><div class="card-body"><p class="hint">El destino se define de forma independiente del remitente.</p><div class="grid">
+    <div class="span2 flow-line"><div class="field"><label for="flow">Flujo de trabajo <span class="required">*</span></label><select id="flow" aria-describedby="flow-error"></select><p class="error" id="flow-error" hidden></p></div><button type="button" class="small" id="view-flow"><svg class="icon" aria-hidden="true"><use href="#i-route"/></svg>Ver flujo</button></div>
+    <div class="field span2"><label for="activity">Actividad de inicio <span class="required">*</span></label><select id="activity" aria-describedby="activity-error"></select><p class="error" id="activity-error" hidden></p></div>
+    <div class="field"><label for="assignment">Asignación <span class="required">*</span></label><select id="assignment"><option value="group">Grupo de trabajo</option><option value="direct">Usuario directo</option></select></div>
+    <div class="field" id="group-field"><label for="group">Grupo <span class="required">*</span></label><select id="group" aria-describedby="group-error"></select><p class="error" id="group-error" hidden></p></div>
+    <div class="field span2"><label id="responsible-label" for="responsible">Usuario del grupo <span class="required">*</span></label><select id="responsible" aria-describedby="responsible-help responsible-error"></select><p class="hint" id="responsible-help">Elija quién recibirá la actividad.</p><p class="error" id="responsible-error" hidden></p></div>
+   </div></div></section>
+   <section class="card" aria-labelledby="metadata-heading"><div class="card-head"><div class="card-title"><svg class="icon" aria-hidden="true"><use href="#i-fields"/></svg><h2 id="metadata-heading">Datos adicionales</h2></div><span class="badge neutral">Según plantilla</span></div><div class="card-body"><p class="metadata-caption" id="metadata-caption">Campos configurados para la plantilla del ejemplo.</p><div class="grid" id="metadata-fields"></div></div></section>
+  </div>
+  </fieldset>
+  <div class="actionbar" id="actionbar" style="margin-top:18px"><p>Podrá revisar el resumen antes de confirmar.</p><div class="actions"><button type="button" id="cancel">Cancelar</button><button type="submit" class="primary" id="review"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Revisar y radicar</button></div></div>
+ </form>
+ <aside class="sidebar" aria-label="Resumen de la operación">
+  <section class="card"><div class="summary-head"><h2>Resumen de radicación</h2></div><div class="summary-body">
+   <div class="summary-item"><div class="summary-label">Quién realiza la operación</div><div class="actor-line"><span class="avatar" aria-hidden="true">LM</span><div><div class="summary-value">Laura Martínez</div><div class="summary-detail">Usuario autenticado · DEMO-A01</div></div></div><div class="actor-note">Ejecutor conservado en auditoría</div></div>
+   <div class="summary-item"><div class="summary-label">A nombre de · Remitente</div><div class="summary-value" id="summary-remitter"></div><div class="summary-detail" id="summary-remitter-detail"></div></div>
+   <div class="summary-item"><div class="summary-label">Documentos</div><div class="summary-value" id="summary-documents"></div><div class="summary-detail" id="summary-principal"></div></div>
+   <div class="summary-item"><div class="summary-label">Recibe el trámite</div><div class="summary-value" id="summary-responsible"></div><div class="summary-detail" id="summary-group"></div></div>
+   <div class="summary-item"><div class="summary-label">Fecha límite de respuesta</div><div class="summary-value" id="summary-deadline"></div></div>
+  </div></section>
+  <section class="card"><div class="summary-head"><h2>Antes de radicar</h2></div><div class="summary-body"><ul class="checklist"><li id="check-remitter"><span class="check-mark" aria-hidden="true">✓</span>Remitente identificado</li><li id="check-documents"><span class="check-mark" aria-hidden="true">✓</span>Principal y anexos revisables</li><li id="check-fields"><span class="check-mark" aria-hidden="true">✓</span>Datos obligatorios completos</li><li id="check-responsible"><span class="check-mark" aria-hidden="true">✓</span>Responsable seleccionado</li></ul><p class="hint" style="margin-top:14px">Esta guía comprueba datos del ejemplo. La aplicación deberá validar permisos y reglas al confirmar.</p></div></section>
+  <div class="side-help"><strong>Remitente y responsable</strong>El tercero representa el origen de la solicitud. La actividad sigue dirigida a un usuario o grupo interno.</div>
+ </aside>
+ </div>
+ </div>
+ <details class="demo-options"><summary>Opciones de la maqueta</summary><div class="grid"><div class="field"><label for="demo-template">Plantilla de ejemplo</label><select id="demo-template"><option value="gestion">RAD_GESTION · Con campo Placa</option><option value="communication">Comunicación · Con catálogo adicional</option></select></div><div class="field"><label for="demo-result">Resultado a simular</label><select id="demo-result"><option value="success">Registro completo</option><option value="mail">Registro con correo pendiente</option><option value="workflow">Registro con Workflow pendiente</option><option value="annex">Registro con anexos pendientes</option><option value="rejected">Rechazo antes de registrar</option><option value="uncertain">Respuesta perdida · Estado por consultar</option></select></div><button type="button" id="reset-demo">Reiniciar maqueta</button></div><p>Los catálogos, permisos de representación y plazos son ilustrativos. Se muestran terceros de ejemplo; su ámbito y tipos se definirán en refinamiento. Los plazos omiten festivos y no sustituyen el calendario del sistema. Este archivo no guarda datos ni se conecta al backend.</p></details>
+ <p class="footer-note">Propuesta de interfaz · D-RI-01: tercero como remitente y usuario autenticado como ejecutor · DocuArchi</p>
+</main>
+<dialog id="documents-dialog" aria-labelledby="documents-dialog-title"><div class="dialog-head"><h2 id="documents-dialog-title">Revisar documentos de origen</h2><button type="button" class="quiet close" data-close aria-label="Cerrar selección de documentos">×</button></div><div class="dialog-body"><p>Elija un principal. Marque por separado los documentos que lo acompañan como anexos.</p><div class="picker-list" id="document-picker"></div><p class="hint" style="margin-top:15px">La selección pertenece al mismo expediente de ejemplo. El principal no se cuenta como anexo.</p></div><div class="dialog-foot"><button type="button" data-close>Volver sin aplicar</button><button type="button" class="primary" id="apply-documents">Aplicar selección</button></div></dialog>
+<dialog id="review-dialog" aria-labelledby="review-title"><div class="dialog-head"><h2 id="review-title">Confirmar radicación</h2><button type="button" class="quiet close" data-close aria-label="Cerrar resumen">×</button></div><div class="dialog-body"><p>Compruebe quién figura como remitente y quién recibirá el trámite.</p><dl class="review-list" id="review-details"></dl><div class="review-notice">Simulación local con datos ficticios. El usuario autenticado se conserva en auditoría; la confirmación no ejecuta una radicación real.</div></div><div class="dialog-foot"><button type="button" id="back-to-edit" data-close>Volver a editar</button><button type="button" class="primary" id="confirm-registration">Simular radicación</button></div></dialog>
+<dialog id="flow-dialog" aria-labelledby="flow-title"><div class="dialog-head"><h2 id="flow-title">Flujo de trabajo</h2><button type="button" class="quiet close" data-close aria-label="Cerrar flujo">×</button></div><div class="dialog-body"><p class="hint">Recorrido ilustrativo del flujo seleccionado.</p><div class="flow-diagram" id="flow-diagram"></div></div><div class="dialog-foot"><button type="button" data-close>Volver al formulario</button></div></dialog>
+<dialog id="preview-dialog" aria-labelledby="preview-title"><div class="dialog-head"><h2 id="preview-title">Documento principal</h2><button type="button" class="quiet close" data-close aria-label="Cerrar vista del documento">×</button></div><div class="dialog-body"><div class="file-icon" style="margin-bottom:16px"><svg class="icon" aria-hidden="true"><use href="#i-doc"/></svg></div><h3 id="preview-name"></h3><p style="margin-top:12px">Documento ficticio del expediente EXP-DEMO-024.</p><p class="hint">Esta vista representa el acceso al visor existente. No contiene archivos ni información del ambiente.</p></div><div class="dialog-foot"><button type="button" data-close>Cerrar vista</button></div></dialog>
+<dialog id="exit-dialog" aria-labelledby="exit-title"><div class="dialog-head"><h2 id="exit-title">Cerrar radicación</h2><button type="button" class="quiet close" data-close aria-label="Volver a radicación">×</button></div><div class="dialog-body"><p id="exit-message"></p></div><div class="dialog-foot"><button type="button" data-close>Continuar revisión</button><button type="button" id="confirm-exit">Cerrar vista del ejemplo</button></div></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<!-- La maqueta utiliza identidades ficticias separadas por tipo. Ningún ID se envía al sistema. -->
+<script>
+'use strict';
+(() => {
+ const $ = id => document.getElementById(id);
+ const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+ const icon = name => `<svg class="icon" aria-hidden="true"><use href="#i-${name}"/></svg>`;
+ const actor = Object.freeze({id:'7',type:'internal',name:'Laura Martínez',detail:'Auxiliar administrativa',identification:'Usuario de ejemplo · DEMO-U07'});
+ // Los ID 7 coinciden deliberadamente entre catálogos: el tipo forma parte de la identidad.
+ const catalogs = {
+  internal:[actor,{id:'12',type:'internal',name:'Andrés Ríos',detail:'Profesional de gestión documental',identification:'Usuario de ejemplo · DEMO-U12'},{id:'18',type:'internal',name:'Paula Torres',detail:'Coordinadora administrativa',identification:'Usuario de ejemplo · DEMO-U18'}],
+  third:[{id:'7',type:'third',name:'Camila Restrepo',detail:'Persona natural · Ejemplo',identification:'Documento DEMO-T07'},{id:'12',type:'third',name:'Servicios del Parque S.A.S.',detail:'Persona jurídica · Ejemplo',identification:'Identificación DEMO-T12'},{id:'22',type:'third',name:'Daniel Moreno',detail:'Persona natural · Ejemplo',identification:'Documento DEMO-T22'}]
+ };
+ const documents = [
+  {id:'doc-1',name:'Solicitud de trámite.pdf',detail:'PDF · 20 folios · Documento de ejemplo',size:'240 KB'},
+  {id:'doc-2',name:'Certificado.pdf',detail:'PDF · Documento de ejemplo',size:'128 KB'},
+  {id:'doc-3',name:'Soportes administrativos.pdf',detail:'PDF · Documento de ejemplo',size:'380 KB'},
+  {id:'doc-4',name:'Comunicación complementaria.pdf',detail:'PDF · Documento de ejemplo',size:'160 KB'}
+ ];
+ const people = {r1:'Andrés Ríos',r2:'Paula Torres',r3:'Valentina Castro',r4:'Diego Salas'};
+ const groups = {administration:{name:'Gestión administrativa',members:['r1','r2']},archive:{name:'Gestión documental',members:['r3','r4']},empty:{name:'Grupo de ejemplo sin integrantes',members:[]}};
+ const flows = {
+  administrative:{name:'Atención de solicitudes administrativas',activities:[{id:'receive',name:'Revisión inicial',groups:['administration','archive','empty'],people:['r1','r2','r3','r4']},{id:'analyze',name:'Análisis administrativo',groups:['administration'],people:['r1','r2']}]},
+  documentary:{name:'Revisión y control documental',activities:[{id:'check',name:'Verificación documental',groups:['archive','empty'],people:['r3','r4']},{id:'approve',name:'Validación del área',groups:['administration'],people:['r1','r2']}]}
+ };
+ const procedures = {request:{days:5,flows:['administrative','documentary']},review:{days:10,flows:['documentary']}};
+ const templates = {
+  gestion:{name:'RAD_GESTION · Ejemplo',appointment:true,fields:[{id:'plate',label:'Campo Placa',type:'text',required:true,placeholder:'Ej. DEM-123',hint:'Campo adicional obligatorio de esta plantilla de ejemplo.'}]},
+  communication:{name:'Comunicación interna · Ejemplo',appointment:false,fields:[{id:'category',label:'Clasificación de la comunicación',type:'select',required:true,options:['Administrativa','Informativa'],hint:'Catálogo adicional de una segunda plantilla de ejemplo.'},{id:'reference',label:'Referencia complementaria',type:'text',required:false,placeholder:'Opcional',hint:''}]}
+ };
+ const state = {kind:'internal',remitter:actor,principal:'doc-1',annexes:['doc-2','doc-3'],template:'gestion',result:null,busy:false,correlation:0,snapshot:null};
+ let filtered = [], activeOption = -1, stagedDocuments = null, toastTimer;
+ const principal = () => documents.find(doc => doc.id === state.principal);
+ const currentActivity = () => flows[$('flow').value]?.activities.find(activity => activity.id === $('activity').value);
+ const selectedText = id => $(id).selectedOptions[0]?.textContent || '';
+ const formatDate = value => value ? new Intl.DateTimeFormat('es-CO',{day:'2-digit',month:'short',year:'numeric'}).format(new Date(`${value}T12:00:00`)) : 'Sin definir';
+ const normalize = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ function announce(message){$('toast').textContent=message;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,4200);}
+ function openDialog(id){closeResults();$(id).showModal();}
+ document.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>button.closest('dialog').close()));
+ document.querySelectorAll('dialog').forEach(dialog=>dialog.addEventListener('cancel',event=>{if(state.busy)event.preventDefault();}));
+ function setOptions(id,options,placeholder){
+  $(id).replaceChildren();
+  if(placeholder!==undefined)$(id).add(new Option(placeholder,''));
+  options.forEach(option=>$(id).add(new Option(option.name,option.id)));
+ }
+ function clearError(id){const field=$(id),error=$(`${id}-error`);field?.removeAttribute('aria-invalid');if(error){error.hidden=true;error.textContent='';}}
+ function showError(id,message){$(id).setAttribute('aria-invalid','true');const error=$(`${id}-error`);if(error){error.hidden=false;error.textContent=message;}}
+ function clearAllErrors(){document.querySelectorAll('[aria-invalid]').forEach(field=>field.removeAttribute('aria-invalid'));document.querySelectorAll('.error').forEach(error=>{error.hidden=true;error.textContent='';});$('error-summary').hidden=true;}
+ function identityValid(){return Boolean(state.remitter && state.remitter.type===state.kind && catalogs[state.kind].some(item=>item.id===state.remitter.id));}
+ function renderIdentity(){
+  const item=state.remitter,valid=identityValid();
+  $('selected-remitter').hidden=!valid;$('empty-remitter').hidden=valid;
+  if(valid)$('selected-remitter').innerHTML=`<span class="avatar" aria-hidden="true">${icon(item.type==='third'?'building':'user')}</span><div><strong>${esc(item.name)}</strong><small>${esc(item.identification)} · ${esc(item.detail)}</small></div><span class="badge blue">${item.type==='third'?'Tercero':'Usuario interno'}</span>`;
+  updateSummary();
+ }
+ function closeResults(){const input=$('remitter-search');$('remitter-results').hidden=true;input.setAttribute('aria-expanded','false');input.removeAttribute('aria-activedescendant');activeOption=-1;}
+ function renderResults(all=false){
+  const query=normalize($('remitter-search').value.trim());
+  filtered=catalogs[state.kind].filter(item=>all || normalize(`${item.name} ${item.detail} ${item.identification}`).includes(query));
+  activeOption=-1;
+  $('remitter-results').innerHTML=filtered.length?filtered.map((item,index)=>`<button type="button" tabindex="-1" role="option" id="remitter-option-${index}" aria-selected="false" class="result-option" data-result="${index}">${icon(state.kind==='third'?'building':'user')}<span><strong>${esc(item.name)}</strong><small>${esc(item.identification)} · ${esc(item.detail)}</small></span></button>`).join(''):'<div class="no-results" role="status">Sin coincidencias. Pruebe otro nombre o identificación del catálogo de ejemplo.</div>';
+  $('remitter-results').hidden=false;$('remitter-search').setAttribute('aria-expanded','true');$('remitter-search').removeAttribute('aria-activedescendant');
+ }
+ function selectIdentity(index){const item=filtered[index];if(!item)return;state.remitter=item;$('remitter-search').value=item.name;clearError('remitter-search');$('remitter-error').hidden=true;closeResults();renderIdentity();$('remitter-search').focus();closeResults();}
+ function changeKind(kind){
+  state.kind=kind;state.remitter=null;$('remitter-search').value='';
+  const third=kind==='third';$('remitter-search-label').innerHTML=`Buscar ${third?'tercero':'usuario interno'} <span class="required">*</span>`;
+  $('remitter-search').placeholder=third?'Buscar por nombre o identificación':'Buscar por nombre o cargo';
+  $('remitter-help').textContent=third?'Seleccione un tercero existente del catálogo ficticio.':'Seleccione un usuario del catálogo de ejemplo.';
+  clearError('remitter-search');$('remitter-error').hidden=true;closeResults();renderIdentity();
+  $('remitter-search').focus();renderResults(true);
+ }
+ document.querySelectorAll('[name="remitter-kind"]').forEach(input=>input.addEventListener('change',()=>changeKind(input.value)));
+ $('remitter-search').addEventListener('focus',()=>renderResults(identityValid()));
+ $('remitter-search').addEventListener('click',()=>renderResults(identityValid()));
+ $('remitter-search').addEventListener('input',()=>{state.remitter=null;clearError('remitter-search');$('remitter-error').hidden=true;renderIdentity();renderResults();});
+ $('clear-remitter').addEventListener('click',()=>{state.remitter=null;$('remitter-search').value='';renderIdentity();$('remitter-search').focus();renderResults(true);});
+ $('remitter-results').addEventListener('click',event=>{const option=event.target.closest('[data-result]');if(option)selectIdentity(Number(option.dataset.result));});
+ $('remitter-search').addEventListener('keydown',event=>{
+  if(event.key==='Escape'){closeResults();return;}
+  if(event.key==='Tab'){closeResults();return;}
+  if(event.key==='Enter'){event.preventDefault();if(!$('remitter-results').hidden && activeOption>=0)selectIdentity(activeOption);return;}
+  if(!['ArrowDown','ArrowUp'].includes(event.key))return;
+  event.preventDefault();if($('remitter-results').hidden)renderResults(identityValid());if(!filtered.length)return;
+  activeOption=(activeOption+(event.key==='ArrowDown'?1:-1)+filtered.length)%filtered.length;
+  document.querySelectorAll('[data-result]').forEach((option,index)=>option.setAttribute('aria-selected',String(index===activeOption)));
+  const option=$(`remitter-option-${activeOption}`);$('remitter-search').setAttribute('aria-activedescendant',option.id);option.scrollIntoView({block:'nearest'});
+ });
+ document.addEventListener('click',event=>{if(!event.target.closest('.search-wrap'))closeResults();});
+ // El error del buscador tiene nombre semántico distinto del ID de su input.
+ function remitterError(message){$('remitter-search').setAttribute('aria-invalid','true');$('remitter-error').textContent=message;$('remitter-error').hidden=false;}
+ function renderDocuments(){
+  const doc=principal();$('principal-document').innerHTML=`<div class="document"><div class="file-icon">${icon('doc')}</div><div class="document-text"><span class="badge blue">Principal</span><strong>${esc(doc.name)}</strong><small>${esc(doc.detail)}</small></div><button type="button" class="quiet small" id="preview-principal" aria-label="Ver documento principal">${icon('eye')}<span class="button-text">Ver</span></button></div>`;
+  $('annex-count').textContent=state.annexes.length;
+  $('annex-list').innerHTML=state.annexes.length?state.annexes.map(id=>{const item=documents.find(doc=>doc.id===id);return `<div class="annex">${icon('doc')}<span>${esc(item.name)}</span><small>${esc(item.size)}</small></div>`;}).join(''):'<p class="hint">Sin anexos seleccionados.</p>';
+  $('preview-principal').addEventListener('click',()=>{$('preview-name').textContent=doc.name;openDialog('preview-dialog');});updateSummary();
+ }
+ function renderPicker(){
+  $('document-picker').innerHTML=documents.map(doc=>`<div class="picker-row"><div><strong>${esc(doc.name)}</strong><small>${esc(doc.size)} · Ejemplo</small></div><label class="picker-choice"><input type="radio" name="principal-choice" value="${doc.id}" ${stagedDocuments.principal===doc.id?'checked':''} aria-label="Usar ${esc(doc.name)} como principal">Principal</label><label class="picker-choice"><input type="checkbox" name="annex-choice" value="${doc.id}" ${stagedDocuments.annexes.includes(doc.id)?'checked':''} ${stagedDocuments.principal===doc.id?'disabled':''} aria-label="Incluir ${esc(doc.name)} como anexo">Anexo</label></div>`).join('');
+ }
+ $('edit-documents').addEventListener('click',()=>{stagedDocuments={principal:state.principal,annexes:[...state.annexes]};renderPicker();openDialog('documents-dialog');});
+ $('document-picker').addEventListener('change',event=>{
+  const target=event.target;
+  if(target.name==='principal-choice'){
+   stagedDocuments.principal=target.value;stagedDocuments.annexes=stagedDocuments.annexes.filter(id=>id!==target.value);
+   // Actualizar sin reconstruir la fila conserva el foco del radio activo.
+   document.querySelectorAll('[name="annex-choice"]').forEach(box=>{box.disabled=box.value===target.value;box.checked=stagedDocuments.annexes.includes(box.value);});
+  }else if(target.name==='annex-choice')stagedDocuments.annexes=target.checked?[...stagedDocuments.annexes,target.value]:stagedDocuments.annexes.filter(id=>id!==target.value);
+ });
+ $('apply-documents').addEventListener('click',()=>{
+  state.principal=stagedDocuments.principal;state.annexes=[...new Set(stagedDocuments.annexes)].filter(id=>id!==state.principal);
+  renderDocuments();$('documents-dialog').close();announce('Selección actualizada. Revise la descripción de anexos y los folios del documento principal.');
+ });
+ function updateDeadline(){
+  const days=procedures[$('procedure').value].days,date=new Date(2026,10,25,12);
+  for(let count=0;count<days;){date.setDate(date.getDate()+1);if(![0,6].includes(date.getDay()))count++;}
+  $('deadline').value=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+  $('deadline-note').innerHTML=`<strong>${days} días hábiles de ejemplo.</strong> Cálculo ilustrativo desde el 25 nov 2026, sin festivos.`;
+ }
+ function populateFlows(){setOptions('flow',procedures[$('procedure').value].flows.map(id=>({id,name:flows[id].name})));populateActivities();updateDeadline();clearAllErrors();updateSummary();}
+ function populateActivities(){setOptions('activity',flows[$('flow').value].activities);populateGroups();}
+ function populateGroups(){const activity=currentActivity();setOptions('group',activity.groups.map(id=>({id,name:groups[id].name})));populateResponsible();}
+ function populateResponsible(){
+  const isGroup=$('assignment').value==='group',activity=currentActivity(),ids=isGroup?(groups[$('group').value]?.members || []):activity.people;
+  $('group-field').hidden=!isGroup;$('group').disabled=!isGroup;
+  $('responsible-label').innerHTML=`${isGroup?'Usuario del grupo':'Usuario responsable'} <span class="required">*</span>`;
+  setOptions('responsible',ids.map(id=>({id,name:people[id]})),ids.length?'Seleccione un responsable':'Sin usuarios disponibles');
+  $('responsible').disabled=!ids.length;
+  $('responsible-help').textContent=ids.length?'Elija quién recibirá la actividad.':'Este grupo no tiene usuarios de ejemplo. Seleccione otro grupo para continuar.';
+  clearError('responsible');clearError('group');updateSummary();
+ }
+ $('procedure').addEventListener('change',()=>{populateFlows();announce('Trámite actualizado. Revise el plazo y seleccione nuevamente al responsable.');});
+ $('flow').addEventListener('change',()=>{populateActivities();clearAllErrors();updateSummary();announce('Flujo actualizado. La asignación anterior se ha descartado.');});
+ $('activity').addEventListener('change',()=>{populateGroups();clearAllErrors();updateSummary();});
+ $('assignment').addEventListener('change',populateResponsible);$('group').addEventListener('change',populateResponsible);
+ $('view-flow').addEventListener('click',()=>{
+  const flow=flows[$('flow').value];$('flow-title').textContent=flow.name;
+  $('flow-diagram').innerHTML=[`Recepción del radicado`,...flow.activities.map(item=>item.name),'Cierre del trámite'].map((name,index)=>`${index?'<div class="flow-connector" aria-hidden="true"></div>':''}<div class="flow-node">${esc(name)}</div>`).join('');openDialog('flow-dialog');
+ });
+ function renderMetadata(){
+  const template=templates[state.template];$('template-name').textContent=template.name;$('appointment-field').hidden=!template.appointment;$('appointment').disabled=!template.appointment;
+  if(!template.appointment)$('appointment').value='';
+  $('metadata-caption').textContent=`Campos configurados para ${template.name}.`;
+  $('metadata-fields').innerHTML=template.fields.map(field=>`<div class="field"><label for="meta-${field.id}">${esc(field.label)}${field.required?' <span class="required">*</span>':''}</label>${field.type==='select'?`<select id="meta-${field.id}" ${field.required?'required':''} aria-describedby="meta-${field.id}-help meta-${field.id}-error"><option value="">Seleccione una opción</option>${field.options.map(option=>`<option>${esc(option)}</option>`).join('')}</select>`:`<input id="meta-${field.id}" type="text" maxlength="80" ${field.required?'required':''} placeholder="${esc(field.placeholder)}" aria-describedby="meta-${field.id}-help meta-${field.id}-error">`}<p class="hint" id="meta-${field.id}-help">${esc(field.hint)}</p><p class="error" id="meta-${field.id}-error" hidden></p></div>`).join('');updateSummary();
+ }
+ $('demo-template').addEventListener('change',()=>{state.template=$('demo-template').value;renderMetadata();clearAllErrors();announce('Plantilla de ejemplo actualizada. Revise sus campos adicionales.');});
+ function mandatoryComplete(){return Boolean($('subject').value.trim() && $('annex-description').value.trim() && $('document-date').validity.valid && $('document-date').value && Number.isInteger(Number($('folios').value)) && Number($('folios').value)>0 && templates[state.template].fields.every(field=>!field.required || $(`meta-${field.id}`)?.value.trim()));}
+ function responsibleValid(){const activity=currentActivity();const permitted=$('assignment').value==='group'?(groups[$('group').value]?.members || []):activity.people;return Boolean($('responsible').value && permitted.includes($('responsible').value));}
+ function updateSummary(){
+  const remitter=identityValid()?state.remitter:null;
+  $('summary-remitter').textContent=remitter?.name || 'Pendiente de seleccionar';
+  $('summary-remitter-detail').textContent=remitter?`${remitter.type==='third'?'Tercero':'Usuario interno'} · ${remitter.identification}`:state.kind==='third'?'Busque y elija un tercero.':'Busque y elija un usuario interno.';
+  $('summary-documents').textContent=`1 principal · ${state.annexes.length} ${state.annexes.length===1?'anexo':'anexos'}`;
+  $('summary-principal').textContent=principal().name;
+  $('summary-responsible').textContent=responsibleValid()?people[$('responsible').value]:'Pendiente de seleccionar';
+  $('summary-group').textContent=$('assignment').value==='group'?(groups[$('group').value]?.name || 'Grupo pendiente'):'Asignación directa';
+  $('summary-deadline').textContent=formatDate($('deadline').value);
+  [['remitter',Boolean(remitter)],['documents',Boolean(principal())],['fields',mandatoryComplete()],['responsible',responsibleValid()]].forEach(([name,done])=>{const item=$(`check-${name}`);item.classList.toggle('done',done);item.setAttribute('aria-label',`${item.textContent.replace('✓','').trim()}: ${done?'completo':'pendiente'}`);});
+ }
+ $('registration-form').addEventListener('input',event=>{clearError(event.target.id);updateSummary();});
+ $('registration-form').addEventListener('change',updateSummary);
+ function validate(){
+  clearAllErrors();const errors=[];
+  if(!identityValid()){errors.push('remitter-search');remitterError('Busque y seleccione un remitente del catálogo correspondiente.');}
+  const test=(id,valid,message)=>{if(!valid){errors.push(id);showError(id,message);}};
+  test('subject',Boolean($('subject').value.trim()),'Escriba el asunto del radicado.');
+  test('annex-description',Boolean($('annex-description').value.trim()),'Revise y complete la descripción de anexos.');
+  test('document-date',Boolean($('document-date').value && $('document-date').validity.valid),'Indique una fecha de documento válida.');
+  test('folios',Number.isInteger(Number($('folios').value)) && Number($('folios').value)>0,'Indique un número entero de folios mayor que cero.');
+  test('responsible',responsibleValid(),'Seleccione un responsable de la asignación vigente. Si el grupo está vacío, cambie de grupo.');
+  templates[state.template].fields.forEach(field=>{if(field.required)test(`meta-${field.id}`,Boolean($(`meta-${field.id}`).value.trim()),`Complete ${field.label}.`);});
+  if(errors.length){$('error-count').textContent=`Hay ${errors.length} ${errors.length===1?'dato pendiente':'datos pendientes'}.`; $('error-summary').hidden=false;const first=errors.find(id=>!$(id).disabled);if(first)$(first).focus();else $('error-summary').focus();return false;}
+  return true;
+ }
+ function capture(){return {executor:{id:'DEMO-A01',name:actor.name},remitter:{...state.remitter},principal:{...principal()},annexes:state.annexes.map(id=>({...documents.find(doc=>doc.id===id)})),annexDescription:$('annex-description').value.trim(),subject:$('subject').value.trim(),date:$('document-date').value,folios:$('folios').value,deadline:$('deadline').value,procedure:selectedText('procedure'),flow:selectedText('flow'),activity:selectedText('activity'),group:$('assignment').value==='group'?selectedText('group'):'Asignación directa',responsible:{id:$('responsible').value,name:people[$('responsible').value]},template:templates[state.template].name,appointment:templates[state.template].appointment?$('appointment').value:'',metadata:templates[state.template].fields.map(field=>({label:field.label,value:$(`meta-${field.id}`).value}))};}
+ const reviewRows = snapshot => [
+  ['Ejecutor',`${snapshot.executor.name} · Usuario autenticado`],['Remitente',`${snapshot.remitter.name} · ${snapshot.remitter.type==='third'?'Tercero':'Usuario interno'} · ${snapshot.remitter.identification}`],['Principal',snapshot.principal.name],['Anexos',snapshot.annexes.map(doc=>doc.name).join('; ') || 'Sin anexos'],['Descripción de anexos',snapshot.annexDescription],['Asunto',snapshot.subject],['Trámite',snapshot.procedure],['Fecha del documento',formatDate(snapshot.date)],['Folios',snapshot.folios],['Límite de respuesta',formatDate(snapshot.deadline)],['Flujo',snapshot.flow],['Actividad',snapshot.activity],['Recibe el trámite',`${snapshot.responsible.name} · ${snapshot.group}`],['Plantilla',snapshot.template],...(snapshot.appointment?[['Cita de radicado',snapshot.appointment]]:[]),...snapshot.metadata.map(field=>[field.label,field.value || 'Sin dato'])
+ ];
+ $('registration-form').addEventListener('submit',event=>{
+  event.preventDefault();if(state.busy || state.result)return;if(!validate())return;
+  state.snapshot=capture();$('review-details').innerHTML=reviewRows(state.snapshot).map(([label,value])=>`<dt>${esc(label)}</dt><dd>${esc(value)}</dd>`).join('');openDialog('review-dialog');
+ });
+ function lockForm(locked){$('form-fields').disabled=locked;$('actionbar').hidden=locked;$('demo-template').disabled=locked;$('demo-result').disabled=locked;$('exit-view').disabled=state.busy;}
+ function setResult(kind){state.result=kind;lockForm(true);renderResult();$('result-panel').focus();$('result-panel').scrollIntoView({block:'start'});}
+ $('confirm-registration').addEventListener('click',async()=>{
+  if(state.busy || state.result)return;
+  if(!validate()){$('review-dialog').close();return;}
+  state.busy=true;state.snapshot=capture();state.correlation++;$('confirm-registration').disabled=true;$('confirm-registration').textContent='Simulando…';
+  $('review-dialog').querySelectorAll('[data-close]').forEach(button=>button.disabled=true);$('reset-demo').disabled=true;lockForm(true);
+  await new Promise(resolve=>setTimeout(resolve,550));
+  const outcome=$('demo-result').value;
+  $('review-dialog').close();state.busy=false;$('confirm-registration').disabled=false;$('confirm-registration').textContent='Simular radicación';
+  $('review-dialog').querySelectorAll('[data-close]').forEach(button=>button.disabled=false);$('reset-demo').disabled=false;setResult(outcome);
+ });
+ const outcomes={
+  success:{title:'Radicado registrado · Simulación',description:'El registro, los documentos y la asignación se completaron en este ejemplo.',className:'',symbol:'✓',steps:[['Completo','Registro del radicado'],['Completo','Principal y anexos'],['Completo','Asignación Workflow'],['Completo','Notificación por correo']]},
+  mail:{title:'Radicado registrado; correo pendiente',description:'La radicación del ejemplo está confirmada. El correo requiere atención; no es necesario volver a radicar.',className:'warning',symbol:'!',steps:[['Completo','Registro del radicado'],['Completo','Principal y anexos'],['Completo','Asignación Workflow'],['Pendiente','Notificación por correo']]},
+  workflow:{title:'Radicado registrado; asignación pendiente',description:'El registro del ejemplo existe. Debe completarse la asignación antes de considerar terminado el envío.',className:'warning',symbol:'!',steps:[['Completo','Registro del radicado'],['Completo','Principal y anexos'],['Pendiente','Asignación Workflow'],['Por verificar','Notificación por correo']]},
+  annex:{title:'Radicado registrado; anexos pendientes',description:'El registro del ejemplo existe. La incorporación documental necesita revisión antes de continuar el trámite.',className:'warning',symbol:'!',steps:[['Completo','Registro del radicado'],['Pendiente','Incorporación de anexos'],['Por verificar','Asignación Workflow'],['Por verificar','Notificación por correo']]},
+  rejected:{title:'La solicitud fue rechazada antes del registro',description:'Este escenario no creó un radicado. Puede volver a revisar los datos y simular otro resultado.',className:'failure',symbol:'×',steps:[['Rechazado','Validación previa del ejemplo'],['Sin registro','Radicación no iniciada']]},
+  uncertain:{title:'No se recibió la confirmación',description:'Todavía no se conoce el resultado. Consulte el estado del intento antes de repetir la operación.',className:'warning',symbol:'?',steps:[['Por consultar','Resultado del registro'],['En espera','Documentos, asignación y notificación']]}
+ };
+ function renderResult(){
+  const outcome=outcomes[state.result],registered=!['rejected','uncertain'].includes(state.result);
+  const number=`DEMO-RI-${String(state.correlation).padStart(4,'0')}`;
+  $('result-panel').hidden=false;$('result-panel').className=`result-panel ${outcome.className}`;
+  $('result-panel').innerHTML=`<div class="result-top"><div class="result-symbol" aria-hidden="true">${outcome.symbol}</div><div><div class="result-tag">${registered?`Referencia ficticia ${number}`:`Intento local DEMO-INT-${state.correlation}`}</div><h2>${esc(outcome.title)}</h2><p>${esc(outcome.description)}</p></div></div><ul class="result-steps">${outcome.steps.map(([status,label])=>`<li><span class="step-state">${esc(status)}</span><span>${esc(label)}</span></li>`).join('')}</ul><p class="hint">Ejecutor: <strong>${esc(state.snapshot.executor.name)}</strong> · Remitente: <strong>${esc(state.snapshot.remitter.name)}</strong> · Recibe: <strong>${esc(state.snapshot.responsible.name)}</strong></p><div class="result-actions">${registered?'<button type="button" id="download-receipt">Descargar constancia de ejemplo</button>':''}${state.result==='uncertain'?'<button type="button" class="primary" id="query-result">Simular consulta de estado</button>':''}${state.result==='rejected'?'<button type="button" id="edit-rejected">Volver a revisar</button>':''}${['mail','workflow','annex'].includes(state.result)?'<button type="button" id="view-pending">Ver pendiente del ejemplo</button>':''}<button type="button" id="close-result">Cerrar vista</button></div>`;
+  $('download-receipt')?.addEventListener('click',()=>{
+   const text=`CONSTANCIA DE EJEMPLO · SIN VALIDEZ\n${number}\n\n${reviewRows(state.snapshot).map(([label,value])=>`${label}: ${value}`).join('\n')}\n\nResultado simulado: ${outcome.title}\nEsta maqueta no creó un radicado real.\n`;
+   const url=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'})),link=document.createElement('a');link.href=url;link.download=`${number}-ejemplo.txt`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  });
+  $('query-result')?.addEventListener('click',()=>{setResult('mail');announce('Consulta simulada: se confirmó el mismo intento, con correo pendiente. No se creó otra radicación.');});
+  $('edit-rejected')?.addEventListener('click',()=>{state.result=null;state.snapshot=null;$('result-panel').hidden=true;lockForm(false);$('subject').focus();});
+  $('view-pending')?.addEventListener('click',()=>announce('Pendiente identificado. La consulta y recuperación reales se definirán con el backend; este ejemplo no ejecuta reenvíos.'));
+  $('close-result').addEventListener('click',requestExit);
+ }
+ function requestExit(){
+  if(state.busy)return;
+  $('exit-message').textContent=state.result==='uncertain'?'El resultado del intento sigue pendiente de consulta. Cerrar esta vista no cancela ni revierte una posible radicación.':state.result && state.result!=='rejected'?'El registro simulado se conserva al cerrar esta vista. Cerrar no revierte la radicación ni resuelve sus pendientes.':'Se cerrará únicamente la vista del ejemplo. Sus datos permanecerán disponibles al volver a la maqueta.';
+  openDialog('exit-dialog');
+ }
+ $('exit-view').addEventListener('click',requestExit);$('cancel').addEventListener('click',requestExit);
+ $('confirm-exit').addEventListener('click',()=>{$('exit-dialog').close();$('workspace').hidden=true;$('closed-view').hidden=false;$('exit-view').hidden=true;$('closed-message').textContent=state.result?'Puede volver al mismo resultado del ejemplo. Cerrar la vista no lo revierte.':'Puede volver al ejemplo y continuar la revisión.';$('reopen').focus();});
+ $('reopen').addEventListener('click',()=>{$('closed-view').hidden=true;$('workspace').hidden=false;$('exit-view').hidden=false;$('exit-view').focus();});
+ $('reset-demo').addEventListener('click',()=>{
+  if(state.busy)return;document.querySelectorAll('dialog[open]').forEach(dialog=>dialog.close());
+  $('registration-form').reset();state.kind='internal';state.remitter=actor;state.principal='doc-1';state.annexes=['doc-2','doc-3'];state.template='gestion';state.result=null;state.snapshot=null;
+  $('demo-template').value='gestion';$('demo-result').value='success';$('result-panel').hidden=true;$('closed-view').hidden=true;$('workspace').hidden=false;$('exit-view').hidden=false;lockForm(false);
+  $('remitter-search-label').innerHTML='Buscar usuario interno <span class="required">*</span>';$('remitter-search').placeholder='Buscar por nombre o cargo';$('remitter-help').textContent='Seleccione un usuario del catálogo de ejemplo.';
+  initialize();clearAllErrors();announce('Maqueta reiniciada. Solo se restablecieron los datos del ejemplo.');
+ });
+ function initialize(){
+  $('remitter-search').value=actor.name;
+  $('annex-description').value='Solicitud de trámite, certificado y soportes administrativos.';
+  ['subject','annex-description','document-date','folios','procedure','flow','activity','responsible'].forEach(id=>$(id).required=true);
+  populateFlows();renderMetadata();renderIdentity();renderDocuments();closeResults();
+ }
+ initialize();
+})();
+</script>
+</body>
+</html>
