@@ -10,6 +10,8 @@ Build MSBuild net461 aislado, harness nativo DOC122–125, UI/cliente/adaptadore
 
 ## QA/E2E WebForms
 
+Preparación posterior:11 SELECT confirmaron UNIQUE(NOMBRE_PLANTILLA), tres cabeceras/sus seis campos y los recursos anteriores. SQL30–33 y propuesta de18 ventanas entregados, sin aplicación/autenticación. Se conservan las fuentes funcionales verificadas y19/33 tareas;4.1 depende de confirmación manual y SELECT posterior. Evidencia separada: `doc127-preparacion-recursos-20261125.md/json`; no reemplaza el corte local anterior.
+
 Entrega local DOC127: **19/33 tareas**, build net461 0 errores/308 advertencias, 59 pruebas focales de adaptadores, 4.616 checks nativos, 19 SII y 18 libros locales verificados mediante una prueba reproducible del lector. La regresión inicial de193 pruebas se conserva como corte previo a las ampliaciones; los conteos de suites se solapan. SQL28/29 y guía de operación entregados; 19 SELECT de control y cero SQL modificador/sesiones autenticadas nuevas. Evidencia y límites en `Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.md/json`.
 
 Reutilizar tools/e2e y runner DOC110 con scopes cerrados por ventana. E2E real requiere autorización de ambiente/cuentas/datos y secretos efímeros; no ejecutar SQL de instalación desde tests. Completar celdas1000/5000/10000 XLS/XLSX, por modo, tiempos y memoria, fronteras exactas y recuperación/autoridad. Evidencia previa: DOC124 preparó8000/12759; DOC125/126 confirmaron1000 por modo. No se atribuye5000/10000/20000 físicas ni cortes COMMIT/red. Validaciones documentales se registran en doc127-refinamiento-20261125.md/json.

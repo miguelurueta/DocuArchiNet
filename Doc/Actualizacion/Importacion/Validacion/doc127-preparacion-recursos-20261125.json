@@ -1,0 +1,636 @@
+{
+  "issue": "DOC-127",
+  "status": "PREPARACION_ENTREGADA_PENDIENTE_EJECUCION_MANUAL",
+  "recordedUtc": "2026-11-25T13:20:50.618Z",
+  "baseCommit": "4349a40259ba869a5b6c6502ac82736d0ea26a09",
+  "tasks": {
+    "total": 33,
+    "complete": 19,
+    "task4_1": "OPEN_UNTIL_MANUAL_APPLICATION_AND_SELECT"
+  },
+  "observations": {
+    "recordedUtc": "2026-11-25T13:07:12.0825503Z",
+    "sqlStatements": 11,
+    "sqlWrites": 0,
+    "authenticatedApplicationSessions": 0,
+    "uniqueTemplateName": {
+      "TABLE_NAME": "imp01_plantillaimp",
+      "INDEX_NAME": "NOMBRE_PLANTILLA",
+      "NON_UNIQUE": 0,
+      "SEQ_IN_INDEX": 1,
+      "COLUMN_NAME": "NOMBRE_PLANTILLA",
+      "SUB_PART": null
+    },
+    "existingHeaders": [
+      {
+        "ID_PLANTILLAIMP": 57,
+        "conexion_id": 6,
+        "NOMBRE_PLANTILLA": "imp_02_doc126_e2e_crear",
+        "CONEXION_FUENTE": "12.0 xlsx",
+        "LIBRO_EXCEL": "Datos",
+        "ELIMINA_TABLA": 0,
+        "ELIMINA_INSERTA_RECORD": 0,
+        "INSERTA_RECORD": 1,
+        "ESTADO_PLANTILLA": 1,
+        "CAMPO_UNICO": "CLAVE",
+        "REVISION_CARGA": 1
+      },
+      {
+        "ID_PLANTILLAIMP": 58,
+        "conexion_id": 6,
+        "NOMBRE_PLANTILLA": "imp_02_doc126_e2e_agregar",
+        "CONEXION_FUENTE": "12.0 xlsx",
+        "LIBRO_EXCEL": "Datos",
+        "ELIMINA_TABLA": 0,
+        "ELIMINA_INSERTA_RECORD": 0,
+        "INSERTA_RECORD": 1,
+        "ESTADO_PLANTILLA": 1,
+        "CAMPO_UNICO": "CLAVE",
+        "REVISION_CARGA": 1
+      },
+      {
+        "ID_PLANTILLAIMP": 59,
+        "conexion_id": 6,
+        "NOMBRE_PLANTILLA": "imp_02_doc126_e2e_reemplazar",
+        "CONEXION_FUENTE": "12.0 xlsx",
+        "LIBRO_EXCEL": "Datos",
+        "ELIMINA_TABLA": 0,
+        "ELIMINA_INSERTA_RECORD": 1,
+        "INSERTA_RECORD": 0,
+        "ESTADO_PLANTILLA": 1,
+        "CAMPO_UNICO": "CLAVE",
+        "REVISION_CARGA": 1
+      }
+    ],
+    "existingFields": [
+      {
+        "ID_CAMPOS_PLANTILLA": 147,
+        "plantilla_id": 57,
+        "CAMPO_FUENTE": "CLAVE",
+        "CAMPO_DESTINO": "CLAVE",
+        "TIPO_CAMPO": "VARCHAR(250)",
+        "REMPLAZA_COMA": 0,
+        "REMPLAZA_PUNTO": 0,
+        "OPCION_SPLITER": 0,
+        "CARACTER_SPLITER": "",
+        "NUMERO_MATRIZ_EXPLITER": 0
+      },
+      {
+        "ID_CAMPOS_PLANTILLA": 148,
+        "plantilla_id": 57,
+        "CAMPO_FUENTE": "VALOR",
+        "CAMPO_DESTINO": "VALOR",
+        "TIPO_CAMPO": "VARCHAR(250)",
+        "REMPLAZA_COMA": 0,
+        "REMPLAZA_PUNTO": 0,
+        "OPCION_SPLITER": 0,
+        "CARACTER_SPLITER": "",
+        "NUMERO_MATRIZ_EXPLITER": 0
+      },
+      {
+        "ID_CAMPOS_PLANTILLA": 150,
+        "plantilla_id": 58,
+        "CAMPO_FUENTE": "CLAVE",
+        "CAMPO_DESTINO": "CLAVE",
+        "TIPO_CAMPO": "VARCHAR(250)",
+        "REMPLAZA_COMA": 0,
+        "REMPLAZA_PUNTO": 0,
+        "OPCION_SPLITER": 0,
+        "CARACTER_SPLITER": "",
+        "NUMERO_MATRIZ_EXPLITER": 0
+      },
+      {
+        "ID_CAMPOS_PLANTILLA": 151,
+        "plantilla_id": 58,
+        "CAMPO_FUENTE": "VALOR",
+        "CAMPO_DESTINO": "VALOR",
+        "TIPO_CAMPO": "VARCHAR(250)",
+        "REMPLAZA_COMA": 0,
+        "REMPLAZA_PUNTO": 0,
+        "OPCION_SPLITER": 0,
+        "CARACTER_SPLITER": "",
+        "NUMERO_MATRIZ_EXPLITER": 0
+      },
+      {
+        "ID_CAMPOS_PLANTILLA": 153,
+        "plantilla_id": 59,
+        "CAMPO_FUENTE": "CLAVE",
+        "CAMPO_DESTINO": "CLAVE",
+        "TIPO_CAMPO": "VARCHAR(250)",
+        "REMPLAZA_COMA": 0,
+        "REMPLAZA_PUNTO": 0,
+        "OPCION_SPLITER": 0,
+        "CARACTER_SPLITER": "",
+        "NUMERO_MATRIZ_EXPLITER": 0
+      },
+      {
+        "ID_CAMPOS_PLANTILLA": 154,
+        "plantilla_id": 59,
+        "CAMPO_FUENTE": "VALOR",
+        "CAMPO_DESTINO": "VALOR",
+        "TIPO_CAMPO": "VARCHAR(250)",
+        "REMPLAZA_COMA": 0,
+        "REMPLAZA_PUNTO": 0,
+        "OPCION_SPLITER": 0,
+        "CARACTER_SPLITER": "",
+        "NUMERO_MATRIZ_EXPLITER": 0
+      }
+    ],
+    "existingSources": [
+      {
+        "fuente_id": 8,
+        "ambito_ref": "2",
+        "conexion_ref": "DA",
+        "tabla_nombre": "imp_02_doc126_e2e_agregar",
+        "modo_aislamiento": "CONEXION",
+        "columna_empresa": "",
+        "activo": 1,
+        "revision": 2
+      },
+      {
+        "fuente_id": 9,
+        "ambito_ref": "2",
+        "conexion_ref": "DA",
+        "tabla_nombre": "imp_02_doc126_e2e_reemplazar",
+        "modo_aislamiento": "CONEXION",
+        "columna_empresa": "",
+        "activo": 1,
+        "revision": 2
+      }
+    ],
+    "accounts": [
+      {
+        "id": 141,
+        "activo": 1,
+        "cargas": 1,
+        "carpetas": 1,
+        "perfiles": 1,
+        "fuentes": 1,
+        "proveedores": 1
+      },
+      {
+        "id": 194,
+        "activo": 1,
+        "cargas": 1,
+        "carpetas": 0,
+        "perfiles": 0,
+        "fuentes": 0,
+        "proveedores": 0
+      },
+      {
+        "id": 196,
+        "activo": 1,
+        "cargas": 0,
+        "carpetas": 0,
+        "perfiles": 0,
+        "fuentes": 0,
+        "proveedores": 0
+      }
+    ],
+    "fixtureCounts": [
+      {
+        "tabla": "imp_02_doc126_e2e_agregar",
+        "filas": 1002
+      },
+      {
+        "tabla": "imp_02_doc126_e2e_reemplazar",
+        "filas": 1000
+      }
+    ]
+  },
+  "sql": [
+    {
+      "path": "Doc/Actualizacion/Importacion/Sql/30-fixtures-xls-da-doc127.sql",
+      "sha256Utf8Lf": "4934fe15a5b114d7c4dde61bf330e73741fcd8eda7c2e543933cd8e9cb72f119",
+      "state": "PENDIENTE_EJECUCION_MANUAL"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Sql/31-fuentes-xls-ra-doc127.sql",
+      "sha256Utf8Lf": "01a2f46d83922eb4390dbb2d6ff446f8994cd87360d1af1f6e99cefc7ec7b507",
+      "state": "PENDIENTE_EJECUCION_MANUAL"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Sql/32-plantillas-capacidad-da-doc127.sql",
+      "sha256Utf8Lf": "84ea76885222766a034828e74c8ad2c04af34a7723031bca418b0be0b47d94ab",
+      "state": "PENDIENTE_EJECUCION_MANUAL"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Sql/33-verificacion-recursos-doc127.sql",
+      "sha256Utf8Lf": "6861a41d3a389c34916b917925f4821c75b77f74dd4571b6a6e7896994f09254",
+      "state": "ENTREGADO_SELECT_POSTERIOR"
+    }
+  ],
+  "templates": [
+    {
+      "n": 1,
+      "table": "imp_02_doc127_e2e_agregar_xls",
+      "formato": "XLS",
+      "mode": "AGREGAR"
+    },
+    {
+      "n": 2,
+      "table": "imp_02_doc127_e2e_reemplazar_xls",
+      "formato": "XLS",
+      "mode": "REEMPLAZAR"
+    },
+    {
+      "n": 3,
+      "table": "imp_02_doc127_e2e_crear_xls_1000",
+      "formato": "XLS",
+      "mode": "CREAR"
+    },
+    {
+      "n": 4,
+      "table": "imp_02_doc127_e2e_crear_xls_5000",
+      "formato": "XLS",
+      "mode": "CREAR"
+    },
+    {
+      "n": 5,
+      "table": "imp_02_doc127_e2e_crear_xls_10000",
+      "formato": "XLS",
+      "mode": "CREAR"
+    },
+    {
+      "n": 6,
+      "table": "imp_02_doc127_e2e_crear_xlsx_1000",
+      "formato": "XLSX",
+      "mode": "CREAR"
+    },
+    {
+      "n": 7,
+      "table": "imp_02_doc127_e2e_crear_xlsx_5000",
+      "formato": "XLSX",
+      "mode": "CREAR"
+    },
+    {
+      "n": 8,
+      "table": "imp_02_doc127_e2e_crear_xlsx_10000",
+      "formato": "XLSX",
+      "mode": "CREAR"
+    }
+  ],
+  "plannedWindows": [
+    {
+      "sequence": 1,
+      "formato": "XLSX",
+      "mode": "CREAR",
+      "rows": 1000,
+      "table": "imp_02_doc127_e2e_crear_xlsx_1000",
+      "templateId": null,
+      "templateState": "ESPERA_SQL32_Y_SELECT",
+      "expectedPreviousRows": 0,
+      "expectedAfterRows": 1000,
+      "insertLimit": 1000,
+      "deleteLimit": 0,
+      "creates": 1,
+      "archivoHash": "4eac7526b1ca01015e213b49dd5781fe1102e80224b9fd22f0d2946e38011595",
+      "bytes": 16356,
+      "state": "DRAFT_NOT_AUTHORIZED"
+    },
+    {
+      "sequence": 2,
+      "formato": "XLSX",
+      "mode": "AGREGAR",
+      "rows": 1000,
+      "table": "imp_02_doc126_e2e_agregar",
+      "templateId": 58,
+      "templateState": "REFERENCIA_EXISTENTE_VERIFICAR_POR_VENTANA",
+      "expectedPreviousRows": 1002,
+      "expectedAfterRows": 2002,
+      "insertLimit": 1000,
+      "deleteLimit": 0,
+      "creates": 0,
+      "archivoHash": "3997c65ccb45913120b628e8912497a9c6809cee61e0e22de95fc866b37bce32",
+      "bytes": 16359,
+      "state": "DRAFT_NOT_AUTHORIZED"
+    },
+    {
+      "sequence": 3,
+      "formato": "XLSX",
+      "mode": "REEMPLAZAR",
+      "rows": 1000,
+      "table": "imp_02_doc126_e2e_reemplazar",
+      "templateId": 59,
+      "templateState": "REFERENCIA_EXISTENTE_VERIFICAR_POR_VENTANA",
+      "expectedPreviousRows": 1000,
+      "expectedAfterRows": 1000,
+      "insertLimit": 1000,
+      "deleteLimit": 1000,
+      "creates": 0,
+      "archivoHash": "5eb5a9813481f53ac2454cd4998cde5dc14bf48cc6ee19071d2d60981f99e93e",
+      "bytes": 16632,
+      "state": "DRAFT_NOT_AUTHORIZED"
+    },
+    {
+      "sequence": 4,
+      "formato": "XLSX",
+      "mode": "CREAR",
+      "rows": 5000,
+      "table": "imp_02_doc127_e2e_crear_xlsx_5000",
+      "templateId": null,
+      "templateState": "ESPERA_SQL32_Y_SELECT",
+      "expectedPreviousRows": 0,
+      "expectedAfterRows": 5000,
+      "insertLimit": 5000,
+      "deleteLimit": 0,
+      "creates": 1,
+      "archivoHash": "7a4004ae0dcb3c3278f504b1519d9c0e32ed904b8e222780aa95779a5f686567",
+      "bytes": 73869,
+      "state": "DRAFT_NOT_AUTHORIZED"
+    },
+    {
+      "sequence": 5,
+      "formato": "XLSX",
+      "mode": "AGREGAR",
+      "rows": 5000,
+      "table": "imp_02_doc126_e2e_agregar",
+      "templateId": 58,
+      "templateState": "REFERENCIA_EXISTENTE_VERIFICAR_POR_VENTANA",
+      "expectedPreviousRows": 2002,
+      "expectedAfterRows": 7002,
+      "insertLimit": 5000,
+      "deleteLimit": 0,
+      "creates": 0,
+      "archivoHash": "56732ce19455f414d6644e19f3eca22bdb3147a2c5747a15f661a661c9f0e85e",
+      "bytes": 73872,
+      "state": "DRAFT_NOT_AUTHORIZED"
+    },
+    {
+      "sequence": 6,
+      "formato": "XLSX",
+      "mode": "REEMPLAZAR",
+      "rows": 5000,
+      "table": "imp_02_doc126_e2e_reemplazar",
+      "templateId": 59,
+      "templateState": "REFERENCIA_EXISTENTE_VERIFICAR_POR_VENTANA",
+      "expectedPreviousRows": 1000,
+      "expectedAfterRows": 5000,
+      "insertLimit": 5000,
+      "deleteLimit": 1000,
+      "creates": 0,
+      "archivoHash": "40beb13628bfd0f84f5568916e765e368cd3d537c0baf6e472021326d5ea0254",
+      "bytes": 75297,
+      "state": "DRAFT_NOT_AUTHORIZED"
+    },
+    {
+      "sequence": 7,
+      "formato": "XLSX",
+      "mode": "CREAR",
+      "rows": 10000,
+      "table": "imp_02_doc127_e2e_crear_xlsx_10000",
+      "templateId": null,
+      "templateState": "ESPERA_SQL32_Y_SELECT",
+      "expectedPreviousRows": 0,
+      "expectedAfterRows": 10000,
+      "insertLimit": 10000,
+      "deleteLimit": 0,
+      "creates": 1,
+      "archivoHash": "a3d8a059b633d1ee416e39ab1aefc9f72e4eaaf5abaa1f86dfd5e2976502786e",
+      "bytes": 145383,
+      "state": "DRAFT_NOT_AUTHORIZED"
+    },
+    {
+      "sequence": 8,
+      "formato": "XLSX",
+      "mode": "AGREGAR",
+      "rows": 10000,
+      "table": "imp_02_doc126_e2e_agregar",
+      "templateId": 58,
+      "templateState": "REFERENCIA_EXISTENTE_VERIFICAR_POR_VENTANA",
+      "expectedPreviousRows": 7002,
+      "expectedAfterRows": 17002,
+      "insertLimit": 10000,
+      "deleteLimit": 0,
+      "creates": 0,
+      "archivoHash": "f1af21edf47e3d372d39e16d47de8b6d7b5e8d655f0edd23f571cc889afa623d",
+      "bytes": 147007,
+      "state": "DRAFT_NOT_AUTHORIZED"
+    },
+    {
+      "sequence": 9,
+      "formato": "XLSX",
+      "mode": "REEMPLAZAR",
+      "rows": 10000,
+      "table": "imp_02_doc126_e2e_reemplazar",
+      "templateId": 59,
+      "templateState": "REFERENCIA_EXISTENTE_VERIFICAR_POR_VENTANA",
+      "expectedPreviousRows": 5000,
+      "expectedAfterRows": 10000,
+      "insertLimit": 10000,
+      "deleteLimit": 5000,
+      "creates": 0,
+      "archivoHash": "d3ad63ffebf71dbc93f4e5f08a2dc3b2594c84188d584da4d4ec8844b5905226",
+      "bytes": 146809,
+      "state": "DRAFT_NOT_AUTHORIZED"
+    },
+    {
+      "sequence": 10,
+      "formato": "XLS",
+      "mode": "CREAR",
+      "rows": 1000,
+      "table": "imp_02_doc127_e2e_crear_xls_1000",
+      "templateId": null,
+      "templateState": "ESPERA_SQL32_Y_SELECT",
+      "expectedPreviousRows": 0,
+      "expectedAfterRows": 1000,
+      "insertLimit": 1000,
+      "deleteLimit": 0,
+      "creates": 1,
+      "archivoHash": "9e8e21c7898ed4c86160d77bed0e365bdeda94be74ca294e8a44e0838ce1d5c6",
+      "bytes": 273920,
+      "state": "DRAFT_NOT_AUTHORIZED"
+    },
+    {
+      "sequence": 11,
+      "formato": "XLS",
+      "mode": "AGREGAR",
+      "rows": 1000,
+      "table": "imp_02_doc127_e2e_agregar_xls",
+      "templateId": null,
+      "templateState": "ESPERA_SQL32_Y_SELECT",
+      "expectedPreviousRows": 0,
+      "expectedAfterRows": 1000,
+      "insertLimit": 1000,
+      "deleteLimit": 0,
+      "creates": 0,
+      "archivoHash": "783f5c5bab8dc11904f6199bffb8daa069ea0dc01457455b7934e5c87f3563cf",
+      "bytes": 282112,
+      "state": "DRAFT_NOT_AUTHORIZED"
+    },
+    {
+      "sequence": 12,
+      "formato": "XLS",
+      "mode": "REEMPLAZAR",
+      "rows": 1000,
+      "table": "imp_02_doc127_e2e_reemplazar_xls",
+      "templateId": null,
+      "templateState": "ESPERA_SQL32_Y_SELECT",
+      "expectedPreviousRows": 0,
+      "expectedAfterRows": 1000,
+      "insertLimit": 1000,
+      "deleteLimit": 0,
+      "creates": 0,
+      "archivoHash": "da9d001f9e842f91b1f5d07d06036bd4d7c67721f54f1b955b91732f996e76ff",
+      "bytes": 293888,
+      "state": "DRAFT_NOT_AUTHORIZED"
+    },
+    {
+      "sequence": 13,
+      "formato": "XLS",
+      "mode": "CREAR",
+      "rows": 5000,
+      "table": "imp_02_doc127_e2e_crear_xls_5000",
+      "templateId": null,
+      "templateState": "ESPERA_SQL32_Y_SELECT",
+      "expectedPreviousRows": 0,
+      "expectedAfterRows": 5000,
+      "insertLimit": 5000,
+      "deleteLimit": 0,
+      "creates": 1,
+      "archivoHash": "9bb3d04a1771fec0df7e6469da0ea1fd6614366f3f39b67c9e7310f11dcafee0",
+      "bytes": 1362432,
+      "state": "DRAFT_NOT_AUTHORIZED"
+    },
+    {
+      "sequence": 14,
+      "formato": "XLS",
+      "mode": "AGREGAR",
+      "rows": 5000,
+      "table": "imp_02_doc127_e2e_agregar_xls",
+      "templateId": null,
+      "templateState": "ESPERA_SQL32_Y_SELECT",
+      "expectedPreviousRows": 1000,
+      "expectedAfterRows": 6000,
+      "insertLimit": 5000,
+      "deleteLimit": 0,
+      "creates": 0,
+      "archivoHash": "81b80495ebb56dca53bbda9ba3be48b37911c812a61451374992166ea6d5d532",
+      "bytes": 1402880,
+      "state": "DRAFT_NOT_AUTHORIZED"
+    },
+    {
+      "sequence": 15,
+      "formato": "XLS",
+      "mode": "REEMPLAZAR",
+      "rows": 5000,
+      "table": "imp_02_doc127_e2e_reemplazar_xls",
+      "templateId": null,
+      "templateState": "ESPERA_SQL32_Y_SELECT",
+      "expectedPreviousRows": 1000,
+      "expectedAfterRows": 5000,
+      "insertLimit": 5000,
+      "deleteLimit": 1000,
+      "creates": 0,
+      "archivoHash": "6b321ca41b4c4401a6c98702f6b573bc641becd662be6205cf5545877ab9483b",
+      "bytes": 1463296,
+      "state": "DRAFT_NOT_AUTHORIZED"
+    },
+    {
+      "sequence": 16,
+      "formato": "XLS",
+      "mode": "CREAR",
+      "rows": 10000,
+      "table": "imp_02_doc127_e2e_crear_xls_10000",
+      "templateId": null,
+      "templateState": "ESPERA_SQL32_Y_SELECT",
+      "expectedPreviousRows": 0,
+      "expectedAfterRows": 10000,
+      "insertLimit": 10000,
+      "deleteLimit": 0,
+      "creates": 1,
+      "archivoHash": "56f630721e3cdf6f5a7fd5a813b8c9fafc2cc1d7971288b12742ab2ca2a6dab2",
+      "bytes": 2763776,
+      "state": "DRAFT_NOT_AUTHORIZED"
+    },
+    {
+      "sequence": 17,
+      "formato": "XLS",
+      "mode": "AGREGAR",
+      "rows": 10000,
+      "table": "imp_02_doc127_e2e_agregar_xls",
+      "templateId": null,
+      "templateState": "ESPERA_SQL32_Y_SELECT",
+      "expectedPreviousRows": 6000,
+      "expectedAfterRows": 16000,
+      "insertLimit": 10000,
+      "deleteLimit": 0,
+      "creates": 0,
+      "archivoHash": "a38cb5efafabc73aa638d11c5a7712eff065e423071c33167303ea499313a756",
+      "bytes": 2844160,
+      "state": "DRAFT_NOT_AUTHORIZED"
+    },
+    {
+      "sequence": 18,
+      "formato": "XLS",
+      "mode": "REEMPLAZAR",
+      "rows": 10000,
+      "table": "imp_02_doc127_e2e_reemplazar_xls",
+      "templateId": null,
+      "templateState": "ESPERA_SQL32_Y_SELECT",
+      "expectedPreviousRows": 5000,
+      "expectedAfterRows": 10000,
+      "insertLimit": 10000,
+      "deleteLimit": 5000,
+      "creates": 0,
+      "archivoHash": "dd1e9adfa81795c935a7f96501dc5c7d6432261abb869a1c3636a99c5292ce2e",
+      "bytes": 2964992,
+      "state": "DRAFT_NOT_AUTHORIZED"
+    }
+  ],
+  "totalPlannedInsertRows": 96000,
+  "totalPlannedDeleteRows": 13000,
+  "staticValidation": {
+    "sqlMutationTargets": "PASS",
+    "noAutomaticCommit": "PASS",
+    "eightUniqueHeaderNames": "PASS",
+    "defaultParametersBlockDml": "REVIEWED_NULL_0",
+    "draftsRejectedBeforeAuthentication": 18,
+    "sourceCompatibilityPaths": 59,
+    "functionalSourcesUnchanged": true,
+    "newFunctionalTestsExecuted": false
+  },
+  "runtimeComparison": [
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.dll",
+      "previous": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+      "current": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5"
+    },
+    {
+      "path": "bin/MySql.Data.dll",
+      "previous": "c7bf74f07c7c9411b630b793f19572c0276b04dd3423ae5bc32204ae539d977a",
+      "current": "c7bf74f07c7c9411b630b793f19572c0276b04dd3423ae5bc32204ae539d977a"
+    },
+    {
+      "path": "Web.config",
+      "previous": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+      "current": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+      "previous": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+      "current": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "previous": "d7ad94d6eb39eeabb6ebabbfe33ff4d86bb64498cc3e9da7013b38c2cfb7d501",
+      "current": "d7ad94d6eb39eeabb6ebabbfe33ff4d86bb64498cc3e9da7013b38c2cfb7d501"
+    },
+    {
+      "path": "Styles/ImportacionExcel.css",
+      "previous": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+      "current": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee"
+    }
+  ],
+  "runtimeChanged": false,
+  "sqlApplied": false,
+  "realE2EExecuted": false,
+  "credentialsStored": false,
+  "limitations": [
+    "Los DDL SQL30 tienen commit implicito y no son atomicos como conjunto.",
+    "SQL31/32 requieren COMMIT manual confirmado; su entrega no acredita aplicacion.",
+    "Los checkpoint de filas son una prevision por orden propuesto, no conteos reales futuros.",
+    "Cada scope exige nuevas huellas, referencias, fechas y autorizacion; los18 borradores son deliberadamente invalidos.",
+    "EXPLAIN29 sigue pendiente de ejecucion manual y resultado aportado."
+  ]
+}

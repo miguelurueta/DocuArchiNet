@@ -249,3 +249,11 @@ Nuevos `tests/doc127-capacity-fixtures.test.cjs` y `tests/support/Doc127Capacity
 Entregables nuevos: `Sql/28-preflight-doc127.sql`, `Sql/29-explain-proveedor-doc127.sql`, `Doc/Actualizacion/Importacion/Operacion-Excel.md` y evidencia local DOC127. Los dos SQL son de inspección; EXPLAIN se ejecuta manualmente. No se altera código de producto, instalación, configuración o runtime de IIS.
 
 No hay decisión de producto sin resolver para iniciar la aceptación local. La autorización de ventanas reales, la elección verificable de recursos y la aplicación/plan SQL son dependencias operativas explícitas de las tareas, no autorizaciones inferidas del refinamiento.
+
+### Preparación física compatible con el catálogo existente
+
+El preflight posterior confirmó `UNIQUE(NOMBRE_PLANTILLA)`. La preparación de D-02/D-04/D-05 conserva ese contrato: XLSX reutiliza plantillas58/59 y destinos DOC126; XLS necesita dos fixtures nuevos con el esquema DOC126, dos políticas CONEXION y dos nombres de plantilla propios. Los seis CREAR necesitan nombres distintos por formato/tamaño. No se clonan plantillas XLS sobre el nombre de destino XLSX ni se cambia el UNIQUE para permitirlas.
+
+Archivos nuevos revisables: `Doc/Actualizacion/Importacion/Sql/30-fixtures-xls-da-doc127.sql` (DA, dos tablas vacías); `31-fuentes-xls-ra-doc127.sql` (RA, dos fuentes con columnas/historial); `32-plantillas-capacidad-da-doc127.sql` (DA, ocho cabeceras/16 campos); `33-verificacion-recursos-doc127.sql` (SELECT posterior). Reutilizan el contrato SQL23–25, adaptando nombres y precondiciones. CREATE de los seis destinos de carga sigue siendo una operación funcional futura, no instalación desde E2E.
+
+La configuración adicional se aplica manualmente y se verifica antes de cerrar4.1. Los18 scopes preliminares son borradores privados inválidos, sin fechas, referencias completas o autorización. Los checkpoint de filas del plan son previsiones; se sustituyen por nuevos SELECT y huellas antes de cada ventana. La inspección y entrega de archivos no completa aceptación real ni aumenta el avance19/33.

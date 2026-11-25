@@ -29,6 +29,8 @@ Complejidad relativa S/M; no es una estimación de horas. Dependencias: sección
 
 ## 4. Preparación de E2E y capacidad
 
+Preparación revisable en `Doc/Actualizacion/Importacion/Validacion/doc127-preparacion-recursos-20261125.md`: SQL30→31→32 manual y33 de comprobación. El UNIQUE de NOMBRE_PLANTILLA exige dos fixtures XLS propios.4.1 continúa abierta hasta aplicación confirmada y SELECT posterior; los18 borradores de ventanas no están autorizados.
+
 - [ ] 4.1 [M] Resolver recursos descartables y precondiciones de las ventanas DOC127. Área/archivos: `tools/e2e/tests/support/doc124-excel-scope.cjs; Sql/; evidencia SELECT existente`. Origen: D-02, RQ-02. Verificación: cuentas, empresa, destinos, claves nuevas y filas previas están identificados; cualquier adecuación se entrega fuera de tests y espera confirmación.
 - [x] 4.2 [M] Extender la validación de alcances DOC127 en el soporte existente. Área/archivos: `tools/e2e/tests/support/doc125-excel-scope.cjs; tools/e2e/tests/support/doc126-excel-scope.cjs; runner DOC110`. Origen: D-02, RQ-02. Verificación: pruebas locales rechazan scope sin autorización, consumido, con hash distinto o efectos fuera de presupuesto antes de autenticar.
 - [x] 4.3 [M] Parametrizar los casos de capacidad en la suite Excel existente. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; tools/e2e/scripts/run-doc110-profile-session.cjs`. Origen: D-09, RQ-09. Verificación: selección local identifica formato/tamaño/modo y no repite IDs ni filas ya consumidas; no instala/siembra/limpia SQL.
