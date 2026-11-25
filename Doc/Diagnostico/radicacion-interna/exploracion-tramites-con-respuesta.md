@@ -97,7 +97,9 @@ Debe definirse si las solicitudes internas conservarán esa respuesta saliente o
 
 Conservar el selector **Trámite** como decisión del usuario. Según la configuración autorizada, mostrar una indicación de lectura como **Requiere respuesta formal** o **Solo confirmación**, junto con el vencimiento y quién debe responder. No añadir un checkbox que permita omitir una obligación del trámite.
 
-El resumen de confirmación debe incluir esa modalidad. Tras registrar, el acceso a seguimiento debe utilizar el identificador confirmado del radicado/solicitud y los permisos del usuario. Esta exploración no modifica la maqueta aprobada ni activa una modalidad nueva.
+El resumen de confirmación debe incluir esa modalidad. Tras registrar, el acceso a seguimiento debe utilizar el identificador confirmado del radicado/solicitud y los permisos del usuario.
+
+La [maqueta HTML](maqueta.html) incorpora, a solicitud del usuario, ejemplos de las tres modalidades sobre el formulario compacto: Solicitud administrativa para respuesta formal, Revisión documental para confirmación y Comunicación informativa sin solicitud de respuesta. Son asociaciones ficticias para revisar la presentación; no activan ni modifican el catálogo real. La vista de seguimiento es de lectura y no elabora ni confirma respuestas.
 
 La carga directa en exploración puede entregar documentos al mismo registro común. No debe saltarse la creación de la solicitud de respuesta ni dar por contestado el trámite solo porque el usuario haya subido el documento principal.
 
@@ -135,4 +137,4 @@ La aceptación de una implementación debe cubrir:
 - Remitente tercero, usuario representado y ejecutor distinto, conservando el responsable interno de la obligación.
 - Fallo de Workflow después de commit, correo pendiente y respuesta de red perdida sin duplicar radicado ni solicitud de respuesta.
 
-No se cambió código ni configuración, no se ejecutó el `SELECT`, no se activaron trámites y no se realizó E2E autenticada. La conclusión es de viabilidad del código y de condiciones de integración.
+No se cambió código de aplicación ni configuración, no se ejecutó el `SELECT`, no se activaron trámites y no se realizó E2E autenticada. La conclusión es de viabilidad del código y de condiciones de integración; la variación HTML muestra únicamente datos y estados ficticios.

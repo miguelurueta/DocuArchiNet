@@ -9,7 +9,7 @@ La radicación interna puede mejorar sustancialmente su claridad, pero necesita 
 | Referencia | Valor |
 |---|---|
 | Fecha | 2026-11-25 |
-| Versión | 0.6 |
+| Versión | 0.7 |
 | Base local | Commit `0c7beb83` |
 | Grabación | `Grabación 2026-11-25 113145-radicacion-interna-revisa.mp4` |
 | Duración | 78,80 segundos |
@@ -214,13 +214,29 @@ La nueva presentación concentra las acciones habituales:
 
 No se incorpora un asistente obligatorio por pasos. La ruta precargada pertenece al ejemplo: en integración debe proceder de configuración válida. Si el sistema no puede determinar una ruta o exige una elección entre alternativas, debe presentar esa elección y bloquear la confirmación hasta resolverla; ocultar controles no autoriza elegir automáticamente la primera opción.
 
-Con el mismo estado inicial en Chromium a **1440 × 900**, la altura del formulario pasó de **1660 a 615 píxeles**, una reducción del **63 %** frente a la versión `8cd7775a`. Los campos editables visibles al inicio pasaron de **13 a 5**; el cierre del formulario queda en la coordenada vertical 826. Son medidas de distribución del prototipo, no una medición del tiempo de tarea ni una prueba de usabilidad con usuarios.
+La simplificación aprobada redujo el formulario de **1660 a 615 píxeles** en Chromium a **1440 × 900**. La variación actual con información de respuesta ocupa **678 píxeles**, mantiene **5 campos editables visibles** frente a los 13 originales y termina en la coordenada vertical **888**. Es una reducción de altura del **59 %** frente a `8cd7775a`, sin añadir un campo de decisión sobre la obligación. Son medidas de distribución del prototipo, no una medición del tiempo de tarea ni una prueba de usabilidad con usuarios.
+
+### Variación para trámites con respuesta
+
+El mismo formulario muestra un bloque de lectura junto al destino. La modalidad procede del trámite de ejemplo y no se modifica con un checkbox independiente. La versión `23464d6b` conserva su condición de base aprobada; estas variaciones se presentan para revisión.
+
+| Trámite ficticio para probar | Mensaje y variación |
+|---|---|
+| Solicitud administrativa | **Requiere respuesta formal**. Indica quién deberá responder, vencimiento y una explicación desplegable sobre documento y radicado de respuesta. |
+| Revisión documental | **Requiere confirmación**. Conserva responsable y vencimiento; explica que esa modalidad no exige un radicado de respuesta. |
+| Comunicación informativa | **Sin respuesta requerida**. Conserva el destino del documento y oculta plazo y seguimiento de respuesta. |
+
+Cuando se elige un grupo y el trámite requiere respuesta, la etiqueta pasa a **Quién debe responder en el grupo**. Cambiar grupo, actividad o trámite invalida al responsable anterior y actualiza el bloque; elegir otro remitente no cambia quién debe responder. El resumen final y la constancia de ejemplo incluyen la modalidad y el vencimiento solo cuando corresponden.
+
+Después de una radicación simulada confirmada, los trámites con seguimiento muestran **Respuesta pendiente** y permiten consultar una vista de seguimiento de ejemplo. El registro del documento y la respuesta son estados distintos. Una asignación o incorporación pendiente se señala antes de presentar el seguimiento como preparado; una respuesta de red perdida requiere consultar el intento antes de afirmar su resultado. El trámite informativo no genera ese bloque ni una fecha ficticia.
+
+Los nombres de trámite, asociaciones y plazos son ficticios. No se ha activado el catálogo real. La respuesta formal representa el requisito del motor existente; sigue pendiente la decisión sobre usar un radicado saliente para responder solicitudes internas, descrita en la [exploración técnica](exploracion-tramites-con-respuesta.md).
 
 ### Recorrido de revisión
 
 1. Abrir `maqueta.html` en un navegador. **A nombre de** ya muestra al usuario ficticio Laura Martínez; no es necesario buscarse para continuar.
 2. Para radicar a nombre de un tercero, pulsar **Cambiar**, seleccionar **Tercero**, buscar **Camila** y elegirla. Pulsar **Usar este remitente**. **Usar mi usuario** permite volver al actor del ejemplo.
-3. Completar **Placa** y elegir quién recibe en el grupo, o escoger una persona directamente en **Enviar a**. Pulsar **Revisar radicación** para comprobar el resumen con ejecutor, remitente y responsable distintos.
+3. Elegir un **Trámite** para comparar las tres modalidades, completar **Placa** y elegir quién recibe en el grupo, o una persona directamente en **Enviar a**. Revisar la obligación y pulsar **Revisar radicación** para comprobar el resumen con ejecutor, remitente y responsable distintos.
 4. Si hace falta, desplegar la línea del documento para revisar principal/anexos; **Fecha, folios y otros datos** para ajustar datos heredados; y **Ruta del trámite** para consultar o modificar flujo/actividad. Cambiar esas dependencias invalida el responsable previo.
 5. **Simular radicación** presenta el resultado del ejemplo. Un registro confirmado o incierto impide volver a enviar el mismo formulario; la respuesta perdida requiere consultar el estado simulado.
 6. Desplegar **Opciones de la maqueta** para cambiar de plantilla, probar un rechazo, un resultado incierto o pendientes de correo, Workflow o anexos. **Reiniciar maqueta** restablece exclusivamente el ejemplo local.
@@ -241,9 +257,11 @@ Las preguntas Q-RI-01 a Q-RI-05 siguen pendientes. Las personas naturales/juríd
 
 ### Verificación de la maqueta
 
-Pasaron trece grupos de comprobaciones locales en Chromium: estado inicial y comparación de distribución; cambio/cancelación de remitente por teclado; asignación directa con tres identidades distintas en el resumen; grupos y responsables; ruta y dependencias; principal/anexos y errores dentro de desplegables; fecha/folios; plantillas y escape de texto; adaptación a siete anchos entre 320 y 1920 píxeles; resultado incierto y constancia; cierre/reapertura; rechazo y resultados parciales; y retorno desde tercero jurídico al propio usuario. No se detectaron errores JavaScript ni solicitudes HTTP externas.
+Pasaron trece grupos de comprobaciones base en Chromium: estado inicial y comparación de distribución; cambio/cancelación de remitente por teclado; asignación directa con tres identidades distintas en el resumen; grupos y responsables; ruta y dependencias; principal/anexos y errores dentro de desplegables; fecha/folios; plantillas y escape de texto; adaptación a siete anchos entre 320 y 1920 píxeles; resultado incierto y constancia; cierre/reapertura; rechazo y resultados parciales; y retorno desde tercero jurídico al propio usuario.
 
-El arnés, las capturas y los resultados actuales están excluidos de Git en `.tmp/diagnostico-radicacion-interna-20261125/`: `verificar-maqueta-simple.cjs`, `verificacion-maqueta-simple.json` y `simple-*.png`. Los fotogramas de revisión están en `video-simplificacion/`. La comprobación corresponde al HTML local; no valida integración con WebForms ni ausencia de regresiones del módulo real.
+También pasaron nueve grupos específicos de modalidades: regla formal sin campos nuevos; identidades distintas en el resumen; confirmación sin exigir radicado formal; informativo sin plazo/seguimiento; invalidación del responsable; seguimiento pendiente después del registro; preparación incompleta por fallo de asignación; resultado incierto antes de consulta; y adaptación de las tres modalidades a cuatro anchos. No se detectaron errores JavaScript ni solicitudes HTTP externas.
+
+Los arneses, las capturas y los resultados están excluidos de Git en `.tmp/diagnostico-radicacion-interna-20261125/`: `verificar-maqueta-simple.cjs`, `verificacion-maqueta-simple.json`, `verificar-modalidades-respuesta.cjs`, `verificacion-modalidades-respuesta.json`, `simple-*.png` y `respuesta-*.png`. Los fotogramas de revisión están en `video-simplificacion/`. La comprobación corresponde al HTML local; no valida integración con WebForms ni ausencia de regresiones del módulo real.
 
 ## Entrada independiente con carga de documentos
 
@@ -255,7 +273,7 @@ La definición pendiente principal es si se debe elegir expediente antes de conf
 
 La radicación interna ya incluye creación de seguimiento cuando el trámite requiere respuesta. Su habilitación completa necesita comprobar catálogo, modalidad de confirmación/respuesta formal, vencimiento, propietario y recorrido de cierre. Se identificó una lectura de modalidad que consulta la columna de activación del seguimiento, filtros internos/clásicos excluyentes y una respuesta formal que genera radicado saliente.
 
-La evidencia y las condiciones de activación están en [Exploración de trámites con respuesta](exploracion-tramites-con-respuesta.md). La revisión no activa trámites ni modifica la interfaz aprobada.
+La evidencia y las condiciones de activación están en [Exploración de trámites con respuesta](exploracion-tramites-con-respuesta.md). La [maqueta](maqueta.html) permite revisar las tres variaciones; la configuración y el código de aplicación siguen sin cambios.
 
 ## Operaciones que deben preservarse
 
