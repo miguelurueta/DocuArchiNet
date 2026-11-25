@@ -9,7 +9,7 @@ La radicación interna puede mejorar sustancialmente su claridad, pero necesita 
 | Referencia | Valor |
 |---|---|
 | Fecha | 2026-11-25 |
-| Versión | 0.5 |
+| Versión | 0.6 |
 | Base local | Commit `0c7beb83` |
 | Grabación | `Grabación 2026-11-25 113145-radicacion-interna-revisa.mp4` |
 | Duración | 78,80 segundos |
@@ -250,6 +250,12 @@ El arnés, las capturas y los resultados actuales están excluidos de Git en `.t
 Se revisó la posibilidad de iniciar radicación sin visitar Producción documental. Es viable, pero la preparación y el registro actuales consumen IDs de documentos de Producción; los adjuntos clásico/Simplificado existentes requieren un radicado ya creado. La propuesta y sus dependencias están en [Exploración de carga directa](exploracion-carga-directa.md).
 
 La definición pendiente principal es si se debe elegir expediente antes de confirmar o se permite clasificar después. Esa respuesta determina cuánto puede reutilizarse del almacenamiento actual. La interfaz aprobada se conserva durante esta exploración.
+
+## Trámites que requieren respuesta
+
+La radicación interna ya incluye creación de seguimiento cuando el trámite requiere respuesta. Su habilitación completa necesita comprobar catálogo, modalidad de confirmación/respuesta formal, vencimiento, propietario y recorrido de cierre. Se identificó una lectura de modalidad que consulta la columna de activación del seguimiento, filtros internos/clásicos excluyentes y una respuesta formal que genera radicado saliente.
+
+La evidencia y las condiciones de activación están en [Exploración de trámites con respuesta](exploracion-tramites-con-respuesta.md). La revisión no activa trámites ni modifica la interfaz aprobada.
 
 ## Operaciones que deben preservarse
 
