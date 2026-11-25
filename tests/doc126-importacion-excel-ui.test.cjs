@@ -25,7 +25,11 @@ async function fixture(work,options={}){
    let data,ok=true,code='OK',validation=[],totalValidation=0;
    if(operation==='AbrirCargaExcel')data={CsrfToken:'synthetic-ui-token',Conexiones:[{ConexionId:6,Nombre:'Fixture autorizada'}],PermiteNuevaCarga:!options.closedCapacity,MaxFilasDatos:20000,MaxArchivoMB:10};
    else if(operation==='ListarPlantillas')data={Total:1,Pagina:1,TamanoPagina:25,Plantillas:[{PlantillaId:29,Nombre:template.NOMBRE_PLANTILLA,Activa:true}]};
-   else if(operation==='ConsultarPlantilla'){if(options.detailGate)await options.detailGate;data=clone(template);}
+   else if(operation==='ConsultarPlantilla'){
+    if(options.detailGate)await options.detailGate;
+    if(confirmed&&options.failRefresh){ok=false;code='DESTINO_INVALIDO';}
+    else {if(confirmed&&options.createThenAdd)template.Modo='AGREGAR';data=clone(template);}
+   }
    else if(operation==='GuardarPlantilla'){
     if(options.configErrors&&(!options.errorsOnce||calls.filter(c=>c.operation==='GuardarPlantilla').length===1)){ok=false;code='CONFIGURACION_INVALIDA';validation=options.configErrors;totalValidation=options.validationTotal||validation.length;}
     else if(options.conflictSave){ok=false;code='CONFLICTO_REVISION';}
@@ -62,6 +66,75 @@ async function fixture(work,options={}){
 async function open(page){await page.locator('[data-doc126=abrir]').click();await page.locator('[data-doc126=plantilla] option[value="29"]').waitFor({state:'attached'});}
 async function select(page){await open(page);await page.locator('[data-doc126=plantilla]').selectOption('29');await page.locator('[data-doc126=destino]').filter({hasText:'imp_02_fixture'}).waitFor();}
 async function prepare(page){await select(page);await page.locator('[data-doc126=archivo]').setInputFiles({name:'fixture.xlsx',mimeType:'application/octet-stream',buffer:Buffer.from('synthetic workbook transport')});await page.locator('[data-doc126=recibir]').click();await page.locator('[data-doc126=hoja] option[value=Datos]').waitFor({state:'attached'});await page.locator('[data-doc126=preparar]').click();await page.locator('[data-doc126=preview] table').waitFor();}
+const stepTones=page=>page.locator('[data-doc126-step]').evaluateAll(items=>items.map(e=>e.getAttribute('data-tone')));
+test('DOC126 semáforo guía cada acción y reutiliza CREAR como AGREGAR tras consultar la misma plantilla',()=>fixture(async(page,calls)=>{
+ await open(page);assert.deepEqual(await stepTones(page),['amber','gray','gray','gray']);
+ await page.locator('[data-doc126=plantilla]').selectOption('29');await page.locator('[data-doc126=destino]').filter({hasText:'imp_02_fixture'}).waitFor();
+ assert.deepEqual(await stepTones(page),['green','amber','gray','gray']);
+ await page.locator('[data-doc126=archivo]').setInputFiles({name:'fixture.xlsx',mimeType:'application/octet-stream',buffer:Buffer.from('synthetic')});
+ await page.locator('[data-doc126=siguiente-paso]').click();await page.locator('[data-doc126=hoja] option[value=Datos]').waitFor({state:'attached'});
+ assert.deepEqual(await stepTones(page),['green','green','amber','gray']);
+ await page.locator('[data-doc126=siguiente-paso]').click();await page.locator('[data-doc126=preview] table').waitFor();
+ assert.deepEqual(await stepTones(page),['green','green','green','amber']);
+ await page.locator('[data-doc126=siguiente-paso]').click();assert.equal(await page.locator('[data-doc126=confirmar]').evaluate(e=>e===document.activeElement),true);
+ assert.equal(calls.filter(c=>c.operation==='Confirmar').length,0);
+ await page.locator('[data-doc126=confirmar]').click();await page.getByRole('heading',{name:'Carga confirmada',exact:true}).waitFor();
+ assert.deepEqual(await stepTones(page),['green','green','green','green']);assert.equal(await page.locator('[data-doc126=archivo]').isDisabled(),true);
+ assert.equal(await page.locator('[data-doc126=hoja]').isDisabled(),true);assert.equal(await page.locator('[data-doc126=preparar]').isDisabled(),true);
+ await page.locator('[data-doc126=siguiente-paso]').click();await page.locator('[data-doc126=estado]').filter({hasText:'Plantilla actualizada. Operación: Agregar filas'}).waitFor();
+ assert.equal(await page.locator('[data-doc126=modo]').inputValue(),'AGREGAR');assert.equal(await page.locator('[data-doc126=archivo]').inputValue(),'');
+ assert.deepEqual(await stepTones(page),['green','amber','gray','gray']);assert.equal(calls.filter(c=>c.operation==='GuardarPlantilla').length,0);
+ assert.equal(calls.filter(c=>c.operation==='ConsultarPlantilla').length,2);assert.ok(calls.filter(c=>c.operation==='ConsultarPlantilla').every(c=>c.body.PlantillaId===29));
+ assert.equal(calls.filter(c=>c.operation==='Upload').length,1);assert.equal(calls.filter(c=>c.operation==='Confirmar').length,1);
+ assert.match(await page.locator('[data-doc126=resultado]').innerText(),/1000 filas confirmadas/);
+},{mode:'CREAR',createThenAdd:true}));
+test('DOC126 cambiar operación consulta y edita el mismo ID con CAS sin crear otra plantilla ni importar',()=>fixture(async(page,calls)=>{
+ await select(page);await page.locator('[data-doc126=cambiar-operacion]').click();await page.locator('[data-doc126=editor-modo]').waitFor({state:'visible'});
+ assert.equal(await page.locator('[data-doc126=editor-modo]').evaluate(e=>e===document.activeElement),true);
+ await page.locator('[data-doc126=editor-modo]').selectOption('REEMPLAZAR');await page.locator('[data-doc126=guardar]').click();
+ await page.locator('[data-doc126=estado]').filter({hasText:'Plantilla guardada'}).waitFor();
+ const saves=calls.filter(c=>c.operation==='GuardarPlantilla');assert.equal(saves.length,1);assert.equal(saves[0].body.Plantilla.ID_PLANTILLAIMP,29);
+ assert.equal(saves[0].body.Plantilla.Modo,'REEMPLAZAR');assert.equal(saves[0].body.RevisionEsperada,1);assert.equal(saves[0].body.HuellaEsperada,'a'.repeat(64));
+ assert.equal(saves[0].body.Plantilla.Campos[0].ID_CAMPOS_PLANTILLA,10);assert.equal(saves[0].body.Plantilla.Campos[0].REMPLAZA_COMA,null);
+ assert.equal(calls.some(c=>['IniciarRecepcionExcel','Upload','Preparar','Confirmar'].includes(c.operation)),false);
+}));
+test('DOC126 guía de reemplazo lleva al consentimiento sin aceptarlo ni confirmar automáticamente',()=>fixture(async(page,calls)=>{
+ await prepare(page);await page.locator('[data-doc126=siguiente-paso]').click();assert.equal(await page.locator('[data-doc126=consentimiento]').evaluate(e=>e===document.activeElement),true);
+ assert.equal(await page.locator('[data-doc126=consentimiento]').isChecked(),false);assert.equal(await page.locator('[data-doc126=confirmar]').isDisabled(),true);
+ await page.locator('[data-doc126=consentimiento]').check();await page.locator('[data-doc126=siguiente-paso]').click();assert.equal(await page.locator('[data-doc126=confirmar]').evaluate(e=>e===document.activeElement),true);
+ assert.deepEqual(await stepTones(page),['green','green','green','amber']);assert.equal(calls.filter(c=>c.operation==='Confirmar').length,0);
+},{mode:'REEMPLAZAR'}));
+test('DOC126 incidencias ponen validación en rojo sin marcar confirmación completada',()=>fixture(async(page,calls)=>{
+ await prepare(page);assert.deepEqual(await stepTones(page),['green','green','red','gray']);
+ assert.match(await page.locator('[data-doc126=guia-mensaje]').innerText(),/Revisa el mensaje y las incidencias/);
+ await page.locator('[data-doc126=siguiente-paso]').click();assert.equal(await page.locator('[data-doc126=incidencias]').evaluate(e=>e===document.activeElement),true);
+ assert.equal(calls.filter(c=>c.operation==='Preparar').length,1);
+ assert.equal(await page.locator('[data-doc126=confirmar]').isDisabled(),true);assert.equal(calls.filter(c=>c.operation==='Confirmar').length,0);
+},{incidents:true}));
+test('DOC126 incertidumbre guía a consultar el mismo ID sin nueva carga ni replay',()=>fixture(async(page,calls)=>{
+ await prepare(page);await page.locator('[data-doc126=confirmar]').click();await page.locator('[data-doc126=siguiente-paso]').filter({hasText:'Consultar resultado pendiente'}).waitFor();
+ assert.deepEqual(await stepTones(page),['green','green','green','red']);await page.locator('[data-doc126=siguiente-paso]').click();
+ assert.equal(await page.locator('[data-doc126=consultar]').evaluate(e=>e===document.activeElement),true);assert.equal(await page.locator('[data-doc126=id-carga]').inputValue(),id);
+ assert.equal(calls.filter(c=>c.operation==='ConsultarResultado').length,0);assert.equal(calls.filter(c=>c.operation==='Confirmar').length,1);
+ await page.locator('[data-doc126=consultar]').click();await page.getByRole('heading',{name:'Carga confirmada',exact:true}).waitFor();assert.deepEqual(await stepTones(page),['green','green','green','green']);
+},{ignoreConfirm:true}));
+test('DOC126 fallo al refrescar nueva importación impide reutilizar el modo CREAR obsoleto',()=>fixture(async(page,calls)=>{
+ await prepare(page);await page.locator('[data-doc126=confirmar]').click();await page.getByRole('heading',{name:'Carga confirmada',exact:true}).waitFor();
+ await page.locator('[data-doc126=siguiente-paso]').click();await page.locator('[data-doc126=estado]').filter({hasText:'El destino no es compatible'}).waitFor();
+ assert.equal(await page.locator('[data-doc126=recibir]').isDisabled(),true);assert.deepEqual(await stepTones(page),['red','gray','gray','gray']);
+ assert.equal(calls.filter(c=>c.operation==='IniciarRecepcionExcel').length,1);assert.equal(calls.filter(c=>c.operation==='GuardarPlantilla').length,0);
+},{mode:'CREAR',failRefresh:true}));
+test('DOC126 consultar referencia histórica sin archivo actual no completa los pasos de otra importación',()=>fixture(async(page,calls)=>{
+ await open(page);await page.locator('[data-doc126=tab-consulta]').click();await page.locator('[data-doc126=id-carga]').fill(id);await page.locator('[data-doc126=consultar]').click();
+ await page.locator('[data-doc126=resultado] h3').waitFor();assert.deepEqual(await stepTones(page),['amber','gray','gray','gray']);
+ assert.equal(calls.some(c=>['Upload','Preparar','Confirmar'].includes(c.operation)),false);
+}));
+test('DOC126 guía y siguiente acción permanecen dentro del diálogo con 320px y zoom 200%',()=>fixture(async page=>{
+ await select(page);await page.evaluate(()=>document.documentElement.style.zoom='2');
+ await page.locator('[data-doc126=siguiente-paso]').scrollIntoViewIfNeeded();
+ const bounds=await page.locator('[data-doc126=guia]').evaluate(e=>{const outer=e.closest('.doc126-body').getBoundingClientRect();return {left:outer.left,right:outer.right,items:Array.from(e.querySelectorAll('li,button')).map(n=>{const b=n.getBoundingClientRect();return {left:b.left,right:b.right};})};});
+ assert.ok(bounds.items.every(b=>b.left>=bounds.left-1&&b.right<=bounds.right+1),JSON.stringify(bounds));
+},{viewport:{width:320,height:568}}));
 for(const mode of ['CREAR','AGREGAR','REEMPLAZAR'])test('DOC126 UI local recorre '+mode+' con muestra tipada y una sola confirmación',()=>fixture(async(page,calls)=>{
  await prepare(page);assert.match(await page.locator('[data-doc126=limites]').innerText(),/20000.*10 MB/);
  const preview=await page.locator('[data-doc126=preview]').innerText();assert.match(preview,/00017/);assert.match(preview,/123456789012345678901234567890123456789\.123/);assert.match(preview,/2025-01-02/);assert.match(preview,/NULL/);assert.match(preview,/<img/);assert.equal(await page.locator('[data-doc126=preview] img').count(),0);

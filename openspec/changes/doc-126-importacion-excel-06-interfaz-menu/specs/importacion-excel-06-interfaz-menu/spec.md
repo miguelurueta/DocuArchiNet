@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14,D-15,D-16,D-17 -->
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14,D-15,D-16,D-17,D-18 -->
 ## Purpose
 
 Permitir a las personas autorizadas administrar plantillas y cargar libros Excel desde Producción Documental, revisar su validación y recuperar el resultado durable, conservando los permisos, límites y datos de las capacidades existentes.
@@ -288,3 +288,23 @@ El sistema SHALL explicar los rechazos de configuración mediante reglas acredit
 #### Scenario: Respuesta sin causa acreditada
 - **WHEN** el rechazo no identifica una regla utilizable o el guardado es incierto
 - **THEN** se reconoce la limitación, se conserva el formulario y se exige consultar antes de repetir un alta, sin afirmar una causa o un resultado no acreditados
+
+### Requirement: RQ-18 — Guía por semáforo y plantilla reutilizable
+
+El sistema SHALL guiar la importación mediante etapas con color, texto y siguiente acción explícita, y permitir reutilizar la misma plantilla para operaciones compatibles conservando autoridad, CAS, intención congelada y confirmación expresa. Trazabilidad: D-18.
+
+#### Scenario: Siguiente acción y pasos acreditados
+- **WHEN** el usuario selecciona una plantilla, recibe el archivo y completa su validación
+- **THEN** se distinguen etapas completadas en verde, siguiente paso en amarillo y pendientes en gris, con textos equivalentes; la guía lleva a revisar y confirmar sin enviar la confirmación automáticamente
+
+#### Scenario: Incidencia o resultado desconocido
+- **WHEN** hay incidencias, capacidad cerrada o resultado incierto
+- **THEN** la etapa afectada requiere atención con color rojo y texto; la incertidumbre guía a consultar el mismo ID sin repetir escrituras, y consultar una referencia histórica no completa pasos de otro archivo
+
+#### Scenario: Cambio de operación en la misma plantilla
+- **WHEN** el usuario pulsa Cambiar operación de esta plantilla
+- **THEN** se consulta el detalle vigente y se edita el mismo ID mediante guardado explícito con CAS, conservando campos históricos y exigiendo consentimiento separado para reemplazar; no se crea otra plantilla ni se importa al guardar
+
+#### Scenario: Nueva importación después de crear tabla
+- **WHEN** se inicia otra importación con la plantilla de una carga confirmada
+- **THEN** se consulta su detalle vigente para reconocer AGREGAR cuando el destino ya existe, se exige seleccionar otro archivo y validar otra intención; un fallo de consulta impide reutilizar el modo obsoleto y los resultados anteriores permanecen consultables

@@ -34,6 +34,8 @@ Página/menú y lifecycle actuales, autoridad Excel/guards, DTOs y nueve método
 
 | D-17 | Diagnóstico de configuración aditivo y tipado: mantener códigos y solicitudes, añadir validacion/totalValidacion con campo, fila, regla y límites seguros. El repositorio contrasta toda la matriz con metadatos antes de modificar; no relajar NOT NULL ni truncar valores. El analizador y campos nuevos proponen opciones explícitas No/No/No y posición 0; preservar NULL históricos. Cliente interpreta reglas cerradas y muestra causa/corrección, estado de guardado acreditado y enlaces con foco. Respuestas sin detalle no autorizan inventar causas o repetir altas. No exponer SQL, valores de celda, secretos ni mensajes de proveedor. La comprobación de metadatos usa recursos actuales y sólo SELECT; publicación con respaldo y sin E2E autenticada implícita. | Metadatos SELECT del módulo existente, validador y harness actuales. | D-17 | RQ-17 | Origen: D-17, RQ-17 |
 
+| D-18 | Guía por semáforo con texto y siguiente acción, derivada de pasos acreditados para el mismo archivo. Incertidumbre dirige a consulta sin replay. Nueva importación consulta el mismo ID para resolver CREAR/AGREGAR; fallo impide modo obsoleto. Cambiar operación consulta y edita ese ID mediante CAS, con consentimiento separado de reemplazo y sin guardar/importar automáticamente. | Vista, Obtener/Guardar actuales y browser existente. | D-18 | RQ-18 | Origen: D-18, RQ-18 |
+
 ## Requisitos verificables
 
 | ID | Resultado observable | Escenario o criterio de aceptacion | Riesgo/compatibilidad |
@@ -58,6 +60,8 @@ Página/menú y lifecycle actuales, autoridad Excel/guards, DTOs y nueve método
 
 | RQ-17 | El sistema SHALL explicar rechazos con campo/fila/regla/corrección y estado acreditado sin secretos o coerción de históricos. | Opciones nuevas compatibles con la instalación; Configuración rechazada antes de modificar; Causa y corrección accesibles; Respuesta sin causa acreditada | D-17; ampliación explicativa solicitada. |
 
+| RQ-18 | El sistema SHALL guiar por semáforo accesible y reutilizar plantillas compatibles con detalle vigente, CAS y confirmación expresa. | Siguiente acción y pasos acreditados; Incidencia o resultado desconocido; Cambio de operación en la misma plantilla; Nueva importación después de crear tabla | D-18; ampliación solicitada en video 191328. |
+
 ## Resultado del refinamiento
 
 15decisiones y15requisitos,45escenarios y44tareas atómicas (10S/34M/0L), todas de implementación/validación aún abiertas. El usuario autorizó continuar el refinamiento; se sustituyen los borradores genéricos por artefactos verificables, sin marcar implementación terminada. La auditoría de refinamiento y OpenSpec estricto se ejecutan sobre esta entrega. SQLmanual y aceptación real conservan su secuencia específica de autorización y evidencia.
@@ -81,3 +85,9 @@ Tarea 8.9 cerrada con regresión browser existente 55/55 y assets doc126-3 contr
 El usuario solicita errores muy explicativos tras el video 175719. D-17/RQ-17 incorporan cuatro escenarios y tareas 9.1–9.4; total 17 decisiones, 17 requisitos, 54 escenarios y 57 tareas. Se conservan cortes anteriores y las cinco tareas de aceptación/gobierno pendientes. El diagnóstico real se limita a metadatos SELECT y no autoriza E2E autenticada o carga.
 
 Corte del diagnóstico: 52/57 tareas, 171/171 pruebas y 4603 checks sintéticos. Publicación con respaldo y comprobación sin sesión; sin SQL modificador o E2E autenticada. Evidencia actual en `Doc/Actualizacion/Importacion/Validacion/doc126-diagnostico-configuracion-20261124.md`.
+
+## Ampliación de guía solicitada — video 191328
+
+D-18/RQ-18 añaden cuatro escenarios y tareas 10.1–10.4: 18 decisiones, 18 requisitos, 58 escenarios y 61 tareas. No se cambian motores, contratos o SQL. Se conservan la aceptación real pendiente y los cortes históricos. La guía no transforma recepción/validación en una importación confirmada ni duplica plantillas para cambiar una operación compatible.
+
+Corte del semáforo: 56/61 tareas completas; pendientes 6.9, 6.10, 6.11, 7.5 y 8.8. Regresión 178/178 y comprobación final de UI 39/39; 4603 checks nativos sintéticos. Assets doc126-5 contrastados por HTTP anónimo, sin cambiar DLL, SQL ni ejecutar E2E autenticada. Evidencia en `Doc/Actualizacion/Importacion/Validacion/doc126-semaforo-reutilizacion-20261124.md`.

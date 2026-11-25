@@ -12,6 +12,18 @@
 #doc126-excel .doc126-tabs,#doc126-excel .doc126-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 14px}
 #doc126-excel .doc126-button{appearance:none;border:1px solid #b8c7d9;border-radius:6px;padding:8px 12px;background:#fff;color:#244564;font:inherit;cursor:pointer;min-height:36px}
 #doc126-excel .doc126-primary{background:#1c578e;color:#fff;border-color:#1c578e}
+#doc126-excel .doc126-guide{border:1px solid #cbd6e2;border-radius:8px;padding:12px;margin:0 0 18px;background:#f8fafc}
+#doc126-excel .doc126-guide h3{margin:0 0 5px;font-size:17px}
+#doc126-excel .doc126-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px;list-style:none;padding:0;margin:12px 0}
+#doc126-excel .doc126-steps li{border:1px solid #c5ced9;border-left-width:6px;border-radius:6px;padding:9px;min-width:0;overflow-wrap:anywhere}
+#doc126-excel .doc126-steps span{display:block;font-size:12px;margin-top:4px}
+#doc126-excel .doc126-dialog[data-compact=true] .doc126-steps{grid-template-columns:minmax(0,1fr)}
+#doc126-excel .doc126-steps [data-tone=gray]{background:#f0f2f5;border-color:#9aa5b1;color:#4b5663}
+#doc126-excel .doc126-steps [data-tone=green],#doc126-excel .doc126-button[data-tone=green]{background:#eaf6ee;border-color:#327447;color:#204e2c}
+#doc126-excel .doc126-steps [data-tone=amber],#doc126-excel .doc126-button[data-tone=amber]{background:#fff3cd;border-color:#aa7300;color:#604200}
+#doc126-excel .doc126-steps [data-tone=red],#doc126-excel .doc126-button[data-tone=red]{background:#fcecec;border-color:#b53c3c;color:#852828}
+#doc126-excel [data-doc126=operacion-ayuda]{margin:10px 0}
+#doc126-excel [data-doc126=cambiar-operacion]{margin-bottom:14px}
 #doc126-excel .doc126-button:hover:not(:disabled){background:#e8f1f9;color:#17395e}
 #doc126-excel button:disabled,#doc126-excel input:disabled,#doc126-excel select:disabled{opacity:.6;cursor:default}
 #doc126-excel :focus-visible{outline:3px solid #e5a22e;outline-offset:2px}

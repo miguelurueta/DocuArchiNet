@@ -23,7 +23,7 @@
         CAPACIDAD_NO_DISPONIBLE:"La carga no está disponible. Puedes intentar consultar una referencia conocida.",
         OPERACION_EN_CURSO:"La carga está siendo procesada. Consulta su resultado antes de repetir.",
         RESULTADO_INCIERTO:"No se conoce el resultado. Consulta el mismo ID antes de repetir.",
-        DESTINO_YA_EXISTE:"La tabla ya existe. Selecciona una plantilla compatible para agregar o reemplazar.",
+        DESTINO_YA_EXISTE:"La tabla ya existe. Inicia una nueva carga para actualizar esta plantilla o cambia su operación a agregar o reemplazar.",
         CONFIGURACION_INVALIDA:"Revisa la configuración de la plantilla y sus campos.",
         DESTINO_INVALIDO:"El destino no es compatible con esta plantilla. Revisa su configuración.",
         SOLICITUD_INVALIDA:"Revisa los campos requeridos antes de continuar."
@@ -53,7 +53,7 @@
         var capability = null, template = null, received = null, prepared = null, frozen = null, preparationHash = "", uncertain = false, blocked = false;
         var pageNumber = 1, listTotal = 0, editorOriginal = null, editorDirty = false, saveUncertain = false, refs = [], storage = null, storageOk = true;
         var namespace = "doc126-excel:" + scope, state = "VACIO", controls = [];
-        var analysis = null, analyzedFile = null, pendingFile = null, pendingHash = "", pendingTemplate = 0, suggestedTable = "";
+        var analysis = null, analyzedFile = null, pendingFile = null, pendingHash = "", pendingTemplate = 0, suggestedTable = "", flowOutcome = null, guideAction = null;
         function node(tag, content, attrs) {
             var e = doc.createElement(tag);
             if (content !== null && content !== undefined) { e.textContent = content; }
@@ -104,8 +104,19 @@
         var loadPanel = node("section",null,{"data-doc126":"carga"}), editPanel = node("section",null,{"data-doc126":"editor",hidden:"hidden"}), queryPanel = node("section",null,{"data-doc126":"consulta",hidden:"hidden"});
         var panels = [loadPanel,editPanel,queryPanel];
         tabs.appendChild(button("Cargar archivo","tab-carga",function () { showPanel(loadPanel); }));
-        tabs.appendChild(button("Plantillas","tab-plantillas",function () { editTemplate(false); }));
+        tabs.appendChild(button("Plantillas","tab-plantillas",function () { if (flowOutcome && flowOutcome.Estado === "CONFIRMADA" && template) { changeTemplateOperation(); } else { editTemplate(false); } }));
         tabs.appendChild(button("Consultar resultado","tab-consulta",function () { showPanel(queryPanel); })); body.appendChild(tabs);
+        var guide = node("section",null,{"class":"doc126-guide","aria-label":"Guía de importación","data-doc126":"guia"});
+        guide.appendChild(node("h3","Tu importación, paso a paso"));
+        guide.appendChild(node("p","Verde: completado · Amarillo: siguiente paso · Rojo: requiere atención · Gris: pendiente.",{"class":"doc126-limits"}));
+        var steps = node("ol",null,{"class":"doc126-steps"}), stepLabels = ["Plantilla","Recibir archivo","Validar archivo","Confirmar importación"];
+        var stepNodes = stepLabels.map(function (label,i) {
+            var item = node("li",null,{"data-doc126-step":String(i + 1)});
+            item.appendChild(node("strong",String(i + 1) + ". " + label));
+            var detail = node("span","Pendiente"); item.appendChild(detail); steps.appendChild(item); return {item:item,detail:detail};
+        }); guide.appendChild(steps);
+        var guideMessage = node("p","",{"data-doc126":"guia-mensaje"}); guide.appendChild(guideMessage);
+        var guideButton = button("Seleccionar plantilla","siguiente-paso",function () { if (!busy && guideAction) { guideAction(); } },true); guide.appendChild(guideButton); body.appendChild(guide);
         var diagnostics = node("section",null,{"data-doc126":"diagnostico-configuracion","class":"doc126-diagnostics",hidden:"hidden",tabindex:"-1","aria-label":"Detalle del error de configuración"}); body.appendChild(diagnostics);
         var selection = node("div",null,{"class":"doc126-grid"});
         var connection = field(selection,"Conexión autorizada","select","conexion");
@@ -118,6 +129,8 @@
         var listPage = node("span","",{"data-doc126":"pagina"}); listActions.appendChild(previous); listActions.appendChild(listPage); listActions.appendChild(next);
         loadPanel.appendChild(selection); loadPanel.appendChild(listActions);
         var summary = node("p","Selecciona una plantilla para conocer el destino y la clave.",{"class":"doc126-summary","data-doc126":"destino"}); loadPanel.appendChild(summary);
+        var operationHelp = node("p","",{"data-doc126":"operacion-ayuda"}); loadPanel.appendChild(operationHelp);
+        var changeOperation = button("Cambiar operación de esta plantilla","cambiar-operacion",changeTemplateOperation); loadPanel.appendChild(changeOperation);
         var limits = node("p","",{"class":"doc126-limits","data-doc126":"limites"}); loadPanel.appendChild(limits);
         var fileGrid = node("div",null,{"class":"doc126-grid"});
         var file = field(fileGrid,"Libro Excel","input","archivo",{type:"file",accept:".xls,.xlsx"});
@@ -127,7 +140,7 @@
         var loadActions = node("div",null,{"class":"doc126-actions"});
         var createFromExcel = button("Crear plantilla desde Excel","crear-desde-excel",function () { editTemplate(true); if (!editPanel.hidden) { analysisFile.focus(); } });
         createFromExcel.hidden = !host.getAttribute("data-analisis"); loadActions.appendChild(createFromExcel);
-        var uploadButton = button("Recibir archivo","recibir",upload), prepareButton = button("Validar archivo","preparar",prepare,true);
+        var uploadButton = button("Recibir archivo","recibir",upload), prepareButton = button("Validar archivo","preparar",prepare);
         loadActions.appendChild(uploadButton); loadActions.appendChild(prepareButton); loadActions.appendChild(button("Nueva carga","nueva-carga",newLoad)); loadPanel.appendChild(loadActions);
         var preview = node("div",null,{"data-doc126":"preview"}), incidents = node("div",null,{"data-doc126":"incidencias"}); loadPanel.appendChild(preview); loadPanel.appendChild(incidents);
         var consentBox = node("div",null,{"class":"doc126-consent",hidden:"hidden"});
@@ -141,6 +154,7 @@
         editor.Modo = field(editorGrid,"Modo","select","editor-modo"); Object.keys(modeNames).forEach(function (v) { option(editor.Modo,modeNames[v],v); });
         editor.ESTADO_PLANTILLA = field(editorGrid,"Plantilla activa","input","activa",{type:"checkbox"});
         editPanel.appendChild(node("h3","Configuración de plantilla")); editPanel.appendChild(editorGrid);
+        editPanel.appendChild(node("p","Puedes cambiar la operación y guardar esta misma plantilla: Crear tabla para un destino nuevo; Agregar filas para conservar las existentes; Reemplazar contenido para sustituirlo con confirmación expresa. Reutiliza la plantilla cuando el destino y los campos sean los mismos. Una tabla o estructura diferente requiere otra configuración."));
         var assistant = node("section",null,{"data-doc126":"asistente","class":"doc126-assistant",hidden:"hidden"});
         assistant.appendChild(node("h3","Crear campos desde Excel"));
         assistant.appendChild(node("p","Encabezados en la fila 1. Los campos y tipos son propuestas editables; elige la clave y revisa la configuración antes de guardar."));
@@ -199,11 +213,66 @@
         function allowed() { return capability && capability.PermiteNuevaCarga !== false && !blocked; }
         function loadAllowed() { return allowed() && template && template.ESTADO_PLANTILLA === 1 && /^[A-Za-z_][A-Za-z0-9_]{0,63}$/.test(template.CAMPO_UNICO || ""); }
         function confirmable() { return prepared && frozen && !uncertain && state === "PREPARADO" && (!consentBox.hidden ? consent.checked : true); }
+        function syncGuide() {
+            guide.hidden = !editPanel.hidden;
+            var complete = !!(received && flowOutcome && flowOutcome.IdCarga === received.IdCarga && flowOutcome.Estado === "CONFIRMADA");
+            var validated = !!(prepared && frozen), ready = !!loadAllowed(), active = !ready ? 0 : !received ? 1 : !validated && !complete ? 2 : 3;
+            var done = [ready,!!received,validated || complete,complete];
+            var attention = blocked || (capability && !allowed()) || uncertain || saveUncertain || state === "INCIDENCIAS" || (flowOutcome && flowOutcome.Estado === "FALLIDA") || (template && !ready);
+            stepNodes.forEach(function (step,i) {
+                var tone = done[i] ? "green" : i === active ? "amber" : "gray";
+                if (attention && i === active) { tone = "red"; }
+                step.item.setAttribute("data-tone",tone);
+                step.detail.textContent = tone === "green" ? "Completado" : tone === "red" ? "Requiere atención" : tone === "amber" ? (busy ? "En curso" : "Siguiente paso") : "Pendiente";
+                if (!complete && i === active) { step.item.setAttribute("aria-current","step"); } else { step.item.removeAttribute("aria-current"); }
+            });
+            var label, message, enabled = true;
+            if (complete) {
+                label = "Nueva importación con esta plantilla"; message = "Importación confirmada por el servidor. Puedes reutilizar esta plantilla; consultaremos su operación vigente antes de recibir otro archivo."; guideAction = newLoad;
+            } else if (!ready) {
+                label = template ? "Revisar plantilla" : "Seleccionar plantilla"; message = "Selecciona una plantilla existente o usa Crear plantilla desde Excel si el destino y los campos son nuevos.";
+                guideAction = function () { if (template) { editTemplate(false); } else if (showPanel(loadPanel)) { selectTemplate.focus(); } };
+            } else if (!received) {
+                var hasFile = !!pendingFile || !!(file.files && file.files.length === 1);
+                label = hasFile ? "Recibir archivo" : "Seleccionar archivo Excel";
+                message = "Operación: " + modeNames[template.Modo] + ". Recibir el archivo permite elegir su hoja; todavía no importa datos.";
+                guideAction = hasFile ? upload : function () { if (showPanel(loadPanel)) { file.focus(); file.click(); } };
+                enabled = hasFile ? !uploadButton.disabled : !file.disabled;
+            } else if (!validated) {
+                label = "Validar archivo"; message = "Selecciona la hoja. La validación revisa todas las filas; confirma sólo después de revisar la muestra y las incidencias.";
+                guideAction = function () { if (showPanel(loadPanel)) { prepare(); } }; enabled = !prepareButton.disabled;
+            } else {
+                label = !consentBox.hidden && !consent.checked ? "Revisar y aceptar reemplazo" : "Revisar y confirmar importación";
+                message = "Archivo validado. Revisa la muestra y el destino antes de pulsar Confirmar carga. Esta acción escribe los datos.";
+                guideAction = function () { if (showPanel(loadPanel)) { var target = !consentBox.hidden && !consent.checked ? consent : confirmButton; target.scrollIntoView({block:"center"}); target.focus(); } };
+            }
+            if ((state === "INCIDENCIAS" || (flowOutcome && flowOutcome.Estado === "FALLIDA")) && !uncertain && !saveUncertain) {
+                message = "La operación requiere atención. Revisa el mensaje y las incidencias antes de continuar; no se acredita una importación confirmada.";
+                label = "Revisar incidencias"; enabled = true;
+                guideAction = function () {
+                    if (incidents.childNodes.length && showPanel(loadPanel)) { incidents.setAttribute("tabindex","-1"); incidents.scrollIntoView({block:"center"}); incidents.focus(); }
+                    else { status.focus(); }
+                };
+            }
+            if (uncertain || saveUncertain) {
+                label = saveUncertain ? "Consultar plantillas" : "Consultar resultado pendiente";
+                message = saveUncertain ? "El guardado no está acreditado. Busca y consulta la plantilla antes de repetirlo." : "No se conoce el resultado. Consulta el mismo ID antes de iniciar otra importación.";
+                guideAction = function () { if (showPanel(saveUncertain ? loadPanel : queryPanel)) { (saveUncertain ? searchButton : queryButton).focus(); } }; enabled = !blocked;
+            }
+            if (!allowed()) { message = blocked ? "El acceso no está vigente. Renueva la sesión para continuar." : "Las nuevas importaciones no están disponibles. Puedes consultar resultados anteriores."; enabled = false; }
+            guideButton.textContent = label; guideMessage.textContent = busy ? "Operación en curso. Espera su resultado; cerrar la ventana no la cancela." : message;
+            guideButton.disabled = busy || !enabled;
+            [[uploadButton,1],[prepareButton,2],[confirmButton,3]].forEach(function (pair) {
+                var tone = done[pair[1]] ? "green" : pair[1] === active ? (attention ? "red" : "amber") : "gray";
+                pair[0].setAttribute("data-tone",tone);
+            });
+            operationHelp.textContent = template ? (template.Modo === "CREAR" ? "Crear tabla: la primera importación creará el destino. Después podrás agregar filas con esta misma plantilla." : template.Modo === "AGREGAR" ? "Agregar filas: conserva las filas existentes e incorpora las nuevas. Puedes cambiar a Reemplazar usando esta misma plantilla." : "Reemplazar contenido: sustituye las filas autorizadas del destino; requiere aceptar el reemplazo antes de confirmar.") : "La plantilla define el destino, los campos y la operación; se puede reutilizar para archivos con la misma estructura.";
+        }
         function sync() {
             dialog.setAttribute("aria-busy",busy ? "true" : "false"); status.setAttribute("data-state",state);
             controls = controls.filter(function (c) { return c.isConnected !== false; });
             controls.forEach(function (c) { c.disabled = busy; }); closeButton.disabled = false;
-            if (busy) { return; }
+            if (busy) { syncGuide(); return; }
             mode.disabled = true;
             uploadButton.disabled = !loadAllowed() || uncertain || saveUncertain || !!received || (!pendingFile && (!file.files || file.files.length !== 1));
             prepareButton.disabled = !loadAllowed() || !received || uncertain || !sheet.value;
@@ -212,12 +281,15 @@
             searchButton.disabled = !allowed(); selectTemplate.disabled = !allowed(); connection.disabled = !allowed(); file.disabled = !allowed() || uncertain;
             saveButton.disabled = !allowed() || saveUncertain || !editorOriginal;
             createFromExcel.disabled = !allowed() || saveUncertain || uncertain;
+            changeOperation.disabled = !allowed() || !template || uncertain || saveUncertain;
             analyzeButton.disabled = !allowed() || saveUncertain || !analysisFile.files || analysisFile.files.length !== 1;
             analysisKey.disabled = !analysis;
             queryButton.disabled = !capability || blocked;
+            if (flowOutcome && flowOutcome.Estado === "CONFIRMADA") { file.disabled = true; sheet.disabled = true; prepareButton.disabled = true; }
+            syncGuide();
         }
         function invalidate(resetReceipt) {
-            prepared = null; frozen = null; consent.checked = false; consentBox.hidden = true; clear(preview); clear(incidents);
+            prepared = null; frozen = null; flowOutcome = null; consent.checked = false; consentBox.hidden = true; clear(preview); clear(incidents);
             if (resetReceipt) { received = null; preparationHash = ""; clear(sheet); }
             if (!uncertain) { state = "VACIO"; }
             sync();
@@ -308,7 +380,7 @@
             if (busy) { return false; }
             if (!editPanel.hidden && panel !== editPanel && editorDirty && !env.confirm("Hay cambios de plantilla sin guardar. ¿Quieres descartarlos?")) { return false; }
             if (panel !== editPanel) { editorDirty = false; }
-            panels.forEach(function (p) { p.hidden = p !== panel; }); return true;
+            panels.forEach(function (p) { p.hidden = p !== panel; }); sync(); return true;
         }
         function open() {
             if (!closed) { dialog.focus(); return; }
@@ -365,7 +437,29 @@
         function newLoad() {
             if (busy) { return; }
             if (uncertain) { notice("Consulta primero el resultado de la operación pendiente antes de iniciar otra carga."); showPanel(queryPanel); return; }
-            clearAssistant(); received = null; invalidate(true); file.value = ""; notice("Selecciona un libro para una nueva carga. Las referencias anteriores se conservan."); sync();
+            if (saveUncertain) { notice("Consulta primero la plantilla antes de iniciar otra carga."); return; }
+            if (!showPanel(loadPanel)) { return; }
+            var previousTemplate = template;
+            clearAssistant(); template = null; received = null; invalidate(true); file.value = "";
+            summary.textContent = "Actualizando la plantilla antes de una nueva importación…";
+            if (previousTemplate) {
+                run(function () { return api.ejecutar("ConsultarPlantilla",{ConexionId:Number(connection.value),PlantillaId:previousTemplate.ID_PLANTILLAIMP}); },function (r) {
+                    if (!r.datos || r.datos.ID_PLANTILLAIMP !== previousTemplate.ID_PLANTILLAIMP) { throw invalid(false); }
+                    selected(r.datos); notice("Plantilla actualizada. Operación: " + modeNames[template.Modo] + ". Selecciona el siguiente archivo; las referencias anteriores se conservan.");
+                },false);
+            } else { notice("Selecciona una plantilla y un libro para una nueva carga."); sync(); }
+        }
+        function changeTemplateOperation() {
+            if (busy || !allowed() || !template || uncertain || saveUncertain) { return; }
+            var id = template.ID_PLANTILLAIMP, ticket = epoch, refreshed = false;
+            run(function () { return api.ejecutar("ConsultarPlantilla",{ConexionId:Number(connection.value),PlantillaId:id}); },function (r) {
+                if (!r.datos || r.datos.ID_PLANTILLAIMP !== id) { throw invalid(false); }
+                clearAssistant(); selected(r.datos); refreshed = true;
+            },false).then(function () {
+                if (refreshed && ticket === epoch && live() && !closed && template && template.ID_PLANTILLAIMP === id) {
+                    editTemplate(false); if (!editPanel.hidden) { editor.Modo.focus(); }
+                }
+            });
         }
         function upload() {
             if (!loadAllowed() || uncertain || received || (!pendingFile && (!file.files || file.files.length !== 1))) { return; }
@@ -427,6 +521,7 @@
         }
         function showResult(d) {
             if (!d || !uuid.test(d.IdCarga || "") || d.IdCarga !== queryId.value || ["RECIBIDA","PREPARADA","CONFIRMADA","FALLIDA"].indexOf(d.Estado) === -1) { throw invalid(false); }
+            if (received && received.IdCarga === d.IdCarga && Number(queryConnection.value) === Number(connection.value)) { flowOutcome = {IdCarga:d.IdCarga,Estado:d.Estado}; }
             clear(result); result.appendChild(node("h3",d.Estado === "CONFIRMADA" ? "Carga confirmada" : d.Estado === "FALLIDA" ? "Carga revertida" : "Carga " + d.Estado.toLowerCase()));
             result.appendChild(node("p","ID: " + d.IdCarga)); result.appendChild(node("p","Destino: " + text(d.Tabla) + " · " + (modeNames[d.Modo] || "Sin modo confirmado")));
             if (d.Estado === "CONFIRMADA") { result.appendChild(node("p",d.FilasConfirmadas + " filas confirmadas · fecha de confirmación: " + dateTime(d.ConfirmadoUtc))); state = "CONFIRMADO"; uncertain = false; prepared = null; frozen = null; }

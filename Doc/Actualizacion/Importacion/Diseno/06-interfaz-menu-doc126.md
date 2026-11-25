@@ -25,3 +25,7 @@ Muestra e incidencias acotadas a 25 con totales, números canónicos como texto,
 ## Asistente autorizado para altas
 
 D-16/RQ-16 añade análisis multipart sin plantilla ni efectos durables, con propuestas revisables y File sólo en memoria. Conserva los contratos del motor y el editor manual; no necesita migración SQL. [Implementación, límites y evidencia actual](../Validacion/doc126-asistente-20261124.md). Las nuevas rutas Compile/Content y la decisión de evitar staging durable figuran en design.md de OpenSpec.
+
+## Guía por semáforo — 2026-11-24, video 191328
+
+56/61 tareas completas; pendientes 6.9, 6.10, 6.11, 7.5 y 8.8. Regresión 178/178 y comprobación final de UI 39/39; 4603 checks nativos sintéticos. Assets doc126-5 contrastados por HTTP anónimo, sin cambiar DLL, SQL ni ejecutar E2E autenticada. La misma plantilla se reutiliza: Nueva importación consulta CREAR/AGREGAR vigente; Cambiar operación edita el mismo ID con CAS y guardado explícito. Reemplazo conserva consentimiento. Colores con texto y siguiente acción, sin confirmación automática. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-semaforo-reutilizacion-20261124.md`.

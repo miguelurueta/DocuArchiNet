@@ -1,0 +1,100 @@
+{
+  "status": "DEPLOYED_GUIDED_IMPORT_AND_TEMPLATE_REUSE",
+  "recordedUtc": "2026-11-25T00:31:09.249Z",
+  "baseCommit": "9a400c0361fc79d65feee767b2b11a30b79649c5",
+  "planning": {
+    "decisions": 18,
+    "requirements": 18,
+    "scenarios": 58,
+    "totalTasks": 61,
+    "completedTasks": 56,
+    "pending": [
+      "6.9",
+      "6.10",
+      "6.11",
+      "7.5",
+      "8.8"
+    ]
+  },
+  "verification": {
+    "regression": {
+      "passed": 178,
+      "failed": 0
+    },
+    "finalUi": {
+      "passed": 39,
+      "failed": 0
+    },
+    "nativeSyntheticChecks": 4603,
+    "refinementChecks": 15,
+    "strict": {
+      "items": 97,
+      "passed": 97,
+      "failed": 0
+    }
+  },
+  "runtime": {
+    "version": "doc126-5",
+    "realE2EExecuted": false,
+    "sql": 0,
+    "authenticatedSessions": 0,
+    "assets": [
+      {
+        "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+        "httpStatus": 200,
+        "sha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b"
+      },
+      {
+        "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+        "httpStatus": 200,
+        "sha256": "837848f593b8bc456885f1ba5ee6340ca2244f1161f4eb88b96f0203b1c54253"
+      },
+      {
+        "path": "Styles/ImportacionExcel.css",
+        "httpStatus": 200,
+        "sha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee"
+      }
+    ],
+    "status": "STATIC_ASSETS_VERIFIED",
+    "recordedUtc": "2026-11-25T00:30:04.8529632Z",
+    "backendObservedSha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5"
+  },
+  "sources": [
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "sha256Utf8Lf": "837848f593b8bc456885f1ba5ee6340ca2244f1161f4eb88b96f0203b1c54253"
+    },
+    {
+      "path": "Styles/ImportacionExcel.css",
+      "sha256Utf8Lf": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Utf8Lf": "8f31716c82e484e0b14a362d66f8f1b27bec6a2ffffd991a32614f3e0b79bc1d"
+    },
+    {
+      "path": "tests/doc126-importacion-excel-ui.test.cjs",
+      "sha256Utf8Lf": "368d5510befb1140115b4d2b70a3fe4b93232bc6aaaf3555f199716f279fd949"
+    },
+    {
+      "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/design.md",
+      "sha256Utf8Lf": "3ffdb03c8b7aaa704be0fc825c9d8d981c133d6b137a6b37b112499e3a05cc32"
+    },
+    {
+      "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/refinement.md",
+      "sha256Utf8Lf": "f2cfedf70141fb62f61d80d41de3c93ab3e9a46c00959df244df6dad5108d685"
+    },
+    {
+      "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/tasks.md",
+      "sha256Utf8Lf": "73e0714eff1e0fc5a94b4766f23bb2aa078de0082841c9ea47f0aa26d5b17523"
+    },
+    {
+      "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/specs/importacion-excel-06-interfaz-menu/spec.md",
+      "sha256Utf8Lf": "75d7a49958256b509a1d24ebb68e86995ebb4d1365095736fb42b5c569dec233"
+    }
+  ],
+  "realE2EExecuted": false,
+  "sqlStatements": 0,
+  "authenticatedSessions": 0,
+  "binaryReplaced": false
+}
