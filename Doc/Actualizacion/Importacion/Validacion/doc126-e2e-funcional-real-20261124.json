@@ -1,0 +1,151 @@
+{
+  "status": "DOC126_REAL_UI_FUNCTIONAL_PASS",
+  "recordedUtc": "2026-11-25T04:16:29.484Z",
+  "baseCommit": "0a3117662d78f69c1314989593abd4e0796671d2",
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "module": "GESTOR",
+    "empresaId": 2,
+    "usuarioId": 141,
+    "moduloDa": 11,
+    "moduloRa": 12,
+    "conexionId": 6,
+    "localCertificateIgnored": true
+  },
+  "acceptance": {
+    "executedTests": 1,
+    "passedTests": 1,
+    "successfulCases": 2,
+    "protectedTablesVerified": 27,
+    "configurationFingerprintsUnchanged": true,
+    "consentVerified": true,
+    "doubleConfirmationRequestsPrevented": true,
+    "locksReleased": true
+  },
+  "cases": [
+    {
+      "scenario": "agregar",
+      "mode": "AGREGAR",
+      "templateId": 58,
+      "revision": 1,
+      "templateHash": "e8a914751fe30496d2f55ef97c3039d7727af095677cdfaebc1a8432e317d71b",
+      "loadId": "36f39f62-c6d3-49cb-9d14-ebf61e7e2e02",
+      "fileHash": "122e6c23b71a3ce8dcd339f289c2768b406b75e95d06af7f01f96d43d0605325",
+      "rowsBefore": 1,
+      "rowsImported": 1000,
+      "rowsAfter": 1001,
+      "status": "CONFIRMADA"
+    },
+    {
+      "scenario": "reemplazar",
+      "mode": "REEMPLAZAR",
+      "templateId": 59,
+      "revision": 1,
+      "templateHash": "91cb0b4607cf6f7bbb527fb80d7e44e1035177925193013dfac23abac20a8a59",
+      "loadId": "31ca6cd5-716e-4829-a0ca-eac7700192d6",
+      "fileHash": "392e82247aae3088d2b03d63a8a806a196f9483aa441842f817419e54306290e",
+      "rowsBefore": 2,
+      "rowsImported": 1000,
+      "rowsAfter": 1000,
+      "status": "CONFIRMADA"
+    }
+  ],
+  "finalSelect": {
+    "status": "REAL_FUNCTIONAL_DATA_VERIFIED",
+    "recordedUtc": "2026-11-25T04:15:03.1579146Z",
+    "rows": [
+      {
+        "agregar": 1001,
+        "reemplazar": 1000,
+        "base_agregar_conservada": 1,
+        "bases_reemplazar_restantes": 0
+      }
+    ],
+    "loads": [
+      {
+        "id_carga": "36f39f62-c6d3-49cb-9d14-ebf61e7e2e02",
+        "id_plantilla": 58,
+        "usuario_ref": "141",
+        "ambito_ref": "2",
+        "conexion_ref": "DA:11:6",
+        "tabla_destino": "imp_02_doc126_e2e_agregar",
+        "estado": "CONFIRMADA",
+        "filas_previstas": 1000,
+        "filas_confirmadas": 1000,
+        "archivo_hash": "122e6c23b71a3ce8dcd339f289c2768b406b75e95d06af7f01f96d43d0605325"
+      },
+      {
+        "id_carga": "31ca6cd5-716e-4829-a0ca-eac7700192d6",
+        "id_plantilla": 59,
+        "usuario_ref": "141",
+        "ambito_ref": "2",
+        "conexion_ref": "DA:11:6",
+        "tabla_destino": "imp_02_doc126_e2e_reemplazar",
+        "estado": "CONFIRMADA",
+        "filas_previstas": 1000,
+        "filas_confirmadas": 1000,
+        "archivo_hash": "392e82247aae3088d2b03d63a8a806a196f9483aa441842f817419e54306290e"
+      }
+    ],
+    "sqlWrites": 0
+  },
+  "scopeSha256": "57aaab28a01b911f0a7463fdb7c2ea8caefe719b3c07aaecb8228faba18706e7",
+  "backendSha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+  "assets": {
+    "js/gestion/ImportacionExcel/ImportacionExcelApi.js": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+    "js/gestion/ImportacionExcel/ImportacionExcelVista.js": "837848f593b8bc456885f1ba5ee6340ca2244f1161f4eb88b96f0203b1c54253",
+    "Styles/ImportacionExcel.css": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee"
+  },
+  "sharedProfileChanged": false,
+  "permissionsChanged": false,
+  "productCodeChanged": false,
+  "priorAttempts": [
+    {
+      "number": 1,
+      "status": "STOPPED_CONTROL_COLUMNS_INVALID",
+      "fixed": true
+    },
+    {
+      "number": 2,
+      "status": "STOPPED_LOGIN_CREDENTIALS_REJECTED"
+    }
+  ],
+  "localRegression": {
+    "passed": 38,
+    "failed": 0
+  },
+  "sources": [
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256Utf8Lf": "d13e9f795b7974ba532dea1337b5368a4cd8c99df1715b1c0049cb82b929125e"
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "a3b7526f3a851da1def2facc31cf7fd9abacb5e270da08e21bbaf81694a6ee83"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+      "sha256Utf8Lf": "830b77c8fe7e9c8a4d2be5113a42798021c5d2bb1b73e1602aa5822e1e131912"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc124-excel-scope.cjs",
+      "sha256Utf8Lf": "0b4b49021c8d87a89600cd0d44faf863069c7f4732dd74b7c42ecaaa8f0ab125"
+    },
+    {
+      "path": "tests/doc126-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "943e8090e01c61b19af04210398f1ba0629fb43e66f97f1a3bc2b26dea53cd4c"
+    },
+    {
+      "path": "tests/doc124-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "dc6c0880904a669aa523db3f396393214a297a798fa986b9a20c6413570cc141"
+    }
+  ],
+  "limits": {
+    "exclusivePermissionTested": false,
+    "restrictedAccountTested": false,
+    "rollbackTested": false,
+    "externalWriterTested": false,
+    "assistantCreationAutomated": false,
+    "manualAssistantAccepted": true
+  }
+}

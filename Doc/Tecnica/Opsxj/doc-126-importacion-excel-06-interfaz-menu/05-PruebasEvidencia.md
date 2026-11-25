@@ -44,3 +44,7 @@ El usuario autorizó aplicar las copias parametrizadas. Dos tablas, dos polític
 ## E2E funcional detenida en autenticación — 2026-11-24
 
 SQL23–25 aplicados y verificados; no reaplicar. Corregido control compartido para la columna histórica AÑO_FERIADO, con38/38 regresiones. Segundo intento completó27 huellas iniciales, pero el servidor devolvió LOGIN_CREDENTIALS_REJECTED en el módulo GESTOR del perfil local. Cero sesiones autenticadas/cargas nuevas; fixtures permanecen1/2 filas. Confirmar el acceso manual y proporcionar la contraseña sólo en consola privada. No se cierran tareas de aceptación por estos intentos. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-aplicacion-sql-funcional-20261124.md`.
+
+## Aceptación funcional real con la cuenta existente — 2026-11-24
+
+E2E Playwright real PASS: un test, dos casos. Agregar1000:1→1001 filas; reemplazar1000:2→1000 filas, con consentimiento. Usuario141 en IIS local HTTPS/GESTOR, plantillas58/59 y hashes/propiedad/locks verificados. Huellas íntegras de27 tablas protegidas y configuración de plantillas sin cambios. Perfil local separado; perfil compartido, permisos, DLL y Web.config conservados. La creación/importación manual del usuario se reconoce como realizada. No acredita exclusividad/restricción, rollback/carrera o asistente automatizado. Ver `Doc/Actualizacion/Importacion/Validacion/doc126-e2e-funcional-real-20261124.md`.

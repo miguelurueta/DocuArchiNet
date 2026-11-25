@@ -322,7 +322,7 @@ async function main(){
     for(const name of Object.keys(values)){delete values[name];delete environment[name];}
   }
 }
-module.exports={excelProfilePlan,excelPreparationPlan,excelConfirmationPlan,excelUiPlan,startExcelExternalWriter};
+module.exports={excelProfilePlan,excelPreparationPlan,excelConfirmationPlan,excelUiPlan,runExcelUi,startExcelExternalWriter};
 if(require.main===module)main().catch(error=>{
   console.error(/^DOC12[2456]_[A-Z_]+$/.test(error.message)?error.message:
     'DOC110_SESSION_BLOCKED: faltan credenciales efímeras. Ejecute este comando en su consola interactiva para ingresarlas; no se inició login.');
