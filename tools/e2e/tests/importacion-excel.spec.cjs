@@ -75,7 +75,7 @@ test.describe('DOC126 interfaz Excel con servicios y controles existentes',()=>{
   // El perfil exclusivo y el funcional con cuenta existente se acreditan por separado.
   const accounts=await ra('SELECT u.id_Remit_Dest_Int AS id,u.Login_Usuario AS login_ref,u.Estado_Usuario AS activo,p.ADMINISTRAR_CARGAS_IMPORTACION AS cargas,p.IMPORTAR_CARPETAS AS carpetas,p.ADMINISTRAR_PERFILES_IMPORTACION AS perfiles,p.ADMINISTRAR_FUENTES_IMPORTACION AS fuentes,p.ADMINISTRAR_PROVEEDORES_IMPORTACION AS proveedores FROM remit_dest_interno u INNER JOIN remit_dest_interno_perfil_produccion p ON p.remit_dest_interno_idremit_dest_interno=u.id_Remit_Dest_Int WHERE u.Empresa_Gestion_Documental_id_empresa=? AND u.id_Remit_Dest_Int IN (?,?)',[s.empresaId,s.usuarioId,s.restrictedUsuarioId]);
   support.verifyAccounts(s,accounts,required('DOC126_E2E_USER'),mode==='functional'?null:required('DOC126_E2E_RESTRICTED_USER'));
-  const before={};for(const t of s.protectedTables)before[t]=await support.snapshotDestination(select,fingerprint,t,true);
+  const before={};for(const [i,t]of s.protectedTables.entries()){before[t]=await support.snapshotDestination(select,fingerprint,t,true);if(i===0||(i+1)%5===0||i+1===s.protectedTables.length)console.log('DOC126_PROTECTED_BASELINE '+(i+1)+'/'+s.protectedTables.length);}
   const configBefore=await fingerprint('SELECT * FROM imp01_plantillaimp WHERE ?=1 ORDER BY ID_PLANTILLAIMP',1);
   const fieldsBefore=await fingerprint('SELECT * FROM imp01_campos_plantilla WHERE ?=1 ORDER BY ID_CAMPOS_PLANTILLA',1);
   const physical=(await select('SELECT @@hostname AS servidor,@@port AS puerto,DATABASE() AS base_ref,@@lower_case_table_names AS minusculas'))[0];
@@ -202,7 +202,7 @@ test.describe('DOC126 interfaz Excel con servicios y controles existentes',()=>{
     completed++;console.log('DOC126_UI_CASE_PASS scenario='+item.escenario+'; effects preserved');
    }
    check(!unexpectedMutation,'DOC126_UI_UNAUTHORIZED_MUTATION');
-   for(const t of s.protectedTables)check(await support.snapshotDestination(select,fingerprint,t,true)===before[t],'DOC126_PROTECTED_CONTENT_CHANGED');
+   for(const [i,t]of s.protectedTables.entries()){check(await support.snapshotDestination(select,fingerprint,t,true)===before[t],'DOC126_PROTECTED_CONTENT_CHANGED');if(i===0||(i+1)%5===0||i+1===s.protectedTables.length)console.log('DOC126_PROTECTED_VERIFIED '+(i+1)+'/'+s.protectedTables.length);}
    const headerControl=mode==='assistant'?'SELECT * FROM imp01_plantillaimp WHERE ID_PLANTILLAIMP<>? ORDER BY ID_PLANTILLAIMP':'SELECT * FROM imp01_plantillaimp WHERE ?=1 ORDER BY ID_PLANTILLAIMP';
    const fieldsControl=mode==='assistant'?'SELECT * FROM imp01_campos_plantilla WHERE IMP01_PLANTILLAIMP_ID_PLANTILLAIMP<>? ORDER BY ID_CAMPOS_PLANTILLA':'SELECT * FROM imp01_campos_plantilla WHERE ?=1 ORDER BY ID_CAMPOS_PLANTILLA';
    check(await fingerprint(headerControl,mode==='assistant'?createdTemplate:1)===configBefore&&await fingerprint(fieldsControl,mode==='assistant'?createdTemplate:1)===fieldsBefore,'DOC126_CONFIGURATION_CHANGED');

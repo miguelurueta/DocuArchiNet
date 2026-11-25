@@ -33,13 +33,15 @@ function readFixture(c){
 //de filas en Node ni depende del máximo10000 de la vía Rows del control existente.
 async function snapshotDestination(query,fingerprint,table,exists){
  if(!/^imp_02_[A-Za-z0-9_]{1,57}$/.test(table||''))throw Error('DOC124_SCOPE_INVALID');
- const tables=await query('SELECT ENGINE,TABLE_TYPE,TABLE_COLLATION FROM information_schema.TABLES WHERE BINARY TABLE_SCHEMA=BINARY DATABASE() AND BINARY TABLE_NAME=BINARY ?',[table]);
+ const [tables,columns,indexes]=await Promise.all([
+  query('SELECT ENGINE,TABLE_TYPE,TABLE_COLLATION FROM information_schema.TABLES WHERE BINARY TABLE_SCHEMA=BINARY DATABASE() AND BINARY TABLE_NAME=BINARY ?',[table]),
+  query('SELECT COLUMN_NAME,COLUMN_TYPE,IS_NULLABLE,COLUMN_DEFAULT,CHARACTER_SET_NAME,COLLATION_NAME,EXTRA FROM information_schema.COLUMNS WHERE BINARY TABLE_SCHEMA=BINARY DATABASE() AND BINARY TABLE_NAME=BINARY ? ORDER BY ORDINAL_POSITION',[table]),
+  query('SELECT INDEX_NAME,NON_UNIQUE,SEQ_IN_INDEX,COLUMN_NAME,SUB_PART FROM information_schema.STATISTICS WHERE BINARY TABLE_SCHEMA=BINARY DATABASE() AND BINARY TABLE_NAME=BINARY ? ORDER BY INDEX_NAME,SEQ_IN_INDEX',[table])
+ ]);
  if(exists!==(tables.length===1)||tables.length>1)throw Error('DOC124_DESTINATION_SCOPE_CHANGED');
- const columns=await query('SELECT COLUMN_NAME,COLUMN_TYPE,IS_NULLABLE,COLUMN_DEFAULT,CHARACTER_SET_NAME,COLLATION_NAME,EXTRA FROM information_schema.COLUMNS WHERE BINARY TABLE_SCHEMA=BINARY DATABASE() AND BINARY TABLE_NAME=BINARY ? ORDER BY ORDINAL_POSITION',[table]);
- const indexes=await query('SELECT INDEX_NAME,NON_UNIQUE,SEQ_IN_INDEX,COLUMN_NAME,SUB_PART FROM information_schema.STATISTICS WHERE BINARY TABLE_SCHEMA=BINARY DATABASE() AND BINARY TABLE_NAME=BINARY ? ORDER BY INDEX_NAME,SEQ_IN_INDEX',[table]);
  let rowsHash=null;
  if(exists){
-  if(!columns.length||columns.some(c=>!/^[A-Za-z_][A-Za-z0-9_]{0,63}$/.test(c.COLUMN_NAME||'')))throw Error('DOC124_CONTROL_COLUMNS_INVALID');
+  if(!columns.length||columns.some(c=>!/^[\p{L}_][\p{L}\p{M}\p{N}_]{0,63}$/u.test(c.COLUMN_NAME||'')))throw Error('DOC124_CONTROL_COLUMNS_INVALID');
   const order=columns.map(c=>'BINARY `'+c.COLUMN_NAME+'`').join(',');
   rowsHash=await fingerprint('SELECT * FROM `'+table+'` WHERE ? IS NOT NULL ORDER BY '+order,'DOC124');
   if(!/^[0-9a-f]{64}$/.test(rowsHash||''))throw Error('DOC124_CONTROL_HASH_INVALID');
