@@ -13,7 +13,7 @@ if($ExcelConfirmation){
         if((Get-FileHash -LiteralPath $resources125 -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:DOC125_NATIVE_RESOURCES_SHA256){throw 'DOC125_NATIVE_RESOURCES_CHANGED'}
         $request125=Get-Content -LiteralPath $resources125 -Raw|ConvertFrom-Json
         $scope125=$request125.scope
-        $authorized125=($scope125.issue -eq 'DOC-125' -and $env:DOC125_E2E_AUTHORIZED -eq 'YES') -or ($scope125.issue -eq 'DOC-126' -and $scope125.mode -eq 'write' -and $env:DOC126_E2E_AUTHORIZED -eq 'YES')
+        $authorized125=($scope125.issue -eq 'DOC-125' -and $env:DOC125_E2E_AUTHORIZED -eq 'YES') -or ($scope125.issue -eq 'DOC-126' -and $env:DOC126_E2E_AUTHORIZED -eq 'YES' -and ($scope125.mode -eq 'write' -or ($scope125.mode -eq 'resilience' -and $env:DOC126_RESILIENCE_E2E_AUTHORIZED -eq 'YES')))
         if(-not $authorized125 -or $scope125.disposable -ne $true -or $scope125.preserveResources -ne $true -or $scope125.destinationReadOnly -eq $true -or $scope125.allowedEffects -notcontains 'EXTERNAL_INSERT' -or $scope125.controlPrefix -notmatch '\ADOC[0-9]+_DA_E2E\z' -or $request125.item.escenario -ne 'carrera'){throw 'DOC125_NATIVE_SCOPE_REQUIRED'}
         if([IO.Path]::GetFullPath($RuntimeRoot) -cne [IO.Path]::GetFullPath($scope125.runtimeRoot) -or (Get-FileHash -LiteralPath (Join-Path $RuntimeRoot 'bin/GestionDocumental-Docuarchi.net.dll') -Algorithm SHA256).Hash.ToLowerInvariant() -cne $scope125.backendSha256){throw 'DOC125_NATIVE_BACKEND_CHANGED'}
         $harness125=[IO.Path]::GetFullPath($env:DOC125_NATIVE_HARNESS)
@@ -45,7 +45,7 @@ if($ExcelConfirmation){
         exit 0
     }catch{
         [Console]::Error.WriteLine('DOC125_NATIVE_EXTERNAL_FAILED_RESULT_UNCERTAIN')
-        if($env:DOC125_E2E_AUTHORIZED -eq 'YES'){
+        if($env:DOC125_E2E_AUTHORIZED -eq 'YES' -or $env:DOC126_E2E_AUTHORIZED -eq 'YES'){
             $cause125=$_.Exception;$native125=$null
             while($cause125.InnerException){if($cause125.PSObject.Properties['Number']){$native125=[int]$cause125.Number};$cause125=$cause125.InnerException}
             $code125=if($cause125.Message -cmatch '\ADOC(?:115|125)_[A-Z_]{1,90}\z'){$cause125.Message}else{'DOC125_NATIVE_PROVIDER_REJECTED'}
