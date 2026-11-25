@@ -277,3 +277,16 @@ E2E Playwright real PASS: un test, dos casos. Agregar1000:1→1001 filas; reempl
 ## Asistente y tres modos reales — 2026-11-25
 
 6.10 y8.8 completadas:60/62 tareas. E2E real del asistente PASS: una plantilla nueva/dos campos, CREAR1000 filas y29 tablas protegidas con huellas intactas. Combinada con AGREGAR/REEMPLAZAR anteriores acredita1000 filas por cada modo; rollback/concurrencia ya aprobados. Se conservan permisos, históricos y cuatro resultados previos; sin SQL de instalación, limpieza o cambio productivo.43/43 regresiones de adaptadores PASS. Pendientes6.9 (cuentas exclusiva/restringida) y7.5 (cierre de gobierno). Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-e2e-asistente-real-20261125.md`.
+
+## DOC126 — cuentas de prueba para6.9, 2026-11-25
+
+Estado **PENDIENTE_IDENTIFICAR_CUENTAS / PENDIENTE_EJECUCION_MANUAL**. SQL26–27 entregados, no aplicados. El diagnóstico actualizado conserva0 cuentas exclusivas/74 restringidas; no se elige a otro empleado ni se retiran permisos a LUZ.AGUILERA (141).
+
+1. El usuario identifica dos cuentas dedicadas de prueba de empresa2. Nunca comunicar contraseñas por chat o SQL. Una cuenta necesita sólo cargas; la otra debe carecer de ese permiso. No requiere otras cuentas MySQL ni otra conexión en Web.config.
+2. En una copia local de **26-cuentas-prueba-ra-doc126.sql**, completar los dos IDs y ejecutar en **RA del módulo12**. Es sólo SELECT. Confirmar exactamente un perfil activo por usuario. La exclusiva debe tener las cuatro capacidades adicionales exactamente en0; si no cumple, detener y elegir una cuenta dedicada adecuada. No utilizar141 en ninguno de los dos papeles.
+3. Sólo si hace falta habilitar cargas, revisar y ejecutar manualmente **27-permiso-cuenta-prueba-ra-doc126.sql** en esa misma RA, completando los mismos IDs y poniendo cuentas_prueba_confirmadas=1 después de confirmar que son cuentas dedicadas. Máximo una actualización0→1 de ADMINISTRAR_CARGAS_IMPORTACION; conserva todos los demás permisos y la cuenta restringida. Parámetros vacíos o confirmación0 impiden la actualización. No crea usuarios/perfiles ni corrige duplicados. Si la exclusiva ya tiene cargas1 y las otras cuatro capacidades0, omitirlo.
+4. Verificar SQL26 desde una conexión nueva: dos usuarios activos, un perfil cada uno, cargas1/0 y cuatro permisos adicionales0 en la exclusiva. Después preparar el scope **read** y autenticar las dos cuentas en consola privada dentro del ambiente autorizado. La E2E no ejecuta26/27 ni instala/limpia datos; sus controles siguen siendo SELECT y cero mutaciones funcionales.
+
+Los metadatos actuales son InnoDB; el índice de perfil por usuario **no es UNIQUE**. SQL27 utiliza transacción REPEATABLE READ, bloqueos de usuarios/perfiles y comprobaciones de cardinalidad antes de su única actualización; no añade índices ni modifica el esquema. Revisar precondiciones, no ejecutar fragmentos fuera de la transacción. Si precondiciones_cumplidas=0, detener; no acredita aplicación ni una E2E aprobada. Conservar las cuentas y cualquier efecto autorizado; no hay revocación/limpieza automática.
+
+No reaplicar23–25 ni repetir las cargas reales aprobadas. La entrega de estos archivos y el preflight no cierran6.9/7.5: faltan las identidades confirmadas, eventual aplicación manual y la prueba autenticada. Evidencia: `../Validacion/doc126-preparacion-cuentas-20261125.md`.
