@@ -32,6 +32,15 @@ test('DOC126 modo lectura no admite recepción, edición, filas o efectos de esc
   const changed=JSON.parse(JSON.stringify(s));mutate(changed);assert.throws(()=>support.validateScope(changed,s.baseUrl,'read'),/DOC126_SCOPE_INVALID/);
  }
 });
+
+test('DOC126 lectura protege también fixtures DOC126 anteriores sin autorizar escrituras',()=>{
+ const s=scope();s.protectedTables.push('imp_02_doc126_e2e_agregar','imp_02_doc126_e2e_reemplazar','imp_02_doc126_e2e_asistente_1234abcd');
+ assert.equal(support.validateScope(s,s.baseUrl,'read'),s);
+ for(const mutate of [x=>x.allowedEffects=['INSERT'],x=>x.maxBusinessRows=1,x=>x.maxDeletedRows=1,x=>x.destinationReadOnly=false]){
+  const changed=JSON.parse(JSON.stringify(s));mutate(changed);assert.throws(()=>support.validateScope(changed,s.baseUrl,'read'),/DOC126_SCOPE_INVALID/);
+ }
+ const functional=scope('functional');functional.protectedTables.push('imp_02_doc126_e2e_agregar');assert.throws(()=>support.validateScope(functional,functional.baseUrl,'functional'),/DOC126_SCOPE_INVALID/);
+});
 test('DOC126 rechaza mezclas de modos y otro ambiente antes de abrir una sesión',t=>{
  const e=env(t,scope());for(const args of [['--excel-ui-read','--excel-write'],['--excel-ui-read','--excel-ui-write'],['--excel-ui-read','--excel-confirm'],['--excel-ui-read','--source-profile']])assert.throws(()=>excelUiPlan(root,profile,args,e),/DOC126_MODE_CONFLICT/);
  assert.throws(()=>excelUiPlan(root,{...profile,baseUrl:'https://other.invalid/'},['--excel-ui-read'],e),/DOC126_SCOPE_INVALID/);

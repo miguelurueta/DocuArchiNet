@@ -271,7 +271,7 @@
         function sync() {
             dialog.setAttribute("aria-busy",busy ? "true" : "false"); status.setAttribute("data-state",state);
             controls = controls.filter(function (c) { return c.isConnected !== false; });
-            controls.forEach(function (c) { c.disabled = busy; }); closeButton.disabled = false;
+            controls.forEach(function (c) { c.disabled = busy && c !== closeButton; }); closeButton.disabled = false;
             if (busy) { syncGuide(); return; }
             mode.disabled = true;
             uploadButton.disabled = !loadAllowed() || uncertain || saveUncertain || !!received || (!pendingFile && (!file.files || file.files.length !== 1));
@@ -368,12 +368,20 @@
         }
         function run(work, success, isWrite, phase, message) {
             if (busy || destroyed) { return Promise.resolve(); }
-            var ticket = epoch; busy = true; writeBusy = !!isWrite; state = phase || "CARGANDO";
+            var ticket = epoch, previousFocus = doc.activeElement;
+            if (overlay.contains(previousFocus) && previousFocus !== closeButton) { dialog.focus(); }
+            busy = true; writeBusy = !!isWrite; state = phase || "CARGANDO";
             notice(message || (phase === "CONFIRMANDO" ? "Confirmando la carga. Conserva el ID; cerrar la ventana no cancela la operación." : "Cargando información…")); sync();
             return Promise.resolve().then(work).then(function (r) {
                 if (ticket === epoch && live() && !closed) { return success(r); }
             }).catch(function (error) { if (ticket === epoch && live() && !closed) { fail(error); } }).then(function () {
-                if (ticket === epoch && !destroyed) { busy = false; writeBusy = false; sync(); }
+                if (ticket === epoch && !destroyed) {
+                    busy = false; writeBusy = false; sync();
+                    if (!closed && (doc.activeElement === dialog || doc.activeElement === doc.body)) {
+                        var target = overlay.contains(previousFocus) && !previousFocus.disabled && previousFocus.getClientRects().length ? previousFocus : closeButton;
+                        target.focus();
+                    }
+                }
             });
         }
         function showPanel(panel) {

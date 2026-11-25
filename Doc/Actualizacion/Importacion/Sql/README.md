@@ -290,3 +290,15 @@ Estado **PENDIENTE_IDENTIFICAR_CUENTAS / PENDIENTE_EJECUCION_MANUAL**. SQL26–2
 Los metadatos actuales son InnoDB; el índice de perfil por usuario **no es UNIQUE**. SQL27 utiliza transacción REPEATABLE READ, bloqueos de usuarios/perfiles y comprobaciones de cardinalidad antes de su única actualización; no añade índices ni modifica el esquema. Revisar precondiciones, no ejecutar fragmentos fuera de la transacción. Si precondiciones_cumplidas=0, detener; no acredita aplicación ni una E2E aprobada. Conservar las cuentas y cualquier efecto autorizado; no hay revocación/limpieza automática.
 
 No reaplicar23–25 ni repetir las cargas reales aprobadas. La entrega de estos archivos y el preflight no cierran6.9/7.5: faltan las identidades confirmadas, eventual aplicación manual y la prueba autenticada. Evidencia: `../Validacion/doc126-preparacion-cuentas-20261125.md`.
+
+### Aplicación posterior autorizada de SQL27
+
+El usuario solicitó buscar las cuentas y autorizó habilitar sólo cargas en asesor.comercial194, con oficial.cumplimiento196 como restringida. Ambas identificadas como Prueba en su nombre visible, activas y con un perfil. **SQL27 aplicado y verificado**, mediante una copia local parametrizada y confirmación1, fuera de la E2E. Una modificación0→1; los demás campos de los78 perfiles de empresa2 y todos los permisos de141 permanecen iguales. No reaplicar27 ni retirar permisos para reiniciar la prueba. El SQL público conserva sus parámetros seguros como plantilla histórica. Evidencia: `../Validacion/doc126-aplicacion-permiso-prueba-20261125.md`. La aceptación de lectura tiene resultado separado; esta adecuación no la acredita.
+
+## Lectura exclusiva/restringida real aprobada — 2026-11-25
+
+6.9 completada:61/62 tareas. Cuenta194 con sólo cargas abre/busca/consulta y cierra con Escape;196 sin cargas no tiene menú y recibe ACCESO_DENEGADO.30 huellas protegidas y configuración intactas; cero mutaciones funcionales. SELECT posterior conserva78 perfiles y cinco cargas previas.92/92 pruebas locales PASS; foco corregido en assets v6, sin cambiar DLL/Web.config. La concesión administrativa previa SQL27 se mantiene separada. Pendiente revisión final7.5. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-e2e-permisos-real-20261125.md`.
+
+## Estado final de entrega — 2026-11-25
+
+**62/62 tareas.** Gobierno legacy62/62, OpenSpec97/97 y refinamiento15/15 PASS antes del commit, con revalidación del SHA publicado al finalizar. La lectura real aprobada corresponde a assets v6:30 tablas,78 perfiles y cinco resultados conservados. El ajuste posterior mínimo de Cerrar siempre habilitado se entrega como **doc126-7**, probado localmente (49 UI/cliente;93 pruebas actuales con44 adaptadores), con hash HTTP verificado. No se afirma otra ejecución real v7. DLL/Web.config y datos permanecen conservados; no reaplicar permisos, SQL o cargas. Ver `Doc/Actualizacion/Importacion/Validacion/doc126-verificacion-final-20261125.md`.

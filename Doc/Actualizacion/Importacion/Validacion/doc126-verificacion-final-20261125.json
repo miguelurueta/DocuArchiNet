@@ -1,0 +1,758 @@
+{
+  "status": "FINAL_TECHNICAL_VERIFICATION_PASS",
+  "recordedUtc": "2026-11-25T10:52:46.379Z",
+  "baseCommit": "a2d6f19237d8eeaa7e1c6e1e1d300ea96fbee653",
+  "reviewer": "Codex",
+  "humanGlobalReviewClaimed": false,
+  "planning": {
+    "completed": 62,
+    "total": 62,
+    "requirements": 18,
+    "decisions": 18,
+    "scenarios": 59,
+    "pending": []
+  },
+  "dimensions": {
+    "completeness": {
+      "critical": 0,
+      "requirementsWithImplementation": 18,
+      "tasksCompleted": 62
+    },
+    "correctness": {
+      "warnings": 0,
+      "requirementsReviewed": 18,
+      "scenarioInventoryReviewed": 59,
+      "independentRealScenarioRunsClaimed": false
+    },
+    "coherence": {
+      "decisionsReviewed": 18,
+      "contradictionsFound": 0
+    }
+  },
+  "requirements": [
+    {
+      "id": "RQ-01",
+      "implementation": [
+        "Gestion/WebFormProducionDocumental.aspx.vb:4",
+        "js/gestion/ImportacionExcel/ImportacionExcelApi.js:37"
+      ],
+      "checks": [
+        "tests/ImportacionExcelBehaviorTests.cs:122",
+        "tests/doc126-importacion-excel-ui.test.cjs:186",
+        "tests/doc126-importacion-excel-client.test.cjs:37"
+      ],
+      "assessment": "Autoridad propia nativa/local y real:194 con sólo cargas encuentra/usa menú y consulta;196 sin cargas no tiene acceso y recibe ACCESO_DENEGADO."
+    },
+    {
+      "id": "RQ-02",
+      "implementation": [
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:397",
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:677"
+      ],
+      "checks": [
+        "tests/doc119-navigation.test.cjs",
+        "tests/doc126-importacion-excel-ui.test.cjs:186",
+        "tests/doc126-importacion-excel-ui.test.cjs:203"
+      ],
+      "assessment": "Montaje/coexistencia local; menú real usado por los tres modos con la cuenta vigente."
+    },
+    {
+      "id": "RQ-03",
+      "implementation": [
+        "js/gestion/ImportacionExcel/ImportacionExcelApi.js:25",
+        "js/gestion/ImportacionExcel/ImportacionExcelApi.js:34"
+      ],
+      "checks": [
+        "tests/doc126-importacion-excel-client.test.cjs:13",
+        "tests/doc126-importacion-excel-client.test.cjs:31",
+        "tests/doc126-importacion-excel-client.test.cjs:42",
+        "tests/doc126-importacion-excel-client.test.cjs:48"
+      ],
+      "assessment": "Envelope, rechazo con datos, timeout y multipart locales; transporte real en positivos y negativos."
+    },
+    {
+      "id": "RQ-04",
+      "implementation": [
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:433",
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:635"
+      ],
+      "checks": [
+        "tests/doc126-importacion-excel-ui.test.cjs:172",
+        "tests/doc126-importacion-excel-ui.test.cjs:177",
+        "tests/doc126-importacion-excel-ui.test.cjs:180",
+        "tests/ImportacionExcelBehaviorTests.cs:58"
+      ],
+      "assessment": "CAS y guardado incierto locales; selección real y nueva plantilla guardada en asistente."
+    },
+    {
+      "id": "RQ-05",
+      "implementation": [
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:472",
+        "generic_control/ImportacionExcelUpload.ashx.vb"
+      ],
+      "checks": [
+        "tests/doc126-importacion-excel-client.test.cjs:42",
+        "tests/ImportacionExcelLecturaTests.cs:75",
+        "tests/doc126-importacion-excel-ui.test.cjs:240",
+        "tests/doc126-importacion-excel-ui.test.cjs:305",
+        "tools/e2e/tests/importacion-excel.spec.cjs:133"
+      ],
+      "assessment": "Tamaño/extensión incompatibles rechazados antes de recibir en browser local; límites/hojas/lectura completa nativos y reales en los cortes existentes."
+    },
+    {
+      "id": "RQ-06",
+      "implementation": [
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:291",
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:523"
+      ],
+      "checks": [
+        "tests/doc126-importacion-excel-ui.test.cjs:151",
+        "tests/ImportacionExcelPreparacionTests.cs",
+        "tools/e2e/tests/importacion-excel.spec.cjs:159"
+      ],
+      "assessment": "Preparación íntegra y hashes reales; invalidación y CAS de preparación en pruebas locales/nativas."
+    },
+    {
+      "id": "RQ-07",
+      "implementation": [
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:59",
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:523"
+      ],
+      "checks": [
+        "tests/doc126-importacion-excel-ui.test.cjs:136",
+        "tests/doc126-importacion-excel-ui.test.cjs:147",
+        "tests/ImportacionExcelLecturaTests.cs:111"
+      ],
+      "assessment": "Muestra tipada/truncamiento/XSS locales, lectura completa nativa y preparación real."
+    },
+    {
+      "id": "RQ-08",
+      "implementation": [
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:379",
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:417",
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:677"
+      ],
+      "checks": [
+        "tests/doc126-importacion-excel-ui.test.cjs:136",
+        "tests/doc126-importacion-excel-ui.test.cjs:163",
+        "tests/doc126-importacion-excel-ui.test.cjs:203",
+        "tools/e2e/tests/importacion-excel.spec.cjs:165"
+      ],
+      "assessment": "Doble confirmación real; cierre tardío/postback local. Cambio A→B con dos detalles pendientes sin prueba browser específica."
+    },
+    {
+      "id": "RQ-09",
+      "implementation": [
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:215",
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:530"
+      ],
+      "checks": [
+        "tests/doc126-importacion-excel-ui.test.cjs:101",
+        "tests/doc126-importacion-excel-ui.test.cjs:151",
+        "tools/e2e/tests/importacion-excel.spec.cjs:189"
+      ],
+      "assessment": "Consentimiento real de reemplazo; resultados CONFIRMADA/FALLIDA y atomicidad comprobados en MySQL."
+    },
+    {
+      "id": "RQ-10",
+      "implementation": [
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:83",
+        "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb:13"
+      ],
+      "checks": [
+        "tests/doc126-importacion-excel-ui.test.cjs:156",
+        "tests/doc126-importacion-excel-ui.test.cjs:183",
+        "tests/ImportacionExcelBehaviorTests.cs:142"
+      ],
+      "assessment": "Acuse perdido/recarga/contexto/storage locales; consulta durable real, sin inyección de pérdida de red en estas ventanas."
+    },
+    {
+      "id": "RQ-11",
+      "implementation": [
+        "Styles/ImportacionExcel.css",
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:100"
+      ],
+      "checks": [
+        "tests/doc126-importacion-excel-ui.test.cjs:132",
+        "tests/doc126-importacion-excel-ui.test.cjs:186"
+      ],
+      "assessment": "Foco/viewport/zoom locales y Escape real v6 después de Buscar/selección. Apertura pendiente/Cerrar siempre habilitado verificados localmente en v7; sin nueva lectura real atribuida a ese último ajuste."
+    },
+    {
+      "id": "RQ-12",
+      "implementation": [
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:59",
+        "js/gestion/ImportacionExcel/ImportacionExcelApi.js:19"
+      ],
+      "checks": [
+        "tests/doc126-importacion-excel-client.test.cjs:55",
+        "tests/doc126-importacion-excel-ui.test.cjs:136",
+        "tests/doc126-importacion-excel-ui.test.cjs:284"
+      ],
+      "assessment": "Salida textual y descriptores cerrados verificados localmente; códigos tipados reales en fallos esperados."
+    },
+    {
+      "id": "RQ-13",
+      "implementation": [
+        "Doc/Actualizacion/Importacion/Sql/22-preflight-doc126.sql",
+        "Doc/Actualizacion/Importacion/Sql/README.md",
+        "Doc/Actualizacion/Importacion/Sql/27-permiso-cuenta-prueba-ra-doc126.sql"
+      ],
+      "checks": [
+        "Doc/Actualizacion/Importacion/Validacion/doc126-aplicacion-sql-funcional-20261124.md"
+      ],
+      "assessment": "SQL revisable separado;23–25 y27 aplicados por autorizaciones específicas posteriores, con controles SELECT nuevos. No instala desde E2E."
+    },
+    {
+      "id": "RQ-14",
+      "implementation": [
+        "tools/e2e/scripts/run-doc110-profile-session.cjs:8",
+        "tools/e2e/tests/support/doc126-excel-scope.cjs:8",
+        "tools/e2e/tests/importacion-excel.spec.cjs:62"
+      ],
+      "checks": [
+        "tests/doc126-e2e-reuse.test.cjs",
+        "tools/e2e/tests/importacion-excel.spec.cjs:133",
+        "tools/e2e/tests/importacion-excel.spec.cjs:175"
+      ],
+      "assessment": "E2E reutilizadas: tres modos/asistente con141, rollback/carrera con actor nativo, lectura exclusiva/restringida194/196 y30 huellas protegidas. Distintos cortes/hashes; no se confunden con mocks."
+    },
+    {
+      "id": "RQ-15",
+      "implementation": [
+        "GestionDocumental-Docuarchi.net.vbproj",
+        "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/opsxj-governance.json"
+      ],
+      "checks": [
+        "Doc/Actualizacion/Importacion/Validacion/doc126-implementacion-local-20261124.md",
+        "Doc/Actualizacion/Importacion/Validacion/doc126-diagnostico-configuracion-20261124.md"
+      ],
+      "assessment": "Compatibilidad/build/regresión de cortes previos conservados;93 pruebas locales actuales, lectura real v6 y revisión final por fuentes. Gobierno final se vuelve a comprobar sobre el commit publicado."
+    },
+    {
+      "id": "RQ-16",
+      "implementation": [
+        "Services/ProduccionDocumental/ImportacionExcel/ServicioAnalisisPlantillaExcel.vb:53",
+        "generic_control/ImportacionExcelAnalisis.ashx.vb:16",
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:591"
+      ],
+      "checks": [
+        "tests/ImportacionExcelLecturaTests.cs:127",
+        "tests/doc126-importacion-excel-ui.test.cjs:218",
+        "tests/doc126-importacion-excel-ui.test.cjs:230",
+        "tests/doc126-importacion-excel-ui.test.cjs:244",
+        "tools/e2e/tests/importacion-excel.spec.cjs:133"
+      ],
+      "assessment": "Análisis/clave/guardar/recibir/importar reales,1000 filas; sin importar al guardar. Casos ambiguos y cambios de intención locales/nativos."
+    },
+    {
+      "id": "RQ-17",
+      "implementation": [
+        "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb",
+        "webservice/WebServiceImportacionExcel.asmx.vb",
+        "js/gestion/ImportacionExcel/ImportacionExcelApi.js:19"
+      ],
+      "checks": [
+        "tests/ImportacionExcelBehaviorTests.cs:209",
+        "tests/doc126-importacion-excel-ui.test.cjs:277",
+        "tests/doc126-importacion-excel-ui.test.cjs:284",
+        "tests/doc126-importacion-excel-ui.test.cjs:288"
+      ],
+      "assessment": "Diagnóstico estructurado/atómico y opciones nuevas locales/nativas; defaults verificados en nueva plantilla real. Históricos intactos."
+    },
+    {
+      "id": "RQ-18",
+      "implementation": [
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:216",
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:445",
+        "js/gestion/ImportacionExcel/ImportacionExcelVista.js:462"
+      ],
+      "checks": [
+        "tests/doc126-importacion-excel-ui.test.cjs:70",
+        "tests/doc126-importacion-excel-ui.test.cjs:91",
+        "tests/doc126-importacion-excel-ui.test.cjs:101",
+        "tests/doc126-importacion-excel-ui.test.cjs:107",
+        "tests/doc126-importacion-excel-ui.test.cjs:114",
+        "tests/doc126-importacion-excel-ui.test.cjs:121",
+        "tests/doc126-importacion-excel-ui.test.cjs:127"
+      ],
+      "assessment": "Semáforo, CTA y reutilización/CAS en browser local. Flujos de carga reales; no se afirma una nueva ejecución real de cada CTA."
+    }
+  ],
+  "scenarios": [
+    {
+      "requirement": "RQ-01",
+      "scenario": "Permiso exclusivo",
+      "coverageRef": "requirements.RQ-01"
+    },
+    {
+      "requirement": "RQ-01",
+      "scenario": "Acceso denegado o revocado",
+      "coverageRef": "requirements.RQ-01"
+    },
+    {
+      "requirement": "RQ-01",
+      "scenario": "Apertura válida y capacidad cerrada",
+      "coverageRef": "requirements.RQ-01"
+    },
+    {
+      "requirement": "RQ-02",
+      "scenario": "Menú único",
+      "coverageRef": "requirements.RQ-02"
+    },
+    {
+      "requirement": "RQ-02",
+      "scenario": "Reinicialización",
+      "coverageRef": "requirements.RQ-02"
+    },
+    {
+      "requirement": "RQ-02",
+      "scenario": "Ausencia de otras capacidades",
+      "coverageRef": "requirements.RQ-02"
+    },
+    {
+      "requirement": "RQ-03",
+      "scenario": "Preparación con incidencias",
+      "coverageRef": "requirements.RQ-03"
+    },
+    {
+      "requirement": "RQ-03",
+      "scenario": "Respuesta inválida o timeout",
+      "coverageRef": "requirements.RQ-03"
+    },
+    {
+      "requirement": "RQ-03",
+      "scenario": "Transporte propio",
+      "coverageRef": "requirements.RQ-03"
+    },
+    {
+      "requirement": "RQ-04",
+      "scenario": "Selección paginada",
+      "coverageRef": "requirements.RQ-04"
+    },
+    {
+      "requirement": "RQ-04",
+      "scenario": "Edición concurrente",
+      "coverageRef": "requirements.RQ-04"
+    },
+    {
+      "requirement": "RQ-04",
+      "scenario": "Guardado incierto",
+      "coverageRef": "requirements.RQ-04"
+    },
+    {
+      "requirement": "RQ-05",
+      "scenario": "Archivo incompatible",
+      "coverageRef": "requirements.RQ-05"
+    },
+    {
+      "requirement": "RQ-05",
+      "scenario": "Hojas recibidas",
+      "coverageRef": "requirements.RQ-05"
+    },
+    {
+      "requirement": "RQ-05",
+      "scenario": "Respuesta de recepción perdida",
+      "coverageRef": "requirements.RQ-05"
+    },
+    {
+      "requirement": "RQ-06",
+      "scenario": "Preparación íntegra",
+      "coverageRef": "requirements.RQ-06"
+    },
+    {
+      "requirement": "RQ-06",
+      "scenario": "Selección modificada",
+      "coverageRef": "requirements.RQ-06"
+    },
+    {
+      "requirement": "RQ-06",
+      "scenario": "Preparación obsoleta",
+      "coverageRef": "requirements.RQ-06"
+    },
+    {
+      "requirement": "RQ-07",
+      "scenario": "Valores significativos",
+      "coverageRef": "requirements.RQ-07"
+    },
+    {
+      "requirement": "RQ-07",
+      "scenario": "Incidencias truncadas",
+      "coverageRef": "requirements.RQ-07"
+    },
+    {
+      "requirement": "RQ-07",
+      "scenario": "Muestra parcial",
+      "coverageRef": "requirements.RQ-07"
+    },
+    {
+      "requirement": "RQ-08",
+      "scenario": "Respuesta antigua",
+      "coverageRef": "requirements.RQ-08"
+    },
+    {
+      "requirement": "RQ-08",
+      "scenario": "Doble activación",
+      "coverageRef": "requirements.RQ-08"
+    },
+    {
+      "requirement": "RQ-08",
+      "scenario": "Cierre durante actividad",
+      "coverageRef": "requirements.RQ-08"
+    },
+    {
+      "requirement": "RQ-09",
+      "scenario": "Reemplazo consentido",
+      "coverageRef": "requirements.RQ-09"
+    },
+    {
+      "requirement": "RQ-09",
+      "scenario": "Reemplazo no consentido",
+      "coverageRef": "requirements.RQ-09"
+    },
+    {
+      "requirement": "RQ-09",
+      "scenario": "Resultado durable",
+      "coverageRef": "requirements.RQ-09"
+    },
+    {
+      "requirement": "RQ-10",
+      "scenario": "Acuse perdido",
+      "coverageRef": "requirements.RQ-10"
+    },
+    {
+      "requirement": "RQ-10",
+      "scenario": "Recarga o cambio de contexto",
+      "coverageRef": "requirements.RQ-10"
+    },
+    {
+      "requirement": "RQ-10",
+      "scenario": "Almacenamiento no disponible",
+      "coverageRef": "requirements.RQ-10"
+    },
+    {
+      "requirement": "RQ-11",
+      "scenario": "Recorrido de teclado",
+      "coverageRef": "requirements.RQ-11"
+    },
+    {
+      "requirement": "RQ-11",
+      "scenario": "Área reducida o zoom",
+      "coverageRef": "requirements.RQ-11"
+    },
+    {
+      "requirement": "RQ-11",
+      "scenario": "Estados anunciados",
+      "coverageRef": "requirements.RQ-11"
+    },
+    {
+      "requirement": "RQ-12",
+      "scenario": "Dato con marcado",
+      "coverageRef": "requirements.RQ-12"
+    },
+    {
+      "requirement": "RQ-12",
+      "scenario": "Error inesperado",
+      "coverageRef": "requirements.RQ-12"
+    },
+    {
+      "requirement": "RQ-12",
+      "scenario": "Información para decidir",
+      "coverageRef": "requirements.RQ-12"
+    },
+    {
+      "requirement": "RQ-13",
+      "scenario": "Instalación compatible",
+      "coverageRef": "requirements.RQ-13"
+    },
+    {
+      "requirement": "RQ-13",
+      "scenario": "Adecuación identificada",
+      "coverageRef": "requirements.RQ-13"
+    },
+    {
+      "requirement": "RQ-13",
+      "scenario": "Prueba sin instalación",
+      "coverageRef": "requirements.RQ-13"
+    },
+    {
+      "requirement": "RQ-14",
+      "scenario": "Lectura y permiso exclusivo",
+      "coverageRef": "requirements.RQ-14"
+    },
+    {
+      "requirement": "RQ-14",
+      "scenario": "Escritura de interfaz autorizada",
+      "coverageRef": "requirements.RQ-14"
+    },
+    {
+      "requirement": "RQ-14",
+      "scenario": "Scope ajeno o incompleto",
+      "coverageRef": "requirements.RQ-14"
+    },
+    {
+      "requirement": "RQ-14",
+      "scenario": "Cuenta existente para agregar y reemplazar",
+      "coverageRef": "requirements.RQ-14"
+    },
+    {
+      "requirement": "RQ-15",
+      "scenario": "Compatibilidad de la entrega",
+      "coverageRef": "requirements.RQ-15"
+    },
+    {
+      "requirement": "RQ-15",
+      "scenario": "Evidencia diferenciada",
+      "coverageRef": "requirements.RQ-15"
+    },
+    {
+      "requirement": "RQ-15",
+      "scenario": "Reversión de entrega",
+      "coverageRef": "requirements.RQ-15"
+    },
+    {
+      "requirement": "RQ-16",
+      "scenario": "Generación de campos y selección de clave",
+      "coverageRef": "requirements.RQ-16"
+    },
+    {
+      "requirement": "RQ-16",
+      "scenario": "Archivo incompatible o ambiguo",
+      "coverageRef": "requirements.RQ-16"
+    },
+    {
+      "requirement": "RQ-16",
+      "scenario": "Continuación explícita con el mismo archivo",
+      "coverageRef": "requirements.RQ-16"
+    },
+    {
+      "requirement": "RQ-16",
+      "scenario": "Cambio de intención y compatibilidad",
+      "coverageRef": "requirements.RQ-16"
+    },
+    {
+      "requirement": "RQ-16",
+      "scenario": "Nombre de destino sugerido y corrección de campos requeridos",
+      "coverageRef": "requirements.RQ-16"
+    },
+    {
+      "requirement": "RQ-17",
+      "scenario": "Opciones nuevas compatibles con la instalación",
+      "coverageRef": "requirements.RQ-17"
+    },
+    {
+      "requirement": "RQ-17",
+      "scenario": "Configuración rechazada antes de modificar",
+      "coverageRef": "requirements.RQ-17"
+    },
+    {
+      "requirement": "RQ-17",
+      "scenario": "Causa y corrección accesibles",
+      "coverageRef": "requirements.RQ-17"
+    },
+    {
+      "requirement": "RQ-17",
+      "scenario": "Respuesta sin causa acreditada",
+      "coverageRef": "requirements.RQ-17"
+    },
+    {
+      "requirement": "RQ-18",
+      "scenario": "Siguiente acción y pasos acreditados",
+      "coverageRef": "requirements.RQ-18"
+    },
+    {
+      "requirement": "RQ-18",
+      "scenario": "Incidencia o resultado desconocido",
+      "coverageRef": "requirements.RQ-18"
+    },
+    {
+      "requirement": "RQ-18",
+      "scenario": "Cambio de operación en la misma plantilla",
+      "coverageRef": "requirements.RQ-18"
+    },
+    {
+      "requirement": "RQ-18",
+      "scenario": "Nueva importación después de crear tabla",
+      "coverageRef": "requirements.RQ-18"
+    }
+  ],
+  "acceptanceEvidence": [
+    "doc126-e2e-funcional-real-20261124.md",
+    "doc126-e2e-rollback-concurrencia-20261124.md",
+    "doc126-e2e-asistente-real-20261125.md",
+    "doc126-e2e-permisos-real-20261125.md",
+    "doc126-correccion-foco-20261125.md"
+  ],
+  "manualQa": {
+    "source": "Doc/Actualizacion/Importacion/Validacion/doc126-validacion-manual-asistente-20261124.md",
+    "previousUserConfirmationPreserved": true,
+    "repeatedManualRunClaimed": false,
+    "focusV6VerifiedBy": "48 local browser/client checks and real read E2E with194/196"
+  },
+  "verification": {
+    "currentLocalTests": 93,
+    "currentAdapterTests": 44,
+    "currentBrowserAndClientTests": 49,
+    "nativeChecksFromPriorCut": 4607,
+    "priorIsolatedBuild": {
+      "errors": 0,
+      "warnings": 308,
+      "newBuildClaimed": false
+    },
+    "strictValidation": {
+      "items": 97,
+      "passed": 97,
+      "failed": 0,
+      "status": "PASS"
+    },
+    "governance": "REVALIDATE_ON_COMMITTED_HEAD_WITH_LOCAL_REVIEW_AND_MANUAL_QA_RECORDS",
+    "refinement": {
+      "status": "PASS",
+      "checks": 15
+    },
+    "governancePrecommit": {
+      "status": "PASS",
+      "checks": 62,
+      "reviewedBy": "Codex",
+      "sha": "a2d6f19237d8eeaa7e1c6e1e1d300ea96fbee653",
+      "committedHeadRevalidationRequired": true
+    }
+  },
+  "limitations": [
+    "Positive imports/rollback have their earlier v5 scopes/hashes; v6 read does not claim new write execution.",
+    "Final v7 only keeps Cerrar enabled during initial sync;49 local browser/client tests and HTTP hash verify it. No additional real read after v6 is claimed.",
+    "No new20000-row volume or per-row performance measurement.",
+    "Lost-ack/viewport/zoom cases retain local synthetic-transport evidence; not a physical network/COMMIT cut.",
+    "SQL permission adaptation is separate administrative authorization; no permission or installation writes inside E2E."
+  ],
+  "sources": [
+    {
+      "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/proposal.md",
+      "sha256Utf8Lf": "4165298d794332daeba793063885b6e3dd28c6bdc93e278a631e64f5fd9c101f"
+    },
+    {
+      "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/design.md",
+      "sha256Utf8Lf": "01602c9a149f5d0e20b12ce8ce9e5c85ff9de1e3d245e8579860f6a49281f276"
+    },
+    {
+      "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/tasks.md",
+      "sha256Utf8Lf": "147906d3084cb9ca864ff30304a09a20d89fa3ddddaf868613f252c6e972a558"
+    },
+    {
+      "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/specs/importacion-excel-06-interfaz-menu/spec.md",
+      "sha256Utf8Lf": "7df302a9c0916394cf1d2b9fdc1a4a33a78b76104cb5f0cea49675c1b3c93bf7"
+    },
+    {
+      "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/opsxj-governance.json",
+      "sha256Utf8Lf": "83cfeec8814cff2e6c3b3645a3b507bab8f4c9825ac9cd5b21f31a90b4520367"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+      "sha256Utf8Lf": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "sha256Utf8Lf": "d7ad94d6eb39eeabb6ebabbfe33ff4d86bb64498cc3e9da7013b38c2cfb7d501"
+    },
+    {
+      "path": "Styles/ImportacionExcel.css",
+      "sha256Utf8Lf": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee"
+    },
+    {
+      "path": "tests/doc126-importacion-excel-client.test.cjs",
+      "sha256Utf8Lf": "d996e59f1060b9ae7cded4a5d243ba3df0db9cafcc4fd795a0bb106ecab37f84"
+    },
+    {
+      "path": "tests/doc126-importacion-excel-ui.test.cjs",
+      "sha256Utf8Lf": "2d3a95d85c44c4dd5f14f5b03d2002055276430e9f0b17239cbb625255fd0c4a"
+    },
+    {
+      "path": "tests/ImportacionExcelBehaviorTests.cs",
+      "sha256Utf8Lf": "cab0377b60a3b138c2b3108699aafddaac8510dc3d10d064ab012917bf44924e"
+    },
+    {
+      "path": "tests/ImportacionExcelLecturaTests.cs",
+      "sha256Utf8Lf": "8c4b1cda257f6cc145221d5615d86e6112aa5b9ec3135ddc7d242d3e4c21241d"
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "2975674e11c9790e1a59d2d2341b7a4673b8bf2c5de22e1f2183e2b875da10f9"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+      "sha256Utf8Lf": "f4597c54f60cdc126e538a1e1e157be553d5a7fc6f3b4da46f1b9652ab301ef8"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256Utf8Lf": "5849451d0fbcad89d8882b9a8b34d86f608a06209a989065f10de30af7d8624c"
+    },
+    {
+      "path": "tests/doc126-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "93c813cd64654171284eaabab672da48deb01b639af816c7323448c0b502134e"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc110-admin-navigation.cjs",
+      "sha256Utf8Lf": "3904074e69a7346991f08d2cd976a3b419ae6e2e1820b9cddaff8388f426307c"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Utf8Lf": "6c0a87e4651150ea93e389686192f5016fa95b8856e4bfd31f2854c53a76fe57"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc126-validacion-manual-asistente-20261124.md",
+      "sha256Utf8Lf": "d13ee8cfbc434d392f7e3b25162314ee25b84b9c6ae3faba6d9215e370659455"
+    },
+    {
+      "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/refinement.md",
+      "sha256Utf8Lf": "b35b2a5eaee867bc38a5da4f8c63cf120ef21476732f2f6f94546744fb21fb3d"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Sql/26-cuentas-prueba-ra-doc126.sql",
+      "sha256Utf8Lf": "d77ee1e9ce33bc5aaebed2f1fb6b1802378877b546e89c341e8fcc9eadcd1d24"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Sql/27-permiso-cuenta-prueba-ra-doc126.sql",
+      "sha256Utf8Lf": "09d18d9a3ede530970ac1632fc2d9d0d978ad63c7b4f0798854d95b53dfbfba5"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc126-e2e-permisos-real-20261125.md",
+      "sha256Utf8Lf": "e3e28f9f158a45d09545e0d6d09e97100aeee625bd861f4e2dc687f6604f2419"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc126-e2e-permisos-real-20261125.json",
+      "sha256Utf8Lf": "a351b2de2d16ff1f6c03b78dff64bbfdcc201d612990d7cba82998671b736645"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc126-correccion-foco-20261125.md",
+      "sha256Utf8Lf": "6692f1b5e8417213c6a3fa1d856f4b8d9b7c8745c24192be8078b87a679d34b8"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc126-correccion-foco-20261125.json",
+      "sha256Utf8Lf": "3ca35638a1fcfd71c7d118f5ccf5284d4e34330fb04779432f62c36d22f741f0"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc126-aplicacion-permiso-prueba-20261125.md",
+      "sha256Utf8Lf": "dcfe81d4d4eb541e1ae61effadadb5cbd05d649b9ca4f4adda6b7c9dcb6085b1"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc126-aplicacion-permiso-prueba-20261125.json",
+      "sha256Utf8Lf": "f663767ad6583ff0500b4df07d0d9d054c2a508eac1ad9ba9b7dead0cce8fdfa"
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-126-importacion-excel-06-interfaz-menu/01-ResumenTecnico.md",
+      "sha256Utf8Lf": "9d20f538d0fdd35d4ec44a7cace5cc50747a9163fa6a26b6cb59247d1b00b516"
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-126-importacion-excel-06-interfaz-menu/02-ImpactoUI.md",
+      "sha256Utf8Lf": "9f2fe79c74a691bdf79237a6a3558aefccd25147844fae8db8188ed408415110"
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-126-importacion-excel-06-interfaz-menu/03-FlujoWebForms.md",
+      "sha256Utf8Lf": "fd690fcfd0bf02352128d61419cc6aa3b3b87b39775eb60a10dd5855a3a2a73f"
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-126-importacion-excel-06-interfaz-menu/05-PruebasEvidencia.md",
+      "sha256Utf8Lf": "a5eba8dab66b41696f18d9029518ebf335200de803165c227b8f5840f78e9afb"
+    }
+  ]
+}

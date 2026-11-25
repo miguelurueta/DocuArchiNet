@@ -3,7 +3,7 @@
 - Ticket: DOC-126
 - Cambio OpenSpec: doc-126-importacion-excel-06-interfaz-menu
 - Clasificacion: webforms_ui (WebForms UI)
-- Estado:60/62; tres modos, asistente y rollback/concurrencia reales aprobados; permiso exclusivo y gobierno pendientes.
+- Estado:62/62; implementación y aceptación verificadas; gobierno por SHA previo a integración.
 
 ## Superficies UI
 
@@ -40,3 +40,15 @@ E2E Playwright real PASS: un test, dos casos. Agregar1000:1→1001 filas; reempl
 ## Asistente y tres modos reales — 2026-11-25
 
 6.10 y8.8 completadas:60/62 tareas. E2E real del asistente PASS: una plantilla nueva/dos campos, CREAR1000 filas y29 tablas protegidas con huellas intactas. Combinada con AGREGAR/REEMPLAZAR anteriores acredita1000 filas por cada modo; rollback/concurrencia ya aprobados. Se conservan permisos, históricos y cuatro resultados previos; sin SQL de instalación, limpieza o cambio productivo.43/43 regresiones de adaptadores PASS. Pendientes6.9 (cuentas exclusiva/restringida) y7.5 (cierre de gobierno). Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-e2e-asistente-real-20261125.md`.
+
+## Lectura exclusiva/restringida real aprobada — 2026-11-25
+
+6.9 completada:61/62 tareas. Cuenta194 con sólo cargas abre/busca/consulta y cierra con Escape;196 sin cargas no tiene menú y recibe ACCESO_DENEGADO.30 huellas protegidas y configuración intactas; cero mutaciones funcionales. SELECT posterior conserva78 perfiles y cinco cargas previas.92/92 pruebas locales PASS; foco corregido en assets v6, sin cambiar DLL/Web.config. La concesión administrativa previa SQL27 se mantiene separada. Pendiente revisión final7.5. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-e2e-permisos-real-20261125.md`.
+
+## Revisión técnica final — 2026-11-25
+
+62/62 tareas completadas.18 decisiones/18 requisitos/59 escenarios revisados, con evidencia real y local diferenciada por alcance y hashes.6.9 acreditada después de corregir foco v6; no quedan hallazgos críticos o advertencias abiertas de implementación. Validación manual del usuario conservada, sin repetirla ni atribuirle una revisión humana global.93/93 pruebas locales actuales; build/checks nativos y positivos anteriores mantienen sus cortes originales. El gobierno se valida de nuevo por SHA sobre el commit publicado antes de integrar/archivar. Informe: `Doc/Actualizacion/Importacion/Validacion/doc126-verificacion-final-20261125.md`.
+
+## Estado final de entrega — 2026-11-25
+
+**62/62 tareas.** Gobierno legacy62/62, OpenSpec97/97 y refinamiento15/15 PASS antes del commit, con revalidación del SHA publicado al finalizar. La lectura real aprobada corresponde a assets v6:30 tablas,78 perfiles y cinco resultados conservados. El ajuste posterior mínimo de Cerrar siempre habilitado se entrega como **doc126-7**, probado localmente (49 UI/cliente;93 pruebas actuales con44 adaptadores), con hash HTTP verificado. No se afirma otra ejecución real v7. DLL/Web.config y datos permanecen conservados; no reaplicar permisos, SQL o cargas. Ver `Doc/Actualizacion/Importacion/Validacion/doc126-verificacion-final-20261125.md`.

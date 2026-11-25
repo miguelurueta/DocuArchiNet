@@ -23,7 +23,7 @@ async function fixture(work,options={}){
    assert.equal(request.headers()['x-importacion-excel-contexto'],'d'.repeat(32));
    if(operation!=='AbrirCargaExcel')assert.equal(request.headers()['x-importacion-excel-csrf'],'synthetic-ui-token');
    let data,ok=true,code='OK',validation=[],totalValidation=0;
-   if(operation==='AbrirCargaExcel')data={CsrfToken:'synthetic-ui-token',Conexiones:[{ConexionId:6,Nombre:'Fixture autorizada'}],PermiteNuevaCarga:!options.closedCapacity,MaxFilasDatos:20000,MaxArchivoMB:10};
+   if(operation==='AbrirCargaExcel'){if(options.openGate)await options.openGate;data={CsrfToken:'synthetic-ui-token',Conexiones:[{ConexionId:6,Nombre:'Fixture autorizada'}],PermiteNuevaCarga:!options.closedCapacity,MaxFilasDatos:20000,MaxArchivoMB:10};}
    else if(operation==='ListarPlantillas')data={Total:1,Pagina:1,TamanoPagina:25,Plantillas:[{PlantillaId:29,Nombre:template.NOMBRE_PLANTILLA,Activa:true}]};
    else if(operation==='ConsultarPlantilla'){
     if(options.detailGate)await options.detailGate;
@@ -312,3 +312,34 @@ test('DOC126 archivo incompatible o sobre límite se rechaza antes de iniciar re
   assert.equal(await page.locator('[data-doc126=confirmar]').isDisabled(),true);
  }
 }));
+
+test('DOC126 búsqueda y selección conservan foco para cerrar con Escape',()=>fixture(async(page,calls)=>{
+ await open(page);
+ await page.locator('[data-doc126=buscar-plantillas]').click();
+ await page.waitForFunction(()=>document.querySelector('[role=dialog]').getAttribute('aria-busy')==='false');
+ assert.equal(await page.locator('[data-doc126=buscar-plantillas]').evaluate(e=>e===document.activeElement),true);
+ await page.locator('[data-doc126=plantilla]').focus();
+ await page.locator('[data-doc126=plantilla]').selectOption('29');
+ await page.locator('[data-doc126=destino]').filter({hasText:'imp_02_fixture'}).waitFor();
+ await page.waitForFunction(()=>document.querySelector('[role=dialog]').getAttribute('aria-busy')==='false');
+ assert.equal(await page.locator('[data-doc126=plantilla]').evaluate(e=>e===document.activeElement),true);
+ await page.keyboard.press('Escape');
+ assert.equal(await page.locator('[role=dialog]').isVisible(),false);
+ assert.equal(calls.some(c=>['IniciarRecepcionExcel','Upload','Preparar','Confirmar','GuardarPlantilla'].includes(c.operation)),false);
+}));
+
+test('DOC126 Cerrar conserva foco y Escape funciona mientras la apertura está pendiente',async()=>{
+ let release;const gate=new Promise(resolve=>release=resolve);
+ await fixture(async(page,calls)=>{
+  const opened=page.waitForResponse(r=>r.url().endsWith('/AbrirCargaExcel')&&r.request().method()==='POST');
+  try{
+   await page.locator('[data-doc126=abrir]').click();
+   await page.waitForFunction(()=>document.querySelector('[role=dialog]').getAttribute('aria-busy')==='true');
+   assert.equal(await page.locator('[data-doc126=cerrar]').isEnabled(),true);
+   assert.equal(await page.locator('[data-doc126=cerrar]').evaluate(e=>e===document.activeElement),true);
+   await page.keyboard.press('Escape');
+   assert.equal(await page.locator('[role=dialog]').isVisible(),false);
+  }finally{release();await opened;}
+  assert.equal(calls.some(c=>['IniciarRecepcionExcel','Upload','Preparar','Confirmar','GuardarPlantilla'].includes(c.operation)),false);
+ },{openGate:gate});
+});

@@ -12,7 +12,7 @@ function validateScope(s,baseUrl,mode){
     (existingAccount?(s.exclusiveAccountRequired!==false||s.accountPolicy!=='EXISTING_AUTHORIZED'||s.restrictedUsuarioId!==null||!s.expectedImportPermissions||Object.keys(s.expectedImportPermissions).length!==5||!permissionKeys.every(k=>[0,1].includes(s.expectedImportPermissions[k]))||s.expectedImportPermissions.cargas!==1):(s.exclusiveAccountRequired!==true||!uint(s.restrictedUsuarioId)||s.usuarioId===s.restrictedUsuarioId))||
     !/^DOC126_DA_E2E$/.test(s.controlPrefix||'')||s.raControlPrefix!=='DOC126_RA_E2E'||!hash(s.environmentHash)||!hash(s.raEnvironmentHash)||!hash(s.backendSha256)||!path.isAbsolute(s.runtimeRoot||'')||
     !s.assets||Object.keys(s.assets).length!==3||!assetPaths.every(p=>hash(s.assets[p]))||!Array.isArray(s.protectedTables)||!['imp_02_contratos','imp_02_egresos','imp_02_creditos'].every(t=>s.protectedTables.includes(t))||
-    s.protectedTables.some(t=>!/^imp_02_[A-Za-z0-9_]{1,57}$/.test(t)||(mode!=='assistant'&&t.startsWith('imp_02_doc126_e2e_'))||(mode==='assistant'&&s.assistant&&t===s.assistant.tabla)))throw Error('DOC126_SCOPE_INVALID');
+    s.protectedTables.some(t=>!/^imp_02_[A-Za-z0-9_]{1,57}$/.test(t)||(!['assistant','read'].includes(mode)&&t.startsWith('imp_02_doc126_e2e_'))||(mode==='assistant'&&s.assistant&&t===s.assistant.tabla)))throw Error('DOC126_SCOPE_INVALID');
  if(functional){
   const effects=['INSERT','DELETE','RESULTADO'];
   if(s.destinationReadOnly!==false||s.maxBusinessRows!==2000||s.maxDeletedRows!==2||!Array.isArray(s.allowedEffects)||s.allowedEffects.length!==3||!effects.every(e=>s.allowedEffects.includes(e))||!Array.isArray(s.cases)||s.cases.length!==2)throw Error('DOC126_SCOPE_INVALID');
