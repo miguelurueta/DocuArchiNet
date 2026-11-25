@@ -26,7 +26,7 @@ async function session(browser,restricted=false,prefix='DOC122'){
   userEnvironmentVariable:prefix+(restricted?'_E2E_RESTRICTED_USER':'_E2E_USER'),
   passwordEnvironmentVariable:prefix+(restricted?'_E2E_RESTRICTED_PASSWORD':'_E2E_PASSWORD'),
   ignoreHTTPSErrors:process.env.DOC10_E2E_IGNORE_HTTPS_ERRORS==='true',
-  ...(['DOC125','DOC126'].includes(prefix)?{
+  ...(['DOC125','DOC126','DOC127'].includes(prefix)?{
    onPostbackCompleted:async(_page,response)=>{const code=await loginCodes.classifyLoginPostbackResponse(response);if(code)loginIssue=code;},
    onDialogCompleted:async(_page,message)=>{const code=loginCodes.classifyLoginMessage(message);if(code)loginIssue=code;}
   }:{})
@@ -58,6 +58,75 @@ async function detail(auth,s){
  check(r.ok && r.datos,'DOC122_DETAIL_FAILED');return r.datos;
 }
 function edit(s,p){return {ConexionId:s.conexionId,RevisionEsperada:p.REVISION_CARGA,HuellaEsperada:p.Huella,Plantilla:JSON.parse(JSON.stringify(p))};}
+
+test.describe('DOC127 capacidad mediante los servicios y controles existentes',()=>{
+ test.skip(process.env.DOC127_CAPACITY_E2E_AUTHORIZED!=='YES','NO_EJECUTADO: ventana DOC127 autorizada, instalacion comprobada y scope de una celda requeridos.');
+ test('@doc127-capacity una combinacion de formato, filas y modo sin repetir efectos',async({browser})=>{
+  const path=require('node:path'),crypto=require('node:crypto'),support=require('./support/doc125-excel-scope.cjs');
+  const file=required('DOC127_E2E_SCOPE_PATH'),s=support.validateCapacityScope(JSON.parse(fs.readFileSync(file,'utf8').replace(/^\uFEFF/,'')),required('DOC127_E2E_BASE_URL')),c=s.cases[0];
+  const claim=support.beginCapacityExecution(s,file);support.verifyCapacityRuntime(s);const bytes=support.readFixture(c),paths=support.capacityPaths(s);
+  test.setTimeout(s.window.timeoutMs);const started=Date.now(),result={status:'RUNNING',windowId:s.window.id,scopeSha256:claim.scopeSha256,formato:c.formato,modo:c.modo,filas:c.filasEsperadas,bytes:bytes.length,archivoHash:c.archivoHash,timingsMs:{},idCarga:null,sqlControls:0,httpRequests:0,real:true};
+  const persist=()=>fs.writeFileSync(paths.claim+'.result.json',JSON.stringify(result,null,2));
+  const phase=value=>{const temporary=paths.state+'.writing';fs.writeFileSync(temporary,JSON.stringify({phase:value}));fs.renameSync(temporary,paths.state);};
+  const active=()=>{support.assertCapacityWindow(s);check(Date.now()-started<s.window.timeoutMs,'DOC127_BUDGET_EXHAUSTED');check(support.capacityScopeHash(file)===result.scopeSha256,'DOC127_SCOPE_CHANGED');};
+  const control=()=>{active();check(++result.sqlControls<=s.window.maxSelectStatements,'DOC127_SELECT_BUDGET');};
+  const http=()=>{active();check(++result.httpRequests<=s.window.maxHttpRequests,'DOC127_HTTP_BUDGET');};
+  const {queryRows,queryFingerprint}=require('../scripts/support/doc32-e2e-odbc.cjs');
+  const environment={...process.env,[s.controlPrefix+'_EXPECTED_TARGET_HASH']:s.environmentHash,[s.raControlPrefix+'_EXPECTED_TARGET_HASH']:s.raEnvironmentHash};
+  const select=(sql,args=[])=>{control();return queryRows(sql,args,environment,s.controlPrefix);};
+  const ra=(sql,args=[])=>{control();return queryRows(sql,args,environment,s.raControlPrefix);};
+  const fingerprint=(sql,v)=>{control();return queryFingerprint(sql,v,environment,s.controlPrefix);};
+  const raFingerprint=(sql,v)=>{control();return queryFingerprint(sql,v,environment,s.raControlPrefix);};
+  const count=async()=>Number((await select('SELECT COUNT(*) AS total FROM `'+c.tabla+'`'))[0].total);
+  const request=async(auth,method,payload)=>{http();return call(auth,method,payload,auth.token);};
+  const configSql='SELECT * FROM imp01_plantillaimp WHERE ?=1 ORDER BY ID_PLANTILLAIMP',fieldsSql='SELECT * FROM imp01_campos_plantilla WHERE ?=1 ORDER BY ID_CAMPOS_PLANTILLA';
+  let profilesSql;
+  let a;
+  try{
+   // Verificar cuentas y destino antes del primer login, mediante recursos DOC32.
+   const accounts=await ra('SELECT u.id_Remit_Dest_Int AS id,u.Login_Usuario AS login_ref,u.Estado_Usuario AS activo,p.ADMINISTRAR_CARGAS_IMPORTACION AS cargas,p.IMPORTAR_CARPETAS AS carpetas,p.ADMINISTRAR_PERFILES_IMPORTACION AS perfiles,p.ADMINISTRAR_FUENTES_IMPORTACION AS fuentes,p.ADMINISTRAR_PROVEEDORES_IMPORTACION AS proveedores FROM remit_dest_interno u JOIN remit_dest_interno_perfil_produccion p ON p.remit_dest_interno_idremit_dest_interno=u.id_Remit_Dest_Int WHERE u.Empresa_Gestion_Documental_id_empresa=? AND u.id_Remit_Dest_Int=?',[s.empresaId,s.usuarioId]);
+   require('./support/doc126-excel-scope.cjs').verifyAccounts({...s,mode:'functional',exclusiveAccountRequired:false,restrictedUsuarioId:null},accounts,required('DOC127_E2E_USER'),null);
+   const prior=await select('SELECT COUNT(*) AS total FROM imp01_carga_ejecucion WHERE ambito_ref=? AND usuario_ref=? AND archivo_hash=UNHEX(?)',[String(s.empresaId),String(s.usuarioId),c.archivoHash]);
+   check(Number(prior[0].total)===0,'DOC127_FILE_ALREADY_USED');
+   const before=await support.snapshotDestination(select,fingerprint,c.tabla,c.modo!=='CREAR');
+   check(before===c.huellaDestino&&(c.modo==='CREAR'||await count()===c.filasDestinoEsperadas),'DOC127_DESTINATION_CHANGED');
+   const protectedBefore={};for(const t of s.protectedTables)protectedBefore[t]=await support.snapshotDestination(select,fingerprint,t,true);
+   const profileColumns=await ra("SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='remit_dest_interno_perfil_produccion' ORDER BY ORDINAL_POSITION");
+   check(profileColumns.length&&profileColumns.every(x=>/^[\p{L}_][\p{L}\p{M}\p{N}_]{0,63}$/u.test(x.COLUMN_NAME)),'DOC127_PROFILE_COLUMNS_INVALID');
+   profilesSql='SELECT p.* FROM remit_dest_interno_perfil_produccion p JOIN remit_dest_interno u ON p.remit_dest_interno_idremit_dest_interno=u.id_Remit_Dest_Int WHERE u.Empresa_Gestion_Documental_id_empresa=? ORDER BY '+profileColumns.map(x=>'BINARY p.`'+x.COLUMN_NAME+'`').join(',');
+   const configBefore=await fingerprint(configSql,1),fieldsBefore=await fingerprint(fieldsSql,1),profilesBefore=await raFingerprint(profilesSql,s.empresaId);
+   phase('AUTH');active();a=await session(browser,false,'DOC127');http();await open(a,c);http();const p=await detail(a,c);
+   check(p.REVISION_CARGA===c.revisionEsperada&&p.Huella===c.huellaEsperada&&p.NOMBRE_PLANTILLA===c.tabla&&p.Formato===c.formato,'DOC127_TEMPLATE_CHANGED');
+   const reception=await request(a,'IniciarRecepcionExcel',{ConexionId:c.conexionId,PlantillaId:c.plantillaId,RevisionEsperada:c.revisionEsperada,HuellaEsperada:c.huellaEsperada});
+   check(reception.ok&&reception.datos?.IdCarga&&reception.datos?.ReferenciaRecepcion,'DOC127_START_FAILED');const i=reception.datos;result.idCarga=i.IdCarga;persist();
+   http();const upload=await safePost(a.context.request,new URL('generic_control/ImportacionExcelUpload.ashx',a.baseUrl).href,{headers:{'X-Importacion-Excel-CSRF':a.token},multipart:{idCarga:i.IdCarga,referenciaRecepcion:i.ReferenciaRecepcion,conexionId:String(c.conexionId),plantillaId:String(c.plantillaId),archivo:{name:path.basename(c.archivoPath),mimeType:'application/octet-stream',buffer:bytes}}},'ExcelUpload');
+   let received;try{received=await upload.json();}catch{throw Error('DOC127_UPLOAD_FAILED');}check(upload.status()===200&&received.ok&&received.datos?.ArchivoHash===c.archivoHash,'DOC127_UPLOAD_FAILED');
+   phase('PREPARE');let tick=performance.now();const prepared=await request(a,'Preparar',{ConexionId:c.conexionId,PlantillaId:c.plantillaId,IdCarga:i.IdCarga,RevisionEsperada:c.revisionEsperada,HuellaEsperada:c.huellaEsperada,Hoja:c.hoja,Modo:c.modo});result.timingsMs.preparar=performance.now()-tick;persist();
+   check(prepared.ok&&prepared.datos?.ValidacionCompleta&&prepared.datos.Carga.Estado==='PREPARADA'&&prepared.datos.FilasObservadas===c.filasEsperadas,'DOC127_PREPARATION_FAILED');const e=prepared.datos.Carga;
+   check(await support.snapshotDestination(select,fingerprint,c.tabla,c.modo!=='CREAR')===before,'DOC127_PREPARATION_MUTATED_DESTINATION');
+   const owner=await select('SELECT ambito_ref,usuario_ref,conexion_ref,tabla_destino,configuracion_doc FROM imp01_carga_ejecucion WHERE id_carga=?',[i.IdCarga]);
+   check(owner.length===1&&String(owner[0].ambito_ref)===String(s.empresaId)&&String(owner[0].usuario_ref)===String(s.usuarioId)&&owner[0].conexion_ref==='DA:'+s.moduloId+':'+c.conexionId&&owner[0].tabla_destino===c.tabla&&crypto.createHash('sha256').update(owner[0].configuracion_doc).digest('hex')===e.ConfiguracionHash,'DOC127_OWNER_OR_CONFIG_CHANGED');
+   const doc=JSON.parse(owner[0].configuracion_doc);check(doc.Limites?.MaxFilasDatos>=c.filasEsperadas&&doc.Limites?.MaxArchivoMB*1000000>=bytes.length,'DOC127_EFFECTIVE_LIMITS_CHANGED');
+   result.effectiveLimits=doc.Limites;support.verifyCapacityRuntime(s);
+   const payload={ConexionId:c.conexionId,IdCarga:i.IdCarga,ArchivoHash:e.ArchivoHash,ConfiguracionHash:e.ConfiguracionHash,EsquemaHash:e.EsquemaHash,ConfirmacionReemplazo:c.modo==='REEMPLAZAR'};
+   result.confirmationState='SENDING';persist();phase('CONFIRM');tick=performance.now();const confirmed=await request(a,'Confirmar',payload);result.timingsMs.confirmar=performance.now()-tick;result.confirmationState=confirmed.ok?'ACKNOWLEDGED':'REJECTED';persist();
+   check(confirmed.ok&&confirmed.datos?.Estado==='CONFIRMADA'&&confirmed.datos.FilasConfirmadas===c.filasEsperadas,'DOC127_CONFIRM_FAILED_OR_UNCERTAIN');
+   phase('VERIFY');const recovered=await request(a,'ConsultarResultado',{ConexionId:c.conexionId,IdCarga:i.IdCarga});
+   check(recovered.ok&&recovered.datos?.Estado==='CONFIRMADA'&&recovered.datos.FilasConfirmadas===c.filasEsperadas,'DOC127_RESULT_FAILED');
+   const persisted=await select('SELECT estado,filas_confirmadas FROM imp01_carga_ejecucion WHERE id_carga=? AND ambito_ref=? AND usuario_ref=? AND conexion_ref=?',[i.IdCarga,String(s.empresaId),String(s.usuarioId),'DA:'+s.moduloId+':'+c.conexionId]);
+   check(persisted.length===1&&persisted[0].estado==='CONFIRMADA'&&Number(persisted[0].filas_confirmadas)===c.filasEsperadas&&await count()===(c.modo==='AGREGAR'?c.filasDestinoEsperadas+c.filasEsperadas:c.filasEsperadas),'DOC127_DURABLE_RESULT_FAILED');
+   const after=await support.snapshotDestination(select,fingerprint,c.tabla,true),replay=await request(a,'Confirmar',payload);
+   check(replay.ok&&replay.datos?.FilasConfirmadas===c.filasEsperadas&&await support.snapshotDestination(select,fingerprint,c.tabla,true)===after,'DOC127_REPLAY_CHANGED_DESTINATION');
+   check(await fingerprint(configSql,1)===configBefore&&await fingerprint(fieldsSql,1)===fieldsBefore&&await raFingerprint(profilesSql,s.empresaId)===profilesBefore,'DOC127_CONFIGURATION_CHANGED');
+   for(const t of s.protectedTables)check(await support.snapshotDestination(select,fingerprint,t,true)===protectedBefore[t],'DOC127_PROTECTED_DESTINATION_CHANGED');
+   const physical=(await select('SELECT @@hostname AS servidor,@@port AS puerto,DATABASE() AS base_ref,@@lower_case_table_names AS minusculas'))[0];
+   const locks=support.lockNames({...physical,fisica:doc.IdentidadFisica},c.tabla,i.IdCarga,'DOC-127'),free=(await select('SELECT IS_FREE_LOCK(?) AS carga_libre,IS_FREE_LOCK(?) AS destino_libre',[locks.id,locks.destination]))[0];
+   check(Number(free.carga_libre)===1&&Number(free.destino_libre)===1,'DOC127_LOCK_NOT_RELEASED');result.status='REAL_PASS';result.destinationHash=after;result.finishedUtc=new Date().toISOString();persist();
+   console.log('DOC127_CAPACITY_PASS '+c.formato+' '+c.modo+' filas='+c.filasEsperadas+'; timings are HTTP elapsed, shared IIS sampling is separate; no installation or cleanup');
+  }catch(error){result.status='FAILED_REQUIRES_REVIEW';result.failureCode=/^DOC127_[A-Z_]+$/.test(error.message)?error.message:'DOC127_OPERATION_FAILED';result.finishedUtc=new Date().toISOString();persist();throw Error(result.failureCode);}
+  finally{if(a)await a.context.close();for(const k of Object.keys(environment))if(/PASSWORD$/.test(k))delete environment[k];}
+ });
+});
 
 test.describe('DOC126 interfaz Excel con servicios y controles existentes',()=>{
  test.skip(process.env.DOC126_E2E_AUTHORIZED!=='YES','NO_EJECUTADO: autorización, instalación y scope DOC126 propios requeridos. No heredar ventanas anteriores.');

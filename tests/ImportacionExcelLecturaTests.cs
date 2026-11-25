@@ -71,6 +71,27 @@ public static class ImportacionExcelLecturaTests {
   }
  }
  static ResultadoLecturaExcel ReadBytes(byte[] book,SolicitudLecturaExcel s){using(var m=new MemoryStream(book)){m.Position=3;var r=new ServicioLecturaExcel().Leer(m,s);Check(m.CanRead&&m.Position==3,"memory stream ownership on success/failure");return r;}}
+ // Documento ZIP completo: el relleno es un part XML, nunca bytes tras el EOCD.
+ static byte[] BookAtSize(int size){
+  var original=Book(new[]{new object[]{"K","ok"}});var padding=0;
+  for(int attempt=0;attempt<6;attempt++){
+   byte[] bytes;
+   using(var input=new MemoryStream(original))using(var source=new ZipArchive(input,ZipArchiveMode.Read))using(var output=new MemoryStream()){
+    using(var zip=new ZipArchive(output,ZipArchiveMode.Create,true)){
+     foreach(var entry in source.Entries)using(var from=entry.Open())using(var to=zip.CreateEntry(entry.FullName).Open())from.CopyTo(to);
+     using(var to=zip.CreateEntry("doc127-capacity.xml",CompressionLevel.NoCompression).Open()){
+      var open=Encoding.UTF8.GetBytes("<capacity>");to.Write(open,0,open.Length);
+      var spaces=Enumerable.Repeat((byte)' ',8192).ToArray();for(int left=padding;left>0;left-=Math.Min(left,spaces.Length))to.Write(spaces,0,Math.Min(left,spaces.Length));
+      var close=Encoding.UTF8.GetBytes("</capacity>");to.Write(close,0,close.Length);
+     }
+    }
+    bytes=output.ToArray();
+   }
+   if(bytes.Length==size)return bytes;
+   padding+=size-bytes.Length;if(padding<0)throw new Exception("DOC127 invalid exact-size fixture");
+  }
+  throw new Exception("DOC127 exact-size fixture did not converge");
+ }
  static ResultadoLecturaExcel Scalar(object value,ColumnaDestinoExcel col,Action<CampoPlantillaExcel> configure=null){var s=Request("xlsx");var c=Map(s,"Valor",col);if(configure!=null)configure(c);return ReadBytes(Book(new[]{new object[]{"K",value}}),s);}
  static void Boundaries(){
   foreach(var ext in new[]{"xls","xlsx"}){
@@ -81,6 +102,13 @@ public static class ImportacionExcelLecturaTests {
    s=Request(ext);s.Limites.MaxFilasDatos=0;Has(Read("valido."+ext,s),"CONFIGURACION_INVALIDA");s.Limites.MaxFilasDatos=1;s.Limites.MaxArchivoMB=int.MaxValue;Has(Read("valido."+ext,s),"CONFIGURACION_INVALIDA");
   }
   var data=Book(new[]{new object[]{"K","ok"}});Array.Resize(ref data,1000000);var req=Request("xlsx");req.Limites.MaxArchivoMB=1;Check(ReadBytes(data,req).Valido,"exact decimal MB allowed");Array.Resize(ref data,1000001);Has(ReadBytes(data,req),"LIMITE_ARCHIVO_EXCEDIDO");
+  var exact=BookAtSize(10000000);var excess=BookAtSize(10000001);
+  foreach(var book in new[]{exact,excess})using(var stream=new MemoryStream(book))using(var zip=new ZipArchive(stream,ZipArchiveMode.Read))using(var xml=zip.GetEntry("doc127-capacity.xml").Open()){
+   var document=new System.Xml.XmlDocument();document.Load(xml);Check(document.DocumentElement.Name=="capacity","10MB fixture retains valid XML/ZIP content");
+  }
+  req=Request("xlsx");var accepted=ReadBytes(exact,req);Check(accepted.Valido&&accepted.LecturaCompleta&&accepted.Filas.Count==1,"exact decimal 10MB full recognized workbook");
+  req.Limites.MaxArchivoMB=11;Check(ReadBytes(excess,req).Valido,"10MB+1 workbook is valid below a larger configured limit");
+  req.Limites.MaxArchivoMB=10;Has(ReadBytes(excess,req),"LIMITE_ARCHIVO_EXCEDIDO");
   foreach(var invalid in new[]{Encoding.UTF8.GetBytes("Código,Valor\nK,not Excel"),new byte[0],new byte[100]}){var r=ReadBytes(invalid,Request("xlsx"));Check(!r.Valido&&!r.LecturaCompleta&&r.Filas.Count==0,"invalid files fail closed");}
   req=Request("xls");Has(ReadBytes(Book(new[]{new object[]{"K","ok"}}),req),"FORMATO_NO_COINCIDE");
   req=Request("xlsx");req.NombreArchivo="file.xls";Has(ReadBytes(Book(new[]{new object[]{"K","ok"}}),req),"FORMATO_NO_COINCIDE");

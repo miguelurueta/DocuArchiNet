@@ -1,5 +1,19 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC127: capacidad preparada, sin ejecución real nueva — 2026-11-25
+
+**19/33 tareas.** Build net461 aislado y regresión local verificados; 18 libros sintéticos pasaron por el lector de producto sin MySQL/HTTP. Se reutilizan runner DOC110, suite Excel, controles SELECT DOC32 y verificación de cuentas/runtime DOC126. Ver `Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.md`.
+
+El modo nuevo del runner es `--excel-capacity`: una combinación de formato, filas y modo por ventana, sin reintentos. Requiere `DOC127_E2E_SCOPE_PATH`, la URL del perfil y autorización específica `DOC127_CAPACITY_E2E_AUTHORIZED=YES`. El perfil se selecciona con `DOC127_E2E_PROFILE_PATH` o el recurso DOC88 existente; su URL debe coincidir exactamente con el scope. La conexión se obtiene del módulo. No activar autorización por haber preparado archivos o por una ventana DOC125/126 anterior.
+
+El scope declara empresa/usuario/módulo, permisos esperados, hashes de DLL/assets/Web.config/configuración local, destino/plantilla/revisión/huella, archivo/formato/filas, huella/conteo previos, tablas protegidas, efectos máximos y presupuesto/fechas de ventana. El runner valida/consume la ventana antes del login y conserva sus marcadores en `.tmp/doc127-windows/`. Un scope consumido, modificado o vencido no se reutiliza. Los controles RA/DA reciben las credenciales efímeras por los recursos existentes; no se guardan en el scope.
+
+La prueba verifica por SELECT la cuenta, el destino y que ese archivo no tenga una ejecución anterior del propietario. Preparar debe conservar el destino; Confirmar se mide por separado y su ID queda guardado antes de enviarse. Ante incertidumbre se detienen nuevas escrituras, se preserva el ID y se prepara una consulta de recuperación autorizada. Los tiempos son HTTP, no DML puro. El monitor toma baseline y muestras cada2s de procesos IIS compartidos; informa huecos/procesos/intervalo y nunca atribuye asignación exclusiva. Una confirmación correcta sin medición suficiente queda incompleta y no se reejecuta automáticamente.
+
+Generación local opcional: `python tests/Fixtures/ProduccionDocumental/ImportacionExcel/generar.py --capacity directorio_privado tag_hexadecimal_de_32_caracteres`. Sus18 archivos no autorizan18 escrituras. Prueba reproducible: `node --test tests/doc127-capacity-fixtures.test.cjs`; guardas/transporte sintético: `node --test tests/doc127-e2e-reuse.test.cjs`.
+
+Conservar las cinco cargas y los fixtures DOC126. SQL28 es preflight SELECT; SQL29 entrega el EXPLAIN para ejecución manual y sigue sin plan aportado. No aplicar/reaplicar SQL desde tests. Faltan referencias compatibles XLS y siguientes CREAR, autorización de recursos/ventanas y aceptación real vigente; no anunciar las pruebas locales ni el smoke del monitor como E2E real.
+
 ## Estado final de entrega — 2026-11-25
 
 **62/62 tareas.** Gobierno legacy62/62, OpenSpec97/97 y refinamiento15/15 PASS antes del commit, con revalidación del SHA publicado al finalizar. La lectura real aprobada corresponde a assets v6:30 tablas,78 perfiles y cinco resultados conservados. El ajuste posterior mínimo de Cerrar siempre habilitado se entrega como **doc126-7**, probado localmente (49 UI/cliente;93 pruebas actuales con44 adaptadores), con hash HTTP verificado. No se afirma otra ejecución real v7. DLL/Web.config y datos permanecen conservados; no reaplicar permisos, SQL o cargas. Ver `Doc/Actualizacion/Importacion/Validacion/doc126-verificacion-final-20261125.md`.

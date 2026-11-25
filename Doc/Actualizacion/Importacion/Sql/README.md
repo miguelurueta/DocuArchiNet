@@ -302,3 +302,22 @@ El usuario solicitó buscar las cuentas y autorizó habilitar sólo cargas en as
 ## Estado final de entrega — 2026-11-25
 
 **62/62 tareas.** Gobierno legacy62/62, OpenSpec97/97 y refinamiento15/15 PASS antes del commit, con revalidación del SHA publicado al finalizar. La lectura real aprobada corresponde a assets v6:30 tablas,78 perfiles y cinco resultados conservados. El ajuste posterior mínimo de Cerrar siempre habilitado se entrega como **doc126-7**, probado localmente (49 UI/cliente;93 pruebas actuales con44 adaptadores), con hash HTTP verificado. No se afirma otra ejecución real v7. DLL/Web.config y datos permanecen conservados; no reaplicar permisos, SQL o cargas. Ver `Doc/Actualizacion/Importacion/Validacion/doc126-verificacion-final-20261125.md`.
+
+## DOC127: aceptación integral y consulta de índices
+
+La instalación existente se conserva. No hay DDL/DML nuevo en esta entrega ni se reaplican archivos 00–27. La [matriz del corte local](../Validacion/doc127-implementacion-local-20261125.md) distingue aplicación histórica, comprobación SELECT actual y aceptación aún sin ejecutar.
+
+| Orden | Archivo | Destino y precondición | Efecto y estado |
+| --- | --- | --- | --- |
+| 1 | [28-preflight-doc127.sql](28-preflight-doc127.sql) | Bloque A en RA y bloque B en DA autorizadas; completar los IDs en copia local. Las referencias publicadas corresponden a empresa 2; otro ambiente requiere revisar sus referencias. | Sólo SELECT de estructura, permisos, política y resultados. ENTREGADO. Los controles equivalentes del corte local no afirman ejecución manual íntegra del archivo. |
+| 2 | [29-explain-proveedor-doc127.sql](29-explain-proveedor-doc127.sql) | DA del proveedor 1/versión 1, conexión DA, referencia 6; confirmar contrato/política mediante 28. | Metadatos SELECT y EXPLAIN manual de la consulta real por CONSECUTIVO/TEXTO. ENTREGADO, PENDIENTE_EJECUCION_MANUAL del EXPLAIN. No cambia EGRESOS. |
+
+El usuario ejecuta **29** manualmente y aporta `key`, `possible_keys`, `type`, `rows` y `Extra`. Preservar la proyección y el alias histórico `BENFICIARIO`; el consumidor los usa así. La clave sintética del archivo permite revisar el plan sin revelar valores de negocio. El plan no sustituye una medición real ni demuestra capacidad de 20.000 filas. El agente no ejecuta EXPLAIN ni modifica índices para obtener un resultado favorable.
+
+Si 28 muestra instalación compatible, omitir su reinstalación. Una diferencia que necesite cambios produce un archivo nuevo con destino, precondiciones, efectos y SELECT de comprobación; queda PENDIENTE_EJECUCION_MANUAL hasta confirmación. No generar ni ejecutar ajustes de permisos, limpieza, DDL o semillas desde el runner. La cuenta DA efectiva sigue procediendo del resolver del módulo, conforme a DOC122; SQL05 es antecedente y no obliga a crear otra conexión en Web.config.
+
+La capacidad DOC127 usa una combinación de formato/tamaño/modo por ventana nueva. Las plantillas 58/59 y sus tablas DOC126 existen en XLSX, con 1.002/1.000 filas en el corte de lectura; no están vacías y no se reutilizan ciegamente. La plantilla 57 conserva intención CREAR sin tabla; el importador la obtiene por su ID real antes de cualquier operación. Los formatos XLS y los siguientes CREAR necesitan referencias y destinos compatibles propios: no cambiar el formato/revisión de las plantillas aceptadas para facilitar una prueba. La preparación concreta y cualquier SQL adicional se entregan fuera de E2E y se verifican antes de la ventana dependiente.
+
+Conservar las cinco cargas anteriores, la plantilla/tabla del asistente y las cuentas. El nuevo runner consume la ventana antes de autenticar y no permite reiniciarla; si se pierde el acuse, conserva el ID y detiene escrituras. La consulta de recuperación necesita su propio alcance de lectura y no repite la importación.
+
+Guía funcional: [Operación de Excel](../Operacion-Excel.md). Los datos, manifiestos, muestras y registros de ventanas permanecen en `.tmp/`, excluidos de Git; sin credenciales o cookies en documentos.

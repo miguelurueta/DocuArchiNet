@@ -236,4 +236,16 @@ No se necesita una migración nueva para refinar. Inventariar aplicación previa
 
 ## Open Questions
 
+### Inventario concreto de la ampliación local DOC127
+
+Se amplían `tools/e2e/scripts/run-doc110-profile-session.cjs`, `tools/e2e/tests/importacion-excel.spec.cjs` y `tools/e2e/tests/support/doc125-excel-scope.cjs` con el modo `--excel-capacity`: una combinación formato/tamaño/modo por ventana, validada y consumida antes de autenticar. El soporte DOC126 sigue verificando runtime y cuentas; DOC32 conserva consultas y huellas. Los scopes DOC125/126 mantienen sus condiciones anteriores.
+
+Nuevo archivo `tools/e2e/scripts/support/doc127-iis-memory.ps1`: generaliza el muestreo Get-Process utilizado en DOC125; baseline, fases e intervalo solicitado de 2 segundos, con totales compartidos de IIS. No consulta base ni instala nada. Un resultado funcional con medición insuficiente conserva su ID y queda incompleto, sin repetir escrituras.
+
+Se amplían `tests/ImportacionExcelLecturaTests.cs` con ZIP/XML válidos de tamaño exacto y `tests/Fixtures/ProduccionDocumental/ImportacionExcel/generar.py` con generación opcional de las 18 combinaciones, conservando los nueve libros anteriores. Nuevo `tests/doc127-e2e-reuse.test.cjs`: guardas y transporte sintético, sin resultados reales persistidos. Estos archivos de pruebas/herramientas no requieren entradas Compile/Content en el vbproj del producto.
+
+Nuevos `tests/doc127-capacity-fixtures.test.cjs` y `tests/support/Doc127CapacityFixtureReader.cs`: compilación mediante el harness DOC122 y validación reproducible de las 18 combinaciones con el lector de producto, sobre archivos locales sintéticos y sin MySQL/HTTP. La regeneración de los nueve libros históricos conserva sus hashes.
+
+Entregables nuevos: `Sql/28-preflight-doc127.sql`, `Sql/29-explain-proveedor-doc127.sql`, `Doc/Actualizacion/Importacion/Operacion-Excel.md` y evidencia local DOC127. Los dos SQL son de inspección; EXPLAIN se ejecuta manualmente. No se altera código de producto, instalación, configuración o runtime de IIS.
+
 No hay decisión de producto sin resolver para iniciar la aceptación local. La autorización de ventanas reales, la elección verificable de recursos y la aplicación/plan SQL son dependencias operativas explícitas de las tareas, no autorizaciones inferidas del refinamiento.
