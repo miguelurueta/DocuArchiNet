@@ -8721,6 +8721,7 @@
     <Compile Include="DTOs\ProduccionDocumental\ImportacionExcel\ImportacionExcelDtos.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionExcel\ServicioPlantillasExcel.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionExcel\ServicioLecturaExcel.vb" />
+    <Compile Include="Services\ProduccionDocumental\ImportacionExcel\ServicioAnalisisPlantillaExcel.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionExcel\ReglasCargaExcel.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionExcel\ServicioRecepcionExcel.vb" />
     <Compile Include="Services\ProduccionDocumental\ImportacionExcel\ServicioPreparacionExcel.vb" />
@@ -8736,6 +8737,10 @@
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionExcel\MySqlPreparacionExcelValidator.vb" />
     <Compile Include="generic_control\ImportacionExcelUpload.ashx.vb" />
     <Content Include="generic_control\ImportacionExcelUpload.ashx" />
+    <Content Include="generic_control\ImportacionExcelAnalisis.ashx" />
+    <Compile Include="generic_control\ImportacionExcelAnalisis.ashx.vb">
+      <DependentUpon>ImportacionExcelAnalisis.ashx</DependentUpon>
+    </Compile>
     <Compile Include="Infrastructure\ProduccionDocumental\ImportacionExcel\LectorArchivoExcel.vb" />
     <Compile Include="Infrastructure\ProduccionDocumental\ImportacionExcel\InspectorFidelidadExcel.vb" />
     <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionExcel\MySqlPlantillaExcelRepository.vb" />
@@ -8851,6 +8856,9 @@
     <Content Include="js\gestion\ImportacionCarpetas\PerfilImportacionApi.js" />
     <Content Include="js\gestion\ImportacionCarpetas\InventarioImportacion.js" />
     <Content Include="js\gestion\ImportacionCarpetas\ImportacionCarpetas.js" />
+    <Content Include="js\gestion\ImportacionExcel\ImportacionExcelApi.js" />
+    <Content Include="js\gestion\ImportacionExcel\ImportacionExcelVista.js" />
+    <Content Include="Styles\ImportacionExcel.css" />
     <Content Include="js\gestion\ImportacionCarpetas\ImportacionCarpetasApi.js" />
     <Content Include="js\gestion\ImportacionCarpetas\PreparacionSegmentadaImportacion.js" />
     <Content Include="js\gestion\ImportacionCarpetas\ImportacionCarpetasVista.js" />

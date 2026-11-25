@@ -1,0 +1,202 @@
+{
+  "status": "DOC126_REAL_UI_RESILIENCE_PASS",
+  "recordedUtc": "2026-11-25T04:41:13.732Z",
+  "baseCommit": "12ae034eca355c9d301250644908c7f210b35693",
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "module": "GESTOR",
+    "empresaId": 2,
+    "usuarioId": 141,
+    "moduloDa": 11,
+    "moduloRa": 12,
+    "conexionId": 6,
+    "existingPermissionsPreserved": true
+  },
+  "acceptance": {
+    "realTests": 1,
+    "passedTests": 1,
+    "cases": 2,
+    "rollbackFingerprintUnchanged": true,
+    "previousRaceRowsFingerprintUnchanged": true,
+    "externalRows": 1,
+    "activeLoadAndDestinationLocksObserved": true,
+    "importInsertWaitObserved": true,
+    "protectedTablesVerified": 27,
+    "configurationFingerprintsUnchanged": true,
+    "locksReleased": true,
+    "previousConfirmedResultsPreserved": 2
+  },
+  "cases": [
+    {
+      "scenario": "rollback",
+      "templateId": 59,
+      "revision": 1,
+      "templateHash": "91cb0b4607cf6f7bbb527fb80d7e44e1035177925193013dfac23abac20a8a59",
+      "fileHash": "88680068e818d3789242e9bfc7df43384378c8639d93b4f4d4c4759f3cb3ca5d",
+      "loadId": "e18c33ab-c248-402c-8309-480d1cd93ae7",
+      "inputRows": 300,
+      "rowsBefore": 1000,
+      "rowsAfter": 1000,
+      "status": "FALLIDA",
+      "expectedCode": "CONFLICTO_CLAVE",
+      "ownConfirmedRows": 0
+    },
+    {
+      "scenario": "carrera",
+      "templateId": 58,
+      "revision": 1,
+      "templateHash": "e8a914751fe30496d2f55ef97c3039d7727af095677cdfaebc1a8432e317d71b",
+      "fileHash": "bb1b29147b355884e199d4344463393cb904cc2eae83d228f7dc775fa7786d9c",
+      "loadId": "47ebdd39-83e0-40a7-9769-dbc5a1bddd9a",
+      "inputRows": 10,
+      "rowsBefore": 1001,
+      "rowsAfter": 1002,
+      "status": "FALLIDA",
+      "expectedCode": "CONFLICTO_CLAVE",
+      "ownConfirmedRows": 0
+    }
+  ],
+  "nativeActor": {
+    "directory": ".tmp\\doc125-external\\run-oDTlDR",
+    "outcome": {
+      "locked": true,
+      "importWaitObserved": true,
+      "activeLocksObserved": true,
+      "committed": true,
+      "diagnostic": null,
+      "exitCode": 0,
+      "effectsPreserved": true
+    }
+  },
+  "finalSelect": {
+    "status": "RESILIENCE_DATA_VERIFIED",
+    "recordedUtc": "2026-11-25T04:39:33.5201746Z",
+    "rows": [
+      {
+        "agregar": 1002,
+        "reemplazar": 1000
+      }
+    ],
+    "externalRows": 1,
+    "loads": [
+      {
+        "id_carga": "47ebdd39-83e0-40a7-9769-dbc5a1bddd9a",
+        "id_plantilla": 58,
+        "usuario_ref": "141",
+        "ambito_ref": "2",
+        "conexion_ref": "DA:11:6",
+        "tabla_destino": "imp_02_doc126_e2e_agregar",
+        "modo": "AGREGAR",
+        "estado": "FALLIDA",
+        "filas_previstas": 10,
+        "filas_confirmadas": 0,
+        "codigo_incidencia": "CONFLICTO_CLAVE",
+        "archivo_hash": "bb1b29147b355884e199d4344463393cb904cc2eae83d228f7dc775fa7786d9c"
+      },
+      {
+        "id_carga": "36f39f62-c6d3-49cb-9d14-ebf61e7e2e02",
+        "id_plantilla": 58,
+        "usuario_ref": "141",
+        "ambito_ref": "2",
+        "conexion_ref": "DA:11:6",
+        "tabla_destino": "imp_02_doc126_e2e_agregar",
+        "modo": "AGREGAR",
+        "estado": "CONFIRMADA",
+        "filas_previstas": 1000,
+        "filas_confirmadas": 1000,
+        "codigo_incidencia": null,
+        "archivo_hash": "122e6c23b71a3ce8dcd339f289c2768b406b75e95d06af7f01f96d43d0605325"
+      },
+      {
+        "id_carga": "e18c33ab-c248-402c-8309-480d1cd93ae7",
+        "id_plantilla": 59,
+        "usuario_ref": "141",
+        "ambito_ref": "2",
+        "conexion_ref": "DA:11:6",
+        "tabla_destino": "imp_02_doc126_e2e_reemplazar",
+        "modo": "REEMPLAZAR",
+        "estado": "FALLIDA",
+        "filas_previstas": 300,
+        "filas_confirmadas": 0,
+        "codigo_incidencia": "CONFLICTO_CLAVE",
+        "archivo_hash": "88680068e818d3789242e9bfc7df43384378c8639d93b4f4d4c4759f3cb3ca5d"
+      },
+      {
+        "id_carga": "31ca6cd5-716e-4829-a0ca-eac7700192d6",
+        "id_plantilla": 59,
+        "usuario_ref": "141",
+        "ambito_ref": "2",
+        "conexion_ref": "DA:11:6",
+        "tabla_destino": "imp_02_doc126_e2e_reemplazar",
+        "modo": "REEMPLAZAR",
+        "estado": "CONFIRMADA",
+        "filas_previstas": 1000,
+        "filas_confirmadas": 1000,
+        "codigo_incidencia": null,
+        "archivo_hash": "392e82247aae3088d2b03d63a8a806a196f9483aa441842f817419e54306290e"
+      }
+    ],
+    "previousConfirmedLoads": 2,
+    "negativeLoads": 2,
+    "sqlWrites": 0
+  },
+  "scopeSha256": "bcd53f4dde411c93c96ab26853a817074cd78d5401a5e1243ba6209a46fccfa2",
+  "backendSha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+  "assets": {
+    "js/gestion/ImportacionExcel/ImportacionExcelApi.js": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+    "js/gestion/ImportacionExcel/ImportacionExcelVista.js": "837848f593b8bc456885f1ba5ee6340ca2244f1161f4eb88b96f0203b1c54253",
+    "Styles/ImportacionExcel.css": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee"
+  },
+  "localVerification": {
+    "nodeTestsPassed": 41,
+    "nativeChecks": 4607,
+    "nativeBreakdown": {
+      "DOC122": 307,
+      "DOC123": 368,
+      "DOC124": 492,
+      "DOC125": 3440
+    }
+  },
+  "planning": {
+    "completed": 58,
+    "total": 62,
+    "pending": [
+      "6.9",
+      "6.10",
+      "7.5",
+      "8.8"
+    ],
+    "closedThisCut": [
+      "6.11"
+    ]
+  },
+  "newSqlInstallation": false,
+  "cleanupPerformed": false,
+  "productCodeChanged": false,
+  "sources": [
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256Utf8Lf": "734da2b073f4cadaee92998adcbbc0bb82d7f91dc1b90133642a855f4b563c21"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc115-repository-integration.ps1",
+      "sha256Utf8Lf": "fc653772efa8b0facb5a1043e0a6b1f7fb97bb0d12593a2e262fc9d78a5eb30f"
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "caaecc55b376328c77b65176ddf0462534db97ae11235f7997e0ebb3dbed2bd8"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+      "sha256Utf8Lf": "a9239c2d34e8eacf5a5c6938433831635ef84b22fbac4e2e7b413b4431ac3e82"
+    },
+    {
+      "path": "tests/doc126-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "3abe5da9ed5086e08076ac6fe39f7a43d56e0dc5ffaee8ec4ab671f57377d4da"
+    },
+    {
+      "path": "tests/ImportacionExcelConfirmacionTests.cs",
+      "sha256Utf8Lf": "edc5f2bc14b70f1a75cc4a37e6b403c2e45e5bca2d4f8e83d7b8704aff7d3f04"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+# DOC-126: lectura exclusiva/restringida real aprobada
+
+Estado **DOC126_REAL_UI_READ_PASS**, 2026-11-25T10:45:49.7529390Z; un test Playwright real PASS. Base a2d6f19237d8eeaa7e1c6e1e1d300ea96fbee653, hashes de los archivos ejecutados y scope en JSON. Se completa **6.9:61/62 tareas**, pendiente la revisión final7.5. Reutiliza runner, autenticación, E2E read, perfil HTTPS local/GESTOR, recursos DA11/RA12 de empresa2 y plantilla60 existente para consulta; no crea otro fixture.
+
+**asesor.comercial194:** permiso de cargas1 y las otras cuatro capacidades de importación0. Encontró el menú, abrió la herramienta, buscó y consultó el detalle mediante controles visibles, cerró con Escape. **oficial.cumplimiento196:** cargas0; menú ausente y AbrirCargaExcel rechazado con ACCESO_DENEGADO en otra sesión real. Credenciales frescas introducidas sólo en consola privada y descartadas al terminar.
+
+El primer intento se detuvo con DOC126_ESCAPE_FAILED: el foco salía al cuerpo al deshabilitar Buscar/selector. Reproducido y corregido en Vista.js, sin enfocar artificialmente Cerrar en el test ni eliminar su assert. La corrección v6 acredita Escape después de la consulta real. Otro inicio no recibió contraseña y terminó antes de autenticar. Esos intentos se conservan separados, no se cuentan como aprobados.
+
+En el intento aprobado coinciden las huellas íntegras de las**30 tablas protegidas**, cabeceras y campos de plantilla; assets servidos coinciden con sus hashes locales. El guard read acreditó cero solicitudes funcionales de mutación: sin guardar, recibir, preparar o confirmar; cero importaciones y cero cambios de permisos durante la E2E. La única concesión administrativa previa fue autorizada/aplicada/verificada separadamente mediante SQL27; no forma parte del test ni se repitió.
+
+Una conexión nueva posterior verificó la huella íntegra de los78 perfiles, idéntica a la posterior a aquella concesión:196 restringida y141 con todos sus permisos anteriores. Confirmó crear1000/agregar1002/reemplazar1000 y los cinco resultados previos con sus IDs/estados/huellas de archivo: tres CONFIRMADA de1000 y dos FALLIDA/0 intencionales. No se sustituyen huellas completas por simples conteos para acreditar las tablas protegidas.
+
+Regresión actual**92/92 PASS**:44 adaptadores y48 UI/cliente con transporte sintético explícito. El backend/DLL/Web.config permanecen iguales; producto sólo recibió la corrección de foco/ASPX v6 documentada. No hay SQL de instalación, limpieza, revocación automática o nueva carga. Los dos positivos anteriores, el asistente y rollback/carrera conservan sus evidencias originales. No se extrapola a20000 filas, rendimiento por fila o un corte físico de red/COMMIT.

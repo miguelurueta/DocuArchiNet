@@ -1,0 +1,287 @@
+{
+  "issue": "DOC-126",
+  "recordedUtc": "2026-11-24T16:51:15.408Z",
+  "status": "PASS_TECHNICAL_REFINEMENT",
+  "technicalReview": true,
+  "humanApproval": false,
+  "decisions": 15,
+  "requirements": 15,
+  "scenarios": 45,
+  "tasks": {
+    "total": 44,
+    "complete": 0,
+    "pending": 44,
+    "complexities": {
+      "S": 10,
+      "M": 34,
+      "L": 0
+    }
+  },
+  "jiraContextSha256Utf8Lf": "1baa226f44e8f500fa1d71e1b9dde42030caa29cd0f8cf063d03e7aadc839575",
+  "existingSources": [
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "role": "Página e inclusión ordenada de assets; editar",
+      "sha256Utf8Lf": "bc4b1fbefce993de5c619fb35694d84b8e41884edb7b4d88a5c03f733e0ea775"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx.vb",
+      "role": "RenderPerfilImportacion/RenderImportacionCarpetas y PreRender; añadir host Excel propio",
+      "sha256Utf8Lf": "fbfd5114e1b09affcbae343a3d53c4756e87afb77faacf5b964678ad0c2a44c5"
+    },
+    {
+      "path": "Gestion/Class_remit_dest_interno_perfil_produccion.vb",
+      "role": "Permiso Excel ya cargado; preservar, sin usar la caché de sesión como autoridad",
+      "sha256Utf8Lf": "a7440628ac70a89d23e320904b3109b95fd8b3fc27b54ed4cd914527be91ecad"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/ImportacionCarpetas.js",
+      "role": "asegurarMenu/rotularAccesoMenu compartidos y disponibles sin host de carpetas; reutilizar",
+      "sha256Utf8Lf": "fa050876b961959886fd205657bec46133863252b8f2aa49cefb8b2aa075fada"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+      "role": "Sección administración y lifecycle; preservar",
+      "sha256Utf8Lf": "b4c649f711f6dae7dab5f6cd1efb6affa814c3210c9c55f6eab5a2f232babf5f"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/PerfilImportacionApi.js",
+      "role": "Patrón de transporte; su envelope no es el contrato Excel",
+      "sha256Utf8Lf": "cca3303bfcb0bcb175a2269bee9c8dffe9a4522b58c9440c66ed7445858c1bd0"
+    },
+    {
+      "path": "DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb",
+      "role": "Contratos de apertura, plantilla, recepción, preparación y confirmación; preservar",
+      "sha256Utf8Lf": "f5a0f3ede60f148a3ff6cd15c10d71d978e9f842f009874c1ee491cdaeacd6bf"
+    },
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb",
+      "role": "Plantilla/campos/incidencias/valores normalizados existentes; preservar",
+      "sha256Utf8Lf": "fbf8801d850d5988fd94fedaab9b4ae08a649cf44871490b3378635ea8f52a06"
+    },
+    {
+      "path": "webservice/WebServiceImportacionExcel.asmx",
+      "role": "Endpoint existente; reutilizar",
+      "sha256Utf8Lf": "134a40dfcf3273f6f3fb2d8305cc45eb9b46ef05b328f5f6667c7762483004a7"
+    },
+    {
+      "path": "webservice/WebServiceImportacionExcel.asmx.vb",
+      "role": "Nueve métodos actuales y envelope ok/codigo/mensaje/operacionId/datos; reutilizar",
+      "sha256Utf8Lf": "92d5a3289769273ee134964916ed186b4fb6130bd64247d04d354d1210f4acf9"
+    },
+    {
+      "path": "generic_control/ImportacionExcelUpload.ashx",
+      "role": "Recepción multipart actual; reutilizar",
+      "sha256Utf8Lf": "c7bd875711b2399334e51a335c858058bf1bd2079b0959c0be955146edfa2386"
+    },
+    {
+      "path": "generic_control/ImportacionExcelUpload.ashx.vb",
+      "role": "Validación previa del transporte/autoridad y receptor; preservar",
+      "sha256Utf8Lf": "b9dd46bdcf92e75a824a995c9997ecf615723182e03d5fe0c8073960049bd6fc"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelContextAdapter.vb",
+      "role": "Resolver y permiso vigente por RA; reutilizar",
+      "sha256Utf8Lf": "8a89cc86baec4083e89a3d6a3806f7d3bdf371d68b07646cef37dee42e250426"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb",
+      "role": "Emitir sólo JSON POST; añadir referencia opaca de recuperación sin debilitar transportes",
+      "sha256Utf8Lf": "8f5c4a0f55f4eb0bda422d275f0d54488a057b37fb09c8a3a4363d8376439caa"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelConexionAdapter.vb",
+      "role": "Referencias autorizadas y límites del servidor; reutilizar",
+      "sha256Utf8Lf": "1f772b8f0d4a515a313907a030da1ea91b480b7c9b7283aaea13a62b71831ef3"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ComposicionCargaExcel.vb",
+      "role": "Composición lazy y autoridad RA/DA actuales; preservar",
+      "sha256Utf8Lf": "463c45d82f7b736d1f7bcb366b71005be9e62391c54b3a22d4398231c2a2e977"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioPlantillasExcel.vb",
+      "role": "Listar/Obtener/Guardar con revisión/huella, tipos y modo históricos; preservar",
+      "sha256Utf8Lf": "59ef978bcd35fce4f78fa68fbf712025f6867df9dabf18608ab08d9613fe3974"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioRecepcionExcel.vb",
+      "role": "ID/referencia privada, validación completa y Hojas; preservar",
+      "sha256Utf8Lf": "92b1641c7c9653d9f200aff7f7471140259c8eac2589e058df2fcaeb63def317"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioPreparacionExcel.vb",
+      "role": "PreparacionHashEsperada, muestra/incidencias25 y validación íntegra; preservar",
+      "sha256Utf8Lf": "8bf53cbf11e89279b3a65c57e93fb2566ef1fd1c0ad605ae05b2eabb383d9e39"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb",
+      "role": "Resultado durable, consentimiento y recuperación histórica; preservar",
+      "sha256Utf8Lf": "22e85ceaf98e8accfbf0d8af8cbbd27045f052ac08be9b48cf7354f19b92df27"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb",
+      "role": "Persistencia de plantillas existente; preservar",
+      "sha256Utf8Lf": "9ddf94a9fad34c40a0fd31fee5dc6d0671d899b03ccd8e8483e68c0ada088332"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb",
+      "role": "Persistencia/estados y bloqueos existentes; preservar",
+      "sha256Utf8Lf": "47d04d584ab854f14d029bc4bb5cacc400c80825cd9c2014b7eb22c63b90a7f2"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlConfirmacionExcelWriter.vb",
+      "role": "Transacción, UNIQUE y rollback DOC125; preservar",
+      "sha256Utf8Lf": "ae431a4d2c487a947f44161cf70b25b9f63d79903778bf5fa94b47cb9d54c124"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/ImportacionCarpetasRequestGuard.vb",
+      "role": "Patrón de referencia opaca contextual, sin reutilizar autoridad de carpetas",
+      "sha256Utf8Lf": "5f9dcc3addf19e810df0f5a138c673321c0d846fb4bf3e57984824a159cbc414"
+    },
+    {
+      "path": "GestionDocumental-Docuarchi.net.vbproj",
+      "role": "Registrar tres nuevos Content, sin nuevo Compile previsto",
+      "sha256Utf8Lf": "7b4bcbc152600a8188a7db7245da862072e3a0a574e2589805a6a7a2bffbd975"
+    },
+    {
+      "path": "tests/ImportacionExcelBehaviorTests.cs",
+      "role": "Harness nativo DOC122 para recuperación contextual; ampliar",
+      "sha256Utf8Lf": "83d2995bf3d195587339511622e19420a6617c48b6711c2d1bbb43a88675de64"
+    },
+    {
+      "path": "tests/doc122-importacion-excel-behavior.test.cjs",
+      "role": "Compilación/harness existente; reutilizar",
+      "sha256Utf8Lf": "42f21deff4d4790c3d08f054aeff564d23682f8bf2e157ce22df9c40b16fb755"
+    },
+    {
+      "path": "tests/doc119-navigation.test.cjs",
+      "role": "Navegación browser local y permisos; ampliar",
+      "sha256Utf8Lf": "d457180a35158e56fbc8448f94780c24c75b36ddbd09f6fbcb7d0375cadbd608"
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "role": "Suite real existente; añadir describe DOC126",
+      "sha256Utf8Lf": "752e9130498fa8f365c3d68a4c0b11986b872b46ebe7f1000cee4be1212dbe79"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "role": "Consola, login y runner existente; añadir flags Excel UI",
+      "sha256Utf8Lf": "d564e973ef6f3252c4f1a0ff5e9a0bcd31749d0df5613f58b2b1b9e9c5a2b1f2"
+    },
+    {
+      "path": "tools/e2e/tests/support/authenticated-workflow-session.cjs",
+      "role": "Login existente; reutilizar",
+      "sha256Utf8Lf": "e26634bbbd13aad52de7f207874ae42042fb486cdf590fae298d11f654e55b64"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc110-admin-navigation.cjs",
+      "role": "Driver de navegación que observa una respuesta por click; ampliar",
+      "sha256Utf8Lf": "0cc1d02316ab24f7d282de795dc8133ce640aaf2215492cc2fd3784508ede3db"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc125-excel-scope.cjs",
+      "role": "Ejemplo de validación cerrada de efectos; no heredar autorización",
+      "sha256Utf8Lf": "b1cf0c120c2ee4cb250eee9b6d912ab55d4a260ccede2d08cdb27c9f0484978d"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc32-e2e-odbc.cjs",
+      "role": "Controles SELECT y huellas actuales; reutilizar",
+      "sha256Utf8Lf": "4e103b5a42dc1d74dc192405958818136195b2c895d57f9d6d23b61e938afde5"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc115-repository-integration.ps1",
+      "role": "Actor nativo ya existente para carrera; reutilizar sin siembra/limpieza",
+      "sha256Utf8Lf": "ce992ba2636fee135d2873c5ab67bb87976da79c9daddd1272c02be831f59268"
+    },
+    {
+      "path": "tests/ImportacionExcelConfirmacionTests.cs",
+      "role": "Generador y actor externo DOC125; reutilizar",
+      "sha256Utf8Lf": "7291b61cc5d72a598a4c03f7e730b3015b9e01b0c974592ca9185de381301b2a"
+    },
+    {
+      "path": "tools/e2e/AGENT-RUNBOOK.md",
+      "role": "Autorización, secretos efímeros y límites; actualizar antes de ejecución",
+      "sha256Utf8Lf": "2f7ce5529c34267c1fb6935eafd306e0968d88c279f798860e177876b772f0b9"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Exploracion/06-interfaz-y-menu.md",
+      "role": "Prompt original inmutable",
+      "sha256Utf8Lf": "760868e0723ccc963a207c0bb5c6efeb550e7770baf709f621a3020a2b693017"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Exploracion/carga-excel-csv-tablas-imp-02.md",
+      "role": "Diseño consolidado de las siete fases; antecedente",
+      "sha256Utf8Lf": "4d45a3bd4b9f5ed8a4330e7f9248e4c8b020c3c8cddb4d73cc4040e2febec78e"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc125-ejecucion-seguimiento-20261124.json",
+      "role": "Aceptación anterior conservada y límites físicos, sin reabrir ventanas",
+      "sha256Utf8Lf": "1249b81d6826f6b91ee80a793d9142b20c7a8ede43ab78b8a203b289454426d3"
+    }
+  ],
+  "plannedFiles": [
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+      "role": "Cliente Excel UMD/ES5 con jQuery actual; Content",
+      "exists": false
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "role": "Controlador/vista accesible y estado; Content",
+      "exists": false
+    },
+    {
+      "path": "Styles/ImportacionExcel.css",
+      "role": "Estilo acotado al host/modal Excel; Content",
+      "exists": false
+    },
+    {
+      "path": "tests/doc126-importacion-excel-client.test.cjs",
+      "role": "Transporte local con dobles, sin servidor real",
+      "exists": false
+    },
+    {
+      "path": "tests/doc126-importacion-excel-ui.test.cjs",
+      "role": "Browser local con transporte simulado, claramente identificado",
+      "exists": false
+    },
+    {
+      "path": "tests/doc126-e2e-reuse.test.cjs",
+      "role": "Política del runner/scope; no autentica",
+      "exists": false
+    },
+    {
+      "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+      "role": "Scope propio de UI lectura/escritura",
+      "exists": false
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Sql/22-preflight-doc126.sql",
+      "role": "Diagnóstico SELECT revisable; sin instalación implícita",
+      "exists": false
+    }
+  ],
+  "productCodeChanged": false,
+  "sqlExecuted": false,
+  "realE2EExecuted": false,
+  "deployed": false,
+  "validation": {
+    "refinement": {
+      "passed": 15,
+      "failed": 0
+    },
+    "openSpecStrict": {
+      "items": 97,
+      "passed": 97,
+      "failed": 0
+    },
+    "atomicTasks": {
+      "passed": 44,
+      "decisionCoverage": 15
+    },
+    "sourceHashesVerified": 40,
+    "jiraContextUnchanged": true,
+    "diffCheck": "PASS"
+  }
+}

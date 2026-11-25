@@ -1,20 +1,22 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path');
 const {readFixture,snapshotDestination}=require('./doc124-excel-scope.cjs');
-function validateScope(s,baseUrl){
+function validateScope(s,baseUrl,expectedIssue='DOC-125'){
+ if(!['DOC-125','DOC-126'].includes(expectedIssue))throw Error('DOC125_SCOPE_INVALID');
+ const fixturePrefix=expectedIssue==='DOC-125'?'imp_02_doc125_e2e_':'imp_02_doc126_e2e_';
  const positive=n=>Number.isSafeInteger(n)&&n>0&&n<=0xffffffff,hash=x=>/^[a-f0-9]{64}$/.test(x||'');
- if(!s||s.issue!=='DOC-125'||s.disposable!==true||s.destinationReadOnly===true||s.preserveResources!==true||s.baseUrl!==baseUrl||
+ if(!s||s.issue!==expectedIssue||s.disposable!==true||s.destinationReadOnly===true||s.preserveResources!==true||s.baseUrl!==baseUrl||
   !positive(s.empresaId)||!positive(s.usuarioId)||!positive(s.moduloId)||!/^DOC[0-9]+_DA_E2E$/.test(s.controlPrefix||'')||
   !hash(s.environmentHash)||!hash(s.backendSha256)||!path.isAbsolute(s.runtimeRoot||'')||
   !positive(s.maxBusinessRows)||s.maxBusinessRows>100000||!positive(s.maxDeletedRows)||s.maxDeletedRows>100000||!Array.isArray(s.allowedEffects)||
   !['CREATE','INSERT','DELETE','RESULTADO','EXTERNAL_INSERT'].every(x=>s.allowedEffects.includes(x))||
   s.allowedEffects.some(x=>!['CREATE','INSERT','DELETE','RESULTADO','EXTERNAL_INSERT'].includes(x))||
   !Array.isArray(s.protectedTables)||!s.protectedTables.includes('imp_02_contratos')||
-  s.protectedTables.some(t=>!/^imp_02_[A-Za-z0-9_]{1,57}$/.test(t)||t.startsWith('imp_02_doc125_e2e_'))||
+  s.protectedTables.some(t=>!/^imp_02_[A-Za-z0-9_]{1,57}$/.test(t)||t.startsWith(fixturePrefix))||
   !Array.isArray(s.cases)||s.cases.length<5||s.cases.length>8)throw Error('DOC125_SCOPE_INVALID');
  const modes={crear:'CREAR',agregar:'AGREGAR',reemplazar:'REEMPLAZAR',rollback:'REEMPLAZAR',carrera:'AGREGAR'};
  for(const c of s.cases)if(!c||modes[c.escenario]!==c.modo||!positive(c.conexionId)||!positive(c.plantillaId)||!positive(c.revisionEsperada)||!hash(c.huellaEsperada)||!hash(c.archivoHash)||
-  !/^imp_02_doc125_e2e_[A-Za-z0-9_]{1,44}$/.test(c.tabla||'')||!path.isAbsolute(c.archivoPath||'')||!/^\.(?:xls|xlsx)$/i.test(path.extname(c.archivoPath))||
+  !(new RegExp('^'+fixturePrefix+'[A-Za-z0-9_]{1,44}$')).test(c.tabla||'')||!path.isAbsolute(c.archivoPath||'')||!/^\.(?:xls|xlsx)$/i.test(path.extname(c.archivoPath))||
   typeof c.hoja!=='string'||!c.hoja||c.hoja.length>120||!positive(c.filasEsperadas)||c.filasEsperadas>20000||
   !Number.isSafeInteger(c.filasDestinoEsperadas)||c.filasDestinoEsperadas<0||c.filasDestinoEsperadas>100000||(c.modo==='CREAR'&&c.filasDestinoEsperadas!==0)||
   c.codigoEsperado!==(['rollback','carrera'].includes(c.escenario)?'CONFLICTO_CLAVE':'OK'))throw Error('DOC125_SCOPE_INVALID');
@@ -34,8 +36,9 @@ function validateScope(s,baseUrl){
  return s;
 }
 function readScope(file,baseUrl){try{return validateScope(JSON.parse(fs.readFileSync(file,'utf8').replace(/^\uFEFF/,'')),baseUrl);}catch{throw Error('DOC125_SCOPE_INVALID');}}
-function lockNames(physical,table,id){
- if(!physical||typeof physical.servidor!=='string'||typeof physical.base_ref!=='string'||!Number.isSafeInteger(Number(physical.puerto))||Number(physical.puerto)<1||Number(physical.puerto)>65535||![0,1,2].includes(Number(physical.minusculas))||!/^imp_02_doc125_e2e_[A-Za-z0-9_]{1,44}$/.test(table)||!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(id))throw Error('DOC125_LOCK_IDENTITY_INVALID');
+function lockNames(physical,table,id,expectedIssue='DOC-125'){
+ const prefix=expectedIssue==='DOC-125'?'imp_02_doc125_e2e_':expectedIssue==='DOC-126'?'imp_02_doc126_e2e_':null;
+ if(!prefix||!physical||typeof physical.servidor!=='string'||typeof physical.base_ref!=='string'||!Number.isSafeInteger(Number(physical.puerto))||Number(physical.puerto)<1||Number(physical.puerto)>65535||![0,1,2].includes(Number(physical.minusculas))||!(new RegExp('^'+prefix+'[A-Za-z0-9_]{1,44}$')).test(table)||!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(id))throw Error('DOC125_LOCK_IDENTITY_INVALID');
  const hash=value=>{const obj=Object.fromEntries(Object.keys(value).sort().map(k=>[k,value[k]]));const json=JSON.stringify(obj).replace(/[\u007f-\uffff]/g,c=>'\\u'+c.charCodeAt(0).toString(16).padStart(4,'0'));return require('node:crypto').createHash('sha256').update(json,'utf8').digest('hex');};
  if(physical.fisica!==undefined&&!/^[a-f0-9]{64}$/.test(physical.fisica))throw Error('DOC125_LOCK_IDENTITY_INVALID');
  const fisica=physical.fisica||hash({Servidor:physical.servidor,Puerto:Number(physical.puerto),Base:physical.base_ref});

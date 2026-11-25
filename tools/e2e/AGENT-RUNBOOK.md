@@ -1,4 +1,116 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
+
+## Estado final de entrega — 2026-11-25
+
+**62/62 tareas.** Gobierno legacy62/62, OpenSpec97/97 y refinamiento15/15 PASS antes del commit, con revalidación del SHA publicado al finalizar. La lectura real aprobada corresponde a assets v6:30 tablas,78 perfiles y cinco resultados conservados. El ajuste posterior mínimo de Cerrar siempre habilitado se entrega como **doc126-7**, probado localmente (49 UI/cliente;93 pruebas actuales con44 adaptadores), con hash HTTP verificado. No se afirma otra ejecución real v7. DLL/Web.config y datos permanecen conservados; no reaplicar permisos, SQL o cargas. Ver `Doc/Actualizacion/Importacion/Validacion/doc126-verificacion-final-20261125.md`.
+
+
+## Lectura exclusiva/restringida real aprobada — 2026-11-25
+
+6.9 completada:61/62 tareas. Cuenta194 con sólo cargas abre/busca/consulta y cierra con Escape;196 sin cargas no tiene menú y recibe ACCESO_DENEGADO.30 huellas protegidas y configuración intactas; cero mutaciones funcionales. SELECT posterior conserva78 perfiles y cinco cargas previas.92/92 pruebas locales PASS; foco corregido en assets v6, sin cambiar DLL/Web.config. La concesión administrativa previa SQL27 se mantiene separada. Pendiente revisión final7.5. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-e2e-permisos-real-20261125.md`.
+
+
+## Asistente y tres modos reales — 2026-11-25
+
+6.10 y8.8 completadas:60/62 tareas. E2E real del asistente PASS: una plantilla nueva/dos campos, CREAR1000 filas y29 tablas protegidas con huellas intactas. Combinada con AGREGAR/REEMPLAZAR anteriores acredita1000 filas por cada modo; rollback/concurrencia ya aprobados. Se conservan permisos, históricos y cuatro resultados previos; sin SQL de instalación, limpieza o cambio productivo.43/43 regresiones de adaptadores PASS. Pendientes6.9 (cuentas exclusiva/restringida) y7.5 (cierre de gobierno). Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-e2e-asistente-real-20261125.md`.
+
+
+## Rollback y concurrencia reales — 2026-11-24
+
+6.11 completada:58/62 tareas. E2E real PASS, dos casos: rollback conserva íntegramente1000 filas; concurrencia conserva las1001 anteriores y sólo una fila externa adicional (total1002), con cero filas propias confirmadas. Actor observó INSERT bloqueado y locks activos antes de confirmar.27 tablas protegidas, configuración y dos resultados positivos previos intactos; locks liberados.41/41 pruebas Node y4607 checks sintéticos. Sin instalación/limpieza/permisos nuevos. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-e2e-rollback-concurrencia-20261124.md`.
+
+
+## Aceptación funcional real con la cuenta existente — 2026-11-24
+
+E2E Playwright real PASS: un test, dos casos. Agregar1000:1→1001 filas; reemplazar1000:2→1000 filas, con consentimiento. Usuario141 en IIS local HTTPS/GESTOR, plantillas58/59 y hashes/propiedad/locks verificados. Huellas íntegras de27 tablas protegidas y configuración de plantillas sin cambios. Perfil local separado; perfil compartido, permisos, DLL y Web.config conservados. La creación/importación manual del usuario se reconoce como realizada. No acredita exclusividad/restricción, rollback/carrera o asistente automatizado. Ver `Doc/Actualizacion/Importacion/Validacion/doc126-e2e-funcional-real-20261124.md`.
+
+
+## E2E funcional detenida en autenticación — 2026-11-24
+
+SQL23–25 aplicados y verificados; no reaplicar. Corregido control compartido para la columna histórica AÑO_FERIADO, con38/38 regresiones. Segundo intento completó27 huellas iniciales, pero el servidor devolvió LOGIN_CREDENTIALS_REJECTED en el módulo GESTOR del perfil local. Cero sesiones autenticadas/cargas nuevas; fixtures permanecen1/2 filas. Confirmar el acceso manual y proporcionar la contraseña sólo en consola privada. No se cierran tareas de aceptación por estos intentos. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-aplicacion-sql-funcional-20261124.md`.
+
+
+## SQL23–25 aplicados con autorización — 2026-11-24
+
+El usuario autorizó aplicar las copias parametrizadas. Dos tablas, dos políticas y tres plantillas activas verificadas desde conexiones nuevas; IDs57/58/59, filas sintéticas iniciales1/2 y destino CREAR ausente. Las indicaciones PENDIENTE de cortes anteriores son históricas: no reaplicar. La E2E funcional usa la cuenta141 con permisos actuales conservados y plantillas58/59; scope vigente válido y27 tablas protegidas. Consola privada preparada; no se acredita ejecución hasta disponer de su resultado. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-aplicacion-sql-funcional-20261124.md`.
+
+
+## Recorrido funcional con cuenta existente — 2026-11-24
+
+57/62 tareas: completada la adaptación 6.12; pendientes 6.9, 6.10, 6.11, 7.5 y 8.8. Usuario 141 activo y autorizado con sus cinco permisos vigentes, conservados. Modo funcional de agregar/reemplazar separado de exclusividad/restricción; 88/88 pruebas locales y cuatro E2E registradas, sin ejecutar la nueva ventana real. Preflight SELECT: faltan tablas, políticas y plantillas DOC126. Copias SQL23–25 parametrizadas en .tmp/doc126-functional-preparacion, sin aplicar. Ver `Doc/Actualizacion/Importacion/Validacion/doc126-cuenta-existente-funcional-20261124.md`.
+
+
+## Guía por semáforo — 2026-11-24, video 191328
+
+56/61 tareas completas; pendientes 6.9, 6.10, 6.11, 7.5 y 8.8. Regresión 178/178 y comprobación final de UI 39/39; 4603 checks nativos sintéticos. Assets doc126-5 contrastados por HTTP anónimo, sin cambiar DLL, SQL ni ejecutar E2E autenticada. La misma plantilla se reutiliza: Nueva importación consulta CREAR/AGREGAR vigente; Cambiar operación edita el mismo ID con CAS y guardado explícito. Reemplazo conserva consentimiento. Colores con texto y siguiente acción, sin confirmación automática. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-semaforo-reutilizacion-20261124.md`.
+
+
+## DOC126 — diagnóstico explicativo y defaults nuevos compatibles, v4
+
+SELECT acreditó cuatro opciones NOT NULL. Campos nuevos usan No/No/No y posición0;
+históricos conservan NULL, sin relajar restricciones o aplicar SQL. Respuestas
+añaden reglas tipadas campo/fila/límite/tipo: máximo25 y total. Matriz validada
+antes de modificar, panel Qué ocurre/Cómo corregirlo y foco; sin causa acreditada
+se conserva formulario y se exige consulta antes de reenviar. Sin mensajes crudos.
+171/171 regresión, 4603 checks sintéticos, build0 errores; DLL publicada con
+respaldo, WSDL/esquema y rechazo anónimo verificados. Assets doc126-4 contrastados.
+Cero SQL modificador y sesiones de aplicación autenticadas. 52/57 tareas; cinco
+de aceptación/gobierno abiertas. Evidencia vigente:
+Doc/Actualizacion/Importacion/Validacion/doc126-diagnostico-configuracion-20261124.md.
+Los cortes inferiores son históricos; renovar hashes antes de una E2E autorizada.
+
+
+## DOC126 — corrección de guardado del video, assets v3
+
+Tabla quedaba sólo en imp_02_; ahora se propone nombre editable desde el Excel
+y se señalan tabla/clave inválidas con foco, sin enviar un guardado incorrecto.
+55/55 pruebas locales y JS/CSS doc126-3 servidos por IIS, comprobados sin sesión.
+Sin SQL ni reemplazo de DLL; conservar cualquier binario local ajeno.
+48/53 tareas, cinco de aceptación/gobierno pendientes. Evidencia actual:
+Doc/Actualizacion/Importacion/Validacion/doc126-correccion-video-crear-plantilla-20261124.md.
+Los cortes inferiores son históricos; renovar hashes del scope antes de E2E.
+
+
+## DOC126 — desplegado y E2E del asistente instrumentada
+
+DLL validada activa, respaldo preservado, WSDL200 y analizador anónimo denegado.
+Web.config intacto; cero SQL y sesiones autenticadas en este despliegue.
+Runner existente: --excel-ui-assistant, autorización DOC126_ASSISTANT_E2E_AUTHORIZED
+y scope propio de una plantilla/dos campos/1000 filas/cero borrados. No hereda
+la autorización de lectura/escritura. Guardar sigue bloqueado en esos modos.
+39/39 pruebas locales afectadas; tres E2E registradas, ninguna ejecutada.
+Corregido el prefijo de locks del adaptador DOC126 conservando contrato DOC125.
+Siguen 47/52, aceptación/gobierno pendientes. Evidencia actual:
+Doc/Actualizacion/Importacion/Validacion/doc126-despliegue-e2e-preparada-20261124.md.
+Los cortes inferiores mantienen su estado histórico.
+
+
+## DOC126 — asistente implementado localmente, 47/52
+
+Crear plantilla desde Excel añade análisis sin plantilla ni efectos durables.
+160/160 pruebas locales; 4555 checks nativos sintéticos. Build sin errores.
+No se ejecutaron despliegue, SQL ni E2E real. No se requiere migración nueva.
+La E2E existente bloquea GuardarPlantilla: 8.8 necesita ampliar scope, fixture
+y autorización específica antes de recorrer alta de plantilla y carga. No cambiar
+la autorización cerrada del runner para fingir cobertura. Abiertas 6.9/6.10/6.11/7.5/8.8.
+Evidencia actual: Doc/Actualizacion/Importacion/Validacion/doc126-asistente-20261124.md.
+Los cortes inferiores son históricos.
+
+
+## DOC126 — implementación local: 40/44, 2026-11-24
+
+Menú/diálogo/API implementados; 150 pruebas locales y4505 comprobaciones sintéticos PASS,
+build0 errores/308 advertencias previas. DLL IIS/Web.config intactos, sin E2E real.
+El ASPX tolera la DLL anterior hasta desplegar la candidata compatible.
+E2E existente: --excel-ui-read/--excel-ui-write, scope DOC126 y hashes DLL/assets.
+Usar cuentas exclusiva/restringida; controles DOC32 SELECT DA/RA existentes y
+actor DOC125 con autorización DOC126 propia. No recuperar claves/ventanas DOC125.
+SQL 22 preflight y 23–25 fixtures entregados; PENDIENTE_EJECUCION_MANUAL.
+No reaplicar 18–21, sembrar/limpiar desde tests ni tocar históricos.
+Cinco libros sintéticos verificados; ubicaciones/manifiestos quedan en .tmp.
+Abiertas 6.9/6.10/6.11 y 7.5. Evidencia: Validacion/doc126-implementacion-local-20261124.md/JSON.
+Los cortes DOC125 inferiores conservan su estado histórico.
+
 <!-- doc125:archive-cut -->
 
 ## DOC125 — implementación integrada y archivo local, 2026-11-24

@@ -1,0 +1,234 @@
+{
+  "issue": "DOC-126",
+  "recordedUtc": "2026-11-24T23:25:55.199Z",
+  "baseCommit": "51e1e966300b2c59a21348721124d2c3b0a80364",
+  "status": "DEPLOYED_EXPLANATORY_CONFIGURATION_DIAGNOSTICS",
+  "tasks": {
+    "total": 57,
+    "complete": 52,
+    "pending": [
+      "6.9",
+      "6.10",
+      "6.11",
+      "7.5",
+      "8.8"
+    ]
+  },
+  "traceability": {
+    "decisions": 17,
+    "requirements": 17,
+    "scenarios": 54
+  },
+  "finding": {
+    "source": "Current repository OdbcServicesGestor/module resource; fresh SELECT only",
+    "empresaId": 2,
+    "moduloId": 11,
+    "metadataStatements": 2,
+    "requiredOptions": [
+      {
+        "field": "REMPLAZA_COMA",
+        "nullable": false,
+        "type": "int(10) unsigned"
+      },
+      {
+        "field": "REMPLAZA_PUNTO",
+        "nullable": false,
+        "type": "int(10) unsigned"
+      },
+      {
+        "field": "OPCION_SPLITER",
+        "nullable": false,
+        "type": "int(10) unsigned"
+      },
+      {
+        "field": "NUMERO_MATRIZ_EXPLITER",
+        "nullable": false,
+        "type": "int(10) unsigned"
+      }
+    ],
+    "cause": "Sin configurar sent NULL to required configuration options; no schema migration required"
+  },
+  "correction": {
+    "newFieldsOnly": {
+      "REMPLAZA_COMA": 0,
+      "REMPLAZA_PUNTO": 0,
+      "OPCION_SPLITER": 0,
+      "NUMERO_MATRIZ_EXPLITER": 0
+    },
+    "historicalNullsPreserved": true,
+    "physicalConstraintsPreserved": true,
+    "allFieldMetadataValidatedBeforeModification": true,
+    "legacyCodesAndRequestsPreserved": true,
+    "responseAdditions": [
+      "validacion",
+      "totalValidacion"
+    ],
+    "maxResponseDetails": 25,
+    "errorContents": [
+      "field",
+      "mapping row",
+      "destination identifier",
+      "rule",
+      "length limit/count",
+      "expected type"
+    ],
+    "rawProviderMessages": false,
+    "cellValuesInDiagnostics": false,
+    "unknownCauseNotInvented": true,
+    "unknownSaveBlocksAutomaticRetry": true,
+    "ui": "Qué ocurre / Cómo corregirlo / control focus",
+    "assetsVersion": "doc126-4"
+  },
+  "tests": {
+    "regression": {
+      "passed": 171,
+      "failed": 0
+    },
+    "afterFinalClientHardening": {
+      "passed": 4,
+      "failed": 0
+    },
+    "nativeChecks": {
+      "DOC122": 307,
+      "DOC123": 368,
+      "DOC124": 492,
+      "DOC125": 3436
+    },
+    "nativeChecksTotal": 4603,
+    "synthetic": true,
+    "realAuthenticatedE2EExecuted": false,
+    "refinement": {
+      "passed": 15,
+      "failed": 0
+    },
+    "openSpecStrict": {
+      "passed": 97,
+      "failed": 0
+    }
+  },
+  "build": {
+    "webConfigUnchanged": true,
+    "deployed": false,
+    "exitCode": 0,
+    "assemblySha256": "edd033a113b57950cac1661b1a5cc01ff114fc8ea0676082c0f9e590aa3e957a",
+    "runtimeUnchanged": true,
+    "errors": 0,
+    "warnings": 308
+  },
+  "deployment": {
+    "issue": "DOC-126",
+    "status": "DEPLOYED_UNAUTHENTICATED_HEALTH_PASS",
+    "recordedUtc": "2026-11-24T23:21:57.8332041Z",
+    "previousAssemblySha256": "09a5bffa9ba1f4a6b6a44b42c226b73ba888ca880b44e1fc26adc57e8b1a91d3",
+    "deployedAssemblySha256": "edd033a113b57950cac1661b1a5cc01ff114fc8ea0676082c0f9e590aa3e957a",
+    "backup": ".tmp/doc126-deployment-20261124-232152/previous.dll",
+    "backupSha256": "09a5bffa9ba1f4a6b6a44b42c226b73ba888ca880b44e1fc26adc57e8b1a91d3",
+    "reviewedSources": 16,
+    "wsdlStatus": 200,
+    "wsdlMethods": 9,
+    "validationDetailsSchemaChecked": true,
+    "analysisAnonymousDenied": true,
+    "webConfigUnchanged": true,
+    "sql": 0,
+    "authenticatedSessions": 0,
+    "realE2EExecuted": false
+  },
+  "http": {
+    "version": "doc126-4",
+    "realE2EExecuted": false,
+    "sql": 0,
+    "authenticatedSessions": 0,
+    "assets": [
+      {
+        "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+        "httpStatus": 200,
+        "sha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b"
+      },
+      {
+        "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+        "httpStatus": 200,
+        "sha256": "947cb11e1ca77ae488f408b2d41d5304f17272c89b91edb0ece51945baf13a7b"
+      },
+      {
+        "path": "Styles/ImportacionExcel.css",
+        "httpStatus": 200,
+        "sha256": "301d91abd4dab11c01d459b2b94099674f25f5274834f7878037a9aa8ef016ff"
+      }
+    ],
+    "status": "STATIC_ASSETS_VERIFIED",
+    "recordedUtc": "2026-11-24T23:22:21.8646384Z",
+    "backendObservedSha256": "edd033a113b57950cac1661b1a5cc01ff114fc8ea0676082c0f9e590aa3e957a"
+  },
+  "effects": {
+    "sqlModifications": 0,
+    "schemaChanges": 0,
+    "applicationAuthenticatedSessions": 0,
+    "cleanup": false
+  },
+  "sources": [
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb",
+      "sha256Utf8Lf": "8857b24d92b9b018bce86c2a35a7682c5d15bfbff49d0155042d2a3bc6e4cbf0"
+    },
+    {
+      "path": "DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb",
+      "sha256Utf8Lf": "6dba0e81e34ded7817db69cf3a822347f02a24cc65a6f95eb5823989dcb15190"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioPlantillasExcel.vb",
+      "sha256Utf8Lf": "949de270e83544bf65cc288c75ec81b6da6590039a6ca4c1dfc9d5e37f0ee1bd"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioAnalisisPlantillaExcel.vb",
+      "sha256Utf8Lf": "412e402eee8438cdf4371d7e61f66993bb9eae0783a2509feebe563e59c898f6"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb",
+      "sha256Utf8Lf": "2aba73f57faf716b90597a95ba2f3d5019cc3ef2bb18db29cb467c209b446ff9"
+    },
+    {
+      "path": "webservice/WebServiceImportacionExcel.asmx.vb",
+      "sha256Utf8Lf": "e14c28833e3ab56698c61196923c12ff96f1c41dbb00370db5c47e95ea7a5a4c"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Utf8Lf": "a1f6d60549674a571b362c2ae2d3ad3ee0ad2b94e63d9b28cbb23060b21b2ed6"
+    },
+    {
+      "path": "Styles/ImportacionExcel.css",
+      "sha256Utf8Lf": "301d91abd4dab11c01d459b2b94099674f25f5274834f7878037a9aa8ef016ff"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+      "sha256Utf8Lf": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "sha256Utf8Lf": "947cb11e1ca77ae488f408b2d41d5304f17272c89b91edb0ece51945baf13a7b"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+      "sha256Utf8Lf": "304db3f21c5fc8485bd8fe543b57c2006967e3a36b4cbc098faebcc0cb51d971"
+    },
+    {
+      "path": "tests/doc126-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "addf3d54c34b477889977c71de35dbec5b184acfdb6c23de64d930629d36986c"
+    },
+    {
+      "path": "tests/ImportacionExcelBehaviorTests.cs",
+      "sha256Utf8Lf": "cab0377b60a3b138c2b3108699aafddaac8510dc3d10d064ab012917bf44924e"
+    },
+    {
+      "path": "tests/ImportacionExcelLecturaTests.cs",
+      "sha256Utf8Lf": "8c4b1cda257f6cc145221d5615d86e6112aa5b9ec3135ddc7d242d3e4c21241d"
+    },
+    {
+      "path": "tests/doc126-importacion-excel-ui.test.cjs",
+      "sha256Utf8Lf": "a4639b7db00b6957a0b18030956816be3a9f4e0d24b163dae9eb805e341a4b6a"
+    },
+    {
+      "path": "tests/doc126-importacion-excel-client.test.cjs",
+      "sha256Utf8Lf": "d996e59f1060b9ae7cded4a5d243ba3df0db9cafcc4fd795a0bb106ecab37f84"
+    }
+  ]
+}

@@ -40,6 +40,10 @@ public static class ImportacionExcelConfirmacionTests {
   public SolicitudConfirmarExcel Request(){return new SolicitudConfirmarExcel{ConexionId=7,IdCarga=Db.Row.Id,ArchivoHash=Db.Row.Archivo.Hash,ConfiguracionHash=Db.Row.ConfiguracionHash,EsquemaHash=Db.Row.EsquemaHash,ConfirmacionReemplazo=true};}
  }
  static void Modes(){
+  Check(DifferentLockOwners(1L,2L),"independent active load and destination lock owners observed");
+  Check(!DifferentLockOwners(1L,1L),"same owner does not prove independent active locks");
+  Check(!DifferentLockOwners(DBNull.Value,2L),"missing load lock does not prove active writer");
+  Check(!DifferentLockOwners(1L,null),"missing destination lock does not prove active writer");
   var observations=0;WaitForImportInsert(()=>++observations==3,_=>{},1000);
   Check(observations==3,"external writer waits for observed importer INSERT, independent of preflight latency");
   observations=0;try{WaitForImportInsert(()=>{observations++;return false;},_=>{},0);throw new Exception("barrier accepted expired window");}catch(InvalidOperationException){Check(observations==0,"expired barrier never authorizes external COMMIT");}
@@ -157,7 +161,9 @@ public static class ImportacionExcelConfirmacionTests {
  static void ExternalWriter(bool authorized,string registeredConnection,string json,bool write){
   if(!authorized)throw new InvalidOperationException("DOC125_NATIVE_SCOPE_REQUIRED");
   var r=Newtonsoft.Json.Linq.JObject.Parse(json);var s=r["scope"];var item=r["item"];var req=r["prepared"].ToObject<SolicitudConfirmarExcel>();
-  if(!authorized||(string)s["issue"]!="DOC-125"||(bool?)s["disposable"]!=true||(bool?)s["preserveResources"]!=true||(string)item["escenario"]!="carrera"||(string)item["modo"]!="AGREGAR"||!System.Text.RegularExpressions.Regex.IsMatch((string)item["tabla"]??"",@"\Aimp_02_doc125_e2e_[A-Za-z0-9_]{1,44}\z"))throw new InvalidOperationException("DOC125_NATIVE_SCOPE_REQUIRED");
+  var issue=(string)s["issue"];var resilience=issue=="DOC-126"&&(string)s["mode"]=="resilience";var prefix=issue=="DOC-125"?"imp_02_doc125_e2e_":issue=="DOC-126"&&((string)s["mode"]=="write"||resilience)?"imp_02_doc126_e2e_":null;
+  if(!authorized||prefix==null||(bool?)s["disposable"]!=true||(bool?)s["preserveResources"]!=true||(bool?)s["destinationReadOnly"]==true||(s["allowedEffects"]==null||!s["allowedEffects"].ToObject<string[]>().Contains("EXTERNAL_INSERT"))||(string)item["escenario"]!="carrera"||(string)item["modo"]!="AGREGAR"||!System.Text.RegularExpressions.Regex.IsMatch((string)item["tabla"]??"",@"\A"+prefix+@"[A-Za-z0-9_]{1,44}\z"))throw new InvalidOperationException("DOC125_NATIVE_SCOPE_REQUIRED");
+  if(resilience&&((int?)s["maxBusinessRows"]!=311||(int?)s["maxDeletedRows"]!=1000||(int?)item["filasEsperadas"]!=10||(int?)item["filasDestinoEsperadas"]!=1001||(string)item["tabla"]!="imp_02_doc126_e2e_agregar"))throw new InvalidOperationException("DOC125_NATIVE_SCOPE_REQUIRED");
   var builder=new MySql.Data.MySqlClient.MySqlConnectionStringBuilder(registeredConnection);builder.AllowUserVariables=false;builder.PersistSecurityInfo=false;builder.ConnectionTimeout=5;
   var ctx=new ContextoCargaExcel{UsuarioId=(uint)s["usuarioId"],EmpresaId=(uint)s["empresaId"],ModuloId=(uint)s["moduloId"],ConexionId=(uint)item["conexionId"],Autorizado=true,IdentidadConexion=ReglasCargaExcel.HashDocumento(new{Servidor=builder.Server.ToLowerInvariant(),Puerto=builder.Port,Base=builder.Database})};
   Func<DbConnection> factory=()=>new MySql.Data.MySqlClient.MySqlConnection(builder.ConnectionString);
@@ -177,6 +183,10 @@ public static class ImportacionExcelConfirmacionTests {
    if(!read.Valido||read.FilasDatosObservadas!=(int)item["filasEsperadas"]||read.FilasDatosObservadas>1000)throw new InvalidOperationException("DOC125_NATIVE_FILE_INVALID");
    if(read.Filas[0].Valores.Single(v=>v.CampoDestino==p.CAMPO_UNICO).Texto!=(string)item["claveExterna"])throw new InvalidOperationException("DOC125_NATIVE_KEY_CHANGED");
    if(!write){Console.WriteLine("DOC125_EXTERNAL_PREFLIGHT_PASS");return;}
+   string destinationLock=null;
+   if(resilience)using(var q=cn.CreateCommand()){
+    q.CommandText="SELECT @@hostname,@@port,DATABASE(),@@lower_case_table_names";using(var physical=q.ExecuteReader()){if(!physical.Read())throw new InvalidOperationException("DOC125_NATIVE_SCHEMA_CHANGED");destinationLock=MySqlCargaExcelRepository.NombreLockDestino(Convert.ToString(physical[0]),Convert.ToUInt32(physical[1]),Convert.ToString(physical[2]),p.NOMBRE_PLANTILLA,Convert.ToInt32(physical[3]));}
+   }
    //No GET_LOCK: este actor verifica la protección física del UNIQUE.
    using(var tx=cn.BeginTransaction()){
     var w=new MySqlConfirmacionExcelWriter(cn,tx);var one=read.Filas.Take(1).ToList();w.Escribir(ctx,p,schema,"AGREGAR",w.Agrupar(p,one));
@@ -188,15 +198,23 @@ public static class ImportacionExcelConfirmacionTests {
       q.CommandText="SELECT COUNT(*) FROM information_schema.PROCESSLIST WHERE ID=IS_USED_LOCK(@lock) AND LEFT(INFO,CHAR_LENGTH(@prefix))=@prefix";
       var lockParameter=q.CreateParameter();lockParameter.ParameterName="@lock";lockParameter.Value=loadLock;q.Parameters.Add(lockParameter);
       var prefixParameter=q.CreateParameter();prefixParameter.ParameterName="@prefix";prefixParameter.Value="INSERT INTO `"+p.NOMBRE_PLANTILLA+"`";q.Parameters.Add(prefixParameter);
-      return Convert.ToInt32(q.ExecuteScalar())==1;
+      if(Convert.ToInt32(q.ExecuteScalar())!=1)return false;
+      if(!resilience)return true;
+      using(var locks=cn.CreateCommand()){
+       locks.Transaction=tx;locks.CommandTimeout=2;locks.CommandText="SELECT IS_USED_LOCK(@load),IS_USED_LOCK(@destination)";
+       var a=locks.CreateParameter();a.ParameterName="@load";a.Value=loadLock;locks.Parameters.Add(a);var b=locks.CreateParameter();b.ParameterName="@destination";b.Value=destinationLock;locks.Parameters.Add(b);
+       using(var owners=locks.ExecuteReader()){return owners.Read()&&DifferentLockOwners(owners[0],owners[1]);}
+      }
      }
     },System.Threading.Thread.Sleep,20000);
+    if(resilience){Console.WriteLine("DOC125_EXTERNAL_ACTIVE_LOCKS_OBSERVED");Console.Out.Flush();}
     Console.WriteLine("DOC125_EXTERNAL_IMPORT_WAIT_OBSERVED");Console.Out.Flush();
     tx.Commit();Console.WriteLine("DOC125_EXTERNAL_COMMITTED");Console.Out.Flush();
    }
   }
  }
 
+ static bool DifferentLockOwners(object load,object destination){return load!=null&&load!=DBNull.Value&&destination!=null&&destination!=DBNull.Value&&Convert.ToInt64(load)!=Convert.ToInt64(destination);}
  static void WaitForImportInsert(Func<bool> observed,Action<int> pause,int timeoutMs){
   var clock=System.Diagnostics.Stopwatch.StartNew();
   while(clock.ElapsedMilliseconds<timeoutMs){if(observed())return;pause(50);}

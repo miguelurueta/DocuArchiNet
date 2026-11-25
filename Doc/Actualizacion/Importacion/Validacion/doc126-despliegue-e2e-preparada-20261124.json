@@ -1,0 +1,120 @@
+{
+  "issue": "DOC-126",
+  "recordedUtc": "2026-11-24T21:56:55.034Z",
+  "baseCommit": "b611547f682b4e9b2395882789420356244ca1fc",
+  "status": "DEPLOYED_E2E_INSTRUMENTED_AUTHENTICATED_ACCEPTANCE_PENDING",
+  "deployment": {
+    "issue": "DOC-126",
+    "status": "DEPLOYED_UNAUTHENTICATED_HEALTH_PASS",
+    "recordedUtc": "2026-11-24T21:47:20.0483885Z",
+    "previousAssemblySha256": "07f02c77da2aa211515d971961ea28555e6697de20d41eb9ceae79ae0cdd0432",
+    "deployedAssemblySha256": "83f1b3216aa4d682d5e48b55c14b6f9254c378ad7df1803dac0c722b89ee9f70",
+    "backup": ".tmp/doc126-deployment-20261124-214710/previous.dll",
+    "backupSha256": "07f02c77da2aa211515d971961ea28555e6697de20d41eb9ceae79ae0cdd0432",
+    "reviewedSources": 14,
+    "wsdlStatus": 200,
+    "wsdlMethods": 9,
+    "analysisAnonymousDenied": true,
+    "webConfigUnchanged": true,
+    "sql": 0,
+    "authenticatedSessions": 0,
+    "realE2EExecuted": false
+  },
+  "localValidation": {
+    "runnerTests": {
+      "passed": 39,
+      "failed": 0,
+      "synthetic": true
+    },
+    "previousProductCut": {
+      "passed": 160,
+      "nativeChecks": 4555,
+      "realE2E": false
+    },
+    "registeredRealTests": 3,
+    "realTestsExecuted": 0,
+    "nativeLockVector": {
+      "source": "Existing compiled MySqlCargaExcelRepository.NombreLockDestino",
+      "destination": "dt947a94d25b4278c6ed284659f052cfbd7ca62e408b15ffc4a7378a4ba13398"
+    },
+    "refinement": {
+      "passed": 15,
+      "failed": 0
+    },
+    "openSpecStrict": {
+      "passed": 97,
+      "failed": 0
+    }
+  },
+  "acceptance": {
+    "complete": false,
+    "tasks": {
+      "total": 52,
+      "complete": 47,
+      "pending": [
+        "6.9",
+        "6.10",
+        "6.11",
+        "7.5",
+        "8.8"
+      ]
+    },
+    "matrix": {
+      "mode": "write",
+      "cases": 5,
+      "sql23to25": "PENDIENTE_CONFIRMACION_APLICACION_MANUAL",
+      "authorization": "PENDIENTE",
+      "businessRowsMax": 3311,
+      "deletedRowsMax": 1002
+    },
+    "assistant": {
+      "mode": "assistant",
+      "flag": "--excel-ui-assistant",
+      "authorizationVariable": "DOC126_ASSISTANT_E2E_AUTHORIZED",
+      "authorization": "PENDIENTE",
+      "newTemplatesMax": 1,
+      "newFieldsMax": 2,
+      "businessRowsMax": 1000,
+      "deletedRowsMax": 0,
+      "sql23to25Required": false,
+      "existingSchemaPreflightRequired": true,
+      "connectionAndAccountIdsVerified": false,
+      "fixtureDerivedLocally": true,
+      "expectedFields": [
+        {
+          "CAMPO_FUENTE": "CLAVE",
+          "CAMPO_DESTINO": "CLAVE",
+          "TIPO_CAMPO": "VARCHAR(63)"
+        },
+        {
+          "CAMPO_FUENTE": "VALOR",
+          "CAMPO_DESTINO": "VALOR",
+          "TIPO_CAMPO": "VARCHAR(57)"
+        }
+      ]
+    },
+    "cleanup": false
+  },
+  "sources": [
+    {
+      "path": "tools/e2e/tests/support/doc125-excel-scope.cjs",
+      "sha256Utf8Lf": "fe4430505277128ec6b9e2c2d3bc8ddecfbbc16286284b20f82ea2b9f92eb357"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+      "sha256Utf8Lf": "3e29305a025b9968e7b01b848502cfea6201e247321ef140c3617ef8e1faf2a0"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256Utf8Lf": "044a07ea30dc607059612871b8f807dff10b5c83fc563612eb66110662a6598f"
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "5cc344df1aa517f0a9aa8614d0ef67cf2a0edd77018395556ff48f9c5096bd38"
+    },
+    {
+      "path": "tests/doc126-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "430d9567f3838e2ef8670614297625d7e79f1b893798296acc7622fe06e0fa3e"
+    }
+  ]
+}

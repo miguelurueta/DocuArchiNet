@@ -1,0 +1,218 @@
+{
+  "status": "AUTHORIZED_SQL23_25_APPLIED_VERIFIED",
+  "recordedUtc": "2026-11-25T03:58:35.546Z",
+  "baseCommit": "d84375425439292c961687fa5ea0dd5c601c145a",
+  "authorization": "User: autorizado, after reviewing prepared SQL23 DA, SQL24 RA, SQL25 DA",
+  "scope": {
+    "empresaId": 2,
+    "usuarioId": 141,
+    "moduloDa": 11,
+    "moduloRa": 12,
+    "conexionId": 6
+  },
+  "application": {
+    "status": "AUTHORIZED_SQL23_25_APPLIED_VERIFIED",
+    "recordedUtc": "2026-11-25T03:37:54.6137081Z",
+    "empresaId": 2,
+    "usuarioId": 141,
+    "moduloId": 11,
+    "completed": [
+      "SQL23_DA_DDL",
+      "SQL24_RA_COMMITTED",
+      "SQL25_DA_COMMITTED"
+    ],
+    "sql23DdlMayExist": true,
+    "sql24Committed": true,
+    "sql25Committed": true,
+    "authenticatedApplicationSessions": 0,
+    "fuentes": [
+      8,
+      9
+    ],
+    "plantillas": [
+      57,
+      58,
+      59
+    ],
+    "verifiedUtc": "2026-11-25T03:37:55.2248260Z",
+    "tables": [
+      {
+        "TABLE_NAME": "imp_02_doc126_e2e_agregar",
+        "ENGINE": "InnoDB"
+      },
+      {
+        "TABLE_NAME": "imp_02_doc126_e2e_reemplazar",
+        "ENGINE": "InnoDB"
+      }
+    ],
+    "templates": [
+      {
+        "ID_PLANTILLAIMP": 57,
+        "NOMBRE_PLANTILLA": "imp_02_doc126_e2e_crear",
+        "ESTADO_PLANTILLA": 1,
+        "REVISION_CARGA": 1
+      },
+      {
+        "ID_PLANTILLAIMP": 58,
+        "NOMBRE_PLANTILLA": "imp_02_doc126_e2e_agregar",
+        "ESTADO_PLANTILLA": 1,
+        "REVISION_CARGA": 1
+      },
+      {
+        "ID_PLANTILLAIMP": 59,
+        "NOMBRE_PLANTILLA": "imp_02_doc126_e2e_reemplazar",
+        "ESTADO_PLANTILLA": 1,
+        "REVISION_CARGA": 1
+      }
+    ],
+    "sources": [
+      {
+        "fuente_id": 8,
+        "ambito_ref": "2",
+        "conexion_ref": "DA",
+        "tabla_nombre": "imp_02_doc126_e2e_agregar",
+        "activo": 1,
+        "revision": 2
+      },
+      {
+        "fuente_id": 9,
+        "ambito_ref": "2",
+        "conexion_ref": "DA",
+        "tabla_nombre": "imp_02_doc126_e2e_reemplazar",
+        "activo": 1,
+        "revision": 2
+      }
+    ],
+    "initialRows": [
+      {
+        "agregar": 1,
+        "reemplazar": 2
+      }
+    ],
+    "selects": 11
+  },
+  "sql": [
+    {
+      "source": "Doc/Actualizacion/Importacion/Sql/23-fixtures-da-doc126.sql",
+      "sourceSha256": "c31d3f61fc581463a54071ed55ea7bef5e53700c8ff2f9f4d4df45aa722804df",
+      "prepared": ".tmp/doc126-functional-preparacion/23-fixtures-da-doc126.sql",
+      "preparedSha256": "c31d3f61fc581463a54071ed55ea7bef5e53700c8ff2f9f4d4df45aa722804df"
+    },
+    {
+      "source": "Doc/Actualizacion/Importacion/Sql/24-fuentes-e2e-ra-doc126.sql",
+      "sourceSha256": "6eb8bf51a0987cdfcab3e5e2b2aab58e7c3c69f2dd42893517c512794d9a8e43",
+      "prepared": ".tmp/doc126-functional-preparacion/24-fuentes-e2e-ra-doc126.sql",
+      "preparedSha256": "d2e55014ccd6f04db7e9f44d5cb125b70950620e7cc1bfa1884ffd88987ff1db"
+    },
+    {
+      "source": "Doc/Actualizacion/Importacion/Sql/25-plantillas-e2e-da-doc126.sql",
+      "sourceSha256": "a197d213d862ac57cbb79032df7856360df873a6c63b50eeaa1abfa2348166e5",
+      "prepared": ".tmp/doc126-functional-preparacion/25-plantillas-e2e-da-doc126.sql",
+      "preparedSha256": "b3e5e19bf8ba9fc924e9e29d3aeeb19f0f2095ccae157e02273b1f3f5bfaf6d8"
+    }
+  ],
+  "readyE2E": {
+    "mode": "functional",
+    "cases": [
+      {
+        "scenario": "agregar",
+        "templateId": 58,
+        "revision": 1,
+        "templateHash": "e8a914751fe30496d2f55ef97c3039d7727af095677cdfaebc1a8432e317d71b",
+        "fileHash": "122e6c23b71a3ce8dcd339f289c2768b406b75e95d06af7f01f96d43d0605325",
+        "rows": 1000,
+        "baseline": 1
+      },
+      {
+        "scenario": "reemplazar",
+        "templateId": 59,
+        "revision": 1,
+        "templateHash": "91cb0b4607cf6f7bbb527fb80d7e44e1035177925193013dfac23abac20a8a59",
+        "fileHash": "392e82247aae3088d2b03d63a8a806a196f9483aa441842f817419e54306290e",
+        "rows": 1000,
+        "baseline": 2
+      }
+    ],
+    "protectedTableCount": 27,
+    "scopeSha256": "8fe2efdaab5e3ead214b66c70ce8c7268aca6f7f874efedb1107612f10ba4fda",
+    "backendSha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+    "assets": {
+      "js/gestion/ImportacionExcel/ImportacionExcelApi.js": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+      "js/gestion/ImportacionExcel/ImportacionExcelVista.js": "837848f593b8bc456885f1ba5ee6340ca2244f1161f4eb88b96f0203b1c54253",
+      "Styles/ImportacionExcel.css": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee"
+    },
+    "started": true,
+    "awaitingPrivatePassword": false,
+    "resultPending": false,
+    "status": "STOPPED_LOGIN_CREDENTIALS_REJECTED",
+    "successfulCases": 0,
+    "importLoadsCreated": 0,
+    "authenticatedSessions": 0
+  },
+  "permissionsChanged": false,
+  "webConfigChanged": false,
+  "binaryChanged": false,
+  "realAttempts": [
+    {
+      "number": 1,
+      "status": "STOPPED_CONTROL_COLUMNS_INVALID",
+      "startedUtc": "2026-11-25T03:42:10.7499431Z",
+      "completedUtc": "2026-11-25T03:48:13.5892801Z",
+      "loginAttempted": false,
+      "importLoadsCreated": 0
+    },
+    {
+      "number": 2,
+      "status": "STOPPED_LOGIN_CREDENTIALS_REJECTED",
+      "startedUtc": "2026-11-25T03:51:17.7971415Z",
+      "completedUtc": "2026-11-25T03:55:23.9960992Z",
+      "protectedBaselineTables": 27,
+      "loginAttempted": true,
+      "authenticated": false,
+      "importLoadsCreated": 0
+    }
+  ],
+  "controlCorrection": {
+    "historicalColumn": "AÑO_FERIADO",
+    "table": "imp_02__001_feriados",
+    "closedUnicodeIdentifierValidation": true,
+    "physicalSchemaChanged": false,
+    "independentMetadataQueriesParallel": true,
+    "fullFingerprintPreserved": true,
+    "regressionPassed": 38,
+    "regressionFailed": 0
+  },
+  "finalReadOnlyObservation": {
+    "recordedUtc": "2026-11-25T03:56:03.0224716Z",
+    "fixtureRows": [
+      {
+        "agregar": 1,
+        "reemplazar": 2
+      }
+    ],
+    "loads": [],
+    "sqlWrites": 0
+  },
+  "e2eSources": [
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "a3b7526f3a851da1def2facc31cf7fd9abacb5e270da08e21bbaf81694a6ee83"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc124-excel-scope.cjs",
+      "sha256Utf8Lf": "0b4b49021c8d87a89600cd0d44faf863069c7f4732dd74b7c42ecaaa8f0ab125"
+    },
+    {
+      "path": "tests/doc124-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "dc6c0880904a669aa523db3f396393214a297a798fa986b9a20c6413570cc141"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+      "sha256Utf8Lf": "830b77c8fe7e9c8a4d2be5113a42798021c5d2bb1b73e1602aa5822e1e131912"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256Utf8Lf": "14971e1904b7898ac0cc4349630c777749ca1e63b35c0eb7e1731093484fa609"
+    }
+  ]
+}

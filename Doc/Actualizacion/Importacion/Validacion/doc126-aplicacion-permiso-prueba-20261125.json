@@ -1,0 +1,97 @@
+{
+  "status": "AUTHORIZED_SQL27_APPLIED_VERIFIED",
+  "recordedUtc": "2026-11-25T05:37:40.356Z",
+  "baseCommit": "a2d6f19237d8eeaa7e1c6e1e1d300ea96fbee653",
+  "authorization": "El usuario indicó continua después de la pregunta concreta de habilitar solo cargas en194 y usar194/196 para lectura en IIS local.",
+  "application": {
+    "status": "AUTHORIZED_SQL27_APPLIED_VERIFIED",
+    "startedUtc": "2026-11-25T05:34:38.6226959Z",
+    "empresaId": 2,
+    "ownerId": 194,
+    "restrictedId": 196,
+    "protectedUserId": 141,
+    "sqlBatchMayHaveCommitted": true,
+    "permissionChangesVerified": 1,
+    "authenticatedApplicationSessions": 0,
+    "profilesBefore": 78,
+    "profilesBeforeSha256": "62f1f31280b7d6ae8255c33c3a03a9a15f500541227ed923d707d380d0ee703e",
+    "scriptSha256": "385564a79fa5f628884cf45211a7b2fe729f25f3290f00dd06ba0e21051e57b6",
+    "completedUtc": "2026-11-25T05:34:38.9835229Z",
+    "profilesAfter": 78,
+    "profilesAfterSha256": "4e9135a2218b77ef6187df171cbad64952f6c393cc49ddc38135fd66d776b091",
+    "allOtherProfileFieldsUnchanged": true,
+    "accounts": [
+      {
+        "id": 141,
+        "login_ref": "LUZ.AGUILERA",
+        "activo": 1,
+        "cargas": 1,
+        "carpetas": 1,
+        "perfiles": 1,
+        "fuentes": 1,
+        "proveedores": 1
+      },
+      {
+        "id": 194,
+        "login_ref": "asesor.comercial",
+        "activo": 1,
+        "cargas": 1,
+        "carpetas": 0,
+        "perfiles": 0,
+        "fuentes": 0,
+        "proveedores": 0
+      },
+      {
+        "id": 196,
+        "login_ref": "oficial.cumplimiento",
+        "activo": 1,
+        "cargas": 0,
+        "carpetas": 0,
+        "perfiles": 0,
+        "fuentes": 0,
+        "proveedores": 0
+      }
+    ]
+  },
+  "readScope": {
+    "mode": "read",
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "empresaId": 2,
+    "moduloId": 11,
+    "usuarioId": 194,
+    "restrictedUsuarioId": 196,
+    "conexionId": 6,
+    "plantillaId": 60,
+    "protectedTables": 30,
+    "maxBusinessRows": 0,
+    "maxDeletedRows": 0,
+    "allowedEffects": []
+  },
+  "localTests": {
+    "passed": 44,
+    "failed": 0
+  },
+  "realReadE2EResult": "PENDING_SEPARATE_RESULT",
+  "tasks": {
+    "complete": 60,
+    "total": 62,
+    "pending": [
+      "6.9",
+      "7.5"
+    ]
+  },
+  "sources": [
+    {
+      "path": "Doc/Actualizacion/Importacion/Sql/27-permiso-cuenta-prueba-ra-doc126.sql",
+      "sha256Utf8Lf": "09d18d9a3ede530970ac1632fc2d9d0d978ad63c7b4f0798854d95b53dfbfba5"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+      "sha256Utf8Lf": "f4597c54f60cdc126e538a1e1e157be553d5a7fc6f3b4da46f1b9652ab301ef8"
+    },
+    {
+      "path": "tests/doc126-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "93c813cd64654171284eaabab672da48deb01b639af816c7323448c0b502134e"
+    }
+  ]
+}

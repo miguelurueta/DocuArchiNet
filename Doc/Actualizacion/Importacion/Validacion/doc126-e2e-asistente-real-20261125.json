@@ -1,0 +1,218 @@
+{
+  "status": "DOC126_REAL_UI_ASSISTANT_PASS",
+  "recordedUtc": "2026-11-25T05:17:52.236Z",
+  "completedUtc": "2026-11-25T05:17:13.4764149Z",
+  "baseCommit": "5046842b05bad4ec1e8b85a8c9d8f09df9f04e92",
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "module": "GESTOR",
+    "usuarioId": 141,
+    "empresaId": 2,
+    "moduloDa": 11,
+    "moduloRa": 12,
+    "conexionId": 6,
+    "accountPolicy": "EXISTING_AUTHORIZED"
+  },
+  "acceptance": {
+    "executedTests": 1,
+    "passedTests": 1,
+    "templateCreates": 1,
+    "fieldCreates": 2,
+    "rowsConfirmed": 1000,
+    "protectedTablesVerified": 29,
+    "previousTemplateAndFieldFingerprintsUnchanged": true,
+    "previousPositiveResultsPreserved": 2,
+    "previousNegativeResultsPreserved": 2,
+    "explicitSaveReceivePrepareConfirmQuery": true,
+    "doubleConfirmationRequestsPrevented": true,
+    "exclusivePermissionProved": false
+  },
+  "case": {
+    "scenario": "crear",
+    "mode": "CREAR",
+    "templateId": 60,
+    "table": "imp_02_doc126_e2e_asistente_c38a2522",
+    "loadId": "9d7a1ee7-f7f8-4592-ad34-0625bb77f80c",
+    "fileHash": "7924e4ad59736d45ca86d6189ac7f09f5ced9ab388c2bd83bc26acae52df7a53",
+    "configurationHash": "a9ab9d2376844d6de205146826faff4e3ddc53a342470bc5230116d89cc5fb74",
+    "schemaHash": "f4134cc7cfb6bf58168cf3dfd3b0091983dd79085c170c8171bfc93bcd5e4770",
+    "rowsBefore": 0,
+    "rowsAfter": 1000,
+    "status": "CONFIRMADA"
+  },
+  "finalSelect": {
+    "status": "ASSISTANT_REAL_DATA_VERIFIED",
+    "recordedUtc": "2026-11-25T05:15:45.9187003Z",
+    "template": {
+      "ID_PLANTILLAIMP": 60,
+      "IMP01_XMLCONEXION_ID_XMLCONEXION": 6,
+      "NOMBRE_PLANTILLA": "imp_02_doc126_e2e_asistente_c38a2522",
+      "CAMPO_UNICO": "CLAVE",
+      "REVISION_CARGA": 1,
+      "ESTADO_PLANTILLA": 1
+    },
+    "fields": [
+      {
+        "CAMPO_FUENTE": "CLAVE",
+        "CAMPO_DESTINO": "CLAVE",
+        "TIPO_CAMPO": "VARCHAR(63)",
+        "REMPLAZA_COMA": 0,
+        "REMPLAZA_PUNTO": 0,
+        "OPCION_SPLITER": 0,
+        "NUMERO_MATRIZ_EXPLITER": 0
+      },
+      {
+        "CAMPO_FUENTE": "VALOR",
+        "CAMPO_DESTINO": "VALOR",
+        "TIPO_CAMPO": "VARCHAR(57)",
+        "REMPLAZA_COMA": 0,
+        "REMPLAZA_PUNTO": 0,
+        "OPCION_SPLITER": 0,
+        "NUMERO_MATRIZ_EXPLITER": 0
+      }
+    ],
+    "rows": {
+      "crear": 1000,
+      "agregar": 1002,
+      "reemplazar": 1000
+    },
+    "loads": [
+      {
+        "id_carga": "47ebdd39-83e0-40a7-9769-dbc5a1bddd9a",
+        "id_plantilla": 58,
+        "usuario_ref": "141",
+        "ambito_ref": "2",
+        "conexion_ref": "DA:11:6",
+        "tabla_destino": "imp_02_doc126_e2e_agregar",
+        "modo": "AGREGAR",
+        "estado": "FALLIDA",
+        "filas_previstas": 10,
+        "filas_confirmadas": 0,
+        "codigo_incidencia": "CONFLICTO_CLAVE",
+        "archivo_hash": "bb1b29147b355884e199d4344463393cb904cc2eae83d228f7dc775fa7786d9c",
+        "configuracion_hash": "4ea5aa6343ca6bce6be1781783c4f3f2acf4bab4017c51dda5de32ddb718ae4a",
+        "esquema_hash": "cfbf2a1811408e5c0a2371dd5740223ec4a581d7a21cb2bc4ae38f862e69e063"
+      },
+      {
+        "id_carga": "36f39f62-c6d3-49cb-9d14-ebf61e7e2e02",
+        "id_plantilla": 58,
+        "usuario_ref": "141",
+        "ambito_ref": "2",
+        "conexion_ref": "DA:11:6",
+        "tabla_destino": "imp_02_doc126_e2e_agregar",
+        "modo": "AGREGAR",
+        "estado": "CONFIRMADA",
+        "filas_previstas": 1000,
+        "filas_confirmadas": 1000,
+        "codigo_incidencia": null,
+        "archivo_hash": "122e6c23b71a3ce8dcd339f289c2768b406b75e95d06af7f01f96d43d0605325",
+        "configuracion_hash": "4ea5aa6343ca6bce6be1781783c4f3f2acf4bab4017c51dda5de32ddb718ae4a",
+        "esquema_hash": "cfbf2a1811408e5c0a2371dd5740223ec4a581d7a21cb2bc4ae38f862e69e063"
+      },
+      {
+        "id_carga": "e18c33ab-c248-402c-8309-480d1cd93ae7",
+        "id_plantilla": 59,
+        "usuario_ref": "141",
+        "ambito_ref": "2",
+        "conexion_ref": "DA:11:6",
+        "tabla_destino": "imp_02_doc126_e2e_reemplazar",
+        "modo": "REEMPLAZAR",
+        "estado": "FALLIDA",
+        "filas_previstas": 300,
+        "filas_confirmadas": 0,
+        "codigo_incidencia": "CONFLICTO_CLAVE",
+        "archivo_hash": "88680068e818d3789242e9bfc7df43384378c8639d93b4f4d4c4759f3cb3ca5d",
+        "configuracion_hash": "f79651eed7f710f613d12b7fb1f04eb6fd8df3ceab4c5ba436238f8afa84b4f5",
+        "esquema_hash": "cfbf2a1811408e5c0a2371dd5740223ec4a581d7a21cb2bc4ae38f862e69e063"
+      },
+      {
+        "id_carga": "31ca6cd5-716e-4829-a0ca-eac7700192d6",
+        "id_plantilla": 59,
+        "usuario_ref": "141",
+        "ambito_ref": "2",
+        "conexion_ref": "DA:11:6",
+        "tabla_destino": "imp_02_doc126_e2e_reemplazar",
+        "modo": "REEMPLAZAR",
+        "estado": "CONFIRMADA",
+        "filas_previstas": 1000,
+        "filas_confirmadas": 1000,
+        "codigo_incidencia": null,
+        "archivo_hash": "392e82247aae3088d2b03d63a8a806a196f9483aa441842f817419e54306290e",
+        "configuracion_hash": "f79651eed7f710f613d12b7fb1f04eb6fd8df3ceab4c5ba436238f8afa84b4f5",
+        "esquema_hash": "cfbf2a1811408e5c0a2371dd5740223ec4a581d7a21cb2bc4ae38f862e69e063"
+      },
+      {
+        "id_carga": "9d7a1ee7-f7f8-4592-ad34-0625bb77f80c",
+        "id_plantilla": 60,
+        "usuario_ref": "141",
+        "ambito_ref": "2",
+        "conexion_ref": "DA:11:6",
+        "tabla_destino": "imp_02_doc126_e2e_asistente_c38a2522",
+        "modo": "CREAR",
+        "estado": "CONFIRMADA",
+        "filas_previstas": 1000,
+        "filas_confirmadas": 1000,
+        "codigo_incidencia": null,
+        "archivo_hash": "7924e4ad59736d45ca86d6189ac7f09f5ced9ab388c2bd83bc26acae52df7a53",
+        "configuracion_hash": "a9ab9d2376844d6de205146826faff4e3ddc53a342470bc5230116d89cc5fb74",
+        "esquema_hash": "f4134cc7cfb6bf58168cf3dfd3b0091983dd79085c170c8171bfc93bcd5e4770"
+      }
+    ],
+    "permissionsPreserved": true,
+    "sqlWrites": 0
+  },
+  "scopeSha256": "767337c03063907a989954327be10e3b403f75e0192bcaa733d111e7c93b3662",
+  "backendSha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+  "assets": {
+    "js/gestion/ImportacionExcel/ImportacionExcelApi.js": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+    "js/gestion/ImportacionExcel/ImportacionExcelVista.js": "837848f593b8bc456885f1ba5ee6340ca2244f1161f4eb88b96f0203b1c54253",
+    "Styles/ImportacionExcel.css": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee"
+  },
+  "localVerification": {
+    "nodeTestsPassed": 43,
+    "nodeTestsFailed": 0,
+    "browserTestsPassed": 40,
+    "browserTestsFailed": 0,
+    "browserTransport": "synthetic",
+    "reviewGapResolved": "RQ-05: incompatible extension and effective size limit rejected before reception; zero receive/upload/prepare/confirm requests"
+  },
+  "planning": {
+    "complete": 60,
+    "total": 62,
+    "closedThisCut": [
+      "6.10",
+      "8.8"
+    ],
+    "pending": [
+      "6.9",
+      "7.5"
+    ]
+  },
+  "permissionsChanged": false,
+  "productCodeChanged": false,
+  "webConfigChanged": false,
+  "newSqlInstallation": false,
+  "cleanupPerformed": false,
+  "sources": [
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256Utf8Lf": "5849451d0fbcad89d8882b9a8b34d86f608a06209a989065f10de30af7d8624c"
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "2975674e11c9790e1a59d2d2341b7a4673b8bf2c5de22e1f2183e2b875da10f9"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+      "sha256Utf8Lf": "127065589698c728154492af023a6166bba57130acda4543290c1f273598e53a"
+    },
+    {
+      "path": "tests/doc126-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "e9726553772f5c9c1dc03fd7fd946daaf314aae278589b5d5fae90b54a31b372"
+    },
+    {
+      "path": "tests/doc126-importacion-excel-ui.test.cjs",
+      "sha256Utf8Lf": "e4e0fdc95035d895b6f2b96039f1749b6c3ec7f4ba80a600059ea309d514d922"
+    }
+  ]
+}

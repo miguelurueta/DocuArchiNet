@@ -1,0 +1,106 @@
+{
+  "version": 3,
+  "issueKey": "DOC-126",
+  "changeName": "doc-126-importacion-excel-06-interfaz-menu",
+  "impact": "webforms_ui",
+  "requiredEvidence": [
+    "manual_qa"
+  ],
+  "documentation": [
+    "Doc/Tecnica/Opsxj/doc-126-importacion-excel-06-interfaz-menu/01-ResumenTecnico.md",
+    "Doc/Tecnica/Opsxj/doc-126-importacion-excel-06-interfaz-menu/02-ImpactoUI.md",
+    "Doc/Tecnica/Opsxj/doc-126-importacion-excel-06-interfaz-menu/03-FlujoWebForms.md",
+    "Doc/Tecnica/Opsxj/doc-126-importacion-excel-06-interfaz-menu/05-PruebasEvidencia.md"
+  ],
+  "documentationContract": [
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-126-importacion-excel-06-interfaz-menu/01-ResumenTecnico.md",
+      "requiredSections": [
+        "## Objetivo",
+        "## Alcance y compatibilidad"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-126",
+        "changeName": "doc-126-importacion-excel-06-interfaz-menu",
+        "impact": "webforms_ui"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-126-importacion-excel-06-interfaz-menu/02-ImpactoUI.md",
+      "requiredSections": [
+        "## Superficies UI",
+        "## Validacion visual"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-126",
+        "changeName": "doc-126-importacion-excel-06-interfaz-menu",
+        "impact": "webforms_ui"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-126-importacion-excel-06-interfaz-menu/03-FlujoWebForms.md",
+      "requiredSections": [
+        "## Flujo",
+        "## Riesgos"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-126",
+        "changeName": "doc-126-importacion-excel-06-interfaz-menu",
+        "impact": "webforms_ui"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-126-importacion-excel-06-interfaz-menu/05-PruebasEvidencia.md",
+      "requiredSections": [
+        "## Evidencia requerida",
+        "## QA/E2E WebForms"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-126",
+        "changeName": "doc-126-importacion-excel-06-interfaz-menu",
+        "impact": "webforms_ui"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    }
+  ],
+  "refinement": {
+    "version": 1,
+    "required": true,
+    "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/refinement.md",
+    "state": "approved",
+    "taskOriginFormat": "Origen: D-XX, RQ-XX",
+    "enforcement": "Cada decision debe llegar a design, spec y tasks; no se admiten reglas de framework ajeno al perfil tecnologico."
+  },
+  "technologyProfile": {
+    "name": "legacy-webforms-vb",
+    "version": 1,
+    "description": "ASP.NET Web Forms, code-behind VB.NET/C# y JavaScript gradual."
+  }
+}

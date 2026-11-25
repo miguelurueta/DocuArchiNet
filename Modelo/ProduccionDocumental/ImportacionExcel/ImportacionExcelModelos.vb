@@ -5,10 +5,22 @@ Imports System.Collections.Generic
 Public Class ImportacionExcelException
     Inherits Exception
     Public ReadOnly Property Codigo As String
+    Public Property Detalles As New List(Of DetalleConfiguracionExcel)
     Public Sub New(codigo As String, mensaje As String)
         MyBase.New(mensaje)
         Me.Codigo = codigo
     End Sub
+End Class
+
+'Sólo reglas y referencias de formulario; nunca SQL, valores de celda o mensajes del proveedor.
+Public Class DetalleConfiguracionExcel
+    Public Property Campo As String
+    Public Property FilaCampo As Nullable(Of Integer)
+    Public Property CampoDestino As String
+    Public Property Regla As String
+    Public Property Limite As Nullable(Of Integer)
+    Public Property LongitudActual As Nullable(Of Integer)
+    Public Property TipoEsperado As String
 End Class
 
 Public Class ContextoImportacionExcel

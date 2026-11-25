@@ -219,3 +219,86 @@ las claves se eliminaron. Resultado y mediciones en
 [doc125-ejecucion-seguimiento-20261124.md](../Validacion/doc125-ejecucion-seguimiento-20261124.md).
 Los efectos quedan conservados en los fixtures autorizados. Los SQL conservan sus valores NULL de entrega; los IDs reales
 se completaron sólo en la ejecución delegada, sin reeditar los archivos aplicados.
+
+## DOC126 — interfaz y nueva aceptación, pendiente de aplicación manual
+
+La interfaz utiliza el esquema existente. Para su aceptación se entregan fixtures
+separados: los resultados DOC125 permanecen intactos y su tabla CREAR ya contiene
+datos. No reaplicar18–21 ni reutilizar aquella autorización para estos archivos.
+
+| Orden | Archivo y destino | Estado y efectos |
+| --- | --- | --- |
+| 1 | [22-preflight-doc126.sql](22-preflight-doc126.sql), bloques RA/DA | Sólo SELECT. Revisar instalación, referencias y dos cuentas de prueba. Ejecutar cada bloque en su base indicada. |
+| 2 | [23-fixtures-da-doc126.sql](23-fixtures-da-doc126.sql), DA | PENDIENTE_EJECUCION_MANUAL: dos tablas nuevas imp_02_doc126_e2e_agregar/reemplazar; CREAR debe seguir ausente. DDL tiene commit implícito. |
+| 3 | [24-fuentes-e2e-ra-doc126.sql](24-fuentes-e2e-ra-doc126.sql), RA | PENDIENTE_EJECUCION_MANUAL: dos fuentes CONEXION con historial, sin proveedores. Completar empresa/actor reales en copia local. |
+| 4 | [25-plantillas-e2e-da-doc126.sql](25-plantillas-e2e-da-doc126.sql), DA | PENDIENTE_EJECUCION_MANUAL: tres plantillas nuevas y tres filas sintéticas iniciales. Completar conexión histórica del módulo en copia local. |
+
+Revisar ausencia de los tres destinos antes del DDL; si existe alguno, detener.
+No ejecutar con opción de continuar ante errores. SQL24/25 mantienen transacción
+abierta: sólo LISTO_PARA_COMMIT y cero errores permiten COMMIT manual en la misma
+sesión; otro resultado exige ROLLBACK y revisión. Conservar objetos parciales y
+todos los efectos; no hay limpieza automática. Verificar mediante SELECT en una
+sesión nueva después de la confirmación de aplicación del usuario.
+
+La E2E DOC126 exige propietario con ADMINISTRAR_CARGAS_IMPORTACION=1 y los cuatro
+permisos de carpetas/perfiles/fuentes/proveedores en0, más una cuenta restringida
+activa con cargas=0. Tener permisos adicionales no acredita el caso exclusivo.
+Estos archivos no crean usuarios, retiran permisos ni conceden privilegios. Si
+el preflight identifica una adecuación, se entregará como otro archivo revisado
+antes de la ejecución que dependa de ella.
+
+Reutilizar test:doc110:session con --excel-ui-read o --excel-ui-write, el perfil
+existente y recursos DA/RA del repositorio. El scope DOC126 incluye hashes de
+DLL y tres assets, cuentas, archivo/destinos y efectos máximos. Los controles
+SELECT usan los DSN existentes mediante DOC126_DA_E2E y DOC126_RA_E2E; sus datos
+de acceso son efímeros y no modifican Web.config. La instalación se hace fuera
+del test. Esta entrega de archivos no acredita aplicación, despliegue ni E2E real.
+
+## Recorrido funcional con cuenta existente — 2026-11-24
+
+57/62 tareas: completada la adaptación 6.12; pendientes 6.9, 6.10, 6.11, 7.5 y 8.8. Usuario 141 activo y autorizado con sus cinco permisos vigentes, conservados. Modo funcional de agregar/reemplazar separado de exclusividad/restricción; 88/88 pruebas locales y cuatro E2E registradas, sin ejecutar la nueva ventana real. Preflight SELECT: faltan tablas, políticas y plantillas DOC126. Copias SQL23–25 parametrizadas en .tmp/doc126-functional-preparacion, sin aplicar. Ver `Doc/Actualizacion/Importacion/Validacion/doc126-cuenta-existente-funcional-20261124.md`.
+
+## SQL23–25 aplicados con autorización — 2026-11-24
+
+El usuario autorizó aplicar las copias parametrizadas. Dos tablas, dos políticas y tres plantillas activas verificadas desde conexiones nuevas; IDs57/58/59, filas sintéticas iniciales1/2 y destino CREAR ausente. Las indicaciones PENDIENTE de cortes anteriores son históricas: no reaplicar. La E2E funcional usa la cuenta141 con permisos actuales conservados y plantillas58/59; scope vigente válido y27 tablas protegidas. Consola privada preparada; no se acredita ejecución hasta disponer de su resultado. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-aplicacion-sql-funcional-20261124.md`.
+
+## E2E funcional detenida en autenticación — 2026-11-24
+
+SQL23–25 aplicados y verificados; no reaplicar. Corregido control compartido para la columna histórica AÑO_FERIADO, con38/38 regresiones. Segundo intento completó27 huellas iniciales, pero el servidor devolvió LOGIN_CREDENTIALS_REJECTED en el módulo GESTOR del perfil local. Cero sesiones autenticadas/cargas nuevas; fixtures permanecen1/2 filas. Confirmar el acceso manual y proporcionar la contraseña sólo en consola privada. No se cierran tareas de aceptación por estos intentos. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-aplicacion-sql-funcional-20261124.md`.
+
+## Aceptación funcional real con la cuenta existente — 2026-11-24
+
+E2E Playwright real PASS: un test, dos casos. Agregar1000:1→1001 filas; reemplazar1000:2→1000 filas, con consentimiento. Usuario141 en IIS local HTTPS/GESTOR, plantillas58/59 y hashes/propiedad/locks verificados. Huellas íntegras de27 tablas protegidas y configuración de plantillas sin cambios. Perfil local separado; perfil compartido, permisos, DLL y Web.config conservados. La creación/importación manual del usuario se reconoce como realizada. No acredita exclusividad/restricción, rollback/carrera o asistente automatizado. Ver `Doc/Actualizacion/Importacion/Validacion/doc126-e2e-funcional-real-20261124.md`.
+
+## Rollback y concurrencia reales — 2026-11-24
+
+6.11 completada:58/62 tareas. E2E real PASS, dos casos: rollback conserva íntegramente1000 filas; concurrencia conserva las1001 anteriores y sólo una fila externa adicional (total1002), con cero filas propias confirmadas. Actor observó INSERT bloqueado y locks activos antes de confirmar.27 tablas protegidas, configuración y dos resultados positivos previos intactos; locks liberados.41/41 pruebas Node y4607 checks sintéticos. Sin instalación/limpieza/permisos nuevos. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-e2e-rollback-concurrencia-20261124.md`.
+
+## Asistente y tres modos reales — 2026-11-25
+
+6.10 y8.8 completadas:60/62 tareas. E2E real del asistente PASS: una plantilla nueva/dos campos, CREAR1000 filas y29 tablas protegidas con huellas intactas. Combinada con AGREGAR/REEMPLAZAR anteriores acredita1000 filas por cada modo; rollback/concurrencia ya aprobados. Se conservan permisos, históricos y cuatro resultados previos; sin SQL de instalación, limpieza o cambio productivo.43/43 regresiones de adaptadores PASS. Pendientes6.9 (cuentas exclusiva/restringida) y7.5 (cierre de gobierno). Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-e2e-asistente-real-20261125.md`.
+
+## DOC126 — cuentas de prueba para6.9, 2026-11-25
+
+Estado **PENDIENTE_IDENTIFICAR_CUENTAS / PENDIENTE_EJECUCION_MANUAL**. SQL26–27 entregados, no aplicados. El diagnóstico actualizado conserva0 cuentas exclusivas/74 restringidas; no se elige a otro empleado ni se retiran permisos a LUZ.AGUILERA (141).
+
+1. El usuario identifica dos cuentas dedicadas de prueba de empresa2. Nunca comunicar contraseñas por chat o SQL. Una cuenta necesita sólo cargas; la otra debe carecer de ese permiso. No requiere otras cuentas MySQL ni otra conexión en Web.config.
+2. En una copia local de **26-cuentas-prueba-ra-doc126.sql**, completar los dos IDs y ejecutar en **RA del módulo12**. Es sólo SELECT. Confirmar exactamente un perfil activo por usuario. La exclusiva debe tener las cuatro capacidades adicionales exactamente en0; si no cumple, detener y elegir una cuenta dedicada adecuada. No utilizar141 en ninguno de los dos papeles.
+3. Sólo si hace falta habilitar cargas, revisar y ejecutar manualmente **27-permiso-cuenta-prueba-ra-doc126.sql** en esa misma RA, completando los mismos IDs y poniendo cuentas_prueba_confirmadas=1 después de confirmar que son cuentas dedicadas. Máximo una actualización0→1 de ADMINISTRAR_CARGAS_IMPORTACION; conserva todos los demás permisos y la cuenta restringida. Parámetros vacíos o confirmación0 impiden la actualización. No crea usuarios/perfiles ni corrige duplicados. Si la exclusiva ya tiene cargas1 y las otras cuatro capacidades0, omitirlo.
+4. Verificar SQL26 desde una conexión nueva: dos usuarios activos, un perfil cada uno, cargas1/0 y cuatro permisos adicionales0 en la exclusiva. Después preparar el scope **read** y autenticar las dos cuentas en consola privada dentro del ambiente autorizado. La E2E no ejecuta26/27 ni instala/limpia datos; sus controles siguen siendo SELECT y cero mutaciones funcionales.
+
+Los metadatos actuales son InnoDB; el índice de perfil por usuario **no es UNIQUE**. SQL27 utiliza transacción REPEATABLE READ, bloqueos de usuarios/perfiles y comprobaciones de cardinalidad antes de su única actualización; no añade índices ni modifica el esquema. Revisar precondiciones, no ejecutar fragmentos fuera de la transacción. Si precondiciones_cumplidas=0, detener; no acredita aplicación ni una E2E aprobada. Conservar las cuentas y cualquier efecto autorizado; no hay revocación/limpieza automática.
+
+No reaplicar23–25 ni repetir las cargas reales aprobadas. La entrega de estos archivos y el preflight no cierran6.9/7.5: faltan las identidades confirmadas, eventual aplicación manual y la prueba autenticada. Evidencia: `../Validacion/doc126-preparacion-cuentas-20261125.md`.
+
+### Aplicación posterior autorizada de SQL27
+
+El usuario solicitó buscar las cuentas y autorizó habilitar sólo cargas en asesor.comercial194, con oficial.cumplimiento196 como restringida. Ambas identificadas como Prueba en su nombre visible, activas y con un perfil. **SQL27 aplicado y verificado**, mediante una copia local parametrizada y confirmación1, fuera de la E2E. Una modificación0→1; los demás campos de los78 perfiles de empresa2 y todos los permisos de141 permanecen iguales. No reaplicar27 ni retirar permisos para reiniciar la prueba. El SQL público conserva sus parámetros seguros como plantilla histórica. Evidencia: `../Validacion/doc126-aplicacion-permiso-prueba-20261125.md`. La aceptación de lectura tiene resultado separado; esta adecuación no la acredita.
+
+## Lectura exclusiva/restringida real aprobada — 2026-11-25
+
+6.9 completada:61/62 tareas. Cuenta194 con sólo cargas abre/busca/consulta y cierra con Escape;196 sin cargas no tiene menú y recibe ACCESO_DENEGADO.30 huellas protegidas y configuración intactas; cero mutaciones funcionales. SELECT posterior conserva78 perfiles y cinco cargas previas.92/92 pruebas locales PASS; foco corregido en assets v6, sin cambiar DLL/Web.config. La concesión administrativa previa SQL27 se mantiene separada. Pendiente revisión final7.5. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-e2e-permisos-real-20261125.md`.
+
+## Estado final de entrega — 2026-11-25
+
+**62/62 tareas.** Gobierno legacy62/62, OpenSpec97/97 y refinamiento15/15 PASS antes del commit, con revalidación del SHA publicado al finalizar. La lectura real aprobada corresponde a assets v6:30 tablas,78 perfiles y cinco resultados conservados. El ajuste posterior mínimo de Cerrar siempre habilitado se entrega como **doc126-7**, probado localmente (49 UI/cliente;93 pruebas actuales con44 adaptadores), con hash HTTP verificado. No se afirma otra ejecución real v7. DLL/Web.config y datos permanecen conservados; no reaplicar permisos, SQL o cargas. Ver `Doc/Actualizacion/Importacion/Validacion/doc126-verificacion-final-20261125.md`.

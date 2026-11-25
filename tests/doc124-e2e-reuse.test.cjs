@@ -75,6 +75,17 @@ test('DOC124 protege nombre/ausencia de CREAR y no toma muestra como huella de o
  await assert.rejects(snapshotDestination(async()=>[],async()=>'', 'imp_02_egresos',true),/DOC124_DESTINATION_SCOPE_CHANGED/);
  let fingerprintCalls=0;const result=await snapshotDestination(async()=>[],async()=>{fingerprintCalls++;return 'a'.repeat(64);},'imp_02_ausente',false);assert.match(result,/^[a-f0-9]{64}$/);assert.equal(fingerprintCalls,0);
 });
+test('DOC124 huella conserva columnas históricas Unicode sin cambiar nombres físicos',async()=>{
+ const query=async sql=>sql.includes('information_schema.TABLES')?[{ENGINE:'InnoDB',TABLE_TYPE:'BASE TABLE'}]:sql.includes('information_schema.COLUMNS')?[{COLUMN_NAME:'AÑO_FERIADO'},{COLUMN_NAME:'DESCRIPCIÓN'}]:[];
+ let called=false;const digest=await snapshotDestination(query,async(sql,marker)=>{called=true;assert.equal(sql,'SELECT * FROM `imp_02__001_feriados` WHERE ? IS NOT NULL ORDER BY BINARY `AÑO_FERIADO`,BINARY `DESCRIPCIÓN`');assert.equal(marker,'DOC124');return 'a'.repeat(64);},'imp_02__001_feriados',true);
+ assert.equal(called,true);assert.match(digest,/^[a-f0-9]{64}$/);
+});
+test('DOC124 columnas de control siguen rechazando delimitadores, expresiones y controles',async()=>{
+ for(const name of ['AÑO` DESC','AÑO;DELETE','AÑO\nFERIADO','SUM(AÑO)','','A'.repeat(65)]){
+  let called=false;const query=async sql=>sql.includes('information_schema.TABLES')?[{ENGINE:'InnoDB',TABLE_TYPE:'BASE TABLE'}]:sql.includes('information_schema.COLUMNS')?[{COLUMN_NAME:name}]:[];
+  await assert.rejects(snapshotDestination(query,async()=>{called=true;return 'a'.repeat(64);},'imp_02__001_feriados',true),/DOC124_CONTROL_COLUMNS_INVALID/);assert.equal(called,false);
+ }
+});
 test('DOC124 no abre sesión si falta alcance o fixture íntegro',t=>{
  assert.throws(()=>excelPreparationPlan(root,profile,['--excel-prepare'],{}),/DOC124_SCOPE_REQUIRED/);assert.throws(()=>readFixture(scope().cases[0]),/DOC124_FIXTURE_INVALID/);
 });

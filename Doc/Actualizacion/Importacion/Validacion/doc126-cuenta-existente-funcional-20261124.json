@@ -1,0 +1,120 @@
+{
+  "status": "FUNCTIONAL_ACCOUNT_ADAPTER_READY_PENDING_FIXTURES",
+  "recordedUtc": "2026-11-25T03:23:34.305Z",
+  "planning": {
+    "completed": 57,
+    "total": 62,
+    "pending": [
+      "6.9",
+      "6.10",
+      "6.11",
+      "7.5",
+      "8.8"
+    ],
+    "decisions": 18,
+    "requirements": 18,
+    "scenarios": 59
+  },
+  "account": {
+    "usuarioId": 141,
+    "empresaId": 2,
+    "moduloId": 11,
+    "permissions": {
+      "usuarioId": 141,
+      "activo": 1,
+      "cargas": 1,
+      "carpetas": 1,
+      "perfiles": 1,
+      "fuentes": 1,
+      "proveedores": 1
+    },
+    "exclusive": false,
+    "permissionsChanged": false
+  },
+  "verification": {
+    "localTests": 88,
+    "scopeTests": 12,
+    "failures": 0,
+    "registeredRealTests": 4,
+    "realTestsExecuted": 0,
+    "strict": {
+      "items": 97,
+      "passed": 97,
+      "failed": 0
+    },
+    "refinementChecks": 15
+  },
+  "preflight": {
+    "selects": 5,
+    "tables": 0,
+    "templates": 0,
+    "policies": 0,
+    "sqlWrites": 0,
+    "authenticatedSessions": 0
+  },
+  "preparation": {
+    "status": "PENDING_MANUAL_SQL23_25",
+    "empresaId": 2,
+    "usuarioId": 141,
+    "moduloId": 11,
+    "conexionId": 6,
+    "accountAuthorizedByUser": true,
+    "records": [
+      {
+        "source": "Doc/Actualizacion/Importacion/Sql/23-fixtures-da-doc126.sql",
+        "sourceSha256": "c31d3f61fc581463a54071ed55ea7bef5e53700c8ff2f9f4d4df45aa722804df",
+        "prepared": ".tmp/doc126-functional-preparacion/23-fixtures-da-doc126.sql",
+        "preparedSha256": "c31d3f61fc581463a54071ed55ea7bef5e53700c8ff2f9f4d4df45aa722804df"
+      },
+      {
+        "source": "Doc/Actualizacion/Importacion/Sql/24-fuentes-e2e-ra-doc126.sql",
+        "sourceSha256": "6eb8bf51a0987cdfcab3e5e2b2aab58e7c3c69f2dd42893517c512794d9a8e43",
+        "prepared": ".tmp/doc126-functional-preparacion/24-fuentes-e2e-ra-doc126.sql",
+        "preparedSha256": "d2e55014ccd6f04db7e9f44d5cb125b70950620e7cc1bfa1884ffd88987ff1db"
+      },
+      {
+        "source": "Doc/Actualizacion/Importacion/Sql/25-plantillas-e2e-da-doc126.sql",
+        "sourceSha256": "a197d213d862ac57cbb79032df7856360df873a6c63b50eeaa1abfa2348166e5",
+        "prepared": ".tmp/doc126-functional-preparacion/25-plantillas-e2e-da-doc126.sql",
+        "preparedSha256": "b3e5e19bf8ba9fc924e9e29d3aeeb19f0f2095ccae157e02273b1f3f5bfaf6d8"
+      }
+    ],
+    "scopeExecutable": false,
+    "sqlWrites": 0,
+    "authenticatedSessions": 0
+  },
+  "sources": [
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256Utf8Lf": "14971e1904b7898ac0cc4349630c777749ca1e63b35c0eb7e1731093484fa609"
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "6cf986be021498eb909fca3e8b03b56fea25159d08a5ac27ad05e6a7f4a9e9d4"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+      "sha256Utf8Lf": "830b77c8fe7e9c8a4d2be5113a42798021c5d2bb1b73e1602aa5822e1e131912"
+    },
+    {
+      "path": "tests/doc126-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "943e8090e01c61b19af04210398f1ba0629fb43e66f97f1a3bc2b26dea53cd4c"
+    },
+    {
+      "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/tasks.md",
+      "sha256Utf8Lf": "5b4c92cf94b7700ba53871812c2ae068a4d01b1be8c18cd9faa15d12b2c74f01"
+    },
+    {
+      "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/design.md",
+      "sha256Utf8Lf": "2e7803e929251cea8cca1808087fe0f274799481c2241edfed0b01245361fca5"
+    },
+    {
+      "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/refinement.md",
+      "sha256Utf8Lf": "acc3d8f8b84c7b187cb5c73443e6ad57ce773bc65edd59dd4d73dad627d76fa2"
+    },
+    {
+      "path": "openspec/changes/doc-126-importacion-excel-06-interfaz-menu/specs/importacion-excel-06-interfaz-menu/spec.md",
+      "sha256Utf8Lf": "7df302a9c0916394cf1d2b9fdc1a4a33a78b76104cb5f0cea49675c1b3c93bf7"
+    }
+  ]
+}
