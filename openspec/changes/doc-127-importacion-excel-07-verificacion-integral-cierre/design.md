@@ -236,6 +236,14 @@ No se necesita una migración nueva para refinar. Inventariar aplicación previa
 
 ## Open Questions
 
+### Ampliación de pruebas solicitada después de la lectura real
+
+Inventario de la entrega de pruebas DOC127: `tests/ImportacionExcelBehaviorTests.cs` amplía el roundtrip de12 combinaciones histórica/nueva × formato × modo; `tests/ImportacionExcelConfirmacionTests.cs` añade36 cambios de autoridad antes de escribir y antes del COMMIT. Se reutilizan sus servicios/repositorios VB y ADO sintético, sin infraestructura paralela. `tests/doc127-e2e-reuse.test.cjs` verifica los18 recorridos de capacidad con el transporte sintético existente y detención por formato/filas/permiso. `package.json` expone `test:doc127:local` con esos harness, `tests/doc126-e2e-reuse.test.cjs` y la prueba de18 libros ya existente.
+
+`tools/e2e/tests/support/doc126-excel-scope.cjs` incorpora helpers de rechazos de lectura y formato explícito del asistente. El modo `read` acepta `authorityProbes` sólo con `acceptanceIssue=DOC-127`: referencias ajenas/ausentes cerradas y3 SELECT de preflight. `tools/e2e/scripts/run-doc110-profile-session.cjs` exige además `DOC127_AUTHORITY_E2E_AUTHORIZED=YES` antes de pedir credenciales; `tools/e2e/tests/importacion-excel.spec.cjs` ejecuta6 rechazos de códigos exactos y una lectura válida final dentro de la suite existente. Los scopes de lectura anteriores conservan su recorrido sin esos casos adicionales.
+
+El asistente existente admite `assistant.formato=XLS|XLSX` sólo en scopes identificados DOC127; extensión, propuesta del analizador y solicitud de guardado deben coincidir. Los scopes DOC126 anteriores conservan XLSX. Se mantienen autorización propia de alta/carga, un destino nuevo,1000 filas y cero DELETE. `tests/doc126-e2e-reuse.test.cjs` cubre ambas extensiones, autorización adicional, recursos ajenos y fallos cerrados. Son cambios de pruebas/soporte; no hay archivo nuevo del producto, cambios Compile/Content, despliegue, instalación SQL o ejecución real por esta ampliación. Evidencia y guía en `Doc/Actualizacion/Importacion/Validacion/doc127-pruebas-preparadas-20261125.md/json`.
+
 ### Inventario concreto de la ampliación local DOC127
 
 Se amplían `tools/e2e/scripts/run-doc110-profile-session.cjs`, `tools/e2e/tests/importacion-excel.spec.cjs` y `tools/e2e/tests/support/doc125-excel-scope.cjs` con el modo `--excel-capacity`: una combinación formato/tamaño/modo por ventana, validada y consumida antes de autenticar. El soporte DOC126 sigue verificando runtime y cuentas; DOC32 conserva consultas y huellas. Los scopes DOC125/126 mantienen sus condiciones anteriores.

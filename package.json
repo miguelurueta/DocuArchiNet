@@ -1,7 +1,8 @@
 {
   "scripts": {
     "opsxj:status": "node tools/opsxj/scripts/opsxj.js opsxj:status",
-    "test:doc117:local": "node tools/e2e/scripts/run-doc117-local-tests.cjs"
+    "test:doc117:local": "node tools/e2e/scripts/run-doc117-local-tests.cjs",
+    "test:doc127:local": "node --test --test-concurrency=1 tests/doc122-importacion-excel-behavior.test.cjs tests/doc126-e2e-reuse.test.cjs tests/doc127-e2e-reuse.test.cjs tests/doc127-capacity-fixtures.test.cjs"
   },
   "dependencies": {
     "codex": "^0.2.3"

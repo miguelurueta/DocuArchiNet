@@ -136,6 +136,7 @@ test.describe('DOC126 interfaz Excel con servicios y controles existentes',()=>{
   const {queryRows,queryFingerprint}=require('../scripts/support/doc32-e2e-odbc.cjs');
   const {startExcelExternalWriter}=require('../scripts/run-doc110-profile-session.cjs');
   const s=support.readScope(required('DOC126_E2E_SCOPE_PATH'),required('DOC126_E2E_BASE_URL'),mode);support.verifyRuntime(s);
+  if(s.authorityProbes)check(process.env.DOC127_AUTHORITY_E2E_AUTHORIZED==='YES','DOC127_AUTHORITY_AUTHORIZATION_REQUIRED');
   const environment={...process.env,[s.controlPrefix+'_EXPECTED_TARGET_HASH']:s.environmentHash,[s.raControlPrefix+'_EXPECTED_TARGET_HASH']:s.raEnvironmentHash};
   const select=(sql,args=[])=>queryRows(sql,args,environment,s.controlPrefix),ra=(sql,args=[])=>queryRows(sql,args,environment,s.raControlPrefix);
   const fingerprint=(sql,v)=>queryFingerprint(sql,v,environment,s.controlPrefix);
@@ -144,6 +145,7 @@ test.describe('DOC126 interfaz Excel con servicios y controles existentes',()=>{
   // El perfil exclusivo y el funcional con cuenta existente se acreditan por separado.
   const accounts=await ra('SELECT u.id_Remit_Dest_Int AS id,u.Login_Usuario AS login_ref,u.Estado_Usuario AS activo,p.ADMINISTRAR_CARGAS_IMPORTACION AS cargas,p.IMPORTAR_CARPETAS AS carpetas,p.ADMINISTRAR_PERFILES_IMPORTACION AS perfiles,p.ADMINISTRAR_FUENTES_IMPORTACION AS fuentes,p.ADMINISTRAR_PROVEEDORES_IMPORTACION AS proveedores FROM remit_dest_interno u INNER JOIN remit_dest_interno_perfil_produccion p ON p.remit_dest_interno_idremit_dest_interno=u.id_Remit_Dest_Int WHERE u.Empresa_Gestion_Documental_id_empresa=? AND u.id_Remit_Dest_Int IN (?,?)',[s.empresaId,s.usuarioId,s.restrictedUsuarioId]);
   support.verifyAccounts(s,accounts,required('DOC126_E2E_USER'),support.usesExistingAccount(s)?null:required('DOC126_E2E_RESTRICTED_USER'));
+  if(s.authorityProbes)await support.verifyAuthorityResources(s,select);
   const before={};for(const [i,t]of s.protectedTables.entries()){before[t]=await support.snapshotDestination(select,fingerprint,t,true);if(i===0||(i+1)%5===0||i+1===s.protectedTables.length)console.log('DOC126_PROTECTED_BASELINE '+(i+1)+'/'+s.protectedTables.length);}
   const configBefore=await fingerprint('SELECT * FROM imp01_plantillaimp WHERE ?=1 ORDER BY ID_PLANTILLAIMP',1);
   const fieldsBefore=await fingerprint('SELECT * FROM imp01_campos_plantilla WHERE ?=1 ORDER BY ID_CAMPOS_PLANTILLA',1);
@@ -192,6 +194,7 @@ test.describe('DOC126 interfaz Excel con servicios y controles existentes',()=>{
     return r.datos;
    }
    if(mode==='read'){
+    if(s.authorityProbes){const probes=await support.verifyReadAuthority(s,(method,payload,csrf)=>call(a,method,payload,csrf));for(const p of probes)console.log('DOC127_AUTHORITY_CASE_PASS '+p.key+' '+p.code);}
     if(s.acceptanceIssue==='DOC-127')await verifyExcelFormIsolation(a.page);
     await choose(s.selection);check(await a.page.locator('[data-doc126=destino]').isVisible(),'DOC126_UI_DETAIL_NOT_VISIBLE');
     await a.page.keyboard.press('Escape');check(!await a.page.locator('#doc126-excel [role=dialog]').isVisible(),'DOC126_ESCAPE_FAILED');
@@ -207,7 +210,7 @@ test.describe('DOC126 interfaz Excel con servicios y controles existentes',()=>{
     await a.page.locator('[data-doc126=crear-desde-excel]').click();
     await a.page.locator('[data-doc126=analisis-archivo]').setInputFiles(item.archivoPath);
     const analysis=(await(await clickResponse('analizar','ImportacionExcelAnalisis.ashx')).json());
-    check(analysis.ok&&analysis.datos.ArchivoHash===item.archivoHash&&analysis.datos.Hoja===item.hoja&&analysis.datos.FilasObservadas===1000&&analysis.datos.Campos.length===2&&analysis.datos.Campos.every((c,i)=>['CAMPO_FUENTE','CAMPO_DESTINO','TIPO_CAMPO'].every(k=>c[k]===item.campos[i][k])),'DOC126_ASSISTANT_PROPOSAL_CHANGED');
+    check(analysis.ok&&analysis.datos.Formato===support.assistantFormat(s)&&analysis.datos.ArchivoHash===item.archivoHash&&analysis.datos.Hoja===item.hoja&&analysis.datos.FilasObservadas===1000&&analysis.datos.Campos.length===2&&analysis.datos.Campos.every((c,i)=>['CAMPO_FUENTE','CAMPO_DESTINO','TIPO_CAMPO'].every(k=>c[k]===item.campos[i][k])),'DOC126_ASSISTANT_PROPOSAL_CHANGED');
     check(await a.page.locator('[data-doc126=analisis-preview]').isVisible(),'DOC126_ASSISTANT_PREVIEW_MISSING');
     await a.page.locator('[data-doc126=tabla]').fill(item.tabla);await a.page.locator('[data-doc126=analisis-clave]').selectOption(item.campoUnico);
     const saved=(await(await clickResponse('guardar','GuardarPlantilla')).json()).d;

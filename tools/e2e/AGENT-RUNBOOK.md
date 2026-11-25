@@ -1,5 +1,13 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC127: pruebas adicionales preparadas — 2026-11-25
+
+`npm.cmd run test:doc127:local` reúne harness VB/C#, validadores DOC126/127, transportes sintéticos y lector de18 libros. No autentica, conecta a bases reales, cambia permisos o despliega una DLL. Cobertura adicional:12 combinaciones de plantillas histórica/nueva,36 cambios de autoridad preescritura/precommit y18 recorridos de capacidad. Guía/evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-pruebas-preparadas-20261125.md/json`.
+
+La E2E de lectura existente admite6 rechazos adicionales sólo cuando un scope nuevo declara `acceptanceIssue=DOC-127`, `authorityProbes` completos y autorización específica `DOC127_AUTHORITY_E2E_AUTHORIZED=YES`, además de la autorización de lectura. No hereda la ventana194/196 consumida. Antes del login,3 SELECT comprueban una plantilla de otra conexión, una carga de otro usuario dentro de la empresa/conexión de prueba y un ID ausente. Sólo consulta: CSRF ausente/inválido, conexión/plantilla/carga ajenas e inexistente, códigos exactos y lectura válida final; cero guardados/preparaciones/confirmaciones. Conservar controles completos y credenciales efímeras. No modificar permisos ni crear recursos mediante SQL desde el test.
+
+El asistente admite `assistant.formato=XLS|XLSX` con `acceptanceIssue=DOC-127` y extensión coincidente; el scope DOC126 anterior sigue XLSX. Reutiliza `--excel-ui-assistant` y autorización propia `DOC126_ASSISTANT_E2E_AUTHORIZED=YES`, una plantilla nueva/dos campos/1000 filas/cero DELETE y destino nuevo aprobado. El formato del analizador y solicitud de guardado deben coincidir. La creación local de estas pruebas no autoriza otra corrida real, ni revocación física, capacidad o SQL administrativo.
+
 ## DOC127: lectura real doc127-1 aprobada — 2026-11-25
 
 Una ventana expresamente autorizada con194/196, empresa2/DA11/RA12, conexión6 y plantilla60 terminó1/1 PASS. Denegación, consulta y Escape, aislamiento real de `form1` antes/después y assets HTTP coincidentes;32 tablas/configuración conservadas.78 perfiles y cinco resultados previos coinciden con la línea base fresca. Un hash histórico de perfiles distinto se detectó antes del login y se conserva como diferencia previa sin causa atribuida; no se modificaron permisos. Cero cargas/guardados/preparaciones/confirmaciones. Ventana consumida, sin reintentos ni autorización heredada para otra lectura o capacidad. Credenciales sólo en consola privada/memoria y limpiadas al terminar. Ver `Doc/Actualizacion/Importacion/Validacion/doc127-lectura-real-20261125.md/json`.22/33 tareas;5.1/7.1 y aceptación integral siguen abiertas. Los cortes siguientes son históricos.

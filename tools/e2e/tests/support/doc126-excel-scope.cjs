@@ -5,6 +5,7 @@ const uint=n=>Number.isSafeInteger(n)&&n>0&&n<=0xffffffff,hash=x=>/^[a-f0-9]{64}
 const assetPaths=['js/gestion/ImportacionExcel/ImportacionExcelApi.js','js/gestion/ImportacionExcel/ImportacionExcelVista.js','Styles/ImportacionExcel.css'];
 const permissionKeys=['cargas','carpetas','perfiles','fuentes','proveedores'];
 function usesExistingAccount(s){return !!s&&(['functional','resilience'].includes(s.mode)||(s.mode==='assistant'&&s.exclusiveAccountRequired===false&&s.accountPolicy==='EXISTING_AUTHORIZED'));}
+function assistantFormat(s){return s?.assistant?.formato===undefined?'XLSX':s.assistant.formato;}
 function validateScope(s,baseUrl,mode){
  const functional=mode==='functional',existingAccount=usesExistingAccount(s);
  if(!s||s.issue!=='DOC-126'||!['read','write','assistant','functional','resilience'].includes(mode)||s.mode!==mode||s.baseUrl!==baseUrl||
@@ -25,14 +26,49 @@ function validateScope(s,baseUrl,mode){
   previous.validateScope(s,baseUrl,'DOC-126');
   if(s.destinationReadOnly!==false||s.cases.some(c=>c.reanudarConfirmada||c.reanudarFallida||c.continuarPreparada))throw Error('DOC126_SCOPE_INVALID');
  }else if(mode==='assistant'){
-  const a=s.assistant,effects=['TEMPLATE_CREATE','CREATE','INSERT','RESULTADO'];
+  const a=s.assistant,effects=['TEMPLATE_CREATE','CREATE','INSERT','RESULTADO'],format=assistantFormat(s);
   if(s.destinationReadOnly!==false||s.maxTemplateCreates!==1||s.maxTemplateFieldCreates!==2||s.maxBusinessRows!==1000||s.maxDeletedRows!==0||!hash(s.analysisHandlerSha256)||
     !Array.isArray(s.allowedEffects)||s.allowedEffects.length!==effects.length||!effects.every(e=>s.allowedEffects.includes(e))||!Array.isArray(s.cases)||s.cases.length||
-    !a||!uint(a.conexionId)||!/^imp_02_doc126_e2e_asistente_[a-f0-9]{8}$/.test(a.tabla||'')||!path.isAbsolute(a.archivoPath||'')||path.extname(a.archivoPath).toLowerCase()!=='.xlsx'||!hash(a.archivoHash)||a.hoja!=='Datos'||a.filasEsperadas!==1000||a.campoUnico!=='CLAVE'||
+    !a||!uint(a.conexionId)||!/^imp_02_doc126_e2e_asistente_[a-f0-9]{8}$/.test(a.tabla||'')||!path.isAbsolute(a.archivoPath||'')||!['XLS','XLSX'].includes(format)||(a.formato!==undefined&&s.acceptanceIssue!=='DOC-127')||path.extname(a.archivoPath).toLowerCase()!=='.'+format.toLowerCase()||!hash(a.archivoHash)||a.hoja!=='Datos'||a.filasEsperadas!==1000||a.campoUnico!=='CLAVE'||
     !Array.isArray(a.campos)||a.campos.length!==2||a.campos.some((c,i)=>!c||c.CAMPO_FUENTE!==['CLAVE','VALOR'][i]||c.CAMPO_DESTINO!==c.CAMPO_FUENTE||!/^VARCHAR\([1-9][0-9]{0,3}\)$/.test(c.TIPO_CAMPO||'')||Number(c.TIPO_CAMPO.slice(8,-1))>4096))throw Error('DOC126_SCOPE_INVALID');
  }else if(s.destinationReadOnly!==true||s.maxBusinessRows!==0||s.maxDeletedRows!==0||!Array.isArray(s.allowedEffects)||s.allowedEffects.length||!Array.isArray(s.cases)||s.cases.length||
    !s.selection||!uint(s.selection.conexionId)||!uint(s.selection.plantillaId))throw Error('DOC126_SCOPE_INVALID');
+ if(s.authorityProbes!==undefined){
+  const p=s.authorityProbes,keys=['authorizationReference','foreignConexionId','foreignPlantillaId','foreignUsuarioId','foreignLoadId','missingLoadId'];
+  const id=x=>/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(x||'')&&x!=='00000000-0000-0000-0000-000000000000';
+  if(mode!=='read'||s.acceptanceIssue!=='DOC-127'||!p||Object.keys(p).length!==keys.length||!keys.every(k=>Object.hasOwn(p,k))||
+   typeof p.authorizationReference!=='string'||!p.authorizationReference.trim()||p.authorizationReference.length>300||
+   !uint(p.foreignConexionId)||p.foreignConexionId===s.selection.conexionId||!uint(p.foreignPlantillaId)||p.foreignPlantillaId===s.selection.plantillaId||
+   !uint(p.foreignUsuarioId)||p.foreignUsuarioId===s.usuarioId||!id(p.foreignLoadId)||!id(p.missingLoadId)||p.foreignLoadId===p.missingLoadId)throw Error('DOC127_AUTHORITY_SCOPE_INVALID');
+ }
  return s;
+}
+async function verifyAuthorityResources(s,select){
+ if(!s.authorityProbes)return;
+ validateScope(s,s.baseUrl,'read');const p=s.authorityProbes;
+ const templates=await select('SELECT IMP01_XMLCONEXION_ID_XMLCONEXION AS conexion FROM imp01_plantillaimp WHERE ID_PLANTILLAIMP=?',[p.foreignPlantillaId]);
+ const loads=await select('SELECT ambito_ref,usuario_ref,conexion_ref FROM imp01_carga_ejecucion WHERE id_carga=?',[p.foreignLoadId]);
+ const missing=await select('SELECT COUNT(*) AS total FROM imp01_carga_ejecucion WHERE id_carga=?',[p.missingLoadId]);
+ if(templates.length!==1||Number(templates[0].conexion)!==p.foreignConexionId||loads.length!==1||String(loads[0].ambito_ref)!==String(s.empresaId)||String(loads[0].usuario_ref)!==String(p.foreignUsuarioId)||loads[0].conexion_ref!=='DA:'+s.moduloId+':'+s.selection.conexionId||missing.length!==1||Number(missing[0].total)!==0)throw Error('DOC127_AUTHORITY_RESOURCES_CHANGED');
+}
+async function verifyReadAuthority(s,request){
+ validateScope(s,s.baseUrl,'read');if(!s.authorityProbes)throw Error('DOC127_AUTHORITY_SCOPE_INVALID');
+ const p=s.authorityProbes,opened=await request('AbrirCargaExcel');
+ if(!opened.ok||typeof opened.datos?.CsrfToken!=='string'||!opened.datos.CsrfToken||!Array.isArray(opened.datos.Conexiones)||!opened.datos.Conexiones.some(c=>c.ConexionId===s.selection.conexionId)||opened.datos.Conexiones.some(c=>c.ConexionId===p.foreignConexionId))throw Error('DOC127_AUTHORITY_REFERENCES_CHANGED');
+ const token=opened.datos.CsrfToken,detail={ConexionId:s.selection.conexionId,PlantillaId:s.selection.plantillaId};
+ const cases=[
+  ['CSRF_AUSENTE','ConsultarPlantilla',detail,undefined,'SOLICITUD_NO_VERIFICADA'],
+  ['CSRF_INVALIDO','ConsultarPlantilla',detail,'DOC127_INVALID_TOKEN','SOLICITUD_NO_VERIFICADA'],
+  ['CONEXION_AJENA','ListarPlantillas',{ConexionId:p.foreignConexionId,Termino:'',Pagina:1,TamanoPagina:10},token,'ACCESO_DENEGADO'],
+  ['PLANTILLA_AJENA','ConsultarPlantilla',{ConexionId:s.selection.conexionId,PlantillaId:p.foreignPlantillaId},token,'NO_ENCONTRADO'],
+  ['CARGA_AJENA','ConsultarResultado',{ConexionId:s.selection.conexionId,IdCarga:p.foreignLoadId},token,'RESULTADO_INCIERTO'],
+  ['CARGA_INEXISTENTE','ConsultarResultado',{ConexionId:s.selection.conexionId,IdCarga:p.missingLoadId},token,'RESULTADO_INCIERTO']
+ ];
+ const results=[];
+ for(const [key,operation,payload,csrf,code]of cases){const r=await request(operation,payload,csrf);if(r.ok!==false||r.codigo!==code||r.datos!=null)throw Error('DOC127_AUTHORITY_REJECTION_FAILED');results.push({key,operation,code});}
+ const valid=await request('ConsultarPlantilla',detail,token);
+ if(!valid.ok||valid.datos?.ID_PLANTILLAIMP!==s.selection.plantillaId)throw Error('DOC127_AUTHORITY_VALID_READ_FAILED');
+ return results;
 }
 function verifyAccounts(s,rows,login,restrictedLogin){
  const owners=rows.filter(a=>Number(a.id)===s.usuarioId);
@@ -54,7 +90,7 @@ function verifyRuntime(s){
 function templateRequestAllowed(s,request){
  if(!s||s.mode!=='assistant'||!request||request.ConexionId!==s.assistant.conexionId||request.RevisionEsperada!==0||request.HuellaEsperada!=='')return false;
  const p=request.Plantilla,a=s.assistant;
- return Object.keys(request).length===4&&!!p&&Object.keys(p).length===10&&p.ID_PLANTILLAIMP===0&&p.REVISION_CARGA===0&&p.IMP01_XMLCONEXION_ID_XMLCONEXION===a.conexionId&&p.NOMBRE_PLANTILLA===a.tabla&&p.CAMPO_UNICO===a.campoUnico&&p.LIBRO_EXCEL===a.hoja&&p.Formato==='XLSX'&&p.Modo==='CREAR'&&p.ESTADO_PLANTILLA===1&&
+ return Object.keys(request).length===4&&!!p&&Object.keys(p).length===10&&p.ID_PLANTILLAIMP===0&&p.REVISION_CARGA===0&&p.IMP01_XMLCONEXION_ID_XMLCONEXION===a.conexionId&&p.NOMBRE_PLANTILLA===a.tabla&&p.CAMPO_UNICO===a.campoUnico&&p.LIBRO_EXCEL===a.hoja&&p.Formato===assistantFormat(s)&&p.Modo==='CREAR'&&p.ESTADO_PLANTILLA===1&&
   Array.isArray(p.Campos)&&p.Campos.length===2&&p.Campos.every((c,i)=>c&&Object.keys(c).length===9&&c.ID_CAMPOS_PLANTILLA===0&&['CAMPO_FUENTE','CAMPO_DESTINO','TIPO_CAMPO'].every(k=>c[k]===a.campos[i][k])&&['REMPLAZA_COMA','REMPLAZA_PUNTO','OPCION_SPLITER','NUMERO_MATRIZ_EXPLITER'].every(k=>c[k]===0)&&(c.CARACTER_SPLITER===null||c.CARACTER_SPLITER===''));
 }
-module.exports={validateScope,readScope,verifyRuntime,verifyAccounts,usesExistingAccount,assetPaths,templateRequestAllowed,readFixture:previous.readFixture,snapshotDestination:previous.snapshotDestination,lockNames:(physical,table,id)=>previous.lockNames(physical,table,id,'DOC-126')};
+module.exports={validateScope,readScope,verifyRuntime,verifyAccounts,usesExistingAccount,assetPaths,assistantFormat,templateRequestAllowed,verifyAuthorityResources,verifyReadAuthority,readFixture:previous.readFixture,snapshotDestination:previous.snapshotDestination,lockNames:(physical,table,id)=>previous.lockNames(physical,table,id,'DOC-126')};

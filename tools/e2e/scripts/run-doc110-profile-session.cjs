@@ -57,11 +57,13 @@ function excelUiPlan(root,profile,args,environment=process.env){
  const mode=modes[0].slice('--excel-ui-'.length),file=environment.DOC126_E2E_SCOPE_PATH;
  if(!file||!fs.existsSync(file))throw Error('DOC126_SCOPE_REQUIRED');
  const scope=require('../tests/support/doc126-excel-scope.cjs').readScope(file,profile.baseUrl,mode);
+ if(scope.authorityProbes&&environment.DOC127_AUTHORITY_E2E_AUTHORIZED!=='YES')throw Error('DOC127_AUTHORITY_AUTHORIZATION_REQUIRED');
  const values={DOC126_E2E_BASE_URL:profile.baseUrl,DOC126_E2E_MODULE:profile.module,DOC126_E2E_SCOPE_PATH:file,DOC126_E2E_MODE:mode,
   DOC126_E2E_AUTHORIZED:(mode==='assistant'?environment.DOC126_ASSISTANT_E2E_AUTHORIZED:mode==='functional'?environment.DOC126_FUNCTIONAL_E2E_AUTHORIZED:mode==='resilience'?environment.DOC126_RESILIENCE_E2E_AUTHORIZED:environment.DOC126_E2E_AUTHORIZED)==='YES'?'YES':'NO',DOC10_E2E_IGNORE_HTTPS_ERRORS:String(profile.ignoreHttpsErrors===true)};
  if(mode==='assistant')values.DOC126_ASSISTANT_E2E_AUTHORIZED=values.DOC126_E2E_AUTHORIZED;
  if(mode==='functional')values.DOC126_FUNCTIONAL_E2E_AUTHORIZED=values.DOC126_E2E_AUTHORIZED;
  if(mode==='resilience')values.DOC126_RESILIENCE_E2E_AUTHORIZED=values.DOC126_E2E_AUTHORIZED;
+ if(scope.authorityProbes)values.DOC127_AUTHORITY_E2E_AUTHORIZED='YES';
  const aliases={DOC126_E2E_USER:'DOC110_E2E_USER',DOC126_E2E_PASSWORD:'DOC110_E2E_PASSWORD',DOC126_E2E_RESTRICTED_USER:'DOC110_E2E_SECOND_USER',DOC126_E2E_RESTRICTED_PASSWORD:'DOC110_E2E_SECOND_PASSWORD'};
  if(require('../tests/support/doc126-excel-scope.cjs').usesExistingAccount(scope)){delete aliases.DOC126_E2E_RESTRICTED_USER;delete aliases.DOC126_E2E_RESTRICTED_PASSWORD;}
  for(const [key,alias]of Object.entries(aliases))if(environment[key]||environment[alias])values[key]=environment[key]||environment[alias];

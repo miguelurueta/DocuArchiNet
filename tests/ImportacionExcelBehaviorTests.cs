@@ -226,7 +226,38 @@ public static class ImportacionExcelBehaviorTests {
   var response=(RespuestaPlantillaExcel)method.Invoke(new WebServiceImportacionExcel(),new object[]{failed});Check(!response.ok&&response.codigo=="CONFIGURACION_INVALIDA"&&response.validacion.Count==25&&response.totalValidacion==40&&response.datos==null,"ASMX preserves legacy code and bounds validation sample with total");
   Func<RespuestaPlantillaExcel> unexpected=()=>{throw new Failure();};response=(RespuestaPlantillaExcel)method.Invoke(new WebServiceImportacionExcel(),new object[]{unexpected});Check(response.validacion.Count==0&&!JsonConvert.SerializeObject(response).Contains("synthetic provider"),"provider diagnostics never become configuration details");
  }
- public static int Main(){try{Rules();Persistence();GuardAndAuthority();RecoveryNamespace();ModuleConnection();Contract();ConfigurationDiagnostics();Console.WriteLine("DOC122_NATIVE_PASS checks="+checks+"; synthetic ADO.NET, no MySQL/HTTP");ImportacionExcelLecturaTests.Run();ImportacionExcelPreparacionTests.Run();ImportacionExcelConfirmacionTests.Run();return 0;}catch(Exception e){Console.Error.WriteLine(e.ToString());return 1;}}
+ static void TemplateCompatibilityMatrix(){
+  foreach(var format in new[]{"XLS","XLSX"})foreach(var mode in new[]{"CREAR","AGREGAR","REEMPLAZAR"}){
+   var store=new Store{P=Template(),DestinationExists=mode!="CREAR"};
+   store.P.CONEXION_FUENTE=format=="XLS"?"8.0 xls":"12.0 xlsx";
+   store.P.INSERTA_RECORD=mode=="REEMPLAZAR"?0u:1u;store.P.ELIMINA_INSERTA_RECORD=mode=="REEMPLAZAR"?1u:0u;
+   if(mode=="CREAR")foreach(var field in store.P.Campos)field.TIPO_CAMPO="VARCHAR(250)";
+   var service=new ServicioPlantillasExcel(new MySqlPlantillaExcelRepository(()=>new Connection(store),7),7);
+   var before=ServicioPlantillasExcel.Huella(store.P);var legacy=service.Obtener(Context(),5);
+   Check(legacy.Formato==format&&legacy.Modo==mode&&legacy.LIBRO_EXCEL==store.P.LIBRO_EXCEL&&legacy.CAMPO_UNICO=="CLAVE","DOC127 historical format/mode/sheet/key "+format+"/"+mode);
+   Check(legacy.REVISION_CARGA==1&&legacy.Campos.Select(f=>f.ID_CAMPOS_PLANTILLA).SequenceEqual(new uint[]{10,11}),"DOC127 historical revision and field identities "+format+"/"+mode);
+   Check(ServicioPlantillasExcel.Huella(store.P)==before&&!store.Sql.Any(q=>q.StartsWith("UPDATE")||q.StartsWith("INSERT")||q.StartsWith("DELETE")),"DOC127 reading historical template has no edits "+format+"/"+mode);
+   var edit=Edit(legacy);edit.Plantilla.Modo=mode;edit.Plantilla.Formato=format;
+   var edited=service.Guardar(Context(),edit);
+   Check(edited.REVISION_CARGA==2&&edited.RUTA_ARCHIVO_FUENTE==legacy.RUTA_ARCHIVO_FUENTE&&edited.Campos[1].REMPLAZA_COMA==null,"DOC127 editing preserves path and historical NULL mapping "+format+"/"+mode);
+   Check(service.Obtener(Context(),5).Modo==mode&&service.Obtener(Context(),5).Formato==format,"DOC127 persisted historical roundtrip "+format+"/"+mode);
+   Console.WriteLine("DOC127_TEMPLATE_LOCAL_PASS origin=HISTORICA format="+format+" mode="+mode);
+
+   store=new Store{P=Template(),DestinationExists=mode!="CREAR",RequiredOptions=true};
+   service=new ServicioPlantillasExcel(new MySqlPlantillaExcelRepository(()=>new Connection(store),7),7);
+   var fresh=Template();fresh.ID_PLANTILLAIMP=0;fresh.REVISION_CARGA=0;fresh.Formato=format;fresh.Modo=mode;
+   fresh.NOMBRE_PLANTILLA="imp_02_doc127_web_"+format.ToLowerInvariant()+"_"+mode.ToLowerInvariant();
+   foreach(var field in fresh.Campos){field.ID_CAMPOS_PLANTILLA=0;field.REMPLAZA_COMA=0;field.REMPLAZA_PUNTO=0;field.OPCION_SPLITER=0;field.NUMERO_MATRIZ_EXPLITER=0;if(mode=="CREAR")field.TIPO_CAMPO="VARCHAR(250)";}
+   var saved=service.Guardar(Context(),new SolicitudGuardarPlantillaExcel{ConexionId=7,RevisionEsperada=0,HuellaEsperada="",Plantilla=fresh});
+   Check(saved.REVISION_CARGA==1&&saved.RUTA_ARCHIVO_FUENTE.StartsWith("web/")&&saved.RUTA_ARCHIVO_FUENTE.EndsWith("."+format.ToLowerInvariant()),"DOC127 new template uses generated format-specific path "+format+"/"+mode);
+   Check(saved.Formato==format&&saved.Modo==mode&&saved.CAMPO_UNICO=="CLAVE"&&saved.Campos.Count==2,"DOC127 web service template matrix "+format+"/"+mode);
+   var reread=service.Obtener(Context(),saved.ID_PLANTILLAIMP);
+   Check(reread.Formato==format&&reread.Modo==mode&&reread.Huella==saved.Huella,"DOC127 new template survives persisted roundtrip "+format+"/"+mode);
+   Check(!store.Sql.Any(q=>q.StartsWith("CREATE")||q.StartsWith("ALTER")||q.StartsWith("DROP")),"DOC127 saving template does not create its destination "+format+"/"+mode);
+   Console.WriteLine("DOC127_TEMPLATE_LOCAL_PASS origin=NUEVA format="+format+" mode="+mode);
+  }
+ }
+ public static int Main(){try{Rules();Persistence();GuardAndAuthority();RecoveryNamespace();ModuleConnection();Contract();ConfigurationDiagnostics();TemplateCompatibilityMatrix();Console.WriteLine("DOC122_NATIVE_PASS checks="+checks+"; synthetic ADO.NET, no MySQL/HTTP");ImportacionExcelLecturaTests.Run();ImportacionExcelPreparacionTests.Run();ImportacionExcelConfirmacionTests.Run();return 0;}catch(Exception e){Console.Error.WriteLine(e.ToString());return 1;}}
 
  sealed class Store {
   public PlantillaExcel P;public bool DestinationExists=true,FailField,Active=true,DuplicatePermission;public int Permission=1,Commands,Rollbacks;public string Engine="InnoDB";
