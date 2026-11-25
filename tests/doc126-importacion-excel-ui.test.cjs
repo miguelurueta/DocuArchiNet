@@ -301,3 +301,14 @@ test('DOC126 destino incompleto y clave ausente se señalan con foco sin enviar 
  await page.locator('[data-doc126=tabla]').fill('imp_02_corregida');await page.locator('[data-doc126=clave]').fill('NO_EXISTE');await page.locator('[data-doc126=guardar]').click();assert.match(await page.locator('[data-doc126=estado]').innerText(),/campo único que exista/);assert.equal(await page.locator('[data-doc126=clave]').getAttribute('aria-invalid'),'true');assert.equal(await page.locator('[data-doc126=clave]').evaluate(e=>e===document.activeElement),true);assert.equal(calls.some(c=>c.operation==='GuardarPlantilla'),false);
  await page.locator('[data-doc126=analisis-clave]').selectOption('CLAVE');assert.equal(await page.locator('[data-doc126=clave]').getAttribute('aria-invalid'),null);await page.locator('[data-doc126=guardar]').click();await page.locator('[data-doc126=destino]').filter({hasText:'imp_02_corregida'}).waitFor();assert.equal(calls.filter(c=>c.operation==='GuardarPlantilla').length,1);
 },{assistant:true}));
+
+test('DOC126 archivo incompatible o sobre límite se rechaza antes de iniciar recepción',()=>fixture(async(page,calls)=>{
+ await select(page);
+ for(const file of [{name:'incompatible.xls',buffer:Buffer.from('synthetic')},{name:'excesivo.xlsx',buffer:Buffer.alloc(10000001)}]){
+  await page.locator('[data-doc126=archivo]').setInputFiles(file);
+  await page.locator('[data-doc126=recibir]').click();
+  assert.match(await page.locator('[data-doc126=estado]').innerText(),/archivo no es un libro válido/);
+  assert.equal(calls.some(c=>['IniciarRecepcionExcel','Upload','Preparar','Confirmar'].includes(c.operation)),false);
+  assert.equal(await page.locator('[data-doc126=confirmar]').isDisabled(),true);
+ }
+}));

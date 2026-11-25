@@ -74,21 +74,21 @@ test.describe('DOC126 interfaz Excel con servicios y controles existentes',()=>{
   const count=async t=>Number((await select('SELECT COUNT(*) AS total FROM '+quote(t)))[0].total);
   // El perfil exclusivo y el funcional con cuenta existente se acreditan por separado.
   const accounts=await ra('SELECT u.id_Remit_Dest_Int AS id,u.Login_Usuario AS login_ref,u.Estado_Usuario AS activo,p.ADMINISTRAR_CARGAS_IMPORTACION AS cargas,p.IMPORTAR_CARPETAS AS carpetas,p.ADMINISTRAR_PERFILES_IMPORTACION AS perfiles,p.ADMINISTRAR_FUENTES_IMPORTACION AS fuentes,p.ADMINISTRAR_PROVEEDORES_IMPORTACION AS proveedores FROM remit_dest_interno u INNER JOIN remit_dest_interno_perfil_produccion p ON p.remit_dest_interno_idremit_dest_interno=u.id_Remit_Dest_Int WHERE u.Empresa_Gestion_Documental_id_empresa=? AND u.id_Remit_Dest_Int IN (?,?)',[s.empresaId,s.usuarioId,s.restrictedUsuarioId]);
-  support.verifyAccounts(s,accounts,required('DOC126_E2E_USER'),['functional','resilience'].includes(mode)?null:required('DOC126_E2E_RESTRICTED_USER'));
+  support.verifyAccounts(s,accounts,required('DOC126_E2E_USER'),support.usesExistingAccount(s)?null:required('DOC126_E2E_RESTRICTED_USER'));
   const before={};for(const [i,t]of s.protectedTables.entries()){before[t]=await support.snapshotDestination(select,fingerprint,t,true);if(i===0||(i+1)%5===0||i+1===s.protectedTables.length)console.log('DOC126_PROTECTED_BASELINE '+(i+1)+'/'+s.protectedTables.length);}
   const configBefore=await fingerprint('SELECT * FROM imp01_plantillaimp WHERE ?=1 ORDER BY ID_PLANTILLAIMP',1);
   const fieldsBefore=await fingerprint('SELECT * FROM imp01_campos_plantilla WHERE ?=1 ORDER BY ID_CAMPOS_PLANTILLA',1);
   const physical=(await select('SELECT @@hostname AS servidor,@@port AS puerto,DATABASE() AS base_ref,@@lower_case_table_names AS minusculas'))[0];
   if(['write','functional','resilience'].includes(mode))for(const item of s.cases)support.readFixture(item);
   if(mode==='assistant')support.readFixture(s.assistant);
-  if(!['functional','resilience'].includes(mode)){
+  if(!support.usesExistingAccount(s)){
    const denied=await session(browser,true,'DOC126');
    try{check(await denied.page.locator('[data-doc126=abrir]').count()===0,'DOC126_DENIED_MENU_VISIBLE');const r=await call(denied,'AbrirCargaExcel');check(!r.ok&&r.codigo==='ACCESO_DENEGADO','DOC126_DENIED_SERVICE_ALLOWED');}finally{await denied.context.close();}
   }
   const a=await session(browser,false,'DOC126');let completed=0,createdTemplate=0,templateWrites=0,assistantConfirm=null,assistantConfirmCalls=0;
   try{
    let confirmRequests=0;a.page.on('request',r=>{if(r.method()==='POST'&&r.url().endsWith('/Confirmar'))confirmRequests++;});
-   if(!['functional','resilience'].includes(mode))check(await a.page.locator('#doc110-perfiles,#doc111-importacion').count()===0,'DOC126_OTHER_IMPORT_PERMISSIONS_PRESENT');
+   if(!support.usesExistingAccount(s))check(await a.page.locator('#doc110-perfiles,#doc111-importacion').count()===0,'DOC126_OTHER_IMPORT_PERMISSIONS_PRESENT');
    let unexpectedMutation=false;
    const readOps=['AbrirCargaExcel','ListarPlantillas','ConsultarPlantilla','ConsultarResultado','ConsultarCargaExcel'];
    await a.page.route('**/WebServiceImportacionExcel.asmx/*',route=>{

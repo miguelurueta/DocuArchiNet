@@ -4,8 +4,9 @@ const previous=require('./doc125-excel-scope.cjs');
 const uint=n=>Number.isSafeInteger(n)&&n>0&&n<=0xffffffff,hash=x=>/^[a-f0-9]{64}$/.test(x||'');
 const assetPaths=['js/gestion/ImportacionExcel/ImportacionExcelApi.js','js/gestion/ImportacionExcel/ImportacionExcelVista.js','Styles/ImportacionExcel.css'];
 const permissionKeys=['cargas','carpetas','perfiles','fuentes','proveedores'];
+function usesExistingAccount(s){return !!s&&(['functional','resilience'].includes(s.mode)||(s.mode==='assistant'&&s.exclusiveAccountRequired===false&&s.accountPolicy==='EXISTING_AUTHORIZED'));}
 function validateScope(s,baseUrl,mode){
- const functional=mode==='functional',existingAccount=functional||mode==='resilience';
+ const functional=mode==='functional',existingAccount=usesExistingAccount(s);
  if(!s||s.issue!=='DOC-126'||!['read','write','assistant','functional','resilience'].includes(mode)||s.mode!==mode||s.baseUrl!==baseUrl||
     s.disposable!==true||s.preserveResources!==true||!uint(s.empresaId)||!uint(s.usuarioId)||!uint(s.moduloId)||
     (existingAccount?(s.exclusiveAccountRequired!==false||s.accountPolicy!=='EXISTING_AUTHORIZED'||s.restrictedUsuarioId!==null||!s.expectedImportPermissions||Object.keys(s.expectedImportPermissions).length!==5||!permissionKeys.every(k=>[0,1].includes(s.expectedImportPermissions[k]))||s.expectedImportPermissions.cargas!==1):(s.exclusiveAccountRequired!==true||!uint(s.restrictedUsuarioId)||s.usuarioId===s.restrictedUsuarioId))||
@@ -36,7 +37,7 @@ function validateScope(s,baseUrl,mode){
 function verifyAccounts(s,rows,login,restrictedLogin){
  const owners=rows.filter(a=>Number(a.id)===s.usuarioId);
  if(owners.length!==1||Number(owners[0].activo)!==1||Number(owners[0].cargas)!==1||String(owners[0].login_ref).toLowerCase()!==String(login||'').toLowerCase())throw Error('DOC126_ACCOUNT_SCOPE_CHANGED');
- if(['functional','resilience'].includes(s.mode)){
+ if(usesExistingAccount(s)){
   if(rows.length!==1||!permissionKeys.every(k=>Number(owners[0][k])===s.expectedImportPermissions[k]))throw Error('DOC126_ACCOUNT_SCOPE_CHANGED');
   return;
  }
@@ -56,4 +57,4 @@ function templateRequestAllowed(s,request){
  return Object.keys(request).length===4&&!!p&&Object.keys(p).length===10&&p.ID_PLANTILLAIMP===0&&p.REVISION_CARGA===0&&p.IMP01_XMLCONEXION_ID_XMLCONEXION===a.conexionId&&p.NOMBRE_PLANTILLA===a.tabla&&p.CAMPO_UNICO===a.campoUnico&&p.LIBRO_EXCEL===a.hoja&&p.Formato==='XLSX'&&p.Modo==='CREAR'&&p.ESTADO_PLANTILLA===1&&
   Array.isArray(p.Campos)&&p.Campos.length===2&&p.Campos.every((c,i)=>c&&Object.keys(c).length===9&&c.ID_CAMPOS_PLANTILLA===0&&['CAMPO_FUENTE','CAMPO_DESTINO','TIPO_CAMPO'].every(k=>c[k]===a.campos[i][k])&&['REMPLAZA_COMA','REMPLAZA_PUNTO','OPCION_SPLITER','NUMERO_MATRIZ_EXPLITER'].every(k=>c[k]===0)&&(c.CARACTER_SPLITER===null||c.CARACTER_SPLITER===''));
 }
-module.exports={validateScope,readScope,verifyRuntime,verifyAccounts,assetPaths,templateRequestAllowed,readFixture:previous.readFixture,snapshotDestination:previous.snapshotDestination,lockNames:(physical,table,id)=>previous.lockNames(physical,table,id,'DOC-126')};
+module.exports={validateScope,readScope,verifyRuntime,verifyAccounts,usesExistingAccount,assetPaths,templateRequestAllowed,readFixture:previous.readFixture,snapshotDestination:previous.snapshotDestination,lockNames:(physical,table,id)=>previous.lockNames(physical,table,id,'DOC-126')};

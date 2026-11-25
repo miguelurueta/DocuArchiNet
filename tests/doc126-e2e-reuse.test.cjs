@@ -115,3 +115,17 @@ test('DOC126 actor de resiliencia rechaza una autorización funcional antes de c
  const s=scope('resilience'),item=s.cases[1],prepared={IdCarga:'10000000-0000-4000-8000-000000000001',ArchivoHash:item.archivoHash,ConfiguracionHash:'a'.repeat(64),EsquemaHash:'b'.repeat(64)};
  assert.throws(()=>startExcelExternalWriter(s,item,prepared,{DOC126_E2E_AUTHORIZED:'YES',DOC126_FUNCTIONAL_E2E_AUTHORIZED:'YES',DOC125_NATIVE_HARNESS:'fixture'}),/DOC125_NATIVE_SCOPE_REQUIRED/);
 });
+test('DOC126 asistente admite cuenta existente sólo con política explícita y permiso vigente',t=>{
+ const s=scope('assistant');Object.assign(s,{exclusiveAccountRequired:false,accountPolicy:'EXISTING_AUTHORIZED',restrictedUsuarioId:null,expectedImportPermissions:{cargas:1,carpetas:1,perfiles:1,fuentes:1,proveedores:1}});
+ assert.equal(support.validateScope(s,s.baseUrl,'assistant'),s);assert.equal(support.usesExistingAccount(s),true);
+ const plan=excelUiPlan(root,profile,['--excel-ui-assistant'],{...env(t,s),DOC126_ASSISTANT_E2E_AUTHORIZED:'YES'});assert.equal(plan.needed.length,8);assert.equal(plan.needed.some(k=>k.includes('RESTRICTED')),false);assert.equal(plan.values.DOC126_E2E_AUTHORIZED,'YES');
+ support.verifyAccounts(s,[{id:141,login_ref:'Synthetic.Owner',activo:1,...s.expectedImportPermissions}],'synthetic.owner',null);
+ for(const mutate of [x=>delete x.accountPolicy,x=>delete x.expectedImportPermissions,x=>x.expectedImportPermissions.cargas=0,x=>x.expectedImportPermissions.extra=1,x=>x.restrictedUsuarioId=142,x=>x.mode='read',x=>x.mode='write',x=>x.maxTemplateCreates=2,x=>x.maxDeletedRows=1]){
+  const changed=JSON.parse(JSON.stringify(s));mutate(changed);assert.throws(()=>support.validateScope(changed,s.baseUrl,changed.mode),/DOC126_SCOPE_INVALID/);
+ }
+});
+test('DOC126 perfil exclusivo del asistente conserva cuentas y controles anteriores',t=>{
+ const s=scope('assistant');assert.equal(support.usesExistingAccount(s),false);const plan=excelUiPlan(root,profile,['--excel-ui-assistant'],env(t,s));assert.equal(plan.needed.length,10);assert.equal(plan.values.DOC126_E2E_AUTHORIZED,'NO');
+ const owner={id:141,login_ref:'Synthetic.Owner',activo:1,cargas:1,carpetas:1,perfiles:0,fuentes:0,proveedores:0},restricted={id:142,login_ref:'Synthetic.Restricted',activo:1,cargas:0};
+ assert.throws(()=>support.verifyAccounts(s,[owner,restricted],'synthetic.owner','synthetic.restricted'),/DOC126_EXCLUSIVE_ACCOUNT_REQUIRED/);
+});

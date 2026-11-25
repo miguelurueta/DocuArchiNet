@@ -16,7 +16,7 @@ function excelUiPlan(root,profile,args,environment=process.env){
  if(mode==='functional')values.DOC126_FUNCTIONAL_E2E_AUTHORIZED=values.DOC126_E2E_AUTHORIZED;
  if(mode==='resilience')values.DOC126_RESILIENCE_E2E_AUTHORIZED=values.DOC126_E2E_AUTHORIZED;
  const aliases={DOC126_E2E_USER:'DOC110_E2E_USER',DOC126_E2E_PASSWORD:'DOC110_E2E_PASSWORD',DOC126_E2E_RESTRICTED_USER:'DOC110_E2E_SECOND_USER',DOC126_E2E_RESTRICTED_PASSWORD:'DOC110_E2E_SECOND_PASSWORD'};
- if(['functional','resilience'].includes(mode)){delete aliases.DOC126_E2E_RESTRICTED_USER;delete aliases.DOC126_E2E_RESTRICTED_PASSWORD;}
+ if(require('../tests/support/doc126-excel-scope.cjs').usesExistingAccount(scope)){delete aliases.DOC126_E2E_RESTRICTED_USER;delete aliases.DOC126_E2E_RESTRICTED_PASSWORD;}
  for(const [key,alias]of Object.entries(aliases))if(environment[key]||environment[alias])values[key]=environment[key]||environment[alias];
  const controls=[scope.controlPrefix,scope.raControlPrefix].flatMap(p=>['ODBC_DSN','MYSQL_USER','MYSQL_PASSWORD'].map(k=>p+'_'+k));
  for(const key of controls)if(environment[key])values[key]=environment[key];
