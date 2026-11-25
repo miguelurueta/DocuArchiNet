@@ -56,6 +56,8 @@
 - [ ] 6.10 [M] Ampliar la E2E real de los tres modos por interfaz. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs`. Origen: D-14, RQ-14. Verificación: En fixtures nuevos autorizados recorre menú/plantilla/libro/hoja/preparación/consentimiento/confirmación/consulta, sin sustituir clicks por ASMX directo.
 - [ ] 6.11 [M] Acreditar rollback y carrera UI con el actor existente. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; tools/e2e/scripts/support/doc115-repository-integration.ps1`. Origen: D-14, RQ-14. Verificación: Escritura autorizada produce rollback íntegro y conserva sólo la fila externa observada, sin siembra/limpieza; huellas ajenas intactas.
 
+Preflight de 6.9 realizado con recursos actuales: empresa 2/módulo 11, seis SELECT y cero modificaciones/sesiones de aplicación. No se encontró una cuenta activa con permiso exclusivo de cargas; existen 74 perfiles restringidos y un perfil con cargas que no es exclusivo. Falta identificar la cuenta de prueba dedicada antes de preparar su adecuación manual y ejecutar la E2E. No se retiran permisos a la cuenta actual ni se elige otro usuario arbitrariamente. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc126-preflight-permisos-20261124.md`. La prueba funcional manual del asistente sigue completada por el usuario.
+
 ## 7. Instalación, compatibilidad y entrega
 
 - [x] 7.1 [S] Entregar el preflight SQL de sólo lectura. Área/archivos: `Doc/Actualizacion/Importacion/Sql/22-preflight-doc126.sql; Doc/Actualizacion/Importacion/Sql/README.md`. Origen: D-13, RQ-13. Verificación: Archivo SELECT identifica RA/DA y precondiciones de permiso/recursos/fixtures sin modificar datos o privilegios.
