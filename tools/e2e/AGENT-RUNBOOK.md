@@ -1,6 +1,10 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
-## DOC127: capacidad preparada, sin ejecución real nueva — 2026-11-25
+## DOC127: lectura real doc127-1 aprobada — 2026-11-25
+
+Una ventana expresamente autorizada con194/196, empresa2/DA11/RA12, conexión6 y plantilla60 terminó1/1 PASS. Denegación, consulta y Escape, aislamiento real de `form1` antes/después y assets HTTP coincidentes;32 tablas/configuración conservadas.78 perfiles y cinco resultados previos coinciden con la línea base fresca. Un hash histórico de perfiles distinto se detectó antes del login y se conserva como diferencia previa sin causa atribuida; no se modificaron permisos. Cero cargas/guardados/preparaciones/confirmaciones. Ventana consumida, sin reintentos ni autorización heredada para otra lectura o capacidad. Credenciales sólo en consola privada/memoria y limpiadas al terminar. Ver `Doc/Actualizacion/Importacion/Validacion/doc127-lectura-real-20261125.md/json`.22/33 tareas;5.1/7.1 y aceptación integral siguen abiertas. Los cortes siguientes son históricos.
+
+## DOC127: capacidad preparada, corte anterior a la lectura real — 2026-11-25
 
 Continuación de integración:141/141 locales PASS en11 suites. La E2E Excel `read` existente aplica `verifyExcelFormIsolation` antes de abrir y después de cerrar sólo para scopes con `acceptanceIssue=DOC-127`. Propuesta actual: `Doc/Actualizacion/Importacion/Validacion/doc127-lectura-propuesta-20261125.md`; scope/consola privados nuevos bloqueados sin autorización. Cuentas194/196, plantilla60,32 tablas protegidas, cero importaciones. No reutilizar scopes/contraseñas ni la autorización de lecturas anteriores. Evidencia local: `doc127-integracion-20261125.md/json`;20/33 tareas.
 

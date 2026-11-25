@@ -1,6 +1,6 @@
 # DOC-127 — Propuesta de aceptación de lectura vigente
 
-Estado **PENDIENTE_AUTORIZACION**, sin ejecución autenticada. Se reutilizan el runner DOC110, la suite Excel y el validador DOC126 en modo `read`, con un scope nuevo identificado como aceptación DOC127. No se reutiliza el permiso de ejecución de las ventanas anteriores.
+Estado **EJECUTADA_PASS** tras la respuesta expresa «autorizado»: una E2E real,1/1 PASS, sin reintentos, finalizada2026-11-25T23:28:09Z. [Resultado y límites](doc127-lectura-real-20261125.md). Se reutilizaron el runner DOC110, la suite Excel y el validador DOC126 en modo `read`, con un scope nuevo identificado como aceptación DOC127. La ventana queda consumida; no autoriza otra ejecución.
 
 | Recurso | Alcance concreto |
 | --- | --- |
@@ -13,6 +13,6 @@ Estado **PENDIENTE_AUTORIZACION**, sin ejecución autenticada. Se reutilizan el 
 | Efectos funcionales | Cero archivos recibidos, plantillas guardadas, preparaciones, confirmaciones, filas insertadas/borradas o cambios de permisos |
 | Versión | Script doc127-1 y hashes del runtime/assets/página/configuración verificados; credenciales sólo en consola privada y memoria |
 
-El scope y la consola privada están preparados en `.tmp/doc127-read-preparacion/` y `.tmp/doc127-read-session.ps1`, excluidos de Git. La consola bloquea ejecución sin autorización expresa, y el scope permanece en borrador. Un error detiene la ejecución sin reintento automático.
+El scope y la consola privada permanecen en `.tmp/doc127-read-preparacion/` y `.tmp/doc127-read-session.ps1`, excluidos de Git. La consola recibió las dos contraseñas sólo en memoria y limpió sus variables al terminar. Las32 tablas/configuración conservaron sus huellas;78 perfiles y cinco resultados previos coincidieron con la línea base fresca. Se registró una diferencia de huella histórica de perfiles anterior al login, sin atribuir su causa a esta ventana ni modificar permisos. Un error detiene la ejecución sin reintento automático.
 
 Esta ventana comprueba lectura e integración de formularios; no acredita toda5.1 (autoridad/preparación adicional), capacidad o creación web. Las18 combinaciones XLS/XLSX de1000/5000/10000 filas siguen siendo ventanas separadas pendientes; esta propuesta no las autoriza. EXPLAIN29 también conserva su estado pendiente manual.

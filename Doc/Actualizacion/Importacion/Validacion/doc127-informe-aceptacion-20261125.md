@@ -1,6 +1,8 @@
 # DOC-127 — Informe de aceptación y capacidad con restricciones
 
-Corte de evaluación: `23464d6b07155fc8e4e6afa88e81db5ef5c97cdf`. Estado **ACEPTACIÓN BLOQUEADA**, cambio activo. Este informe reúne resultados previos con su SHA; no anuncia nuevas pruebas reales. **22/33 tareas**: se completan la consolidación6.7 y el informe7.4 por documentar resultados y vacíos explícitos. Las seis tareas de ejecución de capacidad y las de aceptación siguen abiertas.
+Corte inicial de evaluación: `23464d6b07155fc8e4e6afa88e81db5ef5c97cdf`. Estado **ACEPTACIÓN INTEGRAL BLOQUEADA**, cambio activo. La consolidación inicial reunió resultados previos con su SHA, sin nuevas pruebas reales en ese corte. **22/33 tareas**: se completaron la consolidación6.7 y el informe7.4 por documentar resultados y vacíos explícitos. Las seis tareas de ejecución de capacidad y las de aceptación integral siguen abiertas.
+
+Actualización de lectura: **1/1 E2E real PASS**, corte `986f0f1cc9974dd81343e3f9227a264d53bba13c`, doc127-1, cuentas194/196. Consulta/Escape y aislamiento de form1 acreditados;32 tablas y configuración conservadas.78 perfiles y cinco resultados previos coinciden con la línea base fresca; se registra diferencia de huella histórica anterior al login. [Evidencia vigente](doc127-lectura-real-20261125.md). La ventana está consumida; capacidad y aceptación integral siguen pendientes. La procedencia inferior conserva el corte inicial de consolidación.
 
 ## Procedencia y vigencia
 
@@ -16,6 +18,7 @@ Ambiente de referencia: Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR em
 | DOC126_ASISTENTE | REAL_HISTORICA_REUTILIZADA_LIMITADA | 5046842b05bad4ec1e8b85a8c9d8f09df9f04e92 | [doc126-e2e-asistente-real-20261125.json](doc126-e2e-asistente-real-20261125.json) |
 | DOC126_RECUPERACION | REAL_HISTORICA_REUTILIZADA_LIMITADA | 12ae034eca355c9d301250644908c7f210b35693 | [doc126-e2e-rollback-concurrencia-20261124.json](doc126-e2e-rollback-concurrencia-20261124.json) |
 | DOC126_LECTURA | REAL_HISTORICA_REUTILIZADA_LIMITADA | a2d6f19237d8eeaa7e1c6e1e1d300ea96fbee653 | [doc126-e2e-permisos-real-20261125.json](doc126-e2e-permisos-real-20261125.json) |
+| DOC127_LECTURA | REAL_ACTUAL_LECTURA_SIN_CARGAS | 986f0f1cc9974dd81343e3f9227a264d53bba13c | [doc127-lectura-real-20261125.json](doc127-lectura-real-20261125.json) |
 
 Se conservan las15 huellas de integración (17bdf09e4f46efb43cbe4771d4de99ee8a308628):141/141 pruebas locales de11 suites. De79 fuentes del corte local anterior,73 coinciden y6 difieren: README SQL/runbook actualizados, página/Vista/UI con la corrección form1 y suite E2E ampliada. Las cuatro diferencias de producto/pruebas están incluidas en la evidencia posterior de integración. DLL, conector, Web.config, API y CSS conservan su huella binaria; Vista cambió conforme a esa corrección.
 
@@ -28,8 +31,8 @@ Cada ID remite a la tabla de procedencia con su SHA/ambiente/tipo; el JSON conse
 | RQ / caso | Prueba y evidencia | Resultado | Límite |
 | --- | --- | --- | --- |
 | RQ-01: Manifiesto y comparacion por fuentes | DOC127_SOURCE_AND_EVIDENCE_AUDIT; LOCAL, INTEGRACION | LOCAL_PASS | La huella de una fuente no transfiere toda la aceptacion de un runtime diferente. |
-| RQ-02: Runner DOC110/scopes DOC125–127 | tests/doc127-e2e-reuse.test.cjs; LOCAL, INTEGRACION | LOCAL_PASS_REAL_PENDIENTE | Una celda por ventana; sin instalar/sembrar/limpiar; aun sin ventana DOC127 autorizada. |
-| RQ-03: Autoridad/CSRF/preparacion | DOC122_NATIVE; DOC124_NATIVE; DOC126 lectura real v6; LOCAL, DOC126_LECTURA | LOCAL_PASS_HISTORICA_LIMITADA | Lectura real DOC126 con assets v6; doc127-1 sin E2E vigente. Revocacion fisica no ejecutada en DOC127. |
+| RQ-02: Runner DOC110/scopes DOC125–127 | tests/doc127-e2e-reuse.test.cjs; LOCAL, INTEGRACION, DOC127_LECTURA | LOCAL_PASS_REAL_READ_PASS_CAPACITY_PENDING | Lectura DOC127 autorizada y consumida; capacidad pendiente de ventanas propias. Sin instalar/sembrar/limpiar desde E2E. |
+| RQ-03: Autoridad/CSRF/preparacion | DOC122_NATIVE; DOC124_NATIVE; DOC126 lectura real v6; LOCAL, DOC126_LECTURA, DOC127_LECTURA | REAL_READ_PASS_AUTHORITY_PREPARATION_PARTIAL | Lectura vigente194/196 y32 huellas PASS; referencias ajenas/CSRF/preparacion adicionales y revocacion fisica conservan limites locales/historicos.78 perfiles sin cambios dentro de la ventana; huella historica previa diferente. |
 | RQ-04: Instalacion compatible y flujo manual | DOC127_SELECT_CONTRACT; Sql/README.md; LOCAL, RECURSOS | SELECT_PASS_ENTREGA_SQL | Controles actuales equivalentes, no ejecucion manual integra de28; metadatos sujetos a visibilidad. |
 | RQ-05: Plantillas y tres modos por formato | DOC122–125_NATIVE; DOC127_LOCAL_READER; DOC126 reales; LOCAL, DOC126_FUNCIONAL, DOC126_ASISTENTE | LOCAL_PASS_REAL_PARCIAL | 18 libros locales no equivalen a18 importaciones. XLS real por modo sin completar. |
 | RQ-06: Claves/collation/esquema/politica | DOC124_NATIVE; DOC125_NATIVE; DOC126 rollback/carrera; LOCAL, DOC126_RECUPERACION | LOCAL_PASS_HISTORICA_REUTILIZADA | Escenarios adversos de motor/FK/trigger y politica COLUMNA tienen cobertura sintetica. |
@@ -37,10 +40,10 @@ Cada ID remite a la tabla de procedencia con su SHA/ambiente/tipo; el JSON conse
 | RQ-08: Filas/bytes/cambio de limites | ImportacionExcelLecturaTests.Boundaries/Reports; ConfirmacionTests.Rejections; LOCAL | LOCAL_PASS | Fronteras grandes y cambios de configuracion son locales; IIS permanece intacto. |
 | RQ-09: Seis celdas y medicion por modo | DOC127_LOCAL_READER; DOC125 tiempos historicos; LOCAL, DOC125, RECURSOS | CAPACIDAD_REAL_PENDIENTE | Recursos verificados en el corte previo; 18 ventanas nuevas sin autorizacion. Metricas DOC125 historicas y memoria compartida parcial. |
 | RQ-10: Consumidor por clave y regresion | harness DOC110;19 tests SII;29-explain-proveedor-doc127.sql; LOCAL | LOCAL_PASS_EXPLAIN_PENDIENTE | Plan manual no aportado; importar tabla no publica proveedor/fuente. |
-| RQ-11: UI/cliente/semaforo/foco | tests/doc126-importacion-excel-ui.test.cjs; client; INTEGRACION, DOC126_LECTURA | LOCAL_PASS_REAL_DOC127_1_PENDIENTE | La correccion form1 doc127-1 tiene regresion local; lectura autenticada vigente pendiente de autorizacion. |
+| RQ-11: UI/cliente/semaforo/foco | tests/doc126-importacion-excel-ui.test.cjs; client; INTEGRACION, DOC126_LECTURA, DOC127_LECTURA | REAL_DOC127_1_READ_AND_FORM_ISOLATION_PASS | Lectura/consulta/Escape y aislamiento DOM doc127-1 reales; no se envio un postback del gestor ni se ejecutaron escrituras o capacidad. |
 | RQ-12: Build aislado y regresion actual | MSBuild net461; logs locales por SHA; LOCAL, INTEGRACION | LOCAL_PASS | Cero despliegues; el binario compilado aislado no sustituye el instalado. |
 | RQ-13: Instalacion/operacion/recuperacion | Sql/README.md; Operacion-Excel.md; LOCAL, RECURSOS | DOCUMENTADO | La carga no ofrece pausa por fila; cualquier cambio SQL sigue el procedimiento manual. |
-| RQ-14: Matriz y gates finales | Este corte y tareas OpenSpec; LOCAL, INTEGRACION | INFORME_PUBLICADO_ACEPTACION_BLOQUEADA | Capacidad/autorizacion/EXPLAIN y aceptacion vigente impiden declarar cierre. |
+| RQ-14: Matriz y gates finales | Este corte y tareas OpenSpec; LOCAL, INTEGRACION | INFORME_PUBLICADO_ACEPTACION_BLOQUEADA | Capacidad/autorizacion/EXPLAIN y aceptacion integral impiden declarar cierre. |
 
 ## Capacidad por formato, tamaño y modo
 
@@ -67,7 +70,7 @@ P/C son milisegundos HTTP de preparación/confirmación. Los tres pares numéric
 | XLSX / 5000 | REEMPLAZAR | 59 r1 | 75297 | PASS | Sin ejecución / sin medición | Sin ejecución de esta celda |
 | XLSX / 10000 | REEMPLAZAR | 59 r1 | 146809 | PASS | Sin ejecución / sin medición | Sin ejecución de esta celda |
 
-Las18 ventanas nuevas conservan PENDIENTE_AUTORIZACION_Y_PREFLIGHT_DE_VENTANA. Sus conteos previos/esperados se recalculan antes de cada ejecución; no son una observación actual. Las plantillas61–68 y fuentes10/11 se aplicaron por delegación expresa y fueron verificadas; no reaplicar SQL30–32. La lectura propuesta es una ventana separada y no autoriza cargas.
+Las18 ventanas nuevas conservan PENDIENTE_AUTORIZACION_Y_PREFLIGHT_DE_VENTANA. Sus conteos previos/esperados se recalculan antes de cada ejecución; no son una observación actual. Las plantillas61–68 y fuentes10/11 se aplicaron por delegación expresa y fueron verificadas; no reaplicar SQL30–32. La lectura separada ya terminó PASS y no autoriza cargas.
 
 Memoria histórica DOC125:104 muestras entre12:52:09.981Z y12:55:38.267Z, máximo RSS agregado279072768bytes/privados581500928bytes;102 muestras entre14:31:39.331Z y14:35:03.612Z, RSS237957120bytes/privados596037632bytes. Sin baseline por carga y con cobertura parcial; no asignar estos máximos a un modo. El monitor DOC127 prevé baseline e intervalo solicitado2s; todavía no aporta mediciones durante una carga real.
 
@@ -78,14 +81,14 @@ Fronteras: configuración vigente20000 filas/10000000bytes; fallback lector10000
 | Bloqueo / tareas | Impacto | Acción |
 | --- | --- | --- |
 | B-01: 2.4 | Rendimiento de lectura por clave sin plan verificable. | El usuario ejecuta manualmente Sql/29-explain-proveedor-doc127.sql en el destino indicado y aporta key/possible_keys/type/rows/Extra y metadatos; revisar sin ejecutar EXPLAIN desde el agente. |
-| B-02: 5.1, 7.1 | No hay aceptacion autenticada de la integracion doc127-1; revocacion y preparacion vigentes conservan limites locales/historicos. | Autorizar la ventana concreta de doc127-lectura-propuesta-20261125.md, revalidar huellas/cuentas y usar consola privada. Esta ventana no cubre por si sola toda 5.1 ni autoriza escrituras o revocacion. |
+| B-02: 5.1, 7.1 | La lectura doc127-1 y aislamiento form1 ya pasaron; aun faltan los otros alcances vigentes de autoridad/preparacion y el corte integral. | Ventana194/196 cerrada PASS, sin repeticion automatica. Definir y autorizar los casos faltantes por recursos/efectos; revocacion fisica solo con mecanismo autorizado. Conservar la diferencia historica de perfiles y la linea base fresca. |
 | B-03: 5.2, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6 | XLS real y capacidad5000/10000 por ambos formatos/modos no acreditados; XLSX1000 historico no garantiza mediciones completas actuales. | Acordar cada ventana con cuenta/ambiente/archivo/plantilla/destino/efectos/presupuesto. Rehacer SELECT y scopes frescos antes de autenticar; no reutilizar claves/IDs consumidos ni repetir cargas aceptadas sin necesidad justificada. |
 | B-04: 7.5 | Faltan tareas y aceptacion; no procede archivo ni cierre Jira. | Mantener el cambio activo. Evaluar gates sobre HEAD registrado despues de resolver dependencias; los controles documentales no sustituyen aceptacion real. |
 
-Hallazgo form1 corregido en17bdf09e, con81/81 focales y posterior integración141/141; la comprobación HTTP estática no acredita aceptación autenticada.7.1 permanece abierta para el corte integral. Revocación física, política COLUMNA real y cortes físicos COMMIT/red conservan sus limitaciones; acuse ignorado y fallos sintéticos no los sustituyen.
+Hallazgo form1 corregido en17bdf09e, con81/81 focales y posterior integración141/141; la lectura posterior acredita aislamiento DOM real doc127-1 sin postback del gestor.7.1 permanece abierta para el corte integral. Revocación física, política COLUMNA real y cortes físicos COMMIT/red conservan sus limitaciones; acuse ignorado y fallos sintéticos no los sustituyen.
 
-Guías vigentes: [instalación/estados SQL](../Sql/README.md), [operación y recuperación por ID](../Operacion-Excel.md) y [ventana de lectura propuesta](doc127-lectura-propuesta-20261125.md). EXPLAIN29 sigue pendiente de ejecución manual y aportación del plan. No hay aprobación humana global, archivo ni cierre Jira. Esta consolidación no ejecuta SQL, sesiones autenticadas, importaciones, permisos ni despliegues.
+Guías vigentes: [instalación/estados SQL](../Sql/README.md), [operación y recuperación por ID](../Operacion-Excel.md) y [ventana de lectura ejecutada](doc127-lectura-propuesta-20261125.md). EXPLAIN29 sigue pendiente de ejecución manual y aportación del plan. No hay aprobación humana global, archivo ni cierre Jira. El corte inicial de consolidación no ejecutó SQL ni sesiones. La lectura posterior abrió dos sesiones y usó sólo SELECT de control, sin importaciones, cambios de permisos o despliegues.
 
-## Validaci?n de esta entrega
+## Validación de esta entrega
 
-OpenSpec estricto PASS y refinamiento15/15 PASS. OPSXJ68/72 controles PASS: se corrigi? el marcador Clasificacion en los cinco documentos t?cnicos; quedan abiertos11 tareas, revisi?n persistida por SHA, evidencia unit vinculada al SHA vigente y manual_qa. No se crea evidencia ficticia para superar las compuertas. La salida local queda en .tmp/ y el resumen en el JSON. Revalidar sobre el HEAD registrado antes de una entrega de cierre. `git diff --check` PASS; no se ejecutan tests de producto ni otro build para esta consolidaci?n documental.
+OpenSpec estricto PASS y refinamiento15/15 PASS. OPSXJ68/72 controles PASS en el corte inicial: se corrigió el marcador Clasificacion en los cinco documentos técnicos; quedan abiertos11 tareas, revisión persistida por SHA, evidencia unit vinculada al SHA vigente y manual_qa. No se crea evidencia ficticia para superar las compuertas. La salida local queda en .tmp/ y el resumen en el JSON. Revalidar sobre el HEAD registrado antes de una entrega de cierre. `git diff --check` PASS. La actualización posterior ejecutó1/1 E2E real de lectura y revalidó OpenSpec/refinamiento; no repitió build o pruebas de producto ajenas al alcance.

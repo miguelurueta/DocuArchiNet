@@ -1,7 +1,7 @@
 <!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14 -->
 # Tareas DOC-127
 
-Plan de aceptación posterior al refinamiento: cada tarea se marca al reunir su evidencia y declarar su alcance. No se vuelven a implementar las fases DOC121–126. Cada resultado puede reutilizar evidencia compatible. Corte actual: 20/33 verificadas; aceptación real adicional y cierre siguen abiertos. Perfil legacy-webforms-vb.
+Plan de aceptación posterior al refinamiento: cada tarea se marca al reunir su evidencia y declarar su alcance. No se vuelven a implementar las fases DOC121–126. Cada resultado puede reutilizar evidencia compatible. Corte actual: 22/33 verificadas; lectura real DOC127 PASS, aceptación integral adicional y cierre siguen abiertos. Perfil legacy-webforms-vb.
 
 Complejidad relativa S/M; no es una estimación de horas. Dependencias: sección1 antes de clasificar aceptación; SQL/capacidad física esperan confirmación y autorización de sus ventanas. Las secciones locales y de documentación pueden avanzar sin autenticar. Una tarea dependiente conserva su estado abierto mientras falte evidencia, aunque su guía/archivo ya esté entregado.
 
@@ -37,6 +37,8 @@ Preparación revisable en `Doc/Actualizacion/Importacion/Validacion/doc127-prepa
 - [x] 4.4 [M] Ampliar el registro de mediciones de las ventanas existentes. Área/archivos: `tools/e2e/scripts/run-doc110-profile-session.cjs; utilidades de muestreo IIS existentes`. Origen: D-09, RQ-09. Verificación: salida saneada separa preparar/confirmar, baseline/intervalo/cobertura de memoria y resultado; no atribuye RSS compartida a una carga.
 
 ## 5. Aceptación funcional autorizada
+
+Ventana de lectura autorizada y consumida:1/1 E2E real PASS, cuentas194/196, consulta de plantilla60 y Escape, aislamiento DOM real de `form1` y32 huellas/configuración conservadas.78 perfiles y cinco resultados previos coinciden con la línea base fresca; diferencia de hash histórico anterior al login registrada. Sin cargas, guardados o cambios de permisos. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-lectura-real-20261125.md/json`.5.1 sigue abierta para los alcances restantes de autoridad/preparación;7.1 conserva el corte integral. La lectura no autoriza nuevas ventanas ni capacidad.
 
 - [ ] 5.1 [M] Acreditar autoridad y lectura sin cambios de negocio en el runtime vigente. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; soporte DOC126; cuentas exclusiva/restringida autorizadas`. Origen: D-03, RQ-03. Verificación: permisos y referencias válidas/ajenas, CSRF y preparación tienen evidencia clasificada; huellas completas antes/después conservadas; revocación física sólo con gestión autorizada.
 - [ ] 5.2 [M] Acreditar plantillas históricas y creación web por formato y modo. Área/archivos: `tools/e2e/tests/importacion-excel.spec.cjs; ServicioPlantillasExcel; ServicioAnalisisPlantillaExcel`. Origen: D-05, RQ-05. Verificación: matriz identifica XLS/XLSX, hoja, clave, revisión y tres modos; incorpora evidencia histórica compatible y enumera cruces sin ejecución.

@@ -105,6 +105,16 @@
       "type": "REAL_HISTORICA_REUTILIZADA_LIMITADA",
       "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
       "status": "DOC126_REAL_UI_READ_PASS"
+    },
+    {
+      "id": "DOC127_LECTURA",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-lectura-real-20261125.json",
+      "sha256Utf8Lf": "ae0cc2fa05aba30e9df257348ca29d528ee0162a7256afa3e1f0a7dfcb22148b",
+      "sourceCommit": "986f0f1cc9974dd81343e3f9227a264d53bba13c",
+      "recordedUtc": "2026-11-25T23:28:34.898Z",
+      "type": "REAL_ACTUAL_LECTURA_SIN_CARGAS",
+      "environment": "IIS local HTTPS/GESTOR empresa2 DA11/RA12; cuentas194/196; conexion6 plantilla60; runtime doc127-1 por hashes",
+      "status": "REAL_READ_AND_WEBFORMS_ISOLATION_PASS"
     }
   ],
   "requirements": [
@@ -125,12 +135,13 @@
       "requirement": "RQ-02",
       "caseName": "Runner DOC110/scopes DOC125–127",
       "testReference": "tests/doc127-e2e-reuse.test.cjs",
-      "state": "LOCAL_PASS_REAL_PENDIENTE",
+      "state": "LOCAL_PASS_REAL_READ_PASS_CAPACITY_PENDING",
       "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
-      "limitation": "Una celda por ventana; sin instalar/sembrar/limpiar; aun sin ventana DOC127 autorizada.",
+      "limitation": "Lectura DOC127 autorizada y consumida; capacidad pendiente de ventanas propias. Sin instalar/sembrar/limpiar desde E2E.",
       "evidenceIds": [
         "LOCAL",
-        "INTEGRACION"
+        "INTEGRACION",
+        "DOC127_LECTURA"
       ],
       "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
     },
@@ -138,14 +149,16 @@
       "requirement": "RQ-03",
       "caseName": "Autoridad/CSRF/preparacion",
       "testReference": "DOC122_NATIVE; DOC124_NATIVE; DOC126 lectura real v6",
-      "state": "LOCAL_PASS_HISTORICA_LIMITADA",
+      "state": "REAL_READ_PASS_AUTHORITY_PREPARATION_PARTIAL",
       "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
-      "limitation": "Lectura real DOC126 con assets v6; doc127-1 sin E2E vigente. Revocacion fisica no ejecutada en DOC127.",
+      "limitation": "Lectura vigente194/196 y32 huellas PASS; referencias ajenas/CSRF/preparacion adicionales y revocacion fisica conservan limites locales/historicos.78 perfiles sin cambios dentro de la ventana; huella historica previa diferente.",
       "evidenceIds": [
         "LOCAL",
-        "DOC126_LECTURA"
+        "DOC126_LECTURA",
+        "DOC127_LECTURA"
       ],
-      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf",
+      "latestReadEvaluationCommit": "986f0f1cc9974dd81343e3f9227a264d53bba13c"
     },
     {
       "requirement": "RQ-04",
@@ -243,14 +256,16 @@
       "requirement": "RQ-11",
       "caseName": "UI/cliente/semaforo/foco",
       "testReference": "tests/doc126-importacion-excel-ui.test.cjs; client",
-      "state": "LOCAL_PASS_REAL_DOC127_1_PENDIENTE",
+      "state": "REAL_DOC127_1_READ_AND_FORM_ISOLATION_PASS",
       "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
-      "limitation": "La correccion form1 doc127-1 tiene regresion local; lectura autenticada vigente pendiente de autorizacion.",
+      "limitation": "Lectura/consulta/Escape y aislamiento DOM doc127-1 reales; no se envio un postback del gestor ni se ejecutaron escrituras o capacidad.",
       "evidenceIds": [
         "INTEGRACION",
-        "DOC126_LECTURA"
+        "DOC126_LECTURA",
+        "DOC127_LECTURA"
       ],
-      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf",
+      "latestReadEvaluationCommit": "986f0f1cc9974dd81343e3f9227a264d53bba13c"
     },
     {
       "requirement": "RQ-12",
@@ -284,7 +299,7 @@
       "testReference": "Este corte y tareas OpenSpec",
       "state": "INFORME_PUBLICADO_ACEPTACION_BLOQUEADA",
       "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
-      "limitation": "Capacidad/autorizacion/EXPLAIN y aceptacion vigente impiden declarar cierre.",
+      "limitation": "Capacidad/autorizacion/EXPLAIN y aceptacion integral impiden declarar cierre.",
       "evidenceIds": [
         "LOCAL",
         "INTEGRACION"
@@ -1374,8 +1389,8 @@
         "5.1",
         "7.1"
       ],
-      "impact": "No hay aceptacion autenticada de la integracion doc127-1; revocacion y preparacion vigentes conservan limites locales/historicos.",
-      "action": "Autorizar la ventana concreta de doc127-lectura-propuesta-20261125.md, revalidar huellas/cuentas y usar consola privada. Esta ventana no cubre por si sola toda 5.1 ni autoriza escrituras o revocacion."
+      "impact": "La lectura doc127-1 y aislamiento form1 ya pasaron; aun faltan los otros alcances vigentes de autoridad/preparacion y el corte integral.",
+      "action": "Ventana194/196 cerrada PASS, sin repeticion automatica. Definir y autorizar los casos faltantes por recursos/efectos; revocacion fisica solo con mecanismo autorizado. Conservar la diferencia historica de perfiles y la linea base fresca."
     },
     {
       "id": "B-03",
@@ -1400,13 +1415,6 @@
       "action": "Mantener el cambio activo. Evaluar gates sobre HEAD registrado despues de resolver dependencias; los controles documentales no sustituyen aceptacion real."
     }
   ],
-  "newEffects": {
-    "authenticatedE2E": 0,
-    "sqlStatements": 0,
-    "imports": 0,
-    "deployments": 0,
-    "permissionChanges": 0
-  },
   "acceptanceApproved": false,
   "humanApprovalClaimed": false,
   "archived": false,
@@ -1432,5 +1440,36 @@
     },
     "documentMarkersCorrected": 5,
     "newTestOrBuildExecution": false
+  },
+  "initialConsolidationEffects": {
+    "authenticatedE2E": 0,
+    "sqlStatements": 0,
+    "imports": 0,
+    "deployments": 0,
+    "permissionChanges": 0
+  },
+  "latestReadAcceptance": {
+    "evidenceId": "DOC127_LECTURA",
+    "sourceCommit": "986f0f1cc9974dd81343e3f9227a264d53bba13c",
+    "status": "REAL_READ_AND_WEBFORMS_ISOLATION_PASS",
+    "completedUtc": "2026-11-25T23:28:09.9136967Z",
+    "passed": 1,
+    "protectedTables": 32,
+    "profilesCompared": 78,
+    "previousLoads": 5,
+    "historicProfileHashMatches": false,
+    "windowConsumed": true,
+    "newEffects": {
+      "authenticatedApplicationSessions": 2,
+      "uploads": 0,
+      "templateWrites": 0,
+      "preparations": 0,
+      "confirmations": 0,
+      "businessInserts": 0,
+      "businessDeletes": 0,
+      "permissionChanges": 0,
+      "controlSqlWrites": 0,
+      "deployments": 0
+    }
   }
 }
