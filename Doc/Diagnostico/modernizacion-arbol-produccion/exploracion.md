@@ -1,17 +1,17 @@
 # Exploración de la modernización de niveles y expedientes
 
-La mejora busca que el usuario distinga inmediatamente un **nivel de organización**, que agrupa elementos, de un **expediente**, que contiene documentos. Debe conservar las operaciones actuales de Producción documental y permitir aprobar cada cambio antes de generar sus prompts de implementación.
+La mejora busca que el usuario distinga inmediatamente un **nivel de organización**, que agrupa elementos, de un **expediente**, que contiene documentos. Debe conservar las operaciones actuales de Producción documental y permitir aprobar cada cambio antes de implementarlo. Los prompts pueden prepararse como borradores revisables sin convertir sus recomendaciones en aprobaciones.
 
 La alternativa recomendada es conservar el `asp:TreeView`, modernizar su presentación y resolver explícitamente la coordinación entre elemento indicado, selección visual y destino utilizado por el servidor. El cambio de componente y la reescritura general del backend quedan como alternativas que requieren una decisión propia.
 
 | Control de la exploración | Valor |
 |---|---|
-| Versión | 0.1 |
+| Versión | 0.2 |
 | Fecha | 2026-11-25 |
 | Estado | En exploración |
 | Responsable de aprobación funcional | Usuario solicitante |
 | Responsable del análisis técnico | Codex como arquitecto de la revisión |
-| Decisiones aprobadas individualmente | Ninguna registrada al crear esta versión |
+| Decisiones aprobadas individualmente | Ninguna registrada al preparar esta versión |
 | Primera decisión presentada | D01, conservación del TreeView |
 | Base local de la revisión | Commit `1ac8cee2` y archivos indicados en las referencias |
 | Alcance de esta entrega | Análisis y registro de decisiones; implementación posterior |
@@ -20,6 +20,7 @@ Referencias de la propuesta:
 
 - [Maqueta interactiva](maqueta.html).
 - [Diagnóstico técnico e inventario completo de operaciones](diagnostico.html).
+- [Guía y prompts de implementación](prompts/00-guia-ejecucion.md).
 
 ## Cómo utilizar y mantener la exploración
 
@@ -485,13 +486,13 @@ Estas preguntas quedan delimitadas; no se pueden cerrar por preferencias del arq
 
 Cada duda nueva se añade con fecha, efecto sobre las decisiones y evidencia necesaria. Si cambia el alcance, se revisa la estimación anterior de 10 a 15 días hábiles para un desarrollador dedicado; esa estimación no es un compromiso de plazo aprobado ni cubre automáticamente una migración completa del backend.
 
-## Preparación posterior de prompts
+## Preparación y ejecución de prompts
 
-Los siguientes son paquetes propuestos, no prompts ejecutables ni tareas autorizadas. Su orden permite revisar cada contrato antes de implementar el siguiente.
+Por solicitud posterior del usuario del 2026-11-25 se han redactado los [ocho prompts](prompts/00-guia-ejecucion.md) con un contexto común. Se basan en las alternativas recomendadas y conservan estado de borrador para implementación. La solicitud de preparación no aprueba D01 a D18 ni autoriza ejecutar la serie. Su orden permite revisar cada contrato antes de implementar el siguiente.
 
 | Paquete | Objetivo del futuro prompt | Condiciones previas |
 |---|---|---|
-| PB00 | Congelar inventario de acciones, reglas, firmas y pruebas de compatibilidad del árbol | D01 y alcance de D18; registrar decisiones excluidas |
+| PB00 | Congelar inventario de acciones, reglas, firmas y pruebas de compatibilidad del árbol | Puede realizarse como inventario documental sin aprobar diseño; no autoriza implementar recomendaciones |
 | PB01 | Definir e implementar resolución/validación de identidad y contexto de selección para las rutas aprobadas | D08, D09, D10, D14 |
 | PB02 | Adaptar ejecución de acciones y cortar/pegar al destino explícito; conservar reglas y transacción | PB01; D07, D11, D12 |
 | PB03 | Aportar lectura acotada de capacidades o contenido de nivel solo si se necesita y aprueba | D05, D06, D09, D16; justificar cada nueva consulta |
@@ -515,7 +516,7 @@ Cada prompt posterior debe contener:
 9. Pruebas de integración autorizadas, evidencia esperada y condiciones que impiden afirmar aceptación.
 10. Estrategia de reversión de la entrega sin descartar cambios locales ni revertir escrituras de dominio por una corrección visual.
 
-Un paquete puede cerrarse y generar su prompt cuando sus propias decisiones y dependencias estén resueltas. Las decisiones diferidas se excluyen expresamente; no se rellenan con valores predeterminados que aparenten aprobación. La implementación se solicita después y no se inicia al aprobar una preferencia visual.
+Un borrador se habilita para implementar cuando sus propias decisiones y dependencias estén resueltas y exista autorización de ejecución. Las decisiones diferidas se excluyen expresamente; no se rellenan con valores predeterminados que aparenten aprobación. Si una opción aprobada difiere del borrador recomendado, se revisa ese prompt antes de utilizarlo. La implementación no se inicia al aprobar una preferencia visual.
 
 ## Historial de revisión y aprobaciones
 
@@ -523,5 +524,6 @@ Un paquete puede cerrarse y generar su prompt cuando sus propias decisiones y de
 |---|---|---|---|
 | 2026-11-25 | Versión 0.1 | Creación de exploración, respuestas T01 a T20, decisiones D01 a D18 y mapa de paquetes posteriores | No aplica a una aprobación funcional |
 | 2026-11-25 | D01 revisión 1 | Primera decisión presentada para revisión individual; conserva estado PENDIENTE hasta respuesta explícita | Pendiente |
+| 2026-11-25 | Versión 0.2 | El usuario solicita crear los prompts; se redactan ocho borradores, guía y contexto común. Se conserva el estado de todas las decisiones y se distingue preparación de ejecución | Solicitud de redacción; no es aprobación de diseño |
 
 **Siguiente paso de revisión:** resolver D01. Después, revisar D02 y D10 para fijar la identidad visual y técnica antes de cerrar las acciones y su integración de backend.
