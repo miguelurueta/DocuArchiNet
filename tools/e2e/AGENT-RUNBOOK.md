@@ -2,6 +2,8 @@
 
 ## DOC127: capacidad preparada, sin ejecución real nueva — 2026-11-25
 
+Corrección posterior del bloqueo de `form1`: script **doc127-1**. Los controles Excel conservan sus restricciones y validación explícita, asociados a un formulario auxiliar fuera del formulario ASP.NET.81/81 pruebas locales PASS; GET del script servido coincide con el candidato. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-correccion-formulario-20261125.md/json`. Antes de una ventana real, renovar sus huellas del script y página; los scopes anteriores no autorizan esta versión por herencia. No se ha ejecutado aceptación autenticada nueva.
+
 **19/33 tareas.** Build net461 aislado y regresión local verificados; 18 libros sintéticos pasaron por el lector de producto sin MySQL/HTTP. Se reutilizan runner DOC110, suite Excel, controles SELECT DOC32 y verificación de cuentas/runtime DOC126. Ver `Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.md`.
 
 El modo nuevo del runner es `--excel-capacity`: una combinación de formato, filas y modo por ventana, sin reintentos. Requiere `DOC127_E2E_SCOPE_PATH`, la URL del perfil y autorización específica `DOC127_CAPACITY_E2E_AUTHORIZED=YES`. El perfil se selecciona con `DOC127_E2E_PROFILE_PATH` o el recurso DOC88 existente; su URL debe coincidir exactamente con el scope. La conexión se obtiene del módulo. No activar autorización por haber preparado archivos o por una ventana DOC125/126 anterior.

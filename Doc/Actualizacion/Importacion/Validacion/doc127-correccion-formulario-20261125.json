@@ -1,0 +1,107 @@
+{
+  "issue": "DOC-127",
+  "finding": "EXCEL_FORM1_NATIVE_VALIDATION",
+  "recordedUtc": "2026-11-25T14:25:53.982Z",
+  "baseCommit": "850147cc83f9424a6f14adff78d09495fa148e46",
+  "status": "FIXED_LOCAL_BROWSER_VERIFIED",
+  "traceability": {
+    "decision": "D-12",
+    "requirement": "RQ-12",
+    "task": "7.1",
+    "integralTaskStillOpen": true
+  },
+  "cause": "Los controles de Excel heredan form1: required vacios y una posicion numerica invalida bloquean el submit del arbol antes de HTTP.",
+  "fix": "Formulario auxiliar oculto fuera de form1; todos los controles Excel, incluidos los dinamicos, tienen propietario explicito. Se retira al destruir la instancia. Validacion de guardar y restricciones nativas conservadas.",
+  "assetVersion": "doc127-1",
+  "regression": {
+    "before": {
+      "tests": 5,
+      "pass": 3,
+      "fail": 2,
+      "scope": "Reproduccion local, antes de corregir producto"
+    },
+    "after": {
+      "tests": 81,
+      "pass": 81,
+      "fail": 0,
+      "scope": "Chromium real con transporte sintetico, cliente y adaptadores existentes"
+    },
+    "command": "node --test tests/doc126-importacion-excel-ui.test.cjs tests/doc126-importacion-excel-client.test.cjs tests/doc126-e2e-reuse.test.cjs tests/doc127-e2e-reuse.test.cjs",
+    "checks": [
+      "Dos expedientes con OnNodeClicked y retorna_parent_tr extraidos del JavaScript real; submit capturado y cancelado en el fixture",
+      "Posicion -1 rechazada por Guardar; despues de cerrar Excel form1 puede enviar",
+      "Un required propio del gestor sigue bloqueando hasta completarse; sin novalidate global",
+      "Tabla, clave y libro vacios no llaman a GuardarPlantilla (tres casos)",
+      "endRequest conserva un propietario auxiliar y destruir host lo elimina",
+      "Asistente, semaforo, tres modos, CAS, perdida de acuse, foco, Escape y scopes conservan la suite previa"
+    ],
+    "logSha256Utf8Lf": {
+      "before": "d38c2c7a1f8814b2c3643d6fdc7bf66ef36ecb147c59acf7928bdf0e2eca4c7c",
+      "after": "f2685d8d18850aa7207643f3125840e66c45960fc31fb30c77d6e4c73c7eb999"
+    }
+  },
+  "staticHttpCheck": {
+    "status": 200,
+    "matchesWorkspace": true,
+    "workspaceSha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+    "servedSha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+    "authenticated": false,
+    "applicationActions": 0
+  },
+  "changedFiles": [
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "baseSha256Utf8Lf": "d7ad94d6eb39eeabb6ebabbfe33ff4d86bb64498cc3e9da7013b38c2cfb7d501",
+      "candidateSha256Utf8Lf": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "baseSha256Utf8Lf": "6c0a87e4651150ea93e389686192f5016fa95b8856e4bfd31f2854c53a76fe57",
+      "candidateSha256Utf8Lf": "4a80a5aacd92e6cc78152ff014ec75130539e9d52a1223436d3599a35060d85b"
+    },
+    {
+      "path": "tests/doc126-importacion-excel-ui.test.cjs",
+      "baseSha256Utf8Lf": "2d3a95d85c44c4dd5f14f5b03d2002055276430e9f0b17239cbb625255fd0c4a",
+      "candidateSha256Utf8Lf": "c8be941faf0f24993cf21a0f236a1296659e8cc344a78745c48a18c45e29395c"
+    }
+  ],
+  "unchangedFiles": [
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.dll",
+      "previous": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+      "current": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5"
+    },
+    {
+      "path": "bin/MySql.Data.dll",
+      "previous": "c7bf74f07c7c9411b630b793f19572c0276b04dd3423ae5bc32204ae539d977a",
+      "current": "c7bf74f07c7c9411b630b793f19572c0276b04dd3423ae5bc32204ae539d977a"
+    },
+    {
+      "path": "Web.config",
+      "previous": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+      "current": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+      "previous": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+      "current": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b"
+    },
+    {
+      "path": "Styles/ImportacionExcel.css",
+      "previous": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+      "current": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee"
+    }
+  ],
+  "documentationChecks": {
+    "refinement": "PASS 15/15",
+    "openSpecStrict": "PASS",
+    "gitDiffCheck": "PASS"
+  },
+  "limits": [
+    "No se inspecciono la sesion del navegador grabado; se utilizo el diagnostico aportado y una nueva reproduccion automatizada local.",
+    "HTTP real limitado a GET del JavaScript estatico, sin login ni acciones funcionales.",
+    "No se ejecutaron E2E autenticadas, SQL, importaciones ni build/despliegue de DLL en esta correccion.",
+    "La evidencia de aplicacion SQL del commit anterior conserva su corte antes de esta modificacion del script.",
+    "20/33 tareas: la correccion del hallazgo no completa el corte integral pendiente de7.1."
+  ]
+}
