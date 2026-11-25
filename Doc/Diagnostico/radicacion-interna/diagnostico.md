@@ -9,7 +9,7 @@ La radicación interna puede mejorar sustancialmente su claridad, pero necesita 
 | Referencia | Valor |
 |---|---|
 | Fecha | 2026-11-25 |
-| Versión | 0.4 |
+| Versión | 0.5 |
 | Base local | Commit `0c7beb83` |
 | Grabación | `Grabación 2026-11-25 113145-radicacion-interna-revisa.mp4` |
 | Duración | 78,80 segundos |
@@ -196,6 +196,8 @@ La ampliación a terceros como remitentes está aprobada en D-RI-01. Las definic
 
 ## Maqueta HTML de la radicación actualizada
 
+**D-RI-02. Interfaz aprobada por el usuario el 2026-11-25:** versión simplificada del commit `23464d6b`. La aprobación corresponde a la interfaz explorada; las reglas pendientes de terceros y la nueva carga directa se refinan por separado.
+
 La [maqueta simplificada](maqueta.html) presenta un formulario compacto con remitente, documento principal, datos por completar y destino. El resumen completo aparece al confirmar. Fecha, folios, descripción de anexos y ruta continúan disponibles en secciones desplegables; un error en un dato dentro de ellas abre la sección correspondiente.
 
 ### Revisión de facilidad de uso
@@ -242,6 +244,12 @@ Las preguntas Q-RI-01 a Q-RI-05 siguen pendientes. Las personas naturales/juríd
 Pasaron trece grupos de comprobaciones locales en Chromium: estado inicial y comparación de distribución; cambio/cancelación de remitente por teclado; asignación directa con tres identidades distintas en el resumen; grupos y responsables; ruta y dependencias; principal/anexos y errores dentro de desplegables; fecha/folios; plantillas y escape de texto; adaptación a siete anchos entre 320 y 1920 píxeles; resultado incierto y constancia; cierre/reapertura; rechazo y resultados parciales; y retorno desde tercero jurídico al propio usuario. No se detectaron errores JavaScript ni solicitudes HTTP externas.
 
 El arnés, las capturas y los resultados actuales están excluidos de Git en `.tmp/diagnostico-radicacion-interna-20261125/`: `verificar-maqueta-simple.cjs`, `verificacion-maqueta-simple.json` y `simple-*.png`. Los fotogramas de revisión están en `video-simplificacion/`. La comprobación corresponde al HTML local; no valida integración con WebForms ni ausencia de regresiones del módulo real.
+
+## Entrada independiente con carga de documentos
+
+Se revisó la posibilidad de iniciar radicación sin visitar Producción documental. Es viable, pero la preparación y el registro actuales consumen IDs de documentos de Producción; los adjuntos clásico/Simplificado existentes requieren un radicado ya creado. La propuesta y sus dependencias están en [Exploración de carga directa](exploracion-carga-directa.md).
+
+La definición pendiente principal es si se debe elegir expediente antes de confirmar o se permite clasificar después. Esa respuesta determina cuánto puede reutilizarse del almacenamiento actual. La interfaz aprobada se conserva durante esta exploración.
 
 ## Operaciones que deben preservarse
 
