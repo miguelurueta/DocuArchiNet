@@ -2,13 +2,15 @@
 
 - Ticket: DOC-127
 - Cambio OpenSpec: doc-127-importacion-excel-07-verificacion-integral-cierre
-- Clasificación: cross_cutting; perfil legacy-webforms-vb.
+- Clasificacion: cross_cutting; perfil legacy-webforms-vb.
 
 ## Evidencia requerida
 
 Build MSBuild net461 aislado, harness nativo DOC122–125, UI/cliente/adaptadores existentes y regresión afectada. Cada resultado incluye comando, SHA, hashes, ambiente y limitación. La QA manual anterior se conserva como declaración histórica con su alcance; no se atribuye aceptación humana nueva. Las tareas siguen abiertas hasta reunir su evidencia.
 
 ## QA/E2E WebForms
+
+Informe consolidado vigente: **22/33 tareas**, con6.7/7.4 completadas por sus criterios de documentación de resultados y vacíos. [Informe de aceptación y capacidad](../../../Actualizacion/Importacion/Validacion/doc127-informe-aceptacion-20261125.md) y JSON adjunto:14 requisitos,18 combinaciones, SHA/ambiente/tipo de evidencia y cuatro bloqueos con acciones concretas. Las15 fuentes de la integración anterior siguen idénticas; DLL/conector/configuración/API/CSS conservan sus hashes. Se reutilizan build y pruebas previos, sin atribuir nuevas ejecuciones a HEAD. Capacidad real DOC127, aceptación vigente y EXPLAIN siguen pendientes; el cambio conserva **ACEPTACIÓN BLOQUEADA**, sin archivo/cierre. Los párrafos siguientes conservan los cortes históricos.
 
 Ampliación de integración:141/141 locales PASS en11 suites existentes de gestor, carpetas, administración y Excel. Se comparte la guarda de aislamiento con la E2E de lectura DOC127; propuesta de cuentas194/196 y32 tablas pendiente de autorización. Cero ejecuciones autenticadas nuevas y avance20/33. Ver `Doc/Actualizacion/Importacion/Validacion/doc127-integracion-20261125.md/json` y `doc127-lectura-propuesta-20261125.md`.
 

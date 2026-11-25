@@ -2,7 +2,7 @@
 
 - Ticket: DOC-127
 - Cambio OpenSpec: doc-127-importacion-excel-07-verificacion-integral-cierre
-- Clasificación: cross_cutting; perfil legacy-webforms-vb.
+- Clasificacion: cross_cutting; perfil legacy-webforms-vb.
 
 ## Superficies UI
 
