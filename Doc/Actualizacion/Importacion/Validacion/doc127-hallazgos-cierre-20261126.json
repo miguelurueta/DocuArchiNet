@@ -1,0 +1,260 @@
+{
+  "issue": "DOC-127",
+  "status": "KNOWN_FINDINGS_CLOSED_WITH_CLASSIFIED_EVIDENCE",
+  "recordedUtc": "2026-11-26T19:36:31.421Z",
+  "sourceCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d",
+  "completedTask": "7.1",
+  "findings": [
+    {
+      "id": "EXCEL_FORM1_NATIVE_VALIDATION",
+      "status": "CLOSED",
+      "problem": "Hidden Excel controls belonged to form1 and native required/range validation blocked manager submit.",
+      "fixCommit": "17bdf09e4f46efb43cbe4771d4de99ee8a308628",
+      "fix": "Auxiliary form ownership outside form1; lifecycle and focus handling retained.",
+      "currentProductSources": [
+        {
+          "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+          "baseSha256Utf8Lf": "d7ad94d6eb39eeabb6ebabbfe33ff4d86bb64498cc3e9da7013b38c2cfb7d501",
+          "candidateSha256Utf8Lf": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+          "currentSha256Utf8Lf": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+          "matches": true
+        },
+        {
+          "path": "Gestion/WebFormProducionDocumental.aspx",
+          "baseSha256Utf8Lf": "6c0a87e4651150ea93e389686192f5016fa95b8856e4bfd31f2854c53a76fe57",
+          "candidateSha256Utf8Lf": "4a80a5aacd92e6cc78152ff014ec75130539e9d52a1223436d3599a35060d85b",
+          "currentSha256Utf8Lf": "4a80a5aacd92e6cc78152ff014ec75130539e9d52a1223436d3599a35060d85b",
+          "matches": true
+        }
+      ],
+      "evidence": [
+        {
+          "path": "doc127-correccion-formulario-20261125.json",
+          "type": "HISTORICAL_LOCAL_BROWSER",
+          "beforeFailed": 2,
+          "afterPassed": 81
+        },
+        {
+          "path": "doc127-integracion-20261125.json",
+          "type": "HISTORICAL_LOCAL_INTEGRATION",
+          "passed": 141,
+          "currentSourceMatches": 12,
+          "totalSourceHashes": 15,
+          "aggregateCurrent141PassClaimed": false
+        },
+        {
+          "path": "doc127-pruebas-preparadas-20261125.json",
+          "type": "LOCAL_CURRENT_REUSED_FOR_CHANGED_TEST_COMPONENTS",
+          "passed": 55,
+          "sourceHashesVerified": 8,
+          "changedIntegrationComponentsCovered": [
+            "tests/doc126-e2e-reuse.test.cjs",
+            "tests/doc127-e2e-reuse.test.cjs",
+            "tools/e2e/tests/importacion-excel.spec.cjs"
+          ]
+        },
+        {
+          "path": "doc127-autoridad-real-20261126.json",
+          "type": "REAL_CURRENT_DOM_AND_READ",
+          "form1IsolationBeforeAndAfter": true,
+          "managerPostbackSent": false,
+          "securityCasesPassed": 6
+        },
+        {
+          "path": "doc127-asistente-real-20261126.json",
+          "type": "REAL_CURRENT_ASSISTANT",
+          "passed": 2,
+          "formats": [
+            "XLS",
+            "XLSX"
+          ]
+        }
+      ],
+      "newProductModificationInThisClosure": false
+    }
+  ],
+  "newDemonstratedProductDefectsInAuthorizedWindows": 0,
+  "sourceAudit": [
+    {
+      "path": "tests/doc119-navigation.test.cjs",
+      "sha256Utf8Lf": "998e7f0bd70f8b612e2462935899f5ba8d0c5d90b5df949e22816b2ec465a0f0",
+      "currentSha256Utf8Lf": "998e7f0bd70f8b612e2462935899f5ba8d0c5d90b5df949e22816b2ec465a0f0",
+      "matches": true
+    },
+    {
+      "path": "tests/doc120-produccion-barra.test.cjs",
+      "sha256Utf8Lf": "e03a2e3e979016f33a887350f3c9afab1fb5684910a6814f8215a8db3a9bbf83",
+      "currentSha256Utf8Lf": "e03a2e3e979016f33a887350f3c9afab1fb5684910a6814f8215a8db3a9bbf83",
+      "matches": true
+    },
+    {
+      "path": "tests/doc120-importacion-arbol.test.cjs",
+      "sha256Utf8Lf": "6a4a8a423eecc1ec049c7b7ad08f8bf7bcb67363bc5ea813c47e3411cb12440d",
+      "currentSha256Utf8Lf": "6a4a8a423eecc1ec049c7b7ad08f8bf7bcb67363bc5ea813c47e3411cb12440d",
+      "matches": true
+    },
+    {
+      "path": "tests/doc120-coordinacion-browser.test.cjs",
+      "sha256Utf8Lf": "7cc6bba509b2fb5c8cda11c7818ba6e4909f115c6ee801d0ddd93908175b0c17",
+      "currentSha256Utf8Lf": "7cc6bba509b2fb5c8cda11c7818ba6e4909f115c6ee801d0ddd93908175b0c17",
+      "matches": true
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-editor.test.cjs",
+      "sha256Utf8Lf": "9eb29937b10117d0f537b61a9242102e67a0080635f3b2d2ed9016038901e220",
+      "currentSha256Utf8Lf": "9eb29937b10117d0f537b61a9242102e67a0080635f3b2d2ed9016038901e220",
+      "matches": true
+    },
+    {
+      "path": "tests/doc110-fuente-admin-editor.test.cjs",
+      "sha256Utf8Lf": "9c207333439e6f8e3aafc3831523cb38432da2eac5f994c41c2623d14eace6fd",
+      "currentSha256Utf8Lf": "9c207333439e6f8e3aafc3831523cb38432da2eac5f994c41c2623d14eace6fd",
+      "matches": true
+    },
+    {
+      "path": "tests/doc110-proveedor-admin-editor.test.cjs",
+      "sha256Utf8Lf": "c8631c479a72e51853037e1327977e7860441be8c83d92f90ebbceed497091b0",
+      "currentSha256Utf8Lf": "c8631c479a72e51853037e1327977e7860441be8c83d92f90ebbceed497091b0",
+      "matches": true
+    },
+    {
+      "path": "tests/doc126-importacion-excel-ui.test.cjs",
+      "sha256Utf8Lf": "913e05e4360ddcd2168940b27079386780afa50db6f8ae2d1441e5220b25a457",
+      "currentSha256Utf8Lf": "913e05e4360ddcd2168940b27079386780afa50db6f8ae2d1441e5220b25a457",
+      "matches": true
+    },
+    {
+      "path": "tests/doc126-importacion-excel-client.test.cjs",
+      "sha256Utf8Lf": "d996e59f1060b9ae7cded4a5d243ba3df0db9cafcc4fd795a0bb106ecab37f84",
+      "currentSha256Utf8Lf": "d996e59f1060b9ae7cded4a5d243ba3df0db9cafcc4fd795a0bb106ecab37f84",
+      "matches": true
+    },
+    {
+      "path": "tests/doc126-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "93c813cd64654171284eaabab672da48deb01b639af816c7323448c0b502134e",
+      "currentSha256Utf8Lf": "279932da6866614a81529edf6250527c03d1fed7b8cef8269cc32bd3ab95c208",
+      "matches": false
+    },
+    {
+      "path": "tests/doc127-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "d5949b669b788da1a92f606abe90f46abbed23133185d92b94967ee59ce33048",
+      "currentSha256Utf8Lf": "3a3a543e9358e97caa058dd5245ca3d04fd9b09ef9cc586473b7e6e374bafb4b",
+      "matches": false
+    },
+    {
+      "path": "tools/e2e/tests/support/doc110-admin-navigation.cjs",
+      "sha256Utf8Lf": "dcbd973a3d8eedea832ea9e421575e2d37cd353d4daa192815d4d5d6897011bf",
+      "currentSha256Utf8Lf": "dcbd973a3d8eedea832ea9e421575e2d37cd353d4daa192815d4d5d6897011bf",
+      "matches": true
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "61ee704cb56724fb09279e2e984a4e718fad436a0587a01652c3a6aa3911a2c7",
+      "currentSha256Utf8Lf": "f1b767589a3672338428bfd4b80f59083f6aa7e3341d0eb0bd4ec03dfd88112d",
+      "matches": false
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "sha256Utf8Lf": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+      "currentSha256Utf8Lf": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+      "matches": true
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Utf8Lf": "4a80a5aacd92e6cc78152ff014ec75130539e9d52a1223436d3599a35060d85b",
+      "currentSha256Utf8Lf": "4a80a5aacd92e6cc78152ff014ec75130539e9d52a1223436d3599a35060d85b",
+      "matches": true
+    }
+  ],
+  "fixAudit": [
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "baseSha256Utf8Lf": "d7ad94d6eb39eeabb6ebabbfe33ff4d86bb64498cc3e9da7013b38c2cfb7d501",
+      "candidateSha256Utf8Lf": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+      "currentSha256Utf8Lf": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+      "matches": true
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "baseSha256Utf8Lf": "6c0a87e4651150ea93e389686192f5016fa95b8856e4bfd31f2854c53a76fe57",
+      "candidateSha256Utf8Lf": "4a80a5aacd92e6cc78152ff014ec75130539e9d52a1223436d3599a35060d85b",
+      "currentSha256Utf8Lf": "4a80a5aacd92e6cc78152ff014ec75130539e9d52a1223436d3599a35060d85b",
+      "matches": true
+    },
+    {
+      "path": "tests/doc126-importacion-excel-ui.test.cjs",
+      "baseSha256Utf8Lf": "2d3a95d85c44c4dd5f14f5b03d2002055276430e9f0b17239cbb625255fd0c4a",
+      "candidateSha256Utf8Lf": "c8be941faf0f24993cf21a0f236a1296659e8cc344a78745c48a18c45e29395c",
+      "currentSha256Utf8Lf": "913e05e4360ddcd2168940b27079386780afa50db6f8ae2d1441e5220b25a457",
+      "matches": false
+    }
+  ],
+  "localAudit": [
+    {
+      "path": "package.json",
+      "sha256Utf8Lf": "414c7a8836a45b189f52007f3fa2edd3699990927c7c6dae0f701768d84dcfdb",
+      "currentSha256Utf8Lf": "414c7a8836a45b189f52007f3fa2edd3699990927c7c6dae0f701768d84dcfdb",
+      "matches": true
+    },
+    {
+      "path": "tests/ImportacionExcelBehaviorTests.cs",
+      "sha256Utf8Lf": "fff1a05e4aa616da718c87e01b8b422bfd0bf2a1efbf2a96add35bfe5e90594a",
+      "currentSha256Utf8Lf": "fff1a05e4aa616da718c87e01b8b422bfd0bf2a1efbf2a96add35bfe5e90594a",
+      "matches": true
+    },
+    {
+      "path": "tests/ImportacionExcelConfirmacionTests.cs",
+      "sha256Utf8Lf": "8beab1d9a63c1028786cae6e8dd4bdeecb10b0d8f0d3da8667a3ae199f89ccfe",
+      "currentSha256Utf8Lf": "8beab1d9a63c1028786cae6e8dd4bdeecb10b0d8f0d3da8667a3ae199f89ccfe",
+      "matches": true
+    },
+    {
+      "path": "tests/doc126-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "279932da6866614a81529edf6250527c03d1fed7b8cef8269cc32bd3ab95c208",
+      "currentSha256Utf8Lf": "279932da6866614a81529edf6250527c03d1fed7b8cef8269cc32bd3ab95c208",
+      "matches": true
+    },
+    {
+      "path": "tests/doc127-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "3a3a543e9358e97caa058dd5245ca3d04fd9b09ef9cc586473b7e6e374bafb4b",
+      "currentSha256Utf8Lf": "3a3a543e9358e97caa058dd5245ca3d04fd9b09ef9cc586473b7e6e374bafb4b",
+      "matches": true
+    },
+    {
+      "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+      "sha256Utf8Lf": "ee0118f810efbf9f8d3c5eab514b2b512d77151d7e4bdaf9ed01d48a8c9c0776",
+      "currentSha256Utf8Lf": "ee0118f810efbf9f8d3c5eab514b2b512d77151d7e4bdaf9ed01d48a8c9c0776",
+      "matches": true
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256Utf8Lf": "ccd1ea1c1657c9b565265b863835622a0495bb49d0cde499d196a822ba943b0e",
+      "currentSha256Utf8Lf": "ccd1ea1c1657c9b565265b863835622a0495bb49d0cde499d196a822ba943b0e",
+      "matches": true
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "f1b767589a3672338428bfd4b80f59083f6aa7e3341d0eb0bd4ec03dfd88112d",
+      "currentSha256Utf8Lf": "f1b767589a3672338428bfd4b80f59083f6aa7e3341d0eb0bd4ec03dfd88112d",
+      "matches": true
+    }
+  ],
+  "remainingEvidenceGaps": [
+    {
+      "task": "2.4",
+      "issue": "Manual EXPLAIN server plan not provided; no query-performance verdict."
+    },
+    {
+      "task": "7.5",
+      "issue": "Final technical/OpenSpec review, human manual QA and remaining gates are not completed."
+    }
+  ],
+  "limitations": [
+    "Historical141 tests are not announced as a current aggregate run:12/15 source hashes match and the three changed test components have current55-test and real E2E coverage.",
+    "Historical81 focal cases retain their original date; current product fix hashes and later integration UI tests are checked separately.",
+    "Real manager business postback, physical permission revocation, physical COMMIT/network faults and policy COLUMNA are not claimed.",
+    "Closing demonstrated findings does not approve final acceptance, human manual QA, archive or Jira closure."
+  ],
+  "humanManualQaClaimed": false,
+  "sqlWrites": 0
+}

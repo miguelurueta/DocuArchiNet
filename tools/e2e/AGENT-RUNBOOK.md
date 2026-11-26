@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC127: asistente XLS/XLSX real PASS — 2026-11-26
+
+Lote `c659ec0b64d94681bccaaa8e6e75e4d0` consumido:2/2 E2E PASS, cuenta194/empresa2/DA11/RA12/ref6. Plantillas76/77 r1, dos tablas y2000 filas nuevas, cuatro campos; cero borrados o cambios de permisos.38/39 tablas protegidas, configuración previa,78 perfiles y41 cargas conservadas; segunda corrida conserva la primera alta. Consola cerrada naturalmente y captura completa.5.2 y7.1 completadas:31/33 tareas, matriz por formato/modo y cierre del hallazgo form1 con fuentes y cobertura clasificadas. [Resultado](../../Doc/Actualizacion/Importacion/Validacion/doc127-asistente-real-20261126.md) y [hallazgos](../../Doc/Actualizacion/Importacion/Validacion/doc127-hallazgos-cierre-20261126.md). Quedan EXPLAIN manual2.4 y gates/QA7.5. No reutilizar archivos, IDs o marcadores ni iniciar más cargas por esta autorización; conservar las dos altas. Los apartados siguientes son históricos.
+
 ## DOC127: asistente XLS/XLSX preparado — 2026-11-26
 
 Lote `c659ec0b64d94681bccaaa8e6e75e4d0`, PREPARED_NOT_AUTHORIZED. Dos formatos,1000 filas cada uno, cuenta194/empresa2/DA11/RA12/ref6 en IIS local GESTOR. Máximo2 plantillas,4 campos,2 tablas y2000 filas nuevas; cero borrados, ediciones de datos existentes o permisos.38/39 tablas protegidas,78 perfiles y41 cargas previas. Consola de una contraseña, scopes, consumo único, SELECT antes/después y recuperación sin retry listos.14 SELECT y dos análisis nativos locales PASS; nueve guardas locales PASS sin activar autorización real. [Propuesta](../../Doc/Actualizacion/Importacion/Validacion/doc127-ventana-asistente-20261126.md) y [matriz](../../Doc/Actualizacion/Importacion/Validacion/doc127-matriz-plantillas-20261126.md). No iniciar sin autorización expresa de este lote; la lectura anterior está consumida. Avance29/33;5.2 permanece abierta.

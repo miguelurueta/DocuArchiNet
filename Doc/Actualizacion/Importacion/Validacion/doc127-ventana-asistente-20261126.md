@@ -1,6 +1,8 @@
 # DOC127: ventana del asistente XLS y XLSX preparada
 
-**PREPARADA, PENDIENTE DE AUTORIZACIÓN.** No hubo autenticación ni importación. Avance **29/33 tareas**;5.2 continúa abierta. La capacidad conserva18/18 casos reales aprobados.
+**Estado actual: EJECUTADA2/2 PASS; AUTORIZACIÓN CONSUMIDA.** [Resultado real](doc127-asistente-real-20261126.md);5.2 y7.1 completadas,31/33 tareas. La descripción inferior conserva el corte histórico de preparación.
+
+**Estado al preparar: PREPARADA, PENDIENTE DE AUTORIZACIÓN.** No hubo autenticación ni importación. Avance **29/33 tareas**;5.2 continúa abierta. La capacidad conserva18/18 casos reales aprobados.
 
 Lote `c659ec0b64d94681bccaaa8e6e75e4d0`, SHA de preparación `1e5a19943665e55dd6b05707609359194d1001f3`. Dos recorridos secuenciales del asistente actual: XLS y XLSX. La evidencia XLSX de DOC126 se conserva como histórica; la interfaz cambió posteriormente en asociación de formularios y manejo de foco/busy. [Matriz de plantillas](doc127-matriz-plantillas-20261126.md).
 

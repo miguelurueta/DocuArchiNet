@@ -1,6 +1,6 @@
 {
   "issue": "DOC-127",
-  "status": "PREPARED_NOT_AUTHORIZED",
+  "status": "FINISHED_REAL_ASSISTANT_PASS",
   "recordedUtc": "2026-11-26T18:20:46.604Z",
   "batchId": "c659ec0b64d94681bccaaa8e6e75e4d0",
   "preparedCommit": "1e5a19943665e55dd6b05707609359194d1001f3",
@@ -47,11 +47,13 @@
         }
       ],
       "mode": "CREAR",
-      "newTemplateId": null,
+      "newTemplateId": 76,
       "expectedRevision": 1,
       "expectedStatus": "CONFIRMADA",
-      "status": "NOT_EXECUTED",
-      "protectedTables": 38
+      "status": "REAL_PASS",
+      "protectedTables": 38,
+      "loadId": "3671f38d-92d2-4605-8253-b6f317d8904a",
+      "actualRows": 1000
     },
     {
       "formato": "XLSX",
@@ -76,11 +78,13 @@
         }
       ],
       "mode": "CREAR",
-      "newTemplateId": null,
+      "newTemplateId": 77,
       "expectedRevision": 1,
       "expectedStatus": "CONFIRMADA",
-      "status": "NOT_EXECUTED",
-      "protectedTables": 39
+      "status": "REAL_PASS",
+      "protectedTables": 39,
+      "loadId": "3e2d5b0b-902c-4a99-acaa-817ada56f24f",
+      "actualRows": 1000
     }
   ],
   "maxEffects": {
@@ -304,5 +308,84 @@
   "privateDirectory": ".tmp/doc127-assistant-ventana",
   "consoleScript": ".tmp/doc127-assistant-session.ps1",
   "credentialsStored": false,
-  "realE2EExecuted": false
+  "realE2EExecuted": true,
+  "preparationStatus": "PREPARED_NOT_AUTHORIZED",
+  "finalEvidence": "Doc/Actualizacion/Importacion/Validacion/doc127-asistente-real-20261126.json",
+  "authorizationConsumed": true,
+  "actualEffects": {
+    "authenticatedSessions": 2,
+    "analysisUploads": 2,
+    "importLoads": 2,
+    "templatesCreated": 2,
+    "fieldsCreated": 4,
+    "tablesCreated": 2,
+    "businessRowsInserted": 2000,
+    "businessRowsDeleted": 0,
+    "priorBusinessRowsChanged": 0,
+    "permissionChanges": 0,
+    "installationSqlApplied": 0,
+    "cleanupSqlApplied": 0,
+    "deployments": 0
+  },
+  "preparedCases": [
+    {
+      "formato": "XLS",
+      "conexionId": 6,
+      "tabla": "imp_02_doc126_e2e_asistente_fab26227",
+      "archivoPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\.tmp\\doc127-assistant-ventana\\asistente.xls",
+      "archivoHash": "0090257fde02d8091edeeb0dccf6b446fdf5d3cce8c245caf6dc703cbb79f5f0",
+      "bytes": 229376,
+      "hoja": "Datos",
+      "filasEsperadas": 1000,
+      "campoUnico": "CLAVE",
+      "campos": [
+        {
+          "CAMPO_FUENTE": "CLAVE",
+          "CAMPO_DESTINO": "CLAVE",
+          "TIPO_CAMPO": "VARCHAR(61)"
+        },
+        {
+          "CAMPO_FUENTE": "VALOR",
+          "CAMPO_DESTINO": "VALOR",
+          "TIPO_CAMPO": "VARCHAR(63)"
+        }
+      ],
+      "mode": "CREAR",
+      "newTemplateId": null,
+      "expectedRevision": 1,
+      "expectedStatus": "CONFIRMADA",
+      "status": "NOT_EXECUTED",
+      "protectedTables": 38
+    },
+    {
+      "formato": "XLSX",
+      "conexionId": 6,
+      "tabla": "imp_02_doc126_e2e_asistente_3d2f2ad4",
+      "archivoPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\.tmp\\doc127-assistant-ventana\\asistente.xlsx",
+      "archivoHash": "e6c72836c4cc85d0b35880cc0dc17ebc8fc186c2cefeacac4182079d5471accd",
+      "bytes": 16301,
+      "hoja": "Datos",
+      "filasEsperadas": 1000,
+      "campoUnico": "CLAVE",
+      "campos": [
+        {
+          "CAMPO_FUENTE": "CLAVE",
+          "CAMPO_DESTINO": "CLAVE",
+          "TIPO_CAMPO": "VARCHAR(62)"
+        },
+        {
+          "CAMPO_FUENTE": "VALOR",
+          "CAMPO_DESTINO": "VALOR",
+          "TIPO_CAMPO": "VARCHAR(65)"
+        }
+      ],
+      "mode": "CREAR",
+      "newTemplateId": null,
+      "expectedRevision": 1,
+      "expectedStatus": "CONFIRMADA",
+      "status": "NOT_EXECUTED",
+      "protectedTables": 39
+    }
+  ],
+  "scopeHashMeaning": "Prepared scope hashes before authorization; executed hashes are in finalEvidence"
 }

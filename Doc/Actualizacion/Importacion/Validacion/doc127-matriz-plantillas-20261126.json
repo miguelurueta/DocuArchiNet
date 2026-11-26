@@ -1,6 +1,6 @@
 {
   "issue": "DOC-127",
-  "status": "LOCAL_MODEL_AND_CURRENT_MODES_PASS_WEB_ASSISTANT_PENDING",
+  "status": "CURRENT_FORMAT_MODE_AND_WEB_ASSISTANT_PASS_WITH_CLASSIFIED_LIMITS",
   "recordedUtc": "2026-11-26T18:20:46.604Z",
   "preparedCommit": "1e5a19943665e55dd6b05707609359194d1001f3",
   "modelCases": [
@@ -288,7 +288,15 @@
     "uiDifference": "Current Vista associates controls with an auxiliary form and changes focus/busy handling. Historical web result is kept with its own hashes.",
     "evidence": "doc126-e2e-asistente-real-20261125.json"
   },
-  "pendingWebCases": [
+  "pendingWebCases": [],
+  "webCasesOutsideNewScope": [
+    "Web creation or operation editing for AGREGAR/REEMPLAZAR, both formats; not executed by this scope. Existing-template mode use is recorded separately."
+  ],
+  "task5_2Complete": true,
+  "nextWindow": "doc127-ventana-asistente-20261126.json",
+  "capacityMatrixUnchanged": "18/18 real PASS; no repetition",
+  "explain": "Manual SQL29 exists; no supplied server plan found; not executed by the agent",
+  "preparedWebCases": [
     {
       "formato": "XLS",
       "conexionId": 6,
@@ -348,11 +356,92 @@
       "protectedTables": 39
     }
   ],
-  "webCasesOutsideNewScope": [
-    "Web creation or operation editing for AGREGAR/REEMPLAZAR, both formats; not executed by this scope. Existing-template mode use is recorded separately."
+  "currentWebCases": [
+    {
+      "format": "XLS",
+      "mode": "CREAR",
+      "status": "REAL_PASS",
+      "templateId": 76,
+      "revision": 1,
+      "table": "imp_02_doc126_e2e_asistente_fab26227",
+      "loadId": "3671f38d-92d2-4605-8253-b6f317d8904a",
+      "rows": 1000,
+      "sheet": "Datos",
+      "key": "CLAVE",
+      "fileBytes": 229376,
+      "fileHash": "0090257fde02d8091edeeb0dccf6b446fdf5d3cce8c245caf6dc703cbb79f5f0",
+      "fields": [
+        {
+          "CAMPO_FUENTE": "CLAVE",
+          "CAMPO_DESTINO": "CLAVE",
+          "TIPO_CAMPO": "VARCHAR(61)",
+          "REMPLAZA_COMA": 0,
+          "REMPLAZA_PUNTO": 0,
+          "OPCION_SPLITER": 0,
+          "NUMERO_MATRIZ_EXPLITER": 0
+        },
+        {
+          "CAMPO_FUENTE": "VALOR",
+          "CAMPO_DESTINO": "VALOR",
+          "TIPO_CAMPO": "VARCHAR(63)",
+          "REMPLAZA_COMA": 0,
+          "REMPLAZA_PUNTO": 0,
+          "OPCION_SPLITER": 0,
+          "NUMERO_MATRIZ_EXPLITER": 0
+        }
+      ],
+      "protectedTables": 38,
+      "scopeSha256": "ef3bebd584fcc3f7df7443a7f46f64cd71a50a5a5e6b8914c50fe0c22168659b",
+      "startedUtc": "2026-11-26T19:17:25.582Z",
+      "completedUtc": "2026-11-26T19:26:20.580Z",
+      "elapsedMs": 534998,
+      "elapsedIncludesAllControls": true,
+      "baselineSelects": 14,
+      "postflightSelects": 16
+    },
+    {
+      "format": "XLSX",
+      "mode": "CREAR",
+      "status": "REAL_PASS",
+      "templateId": 77,
+      "revision": 1,
+      "table": "imp_02_doc126_e2e_asistente_3d2f2ad4",
+      "loadId": "3e2d5b0b-902c-4a99-acaa-817ada56f24f",
+      "rows": 1000,
+      "sheet": "Datos",
+      "key": "CLAVE",
+      "fileBytes": 16301,
+      "fileHash": "e6c72836c4cc85d0b35880cc0dc17ebc8fc186c2cefeacac4182079d5471accd",
+      "fields": [
+        {
+          "CAMPO_FUENTE": "CLAVE",
+          "CAMPO_DESTINO": "CLAVE",
+          "TIPO_CAMPO": "VARCHAR(62)",
+          "REMPLAZA_COMA": 0,
+          "REMPLAZA_PUNTO": 0,
+          "OPCION_SPLITER": 0,
+          "NUMERO_MATRIZ_EXPLITER": 0
+        },
+        {
+          "CAMPO_FUENTE": "VALOR",
+          "CAMPO_DESTINO": "VALOR",
+          "TIPO_CAMPO": "VARCHAR(65)",
+          "REMPLAZA_COMA": 0,
+          "REMPLAZA_PUNTO": 0,
+          "OPCION_SPLITER": 0,
+          "NUMERO_MATRIZ_EXPLITER": 0
+        }
+      ],
+      "protectedTables": 39,
+      "scopeSha256": "c7fd1bf6b9ad3f58d947474f75a403927f4c42e9d64e8b2910a1ef5bdc6e87a2",
+      "startedUtc": "2026-11-26T19:26:20.652Z",
+      "completedUtc": "2026-11-26T19:35:19.378Z",
+      "elapsedMs": 538726,
+      "elapsedIncludesAllControls": true,
+      "baselineSelects": 16,
+      "postflightSelects": 18
+    }
   ],
-  "task5_2Complete": false,
-  "nextWindow": "doc127-ventana-asistente-20261126.json",
-  "capacityMatrixUnchanged": "18/18 real PASS; no repetition",
-  "explain": "Manual SQL29 exists; no supplied server plan found; not executed by the agent"
+  "currentWebEvidence": "doc127-asistente-real-20261126.json",
+  "latestEvaluationCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d"
 }

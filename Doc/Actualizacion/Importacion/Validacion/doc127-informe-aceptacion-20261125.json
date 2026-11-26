@@ -9,12 +9,10 @@
     "7.4"
   ],
   "tasks": {
-    "complete": 29,
+    "complete": 31,
     "total": 33,
     "pending": [
       "2.4",
-      "5.2",
-      "7.1",
       "7.5"
     ]
   },
@@ -187,6 +185,24 @@
       "recordedUtc": "2026-11-25T23:56:49.338Z",
       "type": "LOCAL_SYNTHETIC_REUSED_BY_EIGHT_UNCHANGED_SOURCE_HASHES",
       "status": "PREPARED_TESTS_LOCAL_PASS_REAL_WINDOWS_PENDING"
+    },
+    {
+      "id": "DOC127_ASISTENTE_REAL",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-asistente-real-20261126.json",
+      "sha256Utf8Lf": "9309234ab3485096856db405d5cb463a8aef5d4ecca1fab55cdb19d0c1d079e9",
+      "sourceCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d",
+      "recordedUtc": "2026-11-26T19:36:30.466Z",
+      "type": "REAL_CURRENT_WEB_ASSISTANT_XLS_XLSX",
+      "status": "REAL_CURRENT_ASSISTANT_XLS_XLSX_PASS"
+    },
+    {
+      "id": "DOC127_HALLAZGOS_CIERRE",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-hallazgos-cierre-20261126.json",
+      "sha256Utf8Lf": "2fab751feee51e400f1f49ec0459f9e61493ef8e784f19743afdcf3dfc6ba6b9",
+      "sourceCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d",
+      "recordedUtc": "2026-11-26T19:36:31.421Z",
+      "type": "CURRENT_FINDINGS_REVIEW_WITH_CLASSIFIED_REUSE",
+      "status": "KNOWN_FINDINGS_CLOSED_WITH_CLASSIFIED_EVIDENCE"
     }
   ],
   "requirements": [
@@ -206,16 +222,25 @@
     {
       "requirement": "RQ-02",
       "caseName": "Runner DOC110/scopes DOC125–127",
-      "testReference": "tests/doc127-e2e-reuse.test.cjs",
-      "state": "LOCAL_PASS_REAL_READ_PASS_CAPACITY_PENDING",
+      "testReference": "Runner/scopes compartidos; guardas locales; capacidad18/18; autoridad6/6 y asistente2/2 reales",
+      "state": "LOCAL_GUARDS_PASS_REAL_CAPACITY_AUTHORITY_ASSISTANT_WINDOWS_PASS",
       "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
-      "limitation": "Lectura DOC127 autorizada y consumida; capacidad pendiente de ventanas propias. Sin instalar/sembrar/limpiar desde E2E.",
+      "limitation": "Ventanas y autorizaciones consumidas; no amplían cuentas, recursos ni efectos. Sin SQL administrativo desde E2E; las altas funcionales autorizadas se registran por separado.",
       "evidenceIds": [
         "LOCAL",
         "INTEGRACION",
-        "DOC127_LECTURA"
+        "DOC127_LECTURA",
+        "DOC127_AUTORIDAD_REAL",
+        "DOC127_XLS1000_REAL",
+        "DOC127_XLS5000_REAL",
+        "DOC127_XLS10000_REAL",
+        "DOC127_XLSX1000_REAL",
+        "DOC127_XLSX5000_REAL",
+        "DOC127_XLSX10000_REAL",
+        "DOC127_ASISTENTE_REAL"
       ],
-      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf",
+      "latestRunnerEvaluationCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d"
     },
     {
       "requirement": "RQ-03",
@@ -257,10 +282,10 @@
     {
       "requirement": "RQ-05",
       "caseName": "Plantillas y tres modos por formato",
-      "testReference": "DOC122–125_NATIVE; DOC127_LOCAL_READER; DOC126 reales",
-      "state": "LOCAL_PASS_REAL_PARCIAL",
+      "testReference": "12 modelos locales; seis usos reales de plantillas existentes; asistente actual XLS/XLSX2/2",
+      "state": "REAL_CURRENT_MODES_AND_WEB_FORMATS_PASS_LOCAL_COMPATIBILITY_CLASSIFIED",
       "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
-      "limitation": "18 libros locales no equivalen a18 importaciones. XLS real por modo sin completar.",
+      "limitation": "No se anuncia creación/edición web AGREGAR/REEMPLAZAR; su uso con plantillas existentes sí tiene evidencia real. Compatibilidad histórica/nueva usa servicios VB con ADO sintético y se distingue de las dos altas web actuales.",
       "evidenceIds": [
         "LOCAL",
         "DOC126_FUNCIONAL",
@@ -270,9 +295,11 @@
         "DOC127_XLS10000_REAL",
         "DOC127_XLSX1000_REAL",
         "DOC127_XLSX5000_REAL",
-        "DOC127_XLSX10000_REAL"
+        "DOC127_XLSX10000_REAL",
+        "DOC127_ASISTENTE_REAL"
       ],
-      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf",
+      "latestWebEvaluationCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d"
     },
     {
       "requirement": "RQ-06",
@@ -369,15 +396,18 @@
     {
       "requirement": "RQ-12",
       "caseName": "Build aislado y regresion actual",
-      "testReference": "MSBuild net461; logs locales por SHA",
-      "state": "LOCAL_PASS",
+      "testReference": "Corrección form1; revisión de fuentes; autoridad/read real y asistente actual XLS/XLSX",
+      "state": "KNOWN_FINDING_CLOSED_LOCAL_AND_REAL_CURRENT_EVIDENCE_CLASSIFIED",
       "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
-      "limitation": "Cero despliegues; el binario compilado aislado no sustituye el instalado.",
+      "limitation": "141 pruebas son históricas,12/15 fuentes coinciden; las tres fuentes de pruebas cambiadas tienen cobertura55 y E2E vigentes. No se reclama postback real de negocio del gestor ni QA humana.",
       "evidenceIds": [
         "LOCAL",
-        "INTEGRACION"
+        "INTEGRACION",
+        "DOC127_HALLAZGOS_CIERRE",
+        "DOC127_ASISTENTE_REAL"
       ],
-      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf",
+      "latestFindingEvaluationCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d"
     },
     {
       "requirement": "RQ-13",
@@ -2198,22 +2228,6 @@
       "action": "El usuario ejecuta manualmente Sql/29-explain-proveedor-doc127.sql en el destino indicado y aporta key/possible_keys/type/rows/Extra y metadatos; revisar sin ejecutar EXPLAIN desde el agente."
     },
     {
-      "id": "B-02",
-      "tasks": [
-        "7.1"
-      ],
-      "impact": "Autoridad y lectura vigentes aprobadas; queda revisar los hallazgos al completar los cruces pendientes de plantillas del corte integral.",
-      "action": "Conservar ventana de autoridad consumida y evidencia mixta clasificada; no repetir importaciones ni mutar permisos. Cerrar hallazgos integrales tras5.2."
-    },
-    {
-      "id": "B-03",
-      "tasks": [
-        "5.2"
-      ],
-      "impact": "La matriz18/18 de capacidad tiene resultados reales y mediciones. Los cruces restantes de plantillas y su aceptación funcional siguen pendientes.",
-      "action": "Ventana concreta de asistente XLS/XLSX preparada para cuenta194:2 altas/4 campos/2 tablas/2000 filas nuevas, cero borrados. Obtener autorización, ejecutar una vez por formato y revisar resultados con matriz de plantillas; no repetir capacidad."
-    },
-    {
       "id": "B-04",
       "tasks": [
         "7.5"
@@ -2422,7 +2436,7 @@
   },
   "nextPreparedWindow": {
     "batchId": "c659ec0b64d94681bccaaa8e6e75e4d0",
-    "status": "PREPARED_NOT_AUTHORIZED",
+    "status": "FINISHED_REAL_ASSISTANT_PASS",
     "report": "Doc/Actualizacion/Importacion/Validacion/doc127-ventana-asistente-20261126.md",
     "scope": "current web assistant XLS/XLSX,194,1000 rows each",
     "maxEffects": {
@@ -2436,8 +2450,12 @@
       "installationSql": 0,
       "cleanupSql": 0
     },
-    "realE2EExecuted": false,
-    "completesTasks": []
+    "realE2EExecuted": true,
+    "completesTasks": [
+      "5.2"
+    ],
+    "windowConsumed": true,
+    "finalEvidence": "Doc/Actualizacion/Importacion/Validacion/doc127-asistente-real-20261126.json"
   },
   "latestAuthorityAcceptance": {
     "evidenceId": "DOC127_AUTORIDAD_REAL",
@@ -2453,7 +2471,88 @@
   },
   "templateMatrix": {
     "path": "Doc/Actualizacion/Importacion/Validacion/doc127-matriz-plantillas-20261126.json",
-    "status": "LOCAL_MODEL_AND_CURRENT_MODES_PASS_WEB_ASSISTANT_PENDING",
-    "taskComplete": false
+    "status": "CURRENT_FORMAT_MODE_AND_WEB_ASSISTANT_PASS_WITH_CLASSIFIED_LIMITS",
+    "taskComplete": true
+  },
+  "resolvedBlockers": [
+    {
+      "id": "B-02",
+      "tasks": [
+        "7.1"
+      ],
+      "impact": "Autoridad y lectura vigentes aprobadas; queda revisar los hallazgos al completar los cruces pendientes de plantillas del corte integral.",
+      "action": "Conservar ventana de autoridad consumida y evidencia mixta clasificada; no repetir importaciones ni mutar permisos. Cerrar hallazgos integrales tras5.2.",
+      "status": "RESOLVED_WITH_CLASSIFIED_EVIDENCE",
+      "resolvedEvidence": "DOC127_HALLAZGOS_CIERRE",
+      "resolvedUtc": "2026-11-26T19:36:30.466Z"
+    },
+    {
+      "id": "B-03",
+      "tasks": [
+        "5.2"
+      ],
+      "impact": "La matriz18/18 de capacidad tiene resultados reales y mediciones. Los cruces restantes de plantillas y su aceptación funcional siguen pendientes.",
+      "action": "Ventana concreta de asistente XLS/XLSX preparada para cuenta194:2 altas/4 campos/2 tablas/2000 filas nuevas, cero borrados. Obtener autorización, ejecutar una vez por formato y revisar resultados con matriz de plantillas; no repetir capacidad.",
+      "status": "RESOLVED_WITH_CLASSIFIED_EVIDENCE",
+      "resolvedEvidence": "DOC127_ASISTENTE_REAL",
+      "resolvedUtc": "2026-11-26T19:36:30.466Z"
+    }
+  ],
+  "latestAssistantAcceptance": {
+    "evidenceId": "DOC127_ASISTENTE_REAL",
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-asistente-real-20261126.json",
+    "sourceCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d",
+    "status": "REAL_CURRENT_ASSISTANT_XLS_XLSX_PASS",
+    "batchId": "c659ec0b64d94681bccaaa8e6e75e4d0",
+    "testsPassed": 2,
+    "cases": [
+      {
+        "format": "XLS",
+        "templateId": 76,
+        "loadId": "3671f38d-92d2-4605-8253-b6f317d8904a",
+        "rows": 1000
+      },
+      {
+        "format": "XLSX",
+        "templateId": 77,
+        "loadId": "3e2d5b0b-902c-4a99-acaa-817ada56f24f",
+        "rows": 1000
+      }
+    ],
+    "effects": {
+      "authenticatedSessions": 2,
+      "analysisUploads": 2,
+      "importLoads": 2,
+      "templatesCreated": 2,
+      "fieldsCreated": 4,
+      "tablesCreated": 2,
+      "businessRowsInserted": 2000,
+      "businessRowsDeleted": 0,
+      "priorBusinessRowsChanged": 0,
+      "permissionChanges": 0,
+      "installationSqlApplied": 0,
+      "cleanupSqlApplied": 0,
+      "deployments": 0
+    },
+    "completedTask": "5.2"
+  },
+  "latestFindingsReview": {
+    "evidenceId": "DOC127_HALLAZGOS_CIERRE",
+    "status": "KNOWN_FINDINGS_CLOSED_WITH_CLASSIFIED_EVIDENCE",
+    "completedTask": "7.1",
+    "knownFindingsClosed": 1
+  },
+  "latestAcceptanceDelivery": {
+    "completedTasks": [
+      "5.2",
+      "7.1"
+    ],
+    "complete": 31,
+    "total": 33,
+    "pending": [
+      "2.4",
+      "7.5"
+    ],
+    "manualQaApproved": false
   }
 }

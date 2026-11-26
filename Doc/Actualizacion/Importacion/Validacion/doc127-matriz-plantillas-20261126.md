@@ -1,6 +1,6 @@
 # DOC127: matriz de plantillas y creación web
 
-**29/33 tareas.** Matriz local de12 combinaciones PASS y seis usos reales actuales (dos formatos × tres modos) reutilizados de la capacidad10000. La creación web XLSX histórica se conserva con su SHA. Dos recorridos del asistente actual están preparados y no ejecutados;5.2 sigue abierta.
+**31/33 tareas.**5.2 completada:12 combinaciones locales de compatibilidad, seis usos reales por formato/modo y dos altas web actuales XLS/XLSX PASS. La historia XLSX conserva su SHA; el [resultado vigente](doc127-asistente-real-20261126.md) y el [registro de hallazgos](doc127-hallazgos-cierre-20261126.md) identifican niveles y restricciones.
 
 ## Modelos y compatibilidad local
 
@@ -39,11 +39,11 @@ Los seis casos usan Datos/CLAVE. Conservan los IDs de carga, SHA y evidencia por
 | Caso | Resultado | Vigencia |
 | --- | --- | --- |
 | XLSX, CREAR, plantilla60,1000 filas | Real histórico PASS DOC126 | Backend/API/CSS coincidentes; Vista y soporte cambiaron después. No es ejecución actual |
-| XLS, CREAR, imp_02_doc126_e2e_asistente_fab26227,1000 filas | NO_EJECUTADO | Propuesta actual pendiente de autorización |
-| XLSX, CREAR, imp_02_doc126_e2e_asistente_3d2f2ad4,1000 filas | NO_EJECUTADO | Propuesta actual pendiente de autorización |
+| XLS, CREAR, imp_02_doc126_e2e_asistente_fab26227,1000 filas | REAL PASS; plantilla76/r1 | Carga 3671f38d-92d2-4605-8253-b6f317d8904a; Vista actual y huellas conservadas |
+| XLSX, CREAR, imp_02_doc126_e2e_asistente_3d2f2ad4,1000 filas | REAL PASS; plantilla77/r1 | Carga 3e2d5b0b-902c-4a99-acaa-817ada56f24f; Vista actual y huellas conservadas |
 
 La diferencia de Vista afecta el propietario de formulario y el manejo de foco/busy. La lectura actual ya verificó aislamiento de form1; esta propuesta verifica el recorrido de creación del asistente con esos cambios y con ambos formatos.
 
 No se ejecuta creación/edición web nueva para AGREGAR/REEMPLAZAR en esta ventana. Su uso con plantillas existentes tiene evidencia real en la tabla anterior. Los cruces de creación web y uso de plantilla se mantienen separados; no se cuenta un caso de capacidad como alta web.
 
-[Alcance revisable](doc127-ventana-asistente-20261126.md) y JSON. La tarea5.2 se revisará al reunir los resultados del asistente y esta matriz; no se marca completa por preparar archivos. EXPLAIN manual y cierre integral continúan pendientes.
+[Alcance ejecutado](doc127-ventana-asistente-20261126.md) y [resultado real](doc127-asistente-real-20261126.md).5.2 completada al reunir los dos resultados actuales y esta matriz; los cruces de edición web fuera de alcance siguen identificados. EXPLAIN manual y gates/QA finales continúan pendientes.
