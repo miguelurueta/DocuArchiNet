@@ -9,7 +9,7 @@ La radicación interna puede mejorar sustancialmente su claridad, pero necesita 
 | Referencia | Valor |
 |---|---|
 | Fecha | 2026-11-25 |
-| Versión | 0.16 |
+| Versión | 0.17 |
 | Base local | Commit `0c7beb83` |
 | Grabación | `Grabación 2026-11-25 113145-radicacion-interna-revisa.mp4` |
 | Duración | 78,80 segundos |
@@ -359,3 +359,7 @@ D-RI-06, incorporada por instrucción del usuario el 2026-11-26, obliga a proteg
 ## Almacenamiento y metadatos intocables
 
 D-RI-07 prevalece sobre cualquier permiso genérico de extracción: el archivo `workflow/ClassAlmacenamiento.vb` y las funciones de preparación/metadatos/vinculación de la [baseline](almacenamiento-intocable-baseline.json) no se modifican, sobrecargan ni clonan. El [diagnóstico quirúrgico](diagnostico-almacenamiento-metadatos.md) detalla fuentes de fechas/folios, clasificación, índices de gabinete/XML, referencias de principal/copia/rótulo y fallos posteriores al commit. Se agregó un verificador de fuentes y seis pruebas en memoria del propio control; no se ejecutó almacenamiento de ambiente. La adaptación de la nueva carga será externa y solo utilizará firmas vigentes. La clasificación posterior sin expediente continúa condicionada a una ruta existente compatible; no se promete alterando el motor.
+
+## Avance documental de P01
+
+La continuación solicitada inició P01. Se prepararon [contratos v1](implementacion/contratos-v1.md), [decisiones](implementacion/decisiones.md), [inventario de archivos](implementacion/inventario-archivos.md) y [matriz de caracterización](implementacion/matriz-caracterizacion.md). El [resultado parcial](implementacion/P01-resultado.md) registra 26 comprobaciones locales de contrato pasadas y almacenamiento protegido intacto. G01 está pendiente de respuesta; no se escogió expediente previo por silencio, no se declaró P01 aceptado ni se implementó aplicación/almacenamiento.

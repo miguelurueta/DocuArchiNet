@@ -4,6 +4,8 @@ La implementación queda organizada en **6 prompts**, conservando las 73 tareas 
 
 Consolidación: 2026-11-26. Base de código revisada: `226d2000`; comprobar el código vigente al ejecutar. Estado de esta entrega: prompts y diagnóstico; aplicación sin implementar. Leer el [contexto común](contexto-comun.md), el [mapa de funciones](../mapa-funciones-implementacion.md) y la [revisión de prompts](revision-prompts.md).
 
+P01 iniciado el 2026-11-26: [resultado parcial](../implementacion/P01-resultado.md), contratos, decisiones, inventario y caracterización disponibles en borrador. Continúa en refinamiento por G01; no se declara aceptado ni se inició código de aplicación de P02–P06.
+
 ## Qué cambia y qué se agrega
 
 El mapa contiene **31 puntos de intervención/compatibilidad existentes (M01–M31)** y **13 responsabilidades nuevas propuestas (N01–N13)**. Son agrupaciones de funciones, controles y contratos, no 31 funciones que haya que reescribir ni 13 clases obligatorias. M24/M26 corresponden a consumidores de compatibilidad, con gestión de respuestas fuera del alcance.
@@ -60,7 +62,7 @@ Al abrir cada paquete:
 2. Cerrar sus decisiones necesarias del [registro G01–G11](contexto-comun.md), sin volver a pedir acuerdos previos ni convertir recomendaciones en aprobaciones.
 3. Precisar entrada, salida, errores, autoridad, efectos, rutas y prueba de cada tarea. Versionar contratos antes de cambiar consumidores.
 4. Implementar el alcance acordado y verificarlo. La autorización del trabajo local no sustituye la autorización expresa de ambiente/cuentas para E2E ni de despliegue.
-5. Registrar durante la ejecución `implementacion/Pxx-resultado.md`, con estado y evidencia por subfase RI: funciones modificadas/agregadas, pruebas reales, decisiones, configuración, pendientes y siguiente consumidor. Estos resultados todavía no existen por generar los prompts.
+5. Registrar durante la ejecución `implementacion/Pxx-resultado.md`, con estado y evidencia por subfase RI: funciones modificadas/agregadas, pruebas reales, decisiones, configuración, pendientes y siguiente consumidor. Existe el resultado parcial de P01; los siguientes se generan durante su ejecución, sin confundirlos con aceptación funcional previa.
 
 La decisión transversal G01 se refina bajo D-RI-07: expediente previo puede utilizar el contrato existente; clasificación posterior requiere demostrar una ruta compatible sin modificar almacenamiento o metadatos protegidos. Si esa ruta no existe, no se habilita la variante ni se fabrica un ID cero o un almacenamiento paralelo. Las demás decisiones se cierran por paquete: catálogo/permisos de terceros, límites y folios, conservación del borrador y datos del seguimiento. D-RI-03 mantiene la gestión de respuestas en el módulo existente.
 

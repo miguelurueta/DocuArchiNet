@@ -40,6 +40,10 @@ Actualización por D-RI-07, exigida el 2026-11-26: almacenamiento intocable en l
 
 Pasó `node tools/diagnostico/verify-radicacion-storage-freeze.cjs` sin diferencias y pasaron seis pruebas de ese verificador (`node --test tools/diagnostico/verify-radicacion-storage-freeze.test.cjs`), incluidas alteraciones simuladas en memoria del motor y de un mapeador. Es protección de fuentes, no una prueba de almacenamiento real. Véase el [diagnóstico de almacenamiento/metadatos](../diagnostico-almacenamiento-metadatos.md) y la [baseline](../almacenamiento-intocable-baseline.json); no se cambian para permitir una modificación prohibida.
 
+## Ejecución documental de P01
+
+La continuación del usuario inició P01: [resultado parcial](../implementacion/P01-resultado.md), contratos, decisiones, inventario y matriz disponibles. Pasaron 26 comprobaciones locales de contrato de las suites indicadas en el prompt y el guard D-RI-07; no acreditan transacción, almacenamiento ni E2E de ambiente. G01 sigue pendiente y P01 no se declara aceptado. Los seis textos de prompt mantienen sus huellas; el avance de P01 no implementa el resto de la serie.
+
 P02 mantiene RI01 → RI02 → RI03 para no adelantar configuración que depende de contexto. P03/P04 dependen de P02 y pueden avanzar independientemente. P05 mantiene RI07 → RI08 → RI09; P06 mantiene RI10 → RI11. El grafo de seis paquetes y el de doce subfases no tienen ciclos. Las decisiones se refinan por subfase; agruparlas no exige resolver todas al iniciar un prompt.
 
 ## Revisión arquitectónica y funcional documental
