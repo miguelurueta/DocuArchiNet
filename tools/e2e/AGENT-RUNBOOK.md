@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC127: ventana XLS10000 preparada — 2026-11-26
+
+Conjunto `86dfcb3cf89c4a40884b11d507e4b4ac`, **pendiente de autorización de ejecución**.31 SELECT verificaron cuenta194/empresa2/DA11/RA12/ref6, plantillas61/62/65 y archivos sin uso previo. AGREGAR6.000→16.000; REEMPLAZAR5.000→10.000, con borrado de las5.000 previas; CREAR ausente→10.000. Máximo30.000 inserciones,5.000 borrados y una tabla. Tres scopes, lote, consola privada y postflight SELECT listos; guardas rechazan el manifiesto pendiente. Misma salida saneada a archivo y cierre natural ya acreditados en XLS5000. Sin nueva E2E/carga;6.3 sigue pendiente y avance24/33. [Alcance revisable](../../Doc/Actualizacion/Importacion/Validacion/doc127-ventana-xls10000-20261126.md) y JSON. La autorización de las ventanas consumidas no se hereda. Los apartados siguientes son históricos.
+
 ## DOC127: XLS5000 real en tres modos PASS — 2026-11-26
 
 XLS5000 real: 3/3 modos PASS, cuenta194/empresa2/DA11/RA12/ref6. AGREGAR 1000→6000; REEMPLAZAR 1000→5000; CREAR ausente→5000. Se insertaron15000 filas, se borraron1000 y se creó una tabla. Huellas de32/32/33 tablas protegidas, plantillas y perfiles conservadas;78 perfiles en el control final. Preparar/confirmar y memoria IIS compartida medidos. Consola y captura completas, sin cierre forzado. Se completa6.2:24/33 tareas. Scopes consumidos; no repetir las cargas. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls5000-20261126.md/json`. Esta autorización está consumida; no amplía tamaños, formatos o casos. Los apartados siguientes son históricos.
