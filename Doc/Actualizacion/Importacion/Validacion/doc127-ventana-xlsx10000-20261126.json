@@ -1,6 +1,6 @@
 {
   "issue": "DOC-127",
-  "status": "PREPARED_PENDING_AUTHORIZATION",
+  "status": "EXECUTED_PASS",
   "batchId": "047439cc9d2b429cb7bd6272dca60e3d",
   "preparedUtc": "2026-11-26T16:10:32.479Z",
   "sourceCommit": "9e51ca8f225f378a293db2ced8279b83b37606f8",
@@ -226,7 +226,7 @@
     "postPasswordConsoleWrites": false,
     "closeAutomatically": true,
     "noExitLaunchFlagAllowed": false,
-    "liveExecutionVerified": false,
+    "liveExecutionVerified": true,
     "behaviorPreviouslyVerifiedBy": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx5000-20261126.json"
   },
   "preparationChecks": {
@@ -247,20 +247,22 @@
     "privateScriptHashes": 2
   },
   "credentialsStored": false,
-  "executionStarted": false,
+  "executionStarted": true,
   "tasks": {
-    "complete": 27,
+    "complete": 28,
     "total": 33,
     "acceptanceTask": "6.6",
-    "acceptanceTaskCompleted": false,
-    "completedThisWindow": []
+    "acceptanceTaskCompleted": true,
+    "completedThisWindow": [
+      "6.6"
+    ]
   },
   "approval": {
-    "required": true,
+    "required": false,
     "source": "AGENTS.md",
     "environment": "https://localhost/GestionDocumental-Docuarchi.net/",
     "accountId": 194,
-    "reference": null,
+    "reference": "User: autorizado. Explicit approval of reviewed DOC127 XLSX10000 batch047439cc9d2b429cb7bd6272dca60e3d; local HTTPS GESTOR company2 DA11 RA12 ref6 account194; three cases, max30000 inserted rows,5000 deleted rows,1 new table; no automatic retries.",
     "scope": "Three XLSX10000 cases; max30000 inserted rows,5000 deleted rows,1 new table. Previous capacity authorizations are consumed."
   },
   "limitations": [
@@ -268,5 +270,43 @@
     "Real postflight not yet executed.",
     "Console behavior was verified by prior runs including XLSX5000; this new XLSX10000 batch has not been executed.",
     "Shared IIS memory will be sampled; no exclusive allocation or unsampled peak claim."
+  ],
+  "executionCompleted": true,
+  "completedUtc": "2026-11-26T16:43:59.065Z",
+  "resultEvidence": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx10000-20261126.json",
+  "results": [
+    {
+      "mode": "AGREGAR",
+      "windowId": "86f965ba459048fda3acb0241a58e5c0",
+      "idCarga": "09c8c4cb-167e-4d28-af65-550e4312a8ec",
+      "rows": 10000,
+      "previousRows": 7002,
+      "finalRows": 17002,
+      "prepareMs": 1127.1537000000244,
+      "confirmMs": 12898.73060000001,
+      "measurementStatus": "COMPLETE_WITH_SAMPLING_LIMITS"
+    },
+    {
+      "mode": "REEMPLAZAR",
+      "windowId": "671267dd73d0407bbc4673db3b09f723",
+      "idCarga": "46646d92-ac7b-4005-a14f-77b12517e230",
+      "rows": 10000,
+      "previousRows": 5000,
+      "finalRows": 10000,
+      "prepareMs": 1033.962499999965,
+      "confirmMs": 12969.214199999988,
+      "measurementStatus": "COMPLETE_WITH_SAMPLING_LIMITS"
+    },
+    {
+      "mode": "CREAR",
+      "windowId": "e4bf83b57768406cb413b075ac13ef3b",
+      "idCarga": "39dd8c35-85e3-4336-ad5c-4bad65b976d7",
+      "rows": 10000,
+      "previousRows": 0,
+      "finalRows": 10000,
+      "prepareMs": 1031.7099999999627,
+      "confirmMs": 12838.901000000013,
+      "measurementStatus": "COMPLETE_WITH_SAMPLING_LIMITS"
+    }
   ]
 }

@@ -1,5 +1,10 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC127: XLSX10000 real en tres modos PASS — 2026-11-26
+
+XLSX10000 real: 3/3 modos PASS, cuenta194/empresa2/DA11/RA12/ref6, plantillas58/59/68. AGREGAR 7002→17002; REEMPLAZAR 5000→10000; CREAR ausente→10000. Se insertaron30000 filas, se borraron5000 y se creó una tabla. Huellas de36/36/37 tablas protegidas, plantillas y perfiles conservadas;78 perfiles en el control final. Preparar/confirmar y memoria IIS compartida medidos. Consola y captura completas, sin cierre forzado. Se completa6.6:28/33 tareas y la matriz18/18 de capacidad. Los demás alcances siguen pendientes. Scopes consumidos; no repetir las cargas. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx10000-20261126.md/json`. Esta autorización está consumida; no amplía tamaños, formatos o casos. Los apartados siguientes son históricos.
+
+
 ## DOC127: ventana XLSX10000 preparada — 2026-11-26
 
 Conjunto `047439cc9d2b429cb7bd6272dca60e3d`, **pendiente de autorización de ejecución**.31 SELECT verificaron cuenta194/empresa2/DA11/RA12/ref6, plantillas58/59/68 y archivos sin uso previo. AGREGAR7.002→17.002; REEMPLAZAR5.000→10.000; CREAR ausente→10.000. Máximo30.000 inserciones,5.000 borrados y una tabla. Tres scopes, lote, consola privada y postflight SELECT listos; guardas rechazan el manifiesto pendiente. Sin nueva carga/autenticación ni tarea6.6 completada; avance27/33. [Alcance revisable](../../Doc/Actualizacion/Importacion/Validacion/doc127-ventana-xlsx10000-20261126.md) y JSON. Si pasan los tres casos se completará la matriz18/18 de capacidad, sin completar automáticamente los alcances funcionales y gates restantes. Las autorizaciones consumidas no se heredan. Los apartados siguientes son históricos.
