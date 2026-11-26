@@ -1,5 +1,10 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC127: XLSX1000 real en tres modos PASS — 2026-11-26
+
+XLSX1000 real: 3/3 modos PASS, cuenta194/empresa2/DA11/RA12/ref6, plantillas58/59/66. AGREGAR 1002→2002; REEMPLAZAR 1000→1000 sustituyendo sus filas; CREAR ausente→1000. Se insertaron3000 filas, se borraron1000 y se creó una tabla. Huellas de34/34/35 tablas protegidas, plantillas y perfiles conservadas;78 perfiles en el control final. Preparar/confirmar y memoria IIS compartida medidos. Consola y captura completas, sin cierre forzado. Se completa6.4:26/33 tareas. Historia XLSX1000 conservada, scopes nuevos consumidos; no repetir las cargas. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx1000-20261126.md/json`. Esta autorización está consumida; no amplía tamaños, formatos o casos. Los apartados siguientes son históricos.
+
+
 ## DOC127: ventana XLSX1000 preparada — 2026-11-26
 
 Conjunto `4ae84cb89ebd4d77a3a962a0ef623106`, **pendiente de autorización de ejecución**.31 SELECT verificaron cuenta194/empresa2/DA11/RA12/ref6, plantillas58/59/66 y archivos sin uso previo. AGREGAR1.002→2.002; REEMPLAZAR1.000→1.000, sustituyendo las1.000 previas; CREAR ausente→1.000. Máximo3.000 inserciones,1.000 borrados y una tabla. Tres scopes, lote, consola privada y postflight SELECT listos; guardas rechazan el manifiesto pendiente. Se conserva la evidencia histórica XLSX1000; esta nueva preparación no completa6.4 ni inicia otra carga. Avance25/33. [Alcance revisable](../../Doc/Actualizacion/Importacion/Validacion/doc127-ventana-xlsx1000-20261126.md) y JSON. Las autorizaciones consumidas de XLS no se heredan. Los apartados siguientes son históricos.

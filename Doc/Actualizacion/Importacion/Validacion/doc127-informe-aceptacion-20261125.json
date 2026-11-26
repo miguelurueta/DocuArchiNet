@@ -9,13 +9,12 @@
     "7.4"
   ],
   "tasks": {
-    "complete": 25,
+    "complete": 26,
     "total": 33,
     "pending": [
       "2.4",
       "5.1",
       "5.2",
-      "6.4",
       "6.5",
       "6.6",
       "7.1",
@@ -142,6 +141,16 @@
       "type": "REAL_CAPACITY_XLS10000_THREE_MODES",
       "environment": "IIS local HTTPS/GESTOR empresa2 DA11/RA12 ref6, usuario194",
       "status": "REAL_XLS10000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING"
+    },
+    {
+      "id": "DOC127_XLSX1000_REAL",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx1000-20261126.json",
+      "sha256Utf8Lf": "b1b0f02ab203ab24a5e0004169b3db5e27054eaca25f35715798c9f462c61a0d",
+      "sourceCommit": "a4bb16a917f2ec2a6fd16f24583058a794e4f6ac",
+      "recordedUtc": "2026-11-26T15:19:25.383Z",
+      "type": "REAL_CAPACITY_XLSX1000_THREE_MODES",
+      "environment": "IIS local HTTPS/GESTOR empresa2 DA11/RA12 ref6, usuario194",
+      "status": "REAL_XLSX1000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING"
     }
   ],
   "requirements": [
@@ -185,7 +194,8 @@
         "DOC127_LECTURA",
         "DOC127_XLS1000_REAL",
         "DOC127_XLS5000_REAL",
-        "DOC127_XLS10000_REAL"
+        "DOC127_XLS10000_REAL",
+        "DOC127_XLSX1000_REAL"
       ],
       "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf",
       "latestReadEvaluationCommit": "986f0f1cc9974dd81343e3f9227a264d53bba13c"
@@ -216,7 +226,8 @@
         "DOC126_ASISTENTE",
         "DOC127_XLS1000_REAL",
         "DOC127_XLS5000_REAL",
-        "DOC127_XLS10000_REAL"
+        "DOC127_XLS10000_REAL",
+        "DOC127_XLSX1000_REAL"
       ],
       "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
     },
@@ -246,7 +257,8 @@
         "DOC126_RECUPERACION",
         "DOC127_XLS1000_REAL",
         "DOC127_XLS5000_REAL",
-        "DOC127_XLS10000_REAL"
+        "DOC127_XLS10000_REAL",
+        "DOC127_XLSX1000_REAL"
       ],
       "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
     },
@@ -266,16 +278,17 @@
       "requirement": "RQ-09",
       "caseName": "Seis celdas y medicion por modo",
       "testReference": "DOC127_LOCAL_READER; DOC125 tiempos historicos",
-      "state": "REAL_XLS_ALL_SIZES_PASS_XLSX_PENDING",
+      "state": "REAL_XLS_ALL_SIZES_XLSX1000_PASS_REMAINING_XLSX_PENDING",
       "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
-      "limitation": "XLS1000, XLS5000 y XLS10000 reales por tres modos; memoria IIS compartida y muestreada, sin asignacion exclusiva. XLSX pendiente; no extrapolar20000.",
+      "limitation": "XLS1000/5000/10000 y XLSX1000 reales por tres modos; memoria IIS compartida y muestreada, sin asignacion exclusiva. XLSX5000/10000 pendientes; no extrapolar20000.",
       "evidenceIds": [
         "LOCAL",
         "DOC125",
         "RECURSOS",
         "DOC127_XLS1000_REAL",
         "DOC127_XLS5000_REAL",
-        "DOC127_XLS10000_REAL"
+        "DOC127_XLS10000_REAL",
+        "DOC127_XLSX1000_REAL"
       ],
       "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
     },
@@ -917,11 +930,48 @@
       "table": "imp_02_doc127_e2e_crear_xlsx_1000",
       "resourceEvidenceId": "RECURSOS",
       "resourceCheckIsFresh": false,
-      "currentRealStatus": "PENDIENTE_AUTORIZACION_Y_PREFLIGHT_DE_VENTANA",
-      "currentRealExecution": false,
-      "prepareMs": null,
-      "confirmMs": null,
-      "memory": null,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 164.27030000000377,
+      "confirmMs": 11573.232099999994,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 260,
+        "firstUtc": "2026-11-26T15:10:07.0056235Z",
+        "lastUtc": "2026-11-26T15:18:51.8409107Z",
+        "baseline": {
+          "utc": "2026-11-26T15:10:07.0056235Z",
+          "phase": "BASELINE",
+          "rss": 172179456,
+          "private": 241426432,
+          "processCount": 1
+        },
+        "maxRssBytes": 178651136,
+        "maxPrivateBytes": 254533632,
+        "maxGapMs": 2067,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 0,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
       "historic": {
         "evidenceId": "DOC125",
         "sourceCommit": "7a4247c96639097b75f887183dd0a2343458d25b",
@@ -931,7 +981,10 @@
         "memory": "COMPARTIDA_PARCIAL_NO_ASIGNABLE_POR_CARGA",
         "fixtureIsCurrentDoc127Fixture": false,
         "limitation": "Otra carga/archivo/runtime; no acredita ejecucion ni capacidad vigente DOC127."
-      }
+      },
+      "realEvidenceId": "DOC127_XLSX1000_REAL",
+      "idCarga": "801a4f3c-683f-4042-8f00-03d90a163bef",
+      "realResourceVerificationUtc": "2026-11-26T15:19:16.5608466Z"
     },
     {
       "caseId": "CAP-XLSX-5000-CREAR",
@@ -992,11 +1045,47 @@
       "table": "imp_02_doc126_e2e_agregar",
       "resourceEvidenceId": "RECURSOS",
       "resourceCheckIsFresh": false,
-      "currentRealStatus": "PENDIENTE_AUTORIZACION_Y_PREFLIGHT_DE_VENTANA",
-      "currentRealExecution": false,
-      "prepareMs": null,
-      "confirmMs": null,
-      "memory": null,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 272.0200000000186,
+      "confirmMs": 11261.085000000021,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 256,
+        "firstUtc": "2026-11-26T14:52:55.4023843Z",
+        "lastUtc": "2026-11-26T15:01:31.4421513Z",
+        "baseline": {
+          "utc": "2026-11-26T14:52:55.4023843Z",
+          "phase": "BASELINE",
+          "rss": 0,
+          "private": 0,
+          "processCount": 0
+        },
+        "maxRssBytes": 202166272,
+        "maxPrivateBytes": 237969408,
+        "maxGapMs": 2059,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 118,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
       "historic": {
         "evidenceId": "DOC125",
         "sourceCommit": "7a4247c96639097b75f887183dd0a2343458d25b",
@@ -1006,7 +1095,10 @@
         "memory": "COMPARTIDA_PARCIAL_NO_ASIGNABLE_POR_CARGA",
         "fixtureIsCurrentDoc127Fixture": false,
         "limitation": "Otra carga/archivo/runtime; no acredita ejecucion ni capacidad vigente DOC127."
-      }
+      },
+      "realEvidenceId": "DOC127_XLSX1000_REAL",
+      "idCarga": "db73c0b6-3885-4365-b19a-e1d2d27dafa0",
+      "realResourceVerificationUtc": "2026-11-26T15:19:16.5608466Z"
     },
     {
       "caseId": "CAP-XLSX-5000-AGREGAR",
@@ -1067,11 +1159,48 @@
       "table": "imp_02_doc126_e2e_reemplazar",
       "resourceEvidenceId": "RECURSOS",
       "resourceCheckIsFresh": false,
-      "currentRealStatus": "PENDIENTE_AUTORIZACION_Y_PREFLIGHT_DE_VENTANA",
-      "currentRealExecution": false,
-      "prepareMs": null,
-      "confirmMs": null,
-      "memory": null,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 193.80689999999595,
+      "confirmMs": 10869.637599999987,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 255,
+        "firstUtc": "2026-11-26T15:01:31.9370386Z",
+        "lastUtc": "2026-11-26T15:10:06.4277318Z",
+        "baseline": {
+          "utc": "2026-11-26T15:01:31.9370386Z",
+          "phase": "BASELINE",
+          "rss": 197898240,
+          "private": 233594880,
+          "processCount": 1
+        },
+        "maxRssBytes": 205721600,
+        "maxPrivateBytes": 241471488,
+        "maxGapMs": 2061,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 0,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
       "historic": {
         "evidenceId": "DOC125",
         "sourceCommit": "7a4247c96639097b75f887183dd0a2343458d25b",
@@ -1081,7 +1210,10 @@
         "memory": "COMPARTIDA_PARCIAL_NO_ASIGNABLE_POR_CARGA",
         "fixtureIsCurrentDoc127Fixture": false,
         "limitation": "Otra carga/archivo/runtime; no acredita ejecucion ni capacidad vigente DOC127."
-      }
+      },
+      "realEvidenceId": "DOC127_XLSX1000_REAL",
+      "idCarga": "50dc01ef-40e2-42f5-8a94-c06c79d38c8c",
+      "realResourceVerificationUtc": "2026-11-26T15:19:16.5608466Z"
     },
     {
       "caseId": "CAP-XLSX-5000-REEMPLAZAR",
@@ -1792,12 +1924,11 @@
       "id": "B-03",
       "tasks": [
         "5.2",
-        "6.4",
         "6.5",
         "6.6"
       ],
-      "impact": "XLS1000, XLS5000 y XLS10000 tienen tres modos reales y mediciones. Las celdas XLSX y cruces restantes de plantillas siguen pendientes.",
-      "action": "Conservar las nueve cargas reales XLS y sus scopes consumidos; preparar recursos/efectos y autorizar las celdas restantes, sin repetirlas."
+      "impact": "Las nueve celdas XLS y tres XLSX1000 tienen resultados reales y mediciones. XLSX5000/10000 y cruces restantes de plantillas siguen pendientes.",
+      "action": "Conservar las doce cargas actuales XLS/XLSX y sus scopes consumidos; preparar recursos/efectos y autorizar las celdas restantes, sin repetirlas."
     },
     {
       "id": "B-04",
@@ -1866,24 +1997,24 @@
     }
   },
   "latestRealCapacity": {
-    "evidenceId": "DOC127_XLS10000_REAL",
-    "sourceCommit": "2cc794bb8795121a3c568de82af57a2ae1229976",
-    "status": "REAL_XLS10000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
-    "completedUtc": "2026-11-26T14:26:14.614Z",
+    "evidenceId": "DOC127_XLSX1000_REAL",
+    "sourceCommit": "a4bb16a917f2ec2a6fd16f24583058a794e4f6ac",
+    "status": "REAL_XLSX1000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+    "completedUtc": "2026-11-26T15:18:51.884Z",
     "effects": {
       "receivedFiles": 3,
       "preparedLoads": 3,
       "confirmedLoads": 3,
-      "businessRowsInserted": 30000,
-      "businessRowsDeleted": 5000,
-      "netBusinessRows": 25000,
+      "businessRowsInserted": 3000,
+      "businessRowsDeleted": 1000,
+      "netBusinessRows": 2000,
       "tablesCreated": 1,
       "templateWrites": 0,
       "permissionChanges": 0,
       "administrativeSqlApplied": 0,
       "deployments": 0
     },
-    "completedTask": "6.3"
+    "completedTask": "6.4"
   },
   "realCapacityHistory": [
     {
@@ -1924,6 +2055,26 @@
         "deployments": 0
       },
       "completedTask": "6.2"
+    },
+    {
+      "evidenceId": "DOC127_XLS10000_REAL",
+      "sourceCommit": "2cc794bb8795121a3c568de82af57a2ae1229976",
+      "status": "REAL_XLS10000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "completedUtc": "2026-11-26T14:26:14.614Z",
+      "effects": {
+        "receivedFiles": 3,
+        "preparedLoads": 3,
+        "confirmedLoads": 3,
+        "businessRowsInserted": 30000,
+        "businessRowsDeleted": 5000,
+        "netBusinessRows": 25000,
+        "tablesCreated": 1,
+        "templateWrites": 0,
+        "permissionChanges": 0,
+        "administrativeSqlApplied": 0,
+        "deployments": 0
+      },
+      "completedTask": "6.3"
     }
   ]
 }
