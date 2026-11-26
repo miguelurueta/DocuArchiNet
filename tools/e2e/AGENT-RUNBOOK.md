@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC127: siguiente ventana XLS5000 preparada — 2026-11-25
+
+Conjunto `ce1992d71a9e4066a238137d4452336e`, **pendiente de autorización de ejecución**.31 SELECT confirmaron cuenta194/empresa2/DA11/RA12/ref6, plantillas61/62/64 y destinos: AGREGAR1.000→6.000; REEMPLAZAR1.000→5.000, con borrado de las1.000 anteriores; CREAR ausente→5.000. Máximo15.000 inserciones,1.000 borrados y una tabla. Tres scopes, lote, consola privada y postflight SELECT listos; guardas rechazan el arranque pendiente. Salida saneada a archivo sin escribir en pantalla después de la contraseña; lanzamiento futuro sin `-NoExit`. No hubo E2E/carga nueva;6.2 sigue pendiente y avance23/33. [Alcance y comprobaciones](../../Doc/Actualizacion/Importacion/Validacion/doc127-ventana-xls5000-20261125.md) y JSON. No heredar la autorización consumida de XLS1000. Los apartados siguientes conservan sus cortes históricos.
+
 ## DOC127: XLS1000 real en tres modos PASS — 2026-11-25
 
 Tres casos reales XLS1000 PASS: agregar61, reemplazar62 y crear63, cuenta194/empresa2/DA11/RA12/ref6.3000 filas nuevas, una tabla y0 filas borradas;31/31/32 tablas protegidas y configuración conservadas,78 perfiles en el control final. Tiempos por etapa y memoria IIS compartida con cobertura registrada. REEMPLAZAR partió vacío; las demás celdas y aceptación integral siguen abiertas. Se completa6.1:23/33 tareas. Ventana consumida, sin repetir las cargas. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls1000-20261125.md/json`. Los scopes activos están consumidos; futuras celdas necesitan sus recursos y autorización propios. Credenciales liberadas mediante cierre autorizado de la consola retenida. Los cortes siguientes conservan la preparación y aceptación anteriores.
