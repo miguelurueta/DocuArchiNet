@@ -2,12 +2,12 @@
 
 Es viable que un usuario inicie la radicación interna desde un acceso propio y suba sus documentos sin recorrer la pantalla de Producción documental. La página actual necesita un registro documental existente para preparar el formulario y registrar sus relaciones. La nueva entrada requiere preparar archivos antes de confirmar y entregar al motor un contexto explícito; añadir un selector de archivos a la página actual no resuelve esas dependencias.
 
-La interfaz simplificada del commit `23464d6b` está aprobada por el usuario. Esta exploración estudia una nueva procedencia de documentos; el cambio visual de carga y las reglas de expediente todavía requieren refinamiento. Se mantiene D-RI-01: el usuario interno o tercero elegido es el remitente y el usuario autenticado sigue siendo el ejecutor.
+La interfaz simplificada del commit `23464d6b` está aprobada por el usuario. La [maqueta](maqueta.html) incorpora ahora la selección local de principal y anexos solicitada para revisar esta nueva procedencia. La recepción/persistencia en servidor y las reglas de expediente continúan en refinamiento. Se mantiene D-RI-01: el usuario interno o tercero elegido es el remitente y el usuario autenticado sigue siendo el ejecutor.
 
 | Referencia | Valor |
 |---|---|
 | Fecha | 2026-11-25 |
-| Estado | Exploración técnica; sin implementación de carga |
+| Estado | Selección local en maqueta; recepción y persistencia en exploración |
 | Base revisada | `ddfe0785`, que incluye la interfaz aprobada `23464d6b` |
 | Pregunta funcional principal | ¿Expediente obligatorio antes de confirmar o clasificación posterior? Pendiente de respuesta. |
 | Diagnóstico y decisiones previas | [Diagnóstico de radicación interna](diagnostico.md) |
@@ -50,6 +50,14 @@ La carga muestra nombre, tamaño y estado por archivo. El principal se elige exp
 
 La elección o clasificación del expediente se integra según la respuesta pendiente. Evitar presentar un expediente ficticio o reutilizar el último seleccionado de otra pantalla. La nueva carga no convierte al tercero remitente en propietario del borrador ni en actor de auditoría.
 
+### Recorrido disponible en la maqueta
+
+El HTML abre en **Subir documentos**. **Elegir archivo** permite seleccionar un principal; **Agregar anexos** admite varios archivos. Se muestran nombre, tamaño y estado local, con acciones para cambiar o quitar archivos. Los dos espacios también admiten arrastre. Fecha, folios y asunto empiezan vacíos; la cabecera no presenta un expediente de Producción para esta entrada.
+
+**Desde Producción** recupera los documentos y datos precargados del ejemplo. Cada origen conserva su propia selección dentro de la pestaña y el resumen indica cuál se utiliza. No se mezclan archivos locales y documentos existentes. La maqueta comprueba límites ilustrativos de extensión/tamaño/cantidad y detecta repeticiones exactas por nombre y huella; no valida contenido documental ni envía bytes al sistema.
+
+Los límites del ejemplo son 20 MB por archivo, 50 MB en total y 10 archivos, con extensiones PDF, DOC/DOCX, JPG/JPEG, PNG y TIF/TIFF. Esos valores no aprueban Q-CD-03 ni sustituyen la política real de recepción. Reiniciar o recargar el HTML descarta los archivos locales; no representa una limpieza de documentos del ambiente.
+
 ## Contratos y controles necesarios
 
 1. **Identidad del borrador:** referencia de operación creada en servidor, asociada a ejecutor, empresa/ámbito y configuración autorizada. Documentos existentes y archivos nuevos deben declarar su origen; la autoridad no procede de un ID de usuario o una ruta enviados por el navegador.
@@ -91,4 +99,6 @@ Estas preguntas se suman a Q-RI-01 a Q-RI-05 para la representación de terceros
 
 Se revisaron código y contratos de los componentes citados. Pasaron **11 comprobaciones existentes** con `node --test tests/doc90-radicacion-classic-attachment.test.cjs tests/radicacion-simple-attachment-upload-signatures.test.cjs`. Verifican la separación actual de adjuntos clásicos/Simplificados y sus consumidores; no prueban una carga directa nueva.
 
-No se modificó la maqueta aprobada ni código de aplicación. No se ejecutó una carga real, radicación, conexión autenticada ni E2E de ambiente. La implementación requiere cerrar Q-CD-01 y el refinamiento de los contratos afectados.
+La selección local se comprobó con nueve grupos de casos en Chromium mediante `verificar-carga-directa-maqueta.cjs`, fuera de Git en `.tmp/diagnostico-radicacion-interna-20261125/`. Se verificaron selector y arrastre, roles, retirada/sustitución, nombres coincidentes, límites ilustrativos, separación de orígenes, datos pendientes, descarte de lecturas tardías y resumen. No se detectaron errores JavaScript ni peticiones HTTP externas.
+
+La modificación corresponde a la maqueta HTML. No se cambió código de aplicación ni se ejecutó una carga al servidor, radicación, conexión autenticada o E2E de ambiente. La implementación requiere cerrar Q-CD-01 y el refinamiento de los contratos afectados.

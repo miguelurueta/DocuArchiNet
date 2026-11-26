@@ -21,6 +21,9 @@ dialog{border:1px solid #ccd9e9;border-radius:13px;padding:0;max-width:min(660px
 .response-explanation{margin-top:8px;font-size:.8125rem;color:#4d6785}.response-explanation summary{cursor:pointer;width:fit-content}.response-explanation p{font-size:.8125rem}
 .result-followup{margin-top:16px;padding:12px 14px;border:1px solid #ccdccc;background:#fff;border-radius:8px}.result-followup h3{font-size:.9375rem}.result-followup p{font-size:.875rem}
 .followup-status{display:inline-flex;align-items:center;padding:4px 8px;background:#fff2d4;border:1px solid #e9d39d;color:#805a13;border-radius:5px;font-size:.8125rem;font-weight:600;margin-bottom:10px}
+.document-source-bar{padding:9px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #e2e9f2}.document-source-bar>strong{font-size:.875rem;font-weight:650}.source-buttons{display:flex;gap:5px;flex-wrap:wrap}.source-buttons button{min-height:32px;font-size:.8125rem;padding:6px 10px}.source-buttons button[aria-pressed=true]{background:#eaf2ff;color:#224f9a;border-color:#9ebce6}
+.upload-panel{padding:15px 22px;border-bottom:1px solid #e2e9f2}.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.upload-column{min-width:0}.upload-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.upload-heading h2{font-size:.875rem}.drop-zone{border:1px dashed #9fb8d9;border-radius:8px;padding:15px 12px;background:#f8fbff;min-height:80px;display:flex;align-items:center;justify-content:center;gap:9px;color:#526e90;font-size:.875rem;text-align:center}.drop-zone.dragging{border-color:#2459bd;background:#eaf2ff;outline:2px solid #9ebce6}.drop-zone .icon{color:#547ba8}.upload-list{display:grid;gap:7px}.local-file{border:1px solid #d9e4f1;border-radius:7px;background:#fff;padding:10px;min-width:0}.local-file-top{display:flex;align-items:flex-start;gap:8px}.local-file-name{flex:1;min-width:0;font-size:.875rem;font-weight:600;overflow-wrap:anywhere}.local-file-top .icon{width:17px;height:17px;color:#557aa8;margin-top:1px}.local-file-info{font-size:.75rem;color:var(--muted);margin:5px 0 0 25px}.file-actions{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin:7px 0 0 25px}.file-actions button{min-height:28px;font-size:.8125rem;padding:4px 7px}.file-state{font-size:.75rem;color:#306d53;margin-right:auto}.upload-help{font-size:.8125rem;color:var(--muted);margin-top:10px}.upload-feedback{margin-top:9px;font-size:.875rem;color:#496a8f}.upload-description{margin-top:12px}.upload-description summary{font-size:.8125rem}.upload-description .field{margin-top:10px}.file-input{display:none}.local-preview-info{font-size:.875rem;color:#536b84;margin-top:12px}
+@media(max-width:650px){.upload-grid{grid-template-columns:1fr}.document-source-bar,.upload-panel{padding-left:15px;padding-right:15px}.document-source-bar{align-items:flex-start;flex-wrap:wrap;gap:7px}.source-buttons{width:100%}.source-buttons button{flex:1}.upload-panel{padding-top:13px;padding-bottom:13px}}
 </style>
 </head>
 <body>
@@ -43,10 +46,10 @@ dialog{border:1px solid #ccd9e9;border-radius:13px;padding:0;max-width:min(660px
  <div class="top-section">Gestión de documentos electrónicos</div>
  <div class="account"><div class="avatar" aria-hidden="true">LM</div><div><span class="account-name">Laura Martínez</span><small>Auxiliar administrativa · Usuario de ejemplo</small></div></div>
 </header>
-<div class="demo"><strong>Maqueta interactiva</strong><span>Datos ficticios. Las acciones se simulan en este navegador.</span><a href="diagnostico.md">Consultar diagnóstico</a></div>
+<div class="demo"><strong>Maqueta interactiva</strong><span>Datos de ejemplo. Los archivos elegidos permanecen en este navegador.</span><a href="diagnostico.md">Consultar diagnóstico</a></div>
 <main class="page" id="main">
- <div class="breadcrumbs"><span>Producción documental</span><svg class="icon" aria-hidden="true"><use href="#i-chevron"/></svg><span aria-current="page">Radicación interna</span></div>
- <div class="page-heading"><div><h1>Radicar documento</h1><p><strong>EXP-DEMO-024</strong> · Solicitudes administrativas · <span id="template-name">RAD_GESTION · Ejemplo</span></p></div><button type="button" id="exit-view">Cerrar</button></div>
+ <div class="breadcrumbs"><span id="origin-breadcrumb">Radicación</span><svg class="icon" aria-hidden="true"><use href="#i-chevron"/></svg><span aria-current="page">Radicación interna</span></div>
+ <div class="page-heading"><div><h1>Radicar documento</h1><p><span id="origin-context"><strong>EXP-DEMO-024</strong> · Solicitudes administrativas</span> · <span id="template-name">RAD_GESTION · Ejemplo</span></p></div><button type="button" id="exit-view">Cerrar</button></div>
  <section id="closed-view" class="closed-view" hidden><h2>Vista de radicación cerrada</h2><p id="closed-message">Puede volver al ejemplo y continuar.</p><button type="button" class="primary" id="reopen">Volver a la maqueta</button></section>
  <div id="workspace">
   <section id="result-panel" class="result-panel" role="status" aria-live="polite" aria-atomic="true" hidden tabindex="-1"></section>
@@ -55,6 +58,15 @@ dialog{border:1px solid #ccd9e9;border-radius:13px;padding:0;max-width:min(660px
    <div class="sheet">
    <fieldset class="form-body" id="form-fields"><legend class="sr">Radicación interna</legend>
     <div class="remitter-strip"><svg class="icon" aria-hidden="true"><use href="#i-user"/></svg><div class="remitter-copy"><div class="strip-label">A nombre de</div><strong id="summary-remitter">Laura Martínez</strong><span class="remitter-type" id="summary-remitter-detail">Mi usuario</span></div><button type="button" class="small" id="change-remitter">Cambiar</button></div>
+    <div class="document-source-bar"><strong>Documentos</strong><div class="source-buttons" role="group" aria-label="Origen de los documentos"><button type="button" id="source-production" aria-pressed="true">Desde Producción</button><button type="button" id="source-local" aria-pressed="false">Subir documentos</button></div></div>
+    <section class="upload-panel" id="upload-panel" aria-label="Documentos de carga directa" hidden>
+     <div class="upload-grid">
+      <div class="upload-column"><div class="upload-heading"><h2>Documento principal <span class="required">*</span></h2><button type="button" class="small" id="choose-principal">Elegir archivo</button></div><input type="file" class="file-input" id="principal-file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.tif,.tiff" aria-label="Elegir documento principal"><div id="principal-dropzone" class="drop-zone"><svg class="icon" aria-hidden="true"><use href="#i-doc"/></svg><span>Arrastra aquí el principal o pulsa «Elegir archivo».</span></div><div id="uploaded-principal" class="upload-list"></div><p class="error" id="local-principal-error" hidden></p></div>
+      <div class="upload-column"><div class="upload-heading"><h2>Anexos <span class="count" id="local-annex-count">0</span></h2><button type="button" class="small" id="choose-annexes">Agregar anexos</button></div><input type="file" class="file-input" id="annex-file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.tif,.tiff" multiple aria-label="Elegir archivos anexos"><div id="annex-dropzone" class="drop-zone"><span>Arrastra los anexos aquí. Puedes elegir varios.</span></div><div id="uploaded-annexes" class="upload-list"></div></div>
+     </div>
+     <p class="upload-help">PDF, Word o imágenes · Hasta 20 MB por archivo en este ejemplo. Los archivos permanecen en esta pestaña; no se envían.</p><p class="upload-feedback" id="upload-status" role="status" aria-live="polite" hidden></p><p class="error" id="upload-error" role="alert" hidden></p>
+     <details class="upload-description" id="local-description"><summary>Descripción de anexos</summary><div class="field"><label for="local-annex-description">Descripción <span class="required">*</span></label><textarea id="local-annex-description" rows="2" maxlength="240" aria-describedby="local-annex-description-error"></textarea><p class="hint">Se propone a partir de los nombres; puedes editarla.</p><p class="error" id="local-annex-description-error" hidden></p></div></details>
+    </section>
     <details class="disclosure" id="document-options"><summary><svg class="icon" aria-hidden="true"><use href="#i-doc"/></svg><span class="doc-summary"><strong id="summary-principal">Solicitud de trámite.pdf</strong><small id="summary-documents">Principal · 2 anexos</small></span><span class="sr">Mostrar documentos y descripción</span></summary><div class="disclosure-content"><div class="document-tools"><h2>Principal y anexos</h2><button type="button" class="small" id="edit-documents">Cambiar selección</button></div><div id="principal-document"></div><div class="annex-heading">Anexos <span class="count" id="annex-count">2</span></div><div class="annex-list" id="annex-list"></div><div class="field" style="margin-top:14px"><label for="annex-description">Descripción de anexos <span class="required">*</span></label><textarea id="annex-description" rows="2" maxlength="240" aria-describedby="annex-description-help annex-description-error"></textarea><p class="hint" id="annex-description-help">Hasta 240 caracteres. Revísala si cambia la selección.</p><p class="error" id="annex-description-error" hidden></p></div></div></details>
     <div class="work-grid">
      <section class="work-section" aria-labelledby="details-heading"><div class="section-title"><h2 id="details-heading">Datos del documento</h2><small>* Obligatorio</small></div><div class="fields">
@@ -99,7 +111,7 @@ dialog{border:1px solid #ccd9e9;border-radius:13px;padding:0;max-width:min(660px
 <dialog id="review-dialog" aria-labelledby="review-title"><div class="dialog-head"><h2 id="review-title">Confirmar radicación</h2><button type="button" class="quiet close" data-close aria-label="Cerrar resumen">×</button></div><div class="dialog-body"><p>Compruebe quién figura como remitente y quién recibirá el trámite.</p><dl class="review-list" id="review-details"></dl><div class="review-notice">Simulación local con datos ficticios. El usuario autenticado se conserva en auditoría; la confirmación no ejecuta una radicación real.</div></div><div class="dialog-foot"><button type="button" id="back-to-edit" data-close>Volver a editar</button><button type="button" class="primary" id="confirm-registration">Simular radicación</button></div></dialog>
 <dialog id="flow-dialog" aria-labelledby="flow-title"><div class="dialog-head"><h2 id="flow-title">Flujo de trabajo</h2><button type="button" class="quiet close" data-close aria-label="Cerrar flujo">×</button></div><div class="dialog-body"><p class="hint">Recorrido ilustrativo del flujo seleccionado.</p><div class="flow-diagram" id="flow-diagram"></div></div><div class="dialog-foot"><button type="button" data-close>Volver al formulario</button></div></dialog>
 <dialog id="followup-dialog" aria-labelledby="followup-title"><div class="dialog-head"><h2 id="followup-title">Seguimiento de la respuesta · Ejemplo</h2><button type="button" class="quiet close" data-close aria-label="Cerrar seguimiento de ejemplo">×</button></div><div class="dialog-body"><div class="followup-status" id="followup-status"></div><p id="followup-description"></p><dl class="review-list" id="followup-details"></dl><div class="review-notice">Vista de ejemplo. Registrar la solicitud no completa la respuesta. Su elaboración corresponde al responsable y al recorrido autorizado del sistema.</div></div><div class="dialog-foot"><button type="button" data-close>Volver al resultado</button></div></dialog>
-<dialog id="preview-dialog" aria-labelledby="preview-title"><div class="dialog-head"><h2 id="preview-title">Documento principal</h2><button type="button" class="quiet close" data-close aria-label="Cerrar vista del documento">×</button></div><div class="dialog-body"><div class="file-icon" style="margin-bottom:16px"><svg class="icon" aria-hidden="true"><use href="#i-doc"/></svg></div><h3 id="preview-name"></h3><p style="margin-top:12px">Documento ficticio del expediente EXP-DEMO-024.</p><p class="hint">Esta vista representa el acceso al visor existente. No contiene archivos ni información del ambiente.</p></div><div class="dialog-foot"><button type="button" data-close>Cerrar vista</button></div></dialog>
+<dialog id="preview-dialog" aria-labelledby="preview-title"><div class="dialog-head"><h2 id="preview-title">Documento</h2><button type="button" class="quiet close" data-close aria-label="Cerrar vista del documento">×</button></div><div class="dialog-body"><div class="file-icon" style="margin-bottom:16px"><svg class="icon" aria-hidden="true"><use href="#i-doc"/></svg></div><h3 id="preview-name"></h3><p class="local-preview-info" id="preview-info"></p><p class="hint" id="preview-help"></p></div><div class="dialog-foot"><button type="button" data-close>Cerrar vista</button></div></dialog>
 <dialog id="exit-dialog" aria-labelledby="exit-title"><div class="dialog-head"><h2 id="exit-title">Cerrar radicación</h2><button type="button" class="quiet close" data-close aria-label="Volver a radicación">×</button></div><div class="dialog-body"><p id="exit-message"></p></div><div class="dialog-foot"><button type="button" data-close>Continuar revisión</button><button type="button" id="confirm-exit">Cerrar vista del ejemplo</button></div></dialog>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <!-- La maqueta utiliza identidades ficticias separadas por tipo. Ningún ID se envía al sistema. -->
@@ -138,9 +150,15 @@ dialog{border:1px solid #ccd9e9;border-radius:13px;padding:0;max-width:min(660px
   gestion:{name:'RAD_GESTION · Ejemplo',appointment:true,fields:[{id:'plate',label:'Placa',type:'text',required:true,placeholder:'Ej. DEM-123',hint:''}]},
   communication:{name:'Comunicación interna · Ejemplo',appointment:false,fields:[{id:'category',label:'Clasificación de la comunicación',type:'select',required:true,options:['Administrativa','Informativa'],hint:'Catálogo adicional de una segunda plantilla de ejemplo.'},{id:'reference',label:'Referencia complementaria',type:'text',required:false,placeholder:'Opcional',hint:''}]}
  };
- const state = {kind:'internal',remitter:actor,principal:'doc-1',annexes:['doc-2','doc-3'],template:'gestion',result:null,busy:false,correlation:0,snapshot:null};
+ const state = {source:'production',kind:'internal',remitter:actor,principal:'doc-1',annexes:['doc-2','doc-3'],template:'gestion',result:null,busy:false,correlation:0,snapshot:null};
+ const localFiles={principal:null,annexes:[],busy:false,epoch:0,counter:0,lastDescription:''};
+ const sourceFields={production:{subject:$('subject').value,date:$('document-date').value,folios:$('folios').value},local:{subject:'',date:'',folios:''}};
+ const demoFileLimits={perFile:20*1024*1024,total:50*1024*1024,count:10,extensions:new Set(['pdf','doc','docx','jpg','jpeg','png','tif','tiff'])};
  let filtered = [], activeOption = -1, stagedDocuments = null, toastTimer, remitterDraft = null;
- const principal = () => documents.find(doc => doc.id === state.principal);
+ const principal = () => state.source==='local'?localFiles.principal:documents.find(doc => doc.id === state.principal);
+ const selectedAnnexes = () => state.source==='local'?localFiles.annexes:state.annexes.map(id=>documents.find(doc=>doc.id===id));
+ const activeDescription = () => state.source==='local'?$('local-annex-description'):$('annex-description');
+ const snapshotDocument = doc => ({id:doc.id,name:doc.name,detail:doc.detail,size:doc.size,source:doc.source || 'production'});
  const currentActivity = () => flows[$('flow').value]?.activities.find(activity => activity.id === $('activity').value);
  const selectedText = id => $(id).selectedOptions[0]?.textContent || '';
  const formatDate = value => value ? new Intl.DateTimeFormat('es-CO',{day:'2-digit',month:'short',year:'numeric'}).format(new Date(`${value}T12:00:00`)) : 'Sin definir';
@@ -214,11 +232,86 @@ dialog{border:1px solid #ccd9e9;border-radius:13px;padding:0;max-width:min(660px
  // El error del buscador tiene nombre semántico distinto del ID de su input.
  function remitterError(message){$('remitter-search').setAttribute('aria-invalid','true');$('remitter-error').textContent=message;$('remitter-error').hidden=false;}
  function renderDocuments(){
+  if(state.source==='local'){renderLocalFiles();return;}
   const doc=principal();$('principal-document').innerHTML=`<div class="document"><div class="file-icon">${icon('doc')}</div><div class="document-text"><span class="badge blue">Principal</span><strong>${esc(doc.name)}</strong><small>${esc(doc.detail)}</small></div><button type="button" class="quiet small" id="preview-principal" aria-label="Ver documento principal">${icon('eye')}<span class="button-text">Ver</span></button></div>`;
   $('annex-count').textContent=state.annexes.length;
   $('annex-list').innerHTML=state.annexes.length?state.annexes.map(id=>{const item=documents.find(doc=>doc.id===id);return `<div class="annex">${icon('doc')}<span>${esc(item.name)}</span><small>${esc(item.size)}</small></div>`;}).join(''):'<p class="hint">Sin anexos seleccionados.</p>';
-  $('preview-principal').addEventListener('click',()=>{$('preview-name').textContent=doc.name;openDialog('preview-dialog');});updateSummary();
+  $('preview-principal').addEventListener('click',()=>previewDocument(doc));updateSummary();
  }
+ function previewDocument(doc){
+  $('preview-name').textContent=doc.name;
+  $('preview-info').textContent=doc.source==='local'?`${doc.size} · Archivo seleccionado en este navegador.`:'Documento ficticio del expediente EXP-DEMO-024.';
+  $('preview-help').textContent=doc.source==='local'?'La maqueta muestra sus datos de selección. No lo envía al servidor ni representa una validación documental real.':'Esta vista representa el acceso al visor existente. No contiene archivos ni información del ambiente.';
+  openDialog('preview-dialog');
+ }
+ function setSource(source){
+  if(state.busy || state.result || localFiles.busy || source===state.source)return;
+  sourceFields[state.source]={subject:$('subject').value,date:$('document-date').value,folios:$('folios').value};
+  state.source=source;state.snapshot=null;
+  $('subject').value=sourceFields[source].subject;$('document-date').value=sourceFields[source].date;$('folios').value=sourceFields[source].folios;
+  $('source-production').setAttribute('aria-pressed',String(source==='production'));$('source-local').setAttribute('aria-pressed',String(source==='local'));
+  $('document-options').hidden=source!=='production';$('upload-panel').hidden=source!=='local';
+  $('origin-breadcrumb').textContent=source==='local'?'Radicación':'Producción documental';
+  $('origin-context').innerHTML=source==='local'?'<strong>Carga directa</strong>':'<strong>EXP-DEMO-024</strong> · Solicitudes administrativas';
+  $('other-data').open=source==='local' && (!$('document-date').value || !$('folios').value);
+  clearAllErrors();renderDocuments();
+ }
+ $('source-production').addEventListener('click',()=>setSource('production'));$('source-local').addEventListener('click',()=>setSource('local'));
+ const fileSize = bytes => bytes<1024?`${bytes} B`:bytes<1024*1024?`${Math.ceil(bytes/1024)} KB`:`${(bytes/1024/1024).toFixed(1)} MB`;
+ function localFileRow(doc,role){return `<div class="local-file"><div class="local-file-top">${icon('doc')}<span class="local-file-name">${esc(doc.name)}</span></div><p class="local-file-info">${esc(doc.size)} · ${role==='principal'?'Principal':'Anexo'}</p><div class="file-actions"><span class="file-state">Seleccionado localmente</span><button type="button" data-file-preview="${doc.id}" aria-label="Ver datos de ${esc(doc.name)}">Ver</button><button type="button" data-file-remove="${doc.id}" aria-label="Quitar ${esc(doc.name)}">Quitar</button></div></div>`;}
+ function renderLocalFiles(){
+  $('uploaded-principal').innerHTML=localFiles.principal?localFileRow(localFiles.principal,'principal'):'';
+  $('principal-dropzone').hidden=Boolean(localFiles.principal);$('choose-principal').textContent=localFiles.principal?'Cambiar archivo':'Elegir archivo';
+  $('uploaded-annexes').innerHTML=localFiles.annexes.map(doc=>localFileRow(doc,'annex')).join('');$('annex-dropzone').hidden=localFiles.annexes.length>0;
+  $('local-annex-count').textContent=localFiles.annexes.length;
+  $('upload-status').hidden=!localFiles.busy;$('upload-status').textContent=localFiles.busy?'Preparando la selección en este navegador…':'';
+  $('upload-panel').querySelectorAll('button').forEach(button=>button.disabled=localFiles.busy || state.busy || Boolean(state.result));
+  $('source-production').disabled=localFiles.busy;$('source-local').disabled=localFiles.busy;updateSummary();
+ }
+ function refreshLocalDescription(){
+  const proposed=[localFiles.principal,...localFiles.annexes].filter(Boolean).map(doc=>doc.name).join('; ').slice(0,240);
+  if(!$('local-annex-description').value.trim() || $('local-annex-description').value===localFiles.lastDescription)$('local-annex-description').value=proposed;
+  localFiles.lastDescription=proposed;
+ }
+ async function addLocalFiles(files,role){
+  if(state.source!=='local' || state.busy || state.result || !files.length)return;
+  if(localFiles.busy){announce('Espera a que termine la selección actual.');return;}
+  const epoch=localFiles.epoch,issues=[];localFiles.busy=true;clearError('choose-principal');$('local-principal-error').hidden=true;$('upload-error').hidden=true;renderLocalFiles();
+  try{
+   if(role==='principal' && files.length!==1)issues.push('Elige un solo documento principal. Los demás se agregan como anexos.');
+   else for(const file of files){
+    const extension=file.name.includes('.')?file.name.split('.').pop().toLowerCase():'';
+    if(!demoFileLimits.extensions.has(extension)){issues.push(`${file.name}: formato no incluido en la maqueta.`);continue;}
+    if(file.size===0 || file.size>demoFileLimits.perFile){issues.push(`${file.name}: el archivo debe tener contenido y pesar hasta 20 MB en este ejemplo.`);continue;}
+    const existing=[role==='principal'?null:localFiles.principal,...localFiles.annexes].filter(Boolean);
+    if(existing.length+1>demoFileLimits.count || existing.reduce((sum,doc)=>sum+doc.file.size,0)+file.size>demoFileLimits.total){issues.push(`${file.name}: el ejemplo admite hasta 10 archivos y 50 MB en total.`);continue;}
+    const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',await file.arrayBuffer()))).map(byte=>byte.toString(16).padStart(2,'0')).join('');
+    if(epoch!==localFiles.epoch)return;
+    if(existing.some(doc=>doc.name===file.name && doc.hash===hash)){issues.push(`${file.name}: ya está seleccionado. No se agregó dos veces.`);continue;}
+    const doc={id:`local-${++localFiles.counter}`,name:file.name,size:fileSize(file.size),detail:`Archivo local · ${extension.toUpperCase()}`,source:'local',file,hash};
+    if(role==='principal')localFiles.principal=doc;else localFiles.annexes.push(doc);
+   }
+  }catch{if(epoch===localFiles.epoch)issues.push('No se pudo leer el archivo en este navegador. Vuelve a seleccionarlo.');}
+  finally{
+   if(epoch===localFiles.epoch){localFiles.busy=false;refreshLocalDescription();renderLocalFiles();if(issues.length){$('upload-error').textContent=issues.join(' ');$('upload-error').hidden=false;}else announce('Archivos seleccionados localmente. Completa fecha, folios y los demás datos.');}
+  }
+ }
+ $('choose-principal').addEventListener('click',()=>$('principal-file-input').click());$('choose-annexes').addEventListener('click',()=>$('annex-file-input').click());
+ [['principal-file-input','principal'],['annex-file-input','annex']].forEach(([id,role])=>$(id).addEventListener('change',()=>{const files=Array.from($(id).files);$(id).value='';void addLocalFiles(files,role);}));
+ function enableDrop(id,role){
+  const area=$(id);['dragenter','dragover'].forEach(name=>area.addEventListener(name,event=>{event.preventDefault();if(!localFiles.busy && !state.result)area.classList.add('dragging');}));
+  area.addEventListener('dragleave',()=>area.classList.remove('dragging'));
+  area.addEventListener('drop',event=>{event.preventDefault();area.classList.remove('dragging');void addLocalFiles(Array.from(event.dataTransfer.files),role);});
+ }
+ enableDrop('principal-dropzone','principal');enableDrop('annex-dropzone','annex');enableDrop('uploaded-principal','principal');enableDrop('uploaded-annexes','annex');
+ $('upload-panel').addEventListener('click',event=>{
+  const preview=event.target.closest('[data-file-preview]'),remove=event.target.closest('[data-file-remove]');if(localFiles.busy || state.busy || state.result)return;
+  const id=preview?.dataset.filePreview || remove?.dataset.fileRemove;if(!id)return;
+  const doc=[localFiles.principal,...localFiles.annexes].find(item=>item?.id===id);if(!doc)return;
+  if(preview){previewDocument(doc);return;}
+  if(localFiles.principal?.id===id)localFiles.principal=null;else localFiles.annexes=localFiles.annexes.filter(item=>item.id!==id);
+  refreshLocalDescription();renderLocalFiles();$('upload-error').hidden=true;if(!localFiles.principal)$('choose-principal').focus();else $('choose-annexes').focus();
+ });
  function renderPicker(){
   $('document-picker').innerHTML=documents.map(doc=>`<div class="picker-row"><div><strong>${esc(doc.name)}</strong><small>${esc(doc.size)} · Ejemplo</small></div><label class="picker-choice"><input type="radio" name="principal-choice" value="${doc.id}" ${stagedDocuments.principal===doc.id?'checked':''} aria-label="Usar ${esc(doc.name)} como principal">Principal</label><label class="picker-choice"><input type="checkbox" name="annex-choice" value="${doc.id}" ${stagedDocuments.annexes.includes(doc.id)?'checked':''} ${stagedDocuments.principal===doc.id?'disabled':''} aria-label="Incluir ${esc(doc.name)} como anexo">Anexo</label></div>`).join('');
  }
@@ -306,14 +399,16 @@ dialog{border:1px solid #ccd9e9;border-radius:13px;padding:0;max-width:min(660px
   const remitter=identityValid()?state.remitter:null;
   $('summary-remitter').textContent=remitter?.name || 'Pendiente de seleccionar';
   $('summary-remitter-detail').textContent=remitter?(remitter.type==='third'?'Tercero':remitter.id===actor.id?'Mi usuario':'Usuario interno'):'Sin selección';
-  $('summary-documents').textContent=`Principal · ${state.annexes.length} ${state.annexes.length===1?'anexo':'anexos'}`;
-  $('summary-principal').textContent=principal().name;
+  const annexes=selectedAnnexes();
+  $('summary-documents').textContent=`Principal · ${annexes.length} ${annexes.length===1?'anexo':'anexos'}`;
+  $('summary-principal').textContent=principal()?.name || 'Selecciona el documento principal';
   updateResponse();
   $('document-data-summary').textContent=`${formatDate($('document-date').value)} · ${$('folios').value || 'Sin'} folios`;
   $('route-summary').textContent=`${selectedText('flow')} · ${selectedText('activity')}`;
   const missing=[];
+  if(!principal())missing.push('documento principal');if(state.source==='local' && localFiles.busy)missing.push('esperar a los archivos');
   if(!remitter)missing.push('remitente');if(!$('subject').value.trim())missing.push('asunto');
-  if(!$('annex-description').value.trim())missing.push('descripción de anexos');
+  if(!activeDescription().value.trim() && principal())missing.push('descripción de anexos');
   if(!$('document-date').value || !$('document-date').validity.valid || !Number.isInteger(Number($('folios').value)) || Number($('folios').value)<=0)missing.push('fecha o folios');
   templates[state.template].fields.forEach(field=>{if(field.required && !$(`meta-${field.id}`)?.value.trim())missing.push(field.label.toLowerCase());});
   if(!responsibleValid())missing.push('quién recibe');
@@ -324,10 +419,13 @@ dialog{border:1px solid #ccd9e9;border-radius:13px;padding:0;max-width:min(660px
  $('registration-form').addEventListener('change',updateSummary);
  function validate(){
   clearAllErrors();const errors=[];
+  if(state.source==='local' && (!localFiles.principal || localFiles.busy)){
+   errors.push('choose-principal');$('choose-principal').setAttribute('aria-invalid','true');$('local-principal-error').textContent=localFiles.busy?'Espera a que termine la selección de archivos.':'Elige el documento principal antes de continuar.';$('local-principal-error').hidden=false;
+  }
   if(!identityValid()){errors.push('remitter-search');remitterError('Busque y seleccione un remitente del catálogo correspondiente.');}
   const test=(id,valid,message)=>{if(!valid){errors.push(id);showError(id,message);}};
   test('subject',Boolean($('subject').value.trim()),'Escriba el asunto del radicado.');
-  test('annex-description',Boolean($('annex-description').value.trim()),'Revise y complete la descripción de anexos.');
+  test(activeDescription().id,Boolean(activeDescription().value.trim()),'Revisa y completa la descripción de anexos.');
   test('document-date',Boolean($('document-date').value && $('document-date').validity.valid),'Indique una fecha de documento válida.');
   test('folios',Number.isInteger(Number($('folios').value)) && Number($('folios').value)>0,'Indique un número entero de folios mayor que cero.');
   test('responsible',responsibleValid(),'Seleccione un responsable de la asignación vigente. Si el grupo está vacío, cambie de grupo.');
@@ -337,12 +435,13 @@ dialog{border:1px solid #ccd9e9;border-radius:13px;padding:0;max-width:min(660px
    errors.forEach(id=>{for(let parent=$(id).parentElement;parent;parent=parent.parentElement)if(parent.tagName==='DETAILS')parent.open=true;});
    if(errors.includes('remitter-search')){remitterDraft={kind:state.kind,remitter:state.remitter};openDialog('remitter-dialog');$('remitter-search').focus();}
    else if(errors[0]==='responsible' && ($('responsible').disabled || $('responsible-field').hidden)){showError('destination','Elige un destino con una persona disponible.');$('destination').focus();}
-   else $(errors[0]).focus();return false;
+   else if($(errors[0]).disabled)$('error-summary').focus();else $(errors[0]).focus();return false;
   }
   return true;
  }
- function capture(){const mode=procedures[$('procedure').value].response;return {executor:{id:'DEMO-A01',name:actor.name},remitter:{...state.remitter},principal:{...principal()},annexes:state.annexes.map(id=>({...documents.find(doc=>doc.id===id)})),annexDescription:$('annex-description').value.trim(),subject:$('subject').value.trim(),date:$('document-date').value,folios:$('folios').value,deadline:$('deadline').value,response:{mode,label:responseModes[mode].reviewLabel,requirement:responseModes[mode].requirement},procedure:selectedText('procedure'),flow:selectedText('flow'),activity:selectedText('activity'),group:$('assignment').value==='group'?selectedText('group'):'Asignación directa',responsible:{id:$('responsible').value,name:people[$('responsible').value]},template:templates[state.template].name,appointment:templates[state.template].appointment?$('appointment').value:'',metadata:templates[state.template].fields.map(field=>({label:field.label,value:$(`meta-${field.id}`).value}))};}
+ function capture(){const mode=procedures[$('procedure').value].response;return {source:state.source,executor:{id:'DEMO-A01',name:actor.name},remitter:{...state.remitter},principal:snapshotDocument(principal()),annexes:selectedAnnexes().map(snapshotDocument),annexDescription:activeDescription().value.trim(),subject:$('subject').value.trim(),date:$('document-date').value,folios:$('folios').value,deadline:$('deadline').value,response:{mode,label:responseModes[mode].reviewLabel,requirement:responseModes[mode].requirement},procedure:selectedText('procedure'),flow:selectedText('flow'),activity:selectedText('activity'),group:$('assignment').value==='group'?selectedText('group'):'Asignación directa',responsible:{id:$('responsible').value,name:people[$('responsible').value]},template:templates[state.template].name,appointment:templates[state.template].appointment?$('appointment').value:'',metadata:templates[state.template].fields.map(field=>({label:field.label,value:$(`meta-${field.id}`).value}))};}
  const reviewRows = snapshot => [
+  ['Origen de documentos',snapshot.source==='local'?'Archivos seleccionados desde el equipo':'Producción documental'],
   ['Ejecutor',`${snapshot.executor.name} · Usuario autenticado`],['Remitente',`${snapshot.remitter.name} · ${snapshot.remitter.type==='third'?'Tercero':'Usuario interno'} · ${snapshot.remitter.identification}`],['Principal',snapshot.principal.name],['Anexos',snapshot.annexes.map(doc=>doc.name).join('; ') || 'Sin anexos'],['Descripción de anexos',snapshot.annexDescription],['Asunto',snapshot.subject],['Trámite',snapshot.procedure],['Modalidad de respuesta',snapshot.response.label],...(snapshot.response.mode!=='none'?[['Quién debe responder',snapshot.responsible.name],['Límite de respuesta',formatDate(snapshot.deadline)]]:[]),['Fecha del documento',formatDate(snapshot.date)],['Folios',snapshot.folios],['Flujo',snapshot.flow],['Actividad',snapshot.activity],['Recibe el trámite',`${snapshot.responsible.name} · ${snapshot.group}`],['Plantilla',snapshot.template],...(snapshot.appointment?[['Cita de radicado',snapshot.appointment]]:[]),...snapshot.metadata.map(field=>[field.label,field.value || 'Sin dato'])
  ];
  $('registration-form').addEventListener('submit',event=>{
@@ -405,12 +504,18 @@ dialog{border:1px solid #ccd9e9;border-radius:13px;padding:0;max-width:min(660px
  $('confirm-exit').addEventListener('click',()=>{$('exit-dialog').close();$('workspace').hidden=true;$('closed-view').hidden=false;$('exit-view').hidden=true;$('closed-message').textContent=state.result?'Puede volver al mismo resultado del ejemplo. Cerrar la vista no lo revierte.':'Puede volver al ejemplo y continuar la revisión.';$('reopen').focus();});
  $('reopen').addEventListener('click',()=>{$('closed-view').hidden=true;$('workspace').hidden=false;$('exit-view').hidden=false;$('exit-view').focus();});
  $('reset-demo').addEventListener('click',()=>{
-  if(state.busy)return;remitterDraft=null;document.querySelectorAll('dialog[open]').forEach(dialog=>dialog.close());
+  if(state.busy)return;
+  const previousSource=state.source;localFiles.epoch++;localFiles.busy=false;localFiles.principal=null;localFiles.annexes=[];localFiles.lastDescription='';$('local-annex-description').value='';
+  remitterDraft=null;document.querySelectorAll('dialog[open]').forEach(dialog=>dialog.close());
   $('registration-form').reset();state.kind='internal';state.remitter=actor;state.principal='doc-1';state.annexes=['doc-2','doc-3'];state.template='gestion';state.result=null;state.snapshot=null;
   $('demo-template').value='gestion';$('demo-result').value='success';$('result-panel').hidden=true;$('closed-view').hidden=true;$('workspace').hidden=false;$('exit-view').hidden=false;lockForm(false);
   $('remitter-search-label').innerHTML='Buscar usuario interno <span class="required">*</span>';$('remitter-search').placeholder='Buscar por nombre o cargo';$('remitter-help').textContent='Seleccione un usuario del catálogo de ejemplo.';
-  ['document-options','other-data','route-options','response-explanation'].forEach(id=>$(id).open=false);
+  ['document-options','other-data','route-options','response-explanation','local-description'].forEach(id=>$(id).open=false);
   initialize();syncRemitterEditor();clearAllErrors();announce('Maqueta reiniciada. Solo se restablecieron los datos del ejemplo.');
+  state.source='production';sourceFields.local={subject:'',date:'',folios:''};
+  $('source-production').setAttribute('aria-pressed','true');$('source-local').setAttribute('aria-pressed','false');$('source-production').disabled=false;$('source-local').disabled=false;
+  $('document-options').hidden=false;$('upload-panel').hidden=true;$('origin-breadcrumb').textContent='Producción documental';$('origin-context').innerHTML='<strong>EXP-DEMO-024</strong> · Solicitudes administrativas';
+  if(previousSource==='local')setSource('local');else renderDocuments();
  });
  function initialize(){
   $('remitter-search').value=actor.name;
@@ -419,6 +524,7 @@ dialog{border:1px solid #ccd9e9;border-radius:13px;padding:0;max-width:min(660px
   populateFlows();renderMetadata();renderIdentity();renderDocuments();closeResults();
  }
  initialize();
+ setSource('local');
 })();
 </script>
 </body>

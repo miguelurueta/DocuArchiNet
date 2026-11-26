@@ -4,12 +4,12 @@ La radicación interna puede mejorar sustancialmente su claridad, pero necesita 
 
 **Recomendación:** corregir primero las inconsistencias verificadas de dependencias, estado y comunicación del modal; después reorganizar la interfaz manteniendo los IDs, metadatos y reglas de la plantilla. El backend de registro requiere un trabajo separado y acotado para contexto, autorización y resultados parciales.
 
-[Abrir maqueta HTML interactiva](maqueta.html). El archivo funciona directamente en un navegador y utiliza exclusivamente datos ficticios.
+[Abrir maqueta HTML interactiva](maqueta.html). Funciona directamente en un navegador con datos de ejemplo y selección de archivos que permanecen en la pestaña.
 
 | Referencia | Valor |
 |---|---|
 | Fecha | 2026-11-25 |
-| Versión | 0.7 |
+| Versión | 0.8 |
 | Base local | Commit `0c7beb83` |
 | Grabación | `Grabación 2026-11-25 113145-radicacion-interna-revisa.mp4` |
 | Duración | 78,80 segundos |
@@ -198,7 +198,7 @@ La ampliación a terceros como remitentes está aprobada en D-RI-01. Las definic
 
 **D-RI-02. Interfaz aprobada por el usuario el 2026-11-25:** versión simplificada del commit `23464d6b`. La aprobación corresponde a la interfaz explorada; las reglas pendientes de terceros y la nueva carga directa se refinan por separado.
 
-La [maqueta simplificada](maqueta.html) presenta un formulario compacto con remitente, documento principal, datos por completar y destino. El resumen completo aparece al confirmar. Fecha, folios, descripción de anexos y ruta continúan disponibles en secciones desplegables; un error en un dato dentro de ellas abre la sección correspondiente.
+La [maqueta simplificada](maqueta.html) abre en **Subir documentos**, con un selector real de archivo principal y otro de anexos. **Desde Producción** recupera el recorrido con documentos precargados. Ambos continúan en el mismo formulario de remitente, datos y destino. El resumen completo aparece al confirmar. Fecha, folios, descripción y ruta se pueden desplegar; fecha/folios se muestran inicialmente en carga directa porque deben completarse.
 
 ### Revisión de facilidad de uso
 
@@ -214,7 +214,17 @@ La nueva presentación concentra las acciones habituales:
 
 No se incorpora un asistente obligatorio por pasos. La ruta precargada pertenece al ejemplo: en integración debe proceder de configuración válida. Si el sistema no puede determinar una ruta o exige una elección entre alternativas, debe presentar esa elección y bloquear la confirmación hasta resolverla; ocultar controles no autoriza elegir automáticamente la primera opción.
 
-La simplificación aprobada redujo el formulario de **1660 a 615 píxeles** en Chromium a **1440 × 900**. La variación actual con información de respuesta ocupa **678 píxeles**, mantiene **5 campos editables visibles** frente a los 13 originales y termina en la coordenada vertical **888**. Es una reducción de altura del **59 %** frente a `8cd7775a`, sin añadir un campo de decisión sobre la obligación. Son medidas de distribución del prototipo, no una medición del tiempo de tarea ni una prueba de usabilidad con usuarios.
+La simplificación aprobada redujo el formulario de **1660 a 615 píxeles** en Chromium a **1440 × 900**. El recorrido actual **Desde Producción**, con cambio de origen e información de respuesta, ocupa **729 píxeles** y mantiene **5 campos editables visibles** frente a los 13 originales. La carga directa agrega la selección de archivos y exige completar fecha/folios, que no se heredan de un documento existente. Son medidas de distribución del prototipo, no una medición del tiempo de tarea ni una prueba de usabilidad con usuarios.
+
+### Carga directa visible en la maqueta
+
+El bloque **Documentos** ofrece **Desde Producción** y **Subir documentos**. La maqueta abre en la segunda opción para revisar la capacidad solicitada. Se puede seleccionar o arrastrar un principal, agregar varios anexos, cambiar el principal y quitar archivos individuales. Se muestran nombre, tamaño y estado **Seleccionado localmente**. **Ver** muestra los datos de selección; no renderiza el contenido del archivo.
+
+Los archivos se conservan en memoria de esta pestaña. No se transmiten ni se guardan en Producción y la confirmación sigue siendo simulada. Los límites ilustrativos son PDF/Word/imágenes por extensión, 20 MB por archivo, 50 MB en total y 10 archivos. La comprobación local de extensión/tamaño y repetición por nombre/huella no sustituye las validaciones de contenido, duplicidad o autoridad en servidor.
+
+Cada origen conserva principal, anexos, asunto, fecha y folios propios. La entrada directa empieza sin esos datos ni un expediente de Producción asignado ficticiamente. Alternar orígenes no mezcla archivos; la política de expediente y el origen mixto siguen pendientes en la [exploración de carga](exploracion-carga-directa.md). **Reiniciar maqueta** borra los archivos locales y conserva el origen activo. Recargar el HTML también descarta la selección.
+
+La confirmación exige un principal, la preparación local terminada y los datos obligatorios. El resumen incluye origen y archivos. La carga directa conserva las tres modalidades de respuesta y la distinción entre ejecutor, remitente y responsable.
 
 ### Variación para trámites con respuesta
 
@@ -234,7 +244,7 @@ Los nombres de trámite, asociaciones y plazos son ficticios. No se ha activado 
 
 ### Recorrido de revisión
 
-1. Abrir `maqueta.html` en un navegador. **A nombre de** ya muestra al usuario ficticio Laura Martínez; no es necesario buscarse para continuar.
+1. Abrir `maqueta.html`: **Subir documentos** ya está seleccionado. Pulsar **Elegir archivo** para el principal y **Agregar anexos**, o arrastrarlos a sus áreas. Completar asunto, fecha y folios. **Desde Producción** permite comparar los documentos precargados; volver a **Subir documentos** recupera los archivos locales de la pestaña. **A nombre de** muestra al usuario ficticio Laura Martínez.
 2. Para radicar a nombre de un tercero, pulsar **Cambiar**, seleccionar **Tercero**, buscar **Camila** y elegirla. Pulsar **Usar este remitente**. **Usar mi usuario** permite volver al actor del ejemplo.
 3. Elegir un **Trámite** para comparar las tres modalidades, completar **Placa** y elegir quién recibe en el grupo, o una persona directamente en **Enviar a**. Revisar la obligación y pulsar **Revisar radicación** para comprobar el resumen con ejecutor, remitente y responsable distintos.
 4. Si hace falta, desplegar la línea del documento para revisar principal/anexos; **Fecha, folios y otros datos** para ajustar datos heredados; y **Ruta del trámite** para consultar o modificar flujo/actividad. Cambiar esas dependencias invalida el responsable previo.
@@ -246,7 +256,7 @@ Los nombres de trámite, asociaciones y plazos son ficticios. No se ha activado 
 | Área | Tratamiento en la maqueta | Condición para integrar |
 |---|---|---|
 | Usuario que radica | Usuario propio precargado; cambio de remitente en un diálogo con aplicar/cancelar. Ejecutor identificado en la sesión y el resumen final. | Adaptar la resolución del remitente, revalidar autoridad y conservar auditoría conforme a D-RI-01. |
-| Principal y anexos | Resumen en una línea; al desplegar, selección explícita sin contar el principal dos veces y descripción editable de hasta 240 caracteres. | Conservar el contexto documental y verificar la selección en servidor. El permiso para cambiar documentos dentro del modal se refina al integrar. |
+| Principal y anexos | Archivos locales seleccionables o documentos precargados; roles explícitos y descripción editable de hasta 240 caracteres. | Conservar contexto y autoridad; incorporar recepción temporal para la carga directa. No mezclar orígenes sin una política aprobada. |
 | Datos del radicado | Trámite, asunto y campos adicionales visibles; fecha del documento, folios, fecha límite y cita disponibles al desplegar. | Conservar obligatoriedad, valores heredados y calendario. Revelar cualquier dato inválido. El plazo y su lectura sin edición son ilustrativos. |
 | Destino Workflow | Enviar a persona/grupo, selección de persona del grupo cuando aplica y ruta editable bajo demanda. | Traducir a los contratos actuales de asignación, grupo y responsable; preservar catálogos autorizados y descartar identidades anteriores al cambiar dependencias. |
 | Campos adicionales | Dos esquemas locales de ejemplo: uno con Placa y otro con catálogo y referencia. | Seguir generando campos desde metadatos reales; estos ejemplos no definen los tipos ni las reglas de todas las plantillas. |
@@ -261,13 +271,15 @@ Pasaron trece grupos de comprobaciones base en Chromium: estado inicial y compar
 
 También pasaron nueve grupos específicos de modalidades: regla formal sin campos nuevos; identidades distintas en el resumen; confirmación sin exigir radicado formal; informativo sin plazo/seguimiento; invalidación del responsable; seguimiento pendiente después del registro; preparación incompleta por fallo de asignación; resultado incierto antes de consulta; y adaptación de las tres modalidades a cuatro anchos. No se detectaron errores JavaScript ni solicitudes HTTP externas.
 
-Los arneses, las capturas y los resultados están excluidos de Git en `.tmp/diagnostico-radicacion-interna-20261125/`: `verificar-maqueta-simple.cjs`, `verificacion-maqueta-simple.json`, `verificar-modalidades-respuesta.cjs`, `verificacion-modalidades-respuesta.json`, `simple-*.png` y `respuesta-*.png`. Los fotogramas de revisión están en `video-simplificacion/`. La comprobación corresponde al HTML local; no valida integración con WebForms ni ausencia de regresiones del módulo real.
+Para carga directa pasaron nueve grupos adicionales: inicio sin datos heredados; selección de principal/anexos; repetición, nombres coincidentes y límites; vista, retiro y sustitución; alternancia de origen; resumen y bloqueo posterior; lectura pendiente y descarte de una finalización tardía al reiniciar; arrastre y escape de nombres; y límites de cantidad/total sin elección arbitraria del principal. Se usaron archivos ficticios en memoria; no se comprobó recepción ni contenido documental en servidor.
+
+Los arneses, las capturas y los resultados están excluidos de Git en `.tmp/diagnostico-radicacion-interna-20261125/`: verificaciones de maqueta simple, modalidades de respuesta y carga directa; archivos `verificacion-*.json`; y capturas `simple-*.png`, `respuesta-*.png` y `carga-directa-*.png`. Los fotogramas de revisión están en `video-simplificacion/`. La comprobación corresponde al HTML local; no valida integración con WebForms ni ausencia de regresiones del módulo real.
 
 ## Entrada independiente con carga de documentos
 
 Se revisó la posibilidad de iniciar radicación sin visitar Producción documental. Es viable, pero la preparación y el registro actuales consumen IDs de documentos de Producción; los adjuntos clásico/Simplificado existentes requieren un radicado ya creado. La propuesta y sus dependencias están en [Exploración de carga directa](exploracion-carga-directa.md).
 
-La definición pendiente principal es si se debe elegir expediente antes de confirmar o se permite clasificar después. Esa respuesta determina cuánto puede reutilizarse del almacenamiento actual. La interfaz aprobada se conserva durante esta exploración.
+La definición pendiente principal es si se debe elegir expediente antes de confirmar o se permite clasificar después. Esa respuesta determina cuánto puede reutilizarse del almacenamiento actual. La maqueta incorpora la selección local solicitada para revisar su interfaz; la recepción y persistencia reales continúan en exploración.
 
 ## Trámites que requieren respuesta
 
