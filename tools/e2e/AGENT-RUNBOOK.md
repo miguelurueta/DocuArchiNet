@@ -1,5 +1,10 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC127: XLS1000 real en tres modos PASS — 2026-11-25
+
+Tres casos reales XLS1000 PASS: agregar61, reemplazar62 y crear63, cuenta194/empresa2/DA11/RA12/ref6.3000 filas nuevas, una tabla y0 filas borradas;31/31/32 tablas protegidas y configuración conservadas,78 perfiles en el control final. Tiempos por etapa y memoria IIS compartida con cobertura registrada. REEMPLAZAR partió vacío; las demás celdas y aceptación integral siguen abiertas. Se completa6.1:23/33 tareas. Ventana consumida, sin repetir las cargas. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls1000-20261125.md/json`. Los scopes activos están consumidos; futuras celdas necesitan sus recursos y autorización propios. Credenciales liberadas mediante cierre autorizado de la consola retenida. Los cortes siguientes conservan la preparación y aceptación anteriores.
+
+
 ## DOC127: ventana concreta XLS1000 preparada — 2026-11-25
 
 Propuesta `Doc/Actualizacion/Importacion/Validacion/doc127-ventana-xls1000-20261125.md/json`: tres casos secuenciales AGREGAR61/REEMPLAZAR62/CREAR63, cuenta asesor.comercial194, IIS local HTTPS/GESTOR, empresa2/DA11/RA12/ref6.31 SELECT confirmaron destinos vacíos/ausente, configuración, índices, políticas y archivos sin uso previo. Máximo3000 filas nuevas, una tabla y cero filas borradas; no modifica plantillas, permisos o instalación. Los scopes y consola privada están en `.tmp/doc127-xls1000-ventana/` y `.tmp/doc127-xls1000-session.ps1`, excluidos de Git. Estado PREPARED_PENDING_AUTHORIZATION: crear la ventana no concede ejecutar. Al autorizar, activar scopes nuevos por caso con fechas frescas, recursos/efectos revisados y sin reutilizar IDs consumidos. Una contraseña de aplicación en consola privada; controles mediante recursos existentes, secretos sólo en memoria. Primer fallo, incertidumbre o medición insuficiente detiene el conjunto sin reintentar.22/33 tareas,6.1 abierta hasta sus tres resultados/mediciones.

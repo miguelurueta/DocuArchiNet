@@ -1,6 +1,6 @@
 {
   "issue": "DOC-127",
-  "status": "PREPARED_PENDING_AUTHORIZATION",
+  "status": "EXECUTED_PASS",
   "batchId": "d5ab4af3cf1b4ad5ae197f04a914e930",
   "preparedUtc": "2026-11-26T00:24:44.213Z",
   "sourceCommit": "226d200096504794ecac29651d1c1fcfaa3749e0",
@@ -231,12 +231,60 @@
     }
   ],
   "credentialsStored": false,
-  "executionStarted": false,
+  "executionStarted": true,
   "authorizationGuardCheck": "DOC127_BATCH_NOT_AUTHORIZED before connections and credential prompts",
   "tasks": {
-    "complete": 22,
+    "complete": 23,
     "total": 33,
     "acceptanceTask": "6.1",
-    "taskCompleteOnlyAfterThreeRealCasesAndMeasurements": true
+    "taskCompleteOnlyAfterThreeRealCasesAndMeasurements": true,
+    "completedThisWindow": [
+      "6.1"
+    ]
+  },
+  "executionCompleted": true,
+  "completedUtc": "2026-11-26T00:57:59.833Z",
+  "resultEvidence": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls1000-20261125.json",
+  "results": [
+    {
+      "mode": "AGREGAR",
+      "windowId": "70b67317ab5547959a9eb4769d9f1893",
+      "idCarga": "043dab57-9e08-4cf9-a3a6-23ab1258d24f",
+      "rows": 1000,
+      "prepareMs": 308.8744000000006,
+      "confirmMs": 11431.583799999993,
+      "measurementStatus": "COMPLETE_WITH_SAMPLING_LIMITS"
+    },
+    {
+      "mode": "REEMPLAZAR",
+      "windowId": "33640d572c194cfd9d595518cccabff8",
+      "idCarga": "5e898de1-419b-4cc4-a93f-9a7d5fa7e135",
+      "rows": 1000,
+      "prepareMs": 183.30710000000545,
+      "confirmMs": 11255.163700000005,
+      "measurementStatus": "COMPLETE_WITH_SAMPLING_LIMITS"
+    },
+    {
+      "mode": "CREAR",
+      "windowId": "68307de33f5641b298069eaa916a1be8",
+      "idCarga": "4fef9d0f-da25-4362-8e10-71b2d95baed6",
+      "rows": 1000,
+      "prepareMs": 158.97430000000168,
+      "confirmMs": 11000.795599999983,
+      "measurementStatus": "COMPLETE_WITH_SAMPLING_LIMITS"
+    }
+  ],
+  "consoleCleanup": {
+    "method": "AUTHORIZED_OWNED_CONSOLE_TERMINATION",
+    "pid": 13280,
+    "authorization": "User approved closing only the stalled DOC127 console after all three cases and the Node runner finished.",
+    "runnerAlreadyExited": true,
+    "credentialsReleasedWithProcess": true,
+    "scriptFinallyCompletionClaimed": false
+  },
+  "outputCapture": {
+    "complete": false,
+    "capturedPassMarkers": 2,
+    "authoritativeEvidence": "Three FINISHED claims with successful child execution, REAL_PASS result files, FINISHED batch and final SELECT confirming3 loads/1000 each."
   }
 }
