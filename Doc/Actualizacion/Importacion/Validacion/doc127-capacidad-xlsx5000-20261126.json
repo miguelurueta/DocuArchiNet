@@ -1,0 +1,440 @@
+{
+  "issue": "DOC-127",
+  "status": "REAL_XLSX5000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+  "recordedUtc": "2026-11-26T16:02:23.962Z",
+  "sourceCommit": "96dfc85e3a78ecba9653eaaa7a6a55f0723b0d39",
+  "batchId": "6ea858a269824b47930f29ca340277d1",
+  "authorization": {
+    "reference": "User: autorizado. Explicit approval of reviewed DOC127 XLSX5000 batch6ea858a269824b47930f29ca340277d1; local HTTPS GESTOR company2 DA11 RA12 ref6 account194; three cases, max15000 inserted rows,1000 deleted rows,1 new table; no automatic retries.",
+    "authorizedUtc": "2026-11-26T15:34:19.620Z",
+    "maximumEffects": {
+      "newFilesReceived": 3,
+      "newPreparations": 3,
+      "effectiveConfirmations": 3,
+      "replays": 3,
+      "newBusinessRows": 15000,
+      "deletedBusinessRows": 1000,
+      "newTables": 1,
+      "templateWrites": 0,
+      "permissionChanges": 0
+    }
+  },
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "module": "GESTOR",
+    "empresaId": 2,
+    "daModuloId": 11,
+    "raModuloId": 12,
+    "conexionId": 6
+  },
+  "account": {
+    "id": 194,
+    "login": "asesor.comercial",
+    "permissions": {
+      "cargas": 1,
+      "carpetas": 0,
+      "perfiles": 0,
+      "fuentes": 0,
+      "proveedores": 0
+    }
+  },
+  "startedUtc": "2026-11-26T15:35:02.619Z",
+  "completedUtc": "2026-11-26T16:01:42.798Z",
+  "windowElapsedMs": 1600179,
+  "cases": [
+    {
+      "mode": "AGREGAR",
+      "format": "XLSX",
+      "templateId": 58,
+      "templateRevision": 1,
+      "table": "imp_02_doc126_e2e_agregar",
+      "previousRows": 2002,
+      "finalRows": 7002,
+      "rowsConfirmed": 5000,
+      "previousRowsDeleted": 0,
+      "bytes": 73872,
+      "fileSha256": "56732ce19455f414d6644e19f3eca22bdb3147a2c5747a15f661a661c9f0e85e",
+      "windowId": "6e8e8d22267642098edad83f842dca45",
+      "scopeSha256": "d97ea22dff8beaf3dd1ae3ab310022cf76fb13bff19ec61d930a28d043bcf5dc",
+      "idCarga": "f5d81f53-961f-445c-8ce1-7c7be6135db8",
+      "recordedUtc": "2026-11-26T15:43:53.976Z",
+      "timingsMs": {
+        "preparar": 716.453300000052,
+        "confirmar": 11828.013199999987
+      },
+      "sqlControls": 311,
+      "httpRequests": 8,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 264,
+        "firstUtc": "2026-11-26T15:35:03.0844201Z",
+        "lastUtc": "2026-11-26T15:43:55.5761393Z",
+        "baseline": {
+          "utc": "2026-11-26T15:35:03.0844201Z",
+          "phase": "BASELINE",
+          "rss": 0,
+          "private": 0,
+          "processCount": 0
+        },
+        "maxRssBytes": 220495872,
+        "maxPrivateBytes": 255315968,
+        "maxGapMs": 2058,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 121,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "measurementStatus": "COMPLETE_WITH_SAMPLING_LIMITS",
+      "effectiveLimits": {
+        "MaxArchivoMB": 10,
+        "MaxFilasDatos": 20000
+      },
+      "protectedTables": 35,
+      "protectedAndConfigurationUnchanged": true,
+      "replayWithoutAnotherReception": true,
+      "destinationHash": "5280fccbac61c6e01c94b181923dd6dc9ee640babaed7cc9057df3dfd6966ba6"
+    },
+    {
+      "mode": "REEMPLAZAR",
+      "format": "XLSX",
+      "templateId": 59,
+      "templateRevision": 1,
+      "table": "imp_02_doc126_e2e_reemplazar",
+      "previousRows": 1000,
+      "finalRows": 5000,
+      "rowsConfirmed": 5000,
+      "previousRowsDeleted": 1000,
+      "bytes": 75297,
+      "fileSha256": "40beb13628bfd0f84f5568916e765e368cd3d537c0baf6e472021326d5ea0254",
+      "windowId": "5ebae8be12284745b16ee174a7e11fe9",
+      "scopeSha256": "81a2dc88cf5373a9bb5c2e9addb0ba02d0b0307592156905364248aa72c6e926",
+      "idCarga": "4f5081dd-259a-469d-9239-2226431afcb7",
+      "recordedUtc": "2026-11-26T15:52:47.014Z",
+      "timingsMs": {
+        "preparar": 685.3683999999776,
+        "confirmar": 12554.527100000007
+      },
+      "sqlControls": 311,
+      "httpRequests": 8,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 264,
+        "firstUtc": "2026-11-26T15:43:56.0829262Z",
+        "lastUtc": "2026-11-26T15:52:48.9810516Z",
+        "baseline": {
+          "utc": "2026-11-26T15:43:56.0829262Z",
+          "phase": "BASELINE",
+          "rss": 212905984,
+          "private": 249020416,
+          "processCount": 1
+        },
+        "maxRssBytes": 214102016,
+        "maxPrivateBytes": 260075520,
+        "maxGapMs": 2056,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 0,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "measurementStatus": "COMPLETE_WITH_SAMPLING_LIMITS",
+      "effectiveLimits": {
+        "MaxArchivoMB": 10,
+        "MaxFilasDatos": 20000
+      },
+      "protectedTables": 35,
+      "protectedAndConfigurationUnchanged": true,
+      "replayWithoutAnotherReception": true,
+      "destinationHash": "b283462305ceebd1374ee6ddff657113f81565377418703a059c088bf2dd089b"
+    },
+    {
+      "mode": "CREAR",
+      "format": "XLSX",
+      "templateId": 67,
+      "templateRevision": 1,
+      "table": "imp_02_doc127_e2e_crear_xlsx_5000",
+      "previousRows": 0,
+      "finalRows": 5000,
+      "rowsConfirmed": 5000,
+      "previousRowsDeleted": 0,
+      "bytes": 73869,
+      "fileSha256": "7a4004ae0dcb3c3278f504b1519d9c0e32ed904b8e222780aa95779a5f686567",
+      "windowId": "00f197062a4a4b80a0768976ed89d023",
+      "scopeSha256": "95d0d2bdc990ffbd5e1cb22f37536253cbcd7d2e50af56dddf8ed1aa034219f6",
+      "idCarga": "58c15448-7ac9-4b2a-8ab1-8d92f72339f2",
+      "recordedUtc": "2026-11-26T16:01:42.250Z",
+      "timingsMs": {
+        "preparar": 484.9623000000138,
+        "confirmar": 11835.464600000007
+      },
+      "sqlControls": 316,
+      "httpRequests": 8,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 264,
+        "firstUtc": "2026-11-26T15:52:49.5433668Z",
+        "lastUtc": "2026-11-26T16:01:42.7542293Z",
+        "baseline": {
+          "utc": "2026-11-26T15:52:49.5433668Z",
+          "phase": "BASELINE",
+          "rss": 138928128,
+          "private": 259645440,
+          "processCount": 1
+        },
+        "maxRssBytes": 145035264,
+        "maxPrivateBytes": 265854976,
+        "maxGapMs": 2053,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 0,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "measurementStatus": "COMPLETE_WITH_SAMPLING_LIMITS",
+      "effectiveLimits": {
+        "MaxArchivoMB": 10,
+        "MaxFilasDatos": 20000
+      },
+      "protectedTables": 36,
+      "protectedAndConfigurationUnchanged": true,
+      "replayWithoutAnotherReception": true,
+      "destinationHash": "142cca15256ea58d966b0da4f65b3de531f092d57b9356ed5ac6f7b8406ad622"
+    }
+  ],
+  "conservation": {
+    "protectedTablesByCase": [
+      {
+        "mode": "AGREGAR",
+        "tables": 35,
+        "unchanged": true
+      },
+      {
+        "mode": "REEMPLAZAR",
+        "tables": 35,
+        "unchanged": true
+      },
+      {
+        "mode": "CREAR",
+        "tables": 36,
+        "unchanged": true
+      }
+    ],
+    "allTemplateHeadersAndFieldsUnchanged": true,
+    "profilesUnchangedByEachE2E": true,
+    "profilesObservedPostflight": 78,
+    "profileHashPostflight": "bd5953665dfc848bef3f2064c82e3b575a83f20ef646c4952521d129ca8e7447",
+    "accountPermissionsUnchanged": true
+  },
+  "postflight": {
+    "recordedUtc": "2026-11-26T16:02:16.3667520Z",
+    "explicitSelects": 8,
+    "templateLibrarySelects": 6,
+    "templatesUnchanged": true,
+    "loadsConfirmed": 3,
+    "controlSqlWrites": 0
+  },
+  "effects": {
+    "receivedFiles": 3,
+    "preparedLoads": 3,
+    "confirmedLoads": 3,
+    "businessRowsInserted": 15000,
+    "businessRowsDeleted": 1000,
+    "netBusinessRows": 14000,
+    "tablesCreated": 1,
+    "templateWrites": 0,
+    "permissionChanges": 0,
+    "administrativeSqlApplied": 0,
+    "deployments": 0
+  },
+  "runtime": [
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.dll",
+      "previousSha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+      "currentSha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+      "matches": true
+    },
+    {
+      "path": "bin/MySql.Data.dll",
+      "previousSha256": "c7bf74f07c7c9411b630b793f19572c0276b04dd3423ae5bc32204ae539d977a",
+      "currentSha256": "c7bf74f07c7c9411b630b793f19572c0276b04dd3423ae5bc32204ae539d977a",
+      "matches": true
+    },
+    {
+      "path": "Web.config",
+      "previousSha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+      "currentSha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+      "matches": true
+    },
+    {
+      "path": "AppSettings.local.config",
+      "previousSha256": "bd3689aabb8fdcfdfef3df8bf49571bc0a8770269894d00f3bcde4e3a4c5b7c9",
+      "currentSha256": "bd3689aabb8fdcfdfef3df8bf49571bc0a8770269894d00f3bcde4e3a4c5b7c9",
+      "matches": true
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+      "previousSha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+      "currentSha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+      "matches": true
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "previousSha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+      "currentSha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+      "matches": true
+    },
+    {
+      "path": "Styles/ImportacionExcel.css",
+      "previousSha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+      "currentSha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+      "matches": true
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "previousSha256": "d7975d92a77a1390b23287514f1c0d8ad91dcca398fcc590f5ab02d929567696",
+      "currentSha256": "d7975d92a77a1390b23287514f1c0d8ad91dcca398fcc590f5ab02d929567696",
+      "matches": true
+    }
+  ],
+  "sources": [
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "previousSha256": "495f43abffdbc5024c9271b569a6edf6ff3567dec714971ef47f9b754712b4b7",
+      "currentSha256": "495f43abffdbc5024c9271b569a6edf6ff3567dec714971ef47f9b754712b4b7",
+      "matches": true
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "previousSha256": "e8b2463c9d25466cb1cecb1a7f4a6932097b1ad178ae337b6fb78d35689591ce",
+      "currentSha256": "e8b2463c9d25466cb1cecb1a7f4a6932097b1ad178ae337b6fb78d35689591ce",
+      "matches": true
+    },
+    {
+      "path": "tools/e2e/tests/support/doc125-excel-scope.cjs",
+      "previousSha256": "1edcb7d37c0de6e7bc281d4e8a9b0d8666d00412e2a1c01ef6c3d96915d78375",
+      "currentSha256": "1edcb7d37c0de6e7bc281d4e8a9b0d8666d00412e2a1c01ef6c3d96915d78375",
+      "matches": true
+    },
+    {
+      "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+      "previousSha256": "ee0118f810efbf9f8d3c5eab514b2b512d77151d7e4bdaf9ed01d48a8c9c0776",
+      "currentSha256": "ee0118f810efbf9f8d3c5eab514b2b512d77151d7e4bdaf9ed01d48a8c9c0776",
+      "matches": true
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc32-e2e-odbc.cjs",
+      "previousSha256": "10523bcc1608c94fb816d8be09b352ec570be8cda23cd969d473c8e5bc608ccf",
+      "currentSha256": "10523bcc1608c94fb816d8be09b352ec570be8cda23cd969d473c8e5bc608ccf",
+      "matches": true
+    },
+    {
+      "path": "tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1",
+      "previousSha256": "5c6dcbc22331306eeb1402d3045461204f9a6d29d5107029f499cfe870c8fa4e",
+      "currentSha256": "5c6dcbc22331306eeb1402d3045461204f9a6d29d5107029f499cfe870c8fa4e",
+      "matches": true
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc127-iis-memory.ps1",
+      "previousSha256": "aa26741fbecfe6b498c882b9865db6e56936325da986e12e12174b92b5337d84",
+      "currentSha256": "aa26741fbecfe6b498c882b9865db6e56936325da986e12e12174b92b5337d84",
+      "matches": true
+    }
+  ],
+  "privateScripts": [
+    {
+      "path": ".tmp/doc127-xlsx5000-session.ps1",
+      "previousSha256": "1ed69721cbbf9d868b43c675ff8289d2eac863ea20293ab37336a21672b04720",
+      "currentSha256": "1ed69721cbbf9d868b43c675ff8289d2eac863ea20293ab37336a21672b04720",
+      "matches": true
+    },
+    {
+      "path": ".tmp/doc127-xlsx5000-run-batch.cjs",
+      "previousSha256": "a4892c5a0c877b47d0a36d8002423a3d02a2bd207e0730c7636beaa84306a3c8",
+      "currentSha256": "a4892c5a0c877b47d0a36d8002423a3d02a2bd207e0730c7636beaa84306a3c8",
+      "matches": true
+    }
+  ],
+  "outputCapture": {
+    "complete": true,
+    "capturedPassMarkers": 3,
+    "sha256": "56baf6e2d47630ca5af6ac1fd564c9bcaf49606c3dc4916e004f921f308d3caa"
+  },
+  "console": {
+    "status": "FINISHED",
+    "exitCode": 0,
+    "pid": 17772,
+    "forcedTerminationUsed": false,
+    "outputAfterPassword": "SANITIZED_FILE_ONLY"
+  },
+  "tasks": {
+    "complete": 27,
+    "total": 33,
+    "completedThisWindow": [
+      "6.5"
+    ],
+    "otherCapacityCellsStillPending": true
+  },
+  "limitations": [
+    "HTTP times include transport, metadata and validation; they are not isolated SQL DML times.",
+    "Shared IIS memory is sampled, without exclusive allocation or guaranteed peaks.",
+    "REEMPLAZAR replaced1000 old test rows with5000 new rows; load ID, owner, file hash, confirmed state, destination count and replay were checked.",
+    "Earlier XLSX1000 results remain separate; this batch supplies XLSX5000 measurements and account194 checks.",
+    "XLSX10000, other acceptance cases, manual EXPLAIN29 and final gates remain pending.",
+    "Scopes are consumed; do not repeat imports for another measurement."
+  ],
+  "credentialsPersisted": false,
+  "credentialsPrinted": false,
+  "archived": false,
+  "jiraClosed": false
+}

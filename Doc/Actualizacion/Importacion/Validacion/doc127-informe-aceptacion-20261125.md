@@ -1,5 +1,8 @@
 # DOC-127 — Informe de aceptación y capacidad con restricciones
 
+Actualización 2026-11-26: **XLSX5000,3/3 modos reales PASS;27/33 tareas**. [Resultado y mediciones](doc127-capacidad-xlsx5000-20261126.md). Se completa6.5, además de6.1/6.2/6.3/6.4 ya acreditadas. Los cortes26/33 y anteriores inferiores son históricos.
+
+
 Actualización 2026-11-26: **XLSX1000,3/3 modos reales PASS;26/33 tareas**. [Resultado y mediciones](doc127-capacidad-xlsx1000-20261126.md). Se completa6.4, además de6.1/6.2/6.3 ya acreditadas. Los cortes25/33 y anteriores inferiores son históricos.
 
 
@@ -36,6 +39,7 @@ Ambiente de referencia: Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR em
 | DOC127_XLS5000_REAL | REAL_CAPACITY_XLS5000_THREE_MODES | 365330139fed82672367bccc6903845b3f331619 | [doc127-capacidad-xls5000-20261126.json](doc127-capacidad-xls5000-20261126.json) |
 | DOC127_XLS10000_REAL | REAL_CAPACITY_XLS10000_THREE_MODES | 2cc794bb8795121a3c568de82af57a2ae1229976 | [doc127-capacidad-xls10000-20261126.json](doc127-capacidad-xls10000-20261126.json) |
 | DOC127_XLSX1000_REAL | REAL_CAPACITY_XLSX1000_THREE_MODES | a4bb16a917f2ec2a6fd16f24583058a794e4f6ac | [doc127-capacidad-xlsx1000-20261126.json](doc127-capacidad-xlsx1000-20261126.json) |
+| DOC127_XLSX5000_REAL | REAL_CAPACITY_XLSX5000_THREE_MODES | 96dfc85e3a78ecba9653eaaa7a6a55f0723b0d39 | [doc127-capacidad-xlsx5000-20261126.json](doc127-capacidad-xlsx5000-20261126.json) |
 
 Se conservan las15 huellas de integración (17bdf09e4f46efb43cbe4771d4de99ee8a308628):141/141 pruebas locales de11 suites. De79 fuentes del corte local anterior,73 coinciden y6 difieren: README SQL/runbook actualizados, página/Vista/UI con la corrección form1 y suite E2E ampliada. Las cuatro diferencias de producto/pruebas están incluidas en la evidencia posterior de integración. DLL, conector, Web.config, API y CSS conservan su huella binaria; Vista cambió conforme a esa corrección.
 
@@ -55,7 +59,7 @@ Cada ID remite a la tabla de procedencia con su SHA/ambiente/tipo; el JSON conse
 | RQ-06: Claves/collation/esquema/politica | DOC124_NATIVE; DOC125_NATIVE; DOC126 rollback/carrera; LOCAL, DOC126_RECUPERACION | LOCAL_PASS_HISTORICA_REUTILIZADA | Escenarios adversos de motor/FK/trigger y politica COLUMNA tienen cobertura sintetica. |
 | RQ-07: Replay/CREATE/rollback/carrera | DOC125_NATIVE; DOC126 rollback/carrera; transporte DOC127; LOCAL, DOC125, DOC126_RECUPERACION | LOCAL_PASS_HISTORICA_REUTILIZADA | Acuse ignorado no acredita corte fisico COMMIT/red. No se repiten las carreras anteriores. |
 | RQ-08: Filas/bytes/cambio de limites | ImportacionExcelLecturaTests.Boundaries/Reports; ConfirmacionTests.Rejections; LOCAL | LOCAL_PASS | Fronteras grandes y cambios de configuracion son locales; IIS permanece intacto. |
-| RQ-09: Seis celdas y medicion por modo | DOC127_LOCAL_READER; DOC125 tiempos historicos; LOCAL, DOC125, RECURSOS, DOC127_XLS1000_REAL, DOC127_XLS5000_REAL, DOC127_XLS10000_REAL, DOC127_XLSX1000_REAL | REAL_XLS_ALL_SIZES_XLSX1000_PASS_REMAINING_XLSX_PENDING | XLS1000/5000/10000 y XLSX1000 reales por tres modos; memoria IIS compartida y muestreada, sin asignacion exclusiva. XLSX5000/10000 pendientes; no extrapolar20000. |
+| RQ-09: Seis celdas y medicion por modo | DOC127_LOCAL_READER; DOC125 tiempos historicos; LOCAL, DOC125, RECURSOS, DOC127_XLS1000_REAL, DOC127_XLS5000_REAL, DOC127_XLS10000_REAL, DOC127_XLSX1000_REAL, DOC127_XLSX5000_REAL | REAL_XLS_ALL_SIZES_XLSX1000_5000_PASS_XLSX10000_PENDING | XLS1000/5000/10000 y XLSX1000/5000 reales por tres modos; memoria IIS compartida y muestreada, sin asignacion exclusiva. XLSX10000 pendiente; no extrapolar20000. |
 | RQ-10: Consumidor por clave y regresion | harness DOC110;19 tests SII;29-explain-proveedor-doc127.sql; LOCAL | LOCAL_PASS_EXPLAIN_PENDIENTE | Plan manual no aportado; importar tabla no publica proveedor/fuente. |
 | RQ-11: UI/cliente/semaforo/foco | tests/doc126-importacion-excel-ui.test.cjs; client; INTEGRACION, DOC126_LECTURA, DOC127_LECTURA | REAL_DOC127_1_READ_AND_FORM_ISOLATION_PASS | Lectura/consulta/Escape y aislamiento DOM doc127-1 reales; no se envio un postback del gestor ni se ejecutaron escrituras o capacidad. |
 | RQ-12: Build aislado y regresion actual | MSBuild net461; logs locales por SHA; LOCAL, INTEGRACION | LOCAL_PASS | Cero despliegues; el binario compilado aislado no sustituye el instalado. |
@@ -78,13 +82,13 @@ P/C son milisegundos HTTP de preparación/confirmación. Los tres pares numéric
 | XLS / 5000 | REEMPLAZAR | 62 r1 | 1463296 | PASS | REAL_PASS; P/C 385.6/11236.8 ms; memoria compartida en evidencia | Sin ejecución histórica de esta celda |
 | XLS / 10000 | REEMPLAZAR | 62 r1 | 2964992 | PASS | REAL_PASS; P/C 729.1/12284.7 ms; memoria compartida en evidencia | Sin ejecución histórica de esta celda |
 | XLSX / 1000 | CREAR | 66 r1 | 16356 | PASS | REAL_PASS; P/C 164.3/11573.2 ms; memoria compartida en evidencia | Evidencia histórica XLSX1000 conservada por separado |
-| XLSX / 5000 | CREAR | 67 r1 | 73869 | PASS | Sin ejecución / sin medición | Sin ejecución de esta celda |
+| XLSX / 5000 | CREAR | 67 r1 | 73869 | PASS | REAL_PASS; P/C 485.0/11835.5 ms; memoria compartida en evidencia | Antecedentes conservados por separado |
 | XLSX / 10000 | CREAR | 68 r1 | 145383 | PASS | Sin ejecución / sin medición | Sin ejecución de esta celda |
 | XLSX / 1000 | AGREGAR | 58 r1 | 16359 | PASS | REAL_PASS; P/C 272.0/11261.1 ms; memoria compartida en evidencia | Evidencia histórica XLSX1000 conservada por separado |
-| XLSX / 5000 | AGREGAR | 58 r1 | 73872 | PASS | Sin ejecución / sin medición | Sin ejecución de esta celda |
+| XLSX / 5000 | AGREGAR | 58 r1 | 73872 | PASS | REAL_PASS; P/C 716.5/11828.0 ms; memoria compartida en evidencia | Antecedentes conservados por separado |
 | XLSX / 10000 | AGREGAR | 58 r1 | 147007 | PASS | Sin ejecución / sin medición | Sin ejecución de esta celda |
 | XLSX / 1000 | REEMPLAZAR | 59 r1 | 16632 | PASS | REAL_PASS; P/C 193.8/10869.6 ms; memoria compartida en evidencia | Evidencia histórica XLSX1000 conservada por separado |
-| XLSX / 5000 | REEMPLAZAR | 59 r1 | 75297 | PASS | Sin ejecución / sin medición | Sin ejecución de esta celda |
+| XLSX / 5000 | REEMPLAZAR | 59 r1 | 75297 | PASS | REAL_PASS; P/C 685.4/12554.5 ms; memoria compartida en evidencia | Antecedentes conservados por separado |
 | XLSX / 10000 | REEMPLAZAR | 59 r1 | 146809 | PASS | Sin ejecución / sin medición | Sin ejecución de esta celda |
 
 Las18 ventanas nuevas conservan PENDIENTE_AUTORIZACION_Y_PREFLIGHT_DE_VENTANA. Sus conteos previos/esperados se recalculan antes de cada ejecución; no son una observación actual. Las plantillas61–68 y fuentes10/11 se aplicaron por delegación expresa y fueron verificadas; no reaplicar SQL30–32. La lectura separada ya terminó PASS y no autoriza cargas.
@@ -99,7 +103,7 @@ Fronteras: configuración vigente20000 filas/10000000bytes; fallback lector10000
 | --- | --- | --- |
 | B-01: 2.4 | Rendimiento de lectura por clave sin plan verificable. | El usuario ejecuta manualmente Sql/29-explain-proveedor-doc127.sql en el destino indicado y aporta key/possible_keys/type/rows/Extra y metadatos; revisar sin ejecutar EXPLAIN desde el agente. |
 | B-02: 5.1, 7.1 | La lectura doc127-1 y aislamiento form1 ya pasaron; aun faltan los otros alcances vigentes de autoridad/preparacion y el corte integral. | Ventana194/196 cerrada PASS, sin repeticion automatica. Definir y autorizar los casos faltantes por recursos/efectos; revocacion fisica solo con mecanismo autorizado. Conservar la diferencia historica de perfiles y la linea base fresca. |
-| B-03: 5.2, 6.5, 6.6 | Las nueve celdas XLS y tres XLSX1000 tienen resultados reales y mediciones. XLSX5000/10000 y cruces restantes de plantillas siguen pendientes. | Conservar las doce cargas actuales XLS/XLSX y sus scopes consumidos; preparar recursos/efectos y autorizar las celdas restantes, sin repetirlas. |
+| B-03: 5.2, 6.6 | Las nueve combinaciones XLS y seis XLSX1000/5000 tienen resultados reales y mediciones. XLSX10000 y cruces restantes de plantillas siguen pendientes. | Conservar las quince cargas actuales XLS/XLSX y sus scopes consumidos; preparar recursos/efectos y autorizar las celdas restantes, sin repetirlas. |
 | B-04: 7.5 | Faltan tareas y aceptacion; no procede archivo ni cierre Jira. | Mantener el cambio activo. Evaluar gates sobre HEAD registrado despues de resolver dependencias; los controles documentales no sustituyen aceptacion real. |
 
 Hallazgo form1 corregido en17bdf09e, con81/81 focales y posterior integración141/141; la lectura posterior acredita aislamiento DOM real doc127-1 sin postback del gestor.7.1 permanece abierta para el corte integral. Revocación física, política COLUMNA real y cortes físicos COMMIT/red conservan sus limitaciones; acuse ignorado y fallos sintéticos no los sustituyen.
