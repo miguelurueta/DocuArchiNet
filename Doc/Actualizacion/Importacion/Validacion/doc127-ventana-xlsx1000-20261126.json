@@ -1,0 +1,272 @@
+{
+  "issue": "DOC-127",
+  "status": "PREPARED_PENDING_AUTHORIZATION",
+  "batchId": "4ae84cb89ebd4d77a3a962a0ef623106",
+  "preparedUtc": "2026-11-26T14:46:26.786Z",
+  "sourceCommit": "78ee082ca9d2320e401b867a2bb33ade76959420",
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "module": "GESTOR",
+    "empresaId": 2,
+    "daModuloId": 11,
+    "raModuloId": 12,
+    "conexionId": 6
+  },
+  "account": {
+    "id": 194,
+    "login": "asesor.comercial",
+    "permissions": {
+      "cargas": 1,
+      "carpetas": 0,
+      "perfiles": 0,
+      "fuentes": 0,
+      "proveedores": 0
+    }
+  },
+  "scopeCount": 3,
+  "scopes": [
+    {
+      "sequence": 1,
+      "mode": "AGREGAR",
+      "scopeSha256": "01b782a6a6e4e636ac3fe88d977acff7b2329a267d421f524256ae5dbeaf71b3",
+      "windowId": "556368085258480da44934e95a86a85a",
+      "templateId": 58,
+      "revision": 1,
+      "templateHash": "e8a914751fe30496d2f55ef97c3039d7727af095677cdfaebc1a8432e317d71b",
+      "table": "imp_02_doc126_e2e_agregar",
+      "previousRows": 1002,
+      "expectedRows": 2002,
+      "maxInsertedRows": 1000,
+      "maxDeletedRows": 0,
+      "maxCreates": 0,
+      "fileSha256": "3997c65ccb45913120b628e8912497a9c6809cee61e0e22de95fc866b37bce32",
+      "fileBytes": 16359,
+      "destinationHash": "b3ccb7d90837c9bc506c5620a1d0795658a0b79422b5cc97356487340779ec58",
+      "protectedTables": 34,
+      "fileName": "agregar-1000.xlsx",
+      "formato": "XLSX",
+      "rowsPerFile": 1000
+    },
+    {
+      "sequence": 2,
+      "mode": "REEMPLAZAR",
+      "scopeSha256": "6bfec46562cd33817c1156a57a68d57604d98fca03a02f4c55c7674d24ec75ad",
+      "windowId": "d9f11d3f5b1d442e8cf048f24fd8d291",
+      "templateId": 59,
+      "revision": 1,
+      "templateHash": "91cb0b4607cf6f7bbb527fb80d7e44e1035177925193013dfac23abac20a8a59",
+      "table": "imp_02_doc126_e2e_reemplazar",
+      "previousRows": 1000,
+      "expectedRows": 1000,
+      "maxInsertedRows": 1000,
+      "maxDeletedRows": 1000,
+      "maxCreates": 0,
+      "fileSha256": "5eb5a9813481f53ac2454cd4998cde5dc14bf48cc6ee19071d2d60981f99e93e",
+      "fileBytes": 16632,
+      "destinationHash": "c7b1935091658427ba35f7bbca22876c1784c46a77148848fe6a0b6ccfe27ec9",
+      "protectedTables": 34,
+      "fileName": "reemplazar-1000.xlsx",
+      "formato": "XLSX",
+      "rowsPerFile": 1000
+    },
+    {
+      "sequence": 3,
+      "mode": "CREAR",
+      "scopeSha256": "b4f5f9e9dfbfa97f03cb399222be117d60622a2b53be81f5b075002e7457b8e2",
+      "windowId": "ff78e6631d5144f294d16d514c257174",
+      "templateId": 66,
+      "revision": 1,
+      "templateHash": "7998ca240a665df1cae9e1b1fcabb214f9ad7658e19baf083dbed3bb22dcc3b9",
+      "table": "imp_02_doc127_e2e_crear_xlsx_1000",
+      "previousRows": 0,
+      "expectedRows": 1000,
+      "maxInsertedRows": 1000,
+      "maxDeletedRows": 0,
+      "maxCreates": 1,
+      "fileSha256": "4eac7526b1ca01015e213b49dd5781fe1102e80224b9fd22f0d2946e38011595",
+      "fileBytes": 16356,
+      "destinationHash": "bf07a269e14d95d4fe3ef2a16d5f0d74139002cae94d38056eadf79e31cffa4e",
+      "protectedTables": 35,
+      "fileName": "crear-1000.xlsx",
+      "formato": "XLSX",
+      "rowsPerFile": 1000
+    }
+  ],
+  "maximumEffects": {
+    "newFilesReceived": 3,
+    "newPreparations": 3,
+    "effectiveConfirmations": 3,
+    "replays": 3,
+    "newBusinessRows": 3000,
+    "deletedBusinessRows": 1000,
+    "newTables": 1,
+    "templateWrites": 0,
+    "permissionChanges": 0
+  },
+  "budget": {
+    "caseTimeoutMs": 900000,
+    "caseHttpRequests": 12,
+    "caseSelectStatements": 500,
+    "requestedMemoryIntervalMs": 2000,
+    "scopeLifetimeMs": 1800000,
+    "batchExecutionBudgetMs": 3000000
+  },
+  "datePolicy": "Review scopes have a30-minute candidate lifetime. On explicit batch approval each scope gets fresh dates just before its own execution, within the50-minute batch budget; reviewed resources/effects and hashes stay fixed.",
+  "preflight": {
+    "recordedUtc": "2026-11-26T14:46:12.9695886Z",
+    "explicitSelects": 14,
+    "productTemplateReadSelects": 6,
+    "destinationSnapshotSelects": 11,
+    "totalSelects": 31,
+    "sqlWrites": 0,
+    "authenticatedSessions": 0
+  },
+  "policies": [
+    {
+      "fuente_id": 8,
+      "ambito_ref": "2",
+      "conexion_ref": "DA",
+      "tabla_nombre": "imp_02_doc126_e2e_agregar",
+      "modo_aislamiento": "CONEXION",
+      "columna_empresa": "",
+      "activo": 1,
+      "revision": 2
+    },
+    {
+      "fuente_id": 9,
+      "ambito_ref": "2",
+      "conexion_ref": "DA",
+      "tabla_nombre": "imp_02_doc126_e2e_reemplazar",
+      "modo_aislamiento": "CONEXION",
+      "columna_empresa": "",
+      "activo": 1,
+      "revision": 2
+    }
+  ],
+  "observableTriggers": 0,
+  "observableForeignKeys": 0,
+  "runtime": [
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.dll",
+      "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5"
+    },
+    {
+      "path": "bin/MySql.Data.dll",
+      "sha256": "c7bf74f07c7c9411b630b793f19572c0276b04dd3423ae5bc32204ae539d977a"
+    },
+    {
+      "path": "Web.config",
+      "sha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2"
+    },
+    {
+      "path": "AppSettings.local.config",
+      "sha256": "bd3689aabb8fdcfdfef3df8bf49571bc0a8770269894d00f3bcde4e3a4c5b7c9"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+      "sha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da"
+    },
+    {
+      "path": "Styles/ImportacionExcel.css",
+      "sha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256": "d7975d92a77a1390b23287514f1c0d8ad91dcca398fcc590f5ab02d929567696"
+    }
+  ],
+  "supportSources": [
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256": "495f43abffdbc5024c9271b569a6edf6ff3567dec714971ef47f9b754712b4b7"
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256": "e8b2463c9d25466cb1cecb1a7f4a6932097b1ad178ae337b6fb78d35689591ce"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc125-excel-scope.cjs",
+      "sha256": "1edcb7d37c0de6e7bc281d4e8a9b0d8666d00412e2a1c01ef6c3d96915d78375"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+      "sha256": "ee0118f810efbf9f8d3c5eab514b2b512d77151d7e4bdaf9ed01d48a8c9c0776"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc32-e2e-odbc.cjs",
+      "sha256": "10523bcc1608c94fb816d8be09b352ec570be8cda23cd969d473c8e5bc608ccf"
+    },
+    {
+      "path": "tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1",
+      "sha256": "5c6dcbc22331306eeb1402d3045461204f9a6d29d5107029f499cfe870c8fa4e"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc127-iis-memory.ps1",
+      "sha256": "aa26741fbecfe6b498c882b9865db6e56936325da986e12e12174b92b5337d84"
+    }
+  ],
+  "privateScriptHashes": [
+    {
+      "name": "doc127-xlsx1000-session.ps1",
+      "sha256": "af612e8ab8ebecc2e727b4315079ce3f047002d476e8a555ef97cdef64ab8b9e"
+    },
+    {
+      "name": "doc127-xlsx1000-run-batch.cjs",
+      "sha256": "1fa15fc42ea3225e1686e14d64bab3f2f47358f38462451b71274a089a28f2dd"
+    }
+  ],
+  "postflightHash": "461d3e37b7e0d3be5ef01379c873ee413ed5939403d5a48e8145c8a8f5c93c27",
+  "consolePolicy": {
+    "passwordPrompt": "ONE_PRIVATE_SECURESTRING_PROMPT",
+    "output": "SANITIZED_FILE_ONLY_AFTER_PASSWORD",
+    "postPasswordConsoleWrites": false,
+    "closeAutomatically": true,
+    "noExitLaunchFlagAllowed": false,
+    "liveExecutionVerified": false,
+    "behaviorPreviouslyVerifiedBy": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls10000-20261126.json"
+  },
+  "preparationChecks": {
+    "status": "PREPARATION_CHECKS_PASS",
+    "recordedUtc": "2026-11-26T14:47:10.517Z",
+    "powerShellSyntaxScripts": 3,
+    "nodeSyntaxScripts": 5,
+    "scopesValidated": 3,
+    "pendingClaimsCreated": 0,
+    "postPasswordConsoleWrites": 0,
+    "consoleGuard": "DOC127_BATCH_NOT_AUTHORIZED",
+    "batchGuardWithAuthorizedEnvironment": "DOC127_BATCH_NOT_AUTHORIZED",
+    "guardConnections": 0,
+    "guardPasswordPrompts": 0,
+    "guardRealE2E": false,
+    "runtimeHashes": 8,
+    "supportHashes": 7,
+    "privateScriptHashes": 2
+  },
+  "credentialsStored": false,
+  "executionStarted": false,
+  "tasks": {
+    "complete": 25,
+    "total": 33,
+    "acceptanceTask": "6.4",
+    "acceptanceTaskCompleted": false,
+    "completedThisWindow": []
+  },
+  "approval": {
+    "required": true,
+    "source": "AGENTS.md",
+    "environment": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "accountId": 194,
+    "reference": null,
+    "scope": "Three XLSX1000 cases; max3000 inserted rows,1000 deleted rows,1 new table. Previous XLS capacity authorizations are consumed."
+  },
+  "limitations": [
+    "Preparation only; no new authenticated E2E, upload, preparation or confirmation.",
+    "Real postflight not yet executed.",
+    "Console behavior was verified by prior XLS runs; this new XLSX1000 batch has not been executed.",
+    "Shared IIS memory will be sampled; no exclusive allocation or unsampled peak claim."
+  ]
+}
