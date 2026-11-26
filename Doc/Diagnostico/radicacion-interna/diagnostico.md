@@ -9,7 +9,7 @@ La radicación interna puede mejorar sustancialmente su claridad, pero necesita 
 | Referencia | Valor |
 |---|---|
 | Fecha | 2026-11-25 |
-| Versión | 0.14 |
+| Versión | 0.15 |
 | Base local | Commit `0c7beb83` |
 | Grabación | `Grabación 2026-11-25 113145-radicacion-interna-revisa.mp4` |
 | Duración | 78,80 segundos |
@@ -353,3 +353,5 @@ D-RI-05, confirmada el 2026-11-26, sustituye D-RI-04: crear un control nuevo e i
 ## Alcance compartido del WebService de radicación
 
 El [diagnóstico del WebService y sus consumidores](diagnostico-webservice-radicacion.md), revisado sobre `b3353753`, confirma que `WebServiceRadicacion.asmx` es compartido: 40 WebMethods y referencias no comentadas a su ruta en 31 archivos de código, incluidos consumidores/configuración de Producción, clásica/Simplificada, respuestas, Workflow y PQRS. La radicación interna referencia búsquedas de usuarios; su registro principal actual pasa por postback y `ClassRadicador`. `WebServiceRadicacionInterna.asmx` y el handler interno de upload son propuestas que todavía no existen. Crear esas fronteras no elimina las dependencias de clases, tablas y almacenamiento comunes.
+
+D-RI-06, incorporada por instrucción del usuario el 2026-11-26, obliga a proteger la radicación como núcleo crítico en los seis prompts: caracterización previa, justificación por cambio compartido, adaptación/extracción mínima y comparación posterior de numeración, transacciones, documentos, seguimiento y consumidores. P05 no autoriza una reescritura general ni presupone que un wrapper baste; P06 mantiene pendiente la aceptación integrada si falta esa evidencia.

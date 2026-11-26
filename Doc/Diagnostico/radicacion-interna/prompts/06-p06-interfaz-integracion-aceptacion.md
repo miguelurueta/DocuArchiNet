@@ -25,6 +25,7 @@ Integrar la interfaz compacta con ambos accesos y contratos reales; comprobar el
 
 - Leer el contexto común y el código vigente; actuar solo en el alcance refinado. Las funciones N son propuestas y las M existen en el código; no confundir sus estados ni inventar su implementación.
 - Mantener WebForms/VB.NET/.NET Framework 4.6.1, plantillas dinámicas y contratos de Producción, clásica, Simplificada y Workflow. No modificar el OpenSpec DOC-127 ni su trabajo concurrente.
+- D-RI-06: tratar la radicación y sus contratos compartidos como núcleo crítico. Caracterizar el comportamiento antes de modificarlo, justificar cada adaptación/extracción indispensable y conservar numeración, transacciones y consumidores. Un servicio o control nuevo no aísla las clases/tablas comunes ni acredita ausencia de regresiones; no reescribir el motor como parte del cambio visual.
 - Límite D-RI-03 confirmado: este módulo radica y crea/entrega el seguimiento; elaboración, envío, confirmación y cierre de respuestas pertenecen al módulo existente. No trasladar esas funciones a esta pantalla ni rediseñar sus políticas.
 - Actor/empresa/permisos provienen de autoridad autenticada. El remitente no sustituye al ejecutor ni al responsable; IDs visibles, campos ocultos, rutas y nombres de tabla del cliente no son autoridad.
 - No repetir una escritura incierta ni anunciar éxito global por HTTP 200/YES. Mantener revisión, correlación, resultado durable y compatibilidad con los efectos ya confirmados.
@@ -76,7 +77,7 @@ Relacionar cada tarea con las funciones/rutas de este paquete y con su caso de p
 
 4. **RI11.4.** Ejecutar escenarios de permiso retirado, expediente cerrado, sesión caducada, cambio de revisión, dos pestañas, carga truncada, respuesta perdida antes/después del commit, fallos de incorporación/Workflow/correo y recuperación tras reciclado. Registrar consultas de control por referencia de operación.
 
-5. **RI11.5.** Validar regresión de Producción, adjuntos clásicos/Simplificados y políticas de Workflow. No sumar cambios ajenos para hacer pasar una prueba ni modificar autenticación/configuración/flags arbitrariamente.
+5. **RI11.5.** Comparar la caracterización previa y posterior del núcleo y sus contratos compartidos: registro vigente desde Producción, consumidores de los WebMethods/clases realmente modificados, adjuntos clásicos/Simplificados y políticas de Workflow. Verificar numeración, transacciones, relaciones documentales, seguimiento, concurrencia y recuperación antes de aceptar la integración de la UI. Un control/ASMX nuevo, build o pruebas estáticas no acredita aislamiento ni ausencia de regresiones. No sumar cambios ajenos para hacer pasar una prueba ni modificar autenticación/configuración/flags arbitrariamente.
 
 6. **RI11.6.** Preparar orden de migración, configuración y publicación, ensayo reversible en entorno autorizado y recuperación de operaciones en vuelo. La reversión de aplicación no borra radicados/archivos confirmados; definir compatibilidad de esquema y acceso a pendientes.
 
@@ -100,6 +101,7 @@ Relacionar cada tarea con las funciones/rutas de este paquete y con su caso de p
 - No hay duplicados del mismo intento ni pendientes ocultos presentados como éxito completo.
 - Artefacto publicado y esquema/configuración coinciden con lo probado.
 - Recuperación y reversión preservan documentos/radicados confirmados; limitaciones y pendientes son explícitos.
+- La comparación previa/posterior acredita los invariantes del núcleo y consumidores afectados; cualquier cambio indispensable tiene justificación y evidencia. Sin esa comparación, la integración conserva aceptación pendiente.
 - Cambios y evidencia corresponden al alcance, con consumidor/versiones trazables; no hay una dependencia pendiente presentada como implementada.
 
 No declarar completado este prompt si una subfase requerida conserva decisiones o verificaciones pendientes. Registrar qué se completó, qué falta y qué trabajo independiente puede continuar; no repetir permisos ni acuerdos ya registrados.

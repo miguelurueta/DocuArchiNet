@@ -24,6 +24,7 @@ Concretar contratos y decisiones mínimas del alcance operativo. Entrega documen
 
 - Leer el contexto común y el código vigente; actuar solo en el alcance refinado. Las funciones N son propuestas y las M existen en el código; no confundir sus estados ni inventar su implementación.
 - Mantener WebForms/VB.NET/.NET Framework 4.6.1, plantillas dinámicas y contratos de Producción, clásica, Simplificada y Workflow. No modificar el OpenSpec DOC-127 ni su trabajo concurrente.
+- D-RI-06: tratar la radicación y sus contratos compartidos como núcleo crítico. Caracterizar el comportamiento antes de modificarlo, justificar cada adaptación/extracción indispensable y conservar numeración, transacciones y consumidores. Un servicio o control nuevo no aísla las clases/tablas comunes ni acredita ausencia de regresiones; no reescribir el motor como parte del cambio visual.
 - Límite D-RI-03 confirmado: este módulo radica y crea/entrega el seguimiento; elaboración, envío, confirmación y cierre de respuestas pertenecen al módulo existente. No trasladar esas funciones a esta pantalla ni rediseñar sus políticas.
 - Actor/empresa/permisos provienen de autoridad autenticada. El remitente no sustituye al ejecutor ni al responsable; IDs visibles, campos ocultos, rutas y nombres de tabla del cliente no son autoridad.
 - No repetir una escritura incierta ni anunciar éxito global por HTTP 200/YES. Mantener revisión, correlación, resultado durable y compatibilidad con los efectos ya confirmados.
@@ -53,7 +54,7 @@ El inventario de rutas corresponde a futuras entregas; este prompt es solo docum
 
 3. **RI00.3.** Definir el esquema durable mínimo de operación, recepción/manifiesto, confirmación y fases. Identificar claves únicas, revisiones, caducidad, reclamaciones y correlación con radicado, documentos, tarea y respuesta. Inventariar esquema real y herramientas antes de proponer tablas o migración.
 
-4. **RI00.4.** Trazar el núcleo actual: select FOR UPDATE, todos los formatos de consecutivo, inserciones/actualizaciones, seguimiento, Commit y efectos posteriores. Determinar qué comparten conexión/transacción y cómo se consulta un efecto incierto sin repetirlo.
+4. **RI00.4.** Caracterizar el núcleo crítico antes de planificar su modificación: firma y consumidores de `Registra_Radicacion_entrante_interna`, WebMethods afectados, datos/formatos visibles, permisos, SELECT FOR UPDATE, todos los formatos de consecutivo, relaciones documentales, seguimiento, Commit y efectos posteriores. Determinar qué comparten conexión/transacción y cómo consultar un efecto incierto sin repetirlo. Crear una matriz de invariantes, casos de caracterización y verificación previa/posterior; el paquete funcional ejecutará la evidencia antes de editar. Identificar por cambio la necesidad, alternativas, adaptación mínima y consumidores; un ASMX separado no justifica reescribir el motor ni demuestra que baste un wrapper.
 
 5. **RI00.5.** Fijar matriz de permisos, plantilla/campos, catálogo de terceros, datos de impresión/correo y plazos; registrar lo pendiente por puerta/paquete. El módulo registra la obligación y entrega el seguimiento al módulo existente de respuestas: no diseña elaboración, envío ni cierre de respuestas ni cambia políticas de transición. Identificar el acceso de menú independiente real y quién está autorizado. Inventariar M30/M31 con eventos/conectividad/visibilidad: auxiliar, diagrama, copia, relacionados, expediente, catálogos y limpieza; no inferir un recorrido operativo solo por markup ni activar CRUD/ramas salientes como efecto incidental.
 
@@ -67,6 +68,7 @@ Relacionar cada tarea con las funciones/rutas de este paquete y con su caso de p
 
 - Contrato v1 distingue procedencia, ejecutor, remitente, responsable y referencias de documentos.
 - Cada resultado parcial tiene prueba prevista y una consulta de recuperación localizada.
+- Existe una línea base del núcleo y una justificación verificable por cambio compartido; están definidos casos previos/posteriores para numeración, transacción, documentos, seguimiento y consumidores. No se presenta un plan de pruebas como evidencia ejecutada.
 - La alternativa de carga elegida tiene recorrido completo; no se oculta la variante sin expediente como trabajo supuestamente terminado.
 - Las decisiones pendientes tienen dueño funcional, paquete y consecuencia; ninguna recomendación se marca aprobada por redactar este archivo.
 - Cambios y evidencia corresponden al alcance, con consumidor/versiones trazables; no hay una dependencia pendiente presentada como implementada.

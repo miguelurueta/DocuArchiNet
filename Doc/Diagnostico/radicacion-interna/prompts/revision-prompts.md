@@ -34,6 +34,8 @@ La comparación realizada al consolidar conservó 73 tareas identificadas, 60 ap
 
 Actualización por D-RI-05, confirmada el 2026-11-26 y que sustituye D-RI-04: P04 define un control nuevo e independiente (`RadicacionInternaUpload`, nombre propuesto) y recepción temporal propia; P06 lo integra en la UI aprobada. Se precisan RI05.1, RI05.4, RI10.4 y sus pruebas de estado, ciclo de vida y ausencia de dependencia del cargador compartido. Se mantienen los 73 identificadores de tarea, 61 apariciones de criterios y 12 bloques de pruebas específicas. No se aprueban límites, expediente o permisos por elegir el control. La revisión estructural se repite sobre los seis textos actuales y se actualizan sus huellas. Se trata de una actualización de los prompts; el control aún no está implementado.
 
+Actualización por D-RI-06, instruida el 2026-11-26: los seis prompts incorporan la protección del núcleo crítico. P01 prepara la caracterización y la justificación por cambio; P02 conserva contratos del ASMX compartido; P05 exige caracterización ejecutada antes de modificar, adaptación/extracción mínima y comparación posterior; P06 condiciona la aceptación a evidencia de esos invariantes y consumidores. Se precisan las tareas existentes y se agregan tres criterios: la serie actual conserva 73 tareas identificadas, 64 apariciones de criterios y 12 bloques de pruebas específicas. No se modificó la aplicación ni se ejecutaron pruebas del núcleo al redactar esta actualización; la revisión estructural se repite sobre los textos actuales.
+
 P02 mantiene RI01 → RI02 → RI03 para no adelantar configuración que depende de contexto. P03/P04 dependen de P02 y pueden avanzar independientemente. P05 mantiene RI07 → RI08 → RI09; P06 mantiene RI10 → RI11. El grafo de seis paquetes y el de doce subfases no tienen ciclos. Las decisiones se refinan por subfase; agruparlas no exige resolver todas al iniciar un prompt.
 
 ## Revisión arquitectónica y funcional documental
@@ -45,7 +47,7 @@ P02 mantiene RI01 → RI02 → RI03 para no adelantar configuración que depende
 | Se mezclan remitente, ejecutor y responsable si solo se cambia el combo. | RI04 resuelve identidad tipada y autoridad; RI07 registra actor/propietario; RI09 mantiene propietario de respuesta. |
 | El lector de modalidad consulta `requiere_respuesta`. | RI03 separa activación, modalidad y canal, caracteriza consumidores y verifica corrección compartida. |
 | Controles dinámicos, tres opciones de plantilla y dependencias se reconstruyen durante postback. | RI01 estabiliza; RI03/RI10 conservan metadatos/IDs/tipos y exigen prueba WebForms real. |
-| Consecutivos y registro tienen una transacción; almacenamiento/Workflow/correo tienen efectos posteriores. | RI07 conserva `FOR UPDATE` y asocia operación/radicado; RI08 registra/reconcilia fases sin repetir el núcleo. |
+| Consecutivos y registro tienen una transacción; almacenamiento/Workflow/correo tienen efectos posteriores. | D-RI-06 exige caracterización previa y comparación posterior; RI07 justifica la extracción mínima y conserva `FOR UPDATE`/asociación durable; RI08 reconcilia fases sin repetir el núcleo. |
 | Un timeout puede ocultar un efecto confirmado. | RI05/RI06/RI07/RI08 exigen evidencia durable, consulta y conflictos por revisión, sin repetir escrituras inciertas. |
 | El módulo existente de respuestas tiene plantilla/homologación y políticas propias. | D-RI-03 limita RI09 a entrega/lectura del seguimiento; se comprueba compatibilidad, sin implementar respuesta ni cambiar esas políticas. |
 | El markup contiene capacidades condicionadas y ramas que no prueban conectividad por sí mismas. | M30/M31 y RI00/RI10 exigen inventariar auxiliar, diagrama, copia, relaciones, expediente, catálogos y limpieza según su recorrido real. |
@@ -104,9 +106,9 @@ SHA-256 del texto UTF-8 con saltos LF. Repetir revisión y actualizar huella si 
 
 | Prompt | SHA-256 |
 |---|---|
-| P01 | `97f45e2e592b735e6e9074f7e2f77a14e618bea9de3034d8980b6c1f4f81c944` |
-| P02 | `70b0921efe0262b8e7bdfa2c12d379447a0ab6f03cd8b9e02a5c9a0eb7e9d9d1` |
-| P03 | `99274d46b7d230a88ac0c4cddf2f0bc14aa988864ab248919e394f7ff636a081` |
-| P04 | `33cab2d163ff2b7493f619d42af9cb3787e36bc5b129aaea2380e80266cbf510` |
-| P05 | `698e4d3909a434c8004597579ea9d8320302b8de83ca9a1b3a133ae709e6e0e2` |
-| P06 | `4bc86a109e70ee82e723e2b699cbf27e4f529df0aa8ec306cc7722186c50d904` |
+| P01 | `6027b208c3543a24f8aab3ec0dafc51fd3662f8aa81f77270a927bfba006f46e` |
+| P02 | `c55200280c4a3b08f283e31e7ab61332c5108809f2b4986b8eb0b00f3f03750f` |
+| P03 | `4151150e7751f70cef66224865090c19ba0cc81cb9cdc4b12b302bfe3dae1b11` |
+| P04 | `6bbb71ab6966954f41af0c040c590eebafdeac3e741066a0ebac73bc648a19f9` |
+| P05 | `fc52ae7c3ebecd270d2b3db741f891704388f8ced6ecc2d3aa58b0d7bacee978` |
+| P06 | `7bee3c13074a55a5b79b5e5bed0d82779ea94b1e2525987a771d5b630f3d50f1` |

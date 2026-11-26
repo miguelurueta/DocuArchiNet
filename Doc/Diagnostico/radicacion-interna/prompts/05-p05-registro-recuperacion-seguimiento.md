@@ -26,6 +26,7 @@ Registrar una sola vez, completar/reconciliar fases posteriores y entregar el se
 
 - Leer el contexto común y el código vigente; actuar solo en el alcance refinado. Las funciones N son propuestas y las M existen en el código; no confundir sus estados ni inventar su implementación.
 - Mantener WebForms/VB.NET/.NET Framework 4.6.1, plantillas dinámicas y contratos de Producción, clásica, Simplificada y Workflow. No modificar el OpenSpec DOC-127 ni su trabajo concurrente.
+- D-RI-06: tratar la radicación y sus contratos compartidos como núcleo crítico. Caracterizar el comportamiento antes de modificarlo, justificar cada adaptación/extracción indispensable y conservar numeración, transacciones y consumidores. Un servicio o control nuevo no aísla las clases/tablas comunes ni acredita ausencia de regresiones; no reescribir el motor como parte del cambio visual.
 - Límite D-RI-03 confirmado: este módulo radica y crea/entrega el seguimiento; elaboración, envío, confirmación y cierre de respuestas pertenecen al módulo existente. No trasladar esas funciones a esta pantalla ni rediseñar sus políticas.
 - Actor/empresa/permisos provienen de autoridad autenticada. El remitente no sustituye al ejecutor ni al responsable; IDs visibles, campos ocultos, rutas y nombres de tabla del cliente no son autoridad.
 - No repetir una escritura incierta ni anunciar éxito global por HTTP 200/YES. Mantener revisión, correlación, resultado durable y compatibilidad con los efectos ya confirmados.
@@ -55,11 +56,11 @@ Crear solo los componentes que correspondan a las subfases de este prompt; no im
 
 ### Subfase RI07
 
-1. **RI07.1.** Separar adaptación WebForms, validación y datos de una orden tipada. Revalidar autoridad, remitente, destino, plantilla/configuración y manifiesto exacto inmediatamente antes de la mutación. Preparar revisión no concede permiso permanente.
+1. **RI07.1.** Ejecutar antes de modificar el núcleo las pruebas de caracterización previstas en P01 sobre el contrato vigente y sus consumidores afectados, con datos/infraestructura autorizados según corresponda. Registrar comportamiento y límites; no sustituirlos por un test de texto ni por la firma intacta. Separar adaptación WebForms, validación y datos de una orden tipada mediante el cambio mínimo justificado; no asumir que un wrapper resuelve dependencias de controles/sesión o de documentos previos. Revalidar autoridad, remitente, destino, plantilla/configuración y manifiesto exacto inmediatamente antes de la mutación. Preparar revisión no concede permiso permanente.
 
 2. **RI07.2.** Implementar ConfirmarOperacion y reclamación durable por operación/clave/revisión. Igual confirmación devuelve el resultado conocido; clave con payload/versión distintos produce conflicto. Dos peticiones concurrentes no ejecutan el núcleo dos veces.
 
-3. **RI07.3.** Extraer RegistrarNucleo con una unidad de trabajo explícita. Mantener SELECT FOR UPDATE, actualización de consecutivo general o de plantilla y formatos corto/simple/código de barras; no reservar el consecutivo fuera de la transacción.
+3. **RI07.3.** Definir una unidad de trabajo explícita y extraer hacia `RegistrarNucleo` solo lo indispensable para la orden tipada, la asociación durable y la recuperación. Justificar por función el requisito, alternativas, consumidores y evidencia previa/posterior; conservar las reglas existentes sin clonar o reescribir el monolito. Mantener SELECT FOR UPDATE, actualización de consecutivo general o de plantilla y formatos corto/simple/código de barras; no reservar el consecutivo fuera de la transacción. No declarar que la extracción es segura por residir detrás de otro ASMX ni atribuir atomicidad a conexiones que no comparten transacción.
 
 4. **RI07.4.** Insertar datos de plantilla, relaciones documentales de la alternativa elegida, registro general, solicitud de respuesta y auditoría con actor/propietario correctos. Crear seguimiento solo según reglas canónicas de RI03 y sin doble solicitud para la operación.
 
@@ -109,6 +110,7 @@ Relacionar cada tarea con las funciones/rutas de este paquete y con su caso de p
 - Se conservan todos los formatos y ámbitos de consecutivo frente a consumidores anteriores.
 - Rollback anterior al commit no se confunde con un registro confirmado.
 - Respuesta perdida alrededor del commit se resuelve consultando la asociación durable, sin otro consecutivo.
+- Cada modificación compartida tiene necesidad y alcance mínimo documentados, caracterización previa y comparación posterior; los consumidores vigentes conservan sus invariantes y no se reescribió el motor por el cambio visual.
 - Cambios y evidencia corresponden al alcance, con consumidor/versiones trazables; no hay una dependencia pendiente presentada como implementada.
 
 ### Subfase RI08
@@ -133,7 +135,7 @@ No declarar completado este prompt si una subfase requerida conserva decisiones 
 
 ### Subfase RI07
 
-Pruebas transaccionales con DB local descartable y fallos justo antes/después de commit, concurrencia y configuración de consecutivos. Probar reutilización del resultado, payload en conflicto y atomicidad de relación de operación. Integración autorizada con SELECT por referencia de operación; verificar documentos, registro y obligación únicos.
+Ejecutar la caracterización anterior al cambio y repetirla después sobre los consumidores afectados, comparando datos, numeración, permisos, documentos y seguimiento. Pruebas transaccionales con DB local descartable y fallos justo antes/después de commit, concurrencia y configuración de consecutivos. Probar reutilización del resultado, payload en conflicto y atomicidad de relación de operación. Incluir el recorrido vigente de Producción y los otros consumidores realmente afectados por la extracción, no solo la entrada nueva. Integración autorizada con SELECT por referencia de operación; verificar documentos, registro y obligación únicos. Si falta evidencia o autoridad de ambiente, registrar el límite y no declarar segura/aceptada la integración.
 
 ### Subfase RI08
 

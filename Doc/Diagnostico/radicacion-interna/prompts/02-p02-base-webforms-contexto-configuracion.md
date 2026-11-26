@@ -26,6 +26,7 @@ Estabilizar la página existente, crear el contexto/operación autorizados y res
 
 - Leer el contexto común y el código vigente; actuar solo en el alcance refinado. Las funciones N son propuestas y las M existen en el código; no confundir sus estados ni inventar su implementación.
 - Mantener WebForms/VB.NET/.NET Framework 4.6.1, plantillas dinámicas y contratos de Producción, clásica, Simplificada y Workflow. No modificar el OpenSpec DOC-127 ni su trabajo concurrente.
+- D-RI-06: tratar la radicación y sus contratos compartidos como núcleo crítico. Caracterizar el comportamiento antes de modificarlo, justificar cada adaptación/extracción indispensable y conservar numeración, transacciones y consumidores. Un servicio o control nuevo no aísla las clases/tablas comunes ni acredita ausencia de regresiones; no reescribir el motor como parte del cambio visual.
 - Límite D-RI-03 confirmado: este módulo radica y crea/entrega el seguimiento; elaboración, envío, confirmación y cierre de respuestas pertenecen al módulo existente. No trasladar esas funciones a esta pantalla ni rediseñar sus políticas.
 - Actor/empresa/permisos provienen de autoridad autenticada. El remitente no sustituye al ejecutor ni al responsable; IDs visibles, campos ocultos, rutas y nombres de tabla del cliente no son autoridad.
 - No repetir una escritura incierta ni anunciar éxito global por HTTP 200/YES. Mantener revisión, correlación, resultado durable y compatibilidad con los efectos ya confirmados.
@@ -81,7 +82,7 @@ Relacionar cada tarea con las funciones/rutas de este paquete y con su caso de p
 
 5. **RI02.5.** Implementar cancelación únicamente de borradores no registrados y política de caducidad acordada. Mantener referencias a efectos persistidos; ni cancelar ni cambiar origen puede borrar documentos incorporados.
 
-6. **RI02.6.** Exponer los transportes mínimos de apertura/consulta/actualización y proteger petición/sesión según el patrón compatible del repo. Publicar referencias opacas y datos visibles; no SQL, rutas físicas, sesión completa ni excepciones crudas.
+6. **RI02.6.** Exponer los transportes mínimos de apertura/consulta/actualización y proteger petición/sesión según el patrón compatible del repo. Mantener rutas, firmas, formatos y significado de los métodos del `WebServiceRadicacion.asmx` compartido y la configuración de sus otros consumidores. La frontera interna nueva no permite cambiar buscadores generales para mezclar terceros con usuarios internos ni aislar por sí sola clases/tablas. Publicar referencias opacas y datos visibles; no SQL, rutas físicas, sesión completa ni excepciones crudas. Justificar y caracterizar previamente cualquier modificación compartida indispensable según D-RI-06.
 
 Relacionar cada tarea con las funciones/rutas de este paquete y con su caso de prueba en el resultado de ejecución. Si al contrastar el código una extracción exige más de una entrega revisable, descomponerla antes de editar; conservar la trazabilidad RQ-RI-01, RQ-RI-02, RQ-RI-07, RQ-RI-09.
 
