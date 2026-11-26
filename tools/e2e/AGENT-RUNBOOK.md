@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC127: revisión de cierre, sin nueva E2E — 2026-11-26
+
+[Revisión integral](../../Doc/Actualizacion/Importacion/Validacion/doc127-revision-integral-20261126.md) realizada sobre `f6d3ba2e37ee298afcf972eff11ae6afaeab58c5`:31/33 tareas;2.4 y7.5 abiertas.7 SELECT confirmaron proveedor1/v1 revisión4, política CONEXION y la proyección de SQL29;STATISTICS no devolvió índices para EGRESOS. No se ejecutó EXPLAIN, se modificó base ni se repitieron cargas. Las ventanas18 de capacidad,6 rechazos y2 asistentes conservan sus evidencias y consumo. La revisión no aprueba cierre: faltan el plan manual y la declaración de QA actual, además de los gates del SHA final. No activar confirmación de revisión o manual_qa para fabricar aprobación.
+
 ## DOC127: asistente XLS/XLSX real PASS — 2026-11-26
 
 Lote `c659ec0b64d94681bccaaa8e6e75e4d0` consumido:2/2 E2E PASS, cuenta194/empresa2/DA11/RA12/ref6. Plantillas76/77 r1, dos tablas y2000 filas nuevas, cuatro campos; cero borrados o cambios de permisos.38/39 tablas protegidas, configuración previa,78 perfiles y41 cargas conservadas; segunda corrida conserva la primera alta. Consola cerrada naturalmente y captura completa.5.2 y7.1 completadas:31/33 tareas, matriz por formato/modo y cierre del hallazgo form1 con fuentes y cobertura clasificadas. [Resultado](../../Doc/Actualizacion/Importacion/Validacion/doc127-asistente-real-20261126.md) y [hallazgos](../../Doc/Actualizacion/Importacion/Validacion/doc127-hallazgos-cierre-20261126.md). Quedan EXPLAIN manual2.4 y gates/QA7.5. No reutilizar archivos, IDs o marcadores ni iniciar más cargas por esta autorización; conservar las dos altas. Los apartados siguientes son históricos.

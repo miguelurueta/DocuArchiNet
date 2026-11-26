@@ -370,13 +370,20 @@
       "requirement": "RQ-10",
       "caseName": "Consumidor por clave y regresion",
       "testReference": "harness DOC110;19 tests SII;29-explain-proveedor-doc127.sql",
-      "state": "LOCAL_PASS_EXPLAIN_PENDIENTE",
+      "state": "QUERY_CONTRACT_AND_REGRESSION_PASS_MANUAL_EXPLAIN_PENDING",
       "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
-      "limitation": "Plan manual no aportado; importar tabla no publica proveedor/fuente.",
+      "limitation": "Plan manual no aportado. El SELECT actual de STATISTICS no devuelve índices; no se certifica rendimiento ni se afirma un plan del optimizador. Cobertura de consumidores conserva sus niveles previos.",
       "evidenceIds": [
         "LOCAL"
       ],
-      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf",
+      "latestMetadataReview": {
+        "recordedUtc": "2026-11-26T20:27:33.9672683Z",
+        "providerRevision": 4,
+        "observedIndexRows": 0,
+        "explainExecuted": false,
+        "queryMatchesSql29": true
+      }
     },
     {
       "requirement": "RQ-11",
@@ -2225,7 +2232,7 @@
         "2.4"
       ],
       "impact": "Rendimiento de lectura por clave sin plan verificable.",
-      "action": "El usuario ejecuta manualmente Sql/29-explain-proveedor-doc127.sql en el destino indicado y aporta key/possible_keys/type/rows/Extra y metadatos; revisar sin ejecutar EXPLAIN desde el agente."
+      "action": "SQL29 coincide con proveedor1/v1 revisión4 y política CONEXION actuales. El operador ejecuta sus dos SELECT y EXPLAIN y aporta key/possible_keys/type/rows/Extra; revisar los cero índices observados sin crear uno automáticamente."
     },
     {
       "id": "B-04",
@@ -2233,7 +2240,7 @@
         "7.5"
       ],
       "impact": "Faltan tareas y aceptacion; no procede archivo ni cierre Jira.",
-      "action": "Mantener el cambio activo. Evaluar gates sobre HEAD registrado despues de resolver dependencias; los controles documentales no sustituyen aceptacion real."
+      "action": "Revisión integral realizada y documentada, sin aprobación de cierre por dos pendientes. Obtener la QA manual actual, revisar el plan2.4 y reevaluar las compuertas sobre el SHA final; no sustituirlo con banderas de entorno."
     }
   ],
   "acceptanceApproved": false,
@@ -2554,5 +2561,16 @@
       "7.5"
     ],
     "manualQaApproved": false
+  },
+  "latestTechnicalVerification": {
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-revision-integral-20261126.json",
+    "status": "REVIEW_COMPLETED_CLOSURE_NOT_APPROVED",
+    "evaluationCommit": "f6d3ba2e37ee298afcf972eff11ae6afaeab58c5",
+    "criticalIssues": 2,
+    "warnings": 2,
+    "requirements": 14,
+    "scenarios": 42,
+    "tasks": "31/33",
+    "closureApproved": false
   }
 }
