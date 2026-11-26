@@ -17,7 +17,7 @@ El mapa contiene **31 puntos de intervención existentes (M01–M31)** y **13 re
 | Documentos | Agregar recepción temporal propia, manifiesto versionado e incorporación definitiva compatible con la clasificación elegida. Los handlers de adjuntos posteriores al radicado conservan sus contratos. |
 | Registro | Extraer el núcleo de `Registra_Radicacion_entrante_interna`, conservar consecutivos/transacción y enlazar de forma durable la operación con su radicado. |
 | Recuperación | Agregar consulta y finalización de fases pendientes. Un fallo posterior al `Commit` no debe volver a registrar el radicado. |
-| Respuesta | Reutilizar obligación, bandeja y Workflow con propietario correcto; completar confirmación/respuesta formal y homologación elegida. |
+| Seguimiento de respuesta | Crear la obligación con modalidad, plazo y responsable correctos y entregarla al módulo existente. Elaboración, envío y cierre de respuestas quedan en ese módulo. |
 | Interfaz | Integrar carga real, catálogos, plantillas, resumen, estados, salidas y recorridos condicionados comprobados. |
 | Publicación | Incluir archivos en el proyecto, migración/configuración y evidencia integrada del recorrido operativo. |
 
@@ -34,11 +34,11 @@ El mapa contiene **31 puntos de intervención existentes (M01–M31)** y **13 re
 | RI06 | [Incorporación documental](07-ri06-incorporacion-documental.md) | RI02, RI03, RI05 | Referencias definitivas y recuperación sin duplicar documentos. |
 | RI07 | [Registro transaccional](08-ri07-registro-transaccional-idempotente.md) | RI02, RI03, RI04, RI06 | Único radicado/seguimiento por confirmación, con correlación durable. |
 | RI08 | [Finalización y recuperación](09-ri08-finalizacion-recuperacion-salidas.md) | RI06, RI07; contratos RI03/RI04 | Workflow, notificación, salidas y pendientes recuperables. |
-| RI09 | [Seguimiento, respuesta y Workflow](10-ri09-seguimiento-respuesta-workflow.md) | RI03, RI04, RI07, RI08 | Obligación gestionable hasta el resultado acordado. |
+| RI09 | [Entrega del seguimiento](10-ri09-seguimiento-respuesta-workflow.md) | RI03, RI04, RI07, RI08 | Obligación disponible y legible por el módulo existente de respuestas. |
 | RI10 | [Interfaz y accesos reales](11-ri10-interfaz-accesos-integracion.md) | Contratos implementados RI01–RI09 | Recorrido completo desde ambos accesos con UI compacta. |
 | RI11 | [Aceptación y publicación](12-ri11-aceptacion-operativa-publicacion.md) | Entregas anteriores verificadas | Evidencia integral, artefacto publicable y recuperación/reversión. |
 
-Los paquetes son unidades de alcance, no estimaciones de una jornada ni tareas necesariamente de un solo commit. RI04 y RI05 tienen requisitos independientes una vez listos RI02/RI03; mantener contratos compatibles. Puede avanzarse en composición de interfaz antes de terminar el backend, pero RI10 no se acepta con servicios simulados. RI07 crea la obligación dentro del núcleo; RI09 completa su consulta/gestión y no la vuelve a insertar.
+Los paquetes son unidades de alcance, no estimaciones de una jornada ni tareas necesariamente de un solo commit. RI04 y RI05 tienen requisitos independientes una vez listos RI02/RI03; mantener contratos compatibles. Puede avanzarse en composición de interfaz antes de terminar el backend, pero RI10 no se acepta con servicios simulados. RI07 crea la obligación dentro del núcleo; RI09 comprueba su entrega/consulta en el módulo existente y no la vuelve a insertar ni implementa la respuesta.
 
 ```mermaid
 flowchart LR
@@ -68,7 +68,7 @@ Al abrir cada paquete:
 4. Implementar el alcance acordado y verificarlo. La autorización del trabajo local no sustituye la autorización expresa de ambiente/cuentas para E2E ni de despliegue.
 5. Registrar durante la ejecución `implementacion/RIxx-resultado.md`: funciones modificadas/agregadas, pruebas reales, decisiones, configuración, pendientes y siguiente consumidor. Estos resultados todavía no existen por generar los prompts.
 
-La decisión transversal más importante es G01: expediente previo con incorporación compatible, o almacenamiento independiente y clasificación posterior. Ambas son posibles líneas de diseño; la segunda requiere implementar relaciones/almacenamiento propios. Los IDs cero no resuelven esa alternativa. Las demás decisiones se cierran por paquete: catálogo/permisos de terceros, límites y folios, conservación del borrador, respuesta formal y política de Workflow.
+La decisión transversal más importante es G01: expediente previo con incorporación compatible, o almacenamiento independiente y clasificación posterior. Ambas son posibles líneas de diseño; la segunda requiere implementar relaciones/almacenamiento propios. Los IDs cero no resuelven esa alternativa. Las demás decisiones se cierran por paquete: catálogo/permisos de terceros, límites y folios, conservación del borrador y datos del seguimiento. D-RI-03 fija que la gestión de respuestas y sus políticas permanecen en el módulo existente.
 
 ## Matriz mínima de aceptación
 
@@ -81,7 +81,7 @@ La decisión transversal más importante es G01: expediente previo con incorpora
 | Recepción | Principal/anexos, duplicado, truncado, retiro/sustitución, límites, cancelación y dos pestañas. Comprobar contenido y recepción del servidor. |
 | Confirmación | Doble clic, concurrencia, cambio de revisión, pérdida de respuesta alrededor del commit; un solo radicado, documentos y obligación para el mismo intento. |
 | Finalización | Fallos documentales, Workflow y correo; consulta/reconciliación tras reiniciar IIS; conservar efectos reconocidos. |
-| Respuesta | Sin seguimiento, confirmación y respuesta formal; propietario, bandeja, reasignación y transiciones con sus políticas específicas. |
+| Seguimiento | Sin seguimiento no crea obligación; con modalidad de confirmación o respuesta formal crea una sola obligación con propietario/plazo correctos y lectura desde la bandeja existente. No exige responder ni cerrar el trámite aquí. |
 | Salidas y capacidades condicionadas | Descarga/impresión, auxiliar/diagrama y copia/relacionados/expediente/catálogos si están conectados y habilitados. Documentar inactividad comprobada; no activar nuevas altas incidentalmente. |
 | Consumidores | Producción, adjuntos clásicos/Simplificados y Workflow moderno conservan contratos/permisos. |
 | Operación | Build y publicación, esquema/configuración aplicados según plan autorizado, acceso, artefactos y recuperación comprobados. |
@@ -96,4 +96,4 @@ Son pruebas focales y de contrato; no acreditan la nueva transacción ni el cicl
 
 ## Condición de cierre
 
-La secuencia operativa es acceso autorizado → operación propia → recepción o referencias válidas → datos/identidades/destino → incorporación → único registro y obligación → Workflow/salidas → respuesta cuando corresponda → recuperación de pendientes. Una maqueta, un revisor de prompts o un build satisfactorio no acredita esta cadena. RI11 distingue implementación comprobada de aceptación pendiente y disponibilidad real.
+La secuencia operativa es acceso autorizado → operación propia → recepción o referencias válidas → datos/identidades/destino → incorporación → único registro y obligación → Workflow/salidas → seguimiento disponible en el módulo existente → recuperación de pendientes de radicación. Una maqueta, un revisor de prompts o un build satisfactorio no acredita esta cadena. RI11 distingue implementación comprobada de aceptación pendiente y disponibilidad real. La elaboración y cierre de respuestas no forman parte de este alcance.

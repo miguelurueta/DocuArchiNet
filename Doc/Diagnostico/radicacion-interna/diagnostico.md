@@ -9,7 +9,7 @@ La radicación interna puede mejorar sustancialmente su claridad, pero necesita 
 | Referencia | Valor |
 |---|---|
 | Fecha | 2026-11-25 |
-| Versión | 0.9 |
+| Versión | 0.10 |
 | Base local | Commit `0c7beb83` |
 | Grabación | `Grabación 2026-11-25 113145-radicacion-interna-revisa.mp4` |
 | Duración | 78,80 segundos |
@@ -283,7 +283,7 @@ La definición pendiente principal es si se debe elegir expediente antes de conf
 
 ## Trámites que requieren respuesta
 
-La radicación interna ya incluye creación de seguimiento cuando el trámite requiere respuesta. Su habilitación completa necesita comprobar catálogo, modalidad de confirmación/respuesta formal, vencimiento, propietario y recorrido de cierre. Se identificó una lectura de modalidad que consulta la columna de activación del seguimiento, filtros internos/clásicos excluyentes y una respuesta formal que genera radicado saliente.
+La radicación interna ya incluye creación de seguimiento cuando el trámite requiere respuesta. Su habilitación necesita comprobar catálogo, modalidad de confirmación/respuesta formal, vencimiento, propietario y entrega al módulo existente de respuestas. Se identificó una lectura de modalidad que consulta la columna de activación del seguimiento, filtros internos/clásicos excluyentes y un consumidor de respuesta formal que genera radicado saliente. D-RI-03, confirmada por el usuario el 2026-11-26, fija que este módulo no elabora, envía, confirma ni cierra respuestas; esas operaciones permanecen en el módulo existente.
 
 La evidencia y las condiciones de activación están en [Exploración de trámites con respuesta](exploracion-tramites-con-respuesta.md). La [maqueta](maqueta.html) permite revisar las tres variaciones; la configuración y el código de aplicación siguen sin cambios.
 
@@ -346,4 +346,4 @@ El módulo tiene dependencias más amplias que una mejora visual aislada. Un pre
 
 La [guía de ejecución](prompts/00-guia-ejecucion.md) organiza 12 paquetes de refinamiento, estabilización, contexto, configuración, remitentes, recepción, incorporación, registro, recuperación, respuesta, interfaz y aceptación. El [mapa de funciones](mapa-funciones-implementacion.md), contrastado con la base `226d2000`, distingue 31 puntos de intervención existentes y 13 responsabilidades nuevas propuestas, con sus rutas y consumidores.
 
-Las decisiones se refinan al abrir el paquete correspondiente según el [contexto común](prompts/contexto-comun.md). Se conservan D-RI-01 y D-RI-02. La alternativa de expediente/clasificación, permisos/catálogos y política de respuesta no se consideran aprobadas por redactar estos prompts. La [revisión de la serie](prompts/revision-prompts.md) registra su validación estructural y funcional documental; no acredita implementación ni pruebas de ambiente.
+Las decisiones se refinan al abrir el paquete correspondiente según el [contexto común](prompts/contexto-comun.md). Se conservan D-RI-01 y D-RI-02, y se aplica D-RI-03: radicación y entrega del seguimiento, con gestión de respuestas en el módulo existente. La alternativa de expediente/clasificación, permisos/catálogos y detalles de entrega no se consideran aprobados por redactar estos prompts. La [revisión de la serie](prompts/revision-prompts.md) registra su validación estructural y funcional documental; no acredita implementación ni pruebas de ambiente.

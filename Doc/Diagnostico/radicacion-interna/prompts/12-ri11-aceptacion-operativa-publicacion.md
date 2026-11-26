@@ -20,6 +20,7 @@ Comprobar la cadena completa y preparar una entrega publicable con evidencia ver
 
 - Leer el contexto común y el código vigente; actuar solo en el alcance refinado. Las funciones N son propuestas y las M existen en el código; no confundir sus estados ni inventar su implementación.
 - Mantener WebForms/VB.NET/.NET Framework 4.6.1, plantillas dinámicas y contratos de Producción, clásica, Simplificada y Workflow. No modificar el OpenSpec DOC-127 ni su trabajo concurrente.
+- Límite D-RI-03 confirmado: este módulo radica y crea/entrega el seguimiento; elaboración, envío, confirmación y cierre de respuestas pertenecen al módulo existente. No trasladar esas funciones a esta pantalla ni rediseñar sus políticas.
 - Actor/empresa/permisos provienen de autoridad autenticada. El remitente no sustituye al ejecutor ni al responsable; IDs visibles, campos ocultos, rutas y nombres de tabla del cliente no son autoridad.
 - No repetir una escritura incierta ni anunciar éxito global por HTTP 200/YES. Mantener revisión, correlación, resultado durable y compatibilidad con los efectos ya confirmados.
 - No ejecutar E2E real ni carga ni mutaciones del ambiente sin autorización específica. No guardar secretos ni añadir activación por usuarios/grupos o `WorkflowCentroTrabajoModernActive`.
@@ -38,7 +39,7 @@ Antes de editar, inventariar archivos exactos, clases, funciones y firmas en el 
 
 2. **RI11.2.** Ejecutar compilación y publicación reproducibles con .NET Framework 4.6.1 y dependencias reales. Verificar que Compile/Content, handler/ASMX, scripts/CSS y migración/configuración estén en el artefacto; no depender de archivos que solo existen en desarrollo.
 
-3. **RI11.3.** Comprobar ambos accesos con principal/anexos, identidad propia/representada/tercero, distintas plantillas y tres modalidades. Confirmar persistencia documental, único radicado, obligación, propietario, Workflow, descarga/impresión y respuesta hasta el resultado acordado.
+3. **RI11.3.** Comprobar ambos accesos con principal/anexos, identidad propia/representada/tercero, distintas plantillas y tres modalidades. Confirmar persistencia documental, único radicado, obligación, propietario, Workflow y descarga/impresión; el alcance de respuesta termina en disponibilidad/lectura del seguimiento por el módulo existente, sin elaborar, enviar ni cerrar respuestas.
 
 4. **RI11.4.** Ejecutar escenarios de permiso retirado, expediente cerrado, sesión caducada, cambio de revisión, dos pestañas, carga truncada, respuesta perdida antes/después del commit, fallos de incorporación/Workflow/correo y recuperación tras reciclado. Registrar consultas de control por referencia de operación.
 

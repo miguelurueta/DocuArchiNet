@@ -2,7 +2,7 @@
 
 La serie de 12 prompts cubre el alcance explorado: Producción y carga directa, remitente interno/tercero, plantillas dinámicas, registro, seguimiento, recuperación e interfaz. Está preparada para refinar y ejecutar por paquetes. Las decisiones G01–G11 conservan su estado pendiente hasta registrarse el acuerdo correspondiente; la revisión no las aprueba ni acredita una implementación.
 
-Fecha: 2026-11-25. Base de aplicación revisada: `226d2000`. Perfil: `legacy-webforms-vb`. Consultar [guía](00-guia-ejecucion.md), [contexto](contexto-comun.md) y [mapa M/N](../mapa-funciones-implementacion.md).
+Fecha inicial: 2026-11-25. Alcance y revisión actualizados el 2026-11-26 por D-RI-03. Base de aplicación revisada: `226d2000`. Perfil: `legacy-webforms-vb`. Consultar [guía](00-guia-ejecucion.md), [contexto](contexto-comun.md) y [mapa M/N](../mapa-funciones-implementacion.md).
 
 ## Revisión estructural
 
@@ -36,11 +36,11 @@ El hallazgo informativo de todos los prompts es `MANUAL_REVIEW_RECOMMENDED`: el 
 | Controles dinámicos, tres opciones de plantilla y dependencias se reconstruyen durante postback. | RI01 estabiliza; RI03/RI10 conservan metadatos/IDs/tipos y exigen prueba WebForms real. |
 | Consecutivos y registro tienen una transacción; almacenamiento/Workflow/correo tienen efectos posteriores. | RI07 conserva `FOR UPDATE` y asocia operación/radicado; RI08 registra/reconcilia fases sin repetir el núcleo. |
 | Un timeout puede ocultar un efecto confirmado. | RI05/RI06/RI07/RI08 exigen evidencia durable, consulta y conflictos por revisión, sin repetir escrituras inciertas. |
-| La respuesta formal usa plantilla y homologación saliente; las transiciones de Workflow tienen contratos distintos. | RI09 refina G09–G11 y verifica cada modalidad/transición; no aplica bloqueo universal. |
+| El módulo existente de respuestas tiene plantilla/homologación y políticas propias. | D-RI-03 limita RI09 a entrega/lectura del seguimiento; se comprueba compatibilidad, sin implementar respuesta ni cambiar esas políticas. |
 | El markup contiene capacidades condicionadas y ramas que no prueban conectividad por sí mismas. | M30/M31 y RI00/RI10 exigen inventariar auxiliar, diagrama, copia, relaciones, expediente, catálogos y limpieza según su recorrido real. |
 | Una pantalla moderna puede quedar aislada del motor o del artefacto publicado. | RI10 integra ambos accesos y estados reales; RI11 comprueba proyecto, esquema/configuración, publicación y aceptación completa. |
 
-Se distinguen componentes nuevos propuestos de funciones existentes. El mapa organiza M01–M31 y N01–N13, y los paquetes siguen un orden sin dependencias circulares. RI07 crea la obligación; RI09 la gestiona. La separación evita asignar dos inserciones de seguimiento a paquetes distintos.
+Se distinguen componentes nuevos propuestos de funciones existentes. El mapa organiza M01–M31 y N01–N13, y los paquetes siguen un orden sin dependencias circulares. RI07 crea la obligación; RI09 comprueba su entrega al módulo existente de respuestas. La separación evita duplicar el seguimiento o incorporar elaboración, envío y cierre de respuestas a este módulo. M24/M26 quedan como consumidores de compatibilidad, no funciones a modificar.
 
 ## Trazabilidad de requisitos
 
@@ -51,7 +51,7 @@ Se distinguen componentes nuevos propuestos de funciones existentes. El mapa org
 | RQ-RI-03, identidades | RI04, RI07, RI09 | Remitente, ejecutor y propietario correctos. |
 | RQ-RI-04, plantillas | RI01, RI03, RI10 | Campos/valores/configuraciones y postbacks reales. |
 | RQ-RI-05, destino | RI01, RI03, RI10 | Ruta/actividad/grupo/usuario revalidados. |
-| RQ-RI-06, respuesta | RI03, RI07, RI09 | Obligación, modalidad, plazo, propietario y gestión. |
+| RQ-RI-06, seguimiento | RI03, RI07, RI09 | Obligación, modalidad, plazo, propietario y lectura por el consumidor existente. |
 | RQ-RI-07, repetición segura | RI02, RI05–RI08 | Sin duplicar ante concurrencia o respuesta perdida. |
 | RQ-RI-08, resultado parcial | RI07–RI10 | Registro confirmado distinguido de fases pendientes. |
 | RQ-RI-09, autoridad | RI02 y transportes de RI03–RI10 | Contexto/recurso en cada petición, consulta y recuperación. |
@@ -94,15 +94,15 @@ SHA-256 del texto UTF-8 con saltos LF. Si cambia un prompt, repetir la revisión
 
 | Prompt | SHA-256 |
 |---|---|
-| RI00 | `906704de77c84bb1d2c9f65a5c9c552d32a6776f63c975380cc0f22df93fae21` |
-| RI01 | `755610726bf0cc3ec235a46f7fc5cc6f0cbbcf0335be4bc5300a7ed08371ebd3` |
-| RI02 | `6e515b698177d4df167a98b69c202507543a452af78c4e08b1fedd65a31cc9eb` |
-| RI03 | `7cf256fa8c124234a3a0d67744af73a0762f48f1663806cadb180589d73fdb1a` |
-| RI04 | `a0ad213be3568c55dea774ec6d0a05c2991ea885021a34e0c56b2c2853c38c05` |
-| RI05 | `3ea458386f46696ac1863374163cbf99279e3ce10ae4074b1405c51d6ec005ed` |
-| RI06 | `7a3b54cdd1d4353ed1f6ff24c3fea25ec47dc05e5cac003549eaec5d56e84ca5` |
-| RI07 | `180f68e2fdbbc32202144b320319d8741332d2010c95ddd98b85fa69e73b1c0f` |
-| RI08 | `89015e9b2feacb652aea14db251c41128dfefdf21d59958a68f7600a34da567b` |
-| RI09 | `17ecfda51c7a2d76e8d63d4901b2878f6f36ecd04dba5c16e388b792baf52fda` |
-| RI10 | `62905dcead8cf640bd5c11c71de2220b22cb93f7991ca87faa771e629e2f24d8` |
-| RI11 | `f9f586d3d736393f3243cea525ed61e6499aa1a07417d6b1e9037af4a15c9236` |
+| RI00 | `9ab8ff42884bda7603ab7a07c7d71d006ebc6aadb9f26d57311581b1e06ab299` |
+| RI01 | `84461fc411d98178006ee729e4e0120c76a915e3734c1bd2bd56fd4651fa5c96` |
+| RI02 | `e9b6f2b5fe916cc5439c9e5606d96a632eb99197bde90a814a89501137e02106` |
+| RI03 | `9ab8018da97a79c5c4d2f53bb3f554b5a79f6d0752a5e51d90dec00ee6efeb4e` |
+| RI04 | `8898cc733293ce7472c674e8d24e36ba4d1bfaf3335513ac7218d8c43c5ec156` |
+| RI05 | `48f34ca6cde20975e6ef62959679a9927f587d76a55349f320e6e281dae7e643` |
+| RI06 | `b2f7fdc6398612931380f0f17a2cb5cf44f9a6d96502bd921e77d15d11c37dce` |
+| RI07 | `fc4e6d93151763b0d6cce2b39e5bc9916f3e3d5655b4a5a6c8cf9f7740d3da3d` |
+| RI08 | `c84787a74418a655a1b2bd7cffd2250c839c2ef86242a9b6e52eabe39867fbcd` |
+| RI09 | `c341a757b38db6c1af9eda49e80a66a6cba52bc542abc4d769690773c6872732` |
+| RI10 | `2ae9e59a439dd99936b85be948139a74a6a6f6b457e6e75948be7a4f2593c659` |
+| RI11 | `951b38e5ce8c62f589889f99a884af2851a599514bb481e36dd11d6b325145c8` |

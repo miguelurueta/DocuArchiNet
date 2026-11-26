@@ -1,5 +1,7 @@
 # Exploración de trámites con respuesta en radicación interna
 
+**Límite de implementación confirmado, D-RI-03, 2026-11-26:** este módulo radica y crea/entrega el seguimiento con modalidad, plazo y responsable. La elaboración, envío, confirmación y cierre de respuestas pertenecen al módulo existente de respuestas. El análisis del consumidor y su cierre que sigue aporta contexto de compatibilidad; no autoriza implementar esas operaciones en radicación interna ni cambiar sus políticas. Las propuestas anteriores se interpretan con este límite.
+
 La radicación interna puede utilizar trámites con respuesta. El registro actual ya consulta la configuración del trámite y crea seguimiento en `ra_respuesta_radicado` cuando corresponde. La activación completa depende del catálogo de la plantilla interna, la modalidad de respuesta, el plazo, la asignación y el recorrido de respuesta/cierre. No equivale a mostrar nuevos nombres en un combo.
 
 Hay dos puntos que requieren atención antes de ampliar su uso: una función de lectura de modalidad consulta la columna de activación del seguimiento, y los filtros de catálogo interno y clásico se excluyen entre sí. Además, la respuesta formal reutilizable genera una radicación saliente; debe confirmarse si ese es el resultado esperado para una solicitud interna.

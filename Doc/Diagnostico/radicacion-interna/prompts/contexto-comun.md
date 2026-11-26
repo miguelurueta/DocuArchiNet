@@ -8,6 +8,7 @@ Leer [diagnóstico](../diagnostico.md), [carga directa](../exploracion-carga-dir
 
 - D-RI-01 aprobada: usuario interno o tercero como remitente; el actor autenticado permanece como ejecutor y auditoría. El responsable Workflow es una identidad independiente.
 - D-RI-02 aprobada: formulario compacto de `23464d6b`. Las variaciones solicitadas posteriormente están en `maqueta.html`: terceros, carga directa y tres modalidades de respuesta. Sus datos, límites y asociaciones son ficticios; no son una configuración aprobada del ambiente.
+- D-RI-03 confirmada por el usuario el 2026-11-26: este módulo registra la radicación y crea/entrega el seguimiento cuando corresponde. La elaboración, envío, confirmación y cierre de respuestas pertenecen al módulo existente de respuestas. La aceptación de esta entrega termina en obligación disponible y legible por ese consumidor, sin trasladar su gestión a esta pantalla.
 - Se conserva ASP.NET WebForms, VB.NET, .NET Framework 4.6.1, MySQL y los contratos vigentes. No migrar a ASP.NET Core/React ni trasladar esta tarea a otros repositorios por conveniencia.
 - Esta serie no es DOC-127 ni la modernización del árbol. No alterar sus tareas, tickets o evidencia para alojar el nuevo trabajo.
 
@@ -38,13 +39,13 @@ Al recibir la instrucción de ejecutar un paquete, refinar sus decisiones y apli
 | G02 | Q-RI-01/02 | Catálogo de terceros, ámbito y tipos admitidos. | RI04, RI10 |
 | G03 | Q-RI-03, Q-CD-02 | Autoridad de representación, carga y radicación; acceso y plantillas permitidas. | RI02, RI04, RI05, RI10 |
 | G04 | Q-RI-04 | Solo terceros existentes o creación/edición en este recorrido. Propuesta inicial: seleccionar existentes. | RI04, RI10 |
-| G05 | Q-RI-05 | Datos del remitente en impresión, consultas y notificación; destinatario de la respuesta. | RI04, RI08, RI09 |
+| G05 | Q-RI-05 | Datos del remitente en impresión, consultas y notificación; referencias de identidad que se entregan al consumidor existente. | RI04, RI08, RI09 |
 | G06 | Q-CD-03 | Tipos, límites por archivo/total/cantidad, verificación de contenido y folios. Los valores de la maqueta no deciden esta política. | RI05, RI06, RI10 |
 | G07 | Q-CD-04 | Orígenes separados o mezcla en una operación. Propuesta inicial: separados. | RI02, RI05, RI06, RI10 |
 | G08 | Q-CD-05 | Conservación/reanudación del borrador, caducidad y recuperación. | RI02, RI05, RI08 |
-| G09 | Exploración de respuesta | Respuesta formal mediante radicado saliente existente u otra respuesta interna. | RI03, RI09, RI10 |
-| G10 | Exploración de respuesta | Trámites elegibles, homologación y configuración por plantilla, sin retirar los clásicos inadvertidamente. | RI03, RI09 |
-| G11 | Exploración de respuesta | Política de transferir/cerrar según operación y propietario; valor funcional de cero días y edición del plazo. | RI03, RI09, RI10 |
+| G09 | Exploración de respuesta; límite D-RI-03 | Identificar el consumidor vigente y su contrato de entrega. No es una decisión de construir aquí respuesta saliente o interna; configuración ausente/incompatible se registra como dependencia externa. | RI03, RI09, RI10 |
+| G10 | Exploración de respuesta | Trámites elegibles y configuración por plantilla para registrar la obligación, comprobando compatibilidad con el consumidor sin rediseñar su homologación ni retirar los clásicos. | RI03, RI09 |
+| G11 | Exploración de respuesta; límite D-RI-03 | Valor funcional de cero días y edición del plazo al radicar. Las políticas existentes de transferencia/cierre se conservan y solo se comprueba su compatibilidad. | RI03, RI09, RI10 |
 
 Cerrar estas decisiones al abrir el paquete que las consume; no exigirlas todas para empezar el refinamiento. G01 tiene dos alternativas completas: si se elige expediente previo, preparar temporales y materializar registros válidos al confirmar; si se admite clasificación posterior, adaptar relaciones/preparación/almacenamiento para no fabricar un ID de Producción. La segunda alternativa necesita su contrato específico en RI00 y su implementación en RI06/RI07: no se considera satisfecha pasando cero a la función antigua.
 
@@ -70,7 +71,7 @@ El código actual usa `SELECT ... FOR UPDATE` al reservar consecutivos. Preserva
 
 Desde Producción: selección explícita → apertura autorizada con referencias propias → formulario/plantilla → revisión → confirmación → resultado y actualización del padre.
 
-Desde carga directa: acceso autorizado → borrador → recepción real de principal/anexos → datos y clasificación acordada → revisión del manifiesto → incorporación controlada → registro común → seguimiento/Workflow/notificación → consulta y recuperación.
+Desde carga directa: acceso autorizado → borrador → recepción real de principal/anexos → datos y clasificación acordada → revisión del manifiesto → incorporación controlada → registro común → seguimiento/Workflow/notificación → consulta y recuperación. La obligación se entrega al módulo existente de respuestas; el recorrido de este módulo no incluye responderla.
 
 La nueva entrada usa el mismo comportamiento de aplicación. No requiere visitar Producción, aunque G01 puede conservar sus registros internos. Los datos locales de la maqueta y sus temporizadores no pasan a producción. El seguimiento pendiente no se presenta como una respuesta ya elaborada. Cerrar un modal después del commit no cancela el registro.
 

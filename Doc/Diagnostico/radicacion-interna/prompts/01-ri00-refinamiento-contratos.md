@@ -20,6 +20,7 @@ Concretar un contrato v1 verificable y las decisiones mínimas para implementar 
 
 - Leer el contexto común y el código vigente; actuar solo en el alcance refinado. Las funciones N son propuestas y las M existen en el código; no confundir sus estados ni inventar su implementación.
 - Mantener WebForms/VB.NET/.NET Framework 4.6.1, plantillas dinámicas y contratos de Producción, clásica, Simplificada y Workflow. No modificar el OpenSpec DOC-127 ni su trabajo concurrente.
+- Límite D-RI-03 confirmado: este módulo radica y crea/entrega el seguimiento; elaboración, envío, confirmación y cierre de respuestas pertenecen al módulo existente. No trasladar esas funciones a esta pantalla ni rediseñar sus políticas.
 - Actor/empresa/permisos provienen de autoridad autenticada. El remitente no sustituye al ejecutor ni al responsable; IDs visibles, campos ocultos, rutas y nombres de tabla del cliente no son autoridad.
 - No repetir una escritura incierta ni anunciar éxito global por HTTP 200/YES. Mantener revisión, correlación, resultado durable y compatibilidad con los efectos ya confirmados.
 - No ejecutar E2E real ni carga ni mutaciones del ambiente sin autorización específica. No guardar secretos ni añadir activación por usuarios/grupos o `WorkflowCentroTrabajoModernActive`.
@@ -44,7 +45,7 @@ Antes de editar, inventariar archivos exactos, clases, funciones y firmas en el 
 
 4. **RI00.4.** Trazar el núcleo actual: select FOR UPDATE, todos los formatos de consecutivo, inserciones/actualizaciones, seguimiento, Commit y efectos posteriores. Determinar qué comparten conexión/transacción y cómo se consulta un efecto incierto sin repetirlo.
 
-5. **RI00.5.** Fijar matriz de permisos, plantilla/campos, catálogo de terceros, datos de impresión/correo, plazos, respuesta formal y políticas de Workflow; registrar lo pendiente por puerta/paquete. Identificar el acceso de menú independiente real y quién está autorizado. Inventariar M30/M31 con eventos/conectividad/visibilidad: auxiliar, diagrama, copia, relacionados, expediente, catálogos y limpieza; no inferir un recorrido operativo solo por markup ni activar CRUD/ramas salientes como efecto incidental.
+5. **RI00.5.** Fijar matriz de permisos, plantilla/campos, catálogo de terceros, datos de impresión/correo y plazos; registrar lo pendiente por puerta/paquete. El módulo registra la obligación y entrega el seguimiento al módulo existente de respuestas: no diseña elaboración, envío ni cierre de respuestas ni cambia políticas de transición. Identificar el acceso de menú independiente real y quién está autorizado. Inventariar M30/M31 con eventos/conectividad/visibilidad: auxiliar, diagrama, copia, relacionados, expediente, catálogos y limpieza; no inferir un recorrido operativo solo por markup ni activar CRUD/ramas salientes como efecto incidental.
 
 6. **RI00.6.** Concretar cada paquete en archivos existentes/nuevos y tareas revisables con una verificación primaria. Si una decisión cambia contrato de otro paquete, registrar su revisión y actualización antes de editar consumidores.
 
