@@ -1,6 +1,8 @@
 <!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14 -->
 # Tareas DOC-127
 
+Siguiente ventana preparada para parte de5.1: `Doc/Actualizacion/Importacion/Validacion/doc127-ventana-autoridad-20261126.md/json`, ID `b0bd002d3ee84dc38d2bc883fb9c1739`. Seis rechazos reales aún NO_EJECUTADOS, cuentas194/196, selección6/60, referencia ajena1/1 y carga de fixture del usuario141 verificadas por SELECT. Cero importaciones/guardados/cambios de permisos;38 tablas,78 perfiles y41 resultados protegidos. Consola, scopes, guardas previas al login y SELECT antes/después listos. Requiere autorización propia; avance28/33 y todas las cinco casillas pendientes se conservan.
+
 Plan de aceptación posterior al refinamiento: cada tarea se marca al reunir su evidencia y declarar su alcance. No se vuelven a implementar las fases DOC121–126. Cada resultado puede reutilizar evidencia compatible. Corte actual: 28/33 verificadas; lectura real DOC127 PASS, aceptación integral adicional y cierre siguen abiertos. Perfil legacy-webforms-vb.
 
 Complejidad relativa S/M; no es una estimación de horas. Dependencias: sección1 antes de clasificar aceptación; SQL/capacidad física esperan confirmación y autorización de sus ventanas. Las secciones locales y de documentación pueden avanzar sin autenticar. Una tarea dependiente conserva su estado abierto mientras falte evidencia, aunque su guía/archivo ya esté entregado.

@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC127: ventana de autoridad preparada — 2026-11-26
+
+Estado PREPARED_NOT_AUTHORIZED. Ventana `b0bd002d3ee84dc38d2bc883fb9c1739`: seis rechazos CSRF/referencias/resultados y lectura UI, cuentas194/196, IIS local HTTPS/GESTOR empresa2/DA11/RA12, conexión6/plantilla60. Referencia ajena1/plantilla1 y carga histórica de prueba del usuario141 verificadas por SELECT; no autenticar141. Cero cargas, guardados, DML, DDL o cambios de permisos.38 tablas protegidas,78 perfiles y41 cargas fijadas. Scope, consola privada, control SELECT antes/después y consumo único listos; las guardas pendientes rechazan antes del login. Una ejecución sin reintentos,15min de test y30min máximos desde autorización. No lanzar sin autorización expresa de este alcance; las ventanas anteriores están consumidas. [Propuesta revisable](../../Doc/Actualizacion/Importacion/Validacion/doc127-ventana-autoridad-20261126.md) y JSON. Avance28/33; no completar5.1 por preparación ni ampliar los efectos. Los apartados siguientes son históricos.
+
 ## DOC127: XLSX10000 real en tres modos PASS — 2026-11-26
 
 XLSX10000 real: 3/3 modos PASS, cuenta194/empresa2/DA11/RA12/ref6, plantillas58/59/68. AGREGAR 7002→17002; REEMPLAZAR 5000→10000; CREAR ausente→10000. Se insertaron30000 filas, se borraron5000 y se creó una tabla. Huellas de36/36/37 tablas protegidas, plantillas y perfiles conservadas;78 perfiles en el control final. Preparar/confirmar y memoria IIS compartida medidos. Consola y captura completas, sin cierre forzado. Se completa6.6:28/33 tareas y la matriz18/18 de capacidad. Los demás alcances siguen pendientes. Scopes consumidos; no repetir las cargas. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx10000-20261126.md/json`. Esta autorización está consumida; no amplía tamaños, formatos o casos. Los apartados siguientes son históricos.

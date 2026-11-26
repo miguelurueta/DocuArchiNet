@@ -2399,5 +2399,15 @@
       "REEMPLAZAR"
     ],
     "exclusiveMemoryAllocationClaimed": false
+  },
+  "nextPreparedWindow": {
+    "windowId": "b0bd002d3ee84dc38d2bc883fb9c1739",
+    "status": "PREPARED_NOT_AUTHORIZED",
+    "report": "Doc/Actualizacion/Importacion/Validacion/doc127-ventana-autoridad-20261126.md",
+    "scope": "six read authority rejections and UI read with accounts194/196",
+    "maxBusinessRows": 0,
+    "maxDeletedRows": 0,
+    "realE2EExecuted": false,
+    "completesTasks": []
   }
 }

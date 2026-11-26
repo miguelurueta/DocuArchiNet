@@ -1,5 +1,7 @@
 # DOC-127 — Informe de aceptación y capacidad con restricciones
 
+Siguiente ejecución preparada: [autoridad y lectura](doc127-ventana-autoridad-20261126.md), pendiente de autorización para cuentas194/196 en IIS local GESTOR. Seis rechazos y comprobaciones de lectura con cero cargas, guardados o cambios de permisos;38 tablas/78 perfiles/41 cargas protegidas. La preparación no es evidencia real adicional ni completa tareas. Avance vigente28/33 y capacidad18/18.
+
 Actualización 2026-11-26: **XLSX10000,3/3 modos reales PASS;28/33 tareas**. [Resultado y mediciones](doc127-capacidad-xlsx10000-20261126.md). Se completa6.6, además de6.1/6.2/6.3/6.4/6.5 ya acreditadas. Matriz de capacidad18/18 completa; los cortes27/33 y anteriores inferiores son históricos.
 
 

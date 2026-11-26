@@ -1,0 +1,241 @@
+{
+  "issue": "DOC-127",
+  "status": "PREPARED_NOT_AUTHORIZED",
+  "recordedUtc": "2026-11-26T17:06:06.822Z",
+  "windowId": "b0bd002d3ee84dc38d2bc883fb9c1739",
+  "preparedCommit": "b335375378b12c4924d1155bcbe777c5407f0413",
+  "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "module": "GESTOR",
+  "empresaId": 2,
+  "moduloId": 11,
+  "raModuloId": 12,
+  "usuarioId": 194,
+  "restrictedUsuarioId": 196,
+  "selection": {
+    "conexionId": 6,
+    "plantillaId": 60,
+    "tabla": "imp_02_doc126_e2e_asistente_c38a2522"
+  },
+  "foreignReference": {
+    "conexionId": 1,
+    "plantillaId": 1,
+    "sameTarget": 0
+  },
+  "foreignLoad": {
+    "id_carga": "36f39f62-c6d3-49cb-9d14-ebf61e7e2e02",
+    "usuario_ref": "141",
+    "ambito_ref": "2",
+    "conexion_ref": "DA:11:6",
+    "id_plantilla": 58,
+    "estado": "CONFIRMADA"
+  },
+  "missingLoadId": "22d8e924-1e79-4b92-b205-a0a77d5f5605",
+  "protectedTables": [
+    "imp_02__001_feriados",
+    "imp_02_activo_esal",
+    "imp_02_activo_rup",
+    "imp_02_ariendo",
+    "imp_02_codigos",
+    "imp_02_comision",
+    "imp_02_comisiones",
+    "imp_02_contratos",
+    "imp_02_creditos",
+    "imp_02_doc125_e2e_agregar",
+    "imp_02_doc125_e2e_crear",
+    "imp_02_doc125_e2e_reemplazar",
+    "imp_02_doc126_e2e_agregar",
+    "imp_02_doc126_e2e_asistente_c38a2522",
+    "imp_02_doc126_e2e_reemplazar",
+    "imp_02_doc127_e2e_agregar_xls",
+    "imp_02_doc127_e2e_crear_xls_1000",
+    "imp_02_doc127_e2e_crear_xls_10000",
+    "imp_02_doc127_e2e_crear_xls_5000",
+    "imp_02_doc127_e2e_crear_xlsx_1000",
+    "imp_02_doc127_e2e_crear_xlsx_10000",
+    "imp_02_doc127_e2e_crear_xlsx_5000",
+    "imp_02_doc127_e2e_reemplazar_xls",
+    "imp_02_egresos",
+    "imp_02_facturas",
+    "imp_02_hoja1",
+    "imp_02_librosccv",
+    "imp_02_mercantil_activos",
+    "imp_02_migra_sii_fecha",
+    "imp_02_nomina",
+    "imp_02_nominagy",
+    "imp_02_ordenes_2025",
+    "imp_02_rup_activos",
+    "imp_02_terceros",
+    "imp_02_terceros2",
+    "imp_02_terceros3",
+    "imp_02_tercerosimec",
+    "imp_02_total"
+  ],
+  "preparedSnapshots": {
+    "profiles": {
+      "rows": 78,
+      "sha256": "bd5953665dfc848bef3f2064c82e3b575a83f20ef646c4952521d129ca8e7447"
+    },
+    "loads": {
+      "rows": 41,
+      "sha256": "15886db853d521382483f5acac42d2152b63295ccf7fb9cb81ea5fbeb7c508a3"
+    },
+    "templates": {
+      "rows": 38,
+      "sha256": "5310b956badb055a7dda630f5d7750a3c62daa470735e40ff9bf1bf2b6c322cf"
+    },
+    "fields": {
+      "rows": 134,
+      "sha256": "548c70738cd220cc6a5bd41a9733563e72bb681992f43d6a8b473b7d373b6d90"
+    },
+    "tables": {
+      "rows": 38,
+      "sha256": "6fc9f293cdb08961a9ea374393afdb25b665d4a5901a48dcfffb4ba0cd09f276"
+    }
+  },
+  "scopeSha256": "adab020d92df1ad180e5a2f183a7f7af356e669da7a9e920ac40597b57d9b2ac",
+  "manifestSha256": "7d8c669d4e2ef3d7b1688d233803d4f00f51f4bcd50508af1f848042021bbc49",
+  "runtimeAndScriptHashes": {
+    "bin/GestionDocumental-Docuarchi.net.dll": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+    "Gestion/WebFormProducionDocumental.aspx": "d7975d92a77a1390b23287514f1c0d8ad91dcca398fcc590f5ab02d929567696",
+    "Web.config": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+    "js/gestion/ImportacionExcel/ImportacionExcelApi.js": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+    "js/gestion/ImportacionExcel/ImportacionExcelVista.js": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+    "Styles/ImportacionExcel.css": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+    "tools/e2e/tests/support/doc126-excel-scope.cjs": "ee0118f810efbf9f8d3c5eab514b2b512d77151d7e4bdaf9ed01d48a8c9c0776",
+    "tools/e2e/tests/support/doc125-excel-scope.cjs": "1edcb7d37c0de6e7bc281d4e8a9b0d8666d00412e2a1c01ef6c3d96915d78375",
+    "tools/e2e/tests/importacion-excel.spec.cjs": "e8b2463c9d25466cb1cecb1a7f4a6932097b1ad178ae337b6fb78d35689591ce",
+    "tools/e2e/scripts/run-doc110-profile-session.cjs": "495f43abffdbc5024c9271b569a6edf6ff3567dec714971ef47f9b754712b4b7",
+    "tools/e2e/scripts/support/doc32-e2e-odbc.cjs": "10523bcc1608c94fb816d8be09b352ec570be8cda23cd969d473c8e5bc608ccf",
+    ".tmp/doc126-functional-preparacion/profile-selected.json": "2e63e8cfe96d3518eb48aa415f9e2f1fa75eb01ac6079124efb961e07873f425",
+    ".tmp/doc127-authority-guard.cjs": "dcdc4242aaba2c78135c5f7928a6f7ef069f93917b1dab0245adde81f9089012",
+    ".tmp/doc127-authority-session.ps1": "356b22ab8a254182d2c9e83fafccc4dba029ec625c45aa02d1db62b5ba3e5162",
+    ".tmp/doc127-authority-run.cjs": "cab0ba5f9df5f882b4d9793b9debb76346af131c2983c0c81bbcd7a4f51d1624",
+    ".tmp/doc127-authority-snapshots.ps1": "0e8263fe33b1dfd392796f7a5b670c3a92665d390d8032a9d6cff22b6a30292a",
+    ".tmp/doc127-authority-ventana/preflight-input.json": "137bf761b95d32d05851aa3aaa2b8d4cc41bdaacf8346091a644cb1cd7c31ad6",
+    ".tmp/doc127-authority-ventana/prepared-snapshots.json": "29bc952157862374a29107854bc0e6592fbf217eacc0df351efdc25b45f5761d"
+  },
+  "budget": {
+    "maxWindowMs": 1800000,
+    "testTimeoutMs": 900000,
+    "maxExecutions": 1,
+    "retries": 0
+  },
+  "effects": {
+    "imports": 0,
+    "receipts": 0,
+    "preparations": 0,
+    "confirmations": 0,
+    "insertedRows": 0,
+    "deletedRows": 0,
+    "tableCreates": 0,
+    "templateWrites": 0,
+    "permissionChanges": 0,
+    "controlSqlWrites": 0
+  },
+  "cases": [
+    {
+      "key": "CSRF_AUSENTE",
+      "operation": "ConsultarPlantilla",
+      "expectedCode": "SOLICITUD_NO_VERIFICADA",
+      "expectedOk": false,
+      "expectedData": null,
+      "status": "NOT_EXECUTED"
+    },
+    {
+      "key": "CSRF_INVALIDO",
+      "operation": "ConsultarPlantilla",
+      "expectedCode": "SOLICITUD_NO_VERIFICADA",
+      "expectedOk": false,
+      "expectedData": null,
+      "status": "NOT_EXECUTED"
+    },
+    {
+      "key": "CONEXION_AJENA",
+      "operation": "ListarPlantillas",
+      "expectedCode": "ACCESO_DENEGADO",
+      "expectedOk": false,
+      "expectedData": null,
+      "status": "NOT_EXECUTED"
+    },
+    {
+      "key": "PLANTILLA_AJENA",
+      "operation": "ConsultarPlantilla",
+      "expectedCode": "NO_ENCONTRADO",
+      "expectedOk": false,
+      "expectedData": null,
+      "status": "NOT_EXECUTED"
+    },
+    {
+      "key": "CARGA_AJENA",
+      "operation": "ConsultarResultado",
+      "expectedCode": "RESULTADO_INCIERTO",
+      "expectedOk": false,
+      "expectedData": null,
+      "status": "NOT_EXECUTED"
+    },
+    {
+      "key": "CARGA_INEXISTENTE",
+      "operation": "ConsultarResultado",
+      "expectedCode": "RESULTADO_INCIERTO",
+      "expectedOk": false,
+      "expectedData": null,
+      "status": "NOT_EXECUTED"
+    }
+  ],
+  "positiveChecks": [
+    "restricted account menu/service denial",
+    "authorized account list/detail/search/Escape",
+    "valid template query after six rejections",
+    "real form1 isolation before/after",
+    "HTTP asset hashes",
+    "full protected-table fingerprints and configuration unchanged",
+    "profile and load-result fingerprints unchanged"
+  ],
+  "preflight": {
+    "resourceSelects": 8,
+    "snapshotSelects": 6,
+    "sqlWrites": 0,
+    "authenticatedSessions": 0
+  },
+  "localChecks": {
+    "status": "LOCAL_GUARDS_PASS",
+    "recordedUtc": "2026-11-26T17:04:10.808Z",
+    "checks": [
+      "DOC127_AUTHORITY_NOT_AUTHORIZED",
+      "DOC127_READ_NOT_AUTHORIZED",
+      "DOC127_AUTHORITY_NOT_AUTHORIZED",
+      "RUNNER_AUTHORITY_FLAG_REQUIRED"
+    ],
+    "scopeValid": true,
+    "runtimeMatches": true,
+    "nodeSyntaxFiles": 3,
+    "claimsCreated": 0,
+    "authenticatedSessions": 0,
+    "sqlWrites": 0,
+    "realE2EExecuted": false,
+    "powershellSyntaxFiles": 2,
+    "powershellSyntaxErrors": 0
+  },
+  "tasks": {
+    "complete": 28,
+    "total": 33,
+    "pending": [
+      "2.4",
+      "5.1",
+      "5.2",
+      "7.1",
+      "7.5"
+    ]
+  },
+  "realE2EExecuted": false,
+  "credentialsStored": false,
+  "explainStatus": "MANUAL_PLAN_NOT_PROVIDED",
+  "privateDirectory": ".tmp/doc127-authority-ventana",
+  "sessionScript": ".tmp/doc127-authority-session.ps1",
+  "limitations": [
+    "Preparation is not execution authorization",
+    "Does not test physical permission revocation",
+    "Does not extend capacity beyond the completed 18-case matrix",
+    "Does not complete assistant/template acceptance or manual QA"
+  ]
+}
