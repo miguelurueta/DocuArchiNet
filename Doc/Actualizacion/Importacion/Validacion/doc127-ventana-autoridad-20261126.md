@@ -1,6 +1,8 @@
 # DOC127: ventana de autoridad y lectura preparada
 
-Estado: **PREPARADA, PENDIENTE DE AUTORIZACIÓN**. No se ejecutó una nueva E2E ni se autenticaron cuentas. El avance sigue en **28/33 tareas**; la matriz de capacidad permanece aprobada en sus 18/18 casos. Esta ventana cubre parte de la aceptación 5.1, sin completar automáticamente esa tarea ni el cierre integral.
+Estado actual: **EJECUTADA, PASS; AUTORIZACIÓN CONSUMIDA**. [Resultado real](doc127-autoridad-real-20261126.md):1/1 E2E, seis rechazos y controles finales PASS;29/33 tareas. La descripción siguiente conserva el corte histórico de preparación.
+
+Estado al preparar: **PREPARADA, PENDIENTE DE AUTORIZACIÓN**. No se ejecutó una nueva E2E ni se autenticaron cuentas. El avance sigue en **28/33 tareas**; la matriz de capacidad permanece aprobada en sus 18/18 casos. Esta ventana cubre parte de la aceptación 5.1, sin completar automáticamente esa tarea ni el cierre integral.
 
 Ventana `b0bd002d3ee84dc38d2bc883fb9c1739`, preparada el 2026-11-26. El JSON adjunto conserva el SHA de preparación y las huellas de los recursos y scripts locales. Las autorizaciones de lectura y capacidad anteriores ya fueron consumidas.
 

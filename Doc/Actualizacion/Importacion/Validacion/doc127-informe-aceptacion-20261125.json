@@ -9,11 +9,10 @@
     "7.4"
   ],
   "tasks": {
-    "complete": 28,
+    "complete": 29,
     "total": 33,
     "pending": [
       "2.4",
-      "5.1",
       "5.2",
       "7.1",
       "7.5"
@@ -169,6 +168,25 @@
       "type": "REAL_CAPACITY_XLSX10000_THREE_MODES",
       "environment": "IIS local HTTPS/GESTOR empresa2 DA11/RA12 ref6, usuario194",
       "status": "REAL_XLSX10000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING"
+    },
+    {
+      "id": "DOC127_AUTORIDAD_REAL",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-autoridad-real-20261126.json",
+      "sha256Utf8Lf": "49d2cf10542b0d23bc9d083d2dd6d063f3f16c06ee92ac3a043f32e77acae4a3",
+      "sourceCommit": "95d7c8d377a960e551b62757c21c50d441e205d5",
+      "recordedUtc": "2026-11-26T17:31:39.777Z",
+      "type": "REAL_AUTHORITY_AND_READ_CURRENT",
+      "environment": "IIS local HTTPS/GESTOR empresa2 DA11 RA12 ref6 cuentas194/196",
+      "status": "REAL_AUTHORITY_AND_READ_PASS"
+    },
+    {
+      "id": "DOC127_PRUEBAS_PREPARADAS",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-pruebas-preparadas-20261125.json",
+      "sha256Utf8Lf": "838ea9b8a5c79544370f71e319c806174d9c7c506ecf3a3f84dbdbb2bbd18efe",
+      "sourceCommit": "fe2fa911a2e36a2d5424035b9265dde1f4ca0feb",
+      "recordedUtc": "2026-11-25T23:56:49.338Z",
+      "type": "LOCAL_SYNTHETIC_REUSED_BY_EIGHT_UNCHANGED_SOURCE_HASHES",
+      "status": "PREPARED_TESTS_LOCAL_PASS_REAL_WINDOWS_PENDING"
     }
   ],
   "requirements": [
@@ -202,10 +220,10 @@
     {
       "requirement": "RQ-03",
       "caseName": "Autoridad/CSRF/preparacion",
-      "testReference": "DOC122_NATIVE; DOC124_NATIVE; DOC126 lectura real v6",
-      "state": "REAL_READ_PASS_AUTHORITY_PREPARATION_PARTIAL",
+      "testReference": "DOC127 autoridad real seis rechazos y lectura194/196;18 preparaciones reales;36 cambios de autoridad sintéticos",
+      "state": "REAL_AUTHORITY_READ_PASS_PREPARATION_REUSED_SYNTHETIC_DRIFT_CLASSIFIED",
       "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
-      "limitation": "Lectura vigente194/196 y32 huellas PASS; referencias ajenas/CSRF/preparacion adicionales y revocacion fisica conservan limites locales/historicos.78 perfiles sin cambios dentro de la ventana; huella historica previa diferente.",
+      "limitation": "Revocación física y manipulación de empresa en HTTP no ejecutadas;36 casos de cambio de autoridad usan ADO sintético. La preparación se reutiliza de18 casos reales vigentes, sin nuevas cargas.38 huellas de datos y configuración,78 perfiles y41 cargas conservadas en la ventana actual.",
       "evidenceIds": [
         "LOCAL",
         "DOC126_LECTURA",
@@ -215,10 +233,13 @@
         "DOC127_XLS10000_REAL",
         "DOC127_XLSX1000_REAL",
         "DOC127_XLSX5000_REAL",
-        "DOC127_XLSX10000_REAL"
+        "DOC127_XLSX10000_REAL",
+        "DOC127_AUTORIDAD_REAL",
+        "DOC127_PRUEBAS_PREPARADAS"
       ],
       "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf",
-      "latestReadEvaluationCommit": "986f0f1cc9974dd81343e3f9227a264d53bba13c"
+      "latestReadEvaluationCommit": "986f0f1cc9974dd81343e3f9227a264d53bba13c",
+      "latestAuthorityEvaluationCommit": "95d7c8d377a960e551b62757c21c50d441e205d5"
     },
     {
       "requirement": "RQ-04",
@@ -2179,11 +2200,10 @@
     {
       "id": "B-02",
       "tasks": [
-        "5.1",
         "7.1"
       ],
-      "impact": "La lectura doc127-1 y aislamiento form1 ya pasaron; aun faltan los otros alcances vigentes de autoridad/preparacion y el corte integral.",
-      "action": "Ventana194/196 cerrada PASS, sin repeticion automatica. Definir y autorizar los casos faltantes por recursos/efectos; revocacion fisica solo con mecanismo autorizado. Conservar la diferencia historica de perfiles y la linea base fresca."
+      "impact": "Autoridad y lectura vigentes aprobadas; queda revisar los hallazgos al completar los cruces pendientes de plantillas del corte integral.",
+      "action": "Conservar ventana de autoridad consumida y evidencia mixta clasificada; no repetir importaciones ni mutar permisos. Cerrar hallazgos integrales tras5.2."
     },
     {
       "id": "B-03",
@@ -2402,12 +2422,28 @@
   },
   "nextPreparedWindow": {
     "windowId": "b0bd002d3ee84dc38d2bc883fb9c1739",
-    "status": "PREPARED_NOT_AUTHORIZED",
+    "status": "FINISHED_REAL_AUTHORITY_PASS",
     "report": "Doc/Actualizacion/Importacion/Validacion/doc127-ventana-autoridad-20261126.md",
     "scope": "six read authority rejections and UI read with accounts194/196",
     "maxBusinessRows": 0,
     "maxDeletedRows": 0,
-    "realE2EExecuted": false,
-    "completesTasks": []
+    "realE2EExecuted": true,
+    "completesTasks": [
+      "5.1"
+    ],
+    "finalReport": "Doc/Actualizacion/Importacion/Validacion/doc127-autoridad-real-20261126.md",
+    "windowConsumed": true
+  },
+  "latestAuthorityAcceptance": {
+    "evidenceId": "DOC127_AUTORIDAD_REAL",
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-autoridad-real-20261126.json",
+    "sourceCommit": "95d7c8d377a960e551b62757c21c50d441e205d5",
+    "status": "REAL_AUTHORITY_AND_READ_PASS",
+    "windowId": "b0bd002d3ee84dc38d2bc883fb9c1739",
+    "realTestPassed": 1,
+    "realSecurityCasesPassed": 6,
+    "completedTask": "5.1",
+    "newImportEffects": 0,
+    "physicalRevocationExecuted": false
   }
 }

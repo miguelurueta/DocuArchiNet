@@ -1,6 +1,6 @@
 {
   "issue": "DOC-127",
-  "status": "PREPARED_NOT_AUTHORIZED",
+  "status": "FINISHED_REAL_AUTHORITY_PASS",
   "recordedUtc": "2026-11-26T17:06:06.822Z",
   "windowId": "b0bd002d3ee84dc38d2bc883fb9c1739",
   "preparedCommit": "b335375378b12c4924d1155bcbe777c5407f0413",
@@ -139,7 +139,7 @@
       "expectedCode": "SOLICITUD_NO_VERIFICADA",
       "expectedOk": false,
       "expectedData": null,
-      "status": "NOT_EXECUTED"
+      "status": "REAL_PASS"
     },
     {
       "key": "CSRF_INVALIDO",
@@ -147,7 +147,7 @@
       "expectedCode": "SOLICITUD_NO_VERIFICADA",
       "expectedOk": false,
       "expectedData": null,
-      "status": "NOT_EXECUTED"
+      "status": "REAL_PASS"
     },
     {
       "key": "CONEXION_AJENA",
@@ -155,7 +155,7 @@
       "expectedCode": "ACCESO_DENEGADO",
       "expectedOk": false,
       "expectedData": null,
-      "status": "NOT_EXECUTED"
+      "status": "REAL_PASS"
     },
     {
       "key": "PLANTILLA_AJENA",
@@ -163,7 +163,7 @@
       "expectedCode": "NO_ENCONTRADO",
       "expectedOk": false,
       "expectedData": null,
-      "status": "NOT_EXECUTED"
+      "status": "REAL_PASS"
     },
     {
       "key": "CARGA_AJENA",
@@ -171,7 +171,7 @@
       "expectedCode": "RESULTADO_INCIERTO",
       "expectedOk": false,
       "expectedData": null,
-      "status": "NOT_EXECUTED"
+      "status": "REAL_PASS"
     },
     {
       "key": "CARGA_INEXISTENTE",
@@ -179,7 +179,7 @@
       "expectedCode": "RESULTADO_INCIERTO",
       "expectedOk": false,
       "expectedData": null,
-      "status": "NOT_EXECUTED"
+      "status": "REAL_PASS"
     }
   ],
   "positiveChecks": [
@@ -227,7 +227,7 @@
       "7.5"
     ]
   },
-  "realE2EExecuted": false,
+  "realE2EExecuted": true,
   "credentialsStored": false,
   "explainStatus": "MANUAL_PLAN_NOT_PROVIDED",
   "privateDirectory": ".tmp/doc127-authority-ventana",
@@ -237,5 +237,11 @@
     "Does not test physical permission revocation",
     "Does not extend capacity beyond the completed 18-case matrix",
     "Does not complete assistant/template acceptance or manual QA"
-  ]
+  ],
+  "preparationStatus": "PREPARED_NOT_AUTHORIZED",
+  "currentWindowStatus": "FINISHED_REAL_AUTHORITY_PASS",
+  "preparedCaseStatus": "NOT_EXECUTED",
+  "scopeHashMeaning": "Prepared scope before authorization; actual executed scope hash is in finalEvidence",
+  "finalEvidence": "Doc/Actualizacion/Importacion/Validacion/doc127-autoridad-real-20261126.json",
+  "authorizationConsumed": true
 }

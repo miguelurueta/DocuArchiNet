@@ -1,5 +1,7 @@
 # DOC-127 — Informe de aceptación y capacidad con restricciones
 
+Actualización de autoridad2026-11-26: **1/1 E2E real y seis rechazos PASS;29/33 tareas**. [Resultado y clasificación](doc127-autoridad-real-20261126.md). Se completa5.1: permisos, CSRF, referencias y lectura reales; preparación18/18 reutilizada y36 cambios de autoridad sintéticos identificados.38 tablas/configuración,78 perfiles y41 cargas conservadas. Cero importaciones/guardados/cambios de permisos; ventana consumida. La matriz de capacidad conserva18/18 PASS. Pendientes2.4,5.2,7.1,7.5; los cortes28/33 y anteriores son históricos.
+
 Siguiente ejecución preparada: [autoridad y lectura](doc127-ventana-autoridad-20261126.md), pendiente de autorización para cuentas194/196 en IIS local GESTOR. Seis rechazos y comprobaciones de lectura con cero cargas, guardados o cambios de permisos;38 tablas/78 perfiles/41 cargas protegidas. La preparación no es evidencia real adicional ni completa tareas. Avance vigente28/33 y capacidad18/18.
 
 Actualización 2026-11-26: **XLSX10000,3/3 modos reales PASS;28/33 tareas**. [Resultado y mediciones](doc127-capacidad-xlsx10000-20261126.md). Se completa6.6, además de6.1/6.2/6.3/6.4/6.5 ya acreditadas. Matriz de capacidad18/18 completa; los cortes27/33 y anteriores inferiores son históricos.
@@ -59,7 +61,7 @@ Cada ID remite a la tabla de procedencia con su SHA/ambiente/tipo; el JSON conse
 | --- | --- | --- | --- |
 | RQ-01: Manifiesto y comparacion por fuentes | DOC127_SOURCE_AND_EVIDENCE_AUDIT; LOCAL, INTEGRACION | LOCAL_PASS | La huella de una fuente no transfiere toda la aceptacion de un runtime diferente. |
 | RQ-02: Runner DOC110/scopes DOC125–127 | tests/doc127-e2e-reuse.test.cjs; LOCAL, INTEGRACION, DOC127_LECTURA | LOCAL_PASS_REAL_READ_PASS_CAPACITY_PENDING | Lectura DOC127 autorizada y consumida; capacidad pendiente de ventanas propias. Sin instalar/sembrar/limpiar desde E2E. |
-| RQ-03: Autoridad/CSRF/preparacion | DOC122_NATIVE; DOC124_NATIVE; DOC126 lectura real v6; LOCAL, DOC126_LECTURA, DOC127_LECTURA | REAL_READ_PASS_AUTHORITY_PREPARATION_PARTIAL | Lectura vigente194/196 y32 huellas PASS; referencias ajenas/CSRF/preparacion adicionales y revocacion fisica conservan limites locales/historicos.78 perfiles sin cambios dentro de la ventana; huella historica previa diferente. |
+| RQ-03: Autoridad/CSRF/preparación | DOC127_AUTORIDAD_REAL;18 preparaciones reales;36 cambios sintéticos | REAL_AUTHORITY_READ_PASS_PREPARATION_REUSED | Seis rechazos y lectura194/196 PASS;38 tablas/configuración,78 perfiles y41 cargas conservadas. Revocación física no ejecutada; nivel sintético identificado. [Detalle](doc127-autoridad-real-20261126.md) |
 | RQ-04: Instalacion compatible y flujo manual | DOC127_SELECT_CONTRACT; Sql/README.md; LOCAL, RECURSOS | SELECT_PASS_ENTREGA_SQL | Controles actuales equivalentes, no ejecucion manual integra de28; metadatos sujetos a visibilidad. |
 | RQ-05: Plantillas y tres modos por formato | DOC122–125_NATIVE; DOC127_LOCAL_READER; DOC126 reales; LOCAL, DOC126_FUNCIONAL, DOC126_ASISTENTE | LOCAL_PASS_REAL_PARCIAL | 18 libros locales no equivalen a18 importaciones. XLS real por modo sin completar. |
 | RQ-06: Claves/collation/esquema/politica | DOC124_NATIVE; DOC125_NATIVE; DOC126 rollback/carrera; LOCAL, DOC126_RECUPERACION | LOCAL_PASS_HISTORICA_REUTILIZADA | Escenarios adversos de motor/FK/trigger y politica COLUMNA tienen cobertura sintetica. |
@@ -108,7 +110,7 @@ Fronteras: configuración vigente20000 filas/10000000bytes; fallback lector10000
 | Bloqueo / tareas | Impacto | Acción |
 | --- | --- | --- |
 | B-01: 2.4 | Rendimiento de lectura por clave sin plan verificable. | El usuario ejecuta manualmente Sql/29-explain-proveedor-doc127.sql en el destino indicado y aporta key/possible_keys/type/rows/Extra y metadatos; revisar sin ejecutar EXPLAIN desde el agente. |
-| B-02: 5.1, 7.1 | La lectura doc127-1 y aislamiento form1 ya pasaron; aun faltan los otros alcances vigentes de autoridad/preparacion y el corte integral. | Ventana194/196 cerrada PASS, sin repeticion automatica. Definir y autorizar los casos faltantes por recursos/efectos; revocacion fisica solo con mecanismo autorizado. Conservar la diferencia historica de perfiles y la linea base fresca. |
+| B-02: 7.1 | Autoridad/lectura vigentes aprobadas; queda el corte integral tras los cruces de plantillas pendientes. | Conservar la ventana consumida y la clasificación de cobertura; cerrar hallazgos tras5.2, sin repetir cargas ni cambiar permisos. |
 | B-03: 5.2 | La matriz18/18 de capacidad tiene resultados reales y mediciones. Los cruces restantes de plantillas y su aceptación funcional siguen pendientes. | Conservar las dieciocho cargas actuales y sus scopes consumidos; completar sólo los cruces funcionales pendientes de plantillas mediante un alcance revisable, sin repetir capacidad. |
 | B-04: 7.5 | Faltan tareas y aceptacion; no procede archivo ni cierre Jira. | Mantener el cambio activo. Evaluar gates sobre HEAD registrado despues de resolver dependencias; los controles documentales no sustituyen aceptacion real. |
 

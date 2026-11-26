@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC127: autoridad y lectura reales PASS — 2026-11-26
+
+Ventana `b0bd002d3ee84dc38d2bc883fb9c1739` consumida:1/1 E2E y seis rechazos CSRF/referencias/resultados PASS. IIS local HTTPS/GESTOR empresa2/DA11/RA12, cuentas194/196, conexión6/plantilla60.38 tablas protegidas, configuración,78 perfiles y41 cargas sin cambios; cero cargas/preparaciones/confirmaciones/guardados/cambios de permisos. Consola cerrada naturalmente, sin terminación forzada. Se completa5.1 con cobertura clasificada: real actual,36 cambios sintéticos y18 preparaciones reales reutilizadas; revocación física no ejecutada.29/33 tareas; siguen2.4,5.2,7.1,7.5. [Resultado real](../../Doc/Actualizacion/Importacion/Validacion/doc127-autoridad-real-20261126.md) y JSON. No repetir ni ampliar efectos por esta autorización. Los apartados siguientes son históricos.
+
 ## DOC127: ventana de autoridad preparada — 2026-11-26
 
 Estado PREPARED_NOT_AUTHORIZED. Ventana `b0bd002d3ee84dc38d2bc883fb9c1739`: seis rechazos CSRF/referencias/resultados y lectura UI, cuentas194/196, IIS local HTTPS/GESTOR empresa2/DA11/RA12, conexión6/plantilla60. Referencia ajena1/plantilla1 y carga histórica de prueba del usuario141 verificadas por SELECT; no autenticar141. Cero cargas, guardados, DML, DDL o cambios de permisos.38 tablas protegidas,78 perfiles y41 cargas fijadas. Scope, consola privada, control SELECT antes/después y consumo único listos; las guardas pendientes rechazan antes del login. Una ejecución sin reintentos,15min de test y30min máximos desde autorización. No lanzar sin autorización expresa de este alcance; las ventanas anteriores están consumidas. [Propuesta revisable](../../Doc/Actualizacion/Importacion/Validacion/doc127-ventana-autoridad-20261126.md) y JSON. Avance28/33; no completar5.1 por preparación ni ampliar los efectos. Los apartados siguientes son históricos.
