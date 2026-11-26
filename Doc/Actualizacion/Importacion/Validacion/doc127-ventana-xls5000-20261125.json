@@ -1,6 +1,6 @@
 {
   "issue": "DOC-127",
-  "status": "PREPARED_PENDING_AUTHORIZATION",
+  "status": "EXECUTED_PASS",
   "batchId": "ce1992d71a9e4066a238137d4452336e",
   "preparedUtc": "2026-11-26T01:18:45.597Z",
   "sourceCommit": "f8b83ecb9f5954ec9ad8686d907e2356a984ef53",
@@ -226,7 +226,7 @@
     "postPasswordConsoleWrites": false,
     "closeAutomatically": true,
     "noExitLaunchFlagAllowed": false,
-    "liveExecutionVerified": false
+    "liveExecutionVerified": true
   },
   "preparationChecks": {
     "status": "PREPARATION_CHECKS_PASS",
@@ -246,20 +246,22 @@
     "privateScriptHashes": 2
   },
   "credentialsStored": false,
-  "executionStarted": false,
+  "executionStarted": true,
   "tasks": {
-    "complete": 23,
+    "complete": 24,
     "total": 33,
     "acceptanceTask": "6.2",
-    "acceptanceTaskCompleted": false,
-    "completedThisWindow": []
+    "acceptanceTaskCompleted": true,
+    "completedThisWindow": [
+      "6.2"
+    ]
   },
   "approval": {
-    "required": true,
+    "required": false,
     "source": "AGENTS.md",
     "environment": "https://localhost/GestionDocumental-Docuarchi.net/",
     "accountId": 194,
-    "reference": null,
+    "reference": "User: ejecuta las pruebas. Explicit authorization of reviewed DOC127 XLS5000 batch ce1992d71a9e4066a238137d4452336e; local HTTPS GESTOR company2 DA11 RA12 ref6 account194; max15000 inserted rows,1000 deleted rows,1 new table; three cases, no automatic retries.",
     "scope": "Three XLS5000 cases; max15000 inserted rows,1000 deleted rows,1 new table. Previous XLS1000 authorization is consumed."
   },
   "limitations": [
@@ -267,5 +269,43 @@
     "Real postflight not yet executed.",
     "Console output adjustment locally checked, not yet verified through an authenticated run.",
     "Shared IIS memory will be sampled; no exclusive allocation or unsampled peak claim."
+  ],
+  "executionCompleted": true,
+  "completedUtc": "2026-11-26T12:41:55.648Z",
+  "resultEvidence": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls5000-20261126.json",
+  "results": [
+    {
+      "mode": "AGREGAR",
+      "windowId": "ef321e4d45dc442289191e88c1fef3f4",
+      "idCarga": "32330f9a-fb16-468d-9677-043d072374ea",
+      "rows": 5000,
+      "previousRows": 1000,
+      "finalRows": 6000,
+      "prepareMs": 519.3705000000191,
+      "confirmMs": 12665.168000000005,
+      "measurementStatus": "COMPLETE_WITH_SAMPLING_LIMITS"
+    },
+    {
+      "mode": "REEMPLAZAR",
+      "windowId": "c8cd26095fb44ac79b946276a20b99fd",
+      "idCarga": "f87c7f39-906c-4045-bc65-9b028436ce2f",
+      "rows": 5000,
+      "previousRows": 1000,
+      "finalRows": 5000,
+      "prepareMs": 385.6255999999994,
+      "confirmMs": 11236.801800000016,
+      "measurementStatus": "COMPLETE_WITH_SAMPLING_LIMITS"
+    },
+    {
+      "mode": "CREAR",
+      "windowId": "8fae3f7a6b75482888078215a35d25f7",
+      "idCarga": "3b656b25-df26-43f0-8286-ae769fef727e",
+      "rows": 5000,
+      "previousRows": 0,
+      "finalRows": 5000,
+      "prepareMs": 359.08760000002803,
+      "confirmMs": 12877.247199999983,
+      "measurementStatus": "COMPLETE_WITH_SAMPLING_LIMITS"
+    }
   ]
 }
