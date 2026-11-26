@@ -4,6 +4,8 @@ Es viable que un usuario inicie la radicación interna desde un acceso propio y 
 
 La interfaz simplificada del commit `23464d6b` está aprobada por el usuario. La [maqueta](maqueta.html) incorpora ahora la selección local de principal y anexos solicitada para revisar esta nueva procedencia. La recepción/persistencia en servidor y las reglas de expediente continúan en refinamiento. Se mantiene D-RI-01: el usuario interno o tercero elegido es el remitente y el usuario autenticado sigue siendo el ejecutor.
 
+**D-RI-04 aprobada, 2026-11-26:** reutilizar `LoadFilePERSON` / `IniLoadPerson` de `generic_control/FileUploadHandler.js`, adaptando su presentación a la interfaz aprobada y agregando un modo de recepción temporal por operación antes de radicar. La incorporación definitiva ocurre al confirmar. El control existente necesita una adaptación acotada del envío/resultados para conectar la nueva recepción; sus eventos actuales de adjunto a radicado creado conservan sus contratos. No se construye otro cargador completo. Expediente, permisos, límites y caducidad siguen en refinamiento.
+
 | Referencia | Valor |
 |---|---|
 | Fecha | 2026-11-25 |

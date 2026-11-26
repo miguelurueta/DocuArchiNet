@@ -56,7 +56,7 @@ Crear solo los componentes que correspondan a las subfases de este prompt; no im
 
 3. **RI10.3.** Conectar buscadores y selecciones a catálogos autorizados. Invalidar valores antiguos y respuestas tardías por operación/revisión; conservar foco y datos compatibles tras UpdatePanel. No crear nuevos contratos de validación basados solo en atributos HTML.
 
-4. **RI10.4.** Integrar carga real con elegir/arrastrar principal, múltiples anexos, progreso/estado confirmado, retiro/sustitución y consulta de recepción incierta. No llamar Subido a un archivo que solo existe como File local ni confirmar durante recepción incompleta.
+4. **RI10.4.** Integrar el cargador reutilizado y adaptado en P04 según D-RI-04 con elegir/arrastrar principal, múltiples anexos, progreso/estado confirmado, retiro/sustitución y consulta de recepción incierta. Conservar la presentación compacta aprobada sin introducir otro cargador completo. No llamar Subido a un archivo que solo existe como File local ni confirmar durante recepción incompleta.
 
 5. **RI10.5.** Preparar revisión desde servidor y confirmar exactamente su manifiesto/versión. Bloquear doble envío y consultar resultado incierto; mostrar registro con pendientes y seguimiento sin dar por respondido el trámite. Usar descarga/impresión reales.
 
