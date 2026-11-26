@@ -1,0 +1,242 @@
+{
+  "issue": "DOC-127",
+  "status": "PREPARED_PENDING_AUTHORIZATION",
+  "batchId": "d5ab4af3cf1b4ad5ae197f04a914e930",
+  "preparedUtc": "2026-11-26T00:24:44.213Z",
+  "sourceCommit": "226d200096504794ecac29651d1c1fcfaa3749e0",
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "module": "GESTOR",
+    "empresaId": 2,
+    "daModuloId": 11,
+    "raModuloId": 12,
+    "conexionId": 6
+  },
+  "account": {
+    "id": 194,
+    "login": "asesor.comercial",
+    "permissions": {
+      "cargas": 1,
+      "carpetas": 0,
+      "perfiles": 0,
+      "fuentes": 0,
+      "proveedores": 0
+    }
+  },
+  "scopes": [
+    {
+      "sequence": 1,
+      "mode": "AGREGAR",
+      "scopeSha256": "a330b19392a7121209c3b65d88f32c50fb75a5e70b617bd49e9c81390209e3c1",
+      "windowId": "c26ab67b06ec4377b068e3cf684a072e",
+      "templateId": 61,
+      "revision": 1,
+      "templateHash": "461102efb1a095f61c54e2e2f9e014bf234768cae1bac6c3d88fd8e67367658e",
+      "table": "imp_02_doc127_e2e_agregar_xls",
+      "previousRows": 0,
+      "expectedRows": 1000,
+      "maxInsertedRows": 1000,
+      "maxDeletedRows": 0,
+      "maxCreates": 0,
+      "fileSha256": "783f5c5bab8dc11904f6199bffb8daa069ea0dc01457455b7934e5c87f3563cf",
+      "fileBytes": 282112,
+      "destinationHash": "674a0de84ee10e657f8c6084d3da15b1703c693be68800279d06667be7e7cee5",
+      "protectedTables": 31
+    },
+    {
+      "sequence": 2,
+      "mode": "REEMPLAZAR",
+      "scopeSha256": "10c9f82bca4d87926dff6a5b425368af3c531c7d8f31a91a8b854f5b9e3384c8",
+      "windowId": "4edf3826153e4616972c305f53010f18",
+      "templateId": 62,
+      "revision": 1,
+      "templateHash": "89f96c3ef5b36f49c93c866b6005d2d16576786f0c74d5da393766c0b2981f8b",
+      "table": "imp_02_doc127_e2e_reemplazar_xls",
+      "previousRows": 0,
+      "expectedRows": 1000,
+      "maxInsertedRows": 1000,
+      "maxDeletedRows": 0,
+      "maxCreates": 0,
+      "fileSha256": "da9d001f9e842f91b1f5d07d06036bd4d7c67721f54f1b955b91732f996e76ff",
+      "fileBytes": 293888,
+      "destinationHash": "674a0de84ee10e657f8c6084d3da15b1703c693be68800279d06667be7e7cee5",
+      "protectedTables": 31
+    },
+    {
+      "sequence": 3,
+      "mode": "CREAR",
+      "scopeSha256": "aa06ac70c3836227c868eb235c72d05ec08f9a42505a10202f420a3944d7fad4",
+      "windowId": "a6abf99355b34e3593dddd18e0fdf36a",
+      "templateId": 63,
+      "revision": 1,
+      "templateHash": "97a815cc3852e3e5204e958ba7f6dacf9166a92bc6b25409504f4c97a892b04b",
+      "table": "imp_02_doc127_e2e_crear_xls_1000",
+      "previousRows": 0,
+      "expectedRows": 1000,
+      "maxInsertedRows": 1000,
+      "maxDeletedRows": 0,
+      "maxCreates": 1,
+      "fileSha256": "9e8e21c7898ed4c86160d77bed0e365bdeda94be74ca294e8a44e0838ce1d5c6",
+      "fileBytes": 273920,
+      "destinationHash": "bf07a269e14d95d4fe3ef2a16d5f0d74139002cae94d38056eadf79e31cffa4e",
+      "protectedTables": 32
+    }
+  ],
+  "maximumEffects": {
+    "newFilesReceived": 3,
+    "newPreparations": 3,
+    "effectiveConfirmations": 3,
+    "replays": 3,
+    "newBusinessRows": 3000,
+    "deletedBusinessRows": 0,
+    "newTables": 1,
+    "templateWrites": 0,
+    "permissionChanges": 0
+  },
+  "budget": {
+    "caseTimeoutMs": 900000,
+    "caseHttpRequests": 12,
+    "caseSelectStatements": 500,
+    "requestedMemoryIntervalMs": 2000,
+    "scopeLifetimeMs": 1800000,
+    "batchExecutionBudgetMs": 3000000
+  },
+  "datePolicy": "Review scopes have a30-minute candidate lifetime. On explicit batch approval each scope gets fresh dates just before its own execution, within the50-minute batch budget; reviewed resources/effects and hashes stay fixed.",
+  "preflight": {
+    "recordedUtc": "2026-11-26T00:24:30.5417560Z",
+    "explicitSelects": 14,
+    "productTemplateReadSelects": 6,
+    "destinationSnapshotSelects": 11,
+    "totalSelects": 31,
+    "sqlWrites": 0,
+    "authenticatedSessions": 0
+  },
+  "preparationAttempts": {
+    "parserFailure": {
+      "sql": 0,
+      "authenticatedSessions": 0
+    },
+    "sandboxDsnFailure": {
+      "explicitSelects": 14,
+      "templateLibrarySelects": 6,
+      "sqlWrites": 0,
+      "authenticatedSessions": 0
+    },
+    "successful": {
+      "recordedUtc": "2026-11-26T00:24:30.5417560Z",
+      "explicitSelects": 14,
+      "productTemplateReadSelects": 6,
+      "destinationSnapshotSelects": 11,
+      "totalSelects": 31,
+      "sqlWrites": 0,
+      "authenticatedSessions": 0
+    }
+  },
+  "policies": [
+    {
+      "fuente_id": 10,
+      "ambito_ref": "2",
+      "conexion_ref": "DA",
+      "tabla_nombre": "imp_02_doc127_e2e_agregar_xls",
+      "modo_aislamiento": "CONEXION",
+      "columna_empresa": "",
+      "activo": 1,
+      "revision": 2
+    },
+    {
+      "fuente_id": 11,
+      "ambito_ref": "2",
+      "conexion_ref": "DA",
+      "tabla_nombre": "imp_02_doc127_e2e_reemplazar_xls",
+      "modo_aislamiento": "CONEXION",
+      "columna_empresa": "",
+      "activo": 1,
+      "revision": 2
+    }
+  ],
+  "observableTriggers": 0,
+  "observableForeignKeys": 0,
+  "runtime": [
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.dll",
+      "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5"
+    },
+    {
+      "path": "bin/MySql.Data.dll",
+      "sha256": "c7bf74f07c7c9411b630b793f19572c0276b04dd3423ae5bc32204ae539d977a"
+    },
+    {
+      "path": "Web.config",
+      "sha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2"
+    },
+    {
+      "path": "AppSettings.local.config",
+      "sha256": "bd3689aabb8fdcfdfef3df8bf49571bc0a8770269894d00f3bcde4e3a4c5b7c9"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+      "sha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da"
+    },
+    {
+      "path": "Styles/ImportacionExcel.css",
+      "sha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256": "d7975d92a77a1390b23287514f1c0d8ad91dcca398fcc590f5ab02d929567696"
+    }
+  ],
+  "supportSources": [
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256": "495f43abffdbc5024c9271b569a6edf6ff3567dec714971ef47f9b754712b4b7"
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256": "e8b2463c9d25466cb1cecb1a7f4a6932097b1ad178ae337b6fb78d35689591ce"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc125-excel-scope.cjs",
+      "sha256": "1edcb7d37c0de6e7bc281d4e8a9b0d8666d00412e2a1c01ef6c3d96915d78375"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+      "sha256": "ee0118f810efbf9f8d3c5eab514b2b512d77151d7e4bdaf9ed01d48a8c9c0776"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc32-e2e-odbc.cjs",
+      "sha256": "10523bcc1608c94fb816d8be09b352ec570be8cda23cd969d473c8e5bc608ccf"
+    },
+    {
+      "path": "tools/e2e/scripts/query-doc32-odbc-fingerprint.ps1",
+      "sha256": "5c6dcbc22331306eeb1402d3045461204f9a6d29d5107029f499cfe870c8fa4e"
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc127-iis-memory.ps1",
+      "sha256": "aa26741fbecfe6b498c882b9865db6e56936325da986e12e12174b92b5337d84"
+    }
+  ],
+  "privateScriptHashes": [
+    {
+      "name": "doc127-xls1000-session.ps1",
+      "sha256": "f58c8476fea39e54f6b2bbdbf1a542f1435e45d20a4c081c247af8ed11e789c5"
+    },
+    {
+      "name": "doc127-xls1000-run-batch.cjs",
+      "sha256": "16096a4102961792b9820960a8b564727b223ba8f3ab66a4263e0ec2d7e60d43"
+    }
+  ],
+  "credentialsStored": false,
+  "executionStarted": false,
+  "authorizationGuardCheck": "DOC127_BATCH_NOT_AUTHORIZED before connections and credential prompts",
+  "tasks": {
+    "complete": 22,
+    "total": 33,
+    "acceptanceTask": "6.1",
+    "taskCompleteOnlyAfterThreeRealCasesAndMeasurements": true
+  }
+}
