@@ -19,14 +19,14 @@ Refinar al abrir cada subfase solo las decisiones que consume; conservar acuerdo
 
 ## OBJETIVO
 
-Reutilizar el cargador existente para recibir archivos reales por operación e incorporarlos de forma definitiva según la alternativa documental acordada. D-RI-04 aprueba adaptar `LoadFilePERSON` / `IniLoadPerson` conservando la interfaz compacta; el modo de recepción temporal y su procesamiento previo son nuevos. Mantener Producción y los adjuntos clásicos/Simplificados compatibles.
+Crear un control nuevo e independiente para recibir archivos reales por operación e incorporarlos de forma definitiva según la alternativa documental acordada. D-RI-05 sustituye la adaptación del cargador compartido: conservar la interfaz compacta y agregar control, recepción temporal y procesamiento previo propios. Mantener Producción y los adjuntos clásicos/Simplificados con sus cargadores y contratos actuales.
 
 ## RESTRICCIONES CRÍTICAS
 
 - Leer el contexto común y el código vigente; actuar solo en el alcance refinado. Las funciones N son propuestas y las M existen en el código; no confundir sus estados ni inventar su implementación.
 - Mantener WebForms/VB.NET/.NET Framework 4.6.1, plantillas dinámicas y contratos de Producción, clásica, Simplificada y Workflow. No modificar el OpenSpec DOC-127 ni su trabajo concurrente.
 - Límite D-RI-03 confirmado: este módulo radica y crea/entrega el seguimiento; elaboración, envío, confirmación y cierre de respuestas pertenecen al módulo existente. No trasladar esas funciones a esta pantalla ni rediseñar sus políticas.
-- D-RI-04 aprobada: reutilizar el control de carga y adaptar su modo previo al registro. Conservar los modos y valores predeterminados de los consumidores actuales; no duplicar todo el cargador ni imponer otra ventana compleja sobre la UI aprobada.
+- D-RI-05 vigente: control nuevo, estado por instancia/operación y transporte previo propios. No modificar ni depender de `LoadFilePERSON` / `IniLoadPerson`, `FileUploadHandler.js`, `FileUploadHandler_.ashx.vb` o sus eventos para habilitarlo. No clonar el monolito del cargador anterior ni sus variables globales; conservar la UI aprobada.
 - Actor/empresa/permisos provienen de autoridad autenticada. El remitente no sustituye al ejecutor ni al responsable; IDs visibles, campos ocultos, rutas y nombres de tabla del cliente no son autoridad.
 - No repetir una escritura incierta ni anunciar éxito global por HTTP 200/YES. Mantener revisión, correlación, resultado durable y compatibilidad con los efectos ya confirmados.
 - No ejecutar E2E real ni carga ni mutaciones del ambiente sin autorización específica. No guardar secretos ni añadir activación por usuarios/grupos o `WorkflowCentroTrabajoModernActive`.
@@ -35,7 +35,7 @@ Reutilizar el cargador existente para recibir archivos reales por operación e i
 
 ### Subfase RI05
 
-M27 y N06/N07/N12/N13: `generic_control/FileUploadHandler.js`, `LoadFilePERSON`, `IniLoadPerson`, `_EnviaArchivoServidor` y `_RegistraArchivoInterfaz`; nuevo `generic_control/RadicacionInternaUpload.ashx` y `.ashx.vb` para el procesamiento previo. Referencias de diseño: ImportacionCarpetasUpload/ServicioRecepcionImportacion; FileUploadHandler_.ashx permanece compatible para otros eventos. El nuevo handler es transporte de recepción, no un segundo cargador visual.
+N06/N07/N12/N13: nuevo `js/radicacion/RadicacionInternaUpload.js`, clase propuesta `RadicacionInternaUpload`; estilos propios cuando hagan falta; nuevo `generic_control/RadicacionInternaUpload.ashx` y `.ashx.vb` para recepción previa. Referencias de diseño: ImportacionCarpetasUpload/ServicioRecepcionImportacion. El cargador compartido y sus handlers se inspeccionan solo como consumidores de compatibilidad; no se adaptan para este recorrido.
 
 ### Subfase RI06
 
@@ -51,13 +51,13 @@ Crear solo los componentes que correspondan a las subfases de este prompt; no im
 
 ### Subfase RI05
 
-1. **RI05.1.** Reutilizar `LoadFilePERSON` / `IniLoadPerson` y agregar un modo previo por operación, revisión y referencia de archivo/rol. Adaptar de forma acotada el endpoint de `_EnviaArchivoServidor` y la recepción de resultados de `_RegistraArchivoInterfaz`, conservando destino/callbacks predeterminados de los modos actuales. El nuevo resultado identifica una recepción temporal y no inserta filas como si ya existiera un documento definitivo. Implementar multipart autorizado; rechazar uploads de otro usuario/ámbito, operación cancelada/registrada o manifiesto fuera de versión. Sesión y protección de petición se resuelven en el transporte; comprobar bloqueo de sesión de ASP.NET al transmitir/consultar progreso para no prometer paralelismo que el handler serializa.
+1. **RI05.1.** Crear `RadicacionInternaUpload` en un archivo propio con contrato explícito de inicialización, operación/revisión, principal/anexos, recepción, consulta, retiro y destrucción. Usar eventos/estado propios sin invocar el cargador compartido ni copiar sus globals. Conectar el nuevo endpoint multipart autorizado por operación, revisión y referencia de archivo/rol; el resultado identifica una recepción temporal y no inserta filas como si ya existiera un documento definitivo. Rechazar uploads de otro usuario/ámbito, operación cancelada/registrada o manifiesto fuera de versión. Sesión y protección de petición se resuelven en el transporte; comprobar bloqueo de sesión de ASP.NET al transmitir/consultar progreso para no prometer paralelismo que el handler serializa.
 
 2. **RI05.2.** Reservar recepción y ruta interna única antes de escribir stream, con cuotas y límites acordados por archivo/total/cantidad. Verificar extensión/tipo real/integridad de contenido y las reglas de conversión previstas; el MIME o accept del navegador no basta.
 
 3. **RI05.3.** Implementar escritura temporal aislada, huella y cierre verificable. Una recepción parcial o respuesta perdida se consulta antes de reenviar; procesar duplicados y nombres coincidentes según contrato, nunca como sobrescritura por nombre original.
 
-4. **RI05.4.** Implementar ConsultarRecepcion y PrepararManifiesto con estados por archivo, principal explícito y anexos sin doble rol. Integrar selección múltiple y estados del control existente en la UI aprobada, aislando archivos/respuestas por instancia y operación para evitar interferencias de sus variables globales. Confirmar solo la versión recibida y validada; un éxito HTTP no equivale a un documento incorporado.
+4. **RI05.4.** Implementar ConsultarRecepcion y PrepararManifiesto con estados por archivo, principal explícito y anexos sin doble rol. Integrar selección/arrastre, múltiples anexos, progreso real de transmisión, recepción confirmada, errores y retiro en la UI aprobada. Aislar archivos/respuestas por instancia y operación; inicializar una sola vez y liberar eventos al reconstruir UpdatePanel o destruir el control. Invalidar respuestas tardías tras sustitución/cancelación sin suponer que abortar HTTP revierte lo recibido. Confirmar solo la versión recibida y validada; un éxito HTTP no equivale a un documento incorporado.
 
 5. **RI05.5.** Implementar RetirarArchivo y caducidad segura de temporales no vinculados; invalidar el manifiesto/revisión afectados. Una lectura tardía, cancelación o limpieza no resucita ni borra archivos de otra operación o ya incorporados.
 
@@ -86,7 +86,7 @@ Relacionar cada tarea con las funciones/rutas de este paquete y con su caso de p
 ### Subfase RI05
 
 - Existe recepción verificable y consultable para cada archivo de ambos roles.
-- La carga usa el componente existente con modo previo, configuración de envío acotada y resultado temporal; los modos/callbacks actuales mantienen su comportamiento. La presentación conserva la interfaz compacta aprobada.
+- La carga usa el nuevo control, estado y endpoint propios con resultado temporal; no modifica ni depende del cargador compartido. La presentación conserva la interfaz compacta aprobada.
 - Repeticiones, cancelación, respuesta perdida y dos pestañas no mezclan ni duplican la misma recepción.
 - Nombres, límites, tipo real y permisos se validan en servidor.
 - No se reserva consecutivo ni se registra Workflow/seguimiento al subir un temporal.
@@ -106,7 +106,7 @@ No declarar completado este prompt si una subfase requerida conserva decisiones 
 
 ### Subfase RI05
 
-Pruebas con streams truncados, extensión/MIME falsos, nombres equivalentes, límites, reenvío y cancelación concurrente; comprobar cleanup y publicación del handler. Cubrir endpoint/callback predeterminados frente al nuevo modo, dos instancias/pestañas sin estado mezclado y respuesta temporal sin inserción definitiva en la lista. Mantener tests/doc90-radicacion-classic-attachment.test.cjs y tests/radicacion-simple-attachment-upload-signatures.test.cjs, añadiendo regresión de Producción y otros consumidores efectivamente afectados. E2E autorizada con el control reutilizado y upload real, con SELECT de control e identificación de temporales descartables.
+Pruebas con streams truncados, extensión/MIME falsos, nombres equivalentes, límites, reenvío y cancelación concurrente; comprobar cleanup y publicación del handler. Cubrir dos instancias/pestañas independientes, inicialización/destrucción tras postbacks, respuestas tardías, principal/anexos y resultado temporal sin inserción definitiva. Comprobar que el nuevo control funciona sin cargar/invocar el componente compartido y que el diff no altera su JavaScript, handler ni eventos. Mantener tests/doc90-radicacion-classic-attachment.test.cjs y tests/radicacion-simple-attachment-upload-signatures.test.cjs como regresión de sus consumidores; añadir pruebas del comportamiento real del control nuevo. E2E autorizada con upload real, SELECT de control y temporales descartables; usar controles de teclado/foco y verificar que la confirmación espera recepción íntegra.
 
 ### Subfase RI06
 

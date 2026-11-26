@@ -32,7 +32,7 @@ Cada INFO es `MANUAL_REVIEW_RECOMMENDED`: el motor solicita revisión semántica
 
 La comparación realizada al consolidar conservó 73 tareas identificadas, 60 apariciones de criterios de aceptación (incluyen requisitos comunes repetidos) y 12 bloques de pruebas específicas. Se conservaron las referencias a funciones de cada subfase. Las restricciones, rutas y pruebas generales se comparten una vez por prompt para evitar repetición.
 
-Actualización por D-RI-04, aprobada el 2026-11-26: P04 exige reutilizar `LoadFilePERSON` / `IniLoadPerson` con un modo temporal y adaptación acotada del envío/resultados; P06 integra ese componente en la interfaz aprobada. Se precisan RI05.1, RI05.4, RI10.4 y sus pruebas; se agrega un criterio de compatibilidad del cargador. Se mantienen los 73 identificadores de tarea y los 12 bloques de pruebas específicas. No se aprueban límites, expediente o permisos por elegir el componente. La revisión estructural se repite sobre los seis textos actuales y se actualizan sus huellas.
+Actualización por D-RI-05, confirmada el 2026-11-26 y que sustituye D-RI-04: P04 define un control nuevo e independiente (`RadicacionInternaUpload`, nombre propuesto) y recepción temporal propia; P06 lo integra en la UI aprobada. Se precisan RI05.1, RI05.4, RI10.4 y sus pruebas de estado, ciclo de vida y ausencia de dependencia del cargador compartido. Se mantienen los 73 identificadores de tarea, 61 apariciones de criterios y 12 bloques de pruebas específicas. No se aprueban límites, expediente o permisos por elegir el control. La revisión estructural se repite sobre los seis textos actuales y se actualizan sus huellas. Se trata de una actualización de los prompts; el control aún no está implementado.
 
 P02 mantiene RI01 → RI02 → RI03 para no adelantar configuración que depende de contexto. P03/P04 dependen de P02 y pueden avanzar independientemente. P05 mantiene RI07 → RI08 → RI09; P06 mantiene RI10 → RI11. El grafo de seis paquetes y el de doce subfases no tienen ciclos. Las decisiones se refinan por subfase; agruparlas no exige resolver todas al iniciar un prompt.
 
@@ -41,7 +41,7 @@ P02 mantiene RI01 → RI02 → RI03 para no adelantar configuración que depende
 | Riesgo o dependencia verificada | Resolución exigida por la serie |
 |---|---|
 | Apertura y generador dependen de documento/expediente de Producción y sesión mutable. | RI00 define alternativa documental; RI02 crea operación propia; RI03 desacopla metadatos; RI06 entrega referencias válidas. |
-| El cargador existente envía al handler actual y procesa resultados según sus eventos; los adjuntos clásicos/Simplificados exigen radicado existente. | D-RI-04 reutiliza el control con adaptación acotada de envío/resultados y estado por operación; RI05 agrega la recepción temporal y conserva defaults/contratos de los otros consumidores. |
+| El cargador existente comparte estado/eventos y sus adjuntos clásicos/Simplificados exigen radicado existente. | D-RI-05 crea un control independiente, con estado/endpoint propios, sin adaptar el cargador compartido; RI05 implementa la recepción temporal y RI06 conserva la compatibilidad del almacenamiento. |
 | Se mezclan remitente, ejecutor y responsable si solo se cambia el combo. | RI04 resuelve identidad tipada y autoridad; RI07 registra actor/propietario; RI09 mantiene propietario de respuesta. |
 | El lector de modalidad consulta `requiere_respuesta`. | RI03 separa activación, modalidad y canal, caracteriza consumidores y verifica corrección compartida. |
 | Controles dinámicos, tres opciones de plantilla y dependencias se reconstruyen durante postback. | RI01 estabiliza; RI03/RI10 conservan metadatos/IDs/tipos y exigen prueba WebForms real. |
@@ -107,6 +107,6 @@ SHA-256 del texto UTF-8 con saltos LF. Repetir revisión y actualizar huella si 
 | P01 | `97f45e2e592b735e6e9074f7e2f77a14e618bea9de3034d8980b6c1f4f81c944` |
 | P02 | `70b0921efe0262b8e7bdfa2c12d379447a0ab6f03cd8b9e02a5c9a0eb7e9d9d1` |
 | P03 | `99274d46b7d230a88ac0c4cddf2f0bc14aa988864ab248919e394f7ff636a081` |
-| P04 | `057d8fdc6644d6f8bea69c8b90aa99cc3a5bb546b392ac96d8978bd41c5b4376` |
+| P04 | `33cab2d163ff2b7493f619d42af9cb3787e36bc5b129aaea2380e80266cbf510` |
 | P05 | `698e4d3909a434c8004597579ea9d8320302b8de83ca9a1b3a133ae709e6e0e2` |
-| P06 | `58e80a2d506839b799ed1b134dd8b4d892a2960f1998bd1729580d95fe50221a` |
+| P06 | `4bc86a109e70ee82e723e2b699cbf27e4f529df0aa8ec306cc7722186c50d904` |

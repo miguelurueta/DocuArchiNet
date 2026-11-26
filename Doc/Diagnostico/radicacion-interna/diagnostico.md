@@ -9,7 +9,7 @@ La radicación interna puede mejorar sustancialmente su claridad, pero necesita 
 | Referencia | Valor |
 |---|---|
 | Fecha | 2026-11-25 |
-| Versión | 0.12 |
+| Versión | 0.13 |
 | Base local | Commit `0c7beb83` |
 | Grabación | `Grabación 2026-11-25 113145-radicacion-interna-revisa.mp4` |
 | Duración | 78,80 segundos |
@@ -348,4 +348,4 @@ La [guía de ejecución](prompts/00-guia-ejecucion.md) organiza 6 prompts: refin
 
 Las decisiones se refinan al abrir el paquete correspondiente según el [contexto común](prompts/contexto-comun.md). Se conservan D-RI-01 y D-RI-02, y se aplica D-RI-03: radicación y entrega del seguimiento, con gestión de respuestas en el módulo existente. La alternativa de expediente/clasificación, permisos/catálogos y detalles de entrega no se consideran aprobados por redactar estos prompts. La [revisión de la serie](prompts/revision-prompts.md) registra su validación estructural y funcional documental; no acredita implementación ni pruebas de ambiente.
 
-D-RI-04, aprobada el 2026-11-26, fija la reutilización de `LoadFilePERSON` / `IniLoadPerson` para la carga directa, con adaptación a la interfaz aprobada y nuevo procesamiento temporal previo al radicado. P04 y P06 incorporan este acuerdo; los eventos de adjunto a radicado existente mantienen sus contratos. Esta aprobación no cierra las decisiones pendientes de expediente, permisos, límites ni caducidad.
+D-RI-05, confirmada el 2026-11-26, sustituye D-RI-04: crear un control nuevo e independiente de carga directa, con la interfaz aprobada y procesamiento temporal previo al radicado. P04 define el control y P06 lo integra; el cargador compartido, su handler y sus eventos no se adaptan para esta entrada. Esta decisión no cierra las definiciones pendientes de expediente, permisos, límites ni caducidad ni acredita implementación del control.

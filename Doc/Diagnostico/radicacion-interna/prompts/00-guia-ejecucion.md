@@ -14,7 +14,7 @@ El mapa contiene **31 puntos de intervención/compatibilidad existentes (M01–M
 | Formulario WebForms | Estabilizar dependencias, eventos y reconstrucción de controles; adaptar `Genera_Interface_Radicacion_Entrante` a datos sin documento previo. |
 | Configuración | Separar seguimiento, modalidad y canal; corregir `Retorna_estado_respuesta_obligatoria` con sus consumidores y mantener calendarios/destinos. |
 | Remitente | Agregar resolución tipada de interno/tercero, búsqueda y autorización. Mantener ejecutor autenticado y responsable interno independientes. |
-| Documentos | D-RI-04: reutilizar `LoadFilePERSON` / `IniLoadPerson`, adaptar su modo previo e incorporar recepción temporal, manifiesto e incorporación definitiva. Conservar UI aprobada y contratos de los otros consumidores. |
+| Documentos | D-RI-05: crear control independiente con recepción temporal, manifiesto e incorporación definitiva; conservar la UI aprobada. El cargador compartido y sus consumidores actuales quedan fuera de la adaptación. |
 | Registro | Extraer el núcleo de `Registra_Radicacion_entrante_interna`, conservar consecutivos/transacción y enlazar de forma durable la operación con su radicado. |
 | Recuperación | Agregar consulta y finalización de fases pendientes. Un fallo posterior al `Commit` no debe volver a registrar el radicado. |
 | Seguimiento de respuesta | Crear la obligación con modalidad, plazo y responsable correctos y entregarla al módulo existente. Elaboración, envío y cierre de respuestas quedan en ese módulo. |
@@ -28,7 +28,7 @@ El mapa contiene **31 puntos de intervención/compatibilidad existentes (M01–M
 | [P01. Refinamiento y contratos](01-p01-refinamiento-contratos.md) | RI00 | Exploraciones y mapa | Contrato v1, alternativa documental y decisiones distribuidas. Sin código de aplicación. |
 | [P02. Base WebForms, contexto y configuración](02-p02-base-webforms-contexto-configuracion.md) | RI01 → RI02 → RI03 | P01 | Estabilidad, operación autorizada, ambas aperturas, migración y configuración real. |
 | [P03. Remitentes internos y terceros](03-p03-remitentes-internos-terceros.md) | RI04 | P02 | Remitente autorizado, ejecutor y responsable diferenciados. |
-| [P04. Carga e incorporación de documentos](04-p04-carga-incorporacion-documentos.md) | RI05 → RI06 | P02 | Cargador existente adaptado, recepción temporal real y documentos definitivos recuperables. |
+| [P04. Carga e incorporación de documentos](04-p04-carga-incorporacion-documentos.md) | RI05 → RI06 | P02 | Control nuevo independiente, recepción temporal real y documentos definitivos recuperables. |
 | [P05. Registro, recuperación y seguimiento](05-p05-registro-recuperacion-seguimiento.md) | RI07 → RI08 → RI09 | P03 y P04; contratos P02 | Único radicado, fases recuperables y seguimiento disponible para el módulo existente. |
 | [P06. Interfaz, integración y aceptación](06-p06-interfaz-integracion-aceptacion.md) | RI10 → RI11 | P01–P05 | UI real, ambos accesos, aceptación integrada y artefacto publicable. |
 
@@ -48,7 +48,7 @@ El diagrama resume la secuencia; la tabla contiene las dependencias completas. N
 
 Dar la instrucción de ejecutar un paquete junto con su contexto común. Por ejemplo:
 
-> Ejecuta P01 de radicación interna con el contexto común. Conserva D-RI-01, D-RI-02, D-RI-03 y D-RI-04; contrasta el código vigente, concreta contratos y presenta las decisiones funcionales pendientes con su impacto. Avanza con lo independiente y registra los acuerdos. Este paquete no implementa aplicación.
+> Ejecuta P01 de radicación interna con el contexto común. Conserva las decisiones vigentes D-RI-01, D-RI-02, D-RI-03 y D-RI-05; D-RI-04 quedó sustituida. Contrasta el código vigente, concreta contratos y presenta las decisiones funcionales pendientes con su impacto. Avanza con lo independiente y registra los acuerdos. Este paquete no implementa aplicación.
 
 Luego:
 
