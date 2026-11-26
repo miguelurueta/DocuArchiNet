@@ -1,0 +1,358 @@
+{
+  "issue": "DOC-127",
+  "status": "LOCAL_MODEL_AND_CURRENT_MODES_PASS_WEB_ASSISTANT_PENDING",
+  "recordedUtc": "2026-11-26T18:20:46.604Z",
+  "preparedCommit": "1e5a19943665e55dd6b05707609359194d1001f3",
+  "modelCases": [
+    {
+      "origin": "HISTORICA",
+      "format": "XLS",
+      "mode": "CREAR",
+      "status": "LOCAL_PASS_REUSED",
+      "level": "REAL_VB_SERVICES_SYNTHETIC_ADO",
+      "sheet": "Hoja ñ",
+      "key": "CLAVE",
+      "revisionMeaning": "Reading keeps revision1 and field IDs10/11; synthetic explicit edit advances to2",
+      "evidence": "doc127-pruebas-preparadas-20261125.json",
+      "initialRevision": 1,
+      "savedRevision": 2
+    },
+    {
+      "origin": "HISTORICA",
+      "format": "XLS",
+      "mode": "AGREGAR",
+      "status": "LOCAL_PASS_REUSED",
+      "level": "REAL_VB_SERVICES_SYNTHETIC_ADO",
+      "sheet": "Hoja ñ",
+      "key": "CLAVE",
+      "revisionMeaning": "Reading keeps revision1 and field IDs10/11; synthetic explicit edit advances to2",
+      "evidence": "doc127-pruebas-preparadas-20261125.json",
+      "initialRevision": 1,
+      "savedRevision": 2
+    },
+    {
+      "origin": "HISTORICA",
+      "format": "XLS",
+      "mode": "REEMPLAZAR",
+      "status": "LOCAL_PASS_REUSED",
+      "level": "REAL_VB_SERVICES_SYNTHETIC_ADO",
+      "sheet": "Hoja ñ",
+      "key": "CLAVE",
+      "revisionMeaning": "Reading keeps revision1 and field IDs10/11; synthetic explicit edit advances to2",
+      "evidence": "doc127-pruebas-preparadas-20261125.json",
+      "initialRevision": 1,
+      "savedRevision": 2
+    },
+    {
+      "origin": "HISTORICA",
+      "format": "XLSX",
+      "mode": "CREAR",
+      "status": "LOCAL_PASS_REUSED",
+      "level": "REAL_VB_SERVICES_SYNTHETIC_ADO",
+      "sheet": "Hoja ñ",
+      "key": "CLAVE",
+      "revisionMeaning": "Reading keeps revision1 and field IDs10/11; synthetic explicit edit advances to2",
+      "evidence": "doc127-pruebas-preparadas-20261125.json",
+      "initialRevision": 1,
+      "savedRevision": 2
+    },
+    {
+      "origin": "HISTORICA",
+      "format": "XLSX",
+      "mode": "AGREGAR",
+      "status": "LOCAL_PASS_REUSED",
+      "level": "REAL_VB_SERVICES_SYNTHETIC_ADO",
+      "sheet": "Hoja ñ",
+      "key": "CLAVE",
+      "revisionMeaning": "Reading keeps revision1 and field IDs10/11; synthetic explicit edit advances to2",
+      "evidence": "doc127-pruebas-preparadas-20261125.json",
+      "initialRevision": 1,
+      "savedRevision": 2
+    },
+    {
+      "origin": "HISTORICA",
+      "format": "XLSX",
+      "mode": "REEMPLAZAR",
+      "status": "LOCAL_PASS_REUSED",
+      "level": "REAL_VB_SERVICES_SYNTHETIC_ADO",
+      "sheet": "Hoja ñ",
+      "key": "CLAVE",
+      "revisionMeaning": "Reading keeps revision1 and field IDs10/11; synthetic explicit edit advances to2",
+      "evidence": "doc127-pruebas-preparadas-20261125.json",
+      "initialRevision": 1,
+      "savedRevision": 2
+    },
+    {
+      "origin": "NUEVA",
+      "format": "XLS",
+      "mode": "CREAR",
+      "status": "LOCAL_PASS_REUSED",
+      "level": "REAL_VB_SERVICES_SYNTHETIC_ADO",
+      "sheet": "Hoja ñ",
+      "key": "CLAVE",
+      "revisionMeaning": "Creation begins at revision0 and persists revision1 with generated IDs",
+      "evidence": "doc127-pruebas-preparadas-20261125.json",
+      "initialRevision": 0,
+      "savedRevision": 1
+    },
+    {
+      "origin": "NUEVA",
+      "format": "XLS",
+      "mode": "AGREGAR",
+      "status": "LOCAL_PASS_REUSED",
+      "level": "REAL_VB_SERVICES_SYNTHETIC_ADO",
+      "sheet": "Hoja ñ",
+      "key": "CLAVE",
+      "revisionMeaning": "Creation begins at revision0 and persists revision1 with generated IDs",
+      "evidence": "doc127-pruebas-preparadas-20261125.json",
+      "initialRevision": 0,
+      "savedRevision": 1
+    },
+    {
+      "origin": "NUEVA",
+      "format": "XLS",
+      "mode": "REEMPLAZAR",
+      "status": "LOCAL_PASS_REUSED",
+      "level": "REAL_VB_SERVICES_SYNTHETIC_ADO",
+      "sheet": "Hoja ñ",
+      "key": "CLAVE",
+      "revisionMeaning": "Creation begins at revision0 and persists revision1 with generated IDs",
+      "evidence": "doc127-pruebas-preparadas-20261125.json",
+      "initialRevision": 0,
+      "savedRevision": 1
+    },
+    {
+      "origin": "NUEVA",
+      "format": "XLSX",
+      "mode": "CREAR",
+      "status": "LOCAL_PASS_REUSED",
+      "level": "REAL_VB_SERVICES_SYNTHETIC_ADO",
+      "sheet": "Hoja ñ",
+      "key": "CLAVE",
+      "revisionMeaning": "Creation begins at revision0 and persists revision1 with generated IDs",
+      "evidence": "doc127-pruebas-preparadas-20261125.json",
+      "initialRevision": 0,
+      "savedRevision": 1
+    },
+    {
+      "origin": "NUEVA",
+      "format": "XLSX",
+      "mode": "AGREGAR",
+      "status": "LOCAL_PASS_REUSED",
+      "level": "REAL_VB_SERVICES_SYNTHETIC_ADO",
+      "sheet": "Hoja ñ",
+      "key": "CLAVE",
+      "revisionMeaning": "Creation begins at revision0 and persists revision1 with generated IDs",
+      "evidence": "doc127-pruebas-preparadas-20261125.json",
+      "initialRevision": 0,
+      "savedRevision": 1
+    },
+    {
+      "origin": "NUEVA",
+      "format": "XLSX",
+      "mode": "REEMPLAZAR",
+      "status": "LOCAL_PASS_REUSED",
+      "level": "REAL_VB_SERVICES_SYNTHETIC_ADO",
+      "sheet": "Hoja ñ",
+      "key": "CLAVE",
+      "revisionMeaning": "Creation begins at revision0 and persists revision1 with generated IDs",
+      "evidence": "doc127-pruebas-preparadas-20261125.json",
+      "initialRevision": 0,
+      "savedRevision": 1
+    }
+  ],
+  "modelSourceHashesVerified": 8,
+  "existingTemplateRealModes": [
+    {
+      "format": "XLS",
+      "mode": "AGREGAR",
+      "templateId": 61,
+      "revision": 1,
+      "sheet": "Datos",
+      "key": "CLAVE",
+      "table": "imp_02_doc127_e2e_agregar_xls",
+      "rows": 10000,
+      "loadId": "51906879-cb8a-46e3-aa1a-fe666adfdd94",
+      "status": "REAL_PASS_REUSED",
+      "level": "CURRENT_REAL_EXISTING_TEMPLATE",
+      "sourceCommit": "2cc794bb8795121a3c568de82af57a2ae1229976",
+      "evidence": "doc127-capacidad-xls10000-20261126.json"
+    },
+    {
+      "format": "XLS",
+      "mode": "REEMPLAZAR",
+      "templateId": 62,
+      "revision": 1,
+      "sheet": "Datos",
+      "key": "CLAVE",
+      "table": "imp_02_doc127_e2e_reemplazar_xls",
+      "rows": 10000,
+      "loadId": "9c0f7461-ff94-45e0-901f-aeaea09061f1",
+      "status": "REAL_PASS_REUSED",
+      "level": "CURRENT_REAL_EXISTING_TEMPLATE",
+      "sourceCommit": "2cc794bb8795121a3c568de82af57a2ae1229976",
+      "evidence": "doc127-capacidad-xls10000-20261126.json"
+    },
+    {
+      "format": "XLS",
+      "mode": "CREAR",
+      "templateId": 65,
+      "revision": 1,
+      "sheet": "Datos",
+      "key": "CLAVE",
+      "table": "imp_02_doc127_e2e_crear_xls_10000",
+      "rows": 10000,
+      "loadId": "da5175f8-1e8d-414c-802a-a3642ccdfdae",
+      "status": "REAL_PASS_REUSED",
+      "level": "CURRENT_REAL_EXISTING_TEMPLATE",
+      "sourceCommit": "2cc794bb8795121a3c568de82af57a2ae1229976",
+      "evidence": "doc127-capacidad-xls10000-20261126.json"
+    },
+    {
+      "format": "XLSX",
+      "mode": "AGREGAR",
+      "templateId": 58,
+      "revision": 1,
+      "sheet": "Datos",
+      "key": "CLAVE",
+      "table": "imp_02_doc126_e2e_agregar",
+      "rows": 10000,
+      "loadId": "09c8c4cb-167e-4d28-af65-550e4312a8ec",
+      "status": "REAL_PASS_REUSED",
+      "level": "CURRENT_REAL_EXISTING_TEMPLATE",
+      "sourceCommit": "86074721005fd4b9c6b3d8a6347e5add474b6649",
+      "evidence": "doc127-capacidad-xlsx10000-20261126.json"
+    },
+    {
+      "format": "XLSX",
+      "mode": "REEMPLAZAR",
+      "templateId": 59,
+      "revision": 1,
+      "sheet": "Datos",
+      "key": "CLAVE",
+      "table": "imp_02_doc126_e2e_reemplazar",
+      "rows": 10000,
+      "loadId": "46646d92-ac7b-4005-a14f-77b12517e230",
+      "status": "REAL_PASS_REUSED",
+      "level": "CURRENT_REAL_EXISTING_TEMPLATE",
+      "sourceCommit": "86074721005fd4b9c6b3d8a6347e5add474b6649",
+      "evidence": "doc127-capacidad-xlsx10000-20261126.json"
+    },
+    {
+      "format": "XLSX",
+      "mode": "CREAR",
+      "templateId": 68,
+      "revision": 1,
+      "sheet": "Datos",
+      "key": "CLAVE",
+      "table": "imp_02_doc127_e2e_crear_xlsx_10000",
+      "rows": 10000,
+      "loadId": "39dd8c35-85e3-4336-ad5c-4bad65b976d7",
+      "status": "REAL_PASS_REUSED",
+      "level": "CURRENT_REAL_EXISTING_TEMPLATE",
+      "sourceCommit": "86074721005fd4b9c6b3d8a6347e5add474b6649",
+      "evidence": "doc127-capacidad-xlsx10000-20261126.json"
+    }
+  ],
+  "currentModeSourceComponentHashesVerified": 17,
+  "historicalWebAssistant": {
+    "status": "REAL_HISTORICAL_PASS_NOT_REPEATED",
+    "format": "XLSX",
+    "mode": "CREAR",
+    "sourceCommit": "5046842b05bad4ec1e8b85a8c9d8f09df9f04e92",
+    "completedUtc": "2026-11-25T05:17:13.4764149Z",
+    "templateId": 60,
+    "table": "imp_02_doc126_e2e_asistente_c38a2522",
+    "loadId": "9d7a1ee7-f7f8-4592-ad34-0625bb77f80c",
+    "backendMatches": true,
+    "assets": [
+      {
+        "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+        "historicalSha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+        "currentSha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+        "matches": true
+      },
+      {
+        "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+        "historicalSha256": "837848f593b8bc456885f1ba5ee6340ca2244f1161f4eb88b96f0203b1c54253",
+        "currentSha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+        "matches": false
+      },
+      {
+        "path": "Styles/ImportacionExcel.css",
+        "historicalSha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+        "currentSha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+        "matches": true
+      }
+    ],
+    "uiDifference": "Current Vista associates controls with an auxiliary form and changes focus/busy handling. Historical web result is kept with its own hashes.",
+    "evidence": "doc126-e2e-asistente-real-20261125.json"
+  },
+  "pendingWebCases": [
+    {
+      "formato": "XLS",
+      "conexionId": 6,
+      "tabla": "imp_02_doc126_e2e_asistente_fab26227",
+      "archivoPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\.tmp\\doc127-assistant-ventana\\asistente.xls",
+      "archivoHash": "0090257fde02d8091edeeb0dccf6b446fdf5d3cce8c245caf6dc703cbb79f5f0",
+      "bytes": 229376,
+      "hoja": "Datos",
+      "filasEsperadas": 1000,
+      "campoUnico": "CLAVE",
+      "campos": [
+        {
+          "CAMPO_FUENTE": "CLAVE",
+          "CAMPO_DESTINO": "CLAVE",
+          "TIPO_CAMPO": "VARCHAR(61)"
+        },
+        {
+          "CAMPO_FUENTE": "VALOR",
+          "CAMPO_DESTINO": "VALOR",
+          "TIPO_CAMPO": "VARCHAR(63)"
+        }
+      ],
+      "mode": "CREAR",
+      "newTemplateId": null,
+      "expectedRevision": 1,
+      "expectedStatus": "CONFIRMADA",
+      "status": "NOT_EXECUTED",
+      "protectedTables": 38
+    },
+    {
+      "formato": "XLSX",
+      "conexionId": 6,
+      "tabla": "imp_02_doc126_e2e_asistente_3d2f2ad4",
+      "archivoPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\.tmp\\doc127-assistant-ventana\\asistente.xlsx",
+      "archivoHash": "e6c72836c4cc85d0b35880cc0dc17ebc8fc186c2cefeacac4182079d5471accd",
+      "bytes": 16301,
+      "hoja": "Datos",
+      "filasEsperadas": 1000,
+      "campoUnico": "CLAVE",
+      "campos": [
+        {
+          "CAMPO_FUENTE": "CLAVE",
+          "CAMPO_DESTINO": "CLAVE",
+          "TIPO_CAMPO": "VARCHAR(62)"
+        },
+        {
+          "CAMPO_FUENTE": "VALOR",
+          "CAMPO_DESTINO": "VALOR",
+          "TIPO_CAMPO": "VARCHAR(65)"
+        }
+      ],
+      "mode": "CREAR",
+      "newTemplateId": null,
+      "expectedRevision": 1,
+      "expectedStatus": "CONFIRMADA",
+      "status": "NOT_EXECUTED",
+      "protectedTables": 39
+    }
+  ],
+  "webCasesOutsideNewScope": [
+    "Web creation or operation editing for AGREGAR/REEMPLAZAR, both formats; not executed by this scope. Existing-template mode use is recorded separately."
+  ],
+  "task5_2Complete": false,
+  "nextWindow": "doc127-ventana-asistente-20261126.json",
+  "capacityMatrixUnchanged": "18/18 real PASS; no repetition",
+  "explain": "Manual SQL29 exists; no supplied server plan found; not executed by the agent"
+}

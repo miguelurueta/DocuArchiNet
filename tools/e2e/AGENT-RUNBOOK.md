@@ -1,5 +1,9 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC127: asistente XLS/XLSX preparado — 2026-11-26
+
+Lote `c659ec0b64d94681bccaaa8e6e75e4d0`, PREPARED_NOT_AUTHORIZED. Dos formatos,1000 filas cada uno, cuenta194/empresa2/DA11/RA12/ref6 en IIS local GESTOR. Máximo2 plantillas,4 campos,2 tablas y2000 filas nuevas; cero borrados, ediciones de datos existentes o permisos.38/39 tablas protegidas,78 perfiles y41 cargas previas. Consola de una contraseña, scopes, consumo único, SELECT antes/después y recuperación sin retry listos.14 SELECT y dos análisis nativos locales PASS; nueve guardas locales PASS sin activar autorización real. [Propuesta](../../Doc/Actualizacion/Importacion/Validacion/doc127-ventana-asistente-20261126.md) y [matriz](../../Doc/Actualizacion/Importacion/Validacion/doc127-matriz-plantillas-20261126.md). No iniciar sin autorización expresa de este lote; la lectura anterior está consumida. Avance29/33;5.2 permanece abierta.
+
 ## DOC127: autoridad y lectura reales PASS — 2026-11-26
 
 Ventana `b0bd002d3ee84dc38d2bc883fb9c1739` consumida:1/1 E2E y seis rechazos CSRF/referencias/resultados PASS. IIS local HTTPS/GESTOR empresa2/DA11/RA12, cuentas194/196, conexión6/plantilla60.38 tablas protegidas, configuración,78 perfiles y41 cargas sin cambios; cero cargas/preparaciones/confirmaciones/guardados/cambios de permisos. Consola cerrada naturalmente, sin terminación forzada. Se completa5.1 con cobertura clasificada: real actual,36 cambios sintéticos y18 preparaciones reales reutilizadas; revocación física no ejecutada.29/33 tareas; siguen2.4,5.2,7.1,7.5. [Resultado real](../../Doc/Actualizacion/Importacion/Validacion/doc127-autoridad-real-20261126.md) y JSON. No repetir ni ampliar efectos por esta autorización. Los apartados siguientes son históricos.

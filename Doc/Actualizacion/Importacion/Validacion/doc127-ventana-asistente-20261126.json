@@ -1,0 +1,308 @@
+{
+  "issue": "DOC-127",
+  "status": "PREPARED_NOT_AUTHORIZED",
+  "recordedUtc": "2026-11-26T18:20:46.604Z",
+  "batchId": "c659ec0b64d94681bccaaa8e6e75e4d0",
+  "preparedCommit": "1e5a19943665e55dd6b05707609359194d1001f3",
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "module": "GESTOR",
+    "empresaId": 2,
+    "daModuloId": 11,
+    "raModuloId": 12,
+    "conexionId": 6,
+    "usuarioId": 194,
+    "expectedPermissions": {
+      "id": 194,
+      "login_ref": "asesor.comercial",
+      "activo": 1,
+      "cargas": 1,
+      "carpetas": 0,
+      "perfiles": 0,
+      "fuentes": 0,
+      "proveedores": 0
+    }
+  },
+  "cases": [
+    {
+      "formato": "XLS",
+      "conexionId": 6,
+      "tabla": "imp_02_doc126_e2e_asistente_fab26227",
+      "archivoPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\.tmp\\doc127-assistant-ventana\\asistente.xls",
+      "archivoHash": "0090257fde02d8091edeeb0dccf6b446fdf5d3cce8c245caf6dc703cbb79f5f0",
+      "bytes": 229376,
+      "hoja": "Datos",
+      "filasEsperadas": 1000,
+      "campoUnico": "CLAVE",
+      "campos": [
+        {
+          "CAMPO_FUENTE": "CLAVE",
+          "CAMPO_DESTINO": "CLAVE",
+          "TIPO_CAMPO": "VARCHAR(61)"
+        },
+        {
+          "CAMPO_FUENTE": "VALOR",
+          "CAMPO_DESTINO": "VALOR",
+          "TIPO_CAMPO": "VARCHAR(63)"
+        }
+      ],
+      "mode": "CREAR",
+      "newTemplateId": null,
+      "expectedRevision": 1,
+      "expectedStatus": "CONFIRMADA",
+      "status": "NOT_EXECUTED",
+      "protectedTables": 38
+    },
+    {
+      "formato": "XLSX",
+      "conexionId": 6,
+      "tabla": "imp_02_doc126_e2e_asistente_3d2f2ad4",
+      "archivoPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\.tmp\\doc127-assistant-ventana\\asistente.xlsx",
+      "archivoHash": "e6c72836c4cc85d0b35880cc0dc17ebc8fc186c2cefeacac4182079d5471accd",
+      "bytes": 16301,
+      "hoja": "Datos",
+      "filasEsperadas": 1000,
+      "campoUnico": "CLAVE",
+      "campos": [
+        {
+          "CAMPO_FUENTE": "CLAVE",
+          "CAMPO_DESTINO": "CLAVE",
+          "TIPO_CAMPO": "VARCHAR(62)"
+        },
+        {
+          "CAMPO_FUENTE": "VALOR",
+          "CAMPO_DESTINO": "VALOR",
+          "TIPO_CAMPO": "VARCHAR(65)"
+        }
+      ],
+      "mode": "CREAR",
+      "newTemplateId": null,
+      "expectedRevision": 1,
+      "expectedStatus": "CONFIRMADA",
+      "status": "NOT_EXECUTED",
+      "protectedTables": 39
+    }
+  ],
+  "maxEffects": {
+    "imports": 2,
+    "templates": 2,
+    "fields": 4,
+    "tables": 2,
+    "insertedRows": 2000,
+    "deletedRows": 0,
+    "permissionChanges": 0,
+    "installationSql": 0,
+    "cleanupSql": 0
+  },
+  "budget": {
+    "maxWindowMs": 2700000,
+    "testTimeoutPerCaseMs": 900000,
+    "retries": 0,
+    "maxExecutions": 1
+  },
+  "conservation": {
+    "originalProtectedTables": [
+      "imp_02__001_feriados",
+      "imp_02_activo_esal",
+      "imp_02_activo_rup",
+      "imp_02_ariendo",
+      "imp_02_codigos",
+      "imp_02_comision",
+      "imp_02_comisiones",
+      "imp_02_contratos",
+      "imp_02_creditos",
+      "imp_02_doc125_e2e_agregar",
+      "imp_02_doc125_e2e_crear",
+      "imp_02_doc125_e2e_reemplazar",
+      "imp_02_doc126_e2e_agregar",
+      "imp_02_doc126_e2e_asistente_c38a2522",
+      "imp_02_doc126_e2e_reemplazar",
+      "imp_02_doc127_e2e_agregar_xls",
+      "imp_02_doc127_e2e_crear_xls_1000",
+      "imp_02_doc127_e2e_crear_xls_10000",
+      "imp_02_doc127_e2e_crear_xls_5000",
+      "imp_02_doc127_e2e_crear_xlsx_1000",
+      "imp_02_doc127_e2e_crear_xlsx_10000",
+      "imp_02_doc127_e2e_crear_xlsx_5000",
+      "imp_02_doc127_e2e_reemplazar_xls",
+      "imp_02_egresos",
+      "imp_02_facturas",
+      "imp_02_hoja1",
+      "imp_02_librosccv",
+      "imp_02_mercantil_activos",
+      "imp_02_migra_sii_fecha",
+      "imp_02_nomina",
+      "imp_02_nominagy",
+      "imp_02_ordenes_2025",
+      "imp_02_rup_activos",
+      "imp_02_terceros",
+      "imp_02_terceros2",
+      "imp_02_terceros3",
+      "imp_02_tercerosimec",
+      "imp_02_total"
+    ],
+    "protectedTablesByCase": [
+      38,
+      39
+    ],
+    "initialProfiles": 78,
+    "initialLoads": 41,
+    "initialTemplates": 38,
+    "initialFields": 134,
+    "initialSnapshots": {
+      "profiles": {
+        "rows": 78,
+        "sha256": "bd5953665dfc848bef3f2064c82e3b575a83f20ef646c4952521d129ca8e7447"
+      },
+      "loads": {
+        "rows": 41,
+        "sha256": "15886db853d521382483f5acac42d2152b63295ccf7fb9cb81ea5fbeb7c508a3"
+      },
+      "templates": {
+        "rows": 38,
+        "sha256": "5310b956badb055a7dda630f5d7750a3c62daa470735e40ff9bf1bf2b6c322cf"
+      },
+      "fields": {
+        "rows": 134,
+        "sha256": "548c70738cd220cc6a5bd41a9733563e72bb681992f43d6a8b473b7d373b6d90"
+      },
+      "tables": {
+        "rows": 38,
+        "sha256": "6fc9f293cdb08961a9ea374393afdb25b665d4a5901a48dcfffb4ba0cd09f276"
+      }
+    }
+  },
+  "privateScopeHashes": {
+    "XLS": "8521b6d0b2715c1c5d04710c039a617292ab8a69a382727e5e65d70051a07a1a",
+    "XLSX": "74c716bc031b17603e99b174dbc4d9ff2b5005589bdccc324e2215f1cdc7ae02"
+  },
+  "runtimeAndScriptHashes": {
+    "bin/GestionDocumental-Docuarchi.net.dll": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+    "Web.config": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+    "Gestion/WebFormProducionDocumental.aspx": "d7975d92a77a1390b23287514f1c0d8ad91dcca398fcc590f5ab02d929567696",
+    "js/gestion/ImportacionExcel/ImportacionExcelApi.js": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+    "js/gestion/ImportacionExcel/ImportacionExcelVista.js": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+    "Styles/ImportacionExcel.css": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+    "generic_control/ImportacionExcelAnalisis.ashx": "064db5423957a60b143ea5d74a6e6fa0647310d432002382a3263442c54a8c4a",
+    "tools/e2e/tests/importacion-excel.spec.cjs": "e8b2463c9d25466cb1cecb1a7f4a6932097b1ad178ae337b6fb78d35689591ce",
+    "tools/e2e/tests/support/doc126-excel-scope.cjs": "ee0118f810efbf9f8d3c5eab514b2b512d77151d7e4bdaf9ed01d48a8c9c0776",
+    "tools/e2e/tests/support/doc125-excel-scope.cjs": "1edcb7d37c0de6e7bc281d4e8a9b0d8666d00412e2a1c01ef6c3d96915d78375",
+    "tools/e2e/scripts/run-doc110-profile-session.cjs": "495f43abffdbc5024c9271b569a6edf6ff3567dec714971ef47f9b754712b4b7",
+    "tools/e2e/scripts/support/doc32-e2e-odbc.cjs": "10523bcc1608c94fb816d8be09b352ec570be8cda23cd969d473c8e5bc608ccf",
+    ".tmp/doc126-functional-preparacion/profile-selected.json": "2e63e8cfe96d3518eb48aa415f9e2f1fa75eb01ac6079124efb961e07873f425",
+    ".tmp/doc127-assistant-guard.cjs": "65a71ace9bf775c4340e04fae5ff25b8247cd27a360732e2f0c950b8edd8c961",
+    ".tmp/doc127-assistant-run.cjs": "efda53d984dc08a8f3e363cb6b78275aa538fa1cb24f6d64ea9e5c9a23ff7e3a",
+    ".tmp/doc127-assistant-select.ps1": "c2896f360f488d67b3488f9d39424fbccd104a62874742a4c39a41e4500133ad",
+    ".tmp/doc127-assistant-session.ps1": "c570526098b22cee989acc2adc3002cc982b77f89350936956b03b90995bfffd",
+    ".tmp/doc127-assistant-ventana/books.json": "add14f295ab1c78a163201c50075dda81563afbe3599611e67d8b4ec6a2b6337",
+    ".tmp/doc127-assistant-ventana/native-analysis.json": "513c34831bcd9c9123a088c62a1701a84739c38739e17755ce28a91ecf6542a0",
+    ".tmp/doc127-assistant-ventana/prepared-select.json": "3596aadc3c2d09c032dba7d9126f6119904bc63f206f66be4791f04e99b5d860"
+  },
+  "manifestSha256": "eaa6de959c23d8dcf7bfa7cc7e4700c19d769e4e680df7a03e506026060406fd",
+  "localVerification": {
+    "nativeAnalysis": {
+      "status": "LOCAL_NATIVE_ANALYSIS_PASS",
+      "recordedUtc": "2026-11-26T18:12:36.0640032Z",
+      "cases": [
+        {
+          "format": "XLS",
+          "rows": 1000,
+          "fields": [
+            {
+              "CAMPO_FUENTE": "CLAVE",
+              "CAMPO_DESTINO": "CLAVE",
+              "TIPO_CAMPO": "VARCHAR(61)"
+            },
+            {
+              "CAMPO_FUENTE": "VALOR",
+              "CAMPO_DESTINO": "VALOR",
+              "TIPO_CAMPO": "VARCHAR(63)"
+            }
+          ],
+          "fileHash": "0090257fde02d8091edeeb0dccf6b446fdf5d3cce8c245caf6dc703cbb79f5f0",
+          "status": "LOCAL_NATIVE_ANALYSIS_PASS"
+        },
+        {
+          "format": "XLSX",
+          "rows": 1000,
+          "fields": [
+            {
+              "CAMPO_FUENTE": "CLAVE",
+              "CAMPO_DESTINO": "CLAVE",
+              "TIPO_CAMPO": "VARCHAR(62)"
+            },
+            {
+              "CAMPO_FUENTE": "VALOR",
+              "CAMPO_DESTINO": "VALOR",
+              "TIPO_CAMPO": "VARCHAR(65)"
+            }
+          ],
+          "fileHash": "e6c72836c4cc85d0b35880cc0dc17ebc8fc186c2cefeacac4182079d5471accd",
+          "status": "LOCAL_NATIVE_ANALYSIS_PASS"
+        }
+      ],
+      "sqlWrites": 0,
+      "authenticatedSessions": 0,
+      "realE2EExecuted": false
+    },
+    "guards": {
+      "status": "LOCAL_GUARDS_PASS",
+      "recordedUtc": "2026-11-26T18:18:02.138Z",
+      "checks": [
+        "pending authorization rejected",
+        "authorized scope accepted only in memory",
+        "session claim consumed once in memory",
+        "second case requires first PASS",
+        "expired window rejected",
+        "runtime hash drift rejected",
+        "per-case effects outside budget rejected",
+        "two scopes/files/runtime valid; one account; shared runner remains unauthorized",
+        "private console refuses both launch paths while pending"
+      ],
+      "mockWrites": 1,
+      "actualClaimsCreated": 0,
+      "actualAuthorizationPersisted": false,
+      "authenticatedSessions": 0,
+      "sqlWrites": 0,
+      "realE2EExecuted": false,
+      "nodeSyntaxFiles": 5
+    },
+    "powershellSyntaxFiles": 2,
+    "powershellSyntaxErrors": 0,
+    "preparationSelects": 14,
+    "sqlWrites": 0,
+    "authenticatedSessions": 0
+  },
+  "execution": {
+    "runner": "run-doc110-profile-session.cjs:runExcelUi --excel-ui-assistant",
+    "suite": "tools/e2e/tests/importacion-excel.spec.cjs",
+    "caseOrder": [
+      "XLS",
+      "XLSX"
+    ],
+    "onePrivatePasswordPrompt": true,
+    "caseReferencesRecoveredBySelectOnFailure": true,
+    "automaticRetry": false
+  },
+  "limitations": [
+    "No real execution is authorized or claimed by preparation.",
+    "The scope creates and preserves two new templates/four fields/two tables/2000 business rows. It does not edit or delete existing data.",
+    "No web operation changes to AGREGAR/REEMPLAZAR are authorized here; those modes have current capacity evidence with existing templates.",
+    "No permission changes, installation, cleanup, deployment or physical EXPLAIN execution."
+  ],
+  "tasks": {
+    "complete": 29,
+    "total": 33,
+    "pending": [
+      "2.4",
+      "5.2",
+      "7.1",
+      "7.5"
+    ],
+    "completedInThisPreparation": []
+  },
+  "privateDirectory": ".tmp/doc127-assistant-ventana",
+  "consoleScript": ".tmp/doc127-assistant-session.ps1",
+  "credentialsStored": false,
+  "realE2EExecuted": false
+}

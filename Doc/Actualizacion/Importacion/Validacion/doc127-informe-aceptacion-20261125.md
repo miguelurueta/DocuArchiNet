@@ -1,5 +1,7 @@
 # DOC-127 — Informe de aceptación y capacidad con restricciones
 
+Siguiente ventana preparada: [asistente XLS/XLSX](doc127-ventana-asistente-20261126.md), lote `c659ec0b64d94681bccaaa8e6e75e4d0`, pendiente de autorización para cuenta194. Dos altas web con1000 filas por formato: máximo2 plantillas/4 campos/2 tablas/2000 filas nuevas, cero borrados o cambios de permisos. [Matriz de plantillas](doc127-matriz-plantillas-20261126.md) separa12 modelos locales, seis usos reales y creación web histórica. No hubo nueva E2E; avance29/33 y5.2 abierta.
+
 Actualización de autoridad2026-11-26: **1/1 E2E real y seis rechazos PASS;29/33 tareas**. [Resultado y clasificación](doc127-autoridad-real-20261126.md). Se completa5.1: permisos, CSRF, referencias y lectura reales; preparación18/18 reutilizada y36 cambios de autoridad sintéticos identificados.38 tablas/configuración,78 perfiles y41 cargas conservadas. Cero importaciones/guardados/cambios de permisos; ventana consumida. La matriz de capacidad conserva18/18 PASS. Pendientes2.4,5.2,7.1,7.5; los cortes28/33 y anteriores son históricos.
 
 Siguiente ejecución preparada: [autoridad y lectura](doc127-ventana-autoridad-20261126.md), pendiente de autorización para cuentas194/196 en IIS local GESTOR. Seis rechazos y comprobaciones de lectura con cero cargas, guardados o cambios de permisos;38 tablas/78 perfiles/41 cargas protegidas. La preparación no es evidencia real adicional ni completa tareas. Avance vigente28/33 y capacidad18/18.

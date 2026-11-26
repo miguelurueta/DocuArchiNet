@@ -2211,7 +2211,7 @@
         "5.2"
       ],
       "impact": "La matriz18/18 de capacidad tiene resultados reales y mediciones. Los cruces restantes de plantillas y su aceptación funcional siguen pendientes.",
-      "action": "Conservar las dieciocho cargas actuales y sus scopes consumidos; completar sólo los cruces funcionales pendientes de plantillas mediante un alcance revisable, sin repetir capacidad."
+      "action": "Ventana concreta de asistente XLS/XLSX preparada para cuenta194:2 altas/4 campos/2 tablas/2000 filas nuevas, cero borrados. Obtener autorización, ejecutar una vez por formato y revisar resultados con matriz de plantillas; no repetir capacidad."
     },
     {
       "id": "B-04",
@@ -2421,18 +2421,23 @@
     "exclusiveMemoryAllocationClaimed": false
   },
   "nextPreparedWindow": {
-    "windowId": "b0bd002d3ee84dc38d2bc883fb9c1739",
-    "status": "FINISHED_REAL_AUTHORITY_PASS",
-    "report": "Doc/Actualizacion/Importacion/Validacion/doc127-ventana-autoridad-20261126.md",
-    "scope": "six read authority rejections and UI read with accounts194/196",
-    "maxBusinessRows": 0,
-    "maxDeletedRows": 0,
-    "realE2EExecuted": true,
-    "completesTasks": [
-      "5.1"
-    ],
-    "finalReport": "Doc/Actualizacion/Importacion/Validacion/doc127-autoridad-real-20261126.md",
-    "windowConsumed": true
+    "batchId": "c659ec0b64d94681bccaaa8e6e75e4d0",
+    "status": "PREPARED_NOT_AUTHORIZED",
+    "report": "Doc/Actualizacion/Importacion/Validacion/doc127-ventana-asistente-20261126.md",
+    "scope": "current web assistant XLS/XLSX,194,1000 rows each",
+    "maxEffects": {
+      "imports": 2,
+      "templates": 2,
+      "fields": 4,
+      "tables": 2,
+      "insertedRows": 2000,
+      "deletedRows": 0,
+      "permissionChanges": 0,
+      "installationSql": 0,
+      "cleanupSql": 0
+    },
+    "realE2EExecuted": false,
+    "completesTasks": []
   },
   "latestAuthorityAcceptance": {
     "evidenceId": "DOC127_AUTORIDAD_REAL",
@@ -2445,5 +2450,10 @@
     "completedTask": "5.1",
     "newImportEffects": 0,
     "physicalRevocationExecuted": false
+  },
+  "templateMatrix": {
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-matriz-plantillas-20261126.json",
+    "status": "LOCAL_MODEL_AND_CURRENT_MODES_PASS_WEB_ASSISTANT_PENDING",
+    "taskComplete": false
   }
 }
