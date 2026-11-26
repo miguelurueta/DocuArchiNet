@@ -9,7 +9,7 @@ La radicación interna puede mejorar sustancialmente su claridad, pero necesita 
 | Referencia | Valor |
 |---|---|
 | Fecha | 2026-11-25 |
-| Versión | 0.8 |
+| Versión | 0.9 |
 | Base local | Commit `0c7beb83` |
 | Grabación | `Grabación 2026-11-25 113145-radicacion-interna-revisa.mp4` |
 | Duración | 78,80 segundos |
@@ -341,3 +341,9 @@ Las pruebas reales requieren autorización expresa de ambiente, cuentas y datos 
 4. **Aceptación integral:** controles dinámicos, distintas plantillas, casos de concurrencia y fallos parciales, pruebas autorizadas y revisión de todos los accesos.
 
 El módulo tiene dependencias más amplias que una mejora visual aislada. Un presupuesto de tiempo para implementarlo debe considerar las decisiones de plantillas, representación de usuario y recuperación del registro, además de la distribución del formulario.
+
+## Prompts para implementar la capacidad completa
+
+La [guía de ejecución](prompts/00-guia-ejecucion.md) organiza 12 paquetes de refinamiento, estabilización, contexto, configuración, remitentes, recepción, incorporación, registro, recuperación, respuesta, interfaz y aceptación. El [mapa de funciones](mapa-funciones-implementacion.md), contrastado con la base `226d2000`, distingue 31 puntos de intervención existentes y 13 responsabilidades nuevas propuestas, con sus rutas y consumidores.
+
+Las decisiones se refinan al abrir el paquete correspondiente según el [contexto común](prompts/contexto-comun.md). Se conservan D-RI-01 y D-RI-02. La alternativa de expediente/clasificación, permisos/catálogos y política de respuesta no se consideran aprobadas por redactar estos prompts. La [revisión de la serie](prompts/revision-prompts.md) registra su validación estructural y funcional documental; no acredita implementación ni pruebas de ambiente.
