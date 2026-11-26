@@ -9,7 +9,7 @@ La radicación interna puede mejorar sustancialmente su claridad, pero necesita 
 | Referencia | Valor |
 |---|---|
 | Fecha | 2026-11-25 |
-| Versión | 0.13 |
+| Versión | 0.14 |
 | Base local | Commit `0c7beb83` |
 | Grabación | `Grabación 2026-11-25 113145-radicacion-interna-revisa.mp4` |
 | Duración | 78,80 segundos |
@@ -349,3 +349,7 @@ La [guía de ejecución](prompts/00-guia-ejecucion.md) organiza 6 prompts: refin
 Las decisiones se refinan al abrir el paquete correspondiente según el [contexto común](prompts/contexto-comun.md). Se conservan D-RI-01 y D-RI-02, y se aplica D-RI-03: radicación y entrega del seguimiento, con gestión de respuestas en el módulo existente. La alternativa de expediente/clasificación, permisos/catálogos y detalles de entrega no se consideran aprobados por redactar estos prompts. La [revisión de la serie](prompts/revision-prompts.md) registra su validación estructural y funcional documental; no acredita implementación ni pruebas de ambiente.
 
 D-RI-05, confirmada el 2026-11-26, sustituye D-RI-04: crear un control nuevo e independiente de carga directa, con la interfaz aprobada y procesamiento temporal previo al radicado. P04 define el control y P06 lo integra; el cargador compartido, su handler y sus eventos no se adaptan para esta entrada. Esta decisión no cierra las definiciones pendientes de expediente, permisos, límites ni caducidad ni acredita implementación del control.
+
+## Alcance compartido del WebService de radicación
+
+El [diagnóstico del WebService y sus consumidores](diagnostico-webservice-radicacion.md), revisado sobre `b3353753`, confirma que `WebServiceRadicacion.asmx` es compartido: 40 WebMethods y referencias no comentadas a su ruta en 31 archivos de código, incluidos consumidores/configuración de Producción, clásica/Simplificada, respuestas, Workflow y PQRS. La radicación interna referencia búsquedas de usuarios; su registro principal actual pasa por postback y `ClassRadicador`. `WebServiceRadicacionInterna.asmx` y el handler interno de upload son propuestas que todavía no existen. Crear esas fronteras no elimina las dependencias de clases, tablas y almacenamiento comunes.
