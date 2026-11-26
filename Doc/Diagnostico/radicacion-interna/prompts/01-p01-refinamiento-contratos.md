@@ -25,6 +25,7 @@ Concretar contratos y decisiones mínimas del alcance operativo. Entrega documen
 - Leer el contexto común y el código vigente; actuar solo en el alcance refinado. Las funciones N son propuestas y las M existen en el código; no confundir sus estados ni inventar su implementación.
 - Mantener WebForms/VB.NET/.NET Framework 4.6.1, plantillas dinámicas y contratos de Producción, clásica, Simplificada y Workflow. No modificar el OpenSpec DOC-127 ni su trabajo concurrente.
 - D-RI-06: tratar la radicación y sus contratos compartidos como núcleo crítico. Caracterizar el comportamiento antes de modificarlo, justificar cada adaptación/extracción indispensable y conservar numeración, transacciones y consumidores. Un servicio o control nuevo no aísla las clases/tablas comunes ni acredita ausencia de regresiones; no reescribir el motor como parte del cambio visual.
+- D-RI-07 prevalece sobre cualquier permiso de extracción: almacenamiento existente intocable. No editar `workflow/ClassAlmacenamiento.vb` ni las funciones de almacenamiento/metadatos de la baseline; no agregarles sobrecargas, clonarlas o eludirlas con SQL/copias definitivas propios ni cambiar configuración para alterar su comportamiento. Adaptar solo código externo con firmas vigentes y ejecutar `node tools/diagnostico/verify-radicacion-storage-freeze.cjs` antes y después; no actualizar la baseline para hacer pasar el cambio.
 - Límite D-RI-03 confirmado: este módulo radica y crea/entrega el seguimiento; elaboración, envío, confirmación y cierre de respuestas pertenecen al módulo existente. No trasladar esas funciones a esta pantalla ni rediseñar sus políticas.
 - Actor/empresa/permisos provienen de autoridad autenticada. El remitente no sustituye al ejecutor ni al responsable; IDs visibles, campos ocultos, rutas y nombres de tabla del cliente no son autoridad.
 - No repetir una escritura incierta ni anunciar éxito global por HTTP 200/YES. Mantener revisión, correlación, resultado durable y compatibilidad con los efectos ya confirmados.
@@ -48,7 +49,7 @@ El inventario de rutas corresponde a futuras entregas; este prompt es solo docum
 
 ### Subfase RI00
 
-1. **RI00.1.** Registrar aprobaciones existentes y resolver G01: A con expediente previo y materialización de registros compatibles, o B con origen independiente y clasificación posterior. Para B definir dónde se almacena, clasifica y relaciona cada documento; prohibir el atajo de IDs cero. No exigir todas las demás respuestas para continuar análisis independiente.
+1. **RI00.1.** Registrar aprobaciones existentes y refinar G01 con D-RI-07: A con expediente previo y contratos de incorporación actuales; B solo si se demuestra una ruta vigente compatible con clasificación posterior sin modificar almacenamiento, metadatos protegidos o configuración para eludirlos. No aprobar B por ausencia de evidencia ni fabricar IDs cero. Si resulta incompatible, registrar la limitación y continuar lo independiente; no alterar el motor para completar esta variante. No exigir todas las demás respuestas para continuar análisis independiente.
 
 2. **RI00.2.** Congelar responsabilidades N01–N13, nombres públicos mínimos, tipos/rangos de IDs, protección de petición, autoridad por operación y errores visibles. Concretar apertura, actualización, revisión, confirmación, consulta y recepción multipart sin actor ni rutas del cliente como autoridad.
 
@@ -69,6 +70,7 @@ Relacionar cada tarea con las funciones/rutas de este paquete y con su caso de p
 - Contrato v1 distingue procedencia, ejecutor, remitente, responsable y referencias de documentos.
 - Cada resultado parcial tiene prueba prevista y una consulta de recuperación localizada.
 - Existe una línea base del núcleo y una justificación verificable por cambio compartido; están definidos casos previos/posteriores para numeración, transacción, documentos, seguimiento y consumidores. No se presenta un plan de pruebas como evidencia ejecutada.
+- Se identifica qué funciones y archivo completo son intocables y se verifica su baseline; la matriz separa metadatos de formulario, inventario, gabinete e índice, y documenta límites de la variante sin expediente sin prometer cambios del motor.
 - La alternativa de carga elegida tiene recorrido completo; no se oculta la variante sin expediente como trabajo supuestamente terminado.
 - Las decisiones pendientes tienen dueño funcional, paquete y consecuencia; ninguna recomendación se marca aprobada por redactar este archivo.
 - Cambios y evidencia corresponden al alcance, con consumidor/versiones trazables; no hay una dependencia pendiente presentada como implementada.

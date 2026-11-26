@@ -26,6 +26,7 @@ Crear un control nuevo e independiente para recibir archivos reales por operaci�
 - Leer el contexto común y el código vigente; actuar solo en el alcance refinado. Las funciones N son propuestas y las M existen en el código; no confundir sus estados ni inventar su implementación.
 - Mantener WebForms/VB.NET/.NET Framework 4.6.1, plantillas dinámicas y contratos de Producción, clásica, Simplificada y Workflow. No modificar el OpenSpec DOC-127 ni su trabajo concurrente.
 - D-RI-06: tratar la radicación y sus contratos compartidos como núcleo crítico. Caracterizar el comportamiento antes de modificarlo, justificar cada adaptación/extracción indispensable y conservar numeración, transacciones y consumidores. Un servicio o control nuevo no aísla las clases/tablas comunes ni acredita ausencia de regresiones; no reescribir el motor como parte del cambio visual.
+- D-RI-07 prevalece sobre cualquier permiso de extracción: almacenamiento existente intocable. No editar `workflow/ClassAlmacenamiento.vb` ni las funciones de almacenamiento/metadatos de la baseline; no agregarles sobrecargas, clonarlas o eludirlas con SQL/copias definitivas propios ni cambiar configuración para alterar su comportamiento. Adaptar solo código externo con firmas vigentes y ejecutar `node tools/diagnostico/verify-radicacion-storage-freeze.cjs` antes y después; no actualizar la baseline para hacer pasar el cambio.
 - Límite D-RI-03 confirmado: este módulo radica y crea/entrega el seguimiento; elaboración, envío, confirmación y cierre de respuestas pertenecen al módulo existente. No trasladar esas funciones a esta pantalla ni rediseñar sus políticas.
 - D-RI-05 vigente: control nuevo, estado por instancia/operación y transporte previo propios. No modificar ni depender de `LoadFilePERSON` / `IniLoadPerson`, `FileUploadHandler.js`, `FileUploadHandler_.ashx.vb` o sus eventos para habilitarlo. No clonar el monolito del cargador anterior ni sus variables globales; conservar la UI aprobada.
 - Actor/empresa/permisos provienen de autoridad autenticada. El remitente no sustituye al ejecutor ni al responsable; IDs visibles, campos ocultos, rutas y nombres de tabla del cliente no son autoridad.
@@ -68,13 +69,13 @@ Relacionar cada tarea con las funciones/rutas de este paquete y con su caso de p
 
 ### Subfase RI06
 
-1. **RI06.1.** Implementar la alternativa G01 elegida: A revalida expediente/tipología y obtiene registros reales de Producción al incorporar; B prepara almacenamiento/relaciones independientes con clasificación posterior acordada. No pasar cero por una firma que exige un documento previo.
+1. **RI06.1.** Implementar la alternativa G01 acordada que sea compatible con almacenamiento intocable. A revalida expediente/tipología y llama las firmas vigentes para obtener referencias reales. B solo se implementa si una ruta existente soporta la clasificación posterior sin modificar funciones/configuración protegidas; si no se acredita, registrar la incompatibilidad y no habilitarla. No fabricar registros/IDs cero ni escribir tablas/archivos definitivos propios para eludir el motor.
 
 2. **RI06.2.** Normalizar origen Producción frente a recepción nueva mediante manifiesto autorizado. Para existentes verificar expediente, gabinete, vigencia y relación de radicación; para nuevos exigir recepción íntegra de la operación y política de clasificación.
 
-3. **RI06.3.** Reutilizar almacenamiento físico, índices, gabinetes, firmas y conversiones reales. Si hace falta contexto explícito, agregar sobrecarga/adaptador acotado preservando la firma y pruebas de los consumidores actuales.
+3. **RI06.3.** Llamar el almacenamiento y preparadores existentes sin modificar firma/cuerpo, agregar sobrecargas ni extraer o clonar lógica. La adaptación se implementa en un servicio nuevo externo: prepara valores, copia de trabajo temporal propia y contexto autorizado compatible con las firmas vigentes. Preservar mapeo/orden de campos, fechas, dimensiones y clasificación mediante los lectores actuales; no sustituir usuario de almacenamiento por remitente tercero ni reescribir metadatos definitivos. Caracterizar el consumo de temporales y la sesión legacy para no borrar otra operación. Si el contrato no admite los datos requeridos, registrar la incompatibilidad; no tocar la función para hacerla encajar.
 
-4. **RI06.4.** Persistir reclamación y resultado por archivo con referencia durable al documento/incorporación. Consultar evidencia antes de repetir un efecto cuya respuesta se perdió; si el proveedor no permite determinarlo, dejar incertidumbre y recuperación controlada.
+4. **RI06.4.** Persistir reclamación y resultado por archivo en el estado propio de la operación, sin añadir claves/columnas/SQL al motor protegido. Distinguir documento fuente, copia de gabinete y rótulo/certificado; el último ID de imagen retornado no se supone principal. Consultar evidencia antes de repetir un efecto cuya respuesta se perdió o devolvió error tras commit; si el contrato vigente no permite determinarlo, dejar incertidumbre y recuperación controlada sin invocar de nuevo el almacenamiento.
 
 5. **RI06.5.** Publicar ConsultarIncorporacion y ReconciliarIncorporacion para preparación incompleta. Mantener el principal explícito, los anexos y la caracterización real; los folios no se inventan a partir del tamaño o fecha de modificación del archivo.
 
@@ -98,6 +99,7 @@ Relacionar cada tarea con las funciones/rutas de este paquete y con su caso de p
 - Ambos orígenes entregan referencias válidas sin depender de la selección mutable del árbol.
 - Fallo/timeout después de guardar conserva evidencia y evita duplicar el mismo documento.
 - Solo se incorporan archivos del manifiesto y roles confirmados.
+- El verificador D-RI-07 pasa antes y después; el archivo y las funciones protegidas permanecen idénticos a la baseline, sin sobrecargas/clones/bypass ni cambios indirectos de configuración. La comparación funcional conserva contenido/derivados, fechas, folios, actores, índices y relaciones según sus fuentes reales.
 - La variante sin expediente, si fue elegida, funciona sin simular registros de Producción.
 - Cambios y evidencia corresponden al alcance, con consumidor/versiones trazables; no hay una dependencia pendiente presentada como implementada.
 
@@ -111,7 +113,7 @@ Pruebas con streams truncados, extensión/MIME falsos, nombres equivalentes, lí
 
 ### Subfase RI06
 
-Pruebas de adaptadores con fallos antes/después del efecto, varios gabinetes, firmas/conversión y referencias ajenas. Integración de almacenamiento real con archivos descartables y consultas solo SELECT de control; verificar relaciones/índices y ausencia de duplicados al reconciliar.
+Ejecutar `node tools/diagnostico/verify-radicacion-storage-freeze.cjs` antes y después. Probar el adaptador externo con fallos antes/después del efecto, gabinetes iguales/distintos, PDF/Multi-TIFF cuando corresponda y referencias ajenas. Comparar metadatos del formulario/inventario/gabinete/índice sin confundir fechas o folios; distinguir principal/copia/rótulo y usuario de almacenamiento/remitente. Verificar que la copia temporal consumida y las claves legacy pertenecen a la operación, que dos pestañas no se borran archivos y que un error posterior al commit no repite la carga. Integración real solo con archivos/cuentas/ambiente autorizados y SELECT de control; si falta correlación inequívoca, acreditar la incertidumbre y la recuperación controlada, sin prometer un reintento automático seguro.
 
 Ejecutar pruebas unitarias/focales de comportamiento real, integración de límites afectados y compilación MSBuild compatible con .NET Framework 4.6.1 si cambia VB.NET/proyecto. Registrar comando, resultado y límite; existencia de archivos o coincidencias de texto no acreditan dominio. Comprobar las suites candidatas antes de usarlas.
 

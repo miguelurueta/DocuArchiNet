@@ -14,7 +14,7 @@ El mapa contiene **31 puntos de intervención/compatibilidad existentes (M01–M
 | Formulario WebForms | Estabilizar dependencias, eventos y reconstrucción de controles; adaptar `Genera_Interface_Radicacion_Entrante` a datos sin documento previo. |
 | Configuración | Separar seguimiento, modalidad y canal; corregir `Retorna_estado_respuesta_obligatoria` con sus consumidores y mantener calendarios/destinos. |
 | Remitente | Agregar resolución tipada de interno/tercero, búsqueda y autorización. Mantener ejecutor autenticado y responsable interno independientes. |
-| Documentos | D-RI-05: crear control independiente con recepción temporal, manifiesto e incorporación definitiva; conservar la UI aprobada. El cargador compartido y sus consumidores actuales quedan fuera de la adaptación. |
+| Documentos | D-RI-05: control independiente y recepción temporal. D-RI-07: almacenamiento y mapeos existentes intocables; adaptación únicamente externa con firmas vigentes, precondiciones y fuentes de metadatos comprobadas. |
 | Registro | D-RI-06: caracterizar primero `Registra_Radicacion_entrante_interna` y sus consumidores; justificar cada adaptación/extracción mínima, conservar consecutivos/transacción y enlazar de forma durable la operación con su radicado. |
 | Recuperación | Agregar consulta y finalización de fases pendientes. Un fallo posterior al `Commit` no debe volver a registrar el radicado. |
 | Seguimiento de respuesta | Crear la obligación con modalidad, plazo y responsable correctos y entregarla al módulo existente. Elaboración, envío y cierre de respuestas quedan en ese módulo. |
@@ -48,7 +48,7 @@ El diagrama resume la secuencia; la tabla contiene las dependencias completas. N
 
 Dar la instrucción de ejecutar un paquete junto con su contexto común. Por ejemplo:
 
-> Ejecuta P01 de radicación interna con el contexto común. Conserva las decisiones vigentes D-RI-01, D-RI-02, D-RI-03, D-RI-05 y D-RI-06; D-RI-04 quedó sustituida. Contrasta el código vigente, concreta contratos y la caracterización del núcleo crítico; presenta las decisiones funcionales pendientes con su impacto. Avanza con lo independiente y registra los acuerdos. Este paquete no implementa aplicación.
+> Ejecuta P01 de radicación interna con el contexto común. Conserva las decisiones vigentes D-RI-01, D-RI-02, D-RI-03, D-RI-05, D-RI-06 y D-RI-07; D-RI-04 quedó sustituida. Contrasta el código vigente, verifica la baseline del almacenamiento intocable y concreta contratos/caracterización; presenta las decisiones funcionales pendientes y compatibilidad de sus variantes. Avanza con lo independiente y registra los acuerdos. Este paquete no implementa aplicación.
 
 Luego:
 
@@ -62,9 +62,11 @@ Al abrir cada paquete:
 4. Implementar el alcance acordado y verificarlo. La autorización del trabajo local no sustituye la autorización expresa de ambiente/cuentas para E2E ni de despliegue.
 5. Registrar durante la ejecución `implementacion/Pxx-resultado.md`, con estado y evidencia por subfase RI: funciones modificadas/agregadas, pruebas reales, decisiones, configuración, pendientes y siguiente consumidor. Estos resultados todavía no existen por generar los prompts.
 
-La decisión transversal más importante es G01: expediente previo con incorporación compatible, o almacenamiento independiente y clasificación posterior. Ambas son posibles líneas de diseño; la segunda requiere implementar relaciones/almacenamiento propios. Los IDs cero no resuelven esa alternativa. Las demás decisiones se cierran por paquete: catálogo/permisos de terceros, límites y folios, conservación del borrador y datos del seguimiento. D-RI-03 fija que la gestión de respuestas y sus políticas permanecen en el módulo existente.
+La decisión transversal G01 se refina bajo D-RI-07: expediente previo puede utilizar el contrato existente; clasificación posterior requiere demostrar una ruta compatible sin modificar almacenamiento o metadatos protegidos. Si esa ruta no existe, no se habilita la variante ni se fabrica un ID cero o un almacenamiento paralelo. Las demás decisiones se cierran por paquete: catálogo/permisos de terceros, límites y folios, conservación del borrador y datos del seguimiento. D-RI-03 mantiene la gestión de respuestas en el módulo existente.
 
 D-RI-06 exige tratar la radicación como núcleo crítico en los seis prompts. P01 inventaría contratos, consumidores, invariantes y casos de caracterización; el paquete funcional ejecuta esa caracterización antes de editar y compara el resultado después. P05 justifica y aplica únicamente cambios indispensables; P06 exige esa evidencia antes de aceptar la integración visual. La precondición es técnica y no solicita nuevamente aprobación del trabajo autorizado. Un control/ASMX separado no aísla tablas/clases comunes ni garantiza que baste un wrapper de la función actual. Se conservan los límites de autorización del ambiente y se documenta cualquier dependencia pendiente.
+
+D-RI-07 prevalece sobre esa autorización genérica: `workflow/ClassAlmacenamiento.vb` y los mapeadores/vinculadores de la [baseline](../almacenamiento-intocable-baseline.json) no se modifican. Ejecutar `node tools/diagnostico/verify-radicacion-storage-freeze.cjs` antes/después de cada paquete, sin actualizar la baseline para permitir cambios. Leer el [diagnóstico de almacenamiento y metadatos](../diagnostico-almacenamiento-metadatos.md). La recepción/adapter nuevos preparan parámetros y evidencia propios; no clonan el motor, escriben sus tablas definitivas ni prometen reintentos automáticos si el efecto es incierto.
 
 ## Matriz mínima de aceptación
 

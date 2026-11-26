@@ -27,6 +27,7 @@ Registrar una sola vez, completar/reconciliar fases posteriores y entregar el se
 - Leer el contexto común y el código vigente; actuar solo en el alcance refinado. Las funciones N son propuestas y las M existen en el código; no confundir sus estados ni inventar su implementación.
 - Mantener WebForms/VB.NET/.NET Framework 4.6.1, plantillas dinámicas y contratos de Producción, clásica, Simplificada y Workflow. No modificar el OpenSpec DOC-127 ni su trabajo concurrente.
 - D-RI-06: tratar la radicación y sus contratos compartidos como núcleo crítico. Caracterizar el comportamiento antes de modificarlo, justificar cada adaptación/extracción indispensable y conservar numeración, transacciones y consumidores. Un servicio o control nuevo no aísla las clases/tablas comunes ni acredita ausencia de regresiones; no reescribir el motor como parte del cambio visual.
+- D-RI-07 prevalece sobre cualquier permiso de extracción: almacenamiento existente intocable. No editar `workflow/ClassAlmacenamiento.vb` ni las funciones de almacenamiento/metadatos de la baseline; no agregarles sobrecargas, clonarlas o eludirlas con SQL/copias definitivas propios ni cambiar configuración para alterar su comportamiento. Adaptar solo código externo con firmas vigentes y ejecutar `node tools/diagnostico/verify-radicacion-storage-freeze.cjs` antes y después; no actualizar la baseline para hacer pasar el cambio.
 - Límite D-RI-03 confirmado: este módulo radica y crea/entrega el seguimiento; elaboración, envío, confirmación y cierre de respuestas pertenecen al módulo existente. No trasladar esas funciones a esta pantalla ni rediseñar sus políticas.
 - Actor/empresa/permisos provienen de autoridad autenticada. El remitente no sustituye al ejecutor ni al responsable; IDs visibles, campos ocultos, rutas y nombres de tabla del cliente no son autoridad.
 - No repetir una escritura incierta ni anunciar éxito global por HTTP 200/YES. Mantener revisión, correlación, resultado durable y compatibilidad con los efectos ya confirmados.
@@ -74,7 +75,7 @@ Relacionar cada tarea con las funciones/rutas de este paquete y con su caso de p
 
 1. **RI08.1.** Implementar fases durables y reclamación de ejecución por operación para completar incorporación restante, vinculación/asignación Workflow y notificación. Concretar dependencia/orden de fases para no enviar una solicitud antes de tener documentos utilizables.
 
-2. **RI08.2.** Correlacionar tarea, documentos y efecto de notificación con el radicado/operación. Consultar efectos ya confirmados antes de repetirlos. Si una API legacy devuelve solo YES, agregar evidencia o adaptador mínimo, no asumir que repetirla es seguro.
+2. **RI08.2.** Correlacionar tarea, documentos fuente/copia/rótulo y notificación con el radicado/operación. Consultar efectos confirmados antes de repetirlos. Para almacenamiento intocable, evidencia y adaptación solo en componentes externos; no instrumentar la función, agregar parámetros/sobrecargas o escribir sus tablas para fabricar idempotencia. Un retorno de error/timeout puede ocurrir después de persistir: si el contrato actual no ofrece correlación inequívoca, conservar incertidumbre y atención controlada sin repetir la carga. Para los otros efectos, aplicar adaptación mínima justificada por D-RI-06.
 
 3. **RI08.3.** Implementar ConsultarResultado y RecuperarPendientes con autoridad específica, revisión y estados diferenciados. Las consultas son lecturas; la recuperación es una operación mutante explícita y nunca vuelve a llamar al registro completo.
 
@@ -111,6 +112,7 @@ Relacionar cada tarea con las funciones/rutas de este paquete y con su caso de p
 - Rollback anterior al commit no se confunde con un registro confirmado.
 - Respuesta perdida alrededor del commit se resuelve consultando la asociación durable, sin otro consecutivo.
 - Cada modificación compartida tiene necesidad y alcance mínimo documentados, caracterización previa y comparación posterior; los consumidores vigentes conservan sus invariantes y no se reescribió el motor por el cambio visual.
+- D-RI-07 pasa antes y después del paquete: la extracción del registro no modifica ni reprograma almacenamiento/metadatos protegidos, y la recuperación no vuelve a almacenar documentos de resultado incierto.
 - Cambios y evidencia corresponden al alcance, con consumidor/versiones trazables; no hay una dependencia pendiente presentada como implementada.
 
 ### Subfase RI08

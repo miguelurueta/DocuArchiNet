@@ -1,0 +1,291 @@
+{
+  "schemaVersion": 1,
+  "decision": "D-RI-07",
+  "date": "2026-11-26",
+  "baseCommit": "95d7c8d377a960e551b62757c21c50d441e205d5",
+  "normalization": "UTF-8 text; CRLF normalized to LF; method hashes include declaration through End Function and final LF.",
+  "policy": "Read-only baseline. Do not update to authorize changes to frozen storage. D-RI-07 takes precedence over generic minimal-extraction permissions.",
+  "targets": [
+    {
+      "file": "workflow/ClassAlmacenamiento.vb",
+      "fileSha256": "f0e650b4e98cb0558b17092b2fa22c9439b5065aedd105ef5f2a34f6f98722e7",
+      "methods": [
+        {
+          "name": "Almacenamiento",
+          "variants": [
+            {
+              "startLine": 2219,
+              "endLine": 3423,
+              "sha256": "e428d4ca0a47344ad1b9ba878e9ac1797e11db125d88b7cb499a17d91e2538d4"
+            }
+          ]
+        },
+        {
+          "name": "PreAlmacenaDocumentoProduccion",
+          "variants": [
+            {
+              "startLine": 8429,
+              "endLine": 8561,
+              "sha256": "fe99e6a101e8e2b66806e81b090783f4027959eea4d7bc8cee9e9822a5b4379b"
+            }
+          ]
+        },
+        {
+          "name": "AlmacenamientoDocumentoProduccionDocumental",
+          "variants": [
+            {
+              "startLine": 8893,
+              "endLine": 9143,
+              "sha256": "93e14ed59b52820ae028e32767243d6b7ce5d5cbd28ed565d755810b98fe41bf"
+            }
+          ]
+        },
+        {
+          "name": "UploadSaveFile",
+          "variants": [
+            {
+              "startLine": 5797,
+              "endLine": 5887,
+              "sha256": "515dec98c66a05599929e344fed8dafdf59c7da949fdb88899bc75198445a857"
+            },
+            {
+              "startLine": 5889,
+              "endLine": 6319,
+              "sha256": "dd79d0363a78ebde567434e0e0592c48e707b9781b302a07073608b7f1af8381"
+            }
+          ]
+        },
+        {
+          "name": "Generando_Archivo_Dat_Xml",
+          "variants": [
+            {
+              "startLine": 4260,
+              "endLine": 4315,
+              "sha256": "d608f67eb04fc6b514bb460d37ee5a1a2dfc8443e6ef3c8f9c9fec618e32c37e"
+            }
+          ]
+        },
+        {
+          "name": "Copia_Imagen_Almacenada_local",
+          "variants": [
+            {
+              "startLine": 4408,
+              "endLine": 4488,
+              "sha256": "96280536e450ce1f3e3a7e836b2c78d64ccb4de9552d11a94482b9dd5e1c8e96"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "Gestion/ClassGaProducionDocumental.vb",
+      "methods": [
+        {
+          "name": "Almacena_documento_radicado_externo",
+          "variants": [
+            {
+              "startLine": 5514,
+              "endLine": 5732,
+              "sha256": "2f34b1f219a27e467f274738dd64ab52fad380f8bf238b9ef5b9531169f8fb8a"
+            }
+          ]
+        },
+        {
+          "name": "Retorna_parametros_almacenamiento_documento_radicado_interno",
+          "variants": [
+            {
+              "startLine": 5734,
+              "endLine": 5996,
+              "sha256": "307b6123b9db199dc77bdc55b23a6e760fd07350bd99432ae5d79ce3a3f394b9"
+            }
+          ]
+        },
+        {
+          "name": "Actualiza_documento_produccio_radicado",
+          "variants": [
+            {
+              "startLine": 2994,
+              "endLine": 3074,
+              "sha256": "d407b4065de1f4da2bed54b5b2f91f2e543b491de76de4d7f69a674e77e5f3a4"
+            }
+          ]
+        },
+        {
+          "name": "Solicita_datos_caracterizacion_archivo_produccion",
+          "variants": [
+            {
+              "startLine": 3075,
+              "endLine": 3147,
+              "sha256": "8e248533e76d822803c535b8274d94e5d4bf9daa2f5ae4a4a5f9c57852274de7"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "Docuarchi/Class_DETALLE_GABIENETE.vb",
+      "methods": [
+        {
+          "name": "Consulta_Campos_Obligatorio",
+          "variants": [
+            {
+              "startLine": 449,
+              "endLine": 486,
+              "sha256": "d0e7068609cc682c69e644e18b6b0ddc42ec14db8a7fb323175107d5ce174cf0"
+            }
+          ]
+        },
+        {
+          "name": "SolicitaValoresCamposDocumentoGabinete",
+          "variants": [
+            {
+              "startLine": 539,
+              "endLine": 598,
+              "sha256": "0511422b5cc7e020f9812a88e76373a455a22cf130edecfbc9029e3f3bbc12b7"
+            }
+          ]
+        },
+        {
+          "name": "SolicitaEstructuraCamposGabinete",
+          "variants": [
+            {
+              "startLine": 599,
+              "endLine": 662,
+              "sha256": "77bb902c2f2f5fad0e9fe294b1308088acfcc5992c34e0cc8b82f8219e0dcebc"
+            },
+            {
+              "startLine": 710,
+              "endLine": 764,
+              "sha256": "02fe0946c7e5cea880d45986e2a7cab86ea5ab76aceb85cfde17e13943a9bea4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "Docuarchi/ClassDaGabinete.vb",
+      "methods": [
+        {
+          "name": "Solicita_matriz_documentos_almacenados_gabinete",
+          "variants": [
+            {
+              "startLine": 8939,
+              "endLine": 9081,
+              "sha256": "72aa3e749fced7b509005279bb05fca94fbfab33fb89ca0379fe09ea95f1cfc4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "Gestion/Class_Ra_gabexp_relacion_index_gabinete_expediente.vb",
+      "methods": [
+        {
+          "name": "SolicitaValoresCampoExpedienteParaCampoIndiceGabinete",
+          "variants": [
+            {
+              "startLine": 46,
+              "endLine": 107,
+              "sha256": "74775a8bb89ae7efb291db2507703e8752cdde7df2c988933540d644db88123a"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "Gestion/Class_ra_relacion_plantilla_gabinete.vb",
+      "methods": [
+        {
+          "name": "SolicitaCamposRelacionPlantillaGabinete",
+          "variants": [
+            {
+              "startLine": 3,
+              "endLine": 58,
+              "sha256": "ce76028e2098e3c14340757fa8fe61275e34ca06d081bdcc2c02448d264db483"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "radicador/Class_plantillas_radicacion.vb",
+      "methods": [
+        {
+          "name": "AsignaDatosCamposPlantillaRadicadoGabinete",
+          "variants": [
+            {
+              "startLine": 209,
+              "endLine": 264,
+              "sha256": "98b3269134a659fb22c1117aad0e6dc27f86c4944451bdeeb1200c767bef029e"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "Gestion/ClassGaExpediente.vb",
+      "methods": [
+        {
+          "name": "SolicitaDatosEstructuraExpediente",
+          "variants": [
+            {
+              "startLine": 3491,
+              "endLine": 3803,
+              "sha256": "29b1ff9590b3b00aadc27d50cc6045a883be2790e09348994dec527e00cda605"
+            }
+          ]
+        },
+        {
+          "name": "Actualiza_archivo_xml_indice_expediente",
+          "variants": [
+            {
+              "startLine": 8215,
+              "endLine": 8278,
+              "sha256": "8d0af0c0b82d246dde0c8cecba8580052c1cfa6078f15bd93e14100e8ed1d994"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "Docuarchi/Class_SYSTEM1RUT.vb",
+      "methods": [
+        {
+          "name": "Consulta_Ruta_Almacenamiento",
+          "variants": [
+            {
+              "startLine": 2,
+              "endLine": 45,
+              "sha256": "b4b2df876ba2d56c71ad38b0c9250372140cf5efd3d4b181a8b8db4cf8f935a3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "itextshare/Class_ItexShare.vb",
+      "methods": [
+        {
+          "name": "Retorna_numero_paginas_documentos_unificados",
+          "variants": [
+            {
+              "startLine": 44,
+              "endLine": 65,
+              "sha256": "dca885aeab2a39511452c36a94e0448200bdbc88f30917ffe57da472845beb13"
+            }
+          ]
+        },
+        {
+          "name": "Retorna_numero_paginas_documentos_pdf",
+          "variants": [
+            {
+              "startLine": 66,
+              "endLine": 94,
+              "sha256": "ec6ee465b6797c14f2a1f68f4a0c1a65f0f5523a2fd87c82785b422d8fdff576"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

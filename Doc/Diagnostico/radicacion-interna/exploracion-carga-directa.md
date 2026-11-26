@@ -6,6 +6,8 @@ La interfaz simplificada del commit `23464d6b` está aprobada por el usuario. La
 
 **D-RI-05 vigente, 2026-11-26, sustituye D-RI-04:** crear un control nuevo e independiente para radicación interna, con estado por instancia/operación, interfaz compacta aprobada y recepción temporal propia antes de radicar. Propuesta: `js/radicacion/RadicacionInternaUpload.js` y su handler de recepción N12. La incorporación definitiva ocurre al confirmar. No se adapta ni se depende de `LoadFilePERSON` / `IniLoadPerson`, `FileUploadHandler.js` o `FileUploadHandler_.ashx.vb` para este recorrido; sus consumidores mantienen el cargador actual. Expediente, permisos, límites y caducidad siguen en refinamiento. La implementación del control se define en P04; esta exploración no acredita que ya exista.
 
+**D-RI-07, 2026-11-26:** el almacenamiento y las funciones de metadatos protegidas quedan intocables. Las alternativas descritas abajo solo son viables si usan firmas y configuración vigentes desde un adaptador externo. Se retira cualquier autorización anterior de sobrecargar/modificar el motor o implementar almacenamiento definitivo paralelo. La variante sin expediente no se considera demostrada; si exige alterar lo protegido, no se habilita bajo este alcance. Véase el [diagnóstico de almacenamiento/metadatos](diagnostico-almacenamiento-metadatos.md).
+
 | Referencia | Valor |
 |---|---|
 | Fecha | 2026-11-25 |
@@ -38,7 +40,7 @@ El registro contempla ramas con `id_expeidente = 0` alrededor de las líneas 225
 | Alternativa | Recorrido | Reutilización y coste técnico |
 |---|---|---|
 | A. Entrada independiente conservando registros documentales | Subir a un borrador; seleccionar un expediente autorizado; al confirmar, incorporar principal/anexos al almacenamiento documental y obtener IDs válidos; continuar la radicación. | Conserva más contratos del registro actual. Requiere desacoplar la preparación visual, gestionar el borrador y registrar la recuperación si la incorporación o radicación falla. El usuario no visita Producción aunque los documentos sí tengan registros internos allí. |
-| B. Entrada independiente también en persistencia | Preparar principal/anexos sin IDs previos de Producción; registrar e incorporar documentos mediante un contrato documental común. | Necesita adaptar preparación, relaciones, almacenamiento y recuperación. Es la opción a estudiar si debe admitirse radicación sin expediente o sin registros de Producción. No consiste en omitir las validaciones actuales. |
+| B. Clasificación posterior, condicionada | Preparar principal/anexos sin expediente previo solo si existe una ruta vigente compatible con incorporación y relaciones necesarias. | No demostrada con los preparadores actuales, que exigen expediente positivo. D-RI-07 prohíbe modificar el almacenamiento, fabricar IDs o reemplazarlo por SQL/copias definitivas propios para completarla. Si no se acredita compatibilidad, queda sin habilitar. |
 
 Si se conserva el expediente antes de confirmar, A es la candidata con menor ruptura del registro existente. La decisión no queda aprobada por esta exploración. Tampoco debe implementarse cargando documentos definitivos apenas se abre el selector: al cancelar, esos documentos ya existirían.
 
