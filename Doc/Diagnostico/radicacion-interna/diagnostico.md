@@ -9,7 +9,7 @@ La radicación interna puede mejorar sustancialmente su claridad, pero necesita 
 | Referencia | Valor |
 |---|---|
 | Fecha | 2026-11-25 |
-| Versión | 0.10 |
+| Versión | 0.11 |
 | Base local | Commit `0c7beb83` |
 | Grabación | `Grabación 2026-11-25 113145-radicacion-interna-revisa.mp4` |
 | Duración | 78,80 segundos |
@@ -344,6 +344,6 @@ El módulo tiene dependencias más amplias que una mejora visual aislada. Un pre
 
 ## Prompts para implementar la capacidad completa
 
-La [guía de ejecución](prompts/00-guia-ejecucion.md) organiza 12 paquetes de refinamiento, estabilización, contexto, configuración, remitentes, recepción, incorporación, registro, recuperación, respuesta, interfaz y aceptación. El [mapa de funciones](mapa-funciones-implementacion.md), contrastado con la base `226d2000`, distingue 31 puntos de intervención existentes y 13 responsabilidades nuevas propuestas, con sus rutas y consumidores.
+La [guía de ejecución](prompts/00-guia-ejecucion.md) organiza 6 prompts: refinamiento; base WebForms/contexto/configuración; remitentes; documentos; registro/recuperación/entrega del seguimiento; interfaz/aceptación. Conserva las 73 tareas y los criterios de las 12 subfases originales, sin exigir ejecutar doce archivos adicionales. El [mapa de funciones](mapa-funciones-implementacion.md), contrastado con la base `226d2000`, distingue 31 puntos de intervención/compatibilidad y 13 responsabilidades nuevas propuestas, con sus rutas y consumidores.
 
 Las decisiones se refinan al abrir el paquete correspondiente según el [contexto común](prompts/contexto-comun.md). Se conservan D-RI-01 y D-RI-02, y se aplica D-RI-03: radicación y entrega del seguimiento, con gestión de respuestas en el módulo existente. La alternativa de expediente/clasificación, permisos/catálogos y detalles de entrega no se consideran aprobados por redactar estos prompts. La [revisión de la serie](prompts/revision-prompts.md) registra su validación estructural y funcional documental; no acredita implementación ni pruebas de ambiente.

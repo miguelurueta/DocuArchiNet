@@ -1,6 +1,6 @@
-# Prompt RI08 para finalización, recuperación y salidas del radicado
+# Prompt P03 para remitentes internos y terceros
 
-Estado: preparado para refinamiento y ejecución del paquete, no implementado por redactar esta serie.
+Estado: consolidado el 2026-11-26, preparado para refinamiento y ejecución; aplicación sin implementar por redactar este archivo.
 
 ## ROL ESPERADO
 
@@ -8,13 +8,17 @@ Actúa como arquitecto y desarrollador senior especialista en ASP.NET WebForms, 
 
 ## CONTEXTO Y DEPENDENCIAS
 
-Leer [contexto común](contexto-comun.md), [guía](00-guia-ejecucion.md) y [mapa de funciones](../mapa-funciones-implementacion.md). Dependencias: RI06, RI07; contratos de RI03/RI04. Puertas de refinamiento: G05, G08 y política de reintento de efectos externos. Trazabilidad: RQ-RI-07, RQ-RI-08, RQ-RI-09, RQ-RI-11.
+Leer [contexto común](contexto-comun.md), [guía](00-guia-ejecucion.md) y [mapa de funciones](../mapa-funciones-implementacion.md). Dependencias: P01 y P02.
 
-Al abrir este paquete, contrastar resultados anteriores y cerrar solo sus decisiones necesarias antes del código afectado. No exigir que toda la exploración esté aprobada para empezar análisis independiente. La instrucción de ejecutar el paquete autoriza el trabajo acordado, no elecciones funcionales todavía pendientes ni E2E del ambiente. No volver a pedir acuerdos ya registrados. Registrar los detalles técnicos y adaptar contrato/consumidores si cambia su revisión.
+Este prompt reúne las subfases RI04 de la exploración. Los identificadores RI conservan trazabilidad de tareas/funciones; no son prompts adicionales a ejecutar. Reducir archivos no elimina verificaciones ni autoriza saltar precondiciones internas.
+
+- **RI04:** G02, G03, G04, G05. Trazabilidad: RQ-RI-03, RQ-RI-09, RQ-RI-11.
+
+Refinar al abrir cada subfase solo las decisiones que consume; conservar acuerdos ya registrados y continuar trabajo independiente. La instrucción de ejecutar el prompt autoriza su alcance acordado, no decisiones funcionales todavía pendientes ni pruebas del ambiente sin autorización. Versionar contratos antes de cambiar consumidores.
 
 ## OBJETIVO
 
-Completar documentos, Workflow, notificación y salidas con resultado verificable, sin volver a crear el núcleo cuando un paso posterior falla.
+Incorporar remitentes internos y terceros autorizados, conservando al ejecutor autenticado y al responsable de Workflow como identidades independientes.
 
 ## RESTRICCIONES CRÍTICAS
 
@@ -27,39 +31,49 @@ Completar documentos, Workflow, notificación y salidas con resultado verificabl
 
 ## FUNCIONES Y ARCHIVOS AFECTADOS
 
-M19–M23 y N10. Revisar Registra_flujo_documento, Envia_corre_notificacion_radicado_envio_documento, generación/descarga de radicado y estados Flow actuales. La página usa hoy Hidden_ruta_archivo/iframe de descarga.
+### Subfase RI04
+
+M16/M17 y N05; Class_plantilla_validacion.Registra_usuario_gestion_remitente_externo y Solicita_datos_auto_complete_tercero_plantilla, Class_remit_dest_interno y nuevas fronteras N12.
 
 ## PRECONDICIONES DE RUTAS
 
 Antes de editar, inventariar archivos exactos, clases, funciones y firmas en el contrato de RI00, junto con sus consumidores y dependencias. Reutilizar las ubicaciones existentes y crear solo responsabilidades justificadas: modelos/puertos en `Modelo/RadicacionInterna/`, DTOs en `DTOs/RadicacionInterna/`, servicios en `Services/RadicacionInterna/`, repositorios en `Infrastructure/Repositories/RadicacionInterna/` y adaptadores de Session/IO en `Infrastructure/RadicacionInterna/`. Servicio web si hace falta en `webservice/WebServiceRadicacionInterna.asmx` y `.asmx.vb`; upload propio en `generic_control/RadicacionInternaUpload.ashx` y `.ashx.vb`. Registrar explícitamente cada alta Compile/Content en `GestionDocumental-Docuarchi.net.vbproj`; no crear capas vacías ni una API por cada función interna.
 
+Crear solo los componentes que correspondan a las subfases de este prompt; no implementar capas de paquetes posteriores.
+
 ## TRABAJO REQUERIDO
 
-1. **RI08.1.** Implementar fases durables y reclamación de ejecución por operación para completar incorporación restante, vinculación/asignación Workflow y notificación. Concretar dependencia/orden de fases para no enviar una solicitud antes de tener documentos utilizables.
+### Subfase RI04
 
-2. **RI08.2.** Correlacionar tarea, documentos y efecto de notificación con el radicado/operación. Consultar efectos ya confirmados antes de repetirlos. Si una API legacy devuelve solo YES, agregar evidencia o adaptador mínimo, no asumir que repetirla es seguro.
+1. **RI04.1.** Implementar búsqueda acotada/paginada en el catálogo acordado por tipo de identidad, empresa y plantilla. Parametrizar el valor buscado y validar los identificadores de tabla/campo contra configuración de servidor; no concatenar referencias libres del cliente.
 
-3. **RI08.3.** Implementar ConsultarResultado y RecuperarPendientes con autoridad específica, revisión y estados diferenciados. Las consultas son lecturas; la recuperación es una operación mutante explícita y nunca vuelve a llamar al registro completo.
+2. **RI04.2.** Implementar ResolverRemitenteAutorizado con discriminador usuario interno/tercero. Comprobar identidad existente, vigencia/ámbito y permiso específico de representación en cada confirmación; la lista visible no es autorización durable.
 
-4. **RI08.4.** Distinguir rechazo previo, registrado, pendiente documental/Workflow, correo pendiente y resultado incierto. Un timeout de correo con entrega desconocida no permite prometer exactamente una entrega; consultar proveedor o conservar pendiente para atención según política acordada.
+3. **RI04.3.** Conservar el camino actual de usuario propio y la representación permitida de internos. Adaptar la relación externa de plantilla sin pasar un ID de tercero a Registra_usuario_gestion_remitente_externo.
 
-5. **RI08.5.** Integrar descarga/impresión auténtica con autorización de operación/documento y salidas existentes; no aceptar rutas físicas del cliente ni sustituir el documento por el TXT de la maqueta.
+4. **RI04.4.** Separar consulta de la creación/actualización de relación. Inventariar las escrituras del helper y hacer idempotente cualquier materialización necesaria al confirmar. No crear un tercero al buscar; altas/edición requieren G04 explícito y su alcance propio.
 
-6. **RI08.6.** Implementar limpieza/caducidad solo de temporales propios no vinculados. Conservar registro, archivos incorporados y resultado al cerrar/reanudar. Preparar recuperación tras reciclado del proceso sin depender de memoria de IIS.
+5. **RI04.5.** Propagar remitente normalizado a registro, impresión/consulta y destinatarios acordados; mantener al autenticado como ejecutor y al asignado interno como propietario de respuesta. Evitar derivar correo o permisos de una identidad del catálogo equivocado.
 
-Relacionar cada tarea con las funciones/rutas de este paquete y con su caso de prueba en el resultado de ejecución. Si al contrastar el código una extracción exige más de una entrega revisable, descomponerla antes de editar; conservar la trazabilidad RQ-RI-07, RQ-RI-08, RQ-RI-09, RQ-RI-11.
+Relacionar cada tarea con las funciones/rutas de este paquete y con su caso de prueba en el resultado de ejecución. Si al contrastar el código una extracción exige más de una entrega revisable, descomponerla antes de editar; conservar la trazabilidad RQ-RI-03, RQ-RI-09, RQ-RI-11.
 
 ## CRITERIOS DE ACEPTACIÓN
 
-- Un fallo posterior al commit conserva el radicado y sus identificadores.
-- Recuperar dos veces no duplica documento, tarea ni efecto ya reconocido.
-- Correo pendiente no anuncia rechazo del registro; incertidumbre no habilita otro registro.
-- Descarga/impresión respetan autoridad y contenido; limpieza no borra documentos incorporados.
+### Subfase RI04
+
+- Un interno y tercero con igual ID numérico resuelven identidades distintas.
+- Actor no cambia al representar otra persona; propietario de respuesta sigue al destino.
+- Búsqueda y cancelación no crean relaciones ni terceros.
+- Retirar permiso o cambiar ámbito entre apertura y confirmación produce rechazo controlado.
 - Cambios y evidencia corresponden al alcance, con consumidor/versiones trazables; no hay una dependencia pendiente presentada como implementada.
+
+No declarar completado este prompt si una subfase requerida conserva decisiones o verificaciones pendientes. Registrar qué se completó, qué falta y qué trabajo independiente puede continuar; no repetir permisos ni acuerdos ya registrados.
 
 ## PRUEBAS OBLIGATORIAS
 
-Inyectar fallos/timeout entre fases y después de sus efectos; reiniciar el proceso y consultar/recuperar. Probar descargas ajenas y expiración. E2E autorizada con carpeta/archivos/cuentas descartables y notificación en canal de prueba aprobado; no mandar correo real a terceros para completar evidencia.
+### Subfase RI04
+
+Pruebas de autoridad/consulta y relación idempotente con catálogos controlados; cubrir tipos de tercero acordados, búsquedas especiales, mismo ID y sesión caducada. Integración autorizada de remitente/impresión/notificación con datos descartables, sin exponer datos personales en evidencia.
 
 Ejecutar pruebas unitarias/focales de comportamiento real, integración de límites afectados y compilación MSBuild compatible con .NET Framework 4.6.1 si cambia VB.NET/proyecto. Registrar comando, resultado y límite; existencia de archivos o coincidencias de texto no acreditan dominio. Comprobar las suites candidatas antes de usarlas.
 
@@ -67,11 +81,10 @@ E2E o validación manual reproducible con evidencia forman parte integral del mi
 
 Usar secretos efímeros; no imprimir, guardar ni persistir credenciales, cookies, tokens o cadenas de conexión. Los controles serán solo SELECT y la evidencia saneada excluirá datos personales/documentales sensibles. Cubrir autorización, lectura sin mutación, escrituras autorizadas, concurrencia y regresión relacionada según el alcance. No habilitar arbitrariamente flags o gates existentes. No cerrar la aceptación sin validación autorizada: registrar bloqueo explícito de la aceptación integrada pendiente y evidencia local real, sin mocks, simulaciones ni evidencia ficticia para acreditar el ambiente.
 
-
 ## DOCUMENTACIÓN TÉCNICA
 
 Ubicar y actualizar documentación existente de esta capacidad y sus consumidores afectados; si falta un documento necesario, registrar su ruta y crearlo dentro del alcance. Actualizar el resultado del paquete y los contratos afectados: función anterior/nueva, ruta, entrada/retorno, autoridad, efectos, errores, consumidores y pruebas. Documentar la secuencia funcional paso a paso de éxito, rechazo y recuperación del paquete, con estados, límites de transacción y efectos comprobables. Documentar esquema/configuración/publicación cuando se toquen; no guardar datos de ejecución sensibles ni copiar documentación de otras capacidades como evidencia propia. Mantener el registro de decisiones en las exploraciones y evitar contradicciones entre paquetes.
 
 ## ENTREGABLE FINAL
 
-Entregar código del paquete, altas de proyecto/migración justificadas y pruebas de comportamiento con evidencia y límites. La parte que dependa de una decisión pendiente se identifica sin declararla concluida. Crear durante su ejecución `Doc/Diagnostico/radicacion-interna/implementacion/RI08-resultado.md` y actualizar contrato/guía. Conservar trabajo ajeno, verificar diff y registrar únicamente la entrega autorizada en Git; comunicar sincronización remota. No publicar ni modificar un ambiente que carezca de autorización.
+Entregar el código de las subfases, altas de proyecto/migración justificadas y pruebas de comportamiento con evidencia y límites. Crear durante la ejecución `Doc/Diagnostico/radicacion-interna/implementacion/P03-resultado.md`, con estado y evidencia por subfase RI, y actualizar contratos/guía. Conservar trabajo ajeno, verificar diff y registrar únicamente la entrega autorizada en Git; comunicar sincronización remota. Publicar/desplegar solo si la autorización incluye el ambiente correspondiente. Este módulo no gestiona respuestas.

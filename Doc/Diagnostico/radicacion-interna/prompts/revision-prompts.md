@@ -1,29 +1,38 @@
-# Revisión de los prompts de radicación interna
+# Revisión de los seis prompts de radicación interna
 
-La serie de 12 prompts cubre el alcance explorado: Producción y carga directa, remitente interno/tercero, plantillas dinámicas, registro, seguimiento, recuperación e interfaz. Está preparada para refinar y ejecutar por paquetes. Las decisiones G01–G11 conservan su estado pendiente hasta registrarse el acuerdo correspondiente; la revisión no las aprueba ni acredita una implementación.
+La serie vigente tiene **6 prompts P01–P06**, consolidados el 2026-11-26. Conserva las 12 subfases RI00–RI11 y sus tareas, criterios y pruebas específicas. Los 12 archivos anteriores se sustituyen por esta serie; no se ejecutan como otra lista de prompts. Consultar [guía](00-guia-ejecucion.md), [contexto común](contexto-comun.md) y [mapa M/N](../mapa-funciones-implementacion.md).
 
-Fecha inicial: 2026-11-25. Alcance y revisión actualizados el 2026-11-26 por D-RI-03. Base de aplicación revisada: `226d2000`. Perfil: `legacy-webforms-vb`. Consultar [guía](00-guia-ejecucion.md), [contexto](contexto-comun.md) y [mapa M/N](../mapa-funciones-implementacion.md).
+Se conserva D-RI-03: este módulo radica y crea/entrega el seguimiento; elaborar, enviar, confirmar y cerrar respuestas corresponde al módulo existente. Los acuerdos pendientes se refinan al abrir la subfase que los consume. Redactar/consolidar prompts no implementa aplicación ni acredita pruebas del ambiente.
 
 ## Revisión estructural
 
-Se evaluó el contenido de cada prompt con `testFrontendPromptReview` de `tools/opsxj/scripts/lib/frontendPromptReviewService.js`, utilizando el perfil legacy WebForms. Es una llamada directa al motor local; no equivale a ejecutar la suite de pruebas del comando de otro repositorio ni a una prueba funcional del módulo. No se modificó el motor ni se sobrescribió el reporte compartido `.opsxj/reports/prompt-review-report.json`.
+Motor: `testFrontendPromptReview` de `tools/opsxj/scripts/lib/frontendPromptReviewService.js`. Perfil: `legacy-webforms-vb`. Se revisaron los seis textos completos; no se modificó el motor ni el reporte compartido `.opsxj/reports/prompt-review-report.json`. Esta llamada directa al motor no equivale a ejecutar la suite de otro repositorio ni a una prueba funcional del módulo.
 
 | Prompt | BLOCKER | MAJOR | MINOR | INFO |
 |---|---:|---:|---:|---:|
-| [RI00](01-ri00-refinamiento-contratos.md) | 0 | 0 | 0 | 1 |
-| [RI01](02-ri01-estabilidad-webforms.md) | 0 | 0 | 0 | 1 |
-| [RI02](03-ri02-operacion-contexto-autoridad.md) | 0 | 0 | 0 | 1 |
-| [RI03](04-ri03-plantillas-tramites-respuesta.md) | 0 | 0 | 0 | 1 |
-| [RI04](05-ri04-remitentes-internos-terceros.md) | 0 | 0 | 0 | 1 |
-| [RI05](06-ri05-recepcion-temporal-archivos.md) | 0 | 0 | 0 | 1 |
-| [RI06](07-ri06-incorporacion-documental.md) | 0 | 0 | 0 | 1 |
-| [RI07](08-ri07-registro-transaccional-idempotente.md) | 0 | 0 | 0 | 1 |
-| [RI08](09-ri08-finalizacion-recuperacion-salidas.md) | 0 | 0 | 0 | 1 |
-| [RI09](10-ri09-seguimiento-respuesta-workflow.md) | 0 | 0 | 0 | 1 |
-| [RI10](11-ri10-interfaz-accesos-integracion.md) | 0 | 0 | 0 | 1 |
-| [RI11](12-ri11-aceptacion-operativa-publicacion.md) | 0 | 0 | 0 | 1 |
+| [P01](01-p01-refinamiento-contratos.md) | 0 | 0 | 0 | 1 |
+| [P02](02-p02-base-webforms-contexto-configuracion.md) | 0 | 0 | 0 | 1 |
+| [P03](03-p03-remitentes-internos-terceros.md) | 0 | 0 | 0 | 1 |
+| [P04](04-p04-carga-incorporacion-documentos.md) | 0 | 0 | 0 | 1 |
+| [P05](05-p05-registro-recuperacion-seguimiento.md) | 0 | 0 | 0 | 1 |
+| [P06](06-p06-interfaz-integracion-aceptacion.md) | 0 | 0 | 0 | 1 |
 
-El hallazgo informativo de todos los prompts es `MANUAL_REVIEW_RECOMMENDED`: el motor pide revisión semántica adicional. Se revisaron responsabilidades y secuencia frente al código según la tabla siguiente. Al implementar, corresponde contrastarlas de nuevo con el estado vigente y las decisiones del paquete.
+Cada INFO es `MANUAL_REVIEW_RECOMMENDED`: el motor solicita revisión semántica adicional. Se revisaron la agrupación, las dependencias y los límites; siguen siendo necesarias las decisiones y pruebas de cada ejecución futura.
+
+## Cobertura conservada al consolidar
+
+| Prompt vigente | Subfases de origen | Orden interno |
+|---|---|---|
+| P01 | RI00 | RI00 |
+| P02 | RI01, RI02, RI03 | RI01 → RI02 → RI03 |
+| P03 | RI04 | RI04 |
+| P04 | RI05, RI06 | RI05 → RI06 |
+| P05 | RI07, RI08, RI09 | RI07 → RI08 → RI09 |
+| P06 | RI10, RI11 | RI10 → RI11 |
+
+La comparación con los textos anteriores conservó 73 tareas identificadas, 60 apariciones de criterios de aceptación (incluyen requisitos comunes repetidos) y 12 bloques de pruebas específicas. Se conservaron las referencias a funciones de cada subfase. Las restricciones, rutas y pruebas generales se comparten una vez por prompt para evitar repetición.
+
+P02 mantiene RI01 → RI02 → RI03 para no adelantar configuración que depende de contexto. P03/P04 dependen de P02 y pueden avanzar independientemente. P05 mantiene RI07 → RI08 → RI09; P06 mantiene RI10 → RI11. El grafo de seis paquetes y el de doce subfases no tienen ciclos. Las decisiones se refinan por subfase; agruparlas no exige resolver todas al iniciar un prompt.
 
 ## Revisión arquitectónica y funcional documental
 
@@ -42,9 +51,9 @@ El hallazgo informativo de todos los prompts es `MANUAL_REVIEW_RECOMMENDED`: el 
 
 Se distinguen componentes nuevos propuestos de funciones existentes. El mapa organiza M01–M31 y N01–N13, y los paquetes siguen un orden sin dependencias circulares. RI07 crea la obligación; RI09 comprueba su entrega al módulo existente de respuestas. La separación evita duplicar el seguimiento o incorporar elaboración, envío y cierre de respuestas a este módulo. M24/M26 quedan como consumidores de compatibilidad, no funciones a modificar.
 
-## Trazabilidad de requisitos
+## Trazabilidad de requisitos por subfase
 
-| Requisito | Paquetes principales | Verificación final |
+| Requisito | Subfases principales | Verificación final |
 |---|---|---|
 | RQ-RI-01, procedencia Producción | RI02, RI06, RI10 | Selección y relaciones reales conservadas. |
 | RQ-RI-02, carga directa | RI02, RI05, RI06, RI10 | Sesión nueva, recepción y documentos definitivos. |
@@ -63,7 +72,7 @@ RI11 consolida todos los requisitos. Esta tabla describe las comprobaciones exig
 
 ## Reproducción de la revisión estructural
 
-Desde la raíz del repositorio, usando Node y el motor existente:
+Desde la raíz del repositorio con Node y el motor existente:
 
 ```powershell
 @'
@@ -71,38 +80,31 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { testFrontendPromptReview } from './tools/opsxj/scripts/lib/frontendPromptReviewService.js';
 const dir = 'Doc/Diagnostico/radicacion-interna/prompts';
-const files = fs.readdirSync(dir).filter(f => /^\d{2}-ri\d{2}.*\.md$/.test(f)).sort();
+const files = fs.readdirSync(dir).filter(f => /^\d{2}-p\d{2}.*\.md$/.test(f)).sort();
 let errors = 0;
 for (const file of files) {
   const findings = testFrontendPromptReview({
     promptText: fs.readFileSync(path.join(dir, file), 'utf8'),
     technologyProfile: 'legacy-webforms-vb'
   });
-  const relevant = findings.filter(f => ['BLOCKER','MAJOR','MINOR'].includes(f.severity));
-  errors += relevant.length;
+  errors += findings.filter(f => ['BLOCKER','MAJOR','MINOR'].includes(f.severity)).length;
   console.log(JSON.stringify({ file, findings }));
 }
-if (files.length !== 12 || errors > 0) process.exitCode = 1;
+if (files.length !== 6 || errors > 0) process.exitCode = 1;
 '@ | node --input-type=module
 ```
 
-La ejecución usada para esta entrega conservó JSON de revisión y validación bajo `.tmp/diagnostico-radicacion-interna-20261125/`, excluido de Git. La validación documental pasó sobre 17 documentos, 96 enlaces locales, 53 declaraciones de funciones existentes, el inventario M/N, las suites candidatas y el orden de dependencias. Comprobar declaraciones localiza el código; no prueba su comportamiento. No se cambiaron archivos de aplicación, esquema ni configuración; no se ejecutó MSBuild, E2E/carga real, radicación ni pruebas transaccionales del ambiente al redactar estos documentos.
+La evidencia local de revisión, comparación de cobertura y validación de vínculos se conserva bajo `.tmp/diagnostico-radicacion-interna-20261125/`, excluido de Git. La validación comprueba enlaces, inventario M/N, 53 declaraciones existentes y suites candidatas; localizar una declaración no prueba su comportamiento. No se cambiaron aplicación, esquema ni configuración; no se ejecutó MSBuild, carga real, radicación, correo ni E2E del ambiente al consolidar estos documentos.
 
 ## Huellas de los prompts revisados
 
-SHA-256 del texto UTF-8 con saltos LF. Si cambia un prompt, repetir la revisión y actualizar su huella y resultado.
+SHA-256 del texto UTF-8 con saltos LF. Repetir revisión y actualizar huella si cambia un prompt.
 
 | Prompt | SHA-256 |
 |---|---|
-| RI00 | `9ab8ff42884bda7603ab7a07c7d71d006ebc6aadb9f26d57311581b1e06ab299` |
-| RI01 | `84461fc411d98178006ee729e4e0120c76a915e3734c1bd2bd56fd4651fa5c96` |
-| RI02 | `e9b6f2b5fe916cc5439c9e5606d96a632eb99197bde90a814a89501137e02106` |
-| RI03 | `9ab8018da97a79c5c4d2f53bb3f554b5a79f6d0752a5e51d90dec00ee6efeb4e` |
-| RI04 | `8898cc733293ce7472c674e8d24e36ba4d1bfaf3335513ac7218d8c43c5ec156` |
-| RI05 | `48f34ca6cde20975e6ef62959679a9927f587d76a55349f320e6e281dae7e643` |
-| RI06 | `b2f7fdc6398612931380f0f17a2cb5cf44f9a6d96502bd921e77d15d11c37dce` |
-| RI07 | `fc4e6d93151763b0d6cce2b39e5bc9916f3e3d5655b4a5a6c8cf9f7740d3da3d` |
-| RI08 | `c84787a74418a655a1b2bd7cffd2250c839c2ef86242a9b6e52eabe39867fbcd` |
-| RI09 | `c341a757b38db6c1af9eda49e80a66a6cba52bc542abc4d769690773c6872732` |
-| RI10 | `2ae9e59a439dd99936b85be948139a74a6a6f6b457e6e75948be7a4f2593c659` |
-| RI11 | `951b38e5ce8c62f589889f99a884af2851a599514bb481e36dd11d6b325145c8` |
+| P01 | `97f45e2e592b735e6e9074f7e2f77a14e618bea9de3034d8980b6c1f4f81c944` |
+| P02 | `70b0921efe0262b8e7bdfa2c12d379447a0ab6f03cd8b9e02a5c9a0eb7e9d9d1` |
+| P03 | `99274d46b7d230a88ac0c4cddf2f0bc14aa988864ab248919e394f7ff636a081` |
+| P04 | `58f3697bb34db2b40d4d0f9ea1924ed47fd3c4999ada72186cfbe8066807d7fe` |
+| P05 | `698e4d3909a434c8004597579ea9d8320302b8de83ca9a1b3a133ae709e6e0e2` |
+| P06 | `721900b233cecb04bb3273437b874f5c81795487e1faa695297d23a5bb98aa5b` |

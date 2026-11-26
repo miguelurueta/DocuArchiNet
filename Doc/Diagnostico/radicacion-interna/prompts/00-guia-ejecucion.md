@@ -1,12 +1,12 @@
 # Guía de implementación de radicación interna
 
-La exploración permite preparar una implementación completa mediante 12 prompts: conservar la entrada desde Producción, agregar carga directa, admitir terceros como remitentes y hacer operativo el seguimiento de respuesta. Los contratos de expediente, permisos, terceros y respuesta se refinan al abrir el paquete que los consume. El diseño visual aprobado no aprueba por sí solo esas reglas.
+La implementación queda organizada en **6 prompts**, conservando las 73 tareas de las 12 subfases anteriores: entrada desde Producción, carga directa, terceros como remitentes y entrega del seguimiento al módulo existente de respuestas. Los contratos se refinan al abrir la subfase que los consume; el diseño visual aprobado no aprueba por sí solo esas reglas. La reducción agrupa entregas, sin eliminar verificaciones ni ampliar el alcance.
 
-Fecha: 2026-11-25. Base de código revisada: `226d2000`. Estado de esta entrega: prompts y diagnóstico; aplicación sin implementar. Leer el [contexto común](contexto-comun.md), el [mapa de funciones](../mapa-funciones-implementacion.md) y la [revisión de prompts](revision-prompts.md).
+Consolidación: 2026-11-26. Base de código revisada: `226d2000`; comprobar el código vigente al ejecutar. Estado de esta entrega: prompts y diagnóstico; aplicación sin implementar. Leer el [contexto común](contexto-comun.md), el [mapa de funciones](../mapa-funciones-implementacion.md) y la [revisión de prompts](revision-prompts.md).
 
 ## Qué cambia y qué se agrega
 
-El mapa contiene **31 puntos de intervención existentes (M01–M31)** y **13 responsabilidades nuevas propuestas (N01–N13)**. Son agrupaciones de funciones, controles y contratos, no 31 funciones que haya que reescribir ni 13 clases obligatorias.
+El mapa contiene **31 puntos de intervención/compatibilidad existentes (M01–M31)** y **13 responsabilidades nuevas propuestas (N01–N13)**. Son agrupaciones de funciones, controles y contratos, no 31 funciones que haya que reescribir ni 13 clases obligatorias. M24/M26 corresponden a consumidores de compatibilidad, con gestión de respuestas fuera del alcance.
 
 | Área | Cambio necesario |
 |---|---|
@@ -23,29 +23,23 @@ El mapa contiene **31 puntos de intervención existentes (M01–M31)** y **13 re
 
 ## Prompts y orden de ejecución
 
-| Paquete | Prompt | Depende de | Resultado verificable |
+| Paquete y prompt | Subfases conservadas | Depende de | Resultado verificable |
 |---|---|---|---|
-| RI00 | [Refinamiento y contratos](01-ri00-refinamiento-contratos.md) | Exploraciones y mapa | Contrato v1, alternativa documental y decisiones distribuidas por paquete. |
-| RI01 | [Estabilidad WebForms](02-ri01-estabilidad-webforms.md) | Alcance RI00 | Dependencias, eventos, opciones de plantilla, selección y modal estabilizados. |
-| RI02 | [Operación, contexto y autoridad](03-ri02-operacion-contexto-autoridad.md) | RI00; RI01 al integrar apertura | Operación durable y autorizada, revisión, ambas aperturas y migración. |
-| RI03 | [Plantillas, trámites y respuesta](04-ri03-plantillas-tramites-respuesta.md) | RI00, RI02 | Configuración tipada, calendario, destinos y modalidad correctos. |
-| RI04 | [Remitentes internos y terceros](05-ri04-remitentes-internos-terceros.md) | RI02, RI03 | Remitente permitido y auditado, con identidad inequívoca. |
-| RI05 | [Recepción temporal de archivos](06-ri05-recepcion-temporal-archivos.md) | RI02, RI03 | Archivos realmente recibidos y verificables por operación. |
-| RI06 | [Incorporación documental](07-ri06-incorporacion-documental.md) | RI02, RI03, RI05 | Referencias definitivas y recuperación sin duplicar documentos. |
-| RI07 | [Registro transaccional](08-ri07-registro-transaccional-idempotente.md) | RI02, RI03, RI04, RI06 | Único radicado/seguimiento por confirmación, con correlación durable. |
-| RI08 | [Finalización y recuperación](09-ri08-finalizacion-recuperacion-salidas.md) | RI06, RI07; contratos RI03/RI04 | Workflow, notificación, salidas y pendientes recuperables. |
-| RI09 | [Entrega del seguimiento](10-ri09-seguimiento-respuesta-workflow.md) | RI03, RI04, RI07, RI08 | Obligación disponible y legible por el módulo existente de respuestas. |
-| RI10 | [Interfaz y accesos reales](11-ri10-interfaz-accesos-integracion.md) | Contratos implementados RI01–RI09 | Recorrido completo desde ambos accesos con UI compacta. |
-| RI11 | [Aceptación y publicación](12-ri11-aceptacion-operativa-publicacion.md) | Entregas anteriores verificadas | Evidencia integral, artefacto publicable y recuperación/reversión. |
+| [P01. Refinamiento y contratos](01-p01-refinamiento-contratos.md) | RI00 | Exploraciones y mapa | Contrato v1, alternativa documental y decisiones distribuidas. Sin código de aplicación. |
+| [P02. Base WebForms, contexto y configuración](02-p02-base-webforms-contexto-configuracion.md) | RI01 → RI02 → RI03 | P01 | Estabilidad, operación autorizada, ambas aperturas, migración y configuración real. |
+| [P03. Remitentes internos y terceros](03-p03-remitentes-internos-terceros.md) | RI04 | P02 | Remitente autorizado, ejecutor y responsable diferenciados. |
+| [P04. Carga e incorporación de documentos](04-p04-carga-incorporacion-documentos.md) | RI05 → RI06 | P02 | Recepción real, manifiesto y documentos definitivos recuperables. |
+| [P05. Registro, recuperación y seguimiento](05-p05-registro-recuperacion-seguimiento.md) | RI07 → RI08 → RI09 | P03 y P04; contratos P02 | Único radicado, fases recuperables y seguimiento disponible para el módulo existente. |
+| [P06. Interfaz, integración y aceptación](06-p06-interfaz-integracion-aceptacion.md) | RI10 → RI11 | P01–P05 | UI real, ambos accesos, aceptación integrada y artefacto publicable. |
 
-Los paquetes son unidades de alcance, no estimaciones de una jornada ni tareas necesariamente de un solo commit. RI04 y RI05 tienen requisitos independientes una vez listos RI02/RI03; mantener contratos compatibles. Puede avanzarse en composición de interfaz antes de terminar el backend, pero RI10 no se acepta con servicios simulados. RI07 crea la obligación dentro del núcleo; RI09 comprueba su entrega/consulta en el módulo existente y no la vuelve a insertar ni implementa la respuesta.
+Los identificadores RI00–RI11 ahora nombran subfases internas de estos seis prompts y conservan referencias del mapa, tareas y decisiones. Los 12 archivos anteriores se sustituyen por esta serie; no hay que ejecutar ambas. P03 y P04 pueden avanzar independientemente una vez listo P02. P02/P05/P06 agrupan varias subfases: implementarlas y verificarlas en el orden indicado, sin exigir un solo commit para todo el prompt. RI07 crea la obligación; RI09 comprueba su entrega y no implementa respuestas.
 
 ```mermaid
 flowchart LR
-    RI00 --> RI01 --> RI02 --> RI03
-    RI03 --> RI04 --> RI07
-    RI03 --> RI05 --> RI06 --> RI07
-    RI07 --> RI08 --> RI09 --> RI10 --> RI11
+    P01 --> P02
+    P02 --> P03 --> P05
+    P02 --> P04 --> P05
+    P05 --> P06
 ```
 
 El diagrama resume la secuencia; la tabla contiene las dependencias completas. No ejecutar todos los prompts como una sola instrucción sin revisar sus contratos y evidencia intermedia.
@@ -54,11 +48,11 @@ El diagrama resume la secuencia; la tabla contiene las dependencias completas. N
 
 Dar la instrucción de ejecutar un paquete junto con su contexto común. Por ejemplo:
 
-> Ejecuta RI00 de radicación interna. Conserva D-RI-01 y D-RI-02; contrasta el código vigente, concreta contratos y presenta las decisiones funcionales pendientes con su impacto. Avanza con lo independiente y registra los acuerdos. Este paquete no implementa aplicación.
+> Ejecuta P01 de radicación interna con el contexto común. Conserva D-RI-01, D-RI-02 y D-RI-03; contrasta el código vigente, concreta contratos y presenta las decisiones funcionales pendientes con su impacto. Avanza con lo independiente y registra los acuerdos. Este paquete no implementa aplicación.
 
 Luego:
 
-> Ejecuta RI01 usando los contratos y acuerdos registrados en RI00. Implementa el alcance autorizado, conserva consumidores y trabajo ajeno, verifica comportamiento y registra evidencia y límites.
+> Ejecuta P02 usando los contratos y acuerdos de P01. Completa RI01, RI02 y RI03 en ese orden, refinando las decisiones al abrir cada subfase. Implementa el alcance autorizado, conserva consumidores y trabajo ajeno, verifica comportamiento y registra evidencia y límites.
 
 Al abrir cada paquete:
 
@@ -66,7 +60,7 @@ Al abrir cada paquete:
 2. Cerrar sus decisiones necesarias del [registro G01–G11](contexto-comun.md), sin volver a pedir acuerdos previos ni convertir recomendaciones en aprobaciones.
 3. Precisar entrada, salida, errores, autoridad, efectos, rutas y prueba de cada tarea. Versionar contratos antes de cambiar consumidores.
 4. Implementar el alcance acordado y verificarlo. La autorización del trabajo local no sustituye la autorización expresa de ambiente/cuentas para E2E ni de despliegue.
-5. Registrar durante la ejecución `implementacion/RIxx-resultado.md`: funciones modificadas/agregadas, pruebas reales, decisiones, configuración, pendientes y siguiente consumidor. Estos resultados todavía no existen por generar los prompts.
+5. Registrar durante la ejecución `implementacion/Pxx-resultado.md`, con estado y evidencia por subfase RI: funciones modificadas/agregadas, pruebas reales, decisiones, configuración, pendientes y siguiente consumidor. Estos resultados todavía no existen por generar los prompts.
 
 La decisión transversal más importante es G01: expediente previo con incorporación compatible, o almacenamiento independiente y clasificación posterior. Ambas son posibles líneas de diseño; la segunda requiere implementar relaciones/almacenamiento propios. Los IDs cero no resuelven esa alternativa. Las demás decisiones se cierran por paquete: catálogo/permisos de terceros, límites y folios, conservación del borrador y datos del seguimiento. D-RI-03 fija que la gestión de respuestas y sus políticas permanecen en el módulo existente.
 

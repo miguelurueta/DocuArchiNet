@@ -6,6 +6,8 @@ Base revisada: `226d2000`. El alcance operativo incluye entrada desde Producció
 
 Las ubicaciones se expresan desde la raíz del repositorio. Las líneas del diagnóstico sirven para localizar; la firma y sus consumidores se verifican de nuevo antes de editar.
 
+Las columnas de paquete conservan identificadores de subfase para mantener trazabilidad. Correspondencia vigente: P01 = RI00; P02 = RI01/RI02/RI03; P03 = RI04; P04 = RI05/RI06; P05 = RI07/RI08/RI09; P06 = RI10/RI11. Solo hay seis prompts de ejecución, enlazados en la guía.
+
 | Ref. | Archivo y función existente | Intervención concreta | Paquete |
 |---|---|---|---|
 | M01 | `Gestion/WebFormProducionDocumental.aspx.vb`: `ButtonRadicar_Click` | Mantener selección/validaciones; abrir una operación autorizada con referencias propias, no preparar autoridad futura solo en sesión compartida. | RI02, RI10 |

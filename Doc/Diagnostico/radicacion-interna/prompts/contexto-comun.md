@@ -2,6 +2,8 @@
 
 Esta serie prepara la implementación operativa de la capacidad explorada: radicar desde Producción o desde carga directa, representar usuarios internos o terceros y aplicar trámites sin seguimiento, con confirmación o con respuesta formal. Redactar los prompts no ejecuta la implementación ni activa configuración del ambiente.
 
+La serie vigente tiene 6 prompts P01–P06. Las referencias RI00–RI11 del mapa y de las decisiones son subfases internas: P01 contiene RI00; P02 contiene RI01/RI02/RI03; P03 contiene RI04; P04 contiene RI05/RI06; P05 contiene RI07/RI08/RI09; P06 contiene RI10/RI11. Conservar su orden y criterios; no son doce prompts adicionales.
+
 ## Insumos y aprobaciones
 
 Leer [diagnóstico](../diagnostico.md), [carga directa](../exploracion-carga-directa.md), [trámites con respuesta](../exploracion-tramites-con-respuesta.md), [mapa de funciones](../mapa-funciones-implementacion.md) y [guía](00-guia-ejecucion.md). La base revisada es `226d2000`; comprobar cambios posteriores antes de editar.
@@ -83,6 +85,6 @@ No crear capas vacías ni introducir un ORM o dependencia por llenar esta lista.
 
 ## Verificación y entrega
 
-Cada paquete incorpora pruebas de comportamiento de su responsabilidad, compilación MSBuild cuando cambie VB.NET/proyecto y su integración autorizada cuando corresponda. Las pruebas estáticas y la maqueta complementan; no sustituyen recepción, transacción, descarga ni respuesta reales. La evidencia futura se registra bajo `implementacion/RIxx-resultado.md`; esos archivos todavía no existen por redactar la serie.
+Cada paquete incorpora pruebas de comportamiento de sus subfases, compilación MSBuild cuando cambie VB.NET/proyecto y su integración autorizada cuando corresponda. Las pruebas estáticas y la maqueta complementan; no sustituyen recepción, transacción, descarga ni entrega real del seguimiento al consumidor. La evidencia futura se registra bajo `implementacion/Pxx-resultado.md`, distinguiendo las subfases RI; esos archivos todavía no existen por redactar la serie.
 
 Reutilizar `tools/e2e`, autenticación/configuración y runbook del repositorio. No crear login ni proyecto Playwright paralelo. Sin autorización de ambiente, cuentas y datos descartables, continuar pruebas aisladas y registrar pendiente la aceptación integrada afectada; no fingirla completada. No introducir `WorkflowCentroTrabajoModernActive` ni listas de usuarios/grupos como activación. Documentar cambios, comandos, resultados, límites y reversión aplicable; conservar avances ajenos en Git.

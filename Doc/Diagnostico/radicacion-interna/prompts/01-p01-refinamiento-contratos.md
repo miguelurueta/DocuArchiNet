@@ -1,6 +1,6 @@
-# Prompt RI00 para refinamiento y contratos de la implementación
+# Prompt P01 para refinamiento y contratos
 
-Estado: preparado para refinamiento y ejecución del paquete, no implementado por redactar esta serie.
+Estado: consolidado el 2026-11-26, preparado para refinamiento y ejecución; aplicación sin implementar por redactar este archivo.
 
 ## ROL ESPERADO
 
@@ -8,13 +8,17 @@ Actúa como arquitecto y desarrollador senior especialista en ASP.NET WebForms, 
 
 ## CONTEXTO Y DEPENDENCIAS
 
-Leer [contexto común](contexto-comun.md), [guía](00-guia-ejecucion.md) y [mapa de funciones](../mapa-funciones-implementacion.md). Dependencias: Exploraciones vigentes y mapa M01–M31/N01–N13. Puertas de refinamiento: G01–G11, cerrando ahora las decisiones transversales y asignando el resto a su paquete. Trazabilidad: RQ-RI-01 a RQ-RI-12.
+Leer [contexto común](contexto-comun.md), [guía](00-guia-ejecucion.md) y [mapa de funciones](../mapa-funciones-implementacion.md). Dependencias: Exploraciones vigentes, D-RI-01/D-RI-02/D-RI-03 y mapa M/N.
 
-Al abrir este paquete, contrastar resultados anteriores y cerrar solo sus decisiones necesarias antes del código afectado. No exigir que toda la exploración esté aprobada para empezar análisis independiente. La instrucción de ejecutar el paquete autoriza el trabajo acordado, no elecciones funcionales todavía pendientes ni E2E del ambiente. No volver a pedir acuerdos ya registrados. Registrar los detalles técnicos y adaptar contrato/consumidores si cambia su revisión.
+Este prompt reúne las subfases RI00 de la exploración. Los identificadores RI conservan trazabilidad de tareas/funciones; no son prompts adicionales a ejecutar. Reducir archivos no elimina verificaciones ni autoriza saltar precondiciones internas.
+
+- **RI00:** G01–G11, cerrando ahora las decisiones transversales y asignando el resto a su paquete. Trazabilidad: RQ-RI-01 a RQ-RI-12.
+
+Refinar al abrir cada subfase solo las decisiones que consume; conservar acuerdos ya registrados y continuar trabajo independiente. La instrucción de ejecutar el prompt autoriza su alcance acordado, no decisiones funcionales todavía pendientes ni pruebas del ambiente sin autorización. Versionar contratos antes de cambiar consumidores.
 
 ## OBJETIVO
 
-Concretar un contrato v1 verificable y las decisiones mínimas para implementar la capacidad completa sin rehacer la exploración ni tratar la maqueta como configuración real.
+Concretar contratos y decisiones mínimas del alcance operativo. Entrega documental sin cambios de aplicación.
 
 ## RESTRICCIONES CRÍTICAS
 
@@ -27,6 +31,8 @@ Concretar un contrato v1 verificable y las decisiones mínimas para implementar 
 
 ## FUNCIONES Y ARCHIVOS AFECTADOS
 
+### Subfase RI00
+
 Leer los puntos M01–M31 del mapa, la página interna, ClassRadicador.Registra_Radicacion_entrante_interna, las sobrecargas de ClassAlmacenamiento y los adaptadores modernos de Workflow. Contrastar las firmas y consumidores con el código vigente.
 
 El alcance es documental. Las rutas siguientes sirven para planificar futuras altas; no autorizan crearlas en este paquete.
@@ -35,7 +41,11 @@ El alcance es documental. Las rutas siguientes sirven para planificar futuras al
 
 Antes de editar, inventariar archivos exactos, clases, funciones y firmas en el contrato de RI00, junto con sus consumidores y dependencias. Reutilizar las ubicaciones existentes y crear solo responsabilidades justificadas: modelos/puertos en `Modelo/RadicacionInterna/`, DTOs en `DTOs/RadicacionInterna/`, servicios en `Services/RadicacionInterna/`, repositorios en `Infrastructure/Repositories/RadicacionInterna/` y adaptadores de Session/IO en `Infrastructure/RadicacionInterna/`. Servicio web si hace falta en `webservice/WebServiceRadicacionInterna.asmx` y `.asmx.vb`; upload propio en `generic_control/RadicacionInternaUpload.ashx` y `.ashx.vb`. Registrar explícitamente cada alta Compile/Content en `GestionDocumental-Docuarchi.net.vbproj`; no crear capas vacías ni una API por cada función interna.
 
+El inventario de rutas corresponde a futuras entregas; este prompt es solo documentación y no crea componentes de aplicación.
+
 ## TRABAJO REQUERIDO
+
+### Subfase RI00
 
 1. **RI00.1.** Registrar aprobaciones existentes y resolver G01: A con expediente previo y materialización de registros compatibles, o B con origen independiente y clasificación posterior. Para B definir dónde se almacena, clasifica y relaciona cada documento; prohibir el atajo de IDs cero. No exigir todas las demás respuestas para continuar análisis independiente.
 
@@ -53,17 +63,25 @@ Relacionar cada tarea con las funciones/rutas de este paquete y con su caso de p
 
 ## CRITERIOS DE ACEPTACIÓN
 
+### Subfase RI00
+
 - Contrato v1 distingue procedencia, ejecutor, remitente, responsable y referencias de documentos.
 - Cada resultado parcial tiene prueba prevista y una consulta de recuperación localizada.
 - La alternativa de carga elegida tiene recorrido completo; no se oculta la variante sin expediente como trabajo supuestamente terminado.
 - Las decisiones pendientes tienen dueño funcional, paquete y consecuencia; ninguna recomendación se marca aprobada por redactar este archivo.
 - Cambios y evidencia corresponden al alcance, con consumidor/versiones trazables; no hay una dependencia pendiente presentada como implementada.
 
+No declarar completado este prompt si una subfase requerida conserva decisiones o verificaciones pendientes. Registrar qué se completó, qué falta y qué trabajo independiente puede continuar; no repetir permisos ni acuerdos ya registrados.
+
 ## PRUEBAS OBLIGATORIAS
+
+### Subfase RI00
 
 Revisión documental de contratos, relaciones y consumidores. Como línea base local, comprobar y ejecutar tests/bootstrap-table-global-contract.test.cjs, tests/doc90-radicacion-classic-attachment.test.cjs, tests/radicacion-simple-attachment-upload-signatures.test.cjs y tests/workflow-user-send.test.cjs. No realizar consultas autenticadas ni mutaciones para suplir datos ausentes.
 
 Este paquete es solo documentación sin cambios de código. E2E no aplica porque no expone un recorrido de usuario ni un endpoint nuevo. No crea modelos, DTOs ni servicios de aplicación. No aplica build MSBuild mientras no cambien aplicación/proyecto; revisar vínculos, firmas, consumidores y contratos. La E2E necesaria de los paquetes funcionales sigue incluida en su aceptación, no se presenta como realizada aquí.
+
+
 
 ## DOCUMENTACIÓN TÉCNICA
 
@@ -71,4 +89,4 @@ Ubicar y actualizar documentación existente de esta capacidad y sus consumidore
 
 ## ENTREGABLE FINAL
 
-Entregar implementacion/contratos-v1.md, implementacion/decisiones.md y matriz de funciones/tareas listas para ejecución según el contexto común. No cambiar aplicación ni configuración. Crear durante su ejecución `Doc/Diagnostico/radicacion-interna/implementacion/RI00-resultado.md` y actualizar contrato/guía. Conservar trabajo ajeno, verificar diff y registrar únicamente la entrega autorizada en Git; comunicar sincronización remota. No publicar ni modificar un ambiente que carezca de autorización.
+Crear implementacion/contratos-v1.md e implementacion/decisiones.md con los acuerdos y tareas verificables; no cambiar aplicación ni configuración. Crear durante la ejecución `Doc/Diagnostico/radicacion-interna/implementacion/P01-resultado.md`, con estado y evidencia por subfase RI, y actualizar contratos/guía. Conservar trabajo ajeno, verificar diff y registrar únicamente la entrega autorizada en Git; comunicar sincronización remota. Publicar/desplegar solo si la autorización incluye el ambiente correspondiente. Este módulo no gestiona respuestas.
