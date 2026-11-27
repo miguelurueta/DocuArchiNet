@@ -2802,5 +2802,11 @@
       "logSha256": "8a5ae5560fb8871c4127273a77d768a555e96e1070d1b11a99c3a7a375e15902"
     },
     "buildReuse": "No VB/project/C#/Web.config differences since successful isolated8d1f2159 build; no new build/deployment."
+  },
+  "latestArchivePreparation": {
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-entrega-archivo-20261126.json",
+    "evaluationCommit": "be59c557931571675f4b3d87beb01fccecbe832e",
+    "regression": "29/29 PASS",
+    "specSync": "14 requirements /42 scenarios identical"
   }
 }

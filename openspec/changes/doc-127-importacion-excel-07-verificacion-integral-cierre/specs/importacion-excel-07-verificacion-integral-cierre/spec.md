@@ -1,4 +1,8 @@
 <!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14 -->
+## Purpose
+
+Acreditar la entrega integrada de la importación XLS/XLSX mediante evidencia trazable de autoridad, integridad, compatibilidad, recuperación y capacidad, con límites y condiciones de operación explícitos.
+
 ## ADDED Requirements
 
 ### Requirement: RQ-01 — Base y reutilización de evidencia

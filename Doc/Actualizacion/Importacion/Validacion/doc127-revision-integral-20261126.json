@@ -4,7 +4,7 @@
   "schema": "spec-driven",
   "status": "REVIEW_PASSED_WITH_DECLARED_WARNINGS",
   "recordedUtc": "2026-11-27T01:17:04.535Z",
-  "evaluationCommit": "a09a5440859d4252c9155245293d46030380bfe9",
+  "evaluationCommit": "be59c557931571675f4b3d87beb01fccecbe832e",
   "reviewer": "Codex",
   "skill": ".codex/skills/openspec-verify-change/SKILL.md",
   "completeness": {
@@ -1178,7 +1178,7 @@
     },
     {
       "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/specs/importacion-excel-07-verificacion-integral-cierre/spec.md",
-      "sha256Utf8Lf": "0bb43ac8ecb02e5fea73b75356a3ea44853a25b7d13eb3acdd2cf64c5cb7ae82"
+      "sha256Utf8Lf": "c6785debb2cb9f6e3c99e732526ef3f36d08c043484faa83736033f037b8ab8b"
     },
     {
       "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/specs/importacion-excel-07-verificacion-integral-cierre/jira-context.md",
@@ -1626,7 +1626,7 @@
   },
   "currentUiRuntimePins": [
     {
-      "sha256": "dcca583a13b5815a96c7558f3a094779ebbebd4b0c937bb6f3b597f822f65a9d",
+      "sha256": "49ccec4f20ddc11f35b9f40c5aac2e7fb5b843f84fbf16a5935cabd1f296b02b",
       "path": "Gestion/WebFormProducionDocumental.aspx"
     },
     {
@@ -1713,5 +1713,11 @@
       "logSha256": "8a5ae5560fb8871c4127273a77d768a555e96e1070d1b11a99c3a7a375e15902"
     },
     "buildReuse": "No VB/project/C#/Web.config differences since successful isolated8d1f2159 build; no new build/deployment."
+  },
+  "latestArchivePreparation": {
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-entrega-archivo-20261126.json",
+    "evaluationCommit": "be59c557931571675f4b3d87beb01fccecbe832e",
+    "regression": "29/29 PASS",
+    "specSync": "14 requirements /42 scenarios identical"
   }
 }

@@ -1,0 +1,99 @@
+{
+  "issue": "DOC-127",
+  "status": "ARCHIVE_PREPARED_SOURCE_REVIEW_PASS",
+  "recordedUtc": "2026-11-27T04:08:30.166Z",
+  "evaluationCommit": "be59c557931571675f4b3d87beb01fccecbe832e",
+  "tasks": {
+    "complete": 33,
+    "total": 33,
+    "pending": 0
+  },
+  "sourcePins": [
+    {
+      "sha256": "49ccec4f20ddc11f35b9f40c5aac2e7fb5b843f84fbf16a5935cabd1f296b02b",
+      "path": "Gestion/WebFormProducionDocumental.aspx"
+    },
+    {
+      "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js"
+    },
+    {
+      "sha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js"
+    },
+    {
+      "sha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+      "path": "Styles/ImportacionExcel.css"
+    },
+    {
+      "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+      "path": "bin/GestionDocumental-Docuarchi.net.dll"
+    },
+    {
+      "sha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+      "path": "Web.config"
+    }
+  ],
+  "changedFiles": [
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256": "49ccec4f20ddc11f35b9f40c5aac2e7fb5b843f84fbf16a5935cabd1f296b02b",
+      "sha256Utf8Lf": "4b572e2478f685151c7acf7973df2c90a3703b43ca8d07104c864cc809270cc4"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+      "sha256": "6a578dad05fecbe4ce67d79ee760418cbc885601f2ece977383ff193ad017aa6",
+      "sha256Utf8Lf": "a674457ca03e8ab3bd9c7d0b1ab428f970610dacecb65945a686b961521f2037"
+    },
+    {
+      "path": "tests/doc110-perfil-importacion-editor.test.cjs",
+      "sha256": "b68364658c56eb0de80dc246a520f00f886be159e0f803d538e63efffef1313e",
+      "sha256Utf8Lf": "23758382fad8e042da54de8fcabe731cb17f075c522055dca02ac0bdbe52b2fb"
+    }
+  ],
+  "sourceReview": "be59c557 affects only profile-editor explanations/tests and the page profile script cache reference. Normalized page equals actual desktop QA page after replacing that reference. Excel JS/CSS, runtime DLL and Web.config retain their hashes.",
+  "desktopQa": {
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-qa-delegada-20261126.json",
+    "status": "PASS_REAL_DESKTOP_QA_DELEGATED",
+    "sourceCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+    "newExecutionClaimed": false
+  },
+  "regression": {
+    "command": "node --test tests/doc110-perfil-importacion-editor.test.cjs",
+    "type": "LOCAL_SYNTHETIC",
+    "sourceCommit": "be59c557931571675f4b3d87beb01fccecbe832e",
+    "tests": 29,
+    "pass": 29,
+    "fail": 0,
+    "logSha256": "f0321baac84d35f41c7d9ea9c65459b93ef0425aeffef3fe082ea294c9b9ba8d"
+  },
+  "build": {
+    "sourceCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
+    "framework": "net461",
+    "errors": 0,
+    "warnings": 308,
+    "compiledChangesSinceBuild": [],
+    "newBuildClaimed": false,
+    "deployed": false
+  },
+  "specSync": {
+    "mainSpec": "openspec/specs/importacion-excel-07-verificacion-integral-cierre/spec.md",
+    "deltaSpec": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/specs/importacion-excel-07-verificacion-integral-cierre/spec.md",
+    "requirements": 14,
+    "scenarios": 42,
+    "requirementsIdentical": true,
+    "contextFile": "jira-context.md retained as provenance, not a normative delta.",
+    "rulesSnapshot": "Valid openspec instructions specs response read this turn; rules omitted, no additional artifact rules."
+  },
+  "warnings": [
+    "Manual operator query plan uses ALL with no chosen index; latency not certified.",
+    "Physical permission revocation, COLUMNA isolation, COMMIT/network failure and20000 actual rows retain declared evidence limits."
+  ],
+  "archived": false,
+  "published": false,
+  "merged": false,
+  "jiraClosed": false,
+  "sqlStatements": 0,
+  "imports": 0,
+  "credentialsStored": false
+}
