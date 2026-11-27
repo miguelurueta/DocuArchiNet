@@ -21,3 +21,5 @@ La prueba focal original cambió sólo en su archivo de test; esa versión coinc
 Actualización posterior: [plan manual revisado](doc127-plan-consulta-20261126.md),2.4 completada. Acceso ALL sin índice elegido, rows estimadas25538; advertencia sin medición de latencia. Los cambios concurrentes de proveedor/editor en8d1f2159 tienen29 pruebas locales PASS y build aislado0 errores/308 advertencias, sin despliegue. Los hashes y resultados de este informe mantienen su corte original. Sólo7.5 conserva QA visual humana actual y revisión/gates finales. Revocación física, política COLUMNA real y cortes físicos COMMIT/red mantienen sus límites de evidencia.
 
 El JSON adjunto fija las fuentes, hashes, diferencias y cobertura de cada componente. Esta revisión es documental y de lectura local: cero SQL, sesiones o efectos nuevos. La entrega conserva abiertos archivo y cierre Jira.
+
+Actualización final: [QA delegada real4/4 PASS](doc127-qa-delegada-20261126.md), regresión actual22/22 PASS y revisión técnica sin críticos.33/33 tareas. Los estados de fuentes y cobertura anteriores se conservan como históricos; sin nuevas cargas, publicación o despliegue.

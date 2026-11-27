@@ -1,19 +1,17 @@
 {
   "issue": "DOC-127",
   "recordedUtc": "2026-11-25T23:05:00.026Z",
-  "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf",
-  "status": "INFORME_CONSOLIDADO_ACEPTACION_BLOQUEADA",
+  "evaluationCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+  "status": "ACCEPTED_TECHNICALLY_WITH_DECLARED_WARNINGS",
   "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
   "completedInThisDelivery": [
     "6.7",
     "7.4"
   ],
   "tasks": {
-    "complete": 32,
+    "complete": 33,
     "total": 33,
-    "pending": [
-      "7.5"
-    ]
+    "pending": []
   },
   "evidence": [
     {
@@ -401,16 +399,21 @@
       "requirement": "RQ-11",
       "caseName": "UI/cliente/semaforo/foco",
       "testReference": "tests/doc126-importacion-excel-ui.test.cjs; client",
-      "state": "REAL_DOC127_1_READ_AND_FORM_ISOLATION_PASS",
+      "state": "REAL_DELEGATED_DESKTOP_OPEN_CLOSE_NAVIGATION_PASS",
       "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
-      "limitation": "Lectura/consulta/Escape y aislamiento DOM doc127-1 reales; no se envio un postback del gestor ni se ejecutaron escrituras o capacidad.",
+      "limitation": "Desktop walkthrough, not a Playwright suite execution. Account ID not inspected; current session does not replace restricted-account tests. No new SQL fingerprint comparison or HTTP trace; zero mutations refers to actions performed, not a new full-database audit. Accessibility tree lacks a usable expanded-node label; expansion verified directly in screenshots, not inferred from the zero-valued fixtureTreeExpanded field. Exact focus on Excel opener not asserted; final screenshot shows focus on the Importacion menu.",
       "evidenceIds": [
         "INTEGRACION",
         "DOC126_LECTURA",
         "DOC127_LECTURA"
       ],
       "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf",
-      "latestReadEvaluationCommit": "986f0f1cc9974dd81343e3f9227a264d53bba13c"
+      "latestReadEvaluationCommit": "986f0f1cc9974dd81343e3f9227a264d53bba13c",
+      "latestDelegatedQa": {
+        "path": "Doc/Actualizacion/Importacion/Validacion/doc127-qa-delegada-20261126.json",
+        "status": "PASS_REAL_DESKTOP_QA_DELEGATED",
+        "evaluationCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40"
+      }
     },
     {
       "requirement": "RQ-12",
@@ -418,7 +421,7 @@
       "testReference": "Corrección form1; revisión de fuentes; autoridad/read real y asistente actual XLS/XLSX",
       "state": "KNOWN_FINDING_CLOSED_LOCAL_AND_REAL_CURRENT_EVIDENCE_CLASSIFIED",
       "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
-      "limitation": "Build actual aislado0 errores/308 advertencias y29 regresiones locales PASS. E2E anteriores conservan cortes históricos; no despliegue IIS ni QA humana actual.",
+      "limitation": "Regresión actual22/22 PASS; sin cambios compilados desde build8d1f2159, reutilizado sin despliegue. Regresión29 y E2E previas mantienen sus cortes.",
       "evidenceIds": [
         "LOCAL",
         "INTEGRACION",
@@ -518,6 +521,49 @@
             "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5"
           }
         ]
+      },
+      "latestCurrentSourceReview": {
+        "sourceCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+        "changedFiles": [
+          {
+            "path": "Gestion/WebFormProducionDocumental.aspx",
+            "sha256": "2dd1afee9402b841bc56c3d8ed5d70030d98c4ff09e5346c4434ba6ffd52cb06",
+            "sha256Utf8Lf": "6036faa0f5f2777e61204b63dce20ce5c8c3f0246ab7962ac45c10aed5f2f344"
+          },
+          {
+            "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.css",
+            "sha256": "2fbfb7e50bbdfe3434a979d20a2f94091c5b24ae3d6d4590d88feff31497e5d0",
+            "sha256Utf8Lf": "a3c409dbaaea99fcf07167362470aa96200fe5f166332818bd3d903ff6a6f5eb"
+          },
+          {
+            "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+            "sha256": "e42f2b696a36f6c62295658c66687b8cf019863fdc4401ce7c02315369419903",
+            "sha256Utf8Lf": "db11fbda085bc7245272ec76811656bbc2e482b75c674954f97a271ff918b01c"
+          },
+          {
+            "path": "tests/doc110-perfil-importacion-editor.test.cjs",
+            "sha256": "31d9e68d1e3733a2b193fe3809daf198bfa29805083f13aeadc4e6e2c97b7381",
+            "sha256Utf8Lf": "21a3f1ae8eb19a30dbc3ba6725f2a3b4b8710f744257d17227123237af160d26"
+          },
+          {
+            "path": "tools/e2e/tests/doc110-reglas-plegables.spec.cjs",
+            "sha256": "f996870b9726566f8409ab6e35e7e3e2e30abb577994ffad5b0b22ea519bfd26",
+            "sha256Utf8Lf": "f996870b9726566f8409ab6e35e7e3e2e30abb577994ffad5b0b22ea519bfd26"
+          }
+        ],
+        "pageChange": "Only profile editor CSS/JS cache references changed; Excel integration and assets retained.",
+        "compiledChangesSince8d1f2159": [],
+        "buildReuse": "Actual isolated net461 build at8d1f2159 passed0 errors/308 warnings; no compiled source/project/config changes since it. No new build or deployment claimed.",
+        "localRegression": {
+          "command": "node --test tests/doc110-perfil-importacion-editor.test.cjs",
+          "sourceCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+          "type": "LOCAL_SYNTHETIC",
+          "tests": 22,
+          "pass": 22,
+          "fail": 0,
+          "exitCode": 0,
+          "durationMs": 2622.021
+        }
       }
     },
     {
@@ -537,9 +583,9 @@
       "requirement": "RQ-14",
       "caseName": "Matriz y gates finales",
       "testReference": "Este corte y tareas OpenSpec",
-      "state": "INFORME_PUBLICADO_ACEPTACION_BLOQUEADA",
+      "state": "TECHNICAL_REVIEW_PASS_WITH_WARNINGS_GATES_BY_DELIVERY_SHA",
       "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
-      "limitation": "Sólo7.5 pendiente por declaración humana de QA visual actual y revisión/gates finales; plan manual completado.",
+      "limitation": "QA delegada real completada. Sin publicación, archivo ni cierre Jira por esta entrega.",
       "evidenceIds": [
         "LOCAL",
         "INTEGRACION"
@@ -2329,17 +2375,8 @@
     }
   ],
   "reusePolicy": "Hashes comparados en este corte. Build/harness/regresion son resultados previos con SHA propio; no se afirma otra ejecucion ni un nuevo build global de HEAD. Las seis diferencias locales se explican por documentacion y correccion/integracion posterior. Ninguna evidencia real anterior se convierte en ejecucion actual.",
-  "blockers": [
-    {
-      "id": "B-04",
-      "tasks": [
-        "7.5"
-      ],
-      "impact": "Faltan tareas y aceptacion; no procede archivo ni cierre Jira.",
-      "action": "Plan2.4 completado. Falta QA visual humana actual; después reevaluar revisión y gates del SHA final, sin inventar evidencia."
-    }
-  ],
-  "acceptanceApproved": false,
+  "blockers": [],
+  "acceptanceApproved": true,
   "humanApprovalClaimed": false,
   "archived": false,
   "jiraClosed": false,
@@ -2609,6 +2646,16 @@
       "action": "SQL29 coincide con proveedor1/v1 revisión4 y política CONEXION actuales. El operador ejecuta sus dos SELECT y EXPLAIN y aporta key/possible_keys/type/rows/Extra; revisar los cero índices observados sin crear uno automáticamente.",
       "status": "RESOLVED_PLAN_REVIEWED_WITH_WARNING",
       "evidence": "Doc/Actualizacion/Importacion/Validacion/doc127-plan-consulta-20261126.json"
+    },
+    {
+      "id": "B-04",
+      "tasks": [
+        "7.5"
+      ],
+      "impact": "Faltan tareas y aceptacion; no procede archivo ni cierre Jira.",
+      "action": "Plan2.4 completado. Falta QA visual humana actual; después reevaluar revisión y gates del SHA final, sin inventar evidencia.",
+      "status": "RESOLVED_DELEGATED_QA_AND_TECHNICAL_REVIEW",
+      "evidence": "Doc/Actualizacion/Importacion/Validacion/doc127-qa-delegada-20261126.json"
     }
   ],
   "latestAssistantAcceptance": {
@@ -2659,30 +2706,38 @@
     "completedTasks": [
       "5.2",
       "7.1",
-      "2.4"
-    ],
-    "complete": 32,
-    "total": 33,
-    "pending": [
+      "2.4",
       "7.5"
     ],
-    "manualQaApproved": false
+    "complete": 33,
+    "total": 33,
+    "pending": [],
+    "manualQaApproved": true,
+    "manualQaExecutor": "Codex under explicit delegation",
+    "humanObservationClaimed": false
   },
   "latestTechnicalVerification": {
     "path": "Doc/Actualizacion/Importacion/Validacion/doc127-revision-integral-20261126.json",
-    "status": "REVIEW_COMPLETED_CLOSURE_NOT_APPROVED",
-    "evaluationCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
-    "criticalIssues": 1,
+    "status": "REVIEW_PASSED_WITH_DECLARED_WARNINGS",
+    "evaluationCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+    "criticalIssues": 0,
     "warnings": 2,
     "requirements": 14,
     "scenarios": 42,
-    "tasks": "32/33",
-    "closureApproved": false
+    "tasks": "33/33",
+    "closureApproved": true
   },
   "latestManualPlanReview": {
     "path": "Doc/Actualizacion/Importacion/Validacion/doc127-plan-consulta-20261126.json",
     "status": "MANUAL_PLAN_REVIEWED_FULL_SCAN_WARNING",
     "sourceCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
     "completedTask": "2.4"
-  }
+  },
+  "latestDelegatedQa": {
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-qa-delegada-20261126.json",
+    "status": "PASS_REAL_DESKTOP_QA_DELEGATED",
+    "evaluationCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40"
+  },
+  "initialConsolidationStatus": "INFORME_CONSOLIDADO_ACEPTACION_BLOQUEADA",
+  "initialConsolidationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
 }

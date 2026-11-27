@@ -11,3 +11,5 @@ Preservar ImportacionExcelVista/Api, semáforo de acciones, análisis del archiv
 ## Validacion visual
 
 Reutilizar las pruebas de navegador de DOC126 para semáforo, diagnóstico, cierre y foco. La ejecución del refinamiento sólo revisa esos contratos: no toma capturas ni ejecuta UI real. La comprobación del runtime vigente tendrá su ventana de lectura expresamente autorizada; conservar la declaración manual anterior del usuario con su alcance original.
+
+Actualización2026-11-26: [QA real de escritorio delegada](../../../Actualizacion/Importacion/Validacion/doc127-qa-delegada-20261126.md)4/4 PASS sobre1c1637dd. Apertura, Escape, Cerrar, navegación por nivel de prueba y reapertura verificadas en Chrome/IIS; diálogo cerrado al terminar. Ejecutor Codex bajo delegación expresa, sin atribuir observación humana ni otra cuenta autenticada. Capturas y datos de ejecución excluidos de Git; no se guardaron plantillas ni se iniciaron cargas.

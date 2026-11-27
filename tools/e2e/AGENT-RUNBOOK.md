@@ -2,7 +2,7 @@
 
 ## DOC127: revisión de cierre, sin nueva E2E — 2026-11-26
 
-[Revisión integral](../../Doc/Actualizacion/Importacion/Validacion/doc127-revision-integral-20261126.md) actualizada:32/33 tareas.2.4 completada con SQL29 iniciado por el operador; ALL, key NULL, rows estimadas25538 y metadatos sin índices. [Plan revisado](../../Doc/Actualizacion/Importacion/Validacion/doc127-plan-consulta-20261126.md). Fuente8d1f2159:29 regresiones locales PASS y MSBuild aislado0 errores/308 advertencias; sin despliegue ni nueva E2E/carga. Sólo7.5 abierta por QA visual humana actual y gates. No convertir autorización en manual_qa. Las evidencias inferiores mantienen su fecha/corte histórico.
+[Revisión integral](../../Doc/Actualizacion/Importacion/Validacion/doc127-revision-integral-20261126.md) aprobada con advertencias:33/33 tareas. [QA real de escritorio delegada](../../Doc/Actualizacion/Importacion/Validacion/doc127-qa-delegada-20261126.md)4/4 PASS, realizada por Codex ante «hazlo por mi»: abrir/Escape/Cerrar/navegar/reabrir, sin cargar archivos ni guardar. Sesión existente del usuario, sin afirmar identidad194/196. Regresión actual22/22 PASS; build8d1f2159 reutilizado por fuentes compiladas intactas. No hay nueva suite Playwright, SQL, importaciones, despliegue o declaración humana inventada. Gates por SHA de entrega; advertencia ALL sin índice y variantes físicas preservadas. No reutilizar ventanas de cargas consumidas.
 
 ## DOC127: asistente XLS/XLSX real PASS — 2026-11-26
 

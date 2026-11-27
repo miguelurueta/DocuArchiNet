@@ -1,6 +1,6 @@
 # DOC-127 — Informe de aceptación y capacidad con restricciones
 
-[Revisión integral actual](doc127-revision-integral-20261126.md): **32/33 tareas; sólo7.5 pendiente** por QA visual humana y gates. [Plan manual SQL29 revisado](doc127-plan-consulta-20261126.md): ALL, sin índice elegido, rows estimadas25538; advertencia de rendimiento sin medición de latencia.2.4 completada. Fuente8d1f2159:29/29 pruebas locales y build aislado0 errores/308 advertencias. No despliegue ni nuevas cargas. Los cortes inferiores son históricos.
+[Revisión integral actual](doc127-revision-integral-20261126.md): **33/33 tareas; revisión técnica aprobada con advertencias**. [QA real delegada](doc127-qa-delegada-20261126.md)4/4 PASS: apertura/Escape/Cerrar/navegación/reapertura, sin iniciar cargas. Fuente1c1637dd;22/22 regresiones locales actuales y build8d1f2159 reutilizado por fuentes compiladas sin cambios. Gates se registran por SHA de entrega; sin publicación, archivo ni cierre Jira. Los cortes inferiores son históricos.
 
 Actualización asistente y hallazgos2026-11-26: **2/2 E2E reales XLS/XLSX PASS;31/33 tareas**. [Resultados actuales](doc127-asistente-real-20261126.md): plantillas76/77 r1, dos tablas/cuatro campos/2000 filas nuevas; cero borrados/permisos/instalación/limpieza.38/39 tablas protegidas, configuración,78 perfiles y41 cargas anteriores conservadas.5.2 completada con matriz clasificada; [hallazgo form1 cerrado](doc127-hallazgos-cierre-20261126.md) completa7.1. Quedan EXPLAIN manual2.4 y revisión/QA/gates7.5. La autorización del lote está consumida; no repetir cargas.
 
@@ -75,10 +75,10 @@ Cada ID remite a la tabla de procedencia con su SHA/ambiente/tipo; el JSON conse
 | RQ-08: Filas/bytes/cambio de limites | ImportacionExcelLecturaTests.Boundaries/Reports; ConfirmacionTests.Rejections; LOCAL | LOCAL_PASS | Fronteras grandes y cambios de configuracion son locales; IIS permanece intacto. |
 | RQ-09: Seis celdas y medicion por modo | DOC127_LOCAL_READER; DOC125 tiempos historicos; LOCAL, DOC125, RECURSOS, DOC127_XLS1000_REAL, DOC127_XLS5000_REAL, DOC127_XLS10000_REAL, DOC127_XLSX1000_REAL, DOC127_XLSX5000_REAL, DOC127_XLSX10000_REAL | REAL_CAPACITY_MATRIX_18_PASS_SHARED_SAMPLING | 18/18 combinaciones XLS/XLSX de1000/5000/10000 filas y tres modos con resultado real. Memoria IIS compartida y muestreada, sin asignacion exclusiva ni picos garantizados; no extrapolar20000. |
 | RQ-10: Consumidor por clave y regresion | Plan manual SQL29; regresión afectada29/29 local; harness anteriores | PLAN_REVISADO_ADVERTENCIA_ALL | Sin índice y sin SLA de latencia; E2E anteriores conservan sus cortes. |
-| RQ-11: UI/cliente/semaforo/foco | tests/doc126-importacion-excel-ui.test.cjs; client; INTEGRACION, DOC126_LECTURA, DOC127_LECTURA | REAL_DOC127_1_READ_AND_FORM_ISOLATION_PASS | Lectura/consulta/Escape y aislamiento DOM doc127-1 reales; no se envio un postback del gestor ni se ejecutaron escrituras o capacidad. |
+| RQ-11: UI y navegación | QA de escritorio delegada actual4/4 | REAL_UI_PASS | Sesión existente sin ID acreditado; permisos194/196 conservan sus ventanas anteriores. |
 | RQ-12: Regresión y hallazgos | Corrección form1; fuente/refinamiento y E2E actuales | KNOWN_FINDING_CLOSED_CLASSIFIED | [Registro cerrado](doc127-hallazgos-cierre-20261126.md), sin atribuir historia141 a ejecución actual ni QA humana. |
 | RQ-13: Instalacion/operacion/recuperacion | Sql/README.md; Operacion-Excel.md; LOCAL, RECURSOS | DOCUMENTADO | La carga no ofrece pausa por fila; cualquier cambio SQL sigue el procedimiento manual. |
-| RQ-14: Matriz y gates finales | Este corte y tareas OpenSpec | QA_GATES_PENDIENTES | Falta declaración humana actual y gates del SHA final;2.4 completada. |
+| RQ-14: Matriz y gates finales | Revisión técnica, QA delegada y gobierno por SHA | REVISION_APROBADA_CON_ADVERTENCIAS | No implica publicación/archivo/cierre Jira. |
 
 ## Capacidad por formato, tamaño y modo
 
@@ -116,7 +116,7 @@ Fronteras: configuración vigente20000 filas/10000000bytes; fallback lector10000
 | Bloqueo / tareas | Impacto | Acción |
 | --- | --- | --- |
 | B-01:2.4 RESUELTO | Plan manual revisado y metadatos contrastados. | Se conserva advertencia de acceso ALL sin índice; no se exige SQL nuevo para completar la revisión. |
-| B-04: 7.5 | Faltan tareas y aceptacion; no procede archivo ni cierre Jira. | Mantener el cambio activo. Evaluar gates sobre HEAD registrado despues de resolver dependencias; los controles documentales no sustituyen aceptacion real. |
+| B-04:7.5 RESUELTO | QA delegada y revisión técnica completadas. | Gates persistidos en el SHA de entrega; conservar advertencias de acceso sin índice y variantes físicas. |
 
 Hallazgo form1 corregido en17bdf09e, con81/81 focales y posterior integración141/141; la lectura posterior acredita aislamiento DOM real doc127-1 sin postback del gestor.7.1 completada en la revisión actual de hallazgos; el corte histórico conservó la tarea abierta. Revocación física, política COLUMNA real y cortes físicos COMMIT/red conservan sus limitaciones; acuse ignorado y fallos sintéticos no los sustituyen.
 

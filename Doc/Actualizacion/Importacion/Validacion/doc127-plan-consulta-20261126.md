@@ -19,3 +19,5 @@ Fuente evaluada: 8d1f2159ac4fdfda9fab3b884cbf5daa22c96390. Cambios concurrentes 
 La página cambió referencias de caché del editor de perfiles. Los E2E anteriores mantienen su SHA/runtime original; no se afirma que todas sus fuentes sigan iguales ni se presenta la regresión local como E2E real. Huellas y comandos completos: [evidencia JSON](doc127-plan-consulta-20261126.json).
 
 QA visual actual: **PENDIENTE**, consola local abierta. Abrir/cerrar Excel con Escape/Cerrar y comprobar navegación tras cerrar, sin nuevas altas o cargas. Sólo falta7.5: QA humana y revisión/gates del SHA final. Avance32/33; sin aprobación de cierre ni archivo.
+
+Actualización posterior: la QA visual pendiente de este corte quedó satisfecha por [ejecución real de escritorio delegada](doc127-qa-delegada-20261126.md). No se altera el registro manual original de SQL29 ni se transforma PENDING en una declaración humana.

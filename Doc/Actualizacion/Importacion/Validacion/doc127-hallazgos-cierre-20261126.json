@@ -239,12 +239,7 @@
       "matches": true
     }
   ],
-  "remainingEvidenceGaps": [
-    {
-      "task": "7.5",
-      "issue": "Current human visual QA declaration and final review/gates remain pending; manual plan reviewed."
-    }
-  ],
+  "remainingEvidenceGaps": [],
   "limitations": [
     "Historical141 tests are not announced as a current aggregate run:12/15 source hashes match and the three changed test components have current55-test and real E2E coverage.",
     "Historical81 focal cases retain their original date; current product fix hashes and later integration UI tests are checked separately.",
@@ -268,5 +263,16 @@
     "status": "COMPLETED_FULL_SCAN_WARNING",
     "path": "Doc/Actualizacion/Importacion/Validacion/doc127-plan-consulta-20261126.json",
     "sourceCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390"
+  },
+  "historicalEvidenceGapsAfterPlan": [
+    {
+      "task": "7.5",
+      "issue": "Current human visual QA declaration and final review/gates remain pending; manual plan reviewed."
+    }
+  ],
+  "latestDelegatedQa": {
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-qa-delegada-20261126.json",
+    "status": "PASS_REAL_DESKTOP_QA_DELEGATED",
+    "evaluationCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40"
   }
 }
