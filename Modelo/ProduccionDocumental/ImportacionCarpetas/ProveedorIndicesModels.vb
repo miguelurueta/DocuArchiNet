@@ -36,6 +36,9 @@ Public Class ResultadoProveedorIndices
     'OK, SIN_COINCIDENCIA, AMBIGUO, CONFIGURACION_INVALIDA,
     'ACCESO_DENEGADO, CLAVE_INVALIDA, ORIGEN_NO_DISPONIBLE.
     Public Property Codigo As String
+    'Solo medidas del rechazo: no transportar clave, columnas ni detalles del origen.
+    Public Property LongitudClaveRechazada As Nullable(Of Integer)
+    Public Property LongitudMaximaClave As Nullable(Of Integer)
     Public Property Valores As New Dictionary(Of String, String)(System.StringComparer.Ordinal)
 End Class
 

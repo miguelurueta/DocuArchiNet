@@ -64,6 +64,10 @@ public static class ProveedorIndicesBehaviorTests {
         },(c,v)=>true);
         var result=adapter.Consultar(context,version,"00125");
         Check(result.Codigo=="OK" && result.Valores["beneficiario"]=="Persona fixture","first table");
+        int readsBeforeInvalidKey=reads;
+        var invalidKey=adapter.Consultar(context,version,new string('x',57));
+        Check(invalidKey.Codigo=="CLAVE_INVALIDA" && invalidKey.LongitudClaveRechazada==57 && invalidKey.LongitudMaximaClave==30,"physical source key rejection preserves observed and allowed lengths");
+        Check(reads==readsBeforeInvalidKey+1 && invalidKey.Valores.Count==0,"invalid key reads metadata only and never business values");
         version.Tabla="solicitudes_fixture";version.ColumnaClave="referencia";version.Propiedades[0].Columna="razon";
         Check(adapter.Consultar(context,version,"00125").Codigo=="OK","second table without new code");
         version.ColumnaEmpresa="";

@@ -74,3 +74,10 @@
 
 /* Usa el dropdown Bootstrap de Produccion; solo iguala botones a sus enlaces. */
 #doc110-navigation > .dropdown-menu > button.dropdown-item {font:inherit;color:#6d7fcc;cursor:pointer;}
+#doc110-perfiles .doc110-rule-incident {margin:10px 0;padding:12px 14px;border:1px solid #e3b7b7;border-left:4px solid #a23b3b;border-radius:5px;background:#fff8f8;overflow-wrap:anywhere;}
+#doc110-perfiles .doc110-rule-incident p {margin:5px 0;}
+#doc110-perfiles .doc110-rule-incident details {margin-top:8px;font-size:12px;}
+#doc110-perfiles .doc110-test-summary {font-weight:600;}
+#doc110-perfiles .doc110-test-summary[data-tone=error] {color:#912f35;}
+#doc110-perfiles .doc110-test-summary[data-tone=pending] {color:#875617;}
+#doc110-perfiles .doc110-test-summary[data-tone=success] {color:#247057;}

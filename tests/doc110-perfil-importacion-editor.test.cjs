@@ -75,6 +75,81 @@ test('DOC-110 editor: inicialización repetida, render seguro y guardado real de
     assert.match(s.w.document.querySelector('[role=status]').textContent,/Conflicto/);
   } finally{s.dom.window.close();}
 });
+
+test('Ensayo: nombres del catálogo, causa y límites visibles; códigos solo en detalle técnico',()=>{
+  const s=setup();try{
+    const p=profile();p.Version.Configuracion.GabineteId=1;
+    p.Version.Reglas=[{DestinoTipo:'INDICE_GABINETE',DestinoRef:'547',FuenteTipo:'ARCHIVO',TipoValor:'ENTERO',Extraccion:'SEGMENTO',Separador:'-',Posicion:2,LongitudMaxima:10}];
+    open(s,p);
+    resolveCatalog(catalogCall(s,'INDICE'),[
+      {value:'547',text:'NUMERORDEN',Tipo:'ENTERO',Longitud:10},
+      {value:'546',text:'IDENTIFICACION',Tipo:'TEXTO',Longitud:20},
+      {value:'551',text:'MODELO',Tipo:'TEXTO',Longitud:60}
+    ]);
+    s.click('[data-doc110=ensayar]');
+    s.respond([{Valores:[{DestinoTipo:'CAMPO_EXPEDIENTE',DestinoRef:'CODIGO',Valor:'ABRIL 2025'},{DestinoTipo:'INDICE_GABINETE',DestinoRef:'551',Valor:'Modelo sintético'}],Incidencias:[
+      {Campo:'INDICE_GABINETE:547',Codigo:'LONGITUD_EXCEDIDA',Mensaje:'El texto supera la longitud permitida para el campo. Longitud observada: 11. Máximo permitido: 10.'},
+      {Campo:'INDICE_GABINETE:546',Codigo:'LONGITUD_EXCEDIDA',Mensaje:'Clave de consulta del proveedor: Longitud observada: 57. Máximo permitido: 20. Revise la extracción de clave.'}
+    ]}]);
+    const area=s.w.document.querySelector('[data-doc110=resultado-ensayo]'),items=area.querySelectorAll('[data-doc110=incidencia-ensayo]');
+    assert.deepEqual(Array.from(items,x=>x.querySelector('strong').textContent),['NUMERORDEN','IDENTIFICACION']);
+    assert.match(items[0].querySelector('p').textContent,/11.*10/);
+    assert.match(items[1].querySelector('p').textContent,/Clave de consulta.*57.*20/);
+    assert.match(items[0].querySelector('details').textContent,/INDICE_GABINETE:547.*LONGITUD_EXCEDIDA/);
+    assert.equal(items[0].querySelector('details').open,false);
+    assert.match(area.textContent,/Código del expediente: ABRIL 2025/);assert.match(area.textContent,/MODELO: Modelo sintético/);
+    assert.match(s.w.document.querySelector('[data-doc110=estado]').textContent,/Prueba con 2 incidencias/);
+    assert.equal(area.querySelector('[data-tone=error]').textContent,s.w.document.querySelector('[data-doc110=estado]').textContent);
+    assert.equal(s.calls.filter(c=>['GuardarBorrador','PublicarVersion'].includes(c.operation)).length,0);
+  }finally{s.dom.window.close();}
+});
+
+test('Ensayo: mensajes y nombres se insertan como texto; catálogo ausente conserva referencia sin inventar nombres',()=>{
+  const s=setup();try{
+    const p=profile();p.Version.Configuracion.GabineteId=1;open(s,p);
+    resolveCatalog(catalogCall(s,'INDICE'),[{value:'1',text:'<img src=x onerror=alert(1)>',Tipo:'TEXTO',Longitud:20}]);
+    s.click('[data-doc110=ensayar]');s.respond([{Valores:[],Incidencias:[
+      {Campo:'INDICE_GABINETE:1',Codigo:'CLAVE_INVALIDA',Mensaje:'<svg onload=alert(1)> Revise la clave.'},
+      {Campo:'INDICE_GABINETE:999',Codigo:'ENTERO_INVALIDO'},
+      {Campo:'TIPOLOGIA:TIPO_DOCUMENTAL',Codigo:'FUENTE_REQUERIDA'},
+      {Campo:'reglas',Codigo:'CODIGO_NUEVO'}
+    ]}]);
+    const area=s.w.document.querySelector('[data-doc110=resultado-ensayo]'),items=area.querySelectorAll('article');
+    assert.equal(items[0].querySelector('strong').textContent,'<img src=x onerror=alert(1)>');assert.match(items[0].querySelector('p').textContent,/<svg/);
+    assert.equal(area.querySelectorAll('img,svg').length,0);
+    assert.equal(items[1].querySelector('strong').textContent,'Índice DA (referencia 999)');assert.match(items[1].querySelector('p').textContent,/número entero/);
+    assert.equal(items[2].querySelector('strong').textContent,'Tipo documental');assert.match(items[2].querySelector('p').textContent,/Falta configurar/);
+    assert.match(items[3].querySelector('p').textContent,/No se pudo completar/);assert.match(items[3].querySelector('details').textContent,/CODIGO_NUEVO/);
+  }finally{s.dom.window.close();}
+});
+
+test('Ensayo: diferencia valores pendientes y prueba sin incidencias, sin afirmar validación completa del perfil',()=>{
+  const s=setup();try{
+    open(s,profile());s.click('[data-doc110=ensayar]');
+    s.respond([{Valores:[{DestinoTipo:'CAMPO_EXPEDIENTE',DestinoRef:'RESPONSABLE',Diferido:true}],Incidencias:[]}]);
+    assert.match(s.w.document.querySelector('[data-doc110=estado]').textContent,/1 campo pendiente/);
+    assert.ok(s.w.document.querySelector('[data-tone=pending]'));
+    s.click('[data-doc110=ensayar]');s.respond([{Valores:[],Incidencias:[]}]);
+    assert.equal(s.w.document.querySelector('[data-doc110=estado]').textContent,'Prueba sin incidencias para los nombres indicados.');
+    assert.equal(s.w.document.querySelector('[data-tone=pending]'),null);assert.ok(s.w.document.querySelector('[data-tone=success]'));
+  }finally{s.dom.window.close();}
+});
+
+test('Guardar/publicar: reporta el nombre y explicación del campo en las incidencias del servidor',()=>{
+  for(const operation of ['guardar','publicar']){
+    const s=setup();try{
+      open(s,profile());s.click('[data-doc110='+operation+']');
+      s.calls.at(-1).result.reject({codigo:'CONFIGURACION_INVALIDA',mensaje:'La configuración contiene errores.',incidencias:[
+        {Campo:'CAMPO_EXPEDIENTE:FECHA_INICIAL',Codigo:'FUENTE_REQUERIDA',Mensaje:'Falta configurar la fuente de la fecha inicial.'},
+        {Campo:'GabineteId',Codigo:'GABINETE_NO_AUTORIZADO',Mensaje:'No tiene permiso de almacenamiento en este gabinete.'}
+      ]});
+      const status=s.w.document.querySelector('[data-doc110=estado]').textContent;
+      assert.match(status,/Fecha inicial del expediente: Falta configurar la fuente/);assert.match(status,/Gabinete DA: No tiene permiso/);
+      assert.doesNotMatch(status,/CAMPO_EXPEDIENTE|FUENTE_REQUERIDA|GABINETE_NO_AUTORIZADO/);
+      assert.equal(s.calls.filter(c=>c.operation==='GuardarBorrador' || c.operation==='PublicarVersion').length,1);
+    }finally{s.dom.window.close();}
+  }
+});
 test('DOC-110 editor: publicación inmutable y nivel vigente conservado',()=>{
   const s=setup();
   try {

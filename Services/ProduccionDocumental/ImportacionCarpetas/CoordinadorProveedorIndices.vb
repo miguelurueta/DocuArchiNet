@@ -65,7 +65,8 @@ Public Class CoordinadorProveedorIndices
                 Dim clave = resolvedor.Resolver(New List(Of ReglaPerfilImportacion) From {ReglasProveedorIndices.ClaveComoRegla(regla.Proveedor.Clave)}, ejemplo)
                 If clave.Incidencias.Count > 0 Then
                     For Each errorClave In clave.Incidencias
-                        salida.Incidencias.Add(New IncidenciaPerfilImportacion(Campo(regla), errorClave.Codigo, "Revise la clave del proveedor."))
+                        salida.Incidencias.Add(New IncidenciaPerfilImportacion(Campo(regla), errorClave.Codigo,
+                            "Clave de consulta del proveedor: " & errorClave.Mensaje & " Revise el origen y la extracción de clave de esta regla."))
                     Next
                     Continue For
                 End If
@@ -82,7 +83,17 @@ Public Class CoordinadorProveedorIndices
                 If respuesta Is Nothing OrElse respuesta.Codigo <> "OK" Then
                     Dim codigo = If(respuesta Is Nothing, "ORIGEN_NO_DISPONIBLE", respuesta.Codigo)
                     If Not {"SIN_COINCIDENCIA", "AMBIGUO", "CONFIGURACION_INVALIDA", "ACCESO_DENEGADO", "CLAVE_INVALIDA", "ORIGEN_NO_DISPONIBLE"}.Contains(codigo) Then codigo = "ORIGEN_NO_DISPONIBLE"
-                    salida.Incidencias.Add(New IncidenciaPerfilImportacion(Campo(regla), codigo, "No se pudo resolver el valor desde el proveedor."))
+                    Dim mensaje = DiagnosticoOperacionImportacion.Texto(codigo)
+                    If codigo = "CLAVE_INVALIDA" Then
+                        mensaje = "Clave de consulta del proveedor: no cumple la longitud, el tipo o los caracteres admitidos por su campo de búsqueda."
+                        If respuesta IsNot Nothing AndAlso respuesta.LongitudClaveRechazada.HasValue AndAlso respuesta.LongitudMaximaClave.HasValue AndAlso
+                            respuesta.LongitudMaximaClave.Value >= 0 AndAlso respuesta.LongitudClaveRechazada.Value > respuesta.LongitudMaximaClave.Value Then
+                            mensaje = "Clave de consulta del proveedor: " & DiagnosticoOperacionImportacion.Incidencia("clave", "LONGITUD_EXCEDIDA",
+                                respuesta.LongitudClaveRechazada.Value, respuesta.LongitudMaximaClave.Value).Mensaje & " Este máximo corresponde al campo de búsqueda del proveedor."
+                        End If
+                        mensaje &= " Revise el origen y la extracción de clave de esta regla."
+                    End If
+                    salida.Incidencias.Add(New IncidenciaPerfilImportacion(Campo(regla), codigo, mensaje))
                     Continue For
                 End If
                 Dim valor As String = Nothing
