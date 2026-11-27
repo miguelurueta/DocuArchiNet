@@ -4,7 +4,7 @@
   "schema": "spec-driven",
   "status": "REVIEW_PASSED_WITH_DECLARED_WARNINGS",
   "recordedUtc": "2026-11-27T01:17:04.535Z",
-  "evaluationCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+  "evaluationCommit": "a09a5440859d4252c9155245293d46030380bfe9",
   "reviewer": "Codex",
   "skill": ".codex/skills/openspec-verify-change/SKILL.md",
   "completeness": {
@@ -1174,7 +1174,7 @@
     },
     {
       "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/tasks.md",
-      "sha256Utf8Lf": "98fe4e6d87907e59eaa1820ab949e09d56246636aad7a50ed4e127200d7aae84"
+      "sha256Utf8Lf": "7e9ab59d20cbda8c6e602ad02d6a6302ed149d9a6b6db02b5567717f57d5a6b7"
     },
     {
       "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/specs/importacion-excel-07-verificacion-integral-cierre/spec.md",
@@ -1578,7 +1578,8 @@
     "status": "PASS_REAL_DESKTOP_QA_DELEGATED",
     "evaluationCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
     "cases": 4,
-    "humanObservationClaimed": false
+    "humanObservationClaimed": false,
+    "currentSourceReviewCommit": "a09a5440859d4252c9155245293d46030380bfe9"
   },
   "currentSourceVerificationAfterPlan": {
     "sourceCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
@@ -1625,7 +1626,7 @@
   },
   "currentUiRuntimePins": [
     {
-      "sha256": "2dd1afee9402b841bc56c3d8ed5d70030d98c4ff09e5346c4434ba6ffd52cb06",
+      "sha256": "dcca583a13b5815a96c7558f3a094779ebbebd4b0c937bb6f3b597f822f65a9d",
       "path": "Gestion/WebFormProducionDocumental.aspx"
     },
     {
@@ -1648,5 +1649,69 @@
       "sha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
       "path": "Web.config"
     }
-  ]
+  ],
+  "priorDesktopQaReviewCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+  "latestSourceVerification": {
+    "recordedUtc": "2026-11-27T03:20:11.510Z",
+    "evaluationCommit": "a09a5440859d4252c9155245293d46030380bfe9",
+    "concurrentCommit": "90faca1089cc8d5373c3fb48482c2cda5900bd80",
+    "changedFiles": [
+      {
+        "path": "Gestion/WebFormProducionDocumental.aspx",
+        "sha256": "dcca583a13b5815a96c7558f3a094779ebbebd4b0c937bb6f3b597f822f65a9d",
+        "sha256Utf8Lf": "15065315b23cff39e7f9c284d2848a6caadeb85d53ce044fa571fc3b675c4e3e"
+      },
+      {
+        "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+        "sha256": "0b022c519167e81086a01cb07c9e03d067cda93caafb650059adb8cb06a3f671",
+        "sha256Utf8Lf": "a3c6992921cd47f866ae48a59517e232a833a759df7a5bdd68bfac7c0d6d6556"
+      },
+      {
+        "path": "tests/doc110-perfil-importacion-editor.test.cjs",
+        "sha256": "3ad5dd826ac450e035cff5fe9a22530b762fdf395e336ebfb832e5288ecafcb5",
+        "sha256Utf8Lf": "1cb682c7c3f17c93429da0cdb0ce624bbe90bdd94517ce8a2af2353c7c7efa38"
+      }
+    ],
+    "sourcePins": [
+      {
+        "sha256": "dcca583a13b5815a96c7558f3a094779ebbebd4b0c937bb6f3b597f822f65a9d",
+        "path": "Gestion/WebFormProducionDocumental.aspx"
+      },
+      {
+        "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+        "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js"
+      },
+      {
+        "sha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+        "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js"
+      },
+      {
+        "sha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+        "path": "Styles/ImportacionExcel.css"
+      },
+      {
+        "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+        "path": "bin/GestionDocumental-Docuarchi.net.dll"
+      },
+      {
+        "sha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+        "path": "Web.config"
+      }
+    ],
+    "pageDifference": "Only PerfilImportacionEditor.js cache reference; normalized full page matches tested1c1637dd after replacing that exact reference.",
+    "excelAssetsAndRuntimeUnchanged": true,
+    "originalDesktopQaRetainedAt": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+    "newDesktopQaClaimed": false,
+    "compiledChangesSinceBuild": [],
+    "localRegression": {
+      "command": "node --test tests/doc110-perfil-importacion-editor.test.cjs",
+      "tests": 26,
+      "pass": 26,
+      "fail": 0,
+      "sourceCommit": "a09a5440859d4252c9155245293d46030380bfe9",
+      "type": "LOCAL_SYNTHETIC",
+      "logSha256": "8a5ae5560fb8871c4127273a77d768a555e96e1070d1b11a99c3a7a375e15902"
+    },
+    "buildReuse": "No VB/project/C#/Web.config differences since successful isolated8d1f2159 build; no new build/deployment."
+  }
 }

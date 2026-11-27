@@ -48,3 +48,5 @@ Build8d1f2159: net461 aislado PASS,0 errores/308 advertencias. No hay cambios VB
 ## Entrega técnica
 
 No hay críticos pendientes. Se conservan W-01 (acceso ALL sin índice/SLA) y W-02 (variantes físicas sin ejecución). La QA delegada cuenta con capturas privadas, observaciones y hashes en el [informe saneado](doc127-qa-delegada-20261126.json). No se necesita repetir importaciones ni pedir al usuario que vuelva a hacer esta comprobación. La publicación/archivo/cierre Jira se ejecuta por su flujo; este informe acredita revisión técnica.
+
+Actualización por cambio concurrente90faca10: revisión sobrea09a5440 y regresión local del editor **26/26 PASS**. La página sólo cambió el enlace de caché de PerfilImportacionEditor.js; al normalizar esa referencia coincide íntegramente con la página de la QA. Excel JS/CSS, DLL IIS y Web.config conservan sus hashes; no hay cambios compilados desde el build8d1f2159. La QA real conserva su corte1c1637dd; no se finge una repetición ni se reemplazan sus hashes. Auditoría actual y hashes en el JSON de QA.
