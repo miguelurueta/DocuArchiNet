@@ -81,3 +81,22 @@
 #doc110-perfiles .doc110-test-summary[data-tone=error] {color:#912f35;}
 #doc110-perfiles .doc110-test-summary[data-tone=pending] {color:#875617;}
 #doc110-perfiles .doc110-test-summary[data-tone=success] {color:#247057;}
+
+/* La barra permanece fuera del scroll; plegar conserva los controles y su contrato. */
+#doc110-perfiles .doc110-rule-toolbar {display:flex;align-items:center;gap:14px;flex:0 0 auto;padding:8px 24px;border-bottom:1px solid var(--doc110-line);background:#fff;}
+#doc110-perfiles .doc110-rule-toolbar>span {font-size:13px;color:var(--doc110-muted);}
+#doc110-perfiles [data-doc110=agregar-regla] {background:var(--doc110-blue);border-color:var(--doc110-blue);color:#fff;}
+#doc110-perfiles [data-doc110=agregar-regla]:hover:not(:disabled) {background:#293a6f;border-color:#293a6f;}
+#doc110-perfiles .doc110-scroll table.doc110-rules-table {table-layout:fixed;min-width:0;}
+#doc110-perfiles .doc110-rules-table>tbody>tr>td {padding:0;vertical-align:top;}
+#doc110-perfiles .doc110-rule-editor>summary {padding:14px 18px;overflow-wrap:anywhere;line-height:1.5;}
+#doc110-perfiles .doc110-rule-editor>summary:focus-visible {outline:3px solid #1672c4;outline-offset:-3px;}
+#doc110-perfiles .doc110-rule-editor>summary>span {display:block;margin:3px 0 0 16px;font-size:12px;font-weight:400;color:var(--doc110-muted);}
+#doc110-perfiles .doc110-rule-editor[open]>summary {background:#eef2fb;border-bottom:1px solid var(--doc110-line);}
+#doc110-perfiles .doc110-rule-fields {display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;padding:16px;background:#fff;}
+#doc110-perfiles .doc110-rule-fields>div {min-width:0;}
+#doc110-perfiles .doc110-rule-fields h4 {margin:0 0 10px;font-size:12px;font-weight:650;color:#35477f;}
+#doc110-perfiles .doc110-rule-fields label {margin-bottom:10px;}
+#doc110-perfiles .doc110-rule-fields input,#doc110-perfiles .doc110-rule-fields select {min-width:0;}
+@media(max-width:1100px){#doc110-perfiles .doc110-rule-fields {grid-template-columns:repeat(3,minmax(0,1fr));}}
+@media(max-width:680px){#doc110-perfiles .doc110-rule-toolbar {padding:6px 12px;}#doc110-perfiles .doc110-rule-fields {grid-template-columns:1fr;padding:12px;}}

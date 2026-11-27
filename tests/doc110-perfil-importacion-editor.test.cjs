@@ -164,6 +164,73 @@ test('DOC-110 editor: publicación inmutable y nivel vigente conservado',()=>{
   } finally{s.dom.window.close();}
 });
 
+test('Reglas plegables: abrir/cerrar conserva exactamente el payload de todas las fuentes y las claves distintas',()=>{
+  const s=setup();try{
+    const p=profile();p.Version.Reglas=[
+      {ReglaId:'1',DestinoTipo:'CAMPO_EXPEDIENTE',DestinoRef:'CODIGO',FuenteTipo:'CARPETA',TipoValor:'TEXTO',Extraccion:'COMPLETO',LongitudMaxima:45,Obligatoria:true},
+      {ReglaId:'2',DestinoTipo:'CAMPO_EXPEDIENTE',DestinoRef:'NOMBRE',FuenteTipo:'CONSTANTE',ValorConstante:'Nombre guardado',TipoValor:'TEXTO',LongitudMaxima:120},
+      {ReglaId:'3',DestinoTipo:'INDICE_GABINETE',DestinoRef:'91',FuenteTipo:'ARCHIVO',Extraccion:'SEGMENTO',Separador:'-',Posicion:2,QuitarExtension:true,RecortarEspacios:true,TipoValor:'TEXTO',LongitudMaxima:32},
+      {ReglaId:'4',DestinoTipo:'INDICE_GABINETE',DestinoRef:'92',FuenteTipo:'EXPEDIENTE',PropiedadExpediente:'SERIE_CODIGO',EtapaResolucion:'TRAS_EXPEDIENTE',TipoValor:'TEXTO',LongitudMaxima:32},
+      {ReglaId:'5',DestinoTipo:'INDICE_GABINETE',DestinoRef:'93',FuenteTipo:'PROVEEDOR',TipoValor:'TEXTO',LongitudMaxima:120,Proveedor:{ProveedorId:'1',VersionId:'3',Propiedad:'nombre',Clave:{FuenteTipo:'ARCHIVO',Extraccion:'SEGMENTO',Separador:'-',Posicion:2,QuitarExtension:true,RecortarEspacios:true,TipoValor:'TEXTO',LongitudMaxima:32}}},
+      {ReglaId:'6',DestinoTipo:'INDICE_GABINETE',DestinoRef:'94',FuenteTipo:'PROVEEDOR',TipoValor:'FECHA',FormatoFecha:'yyyy-MM-dd',LongitudMaxima:10,Proveedor:{ProveedorId:'1',VersionId:'3',Propiedad:'fecha',Clave:{FuenteTipo:'CARPETA',Extraccion:'COMPLETO',TipoValor:'TEXTO',LongitudMaxima:20}}},
+      {ReglaId:'7',DestinoTipo:'TIPOLOGIA',DestinoRef:'TIPO_DOCUMENTAL',FuenteTipo:'CONSTANTE',ValorConstante:'DOCUMENTO',TipoValor:'TEXTO',LongitudMaxima:64}
+    ];
+    const original=JSON.stringify(p);open(s,p);
+    const panels=Array.from(s.w.document.querySelectorAll('[data-doc110=regla]'));
+    assert.equal(panels.length,7);assert.ok(panels.every(el=>!el.open));
+    s.click('[data-doc110=ensayar]');const before=JSON.stringify(s.calls.at(-1).payload);s.respond([{Valores:[],Incidencias:[]}]);
+    const calls=s.calls.length;panels.forEach(el=>{el.open=true;el.open=false;});assert.equal(s.calls.length,calls);
+    assert.equal(s.w.document.querySelector('[data-doc110=cambios-pendientes]').textContent,'');
+    s.click('[data-doc110=guardar]');const saved=s.calls.at(-1).payload;
+    const compared=JSON.parse(before);delete compared.ejemplos;assert.equal(JSON.stringify(saved),JSON.stringify(compared));
+    assert.equal(saved.reglas[4].Proveedor.Clave.Posicion,2);assert.equal(saved.reglas[5].Proveedor.Clave.FuenteTipo,'CARPETA');
+    assert.equal(JSON.stringify(p),original);
+  }finally{s.dom.window.close();}
+});
+
+test('Reglas plegables: agregar abre y enfoca, quitar actualiza orden, contador y resumen sin tocar las otras reglas',()=>{
+  const s=setup();try{
+    open(s,profile());s.click('[data-doc110=agregar-regla]');s.click('[data-doc110=agregar-regla]');
+    let panels=Array.from(s.w.document.querySelectorAll('[data-doc110=regla]'));
+    assert.ok(panels.every(el=>el.open));assert.equal(s.w.document.querySelector('[data-doc110=cantidad-reglas]').textContent,'2 reglas');
+    const row=panels[1].closest('tr'),ref=row.querySelector('[data-doc110-rule=campo]');change(s,ref,'NOMBRE');
+    assert.match(panels[1].querySelector('summary').textContent,/Regla 2 · Nombre del expediente/);
+    assert.equal(s.w.document.activeElement,row.querySelector('[data-doc110-rule=destino]'));
+    Array.from(panels[0].querySelectorAll('button')).find(el=>el.textContent==='Quitar').click();
+    panels=Array.from(s.w.document.querySelectorAll('[data-doc110=regla]'));
+    assert.equal(panels.length,1);assert.match(panels[0].querySelector('summary').textContent,/Regla 1 · Nombre del expediente/);
+    assert.equal(s.w.document.querySelector('[data-doc110=cantidad-reglas]').textContent,'1 regla');
+    s.click('[data-doc110=ensayar]');assert.equal(s.calls.at(-1).payload.reglas[0].DestinoRef,'NOMBRE');assert.equal(s.calls.at(-1).payload.reglas[0].Orden,0);
+  }finally{s.dom.window.close();}
+});
+
+test('Reglas plegables: conserva la expansión al guardar aunque el servidor reasigne IDs',()=>{
+  const s=setup();try{
+    const p=profile();p.Version.Reglas=[{ReglaId:'1',DestinoTipo:'CAMPO_EXPEDIENTE',DestinoRef:'CODIGO',FuenteTipo:'CARPETA',TipoValor:'TEXTO',LongitudMaxima:45}];open(s,p);
+    s.w.document.querySelector('[data-doc110=regla]').open=true;s.click('[data-doc110=guardar]');
+    const updated=JSON.parse(JSON.stringify(p));updated.Version.Revision++;updated.Version.Reglas[0].ReglaId='20';s.respond(updated);
+    assert.equal(s.w.document.querySelector('[data-doc110=regla]').open,true);
+    assert.equal(s.w.document.querySelector('[data-doc110=cambios-pendientes]').textContent,'');
+  }finally{s.dom.window.close();}
+});
+
+test('Reglas plegables: barra bloqueada durante solicitud y publicada, disponible al fallar y oculta en listado',()=>{
+  const s=setup();try{
+    open(s,profile());const add=s.w.document.querySelector('[data-doc110=agregar-regla]');s.click('[data-doc110=ensayar]');
+    assert.equal(add.disabled,true);add.click();assert.equal(s.w.document.querySelectorAll('[data-doc110=regla]').length,0);
+    s.calls.at(-1).result.reject({codigo:'ACCESO_DENEGADO',mensaje:'Sin acceso'});assert.equal(add.disabled,false);
+    Array.from(s.w.document.querySelectorAll('button')).find(el=>el.textContent==='Volver al listado').click();
+    s.respond({Elementos:[],Total:0});assert.equal(s.w.document.querySelector('[data-doc110=barra-reglas]').hidden,true);
+  }finally{s.dom.window.close();}
+  const published=setup();try{
+    const p=profile('PUBLICADA');p.Version.Reglas=[{DestinoTipo:'CAMPO_EXPEDIENTE',DestinoRef:'CODIGO',FuenteTipo:'CARPETA',TipoValor:'TEXTO',LongitudMaxima:45}];const original=JSON.stringify(p);open(published,p);
+    assert.equal(published.w.document.querySelector('[data-doc110=agregar-regla]').disabled,true);
+    const panel=published.w.document.querySelector('[data-doc110=regla]');panel.open=true;
+    assert.ok(panel.querySelector('input').matches(':disabled'));assert.equal(JSON.stringify(p),original);
+    assert.equal(published.calls.some(c=>['GuardarBorrador','PublicarVersion'].includes(c.operation)),false);
+  }finally{published.dom.window.close();}
+});
+
 test('COR-03: widget existente consulta, descarta respuestas antiguas y selecciona código sin HTML',async()=>{
   const s=setup();
   try{

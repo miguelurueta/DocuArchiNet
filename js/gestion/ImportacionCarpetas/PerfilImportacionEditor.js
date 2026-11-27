@@ -24,9 +24,10 @@
         var title = node("h2", "Perfiles de importación", {id:"doc110-title"});
         var close = node("button","Cerrar",{type:"button"});
         var status = node("p","",{role:"status","aria-live":"polite","data-doc110":"estado"});
+        var ruleToolbar=node("div",null,{"class":"doc110-rule-toolbar","data-doc110":"barra-reglas"});ruleToolbar.hidden=true;
         var content = node("div",null,{"class":"doc110-body"});
         var header=node("header",null,{"class":"doc110-header"}),heading=node("div");heading.appendChild(node("span","PRODUCCIÓN DOCUMENTAL",{"class":"doc110-eyebrow"}));heading.appendChild(title);heading.appendChild(node("p","Configura el destino documental y las reglas de cada importación."));header.appendChild(heading);header.appendChild(close);
-        dialog.appendChild(header); dialog.appendChild(status); dialog.appendChild(content);
+        dialog.appendChild(header); dialog.appendChild(status); dialog.appendChild(ruleToolbar); dialog.appendChild(content);
         host.appendChild(open); host.appendChild(dialog);
         if(window.ProveedorAdminEditor){window.ProveedorAdminEditor.inicializar(host,api);}
         if(window.FuenteAdminEditor){window.FuenteAdminEditor.inicializar(host,api);}
@@ -87,7 +88,8 @@
             if (busy) { return; }
             if(uncertain && ["CrearPerfil","GuardarBorrador","PublicarVersion","CrearVersion","CambiarDisponibilidad","ActualizarCabecera"].indexOf(operation)!==-1){message("Consulte el estado antes de volver a escribir.");return;}
             var fields=Array.prototype.map.call(content.querySelectorAll("fieldset"),function(el){var saved=el.disabled;el.disabled=true;return {el:el,disabled:saved};});
-            function unlock(){fields.forEach(function(f){f.el.disabled=f.disabled;});}
+            var toolbarButtons=Array.prototype.map.call(ruleToolbar.querySelectorAll("button"),function(el){var saved=el.disabled;el.disabled=true;return {el:el,disabled:saved};});
+            function unlock(){fields.concat(toolbarButtons).forEach(function(f){f.el.disabled=f.disabled;});}
             busy = true; dialog.setAttribute("aria-busy","true"); message("Procesando…");
             api.ejecutar(operation,payload).done(function (result) {
                 unlock();
@@ -137,7 +139,13 @@
                 searchWidget.autocomplete("destroy");searchWidget=null;
             }
         }
-        function clearContent(){viewEpoch++;baseline=null;recovery=null;publishButton=null;dirtyNotice=null;catalogs={};indexState=null;indices=[];destroySearch();content.replaceChildren();}
+        function clearContent(){viewEpoch++;baseline=null;recovery=null;publishButton=null;dirtyNotice=null;catalogs={};indexState=null;indices=[];destroySearch();ruleToolbar.hidden=true;ruleToolbar.replaceChildren();content.replaceChildren();}
+        function updateRuleOverview(){
+            if(!ruleBody || !content.contains(ruleBody)){return;}
+            Array.prototype.forEach.call(ruleBody.children,function(row){row.updateSummary();});
+            var count=ruleToolbar.querySelector('[data-doc110="cantidad-reglas"]');
+            if(count){count.textContent=ruleBody.children.length+" regla"+(ruleBody.children.length===1?"":"s");}
+        }
         function attachSearch(search){
             search.maxLength=160;search.setAttribute("data-doc110","buscar-texto");
             search.addEventListener("input",function(){searchEpoch++;listCode="";});
@@ -283,6 +291,10 @@
             return state;
         }
         function render(profile) {
+            var expanded={};
+            if(current && current.PerfilId===profile.PerfilId && current.Version.VersionId===profile.Version.VersionId && ruleBody && content.contains(ruleBody)){
+                Array.prototype.forEach.call(ruleBody.children,function(row){var r=row.readRule(0);if(row.isExpanded()){expanded[JSON.stringify([r.DestinoTipo,r.DestinoRef])]=true;}});
+            }
             current=profile;uncertain=false;controls={};indices=[];clearContent();
             var version=profile.Version,c=version.Configuracion,published=version.Estado==="PUBLICADA";
             var actions=node("div",null,{"class":"doc110-actions"});content.appendChild(actions);
@@ -343,10 +355,12 @@
             rulesArea=node("fieldset");rulesArea.disabled=published;content.appendChild(rulesArea);
             rulesArea.appendChild(node("legend","Reglas de campos"));
             catalog("INDICE","INDICE",[]);
-            button(rulesArea,"Agregar regla",function(){addRule({DestinoTipo:"CAMPO_EXPEDIENTE",DestinoRef:"CODIGO",FuenteTipo:"CARPETA",TipoValor:"TEXTO",Extraccion:"COMPLETO",EtapaResolucion:"PREFLIGHT",LongitudMaxima:45,Obligatoria:true});updateActions();},"agregar-regla");
+            ruleToolbar.hidden=false;
+            var add=button(ruleToolbar,"Agregar regla",function(){var row=addRule({DestinoTipo:"CAMPO_EXPEDIENTE",DestinoRef:"CODIGO",FuenteTipo:"CARPETA",TipoValor:"TEXTO",Extraccion:"COMPLETO",EtapaResolucion:"PREFLIGHT",LongitudMaxima:45,Obligatoria:true},true);updateActions();row.reveal();},"agregar-regla");add.disabled=published;
+            ruleToolbar.appendChild(node("span","",{"data-doc110":"cantidad-reglas","aria-live":"polite"}));
             var scroll=node("div",null,{"class":"doc110-scroll"});rulesArea.appendChild(scroll);
-            ruleBody=table(scroll,["Destino","Fuente","Extracción","Conversión","Opciones","Acción"]);
-            version.Reglas.forEach(addRule);
+            ruleBody=table(scroll,["Reglas configuradas"]);ruleBody.parentNode.classList.add("doc110-rules-table");
+            version.Reglas.forEach(function(rule){addRule(rule,expanded[JSON.stringify([rule.DestinoTipo,rule.DestinoRef])]===true);});updateRuleOverview();
             if(!published){
                 button(content,"Guardar borrador",function(){
                     if(uncertain){message("Consulte el estado antes de repetir.");return;}
@@ -396,9 +410,11 @@
             Object.keys(catalogs).forEach(function(key){catalogs[key].load(true);});
             indexState.load(true);
         }
-        function addRule(rule) {
-            var row=node("tr"),cells=[];
-            for(var i=0;i<6;i++){cells[i]=node("td");row.appendChild(cells[i]);}
+        function addRule(rule,expanded) {
+            var row=node("tr"),cell=node("td"),cells=[],detail=node("details",null,{"class":"doc110-rule-editor","data-doc110":"regla"});detail.open=expanded===true;
+            var summary=node("summary",null,{"data-doc110":"resumen-regla"}),summaryTitle=node("strong"),summarySource=node("span");summary.appendChild(summaryTitle);summary.appendChild(summarySource);detail.appendChild(summary);
+            var grid=node("div",null,{"class":"doc110-rule-fields"});detail.appendChild(grid);cell.appendChild(detail);row.appendChild(cell);
+            ["Destino","Fuente","Extracción","Conversión","Opciones","Acción"].forEach(function(label){var section=node("div");section.appendChild(node("h4",label));cells.push(section);grid.appendChild(section);});
             var destination=select(cells[0],"Destino",[["CAMPO_EXPEDIENTE","Expediente"],["INDICE_GABINETE","Índice DA"],["TIPOLOGIA","Tipo documental"]],rule.DestinoTipo);
             var ref=select(cells[0],"Campo",[],null);
             function fillDestinations(keep){
@@ -453,6 +469,7 @@
                     items.forEach(function(p){if(!providerItems.some(function(old){return providerId(old)===providerId(p);})){providerItems.push(p);}var old=Array.prototype.find.call(providerSelect.options,function(o){return o.value===providerId(p);});if(old){old.textContent=p.Nombre+" · versión "+p.Numero;}else{providerSelect.appendChild(node("option",p.Nombre+" · versión "+p.Numero,{value:providerId(p)}));}});
                     if(keep && !Array.prototype.some.call(providerSelect.options,function(o){return o.value===keep;})){providerSelect.appendChild(node("option","Proveedor guardado: "+keep,{value:keep}));}
                     providerSelect.value=keep;fillProviderProperties(keepProperty);
+                    row.updateSummary();
                     if(!exact){providerPage=page;providerMore.hidden=items.length<25;}
                     providerStatus.textContent=providerItems.length?"Seleccione una propiedad de la versión autorizada.":"No hay proveedores habilitados para este ámbito.";
                     if(exact && !items.length){providerStatus.textContent="La versión guardada no está disponible. No se sustituirá automáticamente.";}
@@ -502,12 +519,23 @@
                 warning.textContent=!source.value?"Seleccione una fuente válida para este destino.":destination.value==="CAMPO_EXPEDIENTE" && (source.value==="ARCHIVO" || inherited)?"La fuente guardada no es válida para un campo de expediente.":
                     (destination.value==="INDICE_GABINETE" && ref.value && indexState && indexState.status==="READY" && !index?"El índice guardado no está disponible para este gabinete.":
                     (destination.value==="INDICE_GABINETE" && index && index.Tipo==="NO_SOPORTADO"?"Este índice tiene un tipo no soportado.":""));
+                row.updateSummary();
             }
+            row.updateSummary=function(){
+                var number=Array.prototype.indexOf.call(ruleBody.children,row)+1;
+                summaryTitle.textContent="Regla "+number+" · "+(ref.value?fieldName(destination.value+":"+ref.value):"Seleccione un campo");
+                var selected=source.options[source.selectedIndex],text=selected?selected.textContent:"Seleccione un origen";
+                if(source.value==="PROVEEDOR"){var p=providerSelect.options[providerSelect.selectedIndex];text+=" · "+(p?p.textContent:"Seleccione proveedor")+(providerProperty.value?" → "+providerProperty.value:"");}
+                summarySource.textContent=text+" · "+type.value+(required.checked?" · Obligatoria":" · Opcional");
+            };
+            row.isExpanded=function(){return detail.open;};
+            row.reveal=function(){detail.open=true;if(typeof detail.scrollIntoView==="function"){detail.scrollIntoView({block:"start"});}destination.focus({preventScroll:true});};
+            row.addEventListener("input",row.updateSummary);row.addEventListener("change",row.updateSummary);
             [destination,source,extraction,type,property,ref].forEach(function(el){el.addEventListener("change",function(){sync(true);});});
             var ruleControls={destino:destination,campo:ref,fuente:source,constante:constant,propiedad:property,extraccion:extraction,separador:separator,posicion:position,tipo:type,formato:format,longitud:length,extension:extension};
             Object.keys(ruleControls).forEach(function(key){ruleControls[key].setAttribute("data-doc110-rule",key);});
             sync(false);
-            button(cells[5],"Quitar",function(){row.remove();updateActions();});
+            button(cells[5],"Quitar",function(){row.remove();updateRuleOverview();updateActions();});
             row.readRule=function(index){
                 var value={ReglaId:rule.ReglaId || null,DestinoTipo:destination.value,DestinoRef:ref.value,
                     FuenteTipo:source.value,EtapaResolucion:source.value==="EXPEDIENTE"?"TRAS_EXPEDIENTE":"PREFLIGHT",
@@ -524,7 +552,9 @@
                 return value;
             };
             ruleBody.appendChild(row);
+            updateRuleOverview();
             if(source.value==="PROVEEDOR"){loadProviders(1);}
+            return row;
         }
         function payload() {
             return {perfilId:current.PerfilId,versionId:current.Version.VersionId,revisionVersionEsperada:current.Version.Revision,
@@ -556,7 +586,7 @@
         dialog.addEventListener("keydown",function(event){
             if(event.key==="Escape" && !busy){close.click();}
             if(event.key==="Tab"){
-                var focusable=Array.prototype.filter.call(dialog.querySelectorAll("button,input,select,[tabindex='0']"),function(el){return !el.disabled && el.getClientRects().length;});
+                var focusable=Array.prototype.filter.call(dialog.querySelectorAll("button,input,select,summary,[tabindex='0']"),function(el){return !el.matches(":disabled") && el.getClientRects().length;});
                 var first=focusable[0],last=focusable[focusable.length-1];
                 if(event.shiftKey && document.activeElement===first){event.preventDefault();last.focus();}
                 else if(!event.shiftKey && document.activeElement===last){event.preventDefault();first.focus();}
