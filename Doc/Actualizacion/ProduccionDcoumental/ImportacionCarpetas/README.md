@@ -33,10 +33,13 @@ Leer primero la [guía de ejecución y dependencias](00-guia-ejecucion-prompts.m
 | [11 — Seguimiento y operación](11-prompt-seguimiento-operacion.md) | Resultados, árbol, exportación y limpieza segura. |
 | [12 — Verificación integral](12-prompt-verificacion-integral.md) | Evidencia funcional, regresión y capacidad. |
 | [13 — Ejecutor desatendido, opcional](13-prompt-ejecutor-desatendido-opcional.md) | Evolución durable para archivos ya recibidos. |
+| [14 — Fecha inicial por importación](14-prompt-fecha-inicial-por-importacion.md) | Fecha documental elegida al iniciar el lote; compatibilidad de perfiles, planes y recuperación, con almacenamiento intacto. |
 
 La política predeterminada exige todos los archivos, con modo parcial configurable. El usuario aprobó soportar ambos ámbitos —por expediente y por lote— como configuración del perfil. En modo completo se exige elegir uno al publicar; la elección queda fija en el lote. La creación de estos prompts no acredita componentes implementados ni tablas creadas.
 
 ## Exploración
+
+- [Fecha inicial por importación](Exploracion/14-fecha-inicial-por-importacion.md): hallazgos del código, decisiones, transporte del dato y controles de regresión del prompt 14. Capacidad pendiente de implementación.
 
 - [Revisión estructural de los prompts 02–13](Exploracion/07-revision-estructural-prompts.md): correcciones, resultados de `opsxj:prompt-review` y límites de la validación.
 

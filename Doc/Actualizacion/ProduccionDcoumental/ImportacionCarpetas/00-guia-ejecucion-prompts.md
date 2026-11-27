@@ -2,6 +2,8 @@
 
 Los prompts 02 y 03 describen el alcance funcional; 04–12 lo descomponen en entregas técnicas. El 13 es una evolución opcional. Ninguno de estos archivos acredita implementación, despliegue o creación de tablas.
 
+El [prompt 14 — Fecha inicial por importación](14-prompt-fecha-inicial-por-importacion.md) es una mejora incremental sobre perfil, ventana, preparación y recuperación existentes. Leer su [exploración](Exploracion/14-fecha-inicial-por-importacion.md) antes de implementarlo. No requiere el ejecutor opcional 13 ni autoriza repetir las entregas anteriores. La nueva fuente se activa por la regla del perfil; las constantes anteriores conservan su significado y el almacenamiento permanece intacto. Su creación no acredita la capacidad implementada.
+
 ## Instrucciones comunes obligatorias
 
 **Decisión aprobada 2026-10-20 — permisos separados:** `ADMINISTRAR_PERFILES_IMPORTACION` autoriza administración/publicación/disponibilidad de perfiles (prompt 02, DOC-110); `IMPORTAR_CARPETAS` autoriza apertura/selección publicada/ejecución y acciones de lote según propietario, ámbito y estado (entrega posterior de carga). Ambos deshabilitados por defecto y asignados mediante infraestructura existente, sin otro sistema de roles ni herencia de `GA_MANAGER_CONFIGURACION`. Comprobar cada operación en servidor además de representar el botón. Ninguno sustituye permisos de nivel, gabinete, creación o carga; administrar no concede importar ni importar administrar. Nombres físicos se ajustan a convenciones; SQL MySQL 5.1 manual para cualquier extensión necesaria, sin concesión automática. Esta decisión no acredita implementación ni tablas creadas.
@@ -53,6 +55,7 @@ Regla de lectura: prevalecen las decisiones explícitas posteriores del usuario.
 | 11 | 07/10 y ventana 05 | Seguimiento, reanudación, árbol, limpieza y guía operativa. |
 | 12 | Entregas integradas | Verificación integral, regresión y capacidad. |
 | 13 opcional | 10–12 y decisión de despliegue | Ejecutor desatendido durable. |
+| 14 | Componentes existentes de 02/05/06/07/08/10–12; no depende de 13 | Fecha inicial elegida por lote, transporte clásico/segmentado y compatibilidad de planes anteriores. |
 
 El número del archivo identifica la entrega, no un orden ciego. 05 puede avanzar visualmente contra contratos, pero no se declara integrado antes de tener servicios reales.
 
