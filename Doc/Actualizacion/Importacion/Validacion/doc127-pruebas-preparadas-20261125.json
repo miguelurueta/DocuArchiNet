@@ -1,0 +1,207 @@
+{
+  "issue": "DOC-127",
+  "status": "PREPARED_TESTS_LOCAL_PASS_REAL_WINDOWS_PENDING",
+  "recordedUtc": "2026-11-25T23:56:49.338Z",
+  "sourceBaseCommit": "fe2fa911a2e36a2d5424035b9265dde1f4ca0feb",
+  "sourceCut": "Base commit plus exact UTF8/LF source hashes; implementation was uncommitted at execution.",
+  "command": "npm.cmd run test:doc127:local",
+  "executionType": "LOCAL_SYNTHETIC_TRANSPORT_AND_ADO_REAL_WORKBOOK_READER",
+  "nodeTests": {
+    "total": 55,
+    "passed": 55,
+    "failed": 0
+  },
+  "nativeChecks": {
+    "DOC122": 615,
+    "DOC123": 377,
+    "DOC124": 492,
+    "DOC125": 6512
+  },
+  "nativeTotal": 7996,
+  "newCoverage": {
+    "templateCases": 12,
+    "templateDimensions": [
+      "XLS",
+      "XLSX",
+      "CREAR",
+      "AGREGAR",
+      "REEMPLAZAR",
+      "HISTORICA",
+      "NUEVA"
+    ],
+    "authorityCases": 36,
+    "authorityStages": [
+      "PREWRITE",
+      "PRECOMMIT"
+    ],
+    "authorityChanges": [
+      "PERMISO",
+      "USUARIO",
+      "EMPRESA",
+      "MODULO",
+      "CONEXION",
+      "IDENTIDAD_FISICA"
+    ],
+    "capacityTransportCases": 18,
+    "invalidFormatOrPartialCases": 12,
+    "physicalRevocationClaimed": false
+  },
+  "realE2EPrepared": {
+    "readRejections": [
+      "CSRF_AUSENTE",
+      "CSRF_INVALIDO",
+      "CONEXION_AJENA",
+      "PLANTILLA_AJENA",
+      "CARGA_AJENA",
+      "CARGA_INEXISTENTE"
+    ],
+    "exactExpectedCodes": true,
+    "foreignResourcePreflightSelects": 3,
+    "additionalAuthorization": "DOC127_AUTHORITY_E2E_AUTHORIZED=YES",
+    "mode": "--excel-ui-read",
+    "scopeExtension": "acceptanceIssue=DOC-127 and authorityProbes with explicit references",
+    "assistantFormats": [
+      "XLS",
+      "XLSX"
+    ],
+    "assistantScopeExtension": "acceptanceIssue=DOC-127; assistant.formato=XLS|XLSX; file extension must agree",
+    "assistantMode": "--excel-ui-assistant",
+    "assistantAuthorization": "DOC126_ASSISTANT_E2E_AUTHORIZED=YES",
+    "capacityMode": "--excel-capacity",
+    "newRealRuns": 0
+  },
+  "discovery": {
+    "command": "node node_modules/@playwright/test/cli.js test tests/importacion-excel.spec.cjs --list",
+    "cwd": "tools/e2e",
+    "scenarios": 13,
+    "executed": false
+  },
+  "sources": [
+    {
+      "path": "package.json",
+      "sha256Utf8Lf": "414c7a8836a45b189f52007f3fa2edd3699990927c7c6dae0f701768d84dcfdb"
+    },
+    {
+      "path": "tests/ImportacionExcelBehaviorTests.cs",
+      "sha256Utf8Lf": "fff1a05e4aa616da718c87e01b8b422bfd0bf2a1efbf2a96add35bfe5e90594a"
+    },
+    {
+      "path": "tests/ImportacionExcelConfirmacionTests.cs",
+      "sha256Utf8Lf": "8beab1d9a63c1028786cae6e8dd4bdeecb10b0d8f0d3da8667a3ae199f89ccfe"
+    },
+    {
+      "path": "tests/doc126-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "279932da6866614a81529edf6250527c03d1fed7b8cef8269cc32bd3ab95c208"
+    },
+    {
+      "path": "tests/doc127-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "3a3a543e9358e97caa058dd5245ca3d04fd9b09ef9cc586473b7e6e374bafb4b"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+      "sha256Utf8Lf": "ee0118f810efbf9f8d3c5eab514b2b512d77151d7e4bdaf9ed01d48a8c9c0776"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256Utf8Lf": "ccd1ea1c1657c9b565265b863835622a0495bb49d0cde499d196a822ba943b0e"
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "f1b767589a3672338428bfd4b80f59083f6aa7e3341d0eb0bd4ec03dfd88112d"
+    }
+  ],
+  "runtimeUnchanged": [
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.dll",
+      "previousSha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+      "currentSha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+      "matches": true
+    },
+    {
+      "path": "Web.config",
+      "previousSha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+      "currentSha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+      "matches": true
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "previousSha256": "d7975d92a77a1390b23287514f1c0d8ad91dcca398fcc590f5ab02d929567696",
+      "currentSha256": "d7975d92a77a1390b23287514f1c0d8ad91dcca398fcc590f5ab02d929567696",
+      "matches": true
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+      "previousSha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+      "currentSha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+      "matches": true
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "previousSha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+      "currentSha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+      "matches": true
+    },
+    {
+      "path": "Styles/ImportacionExcel.css",
+      "previousSha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+      "currentSha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+      "matches": true
+    }
+  ],
+  "logSha256Utf8Lf": "793ed8e2b89dc6805540f8678a6d3f360d794ead66740d8c767f597d3c776f84",
+  "newEffects": {
+    "authenticatedSessions": 0,
+    "realSql": 0,
+    "imports": 0,
+    "templateWrites": 0,
+    "permissionChanges": 0,
+    "deployments": 0
+  },
+  "tasks": {
+    "complete": 22,
+    "total": 33,
+    "pendingAcceptanceTasksUnchanged": true
+  },
+  "limitations": [
+    "Native checks and Node tests are different levels and overlap; do not sum them as independent real tests.",
+    "Transport cases verify orchestration with synthetic responses; generated XLS/XLSX are validated independently by the actual product reader.",
+    "Prepared negative E2E and XLS assistant have only local validation; no new authentication or real writes were authorized or executed.",
+    "Physical permission revocation needs a separate approved administrative mechanism; tests do not modify permissions or install/seed/clean SQL.",
+    "EXPLAIN29 remains manual; test creation does not replace the server plan or capacity measurements."
+  ],
+  "traceability": {
+    "RQ-02": [
+      "Authorization before credentials",
+      "Foreign resource SELECT preflight"
+    ],
+    "RQ-03": [
+      "AuthorityMatrix:36 cases",
+      "verifyReadAuthority:6 exact rejections",
+      "Existing GuardAndAuthority and Preparation cases"
+    ],
+    "RQ-05": [
+      "TemplateCompatibilityMatrix:12 cases",
+      "Assistant XLS/XLSX scope and proposal format"
+    ],
+    "RQ-07": [
+      "AuthorityMatrix:18 precommit cases",
+      "Capacity replay/uncertain acknowledgement"
+    ],
+    "RQ-09": [
+      "18 capacity transport cases",
+      "18 generated workbooks verified by product reader"
+    ],
+    "RQ-12": [
+      "npm.cmd run test:doc127:local"
+    ]
+  },
+  "validation": {
+    "openspecStrict": "PASS",
+    "refinement": {
+      "status": "PASS",
+      "checks": 15
+    },
+    "gitDiffCheck": "PASS",
+    "unitEvidenceToBeRegisteredForCommittedSha": true
+  }
+}

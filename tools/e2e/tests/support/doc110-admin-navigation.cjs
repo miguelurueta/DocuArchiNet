@@ -30,3 +30,16 @@ async function openExcelImporter(page,timeout=15000){
  await expect(dialog).toHaveAttribute('aria-busy','false',{timeout});return dialog;
 }
 module.exports.openExcelImporter=openExcelImporter;
+
+async function verifyExcelFormIsolation(page){
+ const result=await page.evaluate(()=>{
+  const main=document.getElementById('form1'),host=document.getElementById('doc126-excel');
+  const controls=host?Array.from(host.querySelectorAll('input,select,button,textarea')):[];
+  return {mainFound:!!main,controls:controls.length,ownedByMain:controls.filter(e=>e.form===main).length,
+   isolated:controls.every(e=>e.form&&e.form.isConnected&&e.form!==main&&!main.contains(e.form)),
+   mainValidationEnabled:!!main&&!main.noValidate};
+ });
+ if(!result.mainFound||!result.controls||result.ownedByMain||!result.isolated||!result.mainValidationEnabled)throw Error('DOC127_WEBFORMS_ISOLATION_REQUIRED');
+ return result;
+}
+module.exports.verifyExcelFormIsolation=verifyExcelFormIsolation;

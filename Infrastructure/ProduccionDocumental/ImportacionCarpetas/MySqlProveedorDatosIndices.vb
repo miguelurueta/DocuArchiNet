@@ -67,7 +67,14 @@ Public Class MySqlProveedorDatosIndices
             For Each propiedad In version.Propiedades
                 If Not Compatible(campos, propiedad.Columna, propiedad.Tipo) Then Return Resultado("CONFIGURACION_INVALIDA")
             Next
-            If Not PerfilImportacionCatalogAdapter.ValorCompatible(campos(version.ColumnaClave), clave) Then Return Resultado("CLAVE_INVALIDA")
+            If Not PerfilImportacionCatalogAdapter.ValorCompatible(campos(version.ColumnaClave), clave) Then
+                Dim rechazo = Resultado("CLAVE_INVALIDA")
+                If clave.Length > campos(version.ColumnaClave).Longitud Then
+                    rechazo.LongitudClaveRechazada = clave.Length
+                    rechazo.LongitudMaximaClave = campos(version.ColumnaClave).Longitud
+                End If
+                Return rechazo
+            End If
             If filtrarEmpresa AndAlso Not PerfilImportacionCatalogAdapter.ValorCompatible(campos(version.ColumnaEmpresa), ambitoRef) Then Return Resultado("CONFIGURACION_INVALIDA")
             Dim columnas = String.Join(",", version.Propiedades.Select(Function(p) Identificador(p.Columna) & " AS " & Identificador(p.Nombre)))
             Dim sql = "SELECT " & columnas & " FROM " & Identificador(version.Tabla) & " WHERE " & Identificador(version.ColumnaClave) & "=@clave" & If(filtrarEmpresa, " AND " & Identificador(version.ColumnaEmpresa) & "=@empresa", "") & " LIMIT 2"

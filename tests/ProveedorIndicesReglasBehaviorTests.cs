@@ -11,6 +11,7 @@ public static class ProveedorIndicesReglasBehaviorTests {
                 Clave=new ClaveProveedorIndices{FuenteTipo="ARCHIVO",Extraccion="SEGMENTO",Separador="-",Posicion=0,QuitarExtension=true}}};
     }
     public static void Run(){
+        DiagnosticCases();
         var legacy=PerfilImportacionJson.Leer<VersionPerfilImportacion>(File.ReadAllText("doc110-perfil-antes-proveedor.json"));
         Check(BitConverter.ToString(PerfilImportacionJson.Huella(legacy)).Replace("-","").ToLowerInvariant()=="c16eaf987e48e6897edfadd215b7803a97d484b02f1540e97257c58217f4f401","publication hash before provider unchanged");
         Check(!PerfilImportacionJson.Escribir(legacy).Contains("Proveedor"),"legacy JSON remains unchanged");
@@ -64,6 +65,33 @@ public static class ProveedorIndicesReglasBehaviorTests {
         dateRule.FormatoFecha="yyyy-MM-dd";provider.Date="2006-01-23";
         Check(coordinator.Ensayar(context,dateRules,examples)[0].Valores.Single().Valor=="2006-01-23","canonical date preserved");
     }
+    static void DiagnosticCases(){
+        var repo=new Repo();var provider=new Provider();var coordinator=new CoordinadorProveedorIndices(repo,provider);
+        var context=new ContextoPerfilImportacion{UsuarioRef="1",AmbitoRef="2",PuedeAdministrar=true};
+        var rule=Rule("546","nombre");rule.Proveedor.Clave.LongitudMaxima=3;
+        var rules=new List<ReglaPerfilImportacion>{rule};
+        var samples=new List<EjemploPerfilImportacion>{new EjemploPerfilImportacion{NombreArchivo="00125-archivo.pdf"}};
+        string before=PerfilImportacionJson.Escribir(rules);
+        var incident=coordinator.Ensayar(context,rules,samples)[0].Incidencias.Single();
+        Check(incident.Codigo=="LONGITUD_EXCEDIDA"&&incident.Campo=="INDICE_GABINETE:546"&&incident.Mensaje.StartsWith("Clave de consulta del proveedor:")&&incident.Mensaje.Contains("Longitud observada: 5. Máximo permitido: 3."),"key extraction preserves real cause lengths and destination");
+        Check(provider.Calls==0&&PerfilImportacionJson.Escribir(rules)==before,"key diagnostic must not query or change rules");
+        rule.Proveedor.Clave.LongitudMaxima=30;rule.Proveedor.Clave.Posicion=3;
+        incident=coordinator.Ensayar(context,rules,samples)[0].Incidencias.Single();
+        Check(incident.Codigo=="SEGMENTO_AUSENTE"&&incident.Mensaje.Contains("Segmento requerido: 4 (desde 1)"),"key diagnostic preserves required segment");
+        rule.Proveedor.Clave.Posicion=0;provider.Code="CLAVE_INVALIDA";provider.RejectedLength=57;provider.MaximumLength=20;
+        incident=coordinator.Ensayar(context,rules,samples)[0].Incidencias.Single();
+        Check(incident.Codigo=="CLAVE_INVALIDA"&&incident.Mensaje.Contains("Longitud observada: 57. Máximo permitido: 20.")&&incident.Mensaje.Contains("campo de búsqueda del proveedor"),"physical key diagnostic preserves metadata limit without changing code");
+        provider.RejectedLength=null;provider.MaximumLength=null;
+        incident=coordinator.Ensayar(context,rules,samples)[0].Incidencias.Single();
+        Check(incident.Mensaje.Contains("longitud, el tipo o los caracteres")&&!incident.Mensaje.Contains("Máximo permitido"),"unknown physical cause never invents a length");
+        provider.Code="OK";rule.LongitudMaxima=3;
+        incident=coordinator.Ensayar(context,rules,samples)[0].Incidencias.Single();
+        Check(incident.Codigo=="LONGITUD_EXCEDIDA"&&!incident.Mensaje.Contains("Clave de consulta")&&incident.Mensaje.Contains("Máximo permitido: 3."),"returned field value error must not be mislabeled as a key error");
+        provider.Code="PRIVATE_SQL_PASSWORD";
+        incident=coordinator.Ensayar(context,rules,samples)[0].Incidencias.Single();
+        Check(incident.Codigo=="ORIGEN_NO_DISPONIBLE"&&!incident.Mensaje.Contains("PRIVATE_SQL_PASSWORD"),"unknown provider code remains sanitized");
+        Console.WriteLine("DOC-110 provider diagnostics: extraction, physical key limit, field value and safe fallback passed");
+    }
     public class Repo:IProveedorIndicesRepository{
         public bool Draft,Unavailable,Missing;
         public Action<ProveedorIndicesVersion> Alter;
@@ -78,7 +106,7 @@ public static class ProveedorIndicesReglasBehaviorTests {
         }
     }
     public class Provider:IProveedorDatosIndices{
-        public int Calls; public string Key,Code="OK",Date="23/01/2006 0:00:00";
-        public ResultadoProveedorIndices Consultar(ContextoPerfilImportacion c,ProveedorIndicesVersion v,string key){Calls++;Key=key;return new ResultadoProveedorIndices{Codigo=Code,Valores=new Dictionary<string,string>{{"nombre","Persona fixture"},{"nit","00123"},{"fecha",Date}}};}
+        public int Calls; public string Key,Code="OK",Date="23/01/2006 0:00:00";public int? RejectedLength,MaximumLength;
+        public ResultadoProveedorIndices Consultar(ContextoPerfilImportacion c,ProveedorIndicesVersion v,string key){Calls++;Key=key;return new ResultadoProveedorIndices{Codigo=Code,LongitudClaveRechazada=RejectedLength,LongitudMaximaClave=MaximumLength,Valores=new Dictionary<string,string>{{"nombre","Persona fixture"},{"nit","00123"},{"fecha",Date}}};}
     }
 }

@@ -1,0 +1,469 @@
+{
+  "issue": "DOC-127",
+  "status": "PASS_REAL_DESKTOP_QA_DELEGATED",
+  "recordedUtc": "2026-11-27T01:17:04.521Z",
+  "localDate": "2026-11-26",
+  "timezone": "America/Bogota",
+  "evaluationCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+  "authorization": {
+    "source": "User message: hazlo por mi",
+    "scope": "Perform previously requested open/close Excel and manager navigation in the existing local browser session.",
+    "humanObservationClaimed": false
+  },
+  "executor": "Codex",
+  "method": "Direct Windows UI Automation and desktop screenshot inspection, real Chrome and IIS application; no mocked DOM or services.",
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "page": "Gestion/WebFormProducionDocumental.aspx",
+    "session": "Existing signed-in browser session of the user; separate test tab, no new authentication.",
+    "accountIdentity": "Not independently identified; no claim that this browser uses test account194 or196.",
+    "permissionNegativeCases": "Not repeated; retain earlier scoped194/196 evidence."
+  },
+  "startedUtc": "2026-11-27T01:03:42.8302363Z",
+  "finishedUtc": "2026-11-27T01:13:46.4611466Z",
+  "cases": [
+    {
+      "id": "QA-01",
+      "action": "Open Cargar datos desde Excel",
+      "result": "PASS",
+      "observation": "Real dialog, authorized LOCAL connection and template list displayed; no file chosen.",
+      "observedUtc": "2026-11-27T01:07:26.9112390Z",
+      "screenshot": ".tmp/doc127-delegated-qa/capture-20261127-010729600.png"
+    },
+    {
+      "id": "QA-02",
+      "action": "Escape, then navigate fixture tree",
+      "result": "PASS",
+      "observation": "Dialog removed; PRUEBA-IMPORT expanded and its children displayed; Excel reopened.",
+      "closedUtc": "2026-11-27T01:08:45.3638357Z",
+      "navigationUtc": "2026-11-27T01:09:41.4891681Z",
+      "reopenedUtc": "2026-11-27T01:09:48.8631310Z",
+      "screenshots": [
+        ".tmp/doc127-delegated-qa/capture-20261127-010848268.png",
+        ".tmp/doc127-delegated-qa/capture-20261127-010952842.png"
+      ]
+    },
+    {
+      "id": "QA-03",
+      "action": "Cerrar, then select existing fixture level",
+      "result": "PASS",
+      "observation": "Dialog removed; selected PRUEBA-IMPORT, visible selected row and document grid headers. No form-validation blockage.",
+      "closedUtc": "2026-11-27T01:12:07.8578432Z",
+      "navigationUtc": "2026-11-27T01:13:30.9854576Z",
+      "screenshot": ".tmp/doc127-delegated-qa/capture-20261127-011332882.png"
+    },
+    {
+      "id": "QA-04",
+      "action": "Reopen after navigation, close and return to manager",
+      "result": "PASS",
+      "observation": "Dialog reappeared, Cerrar removed it, manager retained selected level; focus visibly returned to Importacion menu.",
+      "reopenedUtc": "2026-11-27T01:13:38.3622716Z",
+      "closedUtc": "2026-11-27T01:13:42.4245784Z",
+      "screenshot": ".tmp/doc127-delegated-qa/capture-20261127-011346426.png"
+    }
+  ],
+  "observations": [
+    {
+      "utc": "2026-11-27T01:09:37.4426356Z",
+      "action": "Probe",
+      "handle": 131810,
+      "excelVisibleCount": 0,
+      "mainNavigationVisible": true,
+      "fixtureTreeCollapsed": 1,
+      "fixtureTreeExpanded": 0,
+      "focusedOnExcelOpener": false,
+      "sourcePins": [
+        {
+          "sha256": "2dd1afee9402b841bc56c3d8ed5d70030d98c4ff09e5346c4434ba6ffd52cb06",
+          "path": "Gestion/WebFormProducionDocumental.aspx"
+        },
+        {
+          "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+          "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js"
+        },
+        {
+          "sha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+          "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js"
+        },
+        {
+          "sha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+          "path": "Styles/ImportacionExcel.css"
+        },
+        {
+          "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+          "path": "bin/GestionDocumental-Docuarchi.net.dll"
+        },
+        {
+          "sha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+          "path": "Web.config"
+        }
+      ]
+    },
+    {
+      "utc": "2026-11-27T01:09:43.4228037Z",
+      "action": "Probe",
+      "handle": 131810,
+      "excelVisibleCount": 0,
+      "mainNavigationVisible": true,
+      "fixtureTreeCollapsed": 0,
+      "fixtureTreeExpanded": 0,
+      "focusedOnExcelOpener": false,
+      "sourcePins": [
+        {
+          "sha256": "2dd1afee9402b841bc56c3d8ed5d70030d98c4ff09e5346c4434ba6ffd52cb06",
+          "path": "Gestion/WebFormProducionDocumental.aspx"
+        },
+        {
+          "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+          "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js"
+        },
+        {
+          "sha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+          "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js"
+        },
+        {
+          "sha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+          "path": "Styles/ImportacionExcel.css"
+        },
+        {
+          "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+          "path": "bin/GestionDocumental-Docuarchi.net.dll"
+        },
+        {
+          "sha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+          "path": "Web.config"
+        }
+      ]
+    },
+    {
+      "utc": "2026-11-27T01:09:50.8873221Z",
+      "action": "Probe",
+      "handle": 131810,
+      "excelVisibleCount": 1,
+      "mainNavigationVisible": true,
+      "fixtureTreeCollapsed": 0,
+      "fixtureTreeExpanded": 0,
+      "focusedOnExcelOpener": false,
+      "sourcePins": [
+        {
+          "sha256": "2dd1afee9402b841bc56c3d8ed5d70030d98c4ff09e5346c4434ba6ffd52cb06",
+          "path": "Gestion/WebFormProducionDocumental.aspx"
+        },
+        {
+          "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+          "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js"
+        },
+        {
+          "sha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+          "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js"
+        },
+        {
+          "sha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+          "path": "Styles/ImportacionExcel.css"
+        },
+        {
+          "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+          "path": "bin/GestionDocumental-Docuarchi.net.dll"
+        },
+        {
+          "sha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+          "path": "Web.config"
+        }
+      ]
+    },
+    {
+      "utc": "2026-11-27T01:12:09.8642913Z",
+      "action": "Probe",
+      "handle": 131810,
+      "excelVisibleCount": 0,
+      "mainNavigationVisible": true,
+      "fixtureTreeCollapsed": 0,
+      "fixtureTreeExpanded": 0,
+      "focusedOnExcelOpener": false,
+      "sourcePins": [
+        {
+          "sha256": "2dd1afee9402b841bc56c3d8ed5d70030d98c4ff09e5346c4434ba6ffd52cb06",
+          "path": "Gestion/WebFormProducionDocumental.aspx"
+        },
+        {
+          "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+          "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js"
+        },
+        {
+          "sha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+          "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js"
+        },
+        {
+          "sha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+          "path": "Styles/ImportacionExcel.css"
+        },
+        {
+          "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+          "path": "bin/GestionDocumental-Docuarchi.net.dll"
+        },
+        {
+          "sha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+          "path": "Web.config"
+        }
+      ]
+    },
+    {
+      "utc": "2026-11-27T01:13:40.4357013Z",
+      "action": "Probe",
+      "handle": 131810,
+      "excelVisibleCount": 1,
+      "mainNavigationVisible": true,
+      "fixtureTreeCollapsed": 0,
+      "fixtureTreeExpanded": 0,
+      "focusedOnExcelOpener": false,
+      "sourcePins": [
+        {
+          "sha256": "2dd1afee9402b841bc56c3d8ed5d70030d98c4ff09e5346c4434ba6ffd52cb06",
+          "path": "Gestion/WebFormProducionDocumental.aspx"
+        },
+        {
+          "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+          "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js"
+        },
+        {
+          "sha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+          "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js"
+        },
+        {
+          "sha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+          "path": "Styles/ImportacionExcel.css"
+        },
+        {
+          "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+          "path": "bin/GestionDocumental-Docuarchi.net.dll"
+        },
+        {
+          "sha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+          "path": "Web.config"
+        }
+      ]
+    },
+    {
+      "utc": "2026-11-27T01:13:44.4401887Z",
+      "action": "Probe",
+      "handle": 131810,
+      "excelVisibleCount": 0,
+      "mainNavigationVisible": true,
+      "fixtureTreeCollapsed": 0,
+      "fixtureTreeExpanded": 0,
+      "focusedOnExcelOpener": false,
+      "sourcePins": [
+        {
+          "sha256": "2dd1afee9402b841bc56c3d8ed5d70030d98c4ff09e5346c4434ba6ffd52cb06",
+          "path": "Gestion/WebFormProducionDocumental.aspx"
+        },
+        {
+          "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+          "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js"
+        },
+        {
+          "sha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+          "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js"
+        },
+        {
+          "sha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+          "path": "Styles/ImportacionExcel.css"
+        },
+        {
+          "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+          "path": "bin/GestionDocumental-Docuarchi.net.dll"
+        },
+        {
+          "sha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+          "path": "Web.config"
+        }
+      ]
+    }
+  ],
+  "sourcePins": [
+    {
+      "sha256": "2dd1afee9402b841bc56c3d8ed5d70030d98c4ff09e5346c4434ba6ffd52cb06",
+      "path": "Gestion/WebFormProducionDocumental.aspx"
+    },
+    {
+      "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js"
+    },
+    {
+      "sha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js"
+    },
+    {
+      "sha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+      "path": "Styles/ImportacionExcel.css"
+    },
+    {
+      "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+      "path": "bin/GestionDocumental-Docuarchi.net.dll"
+    },
+    {
+      "sha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+      "path": "Web.config"
+    }
+  ],
+  "privateScreenshots": [
+    {
+      "path": ".tmp/doc127-delegated-qa/capture-20261127-010729600.png",
+      "sha256": "2043932fa9bb01d3f60b51512dd5d902231557646028ba2fea0bba1b3d233be6",
+      "versioned": false
+    },
+    {
+      "path": ".tmp/doc127-delegated-qa/capture-20261127-010848268.png",
+      "sha256": "8ab365ec6e586650800e4c715ae8b1a71b5b4a378d44ee305b1ca9d63bb46139",
+      "versioned": false
+    },
+    {
+      "path": ".tmp/doc127-delegated-qa/capture-20261127-010952842.png",
+      "sha256": "64cf584aaf6f5db023873d550ed9a96cf79bb38dfb123b3ac6bf691c71b1511e",
+      "versioned": false
+    },
+    {
+      "path": ".tmp/doc127-delegated-qa/capture-20261127-011332882.png",
+      "sha256": "88040bbf8454eb1d9bdf8c553cb202ecce574d3273ed7b11a5242e50efd56c5d",
+      "versioned": false
+    },
+    {
+      "path": ".tmp/doc127-delegated-qa/capture-20261127-011346426.png",
+      "sha256": "4cb13482b416ec3512cb8f76cc7a6077125128d9a9e99e94fccda02fb6431344",
+      "versioned": false
+    }
+  ],
+  "localRegression": {
+    "command": "node --test tests/doc110-perfil-importacion-editor.test.cjs",
+    "sourceCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+    "type": "LOCAL_SYNTHETIC",
+    "tests": 22,
+    "pass": 22,
+    "fail": 0,
+    "exitCode": 0,
+    "durationMs": 2622.021
+  },
+  "sourceChangeReview": {
+    "sourceCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+    "changedFiles": [
+      {
+        "path": "Gestion/WebFormProducionDocumental.aspx",
+        "sha256": "2dd1afee9402b841bc56c3d8ed5d70030d98c4ff09e5346c4434ba6ffd52cb06",
+        "sha256Utf8Lf": "6036faa0f5f2777e61204b63dce20ce5c8c3f0246ab7962ac45c10aed5f2f344"
+      },
+      {
+        "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.css",
+        "sha256": "2fbfb7e50bbdfe3434a979d20a2f94091c5b24ae3d6d4590d88feff31497e5d0",
+        "sha256Utf8Lf": "a3c409dbaaea99fcf07167362470aa96200fe5f166332818bd3d903ff6a6f5eb"
+      },
+      {
+        "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+        "sha256": "e42f2b696a36f6c62295658c66687b8cf019863fdc4401ce7c02315369419903",
+        "sha256Utf8Lf": "db11fbda085bc7245272ec76811656bbc2e482b75c674954f97a271ff918b01c"
+      },
+      {
+        "path": "tests/doc110-perfil-importacion-editor.test.cjs",
+        "sha256": "31d9e68d1e3733a2b193fe3809daf198bfa29805083f13aeadc4e6e2c97b7381",
+        "sha256Utf8Lf": "21a3f1ae8eb19a30dbc3ba6725f2a3b4b8710f744257d17227123237af160d26"
+      },
+      {
+        "path": "tools/e2e/tests/doc110-reglas-plegables.spec.cjs",
+        "sha256": "f996870b9726566f8409ab6e35e7e3e2e30abb577994ffad5b0b22ea519bfd26",
+        "sha256Utf8Lf": "f996870b9726566f8409ab6e35e7e3e2e30abb577994ffad5b0b22ea519bfd26"
+      }
+    ],
+    "pageChange": "Only profile editor CSS/JS cache references changed; Excel integration and assets retained.",
+    "compiledChangesSince8d1f2159": [],
+    "buildReuse": "Actual isolated net461 build at8d1f2159 passed0 errors/308 warnings; no compiled source/project/config changes since it. No new build or deployment claimed."
+  },
+  "effects": {
+    "newAuthenticationSessions": 0,
+    "selectedFiles": 0,
+    "templatesSaved": 0,
+    "prepareActions": 0,
+    "confirmActions": 0,
+    "imports": 0,
+    "administrativeSqlStatements": 0,
+    "sqlControlStatements": 0,
+    "deployments": 0,
+    "credentialsRead": 0,
+    "cookiesReadOrStored": 0
+  },
+  "limitations": [
+    "Desktop walkthrough, not a Playwright suite execution.",
+    "Account ID not inspected; current session does not replace restricted-account tests.",
+    "No new SQL fingerprint comparison or HTTP trace; zero mutations refers to actions performed, not a new full-database audit.",
+    "Accessibility tree lacks a usable expanded-node label; expansion verified directly in screenshots, not inferred from the zero-valued fixtureTreeExpanded field.",
+    "Exact focus on Excel opener not asserted; final screenshot shows focus on the Importacion menu."
+  ],
+  "originalEditorTab": "Preserved; not closed, refreshed or saved.",
+  "oldOperatorConsole": "Its human declaration remains PENDING; this delegated execution is recorded separately, without entering a false SI.",
+  "secretsPersisted": false,
+  "technicalClosureEligible": true,
+  "published": false,
+  "archived": false,
+  "jiraClosed": false,
+  "latestSourceVerification": {
+    "recordedUtc": "2026-11-27T03:20:11.510Z",
+    "evaluationCommit": "a09a5440859d4252c9155245293d46030380bfe9",
+    "concurrentCommit": "90faca1089cc8d5373c3fb48482c2cda5900bd80",
+    "changedFiles": [
+      {
+        "path": "Gestion/WebFormProducionDocumental.aspx",
+        "sha256": "dcca583a13b5815a96c7558f3a094779ebbebd4b0c937bb6f3b597f822f65a9d",
+        "sha256Utf8Lf": "15065315b23cff39e7f9c284d2848a6caadeb85d53ce044fa571fc3b675c4e3e"
+      },
+      {
+        "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+        "sha256": "0b022c519167e81086a01cb07c9e03d067cda93caafb650059adb8cb06a3f671",
+        "sha256Utf8Lf": "a3c6992921cd47f866ae48a59517e232a833a759df7a5bdd68bfac7c0d6d6556"
+      },
+      {
+        "path": "tests/doc110-perfil-importacion-editor.test.cjs",
+        "sha256": "3ad5dd826ac450e035cff5fe9a22530b762fdf395e336ebfb832e5288ecafcb5",
+        "sha256Utf8Lf": "1cb682c7c3f17c93429da0cdb0ce624bbe90bdd94517ce8a2af2353c7c7efa38"
+      }
+    ],
+    "sourcePins": [
+      {
+        "sha256": "dcca583a13b5815a96c7558f3a094779ebbebd4b0c937bb6f3b597f822f65a9d",
+        "path": "Gestion/WebFormProducionDocumental.aspx"
+      },
+      {
+        "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+        "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js"
+      },
+      {
+        "sha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+        "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js"
+      },
+      {
+        "sha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+        "path": "Styles/ImportacionExcel.css"
+      },
+      {
+        "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+        "path": "bin/GestionDocumental-Docuarchi.net.dll"
+      },
+      {
+        "sha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+        "path": "Web.config"
+      }
+    ],
+    "pageDifference": "Only PerfilImportacionEditor.js cache reference; normalized full page matches tested1c1637dd after replacing that exact reference.",
+    "excelAssetsAndRuntimeUnchanged": true,
+    "originalDesktopQaRetainedAt": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+    "newDesktopQaClaimed": false,
+    "compiledChangesSinceBuild": [],
+    "localRegression": {
+      "command": "node --test tests/doc110-perfil-importacion-editor.test.cjs",
+      "tests": 26,
+      "pass": 26,
+      "fail": 0,
+      "sourceCommit": "a09a5440859d4252c9155245293d46030380bfe9",
+      "type": "LOCAL_SYNTHETIC",
+      "logSha256": "8a5ae5560fb8871c4127273a77d768a555e96e1070d1b11a99c3a7a375e15902"
+    },
+    "buildReuse": "No VB/project/C#/Web.config differences since successful isolated8d1f2159 build; no new build/deployment."
+  }
+}

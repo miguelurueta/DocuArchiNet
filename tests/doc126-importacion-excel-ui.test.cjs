@@ -2,6 +2,7 @@
 // Browser real, transporte y respuestas sintéticos. No acredita IIS/MySQL/E2E real.
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {chromium}=require('../tools/e2e/node_modules/playwright');
+const {verifyExcelFormIsolation}=require('../tools/e2e/tests/support/doc110-admin-navigation.cjs');
 const root=path.resolve(__dirname,'..'),id='10000000-0000-4000-8000-000000000001';
 const clone=v=>JSON.parse(JSON.stringify(v));
 async function fixture(work,options={}){
@@ -15,7 +16,7 @@ async function fixture(work,options={}){
   const prepared=()=>({Carga:carga('PREPARADA'),LecturaCompleta:true,ValidacionCompleta:true,DuplicadosEvaluados:true,FilasObservadas:1000,TotalIncidencias:0,Incidencias:[],Muestra:[{Fila:2,Valores:[{CampoDestino:'CLAVE',Tipo:'TEXTO',Texto:'00017'},{CampoDestino:'NUMERO',Tipo:'DECIMAL',NumeroCanonico:'123456789012345678901234567890123456789.123'},{CampoDestino:'FECHA',Tipo:'DATE',Fecha:'/Date(1735776000000)/'},{CampoDestino:'VACIO',Tipo:'TEXTO',EsNulo:true},{CampoDestino:'HTML',Tipo:'TEXTO',Texto:'<img src=x onerror=window.pwned=true>'}]}]});
   if(options.noStorage)await page.addInitScript(()=>Object.defineProperty(window,'sessionStorage',{get(){throw Error('synthetic storage denial');}}));
   await page.route('https://doc126.invalid/**',async route=>{
-   const request=route.request();if(request.method()==='GET')return route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><html><body><form><nav id="menu_var"><ul class="navbar-nav"></ul></nav><div id="doc126-excel" data-api="/excel.asmx" data-upload="/upload.ashx" '+(options.assistant?'data-analisis="/analysis.ashx" ':'')+'data-recuperacion="'+'d'.repeat(32)+'"></div></form></body></html>'});
+   const request=route.request();if(request.method()==='GET')return route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><html><body><form id="form1"><nav id="menu_var"><ul class="navbar-nav"></ul></nav><div id="doc126-excel" data-api="/excel.asmx" data-upload="/upload.ashx" '+(options.assistant?'data-analisis="/analysis.ashx" ':'')+'data-recuperacion="'+'d'.repeat(32)+'"></div><input id="gestor-submit" type="submit" value="Consultar expediente"></form></body></html>'});
    const routeName=new URL(request.url()).pathname.split('/').pop();
    const operation=routeName==='upload.ashx'?'Upload':routeName==='analysis.ashx'?'Analizar':routeName;
    const body=['Upload','Analizar'].includes(operation)?null:request.postDataJSON().solicitud;
@@ -67,6 +68,53 @@ async function open(page){await page.locator('[data-doc126=abrir]').click();awai
 async function select(page){await open(page);await page.locator('[data-doc126=plantilla]').selectOption('29');await page.locator('[data-doc126=destino]').filter({hasText:'imp_02_fixture'}).waitFor();}
 async function prepare(page){await select(page);await page.locator('[data-doc126=archivo]').setInputFiles({name:'fixture.xlsx',mimeType:'application/octet-stream',buffer:Buffer.from('synthetic workbook transport')});await page.locator('[data-doc126=recibir]').click();await page.locator('[data-doc126=hoja] option[value=Datos]').waitFor({state:'attached'});await page.locator('[data-doc126=preparar]').click();await page.locator('[data-doc126=preview] table').waitFor();}
 const stepTones=page=>page.locator('[data-doc126-step]').evaluateAll(items=>items.map(e=>e.getAttribute('data-tone')));
+test('DOC127 Excel oculto permite enviar form1 al seleccionar dos expedientes con el handler real',()=>fixture(async(page,calls)=>{
+ const source=fs.readFileSync(path.join(root,'js/gestion/WebFormProducionDocumental.js'),'utf8');
+ const onNode=source.slice(source.indexOf('function OnNodeClicked(event)'),source.indexOf('function OnSearchClick('));
+ const parent=source.slice(source.indexOf('function retorna_parent_tr('),source.indexOf('//Funci',source.indexOf('function retorna_parent_tr(')));
+ await page.evaluate(()=>{
+  document.getElementById('form1').insertAdjacentHTML('beforeend','<div id="TreeViewArchivo"><table><tr><td><a id="TreeViewArchivot0" title="1|1|101|" href="#">Expediente A</a></td></tr></table><table><tr><td><a id="TreeViewArchivot1" title="1|1|102|" href="#">Expediente B</a></td></tr></table></div><input id="Button_inline_trevie" type="submit" hidden><input id="HiddenField_0003" type="hidden"><input id="HiddenField_rest_text_node" type="hidden"><span id="Label_title_selecion"></span><span id="titulo_label_grid">Archivos</span><div id="id_tag_spiner" hidden></div>');
+  window.gestorSubmits=[];window.gestorInvalids=[];
+  document.getElementById('form1').addEventListener('submit',e=>{e.preventDefault();gestorSubmits.push(document.getElementById('HiddenField_0003').value);});
+  document.getElementById('form1').addEventListener('invalid',e=>gestorInvalids.push(e.target.id),true);
+ });
+ await page.addScriptTag({content:'var SELECCION_TREVIEW_ID="";'+onNode+'\n'+parent+'\n$("#TreeViewArchivo").on("click",this,OnNodeClicked);'});
+ assert.equal(await page.locator('[role=dialog]').isVisible(),false);
+ await verifyExcelFormIsolation(page);
+ assert.equal(await page.locator('#form1').evaluate(e=>e.checkValidity()&&!e.noValidate),true);
+ assert.equal(await page.locator('#doc126-tabla').evaluate(e=>e.required&&e.form!==document.getElementById('form1')&&e.form.parentElement===document.body),true);
+ await page.locator('#TreeViewArchivot0').click();await page.locator('#TreeViewArchivot1').click();
+ assert.deepEqual(await page.evaluate(()=>gestorSubmits),['1|1|101|','1|1|102|']);
+ assert.deepEqual(await page.evaluate(()=>gestorInvalids),[]);assert.deepEqual(calls,[]);
+}));
+test('DOC127 cerrar Excel con una posición inválida conserva el envío y los validadores del gestor',()=>fixture(async(page,calls)=>{
+ await select(page);await page.locator('[data-doc126=tab-plantillas]').click();
+ await page.locator('[data-field=NUMERO_MATRIZ_EXPLITER]').fill('-1');
+ await page.locator('[data-doc126=guardar]').click();await page.locator('[data-doc126=estado]').filter({hasText:'entero no negativo'}).waitFor();
+ assert.equal(calls.some(c=>c.operation==='GuardarPlantilla'),false);
+ await page.locator('[data-doc126=cerrar]').click();
+ await verifyExcelFormIsolation(page);
+ await page.evaluate(()=>{window.gestorSubmits=0;document.getElementById('form1').addEventListener('submit',e=>{e.preventDefault();gestorSubmits++;});});
+ await page.locator('#gestor-submit').click();assert.equal(await page.evaluate(()=>gestorSubmits),1);
+ await page.evaluate(()=>document.getElementById('form1').insertAdjacentHTML('beforeend','<input id="gestor-required" required>'));
+ await page.locator('#gestor-submit').click();assert.equal(await page.evaluate(()=>gestorSubmits),1);
+ await page.locator('#gestor-required').fill('Expediente');await page.locator('#gestor-submit').click();assert.equal(await page.evaluate(()=>gestorSubmits),2);
+}));
+for(const missing of ['tabla','clave','libro'])test('DOC127 Guardar plantilla rechaza '+missing+' vacío antes de llamar al servidor',()=>fixture(async(page,calls)=>{
+ await select(page);await page.locator('[data-doc126=tab-plantillas]').click();await page.locator('[data-doc126='+missing+']').fill('');
+ await page.locator('[data-doc126=guardar]').click();
+ assert.equal(calls.some(c=>c.operation==='GuardarPlantilla'),false);
+ assert.match(await page.locator('[data-doc126=estado]').innerText(),missing==='tabla'?/Completa Tabla de destino/:missing==='clave'?/campo único que exista/:/configuración de la plantilla/);
+}));
+test('DOC127 comprobación compartida con E2E real detecta un control reasociado a form1 o novalidate global',()=>fixture(async(page,calls)=>{
+ await verifyExcelFormIsolation(page);
+ await page.locator('#doc126-tabla').evaluate(e=>{e.dataset.originalOwner=e.getAttribute('form');e.setAttribute('form','form1');});
+ await assert.rejects(()=>verifyExcelFormIsolation(page),/DOC127_WEBFORMS_ISOLATION_REQUIRED/);
+ await page.locator('#doc126-tabla').evaluate(e=>e.setAttribute('form',e.dataset.originalOwner));
+ await page.locator('#form1').evaluate(e=>e.noValidate=true);
+ await assert.rejects(()=>verifyExcelFormIsolation(page),/DOC127_WEBFORMS_ISOLATION_REQUIRED/);
+ assert.deepEqual(calls,[]);
+}));
 test('DOC126 semáforo guía cada acción y reutiliza CREAR como AGREGAR tras consultar la misma plantilla',()=>fixture(async(page,calls)=>{
  await open(page);assert.deepEqual(await stepTones(page),['amber','gray','gray','gray']);
  await page.locator('[data-doc126=plantilla]').selectOption('29');await page.locator('[data-doc126=destino]').filter({hasText:'imp_02_fixture'}).waitFor();
@@ -202,6 +250,10 @@ test('DOC126 capacidad cerrada conserva consulta sin listar ni recibir',()=>fixt
 
 test('DOC126 endRequest se registra una vez y reemplaza sólo su propio host',()=>fixture(async(page)=>{
  await page.evaluate(()=>{window.manager={count:0,add_endRequest(fn){this.fn=fn;this.count++;}};window.Sys={WebForms:{PageRequestManager:{getInstance:()=>window.manager}}};ImportacionExcelVista.inicializar();ImportacionExcelVista.inicializar();const old=document.getElementById('doc126-excel');old.replaceWith(old.cloneNode(false));manager.fn();});assert.equal(await page.evaluate(()=>manager.count),1);assert.equal(await page.locator('[data-doc126=abrir]').count(),1);assert.equal(await page.locator('#doc110-navigation').count(),1);
+ assert.equal(await page.locator('form[id^="doc126-excel-validation-"]').count(),1);
+ assert.equal(await page.locator('#doc126-tabla').evaluate(e=>e.form&&e.form.id.startsWith('doc126-excel-validation-')),true);
+ await page.evaluate(()=>{document.getElementById('doc126-excel').remove();manager.fn();});
+ assert.equal(await page.locator('form[id^="doc126-excel-validation-"]').count(),0);assert.equal(await page.locator('[data-doc126=abrir]').count(),0);
 }));
 
 test('DOC126 posición fraccionaria no se redondea ni se guarda',()=>fixture(async(page,calls)=>{

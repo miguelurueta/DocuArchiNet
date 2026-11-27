@@ -1,5 +1,117 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
+## DOC127: revisión de cierre, sin nueva E2E — 2026-11-26
+
+[Revisión integral](../../Doc/Actualizacion/Importacion/Validacion/doc127-revision-integral-20261126.md) aprobada con advertencias:33/33 tareas. [QA real de escritorio delegada](../../Doc/Actualizacion/Importacion/Validacion/doc127-qa-delegada-20261126.md)4/4 PASS, realizada por Codex ante «hazlo por mi»: abrir/Escape/Cerrar/navegar/reabrir, sin cargar archivos ni guardar. Sesión existente del usuario, sin afirmar identidad194/196. Regresión actual22/22 PASS; build8d1f2159 reutilizado por fuentes compiladas intactas. No hay nueva suite Playwright, SQL, importaciones, despliegue o declaración humana inventada. Gates por SHA de entrega; advertencia ALL sin índice y variantes físicas preservadas. No reutilizar ventanas de cargas consumidas.
+
+## DOC127: asistente XLS/XLSX real PASS — 2026-11-26
+
+Lote `c659ec0b64d94681bccaaa8e6e75e4d0` consumido:2/2 E2E PASS, cuenta194/empresa2/DA11/RA12/ref6. Plantillas76/77 r1, dos tablas y2000 filas nuevas, cuatro campos; cero borrados o cambios de permisos.38/39 tablas protegidas, configuración previa,78 perfiles y41 cargas conservadas; segunda corrida conserva la primera alta. Consola cerrada naturalmente y captura completa.5.2 y7.1 completadas:31/33 tareas, matriz por formato/modo y cierre del hallazgo form1 con fuentes y cobertura clasificadas. [Resultado](../../Doc/Actualizacion/Importacion/Validacion/doc127-asistente-real-20261126.md) y [hallazgos](../../Doc/Actualizacion/Importacion/Validacion/doc127-hallazgos-cierre-20261126.md). Quedan EXPLAIN manual2.4 y gates/QA7.5. No reutilizar archivos, IDs o marcadores ni iniciar más cargas por esta autorización; conservar las dos altas. Los apartados siguientes son históricos.
+
+## DOC127: asistente XLS/XLSX preparado — 2026-11-26
+
+Lote `c659ec0b64d94681bccaaa8e6e75e4d0`, PREPARED_NOT_AUTHORIZED. Dos formatos,1000 filas cada uno, cuenta194/empresa2/DA11/RA12/ref6 en IIS local GESTOR. Máximo2 plantillas,4 campos,2 tablas y2000 filas nuevas; cero borrados, ediciones de datos existentes o permisos.38/39 tablas protegidas,78 perfiles y41 cargas previas. Consola de una contraseña, scopes, consumo único, SELECT antes/después y recuperación sin retry listos.14 SELECT y dos análisis nativos locales PASS; nueve guardas locales PASS sin activar autorización real. [Propuesta](../../Doc/Actualizacion/Importacion/Validacion/doc127-ventana-asistente-20261126.md) y [matriz](../../Doc/Actualizacion/Importacion/Validacion/doc127-matriz-plantillas-20261126.md). No iniciar sin autorización expresa de este lote; la lectura anterior está consumida. Avance29/33;5.2 permanece abierta.
+
+## DOC127: autoridad y lectura reales PASS — 2026-11-26
+
+Ventana `b0bd002d3ee84dc38d2bc883fb9c1739` consumida:1/1 E2E y seis rechazos CSRF/referencias/resultados PASS. IIS local HTTPS/GESTOR empresa2/DA11/RA12, cuentas194/196, conexión6/plantilla60.38 tablas protegidas, configuración,78 perfiles y41 cargas sin cambios; cero cargas/preparaciones/confirmaciones/guardados/cambios de permisos. Consola cerrada naturalmente, sin terminación forzada. Se completa5.1 con cobertura clasificada: real actual,36 cambios sintéticos y18 preparaciones reales reutilizadas; revocación física no ejecutada.29/33 tareas; siguen2.4,5.2,7.1,7.5. [Resultado real](../../Doc/Actualizacion/Importacion/Validacion/doc127-autoridad-real-20261126.md) y JSON. No repetir ni ampliar efectos por esta autorización. Los apartados siguientes son históricos.
+
+## DOC127: ventana de autoridad preparada — 2026-11-26
+
+Estado PREPARED_NOT_AUTHORIZED. Ventana `b0bd002d3ee84dc38d2bc883fb9c1739`: seis rechazos CSRF/referencias/resultados y lectura UI, cuentas194/196, IIS local HTTPS/GESTOR empresa2/DA11/RA12, conexión6/plantilla60. Referencia ajena1/plantilla1 y carga histórica de prueba del usuario141 verificadas por SELECT; no autenticar141. Cero cargas, guardados, DML, DDL o cambios de permisos.38 tablas protegidas,78 perfiles y41 cargas fijadas. Scope, consola privada, control SELECT antes/después y consumo único listos; las guardas pendientes rechazan antes del login. Una ejecución sin reintentos,15min de test y30min máximos desde autorización. No lanzar sin autorización expresa de este alcance; las ventanas anteriores están consumidas. [Propuesta revisable](../../Doc/Actualizacion/Importacion/Validacion/doc127-ventana-autoridad-20261126.md) y JSON. Avance28/33; no completar5.1 por preparación ni ampliar los efectos. Los apartados siguientes son históricos.
+
+## DOC127: XLSX10000 real en tres modos PASS — 2026-11-26
+
+XLSX10000 real: 3/3 modos PASS, cuenta194/empresa2/DA11/RA12/ref6, plantillas58/59/68. AGREGAR 7002→17002; REEMPLAZAR 5000→10000; CREAR ausente→10000. Se insertaron30000 filas, se borraron5000 y se creó una tabla. Huellas de36/36/37 tablas protegidas, plantillas y perfiles conservadas;78 perfiles en el control final. Preparar/confirmar y memoria IIS compartida medidos. Consola y captura completas, sin cierre forzado. Se completa6.6:28/33 tareas y la matriz18/18 de capacidad. Los demás alcances siguen pendientes. Scopes consumidos; no repetir las cargas. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx10000-20261126.md/json`. Esta autorización está consumida; no amplía tamaños, formatos o casos. Los apartados siguientes son históricos.
+
+
+## DOC127: ventana XLSX10000 preparada — 2026-11-26
+
+Conjunto `047439cc9d2b429cb7bd6272dca60e3d`, **pendiente de autorización de ejecución**.31 SELECT verificaron cuenta194/empresa2/DA11/RA12/ref6, plantillas58/59/68 y archivos sin uso previo. AGREGAR7.002→17.002; REEMPLAZAR5.000→10.000; CREAR ausente→10.000. Máximo30.000 inserciones,5.000 borrados y una tabla. Tres scopes, lote, consola privada y postflight SELECT listos; guardas rechazan el manifiesto pendiente. Sin nueva carga/autenticación ni tarea6.6 completada; avance27/33. [Alcance revisable](../../Doc/Actualizacion/Importacion/Validacion/doc127-ventana-xlsx10000-20261126.md) y JSON. Si pasan los tres casos se completará la matriz18/18 de capacidad, sin completar automáticamente los alcances funcionales y gates restantes. Las autorizaciones consumidas no se heredan. Los apartados siguientes son históricos.
+
+## DOC127: XLSX5000 real en tres modos PASS — 2026-11-26
+
+XLSX5000 real: 3/3 modos PASS, cuenta194/empresa2/DA11/RA12/ref6, plantillas58/59/67. AGREGAR 2002→7002; REEMPLAZAR 1000→5000; CREAR ausente→5000. Se insertaron15000 filas, se borraron1000 y se creó una tabla. Huellas de35/35/36 tablas protegidas, plantillas y perfiles conservadas;78 perfiles en el control final. Preparar/confirmar y memoria IIS compartida medidos. Consola y captura completas, sin cierre forzado. Se completa6.5:27/33 tareas. Scopes consumidos; no repetir las cargas. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx5000-20261126.md/json`. Esta autorización está consumida; no amplía tamaños, formatos o casos. Los apartados siguientes son históricos.
+
+
+## DOC127: ventana XLSX5000 preparada — 2026-11-26
+
+Conjunto `6ea858a269824b47930f29ca340277d1`, **pendiente de autorización de ejecución**.31 SELECT verificaron cuenta194/empresa2/DA11/RA12/ref6, plantillas58/59/67 y archivos sin uso previo. AGREGAR2.002→7.002; REEMPLAZAR1.000→5.000; CREAR ausente→5.000. Máximo15.000 inserciones,1.000 borrados y una tabla. Tres scopes, lote, consola privada y postflight SELECT listos; guardas rechazan el manifiesto pendiente. Sin nueva carga/autenticación ni tarea6.5 completada; avance26/33. [Alcance revisable](../../Doc/Actualizacion/Importacion/Validacion/doc127-ventana-xlsx5000-20261126.md) y JSON. Las autorizaciones consumidas no se heredan. Los apartados siguientes son históricos.
+
+## DOC127: XLSX1000 real en tres modos PASS — 2026-11-26
+
+XLSX1000 real: 3/3 modos PASS, cuenta194/empresa2/DA11/RA12/ref6, plantillas58/59/66. AGREGAR 1002→2002; REEMPLAZAR 1000→1000 sustituyendo sus filas; CREAR ausente→1000. Se insertaron3000 filas, se borraron1000 y se creó una tabla. Huellas de34/34/35 tablas protegidas, plantillas y perfiles conservadas;78 perfiles en el control final. Preparar/confirmar y memoria IIS compartida medidos. Consola y captura completas, sin cierre forzado. Se completa6.4:26/33 tareas. Historia XLSX1000 conservada, scopes nuevos consumidos; no repetir las cargas. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx1000-20261126.md/json`. Esta autorización está consumida; no amplía tamaños, formatos o casos. Los apartados siguientes son históricos.
+
+
+## DOC127: ventana XLSX1000 preparada — 2026-11-26
+
+Conjunto `4ae84cb89ebd4d77a3a962a0ef623106`, **pendiente de autorización de ejecución**.31 SELECT verificaron cuenta194/empresa2/DA11/RA12/ref6, plantillas58/59/66 y archivos sin uso previo. AGREGAR1.002→2.002; REEMPLAZAR1.000→1.000, sustituyendo las1.000 previas; CREAR ausente→1.000. Máximo3.000 inserciones,1.000 borrados y una tabla. Tres scopes, lote, consola privada y postflight SELECT listos; guardas rechazan el manifiesto pendiente. Se conserva la evidencia histórica XLSX1000; esta nueva preparación no completa6.4 ni inicia otra carga. Avance25/33. [Alcance revisable](../../Doc/Actualizacion/Importacion/Validacion/doc127-ventana-xlsx1000-20261126.md) y JSON. Las autorizaciones consumidas de XLS no se heredan. Los apartados siguientes son históricos.
+
+## DOC127: XLS10000 real en tres modos PASS — 2026-11-26
+
+XLS10000 real: 3/3 modos PASS, cuenta194/empresa2/DA11/RA12/ref6. AGREGAR 6000→16000; REEMPLAZAR 5000→10000; CREAR ausente→10000. Se insertaron30000 filas, se borraron5000 y se creó una tabla. Huellas de33/33/34 tablas protegidas, plantillas y perfiles conservadas;78 perfiles en el control final. Preparar/confirmar y memoria IIS compartida medidos. Consola y captura completas, sin cierre forzado. Se completa6.3:25/33 tareas. Scopes consumidos; no repetir las cargas. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls10000-20261126.md/json`. Esta autorización está consumida; no amplía tamaños, formatos o casos. Los apartados siguientes son históricos.
+
+
+## DOC127: ventana XLS10000 preparada — 2026-11-26
+
+Conjunto `86dfcb3cf89c4a40884b11d507e4b4ac`, **pendiente de autorización de ejecución**.31 SELECT verificaron cuenta194/empresa2/DA11/RA12/ref6, plantillas61/62/65 y archivos sin uso previo. AGREGAR6.000→16.000; REEMPLAZAR5.000→10.000, con borrado de las5.000 previas; CREAR ausente→10.000. Máximo30.000 inserciones,5.000 borrados y una tabla. Tres scopes, lote, consola privada y postflight SELECT listos; guardas rechazan el manifiesto pendiente. Misma salida saneada a archivo y cierre natural ya acreditados en XLS5000. Sin nueva E2E/carga;6.3 sigue pendiente y avance24/33. [Alcance revisable](../../Doc/Actualizacion/Importacion/Validacion/doc127-ventana-xls10000-20261126.md) y JSON. La autorización de las ventanas consumidas no se hereda. Los apartados siguientes son históricos.
+
+## DOC127: XLS5000 real en tres modos PASS — 2026-11-26
+
+XLS5000 real: 3/3 modos PASS, cuenta194/empresa2/DA11/RA12/ref6. AGREGAR 1000→6000; REEMPLAZAR 1000→5000; CREAR ausente→5000. Se insertaron15000 filas, se borraron1000 y se creó una tabla. Huellas de32/32/33 tablas protegidas, plantillas y perfiles conservadas;78 perfiles en el control final. Preparar/confirmar y memoria IIS compartida medidos. Consola y captura completas, sin cierre forzado. Se completa6.2:24/33 tareas. Scopes consumidos; no repetir las cargas. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls5000-20261126.md/json`. Esta autorización está consumida; no amplía tamaños, formatos o casos. Los apartados siguientes son históricos.
+
+
+## DOC127: siguiente ventana XLS5000 preparada — 2026-11-25
+
+Conjunto `ce1992d71a9e4066a238137d4452336e`, **pendiente de autorización de ejecución**.31 SELECT confirmaron cuenta194/empresa2/DA11/RA12/ref6, plantillas61/62/64 y destinos: AGREGAR1.000→6.000; REEMPLAZAR1.000→5.000, con borrado de las1.000 anteriores; CREAR ausente→5.000. Máximo15.000 inserciones,1.000 borrados y una tabla. Tres scopes, lote, consola privada y postflight SELECT listos; guardas rechazan el arranque pendiente. Salida saneada a archivo sin escribir en pantalla después de la contraseña; lanzamiento futuro sin `-NoExit`. No hubo E2E/carga nueva;6.2 sigue pendiente y avance23/33. [Alcance y comprobaciones](../../Doc/Actualizacion/Importacion/Validacion/doc127-ventana-xls5000-20261125.md) y JSON. No heredar la autorización consumida de XLS1000. Los apartados siguientes conservan sus cortes históricos.
+
+## DOC127: XLS1000 real en tres modos PASS — 2026-11-25
+
+Tres casos reales XLS1000 PASS: agregar61, reemplazar62 y crear63, cuenta194/empresa2/DA11/RA12/ref6.3000 filas nuevas, una tabla y0 filas borradas;31/31/32 tablas protegidas y configuración conservadas,78 perfiles en el control final. Tiempos por etapa y memoria IIS compartida con cobertura registrada. REEMPLAZAR partió vacío; las demás celdas y aceptación integral siguen abiertas. Se completa6.1:23/33 tareas. Ventana consumida, sin repetir las cargas. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls1000-20261125.md/json`. Los scopes activos están consumidos; futuras celdas necesitan sus recursos y autorización propios. Credenciales liberadas mediante cierre autorizado de la consola retenida. Los cortes siguientes conservan la preparación y aceptación anteriores.
+
+
+## DOC127: ventana concreta XLS1000 preparada — 2026-11-25
+
+Propuesta `Doc/Actualizacion/Importacion/Validacion/doc127-ventana-xls1000-20261125.md/json`: tres casos secuenciales AGREGAR61/REEMPLAZAR62/CREAR63, cuenta asesor.comercial194, IIS local HTTPS/GESTOR, empresa2/DA11/RA12/ref6.31 SELECT confirmaron destinos vacíos/ausente, configuración, índices, políticas y archivos sin uso previo. Máximo3000 filas nuevas, una tabla y cero filas borradas; no modifica plantillas, permisos o instalación. Los scopes y consola privada están en `.tmp/doc127-xls1000-ventana/` y `.tmp/doc127-xls1000-session.ps1`, excluidos de Git. Estado PREPARED_PENDING_AUTHORIZATION: crear la ventana no concede ejecutar. Al autorizar, activar scopes nuevos por caso con fechas frescas, recursos/efectos revisados y sin reutilizar IDs consumidos. Una contraseña de aplicación en consola privada; controles mediante recursos existentes, secretos sólo en memoria. Primer fallo, incertidumbre o medición insuficiente detiene el conjunto sin reintentar.22/33 tareas,6.1 abierta hasta sus tres resultados/mediciones.
+
+## DOC127: pruebas adicionales preparadas — 2026-11-25
+
+`npm.cmd run test:doc127:local` reúne harness VB/C#, validadores DOC126/127, transportes sintéticos y lector de18 libros. No autentica, conecta a bases reales, cambia permisos o despliega una DLL. Cobertura adicional:12 combinaciones de plantillas histórica/nueva,36 cambios de autoridad preescritura/precommit y18 recorridos de capacidad. Guía/evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-pruebas-preparadas-20261125.md/json`.
+
+La E2E de lectura existente admite6 rechazos adicionales sólo cuando un scope nuevo declara `acceptanceIssue=DOC-127`, `authorityProbes` completos y autorización específica `DOC127_AUTHORITY_E2E_AUTHORIZED=YES`, además de la autorización de lectura. No hereda la ventana194/196 consumida. Antes del login,3 SELECT comprueban una plantilla de otra conexión, una carga de otro usuario dentro de la empresa/conexión de prueba y un ID ausente. Sólo consulta: CSRF ausente/inválido, conexión/plantilla/carga ajenas e inexistente, códigos exactos y lectura válida final; cero guardados/preparaciones/confirmaciones. Conservar controles completos y credenciales efímeras. No modificar permisos ni crear recursos mediante SQL desde el test.
+
+El asistente admite `assistant.formato=XLS|XLSX` con `acceptanceIssue=DOC-127` y extensión coincidente; el scope DOC126 anterior sigue XLSX. Reutiliza `--excel-ui-assistant` y autorización propia `DOC126_ASSISTANT_E2E_AUTHORIZED=YES`, una plantilla nueva/dos campos/1000 filas/cero DELETE y destino nuevo aprobado. El formato del analizador y solicitud de guardado deben coincidir. La creación local de estas pruebas no autoriza otra corrida real, ni revocación física, capacidad o SQL administrativo.
+
+## DOC127: lectura real doc127-1 aprobada — 2026-11-25
+
+Una ventana expresamente autorizada con194/196, empresa2/DA11/RA12, conexión6 y plantilla60 terminó1/1 PASS. Denegación, consulta y Escape, aislamiento real de `form1` antes/después y assets HTTP coincidentes;32 tablas/configuración conservadas.78 perfiles y cinco resultados previos coinciden con la línea base fresca. Un hash histórico de perfiles distinto se detectó antes del login y se conserva como diferencia previa sin causa atribuida; no se modificaron permisos. Cero cargas/guardados/preparaciones/confirmaciones. Ventana consumida, sin reintentos ni autorización heredada para otra lectura o capacidad. Credenciales sólo en consola privada/memoria y limpiadas al terminar. Ver `Doc/Actualizacion/Importacion/Validacion/doc127-lectura-real-20261125.md/json`.22/33 tareas;5.1/7.1 y aceptación integral siguen abiertas. Los cortes siguientes son históricos.
+
+## DOC127: capacidad preparada, corte anterior a la lectura real — 2026-11-25
+
+Continuación de integración:141/141 locales PASS en11 suites. La E2E Excel `read` existente aplica `verifyExcelFormIsolation` antes de abrir y después de cerrar sólo para scopes con `acceptanceIssue=DOC-127`. Propuesta actual: `Doc/Actualizacion/Importacion/Validacion/doc127-lectura-propuesta-20261125.md`; scope/consola privados nuevos bloqueados sin autorización. Cuentas194/196, plantilla60,32 tablas protegidas, cero importaciones. No reutilizar scopes/contraseñas ni la autorización de lecturas anteriores. Evidencia local: `doc127-integracion-20261125.md/json`;20/33 tareas.
+
+Corrección posterior del bloqueo de `form1`: script **doc127-1**. Los controles Excel conservan sus restricciones y validación explícita, asociados a un formulario auxiliar fuera del formulario ASP.NET.81/81 pruebas locales PASS; GET del script servido coincide con el candidato. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-correccion-formulario-20261125.md/json`. Antes de una ventana real, renovar sus huellas del script y página; los scopes anteriores no autorizan esta versión por herencia. No se ha ejecutado aceptación autenticada nueva.
+
+**19/33 tareas.** Build net461 aislado y regresión local verificados; 18 libros sintéticos pasaron por el lector de producto sin MySQL/HTTP. Se reutilizan runner DOC110, suite Excel, controles SELECT DOC32 y verificación de cuentas/runtime DOC126. Ver `Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.md`.
+
+El modo nuevo del runner es `--excel-capacity`: una combinación de formato, filas y modo por ventana, sin reintentos. Requiere `DOC127_E2E_SCOPE_PATH`, la URL del perfil y autorización específica `DOC127_CAPACITY_E2E_AUTHORIZED=YES`. El perfil se selecciona con `DOC127_E2E_PROFILE_PATH` o el recurso DOC88 existente; su URL debe coincidir exactamente con el scope. La conexión se obtiene del módulo. No activar autorización por haber preparado archivos o por una ventana DOC125/126 anterior.
+
+El scope declara empresa/usuario/módulo, permisos esperados, hashes de DLL/assets/Web.config/configuración local, destino/plantilla/revisión/huella, archivo/formato/filas, huella/conteo previos, tablas protegidas, efectos máximos y presupuesto/fechas de ventana. El runner valida/consume la ventana antes del login y conserva sus marcadores en `.tmp/doc127-windows/`. Un scope consumido, modificado o vencido no se reutiliza. Los controles RA/DA reciben las credenciales efímeras por los recursos existentes; no se guardan en el scope.
+
+La prueba verifica por SELECT la cuenta, el destino y que ese archivo no tenga una ejecución anterior del propietario. Preparar debe conservar el destino; Confirmar se mide por separado y su ID queda guardado antes de enviarse. Ante incertidumbre se detienen nuevas escrituras, se preserva el ID y se prepara una consulta de recuperación autorizada. Los tiempos son HTTP, no DML puro. El monitor toma baseline y muestras cada2s de procesos IIS compartidos; informa huecos/procesos/intervalo y nunca atribuye asignación exclusiva. Una confirmación correcta sin medición suficiente queda incompleta y no se reejecuta automáticamente.
+
+Generación local opcional: `python tests/Fixtures/ProduccionDocumental/ImportacionExcel/generar.py --capacity directorio_privado tag_hexadecimal_de_32_caracteres`. Sus18 archivos no autorizan18 escrituras. Prueba reproducible: `node --test tests/doc127-capacity-fixtures.test.cjs`; guardas/transporte sintético: `node --test tests/doc127-e2e-reuse.test.cjs`.
+
+Conservar las cinco cargas y los fixtures DOC126. SQL28 es preflight SELECT; SQL29 entrega el EXPLAIN para ejecución manual y sigue sin plan aportado. No aplicar/reaplicar SQL desde tests. Faltan referencias compatibles XLS y siguientes CREAR, autorización de recursos/ventanas y aceptación real vigente; no anunciar las pruebas locales ni el smoke del monitor como E2E real.
+
+Preparación adicional: SQL30(DA)→31(RA)→32(DA), todos manuales y sin aplicar; SQL33 verifica después mediante SELECT. El UNIQUE de NOMBRE_PLANTILLA obliga a dos fixtures XLS separados, conservando tablas/plantillas DOC126 para XLSX. Son ocho plantillas nuevas, dos fuentes con historial y dos tablas vacías; los seis CREAR siguen ausentes. Ver `Doc/Actualizacion/Importacion/Validacion/doc127-preparacion-recursos-20261125.md`. Los18 borradores en `.tmp/doc127-preparacion/` son inválidos intencionadamente y no llevan autorización ni secretos. El avance sigue19/33 hasta confirmar instalación, cerrar recursos y aceptar las nuevas ventanas.
+
+### DOC127: aplicación posterior autorizada — 2026-11-25
+
+SQL30–32 fueron aplicados por Codex tras la instrucción expresa «aplica por mi», fuera de las E2E; SQL33 confirmó después los resultados. Fuentes10/11 y plantillas61–68 identificadas, dos tablas XLS vacías y seis destinos CREAR aún ausentes. Se conservaron30 tablas de datos,78 perfiles y la configuración anterior. **20/33 tareas**, incluida4.1. No reaplicar estos SQL desde el runner ni desde mantenimiento. Evidencia: `Doc/Actualizacion/Importacion/Validacion/doc127-aplicacion-recursos-20261125.md/json`.
+
+El estado anterior19/33 corresponde al corte previo de preparación. Los18 borradores privados ya incorporan sus IDs reales, pero siguen sin fechas, huellas finales ni autorización de ventanas; no son ejecutables. La aplicación SQL no autoriza E2E real ni EXPLAIN29.
+
 ## Estado final de entrega — 2026-11-25
 
 **62/62 tareas.** Gobierno legacy62/62, OpenSpec97/97 y refinamiento15/15 PASS antes del commit, con revalidación del SHA publicado al finalizar. La lectura real aprobada corresponde a assets v6:30 tablas,78 perfiles y cinco resultados conservados. El ajuste posterior mínimo de Cerrar siempre habilitado se entrega como **doc126-7**, probado localmente (49 UI/cliente;93 pruebas actuales con44 adaptadores), con hash HTTP verificado. No se afirma otra ejecución real v7. DLL/Web.config y datos permanecen conservados; no reaplicar permisos, SQL o cargas. Ver `Doc/Actualizacion/Importacion/Validacion/doc126-verificacion-final-20261125.md`.
@@ -1014,3 +1126,5 @@ Los fallos de rechazo conservan solo operación/HTTP/código conocido/forma del 
 ## DOC-117 — Regresión local sin ambiente real
 
 `npm.cmd --prefix tools/e2e run test:doc117:local` ejecuta únicamente el inventario versionado de pruebas locales del almacenamiento y sus dependencias compartidas. Usa historia sintética para revisar loaders/concesiones y compila las guardas en directorios temporales; no autentica, consulta una base real, instala una DLL ni crea documentos. Los artefactos de aceptación histórica siguen separados. Una corrida real exige revisar su propuesta concreta y obtener autorización específica del ambiente, cuentas, recursos, efectos y presupuesto; este comando local no la concede.
+
+Actualización por cambio concurrente90faca10: revisión sobrea09a5440 y regresión local del editor **26/26 PASS**. La página sólo cambió el enlace de caché de PerfilImportacionEditor.js; al normalizar esa referencia coincide íntegramente con la página de la QA. Excel JS/CSS, DLL IIS y Web.config conservan sus hashes; no hay cambios compilados desde el build8d1f2159. La QA real conserva su corte1c1637dd; no se finge una repetición ni se reemplazan sus hashes. Auditoría actual y hashes en el JSON de QA.

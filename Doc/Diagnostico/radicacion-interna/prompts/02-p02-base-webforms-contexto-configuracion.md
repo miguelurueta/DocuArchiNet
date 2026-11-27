@@ -1,0 +1,160 @@
+# Prompt P02 para base webforms, contexto y configuración
+
+Estado: consolidado el 2026-11-26, preparado para refinamiento y ejecución; aplicación sin implementar por redactar este archivo.
+
+## ROL ESPERADO
+
+Actúa como arquitecto y desarrollador senior especialista en ASP.NET WebForms, VB.NET, .NET Framework 4.6.1, JavaScript/jQuery y MySQL. Conserva contratos y datos existentes y produce una entrega comprobable del alcance de este paquete.
+
+## CONTEXTO Y DEPENDENCIAS
+
+Leer [contexto común](contexto-comun.md), [guía](00-guia-ejecucion.md) y [mapa de funciones](../mapa-funciones-implementacion.md). Dependencias: P01. Orden interno obligatorio: RI01 → RI02 → RI03.
+
+Este prompt reúne las subfases RI01, RI02, RI03 de la exploración. Los identificadores RI conservan trazabilidad de tareas/funciones; no son prompts adicionales a ejecutar. Reducir archivos no elimina verificaciones ni autoriza saltar precondiciones internas.
+
+- **RI01:** Solo las decisiones que alteren comportamiento de controles; no requiere resolver todos los catálogos. Trazabilidad: RQ-RI-04, RQ-RI-05, RQ-RI-10, RQ-RI-11.
+- **RI02:** G01, G03, G07, G08. Trazabilidad: RQ-RI-01, RQ-RI-02, RQ-RI-07, RQ-RI-09.
+- **RI03:** G09/G10/G11 para las reglas afectadas; catálogo vigente autorizado. Trazabilidad: RQ-RI-04, RQ-RI-05, RQ-RI-06, RQ-RI-11.
+
+Refinar al abrir cada subfase solo las decisiones que consume; conservar acuerdos ya registrados y continuar trabajo independiente. La instrucción de ejecutar el prompt autoriza su alcance acordado, no decisiones funcionales todavía pendientes ni pruebas del ambiente sin autorización. Versionar contratos antes de cambiar consumidores.
+
+## OBJETIVO
+
+Estabilizar la página existente, crear el contexto/operación autorizados y resolver plantillas, destinos y reglas del seguimiento. Completar y verificar cada subfase antes de consumirla en la siguiente.
+
+## RESTRICCIONES CRÍTICAS
+
+- Leer el contexto común y el código vigente; actuar solo en el alcance refinado. Las funciones N son propuestas y las M existen en el código; no confundir sus estados ni inventar su implementación.
+- Mantener WebForms/VB.NET/.NET Framework 4.6.1, plantillas dinámicas y contratos de Producción, clásica, Simplificada y Workflow. No modificar el OpenSpec DOC-127 ni su trabajo concurrente.
+- D-RI-06: tratar la radicación y sus contratos compartidos como núcleo crítico. Caracterizar el comportamiento antes de modificarlo, justificar cada adaptación/extracción indispensable y conservar numeración, transacciones y consumidores. Un servicio o control nuevo no aísla las clases/tablas comunes ni acredita ausencia de regresiones; no reescribir el motor como parte del cambio visual.
+- D-RI-07 prevalece sobre cualquier permiso de extracción: almacenamiento existente intocable. No editar `workflow/ClassAlmacenamiento.vb` ni las funciones de almacenamiento/metadatos de la baseline; no agregarles sobrecargas, clonarlas o eludirlas con SQL/copias definitivas propios ni cambiar configuración para alterar su comportamiento. Adaptar solo código externo con firmas vigentes y ejecutar `node tools/diagnostico/verify-radicacion-storage-freeze.cjs` antes y después; no actualizar la baseline para hacer pasar el cambio.
+- Límite D-RI-03 confirmado: este módulo radica y crea/entrega el seguimiento; elaboración, envío, confirmación y cierre de respuestas pertenecen al módulo existente. No trasladar esas funciones a esta pantalla ni rediseñar sus políticas.
+- Actor/empresa/permisos provienen de autoridad autenticada. El remitente no sustituye al ejecutor ni al responsable; IDs visibles, campos ocultos, rutas y nombres de tabla del cliente no son autoridad.
+- No repetir una escritura incierta ni anunciar éxito global por HTTP 200/YES. Mantener revisión, correlación, resultado durable y compatibilidad con los efectos ya confirmados.
+- No ejecutar E2E real ni carga ni mutaciones del ambiente sin autorización específica. No guardar secretos ni añadir activación por usuarios/grupos o `WorkflowCentroTrabajoModernActive`.
+
+## FUNCIONES Y ARCHIVOS AFECTADOS
+
+### Subfase RI01
+
+M02/M04/M07/M12/M27/M28: radicador/WebFormRadicacionEntranteInterna.aspx y .aspx.vb, Gestion/ClassGaProducionDocumental.vb y js/radicacion/WebFormRadicacionEntranteInterna.js.
+
+### Subfase RI02
+
+M01/M03/M08/M10 y N01/N02/N03/N12. Adaptar ButtonRadicar_Click sin alterar controles del árbol. Incorporar componentes acotados bajo Modelo/RadicacionInterna/, DTOs/RadicacionInterna/, Services/RadicacionInterna/ e Infrastructure/Repositories/RadicacionInterna/.
+
+### Subfase RI03
+
+M06–M15 y N04: Genera_Interface_Radicacion_Entrante, Lista_tipos_documentales_de_radicacion_interna, Seleccion_tipo_tramite/flujo/actividad, Class_tipo_doc_entrante y calendario. El catálogo clásico también es consumidor a preservar.
+
+## PRECONDICIONES DE RUTAS
+
+Antes de editar, inventariar archivos exactos, clases, funciones y firmas en el contrato de RI00, junto con sus consumidores y dependencias. Reutilizar las ubicaciones existentes y crear solo responsabilidades justificadas: modelos/puertos en `Modelo/RadicacionInterna/`, DTOs en `DTOs/RadicacionInterna/`, servicios en `Services/RadicacionInterna/`, repositorios en `Infrastructure/Repositories/RadicacionInterna/` y adaptadores de Session/IO en `Infrastructure/RadicacionInterna/`. Servicio web si hace falta en `webservice/WebServiceRadicacionInterna.asmx` y `.asmx.vb`; upload propio en `generic_control/RadicacionInternaUpload.ashx` y `.ashx.vb`. Registrar explícitamente cada alta Compile/Content en `GestionDocumental-Docuarchi.net.vbproj`; no crear capas vacías ni una API por cada función interna.
+
+Crear solo los componentes que correspondan a las subfases de este prompt; no implementar capas de paquetes posteriores.
+
+## TRABAJO REQUERIDO
+
+### Subfase RI01
+
+1. **RI01.1.** Caracterizar el orden efectivo de scripts y consolidar jQuery/UI/plugins compatibles por documento. Retirar la segunda carga que elimina extensiones, sin actualizar versiones globales ni confundir instancias del padre y del iframe.
+
+2. **RI01.2.** Registrar CheckStatus/endRequest y los eventos de campos una sola vez. Retirar manejadores propios al reconstruir, conservar los de otros componentes y comprobar varios postbacks consecutivos sin efectos multiplicados.
+
+3. **RI01.3.** Corregir las búsquedas, comprobaciones de referencia y asignaciones independientes de Hidden_Estado_opcion_fecha, Hidden_Estado_opcion_cita_respuesta y Hidden_Estado_opcion_radicado_general. Verificar las ocho combinaciones de las tres opciones y sus consumidores reales.
+
+4. **RI01.4.** Asegurar creación de controles dinámicos en fase compatible con postdata/ViewState, ID y tipos estables. No activar EnableEventValidation sin reconstrucción y registro apropiados; no dar por segura la selección de un combo.
+
+5. **RI01.5.** Sincronizar el usuario efectivo visible/oculto al cargar o cambiar grupo/actividad/flujo, invalidando selecciones anteriores. Al terminar, revalidar pertenencia en servidor; no arreglar solamente el onchange.
+
+6. **RI01.6.** Enlazar el cierre con ButtonSalir_radica_interno y la instancia correcta. Caracterizar descarga/notificación para no cerrar como éxito ante un resultado parcial; el protocolo tipado completo llega en RI08/RI10.
+
+Relacionar cada tarea con las funciones/rutas de este paquete y con su caso de prueba en el resultado de ejecución. Si al contrastar el código una extracción exige más de una entrega revisable, descomponerla antes de editar; conservar la trazabilidad RQ-RI-04, RQ-RI-05, RQ-RI-10, RQ-RI-11.
+
+### Subfase RI02
+
+1. **RI02.1.** Implementar ContextAdapter que resuelve actor/empresa desde autenticación válida y autoriza operación/expediente/documento/plantilla por recurso. Mantener checks específicos de expediente abierto, nivel y radicación; no usar el remitente para elevar permisos.
+
+2. **RI02.2.** Implementar AbrirDesdeProduccion y AbrirCargaDirecta con referencias normalizadas y operación durable. Para Producción capturar principal/anexos y revalidarlos, excluyendo principal duplicado. Para entrada nueva no exigir haber visitado el árbol ni heredar su sesión.
+
+3. **RI02.3.** Entregar migración versionada del estado mínimo aprobado en RI00, índices de pertenencia/revisión y vínculo único de confirmación. Preparar aplicación y reversión antes de aplicar a un ambiente; no crear esquema desde Page_Load.
+
+4. **RI02.4.** Implementar ObtenerAutorizada, ActualizarBorrador y PrepararConfirmacion con concurrencia optimista, revisión/configuración/manifiesto vigentes y errores de conflicto recuperables. Una lectura no confirma ni actualiza auditoría de dominio.
+
+5. **RI02.5.** Implementar cancelación únicamente de borradores no registrados y política de caducidad acordada. Mantener referencias a efectos persistidos; ni cancelar ni cambiar origen puede borrar documentos incorporados.
+
+6. **RI02.6.** Exponer los transportes mínimos de apertura/consulta/actualización y proteger petición/sesión según el patrón compatible del repo. Mantener rutas, firmas, formatos y significado de los métodos del `WebServiceRadicacion.asmx` compartido y la configuración de sus otros consumidores. La frontera interna nueva no permite cambiar buscadores generales para mezclar terceros con usuarios internos ni aislar por sí sola clases/tablas. Publicar referencias opacas y datos visibles; no SQL, rutas físicas, sesión completa ni excepciones crudas. Justificar y caracterizar previamente cualquier modificación compartida indispensable según D-RI-06.
+
+Relacionar cada tarea con las funciones/rutas de este paquete y con su caso de prueba en el resultado de ejecución. Si al contrastar el código una extracción exige más de una entrega revisable, descomponerla antes de editar; conservar la trazabilidad RQ-RI-01, RQ-RI-02, RQ-RI-07, RQ-RI-09.
+
+### Subfase RI03
+
+1. **RI03.1.** Extraer la preparación de campos y contexto documental para aceptar metadatos de un borrador sin consultar un ID de Producción inexistente. Conservar orden, tipo, scripts, catálogos, citas, valores y obligatoriedad de todas las plantillas utilizadas.
+
+2. **RI03.2.** Implementar ObtenerConfiguracion y ResolverReglasRespuesta por ID con autoridad/plantilla. Mantener separados requiere_respuesta, obliga_respuesta_radicado_tramite y resp_correo_fisico_electronico. Corregir Retorna_estado_respuesta_obligatoria tras inventariar consumidores y conservar un adaptador compatible.
+
+3. **RI03.3.** Mantener filtro de trámite interno y disponibilidad por empresa/plantilla. Identificar trámites clásicos que perderían elegibilidad al cambiar tipo_activo_rad_interno; no activar ni clonar configuración del ambiente sin decisión registrada.
+
+4. **RI03.4.** Resolver ruta/destinos en servidor e invalidar las dependencias necesarias. Una ruta ambigua exige elección válida; no usar la primera opción como autorización o solución de configuración faltante.
+
+5. **RI03.5.** Resolver plazo con DateAgregarLaborales y calendario vigente; decidir cero días antes de cambiar su rama. Preservar/informar cuándo la fecha es editable. Sin seguimiento no fabricar vencimiento de respuesta; no equiparar esa condición a un plazo cero.
+
+6. **RI03.6.** Entregar configuración visible tipada, versión y requisitos de confirmación. Campos extra no se codifican como Placa fija ni se convierten todos en obligatorios por copiar asteriscos del HTML.
+
+Relacionar cada tarea con las funciones/rutas de este paquete y con su caso de prueba en el resultado de ejecución. Si al contrastar el código una extracción exige más de una entrega revisable, descomponerla antes de editar; conservar la trazabilidad RQ-RI-04, RQ-RI-05, RQ-RI-06, RQ-RI-11.
+
+## CRITERIOS DE ACEPTACIÓN
+
+### Subfase RI01
+
+- Plugins disponibles antes y después de postbacks; un evento produce un solo efecto.
+- Valores y foco se conservan al reconstruir distintas plantillas.
+- La identidad consumida coincide con la selección válida o se rechaza.
+- El callback no pulsa el cierre del visor externo ni convierte correo pendiente en radicación inexistente.
+- Cambios y evidencia corresponden al alcance, con consumidor/versiones trazables; no hay una dependencia pendiente presentada como implementada.
+
+### Subfase RI02
+
+- Dos pestañas mantienen contextos independientes aunque compartan sesión.
+- Modificar referencias o revisión no permite operar sobre recursos ajenos.
+- Sesión nueva abre carga directa con configuración autorizada.
+- Repetir apertura/cancelación según contrato no produce documentos ni consecutivos.
+- Cambios y evidencia corresponden al alcance, con consumidor/versiones trazables; no hay una dependencia pendiente presentada como implementada.
+
+### Subfase RI03
+
+- Se distinguen sin seguimiento, confirmación y respuesta formal, incluso requiere_respuesta=1 con obliga_respuesta=0.
+- Las otras radicaciones conservan modalidad/catálogo y contratos públicos.
+- Trámite/grupo/flujo/actividad no reutilizan identidades incompatibles.
+- Fecha, cita y campos adicionales conservan valores reales después de postback y cambio de origen.
+- Cambios y evidencia corresponden al alcance, con consumidor/versiones trazables; no hay una dependencia pendiente presentada como implementada.
+
+No declarar completado este prompt si una subfase requerida conserva decisiones o verificaciones pendientes. Registrar qué se completó, qué falta y qué trabajo independiente puede continuar; no repetir permisos ni acuerdos ya registrados.
+
+## PRUEBAS OBLIGATORIAS
+
+### Subfase RI01
+
+Pruebas locales de dependencias y eventos, matrices de opciones y postdata con tipos de campo reales. Mantener tests/bootstrap-table-global-contract.test.cjs. En IIS autorizado comprobar postbacks de trámite/grupo, valores, validación y modal padre/iframe; un DOM aislado no acredita el ciclo WebForms.
+
+### Subfase RI02
+
+Pruebas de repositorio con revisiones en conflicto, revalidación de permisos, datos fuera de rango y cancelación concurrente. Verificar migración/índices en base local descartable y compilación. Integración autorizada de ambas aperturas sin escritura documental; no usar datos de otro módulo como autoridad.
+
+### Subfase RI03
+
+Pruebas de comportamiento de lectores canónicos con matrices de ambas columnas, calendario, cero días y distintas plantillas. Integración de la corrección compartida en clásica/Simplificada/interna; un test de texto SQL no acredita el resultado funcional. Inventario de configuración con SELECT autorizado, sin activar datos como parte de una lectura.
+
+Ejecutar pruebas unitarias/focales de comportamiento real, integración de límites afectados y compilación MSBuild compatible con .NET Framework 4.6.1 si cambia VB.NET/proyecto. Registrar comando, resultado y límite; existencia de archivos o coincidencias de texto no acreditan dominio. Comprobar las suites candidatas antes de usarlas.
+
+E2E o validación manual reproducible con evidencia forman parte integral del mismo cambio funcional y de su aceptación, no una entrega futura que permita declararlo terminado. Reutilizar la infraestructura existente de `tools/e2e`, autenticación y configuración. No crear login, arnés, proyecto Playwright ni `.env` paralelos. Antes de autenticar leer `AGENTS.md` y `tools/e2e/AGENT-RUNBOOK.md`; ejecutar solo con ambiente, cuentas y datos descartables expresamente autorizados.
+
+Usar secretos efímeros; no imprimir, guardar ni persistir credenciales, cookies, tokens o cadenas de conexión. Los controles serán solo SELECT y la evidencia saneada excluirá datos personales/documentales sensibles. Cubrir autorización, lectura sin mutación, escrituras autorizadas, concurrencia y regresión relacionada según el alcance. No habilitar arbitrariamente flags o gates existentes. No cerrar la aceptación sin validación autorizada: registrar bloqueo explícito de la aceptación integrada pendiente y evidencia local real, sin mocks, simulaciones ni evidencia ficticia para acreditar el ambiente.
+
+## DOCUMENTACIÓN TÉCNICA
+
+Ubicar y actualizar documentación existente de esta capacidad y sus consumidores afectados; si falta un documento necesario, registrar su ruta y crearlo dentro del alcance. Actualizar el resultado del paquete y los contratos afectados: función anterior/nueva, ruta, entrada/retorno, autoridad, efectos, errores, consumidores y pruebas. Documentar la secuencia funcional paso a paso de éxito, rechazo y recuperación del paquete, con estados, límites de transacción y efectos comprobables. Documentar esquema/configuración/publicación cuando se toquen; no guardar datos de ejecución sensibles ni copiar documentación de otras capacidades como evidencia propia. Mantener el registro de decisiones en las exploraciones y evitar contradicciones entre paquetes.
+
+## ENTREGABLE FINAL
+
+Entregar el código de las subfases, altas de proyecto/migración justificadas y pruebas de comportamiento con evidencia y límites. Crear durante la ejecución `Doc/Diagnostico/radicacion-interna/implementacion/P02-resultado.md`, con estado y evidencia por subfase RI, y actualizar contratos/guía. Conservar trabajo ajeno, verificar diff y registrar únicamente la entrega autorizada en Git; comunicar sincronización remota. Publicar/desplegar solo si la autorización incluye el ambiente correspondiente. Este módulo no gestiona respuestas.

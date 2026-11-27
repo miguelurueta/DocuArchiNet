@@ -15,6 +15,65 @@ function scope(mode='read'){
  return s;
 }
 function env(t,s){const directory=fs.mkdtempSync(path.join(root,'.tmp','doc126-scope-')),file=path.join(directory,'scope.json');fs.writeFileSync(file,JSON.stringify(s));t.after(()=>{fs.unlinkSync(file);fs.rmdirSync(directory);});return {DOC126_E2E_SCOPE_PATH:file};}
+function authorityScope(){const s=scope();s.acceptanceIssue='DOC-127';s.authorityProbes={authorizationReference:'SYNTHETIC SCOPE ONLY',foreignConexionId:7,foreignPlantillaId:30,foreignUsuarioId:143,foreignLoadId:'11111111-1111-4111-8111-111111111111',missingLoadId:'22222222-2222-4222-8222-222222222222'};return s;}
+
+test('DOC127 rechazos de autoridad exigen permiso adicional antes de pedir credenciales',t=>{
+ const s=authorityScope(),e={...env(t,s),DOC126_E2E_AUTHORIZED:'YES'};
+ assert.throws(()=>excelUiPlan(root,profile,['--excel-ui-read'],e),/DOC127_AUTHORITY_AUTHORIZATION_REQUIRED/);
+ const plan=excelUiPlan(root,profile,['--excel-ui-read'],{...e,DOC127_AUTHORITY_E2E_AUTHORIZED:'YES'});
+ assert.equal(plan.values.DOC127_AUTHORITY_E2E_AUTHORIZED,'YES');assert.equal(plan.mode,'read');
+ assert.ok(plan.childArgs.includes('@doc126-ui-read'));assert.equal(plan.scope.maxBusinessRows,0);
+});
+
+test('DOC127 alcance de autoridad rechaza referencias propias, IDs inválidos y efectos extra',()=>{
+ for(const change of [s=>s.acceptanceIssue='DOC-126',s=>s.mode='write',s=>s.authorityProbes.foreignConexionId=s.selection.conexionId,s=>s.authorityProbes.foreignPlantillaId=s.selection.plantillaId,s=>s.authorityProbes.foreignUsuarioId=s.usuarioId,s=>s.authorityProbes.foreignLoadId='not-a-load',s=>s.authorityProbes.missingLoadId=s.authorityProbes.foreignLoadId,s=>s.authorityProbes.authorizationReference='',s=>s.authorityProbes.sql='untrusted',s=>s.maxBusinessRows=1]){
+  const s=authorityScope();change(s);assert.throws(()=>support.validateScope(s,s.baseUrl,s.mode));
+ }
+});
+
+test('DOC127 preflight de autoridad confirma propiedad ajena por SELECT antes del login',async()=>{
+ const s=authorityScope(),calls=[];
+ const select=async(sql,args)=>{calls.push({sql,args});assert.match(sql,/^SELECT /);if(sql.includes('imp01_plantillaimp'))return [{conexion:7}];if(sql.includes('COUNT(*)'))return [{total:0}];return [{ambito_ref:'2',usuario_ref:'143',conexion_ref:'DA:11:6'}];};
+ await support.verifyAuthorityResources(s,select);assert.equal(calls.length,3);
+ await assert.rejects(()=>support.verifyAuthorityResources(s,async(sql,args)=>sql.includes('ambito_ref')?[{ambito_ref:'2',usuario_ref:'141',conexion_ref:'DA:11:6'}]:select(sql,args)),/DOC127_AUTHORITY_RESOURCES_CHANGED/);
+});
+
+function syntheticAuthorityRequest(s,fault){
+ const calls=[],token='synthetic-ephemeral-csrf';
+ const request=async(method,payload,csrf)=>{
+  calls.push({method,payload,csrf});
+  if(method==='AbrirCargaExcel')return {ok:true,datos:{CsrfToken:token,Conexiones:[{ConexionId:6},...(fault==='visible-foreign'?[{ConexionId:7}]:[])]}};
+  if(!csrf||csrf!==token)return {ok:false,codigo:fault==='wrong-code'?'ACCESO_DENEGADO':'SOLICITUD_NO_VERIFICADA'};
+  if(method==='ListarPlantillas')return {ok:false,codigo:'ACCESO_DENEGADO'};
+  if(method==='ConsultarResultado')return {ok:false,codigo:'RESULTADO_INCIERTO',...(fault==='data-leak'?{datos:{IdCarga:'synthetic-foreign'}}:{})};
+  if(payload.PlantillaId===s.authorityProbes.foreignPlantillaId)return {ok:false,codigo:'NO_ENCONTRADO'};
+  return {ok:true,datos:{ID_PLANTILLAIMP:s.selection.plantillaId}};
+ };
+ return {request,calls};
+}
+
+test('DOC127 seis rechazos exactos y lectura válida final, con transporte sintético sin mutación',async()=>{
+ const s=authorityScope(),fake=syntheticAuthorityRequest(s),results=await support.verifyReadAuthority(s,fake.request);
+ assert.deepEqual(results.map(r=>r.key),['CSRF_AUSENTE','CSRF_INVALIDO','CONEXION_AJENA','PLANTILLA_AJENA','CARGA_AJENA','CARGA_INEXISTENTE']);
+ assert.equal(fake.calls.length,8);assert.ok(fake.calls.every(c=>['AbrirCargaExcel','ListarPlantillas','ConsultarPlantilla','ConsultarResultado'].includes(c.method)));
+ assert.deepEqual(results.filter(r=>r.key.startsWith('CARGA_')).map(r=>r.code),['RESULTADO_INCIERTO','RESULTADO_INCIERTO']);
+});
+
+test('DOC127 un rechazo genérico o datos de carga ajena no acreditan el resultado esperado',async()=>{
+ for(const fault of ['wrong-code','data-leak','visible-foreign']){const s=authorityScope();await assert.rejects(()=>support.verifyReadAuthority(s,syntheticAuthorityRequest(s,fault).request),/DOC127_AUTHORITY_/);}
+});
+
+test('DOC127 asistente admite XLS/XLSX explícitos y conserva el alcance DOC126 anterior',()=>{
+ for(const format of ['XLS','XLSX']){
+  const s=scope('assistant');s.acceptanceIssue='DOC-127';s.assistant.formato=format;s.assistant.archivoPath=path.join(root,'.tmp','synthetic-assistant.'+format.toLowerCase());
+  assert.equal(support.validateScope(s,s.baseUrl,'assistant'),s);assert.equal(support.assistantFormat(s),format);
+  const a=s.assistant,request={ConexionId:a.conexionId,RevisionEsperada:0,HuellaEsperada:'',Plantilla:{ID_PLANTILLAIMP:0,REVISION_CARGA:0,IMP01_XMLCONEXION_ID_XMLCONEXION:a.conexionId,NOMBRE_PLANTILLA:a.tabla,CAMPO_UNICO:a.campoUnico,LIBRO_EXCEL:a.hoja,Formato:format,Modo:'CREAR',ESTADO_PLANTILLA:1,Campos:a.campos.map(c=>({...c,ID_CAMPOS_PLANTILLA:0,REMPLAZA_COMA:0,REMPLAZA_PUNTO:0,OPCION_SPLITER:0,CARACTER_SPLITER:'',NUMERO_MATRIZ_EXPLITER:0}))}};
+  assert.equal(support.templateRequestAllowed(s,request),true);request.Plantilla.Formato=format==='XLS'?'XLSX':'XLS';assert.equal(support.templateRequestAllowed(s,request),false);
+  s.assistant.archivoPath+='x';assert.throws(()=>support.validateScope(s,s.baseUrl,'assistant'),/DOC126_SCOPE_INVALID/);
+ }
+ const legacy=scope('assistant');assert.equal(support.assistantFormat(legacy),'XLSX');legacy.assistant.formato='XLS';legacy.assistant.archivoPath=path.join(root,'.tmp','synthetic.xls');assert.throws(()=>support.validateScope(legacy,legacy.baseUrl,'assistant'),/DOC126_SCOPE_INVALID/);
+ for(const format of ['',null,'CSV','xls']){const s=scope('assistant');s.acceptanceIssue='DOC-127';s.assistant.formato=format;assert.throws(()=>support.validateScope(s,s.baseUrl,'assistant'),/DOC126_SCOPE_INVALID/);}
+});
 test('DOC126 amplía el runner existente sin heredar autorización de fases anteriores',t=>{
  const s=scope(),e={...env(t,s),DOC125_E2E_AUTHORIZED:'YES',DOC110_E2E_AUTHORIZED:'YES'};
  const plan=excelUiPlan(path.join(root,'tools/e2e'),profile,['--excel-ui-read'],e);

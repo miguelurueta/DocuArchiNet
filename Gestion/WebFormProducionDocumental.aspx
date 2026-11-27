@@ -76,14 +76,14 @@
         <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js?v=doc120-consulta-visible-20261119-9"></script>
         <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js?v=doc120-estado-visible-20261119-10"></script>
         <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetas.js?v=doc120-consulta-visible-20261119-9"></script>
-        <link href="../js/gestion/ImportacionCarpetas/PerfilImportacionEditor.css?v=doc110-menu-20261024-2" rel="stylesheet" />
+        <link href="../js/gestion/ImportacionCarpetas/PerfilImportacionEditor.css?v=doc110-reglas-plegables-20261126-1" rel="stylesheet" />
         <script src="../js/gestion/ImportacionCarpetas/PerfilImportacionApi.js"></script>
         <script src="../js/gestion/ImportacionCarpetas/ProveedorAdminEditor.js?v=doc110-source-diagnostics-20261027-1"></script>
         <script src="../js/gestion/ImportacionCarpetas/FuenteAdminEditor.js"></script>
-        <script src="../js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js?v=doc120-coordinacion-20261115-1"></script>
+        <script src="../js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js?v=doc110-detalle-tipologia-20261126-1"></script>
         <link href="../Styles/ImportacionExcel.css?v=doc126-7" rel="stylesheet" />
         <script src="../js/gestion/ImportacionExcel/ImportacionExcelApi.js?v=doc126-7"></script>
-        <script src="../js/gestion/ImportacionExcel/ImportacionExcelVista.js?v=doc126-7"></script>
+        <script src="../js/gestion/ImportacionExcel/ImportacionExcelVista.js?v=doc127-1"></script>
          <asp:ScriptManager ID="ScriptManager1" runat="server" AsyncPostBackTimeout="9900">
      </asp:ScriptManager>
         <script type="text/javascript" language="javascript">

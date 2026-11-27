@@ -24,9 +24,10 @@
         var title = node("h2", "Perfiles de importación", {id:"doc110-title"});
         var close = node("button","Cerrar",{type:"button"});
         var status = node("p","",{role:"status","aria-live":"polite","data-doc110":"estado"});
+        var ruleToolbar=node("div",null,{"class":"doc110-rule-toolbar","data-doc110":"barra-reglas"});ruleToolbar.hidden=true;
         var content = node("div",null,{"class":"doc110-body"});
         var header=node("header",null,{"class":"doc110-header"}),heading=node("div");heading.appendChild(node("span","PRODUCCIÓN DOCUMENTAL",{"class":"doc110-eyebrow"}));heading.appendChild(title);heading.appendChild(node("p","Configura el destino documental y las reglas de cada importación."));header.appendChild(heading);header.appendChild(close);
-        dialog.appendChild(header); dialog.appendChild(status); dialog.appendChild(content);
+        dialog.appendChild(header); dialog.appendChild(status); dialog.appendChild(ruleToolbar); dialog.appendChild(content);
         host.appendChild(open); host.appendChild(dialog);
         if(window.ProveedorAdminEditor){window.ProveedorAdminEditor.inicializar(host,api);}
         if(window.FuenteAdminEditor){window.FuenteAdminEditor.inicializar(host,api);}
@@ -54,9 +55,60 @@
         function message(value) {
             status.textContent = value || "";
         }
+        var fieldLabels={CODIGO:"Código del expediente",NOMBRE:"Nombre del expediente",FECHA_INICIAL:"Fecha inicial del expediente",FECHA_FINAL:"Fecha final del expediente",RESPONSABLE:"Responsable del expediente",
+            NombreVisible:"Nombre de versión",FondoRef:"Fondo",InstrumentoRef:"Instrumento",AreaRef:"Área",SerieRef:"Serie",SubserieRef:"Subserie",TipoExpedienteRef:"Tipo de expediente",UnidadDocumentalRef:"Unidad documental",GabineteId:"Gabinete DA",
+            ModoIntegridad:"Integridad",AmbitoIntegridad:"Ámbito",EstrategiaCarpetas:"Organización",PoliticaSubcarpetas:"Subcarpetas",PoliticaCarpetasVacias:"Carpetas vacías",PoliticaArchivosSueltos:"Archivos fuera de carpetas",PoliticaCoincidencias:"Código del expediente",Extensiones:"Extensiones permitidas",MaximoBytesArchivo:"Límite por archivo",reglas:"Reglas de campos",ejemplo:"Nombres de prueba"};
+        var incidentLabels={LONGITUD_EXCEDIDA:"El texto supera la longitud permitida. Revise el límite y la extracción de esta regla.",ENTERO_INVALIDO:"Se requiere un número entero, sin punto decimal ni separadores.",DECIMAL_INVALIDO:"Se requiere un número decimal con punto decimal.",CLAVE_INVALIDA:"La clave de consulta del proveedor no cumple las restricciones de su campo de búsqueda. Revise el origen y la extracción de clave.",
+            VALOR_REQUERIDO:"Falta un valor obligatorio.",VALOR_VACIO:"La fuente produjo un valor vacío.",SEGMENTO_AUSENTE:"El nombre no contiene el segmento que exige la regla.",FECHA_INVALIDA:"La fecha no coincide con el formato configurado o no es válida.",SIN_COINCIDENCIA:"El proveedor no encontró datos para la clave de consulta.",AMBIGUO:"El proveedor encontró varias coincidencias; se requiere una sola.",PROVEEDOR_INCOMPATIBLE:"Revise la versión, propiedad y tipo de clave del proveedor.",PROPIEDAD_AUSENTE:"El proveedor no devolvió la propiedad requerida.",FUENTE_REQUERIDA:"Falta configurar la fuente de este campo.",DESTINO_DUPLICADO:"Hay más de una regla para este campo.",VALOR_INDICE_INVALIDO:"El valor no cumple el tipo, longitud, rango o caracteres admitidos por el índice del gabinete. Revise el valor y la definición del índice."};
+        function fieldName(field) {
+            field=String(field || "");
+            if(field.indexOf("CAMPO_EXPEDIENTE:")===0){return fieldLabels[field.slice(17)] || "Campo del expediente";}
+            if(field.indexOf("INDICE_GABINETE:")===0){
+                var ref=field.slice(16),index=indices.find(function(item){return item.value===ref;});
+                return index?index.text:"Índice DA (referencia "+ref+")";
+            }
+            if(field==="TIPOLOGIA" || field==="TIPOLOGIA:TIPO_DOCUMENTAL"){return "Tipo documental";}
+            return fieldLabels[field] || "Configuración del perfil";
+        }
+        function indexRejectionMessage(item,values) {
+            if(item.Codigo!=="VALOR_INDICE_INVALIDO" || String(item.Campo).indexOf("INDICE_GABINETE:")!==0){return "";}
+            var ref=item.Campo.slice(16),field=indices.find(function(f){return f.value===ref;}),value=(values || []).find(function(v){return v.DestinoTipo==="INDICE_GABINETE" && v.DestinoRef===ref;});
+            if(!field || !value || value.Diferido || value.Valor==null){return "";}
+            var text=String(value.Valor);
+            if(field.Longitud>0 && text.length>field.Longitud){return "El valor tiene "+text.length+" caracteres y el índice del gabinete admite como máximo "+field.Longitud+". Revise el valor que extrae la regla y la longitud del índice.";}
+            if(field.Tipo!=="ENTERO"){return "";}
+            if(!/^[+-]?[0-9]+$/.test(text)){return "El índice del gabinete requiere un número entero, sin punto decimal ni separadores. Revise el valor que extrae la regla.";}
+            var physical=String(field.TipoFisico || ""),match=/^(tinyint|smallint|mediumint|int|bigint)\b/.exec(physical);
+            if(!match){return "";}
+            var bits={tinyint:8,smallint:16,mediumint:24,int:32,bigint:64}[match[1]],unsigned=/\bunsigned\b/.test(physical),min,max,number;
+            if(typeof window.BigInt==="function"){
+                var one=window.BigInt(1),power=one<<window.BigInt(unsigned?bits:bits-1);
+                min=unsigned?window.BigInt(0):-power;max=power-one;number=window.BigInt(text);
+            }else{
+                // Sin BigInt no deducir rangos de 64 bits con números aproximados.
+                if(bits===64){return "";}
+                var limit=Math.pow(2,unsigned?bits:bits-1);min=unsigned?0:-limit;max=limit-1;number=Number(text);
+            }
+            if(number<min || number>max){return "El valor "+text+" está fuera del rango admitido por el índice del gabinete: de "+min.toString()+" a "+max.toString()+". Revise el valor y el tipo del índice en el gabinete; aumentar «Longitud máxima» de la regla no amplía este rango.";}
+            return "";
+        }
+        function typologyRejectionMessage(item,values) {
+            if(item.Codigo!=="TIPOLOGIA_NO_UNIVOCA"){return "";}
+            var value=(values || []).find(function(v){return v.DestinoTipo==="TIPOLOGIA" && v.DestinoRef==="TIPO_DOCUMENTAL";});
+            var explanation="La tipología debe tener una coincidencia única, activa y autorizada para la serie/subserie del perfil. TEXTO busca por código documental; REFERENCIA utiliza el ID interno.";
+            if(!value || value.Diferido || value.Valor==null){return explanation;}
+            if(value.TipoValor==="TEXTO"){return "Se está buscando el código documental «"+value.Valor+"». "+explanation+" Si la tipología no tiene código, use una referencia válida; su descripción no se convierte automáticamente en código.";}
+            if(value.TipoValor==="REFERENCIA"){return "No se pudo resolver una tipología única con el ID interno «"+value.Valor+"» en la clasificación del perfil. Revise la referencia y la clasificación seleccionadas.";}
+            return explanation;
+        }
+        function incidentMessage(item,values) {
+            var generic=["Revise la referencia y sus permisos vigentes.","Revise la configuración del campo indicado.","Revise la clave del proveedor.","No se pudo resolver el valor desde el proveedor."];
+            if(item.Mensaje && generic.indexOf(item.Mensaje)===-1){return item.Mensaje;}
+            return indexRejectionMessage(item,values) || typologyRejectionMessage(item,values) || incidentLabels[item.Codigo] || item.Mensaje || "No se pudo completar la comprobación de este campo. Revise su configuración.";
+        }
         function report(error) {
             var lines = [error.mensaje || "No se confirmó la operación."];
-            (error.incidencias || []).forEach(function (item) { lines.push(item.Campo + ": " + item.Codigo); });
+            (error.incidencias || []).forEach(function (item) { lines.push(fieldName(item.Campo) + ": " + incidentMessage(item)); });
             if (error.resultadoIncierto) {
                 uncertain = true;
                 lines.push("Consulte el estado antes de volver a guardar o publicar.");
@@ -69,7 +121,8 @@
             if (busy) { return; }
             if(uncertain && ["CrearPerfil","GuardarBorrador","PublicarVersion","CrearVersion","CambiarDisponibilidad","ActualizarCabecera"].indexOf(operation)!==-1){message("Consulte el estado antes de volver a escribir.");return;}
             var fields=Array.prototype.map.call(content.querySelectorAll("fieldset"),function(el){var saved=el.disabled;el.disabled=true;return {el:el,disabled:saved};});
-            function unlock(){fields.forEach(function(f){f.el.disabled=f.disabled;});}
+            var toolbarButtons=Array.prototype.map.call(ruleToolbar.querySelectorAll("button"),function(el){var saved=el.disabled;el.disabled=true;return {el:el,disabled:saved};});
+            function unlock(){fields.concat(toolbarButtons).forEach(function(f){f.el.disabled=f.disabled;});}
             busy = true; dialog.setAttribute("aria-busy","true"); message("Procesando…");
             api.ejecutar(operation,payload).done(function (result) {
                 unlock();
@@ -119,7 +172,13 @@
                 searchWidget.autocomplete("destroy");searchWidget=null;
             }
         }
-        function clearContent(){viewEpoch++;baseline=null;recovery=null;publishButton=null;dirtyNotice=null;catalogs={};indexState=null;destroySearch();content.replaceChildren();}
+        function clearContent(){viewEpoch++;baseline=null;recovery=null;publishButton=null;dirtyNotice=null;catalogs={};indexState=null;indices=[];destroySearch();ruleToolbar.hidden=true;ruleToolbar.replaceChildren();content.replaceChildren();}
+        function updateRuleOverview(){
+            if(!ruleBody || !content.contains(ruleBody)){return;}
+            Array.prototype.forEach.call(ruleBody.children,function(row){row.updateSummary();});
+            var count=ruleToolbar.querySelector('[data-doc110="cantidad-reglas"]');
+            if(count){count.textContent=ruleBody.children.length+" regla"+(ruleBody.children.length===1?"":"s");}
+        }
         function attachSearch(search){
             search.maxLength=160;search.setAttribute("data-doc110","buscar-texto");
             search.addEventListener("input",function(){searchEpoch++;listCode="";});
@@ -265,6 +324,10 @@
             return state;
         }
         function render(profile) {
+            var expanded={};
+            if(current && current.PerfilId===profile.PerfilId && current.Version.VersionId===profile.Version.VersionId && ruleBody && content.contains(ruleBody)){
+                Array.prototype.forEach.call(ruleBody.children,function(row){var r=row.readRule(0);if(row.isExpanded()){expanded[JSON.stringify([r.DestinoTipo,r.DestinoRef])]=true;}});
+            }
             current=profile;uncertain=false;controls={};indices=[];clearContent();
             var version=profile.Version,c=version.Configuracion,published=version.Estado==="PUBLICADA";
             var actions=node("div",null,{"class":"doc110-actions"});content.appendChild(actions);
@@ -325,10 +388,12 @@
             rulesArea=node("fieldset");rulesArea.disabled=published;content.appendChild(rulesArea);
             rulesArea.appendChild(node("legend","Reglas de campos"));
             catalog("INDICE","INDICE",[]);
-            button(rulesArea,"Agregar regla",function(){addRule({DestinoTipo:"CAMPO_EXPEDIENTE",DestinoRef:"CODIGO",FuenteTipo:"CARPETA",TipoValor:"TEXTO",Extraccion:"COMPLETO",EtapaResolucion:"PREFLIGHT",LongitudMaxima:45,Obligatoria:true});updateActions();},"agregar-regla");
+            ruleToolbar.hidden=false;
+            var add=button(ruleToolbar,"Agregar regla",function(){var row=addRule({DestinoTipo:"CAMPO_EXPEDIENTE",DestinoRef:"CODIGO",FuenteTipo:"CARPETA",TipoValor:"TEXTO",Extraccion:"COMPLETO",EtapaResolucion:"PREFLIGHT",LongitudMaxima:45,Obligatoria:true},true);updateActions();row.reveal();},"agregar-regla");add.disabled=published;
+            ruleToolbar.appendChild(node("span","",{"data-doc110":"cantidad-reglas","aria-live":"polite"}));
             var scroll=node("div",null,{"class":"doc110-scroll"});rulesArea.appendChild(scroll);
-            ruleBody=table(scroll,["Destino","Fuente","Extracción","Conversión","Opciones","Acción"]);
-            version.Reglas.forEach(addRule);
+            ruleBody=table(scroll,["Reglas configuradas"]);ruleBody.parentNode.classList.add("doc110-rules-table");
+            version.Reglas.forEach(function(rule){addRule(rule,expanded[JSON.stringify([rule.DestinoTipo,rule.DestinoRef])]===true);});updateRuleOverview();
             if(!published){
                 button(content,"Guardar borrador",function(){
                     if(uncertain){message("Consulte el estado antes de repetir.");return;}
@@ -348,10 +413,21 @@
                 resultArea.replaceChildren();
                 var data=payload();data.ejemplos=[{NombreCarpeta:folder.value,NombreArchivo:file.value,Expediente:{}}];
                 request("EnsayarReglas",data,function(results){
+                    var incidents=0,pending=0;
                     results.forEach(function(result){
-                        result.Valores.forEach(function(v){resultArea.appendChild(node("p",v.DestinoTipo+" / "+v.DestinoRef+": "+(v.Diferido?"Se resolverá tras crear el expediente":(v.Valor==null?"Sin valor":v.Valor))+(v.Procedencia==="PROPUESTA_PERFIL"?" (propuesta del perfil; pendiente de confirmar con el expediente)":"")));});
-                        result.Incidencias.forEach(function(e){resultArea.appendChild(node("p",e.Campo+": "+e.Codigo));});
+                        result.Valores.forEach(function(v){var rejected=result.Incidencias.some(function(e){return e.Campo===v.DestinoTipo+":"+v.DestinoRef || (v.DestinoTipo==="TIPOLOGIA" && e.Campo==="TIPOLOGIA");});if(v.Diferido){pending++;}resultArea.appendChild(node("p",fieldName(v.DestinoTipo+":"+v.DestinoRef)+": "+(v.Diferido?"Se resolverá tras crear el expediente":(v.Valor==null?"Sin valor":v.Valor))+(v.Procedencia==="PROPUESTA_PERFIL"?" (propuesta del perfil; pendiente de confirmar con el expediente)":"")+(rejected?" (requiere corrección; ver incidencia)":"")));});
+                        result.Incidencias.forEach(function(e){
+                            incidents++;
+                            var item=node("article",null,{"class":"doc110-rule-incident","data-doc110":"incidencia-ensayo"});
+                            item.appendChild(node("strong",fieldName(e.Campo)));
+                            item.appendChild(node("p",incidentMessage(e,result.Valores)));
+                            var detail=node("details");detail.appendChild(node("summary","Ver detalle técnico"));
+                            detail.appendChild(node("p","Referencia: "+e.Campo+" · Código: "+e.Codigo));item.appendChild(detail);resultArea.appendChild(item);
+                        });
                     });
+                    var summary=incidents?"Prueba con "+incidents+" incidencia"+(incidents===1?"":"s")+". Revise las reglas indicadas.":pending?"Prueba sin errores; "+pending+" campo"+(pending===1?" pendiente":"s pendientes")+" de resolver tras crear el expediente.":"Prueba sin incidencias para los nombres indicados.";
+                    message(summary);
+                    resultArea.prepend(node("p",summary,{"class":"doc110-test-summary","data-tone":incidents?"error":pending?"pending":"success"}));
                 });
             },"ensayar");
             var resultArea=node("div",null,{"aria-live":"polite","data-doc110":"resultado-ensayo"});examples.appendChild(resultArea);
@@ -367,11 +443,14 @@
             Object.keys(catalogs).forEach(function(key){catalogs[key].load(true);});
             indexState.load(true);
         }
-        function addRule(rule) {
-            var row=node("tr"),cells=[];
-            for(var i=0;i<6;i++){cells[i]=node("td");row.appendChild(cells[i]);}
+        function addRule(rule,expanded) {
+            var row=node("tr"),cell=node("td"),cells=[],detail=node("details",null,{"class":"doc110-rule-editor","data-doc110":"regla"});detail.open=expanded===true;
+            var summary=node("summary",null,{"data-doc110":"resumen-regla"}),summaryTitle=node("strong"),summarySource=node("span");summary.appendChild(summaryTitle);summary.appendChild(summarySource);detail.appendChild(summary);
+            var grid=node("div",null,{"class":"doc110-rule-fields"});detail.appendChild(grid);cell.appendChild(detail);row.appendChild(cell);
+            ["Destino","Fuente","Extracción","Conversión","Opciones","Acción"].forEach(function(label){var section=node("div");section.appendChild(node("h4",label));cells.push(section);grid.appendChild(section);});
             var destination=select(cells[0],"Destino",[["CAMPO_EXPEDIENTE","Expediente"],["INDICE_GABINETE","Índice DA"],["TIPOLOGIA","Tipo documental"]],rule.DestinoTipo);
             var ref=select(cells[0],"Campo",[],null);
+            var typologyHelp=node("p","",{"class":"doc110-help","data-doc110":"ayuda-tipologia"});cells[0].appendChild(typologyHelp);
             function fillDestinations(keep){
                 var options=destination.value==="CAMPO_EXPEDIENTE" ?
                     [["CODIGO","Código del expediente"],["NOMBRE","Nombre del expediente"],["FECHA_INICIAL","Fecha inicial"],["FECHA_FINAL","Fecha final"],["RESPONSABLE","Responsable"]] :
@@ -424,6 +503,7 @@
                     items.forEach(function(p){if(!providerItems.some(function(old){return providerId(old)===providerId(p);})){providerItems.push(p);}var old=Array.prototype.find.call(providerSelect.options,function(o){return o.value===providerId(p);});if(old){old.textContent=p.Nombre+" · versión "+p.Numero;}else{providerSelect.appendChild(node("option",p.Nombre+" · versión "+p.Numero,{value:providerId(p)}));}});
                     if(keep && !Array.prototype.some.call(providerSelect.options,function(o){return o.value===keep;})){providerSelect.appendChild(node("option","Proveedor guardado: "+keep,{value:keep}));}
                     providerSelect.value=keep;fillProviderProperties(keepProperty);
+                    row.updateSummary();
                     if(!exact){providerPage=page;providerMore.hidden=items.length<25;}
                     providerStatus.textContent=providerItems.length?"Seleccione una propiedad de la versión autorizada.":"No hay proveedores habilitados para este ámbito.";
                     if(exact && !items.length){providerStatus.textContent="La versión guardada no está disponible. No se sustituirá automáticamente.";}
@@ -473,12 +553,25 @@
                 warning.textContent=!source.value?"Seleccione una fuente válida para este destino.":destination.value==="CAMPO_EXPEDIENTE" && (source.value==="ARCHIVO" || inherited)?"La fuente guardada no es válida para un campo de expediente.":
                     (destination.value==="INDICE_GABINETE" && ref.value && indexState && indexState.status==="READY" && !index?"El índice guardado no está disponible para este gabinete.":
                     (destination.value==="INDICE_GABINETE" && index && index.Tipo==="NO_SOPORTADO"?"Este índice tiene un tipo no soportado.":""));
+                typologyHelp.hidden=destination.value!=="TIPOLOGIA";
+                typologyHelp.textContent=type.value==="REFERENCIA"?"El valor debe ser el ID interno de una tipología activa y autorizada para esta clasificación.":"TEXTO busca por código documental. Para utilizar un ID interno, seleccione REFERENCIA. La descripción de la tipología no equivale a su código.";
+                row.updateSummary();
             }
+            row.updateSummary=function(){
+                var number=Array.prototype.indexOf.call(ruleBody.children,row)+1;
+                summaryTitle.textContent="Regla "+number+" · "+(ref.value?fieldName(destination.value+":"+ref.value):"Seleccione un campo");
+                var selected=source.options[source.selectedIndex],text=selected?selected.textContent:"Seleccione un origen";
+                if(source.value==="PROVEEDOR"){var p=providerSelect.options[providerSelect.selectedIndex];text+=" · "+(p?p.textContent:"Seleccione proveedor")+(providerProperty.value?" → "+providerProperty.value:"");}
+                summarySource.textContent=text+" · "+type.value+(required.checked?" · Obligatoria":" · Opcional");
+            };
+            row.isExpanded=function(){return detail.open;};
+            row.reveal=function(){detail.open=true;if(typeof detail.scrollIntoView==="function"){detail.scrollIntoView({block:"start"});}destination.focus({preventScroll:true});};
+            row.addEventListener("input",row.updateSummary);row.addEventListener("change",row.updateSummary);
             [destination,source,extraction,type,property,ref].forEach(function(el){el.addEventListener("change",function(){sync(true);});});
             var ruleControls={destino:destination,campo:ref,fuente:source,constante:constant,propiedad:property,extraccion:extraction,separador:separator,posicion:position,tipo:type,formato:format,longitud:length,extension:extension};
             Object.keys(ruleControls).forEach(function(key){ruleControls[key].setAttribute("data-doc110-rule",key);});
             sync(false);
-            button(cells[5],"Quitar",function(){row.remove();updateActions();});
+            button(cells[5],"Quitar",function(){row.remove();updateRuleOverview();updateActions();});
             row.readRule=function(index){
                 var value={ReglaId:rule.ReglaId || null,DestinoTipo:destination.value,DestinoRef:ref.value,
                     FuenteTipo:source.value,EtapaResolucion:source.value==="EXPEDIENTE"?"TRAS_EXPEDIENTE":"PREFLIGHT",
@@ -495,7 +588,9 @@
                 return value;
             };
             ruleBody.appendChild(row);
+            updateRuleOverview();
             if(source.value==="PROVEEDOR"){loadProviders(1);}
+            return row;
         }
         function payload() {
             return {perfilId:current.PerfilId,versionId:current.Version.VersionId,revisionVersionEsperada:current.Version.Revision,
@@ -527,7 +622,7 @@
         dialog.addEventListener("keydown",function(event){
             if(event.key==="Escape" && !busy){close.click();}
             if(event.key==="Tab"){
-                var focusable=Array.prototype.filter.call(dialog.querySelectorAll("button,input,select,[tabindex='0']"),function(el){return !el.disabled && el.getClientRects().length;});
+                var focusable=Array.prototype.filter.call(dialog.querySelectorAll("button,input,select,summary,[tabindex='0']"),function(el){return !el.matches(":disabled") && el.getClientRects().length;});
                 var first=focusable[0],last=focusable[focusable.length-1];
                 if(event.shiftKey && document.activeElement===first){event.preventDefault();last.focus();}
                 else if(!event.shiftKey && document.activeElement===last){event.preventDefault();first.focus();}

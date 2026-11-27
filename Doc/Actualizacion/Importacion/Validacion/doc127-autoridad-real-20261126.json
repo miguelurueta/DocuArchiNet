@@ -1,0 +1,270 @@
+{
+  "issue": "DOC-127",
+  "status": "REAL_AUTHORITY_AND_READ_PASS",
+  "recordedUtc": "2026-11-26T17:31:39.777Z",
+  "windowId": "b0bd002d3ee84dc38d2bc883fb9c1739",
+  "sourceCommit": "95d7c8d377a960e551b62757c21c50d441e205d5",
+  "authorization": {
+    "reference": "Usuario: autorizado; ventana b0bd002d3ee84dc38d2bc883fb9c1739, IIS local/GESTOR empresa2 cuentas194/196; seis rechazos y lectura, cero cargas/guardados/cambios de permisos",
+    "authorizedUtc": "2026-11-26T17:20:32.040Z",
+    "expiresUtc": "2026-11-26T17:50:32.040Z",
+    "scopeSha256": "53e334c411a996b68bed09d0978c5d07b24da630c1a9f763af7266c3bb6a1d67",
+    "windowConsumed": true
+  },
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "module": "GESTOR",
+    "empresaId": 2,
+    "moduloId": 11,
+    "raModuloId": 12,
+    "usuarioId": 194,
+    "restrictedUsuarioId": 196,
+    "selection": {
+      "conexionId": 6,
+      "plantillaId": 60,
+      "tabla": "imp_02_doc126_e2e_asistente_c38a2522"
+    },
+    "foreignConexionId": 1,
+    "foreignPlantillaId": 1,
+    "foreignUsuarioId": 141,
+    "foreignLoadId": "36f39f62-c6d3-49cb-9d14-ebf61e7e2e02",
+    "missingLoadId": "22d8e924-1e79-4b92-b205-a0a77d5f5605"
+  },
+  "execution": {
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "retries": 0,
+    "startedUtc": "2026-11-26T17:21:57.7176925Z",
+    "completedUtc": "2026-11-26T17:31:13.4044259Z",
+    "postflightCompletedUtc": "2026-11-26T17:31:16.2308387Z",
+    "consoleElapsedMs": 558513,
+    "includesCredentialWaitAndControls": true,
+    "exitCode": 0,
+    "consolePid": 19424,
+    "consoleExitedNaturally": true
+  },
+  "cases": [
+    {
+      "key": "CSRF_AUSENTE",
+      "operation": "ConsultarPlantilla",
+      "code": "SOLICITUD_NO_VERIFICADA",
+      "status": "REAL_PASS",
+      "ok": false,
+      "datos": null
+    },
+    {
+      "key": "CSRF_INVALIDO",
+      "operation": "ConsultarPlantilla",
+      "code": "SOLICITUD_NO_VERIFICADA",
+      "status": "REAL_PASS",
+      "ok": false,
+      "datos": null
+    },
+    {
+      "key": "CONEXION_AJENA",
+      "operation": "ListarPlantillas",
+      "code": "ACCESO_DENEGADO",
+      "status": "REAL_PASS",
+      "ok": false,
+      "datos": null
+    },
+    {
+      "key": "PLANTILLA_AJENA",
+      "operation": "ConsultarPlantilla",
+      "code": "NO_ENCONTRADO",
+      "status": "REAL_PASS",
+      "ok": false,
+      "datos": null
+    },
+    {
+      "key": "CARGA_AJENA",
+      "operation": "ConsultarResultado",
+      "code": "RESULTADO_INCIERTO",
+      "status": "REAL_PASS",
+      "ok": false,
+      "datos": null
+    },
+    {
+      "key": "CARGA_INEXISTENTE",
+      "operation": "ConsultarResultado",
+      "code": "RESULTADO_INCIERTO",
+      "status": "REAL_PASS",
+      "ok": false,
+      "datos": null
+    }
+  ],
+  "checks": {
+    "restrictedMenuAndServiceDenied": true,
+    "exclusiveAccountVerified": true,
+    "validTemplateAfterNegativeCases": true,
+    "templateSearchDetailEscape": true,
+    "form1IsolationBeforeAndAfter": true,
+    "managerPostbackSent": false,
+    "httpAssetHashesMatch": true,
+    "protectedTableFingerprintsCompared": 38,
+    "protectedBusinessUnchanged": true,
+    "configurationHeadersAndFieldsUnchanged": true,
+    "profilesCompared": 78,
+    "previousLoadResultsCompared": 41,
+    "completeProfileAndLoadHashesUnchanged": true
+  },
+  "snapshots": {
+    "prepared": {
+      "profiles": {
+        "rows": 78,
+        "sha256": "bd5953665dfc848bef3f2064c82e3b575a83f20ef646c4952521d129ca8e7447"
+      },
+      "loads": {
+        "rows": 41,
+        "sha256": "15886db853d521382483f5acac42d2152b63295ccf7fb9cb81ea5fbeb7c508a3"
+      },
+      "templates": {
+        "rows": 38,
+        "sha256": "5310b956badb055a7dda630f5d7750a3c62daa470735e40ff9bf1bf2b6c322cf"
+      },
+      "fields": {
+        "rows": 134,
+        "sha256": "548c70738cd220cc6a5bd41a9733563e72bb681992f43d6a8b473b7d373b6d90"
+      },
+      "tables": {
+        "rows": 38,
+        "sha256": "6fc9f293cdb08961a9ea374393afdb25b665d4a5901a48dcfffb4ba0cd09f276"
+      }
+    },
+    "before": {
+      "profiles": {
+        "rows": 78,
+        "sha256": "bd5953665dfc848bef3f2064c82e3b575a83f20ef646c4952521d129ca8e7447"
+      },
+      "loads": {
+        "rows": 41,
+        "sha256": "15886db853d521382483f5acac42d2152b63295ccf7fb9cb81ea5fbeb7c508a3"
+      },
+      "templates": {
+        "rows": 38,
+        "sha256": "5310b956badb055a7dda630f5d7750a3c62daa470735e40ff9bf1bf2b6c322cf"
+      },
+      "fields": {
+        "rows": 134,
+        "sha256": "548c70738cd220cc6a5bd41a9733563e72bb681992f43d6a8b473b7d373b6d90"
+      },
+      "tables": {
+        "rows": 38,
+        "sha256": "6fc9f293cdb08961a9ea374393afdb25b665d4a5901a48dcfffb4ba0cd09f276"
+      }
+    },
+    "after": {
+      "profiles": {
+        "rows": 78,
+        "sha256": "bd5953665dfc848bef3f2064c82e3b575a83f20ef646c4952521d129ca8e7447"
+      },
+      "loads": {
+        "rows": 41,
+        "sha256": "15886db853d521382483f5acac42d2152b63295ccf7fb9cb81ea5fbeb7c508a3"
+      },
+      "templates": {
+        "rows": 38,
+        "sha256": "5310b956badb055a7dda630f5d7750a3c62daa470735e40ff9bf1bf2b6c322cf"
+      },
+      "fields": {
+        "rows": 134,
+        "sha256": "548c70738cd220cc6a5bd41a9733563e72bb681992f43d6a8b473b7d373b6d90"
+      },
+      "tables": {
+        "rows": 38,
+        "sha256": "6fc9f293cdb08961a9ea374393afdb25b665d4a5901a48dcfffb4ba0cd09f276"
+      }
+    }
+  },
+  "controls": {
+    "baselineSelects": 6,
+    "postflightSelects": 6,
+    "suiteSelectCount": "NOT_INSTRUMENTED",
+    "sqlWrites": 0
+  },
+  "effects": {
+    "authenticatedSessions": 2,
+    "uploads": 0,
+    "templateWrites": 0,
+    "preparations": 0,
+    "confirmations": 0,
+    "businessInserts": 0,
+    "businessDeletes": 0,
+    "permissionChanges": 0,
+    "controlSqlWrites": 0,
+    "deployments": 0
+  },
+  "runtimeAndScriptHashes": {
+    "bin/GestionDocumental-Docuarchi.net.dll": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+    "Gestion/WebFormProducionDocumental.aspx": "d7975d92a77a1390b23287514f1c0d8ad91dcca398fcc590f5ab02d929567696",
+    "Web.config": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+    "js/gestion/ImportacionExcel/ImportacionExcelApi.js": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+    "js/gestion/ImportacionExcel/ImportacionExcelVista.js": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+    "Styles/ImportacionExcel.css": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+    "tools/e2e/tests/support/doc126-excel-scope.cjs": "ee0118f810efbf9f8d3c5eab514b2b512d77151d7e4bdaf9ed01d48a8c9c0776",
+    "tools/e2e/tests/support/doc125-excel-scope.cjs": "1edcb7d37c0de6e7bc281d4e8a9b0d8666d00412e2a1c01ef6c3d96915d78375",
+    "tools/e2e/tests/importacion-excel.spec.cjs": "e8b2463c9d25466cb1cecb1a7f4a6932097b1ad178ae337b6fb78d35689591ce",
+    "tools/e2e/scripts/run-doc110-profile-session.cjs": "495f43abffdbc5024c9271b569a6edf6ff3567dec714971ef47f9b754712b4b7",
+    "tools/e2e/scripts/support/doc32-e2e-odbc.cjs": "10523bcc1608c94fb816d8be09b352ec570be8cda23cd969d473c8e5bc608ccf",
+    ".tmp/doc126-functional-preparacion/profile-selected.json": "2e63e8cfe96d3518eb48aa415f9e2f1fa75eb01ac6079124efb961e07873f425",
+    ".tmp/doc127-authority-guard.cjs": "dcdc4242aaba2c78135c5f7928a6f7ef069f93917b1dab0245adde81f9089012",
+    ".tmp/doc127-authority-session.ps1": "356b22ab8a254182d2c9e83fafccc4dba029ec625c45aa02d1db62b5ba3e5162",
+    ".tmp/doc127-authority-run.cjs": "cab0ba5f9df5f882b4d9793b9debb76346af131c2983c0c81bbcd7a4f51d1624",
+    ".tmp/doc127-authority-snapshots.ps1": "0e8263fe33b1dfd392796f7a5b670c3a92665d390d8032a9d6cff22b6a30292a",
+    ".tmp/doc127-authority-ventana/preflight-input.json": "137bf761b95d32d05851aa3aaa2b8d4cc41bdaacf8346091a644cb1cd7c31ad6",
+    ".tmp/doc127-authority-ventana/prepared-snapshots.json": "29bc952157862374a29107854bc0e6592fbf217eacc0df351efdc25b45f5761d"
+  },
+  "logSha256": "d48760a51ced6ffa3557337b8142818d46f224984f83217846f9353d3bf52991",
+  "authorityCoverage": [
+    {
+      "aspect": "Exclusive/restricted permissions, CSRF, foreign references/owner and missing ID",
+      "level": "REAL_CURRENT",
+      "evidence": "doc127-autoridad-real-20261126.json",
+      "result": "PASS"
+    },
+    {
+      "aspect": "Permission, user, company, module, reference and physical identity changed before write/precommit; three modes",
+      "level": "LOCAL_SYNTHETIC",
+      "cases": 36,
+      "evidence": "doc127-pruebas-preparadas-20261125.json",
+      "sourceHashesVerified": 8,
+      "result": "PASS_REUSED"
+    },
+    {
+      "aspect": "Preparation preserves full destination before confirmation; persisted owner/config and final protected tables/configuration/profiles verified",
+      "level": "REAL_CURRENT_REUSED",
+      "cases": 18,
+      "evidence": "doc127-informe-aceptacion-20261125.json",
+      "componentHashesVerified": 17,
+      "result": "PASS_REUSED"
+    },
+    {
+      "aspect": "Physical permission revocation",
+      "level": "NOT_EXECUTED",
+      "reason": "No permission mutation was authorized; synthetic revocation coverage is explicitly classified"
+    }
+  ],
+  "tasks": {
+    "complete": 29,
+    "total": 33,
+    "completedInThisDelivery": [
+      "5.1"
+    ],
+    "pending": [
+      "2.4",
+      "5.2",
+      "7.1",
+      "7.5"
+    ]
+  },
+  "limitations": [
+    "Full table fingerprints were compared in memory by the suite; the retained evidence contains PASS markers and a log hash, not business row contents.",
+    "One real read-only window; no new preparation/import/confirmation or physical permission revocation.",
+    "Authority drift uses real services/writer with synthetic ADO, not physical permission changes.",
+    "The 18 preparation checks are reused from the completed capacity matrix; no consumed import was repeated.",
+    "The test printed its read PASS marker before the final fingerprint loop; this report additionally requires all38 verification markers, final Playwright PASS and postflight equality.",
+    "EXPLAIN manual plan, web assistant/template acceptance and integral closure remain pending."
+  ],
+  "credentialsStored": false
+}

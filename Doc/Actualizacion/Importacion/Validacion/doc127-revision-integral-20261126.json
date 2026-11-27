@@ -1,0 +1,1723 @@
+{
+  "issue": "DOC-127",
+  "change": "doc-127-importacion-excel-07-verificacion-integral-cierre",
+  "schema": "spec-driven",
+  "status": "REVIEW_PASSED_WITH_DECLARED_WARNINGS",
+  "recordedUtc": "2026-11-27T01:17:04.535Z",
+  "evaluationCommit": "be59c557931571675f4b3d87beb01fccecbe832e",
+  "reviewer": "Codex",
+  "skill": ".codex/skills/openspec-verify-change/SKILL.md",
+  "completeness": {
+    "completeTasks": 33,
+    "totalTasks": 33,
+    "pendingTasks": [],
+    "requirements": 14,
+    "scenarios": 42,
+    "mappedScenariosWithClassifiedEvidence": 42,
+    "pendingScenarios": 0
+  },
+  "correctness": {
+    "requirementsMappedWithClassifiedCoverage": 14,
+    "partialRequirements": [],
+    "newDemonstratedImplementationDefects": 0,
+    "method": "Classified requirement/scenario mapping, prior operator plan and regression/build, current22-test editor regression, unchanged compiled sources and actual delegated desktop QA; not42 new tests."
+  },
+  "coherence": {
+    "status": "DESIGN_PATTERNS_FOLLOWED_WITH_DECLARED_LIMITS",
+    "decisions": 14,
+    "sharedRunner": true,
+    "controlSqlSelectOnly": true,
+    "explainRemainsManual": true,
+    "noAutomaticPublication": true
+  },
+  "requirements": [
+    {
+      "id": "RQ-01",
+      "title": "Base y reutilización",
+      "status": "MAPPED_WITH_CLASSIFIED_COVERAGE",
+      "implementation": {
+        "path": "tools/e2e/tests/support/doc125-excel-scope.cjs",
+        "line": 94,
+        "anchor": "function capacityScopeHash",
+        "sha256Utf8Lf": "9c4f525539373e8f5c4d5f2519259ec750a0cfd96aafaefb54e6cf2cca6e12a7"
+      },
+      "testsOrVerification": "tests/doc127-e2e-reuse.test.cjs",
+      "evidence": [
+        {
+          "id": "LOCAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.json",
+          "type": "LOCAL_SINTETICA_BUILD_Y_SELECT_PREVIO",
+          "status": "LOCAL_IMPLEMENTATION_VERIFIED_REAL_ACCEPTANCE_PENDING",
+          "sourceCommit": "10f307112c6239faa8180a021a8064eccc25b538"
+        },
+        {
+          "id": "INTEGRACION",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-integracion-20261125.json",
+          "type": "LOCAL_SINTETICA_Y_SELECT_PREVIO",
+          "status": "LOCAL_INTEGRATION_PASS_REAL_READ_PENDING_AUTHORIZATION",
+          "sourceCommit": "17bdf09e4f46efb43cbe4771d4de99ee8a308628"
+        }
+      ],
+      "limitation": "Hashes, SHA, historia y diferencias conservados; no se suman conteos solapados.",
+      "scenarios": [
+        {
+          "name": "Resultado histórico compatible",
+          "when": "un caso previo mantiene sus componentes y precondiciones",
+          "then": "el informe conserva su SHA y fecha y lo clasifica REAL_HISTORICA_REUTILIZADA sin anunciar otra ejecución",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Componente distinto",
+          "when": "una huella o condición relevante cambió",
+          "then": "el caso pierde vigencia para ese componente y se selecciona su regresión afectada",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Declaración manual previa",
+          "when": "el usuario ya declaró crear plantilla e importar",
+          "then": "se conserva esa declaración con su alcance, sin inventar mediciones ni solicitar repetirla para documentarla",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        }
+      ]
+    },
+    {
+      "id": "RQ-02",
+      "title": "Infraestructura compartida",
+      "status": "MAPPED_WITH_CLASSIFIED_COVERAGE",
+      "implementation": {
+        "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+        "line": 7,
+        "anchor": "function excelCapacityPlan",
+        "sha256Utf8Lf": "ccd1ea1c1657c9b565265b863835622a0495bb49d0cde499d196a822ba943b0e"
+      },
+      "testsOrVerification": "tests/doc127-e2e-reuse.test.cjs",
+      "evidence": [
+        {
+          "id": "LOCAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.json",
+          "type": "LOCAL_SINTETICA_BUILD_Y_SELECT_PREVIO",
+          "status": "LOCAL_IMPLEMENTATION_VERIFIED_REAL_ACCEPTANCE_PENDING",
+          "sourceCommit": "10f307112c6239faa8180a021a8064eccc25b538"
+        },
+        {
+          "id": "INTEGRACION",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-integracion-20261125.json",
+          "type": "LOCAL_SINTETICA_Y_SELECT_PREVIO",
+          "status": "LOCAL_INTEGRATION_PASS_REAL_READ_PENDING_AUTHORIZATION",
+          "sourceCommit": "17bdf09e4f46efb43cbe4771d4de99ee8a308628"
+        },
+        {
+          "id": "DOC127_LECTURA",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-lectura-real-20261125.json",
+          "type": "REAL_ACTUAL_LECTURA_SIN_CARGAS",
+          "status": "REAL_READ_AND_WEBFORMS_ISOLATION_PASS",
+          "sourceCommit": "986f0f1cc9974dd81343e3f9227a264d53bba13c"
+        },
+        {
+          "id": "DOC127_AUTORIDAD_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-autoridad-real-20261126.json",
+          "type": "REAL_AUTHORITY_AND_READ_CURRENT",
+          "status": "REAL_AUTHORITY_AND_READ_PASS",
+          "sourceCommit": "95d7c8d377a960e551b62757c21c50d441e205d5"
+        },
+        {
+          "id": "DOC127_XLS1000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls1000-20261125.json",
+          "type": "REAL_CAPACITY_XLS1000_THREE_MODES",
+          "status": "REAL_XLS1000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "c2277806aa5869521bdd43041561002431417d7d"
+        },
+        {
+          "id": "DOC127_XLS5000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls5000-20261126.json",
+          "type": "REAL_CAPACITY_XLS5000_THREE_MODES",
+          "status": "REAL_XLS5000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "365330139fed82672367bccc6903845b3f331619"
+        },
+        {
+          "id": "DOC127_XLS10000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls10000-20261126.json",
+          "type": "REAL_CAPACITY_XLS10000_THREE_MODES",
+          "status": "REAL_XLS10000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "2cc794bb8795121a3c568de82af57a2ae1229976"
+        },
+        {
+          "id": "DOC127_XLSX1000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx1000-20261126.json",
+          "type": "REAL_CAPACITY_XLSX1000_THREE_MODES",
+          "status": "REAL_XLSX1000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "a4bb16a917f2ec2a6fd16f24583058a794e4f6ac"
+        },
+        {
+          "id": "DOC127_XLSX5000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx5000-20261126.json",
+          "type": "REAL_CAPACITY_XLSX5000_THREE_MODES",
+          "status": "REAL_XLSX5000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "96dfc85e3a78ecba9653eaaa7a6a55f0723b0d39"
+        },
+        {
+          "id": "DOC127_XLSX10000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx10000-20261126.json",
+          "type": "REAL_CAPACITY_XLSX10000_THREE_MODES",
+          "status": "REAL_XLSX10000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "86074721005fd4b9c6b3d8a6347e5add474b6649"
+        },
+        {
+          "id": "DOC127_ASISTENTE_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-asistente-real-20261126.json",
+          "type": "REAL_CURRENT_WEB_ASSISTANT_XLS_XLSX",
+          "status": "REAL_CURRENT_ASSISTANT_XLS_XLSX_PASS",
+          "sourceCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d"
+        }
+      ],
+      "limitation": "Ventanas consumidas y presupuestos; sin instalación/limpieza administrativa en E2E.",
+      "scenarios": [
+        {
+          "name": "Ventana autorizada",
+          "when": "ambiente, cuentas y datos descartables están autorizados y el scope coincide con runtime y archivos",
+          "then": "se ejecutan sólo sus casos y efectos permitidos con autenticación y controles existentes",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Ventana incompatible",
+          "when": "un scope venció, fue consumido o difiere de sus hashes y recursos",
+          "then": "el runner detiene la ejecución antes de autenticar o escribir",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Separación administrativa",
+          "when": "se necesita instalar, sembrar, reparar o limpiar datos para un caso",
+          "then": "la E2E no hace esa modificación y deriva a la entrega SQL manual",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        }
+      ]
+    },
+    {
+      "id": "RQ-03",
+      "title": "Autoridad y preparación",
+      "status": "MAPPED_WITH_CLASSIFIED_COVERAGE",
+      "implementation": {
+        "path": "Services/ProduccionDocumental/ImportacionExcel/ReglasCargaExcel.vb",
+        "line": 14,
+        "anchor": "Public Shared Sub Autorizar",
+        "sha256Utf8Lf": "763809e3da2d6749ff95fcba7a5b52a95198bcdcf21e77cc77d931657db8435f"
+      },
+      "testsOrVerification": "tests/ImportacionExcelConfirmacionTests.cs",
+      "evidence": [
+        {
+          "id": "LOCAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.json",
+          "type": "LOCAL_SINTETICA_BUILD_Y_SELECT_PREVIO",
+          "status": "LOCAL_IMPLEMENTATION_VERIFIED_REAL_ACCEPTANCE_PENDING",
+          "sourceCommit": "10f307112c6239faa8180a021a8064eccc25b538"
+        },
+        {
+          "id": "DOC126_LECTURA",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc126-e2e-permisos-real-20261125.json",
+          "type": "REAL_HISTORICA_REUTILIZADA_LIMITADA",
+          "status": "DOC126_REAL_UI_READ_PASS",
+          "sourceCommit": "a2d6f19237d8eeaa7e1c6e1e1d300ea96fbee653"
+        },
+        {
+          "id": "DOC127_LECTURA",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-lectura-real-20261125.json",
+          "type": "REAL_ACTUAL_LECTURA_SIN_CARGAS",
+          "status": "REAL_READ_AND_WEBFORMS_ISOLATION_PASS",
+          "sourceCommit": "986f0f1cc9974dd81343e3f9227a264d53bba13c"
+        },
+        {
+          "id": "DOC127_XLS1000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls1000-20261125.json",
+          "type": "REAL_CAPACITY_XLS1000_THREE_MODES",
+          "status": "REAL_XLS1000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "c2277806aa5869521bdd43041561002431417d7d"
+        },
+        {
+          "id": "DOC127_XLS5000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls5000-20261126.json",
+          "type": "REAL_CAPACITY_XLS5000_THREE_MODES",
+          "status": "REAL_XLS5000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "365330139fed82672367bccc6903845b3f331619"
+        },
+        {
+          "id": "DOC127_XLS10000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls10000-20261126.json",
+          "type": "REAL_CAPACITY_XLS10000_THREE_MODES",
+          "status": "REAL_XLS10000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "2cc794bb8795121a3c568de82af57a2ae1229976"
+        },
+        {
+          "id": "DOC127_XLSX1000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx1000-20261126.json",
+          "type": "REAL_CAPACITY_XLSX1000_THREE_MODES",
+          "status": "REAL_XLSX1000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "a4bb16a917f2ec2a6fd16f24583058a794e4f6ac"
+        },
+        {
+          "id": "DOC127_XLSX5000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx5000-20261126.json",
+          "type": "REAL_CAPACITY_XLSX5000_THREE_MODES",
+          "status": "REAL_XLSX5000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "96dfc85e3a78ecba9653eaaa7a6a55f0723b0d39"
+        },
+        {
+          "id": "DOC127_XLSX10000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx10000-20261126.json",
+          "type": "REAL_CAPACITY_XLSX10000_THREE_MODES",
+          "status": "REAL_XLSX10000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "86074721005fd4b9c6b3d8a6347e5add474b6649"
+        },
+        {
+          "id": "DOC127_AUTORIDAD_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-autoridad-real-20261126.json",
+          "type": "REAL_AUTHORITY_AND_READ_CURRENT",
+          "status": "REAL_AUTHORITY_AND_READ_PASS",
+          "sourceCommit": "95d7c8d377a960e551b62757c21c50d441e205d5"
+        },
+        {
+          "id": "DOC127_PRUEBAS_PREPARADAS",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-pruebas-preparadas-20261125.json",
+          "type": "LOCAL_SYNTHETIC_REUSED_BY_EIGHT_UNCHANGED_SOURCE_HASHES",
+          "status": "PREPARED_TESTS_LOCAL_PASS_REAL_WINDOWS_PENDING",
+          "sourceCommit": "fe2fa911a2e36a2d5424035b9265dde1f4ca0feb"
+        }
+      ],
+      "limitation": "Permisos/CSRF/referencias reales;36 cambios sintéticos y18 preparaciones reales clasificados.",
+      "scenarios": [
+        {
+          "name": "Permiso exclusivo y denegado",
+          "when": "se usan las identidades habilitada exclusivamente y restringida dentro de una ventana autorizada",
+          "then": "menú y servicio admiten sólo la primera y los controles conservan datos y perfiles",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Revocación y referencias ajenas",
+          "when": "el permiso cambia o se manipula empresa, propietario, conexión, ID o CSRF",
+          "then": "el servicio revalida y rechaza la operación; la matriz distingue prueba local y real",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Preparación sin escritura de negocio",
+          "when": "se recibe y prepara un archivo válido",
+          "then": "las huellas completas de destinos y configuración se conservan y se enumeran los efectos técnicos autorizados",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        }
+      ]
+    },
+    {
+      "id": "RQ-04",
+      "title": "Instalación y SQL manual",
+      "status": "MAPPED_WITH_CLASSIFIED_COVERAGE",
+      "implementation": {
+        "path": "Doc/Actualizacion/Importacion/Sql/README.md",
+        "line": 1,
+        "anchor": "#",
+        "sha256Utf8Lf": "8e83514fc8af9e2f3fabbabf987aff21c0b5b46634c5348c37a96fc4359b4f20"
+      },
+      "testsOrVerification": "Doc/Actualizacion/Importacion/Validacion/doc127-aplicacion-recursos-20261125.json",
+      "evidence": [
+        {
+          "id": "LOCAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.json",
+          "type": "LOCAL_SINTETICA_BUILD_Y_SELECT_PREVIO",
+          "status": "LOCAL_IMPLEMENTATION_VERIFIED_REAL_ACCEPTANCE_PENDING",
+          "sourceCommit": "10f307112c6239faa8180a021a8064eccc25b538"
+        },
+        {
+          "id": "RECURSOS",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-aplicacion-recursos-20261125.json",
+          "type": "APLICACION_DELEGADA_PREVIA_VERIFICADA_SELECT",
+          "status": "AUTHORIZED_SQL30_32_APPLIED_VERIFIED",
+          "sourceCommit": "6428e62ca6c9cb4a650d96adff5f2eceddb3663b"
+        }
+      ],
+      "limitation": "Aplicaciones previas confirmadas; no se reejecutaron scripts de instalación.",
+      "scenarios": [
+        {
+          "name": "Instalación compatible",
+          "when": "los archivos ya confirmados y sus metadatos coinciden con el contrato",
+          "then": "se reutiliza la instalación y se omite su reaplicación",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Diferencia de esquema o permiso",
+          "when": "el preflight detecta una diferencia que requiere modificación",
+          "then": "se entrega otro archivo con precondiciones y destino y queda PENDIENTE_EJECUCION_MANUAL",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Confirmación de aplicación",
+          "when": "el usuario confirma archivo y aplicación en el destino acordado",
+          "then": "se comprueba mediante SELECT y se conserva el resultado saneado antes del caso dependiente",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        }
+      ]
+    },
+    {
+      "id": "RQ-05",
+      "title": "Plantillas, formatos y modos",
+      "status": "MAPPED_WITH_CLASSIFIED_COVERAGE",
+      "implementation": {
+        "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioPlantillasExcel.vb",
+        "line": 148,
+        "anchor": "Public Shared Function ModoHistorico",
+        "sha256Utf8Lf": "949de270e83544bf65cc288c75ec81b6da6590039a6ca4c1dfc9d5e37f0ee1bd"
+      },
+      "testsOrVerification": "tests/ImportacionExcelBehaviorTests.cs",
+      "evidence": [
+        {
+          "id": "LOCAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.json",
+          "type": "LOCAL_SINTETICA_BUILD_Y_SELECT_PREVIO",
+          "status": "LOCAL_IMPLEMENTATION_VERIFIED_REAL_ACCEPTANCE_PENDING",
+          "sourceCommit": "10f307112c6239faa8180a021a8064eccc25b538"
+        },
+        {
+          "id": "DOC126_FUNCIONAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc126-e2e-funcional-real-20261124.json",
+          "type": "REAL_HISTORICA_REUTILIZADA_LIMITADA",
+          "status": "DOC126_REAL_UI_FUNCTIONAL_PASS",
+          "sourceCommit": "0a3117662d78f69c1314989593abd4e0796671d2"
+        },
+        {
+          "id": "DOC126_ASISTENTE",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc126-e2e-asistente-real-20261125.json",
+          "type": "REAL_HISTORICA_REUTILIZADA_LIMITADA",
+          "status": "DOC126_REAL_UI_ASSISTANT_PASS",
+          "sourceCommit": "5046842b05bad4ec1e8b85a8c9d8f09df9f04e92"
+        },
+        {
+          "id": "DOC127_XLS1000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls1000-20261125.json",
+          "type": "REAL_CAPACITY_XLS1000_THREE_MODES",
+          "status": "REAL_XLS1000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "c2277806aa5869521bdd43041561002431417d7d"
+        },
+        {
+          "id": "DOC127_XLS5000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls5000-20261126.json",
+          "type": "REAL_CAPACITY_XLS5000_THREE_MODES",
+          "status": "REAL_XLS5000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "365330139fed82672367bccc6903845b3f331619"
+        },
+        {
+          "id": "DOC127_XLS10000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls10000-20261126.json",
+          "type": "REAL_CAPACITY_XLS10000_THREE_MODES",
+          "status": "REAL_XLS10000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "2cc794bb8795121a3c568de82af57a2ae1229976"
+        },
+        {
+          "id": "DOC127_XLSX1000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx1000-20261126.json",
+          "type": "REAL_CAPACITY_XLSX1000_THREE_MODES",
+          "status": "REAL_XLSX1000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "a4bb16a917f2ec2a6fd16f24583058a794e4f6ac"
+        },
+        {
+          "id": "DOC127_XLSX5000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx5000-20261126.json",
+          "type": "REAL_CAPACITY_XLSX5000_THREE_MODES",
+          "status": "REAL_XLSX5000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "96dfc85e3a78ecba9653eaaa7a6a55f0723b0d39"
+        },
+        {
+          "id": "DOC127_XLSX10000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx10000-20261126.json",
+          "type": "REAL_CAPACITY_XLSX10000_THREE_MODES",
+          "status": "REAL_XLSX10000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "86074721005fd4b9c6b3d8a6347e5add474b6649"
+        },
+        {
+          "id": "DOC127_ASISTENTE_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-asistente-real-20261126.json",
+          "type": "REAL_CURRENT_WEB_ASSISTANT_XLS_XLSX",
+          "status": "REAL_CURRENT_ASSISTANT_XLS_XLSX_PASS",
+          "sourceCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d"
+        }
+      ],
+      "limitation": "12 modelos locales, seis usos reales y dos altas web actuales; cruces fuera de alcance explícitos.",
+      "scenarios": [
+        {
+          "name": "Plantilla histórica",
+          "when": "se consulta y usa una plantilla anterior con atributos compatibles",
+          "then": "se conserva su interpretación de modo/formato y no se reescriben mapeos",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Plantilla creada en web",
+          "when": "el asistente analiza un Excel y el operador revisa y guarda la configuración",
+          "then": "la plantilla y sus campos se validan con la misma autoridad y sirven para su modo autorizado",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Dos formatos y tres modos",
+          "when": "se ejecuta la matriz funcional con XLS y XLSX compatibles",
+          "then": "se acredita CREAR, AGREGAR y REEMPLAZAR y se identifican los cruces no ejecutados",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        }
+      ]
+    },
+    {
+      "id": "RQ-06",
+      "title": "Integridad del destino",
+      "status": "MAPPED_WITH_CLASSIFIED_COVERAGE",
+      "implementation": {
+        "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb",
+        "line": 141,
+        "anchor": "Public Function Validar(",
+        "sha256Utf8Lf": "4995f41c45cdfd2fcb031b69e38da40c0768bbe22e9dbd4a54d0d3c24d9bb01b"
+      },
+      "testsOrVerification": "tests/ImportacionExcelConfirmacionTests.cs",
+      "evidence": [
+        {
+          "id": "LOCAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.json",
+          "type": "LOCAL_SINTETICA_BUILD_Y_SELECT_PREVIO",
+          "status": "LOCAL_IMPLEMENTATION_VERIFIED_REAL_ACCEPTANCE_PENDING",
+          "sourceCommit": "10f307112c6239faa8180a021a8064eccc25b538"
+        },
+        {
+          "id": "DOC126_RECUPERACION",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc126-e2e-rollback-concurrencia-20261124.json",
+          "type": "REAL_HISTORICA_REUTILIZADA_LIMITADA",
+          "status": "DOC126_REAL_UI_RESILIENCE_PASS",
+          "sourceCommit": "12ae034eca355c9d301250644908c7f210b35693"
+        }
+      ],
+      "limitation": "Claves, collation, motor, índices completos, FK/trigger y aislamiento; COLUMNA real no ejecutada.",
+      "scenarios": [
+        {
+          "name": "Clave nula, vacía o repetida",
+          "when": "la clave falta o hay equivalencia por la collation efectiva entre filas o con destino en AGREGAR",
+          "then": "se rechaza la carga completa sin omitir ni actualizar filas",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Estructura incompatible",
+          "when": "el índice es parcial, falta aislamiento o existen motor/trigger/FK incompatibles",
+          "then": "la operación falla antes del cambio funcional y registra el límite de evidencia",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Reemplazo autorizado",
+          "when": "el archivo es único y el destino cumple la política CONEXION o COLUMNA",
+          "then": "se sustituye sólo el ámbito autorizado en una transacción DML",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        }
+      ]
+    },
+    {
+      "id": "RQ-07",
+      "title": "Recuperación y concurrencia",
+      "status": "MAPPED_WITH_CLASSIFIED_COVERAGE",
+      "implementation": {
+        "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb",
+        "line": 40,
+        "anchor": "Public Function ConsultarResultado",
+        "sha256Utf8Lf": "22e85ceaf98e8accfbf0d8af8cbbd27045f052ac08be9b48cf7354f19b92df27"
+      },
+      "testsOrVerification": "tests/ImportacionExcelConfirmacionTests.cs",
+      "evidence": [
+        {
+          "id": "LOCAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.json",
+          "type": "LOCAL_SINTETICA_BUILD_Y_SELECT_PREVIO",
+          "status": "LOCAL_IMPLEMENTATION_VERIFIED_REAL_ACCEPTANCE_PENDING",
+          "sourceCommit": "10f307112c6239faa8180a021a8064eccc25b538"
+        },
+        {
+          "id": "DOC125",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc125-ejecucion-seguimiento-20261124.json",
+          "type": "REAL_HISTORICA_REUTILIZADA_LIMITADA",
+          "status": "PASS_REAL_MATRIX",
+          "sourceCommit": "7a4247c96639097b75f887183dd0a2343458d25b"
+        },
+        {
+          "id": "DOC126_RECUPERACION",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc126-e2e-rollback-concurrencia-20261124.json",
+          "type": "REAL_HISTORICA_REUTILIZADA_LIMITADA",
+          "status": "DOC126_REAL_UI_RESILIENCE_PASS",
+          "sourceCommit": "12ae034eca355c9d301250644908c7f210b35693"
+        },
+        {
+          "id": "DOC127_XLS1000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls1000-20261125.json",
+          "type": "REAL_CAPACITY_XLS1000_THREE_MODES",
+          "status": "REAL_XLS1000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "c2277806aa5869521bdd43041561002431417d7d"
+        },
+        {
+          "id": "DOC127_XLS5000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls5000-20261126.json",
+          "type": "REAL_CAPACITY_XLS5000_THREE_MODES",
+          "status": "REAL_XLS5000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "365330139fed82672367bccc6903845b3f331619"
+        },
+        {
+          "id": "DOC127_XLS10000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls10000-20261126.json",
+          "type": "REAL_CAPACITY_XLS10000_THREE_MODES",
+          "status": "REAL_XLS10000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "2cc794bb8795121a3c568de82af57a2ae1229976"
+        },
+        {
+          "id": "DOC127_XLSX1000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx1000-20261126.json",
+          "type": "REAL_CAPACITY_XLSX1000_THREE_MODES",
+          "status": "REAL_XLSX1000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "a4bb16a917f2ec2a6fd16f24583058a794e4f6ac"
+        },
+        {
+          "id": "DOC127_XLSX5000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx5000-20261126.json",
+          "type": "REAL_CAPACITY_XLSX5000_THREE_MODES",
+          "status": "REAL_XLSX5000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "96dfc85e3a78ecba9653eaaa7a6a55f0723b0d39"
+        },
+        {
+          "id": "DOC127_XLSX10000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx10000-20261126.json",
+          "type": "REAL_CAPACITY_XLSX10000_THREE_MODES",
+          "status": "REAL_XLSX10000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "86074721005fd4b9c6b3d8a6347e5add474b6649"
+        }
+      ],
+      "limitation": "Replay/acuse ignorado y carrera observada diferenciados de COMMIT/red físicos; DDL no se borra.",
+      "scenarios": [
+        {
+          "name": "Confirmación repetida o respuesta perdida",
+          "when": "el cliente desconoce el acuse o vuelve a confirmar el mismo ID e identidad",
+          "then": "consulta o replay devuelve el resultado sin otra escritura y distingue el tipo de fallo realmente inducido",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "CREATE recuperable",
+          "when": "la estructura propia permanece tras un fallo o la respuesta de creación es incierta",
+          "then": "se inspecciona su marca/esquema y no se adopta ni elimina una tabla ajena",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Rollback y carrera",
+          "when": "falla REEMPLAZAR tras DELETE o compite otra sesión por la misma clave",
+          "then": "se demuestra rollback íntegro o conflicto sin filas propias; el actor acredita INSERT esperando y locks antes de su commit",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        }
+      ]
+    },
+    {
+      "id": "RQ-08",
+      "title": "Límites efectivos",
+      "status": "MAPPED_WITH_CLASSIFIED_COVERAGE",
+      "implementation": {
+        "path": "Services/ProduccionDocumental/ImportacionExcel/ReglasCargaExcel.vb",
+        "line": 29,
+        "anchor": "Public Shared Sub Limites",
+        "sha256Utf8Lf": "763809e3da2d6749ff95fcba7a5b52a95198bcdcf21e77cc77d931657db8435f"
+      },
+      "testsOrVerification": "tests/ImportacionExcelLecturaTests.cs",
+      "evidence": [
+        {
+          "id": "LOCAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.json",
+          "type": "LOCAL_SINTETICA_BUILD_Y_SELECT_PREVIO",
+          "status": "LOCAL_IMPLEMENTATION_VERIFIED_REAL_ACCEPTANCE_PENDING",
+          "sourceCommit": "10f307112c6239faa8180a021a8064eccc25b538"
+        }
+      ],
+      "limitation": "Fronteras exactas locales;20000 configuradas no equivalen a20000 confirmadas reales.",
+      "scenarios": [
+        {
+          "name": "Fronteras de filas",
+          "when": "el servidor se configura localmente con10000 o20000 filas",
+          "then": "acepta el máximo y rechaza máximo+1 sin contar el encabezado",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Frontera de bytes",
+          "when": "el archivo Excel válido tiene exactamente10000000 o10000001 bytes",
+          "then": "se permite el primero por tamaño y se rechaza el segundo; se diferencia de formato y límites HTTP",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Configuración cambiante",
+          "when": "el límite efectivo cambia tras preparar y antes de confirmar",
+          "then": "la revalidación detecta el conflicto sin escritura y se conservan consultas históricas confirmadas",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        }
+      ]
+    },
+    {
+      "id": "RQ-09",
+      "title": "Capacidad medible",
+      "status": "MAPPED_WITH_CLASSIFIED_COVERAGE",
+      "implementation": {
+        "path": "tools/e2e/scripts/support/doc127-iis-memory.ps1",
+        "line": 6,
+        "anchor": "Get-Process",
+        "sha256Utf8Lf": "aa26741fbecfe6b498c882b9865db6e56936325da986e12e12174b92b5337d84"
+      },
+      "testsOrVerification": "tests/doc127-e2e-reuse.test.cjs",
+      "evidence": [
+        {
+          "id": "LOCAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.json",
+          "type": "LOCAL_SINTETICA_BUILD_Y_SELECT_PREVIO",
+          "status": "LOCAL_IMPLEMENTATION_VERIFIED_REAL_ACCEPTANCE_PENDING",
+          "sourceCommit": "10f307112c6239faa8180a021a8064eccc25b538"
+        },
+        {
+          "id": "DOC125",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc125-ejecucion-seguimiento-20261124.json",
+          "type": "REAL_HISTORICA_REUTILIZADA_LIMITADA",
+          "status": "PASS_REAL_MATRIX",
+          "sourceCommit": "7a4247c96639097b75f887183dd0a2343458d25b"
+        },
+        {
+          "id": "RECURSOS",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-aplicacion-recursos-20261125.json",
+          "type": "APLICACION_DELEGADA_PREVIA_VERIFICADA_SELECT",
+          "status": "AUTHORIZED_SQL30_32_APPLIED_VERIFIED",
+          "sourceCommit": "6428e62ca6c9cb4a650d96adff5f2eceddb3663b"
+        },
+        {
+          "id": "DOC127_XLS1000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls1000-20261125.json",
+          "type": "REAL_CAPACITY_XLS1000_THREE_MODES",
+          "status": "REAL_XLS1000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "c2277806aa5869521bdd43041561002431417d7d"
+        },
+        {
+          "id": "DOC127_XLS5000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls5000-20261126.json",
+          "type": "REAL_CAPACITY_XLS5000_THREE_MODES",
+          "status": "REAL_XLS5000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "365330139fed82672367bccc6903845b3f331619"
+        },
+        {
+          "id": "DOC127_XLS10000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls10000-20261126.json",
+          "type": "REAL_CAPACITY_XLS10000_THREE_MODES",
+          "status": "REAL_XLS10000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "2cc794bb8795121a3c568de82af57a2ae1229976"
+        },
+        {
+          "id": "DOC127_XLSX1000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx1000-20261126.json",
+          "type": "REAL_CAPACITY_XLSX1000_THREE_MODES",
+          "status": "REAL_XLSX1000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "a4bb16a917f2ec2a6fd16f24583058a794e4f6ac"
+        },
+        {
+          "id": "DOC127_XLSX5000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx5000-20261126.json",
+          "type": "REAL_CAPACITY_XLSX5000_THREE_MODES",
+          "status": "REAL_XLSX5000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "96dfc85e3a78ecba9653eaaa7a6a55f0723b0d39"
+        },
+        {
+          "id": "DOC127_XLSX10000_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx10000-20261126.json",
+          "type": "REAL_CAPACITY_XLSX10000_THREE_MODES",
+          "status": "REAL_XLSX10000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+          "sourceCommit": "86074721005fd4b9c6b3d8a6347e5add474b6649"
+        }
+      ],
+      "limitation": "18/18 reales con tiempos HTTP y memoria IIS compartida muestreada; sin asignación exclusiva.",
+      "scenarios": [
+        {
+          "name": "Matriz por formato y tamaño",
+          "when": "se programa capacidad con el usuario en recursos descartables",
+          "then": "cada celda1000/5000/10000 por formato identifica crear/agregar/reemplazar ejecutados o faltantes y evidencia compatible reutilizada",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Medición acotada",
+          "when": "se ejecuta un recorrido específicamente autorizado",
+          "then": "se guardan tiempos por etapa y memoria con método/intervalo/baseline y ventanas no observadas",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Saturación o presupuesto agotado",
+          "when": "una operación supera presupuesto o termina con resultado incierto",
+          "then": "se detienen nuevas escrituras, se conserva el ID y se consulta el estado sin aumentar automáticamente timeouts, límites o reintentos",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        }
+      ]
+    },
+    {
+      "id": "RQ-10",
+      "title": "Proveedor y consumidores",
+      "status": "MAPPED_WITH_CLASSIFIED_EVIDENCE_AND_FULL_SCAN_WARNING",
+      "implementation": {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorDatosIndices.vb",
+        "line": 47,
+        "anchor": "Private Function ConsultarDatos",
+        "sha256Utf8Lf": "b48e6bfa5de221ccac0eddd04bbaa13f2f6c17bfea95597a2fb9175d3be975c7",
+        "priorSha256Utf8Lf": "41e5578493c4747adb601eba358aabbdca7a40e2200430bcab811c5afc393ab5",
+        "sourceReviewCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390"
+      },
+      "testsOrVerification": "tests/ProveedorIndicesBehaviorTests.cs",
+      "evidence": [
+        {
+          "id": "LOCAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.json",
+          "type": "LOCAL_SINTETICA_BUILD_Y_SELECT_PREVIO",
+          "status": "LOCAL_IMPLEMENTATION_VERIFIED_REAL_ACCEPTANCE_PENDING",
+          "sourceCommit": "10f307112c6239faa8180a021a8064eccc25b538"
+        },
+        {
+          "id": "DOC127_MANUAL_PLAN",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-plan-consulta-20261126.json",
+          "type": "OPERATOR_EXPLAIN_AND_SELECT_METADATA_WITH_LOCAL_REGRESSION",
+          "status": "MANUAL_PLAN_REVIEWED_FULL_SCAN_WARNING",
+          "sourceCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390"
+        }
+      ],
+      "limitation": "Plan manual revisado: ALL sin índice; rows estimadas, sin medir latencia. Consumidores afectados cubiertos por29 pruebas locales actuales; no nueva E2E.",
+      "scenarios": [
+        {
+          "name": "Tabla como fuente elegible",
+          "when": "la tabla importada cumple metadatos, política y contrato de proveedor publicados",
+          "then": "el consumidor autorizado compara la clave mediante igualdad y devuelve OK, SIN_COINCIDENCIA o AMBIGUO según cardinalidad",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Plan manual de consulta",
+          "when": "el operador ejecuta el EXPLAIN entregado para la consulta del proveedor",
+          "then": "se revisa el índice y acceso efectivo con los metadatos SELECT; sin plan aportado no se certifica su rendimiento",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": true,
+          "executionType": "OPERATOR_MANUAL_EXPLAIN"
+        },
+        {
+          "name": "Regresión de consumidores",
+          "when": "se contrasta la huella del consumidor y su contrato con la evidencia anterior",
+          "then": "se reutiliza la cobertura compatible y se ejecuta sólo la regresión afectada sin publicar fuentes automáticamente",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        }
+      ]
+    },
+    {
+      "id": "RQ-11",
+      "title": "Interfaz vigente",
+      "status": "MAPPED_WITH_CLASSIFIED_COVERAGE",
+      "implementation": {
+        "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+        "line": 59,
+        "anchor": "var validationForm",
+        "sha256Utf8Lf": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da"
+      },
+      "testsOrVerification": "tests/doc126-importacion-excel-ui.test.cjs",
+      "evidence": [
+        {
+          "id": "INTEGRACION",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-integracion-20261125.json",
+          "type": "LOCAL_SINTETICA_Y_SELECT_PREVIO",
+          "status": "LOCAL_INTEGRATION_PASS_REAL_READ_PENDING_AUTHORIZATION",
+          "sourceCommit": "17bdf09e4f46efb43cbe4771d4de99ee8a308628"
+        },
+        {
+          "id": "DOC126_LECTURA",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc126-e2e-permisos-real-20261125.json",
+          "type": "REAL_HISTORICA_REUTILIZADA_LIMITADA",
+          "status": "DOC126_REAL_UI_READ_PASS",
+          "sourceCommit": "a2d6f19237d8eeaa7e1c6e1e1d300ea96fbee653"
+        },
+        {
+          "id": "DOC127_LECTURA",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-lectura-real-20261125.json",
+          "type": "REAL_ACTUAL_LECTURA_SIN_CARGAS",
+          "status": "REAL_READ_AND_WEBFORMS_ISOLATION_PASS",
+          "sourceCommit": "986f0f1cc9974dd81343e3f9227a264d53bba13c"
+        },
+        {
+          "id": "DOC127_DELEGATED_QA",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-qa-delegada-20261126.json",
+          "type": "REAL_DESKTOP_UI_DELEGATED",
+          "status": "PASS_REAL_DESKTOP_QA_DELEGATED",
+          "sourceCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40"
+        }
+      ],
+      "limitation": "Desktop QA delegada PASS para apertura/Escape/Cerrar/navegación/reapertura. Sesión existente sin ID de cuenta acreditado; evidencia de permisos194/196 conserva su corte previo.",
+      "scenarios": [
+        {
+          "name": "Guía de acciones y diagnóstico",
+          "when": "la plantilla o archivo tiene una configuración incompatible",
+          "then": "la interfaz señala campo/regla/corrección y habilita las acciones según sus prerrequisitos",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Cerrar durante consulta",
+          "when": "la apertura o consulta está en curso y se pulsa Escape o Cerrar",
+          "then": "se cierra el diálogo manteniendo el foco y sin crear, preparar ni confirmar otra carga",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Corte de assets",
+          "when": "una prueba real usa una versión distinta a la publicada",
+          "then": "el informe conserva los hashes originales y clasifica la regresión actual por su ejecución efectiva",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        }
+      ]
+    },
+    {
+      "id": "RQ-12",
+      "title": "Build y hallazgos",
+      "status": "MAPPED_WITH_CLASSIFIED_COVERAGE",
+      "implementation": {
+        "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlConfirmacionExcelWriter.vb",
+        "line": 158,
+        "anchor": "Public Function Ejecutar",
+        "sha256Utf8Lf": "ae431a4d2c487a947f44161cf70b25b9f63d79903778bf5fa94b47cb9d54c124"
+      },
+      "testsOrVerification": "tests/ImportacionExcelConfirmacionTests.cs",
+      "evidence": [
+        {
+          "id": "LOCAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.json",
+          "type": "LOCAL_SINTETICA_BUILD_Y_SELECT_PREVIO",
+          "status": "LOCAL_IMPLEMENTATION_VERIFIED_REAL_ACCEPTANCE_PENDING",
+          "sourceCommit": "10f307112c6239faa8180a021a8064eccc25b538"
+        },
+        {
+          "id": "INTEGRACION",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-integracion-20261125.json",
+          "type": "LOCAL_SINTETICA_Y_SELECT_PREVIO",
+          "status": "LOCAL_INTEGRATION_PASS_REAL_READ_PENDING_AUTHORIZATION",
+          "sourceCommit": "17bdf09e4f46efb43cbe4771d4de99ee8a308628"
+        },
+        {
+          "id": "DOC127_HALLAZGOS_CIERRE",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-hallazgos-cierre-20261126.json",
+          "type": "CURRENT_FINDINGS_REVIEW_WITH_CLASSIFIED_REUSE",
+          "status": "KNOWN_FINDINGS_CLOSED_WITH_CLASSIFIED_EVIDENCE",
+          "sourceCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d"
+        },
+        {
+          "id": "DOC127_ASISTENTE_REAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-asistente-real-20261126.json",
+          "type": "REAL_CURRENT_WEB_ASSISTANT_XLS_XLSX",
+          "status": "REAL_CURRENT_ASSISTANT_XLS_XLSX_PASS",
+          "sourceCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d"
+        }
+      ],
+      "limitation": "22 pruebas locales actuales cubren cambios1c1637dd; build aislado8d1f2159 reutilizado por VB/proyecto/config sin cambios. Sin nuevo build o despliegue.",
+      "scenarios": [
+        {
+          "name": "Build aislado",
+          "when": "se valida el corte de aceptación",
+          "then": "MSBuild registra framework, comando, SHA y errores/advertencias sin sustituir bin de IIS",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Suites existentes",
+          "when": "se ejecuta el harness nativo y la regresión UI/cliente/adaptadores",
+          "then": "se distinguen checks nativos, tests Node y navegador sintético de E2E real",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Brecha reproducible",
+          "when": "un caso autorizado demuestra un fallo pertinente",
+          "then": "se aplica la corrección mínima, se reproduce su resultado y se renueva la regresión afectada y su inventario de archivos",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        }
+      ]
+    },
+    {
+      "id": "RQ-13",
+      "title": "Operación y despliegue",
+      "status": "MAPPED_WITH_CLASSIFIED_COVERAGE",
+      "implementation": {
+        "path": "Doc/Actualizacion/Importacion/Operacion-Excel.md",
+        "line": 27,
+        "anchor": "## Interrupciones",
+        "sha256Utf8Lf": "112650ae53c2bf454aedcab9c15c5bba56df354a012fb2cc1849f6670889cbf4"
+      },
+      "testsOrVerification": "Doc/Actualizacion/Importacion/Sql/README.md",
+      "evidence": [
+        {
+          "id": "LOCAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.json",
+          "type": "LOCAL_SINTETICA_BUILD_Y_SELECT_PREVIO",
+          "status": "LOCAL_IMPLEMENTATION_VERIFIED_REAL_ACCEPTANCE_PENDING",
+          "sourceCommit": "10f307112c6239faa8180a021a8064eccc25b538"
+        },
+        {
+          "id": "RECURSOS",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-aplicacion-recursos-20261125.json",
+          "type": "APLICACION_DELEGADA_PREVIA_VERIFICADA_SELECT",
+          "status": "AUTHORIZED_SQL30_32_APPLIED_VERIFIED",
+          "sourceCommit": "6428e62ca6c9cb4a650d96adff5f2eceddb3663b"
+        }
+      ],
+      "limitation": "Recuperación por ID, sin pausa por fila; respaldo de código y SQL estructural separados.",
+      "scenarios": [
+        {
+          "name": "Instalación en otro ambiente",
+          "when": "el operador sigue la guía sobre RA/DA identificadas",
+          "then": "aplica sólo archivos necesarios en orden, confirma y ejecuta la verificación sin secretos en entregables",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Interrupción de una carga",
+          "when": "el navegador se cierra o no conoce el resultado",
+          "then": "el operador conserva ID/identidad, consulta y decide el reintento permitido sin asumir pausa o avance parcial",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Actualización y reversión",
+          "when": "se publica una corrección verificada",
+          "then": "la guía identifica respaldo y restauración de código/configuración y trata el SQL estructural mediante un plan manual independiente",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        }
+      ]
+    },
+    {
+      "id": "RQ-14",
+      "title": "Cierre verificable",
+      "status": "MAPPED_WITH_CLASSIFIED_EVIDENCE",
+      "implementation": {
+        "path": "tools/opsxj/scripts/lib/legacyGovernanceService.js",
+        "line": 347,
+        "anchor": "name: \"openspec_tasks\"",
+        "sha256Utf8Lf": "cf37b4c44c40c344aebdd3e5a884449f9690b7bda8a44335afd26aacebfc68d5"
+      },
+      "testsOrVerification": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/tasks.md",
+      "evidence": [
+        {
+          "id": "LOCAL",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.json",
+          "type": "LOCAL_SINTETICA_BUILD_Y_SELECT_PREVIO",
+          "status": "LOCAL_IMPLEMENTATION_VERIFIED_REAL_ACCEPTANCE_PENDING",
+          "sourceCommit": "10f307112c6239faa8180a021a8064eccc25b538"
+        },
+        {
+          "id": "INTEGRACION",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-integracion-20261125.json",
+          "type": "LOCAL_SINTETICA_Y_SELECT_PREVIO",
+          "status": "LOCAL_INTEGRATION_PASS_REAL_READ_PENDING_AUTHORIZATION",
+          "sourceCommit": "17bdf09e4f46efb43cbe4771d4de99ee8a308628"
+        }
+      ],
+      "limitation": "QA delegada real completada. Gates deben persistirse en el SHA de entrega; publicación/archivo/cierre siguen su flujo independiente.",
+      "scenarios": [
+        {
+          "name": "Resultado limitado",
+          "when": "una comprobación no se ejecutó o sólo tiene cobertura local",
+          "then": "se informa su estado, riesgo e impacto sin marcarla REAL_PASS",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Cierre técnico",
+          "when": "todas las tareas exigibles y brechas críticas están verificadas",
+          "then": "se ejecutan gates por SHA y se prepara la entrega revisable para publicación/archivo conforme al flujo",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        },
+        {
+          "name": "Bloqueo de aceptación",
+          "when": "falta validación autorizada, plan requerido o permanece una brecha crítica",
+          "then": "el cambio sigue abierto con el motivo concreto y las tareas independientes continúan",
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": false
+        }
+      ]
+    }
+  ],
+  "critical": [],
+  "warnings": [
+    {
+      "id": "W-01",
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorDatosIndices.vb",
+      "line": 73,
+      "issue": "Plan manual: ALL, key/possible_keys NULL, rows estimadas25538, Using where; metadatos sin índices.",
+      "action": "Conservar advertencia de acceso sin índice y ausencia de SLA medido. Optimización eventual en cambio SQL manual separado, sin alterar datos para forzar aceptación."
+    },
+    {
+      "id": "W-02",
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/design.md",
+      "line": 229,
+      "issue": "Revocación física, política COLUMNA real, fallos físicos COMMIT/red y20000 filas reales no se ejecutaron.",
+      "action": "Conservar la clasificación local/histórica/real. Estas ventanas no acreditan esas variantes; no repetir cargas o ampliar efectos por inferencia."
+    }
+  ],
+  "suggestions": [],
+  "providerMetadata": {
+    "recordedUtc": "2026-11-27T00:41:16.7805108Z",
+    "providerId": 1,
+    "versionId": 1,
+    "providerRevision": 4,
+    "policy": {
+      "fuente_id": 2,
+      "ambito_ref": "2",
+      "conexion_ref": "DA",
+      "tabla_nombre": "imp_02_egresos",
+      "modo_aislamiento": "CONEXION",
+      "columna_empresa": "",
+      "activo": 1,
+      "revision": 2
+    },
+    "columns": [
+      {
+        "COLUMN_NAME": "CONSECUTIVO",
+        "COLUMN_TYPE": "varchar(250)",
+        "CHARACTER_SET_NAME": "latin1",
+        "COLLATION_NAME": "latin1_swedish_ci",
+        "IS_NULLABLE": "YES"
+      },
+      {
+        "COLUMN_NAME": "NIT",
+        "COLUMN_TYPE": "varchar(250)",
+        "CHARACTER_SET_NAME": "latin1",
+        "COLLATION_NAME": "latin1_swedish_ci",
+        "IS_NULLABLE": "YES"
+      },
+      {
+        "COLUMN_NAME": "BENEFICIARIO",
+        "COLUMN_TYPE": "varchar(250)",
+        "CHARACTER_SET_NAME": "latin1",
+        "COLLATION_NAME": "latin1_swedish_ci",
+        "IS_NULLABLE": "YES"
+      }
+    ],
+    "indices": [],
+    "table": {
+      "ENGINE": "InnoDB",
+      "TABLE_COLLATION": "latin1_swedish_ci"
+    },
+    "mysql": {
+      "mysql_version": "5.1.37-community"
+    },
+    "mapping": [
+      {
+        "Columna": "NIT",
+        "Nombre": "NIT",
+        "Tipo": "TEXTO"
+      },
+      {
+        "Columna": "BENEFICIARIO",
+        "Nombre": "BENFICIARIO",
+        "Tipo": "TEXTO"
+      }
+    ],
+    "generatedQuery": "SELECT `NIT` AS `NIT`,`BENEFICIARIO` AS `BENFICIARIO` FROM `imp_02_egresos` WHERE `CONSECUTIVO`='DOC127_CLAVE_SINTETICA' LIMIT 2;",
+    "sql29QueryMatches": true,
+    "sql29Sha256Utf8Lf": "eeb61ad01134374d4b58a42e537191627b8837c3bbaf19c52c42cbdac9937a0c",
+    "selectStatements": 7,
+    "sqlWrites": 0,
+    "authenticatedSessions": 0,
+    "explainExecuted": true,
+    "historicalMetadataAt": "2026-11-26T20:27:33.9672683Z",
+    "explainExecutionInitiator": "LOCAL_OPERATOR_TYPED_COMMAND",
+    "manualPlanPath": "Doc/Actualizacion/Importacion/Validacion/doc127-plan-consulta-20261126.json"
+  },
+  "newEffects": {
+    "controlSelects": 5,
+    "operatorExplainStatements": 1,
+    "applicationSessions": 0,
+    "imports": 0,
+    "sqlWrites": 0,
+    "deployments": 0
+  },
+  "humanQaStatus": "DELEGATED_REAL_DESKTOP_QA_PASS_NOT_HUMAN_REPORTED",
+  "historicalManualAcceptancePreserved": true,
+  "closureApproved": true,
+  "archiveAllowed": true,
+  "artifactHashes": [
+    {
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/proposal.md",
+      "sha256Utf8Lf": "9710586a9a3234d4953401ac2ea3cf128af6f37e82a826e699b9968fcee68580"
+    },
+    {
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/design.md",
+      "sha256Utf8Lf": "33198833fdea123b1921ffc8a65ef7a839aa90d14b5b0a5ca52aa0c52d229526"
+    },
+    {
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/tasks.md",
+      "sha256Utf8Lf": "7e9ab59d20cbda8c6e602ad02d6a6302ed149d9a6b6db02b5567717f57d5a6b7"
+    },
+    {
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/specs/importacion-excel-07-verificacion-integral-cierre/spec.md",
+      "sha256Utf8Lf": "c6785debb2cb9f6e3c99e732526ef3f36d08c043484faa83736033f037b8ab8b"
+    },
+    {
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/specs/importacion-excel-07-verificacion-integral-cierre/jira-context.md",
+      "sha256Utf8Lf": "96c4caff9abe25160d9b7dc80f72d935c0b380539bcb4cbab1de6e5a8bfd5622"
+    }
+  ],
+  "priorReview": {
+    "evaluationCommit": "f6d3ba2e37ee298afcf972eff11ae6afaeab58c5",
+    "recordedUtc": "2026-11-26T20:35:22.363Z",
+    "completeTasks": 31,
+    "criticalIssues": 2
+  },
+  "resolvedCritical": [
+    {
+      "id": "C-01",
+      "task": "2.4",
+      "status": "RESOLVED",
+      "evidence": "Doc/Actualizacion/Importacion/Validacion/doc127-plan-consulta-20261126.json"
+    },
+    {
+      "id": "C-02",
+      "task": "7.5",
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/opsxj-governance.json",
+      "line": 6,
+      "issue": "Aceptación y gates finales incompletos: QA manual actual sin declaración y revisión sin aprobación de cierre.",
+      "action": "Registrar observación humana actual de apertura/cierre y navegación, sin repetir cargas; reevaluar revisión y gates sobre el SHA final.2.4 ya completada.",
+      "status": "RESOLVED_BY_REAL_DELEGATED_DESKTOP_QA",
+      "evidence": "Doc/Actualizacion/Importacion/Validacion/doc127-qa-delegada-20261126.json"
+    }
+  ],
+  "historicalBuildReview": {
+    "sourceBaseCommit": "10f307112c6239faa8180a021a8064eccc25b538",
+    "command": [
+      "MSBuild.exe",
+      "GestionDocumental-Docuarchi.net.vbproj",
+      "/t:Build",
+      "/nologo",
+      "/m:1",
+      "/verbosity:minimal",
+      "/p:Configuration=Debug",
+      "/p:OutputPath=D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\.tmp\\doc127-build\\bin\\",
+      "/p:OutDir=D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\.tmp\\doc127-build\\bin\\",
+      "/p:BaseIntermediateOutputPath=D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\.tmp\\doc127-build\\obj\\",
+      "/p:IntermediateOutputPath=D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\.tmp\\doc127-build\\obj\\",
+      "/p:UseSharedCompilation=false",
+      "/p:DeployOnBuild=false"
+    ],
+    "framework": "net461",
+    "historicalErrors": 0,
+    "historicalWarnings": 308,
+    "compiledFilesChangedInGitSinceBuild": [],
+    "compiledSourceAudit": [
+      {
+        "path": "DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb",
+        "sha256Utf8Lf": "6dba0e81e34ded7817db69cf3a822347f02a24cc65a6f95eb5823989dcb15190",
+        "currentSha256Utf8Lf": "6dba0e81e34ded7817db69cf3a822347f02a24cc65a6f95eb5823989dcb15190",
+        "matches": true
+      },
+      {
+        "path": "Gestion/Class_remit_dest_interno_perfil_produccion.vb",
+        "sha256Utf8Lf": "a7440628ac70a89d23e320904b3109b95fd8b3fc27b54ed4cd914527be91ecad",
+        "currentSha256Utf8Lf": "a7440628ac70a89d23e320904b3109b95fd8b3fc27b54ed4cd914527be91ecad",
+        "matches": true
+      },
+      {
+        "path": "Gestion/WebFormProducionDocumental.aspx.vb",
+        "sha256Utf8Lf": "f301a264202c38325dcda48300feee1631c2cc61923c279a44e45a48f3d4ff32",
+        "currentSha256Utf8Lf": "f301a264202c38325dcda48300feee1631c2cc61923c279a44e45a48f3d4ff32",
+        "matches": true
+      },
+      {
+        "path": "GestionDocumental-Docuarchi.net.vbproj",
+        "sha256Utf8Lf": "f90901bc19a14061319b72e885c44f1dd0a632ba24c5b68c8a84141a9f45a357",
+        "currentSha256Utf8Lf": "f90901bc19a14061319b72e885c44f1dd0a632ba24c5b68c8a84141a9f45a357",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorDatosIndices.vb",
+        "sha256Utf8Lf": "41e5578493c4747adb601eba358aabbdca7a40e2200430bcab811c5afc393ab5",
+        "currentSha256Utf8Lf": "41e5578493c4747adb601eba358aabbdca7a40e2200430bcab811c5afc393ab5",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PoliticaFuentesProveedor.vb",
+        "sha256Utf8Lf": "72aa90ad98c574391c735777f6ca0198c5756d00b8e7c76a890603cc87877203",
+        "currentSha256Utf8Lf": "72aa90ad98c574391c735777f6ca0198c5756d00b8e7c76a890603cc87877203",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/AlmacenArchivoExcel.vb",
+        "sha256Utf8Lf": "901b2c3adf0484036cad185625450285082a5e4dd16fa7636524ec915cd1e3d0",
+        "currentSha256Utf8Lf": "901b2c3adf0484036cad185625450285082a5e4dd16fa7636524ec915cd1e3d0",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ComposicionCargaExcel.vb",
+        "sha256Utf8Lf": "463c45d82f7b736d1f7bcb366b71005be9e62391c54b3a22d4398231c2a2e977",
+        "currentSha256Utf8Lf": "463c45d82f7b736d1f7bcb366b71005be9e62391c54b3a22d4398231c2a2e977",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelConexionAdapter.vb",
+        "sha256Utf8Lf": "1f772b8f0d4a515a313907a030da1ea91b480b7c9b7283aaea13a62b71831ef3",
+        "currentSha256Utf8Lf": "1f772b8f0d4a515a313907a030da1ea91b480b7c9b7283aaea13a62b71831ef3",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelContextAdapter.vb",
+        "sha256Utf8Lf": "8a89cc86baec4083e89a3d6a3806f7d3bdf371d68b07646cef37dee42e250426",
+        "currentSha256Utf8Lf": "8a89cc86baec4083e89a3d6a3806f7d3bdf371d68b07646cef37dee42e250426",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb",
+        "sha256Utf8Lf": "cc12bd1cf3862cfe2b33811e0635491254ec138250d2cbad5ad2d736aeefc344",
+        "currentSha256Utf8Lf": "cc12bd1cf3862cfe2b33811e0635491254ec138250d2cbad5ad2d736aeefc344",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/InspectorFidelidadExcel.vb",
+        "sha256Utf8Lf": "dc39576bb8646475cd7a7b454eac2ab2e646286608df27de9cc7e302b0187ed5",
+        "currentSha256Utf8Lf": "dc39576bb8646475cd7a7b454eac2ab2e646286608df27de9cc7e302b0187ed5",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/LectorArchivoExcel.vb",
+        "sha256Utf8Lf": "781e902a557f4020f621846942ae7c6e1e6fa091c81859c7d9b20e1a0d697197",
+        "currentSha256Utf8Lf": "781e902a557f4020f621846942ae7c6e1e6fa091c81859c7d9b20e1a0d697197",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/PoliticaDestinoCargaExcelAdapter.vb",
+        "sha256Utf8Lf": "9127925277c205060496204aea452aec58a1afae3817100f3eecc956027d73f1",
+        "currentSha256Utf8Lf": "9127925277c205060496204aea452aec58a1afae3817100f3eecc956027d73f1",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ReferenciaRecepcionExcel.vb",
+        "sha256Utf8Lf": "c400d077e5b0736814990ef49524a9e62ab43c3de1e154d041ad4f8ebff631d7",
+        "currentSha256Utf8Lf": "c400d077e5b0736814990ef49524a9e62ab43c3de1e154d041ad4f8ebff631d7",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorIndicesRepository.vb",
+        "sha256Utf8Lf": "2b924164324d791697a30fd1e0c37e8f8f1510d228dd301a978c158ee9007e62",
+        "currentSha256Utf8Lf": "2b924164324d791697a30fd1e0c37e8f8f1510d228dd301a978c158ee9007e62",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb",
+        "sha256Utf8Lf": "47d04d584ab854f14d029bc4bb5cacc400c80825cd9c2014b7eb22c63b90a7f2",
+        "currentSha256Utf8Lf": "47d04d584ab854f14d029bc4bb5cacc400c80825cd9c2014b7eb22c63b90a7f2",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlConfirmacionExcelWriter.vb",
+        "sha256Utf8Lf": "ae431a4d2c487a947f44161cf70b25b9f63d79903778bf5fa94b47cb9d54c124",
+        "currentSha256Utf8Lf": "ae431a4d2c487a947f44161cf70b25b9f63d79903778bf5fa94b47cb9d54c124",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlEstructuraExcel.vb",
+        "sha256Utf8Lf": "a281c891106e3bcf0c50fc94875246616c7c665d65b872171972c522f828a820",
+        "currentSha256Utf8Lf": "a281c891106e3bcf0c50fc94875246616c7c665d65b872171972c522f828a820",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb",
+        "sha256Utf8Lf": "2aba73f57faf716b90597a95ba2f3d5019cc3ef2bb18db29cb467c209b446ff9",
+        "currentSha256Utf8Lf": "2aba73f57faf716b90597a95ba2f3d5019cc3ef2bb18db29cb467c209b446ff9",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb",
+        "sha256Utf8Lf": "4995f41c45cdfd2fcb031b69e38da40c0768bbe22e9dbd4a54d0d3c24d9bb01b",
+        "currentSha256Utf8Lf": "4995f41c45cdfd2fcb031b69e38da40c0768bbe22e9dbd4a54d0d3c24d9bb01b",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/SqlCargaExcel.vb",
+        "sha256Utf8Lf": "73bbf7025ae448b6ab80b287a197d9aa1dacd397f3deccc72e8a5861ab72f16d",
+        "currentSha256Utf8Lf": "73bbf7025ae448b6ab80b287a197d9aa1dacd397f3deccc72e8a5861ab72f16d",
+        "matches": true
+      },
+      {
+        "path": "Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportProvider.vb",
+        "sha256Utf8Lf": "7cb4a6d86c8b2769750eca1ede7342a04da11d812f2298f6e6e567ea6161abef",
+        "currentSha256Utf8Lf": "7cb4a6d86c8b2769750eca1ede7342a04da11d812f2298f6e6e567ea6161abef",
+        "matches": true
+      },
+      {
+        "path": "Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb",
+        "sha256Utf8Lf": "8857b24d92b9b018bce86c2a35a7682c5d15bfbff49d0155042d2a3bc6e4cbf0",
+        "currentSha256Utf8Lf": "8857b24d92b9b018bce86c2a35a7682c5d15bfbff49d0155042d2a3bc6e4cbf0",
+        "matches": true
+      },
+      {
+        "path": "Services/ProduccionDocumental/ImportacionExcel/ReglasCargaExcel.vb",
+        "sha256Utf8Lf": "763809e3da2d6749ff95fcba7a5b52a95198bcdcf21e77cc77d931657db8435f",
+        "currentSha256Utf8Lf": "763809e3da2d6749ff95fcba7a5b52a95198bcdcf21e77cc77d931657db8435f",
+        "matches": true
+      },
+      {
+        "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioAnalisisPlantillaExcel.vb",
+        "sha256Utf8Lf": "412e402eee8438cdf4371d7e61f66993bb9eae0783a2509feebe563e59c898f6",
+        "currentSha256Utf8Lf": "412e402eee8438cdf4371d7e61f66993bb9eae0783a2509feebe563e59c898f6",
+        "matches": true
+      },
+      {
+        "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb",
+        "sha256Utf8Lf": "22e85ceaf98e8accfbf0d8af8cbbd27045f052ac08be9b48cf7354f19b92df27",
+        "currentSha256Utf8Lf": "22e85ceaf98e8accfbf0d8af8cbbd27045f052ac08be9b48cf7354f19b92df27",
+        "matches": true
+      },
+      {
+        "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioLecturaExcel.vb",
+        "sha256Utf8Lf": "fa0d6a99a17fff59931ba265814670e3d487b106c8e7229b3d37369afd605295",
+        "currentSha256Utf8Lf": "fa0d6a99a17fff59931ba265814670e3d487b106c8e7229b3d37369afd605295",
+        "matches": true
+      },
+      {
+        "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioPlantillasExcel.vb",
+        "sha256Utf8Lf": "949de270e83544bf65cc288c75ec81b6da6590039a6ca4c1dfc9d5e37f0ee1bd",
+        "currentSha256Utf8Lf": "949de270e83544bf65cc288c75ec81b6da6590039a6ca4c1dfc9d5e37f0ee1bd",
+        "matches": true
+      },
+      {
+        "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioPreparacionExcel.vb",
+        "sha256Utf8Lf": "8bf53cbf11e89279b3a65c57e93fb2566ef1fd1c0ad605ae05b2eabb383d9e39",
+        "currentSha256Utf8Lf": "8bf53cbf11e89279b3a65c57e93fb2566ef1fd1c0ad605ae05b2eabb383d9e39",
+        "matches": true
+      },
+      {
+        "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioRecepcionExcel.vb",
+        "sha256Utf8Lf": "92b1641c7c9653d9f200aff7f7471140259c8eac2589e058df2fcaeb63def317",
+        "currentSha256Utf8Lf": "92b1641c7c9653d9f200aff7f7471140259c8eac2589e058df2fcaeb63def317",
+        "matches": true
+      },
+      {
+        "path": "generic_control/ImportacionExcelAnalisis.ashx.vb",
+        "sha256Utf8Lf": "8133a69579660d22c8615c2b78f4de15abc6cf2fe16600bb3d5d6028fcebd363",
+        "currentSha256Utf8Lf": "8133a69579660d22c8615c2b78f4de15abc6cf2fe16600bb3d5d6028fcebd363",
+        "matches": true
+      },
+      {
+        "path": "generic_control/ImportacionExcelUpload.ashx.vb",
+        "sha256Utf8Lf": "b9dd46bdcf92e75a824a995c9997ecf615723182e03d5fe0c8073960049bd6fc",
+        "currentSha256Utf8Lf": "b9dd46bdcf92e75a824a995c9997ecf615723182e03d5fe0c8073960049bd6fc",
+        "matches": true
+      },
+      {
+        "path": "webservice/WebServiceImportacionExcel.asmx.vb",
+        "sha256Utf8Lf": "e14c28833e3ab56698c61196923c12ff96f1c41dbb00370db5c47e95ea7a5a4c",
+        "currentSha256Utf8Lf": "e14c28833e3ab56698c61196923c12ff96f1c41dbb00370db5c47e95ea7a5a4c",
+        "matches": true
+      }
+    ],
+    "newBuildExecuted": false,
+    "isolatedAssemblySha256": "e665ba8803e11fa9bf6e78f65f87bb4572f2c81e858c8acf9145ef85eaf7cfb6",
+    "installedAssemblySha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+    "scope": "Historical review at f6d3ba2e, not current source equality after8d1f2159."
+  },
+  "currentBuild": {
+    "webConfigUnchanged": true,
+    "deployed": false,
+    "exitCode": 0,
+    "assemblySha256": "7874aa360a806396094be26f001bb2125c5060bd0e037017db84f70cbd579017",
+    "runtimeUnchanged": true,
+    "errors": 0,
+    "warnings": 308,
+    "framework": "net461",
+    "sourceCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
+    "command": "MSBuild.exe GestionDocumental-Docuarchi.net.vbproj /t:Build /nologo /m:1 /verbosity:minimal /p:Configuration=Debug /p:OutputPath=.tmp/doc127-cierre-revision/build-current-8d1f2159/bin/ /p:OutDir=.tmp/doc127-cierre-revision/build-current-8d1f2159/bin/ /p:BaseIntermediateOutputPath=.tmp/doc127-cierre-revision/build-current-8d1f2159/obj/ /p:IntermediateOutputPath=.tmp/doc127-cierre-revision/build-current-8d1f2159/obj/ /p:UseSharedCompilation=false /p:DeployOnBuild=false",
+    "reuseAtCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+    "compiledChangesSinceBuild": [],
+    "newBuildAtCurrentCommit": false
+  },
+  "currentSourceVerification": {
+    "commit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
+    "changedPaths": [
+      {
+        "path": "Gestion/WebFormProducionDocumental.aspx",
+        "sha256": "e60fbbc7d0f16ca4b3c6069654a3f635ec5c9d5ad995798c8c68b2aafb7c58fe",
+        "sha256Utf8Lf": "cea46063c1d42d58bb44543b28ee9de59b1024cca93dd8a249ccff5def455e6b"
+      },
+      {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorDatosIndices.vb",
+        "sha256": "b48e6bfa5de221ccac0eddd04bbaa13f2f6c17bfea95597a2fb9175d3be975c7",
+        "sha256Utf8Lf": "b48e6bfa5de221ccac0eddd04bbaa13f2f6c17bfea95597a2fb9175d3be975c7"
+      },
+      {
+        "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/ProveedorIndicesModels.vb",
+        "sha256": "cbdaa7744b20ffb4bd40a4d0b2464d3b7b52da594aec9d08979ea64c22b6ba21",
+        "sha256Utf8Lf": "cbdaa7744b20ffb4bd40a4d0b2464d3b7b52da594aec9d08979ea64c22b6ba21"
+      },
+      {
+        "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorProveedorIndices.vb",
+        "sha256": "9aeda5f7188e0faad5d91ce0870119a40e3950ecf136a6d5818692970fa7a727",
+        "sha256Utf8Lf": "9aeda5f7188e0faad5d91ce0870119a40e3950ecf136a6d5818692970fa7a727"
+      },
+      {
+        "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.css",
+        "sha256": "ed02bbef02f3e351df3fc35db054e3bd092f21f6cef52ac4c9bdc24b1478b537",
+        "sha256Utf8Lf": "fb0a73bcdd203cbee1e3f76d07453a8d1d0add66e8fde3b24fc8b4528fb3b8a9"
+      },
+      {
+        "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+        "sha256": "5da030bbe9408e75758d7a03d5c916238946e1c617973af7cd08cc93236f346e",
+        "sha256Utf8Lf": "5b82715380cf1050c0339e639e68e7b3e1f9706c236fd1bf49fd501887c5f692"
+      },
+      {
+        "path": "tests/ProveedorIndicesBehaviorTests.cs",
+        "sha256": "edea1100bf71745b233484232aa2417f34e4f119982cde2f77e91b94211729e0",
+        "sha256Utf8Lf": "11b177904783d8f753250b21f4b9e56ad6d08c9c853d35701796f875cdcb6a1a"
+      },
+      {
+        "path": "tests/ProveedorIndicesReglasBehaviorTests.cs",
+        "sha256": "d5c897878cd094f91fd57c16a68a5fb7806856dd53e50c91455b03615095fdfa",
+        "sha256Utf8Lf": "d5c897878cd094f91fd57c16a68a5fb7806856dd53e50c91455b03615095fdfa"
+      },
+      {
+        "path": "tests/doc110-perfil-importacion-editor.test.cjs",
+        "sha256": "516f36b8a1cbf508e47a6a00cac7d1135984d6cbd0b625b5e77ae7005ad6daf7",
+        "sha256Utf8Lf": "e042adda44e37865befa17670fd0b88da7cdd0ac130ac9dfe085cd6a6d6ef509"
+      }
+    ],
+    "queryConstructionChanged": false,
+    "pageChange": "Only profile editor JS/CSS cache references; Excel integration unchanged.",
+    "regression": {
+      "status": "PASS",
+      "recordedUtc": "2026-11-27T00:42:05.419Z",
+      "head": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
+      "tests": 29,
+      "passed": 29,
+      "failed": 0,
+      "exitCode": 0,
+      "newRealE2E": false,
+      "reporter": "node:test spec summary",
+      "parsedFromExistingExecution": true,
+      "command": "node --test --test-concurrency=1 tests/doc110-perfil-importacion-behavior.test.cjs tests/doc110-perfil-importacion-editor.test.cjs tests/doc120-coordinacion-browser.test.cjs",
+      "type": "LOCAL_SYNTHETIC_NO_DATABASE_OR_AUTHENTICATED_HTTP"
+    },
+    "build": {
+      "webConfigUnchanged": true,
+      "deployed": false,
+      "exitCode": 0,
+      "assemblySha256": "7874aa360a806396094be26f001bb2125c5060bd0e037017db84f70cbd579017",
+      "runtimeUnchanged": true,
+      "errors": 0,
+      "warnings": 308,
+      "framework": "net461",
+      "sourceCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
+      "command": "MSBuild.exe GestionDocumental-Docuarchi.net.vbproj /t:Build /nologo /m:1 /verbosity:minimal /p:Configuration=Debug /p:OutputPath=.tmp/doc127-cierre-revision/build-current-8d1f2159/bin/ /p:OutDir=.tmp/doc127-cierre-revision/build-current-8d1f2159/bin/ /p:BaseIntermediateOutputPath=.tmp/doc127-cierre-revision/build-current-8d1f2159/obj/ /p:IntermediateOutputPath=.tmp/doc127-cierre-revision/build-current-8d1f2159/obj/ /p:UseSharedCompilation=false /p:DeployOnBuild=false"
+    },
+    "uiRuntimePins": [
+      {
+        "path": "Gestion/WebFormProducionDocumental.aspx",
+        "sha256": "e60fbbc7d0f16ca4b3c6069654a3f635ec5c9d5ad995798c8c68b2aafb7c58fe"
+      },
+      {
+        "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+        "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da"
+      },
+      {
+        "path": "bin/GestionDocumental-Docuarchi.net.dll",
+        "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5"
+      }
+    ]
+  },
+  "manualPlan": {
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-plan-consulta-20261126.json",
+    "plan": [
+      {
+        "id": 1,
+        "select_type": "SIMPLE",
+        "table": "imp_02_egresos",
+        "type": "ALL",
+        "possible_keys": null,
+        "key": null,
+        "key_len": null,
+        "ref": null,
+        "rows": 25538,
+        "Extra": "Using where"
+      }
+    ],
+    "indices": [],
+    "executionInitiator": "LOCAL_OPERATOR_TYPED_COMMAND"
+  },
+  "priorReviewAfterPlan": {
+    "evaluationCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
+    "completeTasks": 32,
+    "criticalIssues": 1,
+    "humanQaStatus": "CURRENT_DECLARATION_NOT_PROVIDED"
+  },
+  "latestDelegatedQa": {
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-qa-delegada-20261126.json",
+    "status": "PASS_REAL_DESKTOP_QA_DELEGATED",
+    "evaluationCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+    "cases": 4,
+    "humanObservationClaimed": false,
+    "currentSourceReviewCommit": "a09a5440859d4252c9155245293d46030380bfe9"
+  },
+  "currentSourceVerificationAfterPlan": {
+    "sourceCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+    "changedFiles": [
+      {
+        "path": "Gestion/WebFormProducionDocumental.aspx",
+        "sha256": "2dd1afee9402b841bc56c3d8ed5d70030d98c4ff09e5346c4434ba6ffd52cb06",
+        "sha256Utf8Lf": "6036faa0f5f2777e61204b63dce20ce5c8c3f0246ab7962ac45c10aed5f2f344"
+      },
+      {
+        "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.css",
+        "sha256": "2fbfb7e50bbdfe3434a979d20a2f94091c5b24ae3d6d4590d88feff31497e5d0",
+        "sha256Utf8Lf": "a3c409dbaaea99fcf07167362470aa96200fe5f166332818bd3d903ff6a6f5eb"
+      },
+      {
+        "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+        "sha256": "e42f2b696a36f6c62295658c66687b8cf019863fdc4401ce7c02315369419903",
+        "sha256Utf8Lf": "db11fbda085bc7245272ec76811656bbc2e482b75c674954f97a271ff918b01c"
+      },
+      {
+        "path": "tests/doc110-perfil-importacion-editor.test.cjs",
+        "sha256": "31d9e68d1e3733a2b193fe3809daf198bfa29805083f13aeadc4e6e2c97b7381",
+        "sha256Utf8Lf": "21a3f1ae8eb19a30dbc3ba6725f2a3b4b8710f744257d17227123237af160d26"
+      },
+      {
+        "path": "tools/e2e/tests/doc110-reglas-plegables.spec.cjs",
+        "sha256": "f996870b9726566f8409ab6e35e7e3e2e30abb577994ffad5b0b22ea519bfd26",
+        "sha256Utf8Lf": "f996870b9726566f8409ab6e35e7e3e2e30abb577994ffad5b0b22ea519bfd26"
+      }
+    ],
+    "pageChange": "Only profile editor CSS/JS cache references changed; Excel integration and assets retained.",
+    "compiledChangesSince8d1f2159": [],
+    "buildReuse": "Actual isolated net461 build at8d1f2159 passed0 errors/308 warnings; no compiled source/project/config changes since it. No new build or deployment claimed.",
+    "localRegression": {
+      "command": "node --test tests/doc110-perfil-importacion-editor.test.cjs",
+      "sourceCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+      "type": "LOCAL_SYNTHETIC",
+      "tests": 22,
+      "pass": 22,
+      "fail": 0,
+      "exitCode": 0,
+      "durationMs": 2622.021
+    }
+  },
+  "currentUiRuntimePins": [
+    {
+      "sha256": "49ccec4f20ddc11f35b9f40c5aac2e7fb5b843f84fbf16a5935cabd1f296b02b",
+      "path": "Gestion/WebFormProducionDocumental.aspx"
+    },
+    {
+      "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js"
+    },
+    {
+      "sha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js"
+    },
+    {
+      "sha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+      "path": "Styles/ImportacionExcel.css"
+    },
+    {
+      "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+      "path": "bin/GestionDocumental-Docuarchi.net.dll"
+    },
+    {
+      "sha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+      "path": "Web.config"
+    }
+  ],
+  "priorDesktopQaReviewCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+  "latestSourceVerification": {
+    "recordedUtc": "2026-11-27T03:20:11.510Z",
+    "evaluationCommit": "a09a5440859d4252c9155245293d46030380bfe9",
+    "concurrentCommit": "90faca1089cc8d5373c3fb48482c2cda5900bd80",
+    "changedFiles": [
+      {
+        "path": "Gestion/WebFormProducionDocumental.aspx",
+        "sha256": "dcca583a13b5815a96c7558f3a094779ebbebd4b0c937bb6f3b597f822f65a9d",
+        "sha256Utf8Lf": "15065315b23cff39e7f9c284d2848a6caadeb85d53ce044fa571fc3b675c4e3e"
+      },
+      {
+        "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+        "sha256": "0b022c519167e81086a01cb07c9e03d067cda93caafb650059adb8cb06a3f671",
+        "sha256Utf8Lf": "a3c6992921cd47f866ae48a59517e232a833a759df7a5bdd68bfac7c0d6d6556"
+      },
+      {
+        "path": "tests/doc110-perfil-importacion-editor.test.cjs",
+        "sha256": "3ad5dd826ac450e035cff5fe9a22530b762fdf395e336ebfb832e5288ecafcb5",
+        "sha256Utf8Lf": "1cb682c7c3f17c93429da0cdb0ce624bbe90bdd94517ce8a2af2353c7c7efa38"
+      }
+    ],
+    "sourcePins": [
+      {
+        "sha256": "dcca583a13b5815a96c7558f3a094779ebbebd4b0c937bb6f3b597f822f65a9d",
+        "path": "Gestion/WebFormProducionDocumental.aspx"
+      },
+      {
+        "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+        "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js"
+      },
+      {
+        "sha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+        "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js"
+      },
+      {
+        "sha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+        "path": "Styles/ImportacionExcel.css"
+      },
+      {
+        "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+        "path": "bin/GestionDocumental-Docuarchi.net.dll"
+      },
+      {
+        "sha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+        "path": "Web.config"
+      }
+    ],
+    "pageDifference": "Only PerfilImportacionEditor.js cache reference; normalized full page matches tested1c1637dd after replacing that exact reference.",
+    "excelAssetsAndRuntimeUnchanged": true,
+    "originalDesktopQaRetainedAt": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+    "newDesktopQaClaimed": false,
+    "compiledChangesSinceBuild": [],
+    "localRegression": {
+      "command": "node --test tests/doc110-perfil-importacion-editor.test.cjs",
+      "tests": 26,
+      "pass": 26,
+      "fail": 0,
+      "sourceCommit": "a09a5440859d4252c9155245293d46030380bfe9",
+      "type": "LOCAL_SYNTHETIC",
+      "logSha256": "8a5ae5560fb8871c4127273a77d768a555e96e1070d1b11a99c3a7a375e15902"
+    },
+    "buildReuse": "No VB/project/C#/Web.config differences since successful isolated8d1f2159 build; no new build/deployment."
+  },
+  "latestArchivePreparation": {
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-entrega-archivo-20261126.json",
+    "evaluationCommit": "be59c557931571675f4b3d87beb01fccecbe832e",
+    "regression": "29/29 PASS",
+    "specSync": "14 requirements /42 scenarios identical"
+  }
+}

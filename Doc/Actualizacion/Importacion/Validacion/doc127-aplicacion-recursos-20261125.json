@@ -1,0 +1,1378 @@
+{
+  "issue": "DOC-127",
+  "status": "AUTHORIZED_SQL30_32_APPLIED_VERIFIED",
+  "recordedUtc": "2026-11-25T14:13:57.275Z",
+  "baseCommit": "6428e62ca6c9cb4a650d96adff5f2eceddb3663b",
+  "authorization": {
+    "source": "User aplica por mi",
+    "scope": "SQL30–32, empresa2 DA11/RA12 referencia6, actor141, commits y comprobacion SELECT fuera de E2E",
+    "userManualApplicationClaimed": false,
+    "delegatedApplicationBy": "Codex",
+    "futureSqlAuthorized": false,
+    "realE2EAuthorized": false
+  },
+  "tasks": {
+    "total": 33,
+    "complete": 20,
+    "completedThisDelivery": [
+      "4.1"
+    ]
+  },
+  "application": {
+    "completed": [
+      "SQL30_DA_DDL",
+      "SQL31_RA_COMMITTED",
+      "SQL32_DA_COMMITTED"
+    ],
+    "sql31Committed": true,
+    "sql32Committed": true,
+    "sourceIds": [
+      10,
+      11
+    ],
+    "templateIds": [
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68
+    ],
+    "newTables": 2,
+    "newFields": 16,
+    "protectedTablesVerified": 30,
+    "profilesVerified": 78,
+    "firstFreshPreflightSelects": 11,
+    "fullPreflightSelects": 77,
+    "applicationControlSelects": 150,
+    "sql33Selects": 13,
+    "controlSelectTotal": 251,
+    "controlCountingLimit": "Explicit helper SELECT controls; excludes SELECT subqueries/results inside application batches and driver-internal commands.",
+    "authenticatedApplicationSessions": 0,
+    "importedBusinessRows": 0,
+    "newFixtureRows": [
+      {
+        "tabla": "imp_02_doc127_e2e_agregar_xls",
+        "filas": 0
+      },
+      {
+        "tabla": "imp_02_doc127_e2e_reemplazar_xls",
+        "filas": 0
+      }
+    ],
+    "ddlAtomicAsWhole": false
+  },
+  "checks": [
+    {
+      "name": "aplicacion delegada y ambos COMMIT confirmados",
+      "status": "PASS"
+    },
+    {
+      "name": "doce cabeceras: cuatro anteriores y ocho nuevas",
+      "status": "PASS"
+    },
+    {
+      "name": "veinticuatro campos: ocho anteriores y dieciseis nuevos",
+      "status": "PASS"
+    },
+    {
+      "name": "seis destinos CREAR permanecen ausentes",
+      "status": "PASS"
+    },
+    {
+      "name": "nombre unico imp_02_doc127_e2e_agregar_xls",
+      "status": "PASS"
+    },
+    {
+      "name": "cabecera activa y contrato 61",
+      "status": "PASS"
+    },
+    {
+      "name": "formato y modo 61",
+      "status": "PASS"
+    },
+    {
+      "name": "dos campos sin transformaciones 61",
+      "status": "PASS"
+    },
+    {
+      "name": "nombre unico imp_02_doc127_e2e_reemplazar_xls",
+      "status": "PASS"
+    },
+    {
+      "name": "cabecera activa y contrato 62",
+      "status": "PASS"
+    },
+    {
+      "name": "formato y modo 62",
+      "status": "PASS"
+    },
+    {
+      "name": "dos campos sin transformaciones 62",
+      "status": "PASS"
+    },
+    {
+      "name": "nombre unico imp_02_doc127_e2e_crear_xls_1000",
+      "status": "PASS"
+    },
+    {
+      "name": "cabecera activa y contrato 63",
+      "status": "PASS"
+    },
+    {
+      "name": "formato y modo 63",
+      "status": "PASS"
+    },
+    {
+      "name": "dos campos sin transformaciones 63",
+      "status": "PASS"
+    },
+    {
+      "name": "nombre unico imp_02_doc127_e2e_crear_xls_5000",
+      "status": "PASS"
+    },
+    {
+      "name": "cabecera activa y contrato 64",
+      "status": "PASS"
+    },
+    {
+      "name": "formato y modo 64",
+      "status": "PASS"
+    },
+    {
+      "name": "dos campos sin transformaciones 64",
+      "status": "PASS"
+    },
+    {
+      "name": "nombre unico imp_02_doc127_e2e_crear_xls_10000",
+      "status": "PASS"
+    },
+    {
+      "name": "cabecera activa y contrato 65",
+      "status": "PASS"
+    },
+    {
+      "name": "formato y modo 65",
+      "status": "PASS"
+    },
+    {
+      "name": "dos campos sin transformaciones 65",
+      "status": "PASS"
+    },
+    {
+      "name": "nombre unico imp_02_doc127_e2e_crear_xlsx_1000",
+      "status": "PASS"
+    },
+    {
+      "name": "cabecera activa y contrato 66",
+      "status": "PASS"
+    },
+    {
+      "name": "formato y modo 66",
+      "status": "PASS"
+    },
+    {
+      "name": "dos campos sin transformaciones 66",
+      "status": "PASS"
+    },
+    {
+      "name": "nombre unico imp_02_doc127_e2e_crear_xlsx_5000",
+      "status": "PASS"
+    },
+    {
+      "name": "cabecera activa y contrato 67",
+      "status": "PASS"
+    },
+    {
+      "name": "formato y modo 67",
+      "status": "PASS"
+    },
+    {
+      "name": "dos campos sin transformaciones 67",
+      "status": "PASS"
+    },
+    {
+      "name": "nombre unico imp_02_doc127_e2e_crear_xlsx_10000",
+      "status": "PASS"
+    },
+    {
+      "name": "cabecera activa y contrato 68",
+      "status": "PASS"
+    },
+    {
+      "name": "formato y modo 68",
+      "status": "PASS"
+    },
+    {
+      "name": "dos campos sin transformaciones 68",
+      "status": "PASS"
+    },
+    {
+      "name": "motor/collation imp_02_doc127_e2e_agregar_xls",
+      "status": "PASS"
+    },
+    {
+      "name": "columnas imp_02_doc127_e2e_agregar_xls",
+      "status": "PASS"
+    },
+    {
+      "name": "UNIQUE completos imp_02_doc127_e2e_agregar_xls",
+      "status": "PASS"
+    },
+    {
+      "name": "fixture vacio imp_02_doc127_e2e_agregar_xls",
+      "status": "PASS"
+    },
+    {
+      "name": "motor/collation imp_02_doc127_e2e_reemplazar_xls",
+      "status": "PASS"
+    },
+    {
+      "name": "columnas imp_02_doc127_e2e_reemplazar_xls",
+      "status": "PASS"
+    },
+    {
+      "name": "UNIQUE completos imp_02_doc127_e2e_reemplazar_xls",
+      "status": "PASS"
+    },
+    {
+      "name": "fixture vacio imp_02_doc127_e2e_reemplazar_xls",
+      "status": "PASS"
+    },
+    {
+      "name": "UNIQUE historico conservado",
+      "status": "PASS"
+    },
+    {
+      "name": "fuentes y filas relacionadas esperadas",
+      "status": "PASS"
+    },
+    {
+      "name": "dos fuentes nuevas",
+      "status": "PASS"
+    },
+    {
+      "name": "politica 10",
+      "status": "PASS"
+    },
+    {
+      "name": "columnas autorizadas 10",
+      "status": "PASS"
+    },
+    {
+      "name": "historial 10/1",
+      "status": "PASS"
+    },
+    {
+      "name": "documento de historial 10/1",
+      "status": "PASS"
+    },
+    {
+      "name": "historial 10/2",
+      "status": "PASS"
+    },
+    {
+      "name": "documento de historial 10/2",
+      "status": "PASS"
+    },
+    {
+      "name": "politica 11",
+      "status": "PASS"
+    },
+    {
+      "name": "columnas autorizadas 11",
+      "status": "PASS"
+    },
+    {
+      "name": "historial 11/1",
+      "status": "PASS"
+    },
+    {
+      "name": "documento de historial 11/1",
+      "status": "PASS"
+    },
+    {
+      "name": "historial 11/2",
+      "status": "PASS"
+    },
+    {
+      "name": "documento de historial 11/2",
+      "status": "PASS"
+    },
+    {
+      "name": "configuracion previa intacta headers",
+      "status": "PASS"
+    },
+    {
+      "name": "configuracion previa intacta fields",
+      "status": "PASS"
+    },
+    {
+      "name": "configuracion previa intacta loads",
+      "status": "PASS"
+    },
+    {
+      "name": "configuracion previa intacta profiles",
+      "status": "PASS"
+    },
+    {
+      "name": "configuracion previa intacta sources",
+      "status": "PASS"
+    },
+    {
+      "name": "configuracion previa intacta sourceColumns",
+      "status": "PASS"
+    },
+    {
+      "name": "configuracion previa intacta sourceHistory",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_activo_esal",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_activo_rup",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_ariendo",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_codigos",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_comision",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_comisiones",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_contratos",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_creditos",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_doc125_e2e_agregar",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_doc125_e2e_crear",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_doc125_e2e_reemplazar",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_doc126_e2e_agregar",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_doc126_e2e_asistente_c38a2522",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_doc126_e2e_reemplazar",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_egresos",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_facturas",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_hoja1",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_librosccv",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_mercantil_activos",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_migra_sii_fecha",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_nomina",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_nominagy",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_ordenes_2025",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_rup_activos",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_terceros",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_terceros2",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_terceros3",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_tercerosimec",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02_total",
+      "status": "PASS"
+    },
+    {
+      "name": "datos protegidos imp_02__001_feriados",
+      "status": "PASS"
+    },
+    {
+      "name": "SQL original conservado Doc/Actualizacion/Importacion/Sql/30-fixtures-xls-da-doc127.sql",
+      "status": "PASS"
+    },
+    {
+      "name": "SQL original conservado Doc/Actualizacion/Importacion/Sql/31-fuentes-xls-ra-doc127.sql",
+      "status": "PASS"
+    },
+    {
+      "name": "SQL original conservado Doc/Actualizacion/Importacion/Sql/32-plantillas-capacidad-da-doc127.sql",
+      "status": "PASS"
+    },
+    {
+      "name": "runtime y configuracion conservados",
+      "status": "PASS"
+    },
+    {
+      "name": "referencia identificada ventana 1",
+      "status": "PASS"
+    },
+    {
+      "name": "referencia identificada ventana 2",
+      "status": "PASS"
+    },
+    {
+      "name": "referencia identificada ventana 3",
+      "status": "PASS"
+    },
+    {
+      "name": "referencia identificada ventana 4",
+      "status": "PASS"
+    },
+    {
+      "name": "referencia identificada ventana 5",
+      "status": "PASS"
+    },
+    {
+      "name": "referencia identificada ventana 6",
+      "status": "PASS"
+    },
+    {
+      "name": "referencia identificada ventana 7",
+      "status": "PASS"
+    },
+    {
+      "name": "referencia identificada ventana 8",
+      "status": "PASS"
+    },
+    {
+      "name": "referencia identificada ventana 9",
+      "status": "PASS"
+    },
+    {
+      "name": "referencia identificada ventana 10",
+      "status": "PASS"
+    },
+    {
+      "name": "referencia identificada ventana 11",
+      "status": "PASS"
+    },
+    {
+      "name": "referencia identificada ventana 12",
+      "status": "PASS"
+    },
+    {
+      "name": "referencia identificada ventana 13",
+      "status": "PASS"
+    },
+    {
+      "name": "referencia identificada ventana 14",
+      "status": "PASS"
+    },
+    {
+      "name": "referencia identificada ventana 15",
+      "status": "PASS"
+    },
+    {
+      "name": "referencia identificada ventana 16",
+      "status": "PASS"
+    },
+    {
+      "name": "referencia identificada ventana 17",
+      "status": "PASS"
+    },
+    {
+      "name": "referencia identificada ventana 18",
+      "status": "PASS"
+    },
+    {
+      "name": "4.1 abierta antes de registrar resultado",
+      "status": "PASS"
+    }
+  ],
+  "sql": [
+    {
+      "source": "Doc/Actualizacion/Importacion/Sql/30-fixtures-xls-da-doc127.sql",
+      "sourceSha256Utf8Lf": "4934fe15a5b114d7c4dde61bf330e73741fcd8eda7c2e543933cd8e9cb72f119",
+      "prepared": ".tmp/doc127-sql-autorizado/30-fixtures-xls-da-doc127.sql",
+      "preparedSha256": "4934fe15a5b114d7c4dde61bf330e73741fcd8eda7c2e543933cd8e9cb72f119"
+    },
+    {
+      "source": "Doc/Actualizacion/Importacion/Sql/31-fuentes-xls-ra-doc127.sql",
+      "sourceSha256Utf8Lf": "01a2f46d83922eb4390dbb2d6ff446f8994cd87360d1af1f6e99cefc7ec7b507",
+      "prepared": ".tmp/doc127-sql-autorizado/31-fuentes-xls-ra-doc127.sql",
+      "preparedSha256": "99da1ac6487128946a75cb814d6e2c96ab5b4c7c22fb507ca4e44d53e564348b"
+    },
+    {
+      "source": "Doc/Actualizacion/Importacion/Sql/32-plantillas-capacidad-da-doc127.sql",
+      "sourceSha256Utf8Lf": "84ea76885222766a034828e74c8ad2c04af34a7723031bca418b0be0b47d94ab",
+      "prepared": ".tmp/doc127-sql-autorizado/32-plantillas-capacidad-da-doc127.sql",
+      "preparedSha256": "05789273e6b43fd0b774417c8c7b3f3af635f9b77da5dcf16741ba589e490d63"
+    }
+  ],
+  "verificationSql": {
+    "path": "Doc/Actualizacion/Importacion/Sql/33-verificacion-recursos-doc127.sql",
+    "sha256Utf8Lf": "6861a41d3a389c34916b917925f4821c75b77f74dd4571b6a6e7896994f09254"
+  },
+  "newHeaders": [
+    {
+      "ID_PLANTILLAIMP": 61,
+      "conexion_id": 6,
+      "NOMBRE_PLANTILLA": "imp_02_doc127_e2e_agregar_xls",
+      "CONEXION_FUENTE": "8.0 xls",
+      "LIBRO_EXCEL": "Datos",
+      "CAMPO_UNICO": "CLAVE",
+      "REVISION_CARGA": 1,
+      "ESTADO_PLANTILLA": 1,
+      "ELIMINA_TABLA": 0,
+      "ELIMINA_INSERTA_RECORD": 0,
+      "INSERTA_RECORD": 1,
+      "effectiveMode": "AGREGAR"
+    },
+    {
+      "ID_PLANTILLAIMP": 62,
+      "conexion_id": 6,
+      "NOMBRE_PLANTILLA": "imp_02_doc127_e2e_reemplazar_xls",
+      "CONEXION_FUENTE": "8.0 xls",
+      "LIBRO_EXCEL": "Datos",
+      "CAMPO_UNICO": "CLAVE",
+      "REVISION_CARGA": 1,
+      "ESTADO_PLANTILLA": 1,
+      "ELIMINA_TABLA": 0,
+      "ELIMINA_INSERTA_RECORD": 1,
+      "INSERTA_RECORD": 0,
+      "effectiveMode": "REEMPLAZAR"
+    },
+    {
+      "ID_PLANTILLAIMP": 63,
+      "conexion_id": 6,
+      "NOMBRE_PLANTILLA": "imp_02_doc127_e2e_crear_xls_1000",
+      "CONEXION_FUENTE": "8.0 xls",
+      "LIBRO_EXCEL": "Datos",
+      "CAMPO_UNICO": "CLAVE",
+      "REVISION_CARGA": 1,
+      "ESTADO_PLANTILLA": 1,
+      "ELIMINA_TABLA": 0,
+      "ELIMINA_INSERTA_RECORD": 0,
+      "INSERTA_RECORD": 1,
+      "effectiveMode": "CREAR"
+    },
+    {
+      "ID_PLANTILLAIMP": 64,
+      "conexion_id": 6,
+      "NOMBRE_PLANTILLA": "imp_02_doc127_e2e_crear_xls_5000",
+      "CONEXION_FUENTE": "8.0 xls",
+      "LIBRO_EXCEL": "Datos",
+      "CAMPO_UNICO": "CLAVE",
+      "REVISION_CARGA": 1,
+      "ESTADO_PLANTILLA": 1,
+      "ELIMINA_TABLA": 0,
+      "ELIMINA_INSERTA_RECORD": 0,
+      "INSERTA_RECORD": 1,
+      "effectiveMode": "CREAR"
+    },
+    {
+      "ID_PLANTILLAIMP": 65,
+      "conexion_id": 6,
+      "NOMBRE_PLANTILLA": "imp_02_doc127_e2e_crear_xls_10000",
+      "CONEXION_FUENTE": "8.0 xls",
+      "LIBRO_EXCEL": "Datos",
+      "CAMPO_UNICO": "CLAVE",
+      "REVISION_CARGA": 1,
+      "ESTADO_PLANTILLA": 1,
+      "ELIMINA_TABLA": 0,
+      "ELIMINA_INSERTA_RECORD": 0,
+      "INSERTA_RECORD": 1,
+      "effectiveMode": "CREAR"
+    },
+    {
+      "ID_PLANTILLAIMP": 66,
+      "conexion_id": 6,
+      "NOMBRE_PLANTILLA": "imp_02_doc127_e2e_crear_xlsx_1000",
+      "CONEXION_FUENTE": "12.0 xlsx",
+      "LIBRO_EXCEL": "Datos",
+      "CAMPO_UNICO": "CLAVE",
+      "REVISION_CARGA": 1,
+      "ESTADO_PLANTILLA": 1,
+      "ELIMINA_TABLA": 0,
+      "ELIMINA_INSERTA_RECORD": 0,
+      "INSERTA_RECORD": 1,
+      "effectiveMode": "CREAR"
+    },
+    {
+      "ID_PLANTILLAIMP": 67,
+      "conexion_id": 6,
+      "NOMBRE_PLANTILLA": "imp_02_doc127_e2e_crear_xlsx_5000",
+      "CONEXION_FUENTE": "12.0 xlsx",
+      "LIBRO_EXCEL": "Datos",
+      "CAMPO_UNICO": "CLAVE",
+      "REVISION_CARGA": 1,
+      "ESTADO_PLANTILLA": 1,
+      "ELIMINA_TABLA": 0,
+      "ELIMINA_INSERTA_RECORD": 0,
+      "INSERTA_RECORD": 1,
+      "effectiveMode": "CREAR"
+    },
+    {
+      "ID_PLANTILLAIMP": 68,
+      "conexion_id": 6,
+      "NOMBRE_PLANTILLA": "imp_02_doc127_e2e_crear_xlsx_10000",
+      "CONEXION_FUENTE": "12.0 xlsx",
+      "LIBRO_EXCEL": "Datos",
+      "CAMPO_UNICO": "CLAVE",
+      "REVISION_CARGA": 1,
+      "ESTADO_PLANTILLA": 1,
+      "ELIMINA_TABLA": 0,
+      "ELIMINA_INSERTA_RECORD": 0,
+      "INSERTA_RECORD": 1,
+      "effectiveMode": "CREAR"
+    }
+  ],
+  "newSources": [
+    {
+      "fuente_id": 10,
+      "ambito_ref": "2",
+      "conexion_ref": "DA",
+      "tabla_nombre": "imp_02_doc127_e2e_agregar_xls",
+      "modo_aislamiento": "CONEXION",
+      "columna_empresa": "",
+      "activo": 1,
+      "revision": 2
+    },
+    {
+      "fuente_id": 11,
+      "ambito_ref": "2",
+      "conexion_ref": "DA",
+      "tabla_nombre": "imp_02_doc127_e2e_reemplazar_xls",
+      "modo_aislamiento": "CONEXION",
+      "columna_empresa": "",
+      "activo": 1,
+      "revision": 2
+    }
+  ],
+  "plannedWindows": [
+    {
+      "sequence": 1,
+      "formato": "XLSX",
+      "mode": "CREAR",
+      "rows": 1000,
+      "table": "imp_02_doc127_e2e_crear_xlsx_1000",
+      "templateId": 66,
+      "templateState": "VERIFICADA_SELECT",
+      "expectedPreviousRows": 0,
+      "expectedAfterRows": 1000,
+      "insertLimit": 1000,
+      "deleteLimit": 0,
+      "creates": 1,
+      "archivoHash": "4eac7526b1ca01015e213b49dd5781fe1102e80224b9fd22f0d2946e38011595",
+      "bytes": 16356,
+      "state": "RESOURCES_VERIFIED_E2E_NOT_AUTHORIZED",
+      "revision": 1
+    },
+    {
+      "sequence": 2,
+      "formato": "XLSX",
+      "mode": "AGREGAR",
+      "rows": 1000,
+      "table": "imp_02_doc126_e2e_agregar",
+      "templateId": 58,
+      "templateState": "VERIFICADA_SELECT",
+      "expectedPreviousRows": 1002,
+      "expectedAfterRows": 2002,
+      "insertLimit": 1000,
+      "deleteLimit": 0,
+      "creates": 0,
+      "archivoHash": "3997c65ccb45913120b628e8912497a9c6809cee61e0e22de95fc866b37bce32",
+      "bytes": 16359,
+      "state": "RESOURCES_VERIFIED_E2E_NOT_AUTHORIZED",
+      "revision": 1
+    },
+    {
+      "sequence": 3,
+      "formato": "XLSX",
+      "mode": "REEMPLAZAR",
+      "rows": 1000,
+      "table": "imp_02_doc126_e2e_reemplazar",
+      "templateId": 59,
+      "templateState": "VERIFICADA_SELECT",
+      "expectedPreviousRows": 1000,
+      "expectedAfterRows": 1000,
+      "insertLimit": 1000,
+      "deleteLimit": 1000,
+      "creates": 0,
+      "archivoHash": "5eb5a9813481f53ac2454cd4998cde5dc14bf48cc6ee19071d2d60981f99e93e",
+      "bytes": 16632,
+      "state": "RESOURCES_VERIFIED_E2E_NOT_AUTHORIZED",
+      "revision": 1
+    },
+    {
+      "sequence": 4,
+      "formato": "XLSX",
+      "mode": "CREAR",
+      "rows": 5000,
+      "table": "imp_02_doc127_e2e_crear_xlsx_5000",
+      "templateId": 67,
+      "templateState": "VERIFICADA_SELECT",
+      "expectedPreviousRows": 0,
+      "expectedAfterRows": 5000,
+      "insertLimit": 5000,
+      "deleteLimit": 0,
+      "creates": 1,
+      "archivoHash": "7a4004ae0dcb3c3278f504b1519d9c0e32ed904b8e222780aa95779a5f686567",
+      "bytes": 73869,
+      "state": "RESOURCES_VERIFIED_E2E_NOT_AUTHORIZED",
+      "revision": 1
+    },
+    {
+      "sequence": 5,
+      "formato": "XLSX",
+      "mode": "AGREGAR",
+      "rows": 5000,
+      "table": "imp_02_doc126_e2e_agregar",
+      "templateId": 58,
+      "templateState": "VERIFICADA_SELECT",
+      "expectedPreviousRows": 2002,
+      "expectedAfterRows": 7002,
+      "insertLimit": 5000,
+      "deleteLimit": 0,
+      "creates": 0,
+      "archivoHash": "56732ce19455f414d6644e19f3eca22bdb3147a2c5747a15f661a661c9f0e85e",
+      "bytes": 73872,
+      "state": "RESOURCES_VERIFIED_E2E_NOT_AUTHORIZED",
+      "revision": 1
+    },
+    {
+      "sequence": 6,
+      "formato": "XLSX",
+      "mode": "REEMPLAZAR",
+      "rows": 5000,
+      "table": "imp_02_doc126_e2e_reemplazar",
+      "templateId": 59,
+      "templateState": "VERIFICADA_SELECT",
+      "expectedPreviousRows": 1000,
+      "expectedAfterRows": 5000,
+      "insertLimit": 5000,
+      "deleteLimit": 1000,
+      "creates": 0,
+      "archivoHash": "40beb13628bfd0f84f5568916e765e368cd3d537c0baf6e472021326d5ea0254",
+      "bytes": 75297,
+      "state": "RESOURCES_VERIFIED_E2E_NOT_AUTHORIZED",
+      "revision": 1
+    },
+    {
+      "sequence": 7,
+      "formato": "XLSX",
+      "mode": "CREAR",
+      "rows": 10000,
+      "table": "imp_02_doc127_e2e_crear_xlsx_10000",
+      "templateId": 68,
+      "templateState": "VERIFICADA_SELECT",
+      "expectedPreviousRows": 0,
+      "expectedAfterRows": 10000,
+      "insertLimit": 10000,
+      "deleteLimit": 0,
+      "creates": 1,
+      "archivoHash": "a3d8a059b633d1ee416e39ab1aefc9f72e4eaaf5abaa1f86dfd5e2976502786e",
+      "bytes": 145383,
+      "state": "RESOURCES_VERIFIED_E2E_NOT_AUTHORIZED",
+      "revision": 1
+    },
+    {
+      "sequence": 8,
+      "formato": "XLSX",
+      "mode": "AGREGAR",
+      "rows": 10000,
+      "table": "imp_02_doc126_e2e_agregar",
+      "templateId": 58,
+      "templateState": "VERIFICADA_SELECT",
+      "expectedPreviousRows": 7002,
+      "expectedAfterRows": 17002,
+      "insertLimit": 10000,
+      "deleteLimit": 0,
+      "creates": 0,
+      "archivoHash": "f1af21edf47e3d372d39e16d47de8b6d7b5e8d655f0edd23f571cc889afa623d",
+      "bytes": 147007,
+      "state": "RESOURCES_VERIFIED_E2E_NOT_AUTHORIZED",
+      "revision": 1
+    },
+    {
+      "sequence": 9,
+      "formato": "XLSX",
+      "mode": "REEMPLAZAR",
+      "rows": 10000,
+      "table": "imp_02_doc126_e2e_reemplazar",
+      "templateId": 59,
+      "templateState": "VERIFICADA_SELECT",
+      "expectedPreviousRows": 5000,
+      "expectedAfterRows": 10000,
+      "insertLimit": 10000,
+      "deleteLimit": 5000,
+      "creates": 0,
+      "archivoHash": "d3ad63ffebf71dbc93f4e5f08a2dc3b2594c84188d584da4d4ec8844b5905226",
+      "bytes": 146809,
+      "state": "RESOURCES_VERIFIED_E2E_NOT_AUTHORIZED",
+      "revision": 1
+    },
+    {
+      "sequence": 10,
+      "formato": "XLS",
+      "mode": "CREAR",
+      "rows": 1000,
+      "table": "imp_02_doc127_e2e_crear_xls_1000",
+      "templateId": 63,
+      "templateState": "VERIFICADA_SELECT",
+      "expectedPreviousRows": 0,
+      "expectedAfterRows": 1000,
+      "insertLimit": 1000,
+      "deleteLimit": 0,
+      "creates": 1,
+      "archivoHash": "9e8e21c7898ed4c86160d77bed0e365bdeda94be74ca294e8a44e0838ce1d5c6",
+      "bytes": 273920,
+      "state": "RESOURCES_VERIFIED_E2E_NOT_AUTHORIZED",
+      "revision": 1
+    },
+    {
+      "sequence": 11,
+      "formato": "XLS",
+      "mode": "AGREGAR",
+      "rows": 1000,
+      "table": "imp_02_doc127_e2e_agregar_xls",
+      "templateId": 61,
+      "templateState": "VERIFICADA_SELECT",
+      "expectedPreviousRows": 0,
+      "expectedAfterRows": 1000,
+      "insertLimit": 1000,
+      "deleteLimit": 0,
+      "creates": 0,
+      "archivoHash": "783f5c5bab8dc11904f6199bffb8daa069ea0dc01457455b7934e5c87f3563cf",
+      "bytes": 282112,
+      "state": "RESOURCES_VERIFIED_E2E_NOT_AUTHORIZED",
+      "revision": 1
+    },
+    {
+      "sequence": 12,
+      "formato": "XLS",
+      "mode": "REEMPLAZAR",
+      "rows": 1000,
+      "table": "imp_02_doc127_e2e_reemplazar_xls",
+      "templateId": 62,
+      "templateState": "VERIFICADA_SELECT",
+      "expectedPreviousRows": 0,
+      "expectedAfterRows": 1000,
+      "insertLimit": 1000,
+      "deleteLimit": 0,
+      "creates": 0,
+      "archivoHash": "da9d001f9e842f91b1f5d07d06036bd4d7c67721f54f1b955b91732f996e76ff",
+      "bytes": 293888,
+      "state": "RESOURCES_VERIFIED_E2E_NOT_AUTHORIZED",
+      "revision": 1
+    },
+    {
+      "sequence": 13,
+      "formato": "XLS",
+      "mode": "CREAR",
+      "rows": 5000,
+      "table": "imp_02_doc127_e2e_crear_xls_5000",
+      "templateId": 64,
+      "templateState": "VERIFICADA_SELECT",
+      "expectedPreviousRows": 0,
+      "expectedAfterRows": 5000,
+      "insertLimit": 5000,
+      "deleteLimit": 0,
+      "creates": 1,
+      "archivoHash": "9bb3d04a1771fec0df7e6469da0ea1fd6614366f3f39b67c9e7310f11dcafee0",
+      "bytes": 1362432,
+      "state": "RESOURCES_VERIFIED_E2E_NOT_AUTHORIZED",
+      "revision": 1
+    },
+    {
+      "sequence": 14,
+      "formato": "XLS",
+      "mode": "AGREGAR",
+      "rows": 5000,
+      "table": "imp_02_doc127_e2e_agregar_xls",
+      "templateId": 61,
+      "templateState": "VERIFICADA_SELECT",
+      "expectedPreviousRows": 1000,
+      "expectedAfterRows": 6000,
+      "insertLimit": 5000,
+      "deleteLimit": 0,
+      "creates": 0,
+      "archivoHash": "81b80495ebb56dca53bbda9ba3be48b37911c812a61451374992166ea6d5d532",
+      "bytes": 1402880,
+      "state": "RESOURCES_VERIFIED_E2E_NOT_AUTHORIZED",
+      "revision": 1
+    },
+    {
+      "sequence": 15,
+      "formato": "XLS",
+      "mode": "REEMPLAZAR",
+      "rows": 5000,
+      "table": "imp_02_doc127_e2e_reemplazar_xls",
+      "templateId": 62,
+      "templateState": "VERIFICADA_SELECT",
+      "expectedPreviousRows": 1000,
+      "expectedAfterRows": 5000,
+      "insertLimit": 5000,
+      "deleteLimit": 1000,
+      "creates": 0,
+      "archivoHash": "6b321ca41b4c4401a6c98702f6b573bc641becd662be6205cf5545877ab9483b",
+      "bytes": 1463296,
+      "state": "RESOURCES_VERIFIED_E2E_NOT_AUTHORIZED",
+      "revision": 1
+    },
+    {
+      "sequence": 16,
+      "formato": "XLS",
+      "mode": "CREAR",
+      "rows": 10000,
+      "table": "imp_02_doc127_e2e_crear_xls_10000",
+      "templateId": 65,
+      "templateState": "VERIFICADA_SELECT",
+      "expectedPreviousRows": 0,
+      "expectedAfterRows": 10000,
+      "insertLimit": 10000,
+      "deleteLimit": 0,
+      "creates": 1,
+      "archivoHash": "56f630721e3cdf6f5a7fd5a813b8c9fafc2cc1d7971288b12742ab2ca2a6dab2",
+      "bytes": 2763776,
+      "state": "RESOURCES_VERIFIED_E2E_NOT_AUTHORIZED",
+      "revision": 1
+    },
+    {
+      "sequence": 17,
+      "formato": "XLS",
+      "mode": "AGREGAR",
+      "rows": 10000,
+      "table": "imp_02_doc127_e2e_agregar_xls",
+      "templateId": 61,
+      "templateState": "VERIFICADA_SELECT",
+      "expectedPreviousRows": 6000,
+      "expectedAfterRows": 16000,
+      "insertLimit": 10000,
+      "deleteLimit": 0,
+      "creates": 0,
+      "archivoHash": "a38cb5efafabc73aa638d11c5a7712eff065e423071c33167303ea499313a756",
+      "bytes": 2844160,
+      "state": "RESOURCES_VERIFIED_E2E_NOT_AUTHORIZED",
+      "revision": 1
+    },
+    {
+      "sequence": 18,
+      "formato": "XLS",
+      "mode": "REEMPLAZAR",
+      "rows": 10000,
+      "table": "imp_02_doc127_e2e_reemplazar_xls",
+      "templateId": 62,
+      "templateState": "VERIFICADA_SELECT",
+      "expectedPreviousRows": 5000,
+      "expectedAfterRows": 10000,
+      "insertLimit": 10000,
+      "deleteLimit": 5000,
+      "creates": 0,
+      "archivoHash": "dd1e9adfa81795c935a7f96501dc5c7d6432261abb869a1c3636a99c5292ce2e",
+      "bytes": 2964992,
+      "state": "RESOURCES_VERIFIED_E2E_NOT_AUTHORIZED",
+      "revision": 1
+    }
+  ],
+  "previousConfigurationBefore": {
+    "headers": {
+      "rows": 30,
+      "sha256": "6b094afc59d3d9bae26ed175d3269bd509097320526972122c63bbcfae868aa2"
+    },
+    "fields": {
+      "rows": 118,
+      "sha256": "fe22f766dc2c0fd15ea2c6cd552da72a01a2233b7fc11996d2f0d52747a39432"
+    },
+    "loads": {
+      "rows": 23,
+      "sha256": "a40f243090253c02f24e7e5ef0896eecd796b6cf3b33e2727f43280875edbd45"
+    },
+    "profiles": {
+      "rows": 78,
+      "sha256": "940c30bbc1fbf3e46afc8db57ba8964cf8da0a775ba9ac6e6eb461dd7b010462"
+    },
+    "sources": {
+      "rows": 8,
+      "sha256": "40d8c30cb11c31f03c8a03bc22fd8507d74c095cc24321576a93ecdbe823cb94"
+    },
+    "sourceColumns": {
+      "rows": 20,
+      "sha256": "2d80ac4b9721b478e5938674f4439bbc6fc9bfb5d2f659e202e514e60b532186"
+    },
+    "sourceHistory": {
+      "rows": 20,
+      "sha256": "6cda9ae1e032edd1717d68e303c025b5269e5a2704507e1d438d3ed72779e50b"
+    }
+  },
+  "previousConfigurationAfter": {
+    "headers": {
+      "rows": 30,
+      "sha256": "6b094afc59d3d9bae26ed175d3269bd509097320526972122c63bbcfae868aa2"
+    },
+    "fields": {
+      "rows": 118,
+      "sha256": "fe22f766dc2c0fd15ea2c6cd552da72a01a2233b7fc11996d2f0d52747a39432"
+    },
+    "loads": {
+      "rows": 23,
+      "sha256": "a40f243090253c02f24e7e5ef0896eecd796b6cf3b33e2727f43280875edbd45"
+    },
+    "profiles": {
+      "rows": 78,
+      "sha256": "940c30bbc1fbf3e46afc8db57ba8964cf8da0a775ba9ac6e6eb461dd7b010462"
+    },
+    "sources": {
+      "rows": 8,
+      "sha256": "40d8c30cb11c31f03c8a03bc22fd8507d74c095cc24321576a93ecdbe823cb94"
+    },
+    "sourceColumns": {
+      "rows": 20,
+      "sha256": "2d80ac4b9721b478e5938674f4439bbc6fc9bfb5d2f659e202e514e60b532186"
+    },
+    "sourceHistory": {
+      "rows": 20,
+      "sha256": "6cda9ae1e032edd1717d68e303c025b5269e5a2704507e1d438d3ed72779e50b"
+    }
+  },
+  "businessBefore": {
+    "imp_02_activo_esal": {
+      "rows": 5103,
+      "sha256": "e34d784261c9444f8d76fa5f5dac7d3a7ec6e16185b0a8e2f92fb6d264a9e8bd"
+    },
+    "imp_02_activo_rup": {
+      "rows": 1213,
+      "sha256": "60eb6d7eb393f357247b59b4752024cf84ee17062e483b4e37d0c8537baae0d0"
+    },
+    "imp_02_ariendo": {
+      "rows": 31,
+      "sha256": "64b6dc22dead9c63bd7bc8b2f7b7265c2f0bff4d4860925747a87588ca6022e9"
+    },
+    "imp_02_codigos": {
+      "rows": 685,
+      "sha256": "5cc8c805c314571aaf99a9c6ac88b7cd476490a50070556ec6f305e803664cc3"
+    },
+    "imp_02_comision": {
+      "rows": 664,
+      "sha256": "d768b2979f0fc722d3b7e1c3704c2a32a106017b891478b68d18a94fb8293527"
+    },
+    "imp_02_comisiones": {
+      "rows": 55,
+      "sha256": "29b4d3a8b5c6b166caca2faa853a4ee265d2d251685e1b13dac53018386d6be8"
+    },
+    "imp_02_contratos": {
+      "rows": 625,
+      "sha256": "689d47c38a703926d593426f583d8bb2b2e7f07fecb642792894331fb4efd04d"
+    },
+    "imp_02_creditos": {
+      "rows": 12,
+      "sha256": "01e93490e4f4df7e94a737b163a98bc58134a6076fef999ec9f67cffeb085101"
+    },
+    "imp_02_doc125_e2e_agregar": {
+      "rows": 1002,
+      "sha256": "a28aa57a083c1e9582ce05969a8b60cf24c5d11fc75bfb2e3c382db9ae3f841b"
+    },
+    "imp_02_doc125_e2e_crear": {
+      "rows": 1000,
+      "sha256": "ac223dad96ed7d5750b2f33b87e0f14453a9ed83a93da43fcdaf132c19089390"
+    },
+    "imp_02_doc125_e2e_reemplazar": {
+      "rows": 1000,
+      "sha256": "b70218c10de2d924f2bd55b1446e19703b20ce15fd73c2a11d1e7ef513464929"
+    },
+    "imp_02_doc126_e2e_agregar": {
+      "rows": 1002,
+      "sha256": "a47637159b7a3dc2eead14f683683b19f49bb246b8464463dd8fd82c67f67542"
+    },
+    "imp_02_doc126_e2e_asistente_c38a2522": {
+      "rows": 1000,
+      "sha256": "8b1604c0686d1b042fc6b328d8935e61eaaa585e0b770db3c4777b1bf38a2ba2"
+    },
+    "imp_02_doc126_e2e_reemplazar": {
+      "rows": 1000,
+      "sha256": "833f63804a73ffc4fa399e3253f7dd95dc1ec928c7509382edf6215065a6f265"
+    },
+    "imp_02_egresos": {
+      "rows": 25153,
+      "sha256": "225d71ea2a15a76ac20c97a4dd20b8c55f1d59fb20834d37523155481eab7b13"
+    },
+    "imp_02_facturas": {
+      "rows": 816,
+      "sha256": "1d9b529abc2af99c929ab3caa4b2f1386ea6d975d17fe3c3f6c7c96649e88e8c"
+    },
+    "imp_02_hoja1": {
+      "rows": 22084,
+      "sha256": "d1e902da11ad7ca3747d17134fef6971e57c8b5edd0e937f804384d51371a340"
+    },
+    "imp_02_librosccv": {
+      "rows": 378807,
+      "sha256": "a877fb875dd97257c90f86dc21050df4e6acd3e11910665113647f75d6155426"
+    },
+    "imp_02_mercantil_activos": {
+      "rows": 65534,
+      "sha256": "60bba060ffbebc8d9b26d2e35fea05c2273dabcdaade85589579388cee3cad6d"
+    },
+    "imp_02_migra_sii_fecha": {
+      "rows": 60,
+      "sha256": "140c384d132f92e7185646806826579ff224bee23b4217b0b2ff34b846cf61ec"
+    },
+    "imp_02_nomina": {
+      "rows": 91,
+      "sha256": "f1ee90e597052e701f53226106f87ccf7181900def88dc2f217878988c9883fd"
+    },
+    "imp_02_nominagy": {
+      "rows": 91,
+      "sha256": "c0715a6055ea4d8fc6d1ccc79162ee7ee1b2add85db355764c2a3c0089babdd4"
+    },
+    "imp_02_ordenes_2025": {
+      "rows": 12759,
+      "sha256": "5e62389683a7f858d2f54621dd5b47af5703a76b9efc8596d444e3cedcf5cb1e"
+    },
+    "imp_02_rup_activos": {
+      "rows": 1694,
+      "sha256": "ac43dc357b4ecae14226e41a83884960e3bc55603d3f84b756066785afbd8833"
+    },
+    "imp_02_terceros": {
+      "rows": 61142,
+      "sha256": "a7597a31a04761870b84a87ed8c889c322fc6b01ea2216087313e96e9ae5c129"
+    },
+    "imp_02_terceros2": {
+      "rows": 312,
+      "sha256": "7e218534a45433b3f05833c6703758f646965906a92b62e26bcbe6e2091cc8bc"
+    },
+    "imp_02_terceros3": {
+      "rows": 2866,
+      "sha256": "6db972d0db22e23030ce66cb20ef10a00f8be2ec6679f1b56ba79781d6e35bf0"
+    },
+    "imp_02_tercerosimec": {
+      "rows": 8098,
+      "sha256": "e2b6b6ee238a262aec48b3741227555cb55c338b010a54359157797e0f0a6fba"
+    },
+    "imp_02_total": {
+      "rows": 15678,
+      "sha256": "61379257b567da65a03b3e75dd7e20e11aeb5a88fb64d4df95575971d54fcbb1"
+    },
+    "imp_02__001_feriados": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "businessAfter": {
+    "imp_02_activo_esal": {
+      "rows": 5103,
+      "sha256": "e34d784261c9444f8d76fa5f5dac7d3a7ec6e16185b0a8e2f92fb6d264a9e8bd"
+    },
+    "imp_02_activo_rup": {
+      "rows": 1213,
+      "sha256": "60eb6d7eb393f357247b59b4752024cf84ee17062e483b4e37d0c8537baae0d0"
+    },
+    "imp_02_ariendo": {
+      "rows": 31,
+      "sha256": "64b6dc22dead9c63bd7bc8b2f7b7265c2f0bff4d4860925747a87588ca6022e9"
+    },
+    "imp_02_codigos": {
+      "rows": 685,
+      "sha256": "5cc8c805c314571aaf99a9c6ac88b7cd476490a50070556ec6f305e803664cc3"
+    },
+    "imp_02_comision": {
+      "rows": 664,
+      "sha256": "d768b2979f0fc722d3b7e1c3704c2a32a106017b891478b68d18a94fb8293527"
+    },
+    "imp_02_comisiones": {
+      "rows": 55,
+      "sha256": "29b4d3a8b5c6b166caca2faa853a4ee265d2d251685e1b13dac53018386d6be8"
+    },
+    "imp_02_contratos": {
+      "rows": 625,
+      "sha256": "689d47c38a703926d593426f583d8bb2b2e7f07fecb642792894331fb4efd04d"
+    },
+    "imp_02_creditos": {
+      "rows": 12,
+      "sha256": "01e93490e4f4df7e94a737b163a98bc58134a6076fef999ec9f67cffeb085101"
+    },
+    "imp_02_doc125_e2e_agregar": {
+      "rows": 1002,
+      "sha256": "a28aa57a083c1e9582ce05969a8b60cf24c5d11fc75bfb2e3c382db9ae3f841b"
+    },
+    "imp_02_doc125_e2e_crear": {
+      "rows": 1000,
+      "sha256": "ac223dad96ed7d5750b2f33b87e0f14453a9ed83a93da43fcdaf132c19089390"
+    },
+    "imp_02_doc125_e2e_reemplazar": {
+      "rows": 1000,
+      "sha256": "b70218c10de2d924f2bd55b1446e19703b20ce15fd73c2a11d1e7ef513464929"
+    },
+    "imp_02_doc126_e2e_agregar": {
+      "rows": 1002,
+      "sha256": "a47637159b7a3dc2eead14f683683b19f49bb246b8464463dd8fd82c67f67542"
+    },
+    "imp_02_doc126_e2e_asistente_c38a2522": {
+      "rows": 1000,
+      "sha256": "8b1604c0686d1b042fc6b328d8935e61eaaa585e0b770db3c4777b1bf38a2ba2"
+    },
+    "imp_02_doc126_e2e_reemplazar": {
+      "rows": 1000,
+      "sha256": "833f63804a73ffc4fa399e3253f7dd95dc1ec928c7509382edf6215065a6f265"
+    },
+    "imp_02_egresos": {
+      "rows": 25153,
+      "sha256": "225d71ea2a15a76ac20c97a4dd20b8c55f1d59fb20834d37523155481eab7b13"
+    },
+    "imp_02_facturas": {
+      "rows": 816,
+      "sha256": "1d9b529abc2af99c929ab3caa4b2f1386ea6d975d17fe3c3f6c7c96649e88e8c"
+    },
+    "imp_02_hoja1": {
+      "rows": 22084,
+      "sha256": "d1e902da11ad7ca3747d17134fef6971e57c8b5edd0e937f804384d51371a340"
+    },
+    "imp_02_librosccv": {
+      "rows": 378807,
+      "sha256": "a877fb875dd97257c90f86dc21050df4e6acd3e11910665113647f75d6155426"
+    },
+    "imp_02_mercantil_activos": {
+      "rows": 65534,
+      "sha256": "60bba060ffbebc8d9b26d2e35fea05c2273dabcdaade85589579388cee3cad6d"
+    },
+    "imp_02_migra_sii_fecha": {
+      "rows": 60,
+      "sha256": "140c384d132f92e7185646806826579ff224bee23b4217b0b2ff34b846cf61ec"
+    },
+    "imp_02_nomina": {
+      "rows": 91,
+      "sha256": "f1ee90e597052e701f53226106f87ccf7181900def88dc2f217878988c9883fd"
+    },
+    "imp_02_nominagy": {
+      "rows": 91,
+      "sha256": "c0715a6055ea4d8fc6d1ccc79162ee7ee1b2add85db355764c2a3c0089babdd4"
+    },
+    "imp_02_ordenes_2025": {
+      "rows": 12759,
+      "sha256": "5e62389683a7f858d2f54621dd5b47af5703a76b9efc8596d444e3cedcf5cb1e"
+    },
+    "imp_02_rup_activos": {
+      "rows": 1694,
+      "sha256": "ac43dc357b4ecae14226e41a83884960e3bc55603d3f84b756066785afbd8833"
+    },
+    "imp_02_terceros": {
+      "rows": 61142,
+      "sha256": "a7597a31a04761870b84a87ed8c889c322fc6b01ea2216087313e96e9ae5c129"
+    },
+    "imp_02_terceros2": {
+      "rows": 312,
+      "sha256": "7e218534a45433b3f05833c6703758f646965906a92b62e26bcbe6e2091cc8bc"
+    },
+    "imp_02_terceros3": {
+      "rows": 2866,
+      "sha256": "6db972d0db22e23030ce66cb20ef10a00f8be2ec6679f1b56ba79781d6e35bf0"
+    },
+    "imp_02_tercerosimec": {
+      "rows": 8098,
+      "sha256": "e2b6b6ee238a262aec48b3741227555cb55c338b010a54359157797e0f0a6fba"
+    },
+    "imp_02_total": {
+      "rows": 15678,
+      "sha256": "61379257b567da65a03b3e75dd7e20e11aeb5a88fb64d4df95575971d54fcbb1"
+    },
+    "imp_02__001_feriados": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "runtimeComparison": [
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.dll",
+      "previous": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+      "current": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5"
+    },
+    {
+      "path": "bin/MySql.Data.dll",
+      "previous": "c7bf74f07c7c9411b630b793f19572c0276b04dd3423ae5bc32204ae539d977a",
+      "current": "c7bf74f07c7c9411b630b793f19572c0276b04dd3423ae5bc32204ae539d977a"
+    },
+    {
+      "path": "Web.config",
+      "previous": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+      "current": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+      "previous": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+      "current": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "previous": "d7ad94d6eb39eeabb6ebabbfe33ff4d86bb64498cc3e9da7013b38c2cfb7d501",
+      "current": "d7ad94d6eb39eeabb6ebabbfe33ff4d86bb64498cc3e9da7013b38c2cfb7d501"
+    },
+    {
+      "path": "Styles/ImportacionExcel.css",
+      "previous": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+      "current": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee"
+    }
+  ],
+  "privateEvidenceSha256": {
+    "executionJournal": "2124b0bde7c4558a3a351885baa432827c79ed193bcafd2ae50f7eeed033e18e",
+    "postApplicationSelect": "fdc580ee44b2d79015b6fd478a262397aa9be7bfc552852c5c850495c1c50328",
+    "schemaBackup": "72744f0f38d3ad6bc60bc3cdcdd2e02c2c35c340a6b196567704bb86ef7e9043"
+  },
+  "limitations": [
+    "La solicitud posterior del usuario delega estos archivos y reemplaza su ejecucion manual para esta aplicacion concreta. No autoriza otros SQL ni E2E.",
+    "DDL30 tiene commit implicito; no se aplico limpieza ni reversión.",
+    "Los seis destinos CREAR permanecen ausentes; las nuevas tablas XLS estan vacias.",
+    "No se ejecutaron login, importacion o EXPLAIN29. No se acredita capacidad fisica."
+  ]
+}

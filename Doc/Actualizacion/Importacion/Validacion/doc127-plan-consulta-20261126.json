@@ -1,0 +1,236 @@
+{
+  "issue": "DOC-127",
+  "status": "MANUAL_PLAN_REVIEWED_FULL_SCAN_WARNING",
+  "task": "2.4",
+  "recordedUtc": "2026-11-27T00:49:28.001Z",
+  "localDate": "2026-11-26",
+  "timezone": "America/Bogota",
+  "evaluationCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
+  "executionInitiator": "LOCAL_OPERATOR_TYPED_COMMAND",
+  "openedUtc": "2026-11-27T00:40:45.9415913Z",
+  "commandReceivedUtc": "2026-11-27T00:41:14.5023131Z",
+  "planExecutedUtc": "2026-11-27T00:41:16.7805108Z",
+  "environment": {
+    "application": "IIS local HTTPS/GESTOR",
+    "empresa": 2,
+    "daModule": 11,
+    "raModule": 12,
+    "connectionReference": 6,
+    "mysql": "5.1.37-community"
+  },
+  "sql": {
+    "path": "Doc/Actualizacion/Importacion/Sql/29-explain-proveedor-doc127.sql",
+    "sha256Utf8Lf": "eeb61ad01134374d4b58a42e537191627b8837c3bbaf19c52c42cbdac9937a0c",
+    "query": "SELECT `NIT` AS `NIT`,`BENEFICIARIO` AS `BENFICIARIO` FROM `imp_02_egresos` WHERE `CONSECUTIVO`='DOC127_CLAVE_SINTETICA' LIMIT 2;",
+    "contractMatches": true,
+    "syntheticTextKey": true,
+    "limit": 2
+  },
+  "provider": {
+    "id": 1,
+    "versionId": 1,
+    "revision": 4,
+    "published": true,
+    "active": true,
+    "key": "CONSECUTIVO",
+    "keyType": "TEXTO",
+    "mapping": [
+      {
+        "Columna": "NIT",
+        "Nombre": "NIT",
+        "Tipo": "TEXTO"
+      },
+      {
+        "Columna": "BENEFICIARIO",
+        "Nombre": "BENFICIARIO",
+        "Tipo": "TEXTO"
+      }
+    ]
+  },
+  "policy": {
+    "fuente_id": 2,
+    "ambito_ref": "2",
+    "conexion_ref": "DA",
+    "tabla_nombre": "imp_02_egresos",
+    "modo_aislamiento": "CONEXION",
+    "columna_empresa": "",
+    "activo": 1,
+    "revision": 2
+  },
+  "columns": [
+    {
+      "COLUMN_NAME": "CONSECUTIVO",
+      "COLUMN_TYPE": "varchar(250)",
+      "CHARACTER_SET_NAME": "latin1",
+      "COLLATION_NAME": "latin1_swedish_ci",
+      "IS_NULLABLE": "YES"
+    },
+    {
+      "COLUMN_NAME": "NIT",
+      "COLUMN_TYPE": "varchar(250)",
+      "CHARACTER_SET_NAME": "latin1",
+      "COLLATION_NAME": "latin1_swedish_ci",
+      "IS_NULLABLE": "YES"
+    },
+    {
+      "COLUMN_NAME": "BENEFICIARIO",
+      "COLUMN_TYPE": "varchar(250)",
+      "CHARACTER_SET_NAME": "latin1",
+      "COLLATION_NAME": "latin1_swedish_ci",
+      "IS_NULLABLE": "YES"
+    }
+  ],
+  "indices": [],
+  "plan": [
+    {
+      "id": 1,
+      "select_type": "SIMPLE",
+      "table": "imp_02_egresos",
+      "type": "ALL",
+      "possible_keys": null,
+      "key": null,
+      "key_len": null,
+      "ref": null,
+      "rows": 25538,
+      "Extra": "Using where"
+    }
+  ],
+  "interpretation": {
+    "access": "FULL_TABLE_SCAN",
+    "usableIndexObserved": false,
+    "rowsAreOptimizerEstimate": true,
+    "actualRowsReadMeasured": false,
+    "latencyMeasured": false,
+    "performanceCertified": false,
+    "noEmpresaPredicateReason": "CONEXION policy, no empresa column",
+    "indexComponents": "No index metadata rows; order/prefix/uniqueness unavailable.",
+    "warning": "No usable index for equality on CONSECUTIVO. LIMIT 2 limits returned rows, not necessarily examined rows.",
+    "taskCriterion": "Plan and metadata reviewed; no requirement to create an index or meet an unprovided latency SLA."
+  },
+  "effects": {
+    "controlSelects": 5,
+    "operatorExplainStatements": 1,
+    "ddl": 0,
+    "dml": 0,
+    "imports": 0,
+    "deployments": 0
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "result": "STOPPED_BEFORE_EXPLAIN",
+      "reason": "Private PowerShell JSON array guard; fixed without product or data changes."
+    },
+    {
+      "attempt": 2,
+      "result": "STOPPED_BEFORE_DATABASE_ACCESS",
+      "reason": "Source pin detected concurrent commit8d1f2159; changes reviewed before new scope."
+    },
+    {
+      "attempt": 3,
+      "result": "OPERATOR_EXECUTED_PLAN_COLLECTED",
+      "humanCommandRequired": true
+    }
+  ],
+  "sourceVerification": {
+    "commit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
+    "changedPaths": [
+      {
+        "path": "Gestion/WebFormProducionDocumental.aspx",
+        "sha256": "e60fbbc7d0f16ca4b3c6069654a3f635ec5c9d5ad995798c8c68b2aafb7c58fe",
+        "sha256Utf8Lf": "cea46063c1d42d58bb44543b28ee9de59b1024cca93dd8a249ccff5def455e6b"
+      },
+      {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorDatosIndices.vb",
+        "sha256": "b48e6bfa5de221ccac0eddd04bbaa13f2f6c17bfea95597a2fb9175d3be975c7",
+        "sha256Utf8Lf": "b48e6bfa5de221ccac0eddd04bbaa13f2f6c17bfea95597a2fb9175d3be975c7"
+      },
+      {
+        "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/ProveedorIndicesModels.vb",
+        "sha256": "cbdaa7744b20ffb4bd40a4d0b2464d3b7b52da594aec9d08979ea64c22b6ba21",
+        "sha256Utf8Lf": "cbdaa7744b20ffb4bd40a4d0b2464d3b7b52da594aec9d08979ea64c22b6ba21"
+      },
+      {
+        "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorProveedorIndices.vb",
+        "sha256": "9aeda5f7188e0faad5d91ce0870119a40e3950ecf136a6d5818692970fa7a727",
+        "sha256Utf8Lf": "9aeda5f7188e0faad5d91ce0870119a40e3950ecf136a6d5818692970fa7a727"
+      },
+      {
+        "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.css",
+        "sha256": "ed02bbef02f3e351df3fc35db054e3bd092f21f6cef52ac4c9bdc24b1478b537",
+        "sha256Utf8Lf": "fb0a73bcdd203cbee1e3f76d07453a8d1d0add66e8fde3b24fc8b4528fb3b8a9"
+      },
+      {
+        "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+        "sha256": "5da030bbe9408e75758d7a03d5c916238946e1c617973af7cd08cc93236f346e",
+        "sha256Utf8Lf": "5b82715380cf1050c0339e639e68e7b3e1f9706c236fd1bf49fd501887c5f692"
+      },
+      {
+        "path": "tests/ProveedorIndicesBehaviorTests.cs",
+        "sha256": "edea1100bf71745b233484232aa2417f34e4f119982cde2f77e91b94211729e0",
+        "sha256Utf8Lf": "11b177904783d8f753250b21f4b9e56ad6d08c9c853d35701796f875cdcb6a1a"
+      },
+      {
+        "path": "tests/ProveedorIndicesReglasBehaviorTests.cs",
+        "sha256": "d5c897878cd094f91fd57c16a68a5fb7806856dd53e50c91455b03615095fdfa",
+        "sha256Utf8Lf": "d5c897878cd094f91fd57c16a68a5fb7806856dd53e50c91455b03615095fdfa"
+      },
+      {
+        "path": "tests/doc110-perfil-importacion-editor.test.cjs",
+        "sha256": "516f36b8a1cbf508e47a6a00cac7d1135984d6cbd0b625b5e77ae7005ad6daf7",
+        "sha256Utf8Lf": "e042adda44e37865befa17670fd0b88da7cdd0ac130ac9dfe085cd6a6d6ef509"
+      }
+    ],
+    "queryConstructionChanged": false,
+    "pageChange": "Only profile editor JS/CSS cache references; Excel integration unchanged.",
+    "regression": {
+      "status": "PASS",
+      "recordedUtc": "2026-11-27T00:42:05.419Z",
+      "head": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
+      "tests": 29,
+      "passed": 29,
+      "failed": 0,
+      "exitCode": 0,
+      "newRealE2E": false,
+      "reporter": "node:test spec summary",
+      "parsedFromExistingExecution": true,
+      "command": "node --test --test-concurrency=1 tests/doc110-perfil-importacion-behavior.test.cjs tests/doc110-perfil-importacion-editor.test.cjs tests/doc120-coordinacion-browser.test.cjs",
+      "type": "LOCAL_SYNTHETIC_NO_DATABASE_OR_AUTHENTICATED_HTTP"
+    },
+    "build": {
+      "webConfigUnchanged": true,
+      "deployed": false,
+      "exitCode": 0,
+      "assemblySha256": "7874aa360a806396094be26f001bb2125c5060bd0e037017db84f70cbd579017",
+      "runtimeUnchanged": true,
+      "errors": 0,
+      "warnings": 308,
+      "framework": "net461",
+      "sourceCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
+      "command": "MSBuild.exe GestionDocumental-Docuarchi.net.vbproj /t:Build /nologo /m:1 /verbosity:minimal /p:Configuration=Debug /p:OutputPath=.tmp/doc127-cierre-revision/build-current-8d1f2159/bin/ /p:OutDir=.tmp/doc127-cierre-revision/build-current-8d1f2159/bin/ /p:BaseIntermediateOutputPath=.tmp/doc127-cierre-revision/build-current-8d1f2159/obj/ /p:IntermediateOutputPath=.tmp/doc127-cierre-revision/build-current-8d1f2159/obj/ /p:UseSharedCompilation=false /p:DeployOnBuild=false"
+    },
+    "uiRuntimePins": [
+      {
+        "path": "Gestion/WebFormProducionDocumental.aspx",
+        "sha256": "e60fbbc7d0f16ca4b3c6069654a3f635ec5c9d5ad995798c8c68b2aafb7c58fe"
+      },
+      {
+        "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+        "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da"
+      },
+      {
+        "path": "bin/GestionDocumental-Docuarchi.net.dll",
+        "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5"
+      }
+    ]
+  },
+  "reuseLimit": "Previous actual E2Es retain original source/runtime cuts. Excel assets and installed DLL match; page profile cache references and compiled provider diagnostics changed. No blanket claim that all old source hashes still match; changed components covered by fresh29-test regression and isolated build, without IIS deployment.",
+  "humanQa": {
+    "status": "PENDING",
+    "scope": "Open/close Excel with Escape/Cerrar and navigate manager; no new template/import.",
+    "consolePid": 7456
+  },
+  "credentialsStored": false,
+  "businessRowsStored": false,
+  "closureApproved": false
+}

@@ -27,7 +27,7 @@ public static class ImportacionExcelConfirmacionTests {
  }
  sealed class Fixture {
   public readonly State Db;public readonly Store File;public readonly MySqlCargaExcelRepository Repo;public readonly ContextoCargaExcel C=Context();
-  public LimitesLecturaExcel Limits=new LimitesLecturaExcel{MaxFilasDatos=20000};public bool Authorized=true;public int LimitReads;
+  public LimitesLecturaExcel Limits=new LimitesLecturaExcel{MaxFilasDatos=20000};public bool Authorized=true;public int LimitReads,ContextReads;public Action<ContextoCargaExcel,int> ContextHook;
   public Fixture(string mode,int count=2){
    Db=new State{P=Template(mode),Exists=mode!="CREAR",Charset=mode=="CREAR"?"utf8":"latin1",Collation=mode=="CREAR"?"utf8_general_ci":"latin1_swedish_ci"};
    File=new Store{Bytes=ImportacionExcelLecturaTests.Book(Rows(count).Select(r=>new object[]{r.Valores[0].Texto}).ToArray(),new[]{"Código"})};
@@ -36,7 +36,7 @@ public static class ImportacionExcelConfirmacionTests {
    var e=new CargaExcelEjecucion{Id=Guid.NewGuid().ToString("D"),EmpresaId=2,UsuarioId=1,ConexionRef=C.ConexionRef,PlantillaId=5,Tabla=Db.P.NOMBRE_PLANTILLA,Estado="PREPARADA",Modo=mode,RevisionPlantilla=1,Archivo=new ArchivoRecibidoExcel{Nombre="x.xlsx",Referencia="synthetic/private",Bytes=File.Bytes.Length,Hash=ReglasCargaExcel.Hash(File.Bytes),Formato="XLSX"},EsquemaHash=schema.Hash,FilasPrevistas=count};
    e.ConfiguracionDoc=ServicioPreparacionExcel.Documento(C,Db.P,schema,new SolicitudPrepararExcel{Modo=mode,Hoja="Datos"},Limits);e.ConfiguracionHash=ReglasCargaExcel.Hash(Encoding.UTF8.GetBytes(e.ConfiguracionDoc));Db.Row=e;
   }
-  public ServicioConfirmacionExcel Service(){return new ServicioConfirmacionExcel(()=>{var c=Copy(C);c.Autorizado=Authorized;return c;},Repo,File,()=>{LimitReads++;return Limits;});}
+  public ServicioConfirmacionExcel Service(){return new ServicioConfirmacionExcel(()=>{var c=Copy(C);c.Autorizado=Authorized;ContextReads++;if(ContextHook!=null)ContextHook(c,ContextReads);return c;},Repo,File,()=>{LimitReads++;return Limits;});}
   public SolicitudConfirmarExcel Request(){return new SolicitudConfirmarExcel{ConexionId=7,IdCarga=Db.Row.Id,ArchivoHash=Db.Row.Archivo.Hash,ConfiguracionHash=Db.Row.ConfiguracionHash,EsquemaHash=Db.Row.EsquemaHash,ConfirmacionReemplazo=true};}
  }
  static void Modes(){
@@ -135,7 +135,30 @@ public static class ImportacionExcelConfirmacionTests {
   Check(MySqlEstructuraExcel.HuellaCreable(schema)==MySqlEstructuraExcel.HuellaCreable(materialized),"CREATE comparison normalizes display width and existence only");materialized.Destino.Columnas[0].TipoCompleto="int(11) unsigned";Check(MySqlEstructuraExcel.HuellaCreable(schema)!=MySqlEstructuraExcel.HuellaCreable(materialized),"CREATE comparison retains unsigned meaning");
   f=new Fixture("AGREGAR");Array.Resize(ref f.File.Bytes,10000000);f.Db.Row.Archivo.Bytes=f.File.Bytes.Length;f.Db.Row.Archivo.Hash=ReglasCargaExcel.Hash(f.File.Bytes);Check(f.Service().Confirmar(f.Request()).FilasConfirmadas==2,"exact decimal 10MB remains readable and confirmable locally");
  }
- public static void Run(){Modes();Rejections();Transactions();Creation();Locks();BoundariesAndTypes();Console.WriteLine("DOC125_NATIVE_PASS checks="+checks+"; existing harness, real workbook/reader and independent synthetic ADO; no real MySQL/HTTP");}
+ static void AuthorityMatrix(){
+  var names=new[]{"PERMISO","USUARIO","EMPRESA","MODULO","CONEXION","IDENTIDAD_FISICA"};
+  var mutations=new Action<ContextoCargaExcel>[] {c=>c.Autorizado=false,c=>c.UsuarioId++,c=>c.EmpresaId++,c=>c.ModuloId++,c=>c.ConexionId++,c=>c.IdentidadConexion=new string('b',64)};
+  foreach(var mode in new[]{"CREAR","AGREGAR","REEMPLAZAR"})for(int i=0;i<mutations.Length;i++){
+   var f=new Fixture(mode);var mutation=mutations[i];var request=f.Request();
+   if(mode!="CREAR")f.Db.Rows.Add(new Dictionary<string,object>{{"CLAVE","old"}});
+   var before=JsonConvert.SerializeObject(f.Db.Rows);
+   f.ContextHook=(c,n)=>{if(n>=2)mutation(c);};
+   Reject(()=>f.Service().Confirmar(request),"ACCESO_DENEGADO");
+   Check(f.Db.BusinessInserts==0&&f.Db.Deletes==0&&f.Db.Creates==0&&f.File.Reads==0,"DOC127 authority drift stops before files/DDL/DML "+mode+"/"+names[i]);
+   Check(JsonConvert.SerializeObject(f.Db.Rows)==before&&f.Db.Row.Estado=="PREPARADA"&&f.Db.Locks.Count==0&&f.Db.OpenTransactions==0,"DOC127 rejected authority preserves prepared execution and business "+mode+"/"+names[i]);
+   Console.WriteLine("DOC127_AUTHORITY_LOCAL_PASS stage=PREWRITE mode="+mode+" change="+names[i]);
+
+   f=new Fixture(mode);request=f.Request();if(mode!="CREAR")f.Db.Rows.Add(new Dictionary<string,object>{{"CLAVE","old"}});
+   before=JsonConvert.SerializeObject(f.Db.Rows);var switched=false;
+   f.Db.AfterInsert=()=>switched=true;f.ContextHook=(c,n)=>{if(switched)mutation(c);};
+   Reject(()=>f.Service().Confirmar(request),"ACCESO_DENEGADO");
+   Check(switched&&f.Db.BusinessInserts>0,"DOC127 late authority case actually reached writer "+mode+"/"+names[i]);
+   Check(JsonConvert.SerializeObject(f.Db.Rows)==before&&f.Db.Row.Estado=="PREPARADA"&&f.Db.Locks.Count==0&&f.Db.OpenTransactions==0,"DOC127 late authority rejects commit and rolls back full DML "+mode+"/"+names[i]);
+   if(mode=="CREAR")Check(f.Db.Exists&&f.Db.Creates==1,"DOC127 CREATE DDL survives rejected DML; no automatic drop");
+   Console.WriteLine("DOC127_AUTHORITY_LOCAL_PASS stage=PRECOMMIT mode="+mode+" change="+names[i]);
+  }
+ }
+ public static void Run(){Modes();Rejections();Transactions();Creation();Locks();BoundariesAndTypes();AuthorityMatrix();Console.WriteLine("DOC125_NATIVE_PASS checks="+checks+"; existing harness, real workbook/reader and independent synthetic ADO; no real MySQL/HTTP");}
 
  public static void CreateE2EFixtures(string directory,string runTag){
   if(!System.Text.RegularExpressions.Regex.IsMatch(runTag??"",@"\A[a-f0-9]{32}\z"))throw new InvalidOperationException("DOC125_FIXTURE_TAG_REQUIRED");

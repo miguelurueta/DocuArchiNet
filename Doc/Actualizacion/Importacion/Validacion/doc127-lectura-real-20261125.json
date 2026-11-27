@@ -1,0 +1,199 @@
+{
+  "issue": "DOC-127",
+  "status": "REAL_READ_AND_WEBFORMS_ISOLATION_PASS",
+  "recordedUtc": "2026-11-25T23:28:34.898Z",
+  "baseCommit": "986f0f1cc9974dd81343e3f9227a264d53bba13c",
+  "authorization": {
+    "reference": "Usuario: autorizado, en respuesta a la ventana DOC127 de lectura IIS local GESTOR empresa2 cuentas194/196,conexion6,plantilla60,cero cargas",
+    "authorizedUtc": "2026-11-25T23:18:35.603Z",
+    "scopeSha256": "16c5c6f55497e54d6c37aec93a04043440c45559beffafe67773174c3583dc18",
+    "windowConsumed": true
+  },
+  "environment": {
+    "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+    "module": "GESTOR",
+    "empresaId": 2,
+    "daModuloId": 11,
+    "raModuloId": 12,
+    "conexionId": 6,
+    "plantillaId": 60,
+    "tabla": "imp_02_doc126_e2e_asistente_c38a2522",
+    "ownerUsuarioId": 194,
+    "restrictedUsuarioId": 196
+  },
+  "execution": {
+    "runner": "tools/e2e/scripts/run-doc110-profile-session.cjs:runExcelUi --excel-ui-read",
+    "suite": "tools/e2e/tests/importacion-excel.spec.cjs",
+    "selector": "@doc126-ui-read",
+    "acceptanceIssue": "DOC-127",
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "retries": 0,
+    "startedUtc": "2026-11-25T23:20:28.1637012Z",
+    "completedUtc": "2026-11-25T23:28:09.9136967Z",
+    "consoleElapsedMs": 461750,
+    "consoleTimeIncludesCredentialWaitAndControls": true,
+    "exitCode": 0
+  },
+  "checks": {
+    "exclusiveAccountAndRestrictedAccountVerified": true,
+    "restrictedMenuAndServiceDenied": true,
+    "existingTemplateOpened": true,
+    "escapeClosedDialog": true,
+    "webformsIsolationBeforeAndAfterClose": true,
+    "managerPostbackSent": false,
+    "servedAssetsMatch": true,
+    "protectedTableFingerprintsCompared": 32,
+    "protectedBusinessUnchanged": true,
+    "templateHeadersAndFieldsUnchanged": true,
+    "profilesCompared": 78,
+    "profilesBeforeSha256": "bd5953665dfc848bef3f2064c82e3b575a83f20ef646c4952521d129ca8e7447",
+    "profilesAfterSha256": "bd5953665dfc848bef3f2064c82e3b575a83f20ef646c4952521d129ca8e7447",
+    "profilesUnchangedWithinWindow": true,
+    "previousLoadResultsCompared": 5,
+    "loadResultsBeforeSha256": "362ea36a35da8bf199fff3db3e72bc55f3593371bf39dc2ebfd6476f255ba3a9",
+    "loadResultsAfterSha256": "362ea36a35da8bf199fff3db3e72bc55f3593371bf39dc2ebfd6476f255ba3a9",
+    "previousLoadResultsUnchanged": true,
+    "fixtureCounts": {
+      "crear": 1000,
+      "agregar": 1002,
+      "reemplazar": 1000
+    }
+  },
+  "preflight": {
+    "preparationSelects": 11,
+    "legacyBaselineStoppedAfterSelects": 2,
+    "profileDiagnosticSelects": 2,
+    "freshBaselineSelects": 4,
+    "totalSelects": 19,
+    "sqlWrites": 0,
+    "reasonForFreshBaseline": "Historical aggregate profile hash differs before authentication;78 profiles and authorized account permissions verified, fresh hash required unchanged at end. No cause or repair inferred.",
+    "historicProfileHashMatches": false,
+    "historicProfileHash": "4e9135a2218b77ef6187df171cbad64952f6c393cc49ddc38135fd66d776b091",
+    "currentProfileHash": "bd5953665dfc848bef3f2064c82e3b575a83f20ef646c4952521d129ca8e7447",
+    "historicComparisonMeaning": "A pre-window difference is recorded. Its cause is not established. The new baseline and authorized account permissions were verified before authentication; no permission was changed or repaired."
+  },
+  "postflight": {
+    "selects": 4,
+    "sqlWrites": 0
+  },
+  "newEffects": {
+    "authenticatedApplicationSessions": 2,
+    "uploads": 0,
+    "templateWrites": 0,
+    "preparations": 0,
+    "confirmations": 0,
+    "businessInserts": 0,
+    "businessDeletes": 0,
+    "permissionChanges": 0,
+    "controlSqlWrites": 0,
+    "deployments": 0
+  },
+  "sources": [
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "61ee704cb56724fb09279e2e984a4e718fad436a0587a01652c3a6aa3911a2c7",
+      "currentSha256Utf8Lf": "61ee704cb56724fb09279e2e984a4e718fad436a0587a01652c3a6aa3911a2c7",
+      "matches": true
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256Utf8Lf": "2934628f4e513eea48c22014f80024a415a8bb5e47c34603f1088c5d6977ec9c",
+      "currentSha256Utf8Lf": "2934628f4e513eea48c22014f80024a415a8bb5e47c34603f1088c5d6977ec9c",
+      "matches": true
+    },
+    {
+      "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+      "sha256Utf8Lf": "f4597c54f60cdc126e538a1e1e157be553d5a7fc6f3b4da46f1b9652ab301ef8",
+      "currentSha256Utf8Lf": "f4597c54f60cdc126e538a1e1e157be553d5a7fc6f3b4da46f1b9652ab301ef8",
+      "matches": true
+    },
+    {
+      "path": "tools/e2e/tests/support/doc110-admin-navigation.cjs",
+      "sha256Utf8Lf": "dcbd973a3d8eedea832ea9e421575e2d37cd353d4daa192815d4d5d6897011bf",
+      "currentSha256Utf8Lf": "dcbd973a3d8eedea832ea9e421575e2d37cd353d4daa192815d4d5d6897011bf",
+      "matches": true
+    },
+    {
+      "path": "tools/e2e/tests/support/authenticated-workflow-session.cjs",
+      "sha256Utf8Lf": "e26634bbbd13aad52de7f207874ae42042fb486cdf590fae298d11f654e55b64",
+      "currentSha256Utf8Lf": "e26634bbbd13aad52de7f207874ae42042fb486cdf590fae298d11f654e55b64",
+      "matches": true
+    },
+    {
+      "path": "tools/e2e/scripts/support/doc32-e2e-odbc.cjs",
+      "sha256Utf8Lf": "b265e3518c04d2708c551b462eba281801e8bde7b841b6f2eaac3989affd02a4",
+      "currentSha256Utf8Lf": "b265e3518c04d2708c551b462eba281801e8bde7b841b6f2eaac3989affd02a4",
+      "matches": true
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "sha256Utf8Lf": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+      "currentSha256Utf8Lf": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+      "matches": true
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Utf8Lf": "4a80a5aacd92e6cc78152ff014ec75130539e9d52a1223436d3599a35060d85b",
+      "currentSha256Utf8Lf": "4a80a5aacd92e6cc78152ff014ec75130539e9d52a1223436d3599a35060d85b",
+      "matches": true
+    }
+  ],
+  "runtime": [
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.dll",
+      "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+      "expected": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+      "matches": true
+    },
+    {
+      "path": "Web.config",
+      "sha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+      "expected": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+      "matches": true
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256": "d7975d92a77a1390b23287514f1c0d8ad91dcca398fcc590f5ab02d929567696",
+      "expected": "d7975d92a77a1390b23287514f1c0d8ad91dcca398fcc590f5ab02d929567696",
+      "matches": true
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+      "sha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+      "expected": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+      "matches": true
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+      "expected": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+      "matches": true
+    },
+    {
+      "path": "Styles/ImportacionExcel.css",
+      "sha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+      "expected": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+      "matches": true
+    }
+  ],
+  "logSha256Utf8Lf": "d84dbafb36ce522fd553ea8a80470fc02dd524b2ecf175b45b423d5a3430d509",
+  "limitations": [
+    "One real read window, not the integral acceptance of task5.1. No new preparation, reference manipulation, physical revocation or capacity was authorized.",
+    "The suite compared32 complete fingerprints in memory. Only PASS markers and a log hash are retained; no business rows or per-table hashes are published.",
+    "Initial historical profile mismatch occurred before authentication and is not attributed to this E2E.78 profiles and five previous results were conserved relative to the fresh baseline.",
+    "EXPLAIN29 remains pending manual execution and review; physical capacity and final gates remain open."
+  ],
+  "tasks": {
+    "complete": 22,
+    "total": 33,
+    "task5_1StillOpen": true,
+    "task7_1StillOpen": true
+  },
+  "credentialsPersisted": false,
+  "credentialsPrinted": false,
+  "automaticRerunAllowed": false,
+  "archived": false,
+  "jiraClosed": false
+}

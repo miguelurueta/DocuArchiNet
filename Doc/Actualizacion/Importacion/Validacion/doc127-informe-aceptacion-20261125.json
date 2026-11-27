@@ -1,0 +1,2812 @@
+{
+  "issue": "DOC-127",
+  "recordedUtc": "2026-11-25T23:05:00.026Z",
+  "evaluationCommit": "a09a5440859d4252c9155245293d46030380bfe9",
+  "status": "ACCEPTED_TECHNICALLY_WITH_DECLARED_WARNINGS",
+  "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+  "completedInThisDelivery": [
+    "6.7",
+    "7.4"
+  ],
+  "tasks": {
+    "complete": 33,
+    "total": 33,
+    "pending": []
+  },
+  "evidence": [
+    {
+      "id": "LOCAL",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-implementacion-local-20261125.json",
+      "sha256Utf8Lf": "9fe16e191ac810abd1454b9c3d8abc423a9e7675291d2750dd43daca04735f33",
+      "sourceCommit": "10f307112c6239faa8180a021a8064eccc25b538",
+      "recordedUtc": "2026-11-25T12:43:36.653Z",
+      "type": "LOCAL_SINTETICA_BUILD_Y_SELECT_PREVIO",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "status": "LOCAL_IMPLEMENTATION_VERIFIED_REAL_ACCEPTANCE_PENDING"
+    },
+    {
+      "id": "INTEGRACION",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-integracion-20261125.json",
+      "sha256Utf8Lf": "a7e77ec1c8c179cff51e84bfd49f649d34a45a2e2158f3bd073c25d0793b9736",
+      "sourceCommit": "17bdf09e4f46efb43cbe4771d4de99ee8a308628",
+      "recordedUtc": "2026-11-25T14:39:16.485Z",
+      "type": "LOCAL_SINTETICA_Y_SELECT_PREVIO",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "status": "LOCAL_INTEGRATION_PASS_REAL_READ_PENDING_AUTHORIZATION"
+    },
+    {
+      "id": "RECURSOS",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-aplicacion-recursos-20261125.json",
+      "sha256Utf8Lf": "8a59502b4668a581441b2e4d4e7640cb2031466bf89cae565bf7c83b4cc49e4e",
+      "sourceCommit": "6428e62ca6c9cb4a650d96adff5f2eceddb3663b",
+      "recordedUtc": "2026-11-25T14:13:57.275Z",
+      "type": "APLICACION_DELEGADA_PREVIA_VERIFICADA_SELECT",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "status": "AUTHORIZED_SQL30_32_APPLIED_VERIFIED"
+    },
+    {
+      "id": "DOC125",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc125-ejecucion-seguimiento-20261124.json",
+      "sha256Utf8Lf": "1249b81d6826f6b91ee80a793d9142b20c7a8ede43ab78b8a203b289454426d3",
+      "sourceCommit": "7a4247c96639097b75f887183dd0a2343458d25b",
+      "recordedUtc": "2026-11-24T14:43:15.282Z",
+      "type": "REAL_HISTORICA_REUTILIZADA_LIMITADA",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "status": "PASS_REAL_MATRIX"
+    },
+    {
+      "id": "DOC126_FUNCIONAL",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc126-e2e-funcional-real-20261124.json",
+      "sha256Utf8Lf": "cfe15cfd025d9bb8f113a50c34be03a25ddec541c5a49e3d75361c5d50ebf02b",
+      "sourceCommit": "0a3117662d78f69c1314989593abd4e0796671d2",
+      "recordedUtc": "2026-11-25T04:16:29.484Z",
+      "type": "REAL_HISTORICA_REUTILIZADA_LIMITADA",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "status": "DOC126_REAL_UI_FUNCTIONAL_PASS"
+    },
+    {
+      "id": "DOC126_ASISTENTE",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc126-e2e-asistente-real-20261125.json",
+      "sha256Utf8Lf": "aa3a11ece3c57999b61f62821421481501dad3301a13cd54275ef92fdd9ee693",
+      "sourceCommit": "5046842b05bad4ec1e8b85a8c9d8f09df9f04e92",
+      "recordedUtc": "2026-11-25T05:17:52.236Z",
+      "type": "REAL_HISTORICA_REUTILIZADA_LIMITADA",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "status": "DOC126_REAL_UI_ASSISTANT_PASS"
+    },
+    {
+      "id": "DOC126_RECUPERACION",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc126-e2e-rollback-concurrencia-20261124.json",
+      "sha256Utf8Lf": "ff9b88ab2a9593d37055b03744563ae81c56a184d16bb5f9f1d716caa88feee5",
+      "sourceCommit": "12ae034eca355c9d301250644908c7f210b35693",
+      "recordedUtc": "2026-11-25T04:41:13.732Z",
+      "type": "REAL_HISTORICA_REUTILIZADA_LIMITADA",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "status": "DOC126_REAL_UI_RESILIENCE_PASS"
+    },
+    {
+      "id": "DOC126_LECTURA",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc126-e2e-permisos-real-20261125.json",
+      "sha256Utf8Lf": "a351b2de2d16ff1f6c03b78dff64bbfdcc201d612990d7cba82998671b736645",
+      "sourceCommit": "a2d6f19237d8eeaa7e1c6e1e1d300ea96fbee653",
+      "recordedUtc": "2026-11-25T10:48:07.063Z",
+      "type": "REAL_HISTORICA_REUTILIZADA_LIMITADA",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "status": "DOC126_REAL_UI_READ_PASS"
+    },
+    {
+      "id": "DOC127_LECTURA",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-lectura-real-20261125.json",
+      "sha256Utf8Lf": "ae0cc2fa05aba30e9df257348ca29d528ee0162a7256afa3e1f0a7dfcb22148b",
+      "sourceCommit": "986f0f1cc9974dd81343e3f9227a264d53bba13c",
+      "recordedUtc": "2026-11-25T23:28:34.898Z",
+      "type": "REAL_ACTUAL_LECTURA_SIN_CARGAS",
+      "environment": "IIS local HTTPS/GESTOR empresa2 DA11/RA12; cuentas194/196; conexion6 plantilla60; runtime doc127-1 por hashes",
+      "status": "REAL_READ_AND_WEBFORMS_ISOLATION_PASS"
+    },
+    {
+      "id": "DOC127_XLS1000_REAL",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls1000-20261125.json",
+      "sha256Utf8Lf": "0916ad76f6491d5920dabd67fca2f0b92bd1132bc87fc5e1df10573c0a411178",
+      "sourceCommit": "c2277806aa5869521bdd43041561002431417d7d",
+      "recordedUtc": "2026-11-26T01:06:45.156Z",
+      "type": "REAL_CAPACITY_XLS1000_THREE_MODES",
+      "environment": "IIS local HTTPS/GESTOR empresa2 DA11/RA12 ref6, usuario194",
+      "status": "REAL_XLS1000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING"
+    },
+    {
+      "id": "DOC127_XLS5000_REAL",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls5000-20261126.json",
+      "sha256Utf8Lf": "fb20ff4c0acdf545d6330abc6c7b6194b62882b6a5108287cc73f4b2e3335832",
+      "sourceCommit": "365330139fed82672367bccc6903845b3f331619",
+      "recordedUtc": "2026-11-26T12:42:27.004Z",
+      "type": "REAL_CAPACITY_XLS5000_THREE_MODES",
+      "environment": "IIS local HTTPS/GESTOR empresa2 DA11/RA12 ref6, usuario194",
+      "status": "REAL_XLS5000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING"
+    },
+    {
+      "id": "DOC127_XLS10000_REAL",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xls10000-20261126.json",
+      "sha256Utf8Lf": "e47c855e3c46d69978fe7ae00914819625d4ada2f214f55da15d58ffd0392fb8",
+      "sourceCommit": "2cc794bb8795121a3c568de82af57a2ae1229976",
+      "recordedUtc": "2026-11-26T14:27:06.247Z",
+      "type": "REAL_CAPACITY_XLS10000_THREE_MODES",
+      "environment": "IIS local HTTPS/GESTOR empresa2 DA11/RA12 ref6, usuario194",
+      "status": "REAL_XLS10000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING"
+    },
+    {
+      "id": "DOC127_XLSX1000_REAL",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx1000-20261126.json",
+      "sha256Utf8Lf": "b1b0f02ab203ab24a5e0004169b3db5e27054eaca25f35715798c9f462c61a0d",
+      "sourceCommit": "a4bb16a917f2ec2a6fd16f24583058a794e4f6ac",
+      "recordedUtc": "2026-11-26T15:19:25.383Z",
+      "type": "REAL_CAPACITY_XLSX1000_THREE_MODES",
+      "environment": "IIS local HTTPS/GESTOR empresa2 DA11/RA12 ref6, usuario194",
+      "status": "REAL_XLSX1000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING"
+    },
+    {
+      "id": "DOC127_XLSX5000_REAL",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx5000-20261126.json",
+      "sha256Utf8Lf": "b9790a14da110bae2e233455e2e1c6e4757b949407171adc9afb74be80f26d1b",
+      "sourceCommit": "96dfc85e3a78ecba9653eaaa7a6a55f0723b0d39",
+      "recordedUtc": "2026-11-26T16:02:23.962Z",
+      "type": "REAL_CAPACITY_XLSX5000_THREE_MODES",
+      "environment": "IIS local HTTPS/GESTOR empresa2 DA11/RA12 ref6, usuario194",
+      "status": "REAL_XLSX5000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING"
+    },
+    {
+      "id": "DOC127_XLSX10000_REAL",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-capacidad-xlsx10000-20261126.json",
+      "sha256Utf8Lf": "e1529006dfe20ba1c686cb5845be895e2a2cbfcef0d0835ff290175cf08af080",
+      "sourceCommit": "86074721005fd4b9c6b3d8a6347e5add474b6649",
+      "recordedUtc": "2026-11-26T16:44:37.990Z",
+      "type": "REAL_CAPACITY_XLSX10000_THREE_MODES",
+      "environment": "IIS local HTTPS/GESTOR empresa2 DA11/RA12 ref6, usuario194",
+      "status": "REAL_XLSX10000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING"
+    },
+    {
+      "id": "DOC127_AUTORIDAD_REAL",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-autoridad-real-20261126.json",
+      "sha256Utf8Lf": "49d2cf10542b0d23bc9d083d2dd6d063f3f16c06ee92ac3a043f32e77acae4a3",
+      "sourceCommit": "95d7c8d377a960e551b62757c21c50d441e205d5",
+      "recordedUtc": "2026-11-26T17:31:39.777Z",
+      "type": "REAL_AUTHORITY_AND_READ_CURRENT",
+      "environment": "IIS local HTTPS/GESTOR empresa2 DA11 RA12 ref6 cuentas194/196",
+      "status": "REAL_AUTHORITY_AND_READ_PASS"
+    },
+    {
+      "id": "DOC127_PRUEBAS_PREPARADAS",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-pruebas-preparadas-20261125.json",
+      "sha256Utf8Lf": "838ea9b8a5c79544370f71e319c806174d9c7c506ecf3a3f84dbdbb2bbd18efe",
+      "sourceCommit": "fe2fa911a2e36a2d5424035b9265dde1f4ca0feb",
+      "recordedUtc": "2026-11-25T23:56:49.338Z",
+      "type": "LOCAL_SYNTHETIC_REUSED_BY_EIGHT_UNCHANGED_SOURCE_HASHES",
+      "status": "PREPARED_TESTS_LOCAL_PASS_REAL_WINDOWS_PENDING"
+    },
+    {
+      "id": "DOC127_ASISTENTE_REAL",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-asistente-real-20261126.json",
+      "sha256Utf8Lf": "9309234ab3485096856db405d5cb463a8aef5d4ecca1fab55cdb19d0c1d079e9",
+      "sourceCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d",
+      "recordedUtc": "2026-11-26T19:36:30.466Z",
+      "type": "REAL_CURRENT_WEB_ASSISTANT_XLS_XLSX",
+      "status": "REAL_CURRENT_ASSISTANT_XLS_XLSX_PASS"
+    },
+    {
+      "id": "DOC127_HALLAZGOS_CIERRE",
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc127-hallazgos-cierre-20261126.json",
+      "sha256Utf8Lf": "2fab751feee51e400f1f49ec0459f9e61493ef8e784f19743afdcf3dfc6ba6b9",
+      "sourceCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d",
+      "recordedUtc": "2026-11-26T19:36:31.421Z",
+      "type": "CURRENT_FINDINGS_REVIEW_WITH_CLASSIFIED_REUSE",
+      "status": "KNOWN_FINDINGS_CLOSED_WITH_CLASSIFIED_EVIDENCE"
+    }
+  ],
+  "requirements": [
+    {
+      "requirement": "RQ-01",
+      "caseName": "Manifiesto y comparacion por fuentes",
+      "testReference": "DOC127_SOURCE_AND_EVIDENCE_AUDIT",
+      "state": "LOCAL_PASS",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "limitation": "La huella de una fuente no transfiere toda la aceptacion de un runtime diferente.",
+      "evidenceIds": [
+        "LOCAL",
+        "INTEGRACION"
+      ],
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
+    },
+    {
+      "requirement": "RQ-02",
+      "caseName": "Runner DOC110/scopes DOC125–127",
+      "testReference": "Runner/scopes compartidos; guardas locales; capacidad18/18; autoridad6/6 y asistente2/2 reales",
+      "state": "LOCAL_GUARDS_PASS_REAL_CAPACITY_AUTHORITY_ASSISTANT_WINDOWS_PASS",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "limitation": "Ventanas y autorizaciones consumidas; no amplían cuentas, recursos ni efectos. Sin SQL administrativo desde E2E; las altas funcionales autorizadas se registran por separado.",
+      "evidenceIds": [
+        "LOCAL",
+        "INTEGRACION",
+        "DOC127_LECTURA",
+        "DOC127_AUTORIDAD_REAL",
+        "DOC127_XLS1000_REAL",
+        "DOC127_XLS5000_REAL",
+        "DOC127_XLS10000_REAL",
+        "DOC127_XLSX1000_REAL",
+        "DOC127_XLSX5000_REAL",
+        "DOC127_XLSX10000_REAL",
+        "DOC127_ASISTENTE_REAL"
+      ],
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf",
+      "latestRunnerEvaluationCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d"
+    },
+    {
+      "requirement": "RQ-03",
+      "caseName": "Autoridad/CSRF/preparacion",
+      "testReference": "DOC127 autoridad real seis rechazos y lectura194/196;18 preparaciones reales;36 cambios de autoridad sintéticos",
+      "state": "REAL_AUTHORITY_READ_PASS_PREPARATION_REUSED_SYNTHETIC_DRIFT_CLASSIFIED",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "limitation": "Revocación física y manipulación de empresa en HTTP no ejecutadas;36 casos de cambio de autoridad usan ADO sintético. La preparación se reutiliza de18 casos reales vigentes, sin nuevas cargas.38 huellas de datos y configuración,78 perfiles y41 cargas conservadas en la ventana actual.",
+      "evidenceIds": [
+        "LOCAL",
+        "DOC126_LECTURA",
+        "DOC127_LECTURA",
+        "DOC127_XLS1000_REAL",
+        "DOC127_XLS5000_REAL",
+        "DOC127_XLS10000_REAL",
+        "DOC127_XLSX1000_REAL",
+        "DOC127_XLSX5000_REAL",
+        "DOC127_XLSX10000_REAL",
+        "DOC127_AUTORIDAD_REAL",
+        "DOC127_PRUEBAS_PREPARADAS"
+      ],
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf",
+      "latestReadEvaluationCommit": "986f0f1cc9974dd81343e3f9227a264d53bba13c",
+      "latestAuthorityEvaluationCommit": "95d7c8d377a960e551b62757c21c50d441e205d5"
+    },
+    {
+      "requirement": "RQ-04",
+      "caseName": "Instalacion compatible y flujo manual",
+      "testReference": "DOC127_SELECT_CONTRACT; Sql/README.md",
+      "state": "SELECT_PASS_ENTREGA_SQL",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "limitation": "Controles actuales equivalentes, no ejecucion manual integra de28; metadatos sujetos a visibilidad.",
+      "evidenceIds": [
+        "LOCAL",
+        "RECURSOS"
+      ],
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
+    },
+    {
+      "requirement": "RQ-05",
+      "caseName": "Plantillas y tres modos por formato",
+      "testReference": "12 modelos locales; seis usos reales de plantillas existentes; asistente actual XLS/XLSX2/2",
+      "state": "REAL_CURRENT_MODES_AND_WEB_FORMATS_PASS_LOCAL_COMPATIBILITY_CLASSIFIED",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "limitation": "No se anuncia creación/edición web AGREGAR/REEMPLAZAR; su uso con plantillas existentes sí tiene evidencia real. Compatibilidad histórica/nueva usa servicios VB con ADO sintético y se distingue de las dos altas web actuales.",
+      "evidenceIds": [
+        "LOCAL",
+        "DOC126_FUNCIONAL",
+        "DOC126_ASISTENTE",
+        "DOC127_XLS1000_REAL",
+        "DOC127_XLS5000_REAL",
+        "DOC127_XLS10000_REAL",
+        "DOC127_XLSX1000_REAL",
+        "DOC127_XLSX5000_REAL",
+        "DOC127_XLSX10000_REAL",
+        "DOC127_ASISTENTE_REAL"
+      ],
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf",
+      "latestWebEvaluationCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d"
+    },
+    {
+      "requirement": "RQ-06",
+      "caseName": "Claves/collation/esquema/politica",
+      "testReference": "DOC124_NATIVE; DOC125_NATIVE; DOC126 rollback/carrera",
+      "state": "LOCAL_PASS_HISTORICA_REUTILIZADA",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "limitation": "Escenarios adversos de motor/FK/trigger y politica COLUMNA tienen cobertura sintetica.",
+      "evidenceIds": [
+        "LOCAL",
+        "DOC126_RECUPERACION"
+      ],
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
+    },
+    {
+      "requirement": "RQ-07",
+      "caseName": "Replay/CREATE/rollback/carrera",
+      "testReference": "DOC125_NATIVE; DOC126 rollback/carrera; transporte DOC127",
+      "state": "LOCAL_PASS_HISTORICA_REUTILIZADA",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "limitation": "Acuse ignorado no acredita corte fisico COMMIT/red. No se repiten las carreras anteriores.",
+      "evidenceIds": [
+        "LOCAL",
+        "DOC125",
+        "DOC126_RECUPERACION",
+        "DOC127_XLS1000_REAL",
+        "DOC127_XLS5000_REAL",
+        "DOC127_XLS10000_REAL",
+        "DOC127_XLSX1000_REAL",
+        "DOC127_XLSX5000_REAL",
+        "DOC127_XLSX10000_REAL"
+      ],
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
+    },
+    {
+      "requirement": "RQ-08",
+      "caseName": "Filas/bytes/cambio de limites",
+      "testReference": "ImportacionExcelLecturaTests.Boundaries/Reports; ConfirmacionTests.Rejections",
+      "state": "LOCAL_PASS",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "limitation": "Fronteras grandes y cambios de configuracion son locales; IIS permanece intacto.",
+      "evidenceIds": [
+        "LOCAL"
+      ],
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
+    },
+    {
+      "requirement": "RQ-09",
+      "caseName": "Seis celdas y medicion por modo",
+      "testReference": "DOC127_LOCAL_READER; DOC125 tiempos historicos",
+      "state": "REAL_CAPACITY_MATRIX_18_PASS_SHARED_SAMPLING",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "limitation": "18/18 combinaciones XLS/XLSX de1000/5000/10000 filas y tres modos con resultado real. Memoria IIS compartida y muestreada, sin asignacion exclusiva ni picos garantizados; no extrapolar20000.",
+      "evidenceIds": [
+        "LOCAL",
+        "DOC125",
+        "RECURSOS",
+        "DOC127_XLS1000_REAL",
+        "DOC127_XLS5000_REAL",
+        "DOC127_XLS10000_REAL",
+        "DOC127_XLSX1000_REAL",
+        "DOC127_XLSX5000_REAL",
+        "DOC127_XLSX10000_REAL"
+      ],
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
+    },
+    {
+      "requirement": "RQ-10",
+      "caseName": "Consumidor por clave y regresion",
+      "testReference": "harness DOC110;19 tests SII;29-explain-proveedor-doc127.sql",
+      "state": "MANUAL_PLAN_REVIEWED_FULL_SCAN_WARNING_CURRENT_LOCAL_REGRESSION_PASS",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "limitation": "No usable index for equality on CONSECUTIVO. LIMIT 2 limits returned rows, not necessarily examined rows. rows es estimación; no SLA de latencia. Regresión afectada local29/29 PASS.",
+      "evidenceIds": [
+        "LOCAL"
+      ],
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf",
+      "latestMetadataReview": {
+        "recordedUtc": "2026-11-27T00:41:16.7805108Z",
+        "providerRevision": 4,
+        "observedIndexRows": 0,
+        "explainExecuted": true,
+        "executionInitiator": "LOCAL_OPERATOR_TYPED_COMMAND",
+        "queryMatchesSql29": true,
+        "path": "Doc/Actualizacion/Importacion/Validacion/doc127-plan-consulta-20261126.json"
+      },
+      "latestManualPlanReview": {
+        "path": "Doc/Actualizacion/Importacion/Validacion/doc127-plan-consulta-20261126.json",
+        "sourceCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390"
+      },
+      "historicalMetadataReview": {
+        "recordedUtc": "2026-11-26T20:27:33.9672683Z",
+        "providerRevision": 4,
+        "observedIndexRows": 0,
+        "explainExecuted": false,
+        "queryMatchesSql29": true
+      }
+    },
+    {
+      "requirement": "RQ-11",
+      "caseName": "UI/cliente/semaforo/foco",
+      "testReference": "tests/doc126-importacion-excel-ui.test.cjs; client",
+      "state": "REAL_DELEGATED_DESKTOP_OPEN_CLOSE_NAVIGATION_PASS",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "limitation": "Desktop walkthrough, not a Playwright suite execution. Account ID not inspected; current session does not replace restricted-account tests. No new SQL fingerprint comparison or HTTP trace; zero mutations refers to actions performed, not a new full-database audit. Accessibility tree lacks a usable expanded-node label; expansion verified directly in screenshots, not inferred from the zero-valued fixtureTreeExpanded field. Exact focus on Excel opener not asserted; final screenshot shows focus on the Importacion menu.",
+      "evidenceIds": [
+        "INTEGRACION",
+        "DOC126_LECTURA",
+        "DOC127_LECTURA"
+      ],
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf",
+      "latestReadEvaluationCommit": "986f0f1cc9974dd81343e3f9227a264d53bba13c",
+      "latestDelegatedQa": {
+        "path": "Doc/Actualizacion/Importacion/Validacion/doc127-qa-delegada-20261126.json",
+        "status": "PASS_REAL_DESKTOP_QA_DELEGATED",
+        "evaluationCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40"
+      }
+    },
+    {
+      "requirement": "RQ-12",
+      "caseName": "Build aislado y regresion actual",
+      "testReference": "Corrección form1; revisión de fuentes; autoridad/read real y asistente actual XLS/XLSX",
+      "state": "KNOWN_FINDING_CLOSED_LOCAL_AND_REAL_CURRENT_EVIDENCE_CLASSIFIED",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "limitation": "Regresión actual22/22 PASS; sin cambios compilados desde build8d1f2159, reutilizado sin despliegue. Regresión29 y E2E previas mantienen sus cortes.",
+      "evidenceIds": [
+        "LOCAL",
+        "INTEGRACION",
+        "DOC127_HALLAZGOS_CIERRE",
+        "DOC127_ASISTENTE_REAL"
+      ],
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf",
+      "latestFindingEvaluationCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d",
+      "latestSourceVerification": {
+        "commit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
+        "changedPaths": [
+          {
+            "path": "Gestion/WebFormProducionDocumental.aspx",
+            "sha256": "e60fbbc7d0f16ca4b3c6069654a3f635ec5c9d5ad995798c8c68b2aafb7c58fe",
+            "sha256Utf8Lf": "cea46063c1d42d58bb44543b28ee9de59b1024cca93dd8a249ccff5def455e6b"
+          },
+          {
+            "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorDatosIndices.vb",
+            "sha256": "b48e6bfa5de221ccac0eddd04bbaa13f2f6c17bfea95597a2fb9175d3be975c7",
+            "sha256Utf8Lf": "b48e6bfa5de221ccac0eddd04bbaa13f2f6c17bfea95597a2fb9175d3be975c7"
+          },
+          {
+            "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/ProveedorIndicesModels.vb",
+            "sha256": "cbdaa7744b20ffb4bd40a4d0b2464d3b7b52da594aec9d08979ea64c22b6ba21",
+            "sha256Utf8Lf": "cbdaa7744b20ffb4bd40a4d0b2464d3b7b52da594aec9d08979ea64c22b6ba21"
+          },
+          {
+            "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorProveedorIndices.vb",
+            "sha256": "9aeda5f7188e0faad5d91ce0870119a40e3950ecf136a6d5818692970fa7a727",
+            "sha256Utf8Lf": "9aeda5f7188e0faad5d91ce0870119a40e3950ecf136a6d5818692970fa7a727"
+          },
+          {
+            "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.css",
+            "sha256": "ed02bbef02f3e351df3fc35db054e3bd092f21f6cef52ac4c9bdc24b1478b537",
+            "sha256Utf8Lf": "fb0a73bcdd203cbee1e3f76d07453a8d1d0add66e8fde3b24fc8b4528fb3b8a9"
+          },
+          {
+            "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+            "sha256": "5da030bbe9408e75758d7a03d5c916238946e1c617973af7cd08cc93236f346e",
+            "sha256Utf8Lf": "5b82715380cf1050c0339e639e68e7b3e1f9706c236fd1bf49fd501887c5f692"
+          },
+          {
+            "path": "tests/ProveedorIndicesBehaviorTests.cs",
+            "sha256": "edea1100bf71745b233484232aa2417f34e4f119982cde2f77e91b94211729e0",
+            "sha256Utf8Lf": "11b177904783d8f753250b21f4b9e56ad6d08c9c853d35701796f875cdcb6a1a"
+          },
+          {
+            "path": "tests/ProveedorIndicesReglasBehaviorTests.cs",
+            "sha256": "d5c897878cd094f91fd57c16a68a5fb7806856dd53e50c91455b03615095fdfa",
+            "sha256Utf8Lf": "d5c897878cd094f91fd57c16a68a5fb7806856dd53e50c91455b03615095fdfa"
+          },
+          {
+            "path": "tests/doc110-perfil-importacion-editor.test.cjs",
+            "sha256": "516f36b8a1cbf508e47a6a00cac7d1135984d6cbd0b625b5e77ae7005ad6daf7",
+            "sha256Utf8Lf": "e042adda44e37865befa17670fd0b88da7cdd0ac130ac9dfe085cd6a6d6ef509"
+          }
+        ],
+        "queryConstructionChanged": false,
+        "pageChange": "Only profile editor JS/CSS cache references; Excel integration unchanged.",
+        "regression": {
+          "status": "PASS",
+          "recordedUtc": "2026-11-27T00:42:05.419Z",
+          "head": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
+          "tests": 29,
+          "passed": 29,
+          "failed": 0,
+          "exitCode": 0,
+          "newRealE2E": false,
+          "reporter": "node:test spec summary",
+          "parsedFromExistingExecution": true,
+          "command": "node --test --test-concurrency=1 tests/doc110-perfil-importacion-behavior.test.cjs tests/doc110-perfil-importacion-editor.test.cjs tests/doc120-coordinacion-browser.test.cjs",
+          "type": "LOCAL_SYNTHETIC_NO_DATABASE_OR_AUTHENTICATED_HTTP"
+        },
+        "build": {
+          "webConfigUnchanged": true,
+          "deployed": false,
+          "exitCode": 0,
+          "assemblySha256": "7874aa360a806396094be26f001bb2125c5060bd0e037017db84f70cbd579017",
+          "runtimeUnchanged": true,
+          "errors": 0,
+          "warnings": 308,
+          "framework": "net461",
+          "sourceCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
+          "command": "MSBuild.exe GestionDocumental-Docuarchi.net.vbproj /t:Build /nologo /m:1 /verbosity:minimal /p:Configuration=Debug /p:OutputPath=.tmp/doc127-cierre-revision/build-current-8d1f2159/bin/ /p:OutDir=.tmp/doc127-cierre-revision/build-current-8d1f2159/bin/ /p:BaseIntermediateOutputPath=.tmp/doc127-cierre-revision/build-current-8d1f2159/obj/ /p:IntermediateOutputPath=.tmp/doc127-cierre-revision/build-current-8d1f2159/obj/ /p:UseSharedCompilation=false /p:DeployOnBuild=false"
+        },
+        "uiRuntimePins": [
+          {
+            "path": "Gestion/WebFormProducionDocumental.aspx",
+            "sha256": "e60fbbc7d0f16ca4b3c6069654a3f635ec5c9d5ad995798c8c68b2aafb7c58fe"
+          },
+          {
+            "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+            "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da"
+          },
+          {
+            "path": "bin/GestionDocumental-Docuarchi.net.dll",
+            "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5"
+          }
+        ]
+      },
+      "latestCurrentSourceReview": {
+        "sourceCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+        "changedFiles": [
+          {
+            "path": "Gestion/WebFormProducionDocumental.aspx",
+            "sha256": "2dd1afee9402b841bc56c3d8ed5d70030d98c4ff09e5346c4434ba6ffd52cb06",
+            "sha256Utf8Lf": "6036faa0f5f2777e61204b63dce20ce5c8c3f0246ab7962ac45c10aed5f2f344"
+          },
+          {
+            "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.css",
+            "sha256": "2fbfb7e50bbdfe3434a979d20a2f94091c5b24ae3d6d4590d88feff31497e5d0",
+            "sha256Utf8Lf": "a3c409dbaaea99fcf07167362470aa96200fe5f166332818bd3d903ff6a6f5eb"
+          },
+          {
+            "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+            "sha256": "e42f2b696a36f6c62295658c66687b8cf019863fdc4401ce7c02315369419903",
+            "sha256Utf8Lf": "db11fbda085bc7245272ec76811656bbc2e482b75c674954f97a271ff918b01c"
+          },
+          {
+            "path": "tests/doc110-perfil-importacion-editor.test.cjs",
+            "sha256": "31d9e68d1e3733a2b193fe3809daf198bfa29805083f13aeadc4e6e2c97b7381",
+            "sha256Utf8Lf": "21a3f1ae8eb19a30dbc3ba6725f2a3b4b8710f744257d17227123237af160d26"
+          },
+          {
+            "path": "tools/e2e/tests/doc110-reglas-plegables.spec.cjs",
+            "sha256": "f996870b9726566f8409ab6e35e7e3e2e30abb577994ffad5b0b22ea519bfd26",
+            "sha256Utf8Lf": "f996870b9726566f8409ab6e35e7e3e2e30abb577994ffad5b0b22ea519bfd26"
+          }
+        ],
+        "pageChange": "Only profile editor CSS/JS cache references changed; Excel integration and assets retained.",
+        "compiledChangesSince8d1f2159": [],
+        "buildReuse": "Actual isolated net461 build at8d1f2159 passed0 errors/308 warnings; no compiled source/project/config changes since it. No new build or deployment claimed.",
+        "localRegression": {
+          "command": "node --test tests/doc110-perfil-importacion-editor.test.cjs",
+          "sourceCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+          "type": "LOCAL_SYNTHETIC",
+          "tests": 22,
+          "pass": 22,
+          "fail": 0,
+          "exitCode": 0,
+          "durationMs": 2622.021
+        }
+      }
+    },
+    {
+      "requirement": "RQ-13",
+      "caseName": "Instalacion/operacion/recuperacion",
+      "testReference": "Sql/README.md; Operacion-Excel.md",
+      "state": "DOCUMENTADO",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "limitation": "La carga no ofrece pausa por fila; cualquier cambio SQL sigue el procedimiento manual.",
+      "evidenceIds": [
+        "LOCAL",
+        "RECURSOS"
+      ],
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
+    },
+    {
+      "requirement": "RQ-14",
+      "caseName": "Matriz y gates finales",
+      "testReference": "Este corte y tareas OpenSpec",
+      "state": "TECHNICAL_REVIEW_PASS_WITH_WARNINGS_GATES_BY_DELIVERY_SHA",
+      "environment": "Windows local; .NET Framework 4.6.1; IIS HTTPS/GESTOR empresa2 DA11/RA12 cuando la evidencia es real; MySQL5.1.37/MySql.Data6.2.3",
+      "limitation": "QA delegada real completada. Sin publicación, archivo ni cierre Jira por esta entrega.",
+      "evidenceIds": [
+        "LOCAL",
+        "INTEGRACION"
+      ],
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf"
+    }
+  ],
+  "capacity": [
+    {
+      "caseId": "CAP-XLS-1000-CREAR",
+      "requirement": "RQ-09",
+      "formato": "XLS",
+      "rows": 1000,
+      "mode": "CREAR",
+      "fixtureSha256": "9e8e21c7898ed4c86160d77bed0e365bdeda94be74ca294e8a44e0838ce1d5c6",
+      "fixtureBytes": 273920,
+      "localReaderEvidenceId": "LOCAL",
+      "localReader": "PASS_HISTORICO_FUENTES_VIGENTES",
+      "plannedTemplateId": 63,
+      "plannedRevision": 1,
+      "table": "imp_02_doc127_e2e_crear_xls_1000",
+      "resourceEvidenceId": "RECURSOS",
+      "resourceCheckIsFresh": false,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 158.97430000000168,
+      "confirmMs": 11000.795599999983,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 239,
+        "firstUtc": "2026-11-26T00:49:58.5967956Z",
+        "lastUtc": "2026-11-26T00:57:59.7862199Z",
+        "baseline": {
+          "utc": "2026-11-26T00:49:58.5967956Z",
+          "phase": "BASELINE",
+          "rss": 203730944,
+          "private": 239595520,
+          "processCount": 1
+        },
+        "maxRssBytes": 203735040,
+        "maxPrivateBytes": 370667520,
+        "maxGapMs": 2055,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 0,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "historic": null,
+      "realEvidenceId": "DOC127_XLS1000_REAL",
+      "idCarga": "4fef9d0f-da25-4362-8e10-71b2d95baed6",
+      "realResourceVerificationUtc": "2026-11-26T00:58:39.5531061Z"
+    },
+    {
+      "caseId": "CAP-XLS-5000-CREAR",
+      "requirement": "RQ-09",
+      "formato": "XLS",
+      "rows": 5000,
+      "mode": "CREAR",
+      "fixtureSha256": "9bb3d04a1771fec0df7e6469da0ea1fd6614366f3f39b67c9e7310f11dcafee0",
+      "fixtureBytes": 1362432,
+      "localReaderEvidenceId": "LOCAL",
+      "localReader": "PASS_HISTORICO_FUENTES_VIGENTES",
+      "plannedTemplateId": 64,
+      "plannedRevision": 1,
+      "table": "imp_02_doc127_e2e_crear_xls_5000",
+      "resourceEvidenceId": "RECURSOS",
+      "resourceCheckIsFresh": false,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 359.08760000002803,
+      "confirmMs": 12877.247199999983,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 249,
+        "firstUtc": "2026-11-26T12:33:33.0364793Z",
+        "lastUtc": "2026-11-26T12:41:55.5600501Z",
+        "baseline": {
+          "utc": "2026-11-26T12:33:33.0364793Z",
+          "phase": "BASELINE",
+          "rss": 228032512,
+          "private": 388423680,
+          "processCount": 1
+        },
+        "maxRssBytes": 262635520,
+        "maxPrivateBytes": 449044480,
+        "maxGapMs": 2072,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 0,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "historic": null,
+      "realEvidenceId": "DOC127_XLS5000_REAL",
+      "idCarga": "3b656b25-df26-43f0-8286-ae769fef727e",
+      "realResourceVerificationUtc": "2026-11-26T12:42:17.7251944Z"
+    },
+    {
+      "caseId": "CAP-XLS-10000-CREAR",
+      "requirement": "RQ-09",
+      "formato": "XLS",
+      "rows": 10000,
+      "mode": "CREAR",
+      "fixtureSha256": "56f630721e3cdf6f5a7fd5a813b8c9fafc2cc1d7971288b12742ab2ca2a6dab2",
+      "fixtureBytes": 2763776,
+      "localReaderEvidenceId": "LOCAL",
+      "localReader": "PASS_HISTORICO_FUENTES_VIGENTES",
+      "plannedTemplateId": 65,
+      "plannedRevision": 1,
+      "table": "imp_02_doc127_e2e_crear_xls_10000",
+      "resourceEvidenceId": "RECURSOS",
+      "resourceCheckIsFresh": false,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 653.0233000000007,
+      "confirmMs": 12084.262499999983,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 247,
+        "firstUtc": "2026-11-26T14:17:56.2470296Z",
+        "lastUtc": "2026-11-26T14:26:14.5767867Z",
+        "baseline": {
+          "utc": "2026-11-26T14:17:56.2470296Z",
+          "phase": "BASELINE",
+          "rss": 231788544,
+          "private": 395309056,
+          "processCount": 1
+        },
+        "maxRssBytes": 237129728,
+        "maxPrivateBytes": 413962240,
+        "maxGapMs": 2059,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 0,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "historic": null,
+      "realEvidenceId": "DOC127_XLS10000_REAL",
+      "idCarga": "da5175f8-1e8d-414c-802a-a3642ccdfdae",
+      "realResourceVerificationUtc": "2026-11-26T14:26:58.3983223Z"
+    },
+    {
+      "caseId": "CAP-XLS-1000-AGREGAR",
+      "requirement": "RQ-09",
+      "formato": "XLS",
+      "rows": 1000,
+      "mode": "AGREGAR",
+      "fixtureSha256": "783f5c5bab8dc11904f6199bffb8daa069ea0dc01457455b7934e5c87f3563cf",
+      "fixtureBytes": 282112,
+      "localReaderEvidenceId": "LOCAL",
+      "localReader": "PASS_HISTORICO_FUENTES_VIGENTES",
+      "plannedTemplateId": 61,
+      "plannedRevision": 1,
+      "table": "imp_02_doc127_e2e_agregar_xls",
+      "resourceEvidenceId": "RECURSOS",
+      "resourceCheckIsFresh": false,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 308.8744000000006,
+      "confirmMs": 11431.583799999993,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 240,
+        "firstUtc": "2026-11-26T00:34:04.8253646Z",
+        "lastUtc": "2026-11-26T00:42:08.1000024Z",
+        "baseline": {
+          "utc": "2026-11-26T00:34:04.8253646Z",
+          "phase": "BASELINE",
+          "rss": 0,
+          "private": 0,
+          "processCount": 0
+        },
+        "maxRssBytes": 204001280,
+        "maxPrivateBytes": 240476160,
+        "maxGapMs": 2064,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 108,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "historic": null,
+      "realEvidenceId": "DOC127_XLS1000_REAL",
+      "idCarga": "043dab57-9e08-4cf9-a3a6-23ab1258d24f",
+      "realResourceVerificationUtc": "2026-11-26T00:58:39.5531061Z"
+    },
+    {
+      "caseId": "CAP-XLS-5000-AGREGAR",
+      "requirement": "RQ-09",
+      "formato": "XLS",
+      "rows": 5000,
+      "mode": "AGREGAR",
+      "fixtureSha256": "81b80495ebb56dca53bbda9ba3be48b37911c812a61451374992166ea6d5d532",
+      "fixtureBytes": 1402880,
+      "localReaderEvidenceId": "LOCAL",
+      "localReader": "PASS_HISTORICO_FUENTES_VIGENTES",
+      "plannedTemplateId": 61,
+      "plannedRevision": 1,
+      "table": "imp_02_doc127_e2e_agregar_xls",
+      "resourceEvidenceId": "RECURSOS",
+      "resourceCheckIsFresh": false,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 519.3705000000191,
+      "confirmMs": 12665.168000000005,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 246,
+        "firstUtc": "2026-11-26T12:17:09.9706393Z",
+        "lastUtc": "2026-11-26T12:25:25.5462971Z",
+        "baseline": {
+          "utc": "2026-11-26T12:17:09.9706393Z",
+          "phase": "BASELINE",
+          "rss": 0,
+          "private": 0,
+          "processCount": 0
+        },
+        "maxRssBytes": 216915968,
+        "maxPrivateBytes": 378634240,
+        "maxGapMs": 2067,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 112,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "historic": null,
+      "realEvidenceId": "DOC127_XLS5000_REAL",
+      "idCarga": "32330f9a-fb16-468d-9677-043d072374ea",
+      "realResourceVerificationUtc": "2026-11-26T12:42:17.7251944Z"
+    },
+    {
+      "caseId": "CAP-XLS-10000-AGREGAR",
+      "requirement": "RQ-09",
+      "formato": "XLS",
+      "rows": 10000,
+      "mode": "AGREGAR",
+      "fixtureSha256": "a38cb5efafabc73aa638d11c5a7712eff065e423071c33167303ea499313a756",
+      "fixtureBytes": 2844160,
+      "localReaderEvidenceId": "LOCAL",
+      "localReader": "PASS_HISTORICO_FUENTES_VIGENTES",
+      "plannedTemplateId": 61,
+      "plannedRevision": 1,
+      "table": "imp_02_doc127_e2e_agregar_xls",
+      "resourceEvidenceId": "RECURSOS",
+      "resourceCheckIsFresh": false,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 1046.147800000006,
+      "confirmMs": 13187.890399999975,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 261,
+        "firstUtc": "2026-11-26T14:00:44.5705896Z",
+        "lastUtc": "2026-11-26T14:09:30.8023235Z",
+        "baseline": {
+          "utc": "2026-11-26T14:00:44.5705896Z",
+          "phase": "BASELINE",
+          "rss": 0,
+          "private": 0,
+          "processCount": 0
+        },
+        "maxRssBytes": 227606528,
+        "maxPrivateBytes": 387760128,
+        "maxGapMs": 2076,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 116,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "historic": null,
+      "realEvidenceId": "DOC127_XLS10000_REAL",
+      "idCarga": "51906879-cb8a-46e3-aa1a-fe666adfdd94",
+      "realResourceVerificationUtc": "2026-11-26T14:26:58.3983223Z"
+    },
+    {
+      "caseId": "CAP-XLS-1000-REEMPLAZAR",
+      "requirement": "RQ-09",
+      "formato": "XLS",
+      "rows": 1000,
+      "mode": "REEMPLAZAR",
+      "fixtureSha256": "da9d001f9e842f91b1f5d07d06036bd4d7c67721f54f1b955b91732f996e76ff",
+      "fixtureBytes": 293888,
+      "localReaderEvidenceId": "LOCAL",
+      "localReader": "PASS_HISTORICO_FUENTES_VIGENTES",
+      "plannedTemplateId": 62,
+      "plannedRevision": 1,
+      "table": "imp_02_doc127_e2e_reemplazar_xls",
+      "resourceEvidenceId": "RECURSOS",
+      "resourceCheckIsFresh": false,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 183.30710000000545,
+      "confirmMs": 11255.163700000005,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 233,
+        "firstUtc": "2026-11-26T00:42:08.6101703Z",
+        "lastUtc": "2026-11-26T00:49:58.0489914Z",
+        "baseline": {
+          "utc": "2026-11-26T00:42:08.6101703Z",
+          "phase": "BASELINE",
+          "rss": 195616768,
+          "private": 231124992,
+          "processCount": 1
+        },
+        "maxRssBytes": 207335424,
+        "maxPrivateBytes": 243683328,
+        "maxGapMs": 2063,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 0,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "historic": null,
+      "realEvidenceId": "DOC127_XLS1000_REAL",
+      "idCarga": "5e898de1-419b-4cc4-a93f-9a7d5fa7e135",
+      "realResourceVerificationUtc": "2026-11-26T00:58:39.5531061Z"
+    },
+    {
+      "caseId": "CAP-XLS-5000-REEMPLAZAR",
+      "requirement": "RQ-09",
+      "formato": "XLS",
+      "rows": 5000,
+      "mode": "REEMPLAZAR",
+      "fixtureSha256": "6b321ca41b4c4401a6c98702f6b573bc641becd662be6205cf5545877ab9483b",
+      "fixtureBytes": 1463296,
+      "localReaderEvidenceId": "LOCAL",
+      "localReader": "PASS_HISTORICO_FUENTES_VIGENTES",
+      "plannedTemplateId": 62,
+      "plannedRevision": 1,
+      "table": "imp_02_doc127_e2e_reemplazar_xls",
+      "resourceEvidenceId": "RECURSOS",
+      "resourceCheckIsFresh": false,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 385.6255999999994,
+      "confirmMs": 11236.801800000016,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 241,
+        "firstUtc": "2026-11-26T12:25:26.0469607Z",
+        "lastUtc": "2026-11-26T12:33:32.5458077Z",
+        "baseline": {
+          "utc": "2026-11-26T12:25:26.0469607Z",
+          "phase": "BASELINE",
+          "rss": 216887296,
+          "private": 378449920,
+          "processCount": 1
+        },
+        "maxRssBytes": 249106432,
+        "maxPrivateBytes": 411840512,
+        "maxGapMs": 2090,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 0,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "historic": null,
+      "realEvidenceId": "DOC127_XLS5000_REAL",
+      "idCarga": "f87c7f39-906c-4045-bc65-9b028436ce2f",
+      "realResourceVerificationUtc": "2026-11-26T12:42:17.7251944Z"
+    },
+    {
+      "caseId": "CAP-XLS-10000-REEMPLAZAR",
+      "requirement": "RQ-09",
+      "formato": "XLS",
+      "rows": 10000,
+      "mode": "REEMPLAZAR",
+      "fixtureSha256": "dd1e9adfa81795c935a7f96501dc5c7d6432261abb869a1c3636a99c5292ce2e",
+      "fixtureBytes": 2964992,
+      "localReaderEvidenceId": "LOCAL",
+      "localReader": "PASS_HISTORICO_FUENTES_VIGENTES",
+      "plannedTemplateId": 62,
+      "plannedRevision": 1,
+      "table": "imp_02_doc127_e2e_reemplazar_xls",
+      "resourceEvidenceId": "RECURSOS",
+      "resourceCheckIsFresh": false,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 729.0676000000094,
+      "confirmMs": 12284.723599999968,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 250,
+        "firstUtc": "2026-11-26T14:09:31.3502127Z",
+        "lastUtc": "2026-11-26T14:17:55.7306530Z",
+        "baseline": {
+          "utc": "2026-11-26T14:09:31.3502127Z",
+          "phase": "BASELINE",
+          "rss": 227246080,
+          "private": 387760128,
+          "processCount": 1
+        },
+        "maxRssBytes": 250929152,
+        "maxPrivateBytes": 411852800,
+        "maxGapMs": 2064,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 0,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "historic": null,
+      "realEvidenceId": "DOC127_XLS10000_REAL",
+      "idCarga": "9c0f7461-ff94-45e0-901f-aeaea09061f1",
+      "realResourceVerificationUtc": "2026-11-26T14:26:58.3983223Z"
+    },
+    {
+      "caseId": "CAP-XLSX-1000-CREAR",
+      "requirement": "RQ-09",
+      "formato": "XLSX",
+      "rows": 1000,
+      "mode": "CREAR",
+      "fixtureSha256": "4eac7526b1ca01015e213b49dd5781fe1102e80224b9fd22f0d2946e38011595",
+      "fixtureBytes": 16356,
+      "localReaderEvidenceId": "LOCAL",
+      "localReader": "PASS_HISTORICO_FUENTES_VIGENTES",
+      "plannedTemplateId": 66,
+      "plannedRevision": 1,
+      "table": "imp_02_doc127_e2e_crear_xlsx_1000",
+      "resourceEvidenceId": "RECURSOS",
+      "resourceCheckIsFresh": false,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 164.27030000000377,
+      "confirmMs": 11573.232099999994,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 260,
+        "firstUtc": "2026-11-26T15:10:07.0056235Z",
+        "lastUtc": "2026-11-26T15:18:51.8409107Z",
+        "baseline": {
+          "utc": "2026-11-26T15:10:07.0056235Z",
+          "phase": "BASELINE",
+          "rss": 172179456,
+          "private": 241426432,
+          "processCount": 1
+        },
+        "maxRssBytes": 178651136,
+        "maxPrivateBytes": 254533632,
+        "maxGapMs": 2067,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 0,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "historic": {
+        "evidenceId": "DOC125",
+        "sourceCommit": "7a4247c96639097b75f887183dd0a2343458d25b",
+        "rowsConfirmed": 1000,
+        "prepareMs": 240,
+        "confirmMs": 13177,
+        "memory": "COMPARTIDA_PARCIAL_NO_ASIGNABLE_POR_CARGA",
+        "fixtureIsCurrentDoc127Fixture": false,
+        "limitation": "Otra carga/archivo/runtime; no acredita ejecucion ni capacidad vigente DOC127."
+      },
+      "realEvidenceId": "DOC127_XLSX1000_REAL",
+      "idCarga": "801a4f3c-683f-4042-8f00-03d90a163bef",
+      "realResourceVerificationUtc": "2026-11-26T15:19:16.5608466Z"
+    },
+    {
+      "caseId": "CAP-XLSX-5000-CREAR",
+      "requirement": "RQ-09",
+      "formato": "XLSX",
+      "rows": 5000,
+      "mode": "CREAR",
+      "fixtureSha256": "7a4004ae0dcb3c3278f504b1519d9c0e32ed904b8e222780aa95779a5f686567",
+      "fixtureBytes": 73869,
+      "localReaderEvidenceId": "LOCAL",
+      "localReader": "PASS_HISTORICO_FUENTES_VIGENTES",
+      "plannedTemplateId": 67,
+      "plannedRevision": 1,
+      "table": "imp_02_doc127_e2e_crear_xlsx_5000",
+      "resourceEvidenceId": "RECURSOS",
+      "resourceCheckIsFresh": false,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 484.9623000000138,
+      "confirmMs": 11835.464600000007,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 264,
+        "firstUtc": "2026-11-26T15:52:49.5433668Z",
+        "lastUtc": "2026-11-26T16:01:42.7542293Z",
+        "baseline": {
+          "utc": "2026-11-26T15:52:49.5433668Z",
+          "phase": "BASELINE",
+          "rss": 138928128,
+          "private": 259645440,
+          "processCount": 1
+        },
+        "maxRssBytes": 145035264,
+        "maxPrivateBytes": 265854976,
+        "maxGapMs": 2053,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 0,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "historic": null,
+      "realEvidenceId": "DOC127_XLSX5000_REAL",
+      "idCarga": "58c15448-7ac9-4b2a-8ab1-8d92f72339f2",
+      "realResourceVerificationUtc": "2026-11-26T16:02:16.3667520Z"
+    },
+    {
+      "caseId": "CAP-XLSX-10000-CREAR",
+      "requirement": "RQ-09",
+      "formato": "XLSX",
+      "rows": 10000,
+      "mode": "CREAR",
+      "fixtureSha256": "a3d8a059b633d1ee416e39ab1aefc9f72e4eaaf5abaa1f86dfd5e2976502786e",
+      "fixtureBytes": 145383,
+      "localReaderEvidenceId": "LOCAL",
+      "localReader": "PASS_HISTORICO_FUENTES_VIGENTES",
+      "plannedTemplateId": 68,
+      "plannedRevision": 1,
+      "table": "imp_02_doc127_e2e_crear_xlsx_10000",
+      "resourceEvidenceId": "RECURSOS",
+      "resourceCheckIsFresh": false,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 1031.7099999999627,
+      "confirmMs": 12838.901000000013,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 278,
+        "firstUtc": "2026-11-26T16:34:37.4616521Z",
+        "lastUtc": "2026-11-26T16:43:59.0238678Z",
+        "baseline": {
+          "utc": "2026-11-26T16:34:37.4616521Z",
+          "phase": "BASELINE",
+          "rss": 311156736,
+          "private": 369864704,
+          "processCount": 1
+        },
+        "maxRssBytes": 311259136,
+        "maxPrivateBytes": 520536064,
+        "maxGapMs": 2071,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 0,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "historic": null,
+      "realEvidenceId": "DOC127_XLSX10000_REAL",
+      "idCarga": "39dd8c35-85e3-4336-ad5c-4bad65b976d7",
+      "realResourceVerificationUtc": "2026-11-26T16:44:27.5047625Z"
+    },
+    {
+      "caseId": "CAP-XLSX-1000-AGREGAR",
+      "requirement": "RQ-09",
+      "formato": "XLSX",
+      "rows": 1000,
+      "mode": "AGREGAR",
+      "fixtureSha256": "3997c65ccb45913120b628e8912497a9c6809cee61e0e22de95fc866b37bce32",
+      "fixtureBytes": 16359,
+      "localReaderEvidenceId": "LOCAL",
+      "localReader": "PASS_HISTORICO_FUENTES_VIGENTES",
+      "plannedTemplateId": 58,
+      "plannedRevision": 1,
+      "table": "imp_02_doc126_e2e_agregar",
+      "resourceEvidenceId": "RECURSOS",
+      "resourceCheckIsFresh": false,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 272.0200000000186,
+      "confirmMs": 11261.085000000021,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 256,
+        "firstUtc": "2026-11-26T14:52:55.4023843Z",
+        "lastUtc": "2026-11-26T15:01:31.4421513Z",
+        "baseline": {
+          "utc": "2026-11-26T14:52:55.4023843Z",
+          "phase": "BASELINE",
+          "rss": 0,
+          "private": 0,
+          "processCount": 0
+        },
+        "maxRssBytes": 202166272,
+        "maxPrivateBytes": 237969408,
+        "maxGapMs": 2059,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 118,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "historic": {
+        "evidenceId": "DOC125",
+        "sourceCommit": "7a4247c96639097b75f887183dd0a2343458d25b",
+        "rowsConfirmed": 1000,
+        "prepareMs": 187,
+        "confirmMs": 11061,
+        "memory": "COMPARTIDA_PARCIAL_NO_ASIGNABLE_POR_CARGA",
+        "fixtureIsCurrentDoc127Fixture": false,
+        "limitation": "Otra carga/archivo/runtime; no acredita ejecucion ni capacidad vigente DOC127."
+      },
+      "realEvidenceId": "DOC127_XLSX1000_REAL",
+      "idCarga": "db73c0b6-3885-4365-b19a-e1d2d27dafa0",
+      "realResourceVerificationUtc": "2026-11-26T15:19:16.5608466Z"
+    },
+    {
+      "caseId": "CAP-XLSX-5000-AGREGAR",
+      "requirement": "RQ-09",
+      "formato": "XLSX",
+      "rows": 5000,
+      "mode": "AGREGAR",
+      "fixtureSha256": "56732ce19455f414d6644e19f3eca22bdb3147a2c5747a15f661a661c9f0e85e",
+      "fixtureBytes": 73872,
+      "localReaderEvidenceId": "LOCAL",
+      "localReader": "PASS_HISTORICO_FUENTES_VIGENTES",
+      "plannedTemplateId": 58,
+      "plannedRevision": 1,
+      "table": "imp_02_doc126_e2e_agregar",
+      "resourceEvidenceId": "RECURSOS",
+      "resourceCheckIsFresh": false,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 716.453300000052,
+      "confirmMs": 11828.013199999987,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 264,
+        "firstUtc": "2026-11-26T15:35:03.0844201Z",
+        "lastUtc": "2026-11-26T15:43:55.5761393Z",
+        "baseline": {
+          "utc": "2026-11-26T15:35:03.0844201Z",
+          "phase": "BASELINE",
+          "rss": 0,
+          "private": 0,
+          "processCount": 0
+        },
+        "maxRssBytes": 220495872,
+        "maxPrivateBytes": 255315968,
+        "maxGapMs": 2058,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 121,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "historic": null,
+      "realEvidenceId": "DOC127_XLSX5000_REAL",
+      "idCarga": "f5d81f53-961f-445c-8ce1-7c7be6135db8",
+      "realResourceVerificationUtc": "2026-11-26T16:02:16.3667520Z"
+    },
+    {
+      "caseId": "CAP-XLSX-10000-AGREGAR",
+      "requirement": "RQ-09",
+      "formato": "XLSX",
+      "rows": 10000,
+      "mode": "AGREGAR",
+      "fixtureSha256": "f1af21edf47e3d372d39e16d47de8b6d7b5e8d655f0edd23f571cc889afa623d",
+      "fixtureBytes": 147007,
+      "localReaderEvidenceId": "LOCAL",
+      "localReader": "PASS_HISTORICO_FUENTES_VIGENTES",
+      "plannedTemplateId": 58,
+      "plannedRevision": 1,
+      "table": "imp_02_doc126_e2e_agregar",
+      "resourceEvidenceId": "RECURSOS",
+      "resourceCheckIsFresh": false,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 1127.1537000000244,
+      "confirmMs": 12898.73060000001,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 268,
+        "firstUtc": "2026-11-26T16:16:18.9605499Z",
+        "lastUtc": "2026-11-26T16:25:19.9819818Z",
+        "baseline": {
+          "utc": "2026-11-26T16:16:18.9605499Z",
+          "phase": "BASELINE",
+          "rss": 24829952,
+          "private": 391471104,
+          "processCount": 1
+        },
+        "maxRssBytes": 229191680,
+        "maxPrivateBytes": 392187904,
+        "maxGapMs": 2097,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 68,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "historic": null,
+      "realEvidenceId": "DOC127_XLSX10000_REAL",
+      "idCarga": "09c8c4cb-167e-4d28-af65-550e4312a8ec",
+      "realResourceVerificationUtc": "2026-11-26T16:44:27.5047625Z"
+    },
+    {
+      "caseId": "CAP-XLSX-1000-REEMPLAZAR",
+      "requirement": "RQ-09",
+      "formato": "XLSX",
+      "rows": 1000,
+      "mode": "REEMPLAZAR",
+      "fixtureSha256": "5eb5a9813481f53ac2454cd4998cde5dc14bf48cc6ee19071d2d60981f99e93e",
+      "fixtureBytes": 16632,
+      "localReaderEvidenceId": "LOCAL",
+      "localReader": "PASS_HISTORICO_FUENTES_VIGENTES",
+      "plannedTemplateId": 59,
+      "plannedRevision": 1,
+      "table": "imp_02_doc126_e2e_reemplazar",
+      "resourceEvidenceId": "RECURSOS",
+      "resourceCheckIsFresh": false,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 193.80689999999595,
+      "confirmMs": 10869.637599999987,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 255,
+        "firstUtc": "2026-11-26T15:01:31.9370386Z",
+        "lastUtc": "2026-11-26T15:10:06.4277318Z",
+        "baseline": {
+          "utc": "2026-11-26T15:01:31.9370386Z",
+          "phase": "BASELINE",
+          "rss": 197898240,
+          "private": 233594880,
+          "processCount": 1
+        },
+        "maxRssBytes": 205721600,
+        "maxPrivateBytes": 241471488,
+        "maxGapMs": 2061,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 0,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "historic": {
+        "evidenceId": "DOC125",
+        "sourceCommit": "7a4247c96639097b75f887183dd0a2343458d25b",
+        "rowsConfirmed": 1000,
+        "prepareMs": 188,
+        "confirmMs": 11464,
+        "memory": "COMPARTIDA_PARCIAL_NO_ASIGNABLE_POR_CARGA",
+        "fixtureIsCurrentDoc127Fixture": false,
+        "limitation": "Otra carga/archivo/runtime; no acredita ejecucion ni capacidad vigente DOC127."
+      },
+      "realEvidenceId": "DOC127_XLSX1000_REAL",
+      "idCarga": "50dc01ef-40e2-42f5-8a94-c06c79d38c8c",
+      "realResourceVerificationUtc": "2026-11-26T15:19:16.5608466Z"
+    },
+    {
+      "caseId": "CAP-XLSX-5000-REEMPLAZAR",
+      "requirement": "RQ-09",
+      "formato": "XLSX",
+      "rows": 5000,
+      "mode": "REEMPLAZAR",
+      "fixtureSha256": "40beb13628bfd0f84f5568916e765e368cd3d537c0baf6e472021326d5ea0254",
+      "fixtureBytes": 75297,
+      "localReaderEvidenceId": "LOCAL",
+      "localReader": "PASS_HISTORICO_FUENTES_VIGENTES",
+      "plannedTemplateId": 59,
+      "plannedRevision": 1,
+      "table": "imp_02_doc126_e2e_reemplazar",
+      "resourceEvidenceId": "RECURSOS",
+      "resourceCheckIsFresh": false,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 685.3683999999776,
+      "confirmMs": 12554.527100000007,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 264,
+        "firstUtc": "2026-11-26T15:43:56.0829262Z",
+        "lastUtc": "2026-11-26T15:52:48.9810516Z",
+        "baseline": {
+          "utc": "2026-11-26T15:43:56.0829262Z",
+          "phase": "BASELINE",
+          "rss": 212905984,
+          "private": 249020416,
+          "processCount": 1
+        },
+        "maxRssBytes": 214102016,
+        "maxPrivateBytes": 260075520,
+        "maxGapMs": 2056,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 0,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "historic": null,
+      "realEvidenceId": "DOC127_XLSX5000_REAL",
+      "idCarga": "4f5081dd-259a-469d-9239-2226431afcb7",
+      "realResourceVerificationUtc": "2026-11-26T16:02:16.3667520Z"
+    },
+    {
+      "caseId": "CAP-XLSX-10000-REEMPLAZAR",
+      "requirement": "RQ-09",
+      "formato": "XLSX",
+      "rows": 10000,
+      "mode": "REEMPLAZAR",
+      "fixtureSha256": "d3ad63ffebf71dbc93f4e5f08a2dc3b2594c84188d584da4d4ec8844b5905226",
+      "fixtureBytes": 146809,
+      "localReaderEvidenceId": "LOCAL",
+      "localReader": "PASS_HISTORICO_FUENTES_VIGENTES",
+      "plannedTemplateId": 59,
+      "plannedRevision": 1,
+      "table": "imp_02_doc126_e2e_reemplazar",
+      "resourceEvidenceId": "RECURSOS",
+      "resourceCheckIsFresh": false,
+      "currentRealStatus": "REAL_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "currentRealExecution": true,
+      "prepareMs": 1033.962499999965,
+      "confirmMs": 12969.214199999988,
+      "memory": {
+        "available": true,
+        "sharedIisProcesses": true,
+        "exclusiveAllocationClaimed": false,
+        "requestedIntervalMs": 2000,
+        "sampleCount": 275,
+        "firstUtc": "2026-11-26T16:25:20.4945987Z",
+        "lastUtc": "2026-11-26T16:34:36.8798343Z",
+        "baseline": {
+          "utc": "2026-11-26T16:25:20.4945987Z",
+          "phase": "BASELINE",
+          "rss": 227287040,
+          "private": 263749632,
+          "processCount": 1
+        },
+        "maxRssBytes": 337362944,
+        "maxPrivateBytes": 370630656,
+        "maxGapMs": 2123,
+        "phases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "measuredPhases": [
+          "BASELINE",
+          "AUTH",
+          "PREPARE",
+          "CONFIRM",
+          "VERIFY",
+          "FINISHED"
+        ],
+        "emptyProcessSamples": 0,
+        "limitation": "Sampling can miss peaks; shared IIS process totals are not per-load allocation.",
+        "monitorExitCode": 0
+      },
+      "historic": null,
+      "realEvidenceId": "DOC127_XLSX10000_REAL",
+      "idCarga": "46646d92-ac7b-4005-a14f-77b12517e230",
+      "realResourceVerificationUtc": "2026-11-26T16:44:27.5047625Z"
+    }
+  ],
+  "historicalMemory": {
+    "evidenceId": "DOC125",
+    "samples": [
+      {
+        "samples": 104,
+        "firstUtc": "2026-11-24T12:52:09.9810382Z",
+        "lastUtc": "2026-11-24T12:55:38.2675476Z",
+        "maxObservedWorkingSetBytes": 279072768,
+        "maxObservedPrivateBytes": 581500928,
+        "scope": "All sampled IIS worker processes; partial windows; not isolated feature allocation or whole-window guaranteed peak"
+      },
+      {
+        "samples": 102,
+        "firstUtc": "2026-11-24T14:31:39.3315117Z",
+        "lastUtc": "2026-11-24T14:35:03.6122274Z",
+        "maxObservedWorkingSetBytes": 237957120,
+        "maxObservedPrivateBytes": 596037632,
+        "scope": "All sampled IIS worker processes; partial windows; not isolated feature allocation or whole-window guaranteed peak"
+      }
+    ],
+    "baselinePerLoad": null,
+    "requestedIntervalMsForFutureDoc127": 2000,
+    "measuredIntervalForDoc125": "Usar timestamps del muestreo historico; no atribuir intervalo DOC127 a DOC125",
+    "limitation": "RSS/privados agregados de IIS, ventanas parciales; sin asignacion por carga ni garantia de pico."
+  },
+  "sourceAudits": [
+    {
+      "id": "LOCAL",
+      "sourceCommit": "10f307112c6239faa8180a021a8064eccc25b538",
+      "sources": [
+        {
+          "path": "DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb",
+          "sha256Utf8Lf": "6dba0e81e34ded7817db69cf3a822347f02a24cc65a6f95eb5823989dcb15190",
+          "currentSha256Utf8Lf": "6dba0e81e34ded7817db69cf3a822347f02a24cc65a6f95eb5823989dcb15190",
+          "matches": true
+        },
+        {
+          "path": "Doc/Actualizacion/Importacion/Operacion-Excel.md",
+          "sha256Utf8Lf": "112650ae53c2bf454aedcab9c15c5bba56df354a012fb2cc1849f6670889cbf4",
+          "currentSha256Utf8Lf": "112650ae53c2bf454aedcab9c15c5bba56df354a012fb2cc1849f6670889cbf4",
+          "matches": true
+        },
+        {
+          "path": "Doc/Actualizacion/Importacion/Sql/28-preflight-doc127.sql",
+          "sha256Utf8Lf": "5ac87a51a8e37532555f41fe7f786e1de3e3290d94a9e80fa8f6842f6f19ae63",
+          "currentSha256Utf8Lf": "5ac87a51a8e37532555f41fe7f786e1de3e3290d94a9e80fa8f6842f6f19ae63",
+          "matches": true
+        },
+        {
+          "path": "Doc/Actualizacion/Importacion/Sql/29-explain-proveedor-doc127.sql",
+          "sha256Utf8Lf": "eeb61ad01134374d4b58a42e537191627b8837c3bbaf19c52c42cbdac9937a0c",
+          "currentSha256Utf8Lf": "eeb61ad01134374d4b58a42e537191627b8837c3bbaf19c52c42cbdac9937a0c",
+          "matches": true
+        },
+        {
+          "path": "Doc/Actualizacion/Importacion/Sql/README.md",
+          "sha256Utf8Lf": "87ff85c82a09dfd4ca8881611ad5de5f982c38b687825aa42d956d7d4fa6eee6",
+          "currentSha256Utf8Lf": "8e83514fc8af9e2f3fabbabf987aff21c0b5b46634c5348c37a96fc4359b4f20",
+          "matches": false
+        },
+        {
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc121-verificacion-instalacion-20261121.md",
+          "sha256Utf8Lf": "2941b53f387311f6eb0ec54bcb8c7ab951f8f9cb1a3e935a31297fbdaf950999",
+          "currentSha256Utf8Lf": "2941b53f387311f6eb0ec54bcb8c7ab951f8f9cb1a3e935a31297fbdaf950999",
+          "matches": true
+        },
+        {
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc122-cierre-20261122.md",
+          "sha256Utf8Lf": "e4b43600d5355b285a52546911cd53505d92d3a7ee3cf539de3a36c9cbe76cbf",
+          "currentSha256Utf8Lf": "e4b43600d5355b285a52546911cd53505d92d3a7ee3cf539de3a36c9cbe76cbf",
+          "matches": true
+        },
+        {
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc123-cierre-20261122.md",
+          "sha256Utf8Lf": "e149e8694e9709f3dea3639b5bc92b8485be62c220a0b424b5701d1390048732",
+          "currentSha256Utf8Lf": "e149e8694e9709f3dea3639b5bc92b8485be62c220a0b424b5701d1390048732",
+          "matches": true
+        },
+        {
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc124-e2e-ordenes-resultado-20261123.md",
+          "sha256Utf8Lf": "11a8c175c7360a5d052c623334b7bb4277b069acb961ea98078824fe03ce25e2",
+          "currentSha256Utf8Lf": "11a8c175c7360a5d052c623334b7bb4277b069acb961ea98078824fe03ce25e2",
+          "matches": true
+        },
+        {
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc124-verificacion-final-20261123.md",
+          "sha256Utf8Lf": "5c1165d8bde6179e68827074914463b57321de7a8cc8af1b196b8b42f84607e1",
+          "currentSha256Utf8Lf": "5c1165d8bde6179e68827074914463b57321de7a8cc8af1b196b8b42f84607e1",
+          "matches": true
+        },
+        {
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc125-ejecucion-seguimiento-20261124.md",
+          "sha256Utf8Lf": "11443f21ec33d6c502bfc04b32bf7bb998f167c2e4f2bc56e1f187dcf9593447",
+          "currentSha256Utf8Lf": "11443f21ec33d6c502bfc04b32bf7bb998f167c2e4f2bc56e1f187dcf9593447",
+          "matches": true
+        },
+        {
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc125-verificacion-final-20261124.md",
+          "sha256Utf8Lf": "c90dc6a8799ee81a285a993ab8bcd489b70fe41cc345597b80e4c41bf72ce0dc",
+          "currentSha256Utf8Lf": "c90dc6a8799ee81a285a993ab8bcd489b70fe41cc345597b80e4c41bf72ce0dc",
+          "matches": true
+        },
+        {
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc126-correccion-foco-20261125.md",
+          "sha256Utf8Lf": "6692f1b5e8417213c6a3fa1d856f4b8d9b7c8745c24192be8078b87a679d34b8",
+          "currentSha256Utf8Lf": "6692f1b5e8417213c6a3fa1d856f4b8d9b7c8745c24192be8078b87a679d34b8",
+          "matches": true
+        },
+        {
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc126-e2e-permisos-real-20261125.md",
+          "sha256Utf8Lf": "e3e28f9f158a45d09545e0d6d09e97100aeee625bd861f4e2dc687f6604f2419",
+          "currentSha256Utf8Lf": "e3e28f9f158a45d09545e0d6d09e97100aeee625bd861f4e2dc687f6604f2419",
+          "matches": true
+        },
+        {
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc126-verificacion-final-20261125.md",
+          "sha256Utf8Lf": "69eddd8b957d0cff7e2be65fcf2a7dc83bc467b9c9dcfc3b3e1b14e34e1ff923",
+          "currentSha256Utf8Lf": "69eddd8b957d0cff7e2be65fcf2a7dc83bc467b9c9dcfc3b3e1b14e34e1ff923",
+          "matches": true
+        },
+        {
+          "path": "Gestion/Class_remit_dest_interno_perfil_produccion.vb",
+          "sha256Utf8Lf": "a7440628ac70a89d23e320904b3109b95fd8b3fc27b54ed4cd914527be91ecad",
+          "currentSha256Utf8Lf": "a7440628ac70a89d23e320904b3109b95fd8b3fc27b54ed4cd914527be91ecad",
+          "matches": true
+        },
+        {
+          "path": "Gestion/WebFormProducionDocumental.aspx",
+          "sha256Utf8Lf": "6c0a87e4651150ea93e389686192f5016fa95b8856e4bfd31f2854c53a76fe57",
+          "currentSha256Utf8Lf": "4a80a5aacd92e6cc78152ff014ec75130539e9d52a1223436d3599a35060d85b",
+          "matches": false
+        },
+        {
+          "path": "Gestion/WebFormProducionDocumental.aspx.vb",
+          "sha256Utf8Lf": "f301a264202c38325dcda48300feee1631c2cc61923c279a44e45a48f3d4ff32",
+          "currentSha256Utf8Lf": "f301a264202c38325dcda48300feee1631c2cc61923c279a44e45a48f3d4ff32",
+          "matches": true
+        },
+        {
+          "path": "GestionDocumental-Docuarchi.net.vbproj",
+          "sha256Utf8Lf": "f90901bc19a14061319b72e885c44f1dd0a632ba24c5b68c8a84141a9f45a357",
+          "currentSha256Utf8Lf": "f90901bc19a14061319b72e885c44f1dd0a632ba24c5b68c8a84141a9f45a357",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorDatosIndices.vb",
+          "sha256Utf8Lf": "41e5578493c4747adb601eba358aabbdca7a40e2200430bcab811c5afc393ab5",
+          "currentSha256Utf8Lf": "41e5578493c4747adb601eba358aabbdca7a40e2200430bcab811c5afc393ab5",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PoliticaFuentesProveedor.vb",
+          "sha256Utf8Lf": "72aa90ad98c574391c735777f6ca0198c5756d00b8e7c76a890603cc87877203",
+          "currentSha256Utf8Lf": "72aa90ad98c574391c735777f6ca0198c5756d00b8e7c76a890603cc87877203",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/AlmacenArchivoExcel.vb",
+          "sha256Utf8Lf": "901b2c3adf0484036cad185625450285082a5e4dd16fa7636524ec915cd1e3d0",
+          "currentSha256Utf8Lf": "901b2c3adf0484036cad185625450285082a5e4dd16fa7636524ec915cd1e3d0",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ComposicionCargaExcel.vb",
+          "sha256Utf8Lf": "463c45d82f7b736d1f7bcb366b71005be9e62391c54b3a22d4398231c2a2e977",
+          "currentSha256Utf8Lf": "463c45d82f7b736d1f7bcb366b71005be9e62391c54b3a22d4398231c2a2e977",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelConexionAdapter.vb",
+          "sha256Utf8Lf": "1f772b8f0d4a515a313907a030da1ea91b480b7c9b7283aaea13a62b71831ef3",
+          "currentSha256Utf8Lf": "1f772b8f0d4a515a313907a030da1ea91b480b7c9b7283aaea13a62b71831ef3",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelContextAdapter.vb",
+          "sha256Utf8Lf": "8a89cc86baec4083e89a3d6a3806f7d3bdf371d68b07646cef37dee42e250426",
+          "currentSha256Utf8Lf": "8a89cc86baec4083e89a3d6a3806f7d3bdf371d68b07646cef37dee42e250426",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb",
+          "sha256Utf8Lf": "cc12bd1cf3862cfe2b33811e0635491254ec138250d2cbad5ad2d736aeefc344",
+          "currentSha256Utf8Lf": "cc12bd1cf3862cfe2b33811e0635491254ec138250d2cbad5ad2d736aeefc344",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/InspectorFidelidadExcel.vb",
+          "sha256Utf8Lf": "dc39576bb8646475cd7a7b454eac2ab2e646286608df27de9cc7e302b0187ed5",
+          "currentSha256Utf8Lf": "dc39576bb8646475cd7a7b454eac2ab2e646286608df27de9cc7e302b0187ed5",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/LectorArchivoExcel.vb",
+          "sha256Utf8Lf": "781e902a557f4020f621846942ae7c6e1e6fa091c81859c7d9b20e1a0d697197",
+          "currentSha256Utf8Lf": "781e902a557f4020f621846942ae7c6e1e6fa091c81859c7d9b20e1a0d697197",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/PoliticaDestinoCargaExcelAdapter.vb",
+          "sha256Utf8Lf": "9127925277c205060496204aea452aec58a1afae3817100f3eecc956027d73f1",
+          "currentSha256Utf8Lf": "9127925277c205060496204aea452aec58a1afae3817100f3eecc956027d73f1",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ReferenciaRecepcionExcel.vb",
+          "sha256Utf8Lf": "c400d077e5b0736814990ef49524a9e62ab43c3de1e154d041ad4f8ebff631d7",
+          "currentSha256Utf8Lf": "c400d077e5b0736814990ef49524a9e62ab43c3de1e154d041ad4f8ebff631d7",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorIndicesRepository.vb",
+          "sha256Utf8Lf": "2b924164324d791697a30fd1e0c37e8f8f1510d228dd301a978c158ee9007e62",
+          "currentSha256Utf8Lf": "2b924164324d791697a30fd1e0c37e8f8f1510d228dd301a978c158ee9007e62",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb",
+          "sha256Utf8Lf": "47d04d584ab854f14d029bc4bb5cacc400c80825cd9c2014b7eb22c63b90a7f2",
+          "currentSha256Utf8Lf": "47d04d584ab854f14d029bc4bb5cacc400c80825cd9c2014b7eb22c63b90a7f2",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlConfirmacionExcelWriter.vb",
+          "sha256Utf8Lf": "ae431a4d2c487a947f44161cf70b25b9f63d79903778bf5fa94b47cb9d54c124",
+          "currentSha256Utf8Lf": "ae431a4d2c487a947f44161cf70b25b9f63d79903778bf5fa94b47cb9d54c124",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlEstructuraExcel.vb",
+          "sha256Utf8Lf": "a281c891106e3bcf0c50fc94875246616c7c665d65b872171972c522f828a820",
+          "currentSha256Utf8Lf": "a281c891106e3bcf0c50fc94875246616c7c665d65b872171972c522f828a820",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb",
+          "sha256Utf8Lf": "2aba73f57faf716b90597a95ba2f3d5019cc3ef2bb18db29cb467c209b446ff9",
+          "currentSha256Utf8Lf": "2aba73f57faf716b90597a95ba2f3d5019cc3ef2bb18db29cb467c209b446ff9",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb",
+          "sha256Utf8Lf": "4995f41c45cdfd2fcb031b69e38da40c0768bbe22e9dbd4a54d0d3c24d9bb01b",
+          "currentSha256Utf8Lf": "4995f41c45cdfd2fcb031b69e38da40c0768bbe22e9dbd4a54d0d3c24d9bb01b",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/SqlCargaExcel.vb",
+          "sha256Utf8Lf": "73bbf7025ae448b6ab80b287a197d9aa1dacd397f3deccc72e8a5861ab72f16d",
+          "currentSha256Utf8Lf": "73bbf7025ae448b6ab80b287a197d9aa1dacd397f3deccc72e8a5861ab72f16d",
+          "matches": true
+        },
+        {
+          "path": "Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportProvider.vb",
+          "sha256Utf8Lf": "7cb4a6d86c8b2769750eca1ede7342a04da11d812f2298f6e6e567ea6161abef",
+          "currentSha256Utf8Lf": "7cb4a6d86c8b2769750eca1ede7342a04da11d812f2298f6e6e567ea6161abef",
+          "matches": true
+        },
+        {
+          "path": "Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb",
+          "sha256Utf8Lf": "8857b24d92b9b018bce86c2a35a7682c5d15bfbff49d0155042d2a3bc6e4cbf0",
+          "currentSha256Utf8Lf": "8857b24d92b9b018bce86c2a35a7682c5d15bfbff49d0155042d2a3bc6e4cbf0",
+          "matches": true
+        },
+        {
+          "path": "Services/ProduccionDocumental/ImportacionExcel/ReglasCargaExcel.vb",
+          "sha256Utf8Lf": "763809e3da2d6749ff95fcba7a5b52a95198bcdcf21e77cc77d931657db8435f",
+          "currentSha256Utf8Lf": "763809e3da2d6749ff95fcba7a5b52a95198bcdcf21e77cc77d931657db8435f",
+          "matches": true
+        },
+        {
+          "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioAnalisisPlantillaExcel.vb",
+          "sha256Utf8Lf": "412e402eee8438cdf4371d7e61f66993bb9eae0783a2509feebe563e59c898f6",
+          "currentSha256Utf8Lf": "412e402eee8438cdf4371d7e61f66993bb9eae0783a2509feebe563e59c898f6",
+          "matches": true
+        },
+        {
+          "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb",
+          "sha256Utf8Lf": "22e85ceaf98e8accfbf0d8af8cbbd27045f052ac08be9b48cf7354f19b92df27",
+          "currentSha256Utf8Lf": "22e85ceaf98e8accfbf0d8af8cbbd27045f052ac08be9b48cf7354f19b92df27",
+          "matches": true
+        },
+        {
+          "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioLecturaExcel.vb",
+          "sha256Utf8Lf": "fa0d6a99a17fff59931ba265814670e3d487b106c8e7229b3d37369afd605295",
+          "currentSha256Utf8Lf": "fa0d6a99a17fff59931ba265814670e3d487b106c8e7229b3d37369afd605295",
+          "matches": true
+        },
+        {
+          "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioPlantillasExcel.vb",
+          "sha256Utf8Lf": "949de270e83544bf65cc288c75ec81b6da6590039a6ca4c1dfc9d5e37f0ee1bd",
+          "currentSha256Utf8Lf": "949de270e83544bf65cc288c75ec81b6da6590039a6ca4c1dfc9d5e37f0ee1bd",
+          "matches": true
+        },
+        {
+          "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioPreparacionExcel.vb",
+          "sha256Utf8Lf": "8bf53cbf11e89279b3a65c57e93fb2566ef1fd1c0ad605ae05b2eabb383d9e39",
+          "currentSha256Utf8Lf": "8bf53cbf11e89279b3a65c57e93fb2566ef1fd1c0ad605ae05b2eabb383d9e39",
+          "matches": true
+        },
+        {
+          "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioRecepcionExcel.vb",
+          "sha256Utf8Lf": "92b1641c7c9653d9f200aff7f7471140259c8eac2589e058df2fcaeb63def317",
+          "currentSha256Utf8Lf": "92b1641c7c9653d9f200aff7f7471140259c8eac2589e058df2fcaeb63def317",
+          "matches": true
+        },
+        {
+          "path": "Styles/ImportacionExcel.css",
+          "sha256Utf8Lf": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+          "currentSha256Utf8Lf": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+          "matches": true
+        },
+        {
+          "path": "Web.config",
+          "sha256Utf8Lf": "ff9ffb5dda6d51cc7d9d5ed436ba2514993784a00071f9d1f2b6feecfdf30868",
+          "currentSha256Utf8Lf": "ff9ffb5dda6d51cc7d9d5ed436ba2514993784a00071f9d1f2b6feecfdf30868",
+          "matches": true
+        },
+        {
+          "path": "generic_control/ImportacionExcelAnalisis.ashx",
+          "sha256Utf8Lf": "064db5423957a60b143ea5d74a6e6fa0647310d432002382a3263442c54a8c4a",
+          "currentSha256Utf8Lf": "064db5423957a60b143ea5d74a6e6fa0647310d432002382a3263442c54a8c4a",
+          "matches": true
+        },
+        {
+          "path": "generic_control/ImportacionExcelAnalisis.ashx.vb",
+          "sha256Utf8Lf": "8133a69579660d22c8615c2b78f4de15abc6cf2fe16600bb3d5d6028fcebd363",
+          "currentSha256Utf8Lf": "8133a69579660d22c8615c2b78f4de15abc6cf2fe16600bb3d5d6028fcebd363",
+          "matches": true
+        },
+        {
+          "path": "generic_control/ImportacionExcelUpload.ashx",
+          "sha256Utf8Lf": "c7bd875711b2399334e51a335c858058bf1bd2079b0959c0be955146edfa2386",
+          "currentSha256Utf8Lf": "c7bd875711b2399334e51a335c858058bf1bd2079b0959c0be955146edfa2386",
+          "matches": true
+        },
+        {
+          "path": "generic_control/ImportacionExcelUpload.ashx.vb",
+          "sha256Utf8Lf": "b9dd46bdcf92e75a824a995c9997ecf615723182e03d5fe0c8073960049bd6fc",
+          "currentSha256Utf8Lf": "b9dd46bdcf92e75a824a995c9997ecf615723182e03d5fe0c8073960049bd6fc",
+          "matches": true
+        },
+        {
+          "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+          "sha256Utf8Lf": "b4c649f711f6dae7dab5f6cd1efb6affa814c3210c9c55f6eab5a2f232babf5f",
+          "currentSha256Utf8Lf": "b4c649f711f6dae7dab5f6cd1efb6affa814c3210c9c55f6eab5a2f232babf5f",
+          "matches": true
+        },
+        {
+          "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+          "sha256Utf8Lf": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+          "currentSha256Utf8Lf": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+          "matches": true
+        },
+        {
+          "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+          "sha256Utf8Lf": "d7ad94d6eb39eeabb6ebabbfe33ff4d86bb64498cc3e9da7013b38c2cfb7d501",
+          "currentSha256Utf8Lf": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+          "matches": false
+        },
+        {
+          "path": "tests/Fixtures/ProduccionDocumental/ImportacionExcel/generar.py",
+          "sha256Utf8Lf": "b61dd3640a7c121c564fd392f3767c3de798c622c077b7fabce8a8707cbb9969",
+          "currentSha256Utf8Lf": "b61dd3640a7c121c564fd392f3767c3de798c622c077b7fabce8a8707cbb9969",
+          "matches": true
+        },
+        {
+          "path": "tests/ImportacionExcelBehaviorTests.cs",
+          "sha256Utf8Lf": "cab0377b60a3b138c2b3108699aafddaac8510dc3d10d064ab012917bf44924e",
+          "currentSha256Utf8Lf": "cab0377b60a3b138c2b3108699aafddaac8510dc3d10d064ab012917bf44924e",
+          "matches": true
+        },
+        {
+          "path": "tests/ImportacionExcelConfirmacionTests.cs",
+          "sha256Utf8Lf": "edc5f2bc14b70f1a75cc4a37e6b403c2e45e5bca2d4f8e83d7b8704aff7d3f04",
+          "currentSha256Utf8Lf": "edc5f2bc14b70f1a75cc4a37e6b403c2e45e5bca2d4f8e83d7b8704aff7d3f04",
+          "matches": true
+        },
+        {
+          "path": "tests/ImportacionExcelLecturaTests.cs",
+          "sha256Utf8Lf": "456c50d4096e81685e5b4a926806bfa3df9f02af3e0eee019cc7ec0982b6cb06",
+          "currentSha256Utf8Lf": "456c50d4096e81685e5b4a926806bfa3df9f02af3e0eee019cc7ec0982b6cb06",
+          "matches": true
+        },
+        {
+          "path": "tests/ImportacionExcelPreparacionTests.cs",
+          "sha256Utf8Lf": "0f142aade7a67fb4516c0b886c847d81b533b934dabd6bbf7e4fff600ced9e20",
+          "currentSha256Utf8Lf": "0f142aade7a67fb4516c0b886c847d81b533b934dabd6bbf7e4fff600ced9e20",
+          "matches": true
+        },
+        {
+          "path": "tests/doc122-e2e-reuse.test.cjs",
+          "sha256Utf8Lf": "6614037da85e4c1b0219f3ed8f6ce9b7f40922287c3bf430e75b6dddc2b74ef5",
+          "currentSha256Utf8Lf": "6614037da85e4c1b0219f3ed8f6ce9b7f40922287c3bf430e75b6dddc2b74ef5",
+          "matches": true
+        },
+        {
+          "path": "tests/doc122-importacion-excel-behavior.test.cjs",
+          "sha256Utf8Lf": "de09a98b6db3c55651408d331f830827c1ab27fbeba0e2090c13e3bd379ffac6",
+          "currentSha256Utf8Lf": "de09a98b6db3c55651408d331f830827c1ab27fbeba0e2090c13e3bd379ffac6",
+          "matches": true
+        },
+        {
+          "path": "tests/doc124-e2e-reuse.test.cjs",
+          "sha256Utf8Lf": "dc6c0880904a669aa523db3f396393214a297a798fa986b9a20c6413570cc141",
+          "currentSha256Utf8Lf": "dc6c0880904a669aa523db3f396393214a297a798fa986b9a20c6413570cc141",
+          "matches": true
+        },
+        {
+          "path": "tests/doc125-e2e-reuse.test.cjs",
+          "sha256Utf8Lf": "6594d5edd7b888fa8fc356b875929aeb0886effce223c7e8195bab4fdce79d87",
+          "currentSha256Utf8Lf": "6594d5edd7b888fa8fc356b875929aeb0886effce223c7e8195bab4fdce79d87",
+          "matches": true
+        },
+        {
+          "path": "tests/doc126-e2e-reuse.test.cjs",
+          "sha256Utf8Lf": "93c813cd64654171284eaabab672da48deb01b639af816c7323448c0b502134e",
+          "currentSha256Utf8Lf": "93c813cd64654171284eaabab672da48deb01b639af816c7323448c0b502134e",
+          "matches": true
+        },
+        {
+          "path": "tests/doc126-importacion-excel-client.test.cjs",
+          "sha256Utf8Lf": "d996e59f1060b9ae7cded4a5d243ba3df0db9cafcc4fd795a0bb106ecab37f84",
+          "currentSha256Utf8Lf": "d996e59f1060b9ae7cded4a5d243ba3df0db9cafcc4fd795a0bb106ecab37f84",
+          "matches": true
+        },
+        {
+          "path": "tests/doc126-importacion-excel-ui.test.cjs",
+          "sha256Utf8Lf": "2d3a95d85c44c4dd5f14f5b03d2002055276430e9f0b17239cbb625255fd0c4a",
+          "currentSha256Utf8Lf": "913e05e4360ddcd2168940b27079386780afa50db6f8ae2d1441e5220b25a457",
+          "matches": false
+        },
+        {
+          "path": "tests/doc127-capacity-fixtures.test.cjs",
+          "sha256Utf8Lf": "91ded6bdd32994dd114698a43bf335b00a3e28077f1fd998dad27c27ba1e693d",
+          "currentSha256Utf8Lf": "91ded6bdd32994dd114698a43bf335b00a3e28077f1fd998dad27c27ba1e693d",
+          "matches": true
+        },
+        {
+          "path": "tests/doc127-e2e-reuse.test.cjs",
+          "sha256Utf8Lf": "d5949b669b788da1a92f606abe90f46abbed23133185d92b94967ee59ce33048",
+          "currentSha256Utf8Lf": "d5949b669b788da1a92f606abe90f46abbed23133185d92b94967ee59ce33048",
+          "matches": true
+        },
+        {
+          "path": "tests/support/Doc127CapacityFixtureReader.cs",
+          "sha256Utf8Lf": "b97c1c0ea4ba39e83b242e6979224105ed1f90a67439fd123eafae89980dd60f",
+          "currentSha256Utf8Lf": "b97c1c0ea4ba39e83b242e6979224105ed1f90a67439fd123eafae89980dd60f",
+          "matches": true
+        },
+        {
+          "path": "tools/e2e/AGENT-RUNBOOK.md",
+          "sha256Utf8Lf": "90048b06dfbbf08b24a35a438882fc5ff621229b29d739d17ec1a2d605c9b7e6",
+          "currentSha256Utf8Lf": "423b6cab5cb25559898d321a47225061b3331015a87a46e3bb7d0216182ee1b9",
+          "matches": false
+        },
+        {
+          "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+          "sha256Utf8Lf": "2934628f4e513eea48c22014f80024a415a8bb5e47c34603f1088c5d6977ec9c",
+          "currentSha256Utf8Lf": "2934628f4e513eea48c22014f80024a415a8bb5e47c34603f1088c5d6977ec9c",
+          "matches": true
+        },
+        {
+          "path": "tools/e2e/scripts/support/doc127-iis-memory.ps1",
+          "sha256Utf8Lf": "aa26741fbecfe6b498c882b9865db6e56936325da986e12e12174b92b5337d84",
+          "currentSha256Utf8Lf": "aa26741fbecfe6b498c882b9865db6e56936325da986e12e12174b92b5337d84",
+          "matches": true
+        },
+        {
+          "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+          "sha256Utf8Lf": "4a8eb74e5f05af731a6d4413ddae6991c0ae7f4c1f7ee752a8235ab09263bea1",
+          "currentSha256Utf8Lf": "61ee704cb56724fb09279e2e984a4e718fad436a0587a01652c3a6aa3911a2c7",
+          "matches": false
+        },
+        {
+          "path": "tools/e2e/tests/support/doc124-excel-scope.cjs",
+          "sha256Utf8Lf": "0b4b49021c8d87a89600cd0d44faf863069c7f4732dd74b7c42ecaaa8f0ab125",
+          "currentSha256Utf8Lf": "0b4b49021c8d87a89600cd0d44faf863069c7f4732dd74b7c42ecaaa8f0ab125",
+          "matches": true
+        },
+        {
+          "path": "tools/e2e/tests/support/doc125-excel-scope.cjs",
+          "sha256Utf8Lf": "9c4f525539373e8f5c4d5f2519259ec750a0cfd96aafaefb54e6cf2cca6e12a7",
+          "currentSha256Utf8Lf": "9c4f525539373e8f5c4d5f2519259ec750a0cfd96aafaefb54e6cf2cca6e12a7",
+          "matches": true
+        },
+        {
+          "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+          "sha256Utf8Lf": "f4597c54f60cdc126e538a1e1e157be553d5a7fc6f3b4da46f1b9652ab301ef8",
+          "currentSha256Utf8Lf": "f4597c54f60cdc126e538a1e1e157be553d5a7fc6f3b4da46f1b9652ab301ef8",
+          "matches": true
+        },
+        {
+          "path": "webservice/WebServiceImportacionExcel.asmx",
+          "sha256Utf8Lf": "134a40dfcf3273f6f3fb2d8305cc45eb9b46ef05b328f5f6667c7762483004a7",
+          "currentSha256Utf8Lf": "134a40dfcf3273f6f3fb2d8305cc45eb9b46ef05b328f5f6667c7762483004a7",
+          "matches": true
+        },
+        {
+          "path": "webservice/WebServiceImportacionExcel.asmx.vb",
+          "sha256Utf8Lf": "e14c28833e3ab56698c61196923c12ff96f1c41dbb00370db5c47e95ea7a5a4c",
+          "currentSha256Utf8Lf": "e14c28833e3ab56698c61196923c12ff96f1c41dbb00370db5c47e95ea7a5a4c",
+          "matches": true
+        }
+      ]
+    },
+    {
+      "id": "INTEGRACION",
+      "sourceCommit": "17bdf09e4f46efb43cbe4771d4de99ee8a308628",
+      "sources": [
+        {
+          "path": "tests/doc119-navigation.test.cjs",
+          "sha256Utf8Lf": "998e7f0bd70f8b612e2462935899f5ba8d0c5d90b5df949e22816b2ec465a0f0",
+          "currentSha256Utf8Lf": "998e7f0bd70f8b612e2462935899f5ba8d0c5d90b5df949e22816b2ec465a0f0",
+          "matches": true
+        },
+        {
+          "path": "tests/doc120-produccion-barra.test.cjs",
+          "sha256Utf8Lf": "e03a2e3e979016f33a887350f3c9afab1fb5684910a6814f8215a8db3a9bbf83",
+          "currentSha256Utf8Lf": "e03a2e3e979016f33a887350f3c9afab1fb5684910a6814f8215a8db3a9bbf83",
+          "matches": true
+        },
+        {
+          "path": "tests/doc120-importacion-arbol.test.cjs",
+          "sha256Utf8Lf": "6a4a8a423eecc1ec049c7b7ad08f8bf7bcb67363bc5ea813c47e3411cb12440d",
+          "currentSha256Utf8Lf": "6a4a8a423eecc1ec049c7b7ad08f8bf7bcb67363bc5ea813c47e3411cb12440d",
+          "matches": true
+        },
+        {
+          "path": "tests/doc120-coordinacion-browser.test.cjs",
+          "sha256Utf8Lf": "7cc6bba509b2fb5c8cda11c7818ba6e4909f115c6ee801d0ddd93908175b0c17",
+          "currentSha256Utf8Lf": "7cc6bba509b2fb5c8cda11c7818ba6e4909f115c6ee801d0ddd93908175b0c17",
+          "matches": true
+        },
+        {
+          "path": "tests/doc110-perfil-importacion-editor.test.cjs",
+          "sha256Utf8Lf": "9eb29937b10117d0f537b61a9242102e67a0080635f3b2d2ed9016038901e220",
+          "currentSha256Utf8Lf": "9eb29937b10117d0f537b61a9242102e67a0080635f3b2d2ed9016038901e220",
+          "matches": true
+        },
+        {
+          "path": "tests/doc110-fuente-admin-editor.test.cjs",
+          "sha256Utf8Lf": "9c207333439e6f8e3aafc3831523cb38432da2eac5f994c41c2623d14eace6fd",
+          "currentSha256Utf8Lf": "9c207333439e6f8e3aafc3831523cb38432da2eac5f994c41c2623d14eace6fd",
+          "matches": true
+        },
+        {
+          "path": "tests/doc110-proveedor-admin-editor.test.cjs",
+          "sha256Utf8Lf": "c8631c479a72e51853037e1327977e7860441be8c83d92f90ebbceed497091b0",
+          "currentSha256Utf8Lf": "c8631c479a72e51853037e1327977e7860441be8c83d92f90ebbceed497091b0",
+          "matches": true
+        },
+        {
+          "path": "tests/doc126-importacion-excel-ui.test.cjs",
+          "sha256Utf8Lf": "913e05e4360ddcd2168940b27079386780afa50db6f8ae2d1441e5220b25a457",
+          "currentSha256Utf8Lf": "913e05e4360ddcd2168940b27079386780afa50db6f8ae2d1441e5220b25a457",
+          "matches": true
+        },
+        {
+          "path": "tests/doc126-importacion-excel-client.test.cjs",
+          "sha256Utf8Lf": "d996e59f1060b9ae7cded4a5d243ba3df0db9cafcc4fd795a0bb106ecab37f84",
+          "currentSha256Utf8Lf": "d996e59f1060b9ae7cded4a5d243ba3df0db9cafcc4fd795a0bb106ecab37f84",
+          "matches": true
+        },
+        {
+          "path": "tests/doc126-e2e-reuse.test.cjs",
+          "sha256Utf8Lf": "93c813cd64654171284eaabab672da48deb01b639af816c7323448c0b502134e",
+          "currentSha256Utf8Lf": "93c813cd64654171284eaabab672da48deb01b639af816c7323448c0b502134e",
+          "matches": true
+        },
+        {
+          "path": "tests/doc127-e2e-reuse.test.cjs",
+          "sha256Utf8Lf": "d5949b669b788da1a92f606abe90f46abbed23133185d92b94967ee59ce33048",
+          "currentSha256Utf8Lf": "d5949b669b788da1a92f606abe90f46abbed23133185d92b94967ee59ce33048",
+          "matches": true
+        },
+        {
+          "path": "tools/e2e/tests/support/doc110-admin-navigation.cjs",
+          "sha256Utf8Lf": "dcbd973a3d8eedea832ea9e421575e2d37cd353d4daa192815d4d5d6897011bf",
+          "currentSha256Utf8Lf": "dcbd973a3d8eedea832ea9e421575e2d37cd353d4daa192815d4d5d6897011bf",
+          "matches": true
+        },
+        {
+          "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+          "sha256Utf8Lf": "61ee704cb56724fb09279e2e984a4e718fad436a0587a01652c3a6aa3911a2c7",
+          "currentSha256Utf8Lf": "61ee704cb56724fb09279e2e984a4e718fad436a0587a01652c3a6aa3911a2c7",
+          "matches": true
+        },
+        {
+          "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+          "sha256Utf8Lf": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+          "currentSha256Utf8Lf": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+          "matches": true
+        },
+        {
+          "path": "Gestion/WebFormProducionDocumental.aspx",
+          "sha256Utf8Lf": "4a80a5aacd92e6cc78152ff014ec75130539e9d52a1223436d3599a35060d85b",
+          "currentSha256Utf8Lf": "4a80a5aacd92e6cc78152ff014ec75130539e9d52a1223436d3599a35060d85b",
+          "matches": true
+        }
+      ]
+    }
+  ],
+  "runtimeAudit": [
+    {
+      "path": "bin/GestionDocumental-Docuarchi.net.dll",
+      "previousSha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+      "currentSha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+      "matches": true
+    },
+    {
+      "path": "bin/MySql.Data.dll",
+      "previousSha256": "c7bf74f07c7c9411b630b793f19572c0276b04dd3423ae5bc32204ae539d977a",
+      "currentSha256": "c7bf74f07c7c9411b630b793f19572c0276b04dd3423ae5bc32204ae539d977a",
+      "matches": true
+    },
+    {
+      "path": "Web.config",
+      "previousSha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+      "currentSha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+      "matches": true
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+      "previousSha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+      "currentSha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+      "matches": true
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "previousSha256": "d7ad94d6eb39eeabb6ebabbfe33ff4d86bb64498cc3e9da7013b38c2cfb7d501",
+      "currentSha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+      "matches": false
+    },
+    {
+      "path": "Styles/ImportacionExcel.css",
+      "previousSha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+      "currentSha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+      "matches": true
+    }
+  ],
+  "reusePolicy": "Hashes comparados en este corte. Build/harness/regresion son resultados previos con SHA propio; no se afirma otra ejecucion ni un nuevo build global de HEAD. Las seis diferencias locales se explican por documentacion y correccion/integracion posterior. Ninguna evidencia real anterior se convierte en ejecucion actual.",
+  "blockers": [],
+  "acceptanceApproved": true,
+  "humanApprovalClaimed": false,
+  "archived": false,
+  "jiraClosed": false,
+  "verification": {
+    "openspecStrict": "PASS",
+    "refinement": {
+      "status": "PASS",
+      "checks": 15
+    },
+    "opsxj": {
+      "status": "FAIL",
+      "checks": 72,
+      "passed": 68,
+      "failed": [
+        "openspec_tasks",
+        "openspec_review",
+        "evidence:unit",
+        "evidence:manual_qa"
+      ],
+      "evaluationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf",
+      "committedHeadMustBeRevalidated": true
+    },
+    "documentMarkersCorrected": 5,
+    "newTestOrBuildExecution": false
+  },
+  "initialConsolidationEffects": {
+    "authenticatedE2E": 0,
+    "sqlStatements": 0,
+    "imports": 0,
+    "deployments": 0,
+    "permissionChanges": 0
+  },
+  "latestReadAcceptance": {
+    "evidenceId": "DOC127_LECTURA",
+    "sourceCommit": "986f0f1cc9974dd81343e3f9227a264d53bba13c",
+    "status": "REAL_READ_AND_WEBFORMS_ISOLATION_PASS",
+    "completedUtc": "2026-11-25T23:28:09.9136967Z",
+    "passed": 1,
+    "protectedTables": 32,
+    "profilesCompared": 78,
+    "previousLoads": 5,
+    "historicProfileHashMatches": false,
+    "windowConsumed": true,
+    "newEffects": {
+      "authenticatedApplicationSessions": 2,
+      "uploads": 0,
+      "templateWrites": 0,
+      "preparations": 0,
+      "confirmations": 0,
+      "businessInserts": 0,
+      "businessDeletes": 0,
+      "permissionChanges": 0,
+      "controlSqlWrites": 0,
+      "deployments": 0
+    }
+  },
+  "latestRealCapacity": {
+    "evidenceId": "DOC127_XLSX10000_REAL",
+    "sourceCommit": "86074721005fd4b9c6b3d8a6347e5add474b6649",
+    "status": "REAL_XLSX10000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+    "completedUtc": "2026-11-26T16:43:59.065Z",
+    "effects": {
+      "receivedFiles": 3,
+      "preparedLoads": 3,
+      "confirmedLoads": 3,
+      "businessRowsInserted": 30000,
+      "businessRowsDeleted": 5000,
+      "netBusinessRows": 25000,
+      "tablesCreated": 1,
+      "templateWrites": 0,
+      "permissionChanges": 0,
+      "administrativeSqlApplied": 0,
+      "deployments": 0
+    },
+    "completedTask": "6.6"
+  },
+  "realCapacityHistory": [
+    {
+      "evidenceId": "DOC127_XLS1000_REAL",
+      "sourceCommit": "c2277806aa5869521bdd43041561002431417d7d",
+      "status": "REAL_XLS1000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "completedUtc": "2026-11-26T00:57:59.833Z",
+      "effects": {
+        "receivedFiles": 3,
+        "preparedLoads": 3,
+        "confirmedLoads": 3,
+        "businessRowsInserted": 3000,
+        "businessRowsDeleted": 0,
+        "tablesCreated": 1,
+        "templateWrites": 0,
+        "permissionChanges": 0,
+        "administrativeSqlApplied": 0,
+        "deployments": 0
+      },
+      "completedTask": "6.1"
+    },
+    {
+      "evidenceId": "DOC127_XLS5000_REAL",
+      "sourceCommit": "365330139fed82672367bccc6903845b3f331619",
+      "status": "REAL_XLS5000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "completedUtc": "2026-11-26T12:41:55.648Z",
+      "effects": {
+        "receivedFiles": 3,
+        "preparedLoads": 3,
+        "confirmedLoads": 3,
+        "businessRowsInserted": 15000,
+        "businessRowsDeleted": 1000,
+        "netBusinessRows": 14000,
+        "tablesCreated": 1,
+        "templateWrites": 0,
+        "permissionChanges": 0,
+        "administrativeSqlApplied": 0,
+        "deployments": 0
+      },
+      "completedTask": "6.2"
+    },
+    {
+      "evidenceId": "DOC127_XLS10000_REAL",
+      "sourceCommit": "2cc794bb8795121a3c568de82af57a2ae1229976",
+      "status": "REAL_XLS10000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "completedUtc": "2026-11-26T14:26:14.614Z",
+      "effects": {
+        "receivedFiles": 3,
+        "preparedLoads": 3,
+        "confirmedLoads": 3,
+        "businessRowsInserted": 30000,
+        "businessRowsDeleted": 5000,
+        "netBusinessRows": 25000,
+        "tablesCreated": 1,
+        "templateWrites": 0,
+        "permissionChanges": 0,
+        "administrativeSqlApplied": 0,
+        "deployments": 0
+      },
+      "completedTask": "6.3"
+    },
+    {
+      "evidenceId": "DOC127_XLSX1000_REAL",
+      "sourceCommit": "a4bb16a917f2ec2a6fd16f24583058a794e4f6ac",
+      "status": "REAL_XLSX1000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "completedUtc": "2026-11-26T15:18:51.884Z",
+      "effects": {
+        "receivedFiles": 3,
+        "preparedLoads": 3,
+        "confirmedLoads": 3,
+        "businessRowsInserted": 3000,
+        "businessRowsDeleted": 1000,
+        "netBusinessRows": 2000,
+        "tablesCreated": 1,
+        "templateWrites": 0,
+        "permissionChanges": 0,
+        "administrativeSqlApplied": 0,
+        "deployments": 0
+      },
+      "completedTask": "6.4"
+    },
+    {
+      "evidenceId": "DOC127_XLSX5000_REAL",
+      "sourceCommit": "96dfc85e3a78ecba9653eaaa7a6a55f0723b0d39",
+      "status": "REAL_XLSX5000_THREE_MODES_PASS_WITH_SHARED_MEMORY_SAMPLING",
+      "completedUtc": "2026-11-26T16:01:42.798Z",
+      "effects": {
+        "receivedFiles": 3,
+        "preparedLoads": 3,
+        "confirmedLoads": 3,
+        "businessRowsInserted": 15000,
+        "businessRowsDeleted": 1000,
+        "netBusinessRows": 14000,
+        "tablesCreated": 1,
+        "templateWrites": 0,
+        "permissionChanges": 0,
+        "administrativeSqlApplied": 0,
+        "deployments": 0
+      },
+      "completedTask": "6.5"
+    }
+  ],
+  "capacityCompletion": {
+    "status": "REAL_18_OF_18_PASS_WITH_SHARED_MEMORY_SAMPLING",
+    "evidenceId": "DOC127_XLSX10000_REAL",
+    "recordedUtc": "2026-11-26T16:44:37.990Z",
+    "sizes": [
+      1000,
+      5000,
+      10000
+    ],
+    "formats": [
+      "XLS",
+      "XLSX"
+    ],
+    "modes": [
+      "CREAR",
+      "AGREGAR",
+      "REEMPLAZAR"
+    ],
+    "exclusiveMemoryAllocationClaimed": false
+  },
+  "nextPreparedWindow": {
+    "batchId": "c659ec0b64d94681bccaaa8e6e75e4d0",
+    "status": "FINISHED_REAL_ASSISTANT_PASS",
+    "report": "Doc/Actualizacion/Importacion/Validacion/doc127-ventana-asistente-20261126.md",
+    "scope": "current web assistant XLS/XLSX,194,1000 rows each",
+    "maxEffects": {
+      "imports": 2,
+      "templates": 2,
+      "fields": 4,
+      "tables": 2,
+      "insertedRows": 2000,
+      "deletedRows": 0,
+      "permissionChanges": 0,
+      "installationSql": 0,
+      "cleanupSql": 0
+    },
+    "realE2EExecuted": true,
+    "completesTasks": [
+      "5.2"
+    ],
+    "windowConsumed": true,
+    "finalEvidence": "Doc/Actualizacion/Importacion/Validacion/doc127-asistente-real-20261126.json"
+  },
+  "latestAuthorityAcceptance": {
+    "evidenceId": "DOC127_AUTORIDAD_REAL",
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-autoridad-real-20261126.json",
+    "sourceCommit": "95d7c8d377a960e551b62757c21c50d441e205d5",
+    "status": "REAL_AUTHORITY_AND_READ_PASS",
+    "windowId": "b0bd002d3ee84dc38d2bc883fb9c1739",
+    "realTestPassed": 1,
+    "realSecurityCasesPassed": 6,
+    "completedTask": "5.1",
+    "newImportEffects": 0,
+    "physicalRevocationExecuted": false
+  },
+  "templateMatrix": {
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-matriz-plantillas-20261126.json",
+    "status": "CURRENT_FORMAT_MODE_AND_WEB_ASSISTANT_PASS_WITH_CLASSIFIED_LIMITS",
+    "taskComplete": true
+  },
+  "resolvedBlockers": [
+    {
+      "id": "B-02",
+      "tasks": [
+        "7.1"
+      ],
+      "impact": "Autoridad y lectura vigentes aprobadas; queda revisar los hallazgos al completar los cruces pendientes de plantillas del corte integral.",
+      "action": "Conservar ventana de autoridad consumida y evidencia mixta clasificada; no repetir importaciones ni mutar permisos. Cerrar hallazgos integrales tras5.2.",
+      "status": "RESOLVED_WITH_CLASSIFIED_EVIDENCE",
+      "resolvedEvidence": "DOC127_HALLAZGOS_CIERRE",
+      "resolvedUtc": "2026-11-26T19:36:30.466Z"
+    },
+    {
+      "id": "B-03",
+      "tasks": [
+        "5.2"
+      ],
+      "impact": "La matriz18/18 de capacidad tiene resultados reales y mediciones. Los cruces restantes de plantillas y su aceptación funcional siguen pendientes.",
+      "action": "Ventana concreta de asistente XLS/XLSX preparada para cuenta194:2 altas/4 campos/2 tablas/2000 filas nuevas, cero borrados. Obtener autorización, ejecutar una vez por formato y revisar resultados con matriz de plantillas; no repetir capacidad.",
+      "status": "RESOLVED_WITH_CLASSIFIED_EVIDENCE",
+      "resolvedEvidence": "DOC127_ASISTENTE_REAL",
+      "resolvedUtc": "2026-11-26T19:36:30.466Z"
+    },
+    {
+      "id": "B-01",
+      "tasks": [
+        "2.4"
+      ],
+      "impact": "Rendimiento de lectura por clave sin plan verificable.",
+      "action": "SQL29 coincide con proveedor1/v1 revisión4 y política CONEXION actuales. El operador ejecuta sus dos SELECT y EXPLAIN y aporta key/possible_keys/type/rows/Extra; revisar los cero índices observados sin crear uno automáticamente.",
+      "status": "RESOLVED_PLAN_REVIEWED_WITH_WARNING",
+      "evidence": "Doc/Actualizacion/Importacion/Validacion/doc127-plan-consulta-20261126.json"
+    },
+    {
+      "id": "B-04",
+      "tasks": [
+        "7.5"
+      ],
+      "impact": "Faltan tareas y aceptacion; no procede archivo ni cierre Jira.",
+      "action": "Plan2.4 completado. Falta QA visual humana actual; después reevaluar revisión y gates del SHA final, sin inventar evidencia.",
+      "status": "RESOLVED_DELEGATED_QA_AND_TECHNICAL_REVIEW",
+      "evidence": "Doc/Actualizacion/Importacion/Validacion/doc127-qa-delegada-20261126.json"
+    }
+  ],
+  "latestAssistantAcceptance": {
+    "evidenceId": "DOC127_ASISTENTE_REAL",
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-asistente-real-20261126.json",
+    "sourceCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d",
+    "status": "REAL_CURRENT_ASSISTANT_XLS_XLSX_PASS",
+    "batchId": "c659ec0b64d94681bccaaa8e6e75e4d0",
+    "testsPassed": 2,
+    "cases": [
+      {
+        "format": "XLS",
+        "templateId": 76,
+        "loadId": "3671f38d-92d2-4605-8253-b6f317d8904a",
+        "rows": 1000
+      },
+      {
+        "format": "XLSX",
+        "templateId": 77,
+        "loadId": "3e2d5b0b-902c-4a99-acaa-817ada56f24f",
+        "rows": 1000
+      }
+    ],
+    "effects": {
+      "authenticatedSessions": 2,
+      "analysisUploads": 2,
+      "importLoads": 2,
+      "templatesCreated": 2,
+      "fieldsCreated": 4,
+      "tablesCreated": 2,
+      "businessRowsInserted": 2000,
+      "businessRowsDeleted": 0,
+      "priorBusinessRowsChanged": 0,
+      "permissionChanges": 0,
+      "installationSqlApplied": 0,
+      "cleanupSqlApplied": 0,
+      "deployments": 0
+    },
+    "completedTask": "5.2"
+  },
+  "latestFindingsReview": {
+    "evidenceId": "DOC127_HALLAZGOS_CIERRE",
+    "status": "KNOWN_FINDINGS_CLOSED_WITH_CLASSIFIED_EVIDENCE",
+    "completedTask": "7.1",
+    "knownFindingsClosed": 1
+  },
+  "latestAcceptanceDelivery": {
+    "completedTasks": [
+      "5.2",
+      "7.1",
+      "2.4",
+      "7.5"
+    ],
+    "complete": 33,
+    "total": 33,
+    "pending": [],
+    "manualQaApproved": true,
+    "manualQaExecutor": "Codex under explicit delegation",
+    "humanObservationClaimed": false
+  },
+  "latestTechnicalVerification": {
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-revision-integral-20261126.json",
+    "status": "REVIEW_PASSED_WITH_DECLARED_WARNINGS",
+    "evaluationCommit": "a09a5440859d4252c9155245293d46030380bfe9",
+    "criticalIssues": 0,
+    "warnings": 2,
+    "requirements": 14,
+    "scenarios": 42,
+    "tasks": "33/33",
+    "closureApproved": true
+  },
+  "latestManualPlanReview": {
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-plan-consulta-20261126.json",
+    "status": "MANUAL_PLAN_REVIEWED_FULL_SCAN_WARNING",
+    "sourceCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
+    "completedTask": "2.4"
+  },
+  "latestDelegatedQa": {
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-qa-delegada-20261126.json",
+    "status": "PASS_REAL_DESKTOP_QA_DELEGATED",
+    "evaluationCommit": "1c1637dd84839fd2fc2d88bef309d39182b96b40"
+  },
+  "initialConsolidationStatus": "INFORME_CONSOLIDADO_ACEPTACION_BLOQUEADA",
+  "initialConsolidationCommit": "23464d6b07155fc8e4e6afa88e81db5ef5c97cdf",
+  "latestSourceVerification": {
+    "recordedUtc": "2026-11-27T03:20:11.510Z",
+    "evaluationCommit": "a09a5440859d4252c9155245293d46030380bfe9",
+    "concurrentCommit": "90faca1089cc8d5373c3fb48482c2cda5900bd80",
+    "changedFiles": [
+      {
+        "path": "Gestion/WebFormProducionDocumental.aspx",
+        "sha256": "dcca583a13b5815a96c7558f3a094779ebbebd4b0c937bb6f3b597f822f65a9d",
+        "sha256Utf8Lf": "15065315b23cff39e7f9c284d2848a6caadeb85d53ce044fa571fc3b675c4e3e"
+      },
+      {
+        "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+        "sha256": "0b022c519167e81086a01cb07c9e03d067cda93caafb650059adb8cb06a3f671",
+        "sha256Utf8Lf": "a3c6992921cd47f866ae48a59517e232a833a759df7a5bdd68bfac7c0d6d6556"
+      },
+      {
+        "path": "tests/doc110-perfil-importacion-editor.test.cjs",
+        "sha256": "3ad5dd826ac450e035cff5fe9a22530b762fdf395e336ebfb832e5288ecafcb5",
+        "sha256Utf8Lf": "1cb682c7c3f17c93429da0cdb0ce624bbe90bdd94517ce8a2af2353c7c7efa38"
+      }
+    ],
+    "sourcePins": [
+      {
+        "sha256": "dcca583a13b5815a96c7558f3a094779ebbebd4b0c937bb6f3b597f822f65a9d",
+        "path": "Gestion/WebFormProducionDocumental.aspx"
+      },
+      {
+        "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da",
+        "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js"
+      },
+      {
+        "sha256": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b",
+        "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js"
+      },
+      {
+        "sha256": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee",
+        "path": "Styles/ImportacionExcel.css"
+      },
+      {
+        "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+        "path": "bin/GestionDocumental-Docuarchi.net.dll"
+      },
+      {
+        "sha256": "5517e6e4c76c198b5e8c6d7b8459ad5d51ef25b0eb0903bf579f9229a10494a2",
+        "path": "Web.config"
+      }
+    ],
+    "pageDifference": "Only PerfilImportacionEditor.js cache reference; normalized full page matches tested1c1637dd after replacing that exact reference.",
+    "excelAssetsAndRuntimeUnchanged": true,
+    "originalDesktopQaRetainedAt": "1c1637dd84839fd2fc2d88bef309d39182b96b40",
+    "newDesktopQaClaimed": false,
+    "compiledChangesSinceBuild": [],
+    "localRegression": {
+      "command": "node --test tests/doc110-perfil-importacion-editor.test.cjs",
+      "tests": 26,
+      "pass": 26,
+      "fail": 0,
+      "sourceCommit": "a09a5440859d4252c9155245293d46030380bfe9",
+      "type": "LOCAL_SYNTHETIC",
+      "logSha256": "8a5ae5560fb8871c4127273a77d768a555e96e1070d1b11a99c3a7a375e15902"
+    },
+    "buildReuse": "No VB/project/C#/Web.config differences since successful isolated8d1f2159 build; no new build/deployment."
+  },
+  "latestArchivePreparation": {
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-entrega-archivo-20261126.json",
+    "evaluationCommit": "be59c557931571675f4b3d87beb01fccecbe832e",
+    "regression": "29/29 PASS",
+    "specSync": "14 requirements /42 scenarios identical"
+  }
+}

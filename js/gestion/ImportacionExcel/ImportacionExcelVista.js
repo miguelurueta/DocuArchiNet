@@ -54,10 +54,17 @@
         var pageNumber = 1, listTotal = 0, editorOriginal = null, editorDirty = false, saveUncertain = false, refs = [], storage = null, storageOk = true;
         var namespace = "doc126-excel:" + scope, state = "VACIO", controls = [];
         var analysis = null, analyzedFile = null, pendingFile = null, pendingHash = "", pendingTemplate = 0, suggestedTable = "", flowOutcome = null, guideAction = null;
+        // Excel usa sus acciones explícitas; sus restricciones no deben validar form1.
+        // El propietario vive fuera del formulario ASP.NET, sin mover el diálogo.
+        var validationForm = doc.createElement("form");
+        validationForm.id = "doc126-excel-validation-" + scope; validationForm.hidden = true;
+        validationForm.addEventListener("submit",function (event) { event.preventDefault(); });
+        doc.body.appendChild(validationForm);
         function node(tag, content, attrs) {
             var e = doc.createElement(tag);
             if (content !== null && content !== undefined) { e.textContent = content; }
             Object.keys(attrs || {}).forEach(function (k) { e.setAttribute(k,attrs[k]); });
+            if (["input","select","button","textarea"].indexOf(tag) !== -1) { e.setAttribute("form",validationForm.id); }
             return e;
         }
         function button(label, key, action, primary) {
@@ -677,7 +684,7 @@
             epoch++; destroyed = true; clearAssistant(); api.cerrar(); env.removeEventListener("resize",fitViewport);
             if (env.visualViewport) { env.visualViewport.removeEventListener("resize",fitViewport); } if (viewportObserver) { viewportObserver.disconnect(); }
             if (zoomObserver) { zoomObserver.disconnect(); }
-            section.remove(); overlay.remove(); entryNotice.remove(); delete host.doc126Instancia;
+            section.remove(); overlay.remove(); entryNotice.remove(); validationForm.remove(); delete host.doc126Instancia;
         }};
         host.doc126Instancia = instance; return instance;
     }

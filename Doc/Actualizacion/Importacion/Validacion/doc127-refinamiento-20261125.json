@@ -1,0 +1,660 @@
+{
+  "issue": "DOC-127",
+  "status": "DOC127_TECHNICAL_REFINEMENT_PASS",
+  "reviewer": "Codex",
+  "humanGlobalApprovalClaimed": false,
+  "baseCommit": "d1d143954bcd0dc45198b862437d241e6dcc5643",
+  "sourceJiraContextSha256": "96c4caff9abe25160d9b7dc80f72d935c0b380539bcb4cbab1de6e5a8bfd5622",
+  "decisions": 14,
+  "requirements": 14,
+  "scenarios": 42,
+  "productChanged": false,
+  "newRealE2EExecuted": false,
+  "sqlExecuted": false,
+  "runtimeDeployed": false,
+  "sources": [
+    {
+      "path": "Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb",
+      "sha256Utf8Lf": "8857b24d92b9b018bce86c2a35a7682c5d15bfbff49d0155042d2a3bc6e4cbf0"
+    },
+    {
+      "path": "DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb",
+      "sha256Utf8Lf": "6dba0e81e34ded7817db69cf3a822347f02a24cc65a6f95eb5823989dcb15190"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioPlantillasExcel.vb",
+      "sha256Utf8Lf": "949de270e83544bf65cc288c75ec81b6da6590039a6ca4c1dfc9d5e37f0ee1bd"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioLecturaExcel.vb",
+      "sha256Utf8Lf": "fa0d6a99a17fff59931ba265814670e3d487b106c8e7229b3d37369afd605295"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioRecepcionExcel.vb",
+      "sha256Utf8Lf": "92b1641c7c9653d9f200aff7f7471140259c8eac2589e058df2fcaeb63def317"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioPreparacionExcel.vb",
+      "sha256Utf8Lf": "8bf53cbf11e89279b3a65c57e93fb2566ef1fd1c0ad605ae05b2eabb383d9e39"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioConfirmacionExcel.vb",
+      "sha256Utf8Lf": "22e85ceaf98e8accfbf0d8af8cbbd27045f052ac08be9b48cf7354f19b92df27"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ServicioAnalisisPlantillaExcel.vb",
+      "sha256Utf8Lf": "412e402eee8438cdf4371d7e61f66993bb9eae0783a2509feebe563e59c898f6"
+    },
+    {
+      "path": "Services/ProduccionDocumental/ImportacionExcel/ReglasCargaExcel.vb",
+      "sha256Utf8Lf": "763809e3da2d6749ff95fcba7a5b52a95198bcdcf21e77cc77d931657db8435f"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelContextAdapter.vb",
+      "sha256Utf8Lf": "8a89cc86baec4083e89a3d6a3806f7d3bdf371d68b07646cef37dee42e250426"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelConexionAdapter.vb",
+      "sha256Utf8Lf": "1f772b8f0d4a515a313907a030da1ea91b480b7c9b7283aaea13a62b71831ef3"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb",
+      "sha256Utf8Lf": "cc12bd1cf3862cfe2b33811e0635491254ec138250d2cbad5ad2d736aeefc344"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/LectorArchivoExcel.vb",
+      "sha256Utf8Lf": "781e902a557f4020f621846942ae7c6e1e6fa091c81859c7d9b20e1a0d697197"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/InspectorFidelidadExcel.vb",
+      "sha256Utf8Lf": "dc39576bb8646475cd7a7b454eac2ab2e646286608df27de9cc7e302b0187ed5"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/AlmacenArchivoExcel.vb",
+      "sha256Utf8Lf": "901b2c3adf0484036cad185625450285082a5e4dd16fa7636524ec915cd1e3d0"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ReferenciaRecepcionExcel.vb",
+      "sha256Utf8Lf": "c400d077e5b0736814990ef49524a9e62ab43c3de1e154d041ad4f8ebff631d7"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/PoliticaDestinoCargaExcelAdapter.vb",
+      "sha256Utf8Lf": "9127925277c205060496204aea452aec58a1afae3817100f3eecc956027d73f1"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ComposicionCargaExcel.vb",
+      "sha256Utf8Lf": "463c45d82f7b736d1f7bcb366b71005be9e62391c54b3a22d4398231c2a2e977"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb",
+      "sha256Utf8Lf": "2aba73f57faf716b90597a95ba2f3d5019cc3ef2bb18db29cb467c209b446ff9"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlCargaExcelRepository.vb",
+      "sha256Utf8Lf": "47d04d584ab854f14d029bc4bb5cacc400c80825cd9c2014b7eb22c63b90a7f2"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPreparacionExcelValidator.vb",
+      "sha256Utf8Lf": "4995f41c45cdfd2fcb031b69e38da40c0768bbe22e9dbd4a54d0d3c24d9bb01b"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlConfirmacionExcelWriter.vb",
+      "sha256Utf8Lf": "ae431a4d2c487a947f44161cf70b25b9f63d79903778bf5fa94b47cb9d54c124"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlEstructuraExcel.vb",
+      "sha256Utf8Lf": "a281c891106e3bcf0c50fc94875246616c7c665d65b872171972c522f828a820"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/SqlCargaExcel.vb",
+      "sha256Utf8Lf": "73bbf7025ae448b6ab80b287a197d9aa1dacd397f3deccc72e8a5861ab72f16d"
+    },
+    {
+      "path": "webservice/WebServiceImportacionExcel.asmx",
+      "sha256Utf8Lf": "134a40dfcf3273f6f3fb2d8305cc45eb9b46ef05b328f5f6667c7762483004a7"
+    },
+    {
+      "path": "webservice/WebServiceImportacionExcel.asmx.vb",
+      "sha256Utf8Lf": "e14c28833e3ab56698c61196923c12ff96f1c41dbb00370db5c47e95ea7a5a4c"
+    },
+    {
+      "path": "generic_control/ImportacionExcelUpload.ashx",
+      "sha256Utf8Lf": "c7bd875711b2399334e51a335c858058bf1bd2079b0959c0be955146edfa2386"
+    },
+    {
+      "path": "generic_control/ImportacionExcelUpload.ashx.vb",
+      "sha256Utf8Lf": "b9dd46bdcf92e75a824a995c9997ecf615723182e03d5fe0c8073960049bd6fc"
+    },
+    {
+      "path": "generic_control/ImportacionExcelAnalisis.ashx",
+      "sha256Utf8Lf": "064db5423957a60b143ea5d74a6e6fa0647310d432002382a3263442c54a8c4a"
+    },
+    {
+      "path": "generic_control/ImportacionExcelAnalisis.ashx.vb",
+      "sha256Utf8Lf": "8133a69579660d22c8615c2b78f4de15abc6cf2fe16600bb3d5d6028fcebd363"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelApi.js",
+      "sha256Utf8Lf": "6a96430d24779ed8601264b77ca3756af29b6468b6195c837862895b67d1315b"
+    },
+    {
+      "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+      "sha256Utf8Lf": "d7ad94d6eb39eeabb6ebabbfe33ff4d86bb64498cc3e9da7013b38c2cfb7d501"
+    },
+    {
+      "path": "Styles/ImportacionExcel.css",
+      "sha256Utf8Lf": "1da75e8073d2f98402872bdb04dd31b7b2274a002cb84844959d5f0041aa39ee"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx",
+      "sha256Utf8Lf": "6c0a87e4651150ea93e389686192f5016fa95b8856e4bfd31f2854c53a76fe57"
+    },
+    {
+      "path": "Gestion/WebFormProducionDocumental.aspx.vb",
+      "sha256Utf8Lf": "f301a264202c38325dcda48300feee1631c2cc61923c279a44e45a48f3d4ff32"
+    },
+    {
+      "path": "Gestion/Class_remit_dest_interno_perfil_produccion.vb",
+      "sha256Utf8Lf": "a7440628ac70a89d23e320904b3109b95fd8b3fc27b54ed4cd914527be91ecad"
+    },
+    {
+      "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+      "sha256Utf8Lf": "b4c649f711f6dae7dab5f6cd1efb6affa814c3210c9c55f6eab5a2f232babf5f"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorDatosIndices.vb",
+      "sha256Utf8Lf": "41e5578493c4747adb601eba358aabbdca7a40e2200430bcab811c5afc393ab5"
+    },
+    {
+      "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/PoliticaFuentesProveedor.vb",
+      "sha256Utf8Lf": "72aa90ad98c574391c735777f6ca0198c5756d00b8e7c76a890603cc87877203"
+    },
+    {
+      "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorIndicesRepository.vb",
+      "sha256Utf8Lf": "2b924164324d791697a30fd1e0c37e8f8f1510d228dd301a978c158ee9007e62"
+    },
+    {
+      "path": "Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportProvider.vb",
+      "sha256Utf8Lf": "7cb4a6d86c8b2769750eca1ede7342a04da11d812f2298f6e6e567ea6161abef"
+    },
+    {
+      "path": "tests/ImportacionExcelBehaviorTests.cs",
+      "sha256Utf8Lf": "cab0377b60a3b138c2b3108699aafddaac8510dc3d10d064ab012917bf44924e"
+    },
+    {
+      "path": "tests/ImportacionExcelLecturaTests.cs",
+      "sha256Utf8Lf": "8c4b1cda257f6cc145221d5615d86e6112aa5b9ec3135ddc7d242d3e4c21241d"
+    },
+    {
+      "path": "tests/ImportacionExcelPreparacionTests.cs",
+      "sha256Utf8Lf": "0f142aade7a67fb4516c0b886c847d81b533b934dabd6bbf7e4fff600ced9e20"
+    },
+    {
+      "path": "tests/ImportacionExcelConfirmacionTests.cs",
+      "sha256Utf8Lf": "edc5f2bc14b70f1a75cc4a37e6b403c2e45e5bca2d4f8e83d7b8704aff7d3f04"
+    },
+    {
+      "path": "tests/doc122-importacion-excel-behavior.test.cjs",
+      "sha256Utf8Lf": "de09a98b6db3c55651408d331f830827c1ab27fbeba0e2090c13e3bd379ffac6"
+    },
+    {
+      "path": "tests/doc122-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "6614037da85e4c1b0219f3ed8f6ce9b7f40922287c3bf430e75b6dddc2b74ef5"
+    },
+    {
+      "path": "tests/doc124-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "dc6c0880904a669aa523db3f396393214a297a798fa986b9a20c6413570cc141"
+    },
+    {
+      "path": "tests/doc125-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "6594d5edd7b888fa8fc356b875929aeb0886effce223c7e8195bab4fdce79d87"
+    },
+    {
+      "path": "tests/doc126-e2e-reuse.test.cjs",
+      "sha256Utf8Lf": "93c813cd64654171284eaabab672da48deb01b639af816c7323448c0b502134e"
+    },
+    {
+      "path": "tests/doc126-importacion-excel-ui.test.cjs",
+      "sha256Utf8Lf": "2d3a95d85c44c4dd5f14f5b03d2002055276430e9f0b17239cbb625255fd0c4a"
+    },
+    {
+      "path": "tests/doc126-importacion-excel-client.test.cjs",
+      "sha256Utf8Lf": "d996e59f1060b9ae7cded4a5d243ba3df0db9cafcc4fd795a0bb106ecab37f84"
+    },
+    {
+      "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+      "sha256Utf8Lf": "2975674e11c9790e1a59d2d2341b7a4673b8bf2c5de22e1f2183e2b875da10f9"
+    },
+    {
+      "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+      "sha256Utf8Lf": "5849451d0fbcad89d8882b9a8b34d86f608a06209a989065f10de30af7d8624c"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc124-excel-scope.cjs",
+      "sha256Utf8Lf": "0b4b49021c8d87a89600cd0d44faf863069c7f4732dd74b7c42ecaaa8f0ab125"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc125-excel-scope.cjs",
+      "sha256Utf8Lf": "fe4430505277128ec6b9e2c2d3bc8ddecfbbc16286284b20f82ea2b9f92eb357"
+    },
+    {
+      "path": "tools/e2e/tests/support/doc126-excel-scope.cjs",
+      "sha256Utf8Lf": "f4597c54f60cdc126e538a1e1e157be553d5a7fc6f3b4da46f1b9652ab301ef8"
+    },
+    {
+      "path": "GestionDocumental-Docuarchi.net.vbproj",
+      "sha256Utf8Lf": "f90901bc19a14061319b72e885c44f1dd0a632ba24c5b68c8a84141a9f45a357"
+    },
+    {
+      "path": "Web.config",
+      "sha256Utf8Lf": "ff9ffb5dda6d51cc7d9d5ed436ba2514993784a00071f9d1f2b6feecfdf30868"
+    },
+    {
+      "path": "tools/e2e/AGENT-RUNBOOK.md",
+      "sha256Utf8Lf": "1c4ba8e79c6cf33edeed7df8cb09baf521f50c6bc1d6b4da24cae8e3ad06bca1"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Sql/README.md",
+      "sha256Utf8Lf": "362edd0ebeaff874c73b5b1a9464a0bce90673526d5f5f2fa58818417adfc226"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc121-verificacion-instalacion-20261121.md",
+      "sha256Utf8Lf": "2941b53f387311f6eb0ec54bcb8c7ab951f8f9cb1a3e935a31297fbdaf950999"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc122-cierre-20261122.md",
+      "sha256Utf8Lf": "e4b43600d5355b285a52546911cd53505d92d3a7ee3cf539de3a36c9cbe76cbf"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc123-cierre-20261122.md",
+      "sha256Utf8Lf": "e149e8694e9709f3dea3639b5bc92b8485be62c220a0b424b5701d1390048732"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc124-verificacion-final-20261123.md",
+      "sha256Utf8Lf": "5c1165d8bde6179e68827074914463b57321de7a8cc8af1b196b8b42f84607e1"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc124-e2e-ordenes-resultado-20261123.md",
+      "sha256Utf8Lf": "11a8c175c7360a5d052c623334b7bb4277b069acb961ea98078824fe03ce25e2"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc125-verificacion-final-20261124.md",
+      "sha256Utf8Lf": "c90dc6a8799ee81a285a993ab8bcd489b70fe41cc345597b80e4c41bf72ce0dc"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc125-ejecucion-seguimiento-20261124.md",
+      "sha256Utf8Lf": "11443f21ec33d6c502bfc04b32bf7bb998f167c2e4f2bc56e1f187dcf9593447"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc126-verificacion-final-20261125.md",
+      "sha256Utf8Lf": "69eddd8b957d0cff7e2be65fcf2a7dc83bc467b9c9dcfc3b3e1b14e34e1ff923"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc126-e2e-permisos-real-20261125.md",
+      "sha256Utf8Lf": "e3e28f9f158a45d09545e0d6d09e97100aeee625bd861f4e2dc687f6604f2419"
+    },
+    {
+      "path": "Doc/Actualizacion/Importacion/Validacion/doc126-correccion-foco-20261125.md",
+      "sha256Utf8Lf": "6692f1b5e8417213c6a3fa1d856f4b8d9b7c8745c24192be8078b87a679d34b8"
+    }
+  ],
+  "priorComparisons": [
+    {
+      "evidence": "doc125-verificacion-final-20261124.json",
+      "scope": "Inventario de huellas; no transfiere automáticamente una aceptación de runtime.",
+      "matches": 17,
+      "total": 34,
+      "differences": [
+        {
+          "path": "DTOs/ProduccionDocumental/ImportacionExcel/ImportacionExcelDtos.vb",
+          "previous": "f5a0f3ede60f148a3ff6cd15c10d71d978e9f842f009874c1ee491cdaeacd6bf",
+          "current": "6dba0e81e34ded7817db69cf3a822347f02a24cc65a6f95eb5823989dcb15190"
+        },
+        {
+          "path": "Modelo/ProduccionDocumental/ImportacionExcel/ImportacionExcelModelos.vb",
+          "previous": "fbf8801d850d5988fd94fedaab9b4ae08a649cf44871490b3378635ea8f52a06",
+          "current": "8857b24d92b9b018bce86c2a35a7682c5d15bfbff49d0155042d2a3bc6e4cbf0"
+        },
+        {
+          "path": "Infrastructure/ProduccionDocumental/ImportacionExcel/ImportacionExcelRequestGuard.vb",
+          "previous": "8f5c4a0f55f4eb0bda422d275f0d54488a057b37fb09c8a3a4363d8376439caa",
+          "current": "cc12bd1cf3862cfe2b33811e0635491254ec138250d2cbad5ad2d736aeefc344"
+        },
+        {
+          "path": "Infrastructure/Repositories/ProduccionDocumental/ImportacionExcel/MySqlPlantillaExcelRepository.vb",
+          "previous": "9ddf94a9fad34c40a0fd31fee5dc6d0671d899b03ccd8e8483e68c0ada088332",
+          "current": "2aba73f57faf716b90597a95ba2f3d5019cc3ef2bb18db29cb467c209b446ff9"
+        },
+        {
+          "path": "webservice/WebServiceImportacionExcel.asmx.vb",
+          "previous": "92d5a3289769273ee134964916ed186b4fb6130bd64247d04d354d1210f4acf9",
+          "current": "e14c28833e3ab56698c61196923c12ff96f1c41dbb00370db5c47e95ea7a5a4c"
+        },
+        {
+          "path": "GestionDocumental-Docuarchi.net.vbproj",
+          "previous": "7b4bcbc152600a8188a7db7245da862072e3a0a574e2589805a6a7a2bffbd975",
+          "current": "f90901bc19a14061319b72e885c44f1dd0a632ba24c5b68c8a84141a9f45a357"
+        },
+        {
+          "path": "tests/ImportacionExcelBehaviorTests.cs",
+          "previous": "83d2995bf3d195587339511622e19420a6617c48b6711c2d1bbb43a88675de64",
+          "current": "cab0377b60a3b138c2b3108699aafddaac8510dc3d10d064ab012917bf44924e"
+        },
+        {
+          "path": "tests/ImportacionExcelConfirmacionTests.cs",
+          "previous": "7291b61cc5d72a598a4c03f7e730b3015b9e01b0c974592ca9185de381301b2a",
+          "current": "edc5f2bc14b70f1a75cc4a37e6b403c2e45e5bca2d4f8e83d7b8704aff7d3f04"
+        },
+        {
+          "path": "tests/ImportacionExcelLecturaTests.cs",
+          "previous": "bca5dc1962354d85e1f82aa1a2287b15464d94516678156c965433bdf9732c84",
+          "current": "8c4b1cda257f6cc145221d5615d86e6112aa5b9ec3135ddc7d242d3e4c21241d"
+        },
+        {
+          "path": "tests/doc122-importacion-excel-behavior.test.cjs",
+          "previous": "42f21deff4d4790c3d08f054aeff564d23682f8bf2e157ce22df9c40b16fb755",
+          "current": "de09a98b6db3c55651408d331f830827c1ab27fbeba0e2090c13e3bd379ffac6"
+        },
+        {
+          "path": "tests/doc124-e2e-reuse.test.cjs",
+          "previous": "31f37537bd1988866f17dc8846b7745ac0a5db57377f27f1fa8e4451133c47e2",
+          "current": "dc6c0880904a669aa523db3f396393214a297a798fa986b9a20c6413570cc141"
+        },
+        {
+          "path": "tools/e2e/scripts/run-doc110-profile-session.cjs",
+          "previous": "d564e973ef6f3252c4f1a0ff5e9a0bcd31749d0df5613f58b2b1b9e9c5a2b1f2",
+          "current": "5849451d0fbcad89d8882b9a8b34d86f608a06209a989065f10de30af7d8624c"
+        },
+        {
+          "path": "tools/e2e/scripts/support/doc115-repository-integration.ps1",
+          "previous": "ce992ba2636fee135d2873c5ab67bb87976da79c9daddd1272c02be831f59268",
+          "current": "fc653772efa8b0facb5a1043e0a6b1f7fb97bb0d12593a2e262fc9d78a5eb30f"
+        },
+        {
+          "path": "tools/e2e/tests/importacion-excel.spec.cjs",
+          "previous": "752e9130498fa8f365c3d68a4c0b11986b872b46ebe7f1000cee4be1212dbe79",
+          "current": "2975674e11c9790e1a59d2d2341b7a4673b8bf2c5de22e1f2183e2b875da10f9"
+        },
+        {
+          "path": "tools/e2e/tests/support/doc125-excel-scope.cjs",
+          "previous": "b1cf0c120c2ee4cb250eee9b6d912ab55d4a260ccede2d08cdb27c9f0484978d",
+          "current": "fe4430505277128ec6b9e2c2d3bc8ddecfbbc16286284b20f82ea2b9f92eb357"
+        },
+        {
+          "path": "tools/e2e/tests/support/doc124-excel-scope.cjs",
+          "previous": "40afc36fac823e19bf2e24fd6588fa4384a093bcec8d8d1d7d9e51ba1efb97f6",
+          "current": "0b4b49021c8d87a89600cd0d44faf863069c7f4732dd74b7c42ecaaa8f0ab125"
+        },
+        {
+          "path": "tools/e2e/scripts/support/doc32-e2e-odbc.cjs",
+          "previous": "4e103b5a42dc1d74dc192405958818136195b2c895d57f9d6d23b61e938afde5",
+          "current": "b265e3518c04d2708c551b462eba281801e8bde7b841b6f2eaac3989affd02a4"
+        }
+      ]
+    },
+    {
+      "evidence": "doc126-verificacion-final-20261125.json",
+      "scope": "Inventario de huellas; no transfiere automáticamente una aceptación de runtime.",
+      "matches": 26,
+      "total": 26,
+      "differences": []
+    }
+  ],
+  "recordedUtc": "2026-11-25T12:07:13.870Z",
+  "tasks": {
+    "total": 33,
+    "complete": 0,
+    "complexity": {
+      "S": 3,
+      "M": 30,
+      "L": 0
+    }
+  },
+  "validation": {
+    "refinement": {
+      "status": "PASS",
+      "pass": 15,
+      "total": 15,
+      "checks": [
+        {
+          "name": "refinement:exists",
+          "status": "PASS",
+          "details": {
+            "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/refinement.md"
+          }
+        },
+        {
+          "name": "refinement:approved",
+          "status": "PASS"
+        },
+        {
+          "name": "refinement:no_placeholders",
+          "status": "PASS"
+        },
+        {
+          "name": "refinement:decisions",
+          "status": "PASS",
+          "details": {
+            "decisionIds": [
+              "D-01",
+              "D-02",
+              "D-03",
+              "D-04",
+              "D-05",
+              "D-06",
+              "D-07",
+              "D-08",
+              "D-09",
+              "D-10",
+              "D-11",
+              "D-12",
+              "D-13",
+              "D-14"
+            ],
+            "malformedDecisionRows": []
+          }
+        },
+        {
+          "name": "refinement:requirements",
+          "status": "PASS",
+          "details": {
+            "requirementIds": [
+              "RQ-01",
+              "RQ-02",
+              "RQ-03",
+              "RQ-04",
+              "RQ-05",
+              "RQ-06",
+              "RQ-07",
+              "RQ-08",
+              "RQ-09",
+              "RQ-10",
+              "RQ-11",
+              "RQ-12",
+              "RQ-13",
+              "RQ-14"
+            ]
+          }
+        },
+        {
+          "name": "refinement:design:exists",
+          "status": "PASS"
+        },
+        {
+          "name": "refinement:design:decisions",
+          "status": "PASS",
+          "details": {
+            "missingDecisionIds": []
+          }
+        },
+        {
+          "name": "refinement:spec:exists",
+          "status": "PASS"
+        },
+        {
+          "name": "refinement:spec:decisions",
+          "status": "PASS",
+          "details": {
+            "missingDecisionIds": []
+          }
+        },
+        {
+          "name": "refinement:tasks:exists",
+          "status": "PASS"
+        },
+        {
+          "name": "refinement:tasks:decisions",
+          "status": "PASS",
+          "details": {
+            "missingDecisionIds": []
+          }
+        },
+        {
+          "name": "refinement:tasks:origins",
+          "status": "PASS",
+          "details": {
+            "missingOrigins": []
+          }
+        },
+        {
+          "name": "refinement:profile:design:frontend_policy",
+          "status": "PASS",
+          "details": {
+            "technologyProfile": "legacy-webforms-vb",
+            "forbidden": []
+          }
+        },
+        {
+          "name": "refinement:profile:spec:frontend_policy",
+          "status": "PASS",
+          "details": {
+            "technologyProfile": "legacy-webforms-vb",
+            "forbidden": []
+          }
+        },
+        {
+          "name": "refinement:profile:tasks:frontend_policy",
+          "status": "PASS",
+          "details": {
+            "technologyProfile": "legacy-webforms-vb",
+            "forbidden": []
+          }
+        }
+      ]
+    },
+    "openSpecStrict": {
+      "exitCode": 0,
+      "result": {
+        "items": [
+          {
+            "id": "doc-127-importacion-excel-07-verificacion-integral-cierre",
+            "type": "change",
+            "valid": true,
+            "issues": [],
+            "durationMs": 4
+          }
+        ],
+        "summary": {
+          "totals": {
+            "items": 1,
+            "passed": 1,
+            "failed": 0
+          },
+          "byType": {
+            "change": {
+              "items": 1,
+              "passed": 1,
+              "failed": 0
+            }
+          }
+        },
+        "version": "1.0",
+        "root": {
+          "path": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet",
+          "source": "nearest"
+        }
+      }
+    },
+    "traceability": {
+      "decisions": 14,
+      "requirements": 14,
+      "scenarios": 42,
+      "tasks": 33,
+      "status": "PASS"
+    },
+    "jiraOriginalPreserved": true,
+    "documentationContract": "PASS",
+    "sourceHashesStable": true,
+    "diffCheck": "PASS"
+  },
+  "artifacts": [
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-127-importacion-excel-07-verificacion-integral-cierre/01-ResumenTecnico.md",
+      "sha256Utf8Lf": "cb97312334cf87f5858ca1d557763ad32d72c8053efae525c56fa52791b25a6a"
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-127-importacion-excel-07-verificacion-integral-cierre/02-ImpactoUI.md",
+      "sha256Utf8Lf": "ba137fed25cdf2e218d971b2c98279b807d3b7a6caea1ef6f446080e1c2f4de4"
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-127-importacion-excel-07-verificacion-integral-cierre/03-ServiciosYReglas.md",
+      "sha256Utf8Lf": "b6822ef5b52e4ac20a9c588461422d54b23dc83f1120687398813633f5b5a1e7"
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-127-importacion-excel-07-verificacion-integral-cierre/04-ContratosIntegracion.md",
+      "sha256Utf8Lf": "d20e790b214e78e3e5e4d37910e86d747cf310392de407dd9e52728db337e98c"
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-127-importacion-excel-07-verificacion-integral-cierre/05-PruebasEvidencia.md",
+      "sha256Utf8Lf": "b1e2092b32a832aee759faf414ee23c27c0342f9016042af97818bd01ad3d581"
+    },
+    {
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/design.md",
+      "sha256Utf8Lf": "126e8b22008784d3b4c833b3736ebe201176da6b1c1046dc574eb1d8f5d2ac22"
+    },
+    {
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/opsxj-governance.json",
+      "sha256Utf8Lf": "721f5aa4e3f8c6c70b8a17bf206c37b2166cec875337c77c93e4d8bee3019564"
+    },
+    {
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/proposal.md",
+      "sha256Utf8Lf": "9710586a9a3234d4953401ac2ea3cf128af6f37e82a826e699b9968fcee68580"
+    },
+    {
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/refinement.md",
+      "sha256Utf8Lf": "7cf61b349f84359708a8ac09be03414fd560a15a80ca019fbd569d0ad3ab59a8"
+    },
+    {
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/specs/importacion-excel-07-verificacion-integral-cierre/jira-context.md",
+      "sha256Utf8Lf": "96c4caff9abe25160d9b7dc80f72d935c0b380539bcb4cbab1de6e5a8bfd5622"
+    },
+    {
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/specs/importacion-excel-07-verificacion-integral-cierre/spec.md",
+      "sha256Utf8Lf": "0bb43ac8ecb02e5fea73b75356a3ea44853a25b7d13eb3acdd2cf64c5cb7ae82"
+    },
+    {
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/tasks.md",
+      "sha256Utf8Lf": "5be2ab349253d632887ca140b521b85c337845f201bc0c2678fe0642e83886e7"
+    }
+  ],
+  "execution": {
+    "newFunctionalTests": false,
+    "newBuild": false,
+    "newRealE2E": false,
+    "newSqlFiles": false,
+    "sqlApplied": false,
+    "deploy": false
+  },
+  "dependencies": [
+    "Autorización específica de ambiente, cuentas y datos para cada nueva ventana real.",
+    "Confirmación manual y SELECT posterior si se requiere un archivo SQL modificador nuevo.",
+    "EXPLAIN ejecutado manualmente y resultado aportado antes de certificar su plan."
+  ],
+  "limitations": [
+    "Las 26 fuentes no OpenSpec de la revisión final DOC126 coinciden; no constituye una nueva ejecución ni verificación del runtime actual.",
+    "DOC125 coincide en17 de34 fuentes; las diferencias posteriores se revisan por componente antes de reutilizar resultados.",
+    "Evidencia histórica:8000/12759 sólo preparadas en DOC124 y1000 confirmadas por modo en DOC125/126. No completa seis celdas por formato/tamaño.",
+    "Lectura física DOC126 corresponde a v6; corrección v7 conserva cobertura local.",
+    "Fronteras de filas/bytes, recuperación DDL y COMMIT/red conservan su nivel de evidencia efectivo hasta la ejecución de las tareas."
+  ]
+}

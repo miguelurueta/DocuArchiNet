@@ -1,7 +1,7 @@
 """Libros sintéticos DOC123. Solo stdlib; BIFF8/CFB y OpenXML, sin Office ni negocio.
 Uso: python generar.py [directorio] [filas_para_frontera]. Salida determinista.
 """
-import datetime, hashlib, json, math, pathlib, struct, sys, zipfile
+import datetime, hashlib, json, math, pathlib, re, struct, sys, zipfile
 from xml.sax.saxutils import escape
 
 def rec(kind, payload=b''):
@@ -142,4 +142,34 @@ def generate(out, count=0):
     (out/'sha256.json').write_text(json.dumps(hashes,indent=2)+'\n',encoding='utf-8')
     print('DOC123_SYNTHETIC_BOOKS',len(hashes))
 
-if __name__=='__main__': generate(pathlib.Path(sys.argv[1]) if len(sys.argv)>1 else pathlib.Path(__file__).parent,int(sys.argv[2]) if len(sys.argv)>2 else 0)
+def generate_capacity(out, run_tag):
+    """Mismos escritores DOC123; archivos privados, sin acceso a base/HTTP."""
+    if not re.fullmatch('[a-f0-9]{32}', run_tag):
+        raise ValueError('DOC127_CAPACITY_TAG_REQUIRED')
+    out.mkdir(parents=True, exist_ok=True)
+    manifest=[]
+    for ext,writer in [('xls',xls),('xlsx',xlsx)]:
+        for mode in ('CREAR','AGREGAR','REEMPLAZAR'):
+            for count in (1000,5000,10000):
+                prefix='DOC127_'+run_tag+'_'+ext+'_'+mode+'_'+str(count)+'_'
+                cells=[cell(1,1,'CLAVE'),cell(1,2,'VALOR')]
+                for n in range(count):
+                    cells.extend([cell(n+2,1,prefix+str(n).zfill(5)),cell(n+2,2,'V_'+prefix+str(n).zfill(5))])
+                content=writer([('Datos',cells)])
+                name=mode.lower()+'-'+str(count)+'.'+ext
+                target=out/name
+                if target.exists():
+                    raise ValueError('DOC127_CAPACITY_FILE_ALREADY_EXISTS')
+                target.write_bytes(content)
+                manifest.append(dict(formato=ext.upper(),modo=mode,filasEsperadas=count,
+                    archivoPath=str(target.resolve()),archivoHash=hashlib.sha256(content).hexdigest(),bytes=len(content),hoja='Datos'))
+    (out/'capacity-manifest.json').write_text(json.dumps(dict(issue='DOC-127',runTag=run_tag,
+        synthetic=True,realExecution=False,cases=manifest),indent=2)+'\n',encoding='utf-8')
+    print('DOC127_SYNTHETIC_CAPACITY_BOOKS',len(manifest))
+
+if __name__=='__main__':
+    if len(sys.argv)>1 and sys.argv[1]=='--capacity':
+        if len(sys.argv)!=4: raise ValueError('Usage: generar.py --capacity private_directory hex_tag32')
+        generate_capacity(pathlib.Path(sys.argv[2]),sys.argv[3])
+    else:
+        generate(pathlib.Path(sys.argv[1]) if len(sys.argv)>1 else pathlib.Path(__file__).parent,int(sys.argv[2]) if len(sys.argv)>2 else 0)
