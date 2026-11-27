@@ -4,6 +4,8 @@ Los prompts 02 y 03 describen el alcance funcional; 04–12 lo descomponen en en
 
 El [prompt 14 — Fecha inicial por importación](14-prompt-fecha-inicial-por-importacion.md) es una mejora incremental sobre perfil, ventana, preparación y recuperación existentes. Leer su [exploración](Exploracion/14-fecha-inicial-por-importacion.md) antes de implementarlo. No requiere el ejecutor opcional 13 ni autoriza repetir las entregas anteriores. La nueva fuente se activa por la regla del perfil; las constantes anteriores conservan su significado y el almacenamiento permanece intacto. Su creación no acredita la capacidad implementada.
 
+El [prompt 15 — Tipo documental opcional](15-prompt-tipo-documental-opcional.md) es una mejora independiente del 14 y del ejecutor 13. Leer su [exploración](Exploracion/15-tipo-documental-opcional.md). Para perfiles que opten explícitamente por ella, actualiza la exigencia histórica de tipología en publicación, resolución, comando y verificación; los perfiles anteriores siguen requiriéndola. Exige comprobar compatibilidad física antes de efectos y conservar el almacenamiento intacto. Su creación no acredita la capacidad implementada.
+
 ## Instrucciones comunes obligatorias
 
 **Decisión aprobada 2026-10-20 — permisos separados:** `ADMINISTRAR_PERFILES_IMPORTACION` autoriza administración/publicación/disponibilidad de perfiles (prompt 02, DOC-110); `IMPORTAR_CARPETAS` autoriza apertura/selección publicada/ejecución y acciones de lote según propietario, ámbito y estado (entrega posterior de carga). Ambos deshabilitados por defecto y asignados mediante infraestructura existente, sin otro sistema de roles ni herencia de `GA_MANAGER_CONFIGURACION`. Comprobar cada operación en servidor además de representar el botón. Ninguno sustituye permisos de nivel, gabinete, creación o carga; administrar no concede importar ni importar administrar. Nombres físicos se ajustan a convenciones; SQL MySQL 5.1 manual para cualquier extensión necesaria, sin concesión automática. Esta decisión no acredita implementación ni tablas creadas.
@@ -56,6 +58,7 @@ Regla de lectura: prevalecen las decisiones explícitas posteriores del usuario.
 | 12 | Entregas integradas | Verificación integral, regresión y capacidad. |
 | 13 opcional | 10–12 y decisión de despliegue | Ejecutor desatendido durable. |
 | 14 | Componentes existentes de 02/05/06/07/08/10–12; no depende de 13 | Fecha inicial elegida por lote, transporte clásico/segmentado y compatibilidad de planes anteriores. |
+| 15 | Componentes existentes de 02/06/07/09/10–12 y ventana; independiente de 13/14 | Tipo documental opcional por perfil, compatibilidad física, verificación posterior y recuperación. |
 
 El número del archivo identifica la entrega, no un orden ciego. 05 puede avanzar visualmente contra contratos, pero no se declara integrado antes de tener servicios reales.
 
