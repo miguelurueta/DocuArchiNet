@@ -241,12 +241,8 @@
   ],
   "remainingEvidenceGaps": [
     {
-      "task": "2.4",
-      "issue": "Manual EXPLAIN server plan not provided; no query-performance verdict."
-    },
-    {
       "task": "7.5",
-      "issue": "Final technical/OpenSpec review, human manual QA and remaining gates are not completed."
+      "issue": "Current human visual QA declaration and final review/gates remain pending; manual plan reviewed."
     }
   ],
   "limitations": [
@@ -256,5 +252,21 @@
     "Closing demonstrated findings does not approve final acceptance, human manual QA, archive or Jira closure."
   ],
   "humanManualQaClaimed": false,
-  "sqlWrites": 0
+  "sqlWrites": 0,
+  "historicalEvidenceGaps": [
+    {
+      "task": "2.4",
+      "issue": "Manual EXPLAIN server plan not provided; no query-performance verdict."
+    },
+    {
+      "task": "7.5",
+      "issue": "Current human visual QA declaration and final review/gates remain pending; manual plan reviewed."
+    }
+  ],
+  "latestPlanReview": {
+    "task": "2.4",
+    "status": "COMPLETED_FULL_SCAN_WARNING",
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-plan-consulta-20261126.json",
+    "sourceCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390"
+  }
 }

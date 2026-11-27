@@ -2,7 +2,7 @@
 
 ## DOC127: revisión de cierre, sin nueva E2E — 2026-11-26
 
-[Revisión integral](../../Doc/Actualizacion/Importacion/Validacion/doc127-revision-integral-20261126.md) realizada sobre `f6d3ba2e37ee298afcf972eff11ae6afaeab58c5`:31/33 tareas;2.4 y7.5 abiertas.7 SELECT confirmaron proveedor1/v1 revisión4, política CONEXION y la proyección de SQL29;STATISTICS no devolvió índices para EGRESOS. No se ejecutó EXPLAIN, se modificó base ni se repitieron cargas. Las ventanas18 de capacidad,6 rechazos y2 asistentes conservan sus evidencias y consumo. La revisión no aprueba cierre: faltan el plan manual y la declaración de QA actual, además de los gates del SHA final. No activar confirmación de revisión o manual_qa para fabricar aprobación.
+[Revisión integral](../../Doc/Actualizacion/Importacion/Validacion/doc127-revision-integral-20261126.md) actualizada:32/33 tareas.2.4 completada con SQL29 iniciado por el operador; ALL, key NULL, rows estimadas25538 y metadatos sin índices. [Plan revisado](../../Doc/Actualizacion/Importacion/Validacion/doc127-plan-consulta-20261126.md). Fuente8d1f2159:29 regresiones locales PASS y MSBuild aislado0 errores/308 advertencias; sin despliegue ni nueva E2E/carga. Sólo7.5 abierta por QA visual humana actual y gates. No convertir autorización en manual_qa. Las evidencias inferiores mantienen su fecha/corte histórico.
 
 ## DOC127: asistente XLS/XLSX real PASS — 2026-11-26
 

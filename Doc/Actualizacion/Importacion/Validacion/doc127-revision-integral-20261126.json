@@ -3,30 +3,28 @@
   "change": "doc-127-importacion-excel-07-verificacion-integral-cierre",
   "schema": "spec-driven",
   "status": "REVIEW_COMPLETED_CLOSURE_NOT_APPROVED",
-  "recordedUtc": "2026-11-26T20:35:22.363Z",
-  "evaluationCommit": "f6d3ba2e37ee298afcf972eff11ae6afaeab58c5",
+  "recordedUtc": "2026-11-27T00:49:28.005Z",
+  "evaluationCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
   "reviewer": "Codex",
   "skill": ".codex/skills/openspec-verify-change/SKILL.md",
   "completeness": {
-    "completeTasks": 31,
+    "completeTasks": 32,
     "totalTasks": 33,
     "pendingTasks": [
-      "2.4 [S] Revisar el plan EXPLAIN aportado y sus metadatos. Área/archivos: `Doc/Actualizacion/Importacion/Validacion/; SELECT de índices del destino autorizado`. Origen: D-10, RQ-10. Verificación: key/type/rows y componentes del índice se contrastan con consulta y datos; ausencia del plan queda explícita.",
       "7.5 [M] Verificar los gates OPSXJ/OpenSpec y preparar la entrega del SHA evaluado. Área/archivos: `openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/; gobierno local excluido; Git`. Origen: D-14, RQ-14. Verificación: revisión técnica y validaciones son trazables; código en carpeta principal y remoto comprobado; no archivar/cerrar con brechas críticas o aceptación no autorizada."
     ],
     "requirements": 14,
     "scenarios": 42,
-    "mappedScenariosWithClassifiedEvidence": 40,
-    "pendingScenarios": 2
+    "mappedScenariosWithClassifiedEvidence": 41,
+    "pendingScenarios": 1
   },
   "correctness": {
-    "requirementsMappedWithClassifiedCoverage": 12,
+    "requirementsMappedWithClassifiedCoverage": 13,
     "partialRequirements": [
-      "RQ-10",
       "RQ-14"
     ],
     "newDemonstratedImplementationDefects": 0,
-    "method": "Source anchors, existing tests/evidence and matching hashes; no new42-test execution."
+    "method": "Prior requirement/scenario mapping, current source-diff review, operator EXPLAIN with metadata, fresh29 local tests and isolated build; no new42-test run."
   },
   "coherence": {
     "status": "DESIGN_PATTERNS_FOLLOWED_WITH_DECLARED_LIMITS",
@@ -781,12 +779,14 @@
     {
       "id": "RQ-10",
       "title": "Proveedor y consumidores",
-      "status": "PARTIAL_PENDING_EVIDENCE",
+      "status": "MAPPED_WITH_CLASSIFIED_EVIDENCE_AND_FULL_SCAN_WARNING",
       "implementation": {
         "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorDatosIndices.vb",
         "line": 47,
         "anchor": "Private Function ConsultarDatos",
-        "sha256Utf8Lf": "41e5578493c4747adb601eba358aabbdca7a40e2200430bcab811c5afc393ab5"
+        "sha256Utf8Lf": "b48e6bfa5de221ccac0eddd04bbaa13f2f6c17bfea95597a2fb9175d3be975c7",
+        "priorSha256Utf8Lf": "41e5578493c4747adb601eba358aabbdca7a40e2200430bcab811c5afc393ab5",
+        "sourceReviewCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390"
       },
       "testsOrVerification": "tests/ProveedorIndicesBehaviorTests.cs",
       "evidence": [
@@ -796,9 +796,16 @@
           "type": "LOCAL_SINTETICA_BUILD_Y_SELECT_PREVIO",
           "status": "LOCAL_IMPLEMENTATION_VERIFIED_REAL_ACCEPTANCE_PENDING",
           "sourceCommit": "10f307112c6239faa8180a021a8064eccc25b538"
+        },
+        {
+          "id": "DOC127_MANUAL_PLAN",
+          "path": "Doc/Actualizacion/Importacion/Validacion/doc127-plan-consulta-20261126.json",
+          "type": "OPERATOR_EXPLAIN_AND_SELECT_METADATA_WITH_LOCAL_REGRESSION",
+          "status": "MANUAL_PLAN_REVIEWED_FULL_SCAN_WARNING",
+          "sourceCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390"
         }
       ],
-      "limitation": "Consulta y política actuales coinciden con SQL29; falta el plan manual del servidor.",
+      "limitation": "Plan manual revisado: ALL sin índice; rows estimadas, sin medir latencia. Consumidores afectados cubiertos por29 pruebas locales actuales; no nueva E2E.",
       "scenarios": [
         {
           "name": "Tabla como fuente elegible",
@@ -811,8 +818,9 @@
           "name": "Plan manual de consulta",
           "when": "el operador ejecuta el EXPLAIN entregado para la consulta del proveedor",
           "then": "se revisa el índice y acceso efectivo con los metadatos SELECT; sin plan aportado no se certifica su rendimiento",
-          "state": "PENDING_OPERATOR_OR_CLOSURE_EVIDENCE",
-          "newExecutionClaimed": false
+          "state": "MAPPED_TO_CLASSIFIED_EVIDENCE",
+          "newExecutionClaimed": true,
+          "executionType": "OPERATOR_MANUAL_EXPLAIN"
         },
         {
           "name": "Regresión de consumidores",
@@ -923,7 +931,7 @@
           "sourceCommit": "ca8d352fc93497592a9f4333298f4ab9596f268d"
         }
       ],
-      "limitation": "Build aislado histórico, fuentes VB sin cambios y hallazgo form1 cerrado con cobertura clasificada.",
+      "limitation": "Build aislado actual0 errores/308 advertencias y29 regresiones locales PASS cubren cambios8d1f2159. Evidencia real anterior conserva sus cortes; DLL IIS no desplegada.",
       "scenarios": [
         {
           "name": "Build aislado",
@@ -1027,7 +1035,7 @@
           "sourceCommit": "17bdf09e4f46efb43cbe4771d4de99ee8a308628"
         }
       ],
-      "limitation": "La revisión no aprueba el cierre: faltan plan manual y QA/gates; no se archiva.",
+      "limitation": "Falta QA visual humana actual y gates finales; plan manual ya revisado. Sin aprobación de cierre/archivo.",
       "scenarios": [
         {
           "name": "Resultado limitado",
@@ -1055,20 +1063,12 @@
   ],
   "critical": [
     {
-      "id": "C-01",
-      "task": "2.4",
-      "path": "Doc/Actualizacion/Importacion/Sql/29-explain-proveedor-doc127.sql",
-      "line": 25,
-      "issue": "No se aportó el plan EXPLAIN requerido.",
-      "action": "El operador ejecuta SQL29 en la DA validada y entrega metadatos y key/possible_keys/type/rows/Extra; revisar antes de certificar rendimiento."
-    },
-    {
       "id": "C-02",
       "task": "7.5",
       "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/opsxj-governance.json",
       "line": 6,
       "issue": "Aceptación y gates finales incompletos: QA manual actual sin declaración y revisión sin aprobación de cierre.",
-      "action": "Registrar el resultado humano actual sin repetir importaciones; resolver2.4 y volver a revisar/validar el SHA final. Conservar el cambio activo."
+      "action": "Registrar observación humana actual de apertura/cierre y navegación, sin repetir cargas; reevaluar revisión y gates sobre el SHA final.2.4 ya completada."
     }
   ],
   "warnings": [
@@ -1076,8 +1076,8 @@
       "id": "W-01",
       "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorDatosIndices.vb",
       "line": 73,
-      "issue": "El SELECT de information_schema.STATISTICS no devolvió índices para imp_02_egresos.",
-      "action": "Contrastar con el plan manual. No crear índices ni predecir el acceso del optimizador como resultado observado."
+      "issue": "Plan manual: ALL, key/possible_keys NULL, rows estimadas25538, Using where; metadatos sin índices.",
+      "action": "Conservar advertencia de acceso sin índice y ausencia de SLA medido. Optimización eventual en cambio SQL manual separado, sin alterar datos para forzar aceptación."
     },
     {
       "id": "W-02",
@@ -1089,7 +1089,7 @@
   ],
   "suggestions": [],
   "providerMetadata": {
-    "recordedUtc": "2026-11-26T20:27:33.9672683Z",
+    "recordedUtc": "2026-11-27T00:41:16.7805108Z",
     "providerId": 1,
     "versionId": 1,
     "providerRevision": 4,
@@ -1152,9 +1152,60 @@
     "selectStatements": 7,
     "sqlWrites": 0,
     "authenticatedSessions": 0,
-    "explainExecuted": false
+    "explainExecuted": true,
+    "historicalMetadataAt": "2026-11-26T20:27:33.9672683Z",
+    "explainExecutionInitiator": "LOCAL_OPERATOR_TYPED_COMMAND",
+    "manualPlanPath": "Doc/Actualizacion/Importacion/Validacion/doc127-plan-consulta-20261126.json"
   },
-  "buildReuse": {
+  "newEffects": {
+    "controlSelects": 5,
+    "operatorExplainStatements": 1,
+    "applicationSessions": 0,
+    "imports": 0,
+    "sqlWrites": 0,
+    "deployments": 0
+  },
+  "humanQaStatus": "CURRENT_DECLARATION_NOT_PROVIDED",
+  "historicalManualAcceptancePreserved": true,
+  "closureApproved": false,
+  "archiveAllowed": false,
+  "artifactHashes": [
+    {
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/proposal.md",
+      "sha256Utf8Lf": "9710586a9a3234d4953401ac2ea3cf128af6f37e82a826e699b9968fcee68580"
+    },
+    {
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/design.md",
+      "sha256Utf8Lf": "33198833fdea123b1921ffc8a65ef7a839aa90d14b5b0a5ca52aa0c52d229526"
+    },
+    {
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/tasks.md",
+      "sha256Utf8Lf": "b0645cbc8d73c3be27c4821b4f714cd6a918ed4d7f3401c2cdf5dcd965103671"
+    },
+    {
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/specs/importacion-excel-07-verificacion-integral-cierre/spec.md",
+      "sha256Utf8Lf": "0bb43ac8ecb02e5fea73b75356a3ea44853a25b7d13eb3acdd2cf64c5cb7ae82"
+    },
+    {
+      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/specs/importacion-excel-07-verificacion-integral-cierre/jira-context.md",
+      "sha256Utf8Lf": "96c4caff9abe25160d9b7dc80f72d935c0b380539bcb4cbab1de6e5a8bfd5622"
+    }
+  ],
+  "priorReview": {
+    "evaluationCommit": "f6d3ba2e37ee298afcf972eff11ae6afaeab58c5",
+    "recordedUtc": "2026-11-26T20:35:22.363Z",
+    "completeTasks": 31,
+    "criticalIssues": 2
+  },
+  "resolvedCritical": [
+    {
+      "id": "C-01",
+      "task": "2.4",
+      "status": "RESOLVED",
+      "evidence": "Doc/Actualizacion/Importacion/Validacion/doc127-plan-consulta-20261126.json"
+    }
+  ],
+  "historicalBuildReview": {
     "sourceBaseCommit": "10f307112c6239faa8180a021a8064eccc25b538",
     "command": [
       "MSBuild.exe",
@@ -1383,39 +1434,130 @@
     ],
     "newBuildExecuted": false,
     "isolatedAssemblySha256": "e665ba8803e11fa9bf6e78f65f87bb4572f2c81e858c8acf9145ef85eaf7cfb6",
-    "installedAssemblySha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5"
+    "installedAssemblySha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5",
+    "scope": "Historical review at f6d3ba2e, not current source equality after8d1f2159."
   },
-  "newEffects": {
-    "selectStatements": 7,
-    "applicationSessions": 0,
-    "imports": 0,
-    "sqlWrites": 0,
-    "deployments": 0
+  "currentBuild": {
+    "webConfigUnchanged": true,
+    "deployed": false,
+    "exitCode": 0,
+    "assemblySha256": "7874aa360a806396094be26f001bb2125c5060bd0e037017db84f70cbd579017",
+    "runtimeUnchanged": true,
+    "errors": 0,
+    "warnings": 308,
+    "framework": "net461",
+    "sourceCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
+    "command": "MSBuild.exe GestionDocumental-Docuarchi.net.vbproj /t:Build /nologo /m:1 /verbosity:minimal /p:Configuration=Debug /p:OutputPath=.tmp/doc127-cierre-revision/build-current-8d1f2159/bin/ /p:OutDir=.tmp/doc127-cierre-revision/build-current-8d1f2159/bin/ /p:BaseIntermediateOutputPath=.tmp/doc127-cierre-revision/build-current-8d1f2159/obj/ /p:IntermediateOutputPath=.tmp/doc127-cierre-revision/build-current-8d1f2159/obj/ /p:UseSharedCompilation=false /p:DeployOnBuild=false"
   },
-  "humanQaStatus": "CURRENT_DECLARATION_NOT_PROVIDED",
-  "historicalManualAcceptancePreserved": true,
-  "closureApproved": false,
-  "archiveAllowed": false,
-  "artifactHashes": [
-    {
-      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/proposal.md",
-      "sha256Utf8Lf": "9710586a9a3234d4953401ac2ea3cf128af6f37e82a826e699b9968fcee68580"
+  "currentSourceVerification": {
+    "commit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
+    "changedPaths": [
+      {
+        "path": "Gestion/WebFormProducionDocumental.aspx",
+        "sha256": "e60fbbc7d0f16ca4b3c6069654a3f635ec5c9d5ad995798c8c68b2aafb7c58fe",
+        "sha256Utf8Lf": "cea46063c1d42d58bb44543b28ee9de59b1024cca93dd8a249ccff5def455e6b"
+      },
+      {
+        "path": "Infrastructure/ProduccionDocumental/ImportacionCarpetas/MySqlProveedorDatosIndices.vb",
+        "sha256": "b48e6bfa5de221ccac0eddd04bbaa13f2f6c17bfea95597a2fb9175d3be975c7",
+        "sha256Utf8Lf": "b48e6bfa5de221ccac0eddd04bbaa13f2f6c17bfea95597a2fb9175d3be975c7"
+      },
+      {
+        "path": "Modelo/ProduccionDocumental/ImportacionCarpetas/ProveedorIndicesModels.vb",
+        "sha256": "cbdaa7744b20ffb4bd40a4d0b2464d3b7b52da594aec9d08979ea64c22b6ba21",
+        "sha256Utf8Lf": "cbdaa7744b20ffb4bd40a4d0b2464d3b7b52da594aec9d08979ea64c22b6ba21"
+      },
+      {
+        "path": "Services/ProduccionDocumental/ImportacionCarpetas/CoordinadorProveedorIndices.vb",
+        "sha256": "9aeda5f7188e0faad5d91ce0870119a40e3950ecf136a6d5818692970fa7a727",
+        "sha256Utf8Lf": "9aeda5f7188e0faad5d91ce0870119a40e3950ecf136a6d5818692970fa7a727"
+      },
+      {
+        "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.css",
+        "sha256": "ed02bbef02f3e351df3fc35db054e3bd092f21f6cef52ac4c9bdc24b1478b537",
+        "sha256Utf8Lf": "fb0a73bcdd203cbee1e3f76d07453a8d1d0add66e8fde3b24fc8b4528fb3b8a9"
+      },
+      {
+        "path": "js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js",
+        "sha256": "5da030bbe9408e75758d7a03d5c916238946e1c617973af7cd08cc93236f346e",
+        "sha256Utf8Lf": "5b82715380cf1050c0339e639e68e7b3e1f9706c236fd1bf49fd501887c5f692"
+      },
+      {
+        "path": "tests/ProveedorIndicesBehaviorTests.cs",
+        "sha256": "edea1100bf71745b233484232aa2417f34e4f119982cde2f77e91b94211729e0",
+        "sha256Utf8Lf": "11b177904783d8f753250b21f4b9e56ad6d08c9c853d35701796f875cdcb6a1a"
+      },
+      {
+        "path": "tests/ProveedorIndicesReglasBehaviorTests.cs",
+        "sha256": "d5c897878cd094f91fd57c16a68a5fb7806856dd53e50c91455b03615095fdfa",
+        "sha256Utf8Lf": "d5c897878cd094f91fd57c16a68a5fb7806856dd53e50c91455b03615095fdfa"
+      },
+      {
+        "path": "tests/doc110-perfil-importacion-editor.test.cjs",
+        "sha256": "516f36b8a1cbf508e47a6a00cac7d1135984d6cbd0b625b5e77ae7005ad6daf7",
+        "sha256Utf8Lf": "e042adda44e37865befa17670fd0b88da7cdd0ac130ac9dfe085cd6a6d6ef509"
+      }
+    ],
+    "queryConstructionChanged": false,
+    "pageChange": "Only profile editor JS/CSS cache references; Excel integration unchanged.",
+    "regression": {
+      "status": "PASS",
+      "recordedUtc": "2026-11-27T00:42:05.419Z",
+      "head": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
+      "tests": 29,
+      "passed": 29,
+      "failed": 0,
+      "exitCode": 0,
+      "newRealE2E": false,
+      "reporter": "node:test spec summary",
+      "parsedFromExistingExecution": true,
+      "command": "node --test --test-concurrency=1 tests/doc110-perfil-importacion-behavior.test.cjs tests/doc110-perfil-importacion-editor.test.cjs tests/doc120-coordinacion-browser.test.cjs",
+      "type": "LOCAL_SYNTHETIC_NO_DATABASE_OR_AUTHENTICATED_HTTP"
     },
-    {
-      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/design.md",
-      "sha256Utf8Lf": "33198833fdea123b1921ffc8a65ef7a839aa90d14b5b0a5ca52aa0c52d229526"
+    "build": {
+      "webConfigUnchanged": true,
+      "deployed": false,
+      "exitCode": 0,
+      "assemblySha256": "7874aa360a806396094be26f001bb2125c5060bd0e037017db84f70cbd579017",
+      "runtimeUnchanged": true,
+      "errors": 0,
+      "warnings": 308,
+      "framework": "net461",
+      "sourceCommit": "8d1f2159ac4fdfda9fab3b884cbf5daa22c96390",
+      "command": "MSBuild.exe GestionDocumental-Docuarchi.net.vbproj /t:Build /nologo /m:1 /verbosity:minimal /p:Configuration=Debug /p:OutputPath=.tmp/doc127-cierre-revision/build-current-8d1f2159/bin/ /p:OutDir=.tmp/doc127-cierre-revision/build-current-8d1f2159/bin/ /p:BaseIntermediateOutputPath=.tmp/doc127-cierre-revision/build-current-8d1f2159/obj/ /p:IntermediateOutputPath=.tmp/doc127-cierre-revision/build-current-8d1f2159/obj/ /p:UseSharedCompilation=false /p:DeployOnBuild=false"
     },
-    {
-      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/tasks.md",
-      "sha256Utf8Lf": "c6927e90f3e5ffa94dc98eb799aae04b6a54476683b74879a253666d10265b69"
-    },
-    {
-      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/specs/importacion-excel-07-verificacion-integral-cierre/spec.md",
-      "sha256Utf8Lf": "0bb43ac8ecb02e5fea73b75356a3ea44853a25b7d13eb3acdd2cf64c5cb7ae82"
-    },
-    {
-      "path": "openspec/changes/doc-127-importacion-excel-07-verificacion-integral-cierre/specs/importacion-excel-07-verificacion-integral-cierre/jira-context.md",
-      "sha256Utf8Lf": "96c4caff9abe25160d9b7dc80f72d935c0b380539bcb4cbab1de6e5a8bfd5622"
-    }
-  ]
+    "uiRuntimePins": [
+      {
+        "path": "Gestion/WebFormProducionDocumental.aspx",
+        "sha256": "e60fbbc7d0f16ca4b3c6069654a3f635ec5c9d5ad995798c8c68b2aafb7c58fe"
+      },
+      {
+        "path": "js/gestion/ImportacionExcel/ImportacionExcelVista.js",
+        "sha256": "38674660409000df6d1fbad69745a358d6d70f1fc9293c17311f6ac1f156b5da"
+      },
+      {
+        "path": "bin/GestionDocumental-Docuarchi.net.dll",
+        "sha256": "3e623acb453e727d0f769a0eb06c7badd5b0086f32e8fb3795b2c514869c35e5"
+      }
+    ]
+  },
+  "manualPlan": {
+    "path": "Doc/Actualizacion/Importacion/Validacion/doc127-plan-consulta-20261126.json",
+    "plan": [
+      {
+        "id": 1,
+        "select_type": "SIMPLE",
+        "table": "imp_02_egresos",
+        "type": "ALL",
+        "possible_keys": null,
+        "key": null,
+        "key_len": null,
+        "ref": null,
+        "rows": 25538,
+        "Extra": "Using where"
+      }
+    ],
+    "indices": [],
+    "executionInitiator": "LOCAL_OPERATOR_TYPED_COMMAND"
+  }
 }
