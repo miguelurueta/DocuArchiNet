@@ -80,7 +80,7 @@
         <script src="../js/gestion/ImportacionCarpetas/PerfilImportacionApi.js"></script>
         <script src="../js/gestion/ImportacionCarpetas/ProveedorAdminEditor.js?v=doc110-source-diagnostics-20261027-1"></script>
         <script src="../js/gestion/ImportacionCarpetas/FuenteAdminEditor.js"></script>
-        <script src="../js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js?v=doc110-detalle-indices-20261126-1"></script>
+        <script src="../js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js?v=doc110-detalle-tipologia-20261126-1"></script>
         <link href="../Styles/ImportacionExcel.css?v=doc126-7" rel="stylesheet" />
         <script src="../js/gestion/ImportacionExcel/ImportacionExcelApi.js?v=doc126-7"></script>
         <script src="../js/gestion/ImportacionExcel/ImportacionExcelVista.js?v=doc127-1"></script>

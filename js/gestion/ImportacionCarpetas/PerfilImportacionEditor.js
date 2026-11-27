@@ -92,10 +92,19 @@
             if(number<min || number>max){return "El valor "+text+" está fuera del rango admitido por el índice del gabinete: de "+min.toString()+" a "+max.toString()+". Revise el valor y el tipo del índice en el gabinete; aumentar «Longitud máxima» de la regla no amplía este rango.";}
             return "";
         }
+        function typologyRejectionMessage(item,values) {
+            if(item.Codigo!=="TIPOLOGIA_NO_UNIVOCA"){return "";}
+            var value=(values || []).find(function(v){return v.DestinoTipo==="TIPOLOGIA" && v.DestinoRef==="TIPO_DOCUMENTAL";});
+            var explanation="La tipología debe tener una coincidencia única, activa y autorizada para la serie/subserie del perfil. TEXTO busca por código documental; REFERENCIA utiliza el ID interno.";
+            if(!value || value.Diferido || value.Valor==null){return explanation;}
+            if(value.TipoValor==="TEXTO"){return "Se está buscando el código documental «"+value.Valor+"». "+explanation+" Si la tipología no tiene código, use una referencia válida; su descripción no se convierte automáticamente en código.";}
+            if(value.TipoValor==="REFERENCIA"){return "No se pudo resolver una tipología única con el ID interno «"+value.Valor+"» en la clasificación del perfil. Revise la referencia y la clasificación seleccionadas.";}
+            return explanation;
+        }
         function incidentMessage(item,values) {
             var generic=["Revise la referencia y sus permisos vigentes.","Revise la configuración del campo indicado.","Revise la clave del proveedor.","No se pudo resolver el valor desde el proveedor."];
             if(item.Mensaje && generic.indexOf(item.Mensaje)===-1){return item.Mensaje;}
-            return indexRejectionMessage(item,values) || incidentLabels[item.Codigo] || item.Mensaje || "No se pudo completar la comprobación de este campo. Revise su configuración.";
+            return indexRejectionMessage(item,values) || typologyRejectionMessage(item,values) || incidentLabels[item.Codigo] || item.Mensaje || "No se pudo completar la comprobación de este campo. Revise su configuración.";
         }
         function report(error) {
             var lines = [error.mensaje || "No se confirmó la operación."];
@@ -406,7 +415,7 @@
                 request("EnsayarReglas",data,function(results){
                     var incidents=0,pending=0;
                     results.forEach(function(result){
-                        result.Valores.forEach(function(v){var rejected=result.Incidencias.some(function(e){return e.Campo===v.DestinoTipo+":"+v.DestinoRef;});if(v.Diferido){pending++;}resultArea.appendChild(node("p",fieldName(v.DestinoTipo+":"+v.DestinoRef)+": "+(v.Diferido?"Se resolverá tras crear el expediente":(v.Valor==null?"Sin valor":v.Valor))+(v.Procedencia==="PROPUESTA_PERFIL"?" (propuesta del perfil; pendiente de confirmar con el expediente)":"")+(rejected?" (requiere corrección; ver incidencia)":"")));});
+                        result.Valores.forEach(function(v){var rejected=result.Incidencias.some(function(e){return e.Campo===v.DestinoTipo+":"+v.DestinoRef || (v.DestinoTipo==="TIPOLOGIA" && e.Campo==="TIPOLOGIA");});if(v.Diferido){pending++;}resultArea.appendChild(node("p",fieldName(v.DestinoTipo+":"+v.DestinoRef)+": "+(v.Diferido?"Se resolverá tras crear el expediente":(v.Valor==null?"Sin valor":v.Valor))+(v.Procedencia==="PROPUESTA_PERFIL"?" (propuesta del perfil; pendiente de confirmar con el expediente)":"")+(rejected?" (requiere corrección; ver incidencia)":"")));});
                         result.Incidencias.forEach(function(e){
                             incidents++;
                             var item=node("article",null,{"class":"doc110-rule-incident","data-doc110":"incidencia-ensayo"});
@@ -441,6 +450,7 @@
             ["Destino","Fuente","Extracción","Conversión","Opciones","Acción"].forEach(function(label){var section=node("div");section.appendChild(node("h4",label));cells.push(section);grid.appendChild(section);});
             var destination=select(cells[0],"Destino",[["CAMPO_EXPEDIENTE","Expediente"],["INDICE_GABINETE","Índice DA"],["TIPOLOGIA","Tipo documental"]],rule.DestinoTipo);
             var ref=select(cells[0],"Campo",[],null);
+            var typologyHelp=node("p","",{"class":"doc110-help","data-doc110":"ayuda-tipologia"});cells[0].appendChild(typologyHelp);
             function fillDestinations(keep){
                 var options=destination.value==="CAMPO_EXPEDIENTE" ?
                     [["CODIGO","Código del expediente"],["NOMBRE","Nombre del expediente"],["FECHA_INICIAL","Fecha inicial"],["FECHA_FINAL","Fecha final"],["RESPONSABLE","Responsable"]] :
@@ -543,6 +553,8 @@
                 warning.textContent=!source.value?"Seleccione una fuente válida para este destino.":destination.value==="CAMPO_EXPEDIENTE" && (source.value==="ARCHIVO" || inherited)?"La fuente guardada no es válida para un campo de expediente.":
                     (destination.value==="INDICE_GABINETE" && ref.value && indexState && indexState.status==="READY" && !index?"El índice guardado no está disponible para este gabinete.":
                     (destination.value==="INDICE_GABINETE" && index && index.Tipo==="NO_SOPORTADO"?"Este índice tiene un tipo no soportado.":""));
+                typologyHelp.hidden=destination.value!=="TIPOLOGIA";
+                typologyHelp.textContent=type.value==="REFERENCIA"?"El valor debe ser el ID interno de una tipología activa y autorizada para esta clasificación.":"TEXTO busca por código documental. Para utilizar un ID interno, seleccione REFERENCIA. La descripción de la tipología no equivale a su código.";
                 row.updateSummary();
             }
             row.updateSummary=function(){

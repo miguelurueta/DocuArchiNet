@@ -191,6 +191,47 @@ test('Detalle: diferencia una longitud de texto y un entero mal formado del desb
   }finally{number.dom.window.close();}
 });
 
+test('Tipología: explica que TEXTO consulta el código, identifica la clasificación y marca el valor rechazado',()=>{
+  const s=setup();try{
+    const p=profile();p.Version.Reglas=[{DestinoTipo:'TIPOLOGIA',DestinoRef:'TIPO_DOCUMENTAL',FuenteTipo:'ARCHIVO',Extraccion:'SEGMENTO',Separador:'-',Posicion:1,TipoValor:'TEXTO',LongitudMaxima:45}];open(s,p);
+    s.click('[data-doc110=ensayar]');const sent=JSON.stringify(s.calls.at(-1).payload);
+    const result=[{Valores:[{DestinoTipo:'TIPOLOGIA',DestinoRef:'TIPO_DOCUMENTAL',TipoValor:'TEXTO',Valor:'ORDENES DE REPARACION'}],Incidencias:[{Campo:'TIPOLOGIA',Codigo:'TIPOLOGIA_NO_UNIVOCA',Mensaje:'Revise la referencia y sus permisos vigentes.'}]}];
+    const before=JSON.stringify(result);s.respond(result);
+    const message=s.w.document.querySelector('[data-doc110=incidencia-ensayo]>p').textContent;
+    assert.match(message,/código documental «ORDENES DE REPARACION»/);assert.match(message,/serie\/subserie/);assert.match(message,/REFERENCIA utiliza el ID interno/);
+    assert.match(message,/descripción no se convierte automáticamente en código/);assert.doesNotMatch(message,/Revise la referencia y sus permisos/);
+    assert.match(s.w.document.querySelector('[data-doc110=resultado-ensayo]').textContent,/Tipo documental: ORDENES DE REPARACION \(requiere corrección/);
+    assert.equal(JSON.stringify(result),before);assert.equal(JSON.stringify(s.calls.at(-1).payload),sent);
+    assert.equal(s.calls.some(c=>['GuardarBorrador','PublicarVersion'].includes(c.operation)),false);
+  }finally{s.dom.window.close();}
+});
+
+test('Tipología: diferencia el ID inválido, la causa sin valores y la referencia correctamente resuelta',()=>{
+  const s=setup();try{
+    open(s,profile());s.click('[data-doc110=ensayar]');s.respond([{Valores:[{DestinoTipo:'TIPOLOGIA',DestinoRef:'TIPO_DOCUMENTAL',TipoValor:'REFERENCIA',Valor:'225'}],Incidencias:[{Campo:'TIPOLOGIA:TIPO_DOCUMENTAL',Codigo:'TIPOLOGIA_NO_UNIVOCA'}]}]);
+    assert.match(s.w.document.querySelector('[data-doc110=incidencia-ensayo]>p').textContent,/ID interno «225».*clasificación del perfil/);
+    s.click('[data-doc110=ensayar]');s.respond([{Valores:[],Incidencias:[{Campo:'TIPOLOGIA',Codigo:'TIPOLOGIA_NO_UNIVOCA'}]}]);
+    assert.match(s.w.document.querySelector('[data-doc110=incidencia-ensayo]>p').textContent,/coincidencia única, activa y autorizada/);
+    s.click('[data-doc110=ensayar]');s.respond([{Valores:[{DestinoTipo:'TIPOLOGIA',DestinoRef:'TIPO_DOCUMENTAL',TipoValor:'REFERENCIA',Valor:'225'}],Incidencias:[]}]);
+    assert.equal(s.w.document.querySelectorAll('[data-doc110=incidencia-ensayo]').length,0);
+    assert.match(s.w.document.querySelector('[data-doc110=resultado-ensayo]').textContent,/Tipo documental: 225/);
+    assert.doesNotMatch(s.w.document.querySelector('[data-doc110=resultado-ensayo]').textContent,/requiere corrección/);
+  }finally{s.dom.window.close();}
+});
+
+test('Tipología: ayuda contextual sin asignaciones automáticas y valor extraído como texto seguro',()=>{
+  const s=setup();try{
+    open(s,profile());s.click('[data-doc110=agregar-regla]');const row=s.w.document.querySelector('[data-doc110=regla]').closest('tr'),control=k=>row.querySelector('[data-doc110-rule='+k+']'),help=row.querySelector('[data-doc110=ayuda-tipologia]');
+    assert.equal(help.hidden,true);change(s,control('destino'),'TIPOLOGIA');change(s,control('fuente'),'ARCHIVO');
+    assert.equal(help.hidden,false);assert.match(help.textContent,/TEXTO busca por código documental/);change(s,control('tipo'),'REFERENCIA');assert.match(help.textContent,/ID interno de una tipología activa/);
+    change(s,control('tipo'),'TEXTO');s.click('[data-doc110=ensayar]');
+    assert.equal(s.calls.at(-1).payload.reglas[0].TipoValor,'TEXTO');assert.equal(s.calls.at(-1).payload.reglas[0].FuenteTipo,'ARCHIVO');
+    s.respond([{Valores:[{DestinoTipo:'TIPOLOGIA',DestinoRef:'TIPO_DOCUMENTAL',TipoValor:'TEXTO',Valor:'<img src=x onerror=alert(1)>'}],Incidencias:[{Campo:'TIPOLOGIA',Codigo:'TIPOLOGIA_NO_UNIVOCA'}]}]);
+    const area=s.w.document.querySelector('[data-doc110=resultado-ensayo]');assert.equal(area.querySelectorAll('img').length,0);assert.match(area.textContent,/<img src=x/);
+    assert.equal(s.calls.some(c=>['GuardarBorrador','PublicarVersion'].includes(c.operation)),false);
+  }finally{s.dom.window.close();}
+});
+
 test('Guardar/publicar: reporta el nombre y explicación del campo en las incidencias del servidor',()=>{
   for(const operation of ['guardar','publicar']){
     const s=setup();try{
