@@ -59,7 +59,7 @@
             NombreVisible:"Nombre de versión",FondoRef:"Fondo",InstrumentoRef:"Instrumento",AreaRef:"Área",SerieRef:"Serie",SubserieRef:"Subserie",TipoExpedienteRef:"Tipo de expediente",UnidadDocumentalRef:"Unidad documental",GabineteId:"Gabinete DA",
             ModoIntegridad:"Integridad",AmbitoIntegridad:"Ámbito",EstrategiaCarpetas:"Organización",PoliticaSubcarpetas:"Subcarpetas",PoliticaCarpetasVacias:"Carpetas vacías",PoliticaArchivosSueltos:"Archivos fuera de carpetas",PoliticaCoincidencias:"Código del expediente",Extensiones:"Extensiones permitidas",MaximoBytesArchivo:"Límite por archivo",reglas:"Reglas de campos",ejemplo:"Nombres de prueba"};
         var incidentLabels={LONGITUD_EXCEDIDA:"El texto supera la longitud permitida. Revise el límite y la extracción de esta regla.",ENTERO_INVALIDO:"Se requiere un número entero, sin punto decimal ni separadores.",DECIMAL_INVALIDO:"Se requiere un número decimal con punto decimal.",CLAVE_INVALIDA:"La clave de consulta del proveedor no cumple las restricciones de su campo de búsqueda. Revise el origen y la extracción de clave.",
-            VALOR_REQUERIDO:"Falta un valor obligatorio.",VALOR_VACIO:"La fuente produjo un valor vacío.",SEGMENTO_AUSENTE:"El nombre no contiene el segmento que exige la regla.",FECHA_INVALIDA:"La fecha no coincide con el formato configurado o no es válida.",SIN_COINCIDENCIA:"El proveedor no encontró datos para la clave de consulta.",AMBIGUO:"El proveedor encontró varias coincidencias; se requiere una sola.",PROVEEDOR_INCOMPATIBLE:"Revise la versión, propiedad y tipo de clave del proveedor.",PROPIEDAD_AUSENTE:"El proveedor no devolvió la propiedad requerida.",FUENTE_REQUERIDA:"Falta configurar la fuente de este campo.",DESTINO_DUPLICADO:"Hay más de una regla para este campo."};
+            VALOR_REQUERIDO:"Falta un valor obligatorio.",VALOR_VACIO:"La fuente produjo un valor vacío.",SEGMENTO_AUSENTE:"El nombre no contiene el segmento que exige la regla.",FECHA_INVALIDA:"La fecha no coincide con el formato configurado o no es válida.",SIN_COINCIDENCIA:"El proveedor no encontró datos para la clave de consulta.",AMBIGUO:"El proveedor encontró varias coincidencias; se requiere una sola.",PROVEEDOR_INCOMPATIBLE:"Revise la versión, propiedad y tipo de clave del proveedor.",PROPIEDAD_AUSENTE:"El proveedor no devolvió la propiedad requerida.",FUENTE_REQUERIDA:"Falta configurar la fuente de este campo.",DESTINO_DUPLICADO:"Hay más de una regla para este campo.",VALOR_INDICE_INVALIDO:"El valor no cumple el tipo, longitud, rango o caracteres admitidos por el índice del gabinete. Revise el valor y la definición del índice."};
         function fieldName(field) {
             field=String(field || "");
             if(field.indexOf("CAMPO_EXPEDIENTE:")===0){return fieldLabels[field.slice(17)] || "Campo del expediente";}
@@ -70,8 +70,32 @@
             if(field==="TIPOLOGIA" || field==="TIPOLOGIA:TIPO_DOCUMENTAL"){return "Tipo documental";}
             return fieldLabels[field] || "Configuración del perfil";
         }
-        function incidentMessage(item) {
-            return item.Mensaje || incidentLabels[item.Codigo] || "No se pudo completar la comprobación de este campo. Revise su configuración.";
+        function indexRejectionMessage(item,values) {
+            if(item.Codigo!=="VALOR_INDICE_INVALIDO" || String(item.Campo).indexOf("INDICE_GABINETE:")!==0){return "";}
+            var ref=item.Campo.slice(16),field=indices.find(function(f){return f.value===ref;}),value=(values || []).find(function(v){return v.DestinoTipo==="INDICE_GABINETE" && v.DestinoRef===ref;});
+            if(!field || !value || value.Diferido || value.Valor==null){return "";}
+            var text=String(value.Valor);
+            if(field.Longitud>0 && text.length>field.Longitud){return "El valor tiene "+text.length+" caracteres y el índice del gabinete admite como máximo "+field.Longitud+". Revise el valor que extrae la regla y la longitud del índice.";}
+            if(field.Tipo!=="ENTERO"){return "";}
+            if(!/^[+-]?[0-9]+$/.test(text)){return "El índice del gabinete requiere un número entero, sin punto decimal ni separadores. Revise el valor que extrae la regla.";}
+            var physical=String(field.TipoFisico || ""),match=/^(tinyint|smallint|mediumint|int|bigint)\b/.exec(physical);
+            if(!match){return "";}
+            var bits={tinyint:8,smallint:16,mediumint:24,int:32,bigint:64}[match[1]],unsigned=/\bunsigned\b/.test(physical),min,max,number;
+            if(typeof window.BigInt==="function"){
+                var one=window.BigInt(1),power=one<<window.BigInt(unsigned?bits:bits-1);
+                min=unsigned?window.BigInt(0):-power;max=power-one;number=window.BigInt(text);
+            }else{
+                // Sin BigInt no deducir rangos de 64 bits con números aproximados.
+                if(bits===64){return "";}
+                var limit=Math.pow(2,unsigned?bits:bits-1);min=unsigned?0:-limit;max=limit-1;number=Number(text);
+            }
+            if(number<min || number>max){return "El valor "+text+" está fuera del rango admitido por el índice del gabinete: de "+min.toString()+" a "+max.toString()+". Revise el valor y el tipo del índice en el gabinete; aumentar «Longitud máxima» de la regla no amplía este rango.";}
+            return "";
+        }
+        function incidentMessage(item,values) {
+            var generic=["Revise la referencia y sus permisos vigentes.","Revise la configuración del campo indicado.","Revise la clave del proveedor.","No se pudo resolver el valor desde el proveedor."];
+            if(item.Mensaje && generic.indexOf(item.Mensaje)===-1){return item.Mensaje;}
+            return indexRejectionMessage(item,values) || incidentLabels[item.Codigo] || item.Mensaje || "No se pudo completar la comprobación de este campo. Revise su configuración.";
         }
         function report(error) {
             var lines = [error.mensaje || "No se confirmó la operación."];
@@ -382,12 +406,12 @@
                 request("EnsayarReglas",data,function(results){
                     var incidents=0,pending=0;
                     results.forEach(function(result){
-                        result.Valores.forEach(function(v){if(v.Diferido){pending++;}resultArea.appendChild(node("p",fieldName(v.DestinoTipo+":"+v.DestinoRef)+": "+(v.Diferido?"Se resolverá tras crear el expediente":(v.Valor==null?"Sin valor":v.Valor))+(v.Procedencia==="PROPUESTA_PERFIL"?" (propuesta del perfil; pendiente de confirmar con el expediente)":"")));});
+                        result.Valores.forEach(function(v){var rejected=result.Incidencias.some(function(e){return e.Campo===v.DestinoTipo+":"+v.DestinoRef;});if(v.Diferido){pending++;}resultArea.appendChild(node("p",fieldName(v.DestinoTipo+":"+v.DestinoRef)+": "+(v.Diferido?"Se resolverá tras crear el expediente":(v.Valor==null?"Sin valor":v.Valor))+(v.Procedencia==="PROPUESTA_PERFIL"?" (propuesta del perfil; pendiente de confirmar con el expediente)":"")+(rejected?" (requiere corrección; ver incidencia)":"")));});
                         result.Incidencias.forEach(function(e){
                             incidents++;
                             var item=node("article",null,{"class":"doc110-rule-incident","data-doc110":"incidencia-ensayo"});
                             item.appendChild(node("strong",fieldName(e.Campo)));
-                            item.appendChild(node("p",incidentMessage(e)));
+                            item.appendChild(node("p",incidentMessage(e,result.Valores)));
                             var detail=node("details");detail.appendChild(node("summary","Ver detalle técnico"));
                             detail.appendChild(node("p","Referencia: "+e.Campo+" · Código: "+e.Codigo));item.appendChild(detail);resultArea.appendChild(item);
                         });

@@ -135,6 +135,62 @@ test('Ensayo: diferencia valores pendientes y prueba sin incidencias, sin afirma
   }finally{s.dom.window.close();}
 });
 
+function rejectIndex(s,physical,value,options={}){
+  const p=profile();p.Version.Configuracion.GabineteId=1;open(s,p);
+  resolveCatalog(catalogCall(s,'INDICE'),[{value:'547',text:'NUMEROORDEN',Tipo:options.type || 'ENTERO',TipoFisico:physical,Longitud:options.length || 64}]);
+  s.click('[data-doc110=ensayar]');
+  const result=[{Valores:[{DestinoTipo:'INDICE_GABINETE',DestinoRef:'547',Valor:value}],Incidencias:[{Campo:'INDICE_GABINETE:547',Codigo:'VALOR_INDICE_INVALIDO',Mensaje:options.message || 'Revise la referencia y sus permisos vigentes.'}]}];
+  const before=JSON.stringify(result);s.respond(result);assert.equal(JSON.stringify(result),before);
+  return s.w.document.querySelector('[data-doc110=incidencia-ensayo]>p').textContent;
+}
+
+test('Detalle del video: explica el desbordamiento del índice y marca el valor rechazado, sin atribuirlo a permisos',()=>{
+  const s=setup();try{
+    const message=rejectIndex(s,'int(11)','7004120075');
+    assert.match(message,/valor 7004120075 está fuera del rango/);assert.match(message,/de -2147483648 a 2147483647/);
+    assert.match(message,/aumentar «Longitud máxima» de la regla no amplía este rango/);assert.doesNotMatch(message,/permisos/);
+    assert.match(s.w.document.querySelector('[data-doc110=resultado-ensayo]').textContent,/NUMEROORDEN: 7004120075 \(requiere corrección; ver incidencia\)/);
+    assert.match(s.w.document.querySelector('[data-doc110=incidencia-ensayo] details').textContent,/VALOR_INDICE_INVALIDO/);
+    assert.equal(s.calls.some(c=>['GuardarBorrador','PublicarVersion'].includes(c.operation)),false);
+  }finally{s.dom.window.close();}
+});
+
+test('Detalle de rangos: límites con signo/sin signo y 64 bits exactos, sin convertirlos a números aproximados',()=>{
+  for(const [physical,value,min,max] of [
+    ['tinyint(4)','128','-128','127'],['smallint(6)','32768','-32768','32767'],['mediumint(9)','8388608','-8388608','8388607'],
+    ['int(11)','-2147483649','-2147483648','2147483647'],['int(10) unsigned','4294967296','0','4294967295'],
+    ['bigint(20)','9223372036854775808','-9223372036854775808','9223372036854775807'],['bigint(20) unsigned','-1','0','18446744073709551615'],
+    ['bigint(20) unsigned','18446744073709551616','0','18446744073709551615']
+  ]){
+    const s=setup();try{assert.ok(rejectIndex(s,physical,value).includes('de '+min+' a '+max));}finally{s.dom.window.close();}
+  }
+});
+
+test('Detalle: conserva mensajes específicos del servidor y no inventa un rango cuando faltan pruebas',()=>{
+  for(const [physical,value,options] of [
+    ['int(11)','2147483647',{}],['bigint(20)','9223372036854775807',{}],['','7004120075',{}],['varchar(20)','7004120075',{type:'TEXTO'}]
+  ]){
+    const s=setup();try{
+      const message=rejectIndex(s,physical,value,options);assert.doesNotMatch(message,/fuera del rango|permisos/);assert.match(message,/valor no cumple/);
+    }finally{s.dom.window.close();}
+  }
+  const specific=setup();try{
+    assert.equal(rejectIndex(specific,'int(11)','7004120075',{message:'Diagnóstico específico recibido del servidor.'}),'Diagnóstico específico recibido del servidor.');
+  }finally{specific.dom.window.close();}
+  const legacy=setup();try{
+    legacy.w.BigInt=undefined;assert.doesNotMatch(rejectIndex(legacy,'bigint(20)','9223372036854775808'),/fuera del rango/);
+  }finally{legacy.dom.window.close();}
+});
+
+test('Detalle: diferencia una longitud de texto y un entero mal formado del desbordamiento de rango',()=>{
+  const text=setup();try{
+    assert.match(rejectIndex(text,'varchar(5)','123456',{type:'TEXTO',length:5}),/tiene 6 caracteres.*máximo 5/);
+  }finally{text.dom.window.close();}
+  const number=setup();try{
+    assert.match(rejectIndex(number,'int(11)','700412.0995'),/requiere un número entero, sin punto decimal/);
+  }finally{number.dom.window.close();}
+});
+
 test('Guardar/publicar: reporta el nombre y explicación del campo en las incidencias del servidor',()=>{
   for(const operation of ['guardar','publicar']){
     const s=setup();try{
